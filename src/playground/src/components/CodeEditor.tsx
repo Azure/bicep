@@ -3,6 +3,7 @@
 import * as monaco from 'monaco-editor';
 import React, { createRef, useEffect, useState } from 'react';
 import { DotnetInterop } from '../utils/interop';
+import { useColorMode } from '../utils/colorModes';
 
 interface Props {
   options: monaco.editor.IStandaloneEditorConstructionOptions,
@@ -14,10 +15,15 @@ export const CodeEditor : React.FC<Props> = (props) => {
   const { options, initialContent, onContentChange } = props;
   const editorRef = createRef<HTMLDivElement>();
   const [model, setModel] = useState<monaco.editor.ITextModel>();
+  const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
+  const colorMode = useColorMode();
 
   useEffect(() => {
     async function initializeEditor() {
-      const editor = monaco.editor.create(editorRef.current!, options);
+      const editor = monaco.editor.create(editorRef.current!, {
+        ...options,
+        theme: colorMode === 'dark' ? 'vs-dark' : 'vs',
+      });
       const model = editor.getModel()!;
   
       editor.onDidChangeModelContent(async () => {
@@ -28,6 +34,7 @@ export const CodeEditor : React.FC<Props> = (props) => {
         }
       });
 
+      setEditor(editor);
       setModel(model);
     }
 
@@ -37,6 +44,13 @@ export const CodeEditor : React.FC<Props> = (props) => {
   useEffect(() => {
     model?.setValue(initialContent);
   }, [initialContent, model]);
+
+  useEffect(() => {
+    editor?.updateOptions({
+      ...options,
+      theme: colorMode === 'dark' ? 'vs-dark' : 'vs',
+    });
+  }, [colorMode]);
 
   return (
     <div ref={editorRef} style={{height: '100%', width: '100%'}} />

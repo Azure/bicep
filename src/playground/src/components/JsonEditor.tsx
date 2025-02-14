@@ -10,7 +10,6 @@ interface JsonEditorProps {
 
 const editorOptions: editor.IStandaloneEditorConstructionOptions = {
   language: 'json',
-  theme: 'vs-dark',
   scrollBeyondLastLine: false,
   automaticLayout: true,
   minimap: {

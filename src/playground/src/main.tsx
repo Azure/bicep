@@ -8,7 +8,12 @@ import { aiKey } from '../package.json';
 import './index.css';
 import { initializeInterop } from './utils/interop';
 import { App } from './App';
+import { getColorMode } from './utils/colorModes';
 
+const updateTheme = () => document.documentElement.setAttribute('data-bs-theme', getColorMode());
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateTheme);
+window.addEventListener('DOMContentLoaded', updateTheme);
 
 const root = createRoot(document.getElementById('root')!);
 root.render(
