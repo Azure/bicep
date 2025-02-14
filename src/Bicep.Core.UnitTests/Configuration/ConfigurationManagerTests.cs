@@ -64,8 +64,7 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "extensions": {
           "az": "builtin:",
-          "kubernetes": "builtin:",
-          "microsoftGraph": "builtin:"
+          "kubernetes": "builtin:"
         },
         "implicitExtensions": ["az"],
         "analyzers": {
@@ -175,8 +174,7 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "extensions": {
             "az": "builtin:",
-            "kubernetes": "builtin:",
-            "microsoftGraph": "builtin:"
+            "kubernetes": "builtin:"
         },
         "implicitExtensions": [
             "az"
@@ -250,8 +248,7 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "extensions": {
             "az": "builtin:",
-            "kubernetes": "builtin:",
-            "microsoftGraph": "builtin:"
+            "kubernetes": "builtin:"
         },
         "implicitExtensions": [
             "az"
@@ -432,7 +429,6 @@ namespace Bicep.Core.UnitTests.Configuration
                 }
             },
             "extensions": {
-                "microsoftGraph": "builtin:",
                 "kubernetes": "builtin:",
                 "az": "builtin:"
             },
@@ -812,8 +808,7 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "extensions": {
             "az": "builtin:",
-            "kubernetes": "builtin:",
-            "microsoftGraph": "builtin:"
+            "kubernetes": "builtin:"
         },
         "implicitExtensions": [
             "az"

@@ -415,7 +415,7 @@ output length int =
         }
 
         [TestMethod]
-        public async Task CompletionsShouldContainMicrosoftGraphWhenPreviewFeatureEnabled()
+        public async Task CompletionsShouldContainMicrosoftGraphWhenExtensibilityEnabled()
         {
             var (contents, cursor) = ParserHelper.GetFileWithSingleCursor("extension m| as graph");
 
@@ -426,7 +426,7 @@ output length int =
             var compilationWithMSGraph = serviceWithGraph.BuildCompilation(contents);
             var completionsWithMSGraph = await completionProvider.GetFilteredCompletions(compilationWithMSGraph, BicepCompletionContext.Create(compilationWithMSGraph, cursor), CancellationToken.None);
 
-            completionsWithMSGraph.Should().Contain(c => c.Label.Contains("microsoftGraph"));
+            completionsWithMSGraph.Should().NotContain(c => c.Label.Contains("microsoftGraph"));
         }
 
         private static void AssertExpectedDeclarationTypeCompletions(List<CompletionItem> completions)

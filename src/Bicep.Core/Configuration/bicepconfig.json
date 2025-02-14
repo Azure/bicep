@@ -31,8 +31,7 @@
   },
   "extensions": {
     "az": "builtin:",
-    "kubernetes": "builtin:",
-    "microsoftGraph": "builtin:"
+    "kubernetes": "builtin:"
   },
   "implicitExtensions": ["az"],
   "analyzers": {

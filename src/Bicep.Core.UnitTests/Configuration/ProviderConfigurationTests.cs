@@ -53,7 +53,7 @@ public class ExtensionsConfigurationTests
         config.Should().NotBeNull();
         config!.Extensions.Should().NotBeNull();
 
-        foreach (var extensionName in new[] { "az", "kubernetes", "microsoftGraph" })
+        foreach (var extensionName in new[] { "az", "kubernetes" })
         {
             config.Extensions!.TryGetExtensionSource(extensionName).IsSuccess(out var extension).Should().BeTrue();
             extension!.Value.Should().Be("builtin:");
