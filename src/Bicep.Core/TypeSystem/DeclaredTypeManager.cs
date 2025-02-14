@@ -579,7 +579,7 @@ namespace Bicep.Core.TypeSystem
         {
             AmbientTypeSymbol ambientType => InstantiateType(syntax, ambientType.Name, ambientType.Type),
             ImportedTypeSymbol importedType => InstantiateType(syntax, importedType.Name, importedType.Type),
-            TypeAliasSymbol typeAlias => InstantiateType(syntax, typeAlias.Name, typeAlias.Type),
+            TypeAliasSymbol typeAlias => InstantiateType(syntax, typeAlias.Name, GetUserDefinedTypeType(typeAlias)),
             DeclaredSymbol declaredSymbol => new(DiagnosticBuilder.ForPosition(syntax).ValueSymbolUsedAsType(declaredSymbol.Name)),
             _ => new(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
         };
