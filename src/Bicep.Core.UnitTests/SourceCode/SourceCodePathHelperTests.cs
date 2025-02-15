@@ -72,10 +72,9 @@ public class SourceCodePathHelperTests
 
     [TestMethod]
     [DynamicData(nameof(GetGetUniquePathRootsTestcases), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetGetUniquePathRootsDisplayName))]
-    public void GetUniquePathRootsTest(object[] objects)
+    public void GetUniquePathRootsTest((string[] paths, string[] expectedRoots) data)
     {
         var cacheRoot = RootC("Users/username/.bicep");
-        var data = ((string[] paths, string[] expectedRoots))objects[0];
         var paths = data.paths;
         var expectedRoots = data.expectedRoots;
 

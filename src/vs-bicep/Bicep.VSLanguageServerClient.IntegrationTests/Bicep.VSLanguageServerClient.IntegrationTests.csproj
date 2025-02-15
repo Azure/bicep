@@ -3,6 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>net472</TargetFramework>
 		<Nullable>enable</Nullable>
+		<OutputType>Exe</OutputType>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -24,14 +25,12 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.IO.Redist" Version="6.1.0" />
 		<PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.12.0" PrivateAssets="all" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
 		<PackageReference Include="Microsoft.Test.Apex.VisualStudio" Version="17.11.35222.181" />
 		<PackageReference Include="Microsoft.VisualStudio.Composition" Version="17.12.18" />
 		<PackageReference Include="Microsoft.VisualStudio.Editor" Version="17.12.215" />
 		<PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="17.12.40391" />
 		<PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.12.40391" />
-		<PackageReference Include="MSTest.TestAdapter" Version="3.7.3" />
-		<PackageReference Include="MSTest.TestFramework" Version="3.6.3" />
+		<PackageReference Include="MSTest" Version="$(MSTestVersion)" />
 	</ItemGroup>
 
 	<ItemGroup>
