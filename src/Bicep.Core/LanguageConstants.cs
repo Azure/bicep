@@ -91,6 +91,8 @@ namespace Bicep.Core
         public const string TargetScopeTypeManagementGroup = "managementGroup";
         public const string TargetScopeTypeSubscription = "subscription";
         public const string TargetScopeTypeResourceGroup = "resourceGroup";
+        // TODO: Assuming lowercase is fine and this ordering is not important
+        public const string TargetScopeTypeDSC = "dsc";
 
         public const string CopyLoopIdentifier = "copy";
 
@@ -307,6 +309,10 @@ namespace Bicep.Core
             if (resourceScope.HasFlag(ResourceScope.ResourceGroup))
             {
                 yield return "resourceGroup";
+            }
+            if (resourceScope.HasFlag(ResourceScope.DSC))
+            {
+                yield return "dsc";
             }
         }
 
