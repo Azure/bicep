@@ -21,10 +21,11 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
     private readonly BicepExtension.BicepExtensionClient client;
     private readonly Process process;
 
-    private GrpcBuiltInLocalExtension(BicepExtension.BicepExtensionClient client, Process process)
+    private GrpcBuiltInLocalExtension(BicepExtension.BicepExtensionClient client, Process process, Uri binaryPath)
     {
         this.client = client;
         this.process = process;
+        this.BinaryPath = binaryPath;
     }
 
     public static async Task<LocalExtensibilityHost> Start(Uri pathToBinary)
@@ -84,7 +85,7 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
 
             await GrpcChannelHelper.WaitForConnectionAsync(client, cts.Token);
 
-            return new GrpcBuiltInLocalExtension(client, process);
+            return new GrpcBuiltInLocalExtension(client, process, pathToBinary);
         }
         catch (Exception ex)
         {
@@ -92,6 +93,8 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
             throw new InvalidOperationException($"Failed to connect to extension {pathToBinary.LocalPath}", ex);
         }
     }
+
+    public override Uri BinaryPath { get; }
 
     public override async Task<LocalExtensibilityOperationResponse> CreateOrUpdate(ExtensibilityV2.ResourceSpecification request, CancellationToken cancellationToken)
         => Convert(await client.CreateOrUpdateAsync(Convert(request), cancellationToken: cancellationToken));
@@ -172,14 +175,8 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
 
     private static async Task TerminateProcess(Process process)
     {
-        try
-        {
-            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-            await process.WaitForExitAsync(cts.Token);
-        }
-        finally
-        {
-            process.Kill();
-        }
+        var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+        process.Kill();
+        await process.WaitForExitAsync(cts.Token);
     }
 }
