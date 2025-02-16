@@ -1516,7 +1516,8 @@ namespace Bicep.Decompiler
             {
                 // Using variables to define API versions is a common authoring pattern used in JSON.
                 // It's not suported in Bicep. Let's try to detect it and fix it where possible.
-                apiVersionString = TryEvaluate(evalContext, apiVersionString) switch {
+                apiVersionString = TryEvaluate(evalContext, apiVersionString) switch
+                {
                     JValue jValue when jValue.IsTextBasedJTokenType() => jValue.ToString(CultureInfo.InvariantCulture),
                     _ => apiVersionString,
                 };
