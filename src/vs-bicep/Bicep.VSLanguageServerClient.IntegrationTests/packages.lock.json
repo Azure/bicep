@@ -48,6 +48,15 @@
           "Microsoft.CodeCoverage": "17.12.0"
         }
       },
+      "Microsoft.NETFramework.ReferenceAssemblies": {
+        "type": "Direct",
+        "requested": "[1.0.3, )",
+        "resolved": "1.0.3",
+        "contentHash": "vUc9Npcs14QsyOD01tnv/m8sQUnGTGOw1BCmKcv77LBJY7OxhJ+zJF7UD/sCL3lYNFuqmQEVlkfS4Quif6FyYg==",
+        "dependencies": {
+          "Microsoft.NETFramework.ReferenceAssemblies.net472": "1.0.3"
+        }
+      },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
         "requested": "[8.0.0, )",
@@ -70,12 +79,12 @@
       },
       "Microsoft.VisualStudio.Composition": {
         "type": "Direct",
-        "requested": "[17.12.18, )",
-        "resolved": "17.12.18",
-        "contentHash": "SySZmEz51CUGe1DFhhJSeC1m6pb2ZOfRKW54/tQHeCRIAODJGj+20gbulzTjxvZC5/hopucnYbhzBLrv+j9dRw==",
+        "requested": "[17.12.20, )",
+        "resolved": "17.12.20",
+        "contentHash": "yRjO6wI6bq7+B+4VSG2KaYC0ZN7LDS1PB6lZi+ERM0L0FRC2ESL+3RejnQifj2/dZJDECENK9OUc2hS5w/5csw==",
         "dependencies": {
           "MessagePack": "2.5.124",
-          "Microsoft.VisualStudio.Composition.Analyzers": "17.12.18",
+          "Microsoft.VisualStudio.Composition.Analyzers": "17.12.20",
           "Microsoft.VisualStudio.Validation": "17.8.8",
           "System.Collections.Immutable": "6.0.0",
           "System.ComponentModel.Composition": "8.0.0",
@@ -469,6 +478,11 @@
         "resolved": "1.1.3",
         "contentHash": "3Wrmi0kJDzClwAC+iBdUBpEKmEle8FQNsCs77fkiOIw/9oYA07bL1EZNX0kQ2OMN3xpwvl0vAtOCYY3ndDNlhQ=="
       },
+      "Microsoft.NETFramework.ReferenceAssemblies.net472": {
+        "type": "Transitive",
+        "resolved": "1.0.3",
+        "contentHash": "0E7evZXHXaDYYiLRfpyXvCh+yzM2rNTyuZDI+ZO7UUqSc6GfjePiXTdqJGtgIKUwdI81tzQKmaWprnUiPj9hAw=="
+      },
       "Microsoft.ServiceHub.Analyzers": {
         "type": "Transitive",
         "resolved": "4.7.36",
@@ -571,8 +585,8 @@
       },
       "Microsoft.VisualStudio.Composition.Analyzers": {
         "type": "Transitive",
-        "resolved": "17.12.18",
-        "contentHash": "CvLz0lNPCxUTalzW0XdmKF/qBcqCHPXHkCNRXXhvRg4lbwqcfoW2e4t+6E4ggPRD4Hafa3a4F34/dexGAPA7rw=="
+        "resolved": "17.12.20",
+        "contentHash": "P5auqyL+DKNFL/E7e4KZbYLFCBVmQmqdYw6xVGIuuEVphjnYSCZ6QS4zl1iqjjRlRguW8EV1JLIF2j9ZaMledg=="
       },
       "Microsoft.VisualStudio.CoreUtility": {
         "type": "Transitive",
@@ -1330,7 +1344,7 @@
           "Microsoft.IO.Redist": "[6.1.0, )",
           "Microsoft.NET.Test.Sdk": "[17.12.0, )",
           "Microsoft.Test.Apex.VisualStudio": "[17.11.35222.181, )",
-          "Microsoft.VisualStudio.Composition": "[17.12.18, )",
+          "Microsoft.VisualStudio.Composition": "[17.12.20, )",
           "Microsoft.VisualStudio.Editor": "[17.12.215, )",
           "Microsoft.VisualStudio.Shell.Framework": "[17.12.40391, )",
           "Microsoft.VisualStudio.Utilities": "[17.12.40391, )",
