@@ -39,6 +39,15 @@
         "resolved": "4.12.0",
         "contentHash": "xXDdIgDfcbMr+2bLzVJHg+/oCHwcYs808TlooX0M9+BVCeHITaROsjdbWSJNdyzeMe/K8iB2NeHmaAOUcqkKWw=="
       },
+      "Microsoft.NETFramework.ReferenceAssemblies": {
+        "type": "Direct",
+        "requested": "[1.0.3, )",
+        "resolved": "1.0.3",
+        "contentHash": "vUc9Npcs14QsyOD01tnv/m8sQUnGTGOw1BCmKcv77LBJY7OxhJ+zJF7UD/sCL3lYNFuqmQEVlkfS4Quif6FyYg==",
+        "dependencies": {
+          "Microsoft.NETFramework.ReferenceAssemblies.net472": "1.0.3"
+        }
+      },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
         "requested": "[8.0.0, )",
@@ -338,6 +347,11 @@
           "System.Runtime.CompilerServices.Unsafe": "6.0.0"
         }
       },
+      "Microsoft.NETFramework.ReferenceAssemblies.net472": {
+        "type": "Transitive",
+        "resolved": "1.0.3",
+        "contentHash": "0E7evZXHXaDYYiLRfpyXvCh+yzM2rNTyuZDI+ZO7UUqSc6GfjePiXTdqJGtgIKUwdI81tzQKmaWprnUiPj9hAw=="
+      },
       "Microsoft.ServiceHub.Analyzers": {
         "type": "Transitive",
         "resolved": "4.7.36",
@@ -551,8 +565,8 @@
       },
       "Microsoft.VisualStudio.Setup.Configuration.Interop": {
         "type": "Transitive",
-        "resolved": "3.12.2149",
-        "contentHash": "iV2gEnlHHtxn5usfMxgHDRGNYJMgAbyrWB6u5gesw87XJi7of1vecz/3vttMSnV0GEnsll1n3mc0HB8Y/M+K7A=="
+        "resolved": "3.13.2069",
+        "contentHash": "TsAkTwdKEKGAMbxx1OSFFhWV8+cC8T75YxUyRrP5XLrqtH1XYpueSlriyvUaQirqmowpW4CWbV5imJMRe99BlQ=="
       },
       "Microsoft.VisualStudio.Shell.Framework": {
         "type": "Transitive",
@@ -1028,7 +1042,7 @@
           "Microsoft.IO.Redist": "[6.1.0, )",
           "Microsoft.VisualStudio.LanguageServer.Client": "[17.12.48, )",
           "Microsoft.VisualStudio.LanguageServer.Protocol": "[17.2.8, )",
-          "Microsoft.VisualStudio.Setup.Configuration.Interop": "[3.12.2149, )",
+          "Microsoft.VisualStudio.Setup.Configuration.Interop": "[3.13.2069, )",
           "Microsoft.VisualStudio.Shell.Framework": "[17.12.40391, )",
           "Microsoft.VisualStudio.Shell.Interop": "[17.12.40391, )",
           "Microsoft.VisualStudio.Utilities": "[17.12.40391, )",
