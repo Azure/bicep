@@ -8,11 +8,9 @@ using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Exceptions;
-using Azure.Deployments.Templates.Export;
 using Bicep.Core.ArmHelpers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
-using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
@@ -28,6 +26,7 @@ namespace Bicep.Core.Semantics
     {
         private readonly Lazy<ResourceScope> targetScopeLazy;
         private readonly Lazy<ImmutableSortedDictionary<string, ParameterMetadata>> parametersLazy;
+        private readonly Lazy<ImmutableSortedDictionary<string, ExtensionMetadata>> extensionsLazy;
         private readonly Lazy<ImmutableSortedDictionary<string, ExportMetadata>> exportsLazy;
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
 
@@ -90,6 +89,8 @@ namespace Bicep.Core.Semantics
                         LanguageConstants.IdentifierComparer);
             });
 
+            this.extensionsLazy = new(FindExtensions);
+
             this.exportsLazy = new(FindExports);
 
             this.outputsLazy = new(() =>
@@ -115,6 +116,8 @@ namespace Bicep.Core.Semantics
             : this.targetScopeLazy.Value;
 
         public ImmutableSortedDictionary<string, ParameterMetadata> Parameters => this.parametersLazy.Value;
+
+        public ImmutableSortedDictionary<string, ExtensionMetadata> Extensions => this.extensionsLazy.Value;
 
         public ImmutableSortedDictionary<string, ExportMetadata> Exports => exportsLazy.Value;
 
@@ -213,6 +216,57 @@ namespace Bicep.Core.Semantics
 
                 _ => GetType((ITemplateSchemaNode)output),
             };
+        }
+
+        private ImmutableSortedDictionary<string, ExtensionMetadata> FindExtensions()
+        {
+            if (this.SourceFile.Template?.Extensions is null)
+            {
+                return ImmutableSortedDictionary<string, ExtensionMetadata>.Empty;
+            }
+
+            return this.SourceFile.Template.Extensions
+                .ToImmutableSortedDictionary(
+                    ext => ext.Key,
+                    ext =>
+                    {
+                        var (isConfigRequired, configType) = GetExtensionConfigType(ext.Key, ext.Value);
+
+                        return new ExtensionMetadata(ext.Key, ext.Value.Name.Value, ext.Value.Version.Value, configType, isConfigRequired);
+                    });
+        }
+
+        // TODO(kylealbert): The config type creation from template extension is temporary until the schema is read from another source.
+        private (bool IsConfigRequired, ObjectType? ConfigType) GetExtensionConfigType(string extAlias, TemplateExtension extension)
+        {
+            if (extension.Config?.Any() is not true)
+            {
+                return (false, null);
+            }
+
+            var configPropertyTypes = new List<NamedTypeProperty>();
+            var anyRequired = false;
+
+            foreach (var (configPropertyName, configProperty) in extension.Config)
+            {
+                var propertyTemplateType = configProperty.Type.Value;
+
+                ITypeReference propertyType = propertyTemplateType switch
+                {
+                    TemplateParameterType.String => new StringType(null, null, TypeSymbolValidationFlags.Default),
+                    TemplateParameterType.SecureString => new StringType(null, null, TypeSymbolValidationFlags.IsSecure),
+                    // NOTE(kylealbert): There's not a use case for the other types yet with the extensions and this is temporary.
+                    _ => ErrorType.Empty()
+                };
+
+                var isRequired = configProperty.DefaultValue?.Value is null || configProperty.DefaultValue.Value.Type is JTokenType.Null or JTokenType.Undefined or JTokenType.None;
+                anyRequired |= isRequired;
+                var flags = TypePropertyFlags.WriteOnly | (isRequired ? TypePropertyFlags.Required : TypePropertyFlags.None);
+
+                configPropertyTypes.Add(new NamedTypeProperty(configPropertyName, propertyType, flags));
+            }
+
+            return (anyRequired, new ObjectType(extAlias, TypeSymbolValidationFlags.Default, configPropertyTypes));
         }
 
         private ImmutableSortedDictionary<string, ExportMetadata> FindExports()

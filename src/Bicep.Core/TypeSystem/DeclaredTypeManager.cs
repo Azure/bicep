@@ -3,7 +3,6 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
-using System.Configuration;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -18,7 +17,6 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.Utils;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -2065,6 +2063,18 @@ namespace Bicep.Core.TypeSystem
                 parameters.Add(new NamedTypeProperty(parameter.Name, type, flags, parameter.Description));
             }
 
+            var extensionConfigs = new List<NamedTypeProperty>();
+
+            foreach (var ext in moduleSemanticModel.Extensions.Values.Where(ext => ext.ConfigType is not null))
+            {
+                var extAliasProperty = new NamedTypeProperty(
+                    ext.Alias,
+                    ext.ConfigType!,
+                    ext.IsConfigRequired ? TypePropertyFlags.Required | TypePropertyFlags.WriteOnly : TypePropertyFlags.WriteOnly);
+
+                extensionConfigs.Add(extAliasProperty);
+            }
+
             var outputs = new List<NamedTypeProperty>();
             foreach (var output in moduleSemanticModel.Outputs)
             {
@@ -2084,6 +2094,7 @@ namespace Bicep.Core.TypeSystem
             return LanguageConstants.CreateModuleType(
                 this.features,
                 parameters,
+                extensionConfigs,
                 outputs,
                 moduleSemanticModel.TargetScope,
                 binder.TargetScope,

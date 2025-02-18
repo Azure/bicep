@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Providers;
 
@@ -44,6 +44,8 @@ namespace Bicep.Core.TypeSystem.Types
         public ArtifactReference? Artifact { get; }
 
         public string ExtensionName => Settings.BicepExtensionName;
+
+        public string ExtensionVersion => Settings.TemplateExtensionVersion;
 
         public ObjectType? ConfigurationType => Settings.ConfigurationType;
     }
