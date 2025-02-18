@@ -40,6 +40,11 @@ public partial class ExtensionsConfiguration : ConfigurationSection<ImmutableDic
     {
         if (!this.Data.TryGetValue(extensionName, out var extensionConfigEntry))
         {
+            if (extensionName == MicrosoftGraphNamespaceType.BuiltInName)
+            {
+                return new(x => x.MicrosoftGraphBuiltinRetired(null));
+            }
+
             return new(x => x.UnrecognizedExtension(extensionName));
         }
         return new(extensionConfigEntry);

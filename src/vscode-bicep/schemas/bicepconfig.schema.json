@@ -286,8 +286,7 @@
       "additionalProperties": false,
       "default": {
         "az": "builtin:",
-        "kubernetes": "builtin:",
-        "microsoftGraph": "builtin:"
+        "kubernetes": "builtin:"
       }
     },
     "implicitExtensions": {

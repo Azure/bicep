@@ -1823,18 +1823,18 @@ namespace Bicep.Core.Diagnostics
                 "BCP406",
                 $"The \"{LanguageConstants.ExtendsKeyword}\" keyword is not supported");
 
-            public Diagnostic MicrosoftGraphBuiltinDeprecatedSoon(ExtensionDeclarationSyntax syntax)
+            public Diagnostic MicrosoftGraphBuiltinRetired(ExtensionDeclarationSyntax? syntax)
             {
-                var msGraphRegistryPath = "br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview";
+                var msGraphRegistryPath = "br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.9-preview";
                 var codeFix = new CodeFix(
                     $"Replace built-in extension \'microsoftGraph\' with dynamic types registry path",
                     true,
                     CodeFixKind.QuickFix,
-                    new CodeReplacement(syntax.SpecificationString.Span, $"\'{msGraphRegistryPath}\'"));
+                    new CodeReplacement(syntax?.SpecificationString.Span ?? TextSpan, $"\'{msGraphRegistryPath}\'"));
 
-                return CoreWarning(
+                return CoreError(
                 "BCP407",
-                $"Built-in extension \"microsoftGraph\" is deprecated. Use dynamic types instead. See https://aka.ms/graphBicepDynamicTypes")
+                $"Built-in extension \"microsoftGraph\" is retired. Use dynamic types instead. See https://aka.ms/graphBicepDynamicTypes")
                 with
                 {
                     Fixes = [codeFix]

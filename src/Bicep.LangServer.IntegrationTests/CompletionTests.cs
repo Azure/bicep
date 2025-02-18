@@ -1891,8 +1891,8 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
                     c => c!.Select(x => x.Label).Should().Equal("with", "as"),
                     c => c!.Select(x => x.Label).Should().Equal("with", "as"),
                     c => c!.Select(x => x.Label).Should().BeEmpty(),
-                    c => c!.Select(x => x.Label).Should().Equal($"az", "kubernetes", "microsoftGraph", "sys"),
-                    c => c!.Select(x => x.Label).Should().Equal($"az", "kubernetes", "microsoftGraph", "sys")
+                    c => c!.Select(x => x.Label).Should().Equal($"az", "kubernetes", "sys"),
+                    c => c!.Select(x => x.Label).Should().Equal($"az", "kubernetes", "sys")
                 ),
                 '|');
 
