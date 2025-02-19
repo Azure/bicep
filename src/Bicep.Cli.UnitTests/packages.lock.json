@@ -4,12 +4,9 @@
     "net8.0": {
       "FluentAssertions": {
         "type": "Direct",
-        "requested": "[7.0.0, )",
-        "resolved": "7.0.0",
-        "contentHash": "mTLbcU991EQ1SEmNbVBaGGGJy0YFzvGd1sYJGNZ07nlPKuyHSn1I22aeKzqQXgEiaKyRO6MSCto9eN9VxMwBdA==",
-        "dependencies": {
-          "System.Configuration.ConfigurationManager": "6.0.0"
-        }
+        "requested": "[8.0.1, )",
+        "resolved": "8.0.1",
+        "contentHash": "IW5CdXiD4BIijMkJsEajhkQr7HSgzoxZBHp77b4tm8isCKGaDH2AGugW6DLS0/EPhO/MCZ2JOGg6ObdlKISJMg=="
       },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
         "type": "Direct",
