@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Bicep.Tools.Benchmark</RootNamespace>
     <IsTestingPlatformApplication>false</IsTestingPlatformApplication>
+    <EnableMSTestRunner>false</EnableMSTestRunner>
   </PropertyGroup>
 
   <ItemGroup>
