@@ -79,7 +79,7 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
     );
   });
 
-  it("should restore OCI artifacts", () => {
+  it("should restore ACR modules", () => {
     const builder = new BicepRegistryReferenceBuilder(environment.registryUri, testArea);
 
     const storageRef = builder.getBicepReference("storage", "v1");
@@ -158,5 +158,18 @@ output blobEndpoint string = storage.outputs.blobEndpoint
     expectBrModuleStructure(builder.registry, "restore$storage", `v1_${builder.tagSuffix}$4002000`);
 
     expectBrModuleStructure("mcr.microsoft.com", "bicep$samples$hello-world", "1.0.1$");
+  });
+
+  it("should restore Graph extension", () => {
+    const bicep = "extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview'";
+    const bicepPath = writeTempFile("restore-graph-extension", "main.bicep", bicep);
+
+    const exampleConfig = readFileSync(pathToExampleFile("extensions" + environment.suffix, "bicepconfig.json"));
+    writeTempFile("restore-graph-extension", "bicepconfig.json", exampleConfig);
+
+    invokingBicepCommand("restore", bicepPath)
+      .withEnvironmentOverrides(environment.environmentOverrides)
+      .shouldSucceed()
+      .withEmptyStdout();
   });
 });
