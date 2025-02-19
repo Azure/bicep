@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`App > handles synchronous deployment failures correctly 1`] = `
+exports[`handles synchronous deployment failures correctly 1`] = `
 <div>
   <main
     id="webview-body"
@@ -289,7 +289,7 @@ exports[`App > handles synchronous deployment failures correctly 1`] = `
 </div>
 `;
 
-exports[`App > renders the App component with deployment state 1`] = `
+exports[`renders the App component with deployment state 1`] = `
 <div>
   <main
     id="webview-body"
@@ -469,13 +469,13 @@ exports[`App > renders the App component with deployment state 1`] = `
 </div>
 `;
 
-exports[`App > renders the loading spinner before initialization 1`] = `
+exports[`renders the loading spinner before initialization 1`] = `
 <div>
   <vscode-progress-ring />
 </div>
 `;
 
-exports[`App > runs a deployment 1`] = `
+exports[`runs a deployment 1`] = `
 <div>
   <main
     id="webview-body"
@@ -898,7 +898,7 @@ exports[`App > runs a deployment 1`] = `
 </div>
 `;
 
-exports[`App > supports the scope picker 1`] = `
+exports[`supports the scope picker 1`] = `
 <div>
   <main
     id="webview-body"
@@ -1078,7 +1078,7 @@ exports[`App > supports the scope picker 1`] = `
 </div>
 `;
 
-exports[`App > validates a deployment 1`] = `
+exports[`validates a deployment 1`] = `
 <div>
   <main
     id="webview-body"
@@ -1352,7 +1352,7 @@ exports[`App > validates a deployment 1`] = `
 </div>
 `;
 
-exports[`App > what-ifs a deployment 1`] = `
+exports[`what-ifs a deployment 1`] = `
 <div>
   <main
     id="webview-body"
