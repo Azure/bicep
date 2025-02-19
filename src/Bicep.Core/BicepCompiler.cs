@@ -111,8 +111,8 @@ public class BicepCompiler
         {
             foreach (var artifact in originalArtifactsToRestore)
             {
-                if (artifact.Syntax is ModuleDeclarationSyntax moduleDeclarationSyntax &&
-                    DiagnosticForModule(grouping, moduleDeclarationSyntax) is { } diagnostic)
+                if (artifact.Syntax is not null and not ExtensionDeclarationSyntax &&
+                    DiagnosticForModule(grouping, artifact.Syntax) is { } diagnostic)
                 {
                     yield return (artifact.Origin, diagnostic);
                 }
