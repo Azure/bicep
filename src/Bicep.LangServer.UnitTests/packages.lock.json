@@ -29,9 +29,9 @@
       },
       "Microsoft.VisualStudio.Threading.Analyzers": {
         "type": "Direct",
-        "requested": "[17.12.19, )",
-        "resolved": "17.12.19",
-        "contentHash": "v3IYeedjoktvZ+GqYmLudxZJngmf/YWIxNT2Uy6QMMN19cvw+nkWoip1Gr1RtnFkUo1MPUVMis4C8Kj8d8DpSQ=="
+        "requested": "[17.13.2, )",
+        "resolved": "17.13.2",
+        "contentHash": "Qcd8IlaTXZVq3wolBnzby1P7kWihdWaExtD8riumiKuG1sHa8EgjV/o70TMjTaeUMhomBbhfdC9OPwAHoZfnjQ=="
       },
       "Moq": {
         "type": "Direct",
@@ -765,10 +765,10 @@
       },
       "Microsoft.VisualStudio.Threading": {
         "type": "Transitive",
-        "resolved": "17.12.19",
-        "contentHash": "eLiGMkMYyaSguqHs3lsrFxy3tAWSLuPEL2pIWRcADMDVAs2xqm3dr1d9QYjiEusTgiClF9KD6OB2NdZP72Oy0Q==",
+        "resolved": "17.13.2",
+        "contentHash": "BmbIlTqUI5q9dUfpzW/CJXeQUefUhcLVvOgcsjAq8OqnSTS30e8D0Sj7Vmst+p+Y2eKJ33Ml0FlB9jKyPR4pZQ==",
         "dependencies": {
-          "Microsoft.VisualStudio.Threading.Analyzers": "17.12.19",
+          "Microsoft.VisualStudio.Threading.Analyzers": "17.13.2",
           "Microsoft.VisualStudio.Validation": "17.8.8"
         }
       },
@@ -1679,7 +1679,7 @@
           "Bicep.LangServer": "[1.0.0, )",
           "FluentAssertions": "[7.0.0, )",
           "MSTest": "[3.8.2, )",
-          "Microsoft.VisualStudio.Threading": "[17.12.19, )",
+          "Microsoft.VisualStudio.Threading": "[17.13.2, )",
           "Moq": "[4.20.72, )",
           "OmniSharp.Extensions.LanguageClient": "[0.19.9, )"
         }
