@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { useEffect, useState, type FC } from "react";
+import { useCallback, useEffect, useState, type FC } from "react";
 import type { ParamDefinition, ParametersMetadata, TemplateMetadata } from "../../models";
 
 import { VscodeButton, VscodeTextfield } from "@vscode-elements/react-elements";
@@ -31,11 +31,11 @@ export const ParametersInputView: FC<ParametersInputViewProps> = ({
   const sourceFilePath = parameters?.sourceFilePath;
   const [values, setValues] = useState<ParametersInputData>({});
 
-  function handleValueChange(name: string, value: ParameterInputData) {
+  const handleValueChange = useCallback((name: string, value: ParameterInputData) => {
     const newValues = { ...values, [name]: value };
     setValues(newValues);
     onParametersChange(newValues);
-  }
+  }, [values, setValues, onParametersChange]);
 
   useEffect(() => {
     setValues(curValues => getValues(definitions ?? [], curValues));
@@ -59,7 +59,7 @@ export const ParametersInputView: FC<ParametersInputViewProps> = ({
             definition={definition}
             disabled={disabled}
             data={values[definition.name]!}
-            onChangeData={value => handleValueChange(definition.name, value)}
+            onChangeData={handleValueChange}
           />
         ))}
     </FormSection>

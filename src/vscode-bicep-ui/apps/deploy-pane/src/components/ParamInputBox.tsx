@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import styled from "styled-components";
-import { useEffect, useState, type FC, type PropsWithChildren } from "react";
+import { useState, type FC, type PropsWithChildren } from "react";
 import type { ParamDefinition, ParameterValue } from "../models";
 
 import {
@@ -25,7 +25,7 @@ type InputProps = {
   definition: ParamDefinition;
   disabled: boolean;
   data: ParameterInputData;
-  onChangeData: (value: ParameterInputData) => void;
+  onChangeData: (name: string, value: ParameterInputData) => void;
 }
 
 const getInputHtmlId = (definition: ParamDefinition) => `param-input-${definition.name.toLowerCase()}`;
@@ -37,16 +37,17 @@ const ParamCheckboxInput: FC<InputProps> = (props) => {
 
   const [inputValue, setInputValue] = useState<boolean>(data.inputValue as boolean ?? defaultInputValue);
 
-  useEffect(() => {
-    onChangeData({ inputValue, value: inputValue, isValid: true });
-  }, [inputValue, onChangeData]);
+  function handleChangeValue(value: boolean) {
+    onChangeData(definition.name, { inputValue: value, value: value, isValid: true });
+    setInputValue(value);
+  }
 
   return (
     <InputBoxWrapper disabled={disabled}>
       <VscodeCheckbox
         id={getInputHtmlId(definition)}
         checked={inputValue}
-        onChange={() => setInputValue(!inputValue)}
+        onChange={() => handleChangeValue(!inputValue)}
         disabled={disabled}
       >
         {name}
@@ -63,16 +64,17 @@ const ParamIntInput: FC<InputProps> = (props) => {
   const [inputValue, setInputValue] = useState<string>(data.inputValue as string ?? defaultInputValue);
   const [error, setError] = useState<string>();
 
-  useEffect(() => {
-    const newValueInt = Number(inputValue);
+  function handleChangeValue(value: string) {
+    const newValueInt = Number(value);
     if (Number.isInteger(newValueInt)) {
-      onChangeData({ inputValue, value: newValueInt, isValid: true });
+      onChangeData(definition.name, { inputValue: value, value: newValueInt, isValid: true });
       setError(undefined);
     } else {
-      onChangeData({ inputValue, isValid: false });
+      onChangeData(definition.name, { inputValue: value, isValid: false });
       setError("Invalid integer value");
     }
-  }, [inputValue, onChangeData]);
+    setInputValue(value);
+  }
 
   return (
     <InputBoxWrapper disabled={disabled} error={error}>
@@ -80,7 +82,7 @@ const ParamIntInput: FC<InputProps> = (props) => {
       <VscodeTextfield
         id={getInputHtmlId(definition)}
         value={inputValue}
-        onChange={e => setInputValue((e.currentTarget as HTMLInputElement).value)}
+        onChange={e => handleChangeValue((e.currentTarget as HTMLInputElement).value)}
         disabled={disabled}
       />
     </InputBoxWrapper>
@@ -94,9 +96,10 @@ const ParamStringInput: FC<InputProps> = (props) => {
 
   const [inputValue, setInputValue] = useState<string>(data.inputValue as string ?? defaultInputValue);
 
-  useEffect(() => {
-    onChangeData({ inputValue, value: inputValue, isValid: true });
-  }, [inputValue, onChangeData]);
+  function handleChangeValue(value: string) {
+    setInputValue(value);
+    onChangeData(definition.name, { inputValue: value, value: value, isValid: true });
+  }
 
   if (definition.allowedValues) {
     return (
@@ -104,7 +107,7 @@ const ParamStringInput: FC<InputProps> = (props) => {
         <VscodeLabel htmlFor={getInputHtmlId(definition)}>{name}</VscodeLabel>
         <VscodeSingleSelect
           id={getInputHtmlId(definition)}
-          onChange={e => setInputValue((e.currentTarget as HTMLSelectElement).value)}
+          onChange={e => handleChangeValue((e.currentTarget as HTMLSelectElement).value)}
           disabled={disabled}
         >
           {definition.allowedValues.map((option) => (
@@ -122,7 +125,7 @@ const ParamStringInput: FC<InputProps> = (props) => {
         <VscodeTextfield
           id={getInputHtmlId(definition)}
           value={inputValue}
-          onChange={e => setInputValue((e.currentTarget as HTMLInputElement).value)}
+          onChange={e => handleChangeValue((e.currentTarget as HTMLInputElement).value)}
           disabled={disabled}
         />
       </InputBoxWrapper>
@@ -138,15 +141,16 @@ const ParamJsonInput: FC<InputProps> = (props) => {
   const [inputValue, setInputValue] = useState<string>(data.inputValue as string ?? defaultInputValue);
   const [error, setError] = useState<string>();
 
-  useEffect(() => {
+  function handleChangeValue(value: string) {
     try {
-      onChangeData({ inputValue, value: inputValue !== '' ? JSON.parse(inputValue) : undefined, isValid: true });
+      onChangeData(definition.name, { inputValue: value, value: value !== '' ? JSON.parse(value) : undefined, isValid: true });
       setError(undefined);
     } catch {
-      onChangeData({ inputValue, isValid: false });
+      onChangeData(definition.name, { inputValue: value, isValid: false });
       setError("Invalid JSON value");
     }
-  }, [inputValue, onChangeData]);
+    setInputValue(value);
+  }
 
   return (
     <InputBoxWrapper disabled={disabled} error={error}>
@@ -156,7 +160,7 @@ const ParamJsonInput: FC<InputProps> = (props) => {
         className="code-textarea-container"
         resize="vertical"
         value={inputValue}
-        onChange={e => setInputValue((e.currentTarget as HTMLInputElement).value)}
+        onChange={e => handleChangeValue((e.currentTarget as HTMLInputElement).value)}
         disabled={disabled}
       />
     </InputBoxWrapper>
