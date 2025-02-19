@@ -60,9 +60,9 @@
       },
       "Microsoft.VisualStudio.Threading.Analyzers": {
         "type": "Direct",
-        "requested": "[17.12.19, )",
-        "resolved": "17.12.19",
-        "contentHash": "v3IYeedjoktvZ+GqYmLudxZJngmf/YWIxNT2Uy6QMMN19cvw+nkWoip1Gr1RtnFkUo1MPUVMis4C8Kj8d8DpSQ=="
+        "requested": "[17.13.2, )",
+        "resolved": "17.13.2",
+        "contentHash": "Qcd8IlaTXZVq3wolBnzby1P7kWihdWaExtD8riumiKuG1sHa8EgjV/o70TMjTaeUMhomBbhfdC9OPwAHoZfnjQ=="
       },
       "Microsoft.VisualStudio.Utilities": {
         "type": "Direct",
@@ -534,8 +534,8 @@
         "resolved": "17.12.40391",
         "contentHash": "ZdEUS1WiH1Ei3ev8rUmJ7ASLQK/Iyq+2XdsbMXkLJKbaxaPgr+SriaS2KMWL1wj9O17H8YMq7OhR6GoBREn2wA==",
         "dependencies": {
-          "Microsoft.VisualStudio.Imaging.Interop.14.0.DesignTime": "17.12.40090",
-          "Microsoft.VisualStudio.Interop": "17.12.40091"
+          "Microsoft.VisualStudio.Imaging.Interop.14.0.DesignTime": "17.12.40390",
+          "Microsoft.VisualStudio.Interop": "17.12.40391"
         }
       },
       "Microsoft.VisualStudio.Imaging.Interop.14.0.DesignTime": {
