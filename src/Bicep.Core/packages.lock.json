@@ -175,15 +175,6 @@
           "Microsoft.Extensions.Options": "8.0.2"
         }
       },
-      "Microsoft.Graph.Bicep.Types": {
-        "type": "Direct",
-        "requested": "[0.1.7-preview, )",
-        "resolved": "0.1.7-preview",
-        "contentHash": "jOuUsV1biTchJv3DdK6GWgv3iVDWR7UUwWlMPq+g2htzSgbdVsRFfxbSLd00da2DALrqLSHugU3wUmwFrDBkww==",
-        "dependencies": {
-          "Azure.Bicep.Types": "0.5.6"
-        }
-      },
       "Microsoft.NET.ILLink.Tasks": {
         "type": "Direct",
         "requested": "[8.0.12, )",

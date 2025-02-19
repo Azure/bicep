@@ -512,14 +512,6 @@
         "resolved": "9.0.1",
         "contentHash": "bHtTesA4lrSGD1ZUaMIx6frU3wyy0vYtTa/hM6gGQu5QNrydObv8T5COiGUWsisflAfmsaFOe9Xvw5NSO99z0g=="
       },
-      "Microsoft.Graph.Bicep.Types": {
-        "type": "Transitive",
-        "resolved": "0.1.7-preview",
-        "contentHash": "jOuUsV1biTchJv3DdK6GWgv3iVDWR7UUwWlMPq+g2htzSgbdVsRFfxbSLd00da2DALrqLSHugU3wUmwFrDBkww==",
-        "dependencies": {
-          "Azure.Bicep.Types": "0.5.6"
-        }
-      },
       "Microsoft.Identity.Client": {
         "type": "Transitive",
         "resolved": "4.66.1",
@@ -1250,7 +1242,6 @@
           "Microsoft.Extensions.Configuration.Json": "[9.0.0, )",
           "Microsoft.Extensions.DependencyInjection": "[9.0.0, )",
           "Microsoft.Extensions.Http": "[8.0.1, )",
-          "Microsoft.Graph.Bicep.Types": "[0.1.7-preview, )",
           "Microsoft.PowerPlatform.ResourceStack": "[7.0.0.2080, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "Semver": "[3.0.0, )",

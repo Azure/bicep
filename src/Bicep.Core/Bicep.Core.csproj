@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Azure.Bicep.Core</AssemblyName>
     <RootNamespace>Bicep.Core</RootNamespace>
@@ -35,7 +35,6 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Graph.Bicep.Types" Version="0.1.7-preview" />
     <PackageReference Include="Microsoft.PowerPlatform.ResourceStack" Version="7.0.0.2080" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Semver" Version="3.0.0" />

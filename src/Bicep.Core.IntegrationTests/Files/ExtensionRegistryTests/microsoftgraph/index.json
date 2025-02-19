@@ -4,10 +4,10 @@
       "$ref": "types.json#/7"
     },
     "Microsoft.Graph/applications@v1.0": {
-      "$ref": "types.json#/11"
+      "$ref": "types.json#/12"
     },
     "Microsoft.Graph/servicePrincipals@v1.0": {
-      "$ref": "types.json#/15"
+      "$ref": "types.json#/16"
     }
   },
   "resourceFunctions": {},

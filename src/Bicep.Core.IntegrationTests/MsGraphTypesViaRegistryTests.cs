@@ -14,6 +14,7 @@ using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
+using FluentAssertions.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
@@ -296,6 +297,51 @@ namespace Bicep.Core.IntegrationTests
             result.Should().GenerateATemplate();
             result.Template.Should().NotBeNull();
             result.Template.Should().HaveValueAtPath("$.imports.msGraphBeta.version", versionBeta);
+        }
+
+        [TestMethod]
+        public async Task MsGraphResourceTypeProvider_should_warn_for_property_mismatch()
+        {
+            var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(
+                typeof(ExtensionRegistryTests).Assembly,
+                "Files/ExtensionRegistryTests/microsoftgraph");
+
+            var registry = "example.azurecr.io";
+            var repository = "microsoftgraph/v1";
+
+            var services = ExtensionTestHelper.GetServiceBuilder(fileSystem, registry, repository, new(ExtensibilityEnabled: true));
+
+            await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), "/index.json", $"br:{registry}/{repository}:1.2.3");
+
+            var compilation = await CompilationHelper.RestoreAndCompile(
+                services,
+                @"extension 'br:example.azurecr.io/microsoftgraph/v1:1.2.3'
+
+resource app 'Microsoft.Graph/applications@v1.0' = {
+  uniqueName: 'test'
+  displayName: 'test'
+  extraProp: 'extra'
+}
+");
+            compilation.Should().HaveDiagnostics(new[] {
+                ("BCP037", DiagnosticLevel.Warning, "The property \"extraProp\" is not allowed on objects of type \"Microsoft.Graph/applications\". Permissible properties include \"appId\", \"dependsOn\", \"id\", \"spa\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues.")
+            });
+
+            compilation = await CompilationHelper.RestoreAndCompile(
+                services,
+                @"extension 'br:example.azurecr.io/microsoftgraph/v1:1.2.3'
+
+resource app 'Microsoft.Graph/applications@v1.0' = {
+  uniqueName: 'test'
+  displayName: 'test'
+  spa: {
+    extraNestedProp: 'extra'
+  }
+}
+");
+            compilation.Should().HaveDiagnostics(new[] {
+                ("BCP037", DiagnosticLevel.Warning, "The property \"extraNestedProp\" is not allowed on objects of type \"MicrosoftGraphSpaApplication\". Permissible properties include \"redirectUris\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues.")
+            });
         }
     }
 }
