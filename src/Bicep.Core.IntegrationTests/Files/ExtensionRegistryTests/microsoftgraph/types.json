@@ -221,7 +221,7 @@
     "name": "Microsoft.Graph/servicePrincipals@v1.0",
     "scopeType": 0,
     "body": {
-      "$ref": "#/14"
+      "$ref": "#/15"
     },
     "flags": 0
   }
