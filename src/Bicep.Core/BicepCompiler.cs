@@ -88,7 +88,7 @@ public class BicepCompiler
             sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(fileResolver, moduleDispatcher, workspace, this.SourceFileFactory, sourceFileGrouping);
         }
 
-        return GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, artifactsToRestore.ToImmutableHashSet(), forceRestore);
+        return GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, [.. artifactsToRestore], forceRestore);
     }
 
     private Compilation Create(SourceFileGrouping sourceFileGrouping)
@@ -111,7 +111,7 @@ public class BicepCompiler
         {
             foreach (var artifact in originalArtifactsToRestore)
             {
-                if (artifact.Syntax is { } &&
+                if (artifact.Syntax is not null and not ExtensionDeclarationSyntax &&
                     DiagnosticForModule(grouping, artifact.Syntax) is { } diagnostic)
                 {
                     yield return (artifact.Origin, diagnostic);

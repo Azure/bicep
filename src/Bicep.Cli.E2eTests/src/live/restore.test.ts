@@ -1,31 +1,42 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { beforeEach, describe, it } from "vitest";
+import { describe, it } from "vitest";
 import { BicepRegistryReferenceBuilder, expectBrModuleStructure, publishModule } from "../utils/br";
 import { invokingBicepCommand } from "../utils/command";
 import {
   emptyDir,
+  // emptyDir,
   expectFileExists,
-  moduleCacheRoot,
+  pathToCachedBrModuleFile,
+  // defaultModuleCacheRoot,
   pathToCachedTsModuleFile,
   pathToExampleFile,
+  pathToTempFile,
   readFileSync,
   writeTempFile,
 } from "../utils/fs";
 import { getEnvironment } from "../utils/liveTestEnvironments";
 
-async function emptyModuleCacheRoot() {
-  await emptyDir(moduleCacheRoot);
+function writeTempBicepConfigFile(testArea: string, bicepConfigContents: string) {
+  const bicepConfigJson = JSON.parse(bicepConfigContents);
+  bicepConfigJson.cacheRootDirectory = pathToTempFile(testArea, ".bicep");
+  bicepConfigContents = JSON.stringify(bicepConfigJson, null, 2);
+
+  return writeTempFile(testArea, "bicepconfig.json", bicepConfigContents);
 }
 
 describe("bicep restore", () => {
   const testArea = "restore";
   const environment = getEnvironment();
 
-  beforeEach(emptyModuleCacheRoot);
+  // beforeEach(emptyModuleCacheRoot);
 
   it("should restore template specs", () => {
+    const cacheRootDir = pathToTempFile("restore-ts", ".bicep");
+
+    emptyDir(cacheRootDir);
+
     const bicep = `
 module storageAccountModuleV1 'ts:${environment.templateSpecSubscriptionId}/bicep-ci/storageAccountSpec-${environment.resourceSuffix}:v1' = {
   name: 'storageAccountModuleV1'
@@ -49,8 +60,7 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
 
     const bicepPath = writeTempFile("restore-ts", "main.bicep", bicep);
     const exampleConfig = readFileSync(pathToExampleFile("modules" + environment.suffix, "bicepconfig.json"));
-
-    writeTempFile("restore-ts", "bicepconfig.json", exampleConfig);
+    writeTempBicepConfigFile("restore-ts", exampleConfig);
 
     invokingBicepCommand("restore", bicepPath)
       .withEnvironmentOverrides(environment.environmentOverrides)
@@ -59,6 +69,7 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
 
     expectFileExists(
       pathToCachedTsModuleFile(
+        cacheRootDir,
         `${environment.templateSpecSubscriptionId}/bicep-ci/storageaccountspec-${environment.resourceSuffix}/v1`,
         "main.json",
       ),
@@ -66,6 +77,7 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
 
     expectFileExists(
       pathToCachedTsModuleFile(
+        cacheRootDir,
         `${environment.templateSpecSubscriptionId}/bicep-ci/storageaccountspec-${environment.resourceSuffix}/v2`,
         "main.json",
       ),
@@ -73,13 +85,17 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
 
     expectFileExists(
       pathToCachedTsModuleFile(
+        cacheRootDir,
         `${environment.templateSpecSubscriptionId}/bicep-ci/webappspec-${environment.resourceSuffix}/1.0.0`,
         "main.json",
       ),
     );
   });
 
-  it("should restore OCI artifacts", () => {
+  it("should restore ACR modules", () => {
+    const cacheRootDir = pathToTempFile("restore-br", ".bicep");
+    emptyDir(cacheRootDir);
+
     const builder = new BicepRegistryReferenceBuilder(environment.registryUri, testArea);
 
     const storageRef = builder.getBicepReference("storage", "v1");
@@ -146,17 +162,43 @@ output blobEndpoint string = storage.outputs.blobEndpoint
     const bicepPath = writeTempFile("restore-br", "main.bicep", bicep);
 
     const exampleConfig = readFileSync(pathToExampleFile("modules" + environment.suffix, "bicepconfig.json"));
-    writeTempFile("restore-br", "bicepconfig.json", exampleConfig);
+    writeTempBicepConfigFile("restore-br", exampleConfig);
 
     invokingBicepCommand("restore", bicepPath)
       .withEnvironmentOverrides(environment.environmentOverrides)
       .shouldSucceed()
       .withEmptyStdout();
 
-    expectBrModuleStructure(builder.registry, "restore$passthrough", `v1_${builder.tagSuffix}$4002000`);
+    expectBrModuleStructure(cacheRootDir, builder.registry, "restore$passthrough", `v1_${builder.tagSuffix}$4002000`);
 
-    expectBrModuleStructure(builder.registry, "restore$storage", `v1_${builder.tagSuffix}$4002000`);
+    expectBrModuleStructure(cacheRootDir, builder.registry, "restore$storage", `v1_${builder.tagSuffix}$4002000`);
 
-    expectBrModuleStructure("mcr.microsoft.com", "bicep$samples$hello-world", "1.0.1$");
+    expectBrModuleStructure(cacheRootDir, "mcr.microsoft.com", "bicep$samples$hello-world", "1.0.1$");
+  });
+
+  it("should restore Graph extension", () => {
+    const cacheRootDir = pathToTempFile("restore-graph-extension", ".bicep");
+    emptyDir(cacheRootDir);
+
+    const bicep = "extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview'";
+    const bicepPath = writeTempFile("restore-graph-extension", "main.bicep", bicep);
+
+    const exampleConfig = readFileSync(pathToExampleFile("extensions" + environment.suffix, "bicepconfig.json"));
+    writeTempBicepConfigFile("restore-graph-extension", exampleConfig);
+
+    invokingBicepCommand("restore", bicepPath)
+      .withEnvironmentOverrides(environment.environmentOverrides)
+      .shouldSucceed()
+      .withEmptyStdout();
+
+    expectFileExists(
+      pathToCachedBrModuleFile(
+        cacheRootDir,
+        "mcr.microsoft.com",
+        "bicep$extensions$microsoftgraph$v1.0",
+        "0.1.8-preview$",
+        "types.tgz",
+      ),
+    );
   });
 });

@@ -48,9 +48,9 @@ export class BicepRegistryReferenceBuilder {
   }
 }
 
-export function expectBrModuleStructure(...pathNames: string[]): void {
+export function expectBrModuleStructure(moduleCacheRoot: string, ...pathNames: string[]): void {
   const moduleFiles = ["lock", "main.json", "manifest", "metadata"];
-  const directoryPath = pathToCachedBrModuleFile(...pathNames);
+  const directoryPath = pathToCachedBrModuleFile(moduleCacheRoot, ...pathNames);
 
   moduleFiles.forEach((fileName) => {
     const filePath = path.join(directoryPath, fileName);

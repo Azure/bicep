@@ -11,7 +11,7 @@ export const bicepCli = path.resolve(
   process.env.BICEP_CLI_EXECUTABLE || "../../../Bicep.Cli/bin/Debug/net8.0/bicep",
 );
 
-export const moduleCacheRoot = path.resolve(homedir(), ".bicep");
+export const defaultModuleCacheRoot = path.resolve(homedir(), ".bicep");
 
 export function pathToExampleFile(...pathNames: string[]): string {
   return path.join(__dirname, "../examples", ...pathNames);
@@ -22,11 +22,11 @@ export function pathToTempFile(...pathNames: string[]): string {
   return tempPath;
 }
 
-export function pathToCachedTsModuleFile(...pathNames: string[]): string {
+export function pathToCachedTsModuleFile(moduleCacheRoot: string, ...pathNames: string[]): string {
   return path.join(moduleCacheRoot, "ts", ...pathNames);
 }
 
-export function pathToCachedBrModuleFile(...pathNames: string[]): string {
+export function pathToCachedBrModuleFile(moduleCacheRoot: string, ...pathNames: string[]): string {
   return path.join(moduleCacheRoot, "br", ...pathNames);
 }
 

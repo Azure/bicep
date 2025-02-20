@@ -16,8 +16,6 @@ describe("bicep local-deploy", () => {
       const baseFolder = pathToExampleFile("local-deploy");
       const target = pathToTempFile(testArea, "mock.tgz");
 
-      console.log(1);
-
       const files = {
         bicep: copyToTempFile(baseFolder, "main.bicep", testArea),
         bicepparam: copyToTempFile(baseFolder, "main.bicepparam", testArea),

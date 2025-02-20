@@ -9,7 +9,6 @@
   "cloud": {
     "currentProfile": "AzureUSGovernment",
     "credentialPrecedence": [
-      // used by CI
       "Environment",
       "AzureCLI"
     ]
