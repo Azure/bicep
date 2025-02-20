@@ -7,7 +7,7 @@ using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Semantics;
 using Microsoft.Extensions.DependencyInjection;
 

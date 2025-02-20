@@ -46,6 +46,7 @@ namespace Bicep.LanguageServer.Telemetry
             public const string UnhandledException = "unhandledException";
 
             public const string ModuleRegistryPathCompletion = "ModuleRegistryPathCompletion";
+            public const string ModuleRegistryResolution = "ModuleRegistryResolution";
 
             public const string ExternalSourceRequestSuccess = "ExternalSourceRequest/success";
             public const string ExternalSourceRequestFailure = "ExternalSourceRequest/failure";

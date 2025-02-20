@@ -1578,6 +1578,7 @@
           "Microsoft.Extensions.DependencyInjection": "[9.0.0, )",
           "Microsoft.Extensions.Http": "[8.0.1, )",
           "Microsoft.PowerPlatform.ResourceStack": "[7.0.0.2080, )",
+          "Microsoft.VisualStudio.Threading": "[17.12.19, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "Semver": "[3.0.0, )",
           "SharpYaml": "[2.1.1, )",

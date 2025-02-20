@@ -70,7 +70,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var clientFactory = RegistryHelper.CreateMockRegistryClient(artifactRegistryAddress.ClientDescriptor());
             var blobClient = clientFactory.CreateAnonymousBlobClient(
-                BicepTestConstants.BuiltInConfiguration,
+                BicepTestConstants.BuiltInConfiguration.Cloud,
                 artifactRegistryAddress.RegistryUri,
                 artifactRegistryAddress.RepositoryPath);
 

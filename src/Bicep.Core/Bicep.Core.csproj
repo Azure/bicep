@@ -49,6 +49,7 @@
     <!-- force an upgrade of this dependency as it seems to cause build flakiness for unknown reasons -->
     <PackageReference Include="System.Private.Uri" Version="4.3.2" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.12.19" />
   </ItemGroup>
 
   <ItemGroup>

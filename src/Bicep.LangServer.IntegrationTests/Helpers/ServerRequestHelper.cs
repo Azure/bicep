@@ -35,7 +35,7 @@ namespace Bicep.LangServer.IntegrationTests
             var completions = new List<CompletionList>();
             foreach (var cursor in cursors)
             {
-                var completionList = await RequestCompletion(cursor);
+                var completionList = await RequestAndResolveCompletions(cursor);
 
                 completions.Add(completionList);
             }
@@ -43,13 +43,22 @@ namespace Bicep.LangServer.IntegrationTests
             return [.. completions];
         }
 
-        public async Task<CompletionList> RequestCompletion(int cursor)
+        public async Task<CompletionList> RequestAndResolveCompletions(int cursor)
         {
-            return await client.RequestCompletion(new CompletionParams
+            CompletionList completions = await client.RequestCompletion(new CompletionParams
             {
                 TextDocument = new TextDocumentIdentifier(bicepFile.Uri),
                 Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor)
             });
+
+            var resolved = new List<CompletionItem>();
+            foreach (var completion in completions.Items)
+            {
+                var resolvedCompletion = completion.Data is null ? completion : await client.ResolveCompletion(completion);
+                resolved.Add(resolvedCompletion);
+            }
+
+            return new CompletionList(resolved, completions.IsIncomplete);
         }
 
         public async Task<LocationContainer?> RequestReferences(int cursor, bool includeDeclaration)
@@ -112,7 +121,7 @@ namespace Bicep.LangServer.IntegrationTests
 
         public async Task<LanguageClientFile> RequestAndApplyCompletion(int cursor, string label, string[]? tabStops = null)
         {
-            var completionList = await RequestCompletion(cursor);
+            var completionList = await RequestAndResolveCompletions(cursor);
             var completion = completionList.Should().ContainSingle(x => x.Label == label).Subject;
 
             return ApplyCompletion(completion, tabStops ?? []);
