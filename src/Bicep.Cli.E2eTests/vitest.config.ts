@@ -4,5 +4,6 @@ export default defineConfig({
   test: {
     testTimeout: 100000,
     environment: "node",
+    pool: "threads",
   },
 });
