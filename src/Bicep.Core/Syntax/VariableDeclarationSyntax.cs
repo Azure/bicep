@@ -7,7 +7,7 @@ namespace Bicep.Core.Syntax
 {
     public class VariableDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
     {
-        public VariableDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase assignment, SyntaxBase value)
+        public VariableDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase? type, SyntaxBase assignment, SyntaxBase value)
             : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.VariableKeyword);
@@ -17,6 +17,7 @@ namespace Bicep.Core.Syntax
 
             this.Keyword = keyword;
             this.Name = name;
+            this.Type = type;
             this.Assignment = assignment;
             this.Value = value;
         }
@@ -24,6 +25,8 @@ namespace Bicep.Core.Syntax
         public Token Keyword { get; }
 
         public IdentifierSyntax Name { get; }
+
+        public SyntaxBase? Type { get; }
 
         public SyntaxBase Assignment { get; }
 

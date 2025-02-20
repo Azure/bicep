@@ -55,6 +55,8 @@ namespace Bicep.Core.Features
 
         public bool ResourceInfoCodegenEnabled => this.configuration.ExperimentalFeaturesEnabled.ResourceInfoCodegen;
 
+        public bool TypedVariablesEnabled => configuration.ExperimentalFeaturesEnabled.TypedVariables;
+
         public bool ExtensibilityV2EmittingEnabled => ReadBooleanEnvVar("BICEP_EXTENSIBILITY_V2_EMITTING_ENABLED", defaultValue: false);
 
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)

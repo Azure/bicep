@@ -439,6 +439,7 @@ public record DeclaredParameterExpression(
 public record DeclaredVariableExpression(
     SyntaxBase? SourceSyntax,
     string Name,
+    TypeExpression? Type,
     Expression Value,
     Expression? Description = null,
     Expression? Exported = null

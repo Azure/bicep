@@ -112,7 +112,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "localDeploy": false,
           "resourceDerivedTypes": false,
           "secureOutputs": false,
-          "resourceInfoCodegen": false
+          "resourceInfoCodegen": false,
+          "typedVariables": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -194,7 +195,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "localDeploy": false,
           "resourceDerivedTypes": false,
           "secureOutputs": false,
-          "resourceInfoCodegen": false
+          "resourceInfoCodegen": false,
+          "typedVariables": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -301,7 +303,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "localDeploy": false,
           "resourceDerivedTypes": false,
           "secureOutputs": false,
-          "resourceInfoCodegen": false
+          "resourceInfoCodegen": false,
+          "typedVariables": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -394,7 +397,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 LocalDeploy: false,
                 ResourceDerivedTypes: false,
                 SecureOutputs: false,
-                ResourceInfoCodegen: false);
+                ResourceInfoCodegen: false,
+                TypedVariables: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -480,7 +484,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 "localDeploy": false,
                 "resourceDerivedTypes": false,
                 "secureOutputs": false,
-                "resourceInfoCodegen": false
+                "resourceInfoCodegen": false,
+                "typedVariables": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -852,7 +857,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "localDeploy": false,
           "resourceDerivedTypes": false,
           "secureOutputs": false,
-          "resourceInfoCodegen": false
+          "resourceInfoCodegen": false,
+          "typedVariables": false
         },
         "formatting": {
           "indentKind": "Space",

@@ -171,7 +171,11 @@ namespace Bicep.Core.Semantics
 
         private IEnumerable<ExportMetadata> FindExportedVariables() => Root.VariableDeclarations
             .Where(v => v.IsExported(this))
-            .Select(v => new ExportedVariableMetadata(v.Name, v.Type, DescriptionHelper.TryGetFromDecorator(this, v.DeclaringVariable)));
+            .Select(v => new ExportedVariableMetadata(
+                v.Name,
+                v.Type,
+                DescriptionHelper.TryGetFromDecorator(this, v.DeclaringVariable),
+                DeclaredType: GetDeclaredType(v.DeclaringVariable)));
 
         private IEnumerable<ExportMetadata> FindExportedFunctions() => Root.FunctionDeclarations
             .Where(f => f.IsExported(this))

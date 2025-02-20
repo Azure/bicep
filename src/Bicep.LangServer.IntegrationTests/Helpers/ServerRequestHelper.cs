@@ -110,12 +110,12 @@ namespace Bicep.LangServer.IntegrationTests
         public LanguageClientFile ApplyCompletion(CompletionItem completion, params string[] tabStops)
             => LspRefactoringHelper.ApplyCompletion(bicepFile, completion, tabStops);
 
-        public async Task<LanguageClientFile> RequestAndApplyCompletion(int cursor, string label)
+        public async Task<LanguageClientFile> RequestAndApplyCompletion(int cursor, string label, string[]? tabStops = null)
         {
             var completionList = await RequestCompletion(cursor);
             var completion = completionList.Should().ContainSingle(x => x.Label == label).Subject;
 
-            return ApplyCompletion(completion);
+            return ApplyCompletion(completion, tabStops ?? []);
         }
 
         public LanguageClientFile ApplyWorkspaceEdit(WorkspaceEdit? edit)

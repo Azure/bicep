@@ -179,6 +179,9 @@ namespace Bicep.Core.TypeSystem
 
                 case TypedLambdaSyntax typedLambda:
                     return GetTypedLambdaType(typedLambda);
+
+                case VariableDeclarationSyntax variableDeclaration:
+                    return GetVariableTypeIfDefined(variableDeclaration);
             }
 
             return null;
@@ -471,6 +474,19 @@ namespace Bicep.Core.TypeSystem
             return new(ApplyTypeModifyingDecorators(DisallowNamespaceTypes(declaredType.Type, syntax.Type), syntax), syntax);
         }
 
+        private DeclaredTypeAssignment? GetVariableTypeIfDefined(VariableDeclarationSyntax syntax)
+        {
+            if (syntax.Type is null)
+            {
+                return null;
+            }
+
+            var declaredType = TryGetTypeFromTypeSyntax(syntax.Type) ??
+                ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidVariableType(GetValidTypeNames()));
+
+            return new(ApplyTypeModifyingDecorators(DisallowNamespaceTypes(declaredType.Type, syntax.Type), syntax), syntax);
+        }
+
         private ITypeReference GetTypeFromTypeSyntax(SyntaxBase syntax) => TryGetTypeFromTypeSyntax(syntax)
             ?? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).InvalidTypeDefinition());
 
@@ -513,9 +529,6 @@ namespace Bicep.Core.TypeSystem
 
             return declaredType is not null ? new(declaredType, syntax, DeclaredTypeFlags.None) : null;
         });
-
-        private DeclaredTypeAssignment GetResourceTypeType(ResourceTypeSyntax syntax)
-            => new(GetTypeReferenceForResourceType(syntax), syntax);
 
         private TypeSymbol GetTypeReferenceForResourceType(ResourceTypeSyntax syntax)
         {
@@ -1148,12 +1161,6 @@ namespace Bicep.Core.TypeSystem
             _ => type,
         };
 
-        private static ITypeReference UnwrapType(ITypeReference typeReference) => typeReference switch
-        {
-            DeferredTypeReference => new DeferredTypeReference(() => UnwrapType(typeReference.Type)),
-            _ => UnwrapType(typeReference.Type),
-        };
-
         private ITypeReference ConvertTypeExpressionToType(NullableTypeSyntax syntax)
         {
             var baseExpressionType = DisallowNamespaceTypes(GetTypeFromTypeSyntax(syntax.Base), syntax.Base);
@@ -1241,7 +1248,7 @@ namespace Bicep.Core.TypeSystem
                     var innerModuleBody = moduleSymbol.DeclaringModule.Value;
                     return this.GetDeclaredTypeAssignment(innerModuleBody);
 
-                case VariableSymbol variableSymbol when IsCycleFree(variableSymbol):
+                case VariableSymbol variableSymbol when variableSymbol.DeclaringVariable.Type is null && IsCycleFree(variableSymbol):
                     var variableType = this.typeManager.GetTypeInfo(variableSymbol.DeclaringVariable.Value);
                     return new DeclaredTypeAssignment(variableType, variableSymbol.DeclaringVariable);
 
@@ -1769,6 +1776,7 @@ namespace Bicep.Core.TypeSystem
                     return TryCreateAssignment(ResolveDiscriminatedObjects(namespaceType.ConfigurationType.Type, syntax), syntax, extensionAssignment.Flags);
                 case FunctionArgumentSyntax:
                 case OutputDeclarationSyntax parentOutput when syntax == parentOutput.Value:
+                case VariableDeclarationSyntax parentVariable when syntax == parentVariable.Value:
                     if (GetNonNullableTypeAssignment(parent) is not { } parentAssignment)
                     {
                         return null;

@@ -20,6 +20,7 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Workspaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Semantics
@@ -267,7 +268,8 @@ namespace Bicep.Core.Semantics
                         nameToken is JValue { Value: string name } &&
                         evaluator.TryGetEvaluatedVariableValue(name) is JToken evaluatedValue)
                     {
-                        exports.Add(new ExportedVariableMetadata(name, SystemNamespaceType.ConvertJsonToBicepType(evaluatedValue), GetDescription(exportedVariableObject)));
+                        var declaredType = TryGetTypeFromDefinition(exportedVariableObject);
+                        exports.Add(new ExportedVariableMetadata(name, SystemNamespaceType.ConvertJsonToBicepType(evaluatedValue), GetDescription(exportedVariableObject), declaredType));
                     }
                 }
             }
@@ -368,5 +370,9 @@ namespace Bicep.Core.Semantics
             => jObject.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName, out var descriptionToken) && descriptionToken is JValue { Value: string description }
                 ? description
                 : null;
+
+        private ITypeReference? TryGetTypeFromDefinition(JObject jObject)
+            => (jObject.TryGetValue(LanguageConstants.TypeKeyword, out var typeToken) &&
+                typeToken.TryFromJToken<TemplateTypeDefinition>() is {} typeDefinition) ? GetType(typeDefinition) : null;
     }
 }

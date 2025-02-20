@@ -1961,6 +1961,7 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             ParameterDeclarationSyntax parameterDeclaration => parameterDeclaration.Type,
             OutputDeclarationSyntax outputDeclaration => outputDeclaration.Type,
+            VariableDeclarationSyntax variableDeclaration => variableDeclaration.Type,
             TypeDeclarationSyntax typeDeclaration => typeDeclaration.Value,
             ObjectTypePropertySyntax objectTypeProperty => objectTypeProperty.Value,
             _ => null,

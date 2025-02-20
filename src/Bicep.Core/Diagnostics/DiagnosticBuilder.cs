@@ -1872,6 +1872,14 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic TypeExpressionResolvesToUnassignableType(TypeSymbol type) => CoreError(
                 "BCP411",
                 $"The type \"{type}\" cannot be used in a type assignment because it does not fit within one of ARM's primitive type categories (string, int, bool, array, object).{TypeInaccuracyClause}");
+
+            public Diagnostic InvalidVariableType(IEnumerable<string> validTypes) => CoreError(
+                "BCP412",
+                $"The variable type is not valid. Please specify one of the following types: {ToQuotedString(validTypes)}.");
+
+            public Diagnostic TypedVariablesUnsupported() => CoreError(
+                "BCP413",
+                $"""Using typed variables requires enabling EXPERIMENTAL feature "{nameof(ExperimentalFeaturesEnabled.TypedVariables)}".""");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

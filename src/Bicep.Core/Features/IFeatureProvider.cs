@@ -38,6 +38,8 @@ public interface IFeatureProvider
     bool SecureOutputsEnabled { get; }
 
     bool ResourceInfoCodegenEnabled { get; }
+    
+    bool TypedVariablesEnabled { get; }
 
     bool ExtensibilityV2EmittingEnabled { get; }
 
@@ -61,6 +63,7 @@ public interface IFeatureProvider
                 (LocalDeployEnabled, "Enable local deploy", false, false),
                 (ResourceDerivedTypesEnabled, CoreResources.ExperimentalFeatureNames_ResourceDerivedTypes, true, false),
                 (SecureOutputsEnabled, CoreResources.ExperimentalFeatureNames_SecureOutputs, true, false),
+                (TypedVariablesEnabled, "Typed variables", true, false),
                 (ExtendableParamFilesEnabled, "Enable extendable parameters", true, false),
             })
             {

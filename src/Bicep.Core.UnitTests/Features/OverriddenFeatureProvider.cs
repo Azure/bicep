@@ -50,5 +50,7 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool ExtendableParamFilesEnabled => overrides.ExtendableParamFilesEnabled ?? features.ExtendableParamFilesEnabled;
 
+    public bool TypedVariablesEnabled => overrides.TypedVariablesEnabled ?? features.TypedVariablesEnabled;
+
     public bool ExtensibilityV2EmittingEnabled => overrides.ExtensibilityV2EmittingEnabled ?? features.ExtensibilityV2EmittingEnabled;
 }
