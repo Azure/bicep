@@ -579,7 +579,7 @@ namespace Bicep.Core.TypeSystem
         {
             AmbientTypeSymbol ambientType => InstantiateType(syntax, ambientType.Name, ambientType.Type),
             ImportedTypeSymbol importedType => InstantiateType(syntax, importedType.Name, importedType.Type),
-            TypeAliasSymbol typeAlias => InstantiateType(syntax, typeAlias.Name, typeAlias.Type),
+            TypeAliasSymbol typeAlias => InstantiateType(syntax, typeAlias.Name, GetUserDefinedTypeType(typeAlias)),
             DeclaredSymbol declaredSymbol => new(DiagnosticBuilder.ForPosition(syntax).ValueSymbolUsedAsType(declaredSymbol.Name)),
             _ => new(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
         };
@@ -937,16 +937,11 @@ namespace Bicep.Core.TypeSystem
 
         private ITypeReference ConvertTypeExpressionToType(SyntaxBase syntax, SyntaxBase baseExpression, string propertyName, SyntaxBase propertyNameSyntax)
         {
-            if (!IsPermittedTypeAccessExpressionBase(baseExpression))
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
-            }
-
             var baseType = GetTypeFromTypeSyntax(baseExpression);
 
             return RequiresDeferral(baseExpression)
-                ? new DeferredTypeReference(() => FinalizeTypePropertyType(baseType, propertyName, propertyNameSyntax))
-                : FinalizeTypePropertyType(baseType, propertyName, propertyNameSyntax);
+                ? new DeferredTypeReference(() => FinalizeTypePropertyType(syntax, baseExpression, baseType, propertyName, propertyNameSyntax))
+                : FinalizeTypePropertyType(syntax, baseExpression, baseType, propertyName, propertyNameSyntax);
         }
 
         private bool IsPermittedTypeAccessExpressionBase(SyntaxBase baseExpression) => baseExpression switch
@@ -970,8 +965,27 @@ namespace Bicep.Core.TypeSystem
             _ => false,
         };
 
-        private static TypeSymbol FinalizeTypePropertyType(ITypeReference baseExpressionType, string propertyName, SyntaxBase propertyNameSyntax)
-            => EnsureNonParameterizedType(propertyNameSyntax, GetTypePropertyType(baseExpressionType, propertyName, propertyNameSyntax));
+        private TypeSymbol FinalizeTypePropertyType(
+            SyntaxBase syntax,
+            SyntaxBase baseExpression,
+            ITypeReference baseExpressionType,
+            string propertyName,
+            SyntaxBase propertyNameSyntax)
+        {
+            var typePropertyType = GetTypePropertyType(baseExpressionType, propertyName, propertyNameSyntax);
+
+            if (typePropertyType is ErrorType)
+            {
+                return typePropertyType;
+            }
+
+            if (!IsPermittedTypeAccessExpressionBase(baseExpression))
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
+            }
+
+            return EnsureNonParameterizedType(propertyNameSyntax, GetTypePropertyType(baseExpressionType, propertyName, propertyNameSyntax));
+        }
 
         private static TypeSymbol GetTypePropertyType(ITypeReference baseExpressionType, string propertyName, SyntaxBase propertyNameSyntax)
         {
@@ -1004,11 +1018,6 @@ namespace Bicep.Core.TypeSystem
 
         private ITypeReference ConvertTypeExpressionToType(TypeArrayAccessSyntax syntax, ulong index)
         {
-            if (!IsPermittedTypeAccessExpressionBase(syntax.BaseExpression))
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
-            }
-
             var baseType = GetTypeFromTypeSyntax(syntax.BaseExpression);
 
             return RequiresDeferral(syntax.BaseExpression)
@@ -1016,7 +1025,7 @@ namespace Bicep.Core.TypeSystem
                 : FinalizeTypeIndexAccessType(syntax, index, baseType);
         }
 
-        private static TypeSymbol FinalizeTypeIndexAccessType(TypeArrayAccessSyntax syntax, ulong index, ITypeReference baseExpressionType)
+        private TypeSymbol FinalizeTypeIndexAccessType(TypeArrayAccessSyntax syntax, ulong index, ITypeReference baseExpressionType)
         {
             var baseType = baseExpressionType.Type;
 
@@ -1028,6 +1037,11 @@ namespace Bicep.Core.TypeSystem
             if (baseType is ErrorType error)
             {
                 return error;
+            }
+
+            if (!IsPermittedTypeAccessExpressionBase(syntax.BaseExpression))
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
             }
 
             if (baseType is not TupleType tupleType)
@@ -1046,11 +1060,6 @@ namespace Bicep.Core.TypeSystem
 
         private ITypeReference ConvertTypeExpressionToType(TypeAdditionalPropertiesAccessSyntax syntax)
         {
-            if (!IsPermittedTypeAccessExpressionBase(syntax.BaseExpression))
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
-            }
-
             var baseType = DisallowNamespaceTypes(GetTypeFromTypeSyntax(syntax.BaseExpression), syntax.BaseExpression);
 
             return RequiresDeferral(syntax.BaseExpression)
@@ -1058,7 +1067,7 @@ namespace Bicep.Core.TypeSystem
                 : FinalizeAdditionalPropertiesAccessType(syntax, baseType);
         }
 
-        private static TypeSymbol FinalizeAdditionalPropertiesAccessType(TypeAdditionalPropertiesAccessSyntax syntax, ITypeReference baseExpressionType)
+        private TypeSymbol FinalizeAdditionalPropertiesAccessType(TypeAdditionalPropertiesAccessSyntax syntax, ITypeReference baseExpressionType)
         {
             var baseType = baseExpressionType.Type;
 
@@ -1070,6 +1079,11 @@ namespace Bicep.Core.TypeSystem
             if (baseType is ErrorType error)
             {
                 return error;
+            }
+
+            if (!IsPermittedTypeAccessExpressionBase(syntax.BaseExpression))
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
             }
 
             if (baseType is not ObjectType @object || @object.AdditionalProperties is null || @object.AdditionalProperties.TypeReference.Type == LanguageConstants.Any)
@@ -1082,11 +1096,6 @@ namespace Bicep.Core.TypeSystem
 
         private ITypeReference ConvertTypeExpressionToType(TypeItemsAccessSyntax syntax)
         {
-            if (!IsPermittedTypeAccessExpressionBase(syntax.BaseExpression))
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
-            }
-
             var baseType = DisallowNamespaceTypes(GetTypeFromTypeSyntax(syntax.BaseExpression), syntax.BaseExpression);
 
             return RequiresDeferral(syntax.BaseExpression)
@@ -1094,7 +1103,7 @@ namespace Bicep.Core.TypeSystem
                 : FinalizeItemsAccessType(syntax, baseType);
         }
 
-        private static TypeSymbol FinalizeItemsAccessType(TypeItemsAccessSyntax syntax, ITypeReference baseExpressionType)
+        private TypeSymbol FinalizeItemsAccessType(TypeItemsAccessSyntax syntax, ITypeReference baseExpressionType)
         {
             var baseType = baseExpressionType.Type;
 
@@ -1106,6 +1115,11 @@ namespace Bicep.Core.TypeSystem
             if (baseType is ErrorType error)
             {
                 return error;
+            }
+
+            if (!IsPermittedTypeAccessExpressionBase(syntax.BaseExpression))
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
             }
 
             if (baseType is not TypedArrayType @array)
