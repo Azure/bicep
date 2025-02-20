@@ -94,4 +94,53 @@ var foo invalid = 'foo'
             ("BCP302", DiagnosticLevel.Error, """The name "invalid" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string"."""),
         ]);
     }
+
+    [TestMethod]
+    public void Type_information_is_persisted_across_bicep_modules()
+    {
+        var result = CompilationHelper.Compile(Services,
+            ("mod.bicep", """
+@export()
+var exported {
+  foo: string
+} = any({})
+"""),
+            ("main.bicep", """
+import { exported } from './mod.bicep'
+
+output test {
+  foo: int
+} = exported
+"""));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP036", DiagnosticLevel.Error, """The property "foo" expected a value of type "int" but the provided value is of type "string"."""),
+        ]);
+    }
+
+    [TestMethod]
+    public void Type_information_is_persisted_across_json_modules()
+    {
+        var compiledModule = CompilationHelper.Compile(Services, """
+@export()
+var exported {
+  foo: string
+} = any({})
+""");
+        compiledModule.Template.Should().NotBeNull();
+
+        var result = CompilationHelper.Compile(Services,
+            ("main.bicep", """
+import { exported } from './mod.json'
+
+output test {
+  foo: int
+} = exported
+"""),
+            ("mod.json", compiledModule.Template!.ToString()));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP035", DiagnosticLevel.Error, """The specified "output" declaration is missing the following required properties: "foo"."""),
+        ]);
+    }
 }

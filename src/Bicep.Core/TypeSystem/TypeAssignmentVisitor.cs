@@ -1022,6 +1022,11 @@ namespace Bicep.Core.TypeSystem
             {
                 if (syntax.Type is {})
                 {
+                    if (!model.Features.TypedVariablesEnabled)
+                    {
+                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).TypedVariablesUnsupported());
+                    }
+
                     var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnostics);
                     diagnostics.WriteMultiple(GetDeclarationAssignmentDiagnostics(declaredType, syntax.Value));
 

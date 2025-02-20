@@ -36,7 +36,7 @@ namespace Bicep.Core.Parsing
         protected SyntaxBase VariableDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.VariableKeyword);
-            var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), RecoveryFlags.None, TokenType.Identifier, TokenType.Assignment, TokenType.NewLine);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), RecoveryFlags.None, TokenType.Identifier, TokenType.NewLine);
             var type = WithRecoveryNullable(() => reader.Peek().Type switch
             {
                 TokenType.EndOfFile or

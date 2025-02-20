@@ -81,23 +81,25 @@ var 2
 var $ = 23
 //@[00:0010) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
-//@[04:0005) | ├─IdentifierSyntax
-//@[04:0005) | | └─SkippedTriviaSyntax
-//@[04:0005) | |   └─Token(Unrecognized) |$|
-//@[06:0007) | ├─Token(Assignment) |=|
-//@[08:0010) | └─IntegerLiteralSyntax
-//@[08:0010) |   └─Token(Integer) |23|
+//@[04:0010) | ├─IdentifierSyntax
+//@[04:0010) | | └─SkippedTriviaSyntax
+//@[04:0005) | |   ├─Token(Unrecognized) |$|
+//@[06:0007) | |   ├─Token(Assignment) |=|
+//@[08:0010) | |   └─Token(Integer) |23|
+//@[10:0010) | ├─SkippedTriviaSyntax
+//@[10:0010) | └─SkippedTriviaSyntax
 //@[10:0011) ├─Token(NewLine) |\n|
 var # 33 = 43
 //@[00:0013) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
-//@[04:0008) | ├─IdentifierSyntax
-//@[04:0008) | | └─SkippedTriviaSyntax
+//@[04:0013) | ├─IdentifierSyntax
+//@[04:0013) | | └─SkippedTriviaSyntax
 //@[04:0005) | |   ├─Token(Unrecognized) |#|
-//@[06:0008) | |   └─Token(Integer) |33|
-//@[09:0010) | ├─Token(Assignment) |=|
-//@[11:0013) | └─IntegerLiteralSyntax
-//@[11:0013) |   └─Token(Integer) |43|
+//@[06:0008) | |   ├─Token(Integer) |33|
+//@[09:0010) | |   ├─Token(Assignment) |=|
+//@[11:0013) | |   └─Token(Integer) |43|
+//@[13:0013) | ├─SkippedTriviaSyntax
+//@[13:0013) | └─SkippedTriviaSyntax
 //@[13:0015) ├─Token(NewLine) |\n\n|
 
 // no value assigned
@@ -140,13 +142,15 @@ var badEquals2 3 true
 var 2 = x
 //@[00:0009) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
-//@[04:0005) | ├─IdentifierSyntax
-//@[04:0005) | | └─SkippedTriviaSyntax
-//@[04:0005) | |   └─Token(Integer) |2|
-//@[06:0007) | ├─Token(Assignment) |=|
-//@[08:0009) | └─VariableAccessSyntax
-//@[08:0009) |   └─IdentifierSyntax
-//@[08:0009) |     └─Token(Identifier) |x|
+//@[04:0007) | ├─IdentifierSyntax
+//@[04:0007) | | └─SkippedTriviaSyntax
+//@[04:0005) | |   ├─Token(Integer) |2|
+//@[06:0007) | |   └─Token(Assignment) |=|
+//@[08:0009) | ├─TypeVariableAccessSyntax
+//@[08:0009) | | └─IdentifierSyntax
+//@[08:0009) | |   └─Token(Identifier) |x|
+//@[09:0009) | ├─SkippedTriviaSyntax
+//@[09:0009) | └─SkippedTriviaSyntax
 //@[09:0011) ├─Token(NewLine) |\n\n|
 
 // bad token value
@@ -1059,12 +1063,13 @@ var anotherThing = true
 var ☕ = true
 //@[00:0012) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
-//@[04:0005) | ├─IdentifierSyntax
-//@[04:0005) | | └─SkippedTriviaSyntax
-//@[04:0005) | |   └─Token(Unrecognized) |☕|
-//@[06:0007) | ├─Token(Assignment) |=|
-//@[08:0012) | └─BooleanLiteralSyntax
-//@[08:0012) |   └─Token(TrueKeyword) |true|
+//@[04:0012) | ├─IdentifierSyntax
+//@[04:0012) | | └─SkippedTriviaSyntax
+//@[04:0005) | |   ├─Token(Unrecognized) |☕|
+//@[06:0007) | |   ├─Token(Assignment) |=|
+//@[08:0012) | |   └─Token(TrueKeyword) |true|
+//@[12:0012) | ├─SkippedTriviaSyntax
+//@[12:0012) | └─SkippedTriviaSyntax
 //@[12:0013) ├─Token(NewLine) |\n|
 var a☕ = true
 //@[00:0013) ├─VariableDeclarationSyntax
