@@ -9,6 +9,7 @@ import { coverageConfigDefaults, defineConfig } from "vitest/config";
 export default defineConfig({
   plugins: [react(), ViteEjsPlugin()],
   build: {
+    sourcemap: 'inline',
     rollupOptions: {
       output: {
         entryFileNames: `[name].js`,
