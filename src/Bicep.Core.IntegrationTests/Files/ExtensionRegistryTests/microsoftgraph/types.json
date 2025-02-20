@@ -148,6 +148,24 @@
           "$ref": "#/0"
         },
         "flags": 0
+      },
+      "spa": {
+        "type": {
+          "$ref": "#/11"
+        },
+        "flags": 0
+      }
+    }
+  },
+  {
+    "$type": "ObjectType",
+    "name": "MicrosoftGraphSpaApplication",
+    "properties": {
+      "redirectUris": {
+        "type": {
+          "$ref": "#/0"
+        },
+        "flags": 0
       }
     }
   },
@@ -174,13 +192,13 @@
     "properties": {
       "type": {
         "type": {
-          "$ref": "#/12"
+          "$ref": "#/13"
         },
         "flags": 10
       },
       "apiVersion": {
         "type": {
-          "$ref": "#/13"
+          "$ref": "#/14"
         },
         "flags": 10
       },
@@ -203,7 +221,7 @@
     "name": "Microsoft.Graph/servicePrincipals@v1.0",
     "scopeType": 0,
     "body": {
-      "$ref": "#/14"
+      "$ref": "#/15"
     },
     "flags": 0
   }
