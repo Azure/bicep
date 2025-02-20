@@ -124,7 +124,7 @@ namespace Bicep.Core.Emit
 
             emitter.EmitProperty("contentVersion", "1.0.0.0");
 
-            this.EmitMetadata(emitter, program.Metadata);
+            this.EmitMetadata(emitter, program.Metadata, program.Variables.Concat(Context.SemanticModel.ImportClosureInfo.ImportedVariablesInClosure));
 
             this.EmitTypeDefinitionsIfPresent(emitter, programTypes);
 
@@ -1696,8 +1696,9 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private void EmitMetadata(ExpressionEmitter emitter, ImmutableArray<DeclaredMetadataExpression> metadata)
+        private void EmitMetadata(ExpressionEmitter emitter, ImmutableArray<DeclaredMetadataExpression> metadata, IEnumerable<DeclaredVariableExpression> variables)
         {
+            var variablesByName = variables.ToDictionary(v => v.Name, v => v, LanguageConstants.IdentifierComparer);
             emitter.EmitObjectProperty("metadata", () =>
             {
                 if (Context.Settings.UseExperimentalTemplateLanguageVersion)
@@ -1732,6 +1733,11 @@ namespace Bicep.Core.Emit
                                 if (exportedVariable.Description is string description)
                                 {
                                     emitter.EmitProperty(LanguageConstants.MetadataDescriptionPropertyName, description);
+                                }
+                                if (variablesByName.TryGetValue(exportedVariable.Name) is {} variable &&
+                                    variable.Type is {} variableType)
+                                {
+                                    emitter.EmitProperty(TypePropertyName, TypePropertiesForTypeExpression(variableType));
                                 }
                             });
                         }

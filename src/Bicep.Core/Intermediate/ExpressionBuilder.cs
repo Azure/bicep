@@ -186,6 +186,7 @@ public class ExpressionBuilder
                 return EvaluateDecorators(variable, new DeclaredVariableExpression(
                     variable,
                     variable.Name.IdentifierName,
+                    variable.Type != null ? ConvertTypeWithoutLowering(variable.Type) : null,
                     ConvertWithoutLowering(variable.Value)));
 
             case FunctionDeclarationSyntax function:
@@ -475,7 +476,7 @@ public class ExpressionBuilder
 
         var functionVariables = Context.FunctionVariables
             .OrderBy(x => x.Value.Name, LanguageConstants.IdentifierComparer)
-            .Select(x => new DeclaredVariableExpression(x.Key, x.Value.Name, x.Value.Value))
+            .Select(x => new DeclaredVariableExpression(x.Key, x.Value.Name, null, x.Value.Value))
             .ToImmutableArray();
 
         var variables = Context.SemanticModel.Root.VariableDeclarations

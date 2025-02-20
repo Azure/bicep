@@ -57,6 +57,7 @@ namespace Bicep.Core.Emit
             BlockResourceDerivedTypesThatDoNotDereferenceProperties(model, diagnostics);
             BlockSpreadInUnsupportedLocations(model, diagnostics);
             BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
+            BlockTypedVariablesWithoutExperimentalFeaure(model, diagnostics);
 
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
 
@@ -755,6 +756,18 @@ namespace Bicep.Core.Emit
                 foreach (var spread in body.Children.OfType<SpreadExpressionSyntax>())
                 {
                     diagnostics.Write(spread, x => x.SpreadOperatorUnsupportedInLocation(spread));
+                }
+            }
+        }
+
+        private static void BlockTypedVariablesWithoutExperimentalFeaure(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            foreach (var variable in model.Root.VariableDeclarations)
+            {
+                if (variable.DeclaringVariable.Type is {} &&
+                    !model.Features.TypedVariablesEnabled)
+                {
+                    diagnostics.Write(variable.DeclaringVariable.Type, x => x.TypedVariablesUnsupported());
                 }
             }
         }

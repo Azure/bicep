@@ -839,6 +839,10 @@
         "resourceInfoCodegen": {
             "type": "boolean",
             "description": "Enables the 'resourceInfo' function for simplified code generation. See https://aka.ms/bicep/experimental-features#resourceinfocodegen"
+        },
+        "typedVariables": {
+          "type": "boolean",
+          "description": "If enabled, you can optionally add a type to variable declarations. See https://aka.ms/bicep/experimental-features#typedvariables"
         }
       },
       "additionalProperties": false

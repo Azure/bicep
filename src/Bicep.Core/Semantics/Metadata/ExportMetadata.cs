@@ -19,7 +19,7 @@ public abstract record ExportMetadata(ExportMetadataKind Kind, string Name, ITyp
 public record ExportedTypeMetadata(string Name, ITypeReference TypeReference, string? Description)
     : ExportMetadata(ExportMetadataKind.Type, Name, TypeReference, Description);
 
-public record ExportedVariableMetadata(string Name, ITypeReference TypeReference, string? Description)
+public record ExportedVariableMetadata(string Name, ITypeReference TypeReference, string? Description, ITypeReference? DeclaredType)
     : ExportMetadata(ExportMetadataKind.Variable, Name, TypeReference, Description);
 
 public record ExportedFunctionParameterMetadata(string Name, ITypeReference TypeReference, string? Description);

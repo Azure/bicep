@@ -191,6 +191,9 @@ namespace Bicep.Core.Semantics
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
+            allowedFlags = FunctionFlags.TypeDecorator;
+            this.Visit(syntax.Type);
+            allowedFlags = FunctionFlags.VariableDecorator;
             this.Visit(syntax.Assignment);
             allowedFlags = FunctionFlags.RequiresInlining;
             this.Visit(syntax.Value);

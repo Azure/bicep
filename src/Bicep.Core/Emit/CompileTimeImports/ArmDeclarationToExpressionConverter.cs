@@ -66,6 +66,8 @@ internal class ArmDeclarationToExpressionConverter
     internal DeclaredVariableExpression CreateDeclaredVariableExpressionFor(string originalName)
         => new(sourceSyntax,
             armIdentifierToSymbolNameMapping[new(ArmSymbolType.Variable, originalName)],
+            // TODO do we need to support type here?
+            Type: null,
             ConvertToVariableValue(originalName),
             // Variables cannot have descriptions in an ARM template -- this is only supported in Bicep
             Description: null,

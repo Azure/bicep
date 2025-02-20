@@ -288,10 +288,11 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     {
         var hasChanges =
             TryRewrite(expression.Value, out var value) |
+            TryRewriteStrict(expression.Type, out var type) |
             TryRewriteDescription(expression, out var description) |
             TryRewrite(expression.Exported, out var exported);
 
-        return hasChanges ? expression with { Value = value, Description = description, Exported = exported } : expression;
+        return hasChanges ? expression with { Value = value, Type = type, Description = description, Exported = exported } : expression;
     }
 
     void IExpressionVisitor.VisitDeclaredFunctionExpression(DeclaredFunctionExpression expression) => ReplaceCurrent(expression, ReplaceDeclaredFunctionExpression);

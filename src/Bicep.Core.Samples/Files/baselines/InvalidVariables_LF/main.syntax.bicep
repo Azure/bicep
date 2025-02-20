@@ -118,8 +118,9 @@ var badEquals 2
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0013) | ├─IdentifierSyntax
 //@[04:0013) | | └─Token(Identifier) |badEquals|
-//@[14:0015) | ├─SkippedTriviaSyntax
+//@[14:0015) | ├─IntegerTypeLiteralSyntax
 //@[14:0015) | | └─Token(Integer) |2|
+//@[15:0015) | ├─SkippedTriviaSyntax
 //@[15:0015) | └─SkippedTriviaSyntax
 //@[15:0016) ├─Token(NewLine) |\n|
 var badEquals2 3 true
@@ -127,8 +128,9 @@ var badEquals2 3 true
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0014) | ├─IdentifierSyntax
 //@[04:0014) | | └─Token(Identifier) |badEquals2|
-//@[15:0021) | ├─SkippedTriviaSyntax
-//@[15:0016) | | ├─Token(Integer) |3|
+//@[15:0016) | ├─IntegerTypeLiteralSyntax
+//@[15:0016) | | └─Token(Integer) |3|
+//@[17:0021) | ├─SkippedTriviaSyntax
 //@[17:0021) | | └─Token(TrueKeyword) |true|
 //@[21:0021) | └─SkippedTriviaSyntax
 //@[21:0023) ├─Token(NewLine) |\n\n|
@@ -1069,11 +1071,11 @@ var a☕ = true
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0005) | ├─IdentifierSyntax
 //@[04:0005) | | └─Token(Identifier) |a|
-//@[05:0013) | ├─SkippedTriviaSyntax
-//@[05:0006) | | ├─Token(Unrecognized) |☕|
-//@[07:0008) | | ├─Token(Assignment) |=|
-//@[09:0013) | | └─Token(TrueKeyword) |true|
-//@[13:0013) | └─SkippedTriviaSyntax
+//@[05:0006) | ├─SkippedTriviaSyntax
+//@[05:0006) | | └─Token(Unrecognized) |☕|
+//@[07:0008) | ├─Token(Assignment) |=|
+//@[09:0013) | └─BooleanLiteralSyntax
+//@[09:0013) |   └─Token(TrueKeyword) |true|
 //@[13:0015) ├─Token(NewLine) |\n\n|
 
 var missingArrayVariable = [for thing in stuff: 4]
