@@ -463,6 +463,7 @@ namespace Bicep.LanguageServer
             properties.Add("Parameters", declarationsInMainFile.Count(x => x is ParameterDeclarationSyntax).ToString());
             properties.Add("Resources", semanticModel.DeclaredResources.Length.ToString());
             properties.Add("Variables", declarationsInMainFile.Count(x => x is VariableDeclarationSyntax).ToString());
+            properties.Add("ExtendsDeclarations", declarationsInMainFile.Count(x => x is ExtendsDeclarationSyntax).ToString());
 
             properties.Add("CharCount", bicepFile.Text.Length.ToString());
 
