@@ -38,10 +38,9 @@ public class PublicModuleMetadataProvider : BaseModuleMetadataProvider, IPublicM
                         t => new RegistryModuleVersionMetadata(
                             t,
                             IsBicepModule: true,
-                            new RegistryMetadataDetails(
-                                m.PropertiesByTag.ContainsKey(t) ? m.PropertiesByTag[t].Description:null,
-                                m.PropertiesByTag.ContainsKey(t) ? m.PropertiesByTag[t].DocumentationUri:null)
-                        )
+                            m.PropertiesByTag.TryGetValue(t, out var properties)
+                                ? new RegistryMetadataDetails(properties.Description, properties.DocumentationUri)
+                                : new RegistryMetadataDetails(null, null))
                     )]);
             return new RegistryModuleMetadata(
                 Registry,
@@ -52,6 +51,6 @@ public class PublicModuleMetadataProvider : BaseModuleMetadataProvider, IPublicM
 
     protected override Task<ImmutableArray<RegistryModuleVersionMetadata>> GetLiveModuleVersionsAsync(string modulePath)
     {
-        throw new NotImplementedException("This method should never get called because versions are pre-filled with a resolved task"); throw new NotImplementedException();
+        throw new UnreachableException("This method should never get called because versions are pre-filled with a resolved task");
     }
 }

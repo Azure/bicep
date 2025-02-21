@@ -92,7 +92,7 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public async Task<string[]> GetRepositoryTagsAsync(
+        public async Task<IReadOnlyList<string>> GetRepositoryTagsAsync(
             CloudConfiguration cloud,
             string registry,
             string repository)
@@ -118,7 +118,7 @@ namespace Bicep.Core.Registry
                 return await GetTagsInternalAsync(anonymousAccess: true);
             }
 
-            async Task<string[]> GetTagsInternalAsync(bool anonymousAccess)
+            async Task<IReadOnlyList<string>> GetTagsInternalAsync(bool anonymousAccess)
             {
                 var client = CreateContainerClient(cloud, registryUri, anonymousAccess);
 
