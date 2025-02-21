@@ -22,42 +22,21 @@ namespace Bicep.Cli.Arguments
                         NoRestore = true;
                         break;
 
-                    case "--outdir":
-                        if (args.Length == i + 1)
-                        {
-                            throw new CommandLineException($"The --outdir parameter expects an argument");
-                        }
-                        if (OutputDir is not null)
-                        {
-                            throw new CommandLineException($"The --outdir parameter cannot be specified twice");
-                        }
-                        OutputDir = args[i + 1];
+                    case ArgumentConstants.OutDir:
+                        ArgumentHelper.ValidateNotAlreadySet(ArgumentConstants.OutDir, OutputDir);
+                        OutputDir = ArgumentHelper.GetValueWithValidation(ArgumentConstants.OutDir, args, i);
                         i++;
                         break;
 
-                    case "--outfile":
-                        if (args.Length == i + 1)
-                        {
-                            throw new CommandLineException($"The --outfile parameter expects an argument");
-                        }
-                        if (OutputFile is not null)
-                        {
-                            throw new CommandLineException($"The --outfile parameter cannot be specified twice");
-                        }
-                        OutputFile = args[i + 1];
+                    case ArgumentConstants.OutFile:
+                        ArgumentHelper.ValidateNotAlreadySet(ArgumentConstants.OutFile, OutputFile);
+                        OutputFile = ArgumentHelper.GetValueWithValidation(ArgumentConstants.OutFile, args, i);
                         i++;
                         break;
 
-                    case "--diagnostics-format":
-                        if (args.Length == i + 1)
-                        {
-                            throw new CommandLineException($"The --diagnostics-format parameter expects an argument");
-                        }
-                        if (DiagnosticsFormat is not null)
-                        {
-                            throw new CommandLineException($"The --diagnostics-format parameter cannot be specified twice");
-                        }
-                        DiagnosticsFormat = ArgumentHelper.ToDiagnosticsFormat(args[i + 1]);
+                    case ArgumentConstants.DiagnosticsFormat:
+                        ArgumentHelper.ValidateNotAlreadySet(ArgumentConstants.DiagnosticsFormat, DiagnosticsFormat);
+                        DiagnosticsFormat = ArgumentHelper.ToDiagnosticsFormat(ArgumentHelper.GetValueWithValidation(ArgumentConstants.DiagnosticsFormat, args, i));
                         i++;
                         break;
 
