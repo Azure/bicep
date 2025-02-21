@@ -1,5 +1,5 @@
 
-//@[000:14055) ProgramSyntax
+//@[000:14067) ProgramSyntax
 //@[000:00002) ├─Token(NewLine) |\r\n|
 @sys.description('this is basicStorage')
 //@[000:00225) ├─ResourceDeclarationSyntax
@@ -1180,22 +1180,22 @@ resource resourceA 'My.Rp/typeA@2020-01-01' = {
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
-//@[000:00092) ├─ResourceDeclarationSyntax
+//@[000:00095) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00018) | ├─IdentifierSyntax
 //@[009:00018) | | └─Token(Identifier) |resourceB|
 //@[019:00049) | ├─StringSyntax
 //@[019:00049) | | └─Token(StringComplete) |'My.Rp/typeA/typeB@2020-01-01'|
 //@[050:00051) | ├─Token(Assignment) |=|
-//@[052:00092) | └─ObjectSyntax
+//@[052:00095) | └─ObjectSyntax
 //@[052:00053) |   ├─Token(LeftBrace) |{|
 //@[053:00055) |   ├─Token(NewLine) |\r\n|
-  name: '${resourceA.name}/myName'
-//@[002:00034) |   ├─ObjectPropertySyntax
+  name: '${resourceA.name}/resourceB'
+//@[002:00037) |   ├─ObjectPropertySyntax
 //@[002:00006) |   | ├─IdentifierSyntax
 //@[002:00006) |   | | └─Token(Identifier) |name|
 //@[006:00007) |   | ├─Token(Colon) |:|
-//@[008:00034) |   | └─StringSyntax
+//@[008:00037) |   | └─StringSyntax
 //@[008:00011) |   |   ├─Token(StringLeftPiece) |'${|
 //@[011:00025) |   |   ├─PropertyAccessSyntax
 //@[011:00020) |   |   | ├─VariableAccessSyntax
@@ -1204,29 +1204,29 @@ resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[020:00021) |   |   | ├─Token(Dot) |.|
 //@[021:00025) |   |   | └─IdentifierSyntax
 //@[021:00025) |   |   |   └─Token(Identifier) |name|
-//@[025:00034) |   |   └─Token(StringRightPiece) |}/myName'|
-//@[034:00036) |   ├─Token(NewLine) |\r\n|
+//@[025:00037) |   |   └─Token(StringRightPiece) |}/resourceB'|
+//@[037:00039) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
-//@[000:00269) ├─ResourceDeclarationSyntax
+//@[000:00272) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00018) | ├─IdentifierSyntax
 //@[009:00018) | | └─Token(Identifier) |resourceC|
 //@[019:00049) | ├─StringSyntax
 //@[019:00049) | | └─Token(StringComplete) |'My.Rp/typeA/typeB@2020-01-01'|
 //@[050:00051) | ├─Token(Assignment) |=|
-//@[052:00269) | └─ObjectSyntax
+//@[052:00272) | └─ObjectSyntax
 //@[052:00053) |   ├─Token(LeftBrace) |{|
 //@[053:00055) |   ├─Token(NewLine) |\r\n|
-  name: '${resourceA.name}/myName'
-//@[002:00034) |   ├─ObjectPropertySyntax
+  name: '${resourceA.name}/resourceC'
+//@[002:00037) |   ├─ObjectPropertySyntax
 //@[002:00006) |   | ├─IdentifierSyntax
 //@[002:00006) |   | | └─Token(Identifier) |name|
 //@[006:00007) |   | ├─Token(Colon) |:|
-//@[008:00034) |   | └─StringSyntax
+//@[008:00037) |   | └─StringSyntax
 //@[008:00011) |   |   ├─Token(StringLeftPiece) |'${|
 //@[011:00025) |   |   ├─PropertyAccessSyntax
 //@[011:00020) |   |   | ├─VariableAccessSyntax
@@ -1235,8 +1235,8 @@ resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[020:00021) |   |   | ├─Token(Dot) |.|
 //@[021:00025) |   |   | └─IdentifierSyntax
 //@[021:00025) |   |   |   └─Token(Identifier) |name|
-//@[025:00034) |   |   └─Token(StringRightPiece) |}/myName'|
-//@[034:00036) |   ├─Token(NewLine) |\r\n|
+//@[025:00037) |   |   └─Token(StringRightPiece) |}/resourceC'|
+//@[037:00039) |   ├─Token(NewLine) |\r\n|
   properties: {
 //@[002:00175) |   ├─ObjectPropertySyntax
 //@[002:00012) |   | ├─IdentifierSyntax
@@ -3436,24 +3436,24 @@ output p1_subnet1id string = p1_subnet1.id
 // parent property with extension resource
 //@[042:00044) ├─Token(NewLine) |\r\n|
 resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
-//@[000:00076) ├─ResourceDeclarationSyntax
+//@[000:00078) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00016) | ├─IdentifierSyntax
 //@[009:00016) | | └─Token(Identifier) |p2_res1|
 //@[017:00053) | ├─StringSyntax
 //@[017:00053) | | └─Token(StringComplete) |'Microsoft.Rp1/resource1@2020-06-01'|
 //@[054:00055) | ├─Token(Assignment) |=|
-//@[056:00076) | └─ObjectSyntax
+//@[056:00078) | └─ObjectSyntax
 //@[056:00057) |   ├─Token(LeftBrace) |{|
 //@[057:00059) |   ├─Token(NewLine) |\r\n|
-  name: 'res1'
-//@[002:00014) |   ├─ObjectPropertySyntax
+  name: 'p2res1'
+//@[002:00016) |   ├─ObjectPropertySyntax
 //@[002:00006) |   | ├─IdentifierSyntax
 //@[002:00006) |   | | └─Token(Identifier) |name|
 //@[006:00007) |   | ├─Token(Colon) |:|
-//@[008:00014) |   | └─StringSyntax
-//@[008:00014) |   |   └─Token(StringComplete) |'res1'|
-//@[014:00016) |   ├─Token(NewLine) |\r\n|
+//@[008:00016) |   | └─StringSyntax
+//@[008:00016) |   |   └─Token(StringComplete) |'p2res1'|
+//@[016:00018) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|
@@ -3630,7 +3630,7 @@ output p2_res2childid string = p2_res2child.id
 // parent property with 'existing' resource
 //@[043:00045) ├─Token(NewLine) |\r\n|
 resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
-//@[000:00085) ├─ResourceDeclarationSyntax
+//@[000:00087) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00016) | ├─IdentifierSyntax
 //@[009:00016) | | └─Token(Identifier) |p3_res1|
@@ -3638,17 +3638,17 @@ resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 //@[017:00053) | | └─Token(StringComplete) |'Microsoft.Rp1/resource1@2020-06-01'|
 //@[054:00062) | ├─Token(Identifier) |existing|
 //@[063:00064) | ├─Token(Assignment) |=|
-//@[065:00085) | └─ObjectSyntax
+//@[065:00087) | └─ObjectSyntax
 //@[065:00066) |   ├─Token(LeftBrace) |{|
 //@[066:00068) |   ├─Token(NewLine) |\r\n|
-  name: 'res1'
-//@[002:00014) |   ├─ObjectPropertySyntax
+  name: 'p3res1'
+//@[002:00016) |   ├─ObjectPropertySyntax
 //@[002:00006) |   | ├─IdentifierSyntax
 //@[002:00006) |   | | └─Token(Identifier) |name|
 //@[006:00007) |   | ├─Token(Colon) |:|
-//@[008:00014) |   | └─StringSyntax
-//@[008:00014) |   |   └─Token(StringComplete) |'res1'|
-//@[014:00016) |   ├─Token(NewLine) |\r\n|
+//@[008:00016) |   | └─StringSyntax
+//@[008:00016) |   |   └─Token(StringComplete) |'p3res1'|
+//@[016:00018) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|
@@ -3761,7 +3761,7 @@ output p3_res1childid string = p3_child1.id
 // parent & child with 'existing'
 //@[033:00035) ├─Token(NewLine) |\r\n|
 resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
-//@[000:00104) ├─ResourceDeclarationSyntax
+//@[000:00106) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00016) | ├─IdentifierSyntax
 //@[009:00016) | | └─Token(Identifier) |p4_res1|
@@ -3769,7 +3769,7 @@ resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 //@[017:00053) | | └─Token(StringComplete) |'Microsoft.Rp1/resource1@2020-06-01'|
 //@[054:00062) | ├─Token(Identifier) |existing|
 //@[063:00064) | ├─Token(Assignment) |=|
-//@[065:00104) | └─ObjectSyntax
+//@[065:00106) | └─ObjectSyntax
 //@[065:00066) |   ├─Token(LeftBrace) |{|
 //@[066:00068) |   ├─Token(NewLine) |\r\n|
   scope: tenant()
@@ -3783,14 +3783,14 @@ resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 //@[015:00016) |   |   ├─Token(LeftParen) |(|
 //@[016:00017) |   |   └─Token(RightParen) |)|
 //@[017:00019) |   ├─Token(NewLine) |\r\n|
-  name: 'res1'
-//@[002:00014) |   ├─ObjectPropertySyntax
+  name: 'p4res1'
+//@[002:00016) |   ├─ObjectPropertySyntax
 //@[002:00006) |   | ├─IdentifierSyntax
 //@[002:00006) |   | | └─Token(Identifier) |name|
 //@[006:00007) |   | ├─Token(Colon) |:|
-//@[008:00014) |   | └─StringSyntax
-//@[008:00014) |   |   └─Token(StringComplete) |'res1'|
-//@[014:00016) |   ├─Token(NewLine) |\r\n|
+//@[008:00016) |   | └─StringSyntax
+//@[008:00016) |   |   └─Token(StringComplete) |'p4res1'|
+//@[016:00018) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|

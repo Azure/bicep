@@ -409,7 +409,7 @@ resource res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
 
 resource res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
   parent: res1
-  name: '${res1.name}/res2'
+  name: '${res1.name}/res3'
 }
 ");
 

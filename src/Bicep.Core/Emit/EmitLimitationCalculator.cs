@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -70,90 +71,184 @@ namespace Bicep.Core.Emit
             // This method only checks, if in one deployment we do not have 2 or more resources with this same name in one deployment to avoid template validation error
             // This will not check resource constraints such as necessity of having unique virtual network names within resource group
 
-            var duplicateResources = GetResourceDefinitions(semanticModel, resourceScopeData)
-                .GroupBy(x => x, ResourceDefinition.EqualityComparer)
+            var duplicateResources = semanticModel.DeclaredResources
+                .GroupBy(x => x, new DeclaredResourceIdComparer(semanticModel, resourceScopeData))
                 .Where(group => group.Count() > 1);
 
             foreach (var duplicatedResourceGroup in duplicateResources)
             {
-                var duplicatedResourceNames = duplicatedResourceGroup.Select(x => x.ResourceName).ToArray();
                 foreach (var duplicatedResource in duplicatedResourceGroup)
                 {
-                    diagnosticWriter.Write(duplicatedResource.ResourceNamePropertyValue, x => x.ResourceMultipleDeclarations(duplicatedResourceNames));
+                    diagnosticWriter.Write(duplicatedResource.NameSyntax, x => x.ResourceMultipleDeclarations(duplicatedResourceGroup.Select(r => r.Symbol.Name)));
                 }
             }
 
-            var duplicateModules = GetModuleDefinitions(semanticModel, moduleScopeData)
-                .GroupBy(x => x, ModuleDefinition.EqualityComparer)
+            var duplicateModules = semanticModel.Root.ModuleDeclarations
+                .GroupBy(x => x, new ModuleIdComparer(semanticModel, moduleScopeData))
                 .Where(group => group.Count() > 1);
 
             foreach (var duplicatedModuleGroup in duplicateModules)
             {
-                var duplicatedModuleNames = duplicatedModuleGroup.Select(x => x.ModuleName).ToArray();
                 foreach (var duplicatedModule in duplicatedModuleGroup)
                 {
-                    diagnosticWriter.Write(duplicatedModule.ModulePropertyNameValue, x => x.ModuleMultipleDeclarations(duplicatedModuleNames));
+                    diagnosticWriter.Write(
+                        duplicatedModule.TryGetBodyPropertyValue(LanguageConstants.ModuleNamePropertyName) ?? duplicatedModule.DeclaringModule.Name,
+                        x => x.ModuleMultipleDeclarations(duplicatedModuleGroup.Select(m => m.Name)));
                 }
             }
         }
 
-        private static IEnumerable<ModuleDefinition> GetModuleDefinitions(SemanticModel semanticModel, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
+        private class DeclaredResourceIdComparer : IEqualityComparer<DeclaredResourceMetadata>
         {
-            foreach (var module in semanticModel.Root.ModuleDeclarations)
+            private readonly SemanticModel model;
+            private readonly ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData;
+            private readonly Dictionary<DeclaredResourceMetadata, ImmutableArray<IArmIdSegment>> resourceNameSegments = new();
+
+            internal DeclaredResourceIdComparer(
+                SemanticModel model,
+                ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData)
             {
-                if (!moduleScopeData.TryGetValue(module, out var scopeData))
-                {
-                    //module has invalid scope provided, ignoring from duplicate check
-                    continue;
-                }
-                if (module.TryGetBodyPropertyValue(LanguageConstants.ModuleNamePropertyName) is not StringSyntax propertyNameValue)
-                {
-                    //currently limiting check to 'name' property values that are strings, although it can be references or other syntaxes
-                    continue;
-                }
-
-                var propertyScopeValue = (module.TryGetBodyPropertyValue(LanguageConstants.ResourceScopePropertyName) as FunctionCallSyntax)?.Arguments.Select(x => x.Expression as StringSyntax).ToImmutableArray();
-
-                yield return new ModuleDefinition(module.Name, scopeData.RequestedScope, propertyScopeValue, propertyNameValue);
+                this.model = model;
+                this.resourceScopeData = resourceScopeData;
             }
+
+            public bool Equals(DeclaredResourceMetadata? x, DeclaredResourceMetadata? y)
+            {
+                if (x is null && y is null)
+                {
+                    return true;
+                }
+
+                return
+                    // extensibility resources do not have an ARM ID
+                    x?.IsAzResource is true &&
+                    y?.IsAzResource is true &&
+                    // ARM resource ID uniqueness is only enforced on resources with a `true` condition
+                    (x.Symbol.DeclaringResource.TryGetCondition() is not { } xCondition ||
+                        model.GetTypeInfo(xCondition) is BooleanLiteralType { Value: true }) &&
+                    (y.Symbol.DeclaringResource.TryGetCondition() is not { } yCondition ||
+                        model.GetTypeInfo(yCondition) is BooleanLiteralType { Value: true }) &&
+                    // To have the same ID, resource must have:
+                    // the same type
+                    LanguageConstants.ResourceTypeComparer.Equals(x.TypeReference.FormatType(), y.TypeReference.FormatType()) &&
+                    // the same scope
+                    resourceScopeData.TryGetValue(x, out var xScopeData) &&
+                    resourceScopeData.TryGetValue(y, out var yScopeData) &&
+                    xScopeData.Equals(yScopeData) &&
+                    // and the same name
+                    resourceNameSegments.GetOrAdd(x, NameSegmentsFor)
+                        .SequenceEqual(resourceNameSegments.GetOrAdd(y, NameSegmentsFor));
+            }
+
+            public int GetHashCode([DisallowNull] DeclaredResourceMetadata obj)
+            {
+                var baseHash = obj.TypeReference.FormatType().GetHashCode();
+
+                foreach (var nameSegment in resourceNameSegments.GetOrAdd(obj, NameSegmentsFor))
+                {
+                    baseHash = HashCode.Combine(baseHash, nameSegment);
+                }
+
+                return baseHash;
+            }
+
+            private ImmutableArray<IArmIdSegment> NameSegmentsFor(DeclaredResourceMetadata resource)
+                => model.ResourceAncestors.GetAncestors(resource)
+                    .Reverse()
+                    .SelectMany(r => r.IndexExpression switch
+                    {
+                        SyntaxBase idx when model.GetTypeInfo(idx) is IntegerLiteralType literalIndex
+                            => new[] { NameSegmentFor(r.Resource), new LiteralIdSegment(literalIndex.Value.ToString()) },
+                        SyntaxBase idx => new[] { NameSegmentFor(r.Resource), new NonLiteralIdSegment(idx) },
+                        _ => NameSegmentFor(r.Resource).AsEnumerable(),
+                    })
+                    .Append(NameSegmentFor(resource))
+                    .ToImmutableArray();
+
+            private IArmIdSegment NameSegmentFor(DeclaredResourceMetadata resource)
+                => IArmIdSegment.For(resource.TryGetNameSyntax(), model) switch
+                {
+                    IArmIdSegment nonNull => nonNull,
+                    _ => new NonLiteralIdSegment(resource.Symbol.DeclaringResource.Name),
+                };
         }
 
-        private static IEnumerable<ResourceDefinition> GetResourceDefinitions(SemanticModel semanticModel, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData)
+        private interface IArmIdSegment
         {
-            foreach (var resource in semanticModel.DeclaredResources)
+            [return: NotNullIfNotNull(nameof(syntax))]
+            static IArmIdSegment? For(SyntaxBase? syntax, SemanticModel model) => syntax switch
             {
-                if (resource.IsExistingResource)
-                {
-                    // 'existing' resources are not being deployed so duplicates are allowed
-                    continue;
-                }
+                SyntaxBase nonNull when model.GetTypeInfo(nonNull) is StringLiteralType literalSegment
+                    => new LiteralIdSegment(literalSegment.RawStringValue),
+                SyntaxBase nonNull => new NonLiteralIdSegment(nonNull),
+                _ => null,
+            };
+        }
 
-                if (!resource.IsAzResource)
-                {
-                    // comparison checks currently blocked for non-ARM resources
-                    continue;
-                }
+        private record LiteralIdSegment(string Name) : IArmIdSegment;
 
-                if (resource.TryGetNameSyntax() is not { } resourceName ||
-                    resourceName is not StringSyntax resourceNameString)
-                {
-                    // the resource doesn't have a name set, or it's not a string and thus difficult to analyze
-                    continue;
-                }
+        private record NonLiteralIdSegment(SyntaxBase NameSyntax) : IArmIdSegment;
 
-                // Determine the scope - this is either something like a resource group/subscription or another resource
-                ResourceMetadata? resourceScope;
-                if (resourceScopeData.TryGetValue(resource, out var scopeData) && scopeData.ResourceScope is { } scopeMetadata)
-                {
-                    resourceScope = scopeMetadata;
-                }
-                else
-                {
-                    resourceScope = semanticModel.ResourceAncestors.GetAncestors(resource).LastOrDefault()?.Resource;
-                }
+        // Using a class instead of a record here so that reference equality will be used for missing segments
+        private class MissingIdSegment() : IArmIdSegment { }
 
-                yield return new ResourceDefinition(resource.Symbol.Name, resourceScope, resource.TypeReference.FormatType(), resourceNameString);
+        private class ModuleIdComparer : IEqualityComparer<ModuleSymbol>
+        {
+            private readonly SemanticModel model;
+            private readonly ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData;
+            private readonly Dictionary<ModuleSymbol, ModuleScopingSegments> moduleScopingSegments = new();
+
+            public ModuleIdComparer(
+                SemanticModel model,
+                ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
+            {
+                this.model = model;
+                this.moduleScopeData = moduleScopeData;
             }
+
+            public bool Equals(ModuleSymbol? x, ModuleSymbol? y)
+            {
+                if (x is null && y is null)
+                {
+                    return true;
+                }
+
+                // if a module declaration omits a name, it is either using the optional module names feature
+                // (in which case its name will be unique) or already has an error-level diagnostic
+                return x?.TryGetBodyPropertyValue(LanguageConstants.ModuleNamePropertyName) is { } xName &&
+                    y?.TryGetBodyPropertyValue(LanguageConstants.ModuleNamePropertyName) is { } yName &&
+                    // ARM resource ID uniqueness is only enforced on resources with a `true` condition
+                    (x.DeclaringModule.TryGetCondition() is not { } xCondition ||
+                        model.GetTypeInfo(xCondition) is BooleanLiteralType { Value: true }) &&
+                    (y.DeclaringModule.TryGetCondition() is not { } yCondition ||
+                        model.GetTypeInfo(yCondition) is BooleanLiteralType { Value: true }) &&
+                    // To have the same ID, modules must have the same scope
+                    moduleScopingSegments.GetOrAdd(x, ScopingSegmentsFor)
+                        .Equals(moduleScopingSegments.GetOrAdd(y, ScopingSegmentsFor)) &&
+                    // and the same name
+                    IArmIdSegment.For(xName, model).Equals(IArmIdSegment.For(yName, model));
+            }
+
+            public int GetHashCode([DisallowNull] ModuleSymbol obj)
+                => IArmIdSegment.For(obj.TryGetBodyPropertyValue(LanguageConstants.ModuleNamePropertyName), model)?.GetHashCode() ?? 0;
+
+            private ModuleScopingSegments ScopingSegmentsFor(ModuleSymbol m)
+            {
+                if (!moduleScopeData.TryGetValue(m, out var scopeData))
+                {
+                    return new(new MissingIdSegment(), new MissingIdSegment(), new MissingIdSegment());
+                }
+
+                return new(
+                    IArmIdSegment.For(scopeData.ManagementGroupNameProperty, model),
+                    IArmIdSegment.For(scopeData.SubscriptionIdProperty, model),
+                    IArmIdSegment.For(scopeData.ResourceGroupProperty, model));
+            }
+
+            private record ModuleScopingSegments(
+                IArmIdSegment? ManagementGroupName,
+                IArmIdSegment? SubscriptionId,
+                IArmIdSegment? ResourceGroupName);
         }
 
         private static void DetectIncorrectlyFormattedNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
