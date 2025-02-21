@@ -16,7 +16,7 @@ public class RegistryModuleMetadata : IRegistryModuleMetadata
         ImmutableArray<RegistryModuleVersionMetadata> Versions
     );
 
-    public readonly MightBeLazyAsync<ComputedData> data;
+    private readonly MightBeLazyAsync<ComputedData> data;
 
     public RegistryModuleMetadata(
         string registry,
