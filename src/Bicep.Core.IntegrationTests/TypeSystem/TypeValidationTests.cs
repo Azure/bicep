@@ -54,26 +54,26 @@ resource myRes 'My.Rp/myType@2020-01-01' = {
         {
             var customTypes = new[] {
                 TestTypeHelper.CreateCustomResourceTypeWithTopLevelProperties("My.Rp/myType", "2020-01-01", validationFlags,
-                    new [] { new TypeProperty("readOnlyTopLevelProp", LanguageConstants.String, TypePropertyFlags.ReadOnly) },
-                    new TypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
-                    new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly | TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("requiredProp", LanguageConstants.String, TypePropertyFlags.Required),
-                    new TypeProperty("additionalProps", new ObjectType(
+                    new [] { new NamedTypeProperty("readOnlyTopLevelProp", LanguageConstants.String, TypePropertyFlags.ReadOnly) },
+                    new NamedTypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
+                    new NamedTypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly | TypePropertyFlags.AllowImplicitNull),
+                    new NamedTypeProperty("requiredProp", LanguageConstants.String, TypePropertyFlags.Required),
+                    new NamedTypeProperty("additionalProps", new ObjectType(
                         "additionalProps",
                         validationFlags,
                         new [] {
-                            new TypeProperty("propA", LanguageConstants.String, TypePropertyFlags.Required),
-                            new TypeProperty("propB", LanguageConstants.String, TypePropertyFlags.AllowImplicitNull),
+                            new NamedTypeProperty("propA", LanguageConstants.String, TypePropertyFlags.Required),
+                            new NamedTypeProperty("propB", LanguageConstants.String, TypePropertyFlags.AllowImplicitNull),
                         },
-                        LanguageConstants.Int
+                        new TypeProperty(LanguageConstants.Int)
                     )),
-                    new TypeProperty("nestedObj", new ObjectType(
+                    new NamedTypeProperty("nestedObj", new ObjectType(
                         "nestedObj",
                         validationFlags,
                         new [] {
-                            new TypeProperty("readOnlyNestedProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
-                            new TypeProperty("writeOnlyNestedProp", LanguageConstants.String, TypePropertyFlags.WriteOnly | TypePropertyFlags.AllowImplicitNull),
-                            new TypeProperty("requiredNestedProp", LanguageConstants.String, TypePropertyFlags.Required),
+                            new NamedTypeProperty("readOnlyNestedProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
+                            new NamedTypeProperty("writeOnlyNestedProp", LanguageConstants.String, TypePropertyFlags.WriteOnly | TypePropertyFlags.AllowImplicitNull),
+                            new NamedTypeProperty("requiredNestedProp", LanguageConstants.String, TypePropertyFlags.Required),
                         },
                         null
                     ))),
@@ -136,16 +136,16 @@ output incorrectTypeOutput2 int = myRes.properties.nestedObj.readOnlyProp
         {
             var customTypes = new[] {
                 TestTypeHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", validationFlags,
-                    new TypeProperty("stringOrInt", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("unspecifiedStringOrInt", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("abcOrDef", TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("abc"), TypeFactory.CreateStringLiteralType("def")), TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("unspecifiedAbcOrDef", TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("abc"), TypeFactory.CreateStringLiteralType("def")), TypePropertyFlags.AllowImplicitNull)),
+                    new NamedTypeProperty("stringOrInt", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
+                    new NamedTypeProperty("unspecifiedStringOrInt", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
+                    new NamedTypeProperty("abcOrDef", TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("abc"), TypeFactory.CreateStringLiteralType("def")), TypePropertyFlags.AllowImplicitNull),
+                    new NamedTypeProperty("unspecifiedAbcOrDef", TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("abc"), TypeFactory.CreateStringLiteralType("def")), TypePropertyFlags.AllowImplicitNull)),
                 TestTypeHelper.CreateCustomResourceType("My.Rp/myDependentType", "2020-01-01", validationFlags,
-                    new TypeProperty("stringOnly", LanguageConstants.String, TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("abcOnly", TypeFactory.CreateStringLiteralType("abc"), TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("abcOnlyUnNarrowed", TypeFactory.CreateStringLiteralType("abc"), TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("stringOrIntUnNarrowed", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("abcOrDefUnNarrowed", TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("abc"), TypeFactory.CreateStringLiteralType("def"), TypeFactory.CreateStringLiteralType("ghi")), TypePropertyFlags.AllowImplicitNull)),
+                    new NamedTypeProperty("stringOnly", LanguageConstants.String, TypePropertyFlags.AllowImplicitNull),
+                    new NamedTypeProperty("abcOnly", TypeFactory.CreateStringLiteralType("abc"), TypePropertyFlags.AllowImplicitNull),
+                    new NamedTypeProperty("abcOnlyUnNarrowed", TypeFactory.CreateStringLiteralType("abc"), TypePropertyFlags.AllowImplicitNull),
+                    new NamedTypeProperty("stringOrIntUnNarrowed", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
+                    new NamedTypeProperty("abcOrDefUnNarrowed", TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("abc"), TypeFactory.CreateStringLiteralType("def"), TypeFactory.CreateStringLiteralType("ghi")), TypePropertyFlags.AllowImplicitNull)),
             };
             var program = @"
 resource myRes 'My.Rp/myType@2020-01-01' = {
@@ -181,14 +181,14 @@ resource myDependentRes 'My.Rp/myDependentType@2020-01-01' = {
         {
             var customTypes = new[] {
                 TestTypeHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", validationFlags,
-                    new TypeProperty("myDisc1", new DiscriminatedObjectType("myDisc1", validationFlags, "discKey", new [] {
+                    new NamedTypeProperty("myDisc1", new DiscriminatedObjectType("myDisc1", validationFlags, "discKey", new [] {
                             new ObjectType("choiceA", validationFlags, new [] {
-                                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("choiceA"), TypePropertyFlags.Required),
-                                new TypeProperty("valueA", LanguageConstants.String, TypePropertyFlags.Required),
+                                new NamedTypeProperty("discKey", TypeFactory.CreateStringLiteralType("choiceA"), TypePropertyFlags.Required),
+                                new NamedTypeProperty("valueA", LanguageConstants.String, TypePropertyFlags.Required),
                             }, null),
                             new ObjectType("choiceB", validationFlags, new [] {
-                                new TypeProperty("discKey", TypeFactory.CreateStringLiteralType("choiceB"), TypePropertyFlags.Required),
-                                new TypeProperty("valueB", LanguageConstants.String, TypePropertyFlags.Required),
+                                new NamedTypeProperty("discKey", TypeFactory.CreateStringLiteralType("choiceB"), TypePropertyFlags.Required),
+                                new NamedTypeProperty("valueB", LanguageConstants.String, TypePropertyFlags.Required),
                             }, null),
                         }
                     ))),

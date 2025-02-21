@@ -19,13 +19,15 @@ public record FeatureProviderOverrides(
     bool? TestFrameworkEnabled = default,
     bool? AssertsEnabled = default,
     bool? OptionalModuleNamesEnabled = default,
+    bool? WaitAndRetryEnabled = default,
     bool? LocalDeployEnabled = default,
     bool? ResourceDerivedTypesEnabled = default,
     bool? SecureOutputsEnabled = default,
     bool? ResourceInfoCodegenEnabled = default,
     bool? ExtendableParamFilesEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
-    bool? ExtensibilityV2EmittingEnabled = default)
+    bool? ExtensibilityV2EmittingEnabled = default,
+    bool? TypedVariablesEnabled = default)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
@@ -39,13 +41,15 @@ public record FeatureProviderOverrides(
         bool? TestFrameworkEnabled = default,
         bool? AssertsEnabled = default,
         bool? OptionalModuleNamesEnabled = default,
+        bool? WaitAndRetryEnabled = default,
         bool? LocalDeployEnabled = default,
         bool? ResourceDerivedTypesEnabled = default,
         bool? SecureOutputsEnabled = default,
         bool? ResourceInfoCodegenEnabled = default,
         bool? ExtendableParamFilesEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
-        bool? ExtensibilityV2EmittingEnabled = default
+        bool? ExtensibilityV2EmittingEnabled = default,
+        bool? TypedVariablesEnabled = default
     ) : this(
         FileHelper.GetCacheRootDirectory(testContext),
         RegistryEnabled,
@@ -58,12 +62,14 @@ public record FeatureProviderOverrides(
         TestFrameworkEnabled,
         AssertsEnabled,
         OptionalModuleNamesEnabled,
+        WaitAndRetryEnabled,
         LocalDeployEnabled,
         ResourceDerivedTypesEnabled,
         SecureOutputsEnabled,
         ResourceInfoCodegenEnabled,
         ExtendableParamFilesEnabled,
         AssemblyVersion,
-        ExtensibilityV2EmittingEnabled)
+        ExtensibilityV2EmittingEnabled,
+        TypedVariablesEnabled)
     { }
 }

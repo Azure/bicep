@@ -56,7 +56,8 @@ namespace Bicep.Core.IntegrationTests
             extension az
             """);
             result.Should().HaveDiagnostics(new[] {
-                ("BCP203", DiagnosticLevel.Error, "Using extension declaration requires enabling EXPERIMENTAL feature \"Extensibility\"."),
+                ("BCP203", DiagnosticLevel.Error, """Using extension declaration requires enabling EXPERIMENTAL feature "Extensibility"."""),
+                ("BCP084", DiagnosticLevel.Error, """The symbolic name "az" is reserved. Please use a different symbolic name. Reserved namespaces are "az", "sys"."""),
             });
         }
 
@@ -257,7 +258,7 @@ extension madeUpNamespace
                     ConfigurationType: null,
                     TemplateExtensionName: "Ns1-Unused",
                     TemplateExtensionVersion: "1.0"),
-                ImmutableArray<TypeProperty>.Empty,
+                ImmutableArray<NamedTypeProperty>.Empty,
                 new[] {
                     new FunctionOverloadBuilder("ns1Func").Build(),
                     new FunctionOverloadBuilder("dupeFunc").Build(),
@@ -274,7 +275,7 @@ extension madeUpNamespace
                     ConfigurationType: null,
                     TemplateExtensionName: "Ns2-Unused",
                     TemplateExtensionVersion: "1.0"),
-                ImmutableArray<TypeProperty>.Empty,
+                ImmutableArray<NamedTypeProperty>.Empty,
                 new[] {
                     new FunctionOverloadBuilder("ns2Func").Build(),
                     new FunctionOverloadBuilder("dupeFunc").Build(),
@@ -339,12 +340,12 @@ extension madeUpNamespace
                         TypeSymbolValidationFlags.Default,
                         new[]
                         {
-                            new TypeProperty("optionalConfig", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant),
+                            new NamedTypeProperty("optionalConfig", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant),
                         },
                         null),
                     TemplateExtensionName: "Unused",
                     TemplateExtensionVersion: "1.0.0"),
-                ImmutableArray<TypeProperty>.Empty,
+                ImmutableArray<NamedTypeProperty>.Empty,
                 ImmutableArray<FunctionOverload>.Empty,
                 ImmutableArray<BannedFunction>.Empty,
                 ImmutableArray<Decorator>.Empty,
@@ -380,7 +381,10 @@ extension madeUpNamespace
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @"extension microsoftGraph as graph");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.Should().NotGenerateATemplate();
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP407", DiagnosticLevel.Error, """Built-in extension "microsoftGraph" is retired. Use dynamic types instead. See https://aka.ms/graphBicepDynamicTypes"""),
+            });
         }
     }
 }

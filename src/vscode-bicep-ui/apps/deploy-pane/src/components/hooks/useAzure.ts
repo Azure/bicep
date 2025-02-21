@@ -3,8 +3,6 @@ import type { AccessToken, TokenCredential } from "@azure/identity";
 import type {
   DeploymentScope,
   DeployState,
-  ParamData,
-  ParametersMetadata,
   TemplateMetadata,
   UntypedError,
 } from "../../models";
@@ -12,6 +10,8 @@ import type {
 import { ResourceManagementClient } from "@azure/arm-resources";
 import { RestError } from "@azure/core-rest-pipeline";
 import { useState } from "react";
+import { getDate } from "./time";
+import type { ParametersInputData } from "../sections/ParametersInputView";
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
@@ -19,13 +19,12 @@ import { useState } from "react";
 export interface UseAzureProps {
   scope?: DeploymentScope;
   templateMetadata?: TemplateMetadata;
-  parametersMetadata: ParametersMetadata;
   acquireAccessToken: () => Promise<AccessToken>;
   setErrorMessage: (message?: string) => void;
 }
 
 export function useAzure(props: UseAzureProps) {
-  const { scope, templateMetadata, parametersMetadata, acquireAccessToken, setErrorMessage } = props;
+  const { scope, templateMetadata, acquireAccessToken, setErrorMessage } = props;
   const [operations, setOperations] = useState<DeploymentOperation[]>();
   const [whatIfChanges, setWhatIfChanges] = useState<WhatIfChange[]>();
   const [outputs, setOutputs] = useState<Record<string, unknown>>();
@@ -52,6 +51,7 @@ export function useAzure(props: UseAzureProps) {
   async function doDeploymentOperation(
     scope: DeploymentScope,
     deploymentName: string | undefined,
+    parameters: ParametersInputData,
     operation: (
       armClient: ResourceManagementClient,
       deployment: Deployment,
@@ -67,7 +67,7 @@ export function useAzure(props: UseAzureProps) {
       setWhatIfChanges(undefined);
       setDeployState({ status: "running", name: deploymentName });
 
-      const deployment = getDeploymentProperties(scope, templateMetadata, parametersMetadata.parameters);
+      const deployment = getDeploymentProperties(scope, templateMetadata, parameters);
       const accessToken = await acquireAccessToken();
       const armClient = getArmClient(scope, accessToken);
       const { success, error } = await operation(armClient, deployment);
@@ -78,18 +78,18 @@ export function useAzure(props: UseAzureProps) {
     }
   }
 
-  async function deploy() {
+  async function deploy(parameters: ParametersInputData) {
     if (!scope) {
       return;
     }
 
-    const deploymentName = `bicep-deploy-${Date.now()}`;
-    await doDeploymentOperation(scope, deploymentName, async (client, deployment) => {
+    const deploymentName = `bicep-deploy-${getDate()}`;
+    await doDeploymentOperation(scope, deploymentName, parameters, async (client, deployment) => {
       const updateOperations = async () => {
         const operations = [];
         const result = client.deploymentOperations.listAtScope(getScopeId(scope), deploymentName);
-        for await (const page of result.byPage()) {
-          operations.push(...page);
+        for await (const operation of result) {
+          operations.push(operation);
         }
         setOperations(operations);
       };
@@ -106,7 +106,11 @@ export function useAzure(props: UseAzureProps) {
       } catch (e) {
         return { success: false, error: parseError(e) };
       } finally {
-        await updateOperations();
+        if (poller) {
+          // only attempt to fetch operations if the deployment ran asynchronously.
+          // if it failed synchronously, then the operations API will return 404.
+          await updateOperations();
+        }
       }
 
       const finalResult = poller.getResult();
@@ -115,12 +119,12 @@ export function useAzure(props: UseAzureProps) {
     });
   }
 
-  async function validate() {
+  async function validate(parameters: ParametersInputData) {
     if (!scope) {
       return;
     }
 
-    await doDeploymentOperation(scope, undefined, async (client, deployment) => {
+    await doDeploymentOperation(scope, undefined, parameters, async (client, deployment) => {
       try {
         const response = await client.deployments.beginValidateAtScopeAndWait(
           getScopeId(scope),
@@ -135,12 +139,12 @@ export function useAzure(props: UseAzureProps) {
     });
   }
 
-  async function whatIf() {
+  async function whatIf(parameters: ParametersInputData) {
     if (!scope) {
       return;
     }
 
-    await doDeploymentOperation(scope, undefined, async (client, deployment) => {
+    await doDeploymentOperation(scope, undefined, parameters, async (client, deployment) => {
       try {
         const response = await beginWhatIfAndWait(client, scope, "bicep-deploy", deployment);
 
@@ -176,7 +180,7 @@ function parseError(error: UntypedError) {
 function getDeploymentProperties(
   scope: DeploymentScope,
   metadata: TemplateMetadata,
-  paramValues: Record<string, ParamData>,
+  paramValues: ParametersInputData,
 ): Deployment {
   const parameters: Record<string, unknown> = {};
   for (const { name } of metadata.parameterDefinitions) {

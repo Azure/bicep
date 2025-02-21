@@ -22,30 +22,27 @@ namespace Bicep.LanguageServer.Providers
     /// <remarks>This class exists only so we can mock fatal exceptions in tests.</remarks>
     public class BicepCompilationProvider : ICompilationProvider
     {
-        private readonly IConfigurationManager configurationManager;
         private readonly IBicepAnalyzer bicepAnalyzer;
         private readonly IEnvironment environment;
-        private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
+        private readonly ISourceFileFactory sourceFileFactory;
 
         public BicepCompilationProvider(
-            IFeatureProviderFactory featureProviderFactory,
             IEnvironment environment,
             INamespaceProvider namespaceProvider,
             IFileResolver fileResolver,
             IModuleDispatcher moduleDispatcher,
-            IConfigurationManager configurationManager,
-            IBicepAnalyzer bicepAnalyzer)
+            IBicepAnalyzer bicepAnalyzer,
+            ISourceFileFactory sourceFileFactory)
         {
             this.environment = environment;
-            this.featureProviderFactory = featureProviderFactory;
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
-            this.configurationManager = configurationManager;
             this.bicepAnalyzer = bicepAnalyzer;
+            this.sourceFileFactory = sourceFileFactory;
         }
 
         public CompilationContext Create(
@@ -57,10 +54,9 @@ namespace Bicep.LanguageServer.Providers
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(
                 fileResolver,
                 moduleDispatcher,
-                configurationManager,
                 workspace,
-                documentUri.ToUriEncoded(),
-                featureProviderFactory);
+                sourceFileFactory,
+                documentUri.ToUriEncoded());
             return this.CreateContext(fileCache, sourceFileGrouping, modelLookup);
         }
 
@@ -72,10 +68,9 @@ namespace Bicep.LanguageServer.Providers
         {
             var sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(
                 fileResolver,
-                featureProviderFactory,
                 moduleDispatcher,
-                configurationManager,
                 workspace,
+                sourceFileFactory,
                 current.Compilation.SourceFileGrouping);
             return this.CreateContext(fileCache, sourceFileGrouping, modelLookup);
         }
@@ -86,13 +81,12 @@ namespace Bicep.LanguageServer.Providers
             ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
             var compilation = new Compilation(
-                featureProviderFactory,
                 environment,
                 namespaceProvider,
                 syntaxTreeGrouping,
-                configurationManager,
                 bicepAnalyzer,
                 moduleDispatcher,
+                sourceFileFactory,
                 fileCache,
                 modelLookup);
 

@@ -26,7 +26,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                 GetResourceFunctionOverloads(resourceType) is { } resourceFunctions &&
                 resourceFunctions.Any())
             {
-                bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, objectType.Properties.Values, objectType.AdditionalPropertiesType, objectType.AdditionalPropertiesFlags, objectType.AdditionalPropertiesDescription, resourceFunctions);
+                bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, objectType.Properties.Values, objectType.AdditionalProperties, resourceFunctions);
             }
 
             return new ResourceTypeComponents(resourceTypeReference, ToResourceScope(resourceType.ScopeType), ToResourceScope(resourceType.ReadOnlyScopes), ToResourceFlags(resourceType.Flags), bodyType);
@@ -80,9 +80,9 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
         private ITypeReference GetTypeReference(Azure.Bicep.Types.Concrete.ITypeReference input)
             => new DeferredTypeReference(() => GetTypeSymbol(input.Type, false));
 
-        private TypeProperty GetTypeProperty(string name, Azure.Bicep.Types.Concrete.ObjectTypeProperty input)
+        private NamedTypeProperty GetTypeProperty(string name, Azure.Bicep.Types.Concrete.ObjectTypeProperty input)
         {
-            return new TypeProperty(name, GetTypeReference(input.Type), GetTypePropertyFlags(input), input.Description);
+            return new NamedTypeProperty(name, GetTypeReference(input.Type), GetTypePropertyFlags(input), input.Description);
         }
 
         private static TypePropertyFlags GetTypePropertyFlags(Azure.Bicep.Types.Concrete.ObjectTypeProperty input)
@@ -153,7 +153,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                         var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties) : null;
                         var properties = objectType.Properties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value));
 
-                        return new ObjectType(objectType.Name, GetValidationFlags(isResourceBodyType), properties, additionalProperties, TypePropertyFlags.None);
+                        return new ObjectType(objectType.Name, GetValidationFlags(isResourceBodyType), properties, additionalProperties is not null ? new(additionalProperties) : null);
                     }
                 case Azure.Bicep.Types.Concrete.ArrayType arrayType:
                     {
@@ -191,7 +191,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                 extendedProperties[property.Key] = property.Value;
             }
 
-            return new ObjectType(name, GetValidationFlags(isResourceBodyType), extendedProperties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value)), additionalProperties, TypePropertyFlags.None);
+            return new ObjectType(name, GetValidationFlags(isResourceBodyType), extendedProperties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value)), additionalProperties is not null ? new(additionalProperties) : null);
         }
 
         private static TypeSymbolValidationFlags GetValidationFlags(bool isResourceBodyType)

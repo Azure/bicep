@@ -178,7 +178,7 @@ public class SnippetCacheBuilder
 
         // We need to provide uri for syntax tree creation, but it's not used anywhere. In order to avoid
         // cross platform issues, we'll provide a placeholder uri.
-        var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"inmemory://{manifestResourceName}"), template);
+        var bicepFile = this.bicepCompiler.SourceFileFactory.CreateBicepFile(new Uri($"inmemory://{manifestResourceName}"), template);
         var workspace = new Workspace();
         workspace.UpsertSourceFiles(bicepFile.AsEnumerable());
 
@@ -188,7 +188,7 @@ public class SnippetCacheBuilder
         return ResourceDependencyVisitor.GetResourceDependencies(semanticModel);
     }
 
-    private string? GetSnippetText(TypeProperty typeProperty, int indentLevel, ref int index, string? discrimatedObjectKey = null)
+    private string? GetSnippetText(NamedTypeProperty typeProperty, int indentLevel, ref int index, string? discrimatedObjectKey = null)
     {
         if (typeProperty.Flags.HasFlag(TypePropertyFlags.Required))
         {
@@ -200,7 +200,7 @@ public class SnippetCacheBuilder
 
                 indentLevel++;
 
-                foreach (KeyValuePair<string, TypeProperty> kvp in objectType.Properties.OrderBy(x => x.Key))
+                foreach (KeyValuePair<string, NamedTypeProperty> kvp in objectType.Properties.OrderBy(x => x.Key))
                 {
                     string? snippetText = GetSnippetText(kvp.Value, indentLevel, ref index);
                     if (snippetText is not null)

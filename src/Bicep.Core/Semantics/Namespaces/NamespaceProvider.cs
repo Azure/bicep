@@ -37,8 +37,6 @@ public class NamespaceProvider : INamespaceProvider
     }
 
     public IEnumerable<NamespaceResult> GetNamespaces(
-        RootConfiguration rootConfig,
-        IFeatureProvider features,
         IArtifactFileLookup artifactFileLookup,
         BicepSourceFile sourceFile,
         ResourceScope targetScope)
@@ -56,14 +54,13 @@ public class NamespaceProvider : INamespaceProvider
         var assignedProviders = new HashSet<string>(LanguageConstants.IdentifierComparer);
         foreach (var extension in extensions)
         {
-            var type = GetNamespaceType(rootConfig, features, artifactFileLookup, sourceFile, targetScope, extension);
+            var type = GetNamespaceType(artifactFileLookup, sourceFile, targetScope, extension);
             if (type is NamespaceType validType)
             {
                 assignedProviders.Add(validType.ExtensionName);
             }
 
-            var name = extension.Alias?.IdentifierName ?? type.Name;
-            yield return new(name, type, extension);
+            yield return new(extension.TryGetSymbolName() ?? type.Name, type, extension);
         }
 
         // sys isn't included in the implicit extensions config, because we don't want users to customize it.
@@ -78,14 +75,12 @@ public class NamespaceProvider : INamespaceProvider
                 continue;
             }
 
-            var nsType = GetNamespaceTypeForImplicitExtension(rootConfig, features, sourceFile, targetScope, implicitExtension, null);
+            var nsType = GetNamespaceTypeForImplicitExtension(sourceFile, targetScope, implicitExtension, null);
             yield return new(extensionName, nsType, null);
         }
     }
 
     private TypeSymbol GetNamespaceTypeForImplicitExtension(
-        RootConfiguration rootConfig,
-        IFeatureProvider features,
         BicepSourceFile sourceFile,
         ResourceScope targetScope,
         ImplicitExtension extension,
@@ -93,21 +88,19 @@ public class NamespaceProvider : INamespaceProvider
     {
         if (extension.Config is null)
         {
-            return ErrorType.Create(DiagnosticBuilder.ForDocumentStart().InvalidExtension_ImplicitExtensionMissingConfig(rootConfig.ConfigFileUri, extension.Name));
+            return ErrorType.Create(DiagnosticBuilder.ForDocumentStart().InvalidExtension_ImplicitExtensionMissingConfig(sourceFile.Configuration.ConfigFileUri, extension.Name));
         }
 
-        return GetNamespaceTypeForConfigManagedExtension(rootConfig, features, sourceFile, targetScope, extension.Artifact, syntax, extension.Name);
+        return GetNamespaceTypeForConfigManagedExtension(sourceFile, targetScope, extension.Artifact, syntax, extension.Name);
     }
 
     private TypeSymbol GetNamespaceType(
-        RootConfiguration rootConfig,
-        IFeatureProvider features,
         IArtifactFileLookup artifactFileLookup,
         BicepSourceFile sourceFile,
         ResourceScope targetScope,
         ExtensionDeclarationSyntax syntax)
     {
-        if (!features.ExtensibilityEnabled)
+        if (!sourceFile.Features.ExtensibilityEnabled)
         {
             return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ExtensionsAreDisabled());
         }
@@ -120,8 +113,7 @@ public class NamespaceProvider : INamespaceProvider
 
         if (artifactFileLookup.ArtifactLookup.TryGetValue(syntax, out var artifact))
         {
-            var aliasName = syntax.Alias?.IdentifierName;
-            if (GetNamespaceTypeForArtifact(artifact, sourceFile, targetScope, aliasName).IsSuccess(out var namespaceType, out var errorBuilder))
+            if (GetNamespaceTypeForArtifact(artifact, sourceFile, targetScope, syntax.TryGetSymbolName()).IsSuccess(out var namespaceType, out var errorBuilder))
             {
                 return namespaceType;
             }
@@ -135,19 +127,17 @@ public class NamespaceProvider : INamespaceProvider
             return ErrorType.Empty();
         }
 
-        return GetNamespaceTypeForConfigManagedExtension(rootConfig, features, sourceFile, targetScope, null, syntax, identifier.IdentifierName);
+        return GetNamespaceTypeForConfigManagedExtension(sourceFile, targetScope, null, syntax, identifier.IdentifierName);
     }
 
     protected virtual TypeSymbol GetNamespaceTypeForConfigManagedExtension(
-        RootConfiguration rootConfig,
-        IFeatureProvider features,
         BicepSourceFile sourceFile,
         ResourceScope targetScope,
         ArtifactResolutionInfo? artifact,
         ExtensionDeclarationSyntax? syntax,
         string extensionName)
     {
-        var aliasName = syntax?.Alias?.IdentifierName ?? extensionName;
+        var aliasName = syntax?.TryGetSymbolName() ?? extensionName;
         var diagBuilder = syntax is { } ? DiagnosticBuilder.ForPosition(syntax) : DiagnosticBuilder.ForDocumentStart();
 
         if (artifact is { })
@@ -164,7 +154,7 @@ public class NamespaceProvider : INamespaceProvider
         // built-in extension
         if (LanguageConstants.IdentifierComparer.Equals(extensionName, SystemNamespaceType.BuiltInName))
         {
-            return SystemNamespaceType.Create(aliasName, features, sourceFile.FileKind);
+            return SystemNamespaceType.Create(aliasName, sourceFile.Features, sourceFile.FileKind);
         }
 
         if (LanguageConstants.IdentifierComparer.Equals(extensionName, AzNamespaceType.BuiltInName))
@@ -172,17 +162,18 @@ public class NamespaceProvider : INamespaceProvider
             return AzNamespaceType.Create(aliasName, targetScope, resourceTypeProviderFactory.GetBuiltInAzResourceTypesProvider(), sourceFile.FileKind);
         }
 
-        if (LanguageConstants.IdentifierComparer.Equals(extensionName, MicrosoftGraphNamespaceType.BuiltInName))
-        {
-            return MicrosoftGraphNamespaceType.Create(aliasName);
-        }
-
         if (LanguageConstants.IdentifierComparer.Equals(extensionName, K8sNamespaceType.BuiltInName))
         {
             return K8sNamespaceType.Create(aliasName);
         }
 
-        return ErrorType.Create(diagBuilder.InvalidExtension_NotABuiltInExtension(rootConfig.ConfigFileUri, extensionName));
+        // microsoftGraph built-in extension is no longer supported.
+        if (LanguageConstants.IdentifierComparer.Equals(extensionName, MicrosoftGraphNamespaceType.BuiltInName))
+        {
+            return ErrorType.Create(diagBuilder.MicrosoftGraphBuiltinRetired(syntax));
+        }
+
+        return ErrorType.Create(diagBuilder.InvalidExtension_NotABuiltInExtension(sourceFile.Configuration.ConfigFileUri, extensionName));
     }
 
     private ResultWithDiagnosticBuilder<NamespaceType> GetNamespaceTypeForArtifact(ArtifactResolutionInfo artifact, BicepSourceFile sourceFile, ResourceScope targetScope, string? aliasName)

@@ -28,7 +28,7 @@ public abstract class ImportedSymbol : DeclaredSymbol
     public abstract string? Description { get; }
 
     public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference()
-        => Context.ArtifactReferenceFactory.TryGetArtifactReference(EnclosingDeclaration, Context.SourceFile.Uri);
+        => Context.ArtifactReferenceFactory.TryGetArtifactReference(this.Context.SourceFile, this.EnclosingDeclaration);
 }
 
 public abstract class ImportedSymbol<T> : ImportedSymbol where T : ExportMetadata

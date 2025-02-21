@@ -278,7 +278,7 @@ output nulls object = {
 
         result.Should().HaveDiagnostics(
         [
-            ("BCP412", DiagnosticLevel.Error, @"The ""^"" indexing operator cannot be used on base expressions of type ""object""."),
+            ("BCP414", DiagnosticLevel.Error, @"The ""^"" indexing operator cannot be used on base expressions of type ""object""."),
         ]);
     }
 
@@ -293,7 +293,7 @@ output nulls object = {
 
         result.Should().HaveDiagnostics(
         [
-            ("BCP413", DiagnosticLevel.Error, @"The ""^"" indexing operator cannot be used with index expressions of type ""string""."),
+            ("BCP415", DiagnosticLevel.Error, @"The ""^"" indexing operator cannot be used with index expressions of type ""string""."),
         ]);
     }
 }

@@ -13,6 +13,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.SourceCode;
+using Bicep.Core.Workspaces;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
@@ -23,32 +24,28 @@ namespace Bicep.Cli.Commands
         private readonly BicepCompiler compiler;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IFileSystem fileSystem;
-        private readonly IFeatureProviderFactory featureProviderFactory;
+        private readonly ISourceFileFactory sourceFileFactory;
         private readonly IOContext ioContext;
-        private readonly ILogger logger;
 
         public PublishCommand(
             DiagnosticLogger diagnosticLogger,
             BicepCompiler compiler,
             IOContext ioContext,
-            ILogger logger,
             IModuleDispatcher moduleDispatcher,
-            IFileSystem fileSystem,
-            IFeatureProviderFactory featureProviderFactory)
+            ISourceFileFactory sourceFileFactory,
+            IFileSystem fileSystem)
         {
             this.diagnosticLogger = diagnosticLogger;
             this.compiler = compiler;
             this.moduleDispatcher = moduleDispatcher;
             this.fileSystem = fileSystem;
-            this.featureProviderFactory = featureProviderFactory;
+            this.sourceFileFactory = sourceFileFactory;
             this.ioContext = ioContext;
-            this.logger = logger;
         }
 
         public async Task<int> RunAsync(PublishArguments args)
         {
             var inputUri = ArgumentHelper.GetFileUri(args.InputFile);
-            var features = featureProviderFactory.GetFeatureProvider(inputUri);
             var documentationUri = args.DocumentationUri;
             var moduleReference = ValidateReference(args.TargetModuleReference, inputUri);
             var overwriteIfExists = args.Force;
@@ -84,7 +81,7 @@ namespace Bicep.Cli.Commands
             Stream? sourcesStream = null;
             if (publishSource)
             {
-                sourcesStream = SourceArchive.PackSourcesIntoStream(moduleDispatcher, compilation.SourceFileGrouping, features.CacheRootDirectory);
+                sourcesStream = SourceArchive.PackSourcesIntoStream(moduleDispatcher, compilation.SourceFileGrouping, compilation.GetEntrypointSemanticModel().Features.CacheRootDirectory);
                 Trace.WriteLine("Publishing Bicep module with source");
             }
 
@@ -117,7 +114,9 @@ namespace Bicep.Cli.Commands
 
         private ArtifactReference ValidateReference(string targetModuleReference, Uri targetModuleUri)
         {
-            if (!this.moduleDispatcher.TryGetArtifactReference(ArtifactType.Module, targetModuleReference, targetModuleUri).IsSuccess(out var moduleReference, out var failureBuilder))
+            var dummyReferencingFile = this.sourceFileFactory.CreateBicepFile(targetModuleUri, string.Empty);
+
+            if (!this.moduleDispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Module, targetModuleReference).IsSuccess(out var moduleReference, out var failureBuilder))
             {
                 // TODO: We should probably clean up the dispatcher contract so this sort of thing isn't necessary (unless we change how target module is set in this command)
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;

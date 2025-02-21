@@ -45,6 +45,8 @@ namespace Bicep.Core.Features
 
         public bool OptionalModuleNamesEnabled => configuration.ExperimentalFeaturesEnabled.OptionalModuleNames;
 
+        public bool WaitAndRetryEnabled => configuration.ExperimentalFeaturesEnabled.WaitAndRetry;
+
         public bool LocalDeployEnabled => configuration.ExperimentalFeaturesEnabled.LocalDeploy;
 
         public bool ResourceDerivedTypesEnabled => configuration.ExperimentalFeaturesEnabled.ResourceDerivedTypes;
@@ -52,6 +54,8 @@ namespace Bicep.Core.Features
         public bool SecureOutputsEnabled => configuration.ExperimentalFeaturesEnabled.SecureOutputs;
 
         public bool ResourceInfoCodegenEnabled => this.configuration.ExperimentalFeaturesEnabled.ResourceInfoCodegen;
+
+        public bool TypedVariablesEnabled => configuration.ExperimentalFeaturesEnabled.TypedVariables;
 
         public bool ExtensibilityV2EmittingEnabled => ReadBooleanEnvVar("BICEP_EXTENSIBILITY_V2_EMITTING_ENABLED", defaultValue: false);
 

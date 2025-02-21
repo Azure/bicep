@@ -2014,7 +2014,10 @@ var chosenOne = which ? input : default
 
 var p = chosenOne.?foo
 ");
-        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP187", DiagnosticLevel.Info, "The property \"foo\" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+        });
     }
 
     [TestMethod]
@@ -2802,11 +2805,11 @@ var myValue = 2147483647
         {
             new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
-                new TypeProperty("tags", LanguageConstants.Array, TypePropertyFlags.ReadOnly, "tags property"),
-                new TypeProperty("properties", new ObjectType("properties", TypeSymbolValidationFlags.Default, new[]
+                new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
+                new NamedTypeProperty("tags", LanguageConstants.Array, TypePropertyFlags.ReadOnly, "tags property"),
+                new NamedTypeProperty("properties", new ObjectType("properties", TypeSymbolValidationFlags.Default, new[]
                 {
-                    new TypeProperty("prop1", LanguageConstants.String, TypePropertyFlags.ReadOnly, "prop1")
+                    new NamedTypeProperty("prop1", LanguageConstants.String, TypePropertyFlags.ReadOnly, "prop1")
                 }, null), TypePropertyFlags.ReadOnly, "properties property"),
             }, null))
         });
@@ -6284,7 +6287,10 @@ output foo string[] = [for item in items: item.foo]
             output foo string[] = [for item in items: item.?foo]
             """);
 
-        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP187", DiagnosticLevel.Info, "The property \"foo\" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+        });
     }
 
     [TestMethod]
@@ -6372,13 +6378,24 @@ param p invalidRecursiveObjectType = {}
     }
 
     [TestMethod]
-    public void Test_Issue15513()
+    public async Task Test_Issue15513()
     {
-        var result = CompilationHelper.Compile(
-            new ServiceBuilder().WithFeatureOverrides(new(ExtensibilityEnabled: true)),
+        var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(
+           typeof(ExtensionRegistryTests).Assembly,
+           "Files/ExtensionRegistryTests/microsoftgraph");
+
+        var registry = "example.azurecr.io";
+        var repository = "microsoftgraph/v1";
+
+        var services = ExtensionTestHelper.GetServiceBuilder(fileSystem, registry, repository, new(ExtensibilityEnabled: true));
+
+        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), "/index.json", $"br:{registry}/{repository}:1.2.3");
+
+        var result = await CompilationHelper.RestoreAndCompile(
+            services,
             """
             #disable-next-line BCP407
-            extension microsoftGraph
+            extension 'br:example.azurecr.io/microsoftgraph/v1:1.2.3'
 
             param entraGroup object = {
               name: 'ExampleGroup2'
@@ -6746,5 +6763,61 @@ var subnetId = vNet::subnets[0].id
         {
             ("BCP265", DiagnosticLevel.Error, "The name \"description\" is not a function. Did you mean \"sys.description\"?"),
         });
+    }
+
+    [TestMethod]
+    public void Test_Issue16219()
+    {
+        // https://www.github.com/Azure/bicep/issues/16219
+        var result = CompilationHelper.Compile("""
+            @description('Required. The name of the Public IP Address.')
+            param name string
+
+            resource publicIpAddress 'Microsoft.Network/publicIPAddresses@2023-09-01' = {
+              name: name
+              location: resourceGroup().location
+              sku: {
+                name: 'Basic'
+                tier: 'Regional'
+              }
+              properties: {
+                publicIPAddressVersion: 'IPv4'
+                publicIPAllocationMethod: 'Static'
+                idleTimeoutInMinutes: 4
+                ipTags: []
+              }
+            }
+
+            @description('The public IP address of the public IP address resource.')
+            output ipAddress string = contains(publicIpAddress.properties, 'ipAddress') ? publicIpAddress.properties.ipAddress : ''
+            """);
+
+        result.ExcludingDiagnostics("use-safe-access").Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue16230()
+    {
+        var result = CompilationHelper.Compile("""
+            resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
+              name: 'foo'
+
+              resource federation 'federatedIdentityCredentials' = [for i in range(0, 10): {
+                name: 'fed_${i}'
+              }]
+            }
+
+            resource otherIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+              name: 'bar'
+              location: resourceGroup().location
+              dependsOn: [
+                identity::federation
+              ]
+            }
+            """);
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveJsonAtPath("$.resources[?(@.name == 'bar')].dependsOn", "[\"identity::federation\"]");
     }
 }

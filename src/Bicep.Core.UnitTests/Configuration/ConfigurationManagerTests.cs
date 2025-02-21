@@ -64,8 +64,7 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "extensions": {
           "az": "builtin:",
-          "kubernetes": "builtin:",
-          "microsoftGraph": "builtin:"
+          "kubernetes": "builtin:"
         },
         "implicitExtensions": ["az"],
         "analyzers": {
@@ -109,10 +108,12 @@ namespace Bicep.Core.UnitTests.Configuration
           "testFramework": false,
           "assertions": false,
           "optionalModuleNames": false,
+          "waitAndRetry": false,
           "localDeploy": false,
           "resourceDerivedTypes": false,
           "secureOutputs": false,
-          "resourceInfoCodegen": false
+          "resourceInfoCodegen": false,
+          "typedVariables": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -174,8 +175,7 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "extensions": {
             "az": "builtin:",
-            "kubernetes": "builtin:",
-            "microsoftGraph": "builtin:"
+            "kubernetes": "builtin:"
         },
         "implicitExtensions": [
             "az"
@@ -191,10 +191,12 @@ namespace Bicep.Core.UnitTests.Configuration
           "testFramework": false,
           "assertions": false,
           "optionalModuleNames": false,
+          "waitAndRetry": false,
           "localDeploy": false,
           "resourceDerivedTypes": false,
           "secureOutputs": false,
-          "resourceInfoCodegen": false
+          "resourceInfoCodegen": false,
+          "typedVariables": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -248,8 +250,7 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "extensions": {
             "az": "builtin:",
-            "kubernetes": "builtin:",
-            "microsoftGraph": "builtin:"
+            "kubernetes": "builtin:"
         },
         "implicitExtensions": [
             "az"
@@ -298,10 +299,12 @@ namespace Bicep.Core.UnitTests.Configuration
           "testFramework": false,
           "assertions": false,
           "optionalModuleNames": false,
+          "waitAndRetry": false,
           "localDeploy": false,
           "resourceDerivedTypes": false,
           "secureOutputs": false,
-          "resourceInfoCodegen": false
+          "resourceInfoCodegen": false,
+          "typedVariables": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -390,10 +393,12 @@ namespace Bicep.Core.UnitTests.Configuration
                 TestFramework: false,
                 Assertions: false,
                 OptionalModuleNames: false,
+                WaitAndRetry: false,
                 LocalDeploy: false,
                 ResourceDerivedTypes: false,
                 SecureOutputs: false,
-                ResourceInfoCodegen: false);
+                ResourceInfoCodegen: false,
+                TypedVariables: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -428,7 +433,6 @@ namespace Bicep.Core.UnitTests.Configuration
                 }
             },
             "extensions": {
-                "microsoftGraph": "builtin:",
                 "kubernetes": "builtin:",
                 "az": "builtin:"
             },
@@ -476,10 +480,12 @@ namespace Bicep.Core.UnitTests.Configuration
                 "testFramework": false,
                 "assertions": false,
                 "optionalModuleNames": false,
+                "waitAndRetry": false,
                 "localDeploy": false,
                 "resourceDerivedTypes": false,
                 "secureOutputs": false,
-                "resourceInfoCodegen": false
+                "resourceInfoCodegen": false,
+                "typedVariables": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -807,8 +813,7 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "extensions": {
             "az": "builtin:",
-            "kubernetes": "builtin:",
-            "microsoftGraph": "builtin:"
+            "kubernetes": "builtin:"
         },
         "implicitExtensions": [
             "az"
@@ -848,10 +853,12 @@ namespace Bicep.Core.UnitTests.Configuration
           "testFramework": false,
           "assertions": false,
           "optionalModuleNames": false,
+          "waitAndRetry": false,
           "localDeploy": false,
           "resourceDerivedTypes": false,
           "secureOutputs": false,
-          "resourceInfoCodegen": false
+          "resourceInfoCodegen": false,
+          "typedVariables": false
         },
         "formatting": {
           "indentKind": "Space",

@@ -85,10 +85,8 @@ output joke string = dadJoke.body.joke
         var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         Directory.CreateDirectory(tempDirectory);
 
-        var extensionPath = Path.Combine(tempDirectory, "extension.tgz");
-        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), Path.Combine(tempDirectory, extensionPath), typesTgz);
-
         var bicepPath = Path.Combine(tempDirectory, "main.bicep");
+        var bicepUri = PathHelper.FilePathToFileUrl(bicepPath);
         await File.WriteAllTextAsync(bicepPath, """
 extension './extension.tgz'
 
@@ -100,7 +98,8 @@ resource fooRes 'fooType@v1' = {
 }
 """);
 
-        var bicepUri = PathHelper.FilePathToFileUrl(bicepPath);
+        var extensionPath = Path.Combine(tempDirectory, "extension.tgz");
+        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), Path.Combine(tempDirectory, extensionPath), typesTgz, bicepUri);
 
 
         var compiler = services.Build().GetCompiler();
@@ -209,9 +208,9 @@ extension nonExistent
 }
 """)));
 
-        var sourceUri = InMemoryFileResolver.GetFileUri("/path/bicepconfig.json");
+        var sourceUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
         result.Should().HaveDiagnostics([
-            ("BCP093", DiagnosticLevel.Error, $"File path \"./non_existent.tgz\" could not be resolved relative to \"{sourceUri.LocalPath}\"."),
+            ("BCP093", DiagnosticLevel.Error, $"File path \"../non_existent.tgz\" could not be resolved relative to \"{sourceUri.LocalPath}\"."),
         ]);
     }
 
@@ -721,5 +720,124 @@ resource fooRes 'fooType@v1' = {
 """);
 
         result.Should().GenerateATemplate();
+    }
+
+    [TestMethod]
+    public async Task Implicit_extensions_are_included_in_output()
+    {
+        // https://github.com/Azure/bicep/issues/15395
+        var fileSystem = new MockFileSystem();
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetTestTypesTgz(), AllFeaturesEnabled, fileSystem);
+
+        fileSystem.File.WriteAllText("/bicepconfig.json", """
+{
+  "extensions": {
+    "foo": "br:example.azurecr.io/extensions/foo:1.2.3"
+  },
+  "implicitExtensions": ["foo"],
+  "experimentalFeaturesEnabled": {
+    "extensibility": true
+  }
+}
+""");
+        var result = await CompilationHelper.RestoreAndCompile(services, """
+resource fooRes 'fooType@v1' = {
+  identifier: 'foo'
+  properties: {
+    required: 'bar'
+  }
+}
+""");
+
+        result.Should().GenerateATemplate();
+        result.Template.Should().HaveJsonAtPath("$.imports['foo']", """
+{
+  "provider": "ThirdPartyExtension",
+  "version": "1.0.0"
+}
+""");
+
+        result.Template.Should().HaveJsonAtPath("$.resources['fooRes']", """
+{
+  "import": "foo",
+  "type": "fooType@v1",
+  "properties": {
+    "identifier": "foo",
+    "properties": {
+      "required": "bar"
+    }
+  }
+}
+""");
+    }
+
+    [TestMethod]
+    public async Task Implicit_extensions_generate_correct_symbol_names()
+    {
+        // https://github.com/Azure/bicep/issues/15396
+        var fileSystem = new MockFileSystem();
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetTestTypesTgz(), AllFeaturesEnabled, fileSystem);
+
+        fileSystem.File.WriteAllText("/bicepconfig.json", """
+{
+  "experimentalFeaturesEnabled": {
+    "extensibility": true
+  },
+  "extensions": {
+    "bar": "br:example.azurecr.io/extensions/foo:1.2.3"
+  }
+}
+""");
+        var result = await CompilationHelper.RestoreAndCompile(services, """
+extension bar
+
+resource fooRes 'fooType@v1' = {
+  identifier: 'foo'
+  properties: {
+    required: 'bar'
+  }
+}
+
+resource bazRes 'bar:fooType@v1' = {
+  identifier: 'baz'
+  properties: {
+    required: 'bar'
+  }
+}
+""");
+
+        result.Should().GenerateATemplate();
+        result.Template.Should().HaveJsonAtPath("$.imports['bar']", """
+{
+  "provider": "ThirdPartyExtension",
+  "version": "1.0.0"
+}
+""");
+
+        result.Template.Should().HaveJsonAtPath("$.resources['fooRes']", """
+{
+  "import": "bar",
+  "type": "fooType@v1",
+  "properties": {
+    "identifier": "foo",
+    "properties": {
+      "required": "bar"
+    }
+  }
+}
+""");
+
+        result.Template.Should().HaveJsonAtPath("$.resources['bazRes']", """
+{
+  "import": "bar",
+  "type": "fooType@v1",
+  "properties": {
+    "identifier": "baz",
+    "properties": {
+      "required": "bar"
+    }
+  }
+}
+""");
     }
 }

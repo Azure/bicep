@@ -115,7 +115,7 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
                     }
                     break;
                 case BicepSynthesizedVariableReference synthesizedVariableRef:
-                    importedVariables.Add(name, new(closure.SymbolsInImportClosure[synthesizedVariableRef], name, synthesizedVariableRef.Value));
+                    importedVariables.Add(name, new(closure.SymbolsInImportClosure[synthesizedVariableRef], name, null, synthesizedVariableRef.Value));
                     break;
                 default:
                     throw new UnreachableException($"This switch was expected to exhaustively process all kinds of {nameof(IntraTemplateSymbolicReference)} but did not handle an instance of type {symbol.GetType().Name}");

@@ -928,11 +928,6 @@ namespace Bicep.Core.TypeSystem
                     }
                 }
 
-                if (LanguageConstants.IdentifierComparer.Equals(namespaceType.Name, MicrosoftGraphNamespaceType.BuiltInName))
-                {
-                    diagnostics.Write(syntax.SpecificationString, x => x.MicrosoftGraphBuiltinDeprecatedSoon(syntax));
-                }
-
                 return namespaceType;
             });
 
@@ -1025,6 +1020,19 @@ namespace Bicep.Core.TypeSystem
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
+                if (syntax.Type is {})
+                {
+                    if (!model.Features.TypedVariablesEnabled)
+                    {
+                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).TypedVariablesUnsupported());
+                    }
+
+                    var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnostics);
+                    diagnostics.WriteMultiple(GetDeclarationAssignmentDiagnostics(declaredType, syntax.Value));
+
+                    return declaredType;
+                }
+
                 var errors = new List<IDiagnostic>();
 
                 var valueType = typeManager.GetTypeInfo(syntax.Value);
@@ -1067,7 +1075,7 @@ namespace Bicep.Core.TypeSystem
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnostics);
-                diagnostics.WriteMultiple(GetOutputDeclarationDiagnostics(declaredType, syntax));
+                diagnostics.WriteMultiple(GetDeclarationAssignmentDiagnostics(declaredType, syntax.Value));
 
                 base.VisitOutputDeclarationSyntax(syntax);
 
@@ -1118,7 +1126,7 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Empty();
                 }
 
-                List<TypeProperty> nsProperties = new();
+                List<NamedTypeProperty> nsProperties = new();
                 List<FunctionOverload> nsFunctions = new();
                 foreach (var export in importedModel.Exports.Values)
                 {
@@ -1308,7 +1316,7 @@ namespace Bicep.Core.TypeSystem
                 // Discriminated objects should have been resolved by the declared type manager.
                 var declaredType = typeManager.GetDeclaredType(syntax);
 
-                var namedProperties = new Dictionary<string, TypeProperty>(LanguageConstants.IdentifierComparer);
+                var namedProperties = new Dictionary<string, NamedTypeProperty>(LanguageConstants.IdentifierComparer);
                 var additionalProperties = new List<TypeSymbol>();
                 foreach (var child in syntax.Children)
                 {
@@ -1323,7 +1331,7 @@ namespace Bicep.Core.TypeSystem
                                 // we've found a declared object type for the containing object, with a matching property name definition.
                                 // preserve the type property details (name, descriptions etc.), and update the assigned type.
                                 // Since this type corresponds to a value that is being supplied, make sure it has the `Required` flag and does not have the `.ReadOnly` flag
-                                namedProperties[name] = new TypeProperty(
+                                namedProperties[name] = new NamedTypeProperty(
                                     property.Name,
                                     resolvedType,
                                     (property.Flags | TypePropertyFlags.Required) & ~TypePropertyFlags.ReadOnly,
@@ -1333,7 +1341,7 @@ namespace Bicep.Core.TypeSystem
                             {
                                 // we've not been able to find a declared object type for the containing object, or it doesn't contain a property matching this one.
                                 // best we can do is to simply generate a property for the assigned type.
-                                namedProperties[name] = new TypeProperty(name, resolvedType, TypePropertyFlags.Required);
+                                namedProperties[name] = new NamedTypeProperty(name, resolvedType, TypePropertyFlags.Required);
                             }
                         }
                         else
@@ -1352,9 +1360,9 @@ namespace Bicep.Core.TypeSystem
                                 namedProperties[name] = property;
                             }
 
-                            if (spreadType.AdditionalPropertiesType is { })
+                            if (spreadType.AdditionalProperties is { } spreadTypeAdditionalProperties)
                             {
-                                additionalProperties.Add(spreadType.AdditionalPropertiesType.Type);
+                                additionalProperties.Add(spreadTypeAdditionalProperties.TypeReference.Type);
                             }
                         }
                         else
@@ -1367,7 +1375,7 @@ namespace Bicep.Core.TypeSystem
                 var additionalPropertiesType = additionalProperties.Any() ? TypeHelper.CreateTypeUnion(additionalProperties) : null;
 
                 // TODO: Add structural naming?
-                return new ObjectType(LanguageConstants.Object.Name, TypeSymbolValidationFlags.Default, namedProperties.Values, additionalPropertiesType);
+                return new ObjectType(LanguageConstants.Object.Name, TypeSymbolValidationFlags.Default, namedProperties.Values, additionalPropertiesType is null ? null : new(additionalPropertiesType));
             });
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
@@ -2366,7 +2374,7 @@ namespace Bicep.Core.TypeSystem
                 return LanguageConstants.Any;
             }
 
-            if (baseType.Properties.Any() || baseType.AdditionalPropertiesType != null)
+            if (baseType.Properties.Any() || baseType.AdditionalProperties != null)
             {
                 // the object type allows properties
                 return LanguageConstants.Any;
@@ -2381,9 +2389,9 @@ namespace Bicep.Core.TypeSystem
         private IEnumerable<TypeSymbol> GetRecoveredArgumentTypes(IEnumerable<FunctionArgumentSyntax> argumentSyntaxes) =>
             this.GetArgumentTypes(argumentSyntaxes).Select(argumentType => argumentType.TypeKind == TypeKind.Error ? LanguageConstants.Any : argumentType);
 
-        private IEnumerable<IDiagnostic> GetOutputDeclarationDiagnostics(TypeSymbol assignedType, OutputDeclarationSyntax syntax)
+        private IEnumerable<IDiagnostic> GetDeclarationAssignmentDiagnostics(TypeSymbol declaredType, SyntaxBase value)
         {
-            var valueType = typeManager.GetTypeInfo(syntax.Value);
+            var valueType = typeManager.GetTypeInfo(value);
 
             // this type is not a property in a symbol so the semantic error visitor won't collect the errors automatically
             if (valueType is ErrorType)
@@ -2391,7 +2399,7 @@ namespace Bicep.Core.TypeSystem
                 return valueType.GetDiagnostics();
             }
 
-            if (assignedType is ErrorType)
+            if (declaredType is ErrorType)
             {
                 // no point in checking that the value is assignable to the declared output type if no valid declared type could be discerned
                 return [];
@@ -2399,7 +2407,7 @@ namespace Bicep.Core.TypeSystem
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
 
-            TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, syntax.Value, assignedType);
+            TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, value, declaredType);
 
             return diagnosticWriter.GetDiagnostics();
         }

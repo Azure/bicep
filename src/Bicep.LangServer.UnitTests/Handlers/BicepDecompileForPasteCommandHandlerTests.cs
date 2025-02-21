@@ -1391,6 +1391,7 @@ name: 'Premium_LRS'
                     expectedBicep: expectedBicep);
         }
 
+        [DataTestMethod]
         [DataRow(
             @"{
               ipConfigurations: [

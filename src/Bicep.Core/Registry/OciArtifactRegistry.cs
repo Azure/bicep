@@ -9,6 +9,7 @@ using Azure;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
@@ -18,6 +19,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
+using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -25,38 +27,21 @@ namespace Bicep.Core.Registry
 {
     public sealed class OciArtifactRegistry : ExternalArtifactRegistry<OciArtifactReference, OciArtifactResult>
     {
-        private readonly AzureContainerRegistryManager client;
+        private readonly AzureContainerRegistryManager containerRegistryManager;
 
-        private readonly IDirectoryHandle cacheDirectory;
-
-        private readonly RootConfiguration configuration;
-
-        private readonly Uri parentModuleUri;
-
-        private readonly IFeatureProvider features;
-
-        private readonly IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider;
+        private readonly IPublicModuleMetadataProvider publicModuleMetadataProvider;
 
         public OciArtifactRegistry(
             IFileResolver FileResolver,
             IContainerRegistryClientFactory clientFactory,
-            IFeatureProvider features,
-            RootConfiguration configuration,
-            IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider,
-            Uri parentModuleUri)
+            IPublicModuleMetadataProvider publicModuleMetadataProvider)
             : base(FileResolver)
         {
-            this.cacheDirectory = features.CacheRootDirectory.GetDirectory(ArtifactReferenceSchemes.Oci);
-            this.client = new AzureContainerRegistryManager(clientFactory);
-            this.configuration = configuration;
-            this.features = features;
-            this.parentModuleUri = parentModuleUri;
-            this.publicRegistryModuleMetadataProvider = publicRegistryModuleMetadataProvider;
+            this.containerRegistryManager = new AzureContainerRegistryManager(clientFactory);
+            this.publicModuleMetadataProvider = publicModuleMetadataProvider;
         }
 
         public override string Scheme => ArtifactReferenceSchemes.Oci;
-
-        public IDirectoryHandle CacheRootDirectory => this.features.CacheRootDirectory;
 
         public override RegistryCapabilities GetCapabilities(ArtifactType artifactType, OciArtifactReference reference)
         {
@@ -64,9 +49,9 @@ namespace Bicep.Core.Registry
             return reference.Tag is null ? RegistryCapabilities.Default : RegistryCapabilities.Publish;
         }
 
-        public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference)
+        public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string? aliasName, string reference)
         {
-            if (!OciArtifactReference.TryParse(artifactType, aliasName, reference, configuration, parentModuleUri).IsSuccess(out var @ref, out var failureBuilder))
+            if (!OciArtifactReference.TryParse(referencingFile, artifactType, aliasName, reference).IsSuccess(out var @ref, out var failureBuilder))
             {
                 return new(failureBuilder);
             }
@@ -105,7 +90,7 @@ namespace Bicep.Core.Registry
             try
             {
                 // Get module
-                await this.client.PullArtifactAsync(configuration, reference);
+                await this.containerRegistryManager.PullArtifactAsync(reference.ReferencingFile.Configuration, reference);
             }
             catch (RequestFailedException exception) when (exception.Status == 404)
             {
@@ -158,9 +143,9 @@ namespace Bicep.Core.Registry
                 || string.IsNullOrWhiteSpace(documentationUri))
             {
                 // Automatically generate a help URI for public MCR modules
-                if (ociArtifactModuleReference.Registry == LanguageConstants.BicepPublicMcrRegistry && ociArtifactModuleReference.Repository.StartsWith(LanguageConstants.McrRepositoryPrefix, StringComparison.Ordinal))
+                if (ociArtifactModuleReference.Registry == LanguageConstants.BicepPublicMcrRegistry && ociArtifactModuleReference.Repository.StartsWith(LanguageConstants.BicepPublicMcrPathPrefix, StringComparison.Ordinal))
                 {
-                    var moduleName = ociArtifactModuleReference.Repository.Substring(LanguageConstants.McrRepositoryPrefix.Length);
+                    var moduleName = ociArtifactModuleReference.Repository.Substring(LanguageConstants.BicepPublicMcrPathPrefix.Length);
                     return ociArtifactModuleReference.Tag is null ? null : GetPublicBicepModuleDocumentationUri(moduleName, ociArtifactModuleReference.Tag);
                 }
 
@@ -218,7 +203,15 @@ namespace Bicep.Core.Registry
 
         public override async Task OnRestoreArtifacts(bool forceRestore)
         {
-            await publicRegistryModuleMetadataProvider.TryAwaitCache(forceRestore);
+            // We don't want linter tests to download anything during analysis.  So we are downloading
+            //   metadata here to avoid downloading during analysis, and tests can use cached data if it
+            //   exists (e.g. IRegistryModuleMetadataProvider.GetCached* methods).
+            // If --no-restore has been specified on the command ine, we don't want to download anything at all.
+            // Therefore we do the cache download here so that lint rules can have access to the cached metadata.
+            // CONSIDER: Revisit if it's okay to download metadata during analysis?  This will be more of a problem
+            //   when we extend the linter rules to include private registry modules.
+
+            await publicModuleMetadataProvider.TryAwaitCache(forceRestore);
         }
 
         public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<OciArtifactReference> references)
@@ -231,7 +224,7 @@ namespace Bicep.Core.Registry
             foreach (var reference in referencesEvaluated)
             {
                 using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectory(reference)}");
-                var (result, errorMessage) = await this.TryRestoreArtifactAsync(configuration, reference);
+                var (result, errorMessage) = await this.TryRestoreArtifactAsync(reference.ReferencingFile.Configuration, reference);
 
                 if (result is null)
                 {
@@ -283,8 +276,8 @@ namespace Bicep.Core.Registry
 
             try
             {
-                await this.client.PushArtifactAsync(
-                    configuration,
+                await this.containerRegistryManager.PushArtifactAsync(
+                    reference.ReferencingFile.Configuration,
                     reference,
                     // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
                     ManifestMediaType.OciImageManifest.ToString(),
@@ -338,8 +331,8 @@ namespace Bicep.Core.Registry
 
             try
             {
-                await this.client.PushArtifactAsync(
-                    configuration,
+                await this.containerRegistryManager.PushArtifactAsync(
+                    reference.ReferencingFile.Configuration,
                     reference,
                     // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
                     ManifestMediaType.OciImageManifest.ToString(),
@@ -374,8 +367,7 @@ namespace Bicep.Core.Registry
             // write manifest
             // it's important to write the original stream here rather than serialize the manifest object
             // this way we guarantee the manifest hash will match
-            var manifestFile = this.GetArtifactFile(reference, ArtifactFileType.Manifest);
-            result.ManifestData.WriteTo(manifestFile);
+            this.GetArtifactFile(reference, ArtifactFileType.Manifest).Write(result.ManifestData);
 
             // write data file
             var mainLayer = result.GetMainLayer();
@@ -392,9 +384,9 @@ namespace Bicep.Core.Registry
                 _ => throw new InvalidOperationException($"Unexpected artifact type \"{result.GetType().Name}\"."),
             };
 
-            mainLayer.Data.WriteTo(this.GetArtifactFile(reference, moduleFileType));
+            this.GetArtifactFile(reference, moduleFileType).Write(mainLayer.Data);
 
-            if (result is OciModuleArtifactResult moduleArtifact)
+            if (result is OciModuleArtifactResult)
             {
                 // write source archive file
                 if (result.TryGetSingleLayerByMediaType(BicepMediaTypes.BicepSourceV1Layer) is BinaryData sourceData)
@@ -406,7 +398,7 @@ namespace Bicep.Core.Registry
                     //   info on disk and can handle the layer data as they want to.
                     // The manifest can be used to determine what's in each layer file.
                     //  (https://github.com/Azure/bicep/issues/11900)
-                    sourceData.WriteTo(this.GetArtifactFile(reference, ArtifactFileType.Source));
+                    this.GetArtifactFile(reference, ArtifactFileType.Source).Write(sourceData);
                 }
             }
 
@@ -432,7 +424,7 @@ namespace Bicep.Core.Registry
                     }
 
                     var file = this.GetArtifactFile(reference, ArtifactFileType.ExtensionBinary);
-                    sourceData.WriteTo(file);
+                    file.Write(sourceData);
                     file.MakeExecutable();
                 }
             }
@@ -443,7 +435,7 @@ namespace Bicep.Core.Registry
             OciSerialization.Serialize(metadataStream, metadata);
             metadataStream.Position = 0;
 
-            metadataStream.WriteTo(this.GetArtifactFile(reference, ArtifactFileType.Metadata));
+            this.GetArtifactFile(reference, ArtifactFileType.Metadata).Write(metadataStream);
         }
 
         protected override IDirectoryHandle GetArtifactDirectory(OciArtifactReference reference)
@@ -483,7 +475,7 @@ namespace Bicep.Core.Registry
                 throw new InvalidOperationException("Module reference is missing both tag and digest.");
             }
 
-            return this.cacheDirectory.GetDirectory($"{registry}/{repository}/{tagOrDigest}");
+            return reference.ReferencingFile.Features.CacheRootDirectory.GetDirectory($"{ArtifactReferenceSchemes.Oci}/{registry}/{repository}/{tagOrDigest}");
         }
 
         protected override IFileHandle GetArtifactLockFile(OciArtifactReference reference) => this.GetArtifactFile(reference, ArtifactFileType.Lock);
@@ -492,7 +484,7 @@ namespace Bicep.Core.Registry
         {
             try
             {
-                var result = await client.PullArtifactAsync(configuration, reference);
+                var result = await containerRegistryManager.PullArtifactAsync(configuration, reference);
 
                 await WriteArtifactContentToCacheAsync(reference, result);
 

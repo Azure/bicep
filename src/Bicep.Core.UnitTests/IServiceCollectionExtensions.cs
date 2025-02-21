@@ -16,7 +16,7 @@ using Bicep.Core.TypeSystem.Providers.MicrosoftGraph;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Features;
-using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Mock.Registry;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
@@ -51,10 +51,11 @@ public static class IServiceCollectionExtensions
             .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
             .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
             .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
-            .AddPublicRegistryModuleMetadataProviderServices()
+            .AddSingleton<ISourceFileFactory, SourceFileFactory>()
+            .AddPublicModuleMetadataProviderServices()
             .AddSingleton<BicepCompiler>();
 
-        AddMockHttpClient(services, PublicRegistryModuleIndexClientMock.Create([]).Object);
+        AddMockHttpClient(services, PublicModuleIndexHttpClientMocks.Create([]).Object);
 
         return services;
     }
@@ -103,6 +104,9 @@ public static class IServiceCollectionExtensions
 
     public static IServiceCollection WithCompilationManager(this IServiceCollection services, ICompilationManager compilationManager)
         => Register(services, compilationManager);
+
+    public static IServiceCollection WithConfigurationManager(this IServiceCollection services, IConfigurationManager configurationManager)
+        => Register(services, configurationManager);
 
     public static IServiceCollection WithConfigurationPatch(this IServiceCollection services, Func<RootConfiguration, RootConfiguration> patchFunc)
         => Register(services, patchFunc)

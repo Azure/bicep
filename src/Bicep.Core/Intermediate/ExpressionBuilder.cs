@@ -169,7 +169,7 @@ public class ExpressionBuilder
 
             case ExtensionDeclarationSyntax extension:
                 var symbol = GetDeclaredSymbol<ExtensionNamespaceSymbol>(extension);
-                return EvaluateDecorators(extension, new DeclaredExtensionExpression(
+                return EvaluateDecorators(extension, new ExtensionExpression(
                     extension,
                     symbol.Name,
                     GetTypeInfo<NamespaceType>(extension).Settings,
@@ -186,6 +186,7 @@ public class ExpressionBuilder
                 return EvaluateDecorators(variable, new DeclaredVariableExpression(
                     variable,
                     variable.Name.IdentifierName,
+                    variable.Type != null ? ConvertTypeWithoutLowering(variable.Type) : null,
                     ConvertWithoutLowering(variable.Value)));
 
             case FunctionDeclarationSyntax function:
@@ -359,12 +360,12 @@ public class ExpressionBuilder
     {
         var baseExpression = ConvertTypeWithoutLowering(syntax.BaseExpression);
 
-        if (baseExpression.ExpressedType is not ObjectType objectType || objectType.AdditionalPropertiesType is null || !objectType.HasExplicitAdditionalPropertiesType)
+        if (baseExpression.ExpressedType is not ObjectType objectType || objectType.AdditionalProperties is null || !objectType.HasExplicitAdditionalPropertiesType)
         {
             throw new ArgumentException($"The additional properties type of type '{baseExpression.ExpressedType.Name}' was not found or was not valid.");
         }
 
-        return new TypeReferenceAdditionalPropertiesAccessExpression(syntax, baseExpression, objectType.AdditionalPropertiesType.Type);
+        return new TypeReferenceAdditionalPropertiesAccessExpression(syntax, baseExpression, objectType.AdditionalProperties.TypeReference.Type);
     }
 
     private TypeReferenceItemsAccessExpression ConvertTypeItemsAccess(TypeItemsAccessSyntax syntax)
@@ -448,9 +449,19 @@ public class ExpressionBuilder
             .OfType<DeclaredMetadataExpression>()
             .ToImmutableArray();
 
-        var extensions = Context.SemanticModel.Root.ExtensionDeclarations
+        var declaredExtensions = Context.SemanticModel.Root.ExtensionDeclarations
             .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
-            .OfType<DeclaredExtensionExpression>()
+            .OfType<ExtensionExpression>()
+            .ToImmutableArray();
+
+        var implicitExtension = Context.SemanticModel.Binder.NamespaceResolver.ImplicitNamespaces
+            .Select(x => x.Value.TryGetNamespaceType())
+            .WhereNotNull()
+            .Where(x =>
+                // The 'az' and 'sys' namespaces do not utilize the extensibility contract and do not need to be emitted in the template
+                !LanguageConstants.IdentifierComparer.Equals(x.Settings.BicepExtensionName, SystemNamespaceType.BuiltInName) &&
+                !LanguageConstants.IdentifierComparer.Equals(x.Settings.BicepExtensionName, AzNamespaceType.BuiltInName))
+            .Select(x => new ExtensionExpression(null, x.Name, x.Settings, null))
             .ToImmutableArray();
 
         var typeDefinitions = Context.SemanticModel.Root.TypeDeclarations
@@ -465,7 +476,7 @@ public class ExpressionBuilder
 
         var functionVariables = Context.FunctionVariables
             .OrderBy(x => x.Value.Name, LanguageConstants.IdentifierComparer)
-            .Select(x => new DeclaredVariableExpression(x.Key, x.Value.Name, x.Value.Value))
+            .Select(x => new DeclaredVariableExpression(x.Key, x.Value.Name, null, x.Value.Value))
             .ToImmutableArray();
 
         var variables = Context.SemanticModel.Root.VariableDeclarations
@@ -502,7 +513,7 @@ public class ExpressionBuilder
         return new ProgramExpression(
             syntax,
             metadataArray,
-            extensions,
+            [.. declaredExtensions, .. implicitExtension],
             typeDefinitions,
             parameters,
             functionVariables.AddRange(variables),
@@ -1545,6 +1556,18 @@ public class ExpressionBuilder
         EmitResourceOrModuleScopeProperties(resource.ScopeData, expressionEmitter, resource.BodySyntax);
     }
 
+    /*public void EmitResourceOptionsProperties(ExpressionEmitter expressionEmitter, DeclaredResourceExpression resource)
+    {
+        if (resource.SourceSyntax is FunctionCallSyntax functionCallSyntax)
+        {
+            // emit the resource id of the resource being extended
+            var indexContext = TryGetReplacementContext(scopeResource, resource.ScopeData.IndexExpression, resource.BodySyntax);
+            expressionEmitter.EmitProperty("parent", () => expressionEmitter.EmitUnqualifiedResourceId(scopeResource, indexContext));
+            return;
+        }
+        EmitResourceOrModuleScopeProperties(resource.ScopeData, expressionEmitter, resource.BodySyntax);
+    }
+*/
     public void EmitModuleScopeProperties(ExpressionEmitter expressionEmitter, DeclaredModuleExpression module)
     {
         EmitResourceOrModuleScopeProperties(module.ScopeData, expressionEmitter, module.BodySyntax);

@@ -17,10 +17,12 @@ public record ExperimentalFeaturesEnabled(
     bool TestFramework,
     bool Assertions,
     bool OptionalModuleNames,
+    bool WaitAndRetry,
     bool LocalDeploy,
     bool ResourceDerivedTypes,
     bool SecureOutputs,
-    bool ResourceInfoCodegen)
+    bool ResourceInfoCodegen,
+    bool TypedVariables)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();

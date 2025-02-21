@@ -14,7 +14,7 @@
     }
   },
   "imports": {
-    "MicrosoftGraphBeta": {
+    "microsoftGraphBeta": {
       "provider": "MicrosoftGraph",
       "version": "0.1.8-preview"
     }
@@ -22,7 +22,7 @@
   "resources": {
     "resourceApp": {
       "existing": true,
-      "import": "MicrosoftGraphBeta",
+      "import": "microsoftGraphBeta",
       "type": "Microsoft.Graph/applications@beta",
       "properties": {
         "uniqueName": "resourceApp"
@@ -30,7 +30,7 @@
     },
     "group": {
       "existing": true,
-      "import": "MicrosoftGraphBeta",
+      "import": "microsoftGraphBeta",
       "type": "Microsoft.Graph/applications@beta",
       "properties": {
         "uniqueName": "myGroup"

@@ -14,18 +14,7 @@ namespace Bicep.Core.Semantics
 {
     public class EmptySemanticModel : ISemanticModel
     {
-        public EmptySemanticModel()
-        {
-            this.SourceFile = new BicepParamFile(
-                new Uri("in-memory-file://"),
-                [],
-                new ProgramSyntax([], SyntaxFactory.EndOfFileToken),
-                EmptyDiagnosticLookup.Instance,
-                EmptyDiagnosticLookup.Instance
-            );
-        }
-
-        public BicepSourceFile SourceFile { get; }
+        public BicepSourceFile SourceFile => throw new NotImplementedException();
 
         public ResourceScope TargetScope => ResourceScope.None;
 

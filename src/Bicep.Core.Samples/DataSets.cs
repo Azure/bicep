@@ -80,6 +80,8 @@ namespace Bicep.Core.Samples
 
         public static DataSet TypeDeclarations_LF => CreateDataSet();
 
+        public static DataSet TypedVariables_LF => CreateDataSet();
+
         public static DataSet Unicode_LF => CreateDataSet();
 
         public static DataSet Variables_LF => CreateDataSet();

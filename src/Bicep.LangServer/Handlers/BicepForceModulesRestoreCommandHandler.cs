@@ -25,7 +25,7 @@ namespace Bicep.LanguageServer.Handlers
         private readonly ICompilationManager compilationManager;
         private readonly IConfigurationManager configurationManager;
         private readonly IWorkspace workspace;
-        private readonly IFeatureProviderFactory featureProviderFactory;
+        private readonly ISourceFileFactory sourceFileFactory;
 
         public BicepForceModulesRestoreCommandHandler(
             ISerializer serializer,
@@ -34,7 +34,7 @@ namespace Bicep.LanguageServer.Handlers
             IConfigurationManager configurationManager,
             ICompilationManager compilationManager,
             IWorkspace workspace,
-            IFeatureProviderFactory featureProviderFactory)
+            ISourceFileFactory sourceFileFactory)
             : base(LangServerConstants.ForceModulesRestoreCommand, serializer)
         {
             this.fileResolver = fileResolver;
@@ -42,7 +42,7 @@ namespace Bicep.LanguageServer.Handlers
             this.configurationManager = configurationManager;
             this.compilationManager = compilationManager;
             this.workspace = workspace;
-            this.featureProviderFactory = featureProviderFactory;
+            this.sourceFileFactory = sourceFileFactory;
         }
 
         public override Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
@@ -65,10 +65,9 @@ namespace Bicep.LanguageServer.Handlers
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(
                 this.fileResolver,
                 this.moduleDispatcher,
-                this.configurationManager,
-                workspace,
-                fileUri,
-                featureProviderFactory);
+                this.workspace,
+                this.sourceFileFactory,
+                fileUri);
 
             // Ignore modules to restore logic, include all modules to be restored
             var artifactsToRestore = sourceFileGrouping.GetArtifactsToRestore(force: true);

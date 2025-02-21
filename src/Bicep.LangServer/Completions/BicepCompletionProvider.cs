@@ -79,9 +79,10 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetTestBodyCompletions(model, context))
                 .Concat(GetResourceBodyCompletions(model, context))
                 .Concat(GetParameterDefaultValueCompletions(model, context))
-                .Concat(GetVariableValueCompletions(context))
+                .Concat(GetVariableValueCompletions(model, context))
                 .Concat(GetOutputValueCompletions(model, context))
                 .Concat(GetOutputTypeFollowerCompletions(context))
+                .Concat(GetVariableNameFollowerCompletions(context))
                 .Concat(GetTargetScopeCompletions(model, context))
                 .Concat(GetExtensionCompletions(model, context))
                 .Concat(GetCompileTimeImportCompletions(model, context))
@@ -93,7 +94,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetParamValueCompletions(model, context))
                 .Concat(GetAssertValueCompletions(model, context))
                 .Concat(GetTypeArgumentCompletions(model, context))
-                .Concat(await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.Uri, context, cancellationToken));
+                .Concat(await moduleReferenceCompletionProvider.GetFilteredCompletions(context, cancellationToken));
         }
 
         private IEnumerable<CompletionItem> GetParamIdentifierCompletions(SemanticModel paramsSemanticModel, BicepCompletionContext paramsCompletionContext)
@@ -311,6 +312,12 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.TypedLocalVariableType) ||
                 context.Kind.HasFlag(BicepCompletionContextKind.TypedLambdaOutputType))
+            {
+                return GetTypeCompletions(model, context);
+            }
+
+            if (context.Kind.HasFlag(BicepCompletionContextKind.VariableNameFollower) &&
+                model.Features.TypedVariablesEnabled)
             {
                 return GetTypeCompletions(model, context);
             }
@@ -541,8 +548,8 @@ namespace Bicep.LanguageServer.Completions
 
                 if (searchDirectory.Exists())
                 {
-                    files = searchDirectory.EnumerateFiles().Select(x => x.Uri.ToUri()).ToList();
-                    dirs = searchDirectory.EnumerateDirectories().Select(x => x.Uri.ToUri()).ToList();
+                    files = [.. searchDirectory.EnumerateFiles().Select(x => x.Uri.ToUri())];
+                    dirs = [.. searchDirectory.EnumerateDirectories().Select(x => x.Uri.ToUri())];
 
                     // include the parent folder as a completion if we're not at the file system root
                     if (searchDirectory.GetParent() is { } parentSearchDirectory)
@@ -763,13 +770,18 @@ namespace Bicep.LanguageServer.Completions
             return GetValueCompletionsForType(model, context, declaredType, (parameter.Modifier as ParameterDefaultValueSyntax)?.DefaultValue, loopsAllowed: false);
         }
 
-        private IEnumerable<CompletionItem> GetVariableValueCompletions(BicepCompletionContext context)
+        private IEnumerable<CompletionItem> GetVariableValueCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (!context.Kind.HasFlag(BicepCompletionContextKind.VariableValue))
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.VariableValue) || context.EnclosingDeclaration is not VariableDeclarationSyntax variable)
             {
                 return [];
             }
 
+            if (model.GetDeclaredType(variable) is {} declaredType)
+            {
+                return GetValueCompletionsForType(model, context, declaredType, variable.Value, loopsAllowed: true);
+            }
+    
             // we don't know what the variable type is, so assume "any"
             return CreateLoopCompletions(context.ReplacementRange, LanguageConstants.Any, filtersAllowed: false);
         }
@@ -789,6 +801,15 @@ namespace Bicep.LanguageServer.Completions
         private IEnumerable<CompletionItem> GetOutputTypeFollowerCompletions(BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.OutputTypeFollower))
+            {
+                const string equals = "=";
+                yield return CreateOperatorCompletion(equals, context.ReplacementRange, preselect: true);
+            }
+        }
+
+        private IEnumerable<CompletionItem> GetVariableNameFollowerCompletions(BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.VariableNameFollower))
             {
                 const string equals = "=";
                 yield return CreateOperatorCompletion(equals, context.ReplacementRange, preselect: true);
@@ -1279,7 +1300,7 @@ namespace Bicep.LanguageServer.Completions
                 .Select(p => CreatePropertyNameCompletion(p, includeColon, context.ReplacementRange));
         }
 
-        private static IEnumerable<TypeProperty> GetProperties(TypeSymbol? type)
+        private static IEnumerable<NamedTypeProperty> GetProperties(TypeSymbol? type)
         {
             return (type switch
             {
@@ -1293,7 +1314,7 @@ namespace Bicep.LanguageServer.Completions
             }).Where(p => !p.Flags.HasFlag(TypePropertyFlags.FallbackProperty));
         }
 
-        private static IEnumerable<TypeProperty> GetPropertiesFromUnionType(UnionType unionType)
+        private static IEnumerable<NamedTypeProperty> GetPropertiesFromUnionType(UnionType unionType)
         {
             var potentiallyCollapsedType = TypeHelper.TryCollapseTypes(unionType.Members);
             if (potentiallyCollapsedType is UnionType)
@@ -1311,8 +1332,8 @@ namespace Bicep.LanguageServer.Completions
             ResourceType resourceType => GetAdditionalPropertiesType(resourceType.Body.Type),
             ModuleType moduleType => GetAdditionalPropertiesType(moduleType.Body.Type),
             TestType testType => GetAdditionalPropertiesType(testType.Body.Type),
-            ObjectType objectType when objectType.AdditionalPropertiesType is not null && !objectType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty)
-                => objectType.AdditionalPropertiesType.Type,
+            ObjectType objectType when objectType.AdditionalProperties is not null && !objectType.AdditionalProperties.Flags.HasFlag(TypePropertyFlags.FallbackProperty)
+                => objectType.AdditionalProperties.TypeReference.Type,
             _ => null,
         };
 
@@ -1691,7 +1712,7 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, bool includeColon, Range replacementRange)
+        private static CompletionItem CreatePropertyNameCompletion(NamedTypeProperty property, bool includeColon, Range replacementRange)
         {
             var required = TypeHelper.IsRequired(property);
 
@@ -1707,7 +1728,7 @@ namespace Bicep.LanguageServer.Completions
                 .Build();
         }
 
-        private static CompletionItem CreatePropertyIndexCompletion(TypeProperty property, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        private static CompletionItem CreatePropertyIndexCompletion(NamedTypeProperty property, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
         {
             var escaped = StringUtils.EscapeBicepString(property.Name);
             return CompletionItemBuilder.Create(CompletionItemKind.Property, escaped)
@@ -1718,7 +1739,7 @@ namespace Bicep.LanguageServer.Completions
                 .Build();
         }
 
-        private static CompletionItem CreatePropertyAccessCompletion(TypeProperty property, BicepSourceFile tree, bool isSafeAccess, Token dot, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        private static CompletionItem CreatePropertyAccessCompletion(NamedTypeProperty property, BicepSourceFile tree, bool isSafeAccess, Token dot, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
         {
             var item = CompletionItemBuilder.Create(CompletionItemKind.Property, property.Name)
                 .WithCommitCharacters(PropertyAccessCommitChars)
@@ -2162,10 +2183,10 @@ namespace Bicep.LanguageServer.Completions
                 _ => CompletionItemKind.Text
             };
 
-        private static bool IsPropertyNameEscapingRequired(TypeProperty property) =>
+        private static bool IsPropertyNameEscapingRequired(NamedTypeProperty property) =>
             StringUtils.IsPropertyNameEscapingRequired(property.Name);
 
-        private static string FormatPropertyDetail(TypeProperty property) =>
+        private static string FormatPropertyDetail(NamedTypeProperty property) =>
             TypeHelper.IsRequired(property)
                 ? $"{property.Name} (Required)"
                 : property.Name;

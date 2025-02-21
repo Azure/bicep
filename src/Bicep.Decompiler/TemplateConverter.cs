@@ -7,6 +7,8 @@ using System.Globalization;
 using Azure.Deployments.Core.Definitions.Identifiers;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
+using Azure.Deployments.Expression.Extensions;
+using Azure.Deployments.Templates.Expressions;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
@@ -15,6 +17,7 @@ using Bicep.Core.Workspaces;
 using Bicep.Decompiler.ArmHelpers;
 using Bicep.Decompiler.BicepHelpers;
 using Bicep.Decompiler.Exceptions;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -26,6 +29,7 @@ namespace Bicep.Decompiler
         private const string ResourceCopyLoopIndexVar = "i";
         private const string PropertyCopyLoopIndexVar = "j";
 
+        private ISourceFileFactory sourceFileFactory;
         private INamingResolver nameResolver;
         private readonly Workspace workspace;
         private readonly Uri bicepFileUri;
@@ -33,8 +37,9 @@ namespace Bicep.Decompiler
         private readonly Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule;
         private readonly DecompileOptions options;
 
-        private TemplateConverter(Workspace workspace, Uri bicepFileUri, JObject template, Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule, DecompileOptions options)
+        private TemplateConverter(ISourceFileFactory sourceFileFactory, Workspace workspace, Uri bicepFileUri, JObject template, Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule, DecompileOptions options)
         {
+            this.sourceFileFactory = sourceFileFactory;
             this.workspace = workspace;
             this.bicepFileUri = bicepFileUri;
             this.template = template;
@@ -44,6 +49,7 @@ namespace Bicep.Decompiler
         }
 
         public static (ProgramSyntax programSyntax, IReadOnlyDictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule) DecompileTemplate(
+            ISourceFileFactory sourceFileFactory,
             Workspace workspace,
             Uri bicepFileUri,
             string content,
@@ -52,6 +58,7 @@ namespace Bicep.Decompiler
             JObject templateObject = JTokenHelpers.LoadJson(content, JObject.Load, options.IgnoreTrailingInput);
 
             var instance = new TemplateConverter(
+                sourceFileFactory,
                 workspace,
                 bicepFileUri,
                 templateObject,
@@ -62,6 +69,7 @@ namespace Bicep.Decompiler
         }
 
         public static SyntaxBase? DecompileJsonValue(
+            ISourceFileFactory sourceFileFactory,
             Workspace workspace,
             Uri bicepFileUri,
             string jsonInput,
@@ -70,6 +78,7 @@ namespace Bicep.Decompiler
             JToken jToken = JTokenHelpers.LoadJson(jsonInput, JToken.Load, options.IgnoreTrailingInput);
 
             var instance = new TemplateConverter(
+                sourceFileFactory,
                 workspace,
                 bicepFileUri,
                 new JObject(),
@@ -1391,8 +1400,8 @@ namespace Bicep.Decompiler
                 }
 
                 var nestedOptions = this.options with { AllowMissingParamsAndVars = this.options.AllowMissingParamsAndVarsInNestedTemplates };
-                var nestedConverter = new TemplateConverter(workspace, nestedModuleUri, nestedTemplateObject, this.jsonTemplateUrisByModule, nestedOptions);
-                var nestedBicepFile = SourceFileFactory.CreateBicepFile(nestedModuleUri, nestedConverter.Parse().ToString());
+                var nestedConverter = new TemplateConverter(this.sourceFileFactory, workspace, nestedModuleUri, nestedTemplateObject, this.jsonTemplateUrisByModule, nestedOptions);
+                var nestedBicepFile = this.sourceFileFactory.CreateBicepFile(nestedModuleUri, nestedConverter.Parse().ToString());
                 workspace.UpsertSourceFile(nestedBicepFile);
 
                 return new ModuleDeclarationSyntax(
@@ -1532,12 +1541,34 @@ namespace Bicep.Decompiler
             throw new ConversionFailedException($"Parsing failed for property value {scopeProperty}", scopeProperty);
         }
 
-        private SyntaxBase ParseResource(IReadOnlyDictionary<string, string> copyResourceLookup, JToken token)
+        private static JToken? TryEvaluate(IEvaluationContext evalContext, string expression)
+        {
+            try
+            {
+                return ExpressionsEngine.ParseLanguageExpression(expression).EvaluateExpression(evalContext);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private SyntaxBase ParseResource(IEvaluationContext evalContext, IReadOnlyDictionary<string, string> copyResourceLookup, JToken token)
         {
             var resource = (token as JObject) ?? throw new ConversionFailedException("Incorrect resource format", token);
 
             // mandatory properties
             var (typeString, nameString, apiVersionString) = TemplateHelpers.ParseResource(resource);
+            if (ExpressionsEngine.IsLanguageExpression(apiVersionString))
+            {
+                // Using variables to define API versions is a common authoring pattern used in JSON.
+                // It's not suported in Bicep. Let's try to detect it and fix it where possible.
+                apiVersionString = TryEvaluate(evalContext, apiVersionString) switch
+                {
+                    JValue jValue when jValue.IsTextBasedJTokenType() => jValue.ToString(CultureInfo.InvariantCulture),
+                    _ => apiVersionString,
+                };
+            }
 
             if (StringComparer.OrdinalIgnoreCase.Equals(typeString, "Microsoft.Resources/deployments"))
             {
@@ -1810,11 +1841,18 @@ namespace Bicep.Decompiler
                 }
             }
 
+            var variablesByName = GetVariables(variables).ToOrdinalInsensitiveDictionary(x => x.name, x => x);
+
+            var evalContext = new TemplateExpressionEvaluationHelper
+            {
+                OnGetVariable = (variableName, _) => variablesByName[variableName].value,
+            }.EvaluationContext;
+
             // We are ignoring _generator metadata since it is generated by bicep build
             AddSyntaxBlock(statements, metadata.Where(x => !x.Name.StartsWith('_')).Select(ParseMetadata), false);
             AddSyntaxBlock(statements, parameters.Select(ParseParam), false);
             AddSyntaxBlock(statements, GetVariables(variables).Select(x => ParseVariable(x.name, x.value, x.isCopyVariable)), false);
-            AddSyntaxBlock(statements, flattenedResources.Select(resource => ParseResource(copyResourceLookup, resource)), true);
+            AddSyntaxBlock(statements, flattenedResources.Select(resource => ParseResource(evalContext, copyResourceLookup, resource)), true);
             AddSyntaxBlock(statements, outputs.Select(ParseOutput), false);
 
             return new ProgramSyntax(

@@ -54,7 +54,7 @@ namespace Bicep.LangServer.IntegrationTests
             var moduleRegistry = StrictMock.Of<IArtifactRegistry>();
             if (bicepModuleEntrypoint is not null && entrypointSource is not null)
             {
-                sourceArchiveResult ??= new(new SourceArchiveBuilder().WithBicepFile(bicepModuleEntrypoint, entrypointSource).Build());
+                sourceArchiveResult ??= new(new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).WithBicepFile(bicepModuleEntrypoint, entrypointSource).Build());
             }
             sourceArchiveResult ??= new(new SourceNotAvailableException());
             moduleRegistry.Setup(m => m.TryGetSource(It.IsAny<ArtifactReference>())).Returns(sourceArchiveResult);
@@ -119,7 +119,7 @@ namespace Bicep.LangServer.IntegrationTests
             var lens = lenses.First();
             lens.Should().HaveRange(new Range(0, 0, 0, 0));
             lens.Should().HaveCommandName("bicep.internal.showModuleSourceFile");
-            lens.Should().HaveCommandTitle("Show compiled JSON for module module1 (br:myregistry.azurecr.io/myrepo/bicep/module1:v1)");
+            lens.Should().HaveCommandTitle("Show the compiled JSON for module \"module1\" (br:myregistry.azurecr.io/myrepo/bicep/module1:v1)");
             var target = new ExternalSourceReference(lens.CommandArguments().Single());
             target.IsRequestingCompiledJson.Should().BeTrue();
         }
@@ -141,7 +141,7 @@ namespace Bicep.LangServer.IntegrationTests
             var lens = lenses.First();
             lens.Should().HaveRange(new Range(0, 0, 0, 0));
             lens.Should().HaveCommandName("bicep.internal.showModuleSourceFile");
-            lens.Should().HaveCommandTitle("Show compiled JSON for module module1 (br:myregistry.azurecr.io/myrepo/bicep/module1:v1)");
+            lens.Should().HaveCommandTitle("Show the compiled JSON for module \"module1\" (br:myregistry.azurecr.io/myrepo/bicep/module1:v1)");
             var target = new ExternalSourceReference(lens.CommandArguments().Single());
             target.IsRequestingCompiledJson.Should().BeTrue();
         }
@@ -163,7 +163,7 @@ namespace Bicep.LangServer.IntegrationTests
             var lens = lenses.First();
             lens.Should().HaveRange(new Range(0, 0, 0, 0));
             lens.Should().HaveCommandName("bicep.internal.showModuleSourceFile");
-            lens.Should().HaveCommandTitle("Show compiled JSON for module module1 (br:myregistry.azurecr.io/myrepo/bicep/module1:v1)");
+            lens.Should().HaveCommandTitle("Show the compiled JSON for module \"module1\" (br:myregistry.azurecr.io/myrepo/bicep/module1:v1)");
             var target = new ExternalSourceReference(lens.CommandArguments().Single());
             target.IsRequestingCompiledJson.Should().BeTrue();
         }

@@ -7,7 +7,7 @@ import { invokingBicepCommand } from "../utils/command";
 import {
   emptyDir,
   expectFileExists,
-  moduleCacheRoot,
+  defaultModuleCacheRoot,
   pathToCachedTsModuleFile,
   pathToExampleFile,
   pathToTempFile,
@@ -17,7 +17,7 @@ import {
 import { getEnvironment } from "../utils/liveTestEnvironments";
 
 async function emptyModuleCacheRoot() {
-  await emptyDir(moduleCacheRoot);
+  await emptyDir(defaultModuleCacheRoot);
 }
 
 describe("bicep build", () => {
@@ -114,12 +114,13 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
 
     expectFileExists(pathToTempFile("build", "build-external.json"));
 
-    expectBrModuleStructure(builder.registry, "build$passthrough", `v1_${builder.tagSuffix}$4002000`);
+    expectBrModuleStructure(defaultModuleCacheRoot, builder.registry, "build$passthrough", `v1_${builder.tagSuffix}$4002000`);
 
-    expectBrModuleStructure(builder.registry, "build$storage", `v1_${builder.tagSuffix}$4002000`);
+    expectBrModuleStructure(defaultModuleCacheRoot, builder.registry, "build$storage", `v1_${builder.tagSuffix}$4002000`);
 
     expectFileExists(
       pathToCachedTsModuleFile(
+        defaultModuleCacheRoot,
         `${environment.templateSpecSubscriptionId}/bicep-ci/webappspec-${environment.resourceSuffix}/1.0.0`,
         "main.json",
       ),
@@ -168,6 +169,6 @@ module passthrough '${passthroughRef}' = {
       .shouldSucceed()
       .withEmptyStdout();
 
-    expectBrModuleStructure(builder.registry, "build$passthrough", `v1_${builder.tagSuffix}$4002000`);
+    expectBrModuleStructure(defaultModuleCacheRoot, builder.registry, "build$passthrough", `v1_${builder.tagSuffix}$4002000`);
   });
 });

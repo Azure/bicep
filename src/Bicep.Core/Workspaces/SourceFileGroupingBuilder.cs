@@ -7,6 +7,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
@@ -22,6 +23,7 @@ namespace Bicep.Core.Workspaces
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher dispatcher;
         private readonly IReadOnlyWorkspace workspace;
+        private readonly ISourceFileFactory sourceFileFactory;
 
         private readonly Dictionary<Uri, ResultWithDiagnosticBuilder<ISourceFile>> fileResultByUri;
         private readonly Dictionary<IArtifactReferenceSyntax, ArtifactResolutionInfo> artifactLookup;
@@ -32,14 +34,16 @@ namespace Bicep.Core.Workspaces
             IFileResolver fileResolver,
             IModuleDispatcher moduleDispatcher,
             IReadOnlyWorkspace workspace,
+            ISourceFileFactory sourceFileFactory,
             bool forceModulesRestore = false)
         {
             this.fileResolver = fileResolver;
             this.dispatcher = moduleDispatcher;
             this.workspace = workspace;
-            this.artifactLookup = new();
-            this.implicitExtensions = new();
-            this.fileResultByUri = new();
+            this.sourceFileFactory = sourceFileFactory;
+            this.artifactLookup = [];
+            this.implicitExtensions = [];
+            this.fileResultByUri = [];
             this.forceRestore = forceModulesRestore;
         }
 
@@ -47,28 +51,30 @@ namespace Bicep.Core.Workspaces
             IFileResolver fileResolver,
             IModuleDispatcher moduleDispatcher,
             IReadOnlyWorkspace workspace,
+            ISourceFileFactory sourceFileFactory,
             SourceFileGrouping current,
             bool forceArtifactRestore = false)
         {
             this.fileResolver = fileResolver;
             this.dispatcher = moduleDispatcher;
             this.workspace = workspace;
+            this.sourceFileFactory = sourceFileFactory;
             this.artifactLookup = current.ArtifactLookup.Where(x => x.Value.Result.IsSuccess()).ToDictionary();
             this.implicitExtensions = current.ImplicitExtensions.ToDictionary(x => x.Key, x => x.Value.ToHashSet());
             this.fileResultByUri = current.SourceFileLookup.ToDictionary();
             this.forceRestore = forceArtifactRestore;
         }
 
-        public static SourceFileGrouping Build(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, IReadOnlyWorkspace workspace, Uri entryFileUri, IFeatureProviderFactory featuresFactory, bool forceModulesRestore = false)
+        public static SourceFileGrouping Build(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, ISourceFileFactory sourceFileFactory, Uri entryFileUri, bool forceModulesRestore = false)
         {
-            var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, workspace, forceModulesRestore);
+            var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, workspace, sourceFileFactory, forceModulesRestore);
 
-            return builder.Build(entryFileUri, featuresFactory, configurationManager);
+            return builder.Build(entryFileUri);
         }
 
-        public static SourceFileGrouping Rebuild(IFileResolver fileResolver, IFeatureProviderFactory featuresFactory, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, IReadOnlyWorkspace workspace, SourceFileGrouping current)
+        public static SourceFileGrouping Rebuild(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, ISourceFileFactory sourceFileFactory, SourceFileGrouping current)
         {
-            var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, workspace, current);
+            var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, workspace, sourceFileFactory, current);
 
             var sourceFilesRequiringRestore = new HashSet<ISourceFile>();
             foreach (var (syntax, artifact) in current.ArtifactLookup.Where(x => SourceFileGrouping.ShouldRestore(x.Value)))
@@ -91,12 +97,12 @@ namespace Bicep.Core.Workspaces
                 .SelectMany(current.GetFilesDependingOn)
                 .ToImmutableHashSet();
 
-            return builder.Build(current.EntryPoint.Uri, featuresFactory, configurationManager, sourcefileExplorerbuild);
+            return builder.Build(current.EntryPoint.Uri, sourcefileExplorerbuild);
         }
 
-        private SourceFileGrouping Build(Uri entryFileUri, IFeatureProviderFactory featuresFactory, IConfigurationManager configurationManager, ImmutableHashSet<ISourceFile>? sourcefileExplorerbuild = null)
+        private SourceFileGrouping Build(Uri entryFileUri, ImmutableHashSet<ISourceFile>? sourcefileExplorerbuild = null)
         {
-            var fileResult = this.PopulateRecursive(entryFileUri, null, sourcefileExplorerbuild, featuresFactory, configurationManager);
+            var fileResult = this.PopulateRecursive(entryFileUri, null, sourcefileExplorerbuild);
 
             if (!fileResult.IsSuccess(out var entryFile, out var errorBuilder))
             {
@@ -133,7 +139,10 @@ namespace Bicep.Core.Workspaces
                 return new(failureBuilder);
             }
 
-            sourceFile = SourceFileFactory.CreateSourceFile(fileUri, fileContents, moduleReference);
+
+            sourceFile = moduleReference is TemplateSpecModuleReference
+                ? this.sourceFileFactory.CreateSourceFile(fileUri, fileContents, typeof(TemplateSpecFile))
+                : this.sourceFileFactory.CreateSourceFile(fileUri, fileContents);
 
             return new(sourceFile);
         }
@@ -149,20 +158,20 @@ namespace Bicep.Core.Workspaces
             return resolutionResult;
         }
 
-        private ResultWithDiagnosticBuilder<ISourceFile> PopulateRecursive(Uri fileUri, ArtifactReference? reference, ImmutableHashSet<ISourceFile>? sourcefileExplorerbuild, IFeatureProviderFactory featuresFactory, IConfigurationManager configurationManager)
+        private ResultWithDiagnosticBuilder<ISourceFile> PopulateRecursive(Uri fileUri, ArtifactReference? reference, ImmutableHashSet<ISourceFile>? sourcefileExplorerbuild)
         {
             var fileResult = GetFileResolutionResultWithCaching(fileUri, reference);
             if (fileResult.TryUnwrap() is BicepSourceFile bicepSource)
             {
-                PopulateRecursive(bicepSource, featuresFactory, configurationManager, sourcefileExplorerbuild);
+                PopulateRecursive(bicepSource, sourcefileExplorerbuild);
             }
 
             return fileResult;
         }
 
-        private void PopulateRecursive(BicepSourceFile file, IFeatureProviderFactory featureProviderFactory, IConfigurationManager configurationManager, ImmutableHashSet<ISourceFile>? sourcefileExplorerbuild)
+        private void PopulateRecursive(BicepSourceFile file, ImmutableHashSet<ISourceFile>? sourcefileExplorerbuild)
         {
-            var config = configurationManager.GetConfiguration(file.Uri);
+            var config = file.Configuration;
             implicitExtensions[file] = [];
 
             // process "implicit" extensions (extensions defined in bicepconfig.json)
@@ -213,17 +222,17 @@ namespace Bicep.Core.Workspaces
                     (childResult.IsSuccess(out var childFile) && sourcefileExplorerbuild is not null && sourcefileExplorerbuild.Contains(childFile)))
                 {
                     // only recurse if we've not seen this file before - to avoid infinite loops
-                    childResult = PopulateRecursive(artifactUri, resolutionInfo.Reference, sourcefileExplorerbuild, featureProviderFactory, configurationManager);
+                    childResult = PopulateRecursive(artifactUri, resolutionInfo.Reference, sourcefileExplorerbuild);
                 }
                 fileResultByUri[artifactUri] = childResult;
             }
         }
 
-        private ImplicitExtension GetImplicitExtension(string extensionName, BicepSourceFile file, RootConfiguration config)
+        private ImplicitExtension GetImplicitExtension(string extensionName, BicepSourceFile referencingFile, RootConfiguration config)
         {
             if (!config.Extensions.TryGetExtensionSource(extensionName).IsSuccess(out var extensionEntry, out var errorBuilder))
             {
-                return new(extensionName, null, new(file, null, null, new(errorBuilder), RequiresRestore: false));
+                return new(extensionName, null, new(referencingFile, null, null, new(errorBuilder), RequiresRestore: false));
             }
 
             if (extensionEntry.BuiltIn)
@@ -231,27 +240,27 @@ namespace Bicep.Core.Workspaces
                 return new(extensionName, extensionEntry, null);
             }
 
-            if (!dispatcher.TryGetArtifactReference(ArtifactType.Extension, extensionEntry.Value, file.Uri).IsSuccess(out var artifactReference, out errorBuilder))
+            if (!dispatcher.TryGetArtifactReference(referencingFile, ArtifactType.Extension, extensionEntry.Value).IsSuccess(out var artifactReference, out errorBuilder))
             {
                 // reference is not valid
-                return new(extensionName, extensionEntry, new(file, null, null, new(errorBuilder), RequiresRestore: false));
+                return new(extensionName, extensionEntry, new(referencingFile, null, null, new(errorBuilder), RequiresRestore: false));
             }
 
             var (result, requiresRestore) = GetArtifactRestoreResult(artifactReference);
-            return new(extensionName, extensionEntry, new(file, null, artifactReference, result, RequiresRestore: requiresRestore));
+            return new(extensionName, extensionEntry, new(referencingFile, null, artifactReference, result, RequiresRestore: requiresRestore));
         }
 
-        private ArtifactResolutionInfo GetArtifactRestoreResult(BicepSourceFile sourceFile, IArtifactReferenceSyntax referenceSyntax)
+        private ArtifactResolutionInfo GetArtifactRestoreResult(BicepSourceFile referencingFile, IArtifactReferenceSyntax referenceSyntax)
         {
-            if (!dispatcher.TryGetArtifactReference(referenceSyntax, sourceFile.Uri).IsSuccess(out var artifactReference, out var errorBuilder))
+            if (!dispatcher.TryGetArtifactReference(referencingFile, referenceSyntax).IsSuccess(out var artifactReference, out var errorBuilder))
             {
                 // artifact reference is not valid
-                return new(sourceFile, referenceSyntax, null, new(errorBuilder), RequiresRestore: false);
+                return new(referencingFile, referenceSyntax, null, new(errorBuilder), RequiresRestore: false);
             }
 
             var (result, requiresRestore) = GetArtifactRestoreResult(artifactReference);
 
-            return new(sourceFile, referenceSyntax, artifactReference, result, RequiresRestore: requiresRestore);
+            return new(referencingFile, referenceSyntax, artifactReference, result, RequiresRestore: requiresRestore);
         }
 
         private (ResultWithDiagnosticBuilder<Uri> result, bool requiresRestore) GetArtifactRestoreResult(ArtifactReference artifactReference)

@@ -4,6 +4,7 @@
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
+using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -48,7 +49,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         private static LocalModuleReference Parse(string package)
         {
-            LocalModuleReference.TryParse(ArtifactType.Module, package, PathHelper.FilePathToFileUrl(Path.GetTempFileName())).IsSuccess(out var parsed, out var failureBuilder);
+            LocalModuleReference.TryParse(BicepTestConstants.DummyBicepFile, ArtifactType.Module, package).IsSuccess(out var parsed, out var failureBuilder);
             parsed.Should().NotBeNull();
             failureBuilder.Should().BeNull();
             return parsed!;

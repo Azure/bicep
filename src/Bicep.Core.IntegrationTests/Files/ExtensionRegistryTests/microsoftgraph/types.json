@@ -1,0 +1,228 @@
+[
+  {
+    "$type": "StringType"
+  },
+  {
+    "$type": "StringLiteralType",
+    "value": "Microsoft.Graph/groups"
+  },
+  {
+    "$type": "StringLiteralType",
+    "value": "v1.0"
+  },
+  {
+    "$type": "ObjectType",
+    "name": "Microsoft.Graph/groups",
+    "properties": {
+      "type": {
+        "type": {
+          "$ref": "#/1"
+        },
+        "flags": 10
+      },
+      "apiVersion": {
+        "type": {
+          "$ref": "#/2"
+        },
+        "flags": 10
+      },
+      "displayName": {
+        "type": {
+          "$ref": "#/0"
+        },
+        "flags": 0
+      },
+      "mailEnabled": {
+        "type": {
+          "$ref": "#/4"
+        },
+        "flags": 0
+      },
+      "mailNickname": {
+        "type": {
+          "$ref": "#/0"
+        },
+        "flags": 0
+      },
+      "securityEnabled": {
+        "type": {
+          "$ref": "#/4"
+        },
+        "flags": 0
+      },
+      "uniqueName": {
+        "type": {
+          "$ref": "#/0"
+        },
+        "flags": 25
+      },
+      "members": {
+        "type": {
+          "$ref": "#/5"
+        },
+        "flags": 0
+      },
+      "owners": {
+        "type": {
+          "$ref": "#/6"
+        },
+        "flags": 0
+      },
+      "id": {
+        "type": {
+          "$ref": "#/0"
+        },
+        "flags": 0,
+        "description": "The unique identifier for an entity. Read-only."
+      }
+    }
+  },
+  {
+    "$type": "BooleanType"
+  },
+  {
+    "$type": "ArrayType",
+    "itemType": {
+      "$ref": "#/0"
+    }
+  },
+  {
+    "$type": "ArrayType",
+    "itemType": {
+      "$ref": "#/0"
+    }
+  },
+  {
+    "$type": "ResourceType",
+    "name": "Microsoft.Graph/groups@v1.0",
+    "scopeType": 0,
+    "body": {
+      "$ref": "#/3"
+    },
+    "flags": 0
+  },
+  {
+    "$type": "StringLiteralType",
+    "value": "Microsoft.Graph/applications"
+  },
+  {
+    "$type": "StringLiteralType",
+    "value": "v1.0"
+  },
+  {
+    "$type": "ObjectType",
+    "name": "Microsoft.Graph/applications",
+    "properties": {
+      "type": {
+        "type": {
+          "$ref": "#/8"
+        },
+        "flags": 10
+      },
+      "apiVersion": {
+        "type": {
+          "$ref": "#/9"
+        },
+        "flags": 10
+      },
+      "displayName": {
+        "type": {
+          "$ref": "#/0"
+        },
+        "flags": 0
+      },
+      "appId": {
+        "type": {
+          "$ref": "#/0"
+        },
+        "flags": 0
+      },
+      "uniqueName": {
+        "type": {
+          "$ref": "#/0"
+        },
+        "flags": 25
+      },
+      "id": {
+        "type": {
+          "$ref": "#/0"
+        },
+        "flags": 0
+      },
+      "spa": {
+        "type": {
+          "$ref": "#/11"
+        },
+        "flags": 0
+      }
+    }
+  },
+  {
+    "$type": "ObjectType",
+    "name": "MicrosoftGraphSpaApplication",
+    "properties": {
+      "redirectUris": {
+        "type": {
+          "$ref": "#/0"
+        },
+        "flags": 0
+      }
+    }
+  },
+  {
+    "$type": "ResourceType",
+    "name": "Microsoft.Graph/applications@v1.0",
+    "scopeType": 0,
+    "body": {
+      "$ref": "#/10"
+    },
+    "flags": 0
+  },
+  {
+    "$type": "StringLiteralType",
+    "value": "Microsoft.Graph/servicePrincipals"
+  },
+  {
+    "$type": "StringLiteralType",
+    "value": "v1.0"
+  },
+  {
+    "$type": "ObjectType",
+    "name": "Microsoft.Graph/servicePrincipals",
+    "properties": {
+      "type": {
+        "type": {
+          "$ref": "#/13"
+        },
+        "flags": 10
+      },
+      "apiVersion": {
+        "type": {
+          "$ref": "#/14"
+        },
+        "flags": 10
+      },
+      "appId": {
+        "type": {
+          "$ref": "#/0"
+        },
+        "flags": 17
+      },
+      "id": {
+        "type": {
+          "$ref": "#/0"
+        },
+        "flags": 0
+      }
+    }
+  },
+  {
+    "$type": "ResourceType",
+    "name": "Microsoft.Graph/servicePrincipals@v1.0",
+    "scopeType": 0,
+    "body": {
+      "$ref": "#/15"
+    },
+    "flags": 0
+  }
+]
