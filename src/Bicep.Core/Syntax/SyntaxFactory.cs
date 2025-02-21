@@ -96,7 +96,7 @@ namespace Bicep.Core.Syntax
         public static Token ArrowToken => CreateToken(TokenType.Arrow);
         public static Token EndOfFileToken => CreateToken(TokenType.EndOfFile);
         public static Token EllipsisToken => CreateToken(TokenType.Ellipsis);
-
+        public static Token HatToken => CreateToken(TokenType.Hat);
         public static Token TargetScopeKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.TargetScopeKeyword);
         public static Token ImportKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.ImportKeyword);
         public static Token ExtensionKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.ExtensionKeyword);
@@ -195,7 +195,8 @@ namespace Bicep.Core.Syntax
                 RightSquareToken);
         }
 
-        public static ArrayAccessSyntax CreateArrayAccess(SyntaxBase baseExpression, SyntaxBase indexExpression, bool safeAccess = false) => new(baseExpression, LeftSquareToken, safeAccess ? QuestionToken : null, indexExpression, RightSquareToken);
+        public static ArrayAccessSyntax CreateArrayAccess(SyntaxBase baseExpression, SyntaxBase indexExpression, bool safeAccess = false, bool fromEnd = false)
+            => new(baseExpression, LeftSquareToken, safeAccess ? QuestionToken : null, fromEnd ? HatToken : null, indexExpression, RightSquareToken);
 
         public static SyntaxBase CreateObjectPropertyKey(string text)
         {
@@ -386,15 +387,15 @@ namespace Bicep.Core.Syntax
         public static AccessExpressionSyntax CreateAccessSyntax(SyntaxBase @base, bool safe, string propertyName)
             => Lexer.IsValidIdentifier(propertyName) ?
                 new PropertyAccessSyntax(@base, DotToken, safe ? QuestionToken : null, CreateIdentifier(propertyName)) :
-                CreateArrayAccess(@base, safe, CreateStringLiteral(propertyName));
+                CreateArrayAccess(@base, safe, false, CreateStringLiteral(propertyName));
 
-        private static ArrayAccessSyntax CreateArrayAccess(SyntaxBase @base, bool safe, SyntaxBase accessExpression)
-            => new(@base, LeftSquareToken, safe ? QuestionToken : null, accessExpression, RightSquareToken);
+        private static ArrayAccessSyntax CreateArrayAccess(SyntaxBase @base, bool safe, bool fromEnd, SyntaxBase accessExpression)
+            => new(@base, LeftSquareToken, safe ? QuestionToken : null, fromEnd ? HatToken : null, accessExpression, RightSquareToken);
 
         public static AccessExpressionSyntax CreateSafeAccess(SyntaxBase @base, SyntaxBase accessExpression)
             => (accessExpression is StringSyntax stringAccess && stringAccess.TryGetLiteralValue() is { } stringValue) ?
                 CreateAccessSyntax(@base, true, stringValue) :
-                CreateArrayAccess(@base, true, accessExpression);
+                CreateArrayAccess(@base, true, false, accessExpression);
 
         public static ParameterAssignmentSyntax CreateParameterAssignmentSyntax(string name, SyntaxBase value)
             => new(
