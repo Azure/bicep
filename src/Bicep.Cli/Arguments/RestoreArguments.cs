@@ -1,44 +1,68 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Bicep.Cli.Arguments
+using System.Collections.Immutable;
+using Bicep.Cli.Helpers;
+
+namespace Bicep.Cli.Arguments;
+
+public class RestoreArguments : ArgumentsBase
 {
-    public class RestoreArguments : ArgumentsBase
+    public RestoreArguments(string[] args) : base(Constants.Command.Restore)
     {
-        public RestoreArguments(string[] args) : base(Constants.Command.Restore)
+        for (var i = 0; i < args.Length; i++)
         {
-            foreach (var argument in args)
+            switch (args[i].ToLowerInvariant())
             {
-                switch (argument.ToLowerInvariant())
-                {
-                    case "--force":
-                        ForceModulesRestore = true;
-                        break;
+                case "--force":
+                    ForceModulesRestore = true;
+                    break;
 
-                    default:
-                        if (argument.StartsWith("--"))
-                        {
-                            throw new CommandLineException($"Unrecognized parameter \"{argument}\"");
-                        }
+                case ArgumentConstants.FilePatternRoot:
+                    ArgumentHelper.ValidateNotAlreadySet(ArgumentConstants.FilePatternRoot, FilePatternRoot);
+                    FilePatternRoot = ArgumentHelper.GetDirectoryPathWithValidation(ArgumentConstants.FilePatternRoot, args, i);
+                    i++;
+                    break;
 
-                        if (InputFile is not null)
-                        {
-                            throw new CommandLineException($"The input file path cannot be specified multiple times.");
-                        }
+                case ArgumentConstants.FilePattern:
+                    var value = ArgumentHelper.GetValueWithValidation(ArgumentConstants.FilePattern, args, i);
+                    FilePatterns = FilePatterns.Add(value);
+                    i++;
+                    break;
 
-                        InputFile = argument;
-                        break;
-                }
-            }
-
-            if (InputFile is null)
-            {
-                throw new CommandLineException($"The input file path was not specified.");
+                default:
+                    if (args[i].StartsWith("--"))
+                    {
+                        throw new CommandLineException($"Unrecognized parameter \"{args[i]}\"");
+                    }
+                    if (InputFile is not null)
+                    {
+                        throw new CommandLineException($"The input file path cannot be specified multiple times");
+                    }
+                    InputFile = args[i];
+                    break;
             }
         }
 
-        public string InputFile { get; }
+        if (InputFile is null && FilePatterns.IsEmpty)
+        {
+            throw new CommandLineException($"Either the input file path or the {ArgumentConstants.FilePattern} parameter must be specified");
+        }
 
-        public bool ForceModulesRestore { get; }
+        if (!FilePatterns.IsEmpty)
+        {
+            if (InputFile is not null)
+            {
+                throw new CommandLineException($"The input file path and the {ArgumentConstants.FilePattern} parameter cannot both be specified");
+            }
+        }
     }
+
+    public string? InputFile { get; }
+
+    public string? FilePatternRoot { get; }
+
+    public ImmutableArray<string> FilePatterns { get; } = [];
+
+    public bool ForceModulesRestore { get; }
 }
