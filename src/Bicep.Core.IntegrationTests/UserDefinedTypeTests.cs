@@ -1670,7 +1670,7 @@ param myParam string
                   location: resourceGroup().location
                   sku: { name: 'Standard_GRS' }
                   kind: 'StorageV2'
-                  name: 'my-sa'
+                  name: 'mysa'
                   properties: {
                     accessTier: 'Hot'
                     azureFilesIdentityBasedAuthentication: container

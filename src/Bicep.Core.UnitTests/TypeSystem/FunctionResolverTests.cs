@@ -480,7 +480,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow(TypeFactory.CreateStringType(null, 5), LanguageConstants.String, LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(5)),
                 CreateRow(TypeFactory.CreateStringType(null, 5), LanguageConstants.Any, LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(5)),
                 CreateRow(TypeFactory.CreateStringType(null, 5), LanguageConstants.String, LanguageConstants.Any, TypeFactory.CreateIntegerLiteralType(5)),
-                CreateRow(TypeFactory.CreateStringType(null, 5, LanguageConstants.SecureString.ValidationFlags), LanguageConstants.SecureString, LanguageConstants.Any, TypeFactory.CreateIntegerLiteralType(5)),
+                CreateRow(TypeFactory.CreateStringType(null, 5, validationFlags: LanguageConstants.SecureString.ValidationFlags), LanguageConstants.SecureString, LanguageConstants.Any, TypeFactory.CreateIntegerLiteralType(5)),
                 CreateRow(TypeFactory.CreateStringType(null, 5), TypeFactory.CreateStringType(9, 10), LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(5)),
                 CreateRow(TypeFactory.CreateStringType(null, 10), TypeFactory.CreateStringType(9, 10), LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(50)),
                 CreateRow(TypeFactory.CreateStringType(4, 5), TypeFactory.CreateStringType(9, 10), TypeFactory.CreateIntegerLiteralType(5), TypeFactory.CreateIntegerLiteralType(5)),
@@ -580,11 +580,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
         public void TrimDropsMinLengthButPreservesMaxLengthAndFlags()
         {
             var returnType = EvaluateFunction("trim",
-                new List<TypeSymbol> { TypeFactory.CreateStringType(10, 20, TypeSymbolValidationFlags.IsSecure) },
+                new List<TypeSymbol> { TypeFactory.CreateStringType(10, 20, validationFlags: TypeSymbolValidationFlags.IsSecure) },
                 [new(TestSyntaxFactory.CreateVariableAccess("foo"))])
                 .Type;
 
-            returnType.Should().Be(TypeFactory.CreateStringType(minLength: null, 20, TypeSymbolValidationFlags.IsSecure));
+            returnType.Should().Be(TypeFactory.CreateStringType(minLength: null, 20, validationFlags: TypeSymbolValidationFlags.IsSecure));
         }
 
         [DataTestMethod]

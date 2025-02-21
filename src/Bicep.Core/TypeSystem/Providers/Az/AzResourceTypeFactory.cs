@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Concurrent;
+using System.Text.RegularExpressions;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
@@ -115,6 +116,11 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 case Azure.Bicep.Types.Concrete.StringType @string:
                     return TypeFactory.CreateStringType(@string.MinLength,
                         @string.MaxLength,
+                        @string.Pattern is not null
+                            // using RegexOptions.ECMAScript for Swagger compatibility. Because this option is
+                            // incompatible with .NET's non-backtracking engine, a timeout is used.
+                            ? new Regex(@string.Pattern, RegexOptions.ECMAScript, TimeSpan.FromMilliseconds(100))
+                            : null,
                         GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType));
                 case Azure.Bicep.Types.Concrete.BuiltInType builtInType:
                     return builtInType.Kind switch

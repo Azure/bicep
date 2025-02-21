@@ -400,7 +400,7 @@ namespace Bicep.Core.TypeSystem
                 return errorType;
             }
 
-            return TypeFactory.CreateStringType(minLength, maxLength, validationFlags);
+            return TypeFactory.CreateStringType(minLength, maxLength, validationFlags: validationFlags);
         }
 
         private bool GetLengthModifiers(DecorableSyntax syntax, long? defaultMinLength, long? defaultMaxLength, out long? minLength, out long? maxLength, [NotNullWhen(false)] out ErrorType? error)
