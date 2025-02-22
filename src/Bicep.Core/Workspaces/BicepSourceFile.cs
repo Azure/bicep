@@ -6,6 +6,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.Syntax;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Workspaces
 {
@@ -16,6 +17,7 @@ namespace Bicep.Core.Workspaces
 
         protected BicepSourceFile(
             Uri fileUri,
+            IFileHandle fileHandle,
             ImmutableArray<int> lineStarts,
             ProgramSyntax programSyntax,
             IConfigurationManager configurationManager,
@@ -24,6 +26,7 @@ namespace Bicep.Core.Workspaces
             IDiagnosticLookup parsingErrorLookup)
         {
             this.Uri = fileUri;
+            this.FileHandle = fileHandle;
             this.LineStarts = lineStarts;
             this.ProgramSyntax = programSyntax;
             this.Hierarchy = SyntaxHierarchy.Build(ProgramSyntax);
@@ -37,6 +40,7 @@ namespace Bicep.Core.Workspaces
         protected BicepSourceFile(BicepSourceFile original)
         {
             this.Uri = original.Uri;
+            this.FileHandle = original.FileHandle;
             this.LineStarts = original.LineStarts;
             this.ProgramSyntax = original.ProgramSyntax;
             this.Hierarchy = original.Hierarchy;
@@ -48,6 +52,8 @@ namespace Bicep.Core.Workspaces
         }
 
         public Uri Uri { get; }
+
+        public IFileHandle FileHandle { get; }
 
         public ImmutableArray<int> LineStarts { get; }
 

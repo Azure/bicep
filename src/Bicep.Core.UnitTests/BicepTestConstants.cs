@@ -26,6 +26,7 @@ using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
+using Bicep.IO.InMemory;
 using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Telemetry;
 using Moq;
@@ -53,7 +54,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IFeatureProviderFactory FeatureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(ConfigurationManager, FileExplorer), FeatureOverrides);
 
-        public static readonly ISourceFileFactory SourceFileFactory = new SourceFileFactory(ConfigurationManager, FeatureProviderFactory);
+        public static readonly ISourceFileFactory SourceFileFactory = new SourceFileFactory(ConfigurationManager, FeatureProviderFactory, FileExplorer);
 
         public static readonly BicepFile DummyBicepFile = CreateDummyBicepFile();
 
@@ -189,6 +190,7 @@ namespace Bicep.Core.UnitTests
 
             return new(
                 new Uri($"inmemory:///main.bicep"),
+                DummyFileHandle.Instance,
                 [],
                 SyntaxFactory.EmptyProgram,
                 configurationManager,
