@@ -11,20 +11,20 @@ using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.Catalog;
+using Bicep.Core.Registry.Catalog.Implementation;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Settings;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
+using Microsoft.VisualBasic;
 using Microsoft.Win32;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Microsoft.WindowsAzure.ResourceStack.Common.Json;
-using Bicep.Core.Registry.Catalog.Implementation;
-using Microsoft.VisualBasic;
 
 namespace Bicep.LanguageServer.Completions
 {

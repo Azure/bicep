@@ -241,7 +241,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         {
             var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
                 RegistryCatalogMocks.MockPublicMetadataProvider([
-                    ("bicep/app/dapr-containerapp", null, null, [ new("1.0.1", null, null), new ("1.0.2", null, null) ])
+                    ("bicep/app/dapr-containerapp", null, null, [new("1.0.1", null, null), new("1.0.2", null, null)])
                 ])
             );
 

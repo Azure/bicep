@@ -1,12 +1,14 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-
-import { useCallback, useEffect, useState, type FC } from "react";
+import type { FC } from "react";
 import type { ParamDefinition, ParametersMetadata, TemplateMetadata } from "../../models";
+import type { ParameterInputData } from "../ParamInputBox";
 
 import { VscodeButton, VscodeTextfield } from "@vscode-elements/react-elements";
-import { ParamInputBox, type ParameterInputData } from "../ParamInputBox";
+import { useCallback, useEffect, useState } from "react";
+import { ParamInputBox } from "../ParamInputBox";
 import { FormSection } from "./FormSection";
+
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 export type ParametersInputData = Record<string, ParameterInputData>;
 
@@ -31,14 +33,17 @@ export const ParametersInputView: FC<ParametersInputViewProps> = ({
   const sourceFilePath = parameters?.sourceFilePath;
   const [values, setValues] = useState<ParametersInputData>({});
 
-  const handleValueChange = useCallback((name: string, value: ParameterInputData) => {
-    const newValues = { ...values, [name]: value };
-    setValues(newValues);
-    onParametersChange(newValues);
-  }, [values, setValues, onParametersChange]);
+  const handleValueChange = useCallback(
+    (name: string, value: ParameterInputData) => {
+      const newValues = { ...values, [name]: value };
+      setValues(newValues);
+      onParametersChange(newValues);
+    },
+    [values, setValues, onParametersChange],
+  );
 
   useEffect(() => {
-    setValues(curValues => getValues(definitions ?? [], curValues));
+    setValues((curValues) => getValues(definitions ?? [], curValues));
   }, [definitions]);
 
   return (
@@ -53,20 +58,22 @@ export const ParametersInputView: FC<ParametersInputViewProps> = ({
       )}
       {!sourceFilePath && <VscodeButton onClick={onPickParametersFile}>Pick JSON Parameters File</VscodeButton>}
       {!sourceFilePath &&
-        (definitions ?? []).filter(x => !!values[x.name]).map((definition) => (
-          <ParamInputBox
-            key={definition.name}
-            definition={definition}
-            disabled={disabled}
-            data={values[definition.name]!}
-            onChangeData={handleValueChange}
-          />
-        ))}
+        (definitions ?? [])
+          .filter((x) => !!values[x.name])
+          .map((definition) => (
+            <ParamInputBox
+              key={definition.name}
+              definition={definition}
+              disabled={disabled}
+              data={values[definition.name]!}
+              onChangeData={handleValueChange}
+            />
+          ))}
     </FormSection>
   );
 };
 
-function getValues(definitions: ParamDefinition[], prevValues: ParametersInputData): ParametersInputData { 
+function getValues(definitions: ParamDefinition[], prevValues: ParametersInputData): ParametersInputData {
   const values = { ...prevValues };
   let hasUpdates = false;
 

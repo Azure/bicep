@@ -38,7 +38,7 @@ public interface IFeatureProvider
     bool SecureOutputsEnabled { get; }
 
     bool ResourceInfoCodegenEnabled { get; }
-    
+
     bool TypedVariablesEnabled { get; }
 
     bool ExtensibilityV2EmittingEnabled { get; }

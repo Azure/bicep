@@ -49,7 +49,7 @@ public static class RegistryCatalogMocks
                         new RegistryMetadataDetails(m.description, m.documentationUri),
                         [.. modules.Single(m2 => m2.moduleName.EqualsOrdinally(m.moduleName))
                             .versions
-                            .Select(v => new RegistryModuleVersionMetadata(v.version, IsBicepModule: true, new(v.description,v.documentUri)))
+                            .Select(v => new RegistryModuleVersionMetadata(v.version, IsBicepModule: true, new(v.description, v.documentUri)))
                         ]
                     )
             ))]
@@ -74,7 +74,7 @@ public static class RegistryCatalogMocks
                     m.moduleName,
                     getDataAsyncFunc: async () =>
                         new RegistryModuleMetadata.ComputedData(
-                            await DelayedValue(new RegistryMetadataDetails( m.description, m.documentationUri)),
+                            await DelayedValue(new RegistryMetadataDetails(m.description, m.documentationUri)),
                             [.. modules.Single(m2 => m2.moduleName.EqualsOrdinally(m.moduleName))
                                 .versions
                                     .Select(v => new RegistryModuleVersionMetadata(v.Tag, true, new(v.Description, v.DocumentationUri))

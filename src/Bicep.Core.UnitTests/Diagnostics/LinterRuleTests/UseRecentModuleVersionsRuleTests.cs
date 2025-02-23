@@ -50,7 +50,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         "mcr.microsoft.com",
                         m,
                         new RegistryModuleMetadata.ComputedData(
-                            new RegistryMetadataDetails(null, null),                        
+                            new RegistryMetadataDetails(null, null),
                             [.. availableVersions
                                 .Select(v => new RegistryModuleVersionMetadata(v, IsBicepModule: true, new("det", "doc.html")))]
                         )))

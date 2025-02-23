@@ -3,16 +3,16 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Net.Http.Json;
-using System.Linq;
+using System.Security.Cryptography.Xml;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Bicep.Core.Extensions;
+using Bicep.Core.Registry.Oci;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
-using System.Threading.Tasks;
-using Bicep.Core.Registry.Oci;
-using System.Security.Cryptography.Xml;
 
 namespace Bicep.Core.Registry.Catalog.Implementation;
 

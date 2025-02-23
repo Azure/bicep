@@ -373,6 +373,6 @@ namespace Bicep.Core.Semantics
 
         private ITypeReference? TryGetTypeFromDefinition(JObject jObject)
             => (jObject.TryGetValue(LanguageConstants.TypeKeyword, out var typeToken) &&
-                typeToken.TryFromJToken<TemplateTypeDefinition>() is {} typeDefinition) ? GetType(typeDefinition) : null;
+                typeToken.TryFromJToken<TemplateTypeDefinition>() is { } typeDefinition) ? GetType(typeDefinition) : null;
     }
 }
