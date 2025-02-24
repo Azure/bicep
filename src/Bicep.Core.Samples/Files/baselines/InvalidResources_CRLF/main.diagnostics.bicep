@@ -100,7 +100,6 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
 //@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[055:056) [BCP018 (Error)] Expected the "(" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) |{|
   name: 'foo'
-//@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'foo'|
 }
 
 // empty condition
@@ -110,7 +109,6 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
 //@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[056:056) [BCP243 (Error)] Parentheses must contain exactly one expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP243) ||
   name: 'foo'
-//@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'foo'|
 }
 
 // #completionTest(57, 59) -> symbols
@@ -119,7 +117,6 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (     ) {
 //@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[056:056) [BCP243 (Error)] Parentheses must contain exactly one expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP243) ||
   name: 'foo'
-//@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'foo'|
 }
 
 // invalid condition type
@@ -128,7 +125,6 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (123) {
 //@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[055:060) [BCP046 (Error)] Expected a value of type "bool". (bicep https://aka.ms/bicep/core-diagnostics#BCP046) |(123)|
   name: 'foo'
-//@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'foo'|
 }
 
 // runtime functions are no allowed in resource conditions
@@ -137,7 +133,6 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference('Micorosft.Ma
 //@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[057:066) [BCP066 (Error)] Function "reference" is not valid at this location. It can only be used in resource declarations. (bicep https://aka.ms/bicep/core-diagnostics#BCP066) |reference|
   name: 'foo'
-//@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'foo'|
 }
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-05-01').bar == true) {
@@ -145,7 +140,6 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-0
 //@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[057:065) [BCP066 (Error)] Function "listKeys" is not valid at this location. It can only be used in resource declarations. (bicep https://aka.ms/bicep/core-diagnostics#BCP066) |listKeys|
   name: 'foo'
-//@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'foo'|
 }
 
 // duplicate property at the top level
@@ -174,7 +168,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (bicep https://aka.ms/bicep/core-diagnostics#BCP028) |foo|
 //@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: 'foo'
-//@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'foo'|
+//@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'foo'|
   properties: {
     foo: 'a'
 //@[004:007) [BCP025 (Error)] The property "foo" is declared multiple times in this object. Remove or rename the duplicate properties. (bicep https://aka.ms/bicep/core-diagnostics#BCP025) |foo|
@@ -188,7 +182,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (bicep https://aka.ms/bicep/core-diagnostics#BCP028) |foo|
 //@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: 'foo'
-//@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'foo'|
+//@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'foo'|
   properties: {
     foo: 'a'
 //@[004:007) [BCP025 (Error)] The property "foo" is declared multiple times in this object. Remove or rename the duplicate properties. (bicep https://aka.ms/bicep/core-diagnostics#BCP025) |foo|
@@ -203,7 +197,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (bicep https://aka.ms/bicep/core-diagnostics#BCP028) |foo|
 //@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: 'foo'
-//@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'foo'|
+//@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'foo'|
   location: [
 //@[012:018) [BCP036 (Warning)] The property "location" expected a value of type "string" but the provided value is of type "<empty array>". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP036) |[\r\n  ]|
   ]
@@ -384,11 +378,13 @@ resource runtimeValidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-0
 
 resource runtimeInvalidRes1 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1.location
+//@[008:033) [BCP121 (Error)] Resources: "runtimeInvalidRes1", "runtimeInvalidRes2", "runtimeInvalidRes8", "runtimeInvalidRes14" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |runtimeValidRes1.location|
 //@[008:033) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (bicep https://aka.ms/bicep/core-diagnostics#BCP120) |runtimeValidRes1.location|
 }
 
 resource runtimeInvalidRes2 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1['location']
+//@[008:036) [BCP121 (Error)] Resources: "runtimeInvalidRes1", "runtimeInvalidRes2", "runtimeInvalidRes8", "runtimeInvalidRes14" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |runtimeValidRes1['location']|
 //@[008:036) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (bicep https://aka.ms/bicep/core-diagnostics#BCP120) |runtimeValidRes1['location']|
 //@[024:036) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter/prefer-unquoted-property-names) |['location']|
 }
@@ -426,11 +422,13 @@ resource runtimeInvalidRes6 'Microsoft.Advisor/recommendations/suppressions@2020
 resource runtimeInvalidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes2.properties.azCliVersion
 //@[008:035) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes2 which can be calculated at the start include "apiVersion", "id", "name", "type". (bicep https://aka.ms/bicep/core-diagnostics#BCP120) |runtimeValidRes2.properties|
+//@[008:048) [BCP121 (Error)] Resources: "runtimeInvalidRes7", "runtimeInvalidRes15", "runtimeInvalidRes16" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |runtimeValidRes2.properties.azCliVersion|
 }
 
 var magicString1 = 'location'
 resource runtimeInvalidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes2['${magicString1}']
+//@[008:043) [BCP121 (Error)] Resources: "runtimeInvalidRes1", "runtimeInvalidRes2", "runtimeInvalidRes8", "runtimeInvalidRes14" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |runtimeValidRes2['${magicString1}']|
 //@[008:043) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes2 which can be calculated at the start include "apiVersion", "id", "name", "type". (bicep https://aka.ms/bicep/core-diagnostics#BCP120) |runtimeValidRes2['${magicString1}']|
 }
 
@@ -499,22 +497,26 @@ var runtimeValid = {
 resource runtimeInvalidRes14 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeInvalid.foo1
 //@[008:022) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (bicep https://aka.ms/bicep/core-diagnostics#BCP120) |runtimeInvalid|
+//@[008:027) [BCP121 (Error)] Resources: "runtimeInvalidRes1", "runtimeInvalidRes2", "runtimeInvalidRes8", "runtimeInvalidRes14" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |runtimeInvalid.foo1|
 }
 
 resource runtimeInvalidRes15 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeInvalid.foo2
 //@[008:022) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (bicep https://aka.ms/bicep/core-diagnostics#BCP120) |runtimeInvalid|
+//@[008:027) [BCP121 (Error)] Resources: "runtimeInvalidRes7", "runtimeInvalidRes15", "runtimeInvalidRes16" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |runtimeInvalid.foo2|
 }
 
 resource runtimeInvalidRes16 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeInvalid.foo3.properties.azCliVersion
 //@[008:022) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (bicep https://aka.ms/bicep/core-diagnostics#BCP120) |runtimeInvalid|
+//@[008:051) [BCP121 (Error)] Resources: "runtimeInvalidRes7", "runtimeInvalidRes15", "runtimeInvalidRes16" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |runtimeInvalid.foo3.properties.azCliVersion|
 }
 
 // Note: This is actually a runtime valid value. However, other properties of the variable cannot be resolved, so we block this.
 resource runtimeInvalidRes17 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeInvalid.foo4
 //@[008:022) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (bicep https://aka.ms/bicep/core-diagnostics#BCP120) |runtimeInvalid|
+//@[008:027) [BCP121 (Error)] Resources: "runtimeInvalidRes17", "runtimeValidRes6" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |runtimeInvalid.foo4|
 }
 
 resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
@@ -529,6 +531,7 @@ resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@202
 
 resource runtimeValidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValid.foo1
+//@[008:025) [BCP121 (Error)] Resources: "runtimeInvalidRes17", "runtimeValidRes6" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |runtimeValid.foo1|
 }
 
 resource runtimeValidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
@@ -1091,7 +1094,7 @@ Nested discriminator missing key
 */
 resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
   name: 'test'
-//@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'test'|
+//@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'test'|
   location: 'l'
   properties: {
 //@[014:051) [BCP078 (Warning)] The property "createMode" requires a value of type "'Default' | 'Restore'", but none was supplied. (bicep https://aka.ms/bicep/core-diagnostics#BCP078) |{\r\n    //createMode: 'Default'\r\n\r\n  }|
@@ -1117,7 +1120,6 @@ Nested discriminator missing key (conditional)
 */
 resource nestedDiscriminatorMissingKey_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = if(bool(1)) {
   name: 'test'
-//@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'test'|
   location: 'l'
   properties: {
 //@[014:051) [BCP078 (Warning)] The property "createMode" requires a value of type "'Default' | 'Restore'", but none was supplied. (bicep https://aka.ms/bicep/core-diagnostics#BCP078) |{\r\n    //createMode: 'Default'\r\n\r\n  }|
@@ -1144,7 +1146,7 @@ Nested discriminator missing key (loop)
 resource nestedDiscriminatorMissingKey_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: {
 //@[009:042) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" (bicep https://aka.ms/bicep/core-diagnostics#BCP179) |nestedDiscriminatorMissingKey_for|
   name: 'test'
-//@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'test'|
+//@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'test'|
   location: 'l'
   properties: {
 //@[014:051) [BCP078 (Warning)] The property "createMode" requires a value of type "'Default' | 'Restore'", but none was supplied. (bicep https://aka.ms/bicep/core-diagnostics#BCP078) |{\r\n    //createMode: 'Default'\r\n\r\n  }|
@@ -1172,7 +1174,7 @@ Nested discriminator missing key (filtered loop)
 resource nestedDiscriminatorMissingKey_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
 //@[009:045) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" (bicep https://aka.ms/bicep/core-diagnostics#BCP179) |nestedDiscriminatorMissingKey_for_if|
   name: 'test'
-//@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'test'|
+//@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'test'|
   location: 'l'
   properties: {
 //@[014:051) [BCP078 (Warning)] The property "createMode" requires a value of type "'Default' | 'Restore'", but none was supplied. (bicep https://aka.ms/bicep/core-diagnostics#BCP078) |{\r\n    //createMode: 'Default'\r\n\r\n  }|
@@ -1199,7 +1201,7 @@ Nested discriminator
 */
 resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
   name: 'test'
-//@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'test'|
+//@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'test'|
   location: 'l'
   properties: {
 //@[002:012) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "databaseAccountOfferType", "locations". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |properties|
@@ -1236,7 +1238,7 @@ Nested discriminator (conditional)
 */
 resource nestedDiscriminator_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = if(true) {
   name: 'test'
-//@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'test'|
+//@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'test'|
   location: 'l'
   properties: {
 //@[002:012) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "databaseAccountOfferType", "locations". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |properties|
@@ -1275,7 +1277,7 @@ Nested discriminator (loop)
 resource nestedDiscriminator_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: {
 //@[009:032) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" (bicep https://aka.ms/bicep/core-diagnostics#BCP179) |nestedDiscriminator_for|
   name: 'test'
-//@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'test'|
+//@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'test'|
   location: 'l'
   properties: {
 //@[002:012) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "databaseAccountOfferType", "locations". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |properties|
@@ -1314,7 +1316,7 @@ Nested discriminator (filtered loop)
 resource nestedDiscriminator_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
 //@[009:035) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" (bicep https://aka.ms/bicep/core-diagnostics#BCP179) |nestedDiscriminator_for_if|
   name: 'test'
-//@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'test'|
+//@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'test'|
   location: 'l'
   properties: {
 //@[002:012) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "databaseAccountOfferType", "locations". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |properties|
@@ -1954,6 +1956,7 @@ resource p7_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
   parent: p7_res1
   name: 'res1/res2'
 //@[008:019) [BCP170 (Error)] Expected resource name to not contain any "/" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name. (bicep https://aka.ms/bicep/core-diagnostics#BCP170) |'res1/res2'|
+//@[008:019) [BCP121 (Error)] Resources: "p7_res2", "p7_res3" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'res1/res2'|
 }
 
 resource p7_res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
@@ -1961,6 +1964,7 @@ resource p7_res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
   parent: p7_res1
   name: '${p7_res1.name}/res2'
 //@[008:030) [BCP170 (Error)] Expected resource name to not contain any "/" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name. (bicep https://aka.ms/bicep/core-diagnostics#BCP170) |'${p7_res1.name}/res2'|
+//@[008:030) [BCP121 (Error)] Resources: "p7_res2", "p7_res3" are defined with this same name in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP121) |'${p7_res1.name}/res2'|
 }
 
 // top-level resource with too many '/' characters

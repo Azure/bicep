@@ -173,14 +173,14 @@ resource resourceA 'My.Rp/typeA@2020-01-01' = {
 
 resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[19:49) [BCP081 (Warning)] Resource type "My.Rp/typeA/typeB@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'My.Rp/typeA/typeB@2020-01-01'|
-  name: '${resourceA.name}/myName'
-//@[08:34) [use-parent-property (Warning)] Resource "resourceB" has its name formatted as a child of resource "resourceA". The syntax can be simplified by using the parent property. (bicep core linter https://aka.ms/bicep/linter/use-parent-property) |'${resourceA.name}/myName'|
+  name: '${resourceA.name}/resourceB'
+//@[08:37) [use-parent-property (Warning)] Resource "resourceB" has its name formatted as a child of resource "resourceA". The syntax can be simplified by using the parent property. (bicep core linter https://aka.ms/bicep/linter/use-parent-property) |'${resourceA.name}/resourceB'|
 }
 
 resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[19:49) [BCP081 (Warning)] Resource type "My.Rp/typeA/typeB@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'My.Rp/typeA/typeB@2020-01-01'|
-  name: '${resourceA.name}/myName'
-//@[08:34) [use-parent-property (Warning)] Resource "resourceC" has its name formatted as a child of resource "resourceA". The syntax can be simplified by using the parent property. (bicep core linter https://aka.ms/bicep/linter/use-parent-property) |'${resourceA.name}/myName'|
+  name: '${resourceA.name}/resourceC'
+//@[08:37) [use-parent-property (Warning)] Resource "resourceC" has its name formatted as a child of resource "resourceA". The syntax can be simplified by using the parent property. (bicep core linter https://aka.ms/bicep/linter/use-parent-property) |'${resourceA.name}/resourceC'|
   properties: {
     aId: resourceA.id
     aType: resourceA.type
@@ -465,7 +465,7 @@ output p1_subnet1id string = p1_subnet1.id
 // parent property with extension resource
 resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 //@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'Microsoft.Rp1/resource1@2020-06-01'|
-  name: 'res1'
+  name: 'p2res1'
 }
 
 resource p2_res1child 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
@@ -494,7 +494,7 @@ output p2_res2childid string = p2_res2child.id
 // parent property with 'existing' resource
 resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 //@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'Microsoft.Rp1/resource1@2020-06-01'|
-  name: 'res1'
+  name: 'p3res1'
 }
 
 resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
@@ -512,7 +512,7 @@ output p3_res1childid string = p3_child1.id
 resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 //@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'Microsoft.Rp1/resource1@2020-06-01'|
   scope: tenant()
-  name: 'res1'
+  name: 'p4res1'
 }
 
 resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Concurrent;
+using System.Text.RegularExpressions;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;

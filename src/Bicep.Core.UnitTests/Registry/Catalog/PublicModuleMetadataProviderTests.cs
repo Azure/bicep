@@ -1,29 +1,27 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using Bicep.Core.Extensions;
-using Bicep.Core.Registry.PublicRegistry;
-using Bicep.Core.UnitTests;
-using Bicep.LanguageServer.Providers;
+using Bicep.Core.Registry.Catalog.Implementation;
+using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RichardSzalay.MockHttp;
 
-namespace Bicep.Core.UnitTests.Registry.PublicRegistry
+namespace Bicep.Core.UnitTests.Registry.Catalog
 {
     [TestClass]
     public class PublicModuleMetadataProviderTests
     {
-        private IServiceProvider GetServiceProvider()
+        private PublicModuleMetadataHttpClient CreateTypedClient()
         {
             var httpClient = MockHttpMessageHandler.ToHttpClient();
-            return new ServiceBuilder().WithRegistration(x =>
-                x.AddSingleton<IPublicModuleIndexClient>(new PublicModuleMetadataClient(httpClient))
-            ).Build().Construct<IServiceProvider>();
+            return new PublicModuleMetadataHttpClient(httpClient);
         }
+
         private const string ModuleIndexJson = """
             [
               {
@@ -568,31 +566,31 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
                 ],
                 "properties": {
                   "1.1.1": {
-                    "description": "These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.\n\n> For more information and examples please see the [wiki](https://github.com/Azure/bicep-lz-vending/wiki)",
+                    "description": "v1.1.1: These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.\n\n> For more information and examples please see the [wiki](https://github.com/Azure/bicep-lz-vending/wiki)",
                     "documentationUri": "https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.1.1/modules/lz/sub-vending/README.md"
                   },
                   "1.1.2": {
-                    "description": "These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.\n\n> For more information and examples please see the [wiki](https://github.com/Azure/bicep-lz-vending/wiki)",
+                    "description": "v1.1.2: These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.\n\n> For more information and examples please see the [wiki](https://github.com/Azure/bicep-lz-vending/wiki)",
                     "documentationUri": "https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.1.2/modules/lz/sub-vending/README.md"
                   },
                   "1.2.1": {
-                    "description": "These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.\n\n> For more information and examples please see the [wiki](https://github.com/Azure/bicep-lz-vending/wiki)",
+                    "description": "v1.2.1: These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.\n\n> For more information and examples please see the [wiki](https://github.com/Azure/bicep-lz-vending/wiki)",
                     "documentationUri": "https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.2.1/modules/lz/sub-vending/README.md"
                   },
                   "1.2.2": {
-                    "description": "These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.\n\n> For more information and examples please see the [wiki](https://github.com/Azure/bicep-lz-vending/wiki)",
+                    "description": "v1.2.2: These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.\n\n> For more information and examples please see the [wiki](https://github.com/Azure/bicep-lz-vending/wiki)",
                     "documentationUri": "https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.2.2/modules/lz/sub-vending/README.md"
                   },
                   "1.3.1": {
-                    "description": "These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.\n\n> For more information and examples please see the [wiki](https://github.com/Azure/bicep-lz-vending/wiki)",
+                    "description": "v1.3.1: These are the input parameters for the Bicep module: [`main.bicep`](./main.bicep)\n\nThis is the orchestration module that is used and called by a consumer of the module to deploy a Landing Zone Subscription and its associated resources, based on the parameter input values that are provided to it at deployment time.\n\n> For more information and examples please see the [wiki](https://github.com/Azure/bicep-lz-vending/wiki)",
                     "documentationUri": "https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.3.1/modules/lz/sub-vending/README.md"
                   },
                   "1.4.1": {
-                    "description": "This module is designed to accelerate deployment of landing zones (aka Subscriptions) within an Azure AD Tenant.",
+                    "description": "v1.4.1: This module is designed to accelerate deployment of landing zones (aka Subscriptions) within an Azure AD Tenant.",
                     "documentationUri": "https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.4.1/modules/lz/sub-vending/README.md"
                   },
                   "1.4.2": {
-                    "description": "This module is designed to accelerate deployment of landing zones (aka Subscriptions) within an Azure AD Tenant.",
+                    "description": "v1.4.2: This module is designed to accelerate deployment of landing zones (aka Subscriptions) within an Azure AD Tenant.",
                     "documentationUri": "https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.4.2/modules/lz/sub-vending/README.md"
                   }
                 }
@@ -762,6 +760,7 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
               },
               {
                 "moduleName": "samples/array-loop",
+                "$comment": "Tags intentionally out of order",
                 "tags": [
                   "1.0.1",
                   "1.10.1",
@@ -774,11 +773,11 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
                     "documentationUri": "https://github.com/Azure/bicep-registry-modules/tree/samples/array-loop/1.0.1/modules/samples/array-loop/README.md"
                   },
                   "1.0.2": {
-                    "description": "A sample Bicep registry module demonstrating array iterations.",
+                    "description": "v1.0.1: A sample Bicep registry module demonstrating array iterations.",
                     "documentationUri": "https://github.com/Azure/bicep-registry-modules/tree/samples/array-loop/1.0.2/modules/samples/array-loop/README.md"
                   },
                   "1.0.3": {
-                    "description": "A sample Bicep registry module demonstrating array iterations.",
+                    "description": "v1.0.3: A sample Bicep registry module demonstrating array iterations.",
                     "documentationUri": "https://github.com/Azure/bicep-registry-modules/tree/samples/array-loop/1.0.3/modules/samples/array-loop/README.md"
                   }
                 }
@@ -1098,64 +1097,6 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
                 .Respond("application/json", ModuleIndexJson);
         }
 
-        [TestMethod]
-        public void GetExponentialDelay_ZeroCount_ShouldGiveInitialDelay()
-        {
-            TimeSpan initial = TimeSpan.FromDays(2.5);
-            TimeSpan max = TimeSpan.FromDays(10);
-            var delay = PublicModuleMetadataProvider.GetExponentialDelay(initial, 0, max);
-
-            delay.Should().Be(initial);
-        }
-
-        [TestMethod]
-        public void GetExponentialDelay_1Count_ShouldGiveDoubleInitialDelay()
-        {
-            TimeSpan initial = TimeSpan.FromDays(2.5);
-            TimeSpan max = TimeSpan.FromDays(10);
-            var delay = PublicModuleMetadataProvider.GetExponentialDelay(initial, 1, max);
-
-            delay.Should().Be(initial * 2);
-        }
-
-        [TestMethod]
-        public void GetExponentialDelay_2Count_ShouldGiveQuadrupleInitialDelay()
-        {
-            TimeSpan initial = TimeSpan.FromDays(2.5);
-            TimeSpan max = TimeSpan.FromDays(10);
-            var delay = PublicModuleMetadataProvider.GetExponentialDelay(initial, 2, max);
-
-            delay.Should().Be(initial * 4);
-        }
-
-        [TestMethod]
-        public void GetExponentialDelay_AboveMaxCount_ShouldGiveMaxDelay()
-        {
-            TimeSpan initial = TimeSpan.FromSeconds(1);
-            TimeSpan max = TimeSpan.FromDays(365);
-
-            TimeSpan exponentiallyGrowingDelay = initial;
-            int count = 0;
-            while (exponentiallyGrowingDelay < max * 1000)
-            {
-                var delay = PublicModuleMetadataProvider.GetExponentialDelay(initial, count, max);
-
-                if (exponentiallyGrowingDelay < max)
-                {
-                    delay.Should().Be(exponentiallyGrowingDelay);
-                }
-                else
-                {
-                    delay.Should().Be(max);
-                }
-
-                delay.Should().BeLessThanOrEqualTo(max);
-
-                ++count;
-                exponentiallyGrowingDelay *= 2;
-            }
-        }
-
         private record ModuleMetadata_Original(string moduleName, List<string> tags);
 
         [TestMethod]
@@ -1174,50 +1115,50 @@ namespace Bicep.Core.UnitTests.Registry.PublicRegistry
         [TestMethod]
         public async Task GetModules_Count_SanityCheck()
         {
-            PublicModuleMetadataProvider provider = new(GetServiceProvider());
-            (await provider.TryUpdateCacheAsync()).Should().BeTrue();
-            var modules = provider.GetModulesMetadata();
+            PublicModuleMetadataProvider provider = new(CreateTypedClient());
+            await provider.TryAwaitCache(false);
+            var modules = await provider.TryGetModulesAsync();
             modules.Should().HaveCount(50);
         }
 
         [TestMethod]
-        public async Task GetModules_OnlyLastTagHasDescription()
+        public async Task GetModules_IfOnlyLastTagHasDescription()
         {
-            PublicModuleMetadataProvider provider = new(GetServiceProvider());
-            (await provider.TryUpdateCacheAsync()).Should().BeTrue();
-            var modules = provider.GetModulesMetadata();
-            var m = modules.Should().Contain(m => m.Name == "samples/hello-world")
+            PublicModuleMetadataProvider provider = new(CreateTypedClient());
+            await provider.TryAwaitCache(false);
+            var modules = await provider.TryGetModulesAsync();
+            var m = modules.Should().Contain(m => m.ModuleName == "bicep/samples/hello-world")
                 .Which;
-            m.Description.Should().Be("A \"שָׁלוֹם עוֹלָם\" sample Bicep registry module");
-            m.DocumentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/samples/hello-world/1.0.4/modules/samples/hello-world/README.md");
+            var details = await m.TryGetDetailsAsync();
+            details.Description.Should().Be("A \"שָׁלוֹם עוֹלָם\" sample Bicep registry module");
+            details.DocumentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/samples/hello-world/1.0.4/modules/samples/hello-world/README.md");
         }
 
         [TestMethod]
-        public async Task GetModules_MultipleTagsHaveDescriptions()
+        public async Task GetModules_IfMultipleTagsHaveDescriptions()
         {
-            PublicModuleMetadataProvider provider = new(GetServiceProvider());
-            (await provider.TryUpdateCacheAsync()).Should().BeTrue();
-            var modules = provider.GetModulesMetadata();
-            var m = modules.Should().Contain(m => m.Name == "lz/sub-vending")
+            PublicModuleMetadataProvider provider = new(CreateTypedClient());
+            await provider.TryAwaitCache(false);
+            var modules = await provider.TryGetModulesAsync();
+            var m = modules.Should().Contain(m => m.ModuleName == "bicep/lz/sub-vending")
                 .Which;
-            m.Description.Should().Be("This module is designed to accelerate deployment of landing zones (aka Subscriptions) within an Azure AD Tenant.");
-            m.DocumentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.4.2/modules/lz/sub-vending/README.md");
+            var details = await m.TryGetDetailsAsync();
+            details.Description.Should().Be("v1.4.2: This module is designed to accelerate deployment of landing zones (aka Subscriptions) within an Azure AD Tenant.");
+            details.DocumentationUri.Should().Be("https://github.com/Azure/bicep-registry-modules/tree/lz/sub-vending/1.4.2/modules/lz/sub-vending/README.md");
         }
 
         [TestMethod]
-        public async Task GetModuleVerionsMetadata_ByDefault_ReturnsMetadataSortedByVersion()
+        public async Task GetModuleVersions_SortsBySemver()
         {
-            PublicModuleMetadataProvider provider = new(GetServiceProvider());
-            (await provider.TryUpdateCacheAsync()).Should().BeTrue();
+            PublicModuleMetadataProvider provider = new(CreateTypedClient());
+            var versions = await (await provider.TryGetModuleAsync("bicep/samples/array-loop"))!.TryGetVersionsAsync();
 
-            var versions = provider.GetModuleVersionsMetadata("samples/array-loop").Select(x => x.Version);
-
-            versions.Should().Equal(
-                  "1.10.1",
-                  "1.0.3",
-                  "1.0.2",
-                  "1.0.2-preview",
-                  "1.0.1");
+            versions.Select(v => v.Version).Should().Equal(
+                "1.0.1",
+                "1.0.2-preview",
+                "1.0.2",
+                "1.0.3",
+                "1.10.1");
         }
     }
 }
