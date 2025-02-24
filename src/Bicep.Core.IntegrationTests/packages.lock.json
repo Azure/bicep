@@ -408,11 +408,11 @@
       },
       "Microsoft.Extensions.Configuration": {
         "type": "Transitive",
-        "resolved": "9.0.0",
-        "contentHash": "YIMO9T3JL8MeEXgVozKt2v79hquo/EFtnY0vgxmLnUvk1Rei/halI7kOWZL2RBeV9FMGzgM9LZA8CVaNwFMaNA==",
+        "resolved": "9.0.1",
+        "contentHash": "VuthqFS+ju6vT8W4wevdhEFiRi1trvQtkzWLonApfF5USVzzDcTBoY3F24WvN/tffLSrycArVfX1bThm/9xY2A==",
         "dependencies": {
-          "Microsoft.Extensions.Configuration.Abstractions": "9.0.0",
-          "Microsoft.Extensions.Primitives": "9.0.0"
+          "Microsoft.Extensions.Configuration.Abstractions": "9.0.1",
+          "Microsoft.Extensions.Primitives": "9.0.1"
         }
       },
       "Microsoft.Extensions.Configuration.Abstractions": {
@@ -1637,7 +1637,7 @@
           "Azure.Bicep.Local.Deploy": "[1.0.0, )",
           "Azure.ResourceManager.ResourceGraph": "[1.0.1, )",
           "CommandLineParser": "[2.9.1, )",
-          "Microsoft.Extensions.Http": "[8.0.1, )",
+          "Microsoft.Extensions.Http": "[9.0.1, )",
           "OmniSharp.Extensions.LanguageServer": "[0.19.9, )",
           "SharpYaml": "[2.1.1, )"
         }
