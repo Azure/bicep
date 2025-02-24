@@ -2,8 +2,11 @@
 // Licensed under the MIT License.
 
 import type { FC } from "react";
+import type { ParametersInputData } from "./sections/ParametersInputView";
+
 import { VscodeButton, VscodeProgressRing } from "@vscode-elements/react-elements";
 import { useState } from "react";
+import { ErrorAlert } from "./ErrorAlert";
 import { useAzure } from "./hooks/useAzure";
 import { useMessageHandler } from "./hooks/useMessageHandler";
 import { LocalDeployOperations, LocalDeployOutputs, LocalDeployResult } from "./localDeploy";
@@ -11,10 +14,9 @@ import { DeploymentOperationsView } from "./sections/DeploymentOperationsView";
 import { DeploymentOutputsView } from "./sections/DeploymentOutputsView";
 import { DeploymentScopeInputView } from "./sections/DeploymentScopeInputView";
 import { FormSection } from "./sections/FormSection";
-import { ParametersInputView, type ParametersInputData } from "./sections/ParametersInputView";
+import { ParametersInputView } from "./sections/ParametersInputView";
 import { ResultsView } from "./sections/ResultsView";
 import { WhatIfChangesView } from "./sections/WhatIfChangesView";
-import { ErrorAlert } from "./ErrorAlert";
 
 export const App: FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -138,8 +140,9 @@ export const App: FC = () => {
               )}
             </>
           )}
-          {!showLocalDeployControls && 
-            <ErrorAlert message="Local Deployment is only currently supported for .bicepparam files. Relaunch this pane for a .bicepparam file." />}
+          {!showLocalDeployControls && (
+            <ErrorAlert message="Local Deployment is only currently supported for .bicepparam files. Relaunch this pane for a .bicepparam file." />
+          )}
         </>
       )}
     </main>

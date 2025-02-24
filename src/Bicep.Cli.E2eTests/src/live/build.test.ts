@@ -5,9 +5,9 @@ import { beforeEach, describe, it } from "vitest";
 import { BicepRegistryReferenceBuilder, expectBrModuleStructure, publishModule } from "../utils/br";
 import { invokingBicepCommand } from "../utils/command";
 import {
+  defaultModuleCacheRoot,
   emptyDir,
   expectFileExists,
-  defaultModuleCacheRoot,
   pathToCachedTsModuleFile,
   pathToExampleFile,
   pathToTempFile,
@@ -114,9 +114,19 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
 
     expectFileExists(pathToTempFile("build", "build-external.json"));
 
-    expectBrModuleStructure(defaultModuleCacheRoot, builder.registry, "build$passthrough", `v1_${builder.tagSuffix}$4002000`);
+    expectBrModuleStructure(
+      defaultModuleCacheRoot,
+      builder.registry,
+      "build$passthrough",
+      `v1_${builder.tagSuffix}$4002000`,
+    );
 
-    expectBrModuleStructure(defaultModuleCacheRoot, builder.registry, "build$storage", `v1_${builder.tagSuffix}$4002000`);
+    expectBrModuleStructure(
+      defaultModuleCacheRoot,
+      builder.registry,
+      "build$storage",
+      `v1_${builder.tagSuffix}$4002000`,
+    );
 
     expectFileExists(
       pathToCachedTsModuleFile(
@@ -169,6 +179,11 @@ module passthrough '${passthroughRef}' = {
       .shouldSucceed()
       .withEmptyStdout();
 
-    expectBrModuleStructure(defaultModuleCacheRoot, builder.registry, "build$passthrough", `v1_${builder.tagSuffix}$4002000`);
+    expectBrModuleStructure(
+      defaultModuleCacheRoot,
+      builder.registry,
+      "build$passthrough",
+      `v1_${builder.tagSuffix}$4002000`,
+    );
   });
 });

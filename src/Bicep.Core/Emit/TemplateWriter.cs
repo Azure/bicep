@@ -1734,8 +1734,8 @@ namespace Bicep.Core.Emit
                                 {
                                     emitter.EmitProperty(LanguageConstants.MetadataDescriptionPropertyName, description);
                                 }
-                                if (variablesByName.TryGetValue(exportedVariable.Name) is {} variable &&
-                                    variable.Type is {} variableType)
+                                if (variablesByName.TryGetValue(exportedVariable.Name) is { } variable &&
+                                    variable.Type is { } variableType)
                                 {
                                     emitter.EmitProperty(TypePropertyName, TypePropertiesForTypeExpression(variableType));
                                 }

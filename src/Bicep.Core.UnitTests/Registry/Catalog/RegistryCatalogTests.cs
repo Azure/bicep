@@ -33,8 +33,8 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
                 RegistryCatalogMocks.MockPrivateMetadataProvider(
                     "private.contoso.io",
                     [
-                        ("bicep/abc", "description", "https://contoso.com/help", [ new("1.0.0", "abc 1.0.0 description", "https://contoso.com/help/abc") ]),
-                        ("bicep/def", "description", "https://contoso.com/help", [ new("1.0.0", "def 1.0.0 description", "https://contoso.com/help/def") ]),
+                        ("bicep/abc", "description", "https://contoso.com/help", [new("1.0.0", "abc 1.0.0 description", "https://contoso.com/help/abc")]),
+                        ("bicep/def", "description", "https://contoso.com/help", [new("1.0.0", "def 1.0.0 description", "https://contoso.com/help/def")]),
                     ]));
 
             var registry = indexer.GetProviderForRegistry(BicepTestConstants.BuiltInConfiguration.Cloud, "private.contoso.io");
@@ -78,8 +78,8 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
                 RegistryCatalogMocks.MockPrivateMetadataProvider(
                     "private.contoso.io",
                     [
-                        ("bicep/abc", "description", "https://contoso.com/hep", [ new("1.0.0", "abc 1.0.0 description", "https://contoso.com/help/abc") ]),
-                        ("bicep/def", "description", "https://contoso.com/hep", [ new("1.0.0", "def 1.0.0 description", "https://contoso.com/help/def") ]),
+                        ("bicep/abc", "description", "https://contoso.com/hep", [new("1.0.0", "abc 1.0.0 description", "https://contoso.com/help/abc")]),
+                        ("bicep/def", "description", "https://contoso.com/hep", [new("1.0.0", "def 1.0.0 description", "https://contoso.com/help/def")]),
                     ]));
 
             var registry = indexer.GetProviderForRegistry(BicepTestConstants.BuiltInConfiguration.Cloud, "mcr.microsoft.com");
