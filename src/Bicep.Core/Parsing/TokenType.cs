@@ -51,5 +51,6 @@ namespace Bicep.Core.Parsing
         Arrow,
         Pipe,
         Ellipsis,
+        Hat,
     }
 }

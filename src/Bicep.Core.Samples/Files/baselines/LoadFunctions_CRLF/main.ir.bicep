@@ -278,20 +278,19 @@ var testJsonInt = testJson.int
 //@[18:0026) |   └─VariableReferenceExpression { Variable = testJson }
 var testJsonArrayVal = testJson.array[0]
 //@[00:0040) ├─DeclaredVariableExpression { Name = testJsonArrayVal }
-//@[23:0040) | └─AccessChainExpression
-//@[23:0037) |   ├─PropertyAccessExpression { PropertyName = array }
-//@[23:0031) |   | └─VariableReferenceExpression { Variable = testJson }
-//@[38:0039) |   └─IntegerLiteralExpression { Value = 0 }
+//@[23:0040) | └─ArrayAccessExpression
+//@[38:0039) |   ├─IntegerLiteralExpression { Value = 0 }
+//@[23:0037) |   └─PropertyAccessExpression { PropertyName = array }
+//@[23:0031) |     └─VariableReferenceExpression { Variable = testJson }
 var testJsonObject = testJson.object
 //@[00:0036) ├─DeclaredVariableExpression { Name = testJsonObject }
 //@[21:0036) | └─PropertyAccessExpression { PropertyName = object }
 //@[21:0029) |   └─VariableReferenceExpression { Variable = testJson }
 var testJsonNestedString = testJson.object.nestedString
 //@[00:0055) ├─DeclaredVariableExpression { Name = testJsonNestedString }
-//@[27:0055) | └─AccessChainExpression
-//@[27:0042) |   ├─PropertyAccessExpression { PropertyName = object }
-//@[27:0035) |   | └─VariableReferenceExpression { Variable = testJson }
-//@[43:0055) |   └─StringLiteralExpression { Value = nestedString }
+//@[27:0055) | └─PropertyAccessExpression { PropertyName = nestedString }
+//@[27:0042) |   └─PropertyAccessExpression { PropertyName = object }
+//@[27:0035) |     └─VariableReferenceExpression { Variable = testJson }
 
 var testJson2 = loadJsonContent('./Assets/test.json.txt')
 //@[16:0057) ├─DeclaredVariableExpression { Name = $fxv#16 }
@@ -315,10 +314,10 @@ var testJsonInt2_1 = loadJsonContent('./Assets/test.json.txt', '.int')
 //@[21:0070) | └─SynthesizedVariableReferenceExpression { Name = $fxv#18 }
 var testJsonArrayVal2 = testJson.array[0]
 //@[00:0041) ├─DeclaredVariableExpression { Name = testJsonArrayVal2 }
-//@[24:0041) | └─AccessChainExpression
-//@[24:0038) |   ├─PropertyAccessExpression { PropertyName = array }
-//@[24:0032) |   | └─VariableReferenceExpression { Variable = testJson }
-//@[39:0040) |   └─IntegerLiteralExpression { Value = 0 }
+//@[24:0041) | └─ArrayAccessExpression
+//@[39:0040) |   ├─IntegerLiteralExpression { Value = 0 }
+//@[24:0038) |   └─PropertyAccessExpression { PropertyName = array }
+//@[24:0032) |     └─VariableReferenceExpression { Variable = testJson }
 var testJsonArrayVal2_1 = loadJsonContent('./Assets/test.json.txt', '.array[0]')
 //@[26:0080) ├─DeclaredVariableExpression { Name = $fxv#19 }
 //@[00:0080) ├─DeclaredVariableExpression { Name = testJsonArrayVal2_1 }
@@ -333,10 +332,9 @@ var testJsonObject2_1 = loadJsonContent('./Assets/test.json.txt', '.object')
 //@[24:0076) | └─SynthesizedVariableReferenceExpression { Name = $fxv#20 }
 var testJsonNestedString2 = testJson.object.nestedString
 //@[00:0056) ├─DeclaredVariableExpression { Name = testJsonNestedString2 }
-//@[28:0056) | └─AccessChainExpression
-//@[28:0043) |   ├─PropertyAccessExpression { PropertyName = object }
-//@[28:0036) |   | └─VariableReferenceExpression { Variable = testJson }
-//@[44:0056) |   └─StringLiteralExpression { Value = nestedString }
+//@[28:0056) | └─PropertyAccessExpression { PropertyName = nestedString }
+//@[28:0043) |   └─PropertyAccessExpression { PropertyName = object }
+//@[28:0036) |     └─VariableReferenceExpression { Variable = testJson }
 var testJsonNestedString2_1 = testJsonObject2_1.nestedString
 //@[00:0060) ├─DeclaredVariableExpression { Name = testJsonNestedString2_1 }
 //@[30:0060) | └─PropertyAccessExpression { PropertyName = nestedString }
@@ -373,52 +371,49 @@ var testYamlArrayInt = testYaml.arrayInt
 //@[23:0031) |   └─VariableReferenceExpression { Variable = testYaml }
 var testYamlArrayIntVal = testYaml.arrayInt[0]
 //@[00:0046) ├─DeclaredVariableExpression { Name = testYamlArrayIntVal }
-//@[26:0046) | └─AccessChainExpression
-//@[26:0043) |   ├─PropertyAccessExpression { PropertyName = arrayInt }
-//@[26:0034) |   | └─VariableReferenceExpression { Variable = testYaml }
-//@[44:0045) |   └─IntegerLiteralExpression { Value = 0 }
+//@[26:0046) | └─ArrayAccessExpression
+//@[44:0045) |   ├─IntegerLiteralExpression { Value = 0 }
+//@[26:0043) |   └─PropertyAccessExpression { PropertyName = arrayInt }
+//@[26:0034) |     └─VariableReferenceExpression { Variable = testYaml }
 var testYamlArrayString = testYaml.arrayString
 //@[00:0046) ├─DeclaredVariableExpression { Name = testYamlArrayString }
 //@[26:0046) | └─PropertyAccessExpression { PropertyName = arrayString }
 //@[26:0034) |   └─VariableReferenceExpression { Variable = testYaml }
 var testYamlArrayStringVal = testYaml.arrayString[0]
 //@[00:0052) ├─DeclaredVariableExpression { Name = testYamlArrayStringVal }
-//@[29:0052) | └─AccessChainExpression
-//@[29:0049) |   ├─PropertyAccessExpression { PropertyName = arrayString }
-//@[29:0037) |   | └─VariableReferenceExpression { Variable = testYaml }
-//@[50:0051) |   └─IntegerLiteralExpression { Value = 0 }
+//@[29:0052) | └─ArrayAccessExpression
+//@[50:0051) |   ├─IntegerLiteralExpression { Value = 0 }
+//@[29:0049) |   └─PropertyAccessExpression { PropertyName = arrayString }
+//@[29:0037) |     └─VariableReferenceExpression { Variable = testYaml }
 var testYamlArrayBool = testYaml.arrayBool
 //@[00:0042) ├─DeclaredVariableExpression { Name = testYamlArrayBool }
 //@[24:0042) | └─PropertyAccessExpression { PropertyName = arrayBool }
 //@[24:0032) |   └─VariableReferenceExpression { Variable = testYaml }
 var testYamlArrayBoolVal = testYaml.arrayBool[0]
 //@[00:0048) ├─DeclaredVariableExpression { Name = testYamlArrayBoolVal }
-//@[27:0048) | └─AccessChainExpression
-//@[27:0045) |   ├─PropertyAccessExpression { PropertyName = arrayBool }
-//@[27:0035) |   | └─VariableReferenceExpression { Variable = testYaml }
-//@[46:0047) |   └─IntegerLiteralExpression { Value = 0 }
+//@[27:0048) | └─ArrayAccessExpression
+//@[46:0047) |   ├─IntegerLiteralExpression { Value = 0 }
+//@[27:0045) |   └─PropertyAccessExpression { PropertyName = arrayBool }
+//@[27:0035) |     └─VariableReferenceExpression { Variable = testYaml }
 var testYamlObject = testYaml.object
 //@[00:0036) ├─DeclaredVariableExpression { Name = testYamlObject }
 //@[21:0036) | └─PropertyAccessExpression { PropertyName = object }
 //@[21:0029) |   └─VariableReferenceExpression { Variable = testYaml }
 var testYamlObjectNestedString = testYaml.object.nestedString
 //@[00:0061) ├─DeclaredVariableExpression { Name = testYamlObjectNestedString }
-//@[33:0061) | └─AccessChainExpression
-//@[33:0048) |   ├─PropertyAccessExpression { PropertyName = object }
-//@[33:0041) |   | └─VariableReferenceExpression { Variable = testYaml }
-//@[49:0061) |   └─StringLiteralExpression { Value = nestedString }
+//@[33:0061) | └─PropertyAccessExpression { PropertyName = nestedString }
+//@[33:0048) |   └─PropertyAccessExpression { PropertyName = object }
+//@[33:0041) |     └─VariableReferenceExpression { Variable = testYaml }
 var testYamlObjectNestedInt = testYaml.object.nestedInt
 //@[00:0055) ├─DeclaredVariableExpression { Name = testYamlObjectNestedInt }
-//@[30:0055) | └─AccessChainExpression
-//@[30:0045) |   ├─PropertyAccessExpression { PropertyName = object }
-//@[30:0038) |   | └─VariableReferenceExpression { Variable = testYaml }
-//@[46:0055) |   └─StringLiteralExpression { Value = nestedInt }
+//@[30:0055) | └─PropertyAccessExpression { PropertyName = nestedInt }
+//@[30:0045) |   └─PropertyAccessExpression { PropertyName = object }
+//@[30:0038) |     └─VariableReferenceExpression { Variable = testYaml }
 var testYamlObjectNestedBool = testYaml.object.nestedBool
 //@[00:0057) ├─DeclaredVariableExpression { Name = testYamlObjectNestedBool }
-//@[31:0057) | └─AccessChainExpression
-//@[31:0046) |   ├─PropertyAccessExpression { PropertyName = object }
-//@[31:0039) |   | └─VariableReferenceExpression { Variable = testYaml }
-//@[47:0057) |   └─StringLiteralExpression { Value = nestedBool }
+//@[31:0057) | └─PropertyAccessExpression { PropertyName = nestedBool }
+//@[31:0046) |   └─PropertyAccessExpression { PropertyName = object }
+//@[31:0039) |     └─VariableReferenceExpression { Variable = testYaml }
 
 output testYamlString string = testYamlString
 //@[00:0045) ├─DeclaredOutputExpression { Name = testYamlString }

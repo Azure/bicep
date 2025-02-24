@@ -855,20 +855,26 @@ namespace Bicep.Core.Parsing
                         safeAccessMarker = this.reader.Read();
                     }
 
+                    Token? fromEndMarker = null;
+                    if (this.Check(TokenType.Hat))
+                    {
+                        fromEndMarker = this.reader.Read();
+                    }
+
                     if (this.Check(TokenType.RightSquare))
                     {
                         // empty indexer - we are allowing this special case in the parser to help with completions
                         SyntaxBase skipped = SkipEmpty(b => b.EmptyIndexerNotAllowed());
                         Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
 
-                        current = new ArrayAccessSyntax(current, openSquare, safeAccessMarker, skipped, closeSquare);
+                        current = new ArrayAccessSyntax(current, openSquare, safeAccessMarker, fromEndMarker, skipped, closeSquare);
                     }
                     else
                     {
                         SyntaxBase indexExpression = this.Expression(expressionFlags);
                         Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
 
-                        current = new ArrayAccessSyntax(current, openSquare, safeAccessMarker, indexExpression, closeSquare);
+                        current = new ArrayAccessSyntax(current, openSquare, safeAccessMarker, fromEndMarker, indexExpression, closeSquare);
                     }
 
                     continue;

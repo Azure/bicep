@@ -11,7 +11,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.IntegrationTests;
 
 [TestClass]
-public class SafeDereferenceTests
+public class DereferenceTests
 {
     private ServiceBuilder ServicesWithResourceTypedParamsAndOutputsEnabled => new ServiceBuilder()
         .WithFeatureOverrides(new(TestContext, ResourceTypedParamsAndOutputsEnabled: true));
@@ -265,5 +265,35 @@ output nulls object = {
             ("BCP083", DiagnosticLevel.Warning, @"The type ""object"" does not contain property ""baz"". Did you mean ""bar""?"),
             ("BCP083", DiagnosticLevel.Warning, @"The type ""object"" does not contain property ""baz"". Did you mean ""bar""?"),
         });
+    }
+
+    [TestMethod]
+    public void FromEnd_access_of_object_key_raises_error()
+    {
+        var result = CompilationHelper.Compile("""
+            param anObject object
+            param propertyToAccess string
+            output property string = anObject[^propertyToAccess]
+            """);
+
+        result.Should().HaveDiagnostics(
+        [
+            ("BCP414", DiagnosticLevel.Error, @"The ""^"" indexing operator cannot be used on base expressions of type ""object""."),
+        ]);
+    }
+
+    [TestMethod]
+    public void FromEnd_access_with_string_index_expression_raises_error()
+    {
+        var result = CompilationHelper.Compile("""
+            param anObject object
+            param nestedPropertyToAccess string
+            output property string = anObject.property[^nestedPropertyToAccess]
+            """);
+
+        result.Should().HaveDiagnostics(
+        [
+            ("BCP415", DiagnosticLevel.Error, @"The ""^"" indexing operator cannot be used with index expressions of type ""string""."),
+        ]);
     }
 }

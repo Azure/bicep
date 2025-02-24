@@ -18,6 +18,7 @@ using Bicep.Decompiler.ArmHelpers;
 using Bicep.Decompiler.BicepHelpers;
 using Bicep.Decompiler.Exceptions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -433,10 +434,45 @@ namespace Bicep.Decompiler
                 syntax = ParsePropertyAccess(ParseLanguageExpression(expression.Parameters[0]), expression.Parameters[1], safeNavigation: true);
                 for (int i = 2; i < expression.Parameters.Length; i++)
                 {
-                    syntax = ParsePropertyAccess(syntax, expression.Parameters[i], safeNavigation: false);
+                    syntax = ParsePropertyAccess(syntax, expression.Parameters[i], safeNavigation: false, allowWrappedProperties: true);
                 }
 
-                syntax = new ParenthesizedExpressionSyntax(SyntaxFactory.LeftParenToken, syntax, SyntaxFactory.RightParenToken);
+                if (expression.Properties.Length > 0)
+                {
+                    syntax = new ParenthesizedExpressionSyntax(SyntaxFactory.LeftParenToken, syntax, SyntaxFactory.RightParenToken);
+                }
+
+                return true;
+            }
+
+            if (expression.IsNamed("indexFromEnd"))
+            {
+                if (expression.Parameters.Length != 2)
+                {
+                    throw new ArgumentException($"Expected exactly 2 parameters for function {expression.Function}");
+                }
+
+                syntax = ParsePropertyAccess(ParseLanguageExpression(expression.Parameters[0]), expression.Parameters[1], safeNavigation: false, fromEnd: true);
+                return true;
+            }
+
+            if (expression.IsNamed("tryIndexFromEnd"))
+            {
+                if (expression.Parameters.Length < 2)
+                {
+                    throw new ArgumentException($"Expected at least 2 parameters for function {expression.Function}");
+                }
+
+                syntax = ParsePropertyAccess(ParseLanguageExpression(expression.Parameters[0]), expression.Parameters[1], safeNavigation: true, fromEnd: true);
+                for (int i = 2; i < expression.Parameters.Length; i++)
+                {
+                    syntax = ParsePropertyAccess(syntax, expression.Parameters[i], safeNavigation: false, allowWrappedProperties: true);
+                }
+
+                if (expression.Properties.Length > 0)
+                {
+                    syntax = new ParenthesizedExpressionSyntax(SyntaxFactory.LeftParenToken, syntax, SyntaxFactory.RightParenToken);
+                }
                 return true;
             }
 
@@ -631,24 +667,35 @@ namespace Bicep.Decompiler
             return baseSyntax;
         }
 
-        private SyntaxBase ParsePropertyAccess(SyntaxBase baseExpression, LanguageExpression property, bool safeNavigation = false)
+        private SyntaxBase ParsePropertyAccess(SyntaxBase baseExpression, LanguageExpression propertyExpression, bool safeNavigation = false, bool fromEnd = false, bool allowWrappedProperties = false)
         {
+            var property = ParseLanguageExpression(propertyExpression);
+
+            if (allowWrappedProperties &&
+                property is ObjectSyntax @object &&
+                @object.TryGetPropertyByName("value", StringComparison.OrdinalIgnoreCase) is { } wrappedProperty)
+            {
+                fromEnd = @object.TryGetPropertyByName("fromEnd", StringComparison.OrdinalIgnoreCase)?.Value is Token { Type: TokenType.TrueKeyword };
+                property = wrappedProperty.Value;
+            }
+
             Token? safeAccessMarker = safeNavigation ? SyntaxFactory.QuestionToken : null;
+            Token? fromEndMarker = fromEnd ? SyntaxFactory.HatToken : null;
+
             return TryParseIdentifier(property) is { } propertyName
                 ? new PropertyAccessSyntax(baseExpression, SyntaxFactory.DotToken, safeAccessMarker, propertyName)
                 : new ArrayAccessSyntax(
                     baseExpression,
                     SyntaxFactory.LeftSquareToken,
                     safeAccessMarker,
-                    ParseLanguageExpression(property),
+                    fromEndMarker,
+                    property,
                     SyntaxFactory.RightSquareToken);
         }
 
-        private static IdentifierSyntax? TryParseIdentifier(LanguageExpression? expression)
+        private static IdentifierSyntax? TryParseIdentifier(SyntaxBase expression)
         {
-            if (expression is JTokenExpression jTokenExpression &&
-                jTokenExpression.Value.Type == JTokenType.String &&
-                jTokenExpression.Value.Value<string>() is string propertyName &&
+            if ((expression as StringSyntax)?.TryGetLiteralValue() is string propertyName &&
                 Lexer.IsValidIdentifier(propertyName))
             {
                 return SyntaxFactory.CreateIdentifier(propertyName);

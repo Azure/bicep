@@ -46,15 +46,13 @@ var resourceDependency = {
 //@[04:0013) | |             ├─PropertyAccessExpression { PropertyName = type }
 //@[04:0008) | |             | └─ResourceReferenceExpression
     resA.properties.deployTime
-//@[04:0030) | |             ├─AccessChainExpression
-//@[04:0019) | |             | ├─PropertyAccessExpression { PropertyName = properties }
-//@[04:0008) | |             | | └─ResourceReferenceExpression
-//@[20:0030) | |             | └─StringLiteralExpression { Value = deployTime }
+//@[04:0030) | |             ├─PropertyAccessExpression { PropertyName = deployTime }
+//@[04:0019) | |             | └─PropertyAccessExpression { PropertyName = properties }
+//@[04:0008) | |             |   └─ResourceReferenceExpression
     resA.properties.eTag
-//@[04:0024) | |             └─AccessChainExpression
-//@[04:0019) | |               ├─PropertyAccessExpression { PropertyName = properties }
-//@[04:0008) | |               | └─ResourceReferenceExpression
-//@[20:0024) | |               └─StringLiteralExpression { Value = eTag }
+//@[04:0024) | |             └─PropertyAccessExpression { PropertyName = eTag }
+//@[04:0019) | |               └─PropertyAccessExpression { PropertyName = properties }
+//@[04:0008) | |                 └─ResourceReferenceExpression
   ]
 }
 
