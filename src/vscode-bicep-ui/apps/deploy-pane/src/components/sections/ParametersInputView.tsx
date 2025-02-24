@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { FC } from "react";
 import type { ParamDefinition, ParametersMetadata, TemplateMetadata } from "../../models";
 import type { ParameterInputData } from "../ParamInputBox";
@@ -6,9 +9,6 @@ import { VscodeButton, VscodeTextfield } from "@vscode-elements/react-elements";
 import { useCallback, useEffect, useState } from "react";
 import { ParamInputBox } from "../ParamInputBox";
 import { FormSection } from "./FormSection";
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
 
 export type ParametersInputData = Record<string, ParameterInputData>;
 

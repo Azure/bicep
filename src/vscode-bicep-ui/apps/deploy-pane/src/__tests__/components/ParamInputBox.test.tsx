@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 import type { ParameterInputData } from "../../components/ParamInputBox";
 import type { ParamDefinition } from "../../models";
 
