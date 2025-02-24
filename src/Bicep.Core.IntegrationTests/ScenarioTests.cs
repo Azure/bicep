@@ -6966,6 +6966,31 @@ var subnetId = vNet::subnets[0].id
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
+    // https://github.com/azure/bicep/issues/15325
+    [TestMethod]
+    public void Refinements_are_enforced_on_non_hierarchical_resource_names()
+    {
+        var result = CompilationHelper.Compile("""
+            resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+              name: 'kv'
+
+              resource secret 'secrets' = {
+                name: '!@#$'
+                properties: {
+                  value: 'value'
+                }
+              }
+            }
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP414", DiagnosticLevel.Warning, "The supplied string does not match the expected pattern of /$^[a-zA-Z0-9-]{3,24}$/."),
+            ("BCP414", DiagnosticLevel.Warning, "The supplied string does not match the expected pattern of /$^[a-zA-Z0-9-]{1,127}$/."),
+        });
+    }
+
+    // https://github.com/azure/bicep/issues/15325
     [TestMethod]
     public void Refinements_are_not_enforced_on_hierarchical_resource_names()
     {
