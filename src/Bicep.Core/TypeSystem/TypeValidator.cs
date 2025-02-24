@@ -544,6 +544,12 @@ namespace Bicep.Core.TypeSystem
                             targetType.MinLength.Value));
                     }
 
+                    if (targetType.Pattern?.IsMatch(expressionStringLiteral.RawStringValue) is false)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
+                            .SuppliedStringDoesNotMatchExpectedPattern(shouldWarn, targetType.Pattern.ToString()));
+                    }
+
                     // if a literal was assignable to a string-typed target, the literal will always be the most narrow type
                     return expressionStringLiteral;
             }

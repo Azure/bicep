@@ -214,7 +214,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             {
                 case ObjectType bodyObjectType:
                     if (bodyObjectType.Properties.TryGetValue(ResourceNamePropertyName, out var nameProperty) &&
-                        nameProperty.TypeReference.Type is not StringType &&
+                        !ReferenceEquals(nameProperty.TypeReference.Type, LanguageConstants.String) &&
                         !SupportsLiteralNames(resourceType, flags))
                     {
                         // The 'name' property doesn't support fixed value names (e.g. we're in a top-level child resource declaration).
@@ -223,7 +223,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                         bodyObjectType = new ObjectType(
                             bodyObjectType.Name,
                             bodyObjectType.ValidationFlags,
-                            bodyObjectType.Properties.SetItem(ResourceNamePropertyName, new(nameProperty.Name, LanguageConstants.String, nameProperty.Flags | TypePropertyFlags.SystemProperty)).Values,
+                            bodyObjectType.Properties.SetItem(ResourceNamePropertyName, new(nameProperty.Name, LanguageConstants.String, nameProperty.Flags | TypePropertyFlags.SystemProperty, nameProperty.Description)).Values,
                             bodyObjectType.AdditionalProperties,
                             bodyObjectType.MethodResolver.CopyToObject);
 

@@ -1880,6 +1880,12 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic TypedVariablesUnsupported() => CoreError(
                 "BCP413",
                 $"""Using typed variables requires enabling EXPERIMENTAL feature "{nameof(ExperimentalFeaturesEnabled.TypedVariables)}".""");
+
+            public Diagnostic SuppliedStringDoesNotMatchExpectedPattern(bool shouldWarn, string expectedPattern)
+                => CoreDiagnostic(
+                    shouldWarn ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                    "BCP414",
+                    $"The supplied string does not match the expected pattern of /${expectedPattern}/.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

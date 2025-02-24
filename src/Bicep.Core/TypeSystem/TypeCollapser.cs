@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Concurrent;
+using System.Text.RegularExpressions;
 using Bicep.Core.Extensions;
 using Bicep.Core.TypeSystem.Types;
 
@@ -84,6 +85,7 @@ internal static class TypeCollapser
         {
             private readonly RefinementSpanCollapser spanCollapser = new();
             private readonly HashSet<StringLiteralType> stringLiterals = new();
+            private Regex? pattern;
             private bool nullable;
 
             internal StringCollapse(StringLiteralType stringLiteral, bool nullable)
@@ -96,11 +98,12 @@ internal static class TypeCollapser
             {
                 spanCollapser.PushSpan(RefinementSpan.For(@string));
                 this.nullable = nullable;
+                this.pattern = @string.Pattern;
             }
 
             public TypeSymbol? TryCollapse() => CreateTypeUnion(
                 // only keep string literals that are not valid in any of the discrete spans
-                stringLiterals.Where(literal => !spanCollapser.Spans.Any(s => s.Contains(literal.RawStringValue.Length)))
+                stringLiterals.Where(literal => !spanCollapser.Spans.Any(s => s.Contains(literal.RawStringValue.Length)) || pattern?.IsMatch(literal.RawStringValue) is false)
                     // create a refined string type for each span
                     .Concat(spanCollapser.Spans.Select(span => TypeFactory.CreateStringType(
                         span.Min switch
@@ -113,6 +116,7 @@ internal static class TypeCollapser
                             long.MaxValue => null,
                             long otherwise => otherwise,
                         },
+                        pattern,
                         span.Flags))),
                 nullable);
 
@@ -125,6 +129,10 @@ internal static class TypeCollapser
                         return this;
                     case StringType @string:
                         spanCollapser.PushSpan(RefinementSpan.For(@string));
+                        // If we're collapsing multiple string types, the pattern refinement will always need to be
+                        // dropped. If all strings have a pattern, we need to drop it because regular expressions are
+                        // not composable; if any strings don't have a pattern, the lack of a pattern dominates.
+                        this.pattern = null;
                         return this;
                     case NullType:
                         nullable = true;
