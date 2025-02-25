@@ -9,8 +9,10 @@ using Bicep.IO.FileSystem;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.Options;
+using Bicep.LanguageServer.Registry;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -40,12 +42,13 @@ namespace Bicep.LangServer.IntegrationTests
             var clientPipe = new Pipe();
             var serverPipe = new Pipe();
 
+            var mockRestoreScheduler = new Mock<IModuleRestoreScheduler>(MockBehavior.Loose);
             var server = new Server(
                 BicepLangServerOptions.Default,
                 options => options
                     .WithInput(serverPipe.Reader)
                     .WithOutput(clientPipe.Writer)
-                    .WithServices(services => services.AddSingleton(BicepTestConstants.ModuleRestoreScheduler))
+                    .WithServices(services => services.AddSingleton(mockRestoreScheduler.Object))
                     .WithServices(services => onRegisterServices?.Invoke(services)));
             var _ = server.RunAsync(CancellationToken.None); // do not wait on this async method, or you'll be waiting a long time!
 

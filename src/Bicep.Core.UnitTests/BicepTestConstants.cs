@@ -98,8 +98,6 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IEnvironment EmptyEnvironment = new TestEnvironment(ImmutableDictionary<string, string?>.Empty);
 
-        public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
-
         public static RootConfiguration GetConfiguration(string contents)
             => RootConfiguration.Bind(IConfigurationManager.BuiltInConfigurationElement.Merge(JsonElementFactory.CreateElement(contents)));
 
@@ -144,12 +142,6 @@ namespace Bicep.Core.UnitTests
         public static IFeatureProviderFactory CreateFeatureProviderFactory(FeatureProviderOverrides featureOverrides, IConfigurationManager? configurationManager = null)
             => new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager ?? CreateFilesystemConfigurationManager(), FileExplorer), featureOverrides);
 
-        private static IModuleRestoreScheduler CreateMockModuleRestoreScheduler()
-        {
-            var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
-            return new ModuleRestoreScheduler(moduleDispatcher.Object);
-        }
-
         public static Mock<ITelemetryProvider> CreateMockTelemetryProvider()
         {
             var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
@@ -188,13 +180,18 @@ namespace Bicep.Core.UnitTests
             var configurationManager = IConfigurationManager.WithStaticConfiguration(configuration ?? IConfigurationManager.GetBuiltInConfiguration());
             var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, FileExplorer), featureOverrides ?? FeatureOverrides);
 
+            return CreateDummyBicepFile(configurationManager, featureProviderFactory);
+        }
+
+        public static BicepFile CreateDummyBicepFile(IConfigurationManager configurationManager, IFeatureProviderFactory? featureProviderFactory = null)
+        {
             return new(
                 new Uri($"inmemory:///main.bicep"),
-                DummyFileHandle.Instance,
+                InMemoryDummyFileHandle.Instance,
                 [],
                 SyntaxFactory.EmptyProgram,
                 configurationManager,
-                featureProviderFactory,
+                featureProviderFactory ?? FeatureProviderFactory,
                 EmptyDiagnosticLookup.Instance,
                 EmptyDiagnosticLookup.Instance);
         }

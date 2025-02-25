@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public static class DocumentUriExtensions
     {
-        public static IOUri ToFileIdentifier(this DocumentUri documentUri) => new(documentUri.Scheme ?? "", documentUri.Authority, documentUri.Path);
+        public static IOUri ToIOUri(this DocumentUri documentUri) => new(documentUri.Scheme ?? "", documentUri.Authority, documentUri.Path);
 
         public static Uri ToUriEncoded(this DocumentUri documentUri)
         {

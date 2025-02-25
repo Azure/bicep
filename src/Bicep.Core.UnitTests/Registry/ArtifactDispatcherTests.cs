@@ -12,6 +12,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
+using Bicep.IO.InMemory;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -151,7 +152,7 @@ namespace Bicep.Core.UnitTests.Registry
                 .Returns(BicepTestConstants.CreateMockConfiguration())
                 .Returns(changedConfiguration);
 
-            var badFile = new BicepFile(new Uri("inmemory:///main.bicep"), [], SyntaxFactory.EmptyProgram, configManagerMock.Object, BicepTestConstants.FeatureProviderFactory, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
+            var badFile = BicepTestConstants.CreateDummyBicepFile(configManagerMock.Object);
             var badReference = new MockModuleReference(badFile, "bad");
 
             var registryMock = StrictMock.Of<IArtifactRegistry>();

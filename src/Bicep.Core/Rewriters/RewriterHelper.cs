@@ -28,7 +28,6 @@ public static class RewriterHelper
     {
         var workspace = new Workspace();
         workspace.UpsertSourceFiles(compilation.SourceFileGrouping.SourceFiles);
-        var fileUri = bicepFile.Uri;
 
         // Changing the syntax changes the semantic model, so it's possible for rewriters to have dependencies on each other.
         // For example, fixing the casing of a type may fix type validation, causing another rewriter to apply.

@@ -235,7 +235,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         {
             foreach (var diagnostic in diagnostics)
             {
-                yield return new(bicepFile.Uri.LocalPath, GetRange(bicepFile, diagnostic), diagnostic.Level.ToString(), diagnostic.Code, diagnostic.Message);
+                yield return new(bicepFile.FileHandle.Uri, GetRange(bicepFile, diagnostic), diagnostic.Level.ToString(), diagnostic.Code, diagnostic.Message);
             }
         }
     }
