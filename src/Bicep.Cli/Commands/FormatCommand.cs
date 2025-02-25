@@ -16,28 +16,13 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Cli.Commands;
 
-public class FormatCommand : ICommand
+public class FormatCommand(
+    IOContext io,
+    IEnvironment environment,
+    IFileResolver fileResolver,
+    IFileSystem fileSystem,
+    ISourceFileFactory sourceFileFactory) : ICommand
 {
-    private readonly IOContext io;
-    private readonly IEnvironment environment;
-    private readonly IFileResolver fileResolver;
-    private readonly IFileSystem fileSystem;
-    private readonly ISourceFileFactory sourceFileFactory;
-
-    public FormatCommand(
-        IOContext io,
-        IEnvironment environment,
-        IFileResolver fileResolver,
-        IFileSystem fileSystem,
-        ISourceFileFactory sourceFileFactory)
-    {
-        this.io = io;
-        this.environment = environment;
-        this.fileResolver = fileResolver;
-        this.fileSystem = fileSystem;
-        this.sourceFileFactory = sourceFileFactory;
-    }
-
     public int Run(FormatArguments args)
     {
         if (args.InputFile is null)
@@ -46,7 +31,7 @@ public class FormatCommand : ICommand
             return 0;
         }
 
-        var inputUri = ArgumentHelper.GetFileUri(args.InputFile, this.fileSystem);
+        var inputUri = ArgumentHelper.GetFileUri(args.InputFile, fileSystem);
         ArgumentHelper.ValidateBicepOrBicepParamFile(inputUri);
 
         var outputUri = GetOutputUri(inputUri, args.OutputDir, args.OutputFile);
@@ -57,13 +42,13 @@ public class FormatCommand : ICommand
 
     public void Format(FormatArguments args, Uri inputUri, Uri outputUri, bool outputToStdOut)
     {
-        if (!this.fileResolver.TryRead(inputUri).IsSuccess(out var fileContents, out var failureBuilder))
+        if (!fileResolver.TryRead(inputUri).IsSuccess(out var fileContents, out var failureBuilder))
         {
             var diagnostic = failureBuilder(DiagnosticBuilder.ForPosition(new TextSpan(0, 0)));
             throw new DiagnosticException(diagnostic);
         }
 
-        if (this.sourceFileFactory.CreateSourceFile(inputUri, fileContents) is not BicepSourceFile sourceFile)
+        if (sourceFileFactory.CreateSourceFile(inputUri, fileContents) is not BicepSourceFile sourceFile)
         {
             throw new InvalidOperationException("Unable to create Bicep source file.");
         }
@@ -81,7 +66,7 @@ public class FormatCommand : ICommand
             }
             else
             {
-                this.fileSystem.File.WriteAllText(outputUri.LocalPath, output);
+                fileSystem.File.WriteAllText(outputUri.LocalPath, output);
             }
 
             return;
@@ -92,12 +77,12 @@ public class FormatCommand : ICommand
 
         if (outputToStdOut)
         {
-            PrettyPrinterV2.PrintTo(this.io.Output, sourceFile.ProgramSyntax, context);
-            this.io.Output.Flush();
+            PrettyPrinterV2.PrintTo(io.Output, sourceFile.ProgramSyntax, context);
+            io.Output.Flush();
         }
         else
         {
-            using var fileStream = this.fileSystem.File.Open(outputUri.LocalPath, FileMode.Create, FileAccess.Write, FileShare.Read);
+            using var fileStream = fileSystem.File.Open(outputUri.LocalPath, FileMode.Create, FileAccess.Write, FileShare.Read);
             using var writer = new StreamWriter(fileStream);
 
 
@@ -149,7 +134,7 @@ public class FormatCommand : ICommand
 
     private Uri GetOutputUri(Uri inputUri, string? outputDir, string? outputFile)
     {
-        var outputPath = PathHelper.ResolveDefaultOutputPath(inputUri.LocalPath, outputDir, outputFile, path => path, this.fileSystem);
+        var outputPath = PathHelper.ResolveDefaultOutputPath(inputUri.LocalPath, outputDir, outputFile, path => path, fileSystem);
         return PathHelper.FilePathToFileUrl(outputPath);
     }
 }

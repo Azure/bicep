@@ -16,28 +16,13 @@ using System.IO.Abstractions;
 
 namespace Bicep.Cli.Commands;
 
-public class BuildCommand : ICommand
+public class BuildCommand(
+    ILogger logger,
+    IEnvironment environment,
+    DiagnosticLogger diagnosticLogger,
+    BicepCompiler compiler,
+    OutputWriter writer) : ICommand
 {
-    private readonly ILogger logger;
-    private readonly IEnvironment environment;
-    private readonly DiagnosticLogger diagnosticLogger;
-    private readonly BicepCompiler compiler;
-    private readonly OutputWriter writer;
-
-    public BuildCommand(
-        ILogger logger,
-        IEnvironment environment,
-        DiagnosticLogger diagnosticLogger,
-        BicepCompiler compiler,
-        OutputWriter writer)
-    {
-        this.logger = logger;
-        this.environment = environment;
-        this.diagnosticLogger = diagnosticLogger;
-        this.compiler = compiler;
-        this.writer = writer;
-    }
-
     public async Task<int> RunAsync(BuildArguments args)
     {
         if (args.InputFile is null)
@@ -58,11 +43,7 @@ public class BuildCommand : ICommand
     private async Task<DiagnosticSummary> Compile(Uri inputUri, Uri outputUri, bool noRestore, DiagnosticsFormat? diagnosticsFormat, bool outputToStdOut)
     {
         var compilation = await compiler.CreateCompilation(inputUri, skipRestore: noRestore);
-
-        if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping) is { } warningMessage)
-        {
-            logger.LogWarning(warningMessage);
-        }
+        CommandHelper.LogExperimentalWarning(logger, compilation);
 
         var summary = diagnosticLogger.LogDiagnostics(ArgumentHelper.GetDiagnosticOptions(diagnosticsFormat), compilation);
 

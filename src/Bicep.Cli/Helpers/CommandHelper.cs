@@ -4,8 +4,10 @@
 using System.IO.Abstractions;
 using Bicep.Cli.Logging;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Semantics;
 using Bicep.Core.Utils;
 using Microsoft.Extensions.FileSystemGlobbing;
+using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Helpers;
 
@@ -55,5 +57,13 @@ public static class CommandHelper
     {
         var outputPath = PathHelper.ResolveDefaultOutputPath(inputUri.LocalPath, outputDir, outputFile, PathHelper.GetDefaultBuildOutputPath);
         return PathHelper.FilePathToFileUrl(outputPath);
+    }
+
+    public static void LogExperimentalWarning(ILogger logger, Compilation compilation)
+    {
+        if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping.SourceFiles) is { } warningMessage)
+        {
+            logger.LogWarning(warningMessage);
+        }
     }
 }

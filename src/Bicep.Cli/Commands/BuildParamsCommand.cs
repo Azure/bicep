@@ -18,31 +18,14 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Cli.Commands;
 
-public class BuildParamsCommand : ICommand
+public class BuildParamsCommand(
+    ILogger logger,
+    IEnvironment environment,
+    DiagnosticLogger diagnosticLogger,
+    BicepCompiler compiler,
+    OutputWriter writer,
+    ISourceFileFactory sourceFileFactory) : ICommand
 {
-    private readonly ILogger logger;
-    private readonly IEnvironment environment;
-    private readonly DiagnosticLogger diagnosticLogger;
-    private readonly BicepCompiler compiler;
-    private readonly OutputWriter writer;
-    private readonly ISourceFileFactory sourceFileFactory;
-
-    public BuildParamsCommand(
-        ILogger logger,
-        IEnvironment environment,
-        DiagnosticLogger diagnosticLogger,
-        BicepCompiler compiler,
-        OutputWriter writer,
-        ISourceFileFactory sourceFileFactory)
-    {
-        this.logger = logger;
-        this.environment = environment;
-        this.diagnosticLogger = diagnosticLogger;
-        this.compiler = compiler;
-        this.writer = writer;
-        this.sourceFileFactory = sourceFileFactory;
-    }
-
     public async Task<int> RunAsync(BuildParamsArguments args)
     {
         if (args.InputFile is null)
@@ -75,11 +58,7 @@ public class BuildParamsCommand : ICommand
             skipRestore: noRestore);
 
         ValidateBicepFile(compilation, bicepFileUri);
-
-        if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping) is { } message)
-        {
-            logger.LogWarning(message);
-        }
+        CommandHelper.LogExperimentalWarning(logger, compilation);
 
         var summary = diagnosticLogger.LogDiagnostics(ArgumentHelper.GetDiagnosticOptions(diagnosticsFormat), compilation);
 
@@ -118,7 +97,7 @@ public class BuildParamsCommand : ICommand
     private async Task<Workspace> CreateWorkspaceWithParamOverrides(Uri paramsFileUri)
     {
         var fileContents = await File.ReadAllTextAsync(paramsFileUri.LocalPath);
-        var sourceFile = this.sourceFileFactory.CreateBicepParamFile(paramsFileUri, fileContents);
+        var sourceFile = sourceFileFactory.CreateBicepParamFile(paramsFileUri, fileContents);
         var paramsOverridesJson = environment.GetVariable("BICEP_PARAMETERS_OVERRIDES") ?? "";
 
         var parameters = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(
@@ -128,7 +107,7 @@ public class BuildParamsCommand : ICommand
                 DateParseHandling = DateParseHandling.None,
             });
 
-        sourceFile = ParamsFileHelper.ApplyParameterOverrides(this.sourceFileFactory, sourceFile, parameters ?? []);
+        sourceFile = ParamsFileHelper.ApplyParameterOverrides(sourceFileFactory, sourceFile, parameters ?? []);
 
         var workspace = new Workspace();
         workspace.UpsertSourceFile(sourceFile);

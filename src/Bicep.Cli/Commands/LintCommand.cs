@@ -11,25 +11,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands;
 
-public class LintCommand : ICommand
+public class LintCommand(
+    ILogger logger,
+    IEnvironment environment,
+    DiagnosticLogger diagnosticLogger,
+    BicepCompiler compiler) : ICommand
 {
-    private readonly ILogger logger;
-    private readonly IEnvironment environment;
-    private readonly DiagnosticLogger diagnosticLogger;
-    private readonly BicepCompiler compiler;
-
-    public LintCommand(
-        ILogger logger,
-        IEnvironment environment,
-        DiagnosticLogger diagnosticLogger,
-        BicepCompiler compiler)
-    {
-        this.logger = logger;
-        this.environment = environment;
-        this.diagnosticLogger = diagnosticLogger;
-        this.compiler = compiler;
-    }
-
     public async Task<int> RunAsync(LintArguments args)
     {
         if (args.InputFile is null)
@@ -48,11 +35,7 @@ public class LintCommand : ICommand
     private async Task<DiagnosticSummary> Lint(Uri inputUri, bool noRestore, DiagnosticsFormat? diagnosticsFormat)
     {
         var compilation = await compiler.CreateCompilation(inputUri, skipRestore: noRestore);
-
-        if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping) is { } warningMessage)
-        {
-            logger.LogWarning(warningMessage);
-        }
+        CommandHelper.LogExperimentalWarning(logger, compilation);
 
         var summary = diagnosticLogger.LogDiagnostics(ArgumentHelper.GetDiagnosticOptions(diagnosticsFormat) with { SarifToStdout = true }, compilation);
 

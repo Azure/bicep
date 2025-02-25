@@ -9,22 +9,11 @@ using Bicep.Core.Utils;
 
 namespace Bicep.Cli.Commands;
 
-public class RestoreCommand : ICommand
+public class RestoreCommand(
+    IEnvironment environment,
+    BicepCompiler compiler,
+    DiagnosticLogger diagnosticLogger) : ICommand
 {
-    private readonly IEnvironment environment;
-    private readonly BicepCompiler compiler;
-    private readonly DiagnosticLogger diagnosticLogger;
-
-    public RestoreCommand(
-        IEnvironment environment,
-        BicepCompiler compiler,
-        DiagnosticLogger diagnosticLogger)
-    {
-        this.environment = environment;
-        this.compiler = compiler;
-        this.diagnosticLogger = diagnosticLogger;
-    }
-
     public async Task<int> RunAsync(RestoreArguments args)
     {
         if (args.InputFile is null)
@@ -43,7 +32,7 @@ public class RestoreCommand : ICommand
     private async Task<DiagnosticSummary> Restore(Uri inputUri, bool force)
     {
         var compilation = compiler.CreateCompilationWithoutRestore(inputUri, markAllForRestore: force);
-        var restoreDiagnostics = await this.compiler.Restore(compilation, forceRestore: force);
+        var restoreDiagnostics = await compiler.Restore(compilation, forceRestore: force);
 
         var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, restoreDiagnostics);
 
