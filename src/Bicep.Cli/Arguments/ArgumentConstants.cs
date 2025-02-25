@@ -5,7 +5,6 @@ namespace Bicep.Cli.Arguments;
 
 public static class ArgumentConstants
 {
-    public const string FilePatternRoot = "--pattern-root";
     public const string FilePattern = "--pattern";
     public const string OutFile = "--outfile";
     public const string OutDir = "--outdir";

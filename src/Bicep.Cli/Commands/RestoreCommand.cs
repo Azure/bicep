@@ -54,7 +54,7 @@ public class RestoreCommand : ICommand
     {
         var hasErrors = false;
 
-        foreach (var inputUri in CommandHelper.GetFilesMatchingPattern(environment, args.FilePatternRoot, args.FilePatterns))
+        foreach (var inputUri in CommandHelper.GetFilesMatchingPattern(environment, args.FilePattern))
         {
             ArgumentHelper.ValidateBicepOrBicepParamFile(inputUri);
 

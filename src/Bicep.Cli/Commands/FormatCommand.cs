@@ -109,7 +109,7 @@ public class FormatCommand : ICommand
 
     public void FormatMultiple(FormatArguments args)
     {
-        foreach (var inputUri in CommandHelper.GetFilesMatchingPattern(environment, args.FilePatternRoot, args.FilePatterns))
+        foreach (var inputUri in CommandHelper.GetFilesMatchingPattern(environment, args.FilePattern))
         {
             ArgumentHelper.ValidateBicepOrBicepParamFile(inputUri);
 

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions;
 using Bicep.Cli.Logging;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Utils;
@@ -14,13 +15,37 @@ public static class CommandHelper
         // return non-zero exit code on errors
         => summary.HasErrors ? 1 : 0;
 
-    public static IEnumerable<Uri> GetFilesMatchingPattern(IEnvironment environment, string? filePatternRoot, IEnumerable<string> filePatterns)
+    public static (string rootPath, string remainingPath) SplitFilePatternOnWildcard(string filePattern, char osPathSeparator)
     {
+        var wildcardIndex = filePattern.IndexOf('*');
+        if (wildcardIndex == -1)
+        {
+            wildcardIndex = filePattern.Length;
+        }
+
+        // We intentionally want different behavior on different OSes.
+        // Linux treats \ as a regular character, while Windows treats it as a path separator.
+        var prevDirIndex = filePattern[..wildcardIndex].LastIndexOfAny(['/', osPathSeparator]);
+        var rootPath = prevDirIndex != -1 ? filePattern[..prevDirIndex] : "";
+        var remainingPath = prevDirIndex != -1 ? filePattern[(prevDirIndex + 1)..] : filePattern;
+
+        return (rootPath, remainingPath);
+    }
+
+    public static IEnumerable<Uri> GetFilesMatchingPattern(IEnvironment environment, string? filePattern)
+    {
+        if (filePattern is null)
+        {
+            yield break;
+        }
+
+        var (rootPath, remainingPath) = SplitFilePatternOnWildcard(filePattern, Path.DirectorySeparatorChar);
+        rootPath = PathHelper.ResolvePath(rootPath, baseDirectory: environment.CurrentDirectory);
+
         Matcher matcher = new();
-        matcher.AddIncludePatterns(filePatterns);
+        matcher.AddInclude(remainingPath);
         
-        var fullRootPath = filePatternRoot is {} ? PathHelper.ResolvePath(filePatternRoot) : environment.CurrentDirectory;
-        foreach (var filePath in matcher.GetResultsInFullPath(fullRootPath))
+        foreach (var filePath in matcher.GetResultsInFullPath(rootPath))
         {
             yield return ArgumentHelper.GetFileUri(filePath);
         }

@@ -25,15 +25,9 @@ public class LintArguments : ArgumentsBase
                     i++;
                     break;
 
-                case ArgumentConstants.FilePatternRoot:
-                    ArgumentHelper.ValidateNotAlreadySet(ArgumentConstants.FilePatternRoot, FilePatternRoot);
-                    FilePatternRoot = ArgumentHelper.GetDirectoryPathWithValidation(ArgumentConstants.FilePatternRoot, args, i);
-                    i++;
-                    break;
-
                 case ArgumentConstants.FilePattern:
-                    var value = ArgumentHelper.GetValueWithValidation(ArgumentConstants.FilePattern, args, i);
-                    FilePatterns = FilePatterns.Add(value);
+                    ArgumentHelper.ValidateNotAlreadySet(ArgumentConstants.FilePattern, FilePattern);
+                    FilePattern = ArgumentHelper.GetValueWithValidation(ArgumentConstants.FilePattern, args, i);
                     i++;
                     break;
 
@@ -51,12 +45,12 @@ public class LintArguments : ArgumentsBase
             }
         }
 
-        if (InputFile is null && FilePatterns.IsEmpty)
+        if (InputFile is null && FilePattern is null)
         {
             throw new CommandLineException($"Either the input file path or the {ArgumentConstants.FilePattern} parameter must be specified");
         }
 
-        if (!FilePatterns.IsEmpty)
+        if (FilePattern != null)
         {
             if (InputFile is not null)
             {
@@ -69,9 +63,7 @@ public class LintArguments : ArgumentsBase
 
     public string? InputFile { get; }
 
-    public string? FilePatternRoot { get; }
-
-    public ImmutableArray<string> FilePatterns { get; } = [];
+    public string? FilePattern { get; }
 
     public DiagnosticsFormat? DiagnosticsFormat { get; }
 

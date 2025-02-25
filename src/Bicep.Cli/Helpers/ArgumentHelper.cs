@@ -70,7 +70,7 @@ public class ArgumentHelper
         return args[argPosition + 1];
     }
 
-    public static string GetDirectoryPathWithValidation(string argName, string[] args, int argPosition)
+    public static string GetDirectoryPathValueWithValidation(string argName, string[] args, int argPosition)
     {
         var value = GetValueWithValidation(argName, args, argPosition);
         

@@ -66,8 +66,7 @@ Usage:
       --stdout                       Prints the output to stdout.
       --no-restore                   Builds the bicep file without restoring external modules.
       --diagnostics-format <format>  Sets the format with which diagnostics are displayed. Valid values are ( {string.Join(" | ", Enum.GetNames(typeof(DiagnosticsFormat)))} ).
-      --pattern <pattern>       Builds all files matching the specified glob pattern.
-      --pattern-root <dir>      Sets the root directory used for the --pattern argument. Defaults to the current working directory.
+      --pattern <pattern>            Builds all files matching the specified glob pattern.
 
     Examples:
       bicep build file.bicep
@@ -92,8 +91,7 @@ Usage:
       --indent-kind             Set indentation kind. Valid values are ( Space | Tab ).
       --indent-size             Number of spaces to indent with (Only valid with --indentKind set to Space).
       --insert-final-newline    Insert a final newline.
-      --pattern <pattern>  Formats all files matching the specified glob pattern.
-      --pattern-root <dir> Sets the root directory used for the --pattern argument. Defaults to the current working directory.
+      --pattern <pattern>       Formats all files matching the specified glob pattern.
 
     Examples:
       bicep format file.bicep
@@ -131,8 +129,7 @@ Usage:
     Options:
       --no-restore                   Skips restoring external modules.
       --diagnostics-format <format>  Sets the format with which diagnostics are displayed. Valid values are ( {string.Join(" | ", Enum.GetNames(typeof(DiagnosticsFormat)))} ).
-      --pattern <pattern>       Lints all files matching the specified glob pattern.
-      --pattern-root <dir>      Sets the root directory used for the --pattern argument. Defaults to the current working directory.
+      --pattern <pattern>            Lints all files matching the specified glob pattern.
 
     Examples:
       bicep lint file.bicep
@@ -209,7 +206,6 @@ Usage:
 
     Options:
       --pattern <pattern>  Restores all files matching the specified glob pattern.
-      --pattern-root <dir> Sets the root directory used for the --pattern argument. Defaults to the current working directory.
 
     Examples:
       bicep restore main.bicep
@@ -235,8 +231,7 @@ Usage:
       --stdout                       Prints the output of building both the parameter file (.bicepparam) and the template it points to (.bicep) as json to stdout.
       --no-restore                   Builds the bicep file (referenced in using declaration) without restoring external modules.
       --diagnostics-format <format>  Sets the format with which diagnostics are displayed. Valid values are ( {string.Join(" | ", Enum.GetNames(typeof(DiagnosticsFormat)))} ).
-      --pattern <pattern>       Builds all files matching the specified glob pattern.
-      --pattern-root <dir>      Sets the root directory used for the --pattern argument. Defaults to the current working directory.
+      --pattern <pattern>            Builds all files matching the specified glob pattern.
 
     Examples:
       bicep build-params params.bicepparam

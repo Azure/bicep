@@ -102,7 +102,7 @@ public class BuildParamsCommand : ICommand
     {
         var hasErrors = false;
 
-        foreach (var inputUri in CommandHelper.GetFilesMatchingPattern(environment, args.FilePatternRoot, args.FilePatterns))
+        foreach (var inputUri in CommandHelper.GetFilesMatchingPattern(environment, args.FilePattern))
         {
             ArgumentHelper.ValidateBicepParamFile(inputUri);
 

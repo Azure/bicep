@@ -117,8 +117,7 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
                     .WithContainerRegistryClientFactory(clientFactory)
                     .WithEnvironment(useRootPath ? TestEnvironment.Default : TestEnvironment.Default with { CurrentDirectory = outputPath }),
                 ["restore",
-                ..useRootPath ? new[] {"--pattern-root", outputPath} : [],
-                "--pattern", $"file*.bicep"]);
+                "--pattern", useRootPath ? $"{outputPath}/file*.bicep" : "file*.bicep"]);
 
             result.Should().Be(0);
             error.Should().BeEmpty();

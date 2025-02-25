@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Bicep.Core.Utils;
+using System.IO.Abstractions;
 
 namespace Bicep.Cli.Commands;
 
@@ -84,7 +85,7 @@ public class BuildCommand : ICommand
     {
         var hasErrors = false;
 
-        foreach (var inputUri in CommandHelper.GetFilesMatchingPattern(environment, args.FilePatternRoot, args.FilePatterns))
+        foreach (var inputUri in CommandHelper.GetFilesMatchingPattern(environment, args.FilePattern))
         {
             ArgumentHelper.ValidateBicepFile(inputUri);
 

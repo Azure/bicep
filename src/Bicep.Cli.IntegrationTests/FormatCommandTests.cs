@@ -194,8 +194,7 @@ output myOutput string = 'hello!'
             var (output, error, result) = await Bicep(
                 services => services.WithEnvironment(useRootPath ? TestEnvironment.Default : TestEnvironment.Default with { CurrentDirectory = outputPath }),
                 ["format",
-                ..useRootPath ? new[] {"--pattern-root", outputPath} : [],
-                "--pattern", $"file*.bicep"]);
+                "--pattern", useRootPath ? $"{outputPath}/file*.bicep" : "file*.bicep"]);
 
             result.Should().Be(0);
             error.Should().BeEmpty();
