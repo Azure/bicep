@@ -202,7 +202,10 @@ var multiLineTrailingCommas = map([0], (
 
 var lineBeforeComma = map([0], (
 //@[04:19) [no-unused-vars (Warning)] Variable "lineBeforeComma" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |lineBeforeComma|
+//@[32:37) [BCP243 (Error)] Parentheses must contain exactly one expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP243) |\n  a\n|
   a
   ,b) => 'foo')
+//@[02:03) [BCP018 (Error)] Expected the ")" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) |,|
+//@[15:15) [BCP237 (Error)] Expected a comma character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP237) ||
 
 //@[00:00) [BCP018 (Error)] Expected the ")" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
