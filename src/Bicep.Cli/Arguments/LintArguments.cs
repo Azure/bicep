@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using Bicep.Cli.Helpers;
 
 namespace Bicep.Cli.Arguments;
@@ -18,16 +19,15 @@ public class LintArguments : ArgumentsBase
                     NoRestore = true;
                     break;
 
-                case "--diagnostics-format":
-                    if (args.Length == i + 1)
-                    {
-                        throw new CommandLineException($"The --diagnostics-format parameter expects an argument");
-                    }
-                    if (DiagnosticsFormat is not null)
-                    {
-                        throw new CommandLineException($"The --diagnostics-format parameter cannot be specified twice");
-                    }
-                    DiagnosticsFormat = ArgumentHelper.ToDiagnosticsFormat(args[i + 1]);
+                case ArgumentConstants.DiagnosticsFormat:
+                    ArgumentHelper.ValidateNotAlreadySet(ArgumentConstants.DiagnosticsFormat, DiagnosticsFormat);
+                    DiagnosticsFormat = ArgumentHelper.ToDiagnosticsFormat(ArgumentHelper.GetValueWithValidation(ArgumentConstants.DiagnosticsFormat, args, i));
+                    i++;
+                    break;
+
+                case ArgumentConstants.FilePattern:
+                    ArgumentHelper.ValidateNotAlreadySet(ArgumentConstants.FilePattern, FilePattern);
+                    FilePattern = ArgumentHelper.GetValueWithValidation(ArgumentConstants.FilePattern, args, i);
                     i++;
                     break;
 
@@ -45,18 +45,25 @@ public class LintArguments : ArgumentsBase
             }
         }
 
-        if (InputFile is null)
+        if (InputFile is null && FilePattern is null)
         {
-            throw new CommandLineException($"The input file path was not specified");
+            throw new CommandLineException($"Either the input file path or the {ArgumentConstants.FilePattern} parameter must be specified");
         }
 
-        if (DiagnosticsFormat is null)
+        if (FilePattern != null)
         {
-            DiagnosticsFormat = Arguments.DiagnosticsFormat.Default;
+            if (InputFile is not null)
+            {
+                throw new CommandLineException($"The input file path and the {ArgumentConstants.FilePattern} parameter cannot both be specified");
+            }
         }
+
+        DiagnosticsFormat ??= Arguments.DiagnosticsFormat.Default;
     }
 
-    public string InputFile { get; }
+    public string? InputFile { get; }
+
+    public string? FilePattern { get; }
 
     public DiagnosticsFormat? DiagnosticsFormat { get; }
 

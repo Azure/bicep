@@ -37,11 +37,7 @@ namespace Bicep.Cli.Commands
             ArgumentHelper.ValidateBicepFile(inputUri);
 
             var compilation = await compiler.CreateCompilation(inputUri, forceRestore: args.NoRestore);
-
-            if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping) is { } warningMessage)
-            {
-                logger.LogWarning(warningMessage);
-            }
+            CommandHelper.LogExperimentalWarning(logger, compilation);
 
             var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, compilation);
 

@@ -5,21 +5,21 @@ using Bicep.Core.Utils;
 
 namespace Bicep.Core.UnitTests.Utils;
 
-public class TestEnvironment : IEnvironment
+public record TestEnvironment(
+    ImmutableDictionary<string, string?> Variables,
+    string CurrentDirectory
+) : IEnvironment
 {
-    private readonly ImmutableDictionary<string, string?> variables;
+    public static TestEnvironment Default = new(
+        ImmutableDictionary<string, string?>.Empty,
+        System.Environment.CurrentDirectory);
 
-    public TestEnvironment(ImmutableDictionary<string, string?> variables)
-    {
-        this.variables = variables;
-    }
-
-    public static IEnvironment Create(params (string key, string? value)[] variables)
-        => new TestEnvironment(variables.ToImmutableDictionary(x => x.key, x => x.value));
+    public IEnvironment WithVariables(params (string key, string? value)[] variables)
+        => this with { Variables = variables.ToImmutableDictionary(x => x.key, x => x.value) };
 
     public string? GetVariable(string variable)
-        => variables.TryGetValue(variable, out var value) ? value : null;
+        => Variables.TryGetValue(variable, out var value) ? value : null;
 
     public IEnumerable<string> GetVariableNames()
-        => variables.Keys;
+        => Variables.Keys;
 }

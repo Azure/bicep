@@ -45,7 +45,7 @@ public static class IServiceCollectionExtensions
             .AddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>()
             .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
             .AddSingleton<IFileResolver, FileResolver>()
-            .AddSingleton<IEnvironment>(TestEnvironment.Create())
+            .AddSingleton<IEnvironment>(TestEnvironment.Default)
             .AddSingleton<IFileSystem, LocalFileSystem>()
             .AddSingleton<IFileExplorer, FileSystemFileExplorer>()
             .AddSingleton<IConfigurationManager, ConfigurationManager>()
@@ -92,7 +92,10 @@ public static class IServiceCollectionExtensions
             .AddSingleton<IFeatureProviderFactory, OverriddenFeatureProviderFactory>();
 
     public static IServiceCollection WithEnvironmentVariables(this IServiceCollection services, params (string key, string? value)[] variables)
-        => Register(services, TestEnvironment.Create(variables));
+        => WithEnvironment(services,  TestEnvironment.Default.WithVariables(variables));
+
+    public static IServiceCollection WithEnvironment(this IServiceCollection services, IEnvironment environment)
+        => Register(services, environment);
 
     public static IServiceCollection WithNamespaceProvider(this IServiceCollection services, INamespaceProvider namespaceProvider)
         => Register(services, namespaceProvider);

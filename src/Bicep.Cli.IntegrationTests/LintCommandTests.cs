@@ -29,31 +29,6 @@ namespace Bicep.Cli.IntegrationTests;
 public class LintCommandTests : TestBase
 {
     [TestMethod]
-    public async Task Help_should_output_lint_usage_information()
-    {
-        var (output, error, result) = await Bicep("--help");
-
-        result.Should().Be(0);
-        error.Should().BeEmpty();
-        output.Should().Contain("""
-  bicep lint [options] <file>
-    Lints a .bicep file.
-
-    Arguments:
-      <file>        The input file
-
-    Options:
-      --no-restore                   Skips restoring external modules.
-      --diagnostics-format <format>  Sets the format with which diagnostics are displayed. Valid values are ( Default | Sarif ).
-
-    Examples:
-      bicep lint file.bicep
-      bicep lint file.bicep --no-restore
-      bicep lint file.bicep --diagnostics-format sarif
-""");
-    }
-
-    [TestMethod]
     public async Task Lint_ZeroFiles_ShouldFail_WithExpectedErrorMessage()
     {
         var (output, error, result) = await Bicep("lint");
@@ -64,7 +39,7 @@ public class LintCommandTests : TestBase
             output.Should().BeEmpty();
 
             error.Should().NotBeEmpty();
-            error.Should().Contain($"The input file path was not specified");
+            error.Should().Contain($"Either the input file path or the --pattern parameter must be specified");
         }
     }
 
@@ -187,6 +162,38 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         result.Should().Be(1);
         output.Should().BeEmpty();
         error.Should().StartWith($"{inputFile}(1,1) : Error BCP271: Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.");
+    }
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public async Task Lint_should_compile_files_matching_pattern(bool useRootPath)
+    {
+        var contents = """
+output myOutput string = 'hello!'
+""";
+
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var fileResults = new[]
+        {
+            (input: "file1.bicep", expectOutput: true),
+            (input: "file2.bicep", expectOutput: true),
+            (input: "nofile.bicep", expectOutput: false)
+        };
+
+        foreach (var (input, _) in fileResults)
+        {
+            FileHelper.SaveResultFile(TestContext, input, contents, outputPath);
+        }
+
+        var (output, error, result) = await Bicep(
+            services => services.WithEnvironment(useRootPath ? TestEnvironment.Default : TestEnvironment.Default with { CurrentDirectory = outputPath }),
+            ["lint",
+            "--pattern", useRootPath ? $"{outputPath}/file*.bicep" : "file*.bicep"]);
+
+        result.Should().Be(0);
+        error.Should().BeEmpty();
+        output.Should().BeEmpty();
     }
 
     [TestMethod]

@@ -9,9 +9,9 @@ namespace Bicep.Cli.Helpers;
 
 public static class ExperimentalFeatureWarningProvider
 {
-    public static string? TryGetEnabledExperimentalFeatureWarningMessage(SourceFileGrouping sourceFileGrouping)
+    public static string? TryGetEnabledExperimentalFeatureWarningMessage(IEnumerable<ISourceFile> sourceFiles)
     {
-        var experimentalFeaturesEnabled = sourceFileGrouping.SourceFiles
+        var experimentalFeaturesEnabled = sourceFiles
             .OfType<BicepSourceFile>()
             .Select(file => file.Features)
             .SelectMany(static features => features.EnabledFeatureMetadata.Where(f => f.impactsCompilation).Select(f => f.name))
