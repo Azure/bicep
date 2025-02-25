@@ -36,8 +36,6 @@ namespace Bicep.Core.IntegrationTests.Decorators
             {
                 template.Should().NotHaveValue();
 
-                diagnostics.ExcludingLinterDiagnostics().Should().NotBeEmpty();
-
                 diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                     ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"string\" but the provided value is of type \"'ResourceNotFound' | 1010\".")
                 });
@@ -246,8 +244,6 @@ namespace Bicep.Core.IntegrationTests.Decorators
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-
-                diagnostics.ExcludingLinterDiagnostics().Should().NotBeEmpty();
 
                 diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                     ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"string\" but the provided value is of type \"'ResourceNotFound' | 1010\".")

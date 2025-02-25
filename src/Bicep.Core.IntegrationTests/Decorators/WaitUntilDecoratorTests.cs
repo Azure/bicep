@@ -140,8 +140,6 @@ namespace Bicep.Core.IntegrationTests.Decorators
             {
                 template.Should().NotHaveValue();
 
-                diagnostics.ExcludingLinterDiagnostics().Should().NotBeEmpty();
-
                 diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                     ("BCP070", DiagnosticLevel.Error, "Argument of type \"'PT20S'\" is not assignable to parameter of type \"object => bool\".")
                 });
@@ -163,8 +161,6 @@ namespace Bicep.Core.IntegrationTests.Decorators
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-
-                diagnostics.ExcludingLinterDiagnostics().Should().NotBeEmpty();
 
                 diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                     ("BCP070", DiagnosticLevel.Error, "Argument of type \"1\" is not assignable to parameter of type \"string\".")
@@ -218,8 +214,6 @@ namespace Bicep.Core.IntegrationTests.Decorators
             {
                 template.Should().NotHaveValue();
 
-                diagnostics.ExcludingLinterDiagnostics().Should().NotBeEmpty();
-
                 diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                     ("BCP070", DiagnosticLevel.Error, "Argument of type \"'PT20S'\" is not assignable to parameter of type \"object => bool\".")
                 });
@@ -241,8 +235,6 @@ namespace Bicep.Core.IntegrationTests.Decorators
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-
-                diagnostics.ExcludingLinterDiagnostics().Should().NotBeEmpty();
 
                 diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                     ("BCP070", DiagnosticLevel.Error, "Argument of type \"1\" is not assignable to parameter of type \"string\".")

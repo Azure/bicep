@@ -51,7 +51,7 @@ namespace Bicep.Core.TypeSystem
         /// <param name="diagnosticWriter">Diagnostic writer instance</param>
         public static void GetCompileTimeConstantViolation(SyntaxBase expression, IDiagnosticWriter diagnosticWriter, string? decoratorName = null)
         {
-            if (decoratorName != null && string.Equals(decoratorName, LanguageConstants.WaitUntilPropertyName, StringComparison.InvariantCultureIgnoreCase))
+            if (decoratorName != null && string.Equals(decoratorName, LanguageConstants.WaitUntilPropertyName, LanguageConstants.IdentifierComparison))
             {
                 if (expression is FunctionArgumentSyntax functionArgumentSyntax && functionArgumentSyntax.Expression is LambdaSyntax)
                 {
