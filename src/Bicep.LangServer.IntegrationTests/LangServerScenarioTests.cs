@@ -89,13 +89,9 @@ param foo: string
                     .WithContainerRegistryClientFactory(clientFactory)
                     .AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>();
 
-                // Using a mock IPublicModuleIndexHttpClient here since the test doesn't involve
-                // public registry modules. Otherwise, the test will download the public
-                // registry moduel metadata everytime it runs, and it may be flaky with slow
-                // internet connection due to test time out.
-                var publicModuleIndexHttpClientMock = StrictMock.Of<IPublicModuleIndexHttpClient>();
-                publicModuleIndexHttpClientMock.Setup(x => x.GetModuleIndexAsync()).ReturnsAsync([]);
-
+                // Using a mock IPublicModuleIndexHttpClient since this test doesn't require public registry modules. 
+                // This prevents downloading public registry metadata on each run, avoiding potential flakiness 
+                // or test timeouts caused by slow internet connections.
                 services.AddHttpClient<IPublicModuleIndexHttpClient, MockPublicModuleIndexHttpClient>();
             });
 
