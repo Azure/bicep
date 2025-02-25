@@ -46,7 +46,10 @@ namespace Bicep.IO.InMemory
 
         public Stream OpenWrite() => new InMemoryFileStream(text => this.FileStore.WriteFile(this, text));
 
-        public IFileLock? TryLock() => new InMemoryFileLock(this.FileStore.StoreId + this.Uri.Path);
+        // On Linux, .NET relies on /dev/shm (shared memory) to emulate named mutexes. The mutex name becomes part of
+        // the file path in the filesystem, and slashes are treated as directory separators. If the name contains a slash,
+        // Linux tries to interpret it as a directory which will cause an IOException.
+        public IFileLock? TryLock() => new InMemoryFileLock((this.FileStore.StoreId + this.Uri.Path).Replace('/', '-'));
 
         private class InMemoryFileStream : MemoryStream
         {
