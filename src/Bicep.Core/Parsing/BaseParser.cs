@@ -33,6 +33,10 @@ namespace Bicep.Core.Parsing
 
         public IDiagnosticLookup ParsingErrorLookup => ParsingErrorTree;
 
+        protected delegate SyntaxBase DeclarationParser(IEnumerable<SyntaxBase> leadingNodes);
+
+        protected abstract IReadOnlyDictionary<string, DeclarationParser> DeclarationParsers { get; }
+
         protected SyntaxBase VariableDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.VariableKeyword);
@@ -381,7 +385,7 @@ namespace Bicep.Core.Parsing
         /// <summary>
         /// Method that gets a function call identifier, its arguments plus open and close parens
         /// </summary>
-        protected (IdentifierSyntax Identifier, Token OpenParen, IEnumerable<SyntaxBase> ArgumentNodes, Token CloseParen) FunctionCallAccess(IdentifierSyntax functionName, ExpressionFlags expressionFlags)
+        protected (IdentifierSyntax Identifier, Token OpenParen, IEnumerable<SyntaxBase> ArgumentNodes, SyntaxBase CloseParen) FunctionCallAccess(IdentifierSyntax functionName, ExpressionFlags expressionFlags)
         {
             var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
 
@@ -389,7 +393,10 @@ namespace Bicep.Core.Parsing
                 closingTokenType: TokenType.RightParen,
                 parseChildElement: () => FunctionArgument(expressionFlags));
 
-            var closeParen = this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")"));
+
+            SyntaxBase closeParen = Check(TokenType.RightParen)
+                ? reader.Read()
+                : SkipEmpty(b => b.ExpectedCharacter(")"));
 
             return (functionName, openParen, itemsOrTokens, closeParen);
         }
@@ -432,7 +439,7 @@ namespace Bicep.Core.Parsing
             return new ParameterizedTypeArgumentSyntax(expression);
         }
 
-        protected (IdentifierSyntax Identifier, Token OpenChevron, IEnumerable<SyntaxBase> ParameterNodes, Token CloseChevron) ParameterizedTypeInstantiation(IdentifierSyntax parameterizedTypeName)
+        protected (IdentifierSyntax Identifier, Token OpenChevron, IEnumerable<SyntaxBase> ParameterNodes, SyntaxBase CloseChevron) ParameterizedTypeInstantiation(IdentifierSyntax parameterizedTypeName)
         {
             var openChevron = this.Expect(TokenType.LeftChevron, b => b.ExpectedCharacter("<"));
 
@@ -440,7 +447,9 @@ namespace Bicep.Core.Parsing
                 closingTokenType: TokenType.RightChevron,
                 parseChildElement: ParameterizedTypeArgument);
 
-            var closeChevron = this.Expect(TokenType.RightChevron, b => b.ExpectedCharacter(">"));
+            SyntaxBase closeChevron = Check(TokenType.RightChevron)
+                ? reader.Read()
+                : SkipEmpty(b => b.ExpectedCharacter(">"));
 
             return (parameterizedTypeName, openChevron, itemsOrTokens, closeChevron);
         }
@@ -561,6 +570,8 @@ namespace Bicep.Core.Parsing
 
             itemsOrTokens.AddRange(NewLines());
 
+            var isClosed = RestOfFileContainsTokenOfType(closingTokenType);
+
             var expectElement = true;
             while (!this.IsAtEnd() && this.reader.Peek().Type != closingTokenType)
             {
@@ -582,6 +593,20 @@ namespace Bicep.Core.Parsing
                         }
 
                         itemsOrTokens.AddRange(NewLines());
+
+                        if (
+                            // the element list is unclosed
+                            !isClosed &&
+                            // there are more tokens in the file
+                            !IsAtEnd() &&
+                            // the next token is an identifier
+                            reader.Peek() is { Type: TokenType.Identifier, Text: string possibleKeyword } &&
+                            // the identifier is a keyword introducing a declaration statement
+                            DeclarationParsers.ContainsKey(possibleKeyword))
+                        {
+                            // bail out here to avoid accidentally parsing the next statement as an element of the unclosed argument list
+                            break;
+                        }
                     }
                     else if (Check(TokenType.Comma))
                     {
@@ -614,6 +639,19 @@ namespace Bicep.Core.Parsing
             }
 
             return itemsOrTokens;
+        }
+
+        private bool RestOfFileContainsTokenOfType(TokenType tokenType)
+        {
+            for (int i = 0; this.reader.PeekAhead(i) is not null; i++)
+            {
+                if (this.reader.PeekAhead(i)?.Type == tokenType)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         protected IdentifierSyntax Identifier(DiagnosticBuilder.DiagnosticBuilderDelegate errorFunc)

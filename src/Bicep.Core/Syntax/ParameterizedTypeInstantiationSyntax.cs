@@ -6,7 +6,7 @@ namespace Bicep.Core.Syntax;
 
 public class ParameterizedTypeInstantiationSyntax : ParameterizedTypeInstantiationSyntaxBase
 {
-    public ParameterizedTypeInstantiationSyntax(IdentifierSyntax name, Token openChevron, IEnumerable<SyntaxBase> children, Token closeChevron)
+    public ParameterizedTypeInstantiationSyntax(IdentifierSyntax name, Token openChevron, IEnumerable<SyntaxBase> children, SyntaxBase closeChevron)
         : base(name, openChevron, children, closeChevron) { }
 
     public override TextSpan Span => TextSpan.Between(Name, CloseChevron);

@@ -8,10 +8,11 @@ namespace Bicep.Core.Syntax;
 
 public abstract class ParameterizedTypeInstantiationSyntaxBase : TypeSyntax, ISymbolReference
 {
-    public ParameterizedTypeInstantiationSyntaxBase(IdentifierSyntax name, Token openChevron, IEnumerable<SyntaxBase> children, Token closeChevron)
+    public ParameterizedTypeInstantiationSyntaxBase(IdentifierSyntax name, Token openChevron, IEnumerable<SyntaxBase> children, SyntaxBase closeChevron)
     {
         AssertTokenType(openChevron, nameof(openChevron), TokenType.LeftChevron);
-        AssertTokenType(closeChevron, nameof(closeChevron), TokenType.RightChevron);
+        AssertSyntaxType(closeChevron, nameof(closeChevron), typeof(Token), typeof(SkippedTriviaSyntax));
+        AssertTokenType(closeChevron as Token, nameof(closeChevron), TokenType.RightChevron);
 
         this.Name = name;
         this.OpenChevron = openChevron;
@@ -28,7 +29,7 @@ public abstract class ParameterizedTypeInstantiationSyntaxBase : TypeSyntax, ISy
 
     public ImmutableArray<ParameterizedTypeArgumentSyntax> Arguments { get; }
 
-    public Token CloseChevron { get; }
+    public SyntaxBase CloseChevron { get; }
 
     public ParameterizedTypeArgumentSyntax GetArgumentByPosition(int index) => Arguments[index];
 
