@@ -91,10 +91,11 @@
             "type": "process",
             "args": [
                 "test",
+                "--",
                 "--filter",
                 "TestCategory=Baseline",
-                "--",
-                "TestRunParameters.Parameter(name=\"SetBaseLine\", value=\"true\")",
+                "--test-parameter",
+                "SetBaseLine=true",
             ],
             "problemMatcher": "$msCompile"
         }

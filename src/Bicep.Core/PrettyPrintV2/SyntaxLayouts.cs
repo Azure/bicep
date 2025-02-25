@@ -477,11 +477,9 @@ namespace Bicep.Core.PrettyPrintV2
 
         private IEnumerable<Document> LayoutVariableDeclarationSyntax(VariableDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
-                .Concat(this.Spread(
-                    syntax.Keyword,
-                    syntax.Name,
-                    syntax.Assignment,
-                    syntax.Value));
+                .Concat(syntax.Type is not null
+                    ? Spread(syntax.Keyword, syntax.Name, syntax.Type, syntax.Assignment, syntax.Value)
+                    : Spread(syntax.Keyword, syntax.Name, syntax.Assignment, syntax.Value));
 
         private IEnumerable<Document> LayoutAssertDeclarationSyntax(AssertDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)

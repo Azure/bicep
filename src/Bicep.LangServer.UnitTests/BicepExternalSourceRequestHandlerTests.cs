@@ -24,6 +24,7 @@ using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using static Bicep.Core.UnitTests.Diagnostics.LinterRuleTests.UseRecentApiVersionRuleTests.GetAcceptableApiVersionsInvariantsTests;
 
 namespace Bicep.LangServer.UnitTests.Handlers
 {
@@ -31,9 +32,9 @@ namespace Bicep.LangServer.UnitTests.Handlers
     public class BicepExternalSourceRequestHandlerTests
     {
 #if WINDOWS_BUILD
-        private static string Root(string path) => $"c:\\{path}";
+        private static string Rooted(string path) => $"c:\\{path}";
 #else
-        private static string Root(string path) => $"/{path}";
+        private static string Rooted(string path) => $"/{path}";
 #endif
 
         private static readonly IFileExplorer FileExplorer = new FileSystemFileExplorer(new MockFileSystem(new Dictionary<string, MockFileData>()
@@ -143,7 +144,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(new ResultWithException<SourceArchive>(new SourceNotAvailableException()));
 
             var bicepSource = "metadata hi = 'This is the bicep source file'";
-            var bicepUri = PathHelper.FilePathToFileUrl(Root("foo/bar/entrypoint.bicep"));
+            var bicepUri = PathHelper.FilePathToFileUrl(Rooted("foo/bar/entrypoint.bicep"));
             var sourceArchive = new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).WithBicepFile(bicepUri, bicepSource).Build();
             dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(new ResultWithException<SourceArchive>(sourceArchive));
 
@@ -316,7 +317,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(compiledJsonUri, null));
 
             var bicepSource = "metadata hi = 'This is the bicep source file'";
-            var bicepUri = PathHelper.FilePathToFileUrl(Root("foo/bar/entrypoint.bicep"));
+            var bicepUri = PathHelper.FilePathToFileUrl(Rooted("foo/bar/entrypoint.bicep"));
             var sourceArchive = new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).WithBicepFile(bicepUri, bicepSource).Build();
             dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(new ResultWithException<SourceArchive>(sourceArchive));
 
@@ -368,7 +369,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(compiledJsonUri, null));
 
             var bicepSource = "metadata hi = 'This is the bicep source file'";
-            var bicepUri = PathHelper.FilePathToFileUrl(Root("foo/bar/entrypoint.bicep"));
+            var bicepUri = PathHelper.FilePathToFileUrl(Rooted("foo/bar/entrypoint.bicep"));
             var sourceArchive = new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).WithBicepFile(bicepUri, bicepSource).Build();
             dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(new ResultWithException<SourceArchive>(sourceArchive));
 
@@ -400,14 +401,24 @@ namespace Bicep.LangServer.UnitTests.Handlers
         public void GetExternalSourceLinkUri_FullLink_WithSource()
         {
             Uri result = GetExternalSourceLinkUri(new ExternalSourceLinkTestData());
-            result.Should().Be("bicep-extsrc:br%3Amyregistry.azurecr.io%2Fmyrepo%2Fbicep%2Fmodule1%3Av1%2Fentrypoint.bicep %28module1%3Av1%29?br%3Amyregistry.azurecr.io%2Fmyrepo%2Fbicep%2Fmodule1%3Av1#entrypoint.bicep");
+            //result.Should().Be("bicep-extsrc:br%3Amyregistry.azurecr.io%2Fmyrepo%2Fbicep%2Fmodule1%3Av1%2Fentrypoint.bicep %28module1%3Av1%29?br%3Amyregistry.azurecr.io%2Fmyrepo%2Fbicep%2Fmodule1%3Av1#entrypoint.bicep");
+            DecodeExternalSourceUri(result).FullTitle.Should().Be("br:myregistry.azurecr.io/myrepo/bicep/module1:v1 -> entrypoint.bicep");
         }
 
         [TestMethod]
         public void GetExternalSourceLinkUri_FullLink_WithoutSource()
         {
-            Uri result = GetExternalSourceLinkUri(new ExternalSourceLinkTestData(sourceEntrypoint: null));
-            result.Should().Be("bicep-extsrc:br%3Amyregistry.azurecr.io%2Fmyrepo%2Fbicep%2Fmodule1%3Av1%2Fmain.json %28module1%3Av1%29?br%3Amyregistry.azurecr.io%2Fmyrepo%2Fbicep%2Fmodule1%3Av1");
+            Uri result = GetExternalSourceLinkUri(new ExternalSourceLinkTestData(RelativeEntrypoint: null));
+            //result.Should().Be("bicep-extsrc:br%3Amyregistry.azurecr.io%2Fmyrepo%2Fbicep%2Fmodule1%3Av1%2Fmodule1%3Av1 -> main.json?br%3Amyregistry.azurecr.io%2Fmyrepo%2Fbicep%2Fmodule1%3Av1");
+            DecodeExternalSourceUri(result).FullTitle.Should().Be("br:myregistry.azurecr.io/myrepo/bicep/module1:v1 -> main.json");
+        }
+
+        [TestMethod]
+        public void GetExternalSourceLinkUri_FullLink_WithSource_NoModuleBasePath()
+        {
+            Uri result = GetExternalSourceLinkUri(new ExternalSourceLinkTestData(Repository: "module1"));
+            //result.Should().Be("bicep-extsrc:br%3Amyregistry.azurecr.io%2Fmyrepo%2Fbicep%2Fmodule1%3Av1%2Fentrypoint.bicep %28module1%3Av1%29?br%3Amyregistry.azurecr.io%2Fmyrepo%2Fbicep%2Fmodule1%3Av1#entrypoint.bicep");
+            DecodeExternalSourceUri(result).FullTitle.Should().Be("br:myregistry.azurecr.io/module1:v1 -> entrypoint.bicep");
         }
 
         [DataTestMethod]
@@ -417,22 +428,34 @@ namespace Bicep.LangServer.UnitTests.Handlers
             Uri result = GetExternalSourceLinkUri(testData);
 
             // Source archive entrypoints are always relative to the source root folder, so remove paths
-            var expectedEntrypointFilename = Path.GetFileName(testData.sourceEntrypoint ?? "main.json");
+            var expectedEntrypointFilename = Path.GetFileName(testData.SourceEntrypoint ?? "main.json");
 
-            DecodeExternalSourceUri(result).GetShortTitle().Should().Be($"{expectedEntrypointFilename} ({Path.GetFileName(testData.repository)}{testData.tagOrDigest})");
-            DecodeExternalSourceUri(result).FullTitle.Should().Be($"br:{testData.registry}/{testData.repository}{testData.tagOrDigest}/{expectedEntrypointFilename} ({Path.GetFileName(testData.repository)}{testData.tagOrDigest})");
+            DecodeExternalSourceUri(result).GetShortTitle().Should().Be($"{Path.GetFileName(testData.Repository)}{testData.TagOrDigest} -> {expectedEntrypointFilename}");
+            DecodeExternalSourceUri(result).FullTitle.Should().Be($"br:{testData.Registry}/{testData.Repository}{testData.TagOrDigest} -> {expectedEntrypointFilename}");
         }
 
         [TestMethod]
         public void GetExternalSourceLinkUri_WithExternalModuleFromCache_TitlesShouldBeCorrect()
         {
             var components = OciArtifactAddressComponents.TryParse("myregistry.azurecr.io/myrepo/bicep/module1:v1")
-            .Unwrap();
+                .Unwrap();
             var ext = new ExternalSourceReference(components, new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).Build())
                 .WithRequestForSourceFile("<cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json");
 
-            ext.GetShortTitle().Should().Be("main.json (module1:v1->storage-account:1.0.1)");
-            ext.FullTitle.Should().Be("br:myregistry.azurecr.io/myrepo/bicep/module1:v1/main.json (module1:v1->storage-account:1.0.1)");
+            ext.GetShortTitle().Should().Be("module1:v1 -> storage-account:1.0.1 -> main.json");
+            ext.FullTitle.Should().Be("br:myregistry.azurecr.io/myrepo/bicep/module1:v1 -> storage-account:1.0.1 -> main.json");
+        }
+
+        [TestMethod]
+        public void GetExternalSourceLinkUri_WithRequestedFileInSubfolder_TitlesShouldBeCorrect()
+        {
+            var components = OciArtifactAddressComponents.TryParse("myregistry.azurecr.io/myrepo/bicep/module1:v1")
+                .Unwrap();
+            var ext = new ExternalSourceReference(components, new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).Build())
+                .WithRequestForSourceFile("subfolder1/subfolder 2/my file.bicep");
+
+            ext.GetShortTitle().Should().Be("module1:v1 -> subfolder1>subfolder 2>my file.bicep");
+            ext.FullTitle.Should().Be("br:myregistry.azurecr.io/myrepo/bicep/module1:v1 -> subfolder1>subfolder 2>my file.bicep");
         }
 
         [DataTestMethod]
@@ -440,7 +463,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         public void GetExternalSourceLinkUri_ModuleReferenceShouldBeCorrect(ExternalSourceLinkTestData testData)
         {
             Uri result = GetExternalSourceLinkUri(testData);
-            DecodeExternalSourceUri(result).Components.ArtifactId.Should().Be($"{testData.registry}/{testData.repository}{testData.tagOrDigest}");
+            DecodeExternalSourceUri(result).Components.ArtifactId.Should().Be($"{testData.Registry}/{testData.Repository}{testData.TagOrDigest}");
         }
 
         [DataTestMethod]
@@ -448,7 +471,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         public void GetExternalSourceLinkUri_RequestedFilenameShouldBeCorrect(ExternalSourceLinkTestData testData)
         {
             Uri result = GetExternalSourceLinkUri(testData);
-            var expectedRequestedFile = testData.sourceEntrypoint is null ? "main.json" : Path.GetFileName(testData.sourceEntrypoint);
+            var expectedRequestedFile = testData.SourceEntrypoint is null ? "main.json" : Path.GetFileName(testData.SourceEntrypoint);
             DecodeExternalSourceUri(result).RequestedFile.Should().Be(expectedRequestedFile);
         }
 
@@ -495,7 +518,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var referenceValue = $"{subscriptionId}/{resourceGroupName}/{templateSpecName}:{version}";
 
             var configurationManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
-            var referencingFile = new BicepFile(new Uri("file:///dummy.bicep"), [], SyntaxFactory.EmptyProgram, configurationManager, BicepTestConstants.FeatureProviderFactory, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance); 
+            var referencingFile = new BicepFile(new Uri("file:///dummy.bicep"), [], SyntaxFactory.EmptyProgram, configurationManager, BicepTestConstants.FeatureProviderFactory, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
 
             TemplateSpecModuleReference
                 .TryParse(referencingFile, null, referenceValue)
@@ -510,14 +533,14 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         private Uri GetExternalSourceLinkUri(ExternalSourceLinkTestData testData)
         {
-            Uri? entrypointUri = testData.sourceEntrypoint is { } ? PathHelper.FilePathToFileUrl(testData.sourceEntrypoint) : null;
+            Uri? entrypointUri = testData.SourceEntrypoint is { } ? PathHelper.FilePathToFileUrl(testData.SourceEntrypoint) : null;
             OciArtifactReference reference = new(
                 BicepTestConstants.DummyBicepFile,
                 ArtifactType.Module,
-                testData.registry,
-                testData.repository,
-                testData.tagOrDigest[0] == ':' ? testData.tagOrDigest[1..] : null,
-                testData.tagOrDigest[0] == '@' ? testData.tagOrDigest[1..] : null);
+                testData.Registry,
+                testData.Repository,
+                testData.TagOrDigest[0] == ':' ? testData.TagOrDigest[1..] : null,
+                testData.TagOrDigest[0] == '@' ? testData.TagOrDigest[1..] : null);
 
             SourceArchive? sourceArchive = entrypointUri is { } ?
                 new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).WithBicepFile(entrypointUri, "metadata description = 'bicep module'").Build()
@@ -547,16 +570,14 @@ namespace Bicep.LangServer.UnitTests.Handlers
         }
 
         public record ExternalSourceLinkTestData(
-            string? sourceEntrypoint =
-#if WINDOWS_BUILD
-                "c:\\entrypoint.bicep", // Use null to indicate no source code is available
-#else
-                        "/entrypoint.bicep", // Use null to indicate no source code is available
-#endif
-            string registry = "myregistry.azurecr.io",
-            string repository = "myrepo/bicep/module1",
-            string tagOrDigest = ":v1" // start with @ for digest
-            );
+            string? RelativeEntrypoint = "entrypoint.bicep", // Use null to indicate no source code is available
+            string Registry = "myregistry.azurecr.io",
+            string Repository = "myrepo/bicep/module1",
+            string TagOrDigest = ":v1" // start with @ for digest
+        )
+        {
+            public string? SourceEntrypoint => RelativeEntrypoint is null ? null : Rooted(RelativeEntrypoint);
+        }
 
         private static IEnumerable<object[]> GetExternalSourceLinkTestData()
         {
@@ -568,37 +589,37 @@ namespace Bicep.LangServer.UnitTests.Handlers
             static IEnumerable<ExternalSourceLinkTestData> GetData()
             {
                 // vary entrypoint (any valid file path character)
-                yield return new ExternalSourceLinkTestData(sourceEntrypoint: Root("main.bicep"));
-                yield return new ExternalSourceLinkTestData(sourceEntrypoint: Root("my main.bicep"));
-                yield return new ExternalSourceLinkTestData(sourceEntrypoint: Root("my+main.bicep"));
-                yield return new ExternalSourceLinkTestData(sourceEntrypoint: Root("my$main.bicep"));
-                yield return new ExternalSourceLinkTestData(sourceEntrypoint: Root("my#main.bicep"));
-                yield return new ExternalSourceLinkTestData(sourceEntrypoint: Root("my(main).bicep"));
-                yield return new ExternalSourceLinkTestData(sourceEntrypoint: Root("my%main.bicep"));
-                yield return new ExternalSourceLinkTestData(sourceEntrypoint: Root("subfolder/main.bicep"));
-                yield return new ExternalSourceLinkTestData(sourceEntrypoint: Root("sub folder/my main.bicep"));
+                yield return new ExternalSourceLinkTestData(RelativeEntrypoint: "main.bicep");
+                yield return new ExternalSourceLinkTestData(RelativeEntrypoint: "my main.bicep");
+                yield return new ExternalSourceLinkTestData(RelativeEntrypoint: "my+main.bicep");
+                yield return new ExternalSourceLinkTestData(RelativeEntrypoint: "my$main.bicep");
+                yield return new ExternalSourceLinkTestData(RelativeEntrypoint: "my#main.bicep");
+                yield return new ExternalSourceLinkTestData(RelativeEntrypoint: "my(main).bicep");
+                yield return new ExternalSourceLinkTestData(RelativeEntrypoint: "my%main.bicep");
+                yield return new ExternalSourceLinkTestData(RelativeEntrypoint: "subfolder/main.bicep");
+                yield return new ExternalSourceLinkTestData(RelativeEntrypoint: "sub folder/my main.bicep");
 
                 // vary registry (can only be lower-case alphanumeric and '.', '_', '-')
-                yield return new ExternalSourceLinkTestData(registry: "myregistry.azurecr.io");
-                yield return new ExternalSourceLinkTestData(registry: "hello.my_registry.azurecr.io");
-                yield return new ExternalSourceLinkTestData(registry: "hello.my-registry.azurecr.io");
+                yield return new ExternalSourceLinkTestData(Registry: "myregistry.azurecr.io");
+                yield return new ExternalSourceLinkTestData(Registry: "hello.my_registry.azurecr.io");
+                yield return new ExternalSourceLinkTestData(Registry: "hello.my-registry.azurecr.io");
 
                 // vary repo (can only be lower-case alphanumeric and '.', '_', '-')
-                yield return new ExternalSourceLinkTestData(registry: "myrepo");
-                yield return new ExternalSourceLinkTestData(registry: "myrepo/bicep");
-                yield return new ExternalSourceLinkTestData(registry: "myrepo/bicep/module1");
-                yield return new ExternalSourceLinkTestData(registry: "myrepo/bicep/mod-ul-e1");
-                yield return new ExternalSourceLinkTestData(registry: "my-repo/bicep/mod.ul.e1");
-                yield return new ExternalSourceLinkTestData(registry: "my-repo/bicep/mod_ul_e1");
+                yield return new ExternalSourceLinkTestData(Registry: "myrepo");
+                yield return new ExternalSourceLinkTestData(Registry: "myrepo/bicep");
+                yield return new ExternalSourceLinkTestData(Registry: "myrepo/bicep/module1");
+                yield return new ExternalSourceLinkTestData(Registry: "myrepo/bicep/mod-ul-e1");
+                yield return new ExternalSourceLinkTestData(Registry: "my-repo/bicep/mod.ul.e1");
+                yield return new ExternalSourceLinkTestData(Registry: "my-repo/bicep/mod_ul_e1");
 
                 // vary tag/digest (valid tag characters are alphanumeric, ".", "_", or "-" but the tag cannot begin with ".", "_", or "-")
-                yield return new ExternalSourceLinkTestData(tagOrDigest: ":v1");
-                yield return new ExternalSourceLinkTestData(tagOrDigest: ":v1.2");
-                yield return new ExternalSourceLinkTestData(tagOrDigest: ":1.2.3");
-                yield return new ExternalSourceLinkTestData(tagOrDigest: ":v-1");
-                yield return new ExternalSourceLinkTestData(tagOrDigest: ":v_1");
-                yield return new ExternalSourceLinkTestData(tagOrDigest: ":whoa");
-                yield return new ExternalSourceLinkTestData(tagOrDigest: "@sha256:02345342df02345342df02345342df02345342df02345342df02345342df1234");
+                yield return new ExternalSourceLinkTestData(TagOrDigest: ":v1");
+                yield return new ExternalSourceLinkTestData(TagOrDigest: ":v1.2");
+                yield return new ExternalSourceLinkTestData(TagOrDigest: ":1.2.3");
+                yield return new ExternalSourceLinkTestData(TagOrDigest: ":v-1");
+                yield return new ExternalSourceLinkTestData(TagOrDigest: ":v_1");
+                yield return new ExternalSourceLinkTestData(TagOrDigest: ":whoa");
+                yield return new ExternalSourceLinkTestData(TagOrDigest: "@sha256:02345342df02345342df02345342df02345342df02345342df02345342df1234");
             }
         }
 

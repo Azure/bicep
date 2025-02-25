@@ -34,7 +34,8 @@ namespace Bicep.Core.Syntax
 
         public IdentifierSyntax? Alias => (this.AsClause as AliasAsClauseSyntax)?.Alias;
 
-        public string? TryGetSymbolName() => (this.Alias, this.SpecificationString) switch {
+        public string? TryGetSymbolName() => (this.Alias, this.SpecificationString) switch
+        {
             (not null, _) => this.Alias.IdentifierName,
             (null, IdentifierSyntax value) => value.IdentifierName,
             _ => null,

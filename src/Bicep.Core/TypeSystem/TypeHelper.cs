@@ -261,9 +261,10 @@ namespace Bicep.Core.TypeSystem
                 }
             }
 
-            if (!isSafeAccess && flags.HasFlag(TypePropertyFlags.FallbackProperty))
+            if (flags.HasFlag(TypePropertyFlags.FallbackProperty))
             {
-                diagnostics.Write(DiagnosticBuilder.ForPosition(propertyExpressionPositionable).FallbackPropertyUsed(propertyName));
+                diagnostics.Write(DiagnosticBuilder.ForPosition(propertyExpressionPositionable)
+                    .FallbackPropertyUsed(shouldDowngrade: isSafeAccess, propertyName));
             }
 
             return null;

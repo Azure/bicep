@@ -107,29 +107,29 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         [DataRow(@"
             targetScope = 'managementGroup'
-            var notLocation object = deployment2().location
+            param notLocation object = deployment2().location
           ",
             OnCompileErrors.Ignore)]
         [DataRow(@"
             targetScope = 'managementGroup'
-            var notLocation  string = sys.deployment().location
+            param notLocation  string = sys.deployment().location
           ",
             OnCompileErrors.Ignore)]
         [DataRow(@"
             targetScope = 'managementGroup'
-            var notLocation  string = DEPLOYMENT().location
+            param notLocation  string = DEPLOYMENT().location
           ",
             OnCompileErrors.Ignore)]
         [DataRow(@"
-            var notLocation  object = myresourceGroup().location
+            param notLocation  object = myresourceGroup().location
           ",
             OnCompileErrors.Ignore)]
         [DataRow(@"
-            var notLocation  string = sys.resourceGroup().location
+            param notLocation  string = sys.resourceGroup().location
           ",
             OnCompileErrors.Ignore)]
         [DataRow(@"
-            var notLocation string = ResourceGroup().location
+            param notLocation string = ResourceGroup().location
           ",
             OnCompileErrors.Ignore)]
         [DataTestMethod]

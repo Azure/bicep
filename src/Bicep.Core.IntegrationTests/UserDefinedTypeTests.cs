@@ -1862,4 +1862,35 @@ param myParam string
             ("BCP411", DiagnosticLevel.Error, """The type "any" cannot be used in a type assignment because it does not fit within one of ARM's primitive type categories (string, int, bool, array, object). If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
         });
     }
+
+    [TestMethod]
+    public void Diagnostic_should_be_emitted_for_safe_access_of_non_existent_property()
+    {
+        var result = CompilationHelper.Compile("""
+            param unsealed {
+              requiredProperty: string
+            }
+
+            output x string = unsealed.?undeclaredProperty
+            """);
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP187", DiagnosticLevel.Info, "The property \"undeclaredProperty\" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+        });
+    }
+
+    [TestMethod]
+    public void Accessing_property_of_resource_derived_type_when_feature_is_disabled_raises_useful_error()
+    {
+        var result = CompilationHelper.Compile("""
+            param probes resourceInput<'Microsoft.App/containerApps@2024-10-02-preview'>.properties.templates.containers[*].probes
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP302", DiagnosticLevel.Error, "The name \"resourceInput\" is not a valid type. Please specify one of the following types: \"array\", \"bool\", \"int\", \"object\", \"string\"."),
+        });
+    }
 }

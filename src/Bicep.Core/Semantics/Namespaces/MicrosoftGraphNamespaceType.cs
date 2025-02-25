@@ -12,7 +12,6 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.MicrosoftGraph;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Workspaces;
-using Microsoft.Graph.Bicep.Types;
 using static Bicep.Core.TypeSystem.Providers.ThirdParty.ThirdPartyResourceTypeLoader;
 
 namespace Bicep.Core.Semantics.Namespaces
@@ -24,27 +23,12 @@ namespace Bicep.Core.Semantics.Namespaces
         public const string BicepExtensionBetaName = "MicrosoftGraphBeta";
         public const string BicepExtensionV10Name = "MicrosoftGraphV1.0";
 
-        private static readonly Lazy<IResourceTypeProvider> TypeProviderLazy
-            = new(() => new MicrosoftGraphResourceTypeProvider(new MicrosoftGraphResourceTypeLoader()));
-
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: false,
             BicepExtensionName: BuiltInName,
             ConfigurationType: null,
             TemplateExtensionName: TemplateExtensionName,
             TemplateExtensionVersion: "1.0.0");
-
-        public static NamespaceType Create(string aliasName)
-        {
-            return new NamespaceType(
-                aliasName,
-                Settings,
-                ImmutableArray<NamedTypeProperty>.Empty,
-                ImmutableArray<FunctionOverload>.Empty,
-                ImmutableArray<BannedFunction>.Empty,
-                ImmutableArray<Decorator>.Empty,
-                TypeProviderLazy.Value);
-        }
 
         public static NamespaceType Create(string? aliasName, IResourceTypeProvider resourceTypeProvider, ArtifactReference? artifact)
         {

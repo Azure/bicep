@@ -137,7 +137,7 @@ public class NamespaceProvider : INamespaceProvider
         ExtensionDeclarationSyntax? syntax,
         string extensionName)
     {
-        var aliasName =  syntax?.TryGetSymbolName() ?? extensionName;
+        var aliasName = syntax?.TryGetSymbolName() ?? extensionName;
         var diagBuilder = syntax is { } ? DiagnosticBuilder.ForPosition(syntax) : DiagnosticBuilder.ForDocumentStart();
 
         if (artifact is { })
@@ -162,14 +162,15 @@ public class NamespaceProvider : INamespaceProvider
             return AzNamespaceType.Create(aliasName, targetScope, resourceTypeProviderFactory.GetBuiltInAzResourceTypesProvider(), sourceFile.FileKind);
         }
 
-        if (LanguageConstants.IdentifierComparer.Equals(extensionName, MicrosoftGraphNamespaceType.BuiltInName))
-        {
-            return MicrosoftGraphNamespaceType.Create(aliasName);
-        }
-
         if (LanguageConstants.IdentifierComparer.Equals(extensionName, K8sNamespaceType.BuiltInName))
         {
             return K8sNamespaceType.Create(aliasName);
+        }
+
+        // microsoftGraph built-in extension is no longer supported.
+        if (LanguageConstants.IdentifierComparer.Equals(extensionName, MicrosoftGraphNamespaceType.BuiltInName))
+        {
+            return ErrorType.Create(diagBuilder.MicrosoftGraphBuiltinRetired(syntax));
         }
 
         return ErrorType.Create(diagBuilder.InvalidExtension_NotABuiltInExtension(sourceFile.Configuration.ConfigFileUri, extensionName));

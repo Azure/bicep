@@ -3,7 +3,6 @@
 
 using Bicep.Core.Features;
 using Bicep.IO.Abstraction;
-using Bicep.Core.Registry.PublicRegistry;
 
 namespace Bicep.Core.UnitTests.Features;
 
@@ -49,6 +48,8 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool ResourceInfoCodegenEnabled => overrides.ResourceInfoCodegenEnabled ?? features.ResourceInfoCodegenEnabled;
 
     public bool ExtendableParamFilesEnabled => overrides.ExtendableParamFilesEnabled ?? features.ExtendableParamFilesEnabled;
+
+    public bool TypedVariablesEnabled => overrides.TypedVariablesEnabled ?? features.TypedVariablesEnabled;
 
     public bool ExtensibilityV2EmittingEnabled => overrides.ExtensibilityV2EmittingEnabled ?? features.ExtensibilityV2EmittingEnabled;
 }

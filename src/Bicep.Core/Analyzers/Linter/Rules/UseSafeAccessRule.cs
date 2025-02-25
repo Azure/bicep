@@ -73,7 +73,7 @@ public sealed class UseSafeAccessRule : LinterRuleBase
 
         foreach (var access in SyntaxAggregator.AggregateByType<AccessExpressionSyntax>(model.Root.Syntax))
         {
-            if (access.IsSafeAccess)
+            if (access.IsSafeAccess || model.Binder.GetParent(access) is NonNullAssertionSyntax)
             {
                 continue;
             }

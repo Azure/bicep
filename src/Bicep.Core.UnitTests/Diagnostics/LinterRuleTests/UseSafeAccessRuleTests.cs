@@ -240,4 +240,13 @@ output bar string? = foo.outputs[?'bar']
 supportingFiles: [new("module.bicep", """
 output bar string? = null
 """)]);
+
+    [TestMethod]
+    public void Rule_ignores_access_with_null_forgiving_operator() => AssertNoDiagnostics("""
+        param foo {
+          optionalProperty: string?
+        }
+
+        output bar string = foo.optionalProperty!
+        """);
 }

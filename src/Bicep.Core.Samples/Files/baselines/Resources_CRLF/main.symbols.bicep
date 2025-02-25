@@ -187,13 +187,13 @@ resource resourceA 'My.Rp/typeA@2020-01-01' = {
 }
 
 resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
-//@[09:018) Resource resourceB. Type: My.Rp/typeA/typeB@2020-01-01. Declaration start char: 0, length: 92
-  name: '${resourceA.name}/myName'
+//@[09:018) Resource resourceB. Type: My.Rp/typeA/typeB@2020-01-01. Declaration start char: 0, length: 95
+  name: '${resourceA.name}/resourceB'
 }
 
 resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
-//@[09:018) Resource resourceC. Type: My.Rp/typeA/typeB@2020-01-01. Declaration start char: 0, length: 269
-  name: '${resourceA.name}/myName'
+//@[09:018) Resource resourceC. Type: My.Rp/typeA/typeB@2020-01-01. Declaration start char: 0, length: 272
+  name: '${resourceA.name}/resourceC'
   properties: {
     aId: resourceA.id
     aType: resourceA.type
@@ -516,8 +516,8 @@ output p1_subnet1id string = p1_subnet1.id
 
 // parent property with extension resource
 resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
-//@[09:016) Resource p2_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 76
-  name: 'res1'
+//@[09:016) Resource p2_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 78
+  name: 'p2res1'
 }
 
 resource p2_res1child 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
@@ -549,8 +549,8 @@ output p2_res2childid string = p2_res2child.id
 
 // parent property with 'existing' resource
 resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
-//@[09:016) Resource p3_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 85
-  name: 'res1'
+//@[09:016) Resource p3_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 87
+  name: 'p3res1'
 }
 
 resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
@@ -570,9 +570,9 @@ output p3_res1childid string = p3_child1.id
 
 // parent & child with 'existing'
 resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
-//@[09:016) Resource p4_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 104
+//@[09:016) Resource p4_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 106
   scope: tenant()
-  name: 'res1'
+  name: 'p4res1'
 }
 
 resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {

@@ -4,7 +4,7 @@
 import type { VscodeMessage } from "../messages";
 
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { App } from "../components/App";
 import {
   createDeploymentDataMessage,
@@ -60,111 +60,109 @@ beforeEach(() => {
 
 afterEach(() => vi.resetAllMocks());
 
-describe("App", () => {
-  it("renders the loading spinner before initialization", async () => {
-    const { container } = render(<App />);
-    expect(container).toMatchSnapshot();
+it("renders the loading spinner before initialization", async () => {
+  const { container } = render(<App />);
+  expect(container).toMatchSnapshot();
+});
+
+it("renders the App component with deployment state", async () => {
+  const { container } = render(<App />);
+
+  await initialize();
+
+  expect(container).toMatchSnapshot();
+});
+
+it("runs a deployment", async () => {
+  const { container } = render(<App />);
+
+  const scope = await initialize();
+
+  const deployButton = screen.getByText("Deploy");
+  fireEvent.click(deployButton);
+
+  await act(async () => {
+    await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createGetAccessTokenMessage(scope)));
+    sendMessage(getAccessTokenResultMessage());
   });
 
-  it("renders the App component with deployment state", async () => {
-    const { container } = render(<App />);
+  expect(container).toMatchSnapshot();
+});
 
-    await initialize();
+it("handles synchronous deployment failures correctly", async () => {
+  const { container } = render(<App />);
 
-    expect(container).toMatchSnapshot();
+  const scope = await initialize();
+
+  mockClient.deployments.beginCreateOrUpdateAtScope.mockImplementation(async () => {
+    throw new Error("Deployment failed");
   });
 
-  it("runs a deployment", async () => {
-    const { container } = render(<App />);
+  const deployButton = screen.getByText("Deploy");
+  fireEvent.click(deployButton);
 
-    const scope = await initialize();
-
-    const deployButton = screen.getByText("Deploy");
-    fireEvent.click(deployButton);
-
-    await act(async () => {
-      await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createGetAccessTokenMessage(scope)));
-      sendMessage(getAccessTokenResultMessage());
-    });
-
-    expect(container).toMatchSnapshot();
+  await act(async () => {
+    await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createGetAccessTokenMessage(scope)));
+    sendMessage(getAccessTokenResultMessage());
   });
 
-  it("handles synchronous deployment failures correctly", async () => {
-    const { container } = render(<App />);
+  expect(mockClient.deploymentOperations.listAtScope).not.toHaveBeenCalled();
+  expect(container).toMatchSnapshot();
+});
 
-    const scope = await initialize();
+it("validates a deployment", async () => {
+  const { container } = render(<App />);
 
-    mockClient.deployments.beginCreateOrUpdateAtScope.mockImplementation(async () => {
-      throw new Error("Deployment failed");
-    });
+  const scope = await initialize();
 
-    const deployButton = screen.getByText("Deploy");
-    fireEvent.click(deployButton);
+  const validateButton = screen.getByText("Validate");
+  fireEvent.click(validateButton);
 
-    await act(async () => {
-      await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createGetAccessTokenMessage(scope)));
-      sendMessage(getAccessTokenResultMessage());
-    });
-
-    expect(mockClient.deploymentOperations.listAtScope).not.toHaveBeenCalled();
-    expect(container).toMatchSnapshot();
+  await act(async () => {
+    await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createGetAccessTokenMessage(scope)));
+    sendMessage(getAccessTokenResultMessage());
   });
 
-  it("validates a deployment", async () => {
-    const { container } = render(<App />);
+  expect(container).toMatchSnapshot();
+});
 
-    const scope = await initialize();
+it("what-ifs a deployment", async () => {
+  const { container } = render(<App />);
 
-    const validateButton = screen.getByText("Validate");
-    fireEvent.click(validateButton);
+  const scope = await initialize();
 
-    await act(async () => {
-      await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createGetAccessTokenMessage(scope)));
-      sendMessage(getAccessTokenResultMessage());
-    });
+  const whatIfButton = screen.getByText("What-If");
+  fireEvent.click(whatIfButton);
 
-    expect(container).toMatchSnapshot();
+  await act(async () => {
+    await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createGetAccessTokenMessage(scope)));
+    sendMessage(getAccessTokenResultMessage());
   });
 
-  it("what-ifs a deployment", async () => {
-    const { container } = render(<App />);
+  expect(container).toMatchSnapshot();
+});
 
-    const scope = await initialize();
+it("supports the scope picker", async () => {
+  const { container } = render(<App />);
 
-    const whatIfButton = screen.getByText("What-If");
-    fireEvent.click(whatIfButton);
+  const scope = await initialize();
 
-    await act(async () => {
-      await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createGetAccessTokenMessage(scope)));
-      sendMessage(getAccessTokenResultMessage());
-    });
+  const changeScopeButton = screen.getByText("Change Scope");
+  fireEvent.click(changeScopeButton);
 
-    expect(container).toMatchSnapshot();
+  await act(async () => {
+    await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createGetDeploymentScopeMessage("resourceGroup")));
+    sendMessage(
+      createGetDeploymentScopeResultMessage({
+        ...scope,
+        tenantId: "newTenantId",
+        subscriptionId: "newSubscriptionId",
+        resourceGroup: "newResourceGroup",
+      }),
+    );
   });
 
-  it("supports the scope picker", async () => {
-    const { container } = render(<App />);
-
-    const scope = await initialize();
-
-    const changeScopeButton = screen.getByText("Change Scope");
-    fireEvent.click(changeScopeButton);
-
-    await act(async () => {
-      await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createGetDeploymentScopeMessage("resourceGroup")));
-      sendMessage(
-        createGetDeploymentScopeResultMessage({
-          ...scope,
-          tenantId: "newTenantId",
-          subscriptionId: "newSubscriptionId",
-          resourceGroup: "newResourceGroup",
-        }),
-      );
-    });
-
-    expect(container).toMatchSnapshot();
-  });
+  expect(container).toMatchSnapshot();
 });
 
 async function initialize() {

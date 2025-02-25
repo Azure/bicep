@@ -979,7 +979,8 @@ namespace Bicep.Core.Diagnostics
                 "BCP186",
                 $"Unable to parse literal JSON value. Please ensure that it is well-formed.");
 
-            public Diagnostic FallbackPropertyUsed(string property) => CoreWarning(
+            public Diagnostic FallbackPropertyUsed(bool shouldDowngrade, string property) => CoreDiagnostic(
+                shouldDowngrade ? DiagnosticLevel.Info : DiagnosticLevel.Warning,
                 "BCP187",
                 $"The property \"{property}\" does not exist in the resource or type definition, although it might still be valid.{TypeInaccuracyClause}");
 
@@ -1822,18 +1823,18 @@ namespace Bicep.Core.Diagnostics
                 "BCP406",
                 $"The \"{LanguageConstants.ExtendsKeyword}\" keyword is not supported");
 
-            public Diagnostic MicrosoftGraphBuiltinDeprecatedSoon(ExtensionDeclarationSyntax syntax)
+            public Diagnostic MicrosoftGraphBuiltinRetired(ExtensionDeclarationSyntax? syntax)
             {
-                var msGraphRegistryPath = "br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview";
+                var msGraphRegistryPath = "br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.9-preview";
                 var codeFix = new CodeFix(
                     $"Replace built-in extension \'microsoftGraph\' with dynamic types registry path",
                     true,
                     CodeFixKind.QuickFix,
-                    new CodeReplacement(syntax.SpecificationString.Span, $"\'{msGraphRegistryPath}\'"));
+                    new CodeReplacement(syntax?.SpecificationString.Span ?? TextSpan, $"\'{msGraphRegistryPath}\'"));
 
-                return CoreWarning(
+                return CoreError(
                 "BCP407",
-                $"Built-in extension \"microsoftGraph\" is deprecated. Use dynamic types instead. See https://aka.ms/graphBicepDynamicTypes")
+                $"Built-in extension \"microsoftGraph\" is retired. Use dynamic types instead. See https://aka.ms/graphBicepDynamicTypes")
                 with
                 {
                     Fixes = [codeFix]
@@ -1871,6 +1872,14 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic TypeExpressionResolvesToUnassignableType(TypeSymbol type) => CoreError(
                 "BCP411",
                 $"The type \"{type}\" cannot be used in a type assignment because it does not fit within one of ARM's primitive type categories (string, int, bool, array, object).{TypeInaccuracyClause}");
+
+            public Diagnostic InvalidVariableType(IEnumerable<string> validTypes) => CoreError(
+                "BCP412",
+                $"The variable type is not valid. Please specify one of the following types: {ToQuotedString(validTypes)}.");
+
+            public Diagnostic TypedVariablesUnsupported() => CoreError(
+                "BCP413",
+                $"""Using typed variables requires enabling EXPERIMENTAL feature "{nameof(ExperimentalFeaturesEnabled.TypedVariables)}".""");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

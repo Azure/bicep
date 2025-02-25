@@ -126,7 +126,7 @@ namespace Bicep.LanguageServer.Handlers
         private static IEnumerable<CodeFix> GetCodeFixes(SemanticModel model, IReadOnlyList<SyntaxBase> matchingNodes)
         {
             ICodeFixProvider[] providers = [
-                ..GetDecoratorCodeFixProviders(model),
+                .. GetDecoratorCodeFixProviders(model),
                 new ExpressionAndTypeExtractor(model),
                 new MultilineStringCodeFixProvider(),
             ];

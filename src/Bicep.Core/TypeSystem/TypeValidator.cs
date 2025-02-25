@@ -1139,7 +1139,8 @@ namespace Bicep.Core.TypeSystem
 
                         if (declaredProperty.Flags.HasFlag(TypePropertyFlags.FallbackProperty))
                         {
-                            diagnosticWriter.Write(config.OriginSyntax ?? declaredPropertySyntax?.Key ?? expression, x => x.FallbackPropertyUsed(declaredProperty.Name));
+                            diagnosticWriter.Write(config.OriginSyntax ?? declaredPropertySyntax?.Key ?? expression,
+                                x => x.FallbackPropertyUsed(shouldDowngrade: false, declaredProperty.Name));
                         }
 
                         var newConfig = new TypeValidatorConfig(

@@ -412,11 +412,12 @@ namespace Bicep.Core.Syntax
         public static ParenthesizedExpressionSyntax CreateParenthesized(SyntaxBase inner)
             => new(LeftParenToken, inner, RightParenToken);
 
-        public static VariableDeclarationSyntax CreateVariableDeclaration(string name, SyntaxBase value, IEnumerable<SyntaxBase>? leadingNodes = null)
+        public static VariableDeclarationSyntax CreateVariableDeclaration(string name, SyntaxBase value, SyntaxBase? type = null, IEnumerable<SyntaxBase>? leadingNodes = null)
             => new(
                 leadingNodes ?? [],
                 VariableKeywordToken,
                 CreateIdentifierWithTrailingSpace(name),
+                type,
                 AssignmentToken,
                 value);
 

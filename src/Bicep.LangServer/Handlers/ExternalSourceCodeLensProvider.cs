@@ -82,7 +82,7 @@ namespace Bicep.LanguageServer.Handlers
                                 var artifactId = externalReference.Components.ArtifactId;
                                 yield return CreateCodeLens(
                                     DocumentStart,
-                                    $"Show compiled JSON for module {moduleName} ({OciArtifactReferenceFacts.Scheme}:{artifactId})",
+                                    $"Show the compiled JSON for module \"{moduleName}\" ({OciArtifactReferenceFacts.Scheme}:{artifactId})",
                                     "bicep.internal.showModuleSourceFile",
                                     new ExternalSourceReference(request.TextDocument.Uri).WithRequestForCompiledJson().ToUri().ToString());
                             }

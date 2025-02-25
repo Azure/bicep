@@ -62,7 +62,7 @@ namespace Bicep.Core.UnitTests.Utils
             return SourceArchive.PackSourcesIntoStream(
                 EntrypointFile.Uri,
                 null,
-                SourceFiles.Select(x => new SourceFileWithArtifactReference(x, null)).ToArray());
+                [.. SourceFiles.Select(x => new SourceFileWithArtifactReference(x, null))]);
         }
 
         public BinaryData BuildBinaryData()

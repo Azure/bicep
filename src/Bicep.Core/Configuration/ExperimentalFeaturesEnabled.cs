@@ -21,7 +21,8 @@ public record ExperimentalFeaturesEnabled(
     bool LocalDeploy,
     bool ResourceDerivedTypes,
     bool SecureOutputs,
-    bool ResourceInfoCodegen)
+    bool ResourceInfoCodegen,
+    bool TypedVariables)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();

@@ -828,7 +828,7 @@ resource res1 'Microsoft.Rp1/resource1@2020-06-01' = {
   }
 
   resource res3 'child' = {
-    name: '${res1.name}/res2'
+    name: '${res1.name}/res3'
   }
 }
 ");

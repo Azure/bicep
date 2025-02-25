@@ -23,7 +23,6 @@ namespace Bicep.Core.IntegrationTests
             {
               "az": "builtin:",
               "kubernetes": "builtin:",
-              "microsoftGraph": "builtin:",
               "foo": "builtin:",
               "bar": "builtin:"
             }

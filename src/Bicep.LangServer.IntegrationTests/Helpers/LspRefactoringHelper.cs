@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Text.RegularExpressions;
 using Bicep.Core.Text;
 using Bicep.LangServer.IntegrationTests.Helpers;
-using FluentAssertions;
 using Bicep.LanguageServer.Extensions;
+using Bicep.LanguageServer.Utils;
+using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
-using Bicep.LanguageServer.Utils;
-using System.Text.RegularExpressions;
 
 public static class LspRefactoringHelper
 {

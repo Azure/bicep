@@ -28,9 +28,9 @@ var missingValue =
 var 2 
 //@[04:05) Variable <error>. Type: error. Declaration start char: 0, length: 6
 var $ = 23
-//@[04:05) Variable <error>. Type: 23. Declaration start char: 0, length: 10
+//@[04:10) Variable <error>. Type: error. Declaration start char: 0, length: 10
 var # 33 = 43
-//@[04:08) Variable <error>. Type: 43. Declaration start char: 0, length: 13
+//@[04:13) Variable <error>. Type: error. Declaration start char: 0, length: 13
 
 // no value assigned
 var foo =
@@ -44,7 +44,7 @@ var badEquals2 3 true
 
 // malformed identifier but type check should happen regardless
 var 2 = x
-//@[04:05) Variable <error>. Type: error. Declaration start char: 0, length: 9
+//@[04:07) Variable <error>. Type: error. Declaration start char: 0, length: 9
 
 // bad token value
 var foo = &
@@ -218,7 +218,7 @@ var anotherThing = true
 
 // invalid identifier character classes
 var ☕ = true
-//@[04:05) Variable <error>. Type: true. Declaration start char: 0, length: 12
+//@[04:12) Variable <error>. Type: error. Declaration start char: 0, length: 12
 var a☕ = true
 //@[04:05) Variable a. Type: error. Declaration start char: 0, length: 13
 

@@ -928,11 +928,6 @@ namespace Bicep.Core.TypeSystem
                     }
                 }
 
-                if (LanguageConstants.IdentifierComparer.Equals(namespaceType.Name, MicrosoftGraphNamespaceType.BuiltInName))
-                {
-                    diagnostics.Write(syntax.SpecificationString, x => x.MicrosoftGraphBuiltinDeprecatedSoon(syntax));
-                }
-
                 return namespaceType;
             });
 
@@ -1026,6 +1021,19 @@ namespace Bicep.Core.TypeSystem
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
+                if (syntax.Type is {})
+                {
+                    if (!model.Features.TypedVariablesEnabled)
+                    {
+                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).TypedVariablesUnsupported());
+                    }
+
+                    var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnostics);
+                    diagnostics.WriteMultiple(GetDeclarationAssignmentDiagnostics(declaredType, syntax.Value));
+
+                    return declaredType;
+                }
+
                 var errors = new List<IDiagnostic>();
 
                 var valueType = typeManager.GetTypeInfo(syntax.Value);
@@ -1068,7 +1076,7 @@ namespace Bicep.Core.TypeSystem
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnostics);
-                diagnostics.WriteMultiple(GetOutputDeclarationDiagnostics(declaredType, syntax));
+                diagnostics.WriteMultiple(GetDeclarationAssignmentDiagnostics(declaredType, syntax.Value));
 
                 base.VisitOutputDeclarationSyntax(syntax);
 
@@ -2361,9 +2369,9 @@ namespace Bicep.Core.TypeSystem
         private IEnumerable<TypeSymbol> GetRecoveredArgumentTypes(IEnumerable<FunctionArgumentSyntax> argumentSyntaxes) =>
             this.GetArgumentTypes(argumentSyntaxes).Select(argumentType => argumentType.TypeKind == TypeKind.Error ? LanguageConstants.Any : argumentType);
 
-        private IEnumerable<IDiagnostic> GetOutputDeclarationDiagnostics(TypeSymbol assignedType, OutputDeclarationSyntax syntax)
+        private IEnumerable<IDiagnostic> GetDeclarationAssignmentDiagnostics(TypeSymbol declaredType, SyntaxBase value)
         {
-            var valueType = typeManager.GetTypeInfo(syntax.Value);
+            var valueType = typeManager.GetTypeInfo(value);
 
             // this type is not a property in a symbol so the semantic error visitor won't collect the errors automatically
             if (valueType is ErrorType)
@@ -2371,7 +2379,7 @@ namespace Bicep.Core.TypeSystem
                 return valueType.GetDiagnostics();
             }
 
-            if (assignedType is ErrorType)
+            if (declaredType is ErrorType)
             {
                 // no point in checking that the value is assignable to the declared output type if no valid declared type could be discerned
                 return [];
@@ -2379,7 +2387,7 @@ namespace Bicep.Core.TypeSystem
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
 
-            TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, syntax.Value, assignedType);
+            TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, value, declaredType);
 
             return diagnosticWriter.GetDiagnostics();
         }
