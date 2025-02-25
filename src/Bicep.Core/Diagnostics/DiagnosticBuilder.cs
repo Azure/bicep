@@ -1871,11 +1871,6 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic TypeExpressionResolvesToUnassignableType(TypeSymbol type) => CoreError(
                 "BCP411",
                 $"The type \"{type}\" cannot be used in a type assignment because it does not fit within one of ARM's primitive type categories (string, int, bool, array, object).{TypeInaccuracyClause}");
-
-            public Diagnostic DecoratorNotAllowed(string decoratorName) => CoreError(
-                "BCP412",
-                $"The decorator \"{decoratorName}\" can only be attached to resource collections.");
-
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

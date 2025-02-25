@@ -49,11 +49,11 @@ namespace Bicep.Core.TypeSystem
         /// </summary>
         /// <param name="expression">the expression to check for compile-time constant violations</param>
         /// <param name="diagnosticWriter">Diagnostic writer instance</param>
-        public static void GetCompileTimeConstantViolation(SyntaxBase expression, IDiagnosticWriter diagnosticWriter)
+        public static void GetCompileTimeConstantViolation(SyntaxBase expression, IDiagnosticWriter diagnosticWriter, string? decoratorName = null)
         {
-            if (expression is FunctionArgumentSyntax functionArgumentSyntax)
+            if (decoratorName != null && string.Equals(decoratorName, LanguageConstants.WaitUntilPropertyName, StringComparison.InvariantCultureIgnoreCase))
             {
-                if (functionArgumentSyntax.Expression is LambdaSyntax)
+                if (expression is FunctionArgumentSyntax functionArgumentSyntax && functionArgumentSyntax.Expression is LambdaSyntax)
                 {
                     // With introduction of waitUntil() decorator, there is a need to ignore
                     // lambda expressions at compile-time, as so far decorators always had compile-time constant expressions.
