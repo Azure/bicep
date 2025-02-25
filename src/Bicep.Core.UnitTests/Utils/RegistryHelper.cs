@@ -24,6 +24,7 @@ using Bicep.IO.FileSystem;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using static Bicep.Core.UnitTests.Registry.FakeContainerRegistryClient;
 using static Bicep.Core.UnitTests.Utils.TestContainerRegistryClientFactoryBuilder;
 
 namespace Bicep.Core.UnitTests.Utils;
@@ -99,9 +100,12 @@ public static class RegistryHelper
     }
 
     public static IContainerRegistryClientFactory CreateMockRegistryClients(
+        FakeContainerRegistryClient containerRegistryClient,
         params RepoDescriptor[] repos)
     {
         var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
+
+        containerRegistryFactoryBuilder.WithFakeContainerRegistryClient(containerRegistryClient);
 
         var modules = DescriptorsToModulesToPublish(repos);
 
@@ -160,12 +164,13 @@ public static class RegistryHelper
     //      ]);
     public static async Task<IContainerRegistryClientFactory> CreateMockRegistryClientWithPublishedModulesAsync(
         IFileSystem fileSystem,
+        FakeContainerRegistryClient containerRegistryClient,
         params ModuleToPublish[] modules
     )
     {
         var repos = ModulesToPublishToDescriptors(modules);
 
-        var clientFactory = CreateMockRegistryClients(repos);
+        var clientFactory = CreateMockRegistryClients(containerRegistryClient, repos);
 
         foreach (var module in modules)
         {
@@ -177,6 +182,14 @@ public static class RegistryHelper
         }
 
         return clientFactory;
+    }
+
+    public static async Task<IContainerRegistryClientFactory> CreateMockRegistryClientWithPublishedModulesAsync(
+        IFileSystem fileSystem,
+        params ModuleToPublish[] modules
+    )
+    {
+        return await CreateMockRegistryClientWithPublishedModulesAsync(fileSystem, new FakeContainerRegistryClient(), modules);
     }
 
     public static async Task PublishExtensionToRegistryAsync(IDependencyHelper services, string pathToIndexJson, string target)
