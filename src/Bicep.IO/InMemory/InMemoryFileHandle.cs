@@ -46,7 +46,7 @@ namespace Bicep.IO.InMemory
 
         public Stream OpenWrite() => new InMemoryFileStream(text => this.FileStore.WriteFile(this, text));
 
-        public IFileLock? TryLock() => new InMemoryFileLock(this);
+        public IFileLock? TryLock() => new InMemoryFileLock(this.FileStore.StoreId + this.Uri.Path);
 
         private class InMemoryFileStream : MemoryStream
         {

@@ -19,10 +19,10 @@ namespace Bicep.IO.UnitTests.InMemory
         public void Dispose_AfterLockAcquired_AllowsNewLock()
         {
             // Arrange
-            var fileHandle = CreateTestFileHandle("/lockedfile.txt");
+            var lockFileName = $"{Guid.NewGuid()}/lockedfile.txt";
 
             // Act: lock and then dispose
-            using (new InMemoryFileLock(fileHandle))
+            using (new InMemoryFileLock(lockFileName))
             {
                 // still locked here
             }
@@ -30,7 +30,7 @@ namespace Bicep.IO.UnitTests.InMemory
             // Assert: second lock creation should succeed without blocking
             Action act = () =>
             {
-                using var secondLock = new InMemoryFileLock(fileHandle);
+                using var secondLock = new InMemoryFileLock(lockFileName);
             };
 
             act.Should().NotThrow("because disposing the first lock should free the mutex for a second lock");
@@ -39,8 +39,8 @@ namespace Bicep.IO.UnitTests.InMemory
         [TestMethod]
         public void SecondLock_OnSameFile_BlocksUntilFirstIsDisposed()
         {
-            var fileHandle = CreateTestFileHandle("/lockedfile.txt");
-            var firstLock = new InMemoryFileLock(fileHandle);
+            var lockFileName = $"{Guid.NewGuid()}/lockedfile.txt";
+            var firstLock = new InMemoryFileLock(lockFileName);
 
             var secondLockStarted = new ManualResetEvent(false);
             var secondLockAcquired = new ManualResetEvent(false);
@@ -49,7 +49,7 @@ namespace Bicep.IO.UnitTests.InMemory
             var lockThread = new Thread(() =>
             {
                 secondLockStarted.Set(); // Signal that the thread has started
-                using var secondLock = new InMemoryFileLock(fileHandle);
+                using var secondLock = new InMemoryFileLock(lockFileName);
                 secondLockAcquired.Set(); // Signal that the lock was acquired
             });
 
@@ -69,17 +69,6 @@ namespace Bicep.IO.UnitTests.InMemory
 
             // Ensure the second lock thread exits
             lockThread.Join();
-        }
-
-        /// <summary>
-        /// Creates a simple InMemoryFileHandle for testing by providing a 
-        /// minimal FileStore and an "inmemory" URI for the specified file path.
-        /// </summary>
-        private static InMemoryFileHandle CreateTestFileHandle(string filePath)
-        {
-            var store = new InMemoryFileExplorer.FileStore();
-            var uri = new IOUri("inmemory", "", filePath);
-            return new InMemoryFileHandle(store, uri);
         }
     }
 }

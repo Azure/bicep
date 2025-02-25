@@ -14,9 +14,9 @@ namespace Bicep.IO.InMemory
     {
         private readonly Mutex mutex;
 
-        public InMemoryFileLock(InMemoryFileHandle fileHandle)
+        public InMemoryFileLock(string lockFileName)
         {
-            this.mutex = new Mutex(false, fileHandle.Uri);
+            this.mutex = new Mutex(false, lockFileName);
             this.mutex.WaitOne();
         }
 

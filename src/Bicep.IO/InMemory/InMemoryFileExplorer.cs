@@ -33,6 +33,8 @@ namespace Bicep.IO.InMemory
             private readonly ConcurrentDictionary<InMemoryDirectoryHandle, bool> directoryEntries = new();
             private readonly ConcurrentDictionary<InMemoryFileHandle, string?> fileEntries = new();
 
+            public Guid StoreId { get; } = new();
+
             public bool DirectoryExists(InMemoryDirectoryHandle directory) => this.directoryEntries.GetValueOrDefault(directory);
 
             public void CreateDirectoryIfNotExists(InMemoryDirectoryHandle directory) => this.directoryEntries.TryAdd(directory, true);
