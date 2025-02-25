@@ -8,6 +8,6 @@ describe("bicep restore", () => {
   it("should show error message when no input file path was specified", () => {
     invokingBicepCommand("restore")
       .shouldFail()
-      .withStderr(/Either the input file path or the --file-pattern parameter must be specified/);
+      .withStderr(/Either the input file path or the --pattern parameter must be specified/);
   });
 });

@@ -578,8 +578,8 @@ param intParam = 42
             var (output, error, result) = await Bicep(
                 services => services.WithEnvironment(useRootPath ? TestEnvironment.Default : TestEnvironment.Default with { CurrentDirectory = outputPath }),
                 ["build-params",
-                ..useRootPath ? new[] {"--file-pattern-root", outputPath} : [],
-                "--file-pattern", $"file*.bicepparam"]);
+                ..useRootPath ? new[] {"--pattern-root", outputPath} : [],
+                "--pattern", $"file*.bicepparam"]);
 
             result.Should().Be(0);
             error.Should().BeEmpty();

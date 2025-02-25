@@ -40,7 +40,7 @@ namespace Bicep.Cli.IntegrationTests
                 output.Should().BeEmpty();
 
                 error.Should().NotBeEmpty();
-                error.Should().Contain($"Either the input file path or the --file-pattern parameter must be specified");
+                error.Should().Contain($"Either the input file path or the --pattern parameter must be specified");
             }
         }
 
@@ -318,8 +318,8 @@ output myOutput string = 'hello!'
             var (output, error, result) = await Bicep(
                 services => services.WithEnvironment(useRootPath ? TestEnvironment.Default : TestEnvironment.Default with { CurrentDirectory = outputPath }),
                 ["build",
-                ..useRootPath ? new[] {"--file-pattern-root", outputPath} : [],
-                "--file-pattern", $"file*.bicep"]);
+                ..useRootPath ? new[] {"--pattern-root", outputPath} : [],
+                "--pattern", $"file*.bicep"]);
 
             result.Should().Be(0);
             error.Should().BeEmpty();
