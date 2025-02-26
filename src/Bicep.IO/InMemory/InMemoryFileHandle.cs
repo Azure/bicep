@@ -46,10 +46,17 @@ namespace Bicep.IO.InMemory
 
         public Stream OpenWrite() => new InMemoryFileStream(text => this.FileStore.WriteFile(this, text));
 
-        // On Linux, .NET relies on /dev/shm (shared memory) to emulate named mutexes. The mutex name becomes part of
-        // the file path in the filesystem, and slashes are treated as directory separators. If the name contains a slash,
-        // Linux tries to interpret it as a directory which will cause an IOException.
-        public IFileLock? TryLock() => new InMemoryFileLock((this.FileStore.StoreId + this.Uri.Path).Replace('/', '-'));
+        public IFileLock? TryLock() => DummyFileLock.Instance;
+
+        private static IOUri EnsureNoTrailingSlash(IOUri uri)
+        {
+            if (uri.Path.EndsWith('/'))
+            {
+                throw new ArgumentException("File path must not end with a slash.", nameof(uri));
+            }
+
+            return uri;
+        }
 
         private class InMemoryFileStream : MemoryStream
         {
@@ -71,14 +78,13 @@ namespace Bicep.IO.InMemory
             }
         }
 
-        private static IOUri EnsureNoTrailingSlash(IOUri uri)
+        private class DummyFileLock : IFileLock
         {
-            if (uri.Path.EndsWith('/'))
-            {
-                throw new ArgumentException("File path must not end with a slash.", nameof(uri));
-            }
+            public static readonly DummyFileLock Instance = new();
 
-            return uri;
+            public void Dispose()
+            {
+            }
         }
     }
 }
