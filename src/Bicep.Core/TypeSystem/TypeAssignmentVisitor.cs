@@ -2297,7 +2297,7 @@ namespace Bicep.Core.TypeSystem
                 {
                     // Argument type mismatch wins over count mismatch. Handle count mismatch only when there's no type mismatch.
                     var (actualCount, minimumArgumentCount, maximumArgumentCount) = countMismatches.Aggregate(ArgumentCountMismatch.Reduce);
-                    var argumentsSpan = TextSpan.Between(syntax.OpenParen, syntax.CloseParen);
+                    var argumentsSpan = TextSpan.Between(syntax.OpenParen, syntax.LastElement);
 
                     diagnostics.Add(DiagnosticBuilder.ForPosition(argumentsSpan).ArgumentCountMismatch(actualCount, minimumArgumentCount, maximumArgumentCount));
                 }

@@ -385,18 +385,17 @@ namespace Bicep.Core.Parsing
         /// <summary>
         /// Method that gets a function call identifier, its arguments plus open and close parens
         /// </summary>
-        protected (IdentifierSyntax Identifier, Token OpenParen, IEnumerable<SyntaxBase> ArgumentNodes, SyntaxBase CloseParen) FunctionCallAccess(IdentifierSyntax functionName, ExpressionFlags expressionFlags)
+        protected (IdentifierSyntax Identifier, Token OpenParen, IEnumerable<SyntaxBase> ArgumentNodes, Token? CloseParen) FunctionCallAccess(IdentifierSyntax functionName, ExpressionFlags expressionFlags)
         {
             var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
 
             var itemsOrTokens = HandleFunctionElements(
+                openingTokenType: TokenType.LeftParen,
                 closingTokenType: TokenType.RightParen,
                 parseChildElement: () => FunctionArgument(expressionFlags));
 
 
-            SyntaxBase closeParen = Check(TokenType.RightParen)
-                ? reader.Read()
-                : SkipEmpty(b => b.ExpectedCharacter(")"));
+            var closeParen = Check(TokenType.RightParen) ? reader.Read() : null;
 
             return (functionName, openParen, itemsOrTokens, closeParen);
         }
@@ -439,17 +438,16 @@ namespace Bicep.Core.Parsing
             return new ParameterizedTypeArgumentSyntax(expression);
         }
 
-        protected (IdentifierSyntax Identifier, Token OpenChevron, IEnumerable<SyntaxBase> ParameterNodes, SyntaxBase CloseChevron) ParameterizedTypeInstantiation(IdentifierSyntax parameterizedTypeName)
+        protected (IdentifierSyntax Identifier, Token OpenChevron, IEnumerable<SyntaxBase> ParameterNodes, Token? CloseChevron) ParameterizedTypeInstantiation(IdentifierSyntax parameterizedTypeName)
         {
             var openChevron = this.Expect(TokenType.LeftChevron, b => b.ExpectedCharacter("<"));
 
             var itemsOrTokens = HandleFunctionElements(
+                openingTokenType: TokenType.LeftChevron,
                 closingTokenType: TokenType.RightChevron,
                 parseChildElement: ParameterizedTypeArgument);
 
-            SyntaxBase closeChevron = Check(TokenType.RightChevron)
-                ? reader.Read()
-                : SkipEmpty(b => b.ExpectedCharacter(">"));
+            var closeChevron = Check(TokenType.RightChevron) ? reader.Read() : null;
 
             return (parameterizedTypeName, openChevron, itemsOrTokens, closeChevron);
         }
@@ -558,7 +556,10 @@ namespace Bicep.Core.Parsing
             return itemsOrTokens;
         }
 
-        private IEnumerable<SyntaxBase> HandleFunctionElements(TokenType closingTokenType, Func<SyntaxBase> parseChildElement)
+        private IEnumerable<SyntaxBase> HandleFunctionElements(
+            TokenType openingTokenType,
+            TokenType closingTokenType,
+            Func<SyntaxBase> parseChildElement)
         {
             if (Check(closingTokenType))
             {
@@ -570,7 +571,7 @@ namespace Bicep.Core.Parsing
 
             itemsOrTokens.AddRange(NewLines());
 
-            var isClosed = RestOfFileContainsTokenOfType(closingTokenType);
+            var isClosed = FunctionElementListIsClosed(openingTokenType, closingTokenType);
 
             var expectElement = true;
             while (!this.IsAtEnd() && this.reader.Peek().Type != closingTokenType)
@@ -587,26 +588,30 @@ namespace Bicep.Core.Parsing
                             // Check End of comments for closingTokenType
                             peekPosition++;
                         }
-                        if (!Check(this.reader.PeekAhead(peekPosition), closingTokenType))
+
+                        if (
+                            // the element list is unclosed
+                            !isClosed && (
+                                // we've reached the end of the file
+                                this.reader.PeekAhead(peekPosition) is null or { Type: TokenType.EndOfFile } ||
+                                (
+                                    // the next token is an identifier
+                                    reader.Peek() is { Type: TokenType.Identifier, Text: string possibleKeyword } &&
+                                    // the identifier is a keyword introducing a declaration statement
+                                    DeclarationParsers.ContainsKey(possibleKeyword))))
+                        {
+                            itemsOrTokens.Add(SkipEmpty(x => x.ExpectedCharacter(
+                                SyntaxFacts.GetText(closingTokenType) ?? closingTokenType.ToString())));
+                            // bail out here to avoid accidentally parsing the next statement as an element of the unclosed argument list
+                            itemsOrTokens.AddRange(NewLines());
+                            break;
+                        }
+                        else if (!Check(this.reader.PeekAhead(peekPosition), closingTokenType))
                         {
                             itemsOrTokens.Add(SkipEmpty(x => x.ExpectedCommaSeparator()));
                         }
 
                         itemsOrTokens.AddRange(NewLines());
-
-                        if (
-                            // the element list is unclosed
-                            !isClosed &&
-                            // there are more tokens in the file
-                            !IsAtEnd() &&
-                            // the next token is an identifier
-                            reader.Peek() is { Type: TokenType.Identifier, Text: string possibleKeyword } &&
-                            // the identifier is a keyword introducing a declaration statement
-                            DeclarationParsers.ContainsKey(possibleKeyword))
-                        {
-                            // bail out here to avoid accidentally parsing the next statement as an element of the unclosed argument list
-                            break;
-                        }
                     }
                     else if (Check(TokenType.Comma))
                     {
@@ -641,17 +646,31 @@ namespace Bicep.Core.Parsing
             return itemsOrTokens;
         }
 
-        private bool RestOfFileContainsTokenOfType(TokenType tokenType)
+        private bool FunctionElementListIsClosed(TokenType openingTokenType, TokenType closingTokenType)
         {
-            for (int i = 0; this.reader.PeekAhead(i) is not null; i++)
+            int openedCount = 1; // We've already consumed the opening token by the time this is invoked.
+
+            for (int i = 0; ; i++)
             {
-                if (this.reader.PeekAhead(i)?.Type == tokenType)
+                var current = reader.PeekAhead(i)?.Type;
+                if (current is null)
+                {
+                    return false;
+                }
+                else if (current == openingTokenType)
+                {
+                    openedCount++;
+                }
+                else if (current == closingTokenType)
+                {
+                    openedCount--;
+                }
+
+                if (openedCount < 1)
                 {
                     return true;
                 }
             }
-
-            return false;
         }
 
         protected IdentifierSyntax Identifier(DiagnosticBuilder.DiagnosticBuilderDelegate errorFunc)

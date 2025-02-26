@@ -6,7 +6,7 @@ namespace Bicep.Core.Syntax;
 
 public class InstanceParameterizedTypeInstantiationSyntax : ParameterizedTypeInstantiationSyntaxBase
 {
-    public InstanceParameterizedTypeInstantiationSyntax(SyntaxBase baseExpression, Token dot, IdentifierSyntax name, Token openChevron, IEnumerable<SyntaxBase> children, SyntaxBase closeChevron)
+    public InstanceParameterizedTypeInstantiationSyntax(SyntaxBase baseExpression, Token dot, IdentifierSyntax name, Token openChevron, IEnumerable<SyntaxBase> children, Token? closeChevron)
         : base(name, openChevron, children, closeChevron)
     {
         AssertTokenType(dot, nameof(dot), TokenType.Dot);
@@ -21,7 +21,7 @@ public class InstanceParameterizedTypeInstantiationSyntax : ParameterizedTypeIns
 
     public IdentifierSyntax PropertyName => Name;
 
-    public override TextSpan Span => TextSpan.Between(BaseExpression, CloseChevron);
+    public override TextSpan Span => TextSpan.Between(BaseExpression, LastElement);
 
     public override void Accept(ISyntaxVisitor visitor) => visitor.VisitInstanceParameterizedTypeInstantiationSyntax(this);
 }

@@ -208,4 +208,3 @@ var lineBeforeComma = map([0], (
 //@[02:03) [BCP018 (Error)] Expected the ")" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) |,|
 //@[15:15) [BCP237 (Error)] Expected a comma character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP237) ||
 
-//@[00:00) [BCP018 (Error)] Expected the ")" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||

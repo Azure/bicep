@@ -1949,7 +1949,6 @@ var lineBeforeComma = map([0], (
 //@[009:0014) |   |     ├─Token(StringComplete) |'foo'|
 //@[014:0015) |   |     └─Token(RightParen) |)|
 //@[015:0015) |   ├─SkippedTriviaSyntax
-//@[015:0016) |   ├─Token(NewLine) |\n|
+//@[015:0016) |   └─Token(NewLine) |\n|
 
-//@[000:0000) |   └─SkippedTriviaSyntax
 //@[000:0000) └─Token(EndOfFile) ||
