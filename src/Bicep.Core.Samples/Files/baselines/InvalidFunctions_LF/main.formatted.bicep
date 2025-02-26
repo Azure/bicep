@@ -45,6 +45,4 @@ func multiLineTrailingCommas(
   a string,
   ,) string => 'foo'
 
-func lineBeforeComma(
-  a string
-  ,b string) string => 'foo'
+func lineBeforeComma(a string, b string) string => 'foo'

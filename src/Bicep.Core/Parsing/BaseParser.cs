@@ -1230,6 +1230,7 @@ namespace Bicep.Core.Parsing
                     TokenType.NewLine,
                     TokenType.Comma);
                 itemsOrTokens.Add(expression);
+                parseNewLines();
 
                 if (this.Check(TokenType.Comma))
                 {

@@ -91,8 +91,9 @@ func multiLineTrailingCommas(
 //@[02:02) Local <missing>. Type: any. Declaration start char: 2, length: 0
 
 func lineBeforeComma(
-//@[05:20) Function lineBeforeComma. Type: string => any. Declaration start char: 0, length: 61
+//@[05:20) Function lineBeforeComma. Type: (string, string) => 'foo'. Declaration start char: 0, length: 61
   a string
 //@[02:03) Local a. Type: string. Declaration start char: 2, length: 8
   ,b string) string => 'foo'
+//@[03:04) Local b. Type: string. Declaration start char: 3, length: 8
 
