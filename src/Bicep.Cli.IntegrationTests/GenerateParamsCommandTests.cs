@@ -93,7 +93,7 @@ namespace Bicep.Cli.IntegrationTests
   ""contentVersion"": ""1.0.0.0"",
   ""parameters"": {
     ""name"": {
-      ""value"": """"
+      ""value"": ""sampleparameter""
     }
   }
 }".ReplaceLineEndings());
@@ -125,7 +125,7 @@ param required string";
   ""contentVersion"": ""1.0.0.0"",
   ""parameters"": {
     ""optional"": {
-      ""value"": """"
+      ""value"": ""sampleparameter""
     },
     ""required"": {
       ""value"": """"
@@ -766,6 +766,104 @@ param enabled = []
 
 ".ReplaceLineEndings());
             }
+        }
+
+        [TestMethod]
+        public async Task GenerateParams_ImplicitOutputFormatJson_ExplicitIncludeParamsAll_OneObjectParameterWithDefaultValue_Should_Succeed()
+        {
+            var bicep = $@"param storageAccountConfig object = {{
+                             name: 'defaultStorageAccount'
+                             sku: 'Standard_LRS'
+                             kind: 'StorageV2'
+            }}";
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+
+            var (output, error, result) = await Bicep("generate-params", "--include-params", "all", bicepFilePath);
+
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.parameters.json")).ReplaceLineEndings();
+
+            content.Should().Be(@"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {
+    ""storageAccountConfig"": {
+      ""value"": {
+        ""name"": ""defaultStorageAccount"",
+        ""sku"": ""Standard_LRS"",
+        ""kind"": ""StorageV2""
+      }
+    }
+  }
+}".ReplaceLineEndings());
+        }
+
+        [TestMethod]
+        public async Task GenerateParams_ImplicitOutputFormatJson_ExplicitIncludeParamsAll_OneArrayParameterWithDefaultValue_Should_Succeed()
+        {
+            var bicep = $@"param foo array = [1, 2, 3]";
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+            var (output, error, result) = await Bicep("generate-params", "--include-params", "all", bicepFilePath);
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.parameters.json")).ReplaceLineEndings();
+            content.Should().Be(@"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {
+    ""foo"": {
+      ""value"": [
+        1,
+        2,
+        3
+      ]
+    }
+  }
+}".ReplaceLineEndings());
+        }
+
+        [TestMethod]
+        public async Task GenerateParams_ImplicitOutputFormatJson_ExplicitIncludeParamsAll_OneParameterWithDefaultValueAsInvalidBicepSyntax_Should_Succeed()
+        {
+            var bicep = $@"param foo string = newGuid()";
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+            var (output, error, result) = await Bicep("generate-params", "--include-params", "all", bicepFilePath);
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.parameters.json")).ReplaceLineEndings();
+
+            content.Should().Be(@"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {
+    ""foo"": {
+      ""value"": """"
+    }
+  }
+}".ReplaceLineEndings());
+        }
+
+        [TestMethod]
+        public async Task GenerateParams_ExplicitOutputFormatBicepParam_ExplicitIncludeParamsAll_OneParameterWithDefaultValueAsInvalidBicepSyntax_Should_Succeed()
+        {
+            var bicep = $@"param foo string = newGuid()";
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+            var (output, error, result) = await Bicep("generate-params", "--output-format", "bicepparam", "--include-params", "all", bicepFilePath);
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.bicepparam")).ReplaceLineEndings();
+            content.Should().Be(@"using './built.bicep'
+
+param foo = ? /* TODO : please fix the value assigned to this parameter `newGuid()` */
+
+".ReplaceLineEndings());
         }
     }
 }
