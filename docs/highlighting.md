@@ -91,3 +91,6 @@ npx http-server ./src/monarch/test/baselines
 
 ## Prism.js
 Bicep has a community-contributed [Prism.JS](https://prismjs.com/) highlighter available [here](https://github.com/PrismJS/prism/blob/master/components/prism-bicep.js).
+
+## Notepad++
+A community-contributed User Defined Language (UDL) file for Bicep syntax highlighting in [Notepad++](https://notepad-plus-plus.org/) is available [here](https://github.com/richardsondev/azure-bicep-udl).
