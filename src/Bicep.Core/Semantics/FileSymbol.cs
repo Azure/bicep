@@ -22,7 +22,7 @@ namespace Bicep.Core.Semantics
             BicepSourceFile sourceFile,
             NamespaceResolver namespaceResolver,
             LocalScope fileScope)
-            : base(sourceFile.Uri.LocalPath)
+            : base(sourceFile.FileHandle.Uri)
         {
             this.Context = context;
             this.Syntax = sourceFile.ProgramSyntax;

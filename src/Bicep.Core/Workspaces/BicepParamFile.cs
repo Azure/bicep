@@ -6,6 +6,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.Syntax;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Workspaces
 {
@@ -13,6 +14,7 @@ namespace Bicep.Core.Workspaces
     {
         public BicepParamFile(
             Uri fileUri,
+            IFileHandle fileHandle,
             ImmutableArray<int> lineStarts,
             ProgramSyntax programSyntax,
             IConfigurationManager configurationManager,
@@ -21,6 +23,7 @@ namespace Bicep.Core.Workspaces
             IDiagnosticLookup parsingErrorLookup)
             : base(
                   fileUri,
+                  fileHandle,
                   lineStarts,
                   programSyntax,
                   configurationManager,

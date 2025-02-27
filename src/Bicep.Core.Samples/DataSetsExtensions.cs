@@ -67,7 +67,7 @@ namespace Bicep.Core.Samples
 
             var dispatcher = services.Construct<IModuleDispatcher>();
             var sourceFileFactory = services.Construct<ISourceFileFactory>();
-            var dummyReferencingFile = sourceFileFactory.CreateBicepFile(new Uri("inmemory:///main.bicep"), "");
+            var dummyReferencingFile = BicepTestConstants.DummyBicepFile;
 
             var clients = new List<RepoDescriptor>();
 
@@ -100,7 +100,7 @@ namespace Bicep.Core.Samples
 
             var dispatcher = services.Construct<IModuleDispatcher>();
             var sourceFileFactory = services.Construct<ISourceFileFactory>();
-            var dummyReferencingFile = sourceFileFactory.CreateBicepFile(new Uri("inmemory:///main.bicep"), "");
+            var dummyReferencingFile = BicepTestConstants.DummyBicepFile;
             var repositoryMocksBySubscription = new Dictionary<string, Mock<ITemplateSpecRepository>>();
 
             foreach (var (moduleName, templateSpecInfo) in templateSpecs)

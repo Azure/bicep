@@ -213,7 +213,7 @@ public static class RegistryHelper
         }
 
         var sourceFileFactory = services.Construct<ISourceFileFactory>();
-        var bicepFile = sourceFileFactory.CreateBicepFile(bicepFileUri ?? new Uri("inmemory:///main.bicep"), "");
+        var bicepFile = bicepFileUri is not null ? sourceFileFactory.CreateBicepFile(bicepFileUri, "") : BicepTestConstants.DummyBicepFile;
 
         if (!dispatcher.TryGetArtifactReference(bicepFile, ArtifactType.Extension, target).IsSuccess(out var targetReference, out var errorBuilder))
         {

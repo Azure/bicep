@@ -43,7 +43,7 @@ namespace Bicep.Core.IntegrationTests
                     diagnostics.Where(d => !IsPermittedMissingTypeDiagnostic(d)),
                     diagnostics =>
                     {
-                        diagnostics.Should().BeEmpty("{0} should not have warnings or errors", file.Uri.LocalPath);
+                        diagnostics.Should().BeEmpty("{0} should not have warnings or errors", file.FileHandle.Uri);
                     });
             }
 
@@ -110,9 +110,6 @@ namespace Bicep.Core.IntegrationTests
         {
             GetAllExampleData().Should().HaveCountGreaterOrEqualTo(30, "sanity check to ensure we're finding examples to test");
         }
-
-        private static string GetParentStreamName(string streamName)
-            => Path.GetDirectoryName(streamName)!.Replace('\\', '/');
 
         private static IEnumerable<object[]> GetAllExampleData()
             => ExampleData.GetAllExampleData().Select(x => new object[] { x.BicepFile });
