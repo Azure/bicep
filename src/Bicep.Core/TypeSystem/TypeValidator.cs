@@ -544,10 +544,11 @@ namespace Bicep.Core.TypeSystem
                             targetType.MinLength.Value));
                     }
 
-                    if (targetType.Pattern?.IsMatch(expressionStringLiteral.RawStringValue) is false)
+                    if (targetType.Pattern is not null &&
+                        TypeHelper.MatchesPattern(targetType.Pattern, expressionStringLiteral.RawStringValue) is false)
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                            .SuppliedStringDoesNotMatchExpectedPattern(shouldWarn, targetType.Pattern.ToString()));
+                            .SuppliedStringDoesNotMatchExpectedPattern(shouldWarn, targetType.Pattern));
                     }
 
                     // if a literal was assignable to a string-typed target, the literal will always be the most narrow type

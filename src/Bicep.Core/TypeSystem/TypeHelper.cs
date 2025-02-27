@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Numerics;
+using System.Text.RegularExpressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
@@ -720,5 +721,8 @@ namespace Bicep.Core.TypeSystem
                     cache)),
                 property.Flags & ~flagsToRemove,
                 property.Description));
+
+        public static bool MatchesPattern(string pattern, string value)
+            => Regex.IsMatch(value, pattern, RegexOptions.NonBacktracking);
     }
 }

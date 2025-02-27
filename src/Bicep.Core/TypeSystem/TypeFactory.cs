@@ -62,7 +62,7 @@ public static class TypeFactory
     public static TypeSymbol CreateStringType(
         long? minLength = null,
         long? maxLength = null,
-        Regex? pattern = null,
+        string? pattern = null,
         TypeSymbolValidationFlags validationFlags = TypeSymbolValidationFlags.Default)
     {
         if (maxLength.HasValue && maxLength.Value == 0)

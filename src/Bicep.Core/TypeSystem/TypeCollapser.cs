@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Concurrent;
-using System.Text.RegularExpressions;
 using Bicep.Core.Extensions;
 using Bicep.Core.TypeSystem.Types;
 
@@ -85,7 +84,7 @@ internal static class TypeCollapser
         {
             private readonly RefinementSpanCollapser spanCollapser = new();
             private readonly HashSet<StringLiteralType> stringLiterals = new();
-            private Regex? pattern;
+            private string? pattern;
             private bool nullable;
 
             internal StringCollapse(StringLiteralType stringLiteral, bool nullable)
@@ -102,8 +101,11 @@ internal static class TypeCollapser
             }
 
             public TypeSymbol? TryCollapse() => CreateTypeUnion(
-                // only keep string literals that are not valid in any of the discrete spans
-                stringLiterals.Where(literal => !spanCollapser.Spans.Any(s => s.Contains(literal.RawStringValue.Length)) || pattern?.IsMatch(literal.RawStringValue) is false)
+                stringLiterals
+                    // only keep string literals that are not valid in any of the discrete spans
+                    .Where(literal => !spanCollapser.Spans.Any(s => s.Contains(literal.RawStringValue.Length)) ||
+                        // and do not match the pattern constraint
+                        (pattern is not null && !TypeHelper.MatchesPattern(pattern, literal.RawStringValue)))
                     // create a refined string type for each span
                     .Concat(spanCollapser.Spans.Select(span => TypeFactory.CreateStringType(
                         span.Min switch

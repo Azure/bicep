@@ -1,13 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Text.RegularExpressions;
-
 namespace Bicep.Core.TypeSystem.Types;
 
 public class StringType : TypeSymbol
 {
-    internal StringType(long? minLength, long? maxLength, Regex? pattern, TypeSymbolValidationFlags validationFlags)
+    internal StringType(long? minLength, long? maxLength, string? pattern, TypeSymbolValidationFlags validationFlags)
         : base(LanguageConstants.TypeNameString)
     {
         ValidationFlags = validationFlags;
@@ -24,7 +22,7 @@ public class StringType : TypeSymbol
 
     public long? MaxLength { get; }
 
-    public Regex? Pattern { get; }
+    public string? Pattern { get; }
 
     public override bool Equals(object? other) => other is StringType otherString &&
         ValidationFlags == otherString.ValidationFlags &&
