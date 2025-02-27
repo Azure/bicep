@@ -41,7 +41,6 @@ namespace Bicep.Core.SourceCode
         public string EntrypointRelativePath => InstanceMetadata.EntryPoint;
 
         // The version of Bicep which created this deserialized archive instance.
-        public string? BicepVersion => InstanceMetadata.BicepVersion;
         public string FriendlyBicepVersion => InstanceMetadata.BicepVersion ?? "unknown";
 
         // The version of the metadata file format used by this archive instance.
