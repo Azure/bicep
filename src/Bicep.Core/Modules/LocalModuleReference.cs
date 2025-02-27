@@ -6,6 +6,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Modules
 {
@@ -74,35 +75,23 @@ namespace Bicep.Core.Modules
                     return new(x => x.FilePathContainsBackSlash());
                 }
 
-                if (forbiddenPathChars.Contains(pathChar))
+                if (FilePathFacts.IsForbiddenPathVisibleCharacter(pathChar))
                 {
-                    return new(x => x.FilePathContainsForbiddenCharacters(forbiddenPathChars));
+                    return new(x => x.FilePathContainsForbiddenCharacters(FilePathFacts.ForbiddenPathCharacters));
                 }
 
-                if (IsInvalidPathControlCharacter(pathChar))
+                if (FilePathFacts.IsForbiddenPathControlCharacter(pathChar))
                 {
                     return new(x => x.FilePathContainsControlChars());
                 }
             }
 
-            if (forbiddenPathTerminatorChars.Contains(pathName.Last()))
+            if (FilePathFacts.IsForbiddenPathTerminatorCharacter(pathName.Last()))
             {
-                return new(x => x.FilePathHasForbiddenTerminator(forbiddenPathTerminatorChars));
+                return new(x => x.FilePathHasForbiddenTerminator(FilePathFacts.ForbiddenPathTerminatorCharacters));
             }
 
             return new(true);
-        }
-
-        private static readonly ImmutableHashSet<char> forbiddenPathChars = [.. "<>:\"\\|?*"];
-        private static readonly ImmutableHashSet<char> forbiddenPathTerminatorChars = [.. " ."];
-
-        private static bool IsInvalidPathControlCharacter(char pathChar)
-        {
-            // TODO: Revisit when we add unicode support to Bicep
-
-            // The following are disallowed as path chars on Windows, so we block them to avoid cross-platform compilation issues.
-            // Note that we're checking this range explicitly, as char.IsControl() includes some characters that are valid path characters.
-            return pathChar >= 0 && pathChar <= 31;
         }
     }
 }

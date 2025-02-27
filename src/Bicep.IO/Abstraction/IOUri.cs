@@ -82,7 +82,7 @@ namespace Bicep.IO.Abstraction
 
             if (OperatingSystem.IsWindows())
             {
-                if (WindowsFilePathFacts.IsWindowsDosDevicePath(filePath))
+                if (FilePathFacts.IsWindowsDosDevicePath(filePath))
                 {
                     throw new IOException("Unsupported Windows DOS device path.");
                 }
@@ -119,9 +119,9 @@ namespace Bicep.IO.Abstraction
         // See: Uniform Resource Identifier (URI): Generic Syntax (https://datatracker.ietf.org/doc/html/rfc3986).
         public string ToUriString()
         {
-            var excapedPath = EscapePercentSign(this.Path);
+            var escapedPath = EscapePercentSign(this.Path);
 
-            return this.Authority is null ? $"{Scheme}:{Path}" : $"{Scheme}://{Authority}{Path}";
+            return this.Authority is null ? $"{Scheme}:{escapedPath}" : $"{Scheme}://{Authority}{escapedPath}";
         }
 
         // TODO: Remove after file abstractio migration is complete.
@@ -325,7 +325,7 @@ namespace Bicep.IO.Abstraction
                             fileName = fileName[..extensionStartIndex];
                         }
 
-                        if (WindowsFilePathFacts.IsWindowsReservedFileName(fileName))
+                        if (FilePathFacts.IsWindowsReservedFileName(fileName))
                         {
                             throw new IOException("The specified path contains unsupported Windows reserved file name.");
                         }
