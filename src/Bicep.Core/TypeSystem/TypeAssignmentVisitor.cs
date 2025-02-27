@@ -947,7 +947,8 @@ namespace Bicep.Core.TypeSystem
 
                 foreach (var argumentSyntax in decoratorSyntax.Arguments)
                 {
-                    TypeValidator.GetCompileTimeConstantViolation(argumentSyntax, diagnostics);
+                    var decoratorName = decoratorSyntax.Expression is FunctionCallSyntax decoratorFunctionExpression ? decoratorFunctionExpression.Name.IdentifierName : null;
+                    TypeValidator.GetCompileTimeConstantViolation(argumentSyntax, diagnostics, decoratorName: decoratorName);
                 }
 
                 var symbol = this.binder.GetSymbolInfo(decoratorSyntax.Expression);
