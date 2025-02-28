@@ -4,12 +4,9 @@
     "net8.0": {
       "FluentAssertions": {
         "type": "Direct",
-        "requested": "[7.0.0, )",
-        "resolved": "7.0.0",
-        "contentHash": "mTLbcU991EQ1SEmNbVBaGGGJy0YFzvGd1sYJGNZ07nlPKuyHSn1I22aeKzqQXgEiaKyRO6MSCto9eN9VxMwBdA==",
-        "dependencies": {
-          "System.Configuration.ConfigurationManager": "6.0.0"
-        }
+        "requested": "[8.1.1, )",
+        "resolved": "8.1.1",
+        "contentHash": "tzrZ95x7TWY4panvAhVoHg5zIhg4768Cx+8ZPoKR2sDPu2oCvVeg3ts0TTL0aJlIfZ1NGxCtBP5s555AgXJozg=="
       },
       "JsonPatch.Net": {
         "type": "Direct",
@@ -1847,7 +1844,7 @@
           "Azure.Bicep.Core": "[1.0.0, )",
           "Bicep.LangServer": "[1.0.0, )",
           "DiffPlex": "[1.7.2, )",
-          "FluentAssertions": "[7.0.0, )",
+          "FluentAssertions": "[8.1.1, )",
           "JsonDiffPatch.Net": "[2.3.0, )",
           "MSTest": "[3.8.2, )",
           "Moq": "[4.20.72, )",
