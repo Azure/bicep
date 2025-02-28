@@ -19,7 +19,6 @@ public record ExperimentalFeaturesEnabled(
     bool OptionalModuleNames,
     bool WaitAndRetry,
     bool LocalDeploy,
-    bool ResourceDerivedTypes,
     bool SecureOutputs,
     bool ResourceInfoCodegen,
     bool TypedVariables)

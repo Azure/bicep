@@ -701,7 +701,7 @@ namespace Bicep.Core.IntegrationTests
         public void User_defined_discriminated_objects_can_amend_resource_derived_discriminated_unions()
         {
             var result = CompilationHelper.Compile(
-                new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+                new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
                 """
                 @discriminator('computeType')
                 type taggedUnion = resourceInput<'Microsoft.MachineLearningServices/workspaces/computes@2020-04-01'>.properties
