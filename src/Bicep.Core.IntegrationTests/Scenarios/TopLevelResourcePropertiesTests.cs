@@ -415,23 +415,6 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
         /// https://github.com/Azure/bicep/issues/5960
         /// </summary>
         [TestMethod]
-        public void Test_Issue5960_case5()
-        {
-            // explicitly pass a valid scope
-            var result = CompilationHelper.Compile(("main.bicep", @"
-module mod 'mod.bicep' = {
-}
-"), ("mod.bicep", ""));
-            result.Should().NotGenerateATemplate().And.HaveDiagnostics(new[]
-            {
-                ("BCP035", DiagnosticLevel.Error, "The specified \"module\" declaration is missing the following required properties: \"name\".")
-            });
-        }
-
-        /// <summary>
-        /// https://github.com/Azure/bicep/issues/5960
-        /// </summary>
-        [TestMethod]
         public void Test_Issue5960_case6()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");

@@ -332,7 +332,8 @@ namespace Bicep.Core
                 scopePropertyFlags |= TypePropertyFlags.Required;
             }
 
-            var nameRequirednessFlags = features.OptionalModuleNamesEnabled ? TypePropertyFlags.None : TypePropertyFlags.Required;
+            // Module name is optional.
+            var nameRequirednessFlags = TypePropertyFlags.None;
 
             var moduleBody = new ObjectType(
                 typeName,

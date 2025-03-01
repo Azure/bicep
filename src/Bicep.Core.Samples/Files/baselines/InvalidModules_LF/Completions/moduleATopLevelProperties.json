@@ -20,14 +20,14 @@
   {
     "label": "name",
     "kind": "property",
-    "detail": "name (Required)",
+    "detail": "name",
     "documentation": {
       "kind": "markdown",
       "value": "Type: `string`  \n"
     },
     "deprecated": false,
-    "preselect": true,
-    "sortText": "1_name",
+    "preselect": false,
+    "sortText": "2_name",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {

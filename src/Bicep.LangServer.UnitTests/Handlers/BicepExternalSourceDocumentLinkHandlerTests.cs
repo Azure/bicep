@@ -67,11 +67,10 @@ namespace Bicep.LangServer.UnitTests.Handlers
         private ServiceBuilder GetServices(IContainerRegistryClientFactory clientFactory)
         {
             return new ServiceBuilder()
-                .WithFeatureOverrides(new(OptionalModuleNamesEnabled: true))
                 .WithContainerRegistryClientFactory(clientFactory)
                 .WithFileSystem(MockFileSystem)
                 .WithFeatureProviderFactory(
-                    BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(CacheRootDirectory: CacheRootDirectory, OptionalModuleNamesEnabled: true))
+                    BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(CacheRootDirectory: CacheRootDirectory))
                 )
                 .WithTemplateSpecRepositoryFactory(BicepTestConstants.TemplateSpecRepositoryFactory)
                 ;

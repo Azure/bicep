@@ -126,13 +126,13 @@ module './main.bicep' = if ('true') {
 
 module modANoName './modulea.bicep' = {
 //@[007:017) [BCP028 (Error)] Identifier "modANoName" is declared multiple times. Remove or rename the duplicates. (bicep https://aka.ms/bicep/core-diagnostics#BCP028) |modANoName|
-//@[007:017) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |modANoName|
+//@[007:017) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |modANoName|
 // #completionTest(0) -> moduleATopLevelProperties
 
 }
 
 module modANoNameWithCondition './modulea.bicep' = if (true) {
-//@[007:030) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |modANoNameWithCondition|
+//@[007:030) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |modANoNameWithCondition|
 // #completionTest(0) -> moduleAWithConditionTopLevelProperties
 
 }
@@ -150,7 +150,7 @@ module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-
 
 module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 //@[007:017) [BCP028 (Error)] Identifier "modANoName" is declared multiple times. Remove or rename the duplicates. (bicep https://aka.ms/bicep/core-diagnostics#BCP028) |modANoName|
-//@[007:017) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |modANoName|
+//@[007:017) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |modANoName|
 //@[044:047) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter/prefer-unquoted-property-names) |'a'|
 //@[049:050) [BCP057 (Error)] The name "b" does not exist in the current context. (bicep https://aka.ms/bicep/core-diagnostics#BCP057) |b|
 
@@ -535,10 +535,10 @@ module wrongLoopBodyType2 'modulea.bicep' = [for (x,i) in emptyArray:4]
 
 // missing loop body properties
 module missingLoopBodyProperties 'modulea.bicep' = [for x in emptyArray:{
-//@[007:032) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |missingLoopBodyProperties|
+//@[007:032) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |missingLoopBodyProperties|
 }]
 module missingLoopBodyProperties2 'modulea.bicep' = [for (x,i) in emptyArray:{
-//@[007:033) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |missingLoopBodyProperties2|
+//@[007:033) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |missingLoopBodyProperties2|
 }]
 
 // wrong array type
@@ -696,7 +696,6 @@ module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
 //@[068:074) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP167) |concat|
 
 module anyTypeInScope 'empty.bicep' = {
-//@[007:021) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |anyTypeInScope|
   dependsOn: [
     any('s')
 //@[004:012) [BCP176 (Error)] Values of the "any" type are not allowed here. (bicep https://aka.ms/bicep/core-diagnostics#BCP176) |any('s')|
@@ -707,7 +706,6 @@ module anyTypeInScope 'empty.bicep' = {
 }
 
 module anyTypeInScopeConditional 'empty.bicep' = if(false) {
-//@[007:032) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |anyTypeInScopeConditional|
   dependsOn: [
     any('s')
 //@[004:012) [BCP176 (Error)] Values of the "any" type are not allowed here. (bicep https://aka.ms/bicep/core-diagnostics#BCP176) |any('s')|
@@ -718,7 +716,6 @@ module anyTypeInScopeConditional 'empty.bicep' = if(false) {
 }
 
 module anyTypeInScopeLoop 'empty.bicep' = [for thing in []: {
-//@[007:025) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |anyTypeInScopeLoop|
   dependsOn: [
     any('s')
 //@[004:012) [BCP176 (Error)] Values of the "any" type are not allowed here. (bicep https://aka.ms/bicep/core-diagnostics#BCP176) |any('s')|
@@ -805,7 +802,6 @@ module issue3000 'empty.bicep' = {
 }
 
 module invalidJsonMod 'modulec.json' = {
-//@[007:021) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |invalidJsonMod|
 //@[022:036) [BCP188 (Error)] The referenced ARM template has errors. Please see https://aka.ms/arm-template for information on how to diagnose and fix the template. (bicep https://aka.ms/bicep/core-diagnostics#BCP188) |'modulec.json'|
 }
 
