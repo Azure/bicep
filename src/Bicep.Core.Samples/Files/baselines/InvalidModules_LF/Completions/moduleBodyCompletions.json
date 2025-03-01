@@ -73,7 +73,7 @@
     "detail": "Required properties",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\n{\n\tname: \n\tparams: {\n\t\tarrayParam: \n\t\tobjParam: {}\n\t\tstringParamB: \n\t}\n}\n```  \n"
+      "value": "```bicep\n{\n\tparams: {\n\t\tarrayParam: \n\t\tobjParam: {}\n\t\tstringParamB: \n\t}\n}\n```  \n"
     },
     "deprecated": false,
     "preselect": true,
@@ -82,7 +82,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "{\n\tname: $1\n\tparams: {\n\t\tarrayParam: $2\n\t\tobjParam: {}\n\t\tstringParamB: $3\n\t}\n}$0"
+      "newText": "{\n\tparams: {\n\t\tarrayParam: $1\n\t\tobjParam: {}\n\t\tstringParamB: $2\n\t}\n}$0"
     },
     "command": {
       "title": "module body completion snippet",

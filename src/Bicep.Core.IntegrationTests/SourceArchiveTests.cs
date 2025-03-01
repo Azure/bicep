@@ -46,7 +46,7 @@ namespace Bicep.Core.IntegrationTests
         private ServiceBuilder GetServices(IContainerRegistryClientFactory clientFactory)
         {
             var services = new ServiceBuilder()
-                .WithFeatureOverrides(new(CacheRootDirectory: CacheRoot, OptionalModuleNamesEnabled: true))
+                .WithFeatureOverrides(new(CacheRootDirectory: CacheRoot))
                 .WithContainerRegistryClientFactory(clientFactory);
 
             return services;

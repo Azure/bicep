@@ -4247,7 +4247,7 @@ output sql resource = sql
     public void Test_Issue12895()
     {
 
-        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true, OptionalModuleNamesEnabled: true)),
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true)),
 ("main.bicep", @"
 module mymodule 'test.bicep' = {
 }

@@ -141,25 +141,6 @@ resource foos 'Microsoft.Network/dnsZones@2018-05-01' = [for (item, i) in []: {
         }
 
         [TestMethod]
-        public void MissingModuleExpectedVariantPropertiesShouldProduceNoWarning()
-        {
-            const string text = @"
-module mod 'mod.bicep' = [for a in []: {
-  params: {
-    foo: 's'
-  }
-}]";
-            //bicep(BCP035)
-            var result = CompilationHelper.Compile(
-                ("main.bicep", text),
-                ("mod.bicep", "param foo string"));
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-{
-                ("BCP035", DiagnosticLevel.Error, "The specified \"module\" declaration is missing the following required properties: \"name\".")
-            });
-        }
-
-        [TestMethod]
         public void InvariantModuleNameShouldProduceWarning()
         {
             const string text = @"
@@ -235,31 +216,6 @@ resource c3 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for (cname,i) in []
         }
 
         [TestMethod]
-        public void OptionalInvariantModulePropertiesWhenRequiredPropertyIsMissingShouldNotProduceWarning()
-        {
-            /*
-             * This asserts that we don't overwarn. If the user didn't yet put in a value for
-             * a required property that is expected to be loop-variant, we should not warn them.
-             */
-
-            const string text = @"
-module mod 'mod.bicep' = [for a in []: {
-  scope: resourceGroup()
-  params: {
-    foo: 's'
-  }
-}]
-";
-            var result = CompilationHelper.Compile(
-                ("main.bicep", text),
-                ("mod.bicep", "param foo string"));
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-{
-                ("BCP035", DiagnosticLevel.Error, "The specified \"module\" declaration is missing the following required properties: \"name\".")
-            });
-        }
-
-        [TestMethod]
         public void OptionalModuleNameShouldNotProduceWarning()
         {
             const string text = @"
@@ -270,7 +226,7 @@ module mod 'mod.bicep' = [for a in []: {
   }
 }]
 ";
-            var serviceBuilder = new ServiceBuilder().WithFeatureOverrides(new(OptionalModuleNamesEnabled: true));
+            var serviceBuilder = new ServiceBuilder();
             var result = CompilationHelper.Compile(
                 serviceBuilder,
                 ("main.bicep", text),

@@ -153,8 +153,7 @@ namespace Bicep.Core.Semantics.Metadata
             if (propertyAccessSyntax.BaseExpression is PropertyAccessSyntax childPropertyAccess &&
                 childPropertyAccess.PropertyName.IdentifierName == LanguageConstants.ModuleOutputsPropertyName &&
                 childPropertyAccess.BaseExpression is VariableAccessSyntax grandChildAccess &&
-                this.semanticModel.GetSymbolInfo(grandChildAccess) is ModuleSymbol module &&
-                (module.TryGetBodyPropertyValue(AzResourceTypeProvider.ResourceNamePropertyName) is not null || this.semanticModel.Features.OptionalModuleNamesEnabled))
+                this.semanticModel.GetSymbolInfo(grandChildAccess) is ModuleSymbol module)
             {
                 symbol = module;
                 return true;
