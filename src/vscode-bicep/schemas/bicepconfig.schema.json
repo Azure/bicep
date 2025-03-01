@@ -820,10 +820,6 @@
           "type": "boolean",
           "description": "Enabling this feature turns on support for local Bicep deployments. See https://aka.ms/bicep/experimental-features#localdeploy"
         },
-        "optionalModuleNames": {
-          "type": "boolean",
-          "description": "Enabling this feature makes the name property in the body of module declarations optional. See https://aka.ms/bicep/experimental-features#optionalmodulenames"
-        },
         "waitAndRetry": {
           "type": "boolean",
           "description": "Allows to enable wait and retry feature on resource type. See https://aka.ms/bicep/experimental-features#waitandretry"
