@@ -47,6 +47,9 @@ public class CommandHelperTests
     [DataRow("*", '/', "", "*")]
     [DataRow("foo/*", '/', "foo", "*")]
     [DataRow("*/foo", '/', "", "*/foo")]
+    [DataRow("C:", '\\', "", "C:")]
+    [DataRow(":", '\\', "", ":")]
+    [DataRow("**", '\\', "", "**")]
     public void SplitFilePatternOnWildcard_should_return_path_components(string filePattern, char osPathSeparator, string expectedFullPath, string expectedRemainingPath)
     {
         var (fullPath, remainingPath) = CommandHelper.SplitFilePatternOnWildcard(filePattern, osPathSeparator);

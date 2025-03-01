@@ -75,7 +75,7 @@ Usage:
       bicep build file.bicep --outfile file.json
       bicep build file.bicep --no-restore
       bicep build file.bicep --diagnostics-format sarif
-      bicep build --pattern './dir/*.bicep'
+      bicep build --pattern './dir/**/*.bicep'
 
   {exeName} format [options] [<file>]
     Formats a .bicep file.
@@ -99,7 +99,7 @@ Usage:
       bicep format file.bicep --outdir dir1
       bicep format file.bicep --outfile file.json
       bicep format file.bicep --indent-kind Tab
-      bicep format --pattern './dir/*.bicep'
+      bicep format --pattern './dir/**/*.bicep'
 
   {exeName} decompile [options] <file>
     Attempts to decompile a template .json file to .bicep.
@@ -135,7 +135,7 @@ Usage:
       bicep lint file.bicep
       bicep lint file.bicep --no-restore
       bicep lint file.bicep --diagnostics-format sarif
-      bicep lint --pattern './dir/*.bicep'
+      bicep lint --pattern './dir/**/*.bicep'
 
   {exeName} decompile-params [options] <file>
     Attempts to decompile a parameters .json file to .bicepparam.
@@ -209,7 +209,7 @@ Usage:
 
     Examples:
       bicep restore main.bicep
-      bicep restore --pattern './dir/*.bicep'
+      bicep restore --pattern './dir/**/*.bicep'
 
   {exeName} [options]
     Options:
@@ -240,7 +240,7 @@ Usage:
       bicep build-params params.bicepparam --outfile otherParams.json
       bicep build-params params.bicepparam --no-restore
       bicep build-params params.bicepparam --diagnostics-format sarif
-      bicep build-params --pattern './dir/*.bicepparam'
+      bicep build-params --pattern './dir/**/*.bicepparam'
 
   {exeName} jsonrpc [options]
     Runs a JSONRPC server for interacting with Bicep programmatically.
