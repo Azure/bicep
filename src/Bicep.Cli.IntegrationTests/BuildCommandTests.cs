@@ -12,6 +12,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
@@ -39,7 +40,7 @@ namespace Bicep.Cli.IntegrationTests
                 output.Should().BeEmpty();
 
                 error.Should().NotBeEmpty();
-                error.Should().Contain($"The input file path was not specified");
+                error.Should().Contain($"Either the input file path or the --pattern parameter must be specified");
             }
         }
 
@@ -290,6 +291,44 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
             result.Should().Be(0);
             error.Should().BeEmpty();
             output.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        [DataRow(false)]
+        [DataRow(true)]
+        public async Task Build_should_compile_files_matching_pattern(bool useRootPath)
+        {
+            var contents = """
+output myOutput string = 'hello!'
+""";
+
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var fileResults = new[]
+            {
+                (input: "file1.bicep", expectOutput: true),
+                (input: "file2.bicep", expectOutput: true),
+                (input: "nofile.bicep", expectOutput: false)
+            };
+
+            foreach (var (input, _) in fileResults)
+            {
+                FileHelper.SaveResultFile(TestContext, input, contents, outputPath);
+            }
+
+            var (output, error, result) = await Bicep(
+                services => services.WithEnvironment(useRootPath ? TestEnvironment.Default : TestEnvironment.Default with { CurrentDirectory = outputPath }),
+                ["build",
+                "--pattern", useRootPath ? $"{outputPath}/file*.bicep" : "file*.bicep"]);
+
+            result.Should().Be(0);
+            error.Should().BeEmpty();
+            output.Should().BeEmpty();
+
+            foreach (var (input, expectOutput) in fileResults)
+            {
+                var outputFile = Path.ChangeExtension(input, ".json");
+                File.Exists(Path.Combine(outputPath, outputFile)).Should().Be(expectOutput);
+            }
         }
 
         [TestMethod]

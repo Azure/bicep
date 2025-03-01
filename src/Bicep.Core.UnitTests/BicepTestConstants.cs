@@ -96,7 +96,7 @@ namespace Bicep.Core.UnitTests
         // By default turns off only problematic analyzers
         public static readonly LinterAnalyzer LinterAnalyzer = new(EmptyServiceProvider);
 
-        public static readonly IEnvironment EmptyEnvironment = new TestEnvironment(ImmutableDictionary<string, string?>.Empty);
+        public static readonly IEnvironment EmptyEnvironment = TestEnvironment.Default;
 
         public static RootConfiguration GetConfiguration(string contents)
             => RootConfiguration.Bind(IConfigurationManager.BuiltInConfigurationElement.Merge(JsonElementFactory.CreateElement(contents)));

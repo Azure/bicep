@@ -1698,6 +1698,7 @@
         "dependencies": {
           "FluentAssertions": "[7.0.0, )",
           "MSTest": "[3.8.2, )",
+          "Moq": "[4.20.72, )",
           "bicep": "[1.0.0, )"
         }
       },
