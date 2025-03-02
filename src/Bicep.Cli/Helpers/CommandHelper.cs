@@ -46,7 +46,7 @@ public static class CommandHelper
 
         Matcher matcher = new();
         matcher.AddInclude(remainingPath);
-        
+
         foreach (var filePath in matcher.GetResultsInFullPath(rootPath))
         {
             yield return ArgumentHelper.GetFileUri(filePath);

@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { FC } from "react";
+
 import { Codicon } from "@vscode-bicep-ui/components";
-import type { FC } from "react"
 import styled from "styled-components";
 
 const ErrorAlertDiv = styled.div`
