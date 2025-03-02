@@ -29,7 +29,7 @@
     "vite": "^6.1.1",
     "vite-plugin-ejs": "^1.7.0",
     "vite-plugin-monaco-editor": "^1.1.0",
-    "vite-plugin-static-copy": "^2.2.0"
+    "vite-plugin-static-copy": "^2.3.0"
   },
   "dependencies": {
     "@microsoft/applicationinsights-web": "^3.3.5",
