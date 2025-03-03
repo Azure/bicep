@@ -6,9 +6,12 @@ using System.IO.Abstractions.TestingHelpers;
 using System.Reflection;
 using System.Text;
 using Bicep.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Json;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Samples;
 using Bicep.Core.Text;
@@ -16,7 +19,10 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Mock.Registry;
+using Bicep.Core.UnitTests.Mock.Registry.Catalog;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using Bicep.IO.FileSystem;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Completions;
@@ -41,12 +47,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using CompilationHelper = Bicep.Core.UnitTests.Utils.CompilationHelper;
 using LocalFileSystem = System.IO.Abstractions.FileSystem;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
-using Bicep.Core.UnitTests.Mock.Registry;
-using Bicep.Core.Registry.Catalog;
-using Bicep.Core.Configuration;
-using Bicep.Core.Workspaces;
-using Bicep.Core.Json;
-using Bicep.Core.UnitTests.Mock.Registry.Catalog;
 
 namespace Bicep.LangServer.IntegrationTests.Completions
 {
@@ -4278,9 +4278,9 @@ var file = " + functionName + @"(templ|)
 
             var publicModuleMetadataProvider = RegistryCatalogMocks.MockPublicMetadataProvider([
                    ("bicep/abc/foo/bar", "d1", "contoso.com/help1", []),
-                   ("bicep/abc/food/bar", "d2", "contoso.com/help2", []),
-                   ("bicep/abc/bar/bar", "d3", "contoso.com/help3", []),
-                ]);
+                ("bicep/abc/food/bar", "d2", "contoso.com/help2", []),
+                ("bicep/abc/bar/bar", "d3", "contoso.com/help3", []),
+            ]);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
@@ -4444,7 +4444,7 @@ var file = " + functionName + @"(templ|)
                 }
             );
         }
-        
+
         [DataTestMethod]
         [DataRow("var arr1 = [|]")]
         [DataRow("param arr array = [|]")]

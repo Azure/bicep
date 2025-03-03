@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
@@ -8,11 +9,10 @@ using Bicep.Cli.Services;
 using Bicep.Core;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.FileSystemGlobbing;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Bicep.Core.Utils;
-using System.IO.Abstractions;
+using Microsoft.Extensions.FileSystemGlobbing;
+using Microsoft.Extensions.Logging;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Cli.Commands;
 

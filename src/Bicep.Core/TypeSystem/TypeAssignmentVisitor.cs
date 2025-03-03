@@ -1021,7 +1021,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                if (syntax.Type is {})
+                if (syntax.Type is { })
                 {
                     if (!model.Features.TypedVariablesEnabled)
                     {

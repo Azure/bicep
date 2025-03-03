@@ -562,7 +562,7 @@ using 'main.bicep'
 param intParam = 42
 """;
 
-            
+
             var fileResults = new[]
             {
                 (input: "file1.bicepparam", expectOutput: true),
@@ -578,7 +578,8 @@ param intParam = 42
             var (output, error, result) = await Bicep(
                 services => services.WithEnvironment(useRootPath ? TestEnvironment.Default : TestEnvironment.Default with { CurrentDirectory = outputPath }),
                 ["build-params",
-                "--pattern", useRootPath ? $"{outputPath}/file*.bicepparam" : "file*.bicepparam"]);
+                    "--pattern",
+                    useRootPath ? $"{outputPath}/file*.bicepparam" : "file*.bicepparam"]);
 
             result.Should().Be(0);
             error.Should().BeEmpty();
