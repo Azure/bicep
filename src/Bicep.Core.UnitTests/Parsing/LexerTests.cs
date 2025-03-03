@@ -76,7 +76,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [TestMethod]
         public void UnrecognizedTokens_ShouldNotBeRecognized()
         {
-            RunSingleTokenTest("^", TokenType.Unrecognized, "The following token is not recognized: \"^\".", "BCP001");
+            RunSingleTokenTest("~", TokenType.Unrecognized, "The following token is not recognized: \"~\".", "BCP001");
         }
 
         [TestMethod]

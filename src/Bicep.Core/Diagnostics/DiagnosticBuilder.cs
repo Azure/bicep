@@ -1880,6 +1880,14 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic TypedVariablesUnsupported() => CoreError(
                 "BCP413",
                 $"""Using typed variables requires enabling EXPERIMENTAL feature "{nameof(ExperimentalFeaturesEnabled.TypedVariables)}".""");
+
+            public Diagnostic FromEndArrayAccessNotSupportedOnBaseType(TypeSymbol baseType) => CoreError(
+                "BCP414",
+                $"The \"^\" indexing operator cannot be used on base expressions of type \"{baseType}\".");
+
+            public Diagnostic FromEndArrayAccessNotSupportedWithIndexType(TypeSymbol indexType) => CoreError(
+                "BCP415",
+                $"The \"^\" indexing operator cannot be used with index expressions of type \"{indexType}\".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -939,21 +939,29 @@ public class ExpressionBuilder
         var convertedBase = ConvertWithoutLowering(arrayAccess.BaseExpression);
         var convertedIndex = ConvertWithoutLowering(arrayAccess.IndexExpression);
 
-        // Looking for short-circuitable access chains
-        if (!arrayAccess.IsSafeAccess && IsAccessExpressionSyntax(arrayAccess.BaseExpression))
-        {
-            if (convertedBase is AccessExpression baseAccess)
-            {
-                return new AccessChainExpression(arrayAccess, baseAccess, [convertedIndex]);
-            }
+        return new ArrayAccessExpression(arrayAccess, convertedBase, convertedIndex, GetAccessExpressionFlags(arrayAccess));
+    }
 
-            if (convertedBase is AccessChainExpression accessChain)
-            {
-                return new AccessChainExpression(arrayAccess, accessChain.FirstLink, [.. accessChain.AdditionalProperties, convertedIndex]);
-            }
+    private AccessExpressionFlags GetAccessExpressionFlags(AccessExpressionSyntax accessExpression)
+    {
+        var flags = AccessExpressionFlags.None;
+        if (accessExpression.IsSafeAccess)
+        {
+            flags |= AccessExpressionFlags.SafeAccess;
         }
 
-        return new ArrayAccessExpression(arrayAccess, convertedBase, convertedIndex, GetAccessExpressionFlags(arrayAccess, arrayAccess.SafeAccessMarker));
+        if (accessExpression is ArrayAccessSyntax arrayAccess &&
+            arrayAccess.FromEndMarker is not null)
+        {
+            flags |= AccessExpressionFlags.FromEnd;
+        }
+
+        if (IsAccessExpressionSyntax(accessExpression.BaseExpression))
+        {
+            flags |= AccessExpressionFlags.Chained;
+        }
+
+        return flags;
     }
 
     private bool IsAccessExpressionSyntax(SyntaxBase syntax) => syntax switch
@@ -962,6 +970,12 @@ public class ExpressionBuilder
 
         // type transformations with no runtime representation should be unwrapped and inspected
         NonNullAssertionSyntax nonNullAssertion => IsAccessExpressionSyntax(nonNullAssertion.BaseExpression),
+        _ when SemanticModelHelper.TryGetFunctionInNamespace(
+                Context.SemanticModel,
+                SystemNamespaceType.BuiltInName,
+                syntax) is { } functionCall &&
+            functionCall.NameEquals(LanguageConstants.AnyFunction) &&
+            functionCall.Arguments.Length == 1 => IsAccessExpressionSyntax(functionCall.Arguments[0].Expression),
 
         _ => false,
     };
@@ -971,7 +985,7 @@ public class ExpressionBuilder
 
     private Expression ConvertPropertyAccess(PropertyAccessSyntax propertyAccess)
     {
-        var flags = GetAccessExpressionFlags(propertyAccess, propertyAccess.SafeAccessMarker);
+        var flags = GetAccessExpressionFlags(propertyAccess);
 
         // Looking for: myResource.someProp (where myResource is a resource declared in-file)
         if (Context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is DeclaredResourceMetadata resource)
@@ -1030,27 +1044,9 @@ public class ExpressionBuilder
             return new WildcardImportVariablePropertyReferenceExpression(propertyAccess, wildcardImport, propertyAccess.PropertyName.IdentifierName);
         }
 
-        var convertedBase = ConvertWithoutLowering(propertyAccess.BaseExpression);
-
-        // Looking for short-circuitable access chains
-        if (!propertyAccess.IsSafeAccess && IsAccessExpressionSyntax(propertyAccess.BaseExpression))
-        {
-            Expression nextLink = new StringLiteralExpression(propertyAccess.PropertyName, propertyAccess.PropertyName.IdentifierName);
-
-            if (convertedBase is AccessExpression baseAccess)
-            {
-                return new AccessChainExpression(propertyAccess, baseAccess, [nextLink]);
-            }
-
-            if (convertedBase is AccessChainExpression accessChain)
-            {
-                return new AccessChainExpression(propertyAccess, accessChain.FirstLink, [.. accessChain.AdditionalProperties, nextLink]);
-            }
-        }
-
         return new PropertyAccessExpression(
             propertyAccess,
-            convertedBase,
+            ConvertWithoutLowering(propertyAccess.BaseExpression),
             propertyAccess.PropertyName.IdentifierName,
             flags);
     }
@@ -1636,15 +1632,4 @@ public class ExpressionBuilder
             (1UL + long.MaxValue, true) => long.MinValue,
             _ => throw new NotImplementedException($"Unexpected out-of-range integer value"),
         };
-
-    private static AccessExpressionFlags GetAccessExpressionFlags(SyntaxBase accessExpression, SyntaxBase? safeAccessMarker)
-    {
-        var flags = AccessExpressionFlags.None;
-        if (safeAccessMarker is not null)
-        {
-            flags |= AccessExpressionFlags.SafeAccess;
-        }
-
-        return flags;
-    }
 }
