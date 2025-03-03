@@ -5,14 +5,11 @@ using System.Collections.Immutable;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
@@ -189,9 +186,17 @@ namespace Bicep.Core.Workspaces
                     continue;
                 }
 
-                if (restorable is ExtensionDeclarationSyntax extensionDeclaration)
+                // process built-in extensions
+                var extensionSpec = restorable switch
                 {
-                    var isBuiltInExtension = extensionDeclaration.SpecificationString switch
+                    ExtensionDeclarationSyntax declSyntax => declSyntax.SpecificationString,
+                    ExtensionConfigAssignmentSyntax assignmentSyntax => assignmentSyntax.SpecificationString,
+                    _ => null
+                };
+
+                if (extensionSpec is not null)
+                {
+                    var isBuiltInExtension = extensionSpec switch
                     {
                         IdentifierSyntax identifier => config.Extensions.IsSysOrBuiltIn(identifier.IdentifierName),
                         _ => false,
