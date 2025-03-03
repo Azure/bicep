@@ -52,6 +52,7 @@ namespace Bicep.Core.Semantics
 
                 return schemaUri.AbsolutePath switch
                 {
+                    // TODO: I think this is for decompiling, so add DSC schemas and map to DSC scope
                     "/schemas/2019-08-01/tenantDeploymentTemplate.json" => ResourceScope.Tenant,
                     "/schemas/2019-08-01/managementGroupDeploymentTemplate.json" => ResourceScope.ManagementGroup,
                     "/schemas/2018-05-01/subscriptionDeploymentTemplate.json" => ResourceScope.Subscription,
