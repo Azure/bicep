@@ -24,13 +24,17 @@ namespace Bicep.Core.Caching
 
         public IEnumerable<TValue> Trim(IEnumerable<TKey> keys)
         {
+            var removedValues = new List<TValue>();
+
             foreach (var key in keys)
             {
-                if (items.TryRemove(key, out var removed))
+                if (items.TryRemove(key, out var value))
                 {
-                    yield return removed;
+                    removedValues.Add(value);
                 }
             }
+
+            return removedValues;
         }
     }
 }

@@ -19,6 +19,8 @@ namespace Bicep.Core.SourceGraph
 
         public static implicit operator string(RelativePath relativePath) => relativePath.value;
 
+        public ReadOnlySpan<char> AsSpan() => this.value.AsSpan();
+
         public static ResultWithDiagnosticBuilder<RelativePath> TryCreate(string path)
         {
             if (path.Length == 0)

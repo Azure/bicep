@@ -28,7 +28,7 @@ namespace Bicep.Core.SourceGraph
 
         public int SizeInBytes => this.data.Length;
 
-        public int SizeInCharacters => this.SizeInBytes / 4;
+        public int SizeInCharacters => this.SizeInBytes * 4;
 
         public Encoding? TryDetectEncodingFromByteOrderMarks()
         {

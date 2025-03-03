@@ -1265,12 +1265,6 @@ namespace Bicep.Core.Semantics.Namespaces
                 return new(DiagnosticBuilder.ForPosition(filePathArgument.syntax).CompileTimeConstantRequired());
             }
 
-            var auxiliaryFileLoadResult = RelativePath.TryCreate(filePathType.RawStringValue).Transform(model.SourceFile.TryLoadAuxiliaryFile);
-
-            if (!auxiliaryFileLoadResult.IsSuccess(out var auxiliaryFile, out var errorBuilder))
-            {
-                return new(errorBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
-            }
 
             var encoding = Encoding.UTF8;
             if (encodingArgument is not null)
@@ -1281,12 +1275,19 @@ namespace Bicep.Core.Semantics.Namespaces
                 }
 
                 encoding = LanguageConstants.SupportedEncodings[encodingType.RawStringValue];
+            }
 
-                if (auxiliaryFile.TryDetectEncodingFromByteOrderMarks() is { } detectedEncoding && !Equals(encoding, detectedEncoding))
-                {
-                    // FileEncodingMimatch has DiagnosticLevel.Info
-                    diagnostics.Write(DiagnosticBuilder.ForPosition(encodingArgument.Value.syntax).FileEncodingMismatch(detectedEncoding.WebName));
-                }
+            var auxiliaryFileLoadResult = RelativePath.TryCreate(filePathType.RawStringValue).Transform(model.SourceFile.TryLoadAuxiliaryFile);
+
+            if (!auxiliaryFileLoadResult.IsSuccess(out var auxiliaryFile, out var errorBuilder))
+            {
+                return new(errorBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
+            }
+
+            if (encodingArgument is not null && auxiliaryFile.TryDetectEncodingFromByteOrderMarks() is { } detectedEncoding && !Equals(encoding, detectedEncoding))
+            {
+                // FileEncodingMimatch has DiagnosticLevel.Info
+                diagnostics.Write(DiagnosticBuilder.ForPosition(encodingArgument.Value.syntax).FileEncodingMismatch(detectedEncoding.WebName));
             }
 
             if (auxiliaryFile.SizeInCharacters > maxCharacters)
