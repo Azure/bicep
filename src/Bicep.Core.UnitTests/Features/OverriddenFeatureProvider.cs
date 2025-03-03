@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Features;
-using Bicep.Core.Registry.PublicRegistry;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.UnitTests.Features;
@@ -36,8 +35,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool AssertsEnabled => overrides.AssertsEnabled ?? features.AssertsEnabled;
 
-    public bool OptionalModuleNamesEnabled => overrides.OptionalModuleNamesEnabled ?? features.OptionalModuleNamesEnabled;
-
     public bool WaitAndRetryEnabled => overrides.WaitAndRetryEnabled ?? features.WaitAndRetryEnabled;
 
     public bool LocalDeployEnabled => overrides.LocalDeployEnabled ?? features.LocalDeployEnabled;
@@ -49,6 +46,8 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool ResourceInfoCodegenEnabled => overrides.ResourceInfoCodegenEnabled ?? features.ResourceInfoCodegenEnabled;
 
     public bool ExtendableParamFilesEnabled => overrides.ExtendableParamFilesEnabled ?? features.ExtendableParamFilesEnabled;
+
+    public bool TypedVariablesEnabled => overrides.TypedVariablesEnabled ?? features.TypedVariablesEnabled;
 
     public bool ExtensibilityV2EmittingEnabled => overrides.ExtensibilityV2EmittingEnabled ?? features.ExtensibilityV2EmittingEnabled;
 }

@@ -718,7 +718,7 @@ module mod './foo.bicepparam' = {
         [DataTestMethod]
         public void Module_name_is_generated_correctly_when_optional_module_names_enabled(string symbolicName, string symbolicNamePrefix)
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, OptionalModuleNamesEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
             var result = CompilationHelper.Compile(
                 services,
 ("main.bicep", $@"
@@ -739,7 +739,7 @@ module {symbolicName} 'mod.bicep' = {{}}
         [DataTestMethod]
         public void Module_collection_name_is_generated_correctly_when_optional_module_names_enabled(string symbolicName, string symbolicNamePrefix)
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, OptionalModuleNamesEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
             var result = CompilationHelper.Compile(
                 services,
 ("main.bicep", $@"
@@ -761,7 +761,7 @@ module {symbolicName} 'mod.bicep' = [for x in []: {{
         [DataTestMethod]
         public void Module_with_generated_name_can_be_referenced_correctly(string symbolicName, string symbolicNamePrefix)
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, OptionalModuleNamesEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
             var result = CompilationHelper.Compile(services,
                 ("main.bicep", $$"""
                     module {{symbolicName}} 'mod1.bicep' = {}
@@ -783,7 +783,7 @@ module {symbolicName} 'mod.bicep' = [for x in []: {{
         [DataTestMethod]
         public void Module_collection_with_generated_name_can_be_referenced_correctly(string symbolicName, string symbolicNamePrefix)
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, OptionalModuleNamesEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
             var result = CompilationHelper.Compile(services,
                 ("main.bicep", $$"""
                     module {{symbolicName}} 'mod.bicep' = [for _ in range(0, 10): {}]

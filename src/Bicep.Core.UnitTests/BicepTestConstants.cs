@@ -15,7 +15,6 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -27,6 +26,7 @@ using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
+using Bicep.IO.InMemory;
 using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Telemetry;
 using Moq;
@@ -54,7 +54,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IFeatureProviderFactory FeatureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(ConfigurationManager, FileExplorer), FeatureOverrides);
 
-        public static readonly ISourceFileFactory SourceFileFactory = new SourceFileFactory(ConfigurationManager, FeatureProviderFactory);
+        public static readonly ISourceFileFactory SourceFileFactory = new SourceFileFactory(ConfigurationManager, FeatureProviderFactory, FileExplorer);
 
         public static readonly BicepFile DummyBicepFile = CreateDummyBicepFile();
 
@@ -96,9 +96,7 @@ namespace Bicep.Core.UnitTests
         // By default turns off only problematic analyzers
         public static readonly LinterAnalyzer LinterAnalyzer = new(EmptyServiceProvider);
 
-        public static readonly IEnvironment EmptyEnvironment = new TestEnvironment(ImmutableDictionary<string, string?>.Empty);
-
-        public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
+        public static readonly IEnvironment EmptyEnvironment = TestEnvironment.Default;
 
         public static RootConfiguration GetConfiguration(string contents)
             => RootConfiguration.Bind(IConfigurationManager.BuiltInConfigurationElement.Merge(JsonElementFactory.CreateElement(contents)));
@@ -144,12 +142,6 @@ namespace Bicep.Core.UnitTests
         public static IFeatureProviderFactory CreateFeatureProviderFactory(FeatureProviderOverrides featureOverrides, IConfigurationManager? configurationManager = null)
             => new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager ?? CreateFilesystemConfigurationManager(), FileExplorer), featureOverrides);
 
-        private static IModuleRestoreScheduler CreateMockModuleRestoreScheduler()
-        {
-            var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
-            return new ModuleRestoreScheduler(moduleDispatcher.Object);
-        }
-
         public static Mock<ITelemetryProvider> CreateMockTelemetryProvider()
         {
             var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
@@ -188,12 +180,18 @@ namespace Bicep.Core.UnitTests
             var configurationManager = IConfigurationManager.WithStaticConfiguration(configuration ?? IConfigurationManager.GetBuiltInConfiguration());
             var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, FileExplorer), featureOverrides ?? FeatureOverrides);
 
+            return CreateDummyBicepFile(configurationManager, featureProviderFactory);
+        }
+
+        public static BicepFile CreateDummyBicepFile(IConfigurationManager configurationManager, IFeatureProviderFactory? featureProviderFactory = null)
+        {
             return new(
                 new Uri($"inmemory:///main.bicep"),
+                InMemoryDummyFileHandle.Instance,
                 [],
                 SyntaxFactory.EmptyProgram,
                 configurationManager,
-                featureProviderFactory,
+                featureProviderFactory ?? FeatureProviderFactory,
                 EmptyDiagnosticLookup.Instance,
                 EmptyDiagnosticLookup.Instance);
         }

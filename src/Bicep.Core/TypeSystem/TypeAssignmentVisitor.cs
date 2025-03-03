@@ -928,11 +928,6 @@ namespace Bicep.Core.TypeSystem
                     }
                 }
 
-                if (LanguageConstants.IdentifierComparer.Equals(namespaceType.Name, MicrosoftGraphNamespaceType.BuiltInName))
-                {
-                    diagnostics.Write(syntax.SpecificationString, x => x.MicrosoftGraphBuiltinDeprecatedSoon(syntax));
-                }
-
                 return namespaceType;
             });
 
@@ -952,7 +947,8 @@ namespace Bicep.Core.TypeSystem
 
                 foreach (var argumentSyntax in decoratorSyntax.Arguments)
                 {
-                    TypeValidator.GetCompileTimeConstantViolation(argumentSyntax, diagnostics);
+                    var decoratorName = decoratorSyntax.Expression is FunctionCallSyntax decoratorFunctionExpression ? decoratorFunctionExpression.Name.IdentifierName : null;
+                    TypeValidator.GetCompileTimeConstantViolation(argumentSyntax, diagnostics, decoratorName: decoratorName);
                 }
 
                 var symbol = this.binder.GetSymbolInfo(decoratorSyntax.Expression);
@@ -1025,6 +1021,19 @@ namespace Bicep.Core.TypeSystem
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
+                if (syntax.Type is {})
+                {
+                    if (!model.Features.TypedVariablesEnabled)
+                    {
+                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).TypedVariablesUnsupported());
+                    }
+
+                    var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnostics);
+                    diagnostics.WriteMultiple(GetDeclarationAssignmentDiagnostics(declaredType, syntax.Value));
+
+                    return declaredType;
+                }
+
                 var errors = new List<IDiagnostic>();
 
                 var valueType = typeManager.GetTypeInfo(syntax.Value);
@@ -1067,7 +1076,7 @@ namespace Bicep.Core.TypeSystem
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnostics);
-                diagnostics.WriteMultiple(GetOutputDeclarationDiagnostics(declaredType, syntax));
+                diagnostics.WriteMultiple(GetDeclarationAssignmentDiagnostics(declaredType, syntax.Value));
 
                 base.VisitOutputDeclarationSyntax(syntax);
 
@@ -1620,12 +1629,16 @@ namespace Bicep.Core.TypeSystem
                 return withNonNullableIndex;
             }
 
-            static TypeSymbol GetTypeAtIndex(TupleType baseType, IntegerLiteralType indexType, SyntaxBase indexSyntax) => indexType.Value switch
+            static TypeSymbol GetTypeAtIndex(TupleType baseType, IntegerLiteralType indexType, SyntaxBase indexSyntax, bool fromEnd) => indexType.Value switch
             {
-                < 0 => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, indexType.Value)),
-                long value when value >= baseType.Items.Length => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, value)),
-                // unlikely to hit this given that we've established that the tuple has a item at the given position
-                > int.MaxValue => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, indexType.Value)),
+                long value when value < 0 ||
+                    (value == 0 && fromEnd) ||
+                    value > baseType.Items.Length ||
+                    (value == baseType.Items.Length && !fromEnd) ||
+                    // unlikely to hit this given that we've established that the tuple has a item at the given position
+                    value > int.MaxValue => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax)
+                        .IndexOutOfBounds(baseType.Name, baseType.Items.Length, value)),
+                long otherwise when fromEnd => baseType.Items[^(int)otherwise].Type,
                 long otherwise => baseType.Items[(int)otherwise].Type,
             };
 
@@ -1644,6 +1657,16 @@ namespace Bicep.Core.TypeSystem
                         return LanguageConstants.Any;
                     }
 
+                    if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.String) &&
+                        syntax.FromEndMarker is not null)
+                    {
+                        return InvalidAccessExpression(
+                            DiagnosticBuilder.ForPosition(syntax.FromEndMarker)
+                                .FromEndArrayAccessNotSupportedWithIndexType(indexType),
+                            diagnostics,
+                            syntax.IsSafeAccess);
+                    }
+
                     if (TypeValidator.AreTypesAssignable(indexType, LanguageConstants.Int) ||
                         TypeValidator.AreTypesAssignable(indexType, LanguageConstants.String))
                     {
@@ -1655,12 +1678,12 @@ namespace Bicep.Core.TypeSystem
                     return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.IndexExpression).StringOrIntegerIndexerRequired(indexType), diagnostics, syntax.IsSafeAccess);
 
                 case TupleType baseTuple when indexType is IntegerLiteralType integerLiteralIndex:
-                    return GetTypeAtIndex(baseTuple, integerLiteralIndex, syntax.IndexExpression);
+                    return GetTypeAtIndex(baseTuple, integerLiteralIndex, syntax.IndexExpression, syntax.FromEndMarker is not null);
 
                 case TupleType baseTuple when indexType is UnionType indexUnion && indexUnion.Members.All(t => t.Type is IntegerLiteralType):
                     var possibilities = indexUnion.Members.Select(t => t.Type)
                         .OfType<IntegerLiteralType>()
-                        .Select(index => GetTypeAtIndex(baseTuple, index, syntax.IndexExpression))
+                        .Select(index => GetTypeAtIndex(baseTuple, index, syntax.IndexExpression, syntax.FromEndMarker is not null))
                         .ToImmutableArray();
 
                     if (possibilities.OfType<ErrorType>().Any())
@@ -1688,6 +1711,13 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     return InvalidAccessExpression(DiagnosticBuilder.ForPosition(syntax.IndexExpression).ArraysRequireIntegerIndex(indexType), diagnostics, syntax.IsSafeAccess);
+
+                case ObjectType or DiscriminatedObjectType when syntax.FromEndMarker is not null:
+                    return InvalidAccessExpression(
+                        DiagnosticBuilder.ForPosition(syntax.FromEndMarker)
+                            .FromEndArrayAccessNotSupportedOnBaseType(baseType),
+                        diagnostics,
+                        syntax.IsSafeAccess);
 
                 case ObjectType baseObject:
                     {
@@ -2360,9 +2390,9 @@ namespace Bicep.Core.TypeSystem
         private IEnumerable<TypeSymbol> GetRecoveredArgumentTypes(IEnumerable<FunctionArgumentSyntax> argumentSyntaxes) =>
             this.GetArgumentTypes(argumentSyntaxes).Select(argumentType => argumentType.TypeKind == TypeKind.Error ? LanguageConstants.Any : argumentType);
 
-        private IEnumerable<IDiagnostic> GetOutputDeclarationDiagnostics(TypeSymbol assignedType, OutputDeclarationSyntax syntax)
+        private IEnumerable<IDiagnostic> GetDeclarationAssignmentDiagnostics(TypeSymbol declaredType, SyntaxBase value)
         {
-            var valueType = typeManager.GetTypeInfo(syntax.Value);
+            var valueType = typeManager.GetTypeInfo(value);
 
             // this type is not a property in a symbol so the semantic error visitor won't collect the errors automatically
             if (valueType is ErrorType)
@@ -2370,7 +2400,7 @@ namespace Bicep.Core.TypeSystem
                 return valueType.GetDiagnostics();
             }
 
-            if (assignedType is ErrorType)
+            if (declaredType is ErrorType)
             {
                 // no point in checking that the value is assignable to the declared output type if no valid declared type could be discerned
                 return [];
@@ -2378,7 +2408,7 @@ namespace Bicep.Core.TypeSystem
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
 
-            TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, syntax.Value, assignedType);
+            TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, value, declaredType);
 
             return diagnosticWriter.GetDiagnostics();
         }

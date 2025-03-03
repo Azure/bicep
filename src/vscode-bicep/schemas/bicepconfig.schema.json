@@ -286,8 +286,7 @@
       "additionalProperties": false,
       "default": {
         "az": "builtin:",
-        "kubernetes": "builtin:",
-        "microsoftGraph": "builtin:"
+        "kubernetes": "builtin:"
       }
     },
     "implicitExtensions": {
@@ -821,10 +820,6 @@
           "type": "boolean",
           "description": "Enabling this feature turns on support for local Bicep deployments. See https://aka.ms/bicep/experimental-features#localdeploy"
         },
-        "optionalModuleNames": {
-          "type": "boolean",
-          "description": "Enabling this feature makes the name property in the body of module declarations optional. See https://aka.ms/bicep/experimental-features#optionalmodulenames"
-        },
         "waitAndRetry": {
           "type": "boolean",
           "description": "Allows to enable wait and retry feature on resource type. See https://aka.ms/bicep/experimental-features#waitandretry"
@@ -840,6 +835,10 @@
         "resourceInfoCodegen": {
             "type": "boolean",
             "description": "Enables the 'resourceInfo' function for simplified code generation. See https://aka.ms/bicep/experimental-features#resourceinfocodegen"
+        },
+        "typedVariables": {
+          "type": "boolean",
+          "description": "If enabled, you can optionally add a type to variable declarations. See https://aka.ms/bicep/experimental-features#typedvariables"
         }
       },
       "additionalProperties": false

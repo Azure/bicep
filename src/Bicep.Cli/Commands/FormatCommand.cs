@@ -11,41 +11,44 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrintV2;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Cli.Commands;
 
-public class FormatCommand : ICommand
+public class FormatCommand(
+    IOContext io,
+    IEnvironment environment,
+    IFileResolver fileResolver,
+    IFileSystem fileSystem,
+    ISourceFileFactory sourceFileFactory) : ICommand
 {
-    private readonly IOContext io;
-    private readonly IFileResolver fileResolver;
-    private readonly IFileSystem fileSystem;
-    private readonly ISourceFileFactory sourceFileFactory;
-
-    public FormatCommand(
-        IOContext io,
-        IFileResolver fileResolver,
-        IFileSystem fileSystem,
-        ISourceFileFactory sourceFileFactory)
-    {
-        this.io = io;
-        this.fileResolver = fileResolver;
-        this.fileSystem = fileSystem;
-        this.sourceFileFactory = sourceFileFactory;
-    }
-
     public int Run(FormatArguments args)
     {
-        var inputUri = ArgumentHelper.GetFileUri(args.InputFile, this.fileSystem);
+        if (args.InputFile is null)
+        {
+            FormatMultiple(args);
+            return 0;
+        }
+
+        var inputUri = ArgumentHelper.GetFileUri(args.InputFile, fileSystem);
         ArgumentHelper.ValidateBicepOrBicepParamFile(inputUri);
 
-        if (!this.fileResolver.TryRead(inputUri).IsSuccess(out var fileContents, out var failureBuilder))
+        var outputUri = GetOutputUri(inputUri, args.OutputDir, args.OutputFile);
+
+        Format(args, inputUri, outputUri, args.OutputToStdOut);
+        return 0;
+    }
+
+    public void Format(FormatArguments args, Uri inputUri, Uri outputUri, bool outputToStdOut)
+    {
+        if (!fileResolver.TryRead(inputUri).IsSuccess(out var fileContents, out var failureBuilder))
         {
             var diagnostic = failureBuilder(DiagnosticBuilder.ForPosition(new TextSpan(0, 0)));
             throw new DiagnosticException(diagnostic);
         }
 
-        if (this.sourceFileFactory.CreateSourceFile(inputUri, fileContents) is not BicepSourceFile sourceFile)
+        if (sourceFileFactory.CreateSourceFile(inputUri, fileContents) is not BicepSourceFile sourceFile)
         {
             throw new InvalidOperationException("Unable to create Bicep source file.");
         }
@@ -56,40 +59,50 @@ public class FormatCommand : ICommand
             var legacyOptions = PrettyPrintOptions.FromV2Options(v2Options);
             var output = PrettyPrinter.PrintProgram(sourceFile.ProgramSyntax, legacyOptions, sourceFile.LexingErrorLookup, sourceFile.ParsingErrorLookup);
 
-            if (args.OutputToStdOut)
+            if (outputToStdOut)
             {
                 io.Output.Write(output);
                 io.Output.Flush();
             }
             else
             {
-                var outputPath = PathHelper.ResolveDefaultOutputPath(inputUri.LocalPath, args.OutputDir, args.OutputFile, path => path, this.fileSystem);
-
-                this.fileSystem.File.WriteAllText(outputPath, output);
+                fileSystem.File.WriteAllText(outputUri.LocalPath, output);
             }
 
-            return 0;
+            return;
         }
 
         var options = GetPrettyPrinterOptions(sourceFile, args);
         var context = PrettyPrinterV2Context.Create(options, sourceFile.LexingErrorLookup, sourceFile.ParsingErrorLookup);
 
-        if (args.OutputToStdOut)
+        if (outputToStdOut)
         {
-            PrettyPrinterV2.PrintTo(this.io.Output, sourceFile.ProgramSyntax, context);
-            this.io.Output.Flush();
+            PrettyPrinterV2.PrintTo(io.Output, sourceFile.ProgramSyntax, context);
+            io.Output.Flush();
         }
         else
         {
-            var outputPath = PathHelper.ResolveDefaultOutputPath(inputUri.LocalPath, args.OutputDir, args.OutputFile, path => path, this.fileSystem);
-            using var fileStream = this.fileSystem.File.Open(outputPath, FileMode.Create, FileAccess.Write, FileShare.Read);
+            using var fileStream = fileSystem.File.Open(outputUri.LocalPath, FileMode.Create, FileAccess.Write, FileShare.Read);
             using var writer = new StreamWriter(fileStream);
 
 
             PrettyPrinterV2.PrintTo(writer, sourceFile.ProgramSyntax, context);
         }
 
-        return 0;
+        return;
+    }
+
+    public void FormatMultiple(FormatArguments args)
+    {
+        foreach (var inputUri in CommandHelper.GetFilesMatchingPattern(environment, args.FilePattern))
+        {
+            ArgumentHelper.ValidateBicepOrBicepParamFile(inputUri);
+
+            // only allow in-place formatting
+            var outputUri = inputUri;
+
+            Format(args, inputUri, outputUri, false);
+        }
     }
 
     private static PrettyPrinterV2Options GetPrettyPrinterOptions(BicepSourceFile sourceFile, FormatArguments args)
@@ -117,5 +130,11 @@ public class FormatCommand : ICommand
         }
 
         return options;
+    }
+
+    private Uri GetOutputUri(Uri inputUri, string? outputDir, string? outputFile)
+    {
+        var outputPath = PathHelper.ResolveDefaultOutputPath(inputUri.LocalPath, outputDir, outputFile, path => path, fileSystem);
+        return PathHelper.FilePathToFileUrl(outputPath);
     }
 }

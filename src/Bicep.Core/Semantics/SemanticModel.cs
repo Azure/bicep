@@ -173,7 +173,11 @@ namespace Bicep.Core.Semantics
 
         private IEnumerable<ExportMetadata> FindExportedVariables() => Root.VariableDeclarations
             .Where(v => v.IsExported(this))
-            .Select(v => new ExportedVariableMetadata(v.Name, v.Type, DescriptionHelper.TryGetFromDecorator(this, v.DeclaringVariable)));
+            .Select(v => new ExportedVariableMetadata(
+                v.Name,
+                v.Type,
+                DescriptionHelper.TryGetFromDecorator(this, v.DeclaringVariable),
+                DeclaredType: GetDeclaredType(v.DeclaringVariable)));
 
         private IEnumerable<ExportMetadata> FindExportedFunctions() => Root.FunctionDeclarations
             .Where(f => f.IsExported(this))
@@ -186,7 +190,7 @@ namespace Bicep.Core.Semantics
         {
             var sb = new StringBuilder();
 
-            sb.Append($"Building semantic model for {sourceFile.Uri} ({sourceFile.FileKind}). ");
+            sb.Append($"Building semantic model for {sourceFile.FileHandle.Uri} ({sourceFile.FileKind}). ");
             var experimentalFeatures = features.EnabledFeatureMetadata.Select(x => x.name).ToArray();
             if (experimentalFeatures.Any())
             {

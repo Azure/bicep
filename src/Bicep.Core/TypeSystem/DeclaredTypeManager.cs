@@ -177,6 +177,9 @@ namespace Bicep.Core.TypeSystem
 
                 case TypedLambdaSyntax typedLambda:
                     return GetTypedLambdaType(typedLambda);
+
+                case VariableDeclarationSyntax variableDeclaration:
+                    return GetVariableTypeIfDefined(variableDeclaration);
             }
 
             return null;
@@ -469,6 +472,19 @@ namespace Bicep.Core.TypeSystem
             return new(ApplyTypeModifyingDecorators(DisallowNamespaceTypes(declaredType.Type, syntax.Type), syntax), syntax);
         }
 
+        private DeclaredTypeAssignment? GetVariableTypeIfDefined(VariableDeclarationSyntax syntax)
+        {
+            if (syntax.Type is null)
+            {
+                return null;
+            }
+
+            var declaredType = TryGetTypeFromTypeSyntax(syntax.Type) ??
+                ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidVariableType(GetValidTypeNames()));
+
+            return new(ApplyTypeModifyingDecorators(DisallowNamespaceTypes(declaredType.Type, syntax.Type), syntax), syntax);
+        }
+
         private ITypeReference GetTypeFromTypeSyntax(SyntaxBase syntax) => TryGetTypeFromTypeSyntax(syntax)
             ?? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).InvalidTypeDefinition());
 
@@ -511,9 +527,6 @@ namespace Bicep.Core.TypeSystem
 
             return declaredType is not null ? new(declaredType, syntax, DeclaredTypeFlags.None) : null;
         });
-
-        private DeclaredTypeAssignment GetResourceTypeType(ResourceTypeSyntax syntax)
-            => new(GetTypeReferenceForResourceType(syntax), syntax);
 
         private TypeSymbol GetTypeReferenceForResourceType(ResourceTypeSyntax syntax)
         {
@@ -577,7 +590,7 @@ namespace Bicep.Core.TypeSystem
         {
             AmbientTypeSymbol ambientType => InstantiateType(syntax, ambientType.Name, ambientType.Type),
             ImportedTypeSymbol importedType => InstantiateType(syntax, importedType.Name, importedType.Type),
-            TypeAliasSymbol typeAlias => InstantiateType(syntax, typeAlias.Name, typeAlias.Type),
+            TypeAliasSymbol typeAlias => InstantiateType(syntax, typeAlias.Name, GetUserDefinedTypeType(typeAlias)),
             DeclaredSymbol declaredSymbol => new(DiagnosticBuilder.ForPosition(syntax).ValueSymbolUsedAsType(declaredSymbol.Name)),
             _ => new(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
         };
@@ -935,16 +948,11 @@ namespace Bicep.Core.TypeSystem
 
         private ITypeReference ConvertTypeExpressionToType(SyntaxBase syntax, SyntaxBase baseExpression, string propertyName, SyntaxBase propertyNameSyntax)
         {
-            if (!IsPermittedTypeAccessExpressionBase(baseExpression))
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
-            }
-
             var baseType = GetTypeFromTypeSyntax(baseExpression);
 
             return RequiresDeferral(baseExpression)
-                ? new DeferredTypeReference(() => FinalizeTypePropertyType(baseType, propertyName, propertyNameSyntax))
-                : FinalizeTypePropertyType(baseType, propertyName, propertyNameSyntax);
+                ? new DeferredTypeReference(() => FinalizeTypePropertyType(syntax, baseExpression, baseType, propertyName, propertyNameSyntax))
+                : FinalizeTypePropertyType(syntax, baseExpression, baseType, propertyName, propertyNameSyntax);
         }
 
         private bool IsPermittedTypeAccessExpressionBase(SyntaxBase baseExpression) => baseExpression switch
@@ -968,8 +976,27 @@ namespace Bicep.Core.TypeSystem
             _ => false,
         };
 
-        private static TypeSymbol FinalizeTypePropertyType(ITypeReference baseExpressionType, string propertyName, SyntaxBase propertyNameSyntax)
-            => EnsureNonParameterizedType(propertyNameSyntax, GetTypePropertyType(baseExpressionType, propertyName, propertyNameSyntax));
+        private TypeSymbol FinalizeTypePropertyType(
+            SyntaxBase syntax,
+            SyntaxBase baseExpression,
+            ITypeReference baseExpressionType,
+            string propertyName,
+            SyntaxBase propertyNameSyntax)
+        {
+            var typePropertyType = GetTypePropertyType(baseExpressionType, propertyName, propertyNameSyntax);
+
+            if (typePropertyType is ErrorType)
+            {
+                return typePropertyType;
+            }
+
+            if (!IsPermittedTypeAccessExpressionBase(baseExpression))
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
+            }
+
+            return EnsureNonParameterizedType(propertyNameSyntax, GetTypePropertyType(baseExpressionType, propertyName, propertyNameSyntax));
+        }
 
         private static TypeSymbol GetTypePropertyType(ITypeReference baseExpressionType, string propertyName, SyntaxBase propertyNameSyntax)
         {
@@ -1002,11 +1029,6 @@ namespace Bicep.Core.TypeSystem
 
         private ITypeReference ConvertTypeExpressionToType(TypeArrayAccessSyntax syntax, ulong index)
         {
-            if (!IsPermittedTypeAccessExpressionBase(syntax.BaseExpression))
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
-            }
-
             var baseType = GetTypeFromTypeSyntax(syntax.BaseExpression);
 
             return RequiresDeferral(syntax.BaseExpression)
@@ -1014,7 +1036,7 @@ namespace Bicep.Core.TypeSystem
                 : FinalizeTypeIndexAccessType(syntax, index, baseType);
         }
 
-        private static TypeSymbol FinalizeTypeIndexAccessType(TypeArrayAccessSyntax syntax, ulong index, ITypeReference baseExpressionType)
+        private TypeSymbol FinalizeTypeIndexAccessType(TypeArrayAccessSyntax syntax, ulong index, ITypeReference baseExpressionType)
         {
             var baseType = baseExpressionType.Type;
 
@@ -1026,6 +1048,11 @@ namespace Bicep.Core.TypeSystem
             if (baseType is ErrorType error)
             {
                 return error;
+            }
+
+            if (!IsPermittedTypeAccessExpressionBase(syntax.BaseExpression))
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
             }
 
             if (baseType is not TupleType tupleType)
@@ -1044,11 +1071,6 @@ namespace Bicep.Core.TypeSystem
 
         private ITypeReference ConvertTypeExpressionToType(TypeAdditionalPropertiesAccessSyntax syntax)
         {
-            if (!IsPermittedTypeAccessExpressionBase(syntax.BaseExpression))
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
-            }
-
             var baseType = DisallowNamespaceTypes(GetTypeFromTypeSyntax(syntax.BaseExpression), syntax.BaseExpression);
 
             return RequiresDeferral(syntax.BaseExpression)
@@ -1056,7 +1078,7 @@ namespace Bicep.Core.TypeSystem
                 : FinalizeAdditionalPropertiesAccessType(syntax, baseType);
         }
 
-        private static TypeSymbol FinalizeAdditionalPropertiesAccessType(TypeAdditionalPropertiesAccessSyntax syntax, ITypeReference baseExpressionType)
+        private TypeSymbol FinalizeAdditionalPropertiesAccessType(TypeAdditionalPropertiesAccessSyntax syntax, ITypeReference baseExpressionType)
         {
             var baseType = baseExpressionType.Type;
 
@@ -1068,6 +1090,11 @@ namespace Bicep.Core.TypeSystem
             if (baseType is ErrorType error)
             {
                 return error;
+            }
+
+            if (!IsPermittedTypeAccessExpressionBase(syntax.BaseExpression))
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
             }
 
             if (baseType is not ObjectType @object || @object.AdditionalProperties is null || @object.AdditionalProperties.TypeReference.Type == LanguageConstants.Any)
@@ -1080,11 +1107,6 @@ namespace Bicep.Core.TypeSystem
 
         private ITypeReference ConvertTypeExpressionToType(TypeItemsAccessSyntax syntax)
         {
-            if (!IsPermittedTypeAccessExpressionBase(syntax.BaseExpression))
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
-            }
-
             var baseType = DisallowNamespaceTypes(GetTypeFromTypeSyntax(syntax.BaseExpression), syntax.BaseExpression);
 
             return RequiresDeferral(syntax.BaseExpression)
@@ -1092,7 +1114,7 @@ namespace Bicep.Core.TypeSystem
                 : FinalizeItemsAccessType(syntax, baseType);
         }
 
-        private static TypeSymbol FinalizeItemsAccessType(TypeItemsAccessSyntax syntax, ITypeReference baseExpressionType)
+        private TypeSymbol FinalizeItemsAccessType(TypeItemsAccessSyntax syntax, ITypeReference baseExpressionType)
         {
             var baseType = baseExpressionType.Type;
 
@@ -1104,6 +1126,11 @@ namespace Bicep.Core.TypeSystem
             if (baseType is ErrorType error)
             {
                 return error;
+            }
+
+            if (!IsPermittedTypeAccessExpressionBase(syntax.BaseExpression))
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
             }
 
             if (baseType is not TypedArrayType @array)
@@ -1130,12 +1157,6 @@ namespace Bicep.Core.TypeSystem
         {
             TypeType tt => tt.Unwrapped,
             _ => type,
-        };
-
-        private static ITypeReference UnwrapType(ITypeReference typeReference) => typeReference switch
-        {
-            DeferredTypeReference => new DeferredTypeReference(() => UnwrapType(typeReference.Type)),
-            _ => UnwrapType(typeReference.Type),
         };
 
         private ITypeReference ConvertTypeExpressionToType(NullableTypeSyntax syntax)
@@ -1225,7 +1246,7 @@ namespace Bicep.Core.TypeSystem
                     var innerModuleBody = moduleSymbol.DeclaringModule.Value;
                     return this.GetDeclaredTypeAssignment(innerModuleBody);
 
-                case VariableSymbol variableSymbol when IsCycleFree(variableSymbol):
+                case VariableSymbol variableSymbol when variableSymbol.DeclaringVariable.Type is null && IsCycleFree(variableSymbol):
                     var variableType = this.typeManager.GetTypeInfo(variableSymbol.DeclaringVariable.Value);
                     return new DeclaredTypeAssignment(variableType, variableSymbol.DeclaringVariable);
 
@@ -1332,13 +1353,16 @@ namespace Bicep.Core.TypeSystem
         private DeclaredTypeAssignment? GetArrayAccessType(DeclaredTypeAssignment baseExpressionAssignment, ArrayAccessSyntax syntax)
         {
             var indexAssignedType = this.typeManager.GetTypeInfo(syntax.IndexExpression);
-
-            static TypeSymbol GetTypeAtIndex(TupleType baseType, IntegerLiteralType indexType, SyntaxBase indexSyntax) => indexType.Value switch
+            static TypeSymbol GetTypeAtIndex(TupleType baseType, IntegerLiteralType indexType, SyntaxBase indexSyntax, bool fromEnd) => indexType.Value switch
             {
-                < 0 => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, indexType.Value)),
-                long value when value >= baseType.Items.Length => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, value)),
-                // unlikely to hit this given that we've established that the tuple has a item at the given position
-                > int.MaxValue => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, indexType.Value)),
+                long value when value < 0 ||
+                    (value == 0 && fromEnd) ||
+                    value > baseType.Items.Length ||
+                    (value == baseType.Items.Length && !fromEnd) ||
+                    // unlikely to hit this given that we've established that the tuple has a item at the given position
+                    value > int.MaxValue => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax)
+                        .IndexOutOfBounds(baseType.Name, baseType.Items.Length, value)),
+                long otherwise when fromEnd => baseType.Items[^(int)otherwise].Type,
                 long otherwise => baseType.Items[(int)otherwise].Type,
             };
 
@@ -1354,10 +1378,14 @@ namespace Bicep.Core.TypeSystem
             switch (baseExpressionAssignment?.Reference.Type)
             {
                 case TupleType tupleTypeWithKnownIndex when indexAssignedType is IntegerLiteralType integerLiteral:
-                    return new(GetTypeAtIndex(tupleTypeWithKnownIndex, integerLiteral, syntax.IndexExpression), DeclaringSyntaxForArrayAccessIfCollectionBase(baseExpressionAssignment));
+                    return new(
+                        GetTypeAtIndex(tupleTypeWithKnownIndex, integerLiteral, syntax.IndexExpression, syntax.FromEndMarker is not null),
+                        DeclaringSyntaxForArrayAccessIfCollectionBase(baseExpressionAssignment));
 
                 case TupleType tupleTypeWithIndexPossibilities when indexAssignedType is UnionType indexUnion && indexUnion.Members.All(t => t.Type is IntegerLiteralType):
-                    var possibilities = indexUnion.Members.Select(t => t.Type).OfType<IntegerLiteralType>().Select(ilt => GetTypeAtIndex(tupleTypeWithIndexPossibilities, ilt, syntax.IndexExpression));
+                    var possibilities = indexUnion.Members.Select(t => t.Type)
+                        .OfType<IntegerLiteralType>()
+                        .Select(ilt => GetTypeAtIndex(tupleTypeWithIndexPossibilities, ilt, syntax.IndexExpression, syntax.FromEndMarker is not null));
                     if (possibilities.OfType<ErrorType>().Any())
                     {
                         return new(ErrorType.Create(possibilities.SelectMany(t => t.GetDiagnostics())), syntax);
@@ -1753,6 +1781,7 @@ namespace Bicep.Core.TypeSystem
                     return TryCreateAssignment(ResolveDiscriminatedObjects(namespaceType.ConfigurationType.Type, syntax), syntax, extensionAssignment.Flags);
                 case FunctionArgumentSyntax:
                 case OutputDeclarationSyntax parentOutput when syntax == parentOutput.Value:
+                case VariableDeclarationSyntax parentVariable when syntax == parentVariable.Value:
                     if (GetNonNullableTypeAssignment(parent) is not { } parentAssignment)
                     {
                         return null;

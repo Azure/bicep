@@ -148,10 +148,15 @@ namespace Bicep.Core.IntegrationTests
         [DataRow("not(equals(toLower(variables('a')),toLower(variables('b'))))", "boolean", "(a !~ b)")]
         [DataRow("createArray(1, 2, 3)", "array", "[\n  1\n  2\n  3\n]")]
         [DataRow("createObject('key', 'value')", "object", "{\n  key: 'value'\n}")]
-        [DataRow("tryGet(parameters('z'), 'y')", "int", "(z.?y)")]
-        [DataRow("tryGet(parameters('z'), 'y', 'x', 'w')", "int", "(z.?y.x.w)")]
-        [DataRow("tryGet(tryGet(parameters('z'), 'y', 'x'), 'w', 'v')", "int", "((z.?y.x).?w.v)")]
+        [DataRow("tryGet(parameters('z'), 'y')", "int", "z.?y")]
+        [DataRow("tryGet(parameters('z'), 'y', 'x', 'w')", "int", "z.?y.x.w")]
+        [DataRow("tryGet(tryGet(parameters('z'), 'y', 'x'), 'w', 'v')", "int", "z.?y.x.?w.v")]
         [DataRow("tryGet(parameters('z'), 'y', 'x', 'w').v", "int", "(z.?y.x.w).v")]
+        [DataRow("tryIndexFromEnd(parameters('z').array, 3, 'foo')", "int", "z.array[?^3].foo")]
+        [DataRow("tryIndexFromEnd(parameters('z').array, 3, createObject('value', 2, 'fromEnd', true()))", "int", "z.array[?^3][^2]")]
+        [DataRow("tryIndexFromEnd(parameters('z').array, 3, createObject('value', 2))", "int", "z.array[?^3][2]")]
+        [DataRow("tryIndexFromEnd(parameters('z').array, 3, createObject('value', 2)).foo", "int", "(z.array[?^3][2]).foo")]
+        [DataRow("indexFromEnd(parameters('z').array, 3)", "int", "z.array[^3]")]
         public async Task Decompiler_handles_banned_function_replacement(string expression, string type, string expectedValue)
         {
             var template = @"{

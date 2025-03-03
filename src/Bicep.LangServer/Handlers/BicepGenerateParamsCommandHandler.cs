@@ -63,10 +63,10 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             var compilation = await new CompilationHelper(bicepCompiler, compilationManager).GetRefreshedCompilation(documentUri);
-            var fileUri = documentUri.ToUriEncoded();
+            var fileUri = documentUri.ToIOUri();
 
             var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile()
-                .FirstOrDefault(x => x.Key.Uri == fileUri);
+                .FirstOrDefault(x => x.Key.FileHandle.Uri == fileUri);
 
             if (diagnosticsByFile.Value.Any(x => x.IsError()))
             {

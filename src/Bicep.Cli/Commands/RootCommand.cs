@@ -54,7 +54,7 @@ namespace Bicep.Cli.Commands
 $@"Bicep CLI version {versionString}
 
 Usage:
-  {exeName} build [options] <file>
+  {exeName} build [options] [<file>]
     Builds a .bicep file.
 
     Arguments:
@@ -66,6 +66,7 @@ Usage:
       --stdout                       Prints the output to stdout.
       --no-restore                   Builds the bicep file without restoring external modules.
       --diagnostics-format <format>  Sets the format with which diagnostics are displayed. Valid values are ( {string.Join(" | ", Enum.GetNames(typeof(DiagnosticsFormat)))} ).
+      --pattern <pattern>            Builds all files matching the specified glob pattern.
 
     Examples:
       bicep build file.bicep
@@ -74,21 +75,23 @@ Usage:
       bicep build file.bicep --outfile file.json
       bicep build file.bicep --no-restore
       bicep build file.bicep --diagnostics-format sarif
+      bicep build --pattern './dir/**/*.bicep'
 
-  {exeName} format [options] <file>
+  {exeName} format [options] [<file>]
     Formats a .bicep file.
 
     Arguments:
       <file>        The input file
 
     Options:
-      --outdir <dir>        Saves the output at the specified directory.
-      --outfile <file>      Saves the output as the specified file path.
-      --stdout              Prints the output to stdout.
-      --newline             Set newline char. Valid values are ( Auto | LF | CRLF | CR ).
-      --indent-kind          Set indentation kind. Valid values are ( Space | Tab ).
-      --indent-size          Number of spaces to indent with (Only valid with --indentKind set to Space).
-      --insert-final-newline  Insert a final newline.
+      --outdir <dir>            Saves the output at the specified directory.
+      --outfile <file>          Saves the output as the specified file path.
+      --stdout                  Prints the output to stdout.
+      --newline                 Set newline char. Valid values are ( Auto | LF | CRLF | CR ).
+      --indent-kind             Set indentation kind. Valid values are ( Space | Tab ).
+      --indent-size             Number of spaces to indent with (Only valid with --indentKind set to Space).
+      --insert-final-newline    Insert a final newline.
+      --pattern <pattern>       Formats all files matching the specified glob pattern.
 
     Examples:
       bicep format file.bicep
@@ -96,6 +99,7 @@ Usage:
       bicep format file.bicep --outdir dir1
       bicep format file.bicep --outfile file.json
       bicep format file.bicep --indent-kind Tab
+      bicep format --pattern './dir/**/*.bicep'
 
   {exeName} decompile [options] <file>
     Attempts to decompile a template .json file to .bicep.
@@ -116,7 +120,7 @@ Usage:
       bicep decompile file.json --force
       bicep decompile file.json --outfile file.bicep
 
-  {exeName} lint [options] <file>
+  {exeName} lint [options] [<file>]
     Lints a .bicep file.
 
     Arguments:
@@ -125,11 +129,13 @@ Usage:
     Options:
       --no-restore                   Skips restoring external modules.
       --diagnostics-format <format>  Sets the format with which diagnostics are displayed. Valid values are ( {string.Join(" | ", Enum.GetNames(typeof(DiagnosticsFormat)))} ).
+      --pattern <pattern>            Lints all files matching the specified glob pattern.
 
     Examples:
       bicep lint file.bicep
       bicep lint file.bicep --no-restore
       bicep lint file.bicep --diagnostics-format sarif
+      bicep lint --pattern './dir/**/*.bicep'
 
   {exeName} decompile-params [options] <file>
     Attempts to decompile a parameters .json file to .bicepparam.
@@ -192,11 +198,18 @@ Usage:
       bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1 --documentation-uri https://github.com/hello-world/README.md --with-source
       bicep publish file.json --target br:example.azurecr.io/hello/world:v1 --documentation-uri https://github.com/hello-world/README.md
 
-  {exeName} restore <file>
+  {exeName} restore [<file>]
     Restores external modules from the specified Bicep file to the local module cache.
 
     Arguments:
       <file>        The input file
+
+    Options:
+      --pattern <pattern>  Restores all files matching the specified glob pattern.
+
+    Examples:
+      bicep restore main.bicep
+      bicep restore --pattern './dir/**/*.bicep'
 
   {exeName} [options]
     Options:
@@ -205,7 +218,7 @@ Usage:
       --license                   Prints license information
       --third-party-notices       Prints third-party notices
 
-  {exeName} build-params <file>
+  {exeName} build-params [<file>]
     Builds a .json file from a .bicepparam file.
 
     Arguments:
@@ -218,6 +231,7 @@ Usage:
       --stdout                       Prints the output of building both the parameter file (.bicepparam) and the template it points to (.bicep) as json to stdout.
       --no-restore                   Builds the bicep file (referenced in using declaration) without restoring external modules.
       --diagnostics-format <format>  Sets the format with which diagnostics are displayed. Valid values are ( {string.Join(" | ", Enum.GetNames(typeof(DiagnosticsFormat)))} ).
+      --pattern <pattern>            Builds all files matching the specified glob pattern.
 
     Examples:
       bicep build-params params.bicepparam
@@ -226,6 +240,7 @@ Usage:
       bicep build-params params.bicepparam --outfile otherParams.json
       bicep build-params params.bicepparam --no-restore
       bicep build-params params.bicepparam --diagnostics-format sarif
+      bicep build-params --pattern './dir/**/*.bicepparam'
 
   {exeName} jsonrpc [options]
     Runs a JSONRPC server for interacting with Bicep programmatically.

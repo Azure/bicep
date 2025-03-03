@@ -8,7 +8,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
@@ -17,6 +17,7 @@ using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock.Registry;
+using Bicep.Core.UnitTests.Mock.Registry.Catalog;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
@@ -44,7 +45,7 @@ public static class IServiceCollectionExtensions
             .AddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>()
             .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
             .AddSingleton<IFileResolver, FileResolver>()
-            .AddSingleton<IEnvironment>(TestEnvironment.Create())
+            .AddSingleton<IEnvironment>(TestEnvironment.Default)
             .AddSingleton<IFileSystem, LocalFileSystem>()
             .AddSingleton<IFileExplorer, FileSystemFileExplorer>()
             .AddSingleton<IConfigurationManager, ConfigurationManager>()
@@ -52,7 +53,7 @@ public static class IServiceCollectionExtensions
             .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
             .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
             .AddSingleton<ISourceFileFactory, SourceFileFactory>()
-            .AddPublicModuleMetadataProviderServices()
+            .AddRegistryCatalogServices()
             .AddSingleton<BicepCompiler>();
 
         AddMockHttpClient(services, PublicModuleIndexHttpClientMocks.Create([]).Object);
@@ -91,7 +92,10 @@ public static class IServiceCollectionExtensions
             .AddSingleton<IFeatureProviderFactory, OverriddenFeatureProviderFactory>();
 
     public static IServiceCollection WithEnvironmentVariables(this IServiceCollection services, params (string key, string? value)[] variables)
-        => Register(services, TestEnvironment.Create(variables));
+        => WithEnvironment(services,  TestEnvironment.Default.WithVariables(variables));
+
+    public static IServiceCollection WithEnvironment(this IServiceCollection services, IEnvironment environment)
+        => Register(services, environment);
 
     public static IServiceCollection WithNamespaceProvider(this IServiceCollection services, INamespaceProvider namespaceProvider)
         => Register(services, namespaceProvider);

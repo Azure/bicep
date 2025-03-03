@@ -8,6 +8,8 @@ namespace Bicep.LanguageServer.Completions
 {
     public interface IModuleReferenceCompletionProvider
     {
-        Task<IEnumerable<CompletionItem>> GetFilteredCompletions(BicepCompletionContext context, CancellationToken cancellationToken);
+        Task<IEnumerable<CompletionItem>> GetFilteredCompletions(BicepSourceFile sourceFile, BicepCompletionContext context, CancellationToken cancellationToken);
+
+        Task<CompletionItem> ResolveCompletionItem(CompletionItem completionItem, CancellationToken cancellationToken);
     }
 }

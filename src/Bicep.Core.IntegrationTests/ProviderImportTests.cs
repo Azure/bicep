@@ -381,7 +381,10 @@ extension madeUpNamespace
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @"extension microsoftGraph as graph");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.Should().NotGenerateATemplate();
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP407", DiagnosticLevel.Error, """Built-in extension "microsoftGraph" is retired. Use dynamic types instead. See https://aka.ms/graphBicepDynamicTypes"""),
+            });
         }
     }
 }

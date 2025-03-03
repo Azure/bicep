@@ -22,6 +22,7 @@ namespace Bicep.Core.Emit
                 model.Features.SymbolicNameCodegenEnabled ||
                 // resourceinfo codegen has been enabled
                 model.Features.ResourceInfoCodegenEnabled ||
+                model.Features.TypedVariablesEnabled ||
                 // there are any user-defined type declarations
                 model.Root.TypeDeclarations.Any() ||
                 // there are any user-defined function declarations

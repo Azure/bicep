@@ -1880,4 +1880,59 @@ param myParam string
             ("BCP187", DiagnosticLevel.Info, "The property \"undeclaredProperty\" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
         });
     }
+
+    [TestMethod]
+    public void Accessing_property_of_resource_derived_type_when_feature_is_disabled_raises_useful_error()
+    {
+        var result = CompilationHelper.Compile("""
+            param probes resourceInput<'Microsoft.App/containerApps@2024-10-02-preview'>.properties.templates.containers[*].probes
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP302", DiagnosticLevel.Error, "The name \"resourceInput\" is not a valid type. Please specify one of the following types: \"array\", \"bool\", \"int\", \"object\", \"string\"."),
+        });
+    }
+
+    [TestMethod]
+    public void FromEnd_indexing_of_tuple_resolves_correct_type()
+    {
+        var result = CompilationHelper.Compile("""
+            param foo [int, string]
+            output foo int = foo[^2]
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+
+        result = CompilationHelper.Compile("""
+            param foo [int, string]
+            output foo int = foo[^1]
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"int\" but the provided value is of type \"string\"."),
+        });
+    }
+
+    [TestMethod]
+    public void Safe_FromEnd_indexing_of_tuple_resolves_correct_type()
+    {
+        var result = CompilationHelper.Compile("""
+            param foo [int, string]?
+            output foo int? = foo[?^2]
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+
+        result = CompilationHelper.Compile("""
+            param foo [int, string]?
+            output foo int? = foo[?^1]
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"int | null\" but the provided value is of type \"null | string\"."),
+        });
+    }
 }

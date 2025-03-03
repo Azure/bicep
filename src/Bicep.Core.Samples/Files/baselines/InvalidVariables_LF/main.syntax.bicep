@@ -81,23 +81,25 @@ var 2
 var $ = 23
 //@[00:0010) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
-//@[04:0005) | ├─IdentifierSyntax
-//@[04:0005) | | └─SkippedTriviaSyntax
-//@[04:0005) | |   └─Token(Unrecognized) |$|
-//@[06:0007) | ├─Token(Assignment) |=|
-//@[08:0010) | └─IntegerLiteralSyntax
-//@[08:0010) |   └─Token(Integer) |23|
+//@[04:0010) | ├─IdentifierSyntax
+//@[04:0010) | | └─SkippedTriviaSyntax
+//@[04:0005) | |   ├─Token(Unrecognized) |$|
+//@[06:0007) | |   ├─Token(Assignment) |=|
+//@[08:0010) | |   └─Token(Integer) |23|
+//@[10:0010) | ├─SkippedTriviaSyntax
+//@[10:0010) | └─SkippedTriviaSyntax
 //@[10:0011) ├─Token(NewLine) |\n|
 var # 33 = 43
 //@[00:0013) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
-//@[04:0008) | ├─IdentifierSyntax
-//@[04:0008) | | └─SkippedTriviaSyntax
+//@[04:0013) | ├─IdentifierSyntax
+//@[04:0013) | | └─SkippedTriviaSyntax
 //@[04:0005) | |   ├─Token(Unrecognized) |#|
-//@[06:0008) | |   └─Token(Integer) |33|
-//@[09:0010) | ├─Token(Assignment) |=|
-//@[11:0013) | └─IntegerLiteralSyntax
-//@[11:0013) |   └─Token(Integer) |43|
+//@[06:0008) | |   ├─Token(Integer) |33|
+//@[09:0010) | |   ├─Token(Assignment) |=|
+//@[11:0013) | |   └─Token(Integer) |43|
+//@[13:0013) | ├─SkippedTriviaSyntax
+//@[13:0013) | └─SkippedTriviaSyntax
 //@[13:0015) ├─Token(NewLine) |\n\n|
 
 // no value assigned
@@ -118,8 +120,9 @@ var badEquals 2
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0013) | ├─IdentifierSyntax
 //@[04:0013) | | └─Token(Identifier) |badEquals|
-//@[14:0015) | ├─SkippedTriviaSyntax
+//@[14:0015) | ├─IntegerTypeLiteralSyntax
 //@[14:0015) | | └─Token(Integer) |2|
+//@[15:0015) | ├─SkippedTriviaSyntax
 //@[15:0015) | └─SkippedTriviaSyntax
 //@[15:0016) ├─Token(NewLine) |\n|
 var badEquals2 3 true
@@ -127,8 +130,9 @@ var badEquals2 3 true
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0014) | ├─IdentifierSyntax
 //@[04:0014) | | └─Token(Identifier) |badEquals2|
-//@[15:0021) | ├─SkippedTriviaSyntax
-//@[15:0016) | | ├─Token(Integer) |3|
+//@[15:0016) | ├─IntegerTypeLiteralSyntax
+//@[15:0016) | | └─Token(Integer) |3|
+//@[17:0021) | ├─SkippedTriviaSyntax
 //@[17:0021) | | └─Token(TrueKeyword) |true|
 //@[21:0021) | └─SkippedTriviaSyntax
 //@[21:0023) ├─Token(NewLine) |\n\n|
@@ -138,13 +142,15 @@ var badEquals2 3 true
 var 2 = x
 //@[00:0009) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
-//@[04:0005) | ├─IdentifierSyntax
-//@[04:0005) | | └─SkippedTriviaSyntax
-//@[04:0005) | |   └─Token(Integer) |2|
-//@[06:0007) | ├─Token(Assignment) |=|
-//@[08:0009) | └─VariableAccessSyntax
-//@[08:0009) |   └─IdentifierSyntax
-//@[08:0009) |     └─Token(Identifier) |x|
+//@[04:0007) | ├─IdentifierSyntax
+//@[04:0007) | | └─SkippedTriviaSyntax
+//@[04:0005) | |   ├─Token(Integer) |2|
+//@[06:0007) | |   └─Token(Assignment) |=|
+//@[08:0009) | ├─TypeVariableAccessSyntax
+//@[08:0009) | | └─IdentifierSyntax
+//@[08:0009) | |   └─Token(Identifier) |x|
+//@[09:0009) | ├─SkippedTriviaSyntax
+//@[09:0009) | └─SkippedTriviaSyntax
 //@[09:0011) ├─Token(NewLine) |\n\n|
 
 // bad token value
@@ -1057,23 +1063,24 @@ var anotherThing = true
 var ☕ = true
 //@[00:0012) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
-//@[04:0005) | ├─IdentifierSyntax
-//@[04:0005) | | └─SkippedTriviaSyntax
-//@[04:0005) | |   └─Token(Unrecognized) |☕|
-//@[06:0007) | ├─Token(Assignment) |=|
-//@[08:0012) | └─BooleanLiteralSyntax
-//@[08:0012) |   └─Token(TrueKeyword) |true|
+//@[04:0012) | ├─IdentifierSyntax
+//@[04:0012) | | └─SkippedTriviaSyntax
+//@[04:0005) | |   ├─Token(Unrecognized) |☕|
+//@[06:0007) | |   ├─Token(Assignment) |=|
+//@[08:0012) | |   └─Token(TrueKeyword) |true|
+//@[12:0012) | ├─SkippedTriviaSyntax
+//@[12:0012) | └─SkippedTriviaSyntax
 //@[12:0013) ├─Token(NewLine) |\n|
 var a☕ = true
 //@[00:0013) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0005) | ├─IdentifierSyntax
 //@[04:0005) | | └─Token(Identifier) |a|
-//@[05:0013) | ├─SkippedTriviaSyntax
-//@[05:0006) | | ├─Token(Unrecognized) |☕|
-//@[07:0008) | | ├─Token(Assignment) |=|
-//@[09:0013) | | └─Token(TrueKeyword) |true|
-//@[13:0013) | └─SkippedTriviaSyntax
+//@[05:0006) | ├─SkippedTriviaSyntax
+//@[05:0006) | | └─Token(Unrecognized) |☕|
+//@[07:0008) | ├─Token(Assignment) |=|
+//@[09:0013) | └─BooleanLiteralSyntax
+//@[09:0013) |   └─Token(TrueKeyword) |true|
 //@[13:0015) ├─Token(NewLine) |\n\n|
 
 var missingArrayVariable = [for thing in stuff: 4]

@@ -66,6 +66,7 @@ namespace Bicep.Core.Syntax
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
+            this.Visit(syntax.Type);
             this.Visit(syntax.Assignment);
             this.Visit(syntax.Value);
         }
@@ -344,6 +345,7 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.BaseExpression);
             this.Visit(syntax.OpenSquare);
             this.Visit(syntax.SafeAccessMarker);
+            this.Visit(syntax.FromEndMarker);
             this.Visit(syntax.IndexExpression);
             this.Visit(syntax.CloseSquare);
         }

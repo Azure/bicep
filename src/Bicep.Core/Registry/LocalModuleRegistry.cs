@@ -59,14 +59,14 @@ namespace Bicep.Core.Registry
             var localUri = FileResolver.TryResolveFilePath(reference.ReferencingFile.Uri, reference.Path);
             if (localUri is null)
             {
-                return new(x => x.FilePathCouldNotBeResolved(reference.Path, reference.ReferencingFile.Uri.LocalPath));
+                return new(x => x.FilePathCouldNotBeResolved(reference.Path, reference.ReferencingFile.FileHandle.Uri));
             }
 
             if (reference.ArtifactType == ArtifactType.Extension)
             {
                 if (this.TryGetTypesTgzFile(reference) is not { } tgzFile)
                 {
-                    return new(x => x.FilePathCouldNotBeResolved(reference.Path, reference.ReferencingFile.Uri.LocalPath));
+                    return new(x => x.FilePathCouldNotBeResolved(reference.Path, reference.ReferencingFile.FileHandle.Uri));
                 }
 
                 return new(tgzFile.Uri.ToUri());

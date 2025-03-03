@@ -762,15 +762,15 @@ resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[050:051) Assignment |=|
 //@[052:053) LeftBrace |{|
 //@[053:055) NewLine |\r\n|
-  name: '${resourceA.name}/myName'
+  name: '${resourceA.name}/resourceB'
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|
 //@[008:011) StringLeftPiece |'${|
 //@[011:020) Identifier |resourceA|
 //@[020:021) Dot |.|
 //@[021:025) Identifier |name|
-//@[025:034) StringRightPiece |}/myName'|
-//@[034:036) NewLine |\r\n|
+//@[025:037) StringRightPiece |}/resourceB'|
+//@[037:039) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
 //@[001:005) NewLine |\r\n\r\n|
@@ -782,15 +782,15 @@ resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[050:051) Assignment |=|
 //@[052:053) LeftBrace |{|
 //@[053:055) NewLine |\r\n|
-  name: '${resourceA.name}/myName'
+  name: '${resourceA.name}/resourceC'
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|
 //@[008:011) StringLeftPiece |'${|
 //@[011:020) Identifier |resourceA|
 //@[020:021) Dot |.|
 //@[021:025) Identifier |name|
-//@[025:034) StringRightPiece |}/myName'|
-//@[034:036) NewLine |\r\n|
+//@[025:037) StringRightPiece |}/resourceC'|
+//@[037:039) NewLine |\r\n|
   properties: {
 //@[002:012) Identifier |properties|
 //@[012:013) Colon |:|
@@ -2194,11 +2194,11 @@ resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 //@[054:055) Assignment |=|
 //@[056:057) LeftBrace |{|
 //@[057:059) NewLine |\r\n|
-  name: 'res1'
+  name: 'p2res1'
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|
-//@[008:014) StringComplete |'res1'|
-//@[014:016) NewLine |\r\n|
+//@[008:016) StringComplete |'p2res1'|
+//@[016:018) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
 //@[001:005) NewLine |\r\n\r\n|
@@ -2315,11 +2315,11 @@ resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 //@[063:064) Assignment |=|
 //@[065:066) LeftBrace |{|
 //@[066:068) NewLine |\r\n|
-  name: 'res1'
+  name: 'p3res1'
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|
-//@[008:014) StringComplete |'res1'|
-//@[014:016) NewLine |\r\n|
+//@[008:016) StringComplete |'p3res1'|
+//@[016:018) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
 //@[001:005) NewLine |\r\n\r\n|
@@ -2401,11 +2401,11 @@ resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 //@[015:016) LeftParen |(|
 //@[016:017) RightParen |)|
 //@[017:019) NewLine |\r\n|
-  name: 'res1'
+  name: 'p4res1'
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|
-//@[008:014) StringComplete |'res1'|
-//@[014:016) NewLine |\r\n|
+//@[008:016) StringComplete |'p4res1'|
+//@[016:018) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
 //@[001:005) NewLine |\r\n\r\n|

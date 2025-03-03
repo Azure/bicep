@@ -5,7 +5,6 @@ using Azure.Bicep.Types;
 using Azure.Bicep.Types.Index;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
-using Microsoft.Graph.Bicep.Types;
 using static Bicep.Core.TypeSystem.Providers.ThirdParty.ThirdPartyResourceTypeLoader;
 
 namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
@@ -29,10 +28,6 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
 
             typeSettings = indexedTypes.Settings;
             fallbackResourceType = indexedTypes.FallbackResourceType;
-        }
-
-        public MicrosoftGraphResourceTypeLoader() : this(new MicrosoftGraphTypeLoader())
-        {
         }
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()

@@ -12,6 +12,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
+using Bicep.IO.InMemory;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -64,25 +65,20 @@ namespace Bicep.Core.UnitTests.Registry
                 .Returns(Task.CompletedTask);
 
             DiagnosticBuilderDelegate? @null = null;
-            var configuration = BicepTestConstants.BuiltInConfiguration;
 
-            var validRefUri = RandomFileUri();
-            var validFile = BicepTestConstants.SourceFileFactory.CreateBicepFile(validRefUri, "");
+            var validFile = BicepTestConstants.CreateDummyBicepFile();
             ArtifactReference? validRef = new MockModuleReference(validFile, "validRef");
             mock.Setup(m => m.TryParseArtifactReference(validFile, ArtifactType.Module, null, "validRef")).Returns(ResultHelper.Create(validRef, @null));
 
-            var validRefUri2 = RandomFileUri();
-            var validFile2 = BicepTestConstants.SourceFileFactory.CreateBicepFile(validRefUri2, "");
+            var validFile2 = BicepTestConstants.CreateDummyBicepFile();
             ArtifactReference? validRef2 = new MockModuleReference(validFile2, "validRef2");
             mock.Setup(m => m.TryParseArtifactReference(validFile2, ArtifactType.Module, null, "validRef2")).Returns(ResultHelper.Create(validRef2, @null));
 
-            var validRefUri3 = RandomFileUri();
-            var validFile3 = BicepTestConstants.SourceFileFactory.CreateBicepFile(validRefUri3, "");
+            var validFile3 = BicepTestConstants.CreateDummyBicepFile();
             ArtifactReference? validRef3 = new MockModuleReference(validFile3, "validRef3");
             mock.Setup(m => m.TryParseArtifactReference(validFile3, ArtifactType.Module, null, "validRef3")).Returns(ResultHelper.Create(validRef3, @null));
 
-            var badRefUri = RandomFileUri();
-            var badFile = BicepTestConstants.SourceFileFactory.CreateBicepFile(badRefUri, "");
+            var badFile = BicepTestConstants.CreateDummyBicepFile();
             ArtifactReference? nullRef = null;
             DiagnosticBuilderDelegate? badRefError = x => new Diagnostic(x.TextSpan, DiagnosticLevel.Error, DiagnosticSource.Compiler, "BCPMock", "Bad ref error");
             mock.Setup(m => m.TryParseArtifactReference(badFile, ArtifactType.Module, null, "badRef")).Returns(ResultHelper.Create(nullRef, badRefError));
@@ -150,14 +146,13 @@ namespace Bicep.Core.UnitTests.Registry
         public async Task GetModuleRestoreStatus_ConfigurationChanges_ReturnsCachedStatusWhenChangeIsIrrelevant(RootConfiguration changedConfiguration, ArtifactRestoreStatus expectedStatus)
         {
             // Arrange.
-            var badReferenceUri = RandomFileUri();
             var configManagerMock = StrictMock.Of<IConfigurationManager>();
-            configManagerMock.SetupSequence(m => m.GetConfiguration(badReferenceUri))
+            configManagerMock.SetupSequence(m => m.GetConfiguration(It.IsAny<Uri>()))
                 .Returns(BicepTestConstants.CreateMockConfiguration())
                 .Returns(BicepTestConstants.CreateMockConfiguration())
                 .Returns(changedConfiguration);
 
-            var badFile = new BicepFile(badReferenceUri, [], SyntaxFactory.EmptyProgram, configManagerMock.Object, BicepTestConstants.FeatureProviderFactory, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
+            var badFile = BicepTestConstants.CreateDummyBicepFile(configManagerMock.Object);
             var badReference = new MockModuleReference(badFile, "bad");
 
             var registryMock = StrictMock.Of<IArtifactRegistry>();
@@ -239,8 +234,6 @@ namespace Bicep.Core.UnitTests.Registry
             var file = BicepTestConstants.SourceFileFactory.CreateBicepFile(new Uri("untitled://hello"), $"module foo '{reference}' = {{}}");
             return file.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Single();
         }
-
-        private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
 
         private class MockModuleReference : ArtifactReference
         {

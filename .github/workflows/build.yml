@@ -305,6 +305,7 @@ jobs:
         run: msbuild src/vs-bicep/BicepInVisualStudio.sln /restore /p:Configuration=Release /v:m /bl:./src/binlog/bicep_in_visual_studio_build.binlog
 
       - name: Upload BicepInVisualStudio.sln build binlog
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-binlog-files
@@ -320,9 +321,7 @@ jobs:
 
       - name: Run bicep in visual studio unit tests
         run: |
-          $vswhere = (Invoke-WebRequest -Uri "https://github.com/microsoft/vswhere/releases/latest/download/vswhere.exe" -OutFile "vswhere.exe")
-          $vstest = & .\vswhere.exe -latest -products * -requires Microsoft.VisualStudio.PackageGroup.TestTools.Core -find **\TestPlatform\vstest.console.exe
-          . $vstest .\src\vs-bicep\Bicep.VSLanguageServerClient.UnitTests\bin\release\net472\Bicep.VSLanguageServerClient.UnitTests.dll
+          dotnet test src\vs-bicep\Bicep.VSLanguageServerClient.UnitTests\bin\release\net472\Bicep.VSLanguageServerClient.UnitTests.exe
 
       # Temporarily disable VS Bicep integration tests, they're flaky
       # Proper fix tracked under https://github.com/Azure/bicep/issues/8078
@@ -654,7 +653,7 @@ jobs:
         uses: actions/setup-dotnet@v4
 
       - name: Run Tests
-        run: dotnet test --filter '${{ matrix.config.filter}}' --configuration release --settings ./.github/workflows/ci.runsettings --results-directory ./TestResults
+        run: dotnet test --configuration release -- --filter '${{ matrix.config.filter }}' --report-trx --results-directory ${{ github.workspace }}/TestResults
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
@@ -663,11 +662,6 @@ jobs:
           name: TestResults-${{ matrix.config.name }}-${{ matrix.os }}
           path: ./TestResults/*.trx
           if-no-files-found: error
-
-      - name: Upload Code Coverage
-        uses: codecov/codecov-action@v5
-        with:
-          flags: dotnet
 
   comment-test-summary:
     name: "PR Comment: Dotnet Tests Summary"

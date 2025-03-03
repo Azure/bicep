@@ -1,5 +1,5 @@
 param deployTimeParam string = 'steve'
-//@[00:1098) ProgramExpression
+//@[00:1100) ProgramExpression
 //@[00:0038) ├─DeclaredParameterExpression { Name = deployTimeParam }
 //@[22:0028) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[31:0038) | └─StringLiteralExpression { Value = steve }
@@ -46,15 +46,13 @@ var resourceDependency = {
 //@[04:0013) | |             ├─PropertyAccessExpression { PropertyName = type }
 //@[04:0008) | |             | └─ResourceReferenceExpression
     resA.properties.deployTime
-//@[04:0030) | |             ├─AccessChainExpression
-//@[04:0019) | |             | ├─PropertyAccessExpression { PropertyName = properties }
-//@[04:0008) | |             | | └─ResourceReferenceExpression
-//@[20:0030) | |             | └─StringLiteralExpression { Value = deployTime }
+//@[04:0030) | |             ├─PropertyAccessExpression { PropertyName = deployTime }
+//@[04:0019) | |             | └─PropertyAccessExpression { PropertyName = properties }
+//@[04:0008) | |             |   └─ResourceReferenceExpression
     resA.properties.eTag
-//@[04:0024) | |             └─AccessChainExpression
-//@[04:0019) | |               ├─PropertyAccessExpression { PropertyName = properties }
-//@[04:0008) | |               | └─ResourceReferenceExpression
-//@[20:0024) | |               └─StringLiteralExpression { Value = eTag }
+//@[04:0024) | |             └─PropertyAccessExpression { PropertyName = eTag }
+//@[04:0019) | |               └─PropertyAccessExpression { PropertyName = properties }
+//@[04:0008) | |                 └─ResourceReferenceExpression
   ]
 }
 
@@ -143,9 +141,9 @@ resource resD 'My.Rp/myResourceType/childType@2020-01-01' = {
 }
 
 resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {
-//@[00:0124) ├─DeclaredResourceExpression
-//@[60:0124) | ├─ObjectExpression
-  name: 'resC/resD'
+//@[00:0126) ├─DeclaredResourceExpression
+//@[60:0126) | ├─ObjectExpression
+  name: 'resC/resD_2'
   properties: {
 //@[02:0040) | | └─ObjectPropertyExpression
 //@[02:0012) | |   ├─StringLiteralExpression { Value = properties }

@@ -2217,6 +2217,124 @@ module moduleWithNameof 'modulea.bicep' = {
 //@[003:005) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
-//@[001:003) NewLine |\r\n|
+//@[001:005) NewLine |\r\n\r\n|
+
+module moduleWithNullableOutputs 'child/nullableOutputs.bicep' = {
+//@[000:006) Identifier |module|
+//@[007:032) Identifier |moduleWithNullableOutputs|
+//@[033:062) StringComplete |'child/nullableOutputs.bicep'|
+//@[063:064) Assignment |=|
+//@[065:066) LeftBrace |{|
+//@[066:068) NewLine |\r\n|
+  name: 'nullableOutputs'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:025) StringComplete |'nullableOutputs'|
+//@[025:027) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
+output nullableString string? = moduleWithNullableOutputs.outputs.?nullableString
+//@[000:006) Identifier |output|
+//@[007:021) Identifier |nullableString|
+//@[022:028) Identifier |string|
+//@[028:029) Question |?|
+//@[030:031) Assignment |=|
+//@[032:057) Identifier |moduleWithNullableOutputs|
+//@[057:058) Dot |.|
+//@[058:065) Identifier |outputs|
+//@[065:066) Dot |.|
+//@[066:067) Question |?|
+//@[067:081) Identifier |nullableString|
+//@[081:083) NewLine |\r\n|
+output deeplyNestedProperty string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.property
+//@[000:006) Identifier |output|
+//@[007:027) Identifier |deeplyNestedProperty|
+//@[028:034) Identifier |string|
+//@[034:035) Question |?|
+//@[036:037) Assignment |=|
+//@[038:063) Identifier |moduleWithNullableOutputs|
+//@[063:064) Dot |.|
+//@[064:071) Identifier |outputs|
+//@[071:072) Dot |.|
+//@[072:073) Question |?|
+//@[073:084) Identifier |nullableObj|
+//@[084:085) Dot |.|
+//@[085:091) Identifier |deeply|
+//@[091:092) Dot |.|
+//@[092:098) Identifier |nested|
+//@[098:099) Dot |.|
+//@[099:107) Identifier |property|
+//@[107:109) NewLine |\r\n|
+output deeplyNestedArrayItem string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[0]
+//@[000:006) Identifier |output|
+//@[007:028) Identifier |deeplyNestedArrayItem|
+//@[029:035) Identifier |string|
+//@[035:036) Question |?|
+//@[037:038) Assignment |=|
+//@[039:064) Identifier |moduleWithNullableOutputs|
+//@[064:065) Dot |.|
+//@[065:072) Identifier |outputs|
+//@[072:073) Dot |.|
+//@[073:074) Question |?|
+//@[074:085) Identifier |nullableObj|
+//@[085:086) Dot |.|
+//@[086:092) Identifier |deeply|
+//@[092:093) Dot |.|
+//@[093:099) Identifier |nested|
+//@[099:100) Dot |.|
+//@[100:105) Identifier |array|
+//@[105:106) LeftSquare |[|
+//@[106:107) Integer |0|
+//@[107:108) RightSquare |]|
+//@[108:110) NewLine |\r\n|
+output deeplyNestedArrayItemFromEnd string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[^1]
+//@[000:006) Identifier |output|
+//@[007:035) Identifier |deeplyNestedArrayItemFromEnd|
+//@[036:042) Identifier |string|
+//@[042:043) Question |?|
+//@[044:045) Assignment |=|
+//@[046:071) Identifier |moduleWithNullableOutputs|
+//@[071:072) Dot |.|
+//@[072:079) Identifier |outputs|
+//@[079:080) Dot |.|
+//@[080:081) Question |?|
+//@[081:092) Identifier |nullableObj|
+//@[092:093) Dot |.|
+//@[093:099) Identifier |deeply|
+//@[099:100) Dot |.|
+//@[100:106) Identifier |nested|
+//@[106:107) Dot |.|
+//@[107:112) Identifier |array|
+//@[112:113) LeftSquare |[|
+//@[113:114) Hat |^|
+//@[114:115) Integer |1|
+//@[115:116) RightSquare |]|
+//@[116:118) NewLine |\r\n|
+output deeplyNestedArrayItemFromEndAttempt string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[?^1]
+//@[000:006) Identifier |output|
+//@[007:042) Identifier |deeplyNestedArrayItemFromEndAttempt|
+//@[043:049) Identifier |string|
+//@[049:050) Question |?|
+//@[051:052) Assignment |=|
+//@[053:078) Identifier |moduleWithNullableOutputs|
+//@[078:079) Dot |.|
+//@[079:086) Identifier |outputs|
+//@[086:087) Dot |.|
+//@[087:088) Question |?|
+//@[088:099) Identifier |nullableObj|
+//@[099:100) Dot |.|
+//@[100:106) Identifier |deeply|
+//@[106:107) Dot |.|
+//@[107:113) Identifier |nested|
+//@[113:114) Dot |.|
+//@[114:119) Identifier |array|
+//@[119:120) LeftSquare |[|
+//@[120:121) Question |?|
+//@[121:122) Hat |^|
+//@[122:123) Integer |1|
+//@[123:124) RightSquare |]|
+//@[124:126) NewLine |\r\n|
 
 //@[000:000) EndOfFile ||

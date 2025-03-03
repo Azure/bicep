@@ -19,6 +19,7 @@ using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
+using Bicep.IO.InMemory;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
@@ -44,7 +45,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         private static readonly ConfigurationManager ConfigurationManager = new(FileExplorer);
 
-        private static readonly SourceFileFactory SourceFileFactory = new(ConfigurationManager, new FeatureProviderFactory(ConfigurationManager, FileExplorer));
+        private static readonly SourceFileFactory SourceFileFactory = new(ConfigurationManager, new FeatureProviderFactory(ConfigurationManager, FileExplorer), FileExplorer);
 
         private class TelemetryProviderMock
         {
@@ -518,7 +519,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var referenceValue = $"{subscriptionId}/{resourceGroupName}/{templateSpecName}:{version}";
 
             var configurationManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
-            var referencingFile = new BicepFile(new Uri("file:///dummy.bicep"), [], SyntaxFactory.EmptyProgram, configurationManager, BicepTestConstants.FeatureProviderFactory, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
+            var referencingFile = BicepTestConstants.DummyBicepFile;
 
             TemplateSpecModuleReference
                 .TryParse(referencingFile, null, referenceValue)

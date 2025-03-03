@@ -214,6 +214,7 @@ namespace Bicep.Core.Syntax
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
             hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
             hasChanges |= TryRewriteStrict(syntax.Name, out var name);
+            hasChanges |= TryRewriteStrict(syntax.Type, out var type);
             hasChanges |= TryRewrite(syntax.Assignment, out var assignment);
             hasChanges |= TryRewrite(syntax.Value, out var value);
 
@@ -222,7 +223,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new VariableDeclarationSyntax(leadingNodes, keyword, name, assignment, value);
+            return new VariableDeclarationSyntax(leadingNodes, keyword, name, type, assignment, value);
         }
         void ISyntaxVisitor.VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceVariableDeclarationSyntax);
 
@@ -809,6 +810,7 @@ namespace Bicep.Core.Syntax
             var hasChanges = TryRewrite(syntax.BaseExpression, out var baseExpression);
             hasChanges |= TryRewriteStrict(syntax.OpenSquare, out var openSquare);
             hasChanges |= TryRewriteStrict(syntax.SafeAccessMarker, out var safeAccessMarker);
+            hasChanges |= TryRewriteStrict(syntax.FromEndMarker, out var fromEndMarker);
             hasChanges |= TryRewrite(syntax.IndexExpression, out var indexExpression);
             hasChanges |= TryRewriteStrict(syntax.CloseSquare, out var closeSquare);
 
@@ -817,7 +819,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ArrayAccessSyntax(baseExpression, openSquare, safeAccessMarker, indexExpression, closeSquare);
+            return new ArrayAccessSyntax(baseExpression, openSquare, safeAccessMarker, fromEndMarker, indexExpression, closeSquare);
         }
         void ISyntaxVisitor.VisitArrayAccessSyntax(ArrayAccessSyntax syntax) => ReplaceCurrent(syntax, ReplaceArrayAccessSyntax);
 

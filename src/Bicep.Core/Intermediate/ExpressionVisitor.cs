@@ -186,6 +186,7 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     {
         VisitDescribableExpression(expression);
         Visit(expression.Exported);
+        Visit(expression.Type);
         Visit(expression.Value);
     }
 

@@ -3100,11 +3100,11 @@ resource newStg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
 }
 
 resource existingStg 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
-  name: newStg.name
+  name: uniqueString(newStg.name)
 }
 
 resource newStg2 'Microsoft.Storage/storageAccounts@2021-04-01' = {
-  name: existingStg.name
+  name: uniqueString(existingStg.name)
   kind: 'BlobStorage'
   location: resourceGroup().location
   sku: {
@@ -3113,7 +3113,7 @@ resource newStg2 'Microsoft.Storage/storageAccounts@2021-04-01' = {
 }
 ");
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        result.Template.Should().HaveValueAtPath("$.resources[?(@.kind == 'BlobStorage')].name", "test");
+        result.Template.Should().HaveValueAtPath("$.resources[?(@.kind == 'BlobStorage')].name", "[uniqueString(uniqueString('test'))]");
     }
 
     /// <summary>
@@ -4247,7 +4247,7 @@ output sql resource = sql
     public void Test_Issue12895()
     {
 
-        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true, OptionalModuleNamesEnabled: true)),
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true)),
 ("main.bicep", @"
 module mymodule 'test.bicep' = {
 }
@@ -6378,13 +6378,24 @@ param p invalidRecursiveObjectType = {}
     }
 
     [TestMethod]
-    public void Test_Issue15513()
+    public async Task Test_Issue15513()
     {
-        var result = CompilationHelper.Compile(
-            new ServiceBuilder().WithFeatureOverrides(new(ExtensibilityEnabled: true)),
+        var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(
+           typeof(ExtensionRegistryTests).Assembly,
+           "Files/ExtensionRegistryTests/microsoftgraph");
+
+        var registry = "example.azurecr.io";
+        var repository = "microsoftgraph/v1";
+
+        var services = ExtensionTestHelper.GetServiceBuilder(fileSystem, registry, repository, new(ExtensibilityEnabled: true));
+
+        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), "/index.json", $"br:{registry}/{repository}:1.2.3");
+
+        var result = await CompilationHelper.RestoreAndCompile(
+            services,
             """
             #disable-next-line BCP407
-            extension microsoftGraph
+            extension 'br:example.azurecr.io/microsoftgraph/v1:1.2.3'
 
             param entraGroup object = {
               name: 'ExampleGroup2'
@@ -6808,5 +6819,148 @@ var subnetId = vNet::subnets[0].id
         result.Should().NotHaveAnyCompilationBlockingDiagnostics();
         result.Template.Should().NotBeNull();
         result.Template.Should().HaveJsonAtPath("$.resources[?(@.name == 'bar')].dependsOn", "[\"identity::federation\"]");
+    }
+
+    // https://github.com/azure/bicep/issues/1410
+    [TestMethod]
+    public void Mutually_exclusive_but_duplicative_resources_are_permitted()
+    {
+        var result = CompilationHelper.Compile("""
+            param createMode 'GeoRestore' | 'Replica' = 'GeoRestore'
+
+            resource postgres 'microsoft.dbforpostgresql/servers@2017-12-01' = if (createMode == 'GeoRestore') {
+              name: 'foo'
+              location: 'eastus'
+              properties: {
+                createMode: 'GeoRestore'
+                sourceServerId: '<ID>'
+
+              }
+            }
+
+            resource postgres2 'microsoft.dbforpostgresql/servers@2017-12-01' = if (createMode == 'Replica') {
+              name: 'foo'
+              location: 'eastus'
+              properties: {
+                createMode: 'Replica'
+                sourceServerId: '<ID>'
+              }
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/azure/bicep/issues/1410
+    [TestMethod]
+    public void Resources_with_the_same_name_but_different_types_are_permitted()
+    {
+        var result = CompilationHelper.Compile("""
+            resource postgres 'microsoft.dbforpostgresql/servers@2017-12-01' = {
+              name: 'foo'
+              location: 'eastus'
+              properties: {
+                createMode: 'GeoRestore'
+                sourceServerId: '<ID>'
+
+              }
+            }
+
+            resource postgres2 'microsoft.dbforpostgresql/flexibleServers@2021-06-01' = {
+              name: 'foo'
+              location: 'eastus'
+              properties: {
+                createMode: 'Replica'
+                sourceServerResourceId: '<ID>'
+              }
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/azure/bicep/issues/1410
+    [TestMethod]
+    public void Resources_with_the_same_name_but_different_scopes_are_permitted()
+    {
+        var result = CompilationHelper.Compile("""
+            resource postgres 'microsoft.dbforpostgresql/servers@2017-12-01' existing = {
+              name: 'foo'
+              scope: resourceGroup('otherRg')
+            }
+
+            resource postgres2 'microsoft.dbforpostgresql/servers@2017-12-01' = {
+              name: 'foo'
+              location: 'eastus'
+              properties: {
+                createMode: 'Replica'
+                sourceServerId: '<ID>'
+              }
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/azure/bicep/issues/1410
+    [TestMethod]
+    public void Modules_with_the_same_name_are_not_permitted()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                module foo1 'empty.bicep' = {
+                  name: 'foo'
+                }
+
+                module foo2 'empty.bicep' = {
+                  name: 'foo'
+                }
+                """),
+            ("empty.bicep", string.Empty));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP122", DiagnosticLevel.Error, "Modules: \"foo1\", \"foo2\" are defined with this same name and this same scope in a file. Rename them or split into different modules."),
+            ("BCP122", DiagnosticLevel.Error, "Modules: \"foo1\", \"foo2\" are defined with this same name and this same scope in a file. Rename them or split into different modules."),
+        });
+    }
+
+    // https://github.com/azure/bicep/issues/1410
+    [TestMethod]
+    public void Mutually_exclusive_but_duplicative_modules_are_permitted()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                param condition bool
+
+                module foo1 'empty.bicep' = if (condition) {
+                  name: 'foo'
+                }
+
+                module foo2 'empty.bicep' = if (!condition) {
+                  name: 'foo'
+                }
+                """),
+            ("empty.bicep", string.Empty));
+    }
+
+    // https://github.com/azure/bicep/issues/1410
+    [TestMethod]
+    public void Modules_with_the_same_name_but_different_scopes_are_permitted()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                module foo1 'empty.bicep' = {
+                  name: 'foo'
+                }
+
+                module foo2 'empty.bicep' = {
+                  name: 'foo'
+                  scope: resourceGroup('otherRg')
+                }
+                """),
+            ("empty.bicep", string.Empty));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 }

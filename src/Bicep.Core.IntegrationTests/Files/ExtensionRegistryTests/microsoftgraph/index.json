@@ -1,0 +1,19 @@
+{
+  "resources": {
+    "Microsoft.Graph/groups@v1.0": {
+      "$ref": "types.json#/7"
+    },
+    "Microsoft.Graph/applications@v1.0": {
+      "$ref": "types.json#/12"
+    },
+    "Microsoft.Graph/servicePrincipals@v1.0": {
+      "$ref": "types.json#/16"
+    }
+  },
+  "resourceFunctions": {},
+  "settings": {
+    "name": "MicrosoftGraph",
+    "version": "1.2.3",
+    "isSingleton": false
+  }
+}

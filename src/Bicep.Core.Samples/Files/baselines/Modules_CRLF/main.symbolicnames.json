@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2358979136252547274"
+      "templateHash": "9120534741192221910"
     }
   },
   "parameters": {
@@ -2184,6 +2184,52 @@
         "secureModuleCondition",
         "withSpace"
       ]
+    },
+    "moduleWithNullableOutputs": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "nullableOutputs",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9938797971770597442"
+            }
+          },
+          "resources": {},
+          "outputs": {
+            "nullableString": {
+              "type": "string",
+              "nullable": true,
+              "value": "foo"
+            },
+            "nullableObj": {
+              "type": "object",
+              "nullable": true,
+              "value": {
+                "deeply": {
+                  "nested": {
+                    "property": "value",
+                    "array": [
+                      "foo",
+                      "bar"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "outputs": {
@@ -2206,6 +2252,31 @@
     "modCalculatedNameOutput": {
       "type": "object",
       "value": "[reference('moduleWithCalculatedName').outputs.outputObj.value]"
+    },
+    "nullableString": {
+      "type": "string",
+      "nullable": true,
+      "value": "[tryGet(tryGet(reference('moduleWithNullableOutputs').outputs, 'nullableString'), 'value')]"
+    },
+    "deeplyNestedProperty": {
+      "type": "string",
+      "nullable": true,
+      "value": "[tryGet(tryGet(reference('moduleWithNullableOutputs').outputs, 'nullableObj'), 'value', 'deeply', 'nested', 'property')]"
+    },
+    "deeplyNestedArrayItem": {
+      "type": "string",
+      "nullable": true,
+      "value": "[tryGet(tryGet(reference('moduleWithNullableOutputs').outputs, 'nullableObj'), 'value', 'deeply', 'nested', 'array', 0)]"
+    },
+    "deeplyNestedArrayItemFromEnd": {
+      "type": "string",
+      "nullable": true,
+      "value": "[tryGet(tryGet(reference('moduleWithNullableOutputs').outputs, 'nullableObj'), 'value', 'deeply', 'nested', 'array', createObject('value', 1, 'fromEnd', true()))]"
+    },
+    "deeplyNestedArrayItemFromEndAttempt": {
+      "type": "string",
+      "nullable": true,
+      "value": "[tryIndexFromEnd(tryGet(tryGet(reference('moduleWithNullableOutputs').outputs, 'nullableObj'), 'value', 'deeply', 'nested', 'array'), 1)]"
     }
   }
 }
