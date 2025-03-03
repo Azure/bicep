@@ -11,7 +11,7 @@ namespace Bicep.Core.UnitTests.Extensions;
 
 public static class CompilationTestExtensions
 {
-    public static (bool success, IDictionary<Uri, ImmutableArray<IDiagnostic>> diagnosticsByFile) GetSuccessAndDiagnosticsByFile(this Compilation compilation)
+    public static (bool success, IDictionary<Uri, ImmutableArray<IDiagnostic>> diagnosticsByFile) GetSuccessAndDiagnosticsByBicepFile(this Compilation compilation)
     {
         var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.Uri, kvp => kvp.Value);
         var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => !d.IsError());

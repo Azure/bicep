@@ -81,7 +81,7 @@ output outputb string = '${inputa}-${inputb}'
 
             var compilation = Services.BuildCompilation(files, mainUri);
 
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByFile();
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
             success.Should().BeTrue();
             compilation.GetTestTemplate().Should().NotBeEmpty();
@@ -110,7 +110,7 @@ module mainRecursive 'main.bicep' = {
 
             var compilation = Services.BuildCompilation(files, mainUri);
 
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByFile();
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
                 ("BCP094", DiagnosticLevel.Error, "This module references itself, which is not allowed."),
             });
@@ -164,7 +164,7 @@ module main 'main.bicep' = {
 
             var compilation = Services.BuildCompilation(files, mainUri);
 
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByFile();
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
                 ("BCP095", DiagnosticLevel.Error, "The file is involved in a cycle (\"/modulea.bicep\" -> \"/moduleb.bicep\" -> \"/main.bicep\")."),
             });
@@ -222,7 +222,7 @@ module modulea 'modulea.bicep' = {
             var compiler = ServiceBuilder.Create(s => s.WithFileResolver(mockFileResolver.Object).WithDisabledAnalyzersConfiguration()).GetCompiler();
             var compilation = await compiler.CreateCompilation(mainFileUri);
 
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByFile();
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile[mainFileUri].Should().HaveDiagnostics(new[] {
                 ("BCP093", DiagnosticLevel.Error, "File path \"modulea.bicep\" could not be resolved relative to \"/path/to/main.bicep\"."),
             });
@@ -294,7 +294,7 @@ output outputc2 int = inputb + 1
 
             var compilation = Services.BuildCompilation(files, mainUri);
 
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByFile();
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
             success.Should().BeTrue();
 
@@ -364,7 +364,7 @@ module modulea 'modulea.bicep' = {
             var compiler = ServiceBuilder.Create(s => s.WithFileResolver(mockFileResolver.Object).WithDisabledAnalyzersConfiguration()).GetCompiler();
             var compilation = await compiler.CreateCompilation(mainUri);
 
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByFile();
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
                 ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. Mock read failure!"),
             });
@@ -802,7 +802,7 @@ module {symbolicName} 'mod.bicep' = [for x in []: {{
 
         private static void ModuleTemplateHashValidator(Compilation compilation, string expectedTemplateHash)
         {
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByFile();
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
             success.Should().BeTrue();
             var templateString = compilation.GetTestTemplate();

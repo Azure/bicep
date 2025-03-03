@@ -659,47 +659,68 @@ Hello from Bicep!"));
         [TestMethod]
         public void Module_with_required_extension_config_can_be_compiled_successfully()
         {
+            var paramsUri = new Uri("file:///main.bicepparam");
             var mainUri = new Uri("file:///main.bicep");
             var moduleAUri = new Uri("file:///modulea.bicep");
 
             // TODO(kylealbert): Remove 'with' clause in template when that's removed
             var files = new Dictionary<Uri, string>
             {
-                [mainUri] = @"
-param inputa string
+                [paramsUri] =
+                    """
+                    using 'main.bicep'
 
-module modulea 'modulea.bicep' = {
-  name: 'modulea'
-  params: {
-    inputa: inputa
-  }
-  extensionConfigs: {
-    kubernetes: {
-      kubeConfig: 'fromModule'
-      namespace: 'other'
-    }
-  }
-}
+                    param inputa = 'abc'
 
-output outputa string = modulea.outputs.outputa
-",
-                [moduleAUri] = @"
-param inputa string
+                    extension k8s with {
+                      kubeConfig: 'def'
+                      namespace: 'other'
+                    }
+                    """,
+                [mainUri] =
+                    """
+                    param inputa string
 
-extension kubernetes with {
-  kubeConfig: ''
-  namespace: 'default'
-}
+                    extension kubernetes with {
+                      kubeConfig: ''
+                      namespace: 'default'
+                    } as k8s
 
-extension microsoftGraph as graph
+                    extension microsoftGraph
 
-output outputa string = inputa
-"
+                    module modulea 'modulea.bicep' = {
+                      name: 'modulea'
+                      params: {
+                        inputa: inputa
+                      }
+                      extensionConfigs: {
+                        kubernetes: {
+                          kubeConfig: 'fromModule'
+                          namespace: 'other'
+                        }
+                      }
+                    }
+
+                    output outputa string = modulea.outputs.outputa
+                    """,
+                [moduleAUri] =
+                    """
+                    param inputa string
+
+                    extension kubernetes with {
+                      kubeConfig: ''
+                      namespace: 'default'
+                    }
+
+                    extension microsoftGraph as graph
+
+                    output outputa string = inputa
+                    """
             };
 
-            var compilation = Services.BuildCompilation(files, mainUri);
+            var compilation = Services.BuildCompilation(files, paramsUri);
 
-            compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping();
+            compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
         }
 
         [DataTestMethod]

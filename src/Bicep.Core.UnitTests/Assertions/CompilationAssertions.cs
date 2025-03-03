@@ -54,16 +54,16 @@ namespace Bicep.Core.UnitTests.Assertions
             return new AndConstraint<CompilationAssertions>(this);
         }
 
-        public AndConstraint<CompilationAssertions> NotHaveAnyDiagnostics_WithAssertionScoping(string because = "", params object[] becauseArgs)
+        public AndConstraint<CompilationAssertions> NotHaveAnyDiagnostics_WithAssertionScoping(Func<IDiagnostic, bool>? diagnosticFilter = null, string because = "", params object[] becauseArgs)
         {
-            var (success, diagnosticsByFile) = Subject.GetSuccessAndDiagnosticsByFile();
+            var (success, diagnosticsByFile) = Subject.GetSuccessAndDiagnosticsByBicepFile();
 
             using (new AssertionScope())
             {
                 foreach (var (fileUri, diagnostics) in diagnosticsByFile)
                 {
                     using var fileDiagScope = new AssertionScope(fileUri.ToString());
-                    diagnostics.Should().BeEmpty(because, becauseArgs);
+                    diagnostics.Where(diagnosticFilter ?? (_ => true)).Should().BeEmpty(because, becauseArgs);
                 }
 
                 success.Should().BeTrue();
