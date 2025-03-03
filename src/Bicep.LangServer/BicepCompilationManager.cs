@@ -10,8 +10,10 @@ using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
@@ -33,13 +35,13 @@ namespace Bicep.LanguageServer
         public const string LinterEnabledSetting = "core.enabled";
 
         private readonly IWorkspace workspace;
-        private readonly AuxiliaryFileCache fileCache;
         private readonly ILanguageServerFacade server;
         private readonly ICompilationProvider provider;
         private readonly IModuleRestoreScheduler scheduler;
         private readonly ITelemetryProvider TelemetryProvider;
         private readonly ILinterRulesProvider LinterRulesProvider;
         private readonly ISourceFileFactory sourceFileFactory;
+        private readonly IAuxiliaryFileCache auxiliaryfileCache;
 
         // represents compilations of open bicep or param files
         private readonly ConcurrentDictionary<DocumentUri, CompilationContextBase> activeContexts = new();
@@ -52,9 +54,9 @@ namespace Bicep.LanguageServer
             ITelemetryProvider telemetryProvider,
             ILinterRulesProvider LinterRulesProvider,
             IFileResolver fileResolver,
-            ISourceFileFactory sourceFileFactory)
+            ISourceFileFactory sourceFileFactory,
+            IAuxiliaryFileCache auxiliaryFileCache)
         {
-            this.fileCache = new(fileResolver);
             this.server = server;
             this.provider = provider;
             this.workspace = workspace;
@@ -62,6 +64,7 @@ namespace Bicep.LanguageServer
             this.TelemetryProvider = telemetryProvider;
             this.LinterRulesProvider = LinterRulesProvider;
             this.sourceFileFactory = sourceFileFactory;
+            this.auxiliaryfileCache = auxiliaryFileCache;
         }
 
         public void RefreshCompilation(DocumentUri documentUri, bool forceReloadAuxiliaryFiles)
@@ -88,11 +91,8 @@ namespace Bicep.LanguageServer
 
             if (forceReloadAuxiliaryFiles)
             {
-                var auxiliaryFiles = compilationContext.Compilation.GetAllBicepModels()
-                    .SelectMany(x => x.GetAuxiliaryFileReferences())
-                    .Distinct();
-
-                fileCache.ClearEntries(auxiliaryFiles);
+                var auxiliaryFileUris = compilationContext.Compilation.SourceFileGrouping.GetAllReferencedAuxiliaryFileUris();
+                this.auxiliaryfileCache.Trim(auxiliaryFileUris);
             }
 
             // TODO: This may cause race condition if the user is modifying the file at the same time
@@ -148,12 +148,10 @@ namespace Bicep.LanguageServer
                 }
             }
 
-            var activeEntries = GetAllSafeActiveContexts()
-                .SelectMany(x => x.Value.Compilation.GetAllBicepModels())
-                .SelectMany(x => x.GetAuxiliaryFileReferences())
-                .Distinct();
+            var activeAuxiliaryFileUris = GetAllSafeActiveContexts().SelectMany(x => x.Value.Compilation.SourceFileGrouping.GetAllReferencedAuxiliaryFileUris());
+            var inactiveAuxliaryFileUris = auxiliaryfileCache.Keys.Except(activeAuxiliaryFileUris);
 
-            fileCache.PruneInactiveEntries(activeEntries);
+            auxiliaryfileCache.Trim(inactiveAuxliaryFileUris);
         }
 
         public void CloseCompilation(DocumentUri documentUri)
@@ -173,8 +171,8 @@ namespace Bicep.LanguageServer
         public void HandleFileChanges(IEnumerable<FileEvent> fileEvents)
         {
             var modifiedSourceFiles = new HashSet<ISourceFile>();
-            var modifiedAuxiliaryFiles = new HashSet<Uri>();
-            var activeAuxiliaryFiles = fileCache.GetEntries().ToHashSet();
+            var modifiedAuxiliaryFileUris = new HashSet<IOUri>();
+            var activeAuxiliaryFileUris = auxiliaryfileCache.Keys;
 
             foreach (var change in fileEvents.Where(x => x.Type is FileChangeType.Changed or FileChangeType.Deleted))
             {
@@ -182,6 +180,7 @@ namespace Bicep.LanguageServer
                 // We should bear that in mind when making changes here, to avoid introducing performance bottlenecks.
 
                 var changedFileUri = change.Uri.ToUriEncoded();
+                var changedFileIOUri = change.Uri.ToIOUri();
                 if (change.Type is FileChangeType.Deleted)
                 {
                     // If we don't know definitively that we're deleting a file, we have to assume it's a directory; the file system watcher does not give us any information to differentiate reliably.
@@ -189,13 +188,13 @@ namespace Bicep.LanguageServer
                     var removedSourceFiles = workspace.GetSourceFilesForDirectory(changedFileUri);
                     modifiedSourceFiles.UnionWith(removedSourceFiles);
 
-                    var removedAuxiliaryFiles = activeAuxiliaryFiles.Where(uri => PathHelper.IsSubPathOf(changedFileUri, uri));
-                    modifiedAuxiliaryFiles.UnionWith(removedAuxiliaryFiles);
+                    var removedAuxiliaryFiles = activeAuxiliaryFileUris.Where(changedFileIOUri.IsBaseOf);
+                    modifiedAuxiliaryFileUris.UnionWith(removedAuxiliaryFiles);
                 }
 
-                if (activeAuxiliaryFiles.Contains(changedFileUri))
+                if (activeAuxiliaryFileUris.Contains(changedFileIOUri))
                 {
-                    modifiedAuxiliaryFiles.Add(changedFileUri);
+                    modifiedAuxiliaryFileUris.Add(changedFileIOUri);
                 }
 
                 if (!activeContexts.ContainsKey(change.Uri) &&
@@ -208,17 +207,17 @@ namespace Bicep.LanguageServer
             }
 
             workspace.RemoveSourceFiles(modifiedSourceFiles);
-            fileCache.ClearEntries(modifiedAuxiliaryFiles);
+            auxiliaryfileCache.Trim(modifiedAuxiliaryFileUris);
 
             var modelLookup = new Dictionary<ISourceFile, ISemanticModel>();
             foreach (var (entrypointUri, context) in GetAllSafeActiveContexts())
             {
-                foreach (var model in context.Compilation.GetAllBicepModels())
+                foreach (var sourceFile in context.Compilation.SourceFileGrouping.EnumerateBicepSourceFiles())
                 {
-                    if (modifiedAuxiliaryFiles.Any(model.HasAuxiliaryFileReference))
+                    if (modifiedAuxiliaryFileUris.Any(sourceFile.IsReferecingAuxliaryFile))
                     {
                         // Ensure we refresh any source files that reference a modified auxiliary file
-                        modifiedSourceFiles.Add(model.SourceFile);
+                        modifiedSourceFiles.Add(sourceFile);
                     }
                 }
 
@@ -296,7 +295,7 @@ namespace Bicep.LanguageServer
         {
             try
             {
-                return this.provider.Create(workspace, fileCache, documentUri, modelLookup);
+                return this.provider.Create(workspace, documentUri, modelLookup);
             }
             catch (Exception exception)
             {

@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.IO.Abstraction;
 
@@ -19,6 +20,7 @@ namespace Bicep.Core.Workspaces
             ProgramSyntax programSyntax,
             IConfigurationManager configurationManager,
             IFeatureProviderFactory featureProviderFactory,
+            IAuxiliaryFileCache auxiliaryFileCache,
             IDiagnosticLookup lexingErrorLookup,
             IDiagnosticLookup parsingErrorLookup)
             : base(
@@ -28,6 +30,7 @@ namespace Bicep.Core.Workspaces
                   programSyntax,
                   configurationManager,
                   featureProviderFactory,
+                  auxiliaryFileCache,
                   lexingErrorLookup,
                   parsingErrorLookup)
         {

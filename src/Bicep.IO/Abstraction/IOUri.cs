@@ -150,9 +150,9 @@ namespace Bicep.IO.Abstraction
         public bool Equals(IOUri other) =>
             this.SchemeEquals(other) &&
             this.AuthorityEquals(other) &&
-            string.Equals(this.Query, other.Query, StringComparison.Ordinal) &&
-            string.Equals(this.Fragment, other.Fragment, StringComparison.Ordinal) &&
-            string.Equals(Path, other.Path, this.PathComparison);
+            this.QueryEquals(other) &&
+            this.FragmentEquals(other) &&
+            this.PathEquals(other);
 
         public bool IsBaseOf(IOUri other)
         {
@@ -353,5 +353,11 @@ namespace Bicep.IO.Abstraction
         private bool SchemeEquals(IOUri other) => this.Scheme.Equals(other.Scheme);
 
         private bool AuthorityEquals(IOUri other) => string.Equals(this.Authority, other.Authority, StringComparison.OrdinalIgnoreCase);
+
+        private bool QueryEquals(IOUri other) => string.Equals(this.Query, other.Query, StringComparison.Ordinal);
+
+        private bool FragmentEquals(IOUri other) => string.Equals(this.Fragment, other.Fragment, StringComparison.Ordinal);
+
+        private bool PathEquals(IOUri other) => string.Equals(this.Path, other.Path, this.PathComparison);
     }
 }

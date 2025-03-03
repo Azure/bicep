@@ -17,8 +17,6 @@ namespace Bicep.IO.Abstraction
 
         public static readonly IOUriScheme File = new("file");
 
-        public static readonly IOUriScheme InMemory = new("inmemory");
-
         public readonly string Name { get; } = Name.ToLowerInvariant();
 
         public static implicit operator string(IOUriScheme scheme) => scheme.ToString();
@@ -30,8 +28,6 @@ namespace Bicep.IO.Abstraction
         public readonly bool IsHttps => this.Equals(Https);
 
         public readonly bool IsFile => this.Equals(File);
-
-        public readonly bool IsInMemory => this.Equals(InMemory);
 
         public override string ToString() => this.Name;
     }

@@ -45,7 +45,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         private static readonly ConfigurationManager ConfigurationManager = new(FileExplorer);
 
-        private static readonly SourceFileFactory SourceFileFactory = new(ConfigurationManager, new FeatureProviderFactory(ConfigurationManager, FileExplorer), FileExplorer);
+        private static readonly SourceFileFactory SourceFileFactory = new(ConfigurationManager, new FeatureProviderFactory(ConfigurationManager, FileExplorer), BicepTestConstants.AuxiliaryFileCache, FileExplorer);
 
         private class TelemetryProviderMock
         {

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;

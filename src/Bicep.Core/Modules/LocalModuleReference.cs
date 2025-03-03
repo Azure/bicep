@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
@@ -17,7 +18,7 @@ namespace Bicep.Core.Modules
     {
         private static readonly IEqualityComparer<string> PathComparer = StringComparer.Ordinal;
 
-        private LocalModuleReference(BicepSourceFile referencingFile, ArtifactType artifactType, string path)
+        private LocalModuleReference(BicepSourceFile referencingFile, ArtifactType artifactType, RelativePath path)
             : base(referencingFile, ArtifactReferenceSchemes.Local)
         {
             ArtifactType = artifactType;
@@ -49,49 +50,7 @@ namespace Bicep.Core.Modules
 
         public override bool IsExternal => false;
 
-        public static ResultWithDiagnosticBuilder<LocalModuleReference> TryParse(BicepSourceFile referencingFile, ArtifactType artifactType, string unqualifiedReference)
-        {
-            return Validate(unqualifiedReference)
-                .Transform(_ => new LocalModuleReference(referencingFile, artifactType, unqualifiedReference));
-        }
-
-        public static ResultWithDiagnosticBuilder<bool> Validate(string pathName)
-        {
-            if (pathName.Length == 0)
-            {
-                return new(x => x.FilePathIsEmpty());
-            }
-
-            if (pathName.First() == '/')
-            {
-                return new(x => x.FilePathBeginsWithForwardSlash());
-            }
-
-            foreach (var pathChar in pathName)
-            {
-                if (pathChar == '\\')
-                {
-                    // enforce '/' rather than '\' for module paths for cross-platform compatibility
-                    return new(x => x.FilePathContainsBackSlash());
-                }
-
-                if (FilePathFacts.IsForbiddenPathVisibleCharacter(pathChar))
-                {
-                    return new(x => x.FilePathContainsForbiddenCharacters(FilePathFacts.ForbiddenPathCharacters));
-                }
-
-                if (FilePathFacts.IsForbiddenPathControlCharacter(pathChar))
-                {
-                    return new(x => x.FilePathContainsControlChars());
-                }
-            }
-
-            if (FilePathFacts.IsForbiddenPathTerminatorCharacter(pathName.Last()))
-            {
-                return new(x => x.FilePathHasForbiddenTerminator(FilePathFacts.ForbiddenPathTerminatorCharacters));
-            }
-
-            return new(true);
-        }
+        public static ResultWithDiagnosticBuilder<LocalModuleReference> TryParse(BicepSourceFile referencingFile, ArtifactType artifactType, string unqualifiedReference) =>
+            RelativePath.TryCreate(unqualifiedReference).Transform(relativePath => new LocalModuleReference(referencingFile, artifactType, relativePath));
     }
 }

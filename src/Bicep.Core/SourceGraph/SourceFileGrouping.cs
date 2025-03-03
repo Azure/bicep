@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -8,6 +9,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Workspaces;
 
@@ -82,5 +84,19 @@ public record SourceFileGrouping(
         }
 
         return [.. knownFiles];
+    }
+
+    public IEnumerable<BicepSourceFile> EnumerateBicepSourceFiles() => this.SourceFiles.OfType<BicepSourceFile>();
+
+    public FrozenSet<IOUri> GetAllReferencedAuxiliaryFileUris()
+    {
+        var fileUris = new HashSet<IOUri>();
+
+        foreach (var sourceFile in this.EnumerateBicepSourceFiles())
+        {
+            fileUris.UnionWith(sourceFile.GetReferencedAuxiliaryFileUris());
+        }
+
+        return fileUris.ToFrozenSet();
     }
 }

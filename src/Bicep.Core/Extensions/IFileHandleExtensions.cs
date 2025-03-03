@@ -9,6 +9,7 @@ using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 
@@ -24,6 +25,18 @@ namespace Bicep.Core.Extensions
         public static bool IsBicepFile(this IFileHandle fileHandle) => fileHandle.Uri.HasExtension(LanguageConstants.LanguageFileExtension);
 
         public static bool IsBicepParamFile(this IFileHandle fileHandle) => fileHandle.Uri.HasExtension(LanguageConstants.ParamsFileExtension);
+
+        public static ResultWithDiagnosticBuilder<IFileHandle> TryGetRelativeFile(this IFileHandle fileHandle, RelativePath path)
+        {
+            try
+            {
+                return new(fileHandle.GetParent().GetFile(path));
+            }
+            catch (IOException exception)
+            {
+                return new(x => x.ErrorOccurredReadingFile(exception.Message));
+            }
+        }
 
         public static ResultWithDiagnosticBuilder<Encoding> TryDetectEncoding(this IFileHandle fileHandle) => HandleFileReadError(() =>
         {
@@ -47,6 +60,14 @@ namespace Bicep.Core.Extensions
 
             return new string(buffer, 0, length);
         });
+
+        public static ResultWithDiagnosticBuilder<BinaryData> TryReadData(this IFileHandle fileHandle) =>
+            HandleFileReadError(() =>
+            {
+                using var fileStream = fileHandle.OpenRead();
+
+                return BinaryData.FromStream(fileStream);
+            });
 
         public static ResultWithDiagnosticBuilder<string> TryRead(this IFileHandle fileHandle, Encoding? encoding = null) =>
             HandleFileReadError(() =>
