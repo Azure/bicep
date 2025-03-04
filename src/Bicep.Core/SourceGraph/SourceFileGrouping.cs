@@ -64,7 +64,7 @@ public record SourceFileGrouping(
         return SourceFileLookup[fileUri];
     }
 
-    public ImmutableHashSet<ISourceFile> GetFilesDependingOn(ISourceFile sourceFile)
+    public FrozenSet<ISourceFile> GetSourceFilesDependingOn(ISourceFile sourceFile)
     {
         var filesToCheck = new Queue<ISourceFile>(new[] { sourceFile });
         var knownFiles = new HashSet<ISourceFile>();
@@ -83,7 +83,7 @@ public record SourceFileGrouping(
             }
         }
 
-        return [.. knownFiles];
+        return knownFiles.ToFrozenSet();
     }
 
     public IEnumerable<BicepSourceFile> EnumerateBicepSourceFiles() => this.SourceFiles.OfType<BicepSourceFile>();

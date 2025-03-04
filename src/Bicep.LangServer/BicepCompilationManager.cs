@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core;
@@ -343,8 +344,8 @@ namespace Bicep.LanguageServer
                         if (prevPotentiallyUnsafeContext is CompilationContext prevContext)
                         {
                             var sourceDependencies = removedFiles
-                                .SelectMany(x => prevContext.Compilation.SourceFileGrouping.GetFilesDependingOn(x))
-                                .ToImmutableHashSet();
+                                .SelectMany(x => prevContext.Compilation.SourceFileGrouping.GetSourceFilesDependingOn(x))
+                                .ToFrozenSet();
 
                             // check for semantic models that we can safely reuse from the previous compilation
                             foreach (var sourceFile in prevContext.Compilation.SourceFileGrouping.SourceFiles)
