@@ -14,6 +14,7 @@ namespace Bicep.Core.Workspaces
     {
         public BicepFile(
             Uri fileUri,
+            IFileHandle fileHandle,
             ImmutableArray<int> lineStarts,
             ProgramSyntax programSyntax,
             IConfigurationManager configurationManager,
@@ -22,6 +23,7 @@ namespace Bicep.Core.Workspaces
             IDiagnosticLookup parsingErrorLookup)
             : base(
                   fileUri,
+                  fileHandle,
                   lineStarts,
                   programSyntax,
                   configurationManager,

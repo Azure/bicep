@@ -62,11 +62,6 @@ public class ResourceDerivedTypeDiagnosticReporter
 
     private IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate> ReportResourceDerivedTypeDiagnostics(IUnresolvedResourceDerivedType unbound)
     {
-        if (!features.ResourceDerivedTypesEnabled)
-        {
-            yield return x => x.ResourceDerivedTypesUnsupported();
-        }
-
         // TODO support types derived from resources other than the `az` extension. This will require some refactoring of how extension artifacts are restored
         var bound = binder.NamespaceResolver.GetMatchingResourceTypes(unbound.TypeReference, ResourceTypeGenerationFlags.None)
             .Where(resourceType => LanguageConstants.IdentifierComparer.Equals(resourceType.DeclaringNamespace.ExtensionName, AzNamespaceType.BuiltInName))
@@ -167,11 +162,6 @@ public class ResourceDerivedTypeDiagnosticReporter
 
     private IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate> ReportResourceDerivedTypeDiagnostics(UnparsableResourceDerivedType unloadable)
     {
-        if (!features.ResourceDerivedTypesEnabled)
-        {
-            yield return x => x.ResourceDerivedTypesUnsupported();
-        }
-
         yield return x => x.InvalidResourceTypeIdentifier(unloadable.TypeReferenceString);
     }
 }

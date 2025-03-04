@@ -1816,7 +1816,8 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithDescription("Causes the resource deployment to wait until the given condition is satisfied")
                     .WithRequiredParameter("predicate", OneParamLambda(LanguageConstants.Object, LanguageConstants.Bool), "The predicate applied to the resource.")
                     .WithRequiredParameter("maxWaitTime", LanguageConstants.String, "Maximum time used to wait until the predicate is true. Please be cautious as max wait time adds to total deployment time. It cannot be a negative value. Use [ISO 8601 duration format](https://en.wikipedia.org/wiki/ISO_8601#Durations).")
-                    .WithFlags(FunctionFlags.ResourceDecorator)
+                    .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
+                    .WithEvaluator(WaitUntilEvaluator)
                     .Build();
 
                     yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
@@ -1824,35 +1825,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("exceptionCodes", LanguageConstants.StringArray, "List of exceptions.")
                     .WithOptionalParameter("retryCount", TypeFactory.CreateIntegerType(minValue: 1), "Maximum number if retries on the exception.")
                     .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
-                    .WithEvaluator((functionCall, decorated) =>
-                    {
-                        if (decorated is DeclaredResourceExpression declaredResourceExpression)
-                        {
-                            var retryOnProperties = new List<ObjectPropertyExpression>
-                                                    {
-                                                        new (
-                                                            null,
-                                                            new StringLiteralExpression(null, "exceptionCodes"),
-                                                            functionCall.Parameters[0]
-                                                        )
-                                                    };
-
-                            if (functionCall.Parameters.Length > 1)
-                            {
-                                retryOnProperties.Add(
-                                    new(
-                                        null,
-                                        new StringLiteralExpression(null, "retryCount"),
-                                        functionCall.Parameters[1]
-                                    )
-                                );
-                            }
-
-                            return declaredResourceExpression with { RetryOn = new ObjectExpression(null, [.. retryOnProperties]) };
-                        }
-
-                        return decorated;
-                    })
+                    .WithEvaluator(RetryOnEvaluator)
                     .Build();
                 }
 
@@ -2026,19 +1999,6 @@ namespace Bicep.Core.Semantics.Namespaces
                 var resourceDerivedTypeNotaBene = "NB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.";
 
                 yield return new(
-                    LanguageConstants.TypeNameResource,
-                    new TypeTemplate(
-                        LanguageConstants.TypeNameResource,
-                        resourceInputParameters,
-                        GetResourceDerivedTypeInstantiator(ResourceDerivedTypeVariant.None)),
-                    Flags: TypePropertyFlags.FallbackProperty,
-                    Description: $"""
-                        Use the type definition of the body of a specific resource rather than a user-defined type.
-
-                        {resourceDerivedTypeNotaBene}
-                        """);
-
-                yield return new(
                     LanguageConstants.TypeNameResourceInput,
                     new TypeTemplate(
                         LanguageConstants.TypeNameResourceInput,
@@ -2064,14 +2024,9 @@ namespace Bicep.Core.Semantics.Namespaces
 
             }
 
-            foreach (var typeProp in GetArmPrimitiveTypes())
+            foreach (var typeProp in GetArmPrimitiveTypes().Concat(GetResourceDerivedTypesTypeProperties()))
             {
                 yield return new(typeProp, (features, sfk) => sfk == BicepSourceFileKind.BicepFile);
-            }
-
-            foreach (var typeProp in GetResourceDerivedTypesTypeProperties())
-            {
-                yield return new(typeProp, (features, sfk) => features.ResourceDerivedTypesEnabled && sfk == BicepSourceFileKind.BicepFile);
             }
         }
 
@@ -2098,6 +2053,58 @@ namespace Bicep.Core.Semantics.Namespaces
                 BannedFunctions,
                 GetSystemDecorators(featureProvider).Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 new EmptyResourceTypeProvider());
+        }
+
+        private static Expression WaitUntilEvaluator(FunctionCallExpression functionCall, Expression decorated)
+        {
+            if (decorated is DeclaredResourceExpression declaredResourceExpression)
+            {
+                var waitUntilProperties = ImmutableArray.Create<ObjectPropertyExpression>(
+                            new 
+                            (
+                                null,
+                                new StringLiteralExpression(null, "expression"),
+                                functionCall.Parameters[0]
+                            ),
+                            new 
+                            (
+                                null,
+                                new StringLiteralExpression(null, "maxWaitTime"),
+                                functionCall.Parameters[1]
+                            )
+                        );
+                return declaredResourceExpression with { WaitUntil = new ObjectExpression(null, waitUntilProperties) };
+            }
+
+            return decorated;
+        }
+
+        private static Expression RetryOnEvaluator(FunctionCallExpression functionCall, Expression decorated)
+        {
+            if (decorated is DeclaredResourceExpression declaredResourceExpression)
+            {
+                var retryOnProperties = new List<ObjectPropertyExpression>
+                        {
+                            new
+                            (
+                                null,
+                                new StringLiteralExpression(null, "exceptionCodes"),
+                                functionCall.Parameters[0]
+                            )
+                        };
+                if (functionCall.Parameters.Length > 1)
+                {
+                    retryOnProperties.Add(
+                        new(
+                            null,
+                            new StringLiteralExpression(null, "retryCount"),
+                            functionCall.Parameters[1]
+                        )
+                    );
+                }
+                return declaredResourceExpression with { RetryOn = new ObjectExpression(null, [..retryOnProperties]) };
+            }
+            return decorated;
         }
     }
 }

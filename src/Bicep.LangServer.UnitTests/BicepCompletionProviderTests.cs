@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.Deployments.Core.Definitions.Schema;
+using System.Numerics;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -468,6 +470,24 @@ output length int =
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
                     c.TextEdit!.TextEdit!.NewText.Should().Be(expected);
                     c.Detail.Should().Be(expected);
+                },
+                c =>
+                {
+                    const string expected = "resourceInput";
+                    c.Label.Should().Be(expected);
+                    c.Kind.Should().Be(CompletionItemKind.Class);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("resourceInput<'$0'>");
+                    c.Detail.Should().Be("Use the type definition of the input for a specific resource rather than a user-defined type.\n\nNB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.");
+                },
+            c =>
+            {
+                    const string expected = "resourceOutput";
+                    c.Label.Should().Be(expected);
+                    c.Kind.Should().Be(CompletionItemKind.Class);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("resourceOutput<'$0'>");
+                    c.Detail.Should().Be("Use the type definition of the return value of a specific resource rather than a user-defined type.\n\nNB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.");
                 },
                 c =>
                 {

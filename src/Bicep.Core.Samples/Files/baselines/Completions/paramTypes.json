@@ -56,6 +56,42 @@
     }
   },
   {
+    "label": "resourceInput",
+    "kind": "class",
+    "detail": "Use the type definition of the input for a specific resource rather than a user-defined type.\n\nNB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_resourceInput",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceInput<'$0'>"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "resourceOutput",
+    "kind": "class",
+    "detail": "Use the type definition of the return value of a specific resource rather than a user-defined type.\n\nNB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_resourceOutput",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceOutput<'$0'>"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "secureObject",
     "kind": "snippet",
     "detail": "Secure object",

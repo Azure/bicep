@@ -7,12 +7,15 @@ using Azure.Deployments.Core.Constants;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Templates.Engines;
 using Bicep.Core.Configuration;
+using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Text;
+using Bicep.IO.Abstraction;
+using Bicep.IO.InMemory;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Workspaces
@@ -27,13 +30,14 @@ namespace Bicep.Core.Workspaces
         };
 
         private readonly IConfigurationManager configurationManager;
-
         private readonly IFeatureProviderFactory featureProviderFactory;
+        private readonly IFileExplorer fileExplorer;
 
-        public SourceFileFactory(IConfigurationManager configurationManager, IFeatureProviderFactory featureProviderFactory)
+        public SourceFileFactory(IConfigurationManager configurationManager, IFeatureProviderFactory featureProviderFactory, IFileExplorer fileExplorer)
         {
             this.configurationManager = configurationManager;
             this.featureProviderFactory = featureProviderFactory;
+            this.fileExplorer = fileExplorer;
         }
 
         public ISourceFile CreateSourceFile(Uri fileUri, string fileContents, Type? sourceFileType = null)
@@ -89,39 +93,25 @@ namespace Bicep.Core.Workspaces
         {
             var parser = new ParamsParser(fileContents);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
+            var fileHandle = this.fileExplorer.GetFile(fileUri.ToIOUri());
 
-            return new(fileUri, lineStarts, parser.Program(), this.configurationManager, this.featureProviderFactory, parser.LexingErrorLookup, parser.ParsingErrorLookup);
+            return new(fileUri, fileHandle, lineStarts, parser.Program(), this.configurationManager, this.featureProviderFactory, parser.LexingErrorLookup, parser.ParsingErrorLookup);
         }
 
         public BicepFile CreateBicepFile(Uri fileUri, string fileContents)
         {
             var parser = new Parser(fileContents);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
+            var fileHandle = fileUri.IsFile ? this.fileExplorer.GetFile(fileUri.ToIOUri()) : InMemoryDummyFileHandle.Instance;
 
-            return new(fileUri, lineStarts, parser.Program(), this.configurationManager, this.featureProviderFactory, parser.LexingErrorLookup, parser.ParsingErrorLookup);
+            return new(fileUri, fileHandle, lineStarts, parser.Program(), this.configurationManager, this.featureProviderFactory, parser.LexingErrorLookup, parser.ParsingErrorLookup);
         }
 
-        public ArmTemplateFile CreateArmTemplateFile(Uri fileUri, string fileContents)
-        {
-            try
-            {
-                var template = TemplateEngine.ParseTemplate(fileContents);
-
-                ValidateTemplate(template);
-
-                var templateObject = ParseObject(fileContents);
-
-                return new(fileUri, fileContents, template, templateObject);
-            }
-            catch (Exception)
-            {
-                return new(fileUri, fileContents, null, null);
-            }
-        }
+        public ArmTemplateFile CreateArmTemplateFile(Uri fileUri, string fileContents) => CreateArmTemplateFile(fileUri, fileUri.IsFile ? this.fileExplorer.GetFile(fileUri.ToIOUri()) : InMemoryDummyFileHandle.Instance, fileContents);
 
         public TemplateSpecFile CreateTemplateSpecFile(Uri fileUri, string fileContents)
         {
-            TemplateSpecFile CreateErrorFile() => new(fileUri, fileContents, null, new ArmTemplateFile(InMemoryMainTemplateUri, fileContents, null, null));
+            TemplateSpecFile CreateErrorFile() => new(fileUri, this.fileExplorer.GetFile(fileUri.ToIOUri()), fileContents, null, CreateDummyArmTemplateFile(""));
 
             try
             {
@@ -133,15 +123,35 @@ namespace Bicep.Core.Workspaces
                     return CreateErrorFile();
                 }
 
-                var mainTemplateFile = CreateArmTemplateFile(new Uri("inmemory:///main.json"), mainTemplateObject.ToString());
+                var mainTemplateFile = CreateDummyArmTemplateFile(mainTemplateObject.ToString());
+                var fileHandle = this.fileExplorer.GetFile(fileUri.ToIOUri());
 
-                return new(fileUri, fileContents, templateSpecId, mainTemplateFile);
+                return new(fileUri, fileHandle, fileContents, templateSpecId, mainTemplateFile);
             }
             catch (Exception)
             {
                 return CreateErrorFile();
             }
         }
+        private static ArmTemplateFile CreateArmTemplateFile(Uri fileUri, IFileHandle fileHandle, string fileContents)
+        {
+            try
+            {
+                var template = TemplateEngine.ParseTemplate(fileContents);
+
+                ValidateTemplate(template);
+
+                var templateObject = ParseObject(fileContents);
+
+                return new(fileUri, fileHandle, fileContents, template, templateObject);
+            }
+            catch (Exception)
+            {
+                return new(fileUri, fileHandle, fileContents, null, null);
+            }
+        }
+
+        private static ArmTemplateFile CreateDummyArmTemplateFile(string content) => CreateArmTemplateFile(InMemoryMainTemplateUri, InMemoryDummyFileHandle.Instance, content);
 
         private static void ValidateTemplate(Template template)
         {

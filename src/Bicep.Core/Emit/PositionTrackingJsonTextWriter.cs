@@ -231,11 +231,13 @@ namespace Bicep.Core.Emit
             Array.Fill(weights, int.MaxValue);
 
             var sourceMapFileEntries = new List<SourceMapFileEntry>();
-            var entrypointFileName = System.IO.Path.GetFileName(sourceFile.Uri.AbsolutePath);
+            var entrypointFileName = sourceFile.GetFileName();
 
             foreach (var bicepFileEntry in this.rawSourceMap.Entries)
             {
-                var bicepRelativeFilePath = PathHelper.GetRelativePath(sourceFile.Uri, bicepFileEntry.SourceFile.Uri);
+                var bicepRelativeFilePath = bicepFileEntry.SourceFile == sourceFile
+                    ? entrypointFileName
+                    : bicepFileEntry.SourceFile.FileHandle.Uri.GetPathRelativeTo(sourceFile.FileHandle.Uri);
                 var sourceMapEntries = new List<SourceMapEntry>();
 
                 foreach (var sourceMapEntry in bicepFileEntry.SourceMap)

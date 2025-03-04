@@ -9,6 +9,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Mock;
@@ -31,7 +32,7 @@ namespace Bicep.Cli.IntegrationTests
         private InvocationSettings Settings
             => new()
             {
-                Environment = TestEnvironment.Create(
+                Environment = TestEnvironment.Default.WithVariables(
                     ("stringEnvVariableName", "test"),
                     ("intEnvVariableName", "100"),
                     ("boolEnvironmentVariable", "true")
@@ -135,7 +136,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var settings = Settings with
             {
-                Environment = TestEnvironment.Create(
+                Environment = TestEnvironment.Default.WithVariables(
                 ("BICEP_PARAMETERS_OVERRIDES", paramsOverrides)
             )
             };
@@ -180,7 +181,7 @@ output foo string = foo
 """,
                 Path.GetDirectoryName(bicepparamsPath));
 
-            var environment = TestEnvironment.Create(("BICEP_PARAMETERS_OVERRIDES", new
+            var environment = TestEnvironment.Default.WithVariables(("BICEP_PARAMETERS_OVERRIDES", new
             {
                 foo = "bar"
             }.ToJson()));
@@ -224,7 +225,7 @@ output foo string = foo
 """,
                 Path.GetDirectoryName(bicepparamsPath));
 
-            var environment = TestEnvironment.Create(("BICEP_PARAMETERS_OVERRIDES", new
+            var environment = TestEnvironment.Default.WithVariables(("BICEP_PARAMETERS_OVERRIDES", new
             {
                 wrongName = "bar"
             }.ToJson()));
@@ -262,7 +263,7 @@ output foo string = foo
 
             var settings = Settings with
             {
-                Environment = TestEnvironment.Create(
+                Environment = TestEnvironment.Default.WithVariables(
                 ("BICEP_PARAMETERS_OVERRIDES", paramsOverrides)
             )
             };
@@ -541,6 +542,53 @@ output foo string = foo
             }
 
             result.Should().Be(0);
+        }
+
+        [TestMethod]
+        [DataRow(false)]
+        [DataRow(true)]
+        public async Task BuildParams_should_compile_files_matching_pattern(bool useRootPath)
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            FileHelper.SaveResultFile(TestContext, "main.bicep", """
+param intParam int
+
+output intOutput int = intParam
+""", outputPath);
+            var contents = """
+using 'main.bicep'
+
+param intParam = 42
+""";
+
+            
+            var fileResults = new[]
+            {
+                (input: "file1.bicepparam", expectOutput: true),
+                (input: "file2.bicepparam", expectOutput: true),
+                (input: "nofile.bicepparam", expectOutput: false)
+            };
+
+            foreach (var (input, _) in fileResults)
+            {
+                FileHelper.SaveResultFile(TestContext, input, contents, outputPath);
+            }
+
+            var (output, error, result) = await Bicep(
+                services => services.WithEnvironment(useRootPath ? TestEnvironment.Default : TestEnvironment.Default with { CurrentDirectory = outputPath }),
+                ["build-params",
+                "--pattern", useRootPath ? $"{outputPath}/file*.bicepparam" : "file*.bicepparam"]);
+
+            result.Should().Be(0);
+            error.Should().BeEmpty();
+            output.Should().BeEmpty();
+
+            foreach (var (input, expectOutput) in fileResults)
+            {
+                var outputFile = Path.ChangeExtension(input, ".json");
+                File.Exists(Path.Combine(outputPath, outputFile)).Should().Be(expectOutput);
+            }
         }
     }
 }

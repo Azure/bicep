@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
@@ -668,7 +669,7 @@ namespace Bicep.Core.UnitTests.Registry
             if (publishSource)
             {
                 var uri = InMemoryFileResolver.GetFileUri("/path/to/bicep.bicep");
-                var sourceFileFactory = new SourceFileFactory(BicepTestConstants.ConfigurationManager, featureProviderFactoryMock.Object);
+                var sourceFileFactory = new SourceFileFactory(BicepTestConstants.ConfigurationManager, featureProviderFactoryMock.Object, BicepTestConstants.FileExplorer);
                 sources = new SourceArchiveBuilder(sourceFileFactory)
                     .WithBicepFile(uri, "// contents")
                     .BuildBinaryData();
@@ -747,6 +748,7 @@ namespace Bicep.Core.UnitTests.Registry
 
             var parentModuleFile = new BicepFile(
                 parentModuleUri,
+                BicepTestConstants.FileExplorer.GetFile(parentModuleUri.ToIOUri()),
                 [],
                 SyntaxFactory.EmptyProgram,
                 BicepTestConstants.ConfigurationManager,

@@ -391,18 +391,16 @@ namespace Bicep.Core.Emit
                     .Where(pair => pair.value is not null && pair.value is not SkippedTriviaSyntax)
                     .ToImmutableDictionary(pair => pair.property, pair => pair.value!);
 
-                if (!propertyMap.Any(pair => pair.Key.Flags.HasFlag(TypePropertyFlags.Required)))
+                if (propertyMap.Keys.FirstOrDefault(x => x.Name.Equals(LanguageConstants.ModuleNamePropertyName)) is not { } moduleNameProperty)
                 {
-                    // required loop-variant properties have not been set yet
-                    // do not overwarn the user because they have other errors to deal with
+                    // The module name is generated and implictly uses the loop variable (copyIndex()).
                     continue;
                 }
 
-                if (semanticModel.Features.OptionalModuleNamesEnabled &&
-                    propertyMap.Keys.FirstOrDefault(x => x.Name.Equals(LanguageConstants.ModuleNamePropertyName)) is null)
+                if (!propertyMap.Any(pair => pair.Key.Flags.HasFlag(TypePropertyFlags.Required)) && moduleNameProperty is null)
                 {
-
-                    // The module name is generated and implictly uses the loop variable (copyIndex()).
+                    // required loop-variant properties have not been set yet
+                    // do not overwarn the user because they have other errors to deal with
                     continue;
                 }
 

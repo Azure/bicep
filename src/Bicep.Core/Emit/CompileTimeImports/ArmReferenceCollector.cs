@@ -23,7 +23,7 @@ internal partial class ArmReferenceCollector
     {
         if (templateFile.Template is not { } template)
         {
-            throw new InvalidOperationException($"Source template of {templateFile.Uri} is not valid");
+            throw new InvalidOperationException($"Source template of {templateFile.FileHandle.Uri} is not valid");
         }
 
         schemaContext = SchemaValidationContext.ForTemplate(template);

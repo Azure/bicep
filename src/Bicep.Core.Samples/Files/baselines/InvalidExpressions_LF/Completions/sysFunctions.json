@@ -1109,6 +1109,48 @@
     }
   },
   {
+    "label": "resourceInput",
+    "kind": "property",
+    "detail": "resourceInput",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `resourceInput<ResourceTypeIdentifier>`  \nUse the type definition of the input for a specific resource rather than a user-defined type.\n\nNB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_resourceInput",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceInput"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "resourceOutput",
+    "kind": "property",
+    "detail": "resourceOutput",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `resourceOutput<ResourceTypeIdentifier>`  \nUse the type definition of the return value of a specific resource rather than a user-defined type.\n\nNB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_resourceOutput",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceOutput"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
     "label": "shallowMerge",
     "kind": "function",
     "documentation": {

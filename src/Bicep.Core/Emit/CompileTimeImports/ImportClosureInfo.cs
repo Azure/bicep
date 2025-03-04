@@ -14,6 +14,7 @@ using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Emit.CompileTimeImports;
@@ -38,7 +39,7 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
 
     public static ImportClosureInfo Calculate(SemanticModel model)
     {
-        IntraTemplateSymbolicReferenceFactory referenceFactory = new(model.SourceFile.Uri);
+        IntraTemplateSymbolicReferenceFactory referenceFactory = new(model.SourceFile.FileHandle.Uri);
         var closure = CalculateImportClosure(model, referenceFactory);
         var closureMetadata = CalculateImportedSymbolNames(model, closure);
 
@@ -122,9 +123,9 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
             }
         }
 
-        return new(ImmutableArray.CreateRange(importedTypes.Values.OrderBy(dte => dte.Name)),
-            ImmutableArray.CreateRange(importedVariables.Values.OrderBy(dve => dve.Name)),
-            ImmutableArray.CreateRange(importedFunctions.Values.OrderBy(dfe => dfe.Name)),
+        return new([.. importedTypes.Values.OrderBy(dte => dte.Name)],
+            [.. importedVariables.Values.OrderBy(dve => dve.Name)],
+            [.. importedFunctions.Values.OrderBy(dfe => dfe.Name)],
             importedSymbolNames,
             wildcardImportPropertyNames,
             importedSymbolMetadata.ToImmutable());
@@ -205,7 +206,7 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
                 if (!targetModel.Exports.TryGetValue(name, out var exportMetadata))
                 {
                     throw new InvalidOperationException($"No export named {name} found in {TemplateIdentifier(
-                        model.SourceFile.Uri,
+                        model.SourceFile.FileHandle.Uri,
                         targetModel,
                         importedSymbolReference.ImportTarget)}");
                 }
@@ -441,19 +442,19 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
         return importedSymbolNames.ToImmutable();
     }
 
-    private static string TemplateIdentifier(Uri entryPointUri, ISemanticModel modelToIdentify, ArtifactReference reference)
+    private static string TemplateIdentifier(IOUri entryPointUri, ISemanticModel modelToIdentify, ArtifactReference reference)
         => reference switch
         {
             // for local modules, use the path on disk relative to the entry point template
-            LocalModuleReference => entryPointUri.MakeRelativeUri(GetSourceFileUri(modelToIdentify)).ToString(),
+            LocalModuleReference => GetSourceFileUri(modelToIdentify).GetPathRelativeTo(entryPointUri),
             ArtifactReference otherwise => otherwise.FullyQualifiedReference,
         };
 
-    private static Uri GetSourceFileUri(ISemanticModel model) => model switch
+    private static IOUri GetSourceFileUri(ISemanticModel model) => model switch
     {
-        SemanticModel bicepModel => bicepModel.SourceFile.Uri,
-        ArmTemplateSemanticModel armTemplate => armTemplate.SourceFile.Uri,
-        TemplateSpecSemanticModel templateSpec => templateSpec.SourceFile.Uri,
+        SemanticModel bicepModel => bicepModel.SourceFile.FileHandle.Uri,
+        ArmTemplateSemanticModel armTemplate => armTemplate.SourceFile.FileHandle.Uri,
+        TemplateSpecSemanticModel templateSpec => templateSpec.SourceFile.FileHandle.Uri,
         _ => throw new InvalidOperationException($"Unrecognized module type {model.GetType().Name} encountered"),
     };
 
@@ -525,9 +526,9 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
 
     private class IntraTemplateSymbolicReferenceFactory
     {
-        private readonly Uri entryPointUri;
+        private readonly IOUri entryPointUri;
 
-        internal IntraTemplateSymbolicReferenceFactory(Uri entryPointUri)
+        internal IntraTemplateSymbolicReferenceFactory(IOUri entryPointUri)
         {
             this.entryPointUri = entryPointUri;
         }

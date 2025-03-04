@@ -113,7 +113,7 @@ namespace Bicep.Core.Workspaces
 
             if (entryFile is not BicepSourceFile bicepSourceFile)
             {
-                throw new InvalidOperationException($"Unexpected entry source file {entryFile.Uri}");
+                throw new InvalidOperationException($"Unexpected entry source file {entryFile.FileHandle.Uri}");
             }
 
             var sourceFileGraph = this.ReportFailuresForCycles();
@@ -322,7 +322,7 @@ namespace Bicep.Core.Workspaces
                         { Length: 1 } when cycle[0] is BicepParamFile paramFile => new(x => x.CyclicParametersSelfReference()),
                         { Length: 1 } => new(x => x.CyclicModuleSelfReference()),
                         // the error message is generic so it should work for either bicep module or params
-                        _ => new(x => x.CyclicFile(cycle.Select(u => u.Uri.LocalPath))),
+                        _ => new(x => x.CyclicFile(cycle.Select(u => u.FileHandle.Uri.ToString()))),
                     };
 
                     // overwrite to add the cycle error
