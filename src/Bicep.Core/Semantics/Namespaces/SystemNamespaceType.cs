@@ -1290,12 +1290,12 @@ namespace Bicep.Core.Semantics.Namespaces
                 diagnostics.Write(DiagnosticBuilder.ForPosition(encodingArgument.Value.syntax).FileEncodingMismatch(detectedEncoding.WebName));
             }
 
-            if (auxiliaryFile.SizeInCharacters > maxCharacters)
+            if (!auxiliaryFile.TryReadText(encoding, maxCharacters).IsSuccess(out var content, out errorBuilder))
             {
-                return new(DiagnosticBuilder.ForPosition(filePathArgument.syntax).FileExceedsMaximumSize(auxiliaryFile.Uri, maxCharacters, "characters"));
+                return new(errorBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
             }
 
-            return new(new LoadTextContentResult(auxiliaryFile.Uri, auxiliaryFile.ReadAllText(encoding)));
+            return new(new LoadTextContentResult(auxiliaryFile.Uri, content));
         }
 
         private static ResultWithDiagnostic<LoadTextContentResult> TryLoadTextContentAsBase64(SemanticModel model, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument)
@@ -1314,12 +1314,12 @@ namespace Bicep.Core.Semantics.Namespaces
 
             var maxFileSizeInBytes = LanguageConstants.MaxLiteralCharacterLimit / 4 * 3; //each base64 character represents 6 bits
 
-            if (auxiliaryFile.SizeInBytes > maxFileSizeInBytes)
+            if (!auxiliaryFile.TryReadBytes(maxFileSizeInBytes).IsSuccess(out var bytes, out var errorBuilder))
             {
-                return new(DiagnosticBuilder.ForPosition(filePathArgument.syntax).FileExceedsMaximumSize(auxiliaryFile.Uri, maxFileSizeInBytes, "bytes"));
+                return new(errorBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
             }
 
-            var content = Convert.ToBase64String(auxiliaryFile.ReadAllBytes(), Base64FormattingOptions.None);
+            var content = Convert.ToBase64String(bytes.Span, Base64FormattingOptions.None);
 
             return new(new LoadTextContentResult(auxiliaryFile.Uri, content));
         }

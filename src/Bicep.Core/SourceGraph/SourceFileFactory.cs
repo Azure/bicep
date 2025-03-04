@@ -105,12 +105,12 @@ namespace Bicep.Core.Workspaces
         {
             var parser = new Parser(fileContents);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
-            var fileHandle = fileUri.IsFile ? this.fileExplorer.GetFile(fileUri.ToIOUri()) : InMemoryDummyFileHandle.Instance;
+            var fileHandle = fileUri.IsFile ? this.fileExplorer.GetFile(fileUri.ToIOUri()) : DummyFileHandle.Instance;
 
             return new(fileUri, fileHandle, lineStarts, parser.Program(), this.configurationManager, this.featureProviderFactory, this.auxiliaryFileCache, parser.LexingErrorLookup, parser.ParsingErrorLookup);
         }
 
-        public ArmTemplateFile CreateArmTemplateFile(Uri fileUri, string fileContents) => CreateArmTemplateFile(fileUri, fileUri.IsFile ? this.fileExplorer.GetFile(fileUri.ToIOUri()) : InMemoryDummyFileHandle.Instance, fileContents);
+        public ArmTemplateFile CreateArmTemplateFile(Uri fileUri, string fileContents) => CreateArmTemplateFile(fileUri, fileUri.IsFile ? this.fileExplorer.GetFile(fileUri.ToIOUri()) : DummyFileHandle.Instance, fileContents);
 
         public TemplateSpecFile CreateTemplateSpecFile(Uri fileUri, string fileContents)
         {
@@ -154,7 +154,7 @@ namespace Bicep.Core.Workspaces
             }
         }
 
-        private static ArmTemplateFile CreateDummyArmTemplateFile(string content) => CreateArmTemplateFile(InMemoryMainTemplateUri, InMemoryDummyFileHandle.Instance, content);
+        private static ArmTemplateFile CreateDummyArmTemplateFile(string content) => CreateArmTemplateFile(InMemoryMainTemplateUri, DummyFileHandle.Instance, content);
 
         private static void ValidateTemplate(Template template)
         {

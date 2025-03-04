@@ -26,10 +26,6 @@ namespace Bicep.Core.SourceGraph
 
         public IOUri Uri { get; }
 
-        public int SizeInBytes => this.data.Length;
-
-        public int SizeInCharacters => this.SizeInBytes * 4;
-
         public Encoding? TryDetectEncodingFromByteOrderMarks()
         {
             var utf8NoBom = new UTF8Encoding(false);
@@ -40,49 +36,29 @@ namespace Bicep.Core.SourceGraph
             return Equals(reader.CurrentEncoding, utf8NoBom) ? null : reader.CurrentEncoding;
         }
 
-        public string ReadAllText(Encoding? encoding)
+        public ResultWithDiagnosticBuilder<string> TryReadText(Encoding? encoding, int charactersLimit)
         {
             using var reader = new StreamReader(this.data.ToStream(), encoding ?? Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
 
-            return reader.ReadToEnd();
+            char[] buffer = new char[charactersLimit];
+            int charactersRead = reader.ReadBlock(buffer, 0, charactersLimit);
+
+            if (charactersRead == charactersLimit && !reader.EndOfStream)
+            {
+                return new(x => x.FileExceedsMaximumSize(this.Uri, charactersLimit, "characters"));
+            }
+
+            return new(new string(buffer, 0, charactersRead));
         }
 
-        public ReadOnlySpan<byte> ReadAllBytes() => this.data;
+        public ResultWithDiagnosticBuilder<ReadOnlyMemory<byte>> TryReadBytes(int bytesLimit)
+        {
+            if (this.data.Length > bytesLimit)
+            {
+                return new(x => x.FileExceedsMaximumSize(this.Uri, bytesLimit, "bytes"));
+            }
 
-        //public ResultWithDiagnosticBuilder<AuxiliaryFileData> TryRead(int sizeLimit, SizeLimitUnit sizeLimitUnit, Encoding? encoding = null)
-        //{
-        //    ArgumentOutOfRangeException.ThrowIfNegativeOrZero(sizeLimit);
-
-        //    using var reader = new StreamReader(this.data.ToStream(), encoding ?? Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
-        //    var sizeLimitInCharacters = sizeLimitUnit == SizeLimitUnit.Characters ? sizeLimit : sizeLimit * 4;
-
-        //    char[] buffer = new char[sizeLimitInCharacters];
-        //    int lengthRead = reader.Read(buffer, 0, sizeLimitInCharacters);
-
-        //    if (!reader.EndOfStream)
-        //    {
-        //        return new(x => x.FileExceedsMaximumSize(this.uri, sizeLimit, sizeLimitUnit));
-        //    }
-
-        //    var content = new string(buffer, 0, lengthRead);
-
-        //    return new(new AuxiliaryFileData(content, reader.CurrentEncoding));
-        //}
-
-        //public readonly struct SizeLimitUnit
-        //{
-        //    public static readonly SizeLimitUnit Characters = new("characters");
-
-        //    public static readonly SizeLimitUnit Bytes = new("bytes");
-
-        //    private readonly string value;
-
-        //    private SizeLimitUnit(string value)
-        //    {
-        //        this.value = value;
-        //    }
-
-        //    public static implicit operator string(SizeLimitUnit unit) => unit.value;
-        //}
+            return new(this.data);
+        }
     }
 }

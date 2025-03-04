@@ -12,6 +12,7 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
+using Bicep.IO.InMemory;
 
 namespace Bicep.Core.Workspaces
 {
@@ -89,16 +90,25 @@ namespace Bicep.Core.Workspaces
 
         public abstract BicepSourceFile ShallowClone();
 
-        public ResultWithDiagnosticBuilder<AuxiliaryFile> TryLoadAuxiliaryFile(RelativePath relativePath) => this.FileHandle
-            .TryGetRelativeFile(relativePath)
-            .Transform(fileHandle =>
+        public ResultWithDiagnosticBuilder<AuxiliaryFile> TryLoadAuxiliaryFile(RelativePath relativePath)
+        {
+            if (this.FileHandle is DummyFileHandle)
             {
-                this.referencedAuxiliaryFileUris.Add(fileHandle.Uri);
+                // This is only invoked when building SnippetCache. The error is swallowed.
+                return new(x => x.ErrorOccurredReadingFile("Cannot load auxiliary file from dummy file handle"));
+            }
 
-                return this.auxiliaryFileCache.GetOrAdd(fileHandle.Uri, () => fileHandle
-                    .TryReadData()
-                    .Transform(data => new AuxiliaryFile(fileHandle.Uri, data)));
-            });
+            return this.FileHandle
+                .TryGetRelativeFile(relativePath)
+                .Transform(fileHandle =>
+                {
+                    this.referencedAuxiliaryFileUris.Add(fileHandle.Uri);
+
+                    return this.auxiliaryFileCache.GetOrAdd(fileHandle.Uri, () => fileHandle
+                        .TryReadData()
+                        .Transform(data => new AuxiliaryFile(fileHandle.Uri, data)));
+                });
+        }
 
         public FrozenSet<IOUri> GetReferencedAuxiliaryFileUris() => this.referencedAuxiliaryFileUris.ToFrozenSet();
 

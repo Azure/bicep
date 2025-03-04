@@ -190,7 +190,7 @@ namespace Bicep.Core.UnitTests
         {
             return new(
                 new Uri($"inmemory:///main.bicep"),
-                InMemoryDummyFileHandle.Instance,
+                DummyFileHandle.Instance,
                 [],
                 SyntaxFactory.EmptyProgram,
                 configurationManager,
