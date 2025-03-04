@@ -792,6 +792,7 @@ namespace Bicep.Core.Syntax
             var hasChanges = TryRewrite(syntax.BaseExpression, out var baseExpression);
             hasChanges |= TryRewriteStrict(syntax.OpenSquare, out var openSquare);
             hasChanges |= TryRewriteStrict(syntax.SafeAccessMarker, out var safeAccessMarker);
+            hasChanges |= TryRewriteStrict(syntax.FromEndMarker, out var fromEndMarker);
             hasChanges |= TryRewrite(syntax.IndexExpression, out var indexExpression);
             hasChanges |= TryRewriteStrict(syntax.CloseSquare, out var closeSquare);
 
@@ -800,7 +801,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ArrayAccessSyntax(baseExpression, openSquare, safeAccessMarker, indexExpression, closeSquare);
+            return new ArrayAccessSyntax(baseExpression, openSquare, safeAccessMarker, fromEndMarker, indexExpression, closeSquare);
         }
         void ISyntaxVisitor.VisitArrayAccessSyntax(ArrayAccessSyntax syntax) => ReplaceCurrent(syntax, ReplaceArrayAccessSyntax);
 

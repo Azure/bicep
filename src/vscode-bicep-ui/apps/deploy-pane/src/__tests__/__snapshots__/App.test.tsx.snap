@@ -31,6 +31,7 @@ exports[`handles synchronous deployment failures correctly 1`] = `
         >
           <vscode-table-body
             role="rowgroup"
+            slot="body"
           >
             <vscode-table-row
               role="row"
@@ -202,6 +203,7 @@ exports[`handles synchronous deployment failures correctly 1`] = `
         >
           <vscode-table-body
             role="rowgroup"
+            slot="body"
           >
             <vscode-table-row
               role="row"
@@ -266,6 +268,7 @@ exports[`handles synchronous deployment failures correctly 1`] = `
         >
           <vscode-table-body
             role="rowgroup"
+            slot="body"
           >
             <vscode-table-row
               role="row"
@@ -320,6 +323,7 @@ exports[`renders the App component with deployment state 1`] = `
         >
           <vscode-table-body
             role="rowgroup"
+            slot="body"
           >
             <vscode-table-row
               role="row"
@@ -506,6 +510,7 @@ exports[`runs a deployment 1`] = `
         >
           <vscode-table-body
             role="rowgroup"
+            slot="body"
           >
             <vscode-table-row
               role="row"
@@ -677,6 +682,7 @@ exports[`runs a deployment 1`] = `
         >
           <vscode-table-body
             role="rowgroup"
+            slot="body"
           >
             <vscode-table-row
               role="row"
@@ -755,41 +761,49 @@ exports[`runs a deployment 1`] = `
         >
           <vscode-table-header
             role="rowgroup"
+            slot="header"
           >
             <vscode-table-header-cell
               role="columnheader"
+              style="width: 20%;"
             >
               Resource Name
             </vscode-table-header-cell>
             <vscode-table-header-cell
               role="columnheader"
+              style="width: 20%;"
             >
               Resource Type
             </vscode-table-header-cell>
             <vscode-table-header-cell
               role="columnheader"
+              style="width: 20%;"
             >
               Operation
             </vscode-table-header-cell>
             <vscode-table-header-cell
               role="columnheader"
+              style="width: 20%;"
             >
               State
             </vscode-table-header-cell>
             <vscode-table-header-cell
               role="columnheader"
+              style="width: 20%;"
             >
               Status
             </vscode-table-header-cell>
           </vscode-table-header>
           <vscode-table-body
             role="rowgroup"
+            slot="body"
           >
             <vscode-table-row
               role="row"
             >
               <vscode-table-cell
                 role="cell"
+                style="width: 20%;"
               >
                 fooAccount
                 <a
@@ -806,21 +820,25 @@ exports[`runs a deployment 1`] = `
               </vscode-table-cell>
               <vscode-table-cell
                 role="cell"
+                style="width: 20%;"
               >
                 Microsoft.Storage/storageAccounts
               </vscode-table-cell>
               <vscode-table-cell
                 role="cell"
+                style="width: 20%;"
               >
                 Create
               </vscode-table-cell>
               <vscode-table-cell
                 role="cell"
+                style="width: 20%;"
               >
                 Succeeded
               </vscode-table-cell>
               <vscode-table-cell
                 role="cell"
+                style="width: 20%;"
               >
                 <pre
                   class="code-wrapped"
@@ -857,31 +875,37 @@ exports[`runs a deployment 1`] = `
         >
           <vscode-table-header
             role="rowgroup"
+            slot="header"
           >
             <vscode-table-header-cell
               role="columnheader"
+              style="width: 50%;"
             >
               Name
             </vscode-table-header-cell>
             <vscode-table-header-cell
               role="columnheader"
+              style="width: 50%;"
             >
               Value
             </vscode-table-header-cell>
           </vscode-table-header>
           <vscode-table-body
             role="rowgroup"
+            slot="body"
           >
             <vscode-table-row
               role="row"
             >
               <vscode-table-cell
                 role="cell"
+                style="width: 50%;"
               >
                 foo
               </vscode-table-cell>
               <vscode-table-cell
                 role="cell"
+                style="width: 50%;"
               >
                 <pre
                   class="code-wrapped"
@@ -929,6 +953,7 @@ exports[`supports the scope picker 1`] = `
         >
           <vscode-table-body
             role="rowgroup"
+            slot="body"
           >
             <vscode-table-row
               role="row"
@@ -1109,6 +1134,7 @@ exports[`validates a deployment 1`] = `
         >
           <vscode-table-body
             role="rowgroup"
+            slot="body"
           >
             <vscode-table-row
               role="row"
@@ -1280,6 +1306,7 @@ exports[`validates a deployment 1`] = `
         >
           <vscode-table-body
             role="rowgroup"
+            slot="body"
           >
             <vscode-table-row
               role="row"
@@ -1315,6 +1342,7 @@ exports[`validates a deployment 1`] = `
         >
           <vscode-table-body
             role="rowgroup"
+            slot="body"
           >
             <vscode-table-row
               role="row"
@@ -1383,6 +1411,7 @@ exports[`what-ifs a deployment 1`] = `
         >
           <vscode-table-body
             role="rowgroup"
+            slot="body"
           >
             <vscode-table-row
               role="row"
@@ -1554,6 +1583,7 @@ exports[`what-ifs a deployment 1`] = `
         >
           <vscode-table-body
             role="rowgroup"
+            slot="body"
           >
             <vscode-table-row
               role="row"
@@ -1603,72 +1633,86 @@ exports[`what-ifs a deployment 1`] = `
         >
           <vscode-table-header
             role="rowgroup"
+            slot="header"
           >
             <vscode-table-header-cell
               role="columnheader"
+              style="width: 33.333333333333336%;"
             >
               Resource Id
             </vscode-table-header-cell>
             <vscode-table-header-cell
               role="columnheader"
+              style="width: 33.333333333333336%;"
             >
               Change Type
             </vscode-table-header-cell>
             <vscode-table-header-cell
               role="columnheader"
+              style="width: 33.333333333333336%;"
             >
               Changes
             </vscode-table-header-cell>
           </vscode-table-header>
           <vscode-table-body
             role="rowgroup"
+            slot="body"
           >
             <vscode-table-row
               role="row"
             >
               <vscode-table-cell
                 role="cell"
+                style="width: 33.333333333333336%;"
               >
                 /subscriptions/a790367f-228f-43fd-a660-ed9abb7258ef/resourceGroups/mockRg/providers/Microsoft.Storage/storageAccounts/fooAccount
               </vscode-table-cell>
               <vscode-table-cell
                 role="cell"
+                style="width: 33.333333333333336%;"
               >
                 Create
               </vscode-table-cell>
               <vscode-table-cell
                 role="cell"
+                style="width: 33.333333333333336%;"
               >
                 <vscode-table
                   role="table"
                 >
                   <vscode-table-header
                     role="rowgroup"
+                    slot="header"
                   >
                     <vscode-table-header-cell
                       role="columnheader"
+                      style="width: 50%;"
                     >
                       Path
                     </vscode-table-header-cell>
                     <vscode-table-header-cell
                       role="columnheader"
+                      style="width: 50%;"
                     >
                       Change Type
                     </vscode-table-header-cell>
                   </vscode-table-header>
                   <vscode-table-body
                     role="rowgroup"
+                    slot="body"
                   >
                     <vscode-table-row
                       role="row"
                     >
                       <vscode-table-cell
                         role="cell"
+                        style="width: 50%;"
                       >
                         properties
                       </vscode-table-cell>
                       <vscode-table-cell
                         role="cell"
+                        style="width: 50%;"
                       >
                         Create
                       </vscode-table-cell>

@@ -14,18 +14,15 @@ namespace Bicep.Core.PrettyPrintV2
     public partial class SyntaxLayouts
     {
         private IEnumerable<Document> LayoutArrayAccessSyntax(ArrayAccessSyntax syntax) =>
-            syntax.SafeAccessMarker is not null
-                ? this.Glue(
-                    syntax.BaseExpression,
-                    syntax.OpenSquare,
-                    syntax.SafeAccessMarker,
-                    syntax.IndexExpression,
-                    syntax.CloseSquare)
-                : this.Glue(
-                    syntax.BaseExpression,
-                    syntax.OpenSquare,
-                    syntax.IndexExpression,
-                    syntax.CloseSquare);
+            this.Glue(new[]
+            {
+                syntax.BaseExpression,
+                syntax.OpenSquare,
+                syntax.SafeAccessMarker,
+                syntax.FromEndMarker,
+                syntax.IndexExpression,
+                syntax.CloseSquare
+            }.WhereNotNull());
 
         private IEnumerable<Document> LayoutArraySyntax(ArraySyntax syntax) =>
             this.Bracket(

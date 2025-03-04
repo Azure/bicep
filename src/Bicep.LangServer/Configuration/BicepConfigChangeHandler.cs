@@ -52,17 +52,17 @@ namespace Bicep.LanguageServer.Configuration
         }
 
         private void HandleBicepConfigOpenOrChangeEvent(DocumentUri documentUri)
-            => configurationManager.RefreshConfigCacheEntry(documentUri.ToFileIdentifier());
+            => configurationManager.RefreshConfigCacheEntry(documentUri.ToIOUri());
 
         public void HandleBicepConfigSaveEvent(DocumentUri documentUri)
         {
-            if (configurationManager.RefreshConfigCacheEntry(documentUri.ToFileIdentifier()) is { } update)
+            if (configurationManager.RefreshConfigCacheEntry(documentUri.ToIOUri()) is { } update)
             {
                 TelemetryHelper.SendTelemetryOnBicepConfigChange(update.prevConfiguration, update.newConfiguration, linterRulesProvider, telemetryProvider);
             }
         }
 
         public void HandleBicepConfigCloseEvent(DocumentUri documentUri)
-            => configurationManager.RemoveConfigCacheEntry(documentUri.ToFileIdentifier());
+            => configurationManager.RemoveConfigCacheEntry(documentUri.ToIOUri());
     }
 }

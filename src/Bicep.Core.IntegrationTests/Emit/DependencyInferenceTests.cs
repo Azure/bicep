@@ -262,7 +262,7 @@ public class DependencyInferenceTests
             }
             
             resource existingSa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = [for i in range(0, 1): {
-              name: '${replace(deployedSa.name, '1', '2')}_${i}'
+              name: '${replace(deployedSa.name, '1', '2')}${i}'
             }]
 
             resource newSa 'Microsoft.Storage/storageAccounts@2023-05-01' = {
@@ -336,7 +336,7 @@ public class DependencyInferenceTests
             }
             
             resource existingSa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = [for i in range(0, 1): {
-              name: '${replace(deployedSa.name, '1', '2')}_${i}'
+              name: '${replace(deployedSa.name, '1', '2')}${i}'
             }]
 
             resource newSa 'Microsoft.Storage/storageAccounts@2023-05-01' = {
@@ -671,7 +671,7 @@ public class DependencyInferenceTests
             }
 
             resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
-              name: container.name
+              name: toLower(container.name)
             }
             """);
 

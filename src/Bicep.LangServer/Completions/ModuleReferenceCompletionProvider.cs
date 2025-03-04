@@ -25,6 +25,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Bicep.Core.Registry.Catalog.Implementation;
 using Microsoft.VisualBasic;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.LanguageServer.Completions
 {
@@ -34,7 +35,6 @@ namespace Bicep.LanguageServer.Completions
     public partial class ModuleReferenceCompletionProvider : IModuleReferenceCompletionProvider
     {
         private readonly IAzureContainerRegistriesProvider azureContainerRegistriesProvider;
-        private readonly IConfigurationManager configurationManager;
         private readonly IRegistryModuleCatalog registryModuleCatalog;
         private readonly ISettingsProvider settingsProvider;
         private readonly ITelemetryProvider telemetryProvider;
@@ -142,19 +142,17 @@ namespace Bicep.LanguageServer.Completions
 
         public ModuleReferenceCompletionProvider(
             IAzureContainerRegistriesProvider azureContainerRegistriesProvider,
-            IConfigurationManager configurationManager,
             IRegistryModuleCatalog registryModuleCatalog,
             ISettingsProvider settingsProvider,
             ITelemetryProvider telemetryProvider)
         {
             this.azureContainerRegistriesProvider = azureContainerRegistriesProvider;
-            this.configurationManager = configurationManager;
             this.registryModuleCatalog = registryModuleCatalog;
             this.settingsProvider = settingsProvider;
             this.telemetryProvider = telemetryProvider;
         }
 
-        public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Uri sourceFileUri, BicepCompletionContext context, CancellationToken cancellationToken)
+        public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(BicepSourceFile sourceFile, BicepCompletionContext context, CancellationToken cancellationToken)
         {
             var replacementText = string.Empty;
 
@@ -163,7 +161,7 @@ namespace Bicep.LanguageServer.Completions
                 replacementText = token.Text;
             }
 
-            var rootConfiguration = configurationManager.GetConfiguration(sourceFileUri);
+            var rootConfiguration = sourceFile.Configuration;
             var completions = GetTopLevelCompletions(context, replacementText, rootConfiguration);
 
             var startsWithSingleQuote = replacementText.StartsWith('\'');

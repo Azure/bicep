@@ -1746,10 +1746,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP384",
                 $"The \"{typeName}\" type requires {requiredArgumentCount} argument(s).");
 
-            public Diagnostic ResourceDerivedTypesUnsupported() => CoreError(
-                "BCP385",
-                $@"Using resource-derived types requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.ResourceDerivedTypes)}"".");
-
             public Diagnostic DecoratorMayNotTargetResourceDerivedType(string decoratorName) => CoreError(
                 "BCP386",
                 $@"The decorator ""{decoratorName}"" may not be used on statements whose declared type is a reference to a resource-derived type.");
@@ -1880,6 +1876,20 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic TypedVariablesUnsupported() => CoreError(
                 "BCP413",
                 $"""Using typed variables requires enabling EXPERIMENTAL feature "{nameof(ExperimentalFeaturesEnabled.TypedVariables)}".""");
+
+            public Diagnostic FromEndArrayAccessNotSupportedOnBaseType(TypeSymbol baseType) => CoreError(
+                "BCP414",
+                $"The \"^\" indexing operator cannot be used on base expressions of type \"{baseType}\".");
+
+            public Diagnostic FromEndArrayAccessNotSupportedWithIndexType(TypeSymbol indexType) => CoreError(
+                "BCP415",
+                $"The \"^\" indexing operator cannot be used with index expressions of type \"{indexType}\".");
+
+            public Diagnostic SuppliedStringDoesNotMatchExpectedPattern(bool shouldWarn, string expectedPattern)
+                => CoreDiagnostic(
+                    shouldWarn ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                    "BCP416",
+                    $"The supplied string does not match the expected pattern of /${expectedPattern}/.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

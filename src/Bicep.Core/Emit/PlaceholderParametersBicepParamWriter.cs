@@ -5,6 +5,7 @@ using Bicep.Core.Emit.Options;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Emit
 {
@@ -22,7 +23,7 @@ namespace Bicep.Core.Emit
 
         public void Write(TextWriter writer, string existingContent)
         {
-            var bicepFileName = Path.GetFileName(semanticModel.SourceFile.Uri.LocalPath);
+            var bicepFileName = semanticModel.SourceFile.GetFileName();
 
             var allParameterDeclarations = semanticModel.Root.ParameterDeclarations;
 

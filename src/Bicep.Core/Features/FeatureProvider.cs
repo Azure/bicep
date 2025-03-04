@@ -43,13 +43,9 @@ namespace Bicep.Core.Features
 
         public static TraceVerbosity TracingVerbosity => ReadEnumEnvVar("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);
 
-        public bool OptionalModuleNamesEnabled => configuration.ExperimentalFeaturesEnabled.OptionalModuleNames;
-
         public bool WaitAndRetryEnabled => configuration.ExperimentalFeaturesEnabled.WaitAndRetry;
 
         public bool LocalDeployEnabled => configuration.ExperimentalFeaturesEnabled.LocalDeploy;
-
-        public bool ResourceDerivedTypesEnabled => configuration.ExperimentalFeaturesEnabled.ResourceDerivedTypes;
 
         public bool SecureOutputsEnabled => configuration.ExperimentalFeaturesEnabled.SecureOutputs;
 

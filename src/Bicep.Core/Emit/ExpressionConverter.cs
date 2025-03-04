@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
@@ -149,11 +150,14 @@ namespace Bicep.Core.Emit
                             listArgs.Select(p => ConvertExpression(p)));
                     }
 
-                case AccessChainExpression exp:
-                    return ConvertAccessChain(exp);
+                case PropertyAccessExpression exp:
+                    return ConvertPropertyAccessExpression(exp);
+
+                case ModuleOutputPropertyAccessExpression exp:
+                    return ConvertModuleOutputPropertyAccessExpression(exp);
 
                 case AccessExpression exp:
-                    return ConvertAccessExpression(exp, []);
+                    return ConvertAccessExpression(exp);
 
                 case ResourceReferenceExpression exp:
                     return GetReferenceExpression(exp.Metadata, exp.IndexContext, true);
@@ -215,57 +219,85 @@ namespace Bicep.Core.Emit
             return this;
         }
 
-        private LanguageExpression ConvertAccessChain(AccessChainExpression expression)
-            => ConvertAccessExpression(expression.FirstLink, expression.AdditionalProperties.Select(ConvertExpression));
-
-        private LanguageExpression ConvertAccessExpression(AccessExpression expression, IEnumerable<LanguageExpression> additionalProperties)
+        private LanguageExpression ConvertPropertyAccessExpression(PropertyAccessExpression exp) => exp.Base switch
         {
-            var (@base, properties, safeAccess) = ProcessAccessExpression(expression);
-            properties = properties.Concat(additionalProperties);
-
-            if (!properties.Any())
-            {
-                return @base;
-            }
-
-            return safeAccess
-                ? CreateFunction("tryGet", @base.AsEnumerable().Concat(properties))
-                : AppendProperties(ToFunctionExpression(@base), properties);
-        }
-
-        private (LanguageExpression @base, IEnumerable<LanguageExpression> properties, bool safeAccess) ProcessAccessExpression(AccessExpression expression)
-        {
-            var (@base, properties, safeAccess) = ConvertBaseExpression(expression);
-
-            if (expression is ModuleOutputPropertyAccessExpression)
-            {
-                var isSecureOutput = @base is FunctionExpression functionExpression && functionExpression.Function == secureOutputsApi;
-
-                if (safeAccess)
-                {
-                    // there are two scenarios we want to handle in this case:
-                    //   - conditional outputs (where the accessed property will be omitted from the `outputs` object)
-                    //   - outputs with a null value (where the accessed property will be present in the `outputs` object, but its `value` property will be omitted)
-                    @base = CreateFunction("tryGet", @base.AsEnumerable().Concat(properties));
-                    properties = isSecureOutput ? Enumerable.Empty<LanguageExpression>() : new[] { new JTokenExpression("value") };
-                }
-                else
-                {
-                    properties = isSecureOutput ? properties : properties.Append(new JTokenExpression("value"));
-                }
-            }
-
-            return (@base, properties, safeAccess);
-        }
-
-        private (LanguageExpression @base, IEnumerable<LanguageExpression> properties, bool safeAccess) ConvertBaseExpression(AccessExpression expression) => expression.Base switch
-        {
-            ResourceReferenceExpression resource when expression is PropertyAccessExpression exp => GetConverter(resource.IndexContext).ConvertResourcePropertyAccess(resource, exp),
-            ModuleReferenceExpression module when expression is PropertyAccessExpression exp => GetConverter(module.IndexContext).ConvertModulePropertyAccess(module, exp),
-            _ => (ConvertExpression(expression.Base), ConvertExpression(expression.Access).AsEnumerable(), expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess)),
+            ResourceReferenceExpression resource
+                => GetConverter(resource.IndexContext).ConvertResourcePropertyAccess(resource, exp),
+            ModuleReferenceExpression module
+                => GetConverter(module.IndexContext).ConvertModulePropertyAccess(module, exp),
+            _ => ConvertAccessExpression(exp),
         };
 
-        private (LanguageExpression @base, IEnumerable<LanguageExpression> properties, bool safeAccess) ConvertResourcePropertyAccess(ResourceReferenceExpression reference, PropertyAccessExpression expression)
+        private LanguageExpression ConvertModuleOutputPropertyAccessExpression(ModuleOutputPropertyAccessExpression exp)
+        {
+            var @base = ConvertExpression(exp.Base);
+
+            // the listOutputsWithSecureValues API has a different format from regular outputs
+            if (@base is FunctionExpression functionExpression && functionExpression.Function == secureOutputsApi)
+            {
+                return exp.Flags.HasFlag(AccessExpressionFlags.SafeAccess)
+                    ? CreateFunction("tryGet", @base, new JTokenExpression(exp.PropertyName))
+                    : AppendProperties(functionExpression, new JTokenExpression(exp.PropertyName));
+            }
+
+            if (exp.Flags.HasFlag(AccessExpressionFlags.SafeAccess))
+            {
+                // there are two scenarios we want to handle in this case:
+                //   - conditional outputs (where the accessed property will be omitted from the `outputs` object)
+                //   - outputs with a null value (where the accessed property will be present in the `outputs` object, but its `value` property will be omitted)
+                return CreateFunction(
+                    "tryGet",
+                    CreateFunction("tryGet", @base, new JTokenExpression(exp.PropertyName)),
+                    new JTokenExpression("value"));
+            }
+
+            return AppendProperties(
+                ToFunctionExpression(@base),
+                new JTokenExpression(exp.PropertyName),
+                new JTokenExpression("value"));
+        }
+
+        private static readonly FrozenSet<string> SafeDereferenceFunctions = new[] { "tryGet", "tryIndexFromEnd" }
+            .ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+
+        private LanguageExpression ConvertAccessExpression(AccessExpression expression)
+        {
+            var @base = ConvertExpression(expression.Base);
+            var accessor = ConvertExpression(expression.Access);
+
+            if (expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess))
+            {
+                return CreateFunction(
+                    expression.Flags.HasFlag(AccessExpressionFlags.FromEnd) ? "tryIndexFromEnd" : "tryGet",
+                    @base,
+                    accessor);
+            }
+
+            if (expression.Flags.HasFlag(AccessExpressionFlags.Chained) &&
+                @base is FunctionExpression baseFunc &&
+                baseFunc.Properties.Length == 0 &&
+                SafeDereferenceFunctions.Contains(baseFunc.Function))
+            {
+                var extraArg = expression.Flags.HasFlag(AccessExpressionFlags.FromEnd)
+                    ? CreateFunction(
+                        "createObject",
+                        new JTokenExpression("value"),
+                        accessor,
+                        new JTokenExpression("fromEnd"),
+                        CreateFunction("true"))
+                    : accessor;
+                return CreateFunction(baseFunc.Function, baseFunc.Parameters.Append(extraArg));
+            }
+
+            if (expression.Flags.HasFlag(AccessExpressionFlags.FromEnd))
+            {
+                return CreateFunction("indexFromEnd", @base, accessor);
+            }
+
+            return AppendProperties(ToFunctionExpression(@base), accessor);
+        }
+
+        private LanguageExpression ConvertResourcePropertyAccess(ResourceReferenceExpression reference, PropertyAccessExpression expression)
         {
             var resource = reference.Metadata;
             var indexContext = reference.IndexContext;
@@ -276,7 +308,10 @@ namespace Bicep.Core.Emit
             {
                 // For an extensible resource, always generate a 'reference' statement.
                 // User-defined properties appear inside "properties", so use a non-full reference.
-                return (GetReferenceExpression(resource, indexContext, false), new[] { new JTokenExpression(propertyName) }, safeAccess);
+                var refExpression = GetReferenceExpression(resource, indexContext, false);
+                return expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess)
+                    ? new FunctionExpression("tryGet", [refExpression, new JTokenExpression(propertyName)], [])
+                    : AppendProperties(refExpression, new JTokenExpression(propertyName));
             }
 
             // creates an expression like: `last(split(<resource id>, '/'))`
@@ -299,20 +334,25 @@ namespace Bicep.Core.Emit
                 switch (propertyName)
                 {
                     case "id":
-                        return (GetFullyQualifiedResourceId(parameter), Enumerable.Empty<LanguageExpression>(), safeAccess);
+                        return GetFullyQualifiedResourceId(parameter);
                     case "type":
-                        return (new JTokenExpression(resource.TypeReference.FormatType()), Enumerable.Empty<LanguageExpression>(), safeAccess);
+                        return new JTokenExpression(resource.TypeReference.FormatType());
                     case "apiVersion":
                         var apiVersion = resource.TypeReference.ApiVersion ?? throw new UnreachableException();
-                        return (new JTokenExpression(apiVersion), Enumerable.Empty<LanguageExpression>(), safeAccess);
+                        return new JTokenExpression(apiVersion);
                     case "name":
-                        return (NameFromIdExpression(GetFullyQualifiedResourceId(parameter)), Enumerable.Empty<LanguageExpression>(), safeAccess);
-                    case "properties" when !safeAccess:
+                        return NameFromIdExpression(GetFullyQualifiedResourceId(parameter));
+                    case string when expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess):
+                        return new FunctionExpression(
+                            "tryGet",
+                            [GetReferenceExpression(resource, indexContext, true), new JTokenExpression(propertyName)],
+                            []);
+                    case "properties":
                         // use the reference() overload without "full" to generate a shorter expression
                         // this is dependent on the name expression which could involve locals in case of a resource collection
-                        return (GetReferenceExpression(resource, indexContext, false), Enumerable.Empty<LanguageExpression>(), safeAccess);
+                        return GetReferenceExpression(resource, indexContext, false);
                     default:
-                        return (GetReferenceExpression(resource, indexContext, true), new[] { new JTokenExpression(propertyName) }, safeAccess);
+                        return AppendProperties(GetReferenceExpression(resource, indexContext, true), new JTokenExpression(propertyName));
                 }
             }
             else if (resource is ModuleOutputResourceMetadata output)
@@ -322,48 +362,42 @@ namespace Bicep.Core.Emit
                 switch (propertyName)
                 {
                     case "id" when shortCircuitableResourceRef:
-                        return (
-                            AppendProperties(GetModuleReferenceExpression(output.Module, null, true), new JTokenExpression("outputs")),
-                            new LanguageExpression[]
-                            {
+                        return new FunctionExpression(
+                            "tryGet",
+                            [
+                                AppendProperties(GetModuleReferenceExpression(output.Module, null, true), new JTokenExpression("outputs")),
                                 new JTokenExpression(output.OutputName),
                                 new JTokenExpression("value"),
-                            },
-                            true);
+                            ],
+                            []);
                     case "id":
-                        return (
-                            AppendProperties(
-                                GetModuleReferenceExpression(output.Module, null, true),
-                                new JTokenExpression("outputs"),
-                                new JTokenExpression(output.OutputName),
-                                new JTokenExpression("value")),
-                            Enumerable.Empty<LanguageExpression>(),
-                            safeAccess);
+                        return AppendProperties(
+                            GetModuleReferenceExpression(output.Module, null, true),
+                            new JTokenExpression("outputs"),
+                            new JTokenExpression(output.OutputName),
+                            new JTokenExpression("value"));
                     case "type":
-                        return (new JTokenExpression(resource.TypeReference.FormatType()), Enumerable.Empty<LanguageExpression>(), safeAccess);
+                        return new JTokenExpression(resource.TypeReference.FormatType());
                     case "apiVersion":
                         var apiVersion = resource.TypeReference.ApiVersion ?? throw new UnreachableException();
-                        return (new JTokenExpression(apiVersion), Enumerable.Empty<LanguageExpression>(), safeAccess);
+                        return new JTokenExpression(apiVersion);
                     case "name" when shortCircuitableResourceRef:
                         // this expression will execute a `reference` expression against the module twice (once to make sure the named output exists, then again to
                         // retrieve the value of that output), but this inefficiency is unavoidable since passing `null` to `split` will cause the deployment to fail
-                        return (
-                            new FunctionExpression("if",
-                                [
-                                    new FunctionExpression("contains",
-                                        [
-                                            AppendProperties(GetModuleReferenceExpression(output.Module, null, true), new JTokenExpression("outputs")),
-                                            new JTokenExpression(output.OutputName),
-                                        ],
-                                        []),
-                                    NameFromIdExpression(GetFullyQualifiedResourceId(output)),
-                                    new FunctionExpression("null", [], []),
-                                ],
-                                []),
-                            Enumerable.Empty<LanguageExpression>(),
-                            true);
+                        return new FunctionExpression("if",
+                            [
+                                new FunctionExpression("contains",
+                                    [
+                                        AppendProperties(GetModuleReferenceExpression(output.Module, null, true), new JTokenExpression("outputs")),
+                                        new JTokenExpression(output.OutputName),
+                                    ],
+                                    []),
+                                NameFromIdExpression(GetFullyQualifiedResourceId(output)),
+                                new FunctionExpression("null", [], []),
+                            ],
+                            []);
                     case "name":
-                        return (NameFromIdExpression(GetFullyQualifiedResourceId(output)), Enumerable.Empty<LanguageExpression>(), safeAccess);
+                        return NameFromIdExpression(GetFullyQualifiedResourceId(output));
                     default:
                         // this would have been blocked by EmitLimitationCalculator
                         throw new InvalidOperationException($"Unsupported module output resource property '{propertyName}'.");
@@ -386,7 +420,7 @@ namespace Bicep.Core.Emit
                         case AzResourceTypeProvider.ResourceIdPropertyName:
                         case AzResourceTypeProvider.ResourceTypePropertyName:
                         case AzResourceTypeProvider.ResourceApiVersionPropertyName:
-                            return (getResourceInfoExpression(), [], safeAccess);
+                            return getResourceInfoExpression();
                         case AzResourceTypeProvider.ResourceNamePropertyName:
                             var nameExpression = getResourceInfoExpression();
                             if (declaredResource.Parent is { })
@@ -394,7 +428,7 @@ namespace Bicep.Core.Emit
                                 // resourceInfo('foo').name will always return a fully-qualified name, whereas using "foo.name" in Bicep
                                 // will give different results depending on whether the resource has a parent (either syntactically, or with the 'parent' property) or not.
                                 // We must preserve this behavior by using "last(split(..., '/'))" to convert from qualified -> unqualified, to avoid this being a breaking change.
-                                nameExpression = CreateFunction(
+                                return CreateFunction(
                                     "last",
                                     CreateFunction(
                                         "split",
@@ -402,7 +436,7 @@ namespace Bicep.Core.Emit
                                         new JTokenExpression("/")));
                             }
 
-                            return (nameExpression, [], safeAccess);
+                            return nameExpression;
                     }
                 }
 
@@ -410,24 +444,29 @@ namespace Bicep.Core.Emit
                 {
                     case AzResourceTypeProvider.ResourceIdPropertyName:
                         // the ID is dependent on the name expression which could involve locals in case of a resource collection
-                        return (GetFullyQualifiedResourceId(resource), [], safeAccess);
+                        return GetFullyQualifiedResourceId(resource);
                     case AzResourceTypeProvider.ResourceNamePropertyName:
                         // the name is dependent on the name expression which could involve locals in case of a resource collection
 
                         // Note that we don't want to return the fully-qualified resource name in the case of name property access.
                         // we should return whatever the user has set as the value of the 'name' property for a predictable user experience.
-                        return (ConvertExpression(declaredResource.NameSyntax), [], safeAccess);
+                        return ConvertExpression(declaredResource.NameSyntax);
                     case AzResourceTypeProvider.ResourceTypePropertyName:
-                        return (new JTokenExpression(resource.TypeReference.FormatType()), [], safeAccess);
+                        return new JTokenExpression(resource.TypeReference.FormatType());
                     case AzResourceTypeProvider.ResourceApiVersionPropertyName:
                         var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
-                        return (new JTokenExpression(apiVersion), [], safeAccess);
-                    case "properties" when !safeAccess:
+                        return new JTokenExpression(apiVersion);
+                    case string when expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess):
+                        return new FunctionExpression(
+                            "tryGet",
+                            [GetReferenceExpression(resource, indexContext, true), new JTokenExpression(propertyName)],
+                            []);
+                    case "properties":
                         // use the reference() overload without "full" to generate a shorter expression
                         // this is dependent on the name expression which could involve locals in case of a resource collection
-                        return (GetReferenceExpression(resource, indexContext, false), [], safeAccess);
+                        return GetReferenceExpression(resource, indexContext, false);
                     default:
-                        return (GetReferenceExpression(resource, indexContext, true), [new JTokenExpression(propertyName)], safeAccess);
+                        return AppendProperties(GetReferenceExpression(resource, indexContext, true), new JTokenExpression(propertyName));
                 }
             }
             else
@@ -436,15 +475,13 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private (LanguageExpression @base, IEnumerable<LanguageExpression> properties, bool safeAccess) ConvertModulePropertyAccess(ModuleReferenceExpression reference, PropertyAccessExpression expression)
+        private LanguageExpression ConvertModulePropertyAccess(ModuleReferenceExpression reference, PropertyAccessExpression expression)
         {
             switch (expression.PropertyName)
             {
-
                 case "name":
                     // the name is dependent on the name expression which could involve locals in case of a resource collection
-
-                    return (GetModuleNameExpression(reference.Module, reference.IndexContext?.Index), Enumerable.Empty<LanguageExpression>(), false);
+                    return GetModuleNameExpression(reference.Module, reference.IndexContext?.Index);
 
                 case "outputs":
                     var moduleSymbol = reference.Module;
@@ -454,13 +491,13 @@ namespace Bicep.Core.Emit
                     {
                         var deploymentResourceId = GetFullyQualifiedResourceId(moduleSymbol, reference.IndexContext?.Index);
                         var apiVersion = new JTokenExpression(EmitConstants.NestedDeploymentResourceApiVersion);
-                        return (CreateFunction(secureOutputsApi, deploymentResourceId, apiVersion),
-                            Enumerable.Empty<LanguageExpression>(), expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess));
+                        return CreateFunction(secureOutputsApi, deploymentResourceId, apiVersion);
                     }
 
-                    return (GetModuleReferenceExpression(reference.Module, reference.IndexContext, false),
-                new[] { new JTokenExpression("outputs") },
-                expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess));
+                    var baseExpression = GetModuleReferenceExpression(reference.Module, reference.IndexContext, false);
+                    return expression.Flags.HasFlag(AccessExpressionFlags.SafeAccess)
+                        ? new FunctionExpression("tryGet", [baseExpression, new JTokenExpression("outputs")], [])
+                        : AppendProperties(baseExpression, new JTokenExpression("outputs"));
 
                 default:
                     throw new InvalidOperationException($"Unsupported module property: {expression.PropertyName}");

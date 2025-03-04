@@ -115,6 +115,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 case Azure.Bicep.Types.Concrete.StringType @string:
                     return TypeFactory.CreateStringType(@string.MinLength,
                         @string.MaxLength,
+                        @string.Pattern,
                         GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType));
                 case Azure.Bicep.Types.Concrete.BuiltInType builtInType:
                     return builtInType.Kind switch

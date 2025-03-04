@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Text.RegularExpressions;
 using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem;
@@ -10,7 +11,7 @@ public static class TypeFactory
 {
     private static readonly BooleanType UnrefinedBool = new(default);
     private static readonly IntegerType UnrefinedInt = new(default, default, default);
-    private static readonly StringType UnrefinedString = new(default, default, default);
+    private static readonly StringType UnrefinedString = new(default, default, default, default);
 
     public static TypeSymbol CreateBooleanType(TypeSymbolValidationFlags validationFlags = TypeSymbolValidationFlags.Default)
         => validationFlags == UnrefinedBool.ValidationFlags ? UnrefinedBool : new BooleanType(validationFlags);
@@ -58,16 +59,23 @@ public static class TypeFactory
         return new TypedArrayType(itemType, validationFlags, minLength, maxLength);
     }
 
-    public static TypeSymbol CreateStringType(long? minLength = null, long? maxLength = null, TypeSymbolValidationFlags validationFlags = TypeSymbolValidationFlags.Default)
+    public static TypeSymbol CreateStringType(
+        long? minLength = null,
+        long? maxLength = null,
+        string? pattern = null,
+        TypeSymbolValidationFlags validationFlags = TypeSymbolValidationFlags.Default)
     {
         if (maxLength.HasValue && maxLength.Value == 0)
         {
             return CreateStringLiteralType(string.Empty, validationFlags);
         }
 
-        if (minLength != UnrefinedString.MinLength || maxLength != UnrefinedString.MaxLength || validationFlags != UnrefinedString.ValidationFlags)
+        if (minLength != UnrefinedString.MinLength ||
+            maxLength != UnrefinedString.MaxLength ||
+            pattern != UnrefinedString.Pattern ||
+            validationFlags != UnrefinedString.ValidationFlags)
         {
-            return new StringType(minLength, maxLength, validationFlags);
+            return new StringType(minLength, maxLength, pattern, validationFlags);
         }
 
         return UnrefinedString;

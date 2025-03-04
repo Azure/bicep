@@ -88,7 +88,10 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
                 case Azure.Bicep.Types.Concrete.IntegerType @int:
                     return TypeFactory.CreateIntegerType(@int.MinValue, @int.MaxValue);
                 case Azure.Bicep.Types.Concrete.StringType @string:
-                    return TypeFactory.CreateStringType(@string.MinLength, @string.MaxLength);
+                    return TypeFactory.CreateStringType(
+                        @string.MinLength,
+                        @string.MaxLength,
+                        @string.Pattern);
                 case Azure.Bicep.Types.Concrete.BuiltInType builtInType:
                     return builtInType.Kind switch
                     {
