@@ -175,12 +175,11 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
 
         var simpleTypeAvailable = true;
         var userDefinedTypeAvailable = !string.Equals(stringifiedLooseType, stringifiedUserDefinedType, StringComparison.Ordinal);
-        var resourceDerivedTypeAvailable = resourceDerivedType is { } && semanticModel.Features.ResourceDerivedTypesEnabled;
 
         ExtractKindsAvailable extractKindsAvailable = new(
             simpleTypeAvailable: simpleTypeAvailable,
             userDefinedTypeAvailable: userDefinedTypeAvailable,
-            resourceDerivedTypeAvailable: resourceDerivedTypeAvailable);
+            resourceDerivedTypeAvailable: resourceDerivedType is not null);
 
         yield return CreateExtraction(
             extractionContext,
@@ -209,7 +208,7 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
                 extractKindsAvailable);
         }
 
-        if (resourceDerivedTypeAvailable)
+        if (resourceDerivedType is not null)
         {
             yield return CreateExtraction(
                 extractionContext,

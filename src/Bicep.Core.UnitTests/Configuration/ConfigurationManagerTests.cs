@@ -109,7 +109,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "assertions": false,
           "waitAndRetry": false,
           "localDeploy": false,
-          "resourceDerivedTypes": false,
           "secureOutputs": false,
           "resourceInfoCodegen": false,
           "typedVariables": false
@@ -191,7 +190,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "assertions": false,
           "waitAndRetry": false,
           "localDeploy": false,
-          "resourceDerivedTypes": false,
           "secureOutputs": false,
           "resourceInfoCodegen": false,
           "typedVariables": false
@@ -298,7 +296,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "assertions": false,
           "waitAndRetry": false,
           "localDeploy": false,
-          "resourceDerivedTypes": false,
           "secureOutputs": false,
           "resourceInfoCodegen": false,
           "typedVariables": false
@@ -391,7 +388,6 @@ namespace Bicep.Core.UnitTests.Configuration
                 Assertions: false,
                 WaitAndRetry: false,
                 LocalDeploy: false,
-                ResourceDerivedTypes: false,
                 SecureOutputs: false,
                 ResourceInfoCodegen: false,
                 TypedVariables: false);
@@ -477,7 +473,6 @@ namespace Bicep.Core.UnitTests.Configuration
                 "assertions": false,
                 "waitAndRetry": false,
                 "localDeploy": false,
-                "resourceDerivedTypes": false,
                 "secureOutputs": false,
                 "resourceInfoCodegen": false,
                 "typedVariables": false
@@ -849,7 +844,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "assertions": false,
           "waitAndRetry": false,
           "localDeploy": false,
-          "resourceDerivedTypes": false,
           "secureOutputs": false,
           "resourceInfoCodegen": false,
           "typedVariables": false

@@ -186,7 +186,7 @@ namespace Bicep.Core.Semantics.Namespaces
                             return new(TypeFactory.CreateStringType(
                                 minLength.HasValue ? Math.Max(minLength.Value, literalLength.Value) : null,
                                 maxLength.HasValue ? Math.Max(maxLength.Value, literalLength.Value) : null,
-                                argumentTypes[0].ValidationFlags));
+                                validationFlags: argumentTypes[0].ValidationFlags));
                         }),
                         LanguageConstants.String)
                     .WithGenericDescription("Returns a right-aligned string by adding characters to the left until reaching the total specified length.")
@@ -346,7 +346,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithReturnResultBuilder(
                         TryDeriveLiteralReturnType("trim",
                             (_, _, _, argumentTypes) => new(argumentTypes.FirstOrDefault() is StringType @string
-                                ? TypeFactory.CreateStringType(minLength: null, @string.MaxLength, @string.ValidationFlags)
+                                ? TypeFactory.CreateStringType(minLength: null, @string.MaxLength, validationFlags: @string.ValidationFlags)
                                 : LanguageConstants.String)),
                         LanguageConstants.String)
                     .WithGenericDescription("Removes all leading and trailing white-space characters from the specified string.")
@@ -380,7 +380,7 @@ namespace Bicep.Core.Semantics.Namespaces
                                     ? Math.Max(0, originalString.MaxLength.Value - literalStartIndex.Value)
                                     : null;
 
-                                return new(TypeFactory.CreateStringType(minLength, maxLength, argumentTypes[0].ValidationFlags));
+                                return new(TypeFactory.CreateStringType(minLength, maxLength, validationFlags: argumentTypes[0].ValidationFlags));
                             }
 
                             if (literalStartIndex is null || originalString is null)
@@ -389,7 +389,7 @@ namespace Bicep.Core.Semantics.Namespaces
                                     maxLength: originalString?.MaxLength.HasValue == true
                                         ? Math.Min(literalLength.Value, originalString.MaxLength.Value)
                                         : literalLength.Value,
-                                    argumentTypes[0].ValidationFlags));
+                                    validationFlags: argumentTypes[0].ValidationFlags));
                             }
 
                             long derivedMaxLength = originalString.MaxLength.HasValue
@@ -405,7 +405,7 @@ namespace Bicep.Core.Semantics.Namespaces
                                 derivedMinLength = derivedMaxLength;
                             }
 
-                            return new(TypeFactory.CreateStringType(derivedMinLength, derivedMaxLength, originalString.ValidationFlags));
+                            return new(TypeFactory.CreateStringType(derivedMinLength, derivedMaxLength, validationFlags: originalString.ValidationFlags));
                         }),
                         LanguageConstants.String)
                     .WithGenericDescription("Returns a substring that starts at the specified character position and contains the specified number of characters.")
@@ -479,7 +479,7 @@ namespace Bicep.Core.Semantics.Namespaces
                                 < 0 => 0,
                                 long otherwise => otherwise,
                             },
-                            argumentTypes[0].ValidationFlags));
+                            validationFlags: argumentTypes[0].ValidationFlags));
                     }), LanguageConstants.String)
                     .WithGenericDescription(TakeDescription)
                     .WithDescription("Returns a string with the specified number of characters from the start of the string.")
@@ -549,7 +549,7 @@ namespace Bicep.Core.Semantics.Namespaces
                                 < 0 => 0,
                                 long otherwise => otherwise,
                             },
-                            argumentTypes[0].ValidationFlags));
+                            validationFlags: argumentTypes[0].ValidationFlags));
                     }), LanguageConstants.String)
                     .WithGenericDescription(SkipDescription)
                     .WithDescription("Returns a string with all the characters after the specified number in the string.")
@@ -643,8 +643,14 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithReturnResultBuilder(
                         TryDeriveLiteralReturnType("first",
                             (_, _, _, argumentTypes) => new(argumentTypes.FirstOrDefault() is StringType @string
-                                ? TypeFactory.CreateStringType(@string.MinLength.HasValue ? Math.Min(@string.MinLength.Value, 1) : null, 1, @string.ValidationFlags)
-                                : TypeFactory.CreateStringType(minLength: null, 1, argumentTypes[0].ValidationFlags))),
+                                ? TypeFactory.CreateStringType(
+                                    @string.MinLength.HasValue ? Math.Min(@string.MinLength.Value, 1) : null,
+                                    maxLength: 1,
+                                    validationFlags: @string.ValidationFlags)
+                                : TypeFactory.CreateStringType(
+                                    minLength: null,
+                                    maxLength: 1,
+                                    validationFlags: argumentTypes[0].ValidationFlags))),
                         LanguageConstants.String)
                     .WithGenericDescription(FirstDescription)
                     .WithDescription("Returns the first character of the string.")
@@ -668,8 +674,14 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithReturnResultBuilder(
                         TryDeriveLiteralReturnType("last",
                             (_, _, _, argumentTypes) => new(argumentTypes.FirstOrDefault() is StringType @string
-                                ? TypeFactory.CreateStringType(@string.MinLength.HasValue ? Math.Min(@string.MinLength.Value, 1) : null, 1, @string.ValidationFlags)
-                                : TypeFactory.CreateStringType(minLength: null, 1, argumentTypes[0].ValidationFlags))),
+                                ? TypeFactory.CreateStringType(
+                                    minLength: @string.MinLength.HasValue ? Math.Min(@string.MinLength.Value, 1) : null,
+                                    maxLength: 1,
+                                    validationFlags: @string.ValidationFlags)
+                                : TypeFactory.CreateStringType(
+                                    minLength: null,
+                                    maxLength: 1,
+                                    validationFlags: argumentTypes[0].ValidationFlags))),
                         LanguageConstants.String)
                     .WithGenericDescription(LastDescription)
                     .WithDescription("Returns the last character of the string.")
@@ -1987,19 +1999,6 @@ namespace Bicep.Core.Semantics.Namespaces
                 var resourceDerivedTypeNotaBene = "NB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.";
 
                 yield return new(
-                    LanguageConstants.TypeNameResource,
-                    new TypeTemplate(
-                        LanguageConstants.TypeNameResource,
-                        resourceInputParameters,
-                        GetResourceDerivedTypeInstantiator(ResourceDerivedTypeVariant.None)),
-                    Flags: TypePropertyFlags.FallbackProperty,
-                    Description: $"""
-                        Use the type definition of the body of a specific resource rather than a user-defined type.
-
-                        {resourceDerivedTypeNotaBene}
-                        """);
-
-                yield return new(
                     LanguageConstants.TypeNameResourceInput,
                     new TypeTemplate(
                         LanguageConstants.TypeNameResourceInput,
@@ -2025,14 +2024,9 @@ namespace Bicep.Core.Semantics.Namespaces
 
             }
 
-            foreach (var typeProp in GetArmPrimitiveTypes())
+            foreach (var typeProp in GetArmPrimitiveTypes().Concat(GetResourceDerivedTypesTypeProperties()))
             {
                 yield return new(typeProp, (features, sfk) => sfk == BicepSourceFileKind.BicepFile);
-            }
-
-            foreach (var typeProp in GetResourceDerivedTypesTypeProperties())
-            {
-                yield return new(typeProp, (features, sfk) => features.ResourceDerivedTypesEnabled && sfk == BicepSourceFileKind.BicepFile);
             }
         }
 

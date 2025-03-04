@@ -5100,8 +5100,7 @@ When a wildcard is used, that needs to be the only value.  " + @"
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 text,
-                mainUri,
-                services => services.WithFeatureOverrides(new(ResourceDerivedTypesEnabled: true)));
+                mainUri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestAndResolveCompletions(cursors[0]);
@@ -5126,8 +5125,7 @@ When a wildcard is used, that needs to be the only value.  " + @"
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 text,
-                mainUri,
-                services => services.WithFeatureOverrides(new(ResourceDerivedTypesEnabled: true)));
+                mainUri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestAndResolveCompletions(cursors[0]);
@@ -5150,8 +5148,7 @@ When a wildcard is used, that needs to be the only value.  " + @"
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 text,
-                mainUri,
-                services => services.WithFeatureOverrides(new(ResourceDerivedTypesEnabled: true)));
+                mainUri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -5185,8 +5182,7 @@ When a wildcard is used, that needs to be the only value.  " + @"
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 text,
-                mainUri,
-                services => services.WithFeatureOverrides(new(ResourceDerivedTypesEnabled: true)));
+                mainUri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -5532,5 +5528,27 @@ var foo fooType = {
 }
 """);
         }
+
+        [TestMethod] // https://github.com/Azure/bicep/issues/16556
+        public Task Array_object_type_completions_are_offered() => RunCompletionTest("""
+type Person = {
+  name: string
+  age: int
+}
+
+output people Person[] = [{
+  |
+}]
+""",
+          "name", """
+type Person = {
+  name: string
+  age: int
+}
+
+output people Person[] = [{
+  name:|
+}]
+""");
     }
 }
