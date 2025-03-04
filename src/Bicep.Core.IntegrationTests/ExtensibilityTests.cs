@@ -672,7 +672,7 @@ Hello from Bicep!"));
                     param inputa = 'abc'
 
                     extension k8s with {
-                      kubeConfig: 'def'
+                      kubeConfig: 'abc'
                       namespace: 'other'
                     }
                     """,
@@ -681,8 +681,8 @@ Hello from Bicep!"));
                     param inputa string
 
                     extension kubernetes with {
-                      kubeConfig: ''
-                      namespace: 'default'
+                      kubeConfig: 'DELETE'
+                      namespace: 'DELETE'
                     } as k8s
 
                     extension microsoftGraph
@@ -707,8 +707,8 @@ Hello from Bicep!"));
                     param inputa string
 
                     extension kubernetes with {
-                      kubeConfig: ''
-                      namespace: 'default'
+                      kubeConfig: 'DELETE'
+                      namespace: 'DELETE'
                     }
 
                     extension microsoftGraph as graph
