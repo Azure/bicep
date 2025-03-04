@@ -685,7 +685,7 @@ Hello from Bicep!"));
                       namespace: 'DELETE'
                     } as k8s
 
-                    extension microsoftGraph
+                    extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview'
 
                     module modulea 'modulea.bicep' = {
                       name: 'modulea'
@@ -711,7 +711,7 @@ Hello from Bicep!"));
                       namespace: 'DELETE'
                     }
 
-                    extension microsoftGraph as graph
+                    extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
 
                     output outputa string = inputa
                     """
