@@ -5161,9 +5161,9 @@ resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             ("BCP333", DiagnosticLevel.Warning, "The provided value (whose length will always be less than or equal to 8) is too short to assign to a target for which the minimum allowable length is 36."),
-            ("BCP414", DiagnosticLevel.Warning, "The supplied string does not match the expected pattern of /$^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$/."),
+            ("BCP416", DiagnosticLevel.Warning, "The supplied string does not match the expected pattern of /$^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$/."),
             ("BCP333", DiagnosticLevel.Warning, "The provided value (whose length will always be less than or equal to 8) is too short to assign to a target for which the minimum allowable length is 36."),
-            ("BCP414", DiagnosticLevel.Warning, "The supplied string does not match the expected pattern of /$^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$/."),
+            ("BCP416", DiagnosticLevel.Warning, "The supplied string does not match the expected pattern of /$^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$/."),
         });
     }
 
@@ -6985,8 +6985,8 @@ var subnetId = vNet::subnets[0].id
 
         result.Should().HaveDiagnostics(new[]
         {
-            ("BCP414", DiagnosticLevel.Warning, "The supplied string does not match the expected pattern of /$^[a-zA-Z0-9-]{3,24}$/."),
-            ("BCP414", DiagnosticLevel.Warning, "The supplied string does not match the expected pattern of /$^[a-zA-Z0-9-]{1,127}$/."),
+            ("BCP416", DiagnosticLevel.Warning, "The supplied string does not match the expected pattern of /$^[a-zA-Z0-9-]{3,24}$/."),
+            ("BCP416", DiagnosticLevel.Warning, "The supplied string does not match the expected pattern of /$^[a-zA-Z0-9-]{1,127}$/."),
         });
     }
 
