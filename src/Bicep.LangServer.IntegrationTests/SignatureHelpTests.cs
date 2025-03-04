@@ -165,7 +165,7 @@ var test = isTrue(|)
         {
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(@"type resourceDerived = resourceInput<|>");
 
-            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFeatureOverrides(new(ResourceDerivedTypesEnabled: true)));
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext);
             var file = await new ServerRequestHelper(TestContext, server).OpenFile(text);
 
             var signatureHelp = await file.RequestSignatureHelp(cursor);

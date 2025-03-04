@@ -1746,10 +1746,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP384",
                 $"The \"{typeName}\" type requires {requiredArgumentCount} argument(s).");
 
-            public Diagnostic ResourceDerivedTypesUnsupported() => CoreError(
-                "BCP385",
-                $@"Using resource-derived types requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.ResourceDerivedTypes)}"".");
-
             public Diagnostic DecoratorMayNotTargetResourceDerivedType(string decoratorName) => CoreError(
                 "BCP386",
                 $@"The decorator ""{decoratorName}"" may not be used on statements whose declared type is a reference to a resource-derived type.");

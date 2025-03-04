@@ -2035,7 +2035,7 @@ INVALID FILE
     [TestMethod]
     public void Resource_derived_types_are_bound_when_imported_from_ARM_JSON_models()
     {
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
             ("main.bicep", """
                 import {foo} from 'mod.json'
 
@@ -2087,59 +2087,9 @@ INVALID FILE
     }
 
     [TestMethod]
-    public void Resource_derived_typed_compile_time_imports_raise_diagnostic_when_imported_from_ARM_JSON_models_without_feature_flag_set()
-    {
-        var result = CompilationHelper.Compile(
-            ("main.bicep", """
-                import {foo} from 'mod.json'
-
-                param location string = resourceGroup().location
-                param fooParam foo = {
-                    bar: {
-                        name: 'acct'
-                        location: location
-                        kind: 'StorageV2'
-                        sku: {
-                            name: 'Standard_LRS'
-                        }
-                    }
-                }
-
-                output fooOutput foo = fooParam
-                """),
-            ("mod.json", $$"""
-                {
-                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                    "languageVersion": "2.0",
-                    "contentVersion": "1.0.0.0",
-                    "definitions": {
-                        "foo": {
-                            "metadata": {
-                                "{{LanguageConstants.MetadataExportedPropertyName}}": true
-                            },
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "object",
-                                "metadata": {
-                                    "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01"
-                                }
-                            }
-                        }
-                    },
-                    "resources": []
-                }
-                """));
-
-        result.Should().HaveDiagnostics(new[]
-        {
-            ("BCP385", DiagnosticLevel.Error, """Using resource-derived types requires enabling EXPERIMENTAL feature "ResourceDerivedTypes"."""),
-        });
-    }
-
-    [TestMethod]
     public void Resource_derived_typed_compile_time_imports_raise_diagnostic_when_imported_from_ARM_JSON_models_with_unrecognized_resource()
     {
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
             ("main.bicep", """
                 import {foo} from 'mod.json'
 

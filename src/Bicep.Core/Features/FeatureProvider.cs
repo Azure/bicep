@@ -47,8 +47,6 @@ namespace Bicep.Core.Features
 
         public bool LocalDeployEnabled => configuration.ExperimentalFeaturesEnabled.LocalDeploy;
 
-        public bool ResourceDerivedTypesEnabled => configuration.ExperimentalFeaturesEnabled.ResourceDerivedTypes;
-
         public bool SecureOutputsEnabled => configuration.ExperimentalFeaturesEnabled.SecureOutputs;
 
         public bool ResourceInfoCodegenEnabled => this.configuration.ExperimentalFeaturesEnabled.ResourceInfoCodegen;

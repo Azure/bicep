@@ -1061,7 +1061,7 @@ public class TypeStringifierTests
 
     private static CompilationResult Compile(string source)
     {
-        var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(ResourceDerivedTypesEnabled: true, ResourceTypedParamsAndOutputsEnabled: true));
+        var services = new ServiceBuilder().WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true));
         return CompilationHelper.Compile(services, source);
     }
 

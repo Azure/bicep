@@ -1987,19 +1987,6 @@ namespace Bicep.Core.Semantics.Namespaces
                 var resourceDerivedTypeNotaBene = "NB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.";
 
                 yield return new(
-                    LanguageConstants.TypeNameResource,
-                    new TypeTemplate(
-                        LanguageConstants.TypeNameResource,
-                        resourceInputParameters,
-                        GetResourceDerivedTypeInstantiator(ResourceDerivedTypeVariant.None)),
-                    Flags: TypePropertyFlags.FallbackProperty,
-                    Description: $"""
-                        Use the type definition of the body of a specific resource rather than a user-defined type.
-
-                        {resourceDerivedTypeNotaBene}
-                        """);
-
-                yield return new(
                     LanguageConstants.TypeNameResourceInput,
                     new TypeTemplate(
                         LanguageConstants.TypeNameResourceInput,
@@ -2025,14 +2012,9 @@ namespace Bicep.Core.Semantics.Namespaces
 
             }
 
-            foreach (var typeProp in GetArmPrimitiveTypes())
+            foreach (var typeProp in GetArmPrimitiveTypes().Concat(GetResourceDerivedTypesTypeProperties()))
             {
                 yield return new(typeProp, (features, sfk) => sfk == BicepSourceFileKind.BicepFile);
-            }
-
-            foreach (var typeProp in GetResourceDerivedTypesTypeProperties())
-            {
-                yield return new(typeProp, (features, sfk) => features.ResourceDerivedTypesEnabled && sfk == BicepSourceFileKind.BicepFile);
             }
         }
 

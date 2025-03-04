@@ -41,7 +41,7 @@ namespace Bicep.LangServer.IntegrationTests
         private static SemaphoreSlim initialize = new(1);
         private static bool isInitialized = false;
 
-        private static FeatureProviderOverrides FeatureProviderOverrides => new() { ResourceDerivedTypesEnabled = true, ResourceTypedParamsAndOutputsEnabled = true };
+        private static FeatureProviderOverrides FeatureProviderOverrides => new() { ResourceTypedParamsAndOutputsEnabled = true };
 
         protected static ServiceBuilder Services => new ServiceBuilder().WithFeatureOverrides(FeatureProviderOverrides);
 
