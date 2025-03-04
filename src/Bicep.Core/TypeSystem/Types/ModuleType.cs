@@ -44,5 +44,20 @@ namespace Bicep.Core.TypeSystem.Types
 
             return null;
         }
+
+        public TypeSymbol? TryGetExtensionConfigPropertyType(string extAlias, string configPropertyName)
+        {
+            if (Body is ObjectType objectType &&
+                objectType.Properties.TryGetValue(LanguageConstants.ModuleExtensionConfigsPropertyName, out var extensionConfigsProperty) &&
+                extensionConfigsProperty.TypeReference.Type is ObjectType extConfigObjectType &&
+                extConfigObjectType.Properties.TryGetValue(extAlias, out var extAliasProperty) &&
+                extAliasProperty.TypeReference.Type is NamespaceType { ConfigurationType: { } extConfigType } &&
+                extConfigType.Properties.TryGetValue(configPropertyName, out var configProperty))
+            {
+                return configProperty.TypeReference.Type;
+            }
+
+            return null;
+        }
     }
 }

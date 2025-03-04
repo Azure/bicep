@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
@@ -115,6 +116,8 @@ namespace Bicep.Core.Syntax
         void VisitMissingDeclarationSyntax(MissingDeclarationSyntax syntax);
 
         void VisitExtensionDeclarationSyntax(ExtensionDeclarationSyntax syntax);
+
+        void VisitExtensionConfigAssignmentSyntax(ExtensionConfigAssignmentSyntax syntax);
 
         void VisitExtensionWithClauseSyntax(ExtensionWithClauseSyntax syntax);
 

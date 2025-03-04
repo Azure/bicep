@@ -772,33 +772,33 @@ module issue3000 'empty.bicep' = {
   name: 'issue3000Module'
   params: {}
   identity: {
-//@[002:010) [BCP037 (Error)] The property "identity" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |identity|
+//@[002:010) [BCP037 (Error)] The property "identity" is not allowed on objects of type "module". Permissible properties include "dependsOn", "extensionConfigs", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |identity|
     type: 'SystemAssigned'
   }
   extendedLocation: {}
-//@[002:018) [BCP037 (Error)] The property "extendedLocation" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |extendedLocation|
+//@[002:018) [BCP037 (Error)] The property "extendedLocation" is not allowed on objects of type "module". Permissible properties include "dependsOn", "extensionConfigs", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |extendedLocation|
   sku: {}
-//@[002:005) [BCP037 (Error)] The property "sku" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |sku|
+//@[002:005) [BCP037 (Error)] The property "sku" is not allowed on objects of type "module". Permissible properties include "dependsOn", "extensionConfigs", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |sku|
   kind: 'V1'
-//@[002:006) [BCP037 (Error)] The property "kind" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |kind|
+//@[002:006) [BCP037 (Error)] The property "kind" is not allowed on objects of type "module". Permissible properties include "dependsOn", "extensionConfigs", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |kind|
   managedBy: 'string'
-//@[002:011) [BCP037 (Error)] The property "managedBy" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |managedBy|
+//@[002:011) [BCP037 (Error)] The property "managedBy" is not allowed on objects of type "module". Permissible properties include "dependsOn", "extensionConfigs", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |managedBy|
   mangedByExtended: [
-//@[002:018) [BCP037 (Error)] The property "mangedByExtended" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |mangedByExtended|
+//@[002:018) [BCP037 (Error)] The property "mangedByExtended" is not allowed on objects of type "module". Permissible properties include "dependsOn", "extensionConfigs", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |mangedByExtended|
    'str1'
    'str2'
   ]
   zones: [
-//@[002:007) [BCP037 (Error)] The property "zones" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |zones|
+//@[002:007) [BCP037 (Error)] The property "zones" is not allowed on objects of type "module". Permissible properties include "dependsOn", "extensionConfigs", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |zones|
    'str1'
    'str2'
   ]
   plan: {}
-//@[002:006) [BCP037 (Error)] The property "plan" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |plan|
+//@[002:006) [BCP037 (Error)] The property "plan" is not allowed on objects of type "module". Permissible properties include "dependsOn", "extensionConfigs", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |plan|
   eTag: ''
-//@[002:006) [BCP037 (Error)] The property "eTag" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |eTag|
+//@[002:006) [BCP037 (Error)] The property "eTag" is not allowed on objects of type "module". Permissible properties include "dependsOn", "extensionConfigs", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |eTag|
   scale: {}  
-//@[002:007) [BCP037 (Error)] The property "scale" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |scale|
+//@[002:007) [BCP037 (Error)] The property "scale" is not allowed on objects of type "module". Permissible properties include "dependsOn", "extensionConfigs", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |scale|
 }
 
 module invalidJsonMod 'modulec.json' = {
