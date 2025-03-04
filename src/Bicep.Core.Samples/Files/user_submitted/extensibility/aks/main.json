@@ -10,7 +10,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14160766691322920806"
+      "templateHash": "18053614476052976284"
     }
   },
   "parameters": {
@@ -159,6 +159,16 @@
         "parameters": {
           "kubeConfig": {
             "value": "[reference('aks').outputs.kubeConfig.value]"
+          }
+        },
+        "extensionConfigs": {
+          "kubernetes": {
+            "kubeConfig": {
+              "value": "[reference('aks').outputs.kubeConfig.value]"
+            },
+            "namespace": {
+              "value": "default"
+            }
           }
         },
         "template": {

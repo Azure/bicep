@@ -27,6 +27,12 @@ module kubernetes './modules/kubernetes.bicep' = {
   params: {
     kubeConfig: aks.outputs.kubeConfig
   }
+  extensionConfigs: {
+    kubernetes: {
+      kubeConfig: aks.outputs.kubeConfig
+      namespace: 'default'
+    }
+  }
 }
 
 // output webUrl string = 'https://${kubernetes.outputs.externalIp}/'
