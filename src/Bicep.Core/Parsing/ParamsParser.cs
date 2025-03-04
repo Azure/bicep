@@ -9,19 +9,6 @@ namespace Bicep.Core.Parsing
     {
         public ParamsParser(string text) : base(text)
         {
-            DeclarationParsers = new Dictionary<string, DeclarationParser>
-            {
-                { LanguageConstants.UsingKeyword, _ => UsingDeclaration() },
-                { LanguageConstants.ExtendsKeyword, _ => ExtendsDeclaration() },
-                { LanguageConstants.ParameterKeyword, _ => ParameterAssignment() },
-                { LanguageConstants.VariableKeyword, VariableDeclaration },
-                {
-                    LanguageConstants.ImportKeyword,
-                    leadingNodes => CompileTimeImportDeclaration(
-                        ExpectKeyword(LanguageConstants.ImportKeyword),
-                        leadingNodes)
-                },
-            };
         }
 
         public override ProgramSyntax Program()
@@ -56,8 +43,6 @@ namespace Bicep.Core.Parsing
             return programSyntax;
         }
 
-        protected override IReadOnlyDictionary<string, DeclarationParser> DeclarationParsers { get; }
-
         protected override SyntaxBase Declaration(params string[] expectedKeywords) =>
             this.WithRecovery(
                 () =>
@@ -70,8 +55,11 @@ namespace Bicep.Core.Parsing
                     {
                         TokenType.Identifier => ValidateKeyword(current.Text) switch
                         {
-                            string keyword when DeclarationParsers.TryGetValue(keyword, out var parser)
-                                => parser(leadingNodes),
+                            LanguageConstants.UsingKeyword => this.UsingDeclaration(),
+                            LanguageConstants.ExtendsKeyword => this.ExtendsDeclaration(),
+                            LanguageConstants.ParameterKeyword => this.ParameterAssignment(),
+                            LanguageConstants.VariableKeyword => this.VariableDeclaration(leadingNodes),
+                            LanguageConstants.ImportKeyword => this.CompileTimeImportDeclaration(ExpectKeyword(LanguageConstants.ImportKeyword), leadingNodes),
                             _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration()),
                         },
                         TokenType.NewLine => this.NewLine(),

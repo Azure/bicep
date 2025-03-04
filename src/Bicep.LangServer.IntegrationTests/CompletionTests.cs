@@ -5565,8 +5565,7 @@ output people Person[] = [{
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 text,
-                mainUri,
-                services => services.WithFeatureOverrides(new(ResourceDerivedTypesEnabled: true)));
+                mainUri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 

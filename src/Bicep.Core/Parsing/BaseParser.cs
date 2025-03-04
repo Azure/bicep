@@ -33,10 +33,6 @@ namespace Bicep.Core.Parsing
 
         public IDiagnosticLookup ParsingErrorLookup => ParsingErrorTree;
 
-        protected delegate SyntaxBase DeclarationParser(IEnumerable<SyntaxBase> leadingNodes);
-
-        protected abstract IReadOnlyDictionary<string, DeclarationParser> DeclarationParsers { get; }
-
         protected SyntaxBase VariableDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.VariableKeyword);
@@ -571,8 +567,6 @@ namespace Bicep.Core.Parsing
 
             itemsOrTokens.AddRange(NewLines());
 
-            var isClosed = FunctionElementListIsClosed(openingTokenType, closingTokenType);
-
             var expectElement = true;
             while (!this.IsAtEnd() && this.reader.Peek().Type != closingTokenType)
             {
@@ -589,16 +583,8 @@ namespace Bicep.Core.Parsing
                             peekPosition++;
                         }
 
-                        if (
-                            // the element list is unclosed
-                            !isClosed && (
-                                // we've reached the end of the file
-                                this.reader.PeekAhead(peekPosition) is null or { Type: TokenType.EndOfFile } ||
-                                (
-                                    // the next token is an identifier
-                                    reader.Peek() is { Type: TokenType.Identifier, Text: string possibleKeyword } &&
-                                    // the identifier is a keyword introducing a declaration statement
-                                    DeclarationParsers.ContainsKey(possibleKeyword))))
+                        // we've reached the end of the file
+                        if (this.reader.PeekAhead(peekPosition) is null or { Type: TokenType.EndOfFile })
                         {
                             itemsOrTokens.Add(SkipEmpty(x => x.ExpectedCharacter(
                                 SyntaxFacts.GetText(closingTokenType) ?? closingTokenType.ToString())));
@@ -644,33 +630,6 @@ namespace Bicep.Core.Parsing
             }
 
             return itemsOrTokens;
-        }
-
-        private bool FunctionElementListIsClosed(TokenType openingTokenType, TokenType closingTokenType)
-        {
-            int openedCount = 1; // We've already consumed the opening token by the time this is invoked.
-
-            for (int i = 0; ; i++)
-            {
-                var current = reader.PeekAhead(i)?.Type;
-                if (current is null)
-                {
-                    return false;
-                }
-                else if (current == openingTokenType)
-                {
-                    openedCount++;
-                }
-                else if (current == closingTokenType)
-                {
-                    openedCount--;
-                }
-
-                if (openedCount < 1)
-                {
-                    return true;
-                }
-            }
         }
 
         protected IdentifierSyntax Identifier(DiagnosticBuilder.DiagnosticBuilderDelegate errorFunc)

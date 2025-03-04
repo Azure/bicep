@@ -6,33 +6,8 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parsing
 {
-    public class Parser : BaseParser
+    public class Parser(string text) : BaseParser(text)
     {
-        public Parser(string text) : base(text)
-        {
-            DeclarationParsers = new Dictionary<string, DeclarationParser>
-            {
-                { LanguageConstants.TargetScopeKeyword, TargetScope },
-                { LanguageConstants.MetadataKeyword, MetadataDeclaration },
-                { LanguageConstants.TypeKeyword, TypeDeclaration },
-                { LanguageConstants.ParameterKeyword, ParameterDeclaration },
-                { LanguageConstants.VariableKeyword, VariableDeclaration },
-                { LanguageConstants.FunctionKeyword, FunctionDeclaration },
-                { LanguageConstants.ResourceKeyword, ResourceDeclaration },
-                { LanguageConstants.OutputKeyword, OutputDeclaration },
-                { LanguageConstants.ModuleKeyword, ModuleDeclaration },
-                { LanguageConstants.TestKeyword, TestDeclaration },
-                { LanguageConstants.ImportKeyword, ImportDeclaration },
-                {
-                    LanguageConstants.ExtensionKeyword,
-                    (leadingNodes) => ExtensionDeclaration(
-                        ExpectKeyword(LanguageConstants.ExtensionKeyword),
-                        leadingNodes)
-                },
-                { LanguageConstants.AssertKeyword, AssertDeclaration },
-            };
-        }
-
         public override ProgramSyntax Program()
         {
             var declarationsOrTokens = new List<SyntaxBase>();
@@ -66,8 +41,6 @@ namespace Bicep.Core.Parsing
             return programSyntax;
         }
 
-        protected override IReadOnlyDictionary<string, DeclarationParser> DeclarationParsers { get; }
-
         protected override SyntaxBase Declaration(params string[] expectedKeywords) =>
             this.WithRecovery(
                 () =>
@@ -80,7 +53,19 @@ namespace Bicep.Core.Parsing
                     {
                         TokenType.Identifier => ValidateKeyword(current.Text) switch
                         {
-                            string keyword when DeclarationParsers.TryGetValue(keyword, out var parser) => parser(leadingNodes),
+                            LanguageConstants.TargetScopeKeyword => this.TargetScope(leadingNodes),
+                            LanguageConstants.MetadataKeyword => this.MetadataDeclaration(leadingNodes),
+                            LanguageConstants.TypeKeyword => this.TypeDeclaration(leadingNodes),
+                            LanguageConstants.ParameterKeyword => this.ParameterDeclaration(leadingNodes),
+                            LanguageConstants.VariableKeyword => this.VariableDeclaration(leadingNodes),
+                            LanguageConstants.FunctionKeyword => this.FunctionDeclaration(leadingNodes),
+                            LanguageConstants.ResourceKeyword => this.ResourceDeclaration(leadingNodes),
+                            LanguageConstants.OutputKeyword => this.OutputDeclaration(leadingNodes),
+                            LanguageConstants.ModuleKeyword => this.ModuleDeclaration(leadingNodes),
+                            LanguageConstants.TestKeyword => this.TestDeclaration(leadingNodes),
+                            LanguageConstants.ImportKeyword => this.ImportDeclaration(leadingNodes),
+                            LanguageConstants.ExtensionKeyword => this.ExtensionDeclaration(ExpectKeyword(current.Text), leadingNodes),
+                            LanguageConstants.AssertKeyword => this.AssertDeclaration(leadingNodes),
                             _ => leadingNodes.Length > 0
                                 ? new MissingDeclarationSyntax(leadingNodes)
                                 : throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
