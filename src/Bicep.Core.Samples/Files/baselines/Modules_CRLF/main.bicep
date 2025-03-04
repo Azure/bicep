@@ -399,21 +399,3 @@ output deeplyNestedProperty string? = moduleWithNullableOutputs.outputs.?nullabl
 output deeplyNestedArrayItem string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[0]
 output deeplyNestedArrayItemFromEnd string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[^1]
 output deeplyNestedArrayItemFromEndAttempt string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[?^1]
-
-// BEGIN: Extension configs
-
-module moduleWithExts 'child/hasConfigurableExtensions.bicep' = {
-  name: 'moduleWithExts',
-  extensionConfigs: {
-    kubernetes: {
-      kubeConfig: 'kubeConfig1FromModule'
-      namespace: 'ns1FromModule'
-    }
-    k8s: {
-      kubeConfig: 'kubeConfig2FromModule'
-      namespace: 'ns2FromModule'
-    }
-  }
-}
-
-// END: Extension configs
