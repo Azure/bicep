@@ -255,8 +255,8 @@ namespace Bicep.Core.Semantics
 
                 ITypeReference propertyType = propertyTemplateType switch
                 {
-                    TemplateParameterType.String => new StringType(null, null, TypeSymbolValidationFlags.Default),
-                    TemplateParameterType.SecureString => new StringType(null, null, TypeSymbolValidationFlags.IsSecure),
+                    TemplateParameterType.String => new StringType(null, null, null, TypeSymbolValidationFlags.Default),
+                    TemplateParameterType.SecureString => new StringType(null, null, null, TypeSymbolValidationFlags.IsSecure),
                     // NOTE(kylealbert): There's not a use case for the other types yet with the extensions and this is temporary.
                     _ => ErrorType.Empty()
                 };
