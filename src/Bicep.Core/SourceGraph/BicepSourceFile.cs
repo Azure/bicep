@@ -105,7 +105,7 @@ namespace Bicep.Core.Workspaces
                     this.referencedAuxiliaryFileUris.Add(fileHandle.Uri);
 
                     return this.auxiliaryFileCache.GetOrAdd(fileHandle.Uri, () => fileHandle
-                        .TryReadData()
+                        .TryReadBinaryData()
                         .Transform(data => new AuxiliaryFile(fileHandle.Uri, data)));
                 });
         }

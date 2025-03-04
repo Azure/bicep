@@ -48,17 +48,7 @@ namespace Bicep.Core.Extensions
             }
         }
 
-        public static ResultWithDiagnosticBuilder<Encoding> TryDetectEncoding(this IFileHandle fileHandle) => HandleFileReadError(() =>
-        {
-            using var stream = fileHandle.OpenRead();
-            using var reader = new StreamReader(stream, detectEncodingFromByteOrderMarks: true);
-
-            reader.Peek();
-
-            return reader.CurrentEncoding;
-        });
-
-        public static ResultWithDiagnosticBuilder<string> TryPeek(this IFileHandle fileHandle, int length, Encoding? encoding = null) => HandleFileReadError(() =>
+        public static ResultWithDiagnosticBuilder<string> TryPeekText(this IFileHandle fileHandle, int length, Encoding? encoding = null) => HandleFileReadError(() =>
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(length);
 
@@ -66,20 +56,12 @@ namespace Bicep.Core.Extensions
             using var reader = new StreamReader(stream, encoding ?? Encoding.UTF8);
 
             var buffer = new char[length];
-            length = reader.Read(buffer, 0, length);
+            length = reader.ReadBlock(buffer, 0, length);
 
             return new string(buffer, 0, length);
         });
 
-        public static ResultWithDiagnosticBuilder<BinaryData> TryReadData(this IFileHandle fileHandle) =>
-            HandleFileReadError(() =>
-            {
-                using var fileStream = fileHandle.OpenRead();
-
-                return BinaryData.FromStream(fileStream);
-            });
-
-        public static ResultWithDiagnosticBuilder<string> TryRead(this IFileHandle fileHandle, Encoding? encoding = null) =>
+        public static ResultWithDiagnosticBuilder<string> TryReadAllText(this IFileHandle fileHandle, Encoding? encoding = null) =>
             HandleFileReadError(() =>
             {
                 using var fileStream = fileHandle.OpenRead();
@@ -88,26 +70,13 @@ namespace Bicep.Core.Extensions
                 return reader.ReadToEnd();
             });
 
-        public static ResultWithDiagnosticBuilder<string> TryRead(this IFileHandle fileHandle, int lengthLimit, Encoding? encoding = null)
-        {
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(lengthLimit);
-
-            return HandleFileReadError(() =>
+        public static ResultWithDiagnosticBuilder<BinaryData> TryReadBinaryData(this IFileHandle fileHandle) =>
+            HandleFileReadError(() =>
             {
-                using var stream = fileHandle.OpenRead();
-                using var reader = new StreamReader(stream, encoding ?? Encoding.UTF8);
+                using var fileStream = fileHandle.OpenRead();
 
-                char[] buffer = new char[lengthLimit];
-                int lengthRead = reader.Read(buffer, 0, lengthLimit);
-
-                if (!reader.EndOfStream)
-                {
-                    return new ResultWithDiagnosticBuilder<string>(x => x.FileExceedsMaximumSize(fileHandle.Uri, lengthLimit, "characters"));
-                }
-
-                return new ResultWithDiagnosticBuilder<string>(new string(buffer, 0, lengthRead));
+                return BinaryData.FromStream(fileStream);
             });
-        }
 
         public static void Write(this IFileHandle fileHandle, BinaryData data)
         {
