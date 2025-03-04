@@ -481,7 +481,7 @@ namespace Bicep.Core.Semantics
                 if (extDecl.TryGetNamespaceType() is { } extType)
                 {
                     var isConfigRequired = extType.ConfigurationType?.Properties.Values.Any(p => p.Flags.HasFlag(TypePropertyFlags.Required)) is true;
-                    extensions.Add(extType.Name, new ExtensionMetadata(extType.Name, extType.ExtensionName, extType.ExtensionVersion, extType.ConfigurationType, isConfigRequired));
+                    extensions.Add(extType.Name, new ExtensionMetadata(extType.Name, extType.ExtensionName, extType.ExtensionVersion, extType, isConfigRequired));
                 }
             }
 

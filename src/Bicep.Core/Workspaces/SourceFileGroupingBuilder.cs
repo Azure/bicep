@@ -186,17 +186,9 @@ namespace Bicep.Core.Workspaces
                     continue;
                 }
 
-                // process built-in extensions
-                var extensionSpec = restorable switch
+                if (restorable is ExtensionDeclarationSyntax extensionDeclaration)
                 {
-                    ExtensionDeclarationSyntax declSyntax => declSyntax.SpecificationString,
-                    ExtensionConfigAssignmentSyntax assignmentSyntax => assignmentSyntax.SpecificationString,
-                    _ => null
-                };
-
-                if (extensionSpec is not null)
-                {
-                    var isBuiltInExtension = extensionSpec switch
+                    var isBuiltInExtension = extensionDeclaration.SpecificationString switch
                     {
                         IdentifierSyntax identifier => config.Extensions.IsSysOrBuiltIn(identifier.IdentifierName),
                         _ => false,

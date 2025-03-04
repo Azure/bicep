@@ -9,6 +9,6 @@ namespace Bicep.Core.Semantics.Metadata
         string Alias,
         string Name,
         string Version,
-        ObjectType? ConfigType,
+        NamespaceType? NamespaceType,
         bool IsConfigRequired);
 }

@@ -231,9 +231,10 @@ namespace Bicep.Core.Semantics
                     ext => ext.Key,
                     ext =>
                     {
+                        // TODO(kylealbert): figure out how to get namespace type.
                         var (isConfigRequired, configType) = GetExtensionConfigType(ext.Key, ext.Value);
 
-                        return new ExtensionMetadata(ext.Key, ext.Value.Name.Value, ext.Value.Version.Value, configType, isConfigRequired);
+                        return new ExtensionMetadata(ext.Key, ext.Value.Name.Value, ext.Value.Version.Value, null, false);
                     });
         }
 

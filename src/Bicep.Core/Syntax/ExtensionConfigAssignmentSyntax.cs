@@ -3,11 +3,10 @@
 
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
-using Bicep.Core.Registry;
 
 namespace Bicep.Core.Syntax
 {
-    public class ExtensionConfigAssignmentSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IArtifactReferenceSyntax
+    public class ExtensionConfigAssignmentSyntax : StatementSyntax, ITopLevelDeclarationSyntax
     {
         public ExtensionConfigAssignmentSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, SyntaxBase specificationString, SyntaxBase withClause)
             : base(leadingNodes)
@@ -39,10 +38,5 @@ namespace Bicep.Core.Syntax
         public SyntaxBase SourceSyntax => SpecificationString;
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitExtensionConfigAssignmentSyntax(this);
-
-        public ArtifactType GetArtifactType() => ArtifactType.Extension;
-
-        // if the extension specification is inlined return a value otherwise return null
-        public SyntaxBase? Path => this.SpecificationString as StringSyntax;
     }
 }
