@@ -19,6 +19,7 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
@@ -26,6 +27,7 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 using static Bicep.Core.Semantics.FunctionOverloadBuilder;
@@ -34,6 +36,8 @@ namespace Bicep.Core.Semantics.Namespaces
 {
     public static class SystemNamespaceType
     {
+        private readonly record struct LoadTextContentResult(IOUri FileUri, string Content);
+
         public const string BuiltInName = "sys";
         public const long UniqueStringHashLength = 13;
 
@@ -60,9 +64,9 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private record NamespaceValue<T>(T Value, VisibilityDelegate IsVisible);
 
-        private static readonly ImmutableArray<NamespaceValue<FunctionOverload>> Overloads = GetSystemOverloads().ToImmutableArray();
+        private static readonly ImmutableArray<NamespaceValue<FunctionOverload>> Overloads = [.. GetSystemOverloads()];
 
-        private static readonly ImmutableArray<NamespaceValue<NamedTypeProperty>> AmbientSymbols = GetSystemAmbientSymbols().ToImmutableArray();
+        private static readonly ImmutableArray<NamespaceValue<NamedTypeProperty>> AmbientSymbols = [.. GetSystemAmbientSymbols()];
 
         private static IEnumerable<NamespaceValue<FunctionOverload>> GetSystemOverloads()
         {
@@ -80,7 +84,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     {
                         if (argumentTypes.All(t => t is TupleType))
                         {
-                            return new(new TupleType(argumentTypes.OfType<TupleType>().SelectMany(tt => tt.Items).ToImmutableArray(), default));
+                            return new(new TupleType([.. argumentTypes.OfType<TupleType>().SelectMany(tt => tt.Items)], default));
                         }
 
                         BigInteger minLength = 0;
@@ -433,7 +437,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         {
                             TupleType tupleType when minToTake == maxToTake && minToTake >= tupleType.Items.Length => tupleType,
                             TupleType tupleType when minToTake == maxToTake && minToTake <= 0 => new TupleType([], tupleType.ValidationFlags),
-                            TupleType tupleType when minToTake == maxToTake && minToTake <= int.MaxValue => new TupleType(tupleType.Items.Take((int)minToTake).ToImmutableArray(), tupleType.ValidationFlags),
+                            TupleType tupleType when minToTake == maxToTake && minToTake <= int.MaxValue => new TupleType([.. tupleType.Items.Take((int)minToTake)], tupleType.ValidationFlags),
                             ArrayType array => TypeFactory.CreateArrayType(array.Item,
                                 !array.MinLength.HasValue ? null : minToTake switch
                                 {
@@ -500,7 +504,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         return new(argumentTypes[0] switch
                         {
                             TypeSymbol original when maxToSkip <= 0 => original,
-                            TupleType tupleType when minToSkip == maxToSkip && minToSkip <= int.MaxValue => new TupleType(tupleType.Items.Skip((int)minToSkip).ToImmutableArray(), tupleType.ValidationFlags),
+                            TupleType tupleType when minToSkip == maxToSkip && minToSkip <= int.MaxValue => new TupleType([.. tupleType.Items.Skip((int)minToSkip)], tupleType.ValidationFlags),
                             ArrayType array => TypeFactory.CreateArrayType(array.Item,
                                 ((array.MinLength ?? 0) - maxToSkip) switch
                                 {
@@ -1129,26 +1133,6 @@ namespace Bicep.Core.Semantics.Namespaces
             }, null);
         }
 
-        private static ResultWithDiagnosticBuilder<Uri> TryGetFileUriWithDiagnostics(IBinder binder, string filePath)
-        {
-            if (!LocalModuleReference.Validate(filePath).IsSuccess(out _, out var validateFilePathFailureBuilder))
-            {
-                return new(validateFilePathFailureBuilder);
-            }
-
-            if (PathHelper.TryResolveFilePath(binder.FileSymbol.FileUri, filePath) is not { } fileUri)
-            {
-                return new(x => x.FilePathCouldNotBeResolved(filePath, binder.FileSymbol.FileUri.LocalPath));
-            }
-
-            if (!fileUri.IsFile)
-            {
-                return new(x => x.UnableToLoadNonFileUri(fileUri));
-            }
-
-            return new(fileUri);
-        }
-
         private static FunctionOverload.ResultBuilderDelegate TryDeriveLiteralReturnType(string armFunctionName, TypeSymbol nonLiteralReturnType) =>
             TryDeriveLiteralReturnType(armFunctionName, (_, _, _, _) => new(nonLiteralReturnType));
 
@@ -1286,46 +1270,44 @@ namespace Bicep.Core.Semantics.Namespaces
                 new StringLiteralExpression(null, envVariableValue));
         }
 
-        private record LoadTextContentResult(Uri FileUri, string Content);
-
-        private static ResultWithDiagnostic<LoadTextContentResult> TryLoadTextContentFromFile(SemanticModel model, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, int maxCharacters = -1)
+        private static ResultWithDiagnostic<LoadTextContentResult> TryLoadTextContentFromFile(SemanticModel model, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, int maxCharacters)
         {
             if (filePathArgument.typeSymbol is not StringLiteralType filePathType)
             {
                 return new(DiagnosticBuilder.ForPosition(filePathArgument.syntax).CompileTimeConstantRequired());
             }
 
-            if (!TryGetFileUriWithDiagnostics(model.Binder, filePathType.RawStringValue).IsSuccess(out var fileUri, out var errorBuilder))
-            {
-                return new(errorBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
-            }
 
-            var fileEncoding = Encoding.UTF8;
+            var encoding = Encoding.UTF8;
             if (encodingArgument is not null)
             {
                 if (encodingArgument.Value.typeSymbol is not StringLiteralType encodingType)
                 {
                     return new(DiagnosticBuilder.ForPosition(encodingArgument.Value.syntax).CompileTimeConstantRequired());
                 }
-                fileEncoding = LanguageConstants.SupportedEncodings[encodingType.RawStringValue];
+
+                encoding = LanguageConstants.SupportedEncodings[encodingType.RawStringValue];
             }
 
-            if (!model.ReadAuxiliaryFile(fileUri).IsSuccess(out var auxiliaryFile, out var readErrorBuilder))
+            var auxiliaryFileLoadResult = RelativePath.TryCreate(filePathType.RawStringValue).Transform(model.SourceFile.TryLoadAuxiliaryFile);
+
+            if (!auxiliaryFileLoadResult.IsSuccess(out var auxiliaryFile, out var errorBuilder))
             {
-                return new(readErrorBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
+                return new(errorBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
             }
 
-            if (!FileResolver.ReadWithEncoding(auxiliaryFile.Content, fileEncoding, maxCharacters, fileUri).IsSuccess(out var result, out var fileReadFailureBuilder))
+            if (encodingArgument is not null && auxiliaryFile.TryDetectEncodingFromByteOrderMarks() is { } detectedEncoding && !Equals(encoding, detectedEncoding))
             {
-                return new(fileReadFailureBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
+                // FileEncodingMimatch has DiagnosticLevel.Info
+                diagnostics.Write(DiagnosticBuilder.ForPosition(encodingArgument.Value.syntax).FileEncodingMismatch(detectedEncoding.WebName));
             }
 
-            if (encodingArgument is not null && !Equals(fileEncoding, result.Encoding))
+            if (!auxiliaryFile.TryReadText(encoding, maxCharacters).IsSuccess(out var content, out errorBuilder))
             {
-                diagnostics.Write(DiagnosticBuilder.ForPosition(encodingArgument.Value.syntax).FileEncodingMismatch(result.Encoding.WebName));
+                return new(errorBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
             }
 
-            return new(new LoadTextContentResult(fileUri, result.Contents));
+            return new(new LoadTextContentResult(auxiliaryFile.Uri, content));
         }
 
         private static ResultWithDiagnostic<LoadTextContentResult> TryLoadTextContentAsBase64(SemanticModel model, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument)
@@ -1335,35 +1317,32 @@ namespace Bicep.Core.Semantics.Namespaces
                 return new(DiagnosticBuilder.ForPosition(filePathArgument.syntax).CompileTimeConstantRequired());
             }
 
-            if (!TryGetFileUriWithDiagnostics(model.Binder, filePathType.RawStringValue).IsSuccess(out var fileUri, out var errorBuilder))
-            {
-                return new(errorBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
-            }
+            var auxiliaryFileLoadResult = RelativePath.TryCreate(filePathType.RawStringValue).Transform(model.SourceFile.TryLoadAuxiliaryFile);
 
-            if (!model.ReadAuxiliaryFile(fileUri).IsSuccess(out var auxiliaryFile, out var readErrorBuilder))
+            if (!auxiliaryFileLoadResult.IsSuccess(out var auxiliaryFile, out var readErrorBuilder))
             {
                 return new(readErrorBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
             }
 
-            var bytes = auxiliaryFile.Content.ToArray();
-            var maxFileSize = LanguageConstants.MaxLiteralCharacterLimit / 4 * 3; //each base64 character represents 6 bits
-            if (bytes.Length > maxFileSize)
+            var maxFileSizeInBytes = LanguageConstants.MaxLiteralCharacterLimit / 4 * 3; //each base64 character represents 6 bits
+
+            if (!auxiliaryFile.TryReadBytes(maxFileSizeInBytes).IsSuccess(out var bytes, out var errorBuilder))
             {
-                return new(DiagnosticBuilder.ForPosition(filePathArgument.syntax).FileExceedsMaximumSize(fileUri.LocalPath, maxFileSize, "bytes"));
+                return new(errorBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
             }
 
-            var content = Convert.ToBase64String(bytes, Base64FormattingOptions.None);
-            return new(new LoadTextContentResult(fileUri, content));
+            var content = Convert.ToBase64String(bytes.Span, Base64FormattingOptions.None);
+
+            return new(new LoadTextContentResult(auxiliaryFile.Uri, content));
         }
 
         private static FunctionResult LoadContentAsBase64ResultBuilder(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
             var arguments = functionCall.Arguments.ToImmutableArray();
-            if (TryLoadTextContentAsBase64(model, (arguments[0], argumentTypes[0]))
-                .IsSuccess(out var result, out var errorDiagnostic))
+            if (TryLoadTextContentAsBase64(model, (arguments[0], argumentTypes[0])).IsSuccess(out var result, out var errorDiagnostic))
             {
                 return new(
-                    new StringLiteralType(model.SourceFile.Uri.MakeRelativeUri(result.FileUri).ToString(), result.Content, TypeSymbolValidationFlags.Default),
+                    new StringLiteralType(result.FileUri.GetPathRelativeTo(model.SourceFile.FileHandle.Uri), result.Content, TypeSymbolValidationFlags.Default),
                     new StringLiteralExpression(functionCall, result.Content));
             }
 
@@ -1374,14 +1353,12 @@ namespace Bicep.Core.Semantics.Namespaces
         private static Expression ConvertJsonToExpression(JToken token)
             => token switch
             {
-                JObject @object => new ObjectExpression(null, @object.Properties()
+                JObject @object => new ObjectExpression(null, [.. @object.Properties()
                     .Where(x => SupportedJsonTokenTypes.Contains(x.Value.Type))
-                    .Select(x => new ObjectPropertyExpression(null, new StringLiteralExpression(null, x.Name), ConvertJsonToExpression(x.Value)))
-                    .ToImmutableArray()),
-                JArray @array => new ArrayExpression(null, @array
+                    .Select(x => new ObjectPropertyExpression(null, new StringLiteralExpression(null, x.Name), ConvertJsonToExpression(x.Value)))]),
+                JArray @array => new ArrayExpression(null, [.. @array
                     .Where(x => SupportedJsonTokenTypes.Contains(x.Type))
-                    .Select(ConvertJsonToExpression)
-                    .ToImmutableArray()),
+                    .Select(ConvertJsonToExpression)]),
                 JValue value => value.Type switch
                 {
                     JTokenType.String => new StringLiteralExpression(null, value.ToString(CultureInfo.InvariantCulture)),

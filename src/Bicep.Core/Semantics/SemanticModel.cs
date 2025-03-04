@@ -47,17 +47,14 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnostics;
-        private readonly ConcurrentDictionary<Uri, ResultWithDiagnosticBuilder<AuxiliaryFile>> auxiliaryFileCache = new();
-        private readonly IReadableFileCache fileCache;
 
-        public SemanticModel(IBicepAnalyzer linterAnalyzer, INamespaceProvider namespaceProvider, IArtifactReferenceFactory artifactReferenceFactory, ISemanticModelLookup modelLookup, SourceFileGrouping sourceFileGrouping, IEnvironment environment, IReadableFileCache fileCache, BicepSourceFile sourceFile)
+        public SemanticModel(IBicepAnalyzer linterAnalyzer, INamespaceProvider namespaceProvider, IArtifactReferenceFactory artifactReferenceFactory, ISemanticModelLookup modelLookup, SourceFileGrouping sourceFileGrouping, IEnvironment environment, BicepSourceFile sourceFile)
         {
             this.ArtifactReferenceFactory = artifactReferenceFactory;
             this.ModelLookup = modelLookup;
             this.SourceFileGrouping = sourceFileGrouping;
             this.SourceFile = sourceFile;
             this.Environment = environment;
-            this.fileCache = fileCache;
             TraceBuildOperation(sourceFile, Features, Configuration);
 
             // create this in locked mode by default
@@ -155,15 +152,6 @@ namespace Bicep.Core.Semantics
                 return [.. outputs];
             });
         }
-
-        public ResultWithDiagnosticBuilder<AuxiliaryFile> ReadAuxiliaryFile(Uri uri)
-            => auxiliaryFileCache.GetOrAdd(uri, fileCache.Read);
-
-        public IEnumerable<Uri> GetAuxiliaryFileReferences()
-            => auxiliaryFileCache.Keys;
-
-        public bool HasAuxiliaryFileReference(Uri uri)
-            => auxiliaryFileCache.ContainsKey(uri);
 
         private IEnumerable<ExportMetadata> FindExportedTypes() => Root.TypeDeclarations
             .Where(t => t.IsExported(this))

@@ -16,6 +16,7 @@ using Bicep.Core.Json;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
@@ -54,7 +55,9 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IFeatureProviderFactory FeatureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(ConfigurationManager, FileExplorer), FeatureOverrides);
 
-        public static readonly ISourceFileFactory SourceFileFactory = new SourceFileFactory(ConfigurationManager, FeatureProviderFactory, FileExplorer);
+        public static readonly IAuxiliaryFileCache AuxiliaryFileCache = new AuxiliaryFileCache();
+
+        public static readonly ISourceFileFactory SourceFileFactory = new SourceFileFactory(ConfigurationManager, FeatureProviderFactory, AuxiliaryFileCache, FileExplorer);
 
         public static readonly BicepFile DummyBicepFile = CreateDummyBicepFile();
 
@@ -187,11 +190,12 @@ namespace Bicep.Core.UnitTests
         {
             return new(
                 new Uri($"inmemory:///main.bicep"),
-                InMemoryDummyFileHandle.Instance,
+                DummyFileHandle.Instance,
                 [],
                 SyntaxFactory.EmptyProgram,
                 configurationManager,
                 featureProviderFactory ?? FeatureProviderFactory,
+                BicepTestConstants.AuxiliaryFileCache,
                 EmptyDiagnosticLookup.Instance,
                 EmptyDiagnosticLookup.Instance);
         }

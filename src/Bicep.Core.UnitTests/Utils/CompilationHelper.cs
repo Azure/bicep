@@ -130,9 +130,9 @@ namespace Bicep.Core.UnitTests.Utils
             return Compile(services, fileResolver, uriDictionary.Keys, entryUri);
         }
 
-        public static CompilationResult Compile(ServiceBuilder services, IFileResolver fileResolver, IEnumerable<Uri> sourceFiles, Uri entryUri)
+        public static CompilationResult Compile(ServiceBuilder services, InMemoryFileResolver fileResolver, IEnumerable<Uri> sourceFiles, Uri entryUri)
         {
-            var compiler = services.WithFileResolver(fileResolver).Build().GetCompiler();
+            var compiler = services.WithFileResolver(fileResolver).WithFileSystem(fileResolver.MockFileSystem).Build().GetCompiler();
             var sourceFileDict = sourceFiles
                 .Where(x => PathHelper.HasBicepExtension(x) || PathHelper.HasArmTemplateLikeExtension(x))
                 .ToDictionary(x => x, x => fileResolver.TryRead(x).IsSuccess(out var fileContents) ? fileContents : throw new InvalidOperationException($"Failed to find file {x}"));

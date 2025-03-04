@@ -248,7 +248,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
             var workspace = new Workspace();
             var fileExplorer = new FileSystemFileExplorer(mockFileSystem);
             var configurationManager = new ConfigurationManager(fileExplorer);
-            var sourceFileFactory = new SourceFileFactory(configurationManager, BicepTestConstants.FeatureProviderFactory, BicepTestConstants.FileExplorer);
+            var sourceFileFactory = new SourceFileFactory(configurationManager, BicepTestConstants.FeatureProviderFactory, BicepTestConstants.AuxiliaryFileCache, BicepTestConstants.FileExplorer);
             var bicepCompilationManager = new BicepCompilationManager(
                 server,
                 BicepCompilationManagerHelper.CreateEmptyCompilationProvider(configurationManager),
@@ -257,7 +257,8 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 BicepTestConstants.CreateMockTelemetryProvider().Object,
                 new LinterRulesProvider(),
                 BicepTestConstants.FileResolver,
-                sourceFileFactory);
+                sourceFileFactory,
+                BicepTestConstants.AuxiliaryFileCache);
             bicepCompilationManager.OpenCompilation(DocumentUri.From(InMemoryFileResolver.GetFileUri(bicepFilePath)), null, bicepFileContents, LanguageConstants.LanguageId);
 
             var bicepConfigChangeHandler = new BicepConfigChangeHandler(bicepCompilationManager,

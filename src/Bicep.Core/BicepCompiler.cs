@@ -99,7 +99,6 @@ public class BicepCompiler
             bicepAnalyzer,
             moduleDispatcher,
             this.SourceFileFactory,
-            new AuxiliaryFileCache(fileResolver),
             ImmutableDictionary<ISourceFile, ISemanticModel>.Empty);
 
     private static ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> GetModuleRestoreDiagnosticsByBicepFile(SourceFileGrouping sourceFileGrouping, ImmutableHashSet<ArtifactResolutionInfo> originalModulesToRestore, bool forceModulesRestore)

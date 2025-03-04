@@ -669,7 +669,7 @@ namespace Bicep.Core.UnitTests.Registry
             if (publishSource)
             {
                 var uri = InMemoryFileResolver.GetFileUri("/path/to/bicep.bicep");
-                var sourceFileFactory = new SourceFileFactory(BicepTestConstants.ConfigurationManager, featureProviderFactoryMock.Object, BicepTestConstants.FileExplorer);
+                var sourceFileFactory = new SourceFileFactory(BicepTestConstants.ConfigurationManager, featureProviderFactoryMock.Object, BicepTestConstants.AuxiliaryFileCache, BicepTestConstants.FileExplorer);
                 sources = new SourceArchiveBuilder(sourceFileFactory)
                     .WithBicepFile(uri, "// contents")
                     .BuildBinaryData();
@@ -753,6 +753,7 @@ namespace Bicep.Core.UnitTests.Registry
                 SyntaxFactory.EmptyProgram,
                 BicepTestConstants.ConfigurationManager,
                 featureProviderFactoryMock.Object,
+                BicepTestConstants.AuxiliaryFileCache,
                 EmptyDiagnosticLookup.Instance,
                 EmptyDiagnosticLookup.Instance);
 

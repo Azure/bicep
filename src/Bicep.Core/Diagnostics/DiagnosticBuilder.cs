@@ -558,9 +558,9 @@ namespace Bicep.Core.Diagnostics
                 "BCP092",
                 "String interpolation is not supported in file paths.");
 
-            public Diagnostic FilePathCouldNotBeResolved(string filePath, string parentPath) => CoreError(
+            public Diagnostic FilePathCouldNotBeResolved(string filePath, string baseUri) => CoreError(
                 "BCP093",
-                $"File path \"{filePath}\" could not be resolved relative to \"{parentPath}\".");
+                $"File path \"{filePath}\" could not be resolved relative to \"{baseUri}\".");
 
             public Diagnostic CyclicModuleSelfReference() => CoreError(
                 "BCP094",

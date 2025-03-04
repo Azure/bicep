@@ -9,6 +9,7 @@ using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 
@@ -25,17 +26,29 @@ namespace Bicep.Core.Extensions
 
         public static bool IsBicepParamFile(this IFileHandle fileHandle) => fileHandle.Uri.HasExtension(LanguageConstants.ParamsFileExtension);
 
-        public static ResultWithDiagnosticBuilder<Encoding> TryDetectEncoding(this IFileHandle fileHandle) => HandleFileReadError(() =>
+        public static ResultWithDiagnosticBuilder<IFileHandle> TryGetRelativeFile(this IFileHandle fileHandle, RelativePath path)
         {
-            using var stream = fileHandle.OpenRead();
-            using var reader = new StreamReader(stream, detectEncodingFromByteOrderMarks: true);
+            try
+            {
+                var currentDirectory = fileHandle.GetParent();
+                var relativeDirectory = currentDirectory.GetDirectory(path);
 
-            reader.Peek();
+                if (relativeDirectory.Exists())
+                {
+                    var uri = path.AsSpan()[^1] == '/' ? relativeDirectory.Uri : relativeDirectory.Uri.ToString()[..^1];
 
-            return reader.CurrentEncoding;
-        });
+                    return new(x => x.FoundDirectoryInsteadOfFile(uri));
+                }
 
-        public static ResultWithDiagnosticBuilder<string> TryPeek(this IFileHandle fileHandle, int length, Encoding? encoding = null) => HandleFileReadError(() =>
+                return new(currentDirectory.GetFile(path));
+            }
+            catch (IOException exception)
+            {
+                return new(x => x.ErrorOccurredReadingFile(exception.Message));
+            }
+        }
+
+        public static ResultWithDiagnosticBuilder<string> TryPeekText(this IFileHandle fileHandle, int length, Encoding? encoding = null) => HandleFileReadError(() =>
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(length);
 
@@ -43,12 +56,12 @@ namespace Bicep.Core.Extensions
             using var reader = new StreamReader(stream, encoding ?? Encoding.UTF8);
 
             var buffer = new char[length];
-            length = reader.Read(buffer, 0, length);
+            length = reader.ReadBlock(buffer, 0, length);
 
             return new string(buffer, 0, length);
         });
 
-        public static ResultWithDiagnosticBuilder<string> TryRead(this IFileHandle fileHandle, Encoding? encoding = null) =>
+        public static ResultWithDiagnosticBuilder<string> TryReadAllText(this IFileHandle fileHandle, Encoding? encoding = null) =>
             HandleFileReadError(() =>
             {
                 using var fileStream = fileHandle.OpenRead();
@@ -57,26 +70,13 @@ namespace Bicep.Core.Extensions
                 return reader.ReadToEnd();
             });
 
-        public static ResultWithDiagnosticBuilder<string> TryRead(this IFileHandle fileHandle, int lengthLimit, Encoding? encoding = null)
-        {
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(lengthLimit);
-
-            return HandleFileReadError(() =>
+        public static ResultWithDiagnosticBuilder<BinaryData> TryReadBinaryData(this IFileHandle fileHandle) =>
+            HandleFileReadError(() =>
             {
-                using var stream = fileHandle.OpenRead();
-                using var reader = new StreamReader(stream, encoding ?? Encoding.UTF8);
+                using var fileStream = fileHandle.OpenRead();
 
-                char[] buffer = new char[lengthLimit];
-                int lengthRead = reader.Read(buffer, 0, lengthLimit);
-
-                if (!reader.EndOfStream)
-                {
-                    return new ResultWithDiagnosticBuilder<string>(x => x.FileExceedsMaximumSize(fileHandle.Uri, lengthLimit, "characters"));
-                }
-
-                return new ResultWithDiagnosticBuilder<string>(new string(buffer, 0, lengthRead));
+                return BinaryData.FromStream(fileStream);
             });
-        }
 
         public static void Write(this IFileHandle fileHandle, BinaryData data)
         {

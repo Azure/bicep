@@ -223,73 +223,73 @@ output out string = message
         [DataRow(FunctionCase.loadFileAsBase64, "param fileName string = 'message.txt'", "fileName", DisplayName = "loadFileAsBase64: parameter")]
         [DataRow(FunctionCase.loadJsonContent, "param fileName string = 'message.txt'", "fileName", DisplayName = "loadJsonContent: parameter")]
         [DataRow(FunctionCase.loadTextContent, @"param fileName string = 'message.txt'
-var _fileName = fileName", "_fileName", DisplayName = "loadTextContent: variable from parameter")]
+        var _fileName = fileName", "_fileName", DisplayName = "loadTextContent: variable from parameter")]
         [DataRow(FunctionCase.loadFileAsBase64, @"param fileName string = 'message.txt'
-var _fileName = fileName", "_fileName", DisplayName = "loadFileAsBase64: variable from parameter")]
+        var _fileName = fileName", "_fileName", DisplayName = "loadFileAsBase64: variable from parameter")]
         [DataRow(FunctionCase.loadJsonContent, @"param fileName string = 'message.txt'
-var _fileName = fileName", "_fileName", DisplayName = "loadJsonContent: variable from parameter")]
+        var _fileName = fileName", "_fileName", DisplayName = "loadJsonContent: variable from parameter")]
         [DataRow(FunctionCase.loadTextContent, @"param fileName string = 'message.txt'
-var fileNames = [
-fileName
-]", "fileNames[0]", DisplayName = "loadTextContent: param as array value")]
+        var fileNames = [
+        fileName
+        ]", "fileNames[0]", DisplayName = "loadTextContent: param as array value")]
         [DataRow(FunctionCase.loadFileAsBase64, @"param fileName string = 'message.txt'
-var fileNames = [
-fileName
-]", "fileNames[0]", DisplayName = "loadFileAsBase64: param as array value")]
+        var fileNames = [
+        fileName
+        ]", "fileNames[0]", DisplayName = "loadFileAsBase64: param as array value")]
         [DataRow(FunctionCase.loadJsonContent, @"param fileName string = 'message.txt'
-var fileNames = [
-fileName
-]", "fileNames[0]", DisplayName = "loadJsonContent: param as array value")]
+        var fileNames = [
+        fileName
+        ]", "fileNames[0]", DisplayName = "loadJsonContent: param as array value")]
         [DataRow(FunctionCase.loadTextContent, @"param fileName string = 'message.txt'
-var files = [
- {
-  name: fileName
- }
-]", "files[0].name", DisplayName = "loadTextContent: param as object property in array")]
+        var files = [
+         {
+          name: fileName
+         }
+        ]", "files[0].name", DisplayName = "loadTextContent: param as object property in array")]
         [DataRow(FunctionCase.loadFileAsBase64, @"param fileName string = 'message.txt'
-var files = [
- {
-  name: fileName
- }
-]", "files[0].name", DisplayName = "loadFileAsBase64: param as object property in array")]
+        var files = [
+         {
+          name: fileName
+         }
+        ]", "files[0].name", DisplayName = "loadFileAsBase64: param as object property in array")]
         [DataRow(FunctionCase.loadJsonContent, @"param fileName string = 'message.txt'
-var files = [
- {
-  name: fileName
- }
-]", "files[0].name", DisplayName = "loadJsonContent: param as object property in array")]
+        var files = [
+         {
+          name: fileName
+         }
+        ]", "files[0].name", DisplayName = "loadJsonContent: param as object property in array")]
         [DataRow(FunctionCase.loadTextContent, @"param encoding string = 'us-ascii'
-var files = [
- {
-  name: 'message.txt'
-  encoding: encoding
- }
-]", "files[0].name", "files[0].encoding", DisplayName = "loadTextContent: encoding param as object property in array")]
+        var files = [
+         {
+          name: 'message.txt'
+          encoding: encoding
+         }
+        ]", "files[0].name", "files[0].encoding", DisplayName = "loadTextContent: encoding param as object property in array")]
         [DataRow(FunctionCase.loadJsonContent, @"param encoding string = 'us-ascii'
-param path string = '$'
-var files = [
- {
-  name: 'message.json'
-  path: path
-  encoding: encoding
- }
-]", "files[0].name", "files[0].path", DisplayName = "loadJsonContent: path param as object property in array")]
+        param path string = '$'
+        var files = [
+         {
+          name: 'message.json'
+          path: path
+          encoding: encoding
+         }
+        ]", "files[0].name", "files[0].path", DisplayName = "loadJsonContent: path param as object property in array")]
         [DataRow(FunctionCase.loadJsonContent, @"param encoding string = 'us-ascii'
-var files = [
- {
-  name: 'message.json'
-  path: '$'
-  encoding: encoding
- }
-]", "files[0].name", "'$'", "files[0].encoding", DisplayName = "loadJsonContent: encoding param as object property in array")]
+        var files = [
+         {
+          name: 'message.json'
+          path: '$'
+          encoding: encoding
+         }
+        ]", "files[0].name", "'$'", "files[0].encoding", DisplayName = "loadJsonContent: encoding param as object property in array")]
         [DataRow(FunctionCase.loadYamlContent, @"param encoding string = 'us-ascii'
-var files = [
-    {
-        name: 'message.yaml'
-        path: '$'
-        encoding: encoding
-    }
-]", "files[0].name", "'$'", "files[0].encoding", DisplayName = "loadYamlContent: encoding param as object property in array")]
+        var files = [
+            {
+                name: 'message.yaml'
+                path: '$'
+                encoding: encoding
+            }
+        ]", "files[0].name", "'$'", "files[0].encoding", DisplayName = "loadYamlContent: encoding param as object property in array")]
         public void LoadFunction_RequiresCompileTimeConstantArguments_Invalid(FunctionCase function, string declaration, params string[] args)
         {
             //notice - here we will not test actual loading file with given encoding - just the fact that bicep function accepts all .NET available encodings

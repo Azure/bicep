@@ -20,44 +20,6 @@ namespace Bicep.Core.UnitTests.Extensions
     [TestClass]
     public class IFileHandleExtensionsTests
     {
-        [TestMethod]
-        public void TryDetectEncoding_EncodingIsDetected_ReturnsEncoding()
-        {
-            // Arrange
-            var contents = "Test contents with encoding";
-            var encoding = Encoding.UTF32;
-            var preamble = encoding.GetPreamble();
-            var bytes = preamble.Concat(encoding.GetBytes(contents)).ToArray();
-            var mockStream = new MemoryStream(bytes);
-            var sut = StrictMock.Of<IFileHandle>();
-            sut.Setup(fh => fh.OpenRead()).Returns(mockStream);
-
-            // Act
-            var result = sut.Object.TryDetectEncoding();
-
-            // Assert
-            result.IsSuccess(out var detectedEncoding).Should().BeTrue();
-            detectedEncoding.Should().Be(encoding);
-        }
-
-        [DataTestMethod]
-        [DataRow("Peek at this contents", 5, "Peek ")]
-        [DataRow("Short", 10, "Short")]
-        public void TryPeek_PositiveLength_ReturnsContentsUpToLength(string contents, int length, string expectedContents)
-        {
-            // Arrange
-            var mockStream = new MemoryStream(Encoding.UTF8.GetBytes(contents));
-            var sut = StrictMock.Of<IFileHandle>();
-            sut.Setup(fh => fh.OpenRead()).Returns(mockStream);
-
-            // Act
-            var result = sut.Object.TryPeek(length);
-
-            // Assert
-            result.IsSuccess(out var actualContents).Should().BeTrue();
-            actualContents.Should().Be(expectedContents);
-        }
-
         [DataTestMethod]
         [DataRow("/main.json", true)]
         [DataRow("/main.jsonc", true)]
@@ -108,8 +70,26 @@ namespace Bicep.Core.UnitTests.Extensions
             result.Should().Be(expectedResult);
         }
 
+        [DataTestMethod]
+        [DataRow("Peek at this contents", 5, "Peek ")]
+        [DataRow("Short", 10, "Short")]
+        public void TryPeek_PositiveLength_ReturnsContentsUpToLength(string contents, int length, string expectedContents)
+        {
+            // Arrange
+            var mockStream = new MemoryStream(Encoding.UTF8.GetBytes(contents));
+            var sut = StrictMock.Of<IFileHandle>();
+            sut.Setup(fh => fh.OpenRead()).Returns(mockStream);
+
+            // Act
+            var result = sut.Object.TryPeekText(length);
+
+            // Assert
+            result.IsSuccess(out var actualContents).Should().BeTrue();
+            actualContents.Should().Be(expectedContents);
+        }
+
         [TestMethod]
-        public void TryRead_ByDefault_ReturnsAllContents()
+        public void TryReadAllText_ByDefault_ReturnsAllContents()
         {
             // Arrange
             var expectedContents = "file contents";
@@ -119,7 +99,7 @@ namespace Bicep.Core.UnitTests.Extensions
             sut.Setup(fh => fh.OpenRead()).Returns(mockStream);
 
             // Act
-            var result = sut.Object.TryRead();
+            var result = sut.Object.TryReadAllText();
 
             // Assert
             result.IsSuccess(out var contents).Should().BeTrue();
@@ -127,55 +107,35 @@ namespace Bicep.Core.UnitTests.Extensions
         }
 
         [TestMethod]
-        public void TryRead_IOExceptionOccurs_ReturnsError()
+        public void TryReadAllText_IOExceptionOccurs_ReturnsError()
         {
             // Arrange
             var sut = StrictMock.Of<IFileHandle>();
             sut.Setup(fh => fh.OpenRead()).Throws(new IOException("IO error"));
 
             // Act
-            var result = sut.Object.TryRead();
+            var result = sut.Object.TryReadAllText();
 
             // Assert
             result.IsSuccess(out _, out var error).Should().BeFalse();
             error!.Should().HaveCode("BCP091");
         }
 
-        [DataTestMethod]
-        [DataRow("This is a test string", 100, "This is a test string")]
-        [DataRow("Short", 5, "Short")]
-        public void TryRead_LengthLimitNotExceeded_ReturnsAllContents(string contents, int lengthLimit, string expectedContents)
-        {
-            // Arrange
-            var mockStream = new MemoryStream(Encoding.UTF8.GetBytes(contents));
-            var sut = StrictMock.Of<IFileHandle>();
-            sut.Setup(fh => fh.OpenRead()).Returns(mockStream);
-
-            // Act
-            var result = sut.Object.TryRead(lengthLimit);
-
-            // Assert
-            result.IsSuccess(out var actualContents).Should().BeTrue();
-            actualContents.Should().Be(expectedContents);
-        }
-
         [TestMethod]
-        public void TryRead_LengthLimitExceeded_ReturnsDiagnostic()
+        public void TryReadBinaryData_ByDefault_ReturnsBinaryData()
         {
             // Arrange
-            var contents = "This is a test contents that exceeds the length limit.";
-            var lengthLimit = 10;
-            var mockStream = new MemoryStream(Encoding.UTF8.GetBytes(contents));
+            var expectedContents = "file contents";
+            var mockStream = new MemoryStream(Encoding.UTF8.GetBytes(expectedContents));
             var sut = StrictMock.Of<IFileHandle>();
             sut.Setup(fh => fh.OpenRead()).Returns(mockStream);
-            sut.Setup(fh => fh.Uri).Returns(new IOUri("file", "", "/foo.bicep"));
 
             // Act
-            var result = sut.Object.TryRead(lengthLimit);
+            var result = sut.Object.TryReadBinaryData();
 
             // Assert
-            result.IsSuccess(out _, out var error).Should().BeFalse();
-            error!.Should().HaveCode("BCP184");
+            result.IsSuccess(out var binaryData, out _).Should().BeTrue();
+            binaryData!.ToArray().Should().Equal(Encoding.UTF8.GetBytes(expectedContents));
         }
 
         [TestMethod]
