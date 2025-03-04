@@ -18,6 +18,24 @@
     }
   },
   {
+    "label": "extensionConfigs",
+    "kind": "property",
+    "detail": "extensionConfigs",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `extensionConfigs`  \nWrite-only property  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_extensionConfigs",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "extensionConfigs:"
+    }
+  },
+  {
     "label": "params",
     "kind": "property",
     "detail": "params (Required)",
