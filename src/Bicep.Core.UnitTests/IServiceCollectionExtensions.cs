@@ -10,6 +10,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Providers.MicrosoftGraph;
@@ -48,6 +49,7 @@ public static class IServiceCollectionExtensions
             .AddSingleton<IEnvironment>(TestEnvironment.Default)
             .AddSingleton<IFileSystem, LocalFileSystem>()
             .AddSingleton<IFileExplorer, FileSystemFileExplorer>()
+            .AddSingleton<IAuxiliaryFileCache, AuxiliaryFileCache>()
             .AddSingleton<IConfigurationManager, ConfigurationManager>()
             .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
             .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()

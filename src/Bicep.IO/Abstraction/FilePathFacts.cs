@@ -10,14 +10,26 @@ using System.Threading.Tasks;
 
 namespace Bicep.IO.Abstraction
 {
-    internal class WindowsFilePathFacts
+    public class FilePathFacts
     {
-        private static readonly FrozenSet<string> WindowsReservedFileNames = new string[]
+        public static readonly FrozenSet<char> ForbiddenPathCharacters = new char[] { '"', '*', ':', '<', '>', '?', '\\', '|' }.ToFrozenSet();
+
+        public static readonly FrozenSet<char> ForbiddenPathTerminatorCharacters = new char[] { ' ', '.' }.ToFrozenSet();
+
+        public static readonly FrozenSet<string> WindowsReservedFileNames = new string[]
         {
             "CON", "PRN", "AUX", "NUL",
             "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "COM¹", "COM²", "COM³",
             "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9", "LPT¹", "LPT²", "LPT³"
         }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+
+        public static bool IsForbiddenPathVisibleCharacter(char character) => ForbiddenPathCharacters.Contains(character);
+
+        public static bool IsForbiddenPathControlCharacter(char character) => character >= 0 && character <= 31;
+
+        public static bool IsForbiddenPathTerminatorCharacter(char character) => ForbiddenPathTerminatorCharacters.Contains(character);
+
+        public static bool IsForbiddenPathCharacter(char character) => IsForbiddenPathVisibleCharacter(character) || IsForbiddenPathControlCharacter(character);
 
         public static bool IsWindowsReservedFileName(string fileName) => WindowsReservedFileNames.Contains(fileName);
 

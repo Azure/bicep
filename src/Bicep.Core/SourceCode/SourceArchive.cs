@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Drawing;
 using System.Formats.Tar;
 using System.IO.Compression;
 using System.Text;
@@ -41,7 +43,6 @@ namespace Bicep.Core.SourceCode
         public string EntrypointRelativePath => InstanceMetadata.EntryPoint;
 
         // The version of Bicep which created this deserialized archive instance.
-        public string? BicepVersion => InstanceMetadata.BicepVersion;
         public string FriendlyBicepVersion => InstanceMetadata.BicepVersion ?? "unknown";
 
         // The version of the metadata file format used by this archive instance.
@@ -63,11 +64,9 @@ namespace Bicep.Core.SourceCode
         private const string MetadataFileName = "__metadata.json";
         private const string FilesFolderName = "files";
 
-        private static readonly ImmutableHashSet<char> PathCharsToAvoid = Path.GetInvalidFileNameChars()
-            .Union(Path.GetInvalidPathChars())
-            .Union(new char[] { '"', '*', ':', '&', '<', '>', '?', '\\', '/', '|', '+', '[', ']', '#' })
-            .Where(ch => ch != '/')
-            .ToImmutableHashSet();
+        private static readonly FrozenSet<char> ForbiddenPathCharacters = FilePathFacts.ForbiddenPathCharacters
+            .Union(new char[] { '&', '+', '[', ']', '#' })
+            .ToFrozenSet();
 
         private const int MaxLegalPathLength = 260; // Limit for Windows
         private const int MaxArchivePathLength = MaxLegalPathLength - 10; // ... this gives us some extra room to deduplicate paths
@@ -307,7 +306,7 @@ namespace Bicep.Core.SourceCode
             relativePath = SourceCodePathHelper.NormalizeSlashes($"{rootName}{relativePath}");
 
             // Handle illegal/problematic file characters in the path we use inside the archive
-            var archivePath = new string(relativePath.Select(ch => PathCharsToAvoid.Contains(ch) ? '_' : ch).ToArray());
+            var archivePath = ReplaceForbiddenPathCharacters(relativePath);
 
             // Place all sources files under "files/" in the archive
             archivePath = Path.Join(FilesFolderName, archivePath);
@@ -495,6 +494,18 @@ namespace Bicep.Core.SourceCode
             var tarEntry = new PaxTarEntry(TarEntryType.RegularFile, archivePath);
             tarEntry.DataStream = new MemoryStream(Encoding.UTF8.GetBytes(contents));
             tarWriter.WriteEntry(tarEntry);
+        }
+
+        private static string ReplaceForbiddenPathCharacters(string path)
+        {
+            var buffer = new StringBuilder();
+
+            foreach (var character in path)
+            {
+                buffer.Append(ForbiddenPathCharacters.Contains(character) ? '_' : character);
+            }
+
+            return buffer.ToString();
         }
     }
 }

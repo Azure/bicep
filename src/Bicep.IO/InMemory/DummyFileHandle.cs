@@ -6,15 +6,15 @@ using Bicep.IO.Abstraction;
 
 namespace Bicep.IO.InMemory
 {
-    public class InMemoryDummyFileHandle : IFileHandle
+    public class DummyFileHandle : IFileHandle
     {
-        public static readonly InMemoryDummyFileHandle Instance = new();
+        public static readonly DummyFileHandle Instance = new();
 
-        private InMemoryDummyFileHandle()
+        private DummyFileHandle()
         {
         }
 
-        public IOUri Uri { get; } = new IOUri("inmemory", "", "/DUMMY");
+        public IOUri Uri { get; } = new IOUri("dummy", "", "/DUMMY");
 
         public void Delete() => throw new UnreachableException();
 

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -94,13 +95,13 @@ namespace Bicep.Core.Workspaces
 
             // Rebuild source files that contain external artifact references restored during the initial build.
             var sourcefileExplorerbuild = sourceFilesRequiringRestore
-                .SelectMany(current.GetFilesDependingOn)
-                .ToImmutableHashSet();
+                .SelectMany(current.GetSourceFilesDependingOn)
+                .ToFrozenSet();
 
             return builder.Build(current.EntryPoint.Uri, sourcefileExplorerbuild);
         }
 
-        private SourceFileGrouping Build(Uri entryFileUri, ImmutableHashSet<ISourceFile>? sourcefileExplorerbuild = null)
+        private SourceFileGrouping Build(Uri entryFileUri, FrozenSet<ISourceFile>? sourcefileExplorerbuild = null)
         {
             var fileResult = this.PopulateRecursive(entryFileUri, null, sourcefileExplorerbuild);
 
@@ -158,7 +159,7 @@ namespace Bicep.Core.Workspaces
             return resolutionResult;
         }
 
-        private ResultWithDiagnosticBuilder<ISourceFile> PopulateRecursive(Uri fileUri, ArtifactReference? reference, ImmutableHashSet<ISourceFile>? sourcefileExplorerbuild)
+        private ResultWithDiagnosticBuilder<ISourceFile> PopulateRecursive(Uri fileUri, ArtifactReference? reference, FrozenSet<ISourceFile>? sourcefileExplorerbuild)
         {
             var fileResult = GetFileResolutionResultWithCaching(fileUri, reference);
             if (fileResult.TryUnwrap() is BicepSourceFile bicepSource)
@@ -169,7 +170,7 @@ namespace Bicep.Core.Workspaces
             return fileResult;
         }
 
-        private void PopulateRecursive(BicepSourceFile file, ImmutableHashSet<ISourceFile>? sourcefileExplorerbuild)
+        private void PopulateRecursive(BicepSourceFile file, FrozenSet<ISourceFile>? sourcefileExplorerbuild)
         {
             var config = file.Configuration;
             implicitExtensions[file] = [];

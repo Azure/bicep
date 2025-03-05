@@ -15,16 +15,17 @@ namespace Bicep.IO.InMemory
     {
         private readonly FileStore fileStore = new();
 
-        public IDirectoryHandle GetDirectory(IOUri uri) => new InMemoryDirectoryHandle(this.fileStore, EnsureInMemoryUri(uri));
+        public IDirectoryHandle GetDirectory(IOUri uri) => new InMemoryDirectoryHandle(this.fileStore, EnsureInLocalFileUri(uri));
 
-        public IFileHandle GetFile(IOUri uri) => new InMemoryFileHandle(this.fileStore, EnsureInMemoryUri(uri));
+        public IFileHandle GetFile(IOUri uri) => new InMemoryFileHandle(this.fileStore, EnsureInLocalFileUri(uri));
 
-        private static IOUri EnsureInMemoryUri(IOUri uri)
+        private static IOUri EnsureInLocalFileUri(IOUri uri)
         {
-            if (!uri.Scheme.IsInMemory)
+            if (!uri.IsLocalFile)
             {
-                throw new ArgumentException($"The URI scheme '{uri.Scheme}' is not supported by the in-memory file explorer.");
+                throw new ArgumentException($"The in-memory file explorer only supports local file URIs.");
             }
+
             return uri;
         }
 
@@ -32,8 +33,6 @@ namespace Bicep.IO.InMemory
         {
             private readonly ConcurrentDictionary<InMemoryDirectoryHandle, bool> directoryEntries = new();
             private readonly ConcurrentDictionary<InMemoryFileHandle, string?> fileEntries = new();
-
-            public Guid StoreId { get; } = new();
 
             public bool DirectoryExists(InMemoryDirectoryHandle directory) => this.directoryEntries.GetValueOrDefault(directory);
 

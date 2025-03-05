@@ -26,13 +26,11 @@ namespace Bicep.Core.Semantics
             IBicepAnalyzer linterAnalyzer,
             IArtifactReferenceFactory artifactReferenceFactory,
             ISourceFileFactory sourceFileFactory,
-            IReadableFileCache fileCache,
             ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
             this.Environment = environment;
             this.SourceFileGrouping = sourceFileGrouping;
             this.NamespaceProvider = namespaceProvider;
-            this.FileCache = fileCache;
             this.LinterAnalyzer = linterAnalyzer;
             this.ArtifactReferenceFactory = artifactReferenceFactory;
             this.SourceFileFactory = sourceFileFactory;
@@ -57,8 +55,6 @@ namespace Bicep.Core.Semantics
         public INamespaceProvider NamespaceProvider { get; }
 
         public IArtifactReferenceFactory ArtifactReferenceFactory { get; }
-
-        public IReadableFileCache FileCache { get; }
 
         public IEnvironment Environment { get; }
 
@@ -103,7 +99,6 @@ namespace Bicep.Core.Semantics
             this,
             this.SourceFileGrouping,
             this.Environment,
-            this.FileCache,
             bicepFile);
     }
 }

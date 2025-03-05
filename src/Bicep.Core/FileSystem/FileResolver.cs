@@ -24,25 +24,6 @@ namespace Bicep.Core.FileSystem
                 return new(reader.ReadToEnd());
             });
 
-        public static ResultWithDiagnosticBuilder<FileWithEncoding> ReadWithEncoding(BinaryData data, Encoding fileEncoding, int maxCharacters, Uri fileUri)
-        {
-            using var sr = new StreamReader(data.ToStream(), fileEncoding, true);
-
-            Span<char> buffer = stackalloc char[LanguageConstants.MaxLiteralCharacterLimit + 1];
-            var sb = new StringBuilder();
-            while (!sr.EndOfStream)
-            {
-                var i = sr.ReadBlock(buffer);
-                sb.Append(new string(buffer.Slice(0, i)));
-                if (maxCharacters > 0 && sb.Length > maxCharacters)
-                {
-                    return new(x => x.FileExceedsMaximumSize(fileUri.LocalPath, maxCharacters, "characters"));
-                }
-            }
-
-            return new(new FileWithEncoding(sb.ToString(), sr.CurrentEncoding));
-        }
-
         public ResultWithDiagnosticBuilder<BinaryData> TryReadAsBinaryData(Uri fileUri, int? maxFileSize)
             => TryReadInternal<BinaryData>(fileUri, maxFileSize ?? 0, stream => new(BinaryData.FromStream(stream)));
 

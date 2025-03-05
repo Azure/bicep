@@ -82,7 +82,7 @@ namespace Bicep.IO.Abstraction
 
             if (OperatingSystem.IsWindows())
             {
-                if (WindowsFilePathFacts.IsWindowsDosDevicePath(filePath))
+                if (FilePathFacts.IsWindowsDosDevicePath(filePath))
                 {
                     throw new IOException("Unsupported Windows DOS device path.");
                 }
@@ -119,9 +119,9 @@ namespace Bicep.IO.Abstraction
         // See: Uniform Resource Identifier (URI): Generic Syntax (https://datatracker.ietf.org/doc/html/rfc3986).
         public string ToUriString()
         {
-            var excapedPath = EscapePercentSign(this.Path);
+            var escapedPath = EscapePercentSign(this.Path);
 
-            return this.Authority is null ? $"{Scheme}:{Path}" : $"{Scheme}://{Authority}{Path}";
+            return this.Authority is null ? $"{Scheme}:{escapedPath}" : $"{Scheme}://{Authority}{escapedPath}";
         }
 
         // TODO: Remove after file abstractio migration is complete.
@@ -150,9 +150,9 @@ namespace Bicep.IO.Abstraction
         public bool Equals(IOUri other) =>
             this.SchemeEquals(other) &&
             this.AuthorityEquals(other) &&
-            string.Equals(this.Query, other.Query, StringComparison.Ordinal) &&
-            string.Equals(this.Fragment, other.Fragment, StringComparison.Ordinal) &&
-            string.Equals(Path, other.Path, this.PathComparison);
+            this.QueryEquals(other) &&
+            this.FragmentEquals(other) &&
+            this.PathEquals(other);
 
         public bool IsBaseOf(IOUri other)
         {
@@ -325,7 +325,7 @@ namespace Bicep.IO.Abstraction
                             fileName = fileName[..extensionStartIndex];
                         }
 
-                        if (WindowsFilePathFacts.IsWindowsReservedFileName(fileName))
+                        if (FilePathFacts.IsWindowsReservedFileName(fileName))
                         {
                             throw new IOException("The specified path contains unsupported Windows reserved file name.");
                         }
@@ -353,5 +353,11 @@ namespace Bicep.IO.Abstraction
         private bool SchemeEquals(IOUri other) => this.Scheme.Equals(other.Scheme);
 
         private bool AuthorityEquals(IOUri other) => string.Equals(this.Authority, other.Authority, StringComparison.OrdinalIgnoreCase);
+
+        private bool QueryEquals(IOUri other) => string.Equals(this.Query, other.Query, StringComparison.Ordinal);
+
+        private bool FragmentEquals(IOUri other) => string.Equals(this.Fragment, other.Fragment, StringComparison.Ordinal);
+
+        private bool PathEquals(IOUri other) => string.Equals(this.Path, other.Path, this.PathComparison);
     }
 }
