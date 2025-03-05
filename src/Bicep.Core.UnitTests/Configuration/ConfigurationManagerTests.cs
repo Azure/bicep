@@ -101,6 +101,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "extendableParamFiles": false,
           "symbolicNameCodegen": false,
           "extensibility": false,
+          "moduleExtensionConfigs": false,
           "resourceTypedParamsAndOutputs": false,
           "sourceMapping": false,
           "legacyFormatter": false,
@@ -191,7 +192,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "localDeploy": false,
           "secureOutputs": false,
           "resourceInfoCodegen": false,
-          "typedVariables": false
+          "typedVariables": false,
+          "moduleExtensionConfigs": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -297,7 +299,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "localDeploy": false,
           "secureOutputs": false,
           "resourceInfoCodegen": false,
-          "typedVariables": false
+          "typedVariables": false,
+          "moduleExtensionConfigs": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -475,7 +478,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 "localDeploy": false,
                 "secureOutputs": false,
                 "resourceInfoCodegen": false,
-                "typedVariables": false
+                "typedVariables": false,
+                "moduleExtensionConfigs": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -846,7 +850,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "localDeploy": false,
           "secureOutputs": false,
           "resourceInfoCodegen": false,
-          "typedVariables": false
+          "typedVariables": false,
+          "moduleExtensionConfigs": false
         },
         "formatting": {
           "indentKind": "Space",

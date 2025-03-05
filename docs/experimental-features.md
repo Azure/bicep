@@ -17,15 +17,16 @@ Enables the ability to extend bicepparam files from other bicepparam files. For 
 ### `extensibility`
 Allows Bicep to use an extensibility model to deploy non-ARM resources. Currently, we support Kubernetes extension ([Bicep Kubernetes extension](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/bicep-kubernetes-extension)) and Microsoft Graph extension ([Bicep templates for Microsoft Graph](https://aka.ms/graphbicep)).
 
-### `moduleExtensionConfigs`
-Moves defining extension configurations to the module level rather than from within a template. The feature also
-includes enhancements for Deployment stacks extensibility integration. This feature is not ready for use.
-
 ### `legacyFormatter`
 Enables code formatting with the legacy formatter. This feature flag is introduced to ensure a safer transition to the v2 formatter that implements a pretty-printing algorithm. It is intended for temporary use and will be phased out soon.
 
 ### `localDeploy`
 Enables local deployment capability. See [Bicep Local Providers](https://github.com/anthony-c-martin/bicep-local-providers) for more information.
+
+### `moduleExtensionConfigs`
+
+Moves defining extension configurations to the module level rather than from within a template. The feature also
+includes enhancements for Deployment stacks extensibility integration. This feature is not ready for use.
 
 ### `resourceDerivedTypes`
 If enabled, templates can reuse resource types wherever a type is expected. For example, to declare a parameter `foo` that should be usable as the name of an Azure Storage account, the following syntax would be used: `param foo resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.name`. **NB:** Because resource types may be inaccurate in some cases, no constraints other than the ARM type primitive will be enforced on resource derived types within the ARM deployment engine. Resource-derived types will be checked by Bicep at compile time, but violations will be emitted as warnings rather than errors.
