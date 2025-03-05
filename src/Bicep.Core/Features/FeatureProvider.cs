@@ -52,7 +52,7 @@ namespace Bicep.Core.Features
 
         public bool TypedVariablesEnabled => configuration.ExperimentalFeaturesEnabled.TypedVariables;
 
-        public bool ExtensibilityV2EmittingEnabled => ReadBooleanEnvVar("BICEP_EXTENSIBILITY_V2_EMITTING_ENABLED", defaultValue: false);
+        public bool ExtensibilityV2EmittingEnabled => ModuleExtensionConfigsEnabled || ReadBooleanEnvVar("BICEP_EXTENSIBILITY_V2_EMITTING_ENABLED", defaultValue: false);
 
         public bool ModuleExtensionConfigsEnabled => configuration.ExperimentalFeaturesEnabled.ModuleExtensionConfigs;
 
