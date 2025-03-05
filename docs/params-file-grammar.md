@@ -2,6 +2,7 @@ program -> statement* EOF
 statement -> 
   usingDecl |
   parameterDecl |
+  extensionConfigDecl |
   NL
 
 usingDecl ->
@@ -12,6 +13,9 @@ usingDecl ->
 
 parameterDecl ->
   "parameter" IDENTIFIER(name) "=" literalValue NL
+
+extensionConfigDecl ->
+  "extension" IDENTIFIER(name) "with" object NL
 
 stringLiteral -> "'" STRINGCHAR* "'"
 
