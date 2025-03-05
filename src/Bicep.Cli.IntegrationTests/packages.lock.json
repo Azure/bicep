@@ -484,16 +484,16 @@
       },
       "Microsoft.Extensions.DependencyInjection": {
         "type": "Transitive",
-        "resolved": "9.0.1",
-        "contentHash": "qZI42ASAe3hr2zMSA6UjM92pO1LeDq5DcwkgSowXXPY8I56M76pEKrnmsKKbxagAf39AJxkH2DY4sb72ixyOrg==",
+        "resolved": "9.0.2",
+        "contentHash": "ZffbJrskOZ40JTzcTyKwFHS5eACSWp2bUQBBApIgGV+es8RaTD4OxUG7XxFr3RIPLXtYQ1jQzF2DjKB5fZn7Qg==",
         "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.1"
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.2"
         }
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
         "type": "Transitive",
-        "resolved": "9.0.1",
-        "contentHash": "Tr74eP0oQ3AyC24ch17N8PuEkrPbD0JqIfENCYqmgKYNOmL8wQKzLJu3ObxTUDrjnn4rHoR1qKa37/eQyHmCDA=="
+        "resolved": "9.0.2",
+        "contentHash": "MNe7GSTBf3jQx5vYrXF0NZvn6l7hUKF6J54ENfAgCO8y6xjN1XUmKKWG464LP2ye6QqDiA1dkaWEZBYnhoZzjg=="
       },
       "Microsoft.Extensions.DependencyModel": {
         "type": "Transitive",
@@ -1640,7 +1640,7 @@
           "Microsoft.Extensions.Configuration": "[9.0.2, )",
           "Microsoft.Extensions.Configuration.Binder": "[9.0.1, )",
           "Microsoft.Extensions.Configuration.Json": "[9.0.0, )",
-          "Microsoft.Extensions.DependencyInjection": "[9.0.0, )",
+          "Microsoft.Extensions.DependencyInjection": "[9.0.2, )",
           "Microsoft.Extensions.Http": "[8.0.1, )",
           "Microsoft.PowerPlatform.ResourceStack": "[7.0.0.2080, )",
           "Microsoft.VisualStudio.Threading": "[17.12.19, )",
