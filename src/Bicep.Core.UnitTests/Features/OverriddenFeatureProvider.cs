@@ -48,4 +48,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool TypedVariablesEnabled => overrides.TypedVariablesEnabled ?? features.TypedVariablesEnabled;
 
     public bool ExtensibilityV2EmittingEnabled => overrides.ExtensibilityV2EmittingEnabled ?? features.ExtensibilityV2EmittingEnabled;
+
+    public bool ModuleExtensionConfigsEnabled => overrides.ModuleExtensionConfigsEnabled ?? features.ModuleExtensionConfigsEnabled;
 }

@@ -8,7 +8,6 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -390,7 +389,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 LocalDeploy: false,
                 SecureOutputs: false,
                 ResourceInfoCodegen: false,
-                TypedVariables: false);
+                TypedVariables: false,
+                ModuleExtensionConfigs: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {

@@ -25,7 +25,8 @@ public record FeatureProviderOverrides(
     bool? ExtendableParamFilesEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
     bool? ExtensibilityV2EmittingEnabled = default,
-    bool? TypedVariablesEnabled = default)
+    bool? TypedVariablesEnabled = default,
+    bool? ModuleExtensionConfigsEnabled = default)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
@@ -45,7 +46,8 @@ public record FeatureProviderOverrides(
         bool? ExtendableParamFilesEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
         bool? ExtensibilityV2EmittingEnabled = default,
-        bool? TypedVariablesEnabled = default
+        bool? TypedVariablesEnabled = default,
+        bool? ModuleExtensionConfigsEnabled = default
     ) : this(
         FileHelper.GetCacheRootDirectory(testContext),
         RegistryEnabled,
@@ -64,6 +66,7 @@ public record FeatureProviderOverrides(
         ExtendableParamFilesEnabled,
         AssemblyVersion,
         ExtensibilityV2EmittingEnabled,
-        TypedVariablesEnabled)
+        TypedVariablesEnabled,
+        ModuleExtensionConfigsEnabled)
     { }
 }

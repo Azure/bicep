@@ -17,6 +17,11 @@ Enables the ability to extend bicepparam files from other bicepparam files. For 
 ### `extensibility`
 Allows Bicep to use an extensibility model to deploy non-ARM resources. Currently, we support Kubernetes extension ([Bicep Kubernetes extension](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/bicep-kubernetes-extension)) and Microsoft Graph extension ([Bicep templates for Microsoft Graph](https://aka.ms/graphbicep)).
 
+### `moduleExtensionConfigs'
+
+Moves defining extension configurations to the module level rather than from within a template. The feature also
+includes enhancements for Deployment stacks extensibility integration. This feature is only partially implemented.
+
 ### `legacyFormatter`
 Enables code formatting with the legacy formatter. This feature flag is introduced to ensure a safer transition to the v2 formatter that implements a pretty-printing algorithm. It is intended for temporary use and will be phased out soon.
 
