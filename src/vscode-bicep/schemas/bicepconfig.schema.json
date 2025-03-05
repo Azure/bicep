@@ -798,7 +798,7 @@
         },
         "moduleExtensionConfigs": {
           "type": "boolean",
-          "description": "Moves defining extension configurations to the module level rather than from within a template. The feature also includes enhancements for Deployment stacks extensibility integration. This feature is not ready for use."
+          "description": "Moves defining extension configurations to the module level rather than from within a template. The feature also includes enhancements for Deployment stacks extensibility integration. This feature is not ready for use. See https://aka.ms/bicep/experimental-features#moduleextensionconfigs"
         },
         "resourceTypedParamsAndOutputs": {
           "type": "boolean",
