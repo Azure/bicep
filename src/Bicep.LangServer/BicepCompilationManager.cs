@@ -215,7 +215,7 @@ namespace Bicep.LanguageServer
             {
                 foreach (var sourceFile in context.Compilation.SourceFileGrouping.EnumerateBicepSourceFiles())
                 {
-                    if (modifiedAuxiliaryFileUris.Any(sourceFile.IsReferecingAuxliaryFile))
+                    if (modifiedAuxiliaryFileUris.Any(sourceFile.IsReferencingAuxiliaryFile))
                     {
                         // Ensure we refresh any source files that reference a modified auxiliary file
                         modifiedSourceFiles.Add(sourceFile);

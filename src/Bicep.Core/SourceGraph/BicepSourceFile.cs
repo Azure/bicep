@@ -112,6 +112,6 @@ namespace Bicep.Core.Workspaces
 
         public FrozenSet<IOUri> GetReferencedAuxiliaryFileUris() => this.referencedAuxiliaryFileUris.ToFrozenSet();
 
-        public bool IsReferecingAuxliaryFile(IOUri uri) => this.referencedAuxiliaryFileUris.Contains(uri);
+        public bool IsReferencingAuxiliaryFile(IOUri uri) => this.referencedAuxiliaryFileUris.Contains(uri);
     }
 }
