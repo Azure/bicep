@@ -6,7 +6,7 @@ namespace Bicep.Core.Syntax;
 
 public class InstanceParameterizedTypeInstantiationSyntax : ParameterizedTypeInstantiationSyntaxBase
 {
-    public InstanceParameterizedTypeInstantiationSyntax(SyntaxBase baseExpression, Token dot, IdentifierSyntax name, Token openChevron, IEnumerable<SyntaxBase> children, Token closeChevron)
+    public InstanceParameterizedTypeInstantiationSyntax(SyntaxBase baseExpression, Token dot, IdentifierSyntax name, Token openChevron, IEnumerable<SyntaxBase> children, SyntaxBase closeChevron)
         : base(name, openChevron, children, closeChevron)
     {
         AssertTokenType(dot, nameof(dot), TokenType.Dot);

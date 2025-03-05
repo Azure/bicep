@@ -381,7 +381,7 @@ namespace Bicep.Core.Parsing
         /// <summary>
         /// Method that gets a function call identifier, its arguments plus open and close parens
         /// </summary>
-        protected (IdentifierSyntax Identifier, Token OpenParen, IEnumerable<SyntaxBase> ArgumentNodes, Token CloseParen) FunctionCallAccess(IdentifierSyntax functionName, ExpressionFlags expressionFlags)
+        protected (IdentifierSyntax Identifier, Token OpenParen, IEnumerable<SyntaxBase> ArgumentNodes, SyntaxBase CloseParen) FunctionCallAccess(IdentifierSyntax functionName, ExpressionFlags expressionFlags)
         {
             var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
 
@@ -389,7 +389,10 @@ namespace Bicep.Core.Parsing
                 closingTokenType: TokenType.RightParen,
                 parseChildElement: () => FunctionArgument(expressionFlags));
 
-            var closeParen = this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")"));
+            var closeParen = WithRecovery(
+                () => this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")")),
+                GetSuppressionFlag(itemsOrTokens.LastOrDefault() ?? openParen),
+                [TokenType.RightParen, TokenType.NewLine]);
 
             return (functionName, openParen, itemsOrTokens, closeParen);
         }
@@ -432,7 +435,7 @@ namespace Bicep.Core.Parsing
             return new ParameterizedTypeArgumentSyntax(expression);
         }
 
-        protected (IdentifierSyntax Identifier, Token OpenChevron, IEnumerable<SyntaxBase> ParameterNodes, Token CloseChevron) ParameterizedTypeInstantiation(IdentifierSyntax parameterizedTypeName)
+        protected (IdentifierSyntax Identifier, Token OpenChevron, IEnumerable<SyntaxBase> ParameterNodes, SyntaxBase CloseChevron) ParameterizedTypeInstantiation(IdentifierSyntax parameterizedTypeName)
         {
             var openChevron = this.Expect(TokenType.LeftChevron, b => b.ExpectedCharacter("<"));
 
@@ -440,7 +443,10 @@ namespace Bicep.Core.Parsing
                 closingTokenType: TokenType.RightChevron,
                 parseChildElement: ParameterizedTypeArgument);
 
-            var closeChevron = this.Expect(TokenType.RightChevron, b => b.ExpectedCharacter(">"));
+            var closeChevron = WithRecovery(
+                () => this.Expect(TokenType.RightChevron, b => b.ExpectedCharacter(">")),
+                GetSuppressionFlag(itemsOrTokens.LastOrDefault() ?? openChevron),
+                [TokenType.RightChevron, TokenType.NewLine]);
 
             return (parameterizedTypeName, openChevron, itemsOrTokens, closeChevron);
         }
@@ -602,6 +608,7 @@ namespace Bicep.Core.Parsing
                     else
                     {
                         itemsOrTokens.Add(SkipEmpty(x => x.ExpectedNewLineOrCommaSeparator()));
+                        break;
                     }
 
                     expectElement = true;
