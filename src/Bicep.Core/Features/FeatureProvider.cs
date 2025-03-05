@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Configuration;
-using Bicep.Core.Intermediate;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Features
@@ -53,7 +52,9 @@ namespace Bicep.Core.Features
 
         public bool TypedVariablesEnabled => configuration.ExperimentalFeaturesEnabled.TypedVariables;
 
-        public bool ExtensibilityV2EmittingEnabled => ReadBooleanEnvVar("BICEP_EXTENSIBILITY_V2_EMITTING_ENABLED", defaultValue: false);
+        public bool ExtensibilityV2EmittingEnabled => ModuleExtensionConfigsEnabled || ReadBooleanEnvVar("BICEP_EXTENSIBILITY_V2_EMITTING_ENABLED", defaultValue: false);
+
+        public bool ModuleExtensionConfigsEnabled => configuration.ExperimentalFeaturesEnabled.ModuleExtensionConfigs;
 
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
             => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;

@@ -20,7 +20,8 @@ public record ExperimentalFeaturesEnabled(
     bool LocalDeploy,
     bool SecureOutputs,
     bool ResourceInfoCodegen,
-    bool TypedVariables)
+    bool TypedVariables,
+    bool ModuleExtensionConfigs)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();

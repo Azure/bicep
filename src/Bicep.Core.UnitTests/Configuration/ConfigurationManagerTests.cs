@@ -8,7 +8,6 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -102,6 +101,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "extendableParamFiles": false,
           "symbolicNameCodegen": false,
           "extensibility": false,
+          "moduleExtensionConfigs": false,
           "resourceTypedParamsAndOutputs": false,
           "sourceMapping": false,
           "legacyFormatter": false,
@@ -192,7 +192,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "localDeploy": false,
           "secureOutputs": false,
           "resourceInfoCodegen": false,
-          "typedVariables": false
+          "typedVariables": false,
+          "moduleExtensionConfigs": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -298,7 +299,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "localDeploy": false,
           "secureOutputs": false,
           "resourceInfoCodegen": false,
-          "typedVariables": false
+          "typedVariables": false,
+          "moduleExtensionConfigs": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -390,7 +392,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 LocalDeploy: false,
                 SecureOutputs: false,
                 ResourceInfoCodegen: false,
-                TypedVariables: false);
+                TypedVariables: false,
+                ModuleExtensionConfigs: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -475,7 +478,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 "localDeploy": false,
                 "secureOutputs": false,
                 "resourceInfoCodegen": false,
-                "typedVariables": false
+                "typedVariables": false,
+                "moduleExtensionConfigs": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -846,7 +850,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "localDeploy": false,
           "secureOutputs": false,
           "resourceInfoCodegen": false,
-          "typedVariables": false
+          "typedVariables": false,
+          "moduleExtensionConfigs": false
         },
         "formatting": {
           "indentKind": "Space",
