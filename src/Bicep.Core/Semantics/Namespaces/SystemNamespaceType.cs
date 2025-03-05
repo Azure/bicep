@@ -1161,7 +1161,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 var diagnosticTarget = functionCall.Arguments.Any()
                     ? TextSpan.Between(functionCall.Arguments.First(), functionCall.Arguments.Last())
-                    : TextSpan.Between(functionCall.OpenParen, functionCall.LastElement);
+                    : TextSpan.Between(functionCall.OpenParen, functionCall.CloseParen);
                 diagnostics.WriteMultiple(diagnosticBuilders.Select(b => b(DiagnosticBuilder.ForPosition(diagnosticTarget))));
 
                 return returnType;
@@ -1984,7 +1984,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     {
                         if (syntax.Arguments.FirstOrDefault()?.Expression is not StringTypeLiteralSyntax stringArg || stringArg.SegmentValues.Length > 1)
                         {
-                            return new(DiagnosticBuilder.ForPosition(TextSpan.BetweenExclusive(syntax.OpenChevron, syntax.LastElement)).CompileTimeConstantRequired());
+                            return new(DiagnosticBuilder.ForPosition(TextSpan.BetweenExclusive(syntax.OpenChevron, syntax.CloseChevron)).CompileTimeConstantRequired());
                         }
 
                         if (!TypeHelper.GetResourceTypeFromString(binder, stringArg.SegmentValues[0], ResourceTypeGenerationFlags.None, parentResourceType: null)

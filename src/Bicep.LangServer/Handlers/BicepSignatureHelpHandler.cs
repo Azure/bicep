@@ -59,7 +59,7 @@ namespace Bicep.LanguageServer.Handlers
             var functionCallIndex = matchingNodes
                 .FindLastIndex(
                     matchingNodes.Count - 1,
-                    current => current is FunctionCallSyntaxBase functionCall && TextSpan.BetweenExclusive(functionCall.OpenParen.Span, functionCall.LastElement).ContainsInclusive(offset));
+                    current => current is FunctionCallSyntaxBase functionCall && TextSpan.BetweenExclusive(functionCall.OpenParen.Span, functionCall.CloseParen).ContainsInclusive(offset));
 
             if (functionCallIndex >= 0)
             {
@@ -70,7 +70,7 @@ namespace Bicep.LanguageServer.Handlers
                 .FindLastIndex(
                     matchingNodes.Count - 1,
                     current => current is ParameterizedTypeInstantiationSyntaxBase typeInstantiation &&
-                        TextSpan.BetweenExclusive(typeInstantiation.OpenChevron.Span, typeInstantiation.LastElement).ContainsInclusive(offset));
+                        TextSpan.BetweenExclusive(typeInstantiation.OpenChevron.Span, typeInstantiation.CloseChevron).ContainsInclusive(offset));
 
             if (parameterizedTypeInstantiationIndex >= 0)
             {

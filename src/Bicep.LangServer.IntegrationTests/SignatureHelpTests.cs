@@ -85,7 +85,7 @@ namespace Bicep.LangServer.IntegrationTests
 
                 // if the cursor is present immediately before the function argument closing paren,
                 // the signature help can only show the signature of the enclosing function
-                var endOffset = functionCall.LastElement.Span.Position;
+                var endOffset = functionCall.CloseParen.Span.Position;
                 await ValidateOffset(helper.Client, uri, tree, endOffset, symbol as IFunctionSymbol, expectDecorator);
             }
         }

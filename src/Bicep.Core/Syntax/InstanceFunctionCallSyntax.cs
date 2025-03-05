@@ -7,7 +7,7 @@ namespace Bicep.Core.Syntax
 {
     public class InstanceFunctionCallSyntax : FunctionCallSyntaxBase
     {
-        public InstanceFunctionCallSyntax(SyntaxBase baseExpression, Token dot, IdentifierSyntax name, Token openParen, IEnumerable<SyntaxBase> children, Token? closeParen)
+        public InstanceFunctionCallSyntax(SyntaxBase baseExpression, Token dot, IdentifierSyntax name, Token openParen, IEnumerable<SyntaxBase> children, SyntaxBase closeParen)
             : base(name, openParen, children, closeParen)
         {
             AssertTokenType(dot, nameof(dot), TokenType.Dot);
@@ -22,6 +22,6 @@ namespace Bicep.Core.Syntax
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitInstanceFunctionCallSyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(BaseExpression, LastElement);
+        public override TextSpan Span => TextSpan.Between(BaseExpression, CloseParen);
     }
 }

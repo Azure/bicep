@@ -93,7 +93,7 @@ namespace Bicep.Core.PrettyPrintV2
                 this.Bracket(
                     syntax.OpenParen,
                     () => LayoutCommaSeparatedArguments(syntax.Children, syntax.Arguments, lastArgumentDocument),
-                    syntax.CloseParen ?? SyntaxFactory.RightParenToken,
+                    syntax.CloseParen,
                     separator: LineOrSpace,
                     padding: LineOrEmpty,
                     indentSingleItem: false));
@@ -134,7 +134,7 @@ namespace Bicep.Core.PrettyPrintV2
                 this.Bracket(
                     syntax.OpenParen,
                     () => this.LayoutCommaSeparatedArguments(syntax.Children, syntax.Arguments, lastArgumentDocument),
-                    syntax.CloseParen ?? SyntaxFactory.RightParenToken,
+                    syntax.CloseParen,
                     separator: LineOrSpace,
                     padding: LineOrEmpty,
                     indentSingleItem: false));
@@ -564,7 +564,7 @@ namespace Bicep.Core.PrettyPrintV2
             var tail = this.Bracket(
                 syntax.OpenChevron,
                 () => this.LayoutCommaSeparatedArguments(syntax.Children, syntax.Arguments),
-                syntax.CloseChevron ?? SyntaxFactory.GreaterThanToken,
+                syntax.CloseChevron,
                 separator: LineOrSpace,
                 padding: LineOrEmpty,
                 forceBreak: StartsWithNewline(syntax.Children) && syntax.Arguments.Any());
@@ -585,7 +585,7 @@ namespace Bicep.Core.PrettyPrintV2
             var tail = this.Bracket(
                 syntax.OpenChevron,
                 () => this.LayoutCommaSeparatedArguments(syntax.Children, syntax.Arguments),
-                syntax.CloseChevron ?? SyntaxFactory.GreaterThanToken,
+                syntax.CloseChevron,
                 separator: LineOrSpace,
                 padding: LineOrEmpty,
                 forceBreak: StartsWithNewline(syntax.Children) && syntax.Arguments.Any());

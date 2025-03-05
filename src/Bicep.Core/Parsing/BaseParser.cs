@@ -381,17 +381,18 @@ namespace Bicep.Core.Parsing
         /// <summary>
         /// Method that gets a function call identifier, its arguments plus open and close parens
         /// </summary>
-        protected (IdentifierSyntax Identifier, Token OpenParen, IEnumerable<SyntaxBase> ArgumentNodes, Token? CloseParen) FunctionCallAccess(IdentifierSyntax functionName, ExpressionFlags expressionFlags)
+        protected (IdentifierSyntax Identifier, Token OpenParen, IEnumerable<SyntaxBase> ArgumentNodes, SyntaxBase CloseParen) FunctionCallAccess(IdentifierSyntax functionName, ExpressionFlags expressionFlags)
         {
             var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
 
             var itemsOrTokens = HandleFunctionElements(
-                openingTokenType: TokenType.LeftParen,
                 closingTokenType: TokenType.RightParen,
                 parseChildElement: () => FunctionArgument(expressionFlags));
 
 
-            var closeParen = Check(TokenType.RightParen) ? reader.Read() : null;
+            SyntaxBase closeParen = Check(TokenType.RightParen)
+                ? reader.Read()
+                : SkipEmpty(b => b.ExpectedCharacter(")"));
 
             return (functionName, openParen, itemsOrTokens, closeParen);
         }
@@ -434,16 +435,17 @@ namespace Bicep.Core.Parsing
             return new ParameterizedTypeArgumentSyntax(expression);
         }
 
-        protected (IdentifierSyntax Identifier, Token OpenChevron, IEnumerable<SyntaxBase> ParameterNodes, Token? CloseChevron) ParameterizedTypeInstantiation(IdentifierSyntax parameterizedTypeName)
+        protected (IdentifierSyntax Identifier, Token OpenChevron, IEnumerable<SyntaxBase> ParameterNodes, SyntaxBase CloseChevron) ParameterizedTypeInstantiation(IdentifierSyntax parameterizedTypeName)
         {
             var openChevron = this.Expect(TokenType.LeftChevron, b => b.ExpectedCharacter("<"));
 
             var itemsOrTokens = HandleFunctionElements(
-                openingTokenType: TokenType.LeftChevron,
                 closingTokenType: TokenType.RightChevron,
                 parseChildElement: ParameterizedTypeArgument);
 
-            var closeChevron = Check(TokenType.RightChevron) ? reader.Read() : null;
+            SyntaxBase closeChevron = Check(TokenType.RightChevron)
+                ? reader.Read()
+                : SkipEmpty(b => b.ExpectedCharacter(">"));
 
             return (parameterizedTypeName, openChevron, itemsOrTokens, closeChevron);
         }
@@ -553,7 +555,6 @@ namespace Bicep.Core.Parsing
         }
 
         private IEnumerable<SyntaxBase> HandleFunctionElements(
-            TokenType openingTokenType,
             TokenType closingTokenType,
             Func<SyntaxBase> parseChildElement)
         {
@@ -583,13 +584,10 @@ namespace Bicep.Core.Parsing
                             peekPosition++;
                         }
 
-                        // we've reached the end of the file
                         if (this.reader.PeekAhead(peekPosition) is null or { Type: TokenType.EndOfFile })
                         {
-                            itemsOrTokens.Add(SkipEmpty(x => x.ExpectedCharacter(
-                                SyntaxFacts.GetText(closingTokenType) ?? closingTokenType.ToString())));
-                            // bail out here to avoid accidentally parsing the next statement as an element of the unclosed argument list
-                            itemsOrTokens.AddRange(NewLines());
+                            // We've reached the end of the file and didn't hit the closing token. Bail without
+                            // consuming the newlines so that the missing char diagnostic will be in the correct place.
                             break;
                         }
                         else if (!Check(this.reader.PeekAhead(peekPosition), closingTokenType))

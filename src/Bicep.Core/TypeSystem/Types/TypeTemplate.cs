@@ -59,7 +59,7 @@ public class TypeTemplate : TypeSymbol
 
         if (argTypesArray.Length < MinimumArgumentCount || argTypesArray.Length > MaximumArgumentCount)
         {
-            return new(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.OpenChevron, syntax.LastElement))
+            return new(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.OpenChevron, syntax.CloseChevron))
                 .ArgumentCountMismatch(argTypesArray.Length, MinimumArgumentCount, MaximumArgumentCount));
         }
 
