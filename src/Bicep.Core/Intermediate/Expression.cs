@@ -508,6 +508,7 @@ public record DeclaredModuleExpression(
     SyntaxBase BodySyntax,
     Expression Body,
     Expression? Parameters,
+    Expression? ExtensionConfigs,
     ImmutableArray<ResourceDependencyExpression> DependsOn,
     Expression? Description = null
 ) : DescribableExpression(SourceSyntax, Description)

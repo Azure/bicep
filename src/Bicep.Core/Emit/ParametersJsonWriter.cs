@@ -55,6 +55,29 @@ public class ParametersJsonWriter
 
         jsonWriter.WriteEndObject();
 
+        if (model.Features is { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true })
+        {
+            WriteExtensionConfigs(jsonWriter);
+        }
+
+        jsonWriter.WriteEndObject();
+    }
+
+    private void WriteExtensionConfigs(JsonTextWriter jsonWriter)
+    {
+        jsonWriter.WritePropertyName("extensionConfigs");
+        jsonWriter.WriteStartObject();
+
+        foreach (var extension in model.Root.ExtensionConfigAssignments)
+        {
+            jsonWriter.WritePropertyName(extension.Name);
+            jsonWriter.WriteStartObject();
+
+            // TODO(kylealbert): write config properties
+
+            jsonWriter.WriteEndObject();
+        }
+
         jsonWriter.WriteEndObject();
     }
 
