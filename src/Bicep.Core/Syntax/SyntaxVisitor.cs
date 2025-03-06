@@ -40,6 +40,8 @@ namespace Bicep.Core.Syntax
 
         public abstract void VisitExtensionDeclarationSyntax(ExtensionDeclarationSyntax syntax);
 
+        public abstract void VisitExtensionConfigAssignmentSyntax(ExtensionConfigAssignmentSyntax syntax);
+
         public abstract void VisitExtensionWithClauseSyntax(ExtensionWithClauseSyntax syntax);
 
         public abstract void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax);
