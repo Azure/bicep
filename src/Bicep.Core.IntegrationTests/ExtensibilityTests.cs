@@ -1,14 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.CodeAction;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
-using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
@@ -28,6 +26,8 @@ namespace Bicep.Core.IntegrationTests
             }
             """))
             .WithNamespaceProvider(TestExtensibilityNamespaceProvider.CreateWithDefaults());
+
+        private static ServiceBuilder ServicesWithModuleExtensionConfigs => Services.WithFeatureOverrides(new(ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true));
 
         [TestMethod]
         public void Bar_import_bad_config_is_blocked()
@@ -655,6 +655,150 @@ Hello from Bicep!"));
             result.Template.Should().HaveValueAtPath("$.languageVersion", "2.2-experimental");
             result.Template.Should().HaveValueAtPath("$.extensions.foo.name", "Foo");
             result.Template.Should().HaveValueAtPath("$.resources.myApp.extension", "foo");
+        }
+
+        [TestMethod]
+        public void Module_with_required_extension_config_can_be_compiled_successfully()
+        {
+            var paramsUri = new Uri("file:///main.bicepparam");
+            var mainUri = new Uri("file:///main.bicep");
+            var moduleAUri = new Uri("file:///modulea.bicep");
+
+            // TODO(kylealbert): Remove 'with' clause in template when that's removed
+            var files = new Dictionary<Uri, string>
+            {
+                [paramsUri] =
+                    """
+                    using 'main.bicep'
+
+                    param inputa = 'abc'
+
+                    extension k8s with {
+                      kubeConfig: 'abc'
+                      namespace: 'other'
+                    }
+                    """,
+                [mainUri] =
+                    """
+                    param inputa string
+
+                    extension kubernetes with {
+                      kubeConfig: 'DELETE'
+                      namespace: 'DELETE'
+                    } as k8s
+
+                    extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview'
+
+                    module modulea 'modulea.bicep' = {
+                      name: 'modulea'
+                      params: {
+                        inputa: inputa
+                      }
+                      extensionConfigs: {
+                        kubernetes: {
+                          kubeConfig: 'fromModule'
+                          namespace: 'other'
+                        }
+                      }
+                    }
+
+                    output outputa string = modulea.outputs.outputa
+                    """,
+                [moduleAUri] =
+                    """
+                    param inputa string
+
+                    extension kubernetes with {
+                      kubeConfig: 'DELETE'
+                      namespace: 'DELETE'
+                    }
+
+                    extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
+
+                    output outputa string = inputa
+                    """
+            };
+
+            var compilation = ServicesWithModuleExtensionConfigs.BuildCompilation(files, paramsUri);
+
+            compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
+        }
+
+        [DataTestMethod]
+        [DataRow("MissingExtensionConfigsDeclaration")]
+        [DataRow("MissingRequiredExtensionConfig")]
+        [DataRow("MissingRequiredConfigProperty")]
+        [DataRow("PropertyIsNotDefinedInSchema")]
+        [DataRow("ConfigProvidedForExtensionThatDoesNotAcceptConfig")]
+        public void Module_with_invalid_extension_config_produces_diagnostic(string scenario)
+        {
+            var mainUri = new Uri("file:///main.bicep");
+            var moduleAUri = new Uri("file:///modulea.bicep");
+
+            var extensionConfigsStr = scenario switch
+            {
+                "MissingExtensionConfigsDeclaration" => "",
+                "MissingRequiredExtensionConfig" => "extensionConfigs: {}",
+                "MissingRequiredConfigProperty" => "extensionConfigs: { kubernetes: { namespace: 'other' } }",
+                "PropertyIsNotDefinedInSchema" => "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other', extra: 'extra' } }",
+                "ConfigProvidedForExtensionThatDoesNotAcceptConfig" => "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other' }, graph: { } }",
+                _ => throw new NotImplementedException()
+            };
+
+            // TODO(kylealbert): Remove 'with' clause in template when that's removed
+            var files = new Dictionary<Uri, string>
+            {
+                [mainUri] =
+                    $$"""
+                      param inputa string
+
+                      module modulea 'modulea.bicep' = {
+                        name: 'modulea'
+                        params: {
+                          inputa: inputa
+                        }
+                        {{extensionConfigsStr}}
+                      }
+
+                      output outputa string = modulea.outputs.outputa
+                      """,
+                [moduleAUri] =
+                    """
+                    param inputa string
+
+                    extension kubernetes with {
+                      kubeConfig: ''
+                      namespace: 'default'
+                    }
+
+                    extension microsoftGraph as graph
+
+                    output outputa string = inputa
+                    """
+            };
+
+            var compilation = ServicesWithModuleExtensionConfigs.BuildCompilation(files, mainUri);
+
+            if (scenario is "MissingExtensionConfigsDeclaration")
+            {
+                compilation.Should().ContainSingleDiagnostic("BCP035", DiagnosticLevel.Error, """The specified "module" declaration is missing the following required properties: "extensionConfigs".""");
+            }
+            else if (scenario is "MissingRequiredExtensionConfig")
+            {
+                compilation.Should().ContainSingleDiagnostic("BCP035", DiagnosticLevel.Error, """The specified "object" declaration is missing the following required properties: "kubernetes".""");
+            }
+            else if (scenario is "MissingRequiredConfigProperty")
+            {
+                compilation.Should().ContainSingleDiagnostic("BCP035", DiagnosticLevel.Error, """The specified "object" declaration is missing the following required properties: "kubeConfig".""");
+            }
+            else if (scenario is "PropertyIsNotDefinedInSchema")
+            {
+                compilation.Should().ContainSingleDiagnostic("BCP037", DiagnosticLevel.Error, """The property "extra" is not allowed on objects of type "configuration". Permissible properties include "context".""");
+            }
+            else if (scenario is "ConfigProvidedForExtensionThatDoesNotAcceptConfig")
+            {
+                compilation.Should().ContainSingleDiagnostic("BCP037", DiagnosticLevel.Error, """The property "graph" is not allowed on objects of type "extensionConfigs". No other properties are allowed.""");
+            }
         }
     }
 }
