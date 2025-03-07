@@ -1454,7 +1454,7 @@ namespace Bicep.Core.Emit
                                             emitter.EmitProperty(extConfigPropertyName, ExpressionEmitter.ConvertModuleExtensionConfig(extConfigPropertyExpr.Value));
                                         }
                                     }
-                                });
+                                }, extConfigObjExpr.SourceSyntax);
                         }
                         else
                         {
