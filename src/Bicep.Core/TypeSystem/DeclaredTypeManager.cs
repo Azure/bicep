@@ -1213,7 +1213,7 @@ namespace Bicep.Core.TypeSystem
             // TODO(kylealbert): this needs some thought with spec strings, ext names, and aliases
             if (syntax.TryGetSymbolName() is not { } symbolName)
             {
-                throw new NotImplementedException();
+                return null;
             }
 
             if (semanticModel.Extensions.TryGetValue(symbolName, out var extensionMetadata))
