@@ -1213,15 +1213,12 @@ namespace Bicep.Core.TypeSystem
             // TODO(kylealbert): this needs some thought with spec strings, ext names, and aliases
             if (syntax.TryGetSymbolName() is not { } symbolName)
             {
-                return null;
+                throw new NotImplementedException();
             }
 
             if (semanticModel.Extensions.TryGetValue(symbolName, out var extensionMetadata))
             {
-                // TODO(kylealbert): This needs some thought. It doesn't seem to make sense to use a NamespaceType because this syntax
-                //  is configuraing a namespace, not defining it. It might make sense to create a custom type symbol to wrap the
-                //  Namespace's config type or simply return the config type.
-                return null;
+                return extensionMetadata.NamespaceType?.ConfigurationType;
             }
 
             return null;
