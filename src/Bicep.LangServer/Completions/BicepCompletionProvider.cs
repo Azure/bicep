@@ -782,11 +782,11 @@ namespace Bicep.LanguageServer.Completions
                 return [];
             }
 
-            if (model.GetDeclaredType(variable) is {} declaredType)
+            if (model.GetDeclaredType(variable) is { } declaredType)
             {
                 return GetValueCompletionsForType(model, context, declaredType, variable.Value, loopsAllowed: true);
             }
-    
+
             // we don't know what the variable type is, so assume "any"
             return CreateLoopCompletions(context.ReplacementRange, LanguageConstants.Any, filtersAllowed: false);
         }

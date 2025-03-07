@@ -446,10 +446,10 @@ namespace Bicep.LanguageServer.Completions
 
         private static bool IsVariableNameFollowerContext(List<SyntaxBase> matchingNodes, int offset) =>
             // var foo |
-            SyntaxMatcher.IsTailMatch<VariableDeclarationSyntax>(matchingNodes, variable => 
-                offset > variable.Name.GetEndPosition() && 
+            SyntaxMatcher.IsTailMatch<VariableDeclarationSyntax>(matchingNodes, variable =>
+                offset > variable.Name.GetEndPosition() &&
                 variable.Type is null &&
-                variable.Assignment is SkippedTriviaSyntax && 
+                variable.Assignment is SkippedTriviaSyntax &&
                 offset <= variable.Assignment.Span.Position);
 
         private static bool IsTargetScopeContext(List<SyntaxBase> matchingNodes, int offset) =>

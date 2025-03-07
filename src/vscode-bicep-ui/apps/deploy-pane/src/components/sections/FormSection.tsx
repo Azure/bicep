@@ -3,10 +3,10 @@
 
 import type { FC, PropsWithChildren } from "react";
 
-import styled from "styled-components"
 import { Codicon } from "@vscode-bicep-ui/components";
 import { VscodeDivider } from "@vscode-elements/react-elements";
 import { useState } from "react";
+import styled from "styled-components";
 
 type FormSectionProps = PropsWithChildren<{
   title: string;

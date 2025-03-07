@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { ParameterInputData } from "../../components/ParamInputBox";
+import type { ParamDefinition } from "../../models";
+
 import { render } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
-import { ParamInputBox, type ParameterInputData } from "../../components/ParamInputBox";
-import type { ParamDefinition } from "../../models";
+import { ParamInputBox } from "../../components/ParamInputBox";
 
 // TODO these tests aren't particularly meaningful, as vite doesn't support web components
 
@@ -19,7 +21,9 @@ it("renders a string input", () => {
   };
   const onChangeData = vi.fn();
 
-  const { container } = render(<ParamInputBox definition={definition} data={data} disabled={false} onChangeData={onChangeData} />);
+  const { container } = render(
+    <ParamInputBox definition={definition} data={data} disabled={false} onChangeData={onChangeData} />,
+  );
 
   expect(container).toMatchSnapshot();
 });
@@ -35,7 +39,9 @@ it("renders an integer input", () => {
   };
   const onChangeData = vi.fn();
 
-  const { container } = render(<ParamInputBox definition={definition} data={data} disabled={false} onChangeData={onChangeData} />);
+  const { container } = render(
+    <ParamInputBox definition={definition} data={data} disabled={false} onChangeData={onChangeData} />,
+  );
 
   expect(container).toMatchSnapshot();
 });
@@ -51,7 +57,9 @@ it("renders a bool input", () => {
   };
   const onChangeData = vi.fn();
 
-  const { container } = render(<ParamInputBox definition={definition} data={data} disabled={false} onChangeData={onChangeData} />);
+  const { container } = render(
+    <ParamInputBox definition={definition} data={data} disabled={false} onChangeData={onChangeData} />,
+  );
 
   expect(container).toMatchSnapshot();
 });
@@ -67,7 +75,9 @@ it("renders a JSON input", () => {
   };
   const onChangeData = vi.fn();
 
-  const { container } = render(<ParamInputBox definition={definition} data={data} disabled={false} onChangeData={onChangeData} />);
+  const { container } = render(
+    <ParamInputBox definition={definition} data={data} disabled={false} onChangeData={onChangeData} />,
+  );
 
   expect(container).toMatchSnapshot();
 });

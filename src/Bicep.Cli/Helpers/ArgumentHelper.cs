@@ -66,14 +66,14 @@ public class ArgumentHelper
         {
             throw new CommandLineException($"The {argName} parameter expects an argument");
         }
-        
+
         return args[argPosition + 1];
     }
 
     public static string GetDirectoryPathValueWithValidation(string argName, string[] args, int argPosition)
     {
         var value = GetValueWithValidation(argName, args, argPosition);
-        
+
         var resolvedPath = PathHelper.ResolvePath(value);
         if (!Directory.Exists(resolvedPath))
         {

@@ -2037,13 +2037,13 @@ namespace Bicep.Core.Semantics.Namespaces
             if (decorated is DeclaredResourceExpression declaredResourceExpression)
             {
                 var waitUntilProperties = ImmutableArray.Create<ObjectPropertyExpression>(
-                            new 
+                            new
                             (
                                 null,
                                 new StringLiteralExpression(null, "expression"),
                                 functionCall.Parameters[0]
                             ),
-                            new 
+                            new
                             (
                                 null,
                                 new StringLiteralExpression(null, "maxWaitTime"),
@@ -2079,7 +2079,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         )
                     );
                 }
-                return declaredResourceExpression with { RetryOn = new ObjectExpression(null, [..retryOnProperties]) };
+                return declaredResourceExpression with { RetryOn = new ObjectExpression(null, [.. retryOnProperties]) };
             }
             return decorated;
         }
