@@ -800,5 +800,93 @@ Hello from Bicep!"));
                 compilation.Should().ContainSingleDiagnostic("BCP037", DiagnosticLevel.Error, """The property "graph" is not allowed on objects of type "extensionConfigs". No other properties are allowed.""");
             }
         }
+
+        [DataTestMethod]
+        [DataRow("ParamsFile")]
+        [DataRow("MainFile")]
+        public void Extension_config_assignments_raise_error_diagnostic_if_expr_feature_disabled(string scenario)
+        {
+            var paramsUri = new Uri("file:///main.bicepparam");
+            var mainUri = new Uri("file:///main.bicep");
+            var moduleAUri = new Uri("file:///modulea.bicep");
+
+            // TODO(kylealbert): Remove 'with' clause in template when that's removed
+            var files = new Dictionary<Uri, string>
+            {
+                [paramsUri] =
+                    """
+                    using 'main.bicep'
+
+                    param inputa = 'abc'
+
+                    extension k8s with {
+                      kubeConfig: 'abc'
+                      namespace: 'other'
+                    }
+                    """,
+                [mainUri] =
+                    """
+                    param inputa string
+
+                    extension kubernetes with {
+                      kubeConfig: 'DELETE'
+                      namespace: 'DELETE'
+                    } as k8s
+
+                    extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview'
+
+                    module modulea 'modulea.bicep' = {
+                      name: 'modulea'
+                      params: {
+                        inputa: inputa
+                      }
+                      extensionConfigs: {
+                        kubernetes: {
+                          kubeConfig: 'fromModule'
+                          namespace: 'other'
+                        }
+                      }
+                    }
+
+                    output outputa string = modulea.outputs.outputa
+                    """,
+                [moduleAUri] =
+                    """
+                    param inputa string
+
+                    extension kubernetes with {
+                      kubeConfig: 'DELETE'
+                      namespace: 'DELETE'
+                    }
+
+                    extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
+
+                    output outputa string = inputa
+                    """
+            };
+
+            if (scenario is "ParamsFile")
+            {
+                files[mainUri] = files[moduleAUri];
+                files.Remove(moduleAUri);
+            }
+
+            var compilation = Services.BuildCompilation(files, paramsUri);
+
+            var diagByFile = compilation.GetAllDiagnosticsByBicepFileUri();
+
+            if (scenario is "ParamsFile")
+            {
+                diagByFile[paramsUri].Should().ContainDiagnostic(f => f.UnrecognizedParamsFileDeclaration());
+            }
+            else if (scenario is "MainFile")
+            {
+                diagByFile[mainUri].Should().ContainDiagnostic("BCP037", DiagnosticLevel.Error, """The property "extensionConfigs" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope".""");
+            }
+            else
+            {
+                Assert.Fail($"No assertion for scenario {scenario}");
+            }
+        }
     }
 }

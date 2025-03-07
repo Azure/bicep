@@ -931,6 +931,11 @@ namespace Bicep.Core.TypeSystem
             => AssignTypeWithDiagnostics(
                 syntax, diagnostics =>
                 {
+                    if (features is not { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true })
+                    {
+                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedParamsFileDeclaration());
+                    }
+
                     if (binder.GetSymbolInfo(syntax) is not ExtensionConfigAssignmentSymbol configAssignmentSymbol)
                     {
                         // We have syntax or binding errors, which should have already been handled.
