@@ -665,6 +665,7 @@ Hello from Bicep!"));
             var moduleAUri = new Uri("file:///modulea.bicep");
 
             // TODO(kylealbert): Remove 'with' clause in template when that's removed
+            // TODO(kylealbert): Uncomment graph when I figure out how to deal with the registry.
             var files = new Dictionary<Uri, string>
             {
                 [paramsUri] =
@@ -687,7 +688,7 @@ Hello from Bicep!"));
                       namespace: 'DELETE'
                     } as k8s
 
-                    extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview'
+                    //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview'
 
                     module modulea 'modulea.bicep' = {
                       name: 'modulea'
@@ -713,7 +714,7 @@ Hello from Bicep!"));
                       namespace: 'DELETE'
                     }
 
-                    extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
+                    //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
 
                     output outputa string = inputa
                     """
@@ -746,6 +747,7 @@ Hello from Bicep!"));
             };
 
             // TODO(kylealbert): Remove 'with' clause in template when that's removed
+            // TODO(kylealbert): Uncomment graph when I figure out how to deal with the registry.
             var files = new Dictionary<Uri, string>
             {
                 [mainUri] =
@@ -771,7 +773,7 @@ Hello from Bicep!"));
                       namespace: 'default'
                     }
 
-                    extension microsoftGraph as graph
+                    //extension microsoftGraph as graph
 
                     output outputa string = inputa
                     """
@@ -811,6 +813,7 @@ Hello from Bicep!"));
             var moduleAUri = new Uri("file:///modulea.bicep");
 
             // TODO(kylealbert): Remove 'with' clause in template when that's removed
+            // TODO(kylealbert): Uncomment graph when I figure out how to deal with the registry.
             var files = new Dictionary<Uri, string>
             {
                 [paramsUri] =
@@ -833,7 +836,7 @@ Hello from Bicep!"));
                       namespace: 'DELETE'
                     } as k8s
 
-                    extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview'
+                    //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview'
 
                     module modulea 'modulea.bicep' = {
                       name: 'modulea'
@@ -859,7 +862,7 @@ Hello from Bicep!"));
                       namespace: 'DELETE'
                     }
 
-                    extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
+                    //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
 
                     output outputa string = inputa
                     """
