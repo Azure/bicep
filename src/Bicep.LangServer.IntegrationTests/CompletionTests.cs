@@ -5550,5 +5550,58 @@ output people Person[] = [{
   name:|
 }]
 """);
+
+        [TestMethod]
+        public async Task Resource_types_offered_as_completion_for_single_argument_to_resource_utility_type_with_unclosed_chevrons()
+        {
+            var mainContent = """
+                type acct = resourceInput<stor|
+                """;
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
+            DocumentUri mainUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
+
+            var bicepFile = new LanguageClientFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                text,
+                mainUri);
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+
+            var completions = await file.RequestAndResolveCompletions(cursors[0]);
+            var updated = file.ApplyCompletion(completions, "'Microsoft.Storage/storageAccounts'");
+            updated.Should().HaveSourceText("""
+                type acct = resourceInput<'Microsoft.Storage/storageAccounts@|'
+                """);
+        }
+
+        [TestMethod]
+        public async Task LoadFunctionsPathArgument_returnsFilesInCompletions_withUnclosedParentheses()
+        {
+            var mainUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
+
+            var (mainFileText, cursor) = ParserHelper.GetFileWithSingleCursor("var file = loadJsonContent('|'", '|');
+            var mainFile = new LanguageClientFile(mainUri, mainFileText);
+
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                [mainUri] = mainFileText,
+                [InMemoryFileResolver.GetFileUri("/path/to/json1.json")] = "{}",
+            };
+
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                TestContext,
+                fileTextsByUri,
+                mainUri,
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
+
+            var file = new FileRequestHelper(helper.Client, mainFile);
+
+            var completions = await file.RequestAndResolveCompletions(cursor);
+
+            var completionItems = completions.Where(x => x.Kind == CompletionItemKind.File).OrderBy(x => x.SortText);
+            completionItems.Should().SatisfyRespectively(x => x.Label.Should().Be("json1.json"));
+        }
     }
 }

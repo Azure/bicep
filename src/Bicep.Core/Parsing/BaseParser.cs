@@ -381,7 +381,7 @@ namespace Bicep.Core.Parsing
         /// <summary>
         /// Method that gets a function call identifier, its arguments plus open and close parens
         /// </summary>
-        protected (IdentifierSyntax Identifier, Token OpenParen, IEnumerable<SyntaxBase> ArgumentNodes, Token CloseParen) FunctionCallAccess(IdentifierSyntax functionName, ExpressionFlags expressionFlags)
+        protected (IdentifierSyntax Identifier, Token OpenParen, IEnumerable<SyntaxBase> ArgumentNodes, SyntaxBase CloseParen) FunctionCallAccess(IdentifierSyntax functionName, ExpressionFlags expressionFlags)
         {
             var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
 
@@ -389,7 +389,10 @@ namespace Bicep.Core.Parsing
                 closingTokenType: TokenType.RightParen,
                 parseChildElement: () => FunctionArgument(expressionFlags));
 
-            var closeParen = this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")"));
+
+            SyntaxBase closeParen = Check(TokenType.RightParen)
+                ? reader.Read()
+                : SkipEmpty(b => b.ExpectedCharacter(")"));
 
             return (functionName, openParen, itemsOrTokens, closeParen);
         }
@@ -432,7 +435,7 @@ namespace Bicep.Core.Parsing
             return new ParameterizedTypeArgumentSyntax(expression);
         }
 
-        protected (IdentifierSyntax Identifier, Token OpenChevron, IEnumerable<SyntaxBase> ParameterNodes, Token CloseChevron) ParameterizedTypeInstantiation(IdentifierSyntax parameterizedTypeName)
+        protected (IdentifierSyntax Identifier, Token OpenChevron, IEnumerable<SyntaxBase> ParameterNodes, SyntaxBase CloseChevron) ParameterizedTypeInstantiation(IdentifierSyntax parameterizedTypeName)
         {
             var openChevron = this.Expect(TokenType.LeftChevron, b => b.ExpectedCharacter("<"));
 
@@ -440,7 +443,9 @@ namespace Bicep.Core.Parsing
                 closingTokenType: TokenType.RightChevron,
                 parseChildElement: ParameterizedTypeArgument);
 
-            var closeChevron = this.Expect(TokenType.RightChevron, b => b.ExpectedCharacter(">"));
+            SyntaxBase closeChevron = Check(TokenType.RightChevron)
+                ? reader.Read()
+                : SkipEmpty(b => b.ExpectedCharacter(">"));
 
             return (parameterizedTypeName, openChevron, itemsOrTokens, closeChevron);
         }
@@ -549,7 +554,9 @@ namespace Bicep.Core.Parsing
             return itemsOrTokens;
         }
 
-        private IEnumerable<SyntaxBase> HandleFunctionElements(TokenType closingTokenType, Func<SyntaxBase> parseChildElement)
+        private IEnumerable<SyntaxBase> HandleFunctionElements(
+            TokenType closingTokenType,
+            Func<SyntaxBase> parseChildElement)
         {
             if (Check(closingTokenType))
             {
@@ -576,7 +583,14 @@ namespace Bicep.Core.Parsing
                             // Check End of comments for closingTokenType
                             peekPosition++;
                         }
-                        if (!Check(this.reader.PeekAhead(peekPosition), closingTokenType))
+
+                        if (this.reader.PeekAhead(peekPosition) is null or { Type: TokenType.EndOfFile })
+                        {
+                            // We've reached the end of the file and didn't hit the closing token. Bail without
+                            // consuming the newlines so that the missing char diagnostic will be in the correct place.
+                            break;
+                        }
+                        else if (!Check(this.reader.PeekAhead(peekPosition), closingTokenType))
                         {
                             itemsOrTokens.Add(SkipEmpty(x => x.ExpectedCommaSeparator()));
                         }
@@ -1179,6 +1193,7 @@ namespace Bicep.Core.Parsing
                     TokenType.NewLine,
                     TokenType.Comma);
                 itemsOrTokens.Add(expression);
+                parseNewLines();
 
                 if (this.Check(TokenType.Comma))
                 {

@@ -80,8 +80,4 @@ func multiLineTrailingCommas(
 func lineBeforeComma(
   a string
   ,b string) string => 'foo'
-//@[02:03) [BCP018 (Error)] Expected the ")" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) |,|
-//@[28:28) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP009) ||
-//@[28:28) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
-//@[28:28) [BCP018 (Error)] Expected the "=>" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 

@@ -186,7 +186,9 @@ var multiLineTrailingCommas = map([0], (
   ,) => 'foo')
 
 var lineBeforeComma = map([0], (
-//@[04:19) Variable lineBeforeComma. Type: error. Declaration start char: 0, length: 53
+//@[04:19) Variable lineBeforeComma. Type: 'foo'[]. Declaration start char: 0, length: 52
   a
+//@[02:03) Local a. Type: 0. Declaration start char: 2, length: 1
   ,b) => 'foo')
+//@[03:04) Local b. Type: int. Declaration start char: 3, length: 1
 
