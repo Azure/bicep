@@ -9,5 +9,6 @@ namespace Bicep.Core.Semantics.Metadata
         string Alias,
         string Name,
         string Version,
+        // TODO(kylealbert): this should be non-nullable
         NamespaceType? NamespaceType);
 }
