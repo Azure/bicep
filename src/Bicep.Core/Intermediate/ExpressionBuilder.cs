@@ -1082,6 +1082,9 @@ public class ExpressionBuilder
             case ParameterAssignmentSymbol parameterSymbol:
                 return new ParametersAssignmentReferenceExpression(variableAccessSyntax, parameterSymbol);
 
+            case ExtensionConfigAssignmentSymbol extensionConfigAssignmentSymbol:
+                return new ExtensionConfigAssignmentExpression(variableAccessSyntax, extensionConfigAssignmentSymbol);
+
             case VariableSymbol variableSymbol:
                 if (Context.VariablesToInline.Contains(variableSymbol))
                 {
