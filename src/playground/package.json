@@ -13,7 +13,7 @@
   "private": true,
   "devDependencies": {
     "@eslint/js": "^9.18.0",
-    "@types/node": "^22.13.4",
+    "@types/node": "^22.13.10",
     "@types/pako": "^2.0.3",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
