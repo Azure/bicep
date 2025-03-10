@@ -12,7 +12,7 @@
     "eslint": "^9.21.0",
     "eslint-plugin-notice": "^1.0.0",
     "prettier": "^3.5.3",
-    "typescript": "~5.7.3",
+    "typescript": "~5.8.2",
     "typescript-eslint": "^8.26.0",
     "vitest": "^2.1.8"
   },
