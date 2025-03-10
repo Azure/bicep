@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Net;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Auth;
@@ -11,6 +12,11 @@ namespace Bicep.Core.Registry
     public class ContainerRegistryClientFactory : IContainerRegistryClientFactory
     {
         private readonly ITokenCredentialFactory credentialFactory;
+
+        static ContainerRegistryClientFactory()
+        {
+            HttpClient.DefaultProxy.Credentials = CredentialCache.DefaultNetworkCredentials;
+        }
 
         public ContainerRegistryClientFactory(ITokenCredentialFactory credentialFactory)
         {
@@ -56,5 +62,7 @@ namespace Bicep.Core.Registry
 
             return new(registryUri, options);
         }
+
+
     }
 }
