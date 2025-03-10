@@ -1618,6 +1618,9 @@ public class ExpressionBuilder
                     expressionEmitter.EmitProperty("resourceGroup", () => expressionEmitter.EmitExpression(scopeData.ResourceGroupProperty, indexContext));
                 }
                 return;
+            case ResourceScope.DSC:
+                // TODO: Possibly emit something with properties, but at minimum we can't throw
+                return;
             default:
                 throw new InvalidOperationException($"Cannot format resourceId for scope {scopeData.RequestedScope}");
         }
