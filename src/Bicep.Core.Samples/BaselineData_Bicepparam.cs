@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Reflection;
 using Bicep.Core.UnitTests.Baselines;
 using FluentAssertions;
@@ -98,6 +99,7 @@ namespace Bicep.Core.Samples
             // ensure this list is kept up-to-date to validate that we're picking all of the baseline tests
             embeddedFiles.Select(x => x.StreamPath).Should().BeEquivalentTo(
                 "Files/baselines_bicepparam/Expressions/parameters.bicepparam",
+                "Files/baselines_bicepparam/Extensions/parameters.bicepparam",
                 "Files/baselines_bicepparam/Imports/parameters.bicepparam",
                 "Files/baselines_bicepparam/Extends/parameters.bicepparam",
                 "Files/baselines_bicepparam/Invalid_Expressions/parameters.bicepparam",

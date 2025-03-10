@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Immutable;
+
 using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Expression.Serializers;
@@ -325,7 +325,9 @@ namespace Bicep.Core.Emit
             {
                 case ResourceFunctionCallExpression functionCall when
                     LanguageConstants.IdentifierComparer.Equals(functionCall.Name, AzResourceTypeProvider.GetSecretFunctionName):
-                    return ConvertModuleParameterGetSecret(functionCall);
+                    return ExpressionFactory.CreateObject(
+                        [ExpressionFactory.CreateObjectProperty("reference", ConvertToKeyVaultReference(functionCall))],
+                        functionCall.SourceSyntax);
                 case TernaryExpression ternary:
                     return new TernaryExpression(ternary.SourceSyntax, ternary.Condition, ConvertModuleParameter(ternary.True), ConvertModuleParameter(ternary.False));
                 default:
@@ -335,21 +337,41 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private static Expression ConvertModuleParameterGetSecret(ResourceFunctionCallExpression functionCall)
+        public static Expression ConvertModuleExtensionConfig(Expression extensionConfigValueExpr) =>
+            extensionConfigValueExpr switch
+            {
+                // TODO(kylealbert): "extensionConfigs" function handling.
+                ResourceFunctionCallExpression functionCall when LanguageConstants.IdentifierComparer.Equals(functionCall.Name, AzResourceTypeProvider.GetSecretFunctionName)
+                    => ExpressionFactory.CreateObject(
+                        [ExpressionFactory.CreateObjectProperty("keyVaultReference", ConvertToKeyVaultReference(functionCall))],
+                        functionCall.SourceSyntax),
+                TernaryExpression ternary => new TernaryExpression(ternary.SourceSyntax, ternary.Condition, ConvertModuleExtensionConfig(ternary.True), ConvertModuleExtensionConfig(ternary.False)),
+                _ => ExpressionFactory.CreateObject(
+                    [ExpressionFactory.CreateObjectProperty("value", extensionConfigValueExpr)],
+                    extensionConfigValueExpr.SourceSyntax)
+            };
+
+        private static ObjectExpression ConvertToKeyVaultReference(ResourceFunctionCallExpression functionCall)
         {
-            var properties = new List<ObjectPropertyExpression>();
-            properties.Add(ExpressionFactory.CreateObjectProperty("keyVault", ExpressionFactory.CreateObject(new[] {
-                ExpressionFactory.CreateObjectProperty("id", new PropertyAccessExpression(functionCall.Resource.SourceSyntax, functionCall.Resource, "id", AccessExpressionFlags.None)),
-            }, functionCall.SourceSyntax)));
-            properties.Add(ExpressionFactory.CreateObjectProperty("secretName", functionCall.Parameters[0]));
+            var properties = new List<ObjectPropertyExpression>
+            {
+                ExpressionFactory.CreateObjectProperty(
+                    "keyVault",
+                    ExpressionFactory.CreateObject(
+                        [
+                            ExpressionFactory.CreateObjectProperty(
+                                "id", new PropertyAccessExpression(functionCall.Resource.SourceSyntax, functionCall.Resource, "id", AccessExpressionFlags.None))
+                        ],
+                        functionCall.SourceSyntax)),
+                ExpressionFactory.CreateObjectProperty("secretName", functionCall.Parameters[0])
+            };
+
             if (functionCall.Parameters.Length > 1)
             {
                 properties.Add(ExpressionFactory.CreateObjectProperty("secretVersion", functionCall.Parameters[1]));
             }
 
-            return ExpressionFactory.CreateObject(new[] {
-                ExpressionFactory.CreateObjectProperty("reference", ExpressionFactory.CreateObject(properties))
-            }, functionCall.SourceSyntax);
+            return ExpressionFactory.CreateObject(properties);
         }
 
         public void EmitProperty(ObjectPropertyExpression property)

@@ -8,11 +8,9 @@ using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Exceptions;
-using Azure.Deployments.Templates.Export;
 using Bicep.Core.ArmHelpers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
-using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
@@ -29,6 +27,7 @@ namespace Bicep.Core.Semantics
     {
         private readonly Lazy<ResourceScope> targetScopeLazy;
         private readonly Lazy<ImmutableSortedDictionary<string, ParameterMetadata>> parametersLazy;
+        private readonly Lazy<ImmutableSortedDictionary<string, ExtensionMetadata>> extensionsLazy;
         private readonly Lazy<ImmutableSortedDictionary<string, ExportMetadata>> exportsLazy;
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
 
@@ -91,6 +90,8 @@ namespace Bicep.Core.Semantics
                         LanguageConstants.IdentifierComparer);
             });
 
+            this.extensionsLazy = new(FindExtensions);
+
             this.exportsLazy = new(FindExports);
 
             this.outputsLazy = new(() =>
@@ -116,6 +117,8 @@ namespace Bicep.Core.Semantics
             : this.targetScopeLazy.Value;
 
         public ImmutableSortedDictionary<string, ParameterMetadata> Parameters => this.parametersLazy.Value;
+
+        public ImmutableSortedDictionary<string, ExtensionMetadata> Extensions => this.extensionsLazy.Value;
 
         public ImmutableSortedDictionary<string, ExportMetadata> Exports => exportsLazy.Value;
 
@@ -214,6 +217,23 @@ namespace Bicep.Core.Semantics
 
                 _ => GetType((ITemplateSchemaNode)output),
             };
+        }
+
+        private ImmutableSortedDictionary<string, ExtensionMetadata> FindExtensions()
+        {
+            if (this.SourceFile.FeatureProvider is not { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true } || this.SourceFile.Template?.Extensions is null)
+            {
+                return ImmutableSortedDictionary<string, ExtensionMetadata>.Empty;
+            }
+
+            return this.SourceFile.Template.Extensions
+                .ToImmutableSortedDictionary(
+                    ext => ext.Key,
+                    ext =>
+                    {
+                        // TODO(kylealbert): Get namespace type.
+                        return new ExtensionMetadata(ext.Key, ext.Value.Name.Value, ext.Value.Version.Value, null);
+                    });
         }
 
         private ImmutableSortedDictionary<string, ExportMetadata> FindExports()

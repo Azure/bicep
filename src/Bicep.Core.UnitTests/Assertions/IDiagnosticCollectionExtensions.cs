@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Linq;
+
 using Bicep.Core.Diagnostics;
 using FluentAssertions;
 using FluentAssertions.Collections;
@@ -34,6 +34,13 @@ namespace Bicep.Core.UnitTests.Assertions
             AssertionExtensions.Should(Subject).Contain(x => x.Code == code && x.Level == level && DiagnosticAssertions.DiagnosticMessageMatches(x.Message, message), because, becauseArgs);
 
             return new AndConstraint<IDiagnosticCollectionAssertions>(this);
+        }
+
+        public AndConstraint<IDiagnosticCollectionAssertions> ContainDiagnostic(Func<DiagnosticBuilder.DiagnosticBuilderInternal, Diagnostic> diagnosticFactory, string because = "", params object[] becauseArgs)
+        {
+            var diagnostic = diagnosticFactory(DiagnosticBuilder.ForDocumentStart());
+
+            return ContainDiagnostic(diagnostic.Code, diagnostic.Level, diagnostic.Message, because, becauseArgs);
         }
 
         public AndConstraint<IDiagnosticCollectionAssertions> NotContainDiagnostic(string code, string because = "", params object[] becauseArgs)
