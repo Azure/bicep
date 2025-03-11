@@ -1259,21 +1259,27 @@ namespace Bicep.Core.Emit
                 // Emit the options property 
                 if (resource.RetryOn is not null || resource.WaitUntil is not null)
                 {
-                    emitter.EmitObjectProperty("options", () =>
+                    emitter.EmitObjectProperty("@options", () =>
                     {
                         if (resource.RetryOn is not null)
                         {
-                            emitter.EmitObjectProperty("retryOn", () =>
+                            emitter.EmitArrayProperty("retryOn", () =>
                             {
-                                emitter.EmitObjectProperties(resource.RetryOn);
+                                foreach (var item in resource.RetryOn.Items)
+                                {
+                                    emitter.EmitExpression(item);
+                                }
                             });
                         }
 
                         if (resource.WaitUntil is not null)
                         {
-                            emitter.EmitObjectProperty("waitUntil", () =>
+                            emitter.EmitArrayProperty("waitUntil", () =>
                             {
-                                emitter.EmitObjectProperties(resource.WaitUntil);
+                                foreach (var item in resource.WaitUntil.Items)
+                                {
+                                    emitter.EmitExpression(item);
+                                }
                             });
                         }
 

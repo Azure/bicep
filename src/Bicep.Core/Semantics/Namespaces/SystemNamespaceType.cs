@@ -2036,21 +2036,11 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             if (decorated is DeclaredResourceExpression declaredResourceExpression)
             {
-                var waitUntilProperties = ImmutableArray.Create<ObjectPropertyExpression>(
-                            new
-                            (
-                                null,
-                                new StringLiteralExpression(null, "expression"),
-                                functionCall.Parameters[0]
-                            ),
-                            new
-                            (
-                                null,
-                                new StringLiteralExpression(null, "maxWaitTime"),
+                var waitUntilParameters = ImmutableArray.Create<Expression>(
+                                functionCall.Parameters[0],
                                 functionCall.Parameters[1]
-                            )
                         );
-                return declaredResourceExpression with { WaitUntil = new ObjectExpression(null, waitUntilProperties) };
+                return declaredResourceExpression with { WaitUntil = new ArrayExpression(null, waitUntilParameters)};
             }
 
             return decorated;
@@ -2060,26 +2050,17 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             if (decorated is DeclaredResourceExpression declaredResourceExpression)
             {
-                var retryOnProperties = new List<ObjectPropertyExpression>
+                var retryOnParameters = new List<Expression>
                         {
-                            new
-                            (
-                                null,
-                                new StringLiteralExpression(null, "exceptionCodes"),
                                 functionCall.Parameters[0]
-                            )
                         };
                 if (functionCall.Parameters.Length > 1)
                 {
-                    retryOnProperties.Add(
-                        new(
-                            null,
-                            new StringLiteralExpression(null, "retryCount"),
+                    retryOnParameters.Add(
                             functionCall.Parameters[1]
-                        )
                     );
                 }
-                return declaredResourceExpression with { RetryOn = new ObjectExpression(null, [.. retryOnProperties]) };
+                return declaredResourceExpression with { RetryOn = new ArrayExpression(null, [.. retryOnParameters]) };
             }
             return decorated;
         }
