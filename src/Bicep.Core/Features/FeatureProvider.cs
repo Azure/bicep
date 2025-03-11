@@ -56,6 +56,8 @@ namespace Bicep.Core.Features
 
         public bool ModuleExtensionConfigsEnabled => configuration.ExperimentalFeaturesEnabled.ModuleExtensionConfigs;
 
+        public bool ResourceDSCEnabled => configuration.ExperimentalFeaturesEnabled.ResourceDSC;
+
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
             => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;
 
