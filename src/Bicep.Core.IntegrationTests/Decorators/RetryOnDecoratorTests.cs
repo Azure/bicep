@@ -54,10 +54,10 @@ namespace Bicep.Core.IntegrationTests.Decorators
             }
             ");
 
-            var retryOnJObject = new JObject
+            var retryOnJObject = new JArray
             {
-                ["exceptionCodes"] = new JArray("ResourceNotFound", "ServerError"),
-                ["retryCount"] = 1
+                new JArray("ResourceNotFound", "ServerError"),
+                1
             };
 
             using (new AssertionScope())
@@ -65,7 +65,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
                 diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
 
                 template.Should().NotBeNull()
-                    .And.HaveValueAtPath("$.resources[0].options.retryOn", retryOnJObject);
+                    .And.HaveValueAtPath("$.resources[0].@options.retryOn", retryOnJObject);
             }
         }
 
@@ -214,10 +214,10 @@ namespace Bicep.Core.IntegrationTests.Decorators
             }]
             ");
 
-            var retryOnJObject = new JObject
+            var retryOnJObject = new JArray
             {
-                ["exceptionCodes"] = new JArray("ResourceNotFound", "ServerError"),
-                ["retryCount"] = 1
+                new JArray("ResourceNotFound", "ServerError"),
+                1
             };
 
             using (new AssertionScope())
@@ -225,7 +225,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
                 diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
 
                 template.Should().NotBeNull()
-                    .And.HaveValueAtPath("$.resources[0].options.retryOn", retryOnJObject);
+                    .And.HaveValueAtPath("$.resources[0].@options.retryOn", retryOnJObject);
             }
         }
 
