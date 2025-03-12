@@ -494,7 +494,8 @@ public record DeclaredResourceExpression(
     ImmutableArray<ResourceDependencyExpression> DependsOn,
     Expression? Description = null,
     ArrayExpression? RetryOn = null,
-    ArrayExpression? WaitUntil = null
+    ArrayExpression? WaitUntil = null,
+    ArrayExpression? OnlyIfNotExists = null
 ) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)

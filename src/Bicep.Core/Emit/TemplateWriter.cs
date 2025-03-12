@@ -1257,7 +1257,7 @@ namespace Bicep.Core.Emit
                 }
 
                 // Emit the options property 
-                if (resource.RetryOn is not null || resource.WaitUntil is not null)
+                if (resource.RetryOn is not null || resource.WaitUntil is not null || resource.OnlyIfNotExists is not null)
                 {
                     emitter.EmitObjectProperty("@options", () =>
                     {
@@ -1281,6 +1281,11 @@ namespace Bicep.Core.Emit
                                     emitter.EmitExpression(item);
                                 }
                             });
+                        }
+
+                        if (resource.OnlyIfNotExists is not null)
+                        {
+                            emitter.EmitProperty("onlyIfNotExists", new ArrayExpression(null, []));
                         }
 
                     });

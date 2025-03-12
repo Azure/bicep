@@ -1806,6 +1806,22 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
                 }
 
+                if (featureProvider.OnlyIfNotExistsEnabled)
+                {
+                    yield return new DecoratorBuilder(LanguageConstants.OnlyIfNotExistsPropertyName)
+                    .WithDescription("Causes the resource deployment to be skipped if the resource already exists")
+                    .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
+                    .WithEvaluator((functionCall, decorated) =>
+                    {
+                        if (decorated is DeclaredResourceExpression declaredResourceExpression)
+                        {
+                            return declaredResourceExpression with { OnlyIfNotExists = new ArrayExpression(null, []) };
+                        }
+                        return decorated;
+                    })
+                    .Build();
+                }
+
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSealedPropertyName)
                     .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
                     .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)

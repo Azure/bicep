@@ -55,6 +55,9 @@ Permits optional usage of types on variable declarations.
 ### `waitAndRetry`
 The feature introduces waitUntil and retryOn decorators on resource data type. waitUnitl() decorator waits for the resource until its usable based on the desired property's state. retryOn() will retry the deployment if one if the listed exception codes are encountered.
 
+### `onlyIfNotExists`
+The feature introduces the onlyIfNotExists decorator on a resource. The decorator will only deploy the resource if it does not exist.
+
 ## Other experimental functionality
 
 ### `publish-extension` CLI Command

@@ -393,7 +393,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 SecureOutputs: false,
                 ResourceInfoCodegen: false,
                 TypedVariables: false,
-                ModuleExtensionConfigs: false);
+                ModuleExtensionConfigs: false,
+                OnlyIfNotExists: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
