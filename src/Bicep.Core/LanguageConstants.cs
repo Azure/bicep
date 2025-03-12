@@ -91,7 +91,6 @@ namespace Bicep.Core
         public const string TargetScopeTypeManagementGroup = "managementGroup";
         public const string TargetScopeTypeSubscription = "subscription";
         public const string TargetScopeTypeResourceGroup = "resourceGroup";
-        // TODO: Assuming lowercase is fine and this ordering is not important
         public const string TargetScopeTypeDSC = "dsc";
 
         public const string CopyLoopIdentifier = "copy";

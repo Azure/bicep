@@ -36,6 +36,12 @@ namespace Bicep.Core.Emit
 
         private static ScopeData? ValidateScope(SemanticModel semanticModel, LogInvalidScopeDiagnostic logInvalidScopeFunc, ResourceScope supportedScopes, SyntaxBase bodySyntax, SyntaxBase? scopeValue)
         {
+            // If the DSC feature is enabled the scope is added to the supported scopes here so it doesn't have to be added to the Azure types.
+            if (semanticModel.Configuration.ExperimentalFeaturesEnabled.ResourceDSC)
+            {
+                supportedScopes |= ResourceScope.DSC;
+            }
+
             if (scopeValue is null)
             {
                 // no scope provided - use the target scope for the file
