@@ -2115,7 +2115,7 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 // We add the DSC constant here so we can error with BCP033 when the feature isn't enabled.
-                // When no longer experimental, add to 'TargetScopeSyntax.GetDeclaredType()' instead.
+                // TODO: When no longer experimental, add directly to 'TargetScopeSyntax.GetDeclaredType()' instead.
                 if (features.ResourceDSCEnabled)
                 {
                     declaredType = TypeHelper.CreateTypeUnion(declaredType, TypeFactory.CreateStringLiteralType(LanguageConstants.TargetScopeTypeDSC));
