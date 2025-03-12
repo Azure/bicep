@@ -127,11 +127,10 @@
       },
       "Azure.Containers.ContainerRegistry": {
         "type": "Transitive",
-        "resolved": "1.1.1",
-        "contentHash": "yFly4PvdtRjLMyuGiLw3zGVy4yYt2ipWRkLz1cVQBio3Ic6ahwYQEqE72wHRChQ4olLZPyV9xPmtCL+tIfOiog==",
+        "resolved": "1.2.0",
+        "contentHash": "fKA6ws+zFyO1gsE4mjYoafw9QgVeUTjUoMp6CPzXQ1uqjZ659CUeCiPl88GSTARO7rUpOilPTsLzUrYqr/Xh1A==",
         "dependencies": {
-          "Azure.Core": "1.36.0",
-          "System.Text.Json": "4.7.2"
+          "Azure.Core": "1.44.1"
         }
       },
       "Azure.Core": {
@@ -1557,7 +1556,7 @@
           "Azure.Bicep.Types": "[0.5.110, )",
           "Azure.Bicep.Types.Az": "[0.2.737, )",
           "Azure.Bicep.Types.K8s": "[0.1.644, )",
-          "Azure.Containers.ContainerRegistry": "[1.1.1, )",
+          "Azure.Containers.ContainerRegistry": "[1.2.0, )",
           "Azure.Deployments.Templates": "[1.224.0, )",
           "Azure.Identity": "[1.13.2, )",
           "Azure.ResourceManager.Resources": "[1.9.0, )",

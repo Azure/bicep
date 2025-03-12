@@ -37,12 +37,11 @@
       },
       "Azure.Containers.ContainerRegistry": {
         "type": "Direct",
-        "requested": "[1.1.1, )",
-        "resolved": "1.1.1",
-        "contentHash": "yFly4PvdtRjLMyuGiLw3zGVy4yYt2ipWRkLz1cVQBio3Ic6ahwYQEqE72wHRChQ4olLZPyV9xPmtCL+tIfOiog==",
+        "requested": "[1.2.0, )",
+        "resolved": "1.2.0",
+        "contentHash": "fKA6ws+zFyO1gsE4mjYoafw9QgVeUTjUoMp6CPzXQ1uqjZ659CUeCiPl88GSTARO7rUpOilPTsLzUrYqr/Xh1A==",
         "dependencies": {
-          "Azure.Core": "1.36.0",
-          "System.Text.Json": "4.7.2"
+          "Azure.Core": "1.44.1"
         }
       },
       "Azure.Deployments.Internal.GenerateNotice": {
