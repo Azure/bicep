@@ -140,12 +140,12 @@
       },
       "System.IO.Abstractions": {
         "type": "Direct",
-        "requested": "[21.3.1, )",
-        "resolved": "21.3.1",
-        "contentHash": "Gm8HI/AHwoWd1r9IUShekWgAQjJgTM1jmrJHSkxONeuVUQAZdxSKzGYTjReBYgqLvF1Zq1Hcd1qHytrL0HuiBg==",
+        "requested": "[22.0.11, )",
+        "resolved": "22.0.11",
+        "contentHash": "puMhRgC2Nw0UbkVXiGsRZMfQBon0qweJ/KxkDmdAa0UrAh3t3J/y96J7e8RLRJ5aqFpt6go5BTyGCdE46fFDxA==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "21.3.1",
-          "TestableIO.System.IO.Abstractions.Wrappers": "21.3.1"
+          "TestableIO.System.IO.Abstractions": "22.0.11",
+          "TestableIO.System.IO.Abstractions.Wrappers": "22.0.11"
         }
       },
       "Azure.Bicep.Types": {
@@ -1176,16 +1176,24 @@
       },
       "TestableIO.System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "21.3.1",
-        "contentHash": "B9USlBOZAiqXss7AI4BH6HVWs+HoHx38OadJjBO0VCzEWgP/u0u52bogmrzDHsyqRv8Yo/xtIMQXgpjLoaAUXw=="
+        "resolved": "22.0.11",
+        "contentHash": "U/Oo6IX9HPvz4+5O4ftGN9kL26s83pNKyoDB7T1LMM5zsMSJr0qH1QAKstHIu0NQcmJkrTcsr5mcZ0Uw/3KmKQ==",
+        "dependencies": {
+          "Testably.Abstractions.FileSystem.Interface": "9.0.0"
+        }
       },
       "TestableIO.System.IO.Abstractions.Wrappers": {
         "type": "Transitive",
-        "resolved": "21.3.1",
-        "contentHash": "l/xu8G96pntsofFG8vh6BKbVbYWtqYZTpNCcj4jGNwxwSbwY2gvDmkiFmIbWf7lgzPZbopW2FAfaY6m4K/3QJw==",
+        "resolved": "22.0.11",
+        "contentHash": "HsaKBbeY1qRmaALkNt3qWfF3QpXCm+Q3KB8f34hQ1vXax3gmtZo2s56xRZPcFiW08N77LrX9GvAYZdV6rVQYEw==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "21.3.1"
+          "Testably.Abstractions.FileSystem.Interface": "9.0.0"
         }
+      },
+      "Testably.Abstractions.FileSystem.Interface": {
+        "type": "Transitive",
+        "resolved": "9.0.0",
+        "contentHash": "uksk86YlnzAdyfVNu3wICU0X5iXVe9LF7Q3UkngNliHWEvM5gvAlOUr+jmd9JwmbJWISH5+i1vyXE02lEVz7WQ=="
       },
       "Azure.Bicep.Core": {
         "type": "Project",
@@ -1210,14 +1218,14 @@
           "Newtonsoft.Json": "[13.0.3, )",
           "Semver": "[3.0.0, )",
           "SharpYaml": "[2.1.1, )",
-          "System.IO.Abstractions": "[21.3.1, )",
+          "System.IO.Abstractions": "[22.0.11, )",
           "System.Private.Uri": "[4.3.2, )"
         }
       },
       "Azure.Bicep.IO": {
         "type": "Project",
         "dependencies": {
-          "System.IO.Abstractions": "[21.3.1, )",
+          "System.IO.Abstractions": "[22.0.11, )",
           "System.Memory.Data": "[9.0.2, )"
         }
       }
