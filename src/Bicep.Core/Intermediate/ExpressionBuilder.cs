@@ -1623,7 +1623,8 @@ public class ExpressionBuilder
                 }
                 return;
             case ResourceScope.DSC:
-                // TODO: Possibly emit something with properties, but at minimum we can't throw
+                // This scope just changes the schema so there are no properties to emit.
+                // We don't ever need to throw here because the feature is checked during scope validation.
                 return;
             default:
                 throw new InvalidOperationException($"Cannot format resourceId for scope {scopeData.RequestedScope}");

@@ -449,10 +449,9 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             // It's important to cache this result because generating the resource type is an expensive operation
             var resourceType = generatedTypeCache.GetOrAdd(flags, typeReference, () =>
             {
-                // TODO: But adding DSC here is what added to to the ValidParentScopes union
                 var resourceType = new ResourceTypeComponents(
                     typeReference,
-                    ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource | ResourceScope.DSC,
+                    ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource,
                     ResourceScope.None,
                     ResourceFlags.None,
                     CreateGenericResourceBody(typeReference, p => true));

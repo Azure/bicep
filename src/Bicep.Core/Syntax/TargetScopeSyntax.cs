@@ -50,8 +50,7 @@ namespace Bicep.Core.Syntax
                 TypeFactory.CreateStringLiteralType(LanguageConstants.TargetScopeTypeTenant),
                 TypeFactory.CreateStringLiteralType(LanguageConstants.TargetScopeTypeManagementGroup),
                 TypeFactory.CreateStringLiteralType(LanguageConstants.TargetScopeTypeSubscription),
-                TypeFactory.CreateStringLiteralType(LanguageConstants.TargetScopeTypeResourceGroup),
-                TypeFactory.CreateStringLiteralType(LanguageConstants.TargetScopeTypeDSC));
+                TypeFactory.CreateStringLiteralType(LanguageConstants.TargetScopeTypeResourceGroup));
         }
     }
 }
