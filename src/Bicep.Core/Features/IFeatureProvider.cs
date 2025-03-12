@@ -41,6 +41,8 @@ public interface IFeatureProvider
 
     bool ModuleExtensionConfigsEnabled { get; }
 
+    bool ResourceDSCEnabled { get; }
+
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
         get
@@ -61,7 +63,8 @@ public interface IFeatureProvider
                 (SecureOutputsEnabled, CoreResources.ExperimentalFeatureNames_SecureOutputs, true, false),
                 (TypedVariablesEnabled, "Typed variables", true, false),
                 (ExtendableParamFilesEnabled, "Enable extendable parameters", true, false),
-                (ModuleExtensionConfigsEnabled, "Enables defining extension configs for modules", true, true)
+                (ModuleExtensionConfigsEnabled, "Enables defining extension configs for modules", true, true),
+                (ResourceDSCEnabled, "Enables DSC resources via new scope", true, false),
             })
             {
                 if (enabled)
