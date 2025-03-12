@@ -130,7 +130,13 @@ namespace Bicep.Core.TypeSystem
                     return new DeclaredTypeAssignment(TypeFactory.CreateBooleanType(), assert);
 
                 case TargetScopeSyntax targetScope:
-                    return new DeclaredTypeAssignment(targetScope.GetDeclaredType(), targetScope, DeclaredTypeFlags.Constant);
+                    // We add the DSC constant here so we can have it as a completion when the feature is enabled.
+                    // TODO: When no longer experimental, add directly to 'TargetScopeSyntax.GetDeclaredType()' instead.
+                    return new DeclaredTypeAssignment(
+                        features.ResourceDSCEnabled
+                            ? TypeHelper.CreateTypeUnion(targetScope.GetDeclaredType(), TypeFactory.CreateStringLiteralType(LanguageConstants.TargetScopeTypeDSC))
+                            : targetScope.GetDeclaredType(),
+                        targetScope, DeclaredTypeFlags.Constant);
 
                 case IfConditionSyntax ifCondition:
                     return GetIfConditionType(ifCondition);
