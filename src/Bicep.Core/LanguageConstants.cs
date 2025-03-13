@@ -166,6 +166,7 @@ namespace Bicep.Core
 
         // module properties
         public const string ModuleParamsPropertyName = "params";
+        public const string ModuleExtensionConfigsPropertyName = "extensionConfigs";
         public const string ModuleOutputsPropertyName = "outputs";
         public const string ModuleNamePropertyName = "name";
 
@@ -317,7 +318,7 @@ namespace Bicep.Core
             return new ResourceScopeType(scopeDescriptions, resourceScope);
         }
 
-        public static TypeSymbol CreateModuleType(IFeatureProvider features, IEnumerable<NamedTypeProperty> paramsProperties, IEnumerable<NamedTypeProperty> outputProperties, ResourceScope moduleScope, ResourceScope containingScope, string typeName)
+        public static TypeSymbol CreateModuleType(IFeatureProvider features, IEnumerable<NamedTypeProperty> paramsProperties, IEnumerable<NamedTypeProperty>? extensionConfigsProperties, IEnumerable<NamedTypeProperty> outputProperties, ResourceScope moduleScope, ResourceScope containingScope, string typeName)
         {
             var paramsType = new ObjectType(ModuleParamsPropertyName, TypeSymbolValidationFlags.Default, paramsProperties, null);
             // If none of the params are required, we can allow the 'params' declaration to be omitted entirely
@@ -335,18 +336,25 @@ namespace Bicep.Core
             // Module name is optional.
             var nameRequirednessFlags = TypePropertyFlags.None;
 
-            var moduleBody = new ObjectType(
-                typeName,
-                TypeSymbolValidationFlags.Default,
-                new[]
-                {
-                    new NamedTypeProperty(ModuleNamePropertyName, LanguageConstants.String, nameRequirednessFlags | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.LoopVariant),
-                    new NamedTypeProperty(ResourceScopePropertyName, CreateResourceScopeReference(moduleScope), scopePropertyFlags),
-                    new NamedTypeProperty(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
-                    new NamedTypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
-                    new NamedTypeProperty(ResourceDependsOnPropertyName, ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny),
-                },
-                null);
+            List<NamedTypeProperty> moduleProperties =
+            [
+                new(ModuleNamePropertyName, LanguageConstants.String, nameRequirednessFlags | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.LoopVariant),
+                new(ResourceScopePropertyName, CreateResourceScopeReference(moduleScope), scopePropertyFlags),
+                new(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
+                new(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
+                new(ResourceDependsOnPropertyName, ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny)
+            ];
+
+            if (features is { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true })
+            {
+                extensionConfigsProperties ??= [];
+                var extensionConfigsType = new ObjectType(ModuleExtensionConfigsPropertyName, TypeSymbolValidationFlags.Default, extensionConfigsProperties);
+                var extensionConfigsRequiredFlag = extensionConfigsProperties.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required)) ? TypePropertyFlags.Required : TypePropertyFlags.None;
+
+                moduleProperties.Add(new(ModuleExtensionConfigsPropertyName, extensionConfigsType, extensionConfigsRequiredFlag | TypePropertyFlags.WriteOnly));
+            }
+
+            var moduleBody = new ObjectType(typeName, TypeSymbolValidationFlags.Default, moduleProperties, null);
 
             return new ModuleType(typeName, moduleScope, moduleBody);
         }

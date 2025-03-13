@@ -1,13 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
-using Bicep.Core.CodeAction;
 using Bicep.Core.CodeAction.Fixes;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -34,6 +32,7 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<SymbolHierarchy> symbolHierarchyLazy;
         private readonly Lazy<ResourceAncestorGraph> resourceAncestorsLazy;
         private readonly Lazy<ImmutableSortedDictionary<string, ParameterMetadata>> parametersLazy;
+        private readonly Lazy<ImmutableSortedDictionary<string, ExtensionMetadata>> extensionsLazy;
         private readonly Lazy<ImmutableSortedDictionary<string, ExportMetadata>> exportsLazy;
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
         private readonly Lazy<IApiVersionProvider> apiVersionProviderLazy;
@@ -124,6 +123,8 @@ namespace Bicep.Core.Semantics
 
                 return parameters.ToImmutable();
             });
+
+            this.extensionsLazy = new(FindExtensions);
 
             this.exportsLazy = new(() => FindExportedTypes().Concat(FindExportedVariables()).Concat(FindExportedFunctions())
                 .DistinctBy(export => export.Name, LanguageConstants.IdentifierComparer)
@@ -237,6 +238,8 @@ namespace Bicep.Core.Semantics
         public IBicepAnalyzer LinterAnalyzer { get; }
 
         public ImmutableSortedDictionary<string, ParameterMetadata> Parameters => this.parametersLazy.Value;
+
+        public ImmutableSortedDictionary<string, ExtensionMetadata> Extensions => this.extensionsLazy.Value;
 
         public ImmutableSortedDictionary<string, ExportMetadata> Exports => exportsLazy.Value;
 
@@ -454,6 +457,26 @@ namespace Bicep.Core.Semantics
             return Root.ParameterAssignments.ToImmutableDictionary(
                 decl => decl,
                 decl => parameterDeclarations[decl.Name].FirstOrDefault());
+        }
+
+        private ImmutableSortedDictionary<string, ExtensionMetadata> FindExtensions()
+        {
+            if (!SourceFile.Features.ExtensibilityEnabled)
+            {
+                return ImmutableSortedDictionary<string, ExtensionMetadata>.Empty;
+            }
+
+            var extensions = ImmutableSortedDictionary.CreateBuilder<string, ExtensionMetadata>();
+
+            foreach (var extDecl in this.Root.ExtensionDeclarations.DistinctBy(p => p.Name))
+            {
+                if (extDecl.TryGetNamespaceType() is { } extType)
+                {
+                    extensions.Add(extType.Name, new ExtensionMetadata(extType.Name, extType.ExtensionName, extType.ExtensionVersion, extType));
+                }
+            }
+
+            return extensions.ToImmutable();
         }
 
         private ISemanticModel? TryGetSemanticModelForParamsFile()
