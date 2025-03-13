@@ -94,11 +94,11 @@
       },
       "System.IO.Abstractions.TestingHelpers": {
         "type": "Direct",
-        "requested": "[21.3.1, )",
-        "resolved": "21.3.1",
-        "contentHash": "LsvGSS5XbvVonvWo1fb6X5T3WFAe59A9A+F+KiyXXDEw8FDDEvaoI+IbUzLPyjTZJ1sIFredoJCgppXjEESL4A==",
+        "requested": "[22.0.11, )",
+        "resolved": "22.0.11",
+        "contentHash": "4Y3RsgFWKv0AyGarOL5n4pTrmayNCL0SpTesf6Sk8J9lRWFemnPF9DmQ+IETX1GLPAOrCvo5zF/kB7aEUEVVig==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions.TestingHelpers": "21.3.1"
+          "TestableIO.System.IO.Abstractions.TestingHelpers": "22.0.11"
         }
       },
       "Azure.Bicep.Types": {
@@ -1535,20 +1535,25 @@
       },
       "TestableIO.System.IO.Abstractions.TestingHelpers": {
         "type": "Transitive",
-        "resolved": "21.3.1",
-        "contentHash": "XP7tiKVtnOP+jXWsRqgc7WCV2tsoolVnxSNUJXwdWmHCpLMsVlZXRag7dMynnNEQQB9XEJx25RteqN5APCnjag==",
+        "resolved": "22.0.11",
+        "contentHash": "/xAqHwuXzv8+vFxu5eBUqdiQuYzHnYKkIHBA6PvFrxXhNzQSwdHRdAcPJTmaTbxl0wDHiKvMRZkMkcpne6vn5g==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "21.3.1",
-          "TestableIO.System.IO.Abstractions.Wrappers": "21.3.1"
+          "TestableIO.System.IO.Abstractions.Wrappers": "22.0.11",
+          "Testably.Abstractions.FileSystem.Interface": "9.0.0"
         }
       },
       "TestableIO.System.IO.Abstractions.Wrappers": {
         "type": "Transitive",
-        "resolved": "21.3.1",
-        "contentHash": "l/xu8G96pntsofFG8vh6BKbVbYWtqYZTpNCcj4jGNwxwSbwY2gvDmkiFmIbWf7lgzPZbopW2FAfaY6m4K/3QJw==",
+        "resolved": "22.0.11",
+        "contentHash": "HsaKBbeY1qRmaALkNt3qWfF3QpXCm+Q3KB8f34hQ1vXax3gmtZo2s56xRZPcFiW08N77LrX9GvAYZdV6rVQYEw==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "21.3.1"
+          "Testably.Abstractions.FileSystem.Interface": "9.0.0"
         }
+      },
+      "Testably.Abstractions.FileSystem.Interface": {
+        "type": "Transitive",
+        "resolved": "9.0.0",
+        "contentHash": "uksk86YlnzAdyfVNu3wICU0X5iXVe9LF7Q3UkngNliHWEvM5gvAlOUr+jmd9JwmbJWISH5+i1vyXE02lEVz7WQ=="
       },
       "Azure.Bicep.Core": {
         "type": "Project",
