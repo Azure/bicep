@@ -4,8 +4,10 @@ using System.Collections.Immutable;
 using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Assertions;
@@ -13,6 +15,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+
 
 namespace Bicep.Core.UnitTests.TypeSystem
 {
@@ -23,6 +26,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         private static SemanticModel CreateDummySemanticModel()
             => CompilationHelper.Compile("").Compilation.GetEntrypointSemanticModel();
+
+        private static IEnumerable<FunctionOverload> GetSystemOverloads()
+        {
+            return Enumerable.Empty<FunctionOverload>();
+        }
 
         [DataTestMethod]
         [DynamicData(nameof(GetExactMatchData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
@@ -328,6 +336,62 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             returnType.ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.AllowLooseAssignment);
             returnType.ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.IsSecure);
+        }
+
+        //[TestMethod]
+        //public void BuildUriFunction_ShouldReturnConstructedUri()
+        //{
+        //    var functionResolver = new FunctionResolver(
+        //        new ObjectType("dummy", TypeSymbolValidationFlags.Default, Enumerable.Empty<NamedTypeProperty>(), null),
+        //        GetSystemOverloads());
+
+        //    var components = new ObjectExpression(null, new[]
+        //    {
+        //        new ObjectPropertyExpression(null, new StringLiteralExpression(null, "scheme"), new StringLiteralExpression(null, "https")),
+        //        new ObjectPropertyExpression(null, new StringLiteralExpression(null, "host"), new StringLiteralExpression(null, "example.com")),
+        //        new ObjectPropertyExpression(null, new StringLiteralExpression(null, "path"), new StringLiteralExpression(null, "/path"))
+        //    });
+
+        //    var functionCall = new FunctionCallExpression(null, "buildUri", new[] { new FunctionArgumentSyntax(components) });
+
+        //    var result = functionResolver.ResolveFunctionCall(functionCall, CreateDummySemanticModel(), Repository.Create<IDiagnosticWriter>().Object);
+
+        //    Assert.AreEqual("https://example.com/path", ((StringLiteralExpression)result).Value);
+        //}
+
+        [TestMethod]
+        public void ParseUriFunction_ShouldReturnUriComponents()
+        {
+            var functionResolver = new FunctionResolver(
+                new ObjectType("dummy", TypeSymbolValidationFlags.Default, Enumerable.Empty<NamedTypeProperty>(), null),
+                GetSystemOverloads());
+
+            var functionCall = new FunctionCallSyntax(
+                new IdentifierSyntax(new Token(TokenType.Identifier, TextSpan.Nil, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>())),
+                new Token(TokenType.LeftParen, TextSpan.Nil, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>()),
+                new[]
+                {
+            new FunctionArgumentSyntax(new StringSyntax(
+                new[] { new Token(TokenType.StringComplete, TextSpan.Nil, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>()) },
+                Enumerable.Empty<SyntaxBase>(),
+                new[] { "https://example.com/path?query=value" }))
+                },
+                new Token(TokenType.RightParen, TextSpan.Nil, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>()));
+
+            var result = functionResolver.TryGetFunctionSymbol("parseUri")?.Overloads.First().ResultBuilder(
+                CreateDummySemanticModel(),
+                Repository.Create<IDiagnosticWriter>().Object,
+                functionCall,
+                ImmutableArray<TypeSymbol>.Empty);
+
+            var resultObject = result as ObjectSyntax;
+
+            Assert.IsNotNull(resultObject);
+            var properties = resultObject.Properties.ToList();
+            Assert.AreEqual("https", ((StringSyntax)properties.First(p => p.Key.Value == "scheme").Value).TryGetLiteralValue());
+            Assert.AreEqual("example.com", ((StringSyntax)properties.First(p => p.Key.Value == "host").Value).TryGetLiteralValue());
+            Assert.AreEqual("/path", ((StringSyntax)properties.First(p => p.Key.Value == "path").Value).TryGetLiteralValue());
+            Assert.AreEqual("query=value", ((StringSyntax)properties.First(p => p.Key.Value == "query").Value).TryGetLiteralValue());
         }
 
         [DataTestMethod]
