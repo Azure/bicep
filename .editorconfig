@@ -56,8 +56,10 @@ dotnet_diagnostic.IDE0302.severity = warning
 dotnet_diagnostic.IDE0303.severity = warning
 # Use collection expression for builder
 dotnet_diagnostic.IDE0304.severity = warning
-# Use collection expression for fluent
-dotnet_diagnostic.IDE0305.severity = warning
+
+# This analyzer was suggesting replacing .ToList() or .ToArray() with the collection [.. ] operator which is less readable
+# We decided to suppress this diagnostic
+dotnet_diagnostic.IDE0305.severity = none
 
 # Unused local variables
 dotnet_diagnostic.CA1804.severity = warning
