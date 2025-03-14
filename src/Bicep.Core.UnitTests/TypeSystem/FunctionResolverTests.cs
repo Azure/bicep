@@ -4,8 +4,11 @@ using System.Collections.Immutable;
 using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Intermediate;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Assertions;
@@ -13,6 +16,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+
 
 namespace Bicep.Core.UnitTests.TypeSystem
 {
@@ -23,6 +27,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         private static SemanticModel CreateDummySemanticModel()
             => CompilationHelper.Compile("").Compilation.GetEntrypointSemanticModel();
+
+        private static IEnumerable<FunctionOverload> GetSystemOverloads()
+        {
+            return [];
+        }
 
         [DataTestMethod]
         [DynamicData(nameof(GetExactMatchData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
@@ -124,7 +133,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetInputsThatFlattenToArrayOfAny), DynamicDataSourceType.Method)]
         public void ShouldFlattenToArrayOfAny(TypeSymbol typeToFlatten)
         {
-            EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>()))])
+            EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray([]))])
                 .Type.As<ArrayType>()
                 .Item.Should().Be(LanguageConstants.Any);
         }
@@ -133,14 +142,14 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetFlattenPositiveTestCases), DynamicDataSourceType.Method)]
         public void ShouldFlattenTo(TypeSymbol typeToFlatten, TypeSymbol expected)
         {
-            TypeValidator.AreTypesAssignable(EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>()))]).Type, expected).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray([]))]).Type, expected).Should().BeTrue();
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetFlattenNegativeTestCases), DynamicDataSourceType.Method)]
         public void ShouldNotFlatten(TypeSymbol typeToFlatten, params string[] diagnosticMessages)
         {
-            EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>()))]).Type.GetDiagnostics().Cast<IDiagnostic>()
+            EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray([]))]).Type.GetDiagnostics().Cast<IDiagnostic>()
                 .Should().HaveDiagnostics(diagnosticMessages.Select(message => ("BCP309", DiagnosticLevel.Error, message)));
         }
 
@@ -148,14 +157,14 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetFirstTestCases), DynamicDataSourceType.Method)]
         public void FirstReturnsCorrectType(TypeSymbol inputArrayType, TypeSymbol expected)
         {
-            TypeValidator.AreTypesAssignable(EvaluateFunction("first", new List<TypeSymbol> { inputArrayType }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>()))]).Type, expected).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(EvaluateFunction("first", new List<TypeSymbol> { inputArrayType }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray([]))]).Type, expected).Should().BeTrue();
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetLastTestCases), DynamicDataSourceType.Method)]
         public void LastReturnsCorrectType(TypeSymbol inputArrayType, TypeSymbol expected)
         {
-            TypeValidator.AreTypesAssignable(EvaluateFunction("last", new List<TypeSymbol> { inputArrayType }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>()))]).Type, expected).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(EvaluateFunction("last", new List<TypeSymbol> { inputArrayType }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray([]))]).Type, expected).Should().BeTrue();
         }
 
         [TestMethod]
@@ -328,6 +337,73 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             returnType.ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.AllowLooseAssignment);
             returnType.ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.IsSecure);
+        }
+
+        //[TestMethod]
+        //public void BuildUriFunction_ShouldReturnConstructedUri()
+        //{
+        //    var functionResolver = new FunctionResolver(
+        //        new ObjectType("dummy", TypeSymbolValidationFlags.Default, Enumerable.Empty<NamedTypeProperty>(), null),
+        //        GetSystemOverloads());
+
+        //    var components = new ObjectExpression(null, new[]
+        //    {
+        //        new ObjectPropertyExpression(null, new StringLiteralExpression(null, "scheme"), new StringLiteralExpression(null, "https")),
+        //        new ObjectPropertyExpression(null, new StringLiteralExpression(null, "host"), new StringLiteralExpression(null, "example.com")),
+        //        new ObjectPropertyExpression(null, new StringLiteralExpression(null, "path"), new StringLiteralExpression(null, "/path"))
+        //    });
+
+        //    var functionCall = new FunctionCallExpression(null, "buildUri", new[] { new FunctionArgumentSyntax(components) });
+
+        //    var result = functionResolver.ResolveFunctionCall(functionCall, CreateDummySemanticModel(), Repository.Create<IDiagnosticWriter>().Object);
+
+        //    Assert.AreEqual("https://example.com/path", ((StringLiteralExpression)result).Value);
+        //}
+
+        [TestMethod]
+        public void ParseUriFunction_ShouldReturnUriComponents()
+        {
+            var functionResolver = new FunctionResolver(
+                new ObjectType("dummy", TypeSymbolValidationFlags.Default, [], null),
+                GetSystemOverloads());
+
+            var functionCall = new FunctionCallSyntax(
+                new IdentifierSyntax(new Token(TokenType.Identifier, TextSpan.Nil, [], [])),
+                new Token(TokenType.LeftParen, TextSpan.Nil, [], []),
+                new[]
+                {
+            new FunctionArgumentSyntax(new StringSyntax(
+                new[] { new Token(TokenType.StringComplete, TextSpan.Nil, [], []) },
+                [],
+                new[] { "https://example.com/path?query=value" }))
+                },
+                new Token(TokenType.RightParen, TextSpan.Nil, [], []));
+
+            var result = functionResolver.TryGetFunctionSymbol("parseUri")?.Overloads.First().ResultBuilder(
+                CreateDummySemanticModel(),
+                Repository.Create<IDiagnosticWriter>().Object,
+                functionCall,
+                []);
+
+            result.Should().NotBeNull();
+            result!.Type.Should().BeOfType<ObjectType>();
+
+            var objectType = (ObjectType)result.Type;
+            objectType.Should().NotBeNull();
+
+            result.Value.Should().NotBeNull();
+            result.Value.Should().BeOfType<ObjectExpression>();
+
+            var objectExpression = (ObjectExpression)result.Value!;
+
+            //var resultObject = result as ObjectSyntax;
+
+            //Assert.IsNotNull(resultObject);
+            //var properties = resultObject.Properties.ToList();
+            //Assert.AreEqual("https", ((StringSyntax)properties.First(p => p.Key.Value == "scheme").Value).TryGetLiteralValue());
+            //Assert.AreEqual("example.com", ((StringSyntax)properties.First(p => p.Key.Value == "host").Value).TryGetLiteralValue());
+            //Assert.AreEqual("/path", ((StringSyntax)properties.First(p => p.Key.Value == "path").Value).TryGetLiteralValue());
+            //Assert.AreEqual("query=value", ((StringSyntax)properties.First(p => p.Key.Value == "query").Value).TryGetLiteralValue());
         }
 
         [DataTestMethod]
