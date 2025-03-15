@@ -59,15 +59,5 @@ resource diagSettings 'Microsoft.Insights/diagnosticsettings@2017-05-01-preview'
   name: redisCacheName
   properties: {
     storageAccountId: existingDiagnosticsStorageAccountId
-    metrics: [
-      {
-        timeGrain: 'AllMetrics'
-        enabled: diagnosticsEnabled
-        retentionPolicy: {
-          days: 90
-          enabled: diagnosticsEnabled
-        }
-      }
-    ]
   }
 }
