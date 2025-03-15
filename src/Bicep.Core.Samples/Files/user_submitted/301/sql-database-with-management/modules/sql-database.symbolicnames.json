@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5796360048593136515"
+      "templateHash": "2831038909335126258"
     }
   },
   "parameters": {
@@ -116,7 +116,7 @@
     },
     "auditDiagnosticSettings": {
       "condition": "[parameters('sqlDatabase').diagnosticLogsAndMetrics.auditLogs]",
-      "type": "Microsoft.Insights/diagnosticSettings",
+      "type": "microsoft.insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.Sql/servers/{0}/databases/{1}', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1])]",
       "name": "SQLSecurityAuditEvents_3d229c42-c7e7-4c97-9a99-ec0d0d8b86c1",
@@ -137,7 +137,7 @@
     },
     "diagnosticSettings": {
       "condition": "[not(empty(parameters('sqlDatabase').diagnosticLogsAndMetrics.name))]",
-      "type": "Microsoft.Insights/diagnosticSettings",
+      "type": "microsoft.insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.Sql/servers/{0}/databases/{1}', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1])]",
       "name": "sendLogsAndMetrics",
@@ -148,14 +148,6 @@
             "count": "[length(parameters('sqlDatabase').diagnosticLogsAndMetrics.logs)]",
             "input": {
               "category": "[parameters('sqlDatabase').diagnosticLogsAndMetrics.logs[copyIndex('logs')]]",
-              "enabled": true
-            }
-          },
-          {
-            "name": "metrics",
-            "count": "[length(parameters('sqlDatabase').diagnosticLogsAndMetrics.metrics)]",
-            "input": {
-              "category": "[parameters('sqlDatabase').diagnosticLogsAndMetrics.metrics[copyIndex('metrics')]]",
               "enabled": true
             }
           }

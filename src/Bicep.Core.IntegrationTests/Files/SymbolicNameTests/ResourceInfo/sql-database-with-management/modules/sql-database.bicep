@@ -143,11 +143,5 @@ resource diagnosticSettings 'microsoft.insights/diagnosticSettings@2017-05-01-pr
         enabled: true
       }
     ]
-    metrics: [
-      for metric in sqlDatabase.diagnosticLogsAndMetrics.metrics: {
-        category: metric
-        enabled: true
-      }
-    ]
   }
 }

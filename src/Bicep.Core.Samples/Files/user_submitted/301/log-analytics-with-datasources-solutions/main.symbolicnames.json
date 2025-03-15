@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9083037087094902173"
+      "templateHash": "2962853459093046771"
     }
   },
   "parameters": {
@@ -175,7 +175,7 @@
     },
     "diagnostics": {
       "condition": "[parameters('enableDiagnostics')]",
-      "type": "Microsoft.Insights/diagnosticSettings",
+      "type": "microsoft.insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.OperationalInsights/workspaces/{0}', parameters('name'))]",
       "name": "[variables('diagnosticsName')]",
@@ -185,12 +185,6 @@
         "logs": [
           {
             "category": "Audit",
-            "enabled": true
-          }
-        ],
-        "metrics": [
-          {
-            "category": "AllMetrics",
             "enabled": true
           }
         ]
