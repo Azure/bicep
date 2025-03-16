@@ -796,7 +796,7 @@
     "semver": "^7.7.1",
     "style-loader": "^4.0.0",
     "svg-inline-loader": "^0.8.2",
-    "terser-webpack-plugin": "5.3.11",
+    "terser-webpack-plugin": "5.3.14",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
