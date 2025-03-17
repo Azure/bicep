@@ -173,6 +173,26 @@ namespace Bicep.Core.IntegrationTests.Decorators
                 });
             }
         }
+
+        [TestMethod]
+        public void OnlyIfNotExistsDecorator_NotEnabled_ShouldFail()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
+            @onlyIfNotExists(1)
+            resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+                name: 'sql-server-name'
+                location: 'polandcentral'
+            }
+            ");
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                    ("BCP057", DiagnosticLevel.Error, "The name \"onlyIfNotExists\" does not exist in the current context."),
+                });
+            }
+        }
     }
 }
 
