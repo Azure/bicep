@@ -27,11 +27,14 @@ namespace Bicep.Core.Analyzers.Linter
 
         private readonly IServiceProvider serviceProvider;
 
+        private readonly RegoLinter regoLinter;
+
         public LinterAnalyzer(IServiceProvider serviceProvider)
         {
             this.linterRulesProvider = new LinterRulesProvider();
             this.ruleSet = CreateLinterRules();
             this.serviceProvider = serviceProvider;
+            this.regoLinter = new RegoLinter();
         }
 
         private bool LinterEnabled(SemanticModel model) => model.Configuration.Analyzers.GetValue(LinterEnabledSetting, false); // defaults to true in base bicepconfig.json file
@@ -58,23 +61,25 @@ namespace Bicep.Core.Analyzers.Linter
 
         public IEnumerable<IDiagnostic> Analyze(SemanticModel semanticModel)
         {
-            var diagnostics = new List<IDiagnostic>();
+            var diagnostics = ToListDiagnosticWriter.Create();
 
             if (this.LinterEnabled(semanticModel))
             {
                 // add an info diagnostic for local configuration reporting
                 if (this.LinterVerbose(semanticModel))
                 {
-                    diagnostics.Add(GetConfigurationDiagnostic(semanticModel));
+                    diagnostics.Write(GetConfigurationDiagnostic(semanticModel));
                 }
 
-                diagnostics.AddRange(ruleSet.SelectMany(r => r.Analyze(semanticModel, this.serviceProvider)));
+                diagnostics.WriteMultiple(ruleSet.SelectMany(r => r.Analyze(semanticModel, this.serviceProvider)));
+
+                regoLinter.Analyze(semanticModel, diagnostics);
             }
             else
             {
                 if (this.LinterVerbose(semanticModel))
                 {
-                    diagnostics.Add(new Diagnostic(
+                    diagnostics.Write(new Diagnostic(
                         TextSpan.TextDocumentStart,
                         DiagnosticLevel.Info,
                         DiagnosticSource.CoreLinter,
@@ -83,7 +88,7 @@ namespace Bicep.Core.Analyzers.Linter
                 }
             }
 
-            return diagnostics;
+            return diagnostics.GetDiagnostics();
         }
 
         private IDiagnostic GetConfigurationDiagnostic(SemanticModel model)

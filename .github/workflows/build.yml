@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [main]
+    branches: [main, ant/rego]
   pull_request:
     branches: [main]
   workflow_dispatch:

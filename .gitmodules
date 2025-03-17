@@ -1,0 +1,3 @@
+[submodule "regorus"]
+	path = regorus
+	url = https://github.com/microsoft/regorus

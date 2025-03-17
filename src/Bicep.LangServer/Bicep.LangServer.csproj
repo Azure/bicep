@@ -29,6 +29,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="../../regorus/bindings/ffi/target/release/*regorus_ffi*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="LangServerResources.Designer.cs">
       <DependentUpon>LangServerResources.resx</DependentUpon>
       <DesignTime>True</DesignTime>

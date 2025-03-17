@@ -994,6 +994,9 @@
           "System.IO.Abstractions": "[21.3.1, )",
           "System.Memory.Data": "[9.0.2, )"
         }
+      },
+      "regorus-test": {
+        "type": "Project"
       }
     },
     "net8.0/linux-arm64": {

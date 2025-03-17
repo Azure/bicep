@@ -1536,7 +1536,8 @@
           "Semver": "[3.0.0, )",
           "SharpYaml": "[2.1.1, )",
           "System.IO.Abstractions": "[21.3.1, )",
-          "System.Private.Uri": "[4.3.2, )"
+          "System.Private.Uri": "[4.3.2, )",
+          "regorus-test": "[1.0.0, )"
         }
       },
       "Azure.Bicep.Decompiler": {
@@ -1580,6 +1581,9 @@
           "Sarif.Sdk": "[4.5.4, )",
           "StreamJsonRpc": "[2.20.20, )"
         }
+      },
+      "regorus-test": {
+        "type": "Project"
       }
     },
     "net8.0/linux-arm64": {
