@@ -28,6 +28,9 @@ Enables local deployment capability. See [Bicep Local Providers](https://github.
 Moves defining extension configurations to the module level rather than from within a template. The feature also
 includes enhancements for Deployment stacks extensibility integration. This feature is not ready for use.
 
+### `onlyIfNotExists`
+The feature introduces the onlyIfNotExists decorator on a resource. The decorator will only deploy the resource if it does not exist.
+
 ### `resourceDerivedTypes`
 If enabled, templates can reuse resource types wherever a type is expected. For example, to declare a parameter `foo` that should be usable as the name of an Azure Storage account, the following syntax would be used: `param foo resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.name`. **NB:** Because resource types may be inaccurate in some cases, no constraints other than the ARM type primitive will be enforced on resource derived types within the ARM deployment engine. Resource-derived types will be checked by Bicep at compile time, but violations will be emitted as warnings rather than errors.
 
@@ -54,9 +57,6 @@ Permits optional usage of types on variable declarations.
 
 ### `waitAndRetry`
 The feature introduces waitUntil and retryOn decorators on resource data type. waitUnitl() decorator waits for the resource until its usable based on the desired property's state. retryOn() will retry the deployment if one if the listed exception codes are encountered.
-
-### `onlyIfNotExists`
-The feature introduces the onlyIfNotExists decorator on a resource. The decorator will only deploy the resource if it does not exist.
 
 ## Other experimental functionality
 
