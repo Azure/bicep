@@ -1815,7 +1815,8 @@ namespace Bicep.Core.Semantics.Namespaces
                     {
                         if (decorated is DeclaredResourceExpression declaredResourceExpression)
                         {
-                            return declaredResourceExpression with { OnlyIfNotExists = new ArrayExpression(null, []) };
+                            declaredResourceExpression.DecoratorConfig.Add("OnlyIfNotExists", new ArrayExpression(null, []));
+                            return declaredResourceExpression;
                         }
                         return decorated;
                     })
@@ -2056,7 +2057,10 @@ namespace Bicep.Core.Semantics.Namespaces
                                 functionCall.Parameters[0],
                                 functionCall.Parameters[1]
                         );
-                return declaredResourceExpression with { WaitUntil = new ArrayExpression(null, waitUntilParameters)};
+
+                declaredResourceExpression.DecoratorConfig.Add("WaitUntil", new ArrayExpression(null, waitUntilParameters));
+
+                return declaredResourceExpression;
             }
 
             return decorated;
@@ -2076,7 +2080,10 @@ namespace Bicep.Core.Semantics.Namespaces
                             functionCall.Parameters[1]
                     );
                 }
-                return declaredResourceExpression with { RetryOn = new ArrayExpression(null, [.. retryOnParameters]) };
+
+                declaredResourceExpression.DecoratorConfig.Add("RetryOn", new ArrayExpression(null, [.. retryOnParameters]));
+
+                return declaredResourceExpression;
             }
             return decorated;
         }

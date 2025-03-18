@@ -1256,40 +1256,38 @@ namespace Bicep.Core.Emit
                     }
                 }
 
-                // Emit the options property 
-                if (resource.RetryOn is not null || resource.WaitUntil is not null || resource.OnlyIfNotExists is not null)
+                // Emit the options property if there are entries in the DecoratorConfig dictionary
+                if (resource.DecoratorConfig.Count > 0)
                 {
                     emitter.EmitObjectProperty("@options", () =>
                     {
-                        if (resource.RetryOn is not null)
+                        if (resource.DecoratorConfig.ContainsKey("RetryOn"))
                         {
                             emitter.EmitArrayProperty("retryOn", () =>
                             {
-                                foreach (var item in resource.RetryOn.Items)
+                                foreach (var item in resource.DecoratorConfig["RetryOn"].Items)
                                 {
                                     emitter.EmitExpression(item);
                                 }
                             });
                         }
 
-                        if (resource.WaitUntil is not null)
+                        if (resource.DecoratorConfig.ContainsKey("WaitUntil"))
                         {
                             emitter.EmitArrayProperty("waitUntil", () =>
                             {
-                                foreach (var item in resource.WaitUntil.Items)
+                                foreach (var item in resource.DecoratorConfig["WaitUntil"].Items)
                                 {
                                     emitter.EmitExpression(item);
                                 }
                             });
                         }
 
-                        if (resource.OnlyIfNotExists is not null)
+                        if (resource.DecoratorConfig.ContainsKey("OnlyIfNotExists"))
                         {
                             emitter.EmitProperty("onlyIfNotExists", new ArrayExpression(null, []));
                         }
-
                     });
-
                 }
 
                 if (metadata.IsAzResource ||
