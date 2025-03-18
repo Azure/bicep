@@ -2040,7 +2040,7 @@ namespace Bicep.Core.Semantics.Namespaces
                                 functionCall.Parameters[0],
                                 functionCall.Parameters[1]
                         );
-                return declaredResourceExpression with { WaitUntil = new ArrayExpression(null, waitUntilParameters)};
+                return declaredResourceExpression with { WaitUntil = new ArrayExpression(null, waitUntilParameters) };
             }
 
             return decorated;
