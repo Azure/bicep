@@ -1733,7 +1733,7 @@ param myParam string
                 output siteProperties resourceOutput<'Microsoft.Web/sites@2022-09-01'>.properties = appService.properties
                 """);
 
-        result.Should().NotHaveAnyDiagnostics();
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]

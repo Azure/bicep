@@ -91,7 +91,8 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
                     return TypeFactory.CreateStringType(
                         @string.MinLength,
                         @string.MaxLength,
-                        @string.Pattern);
+                        @string.Pattern,
+                        @string.Sensitive is true ? TypeSymbolValidationFlags.IsSecure : default);
                 case Azure.Bicep.Types.Concrete.BuiltInType builtInType:
                     return builtInType.Kind switch
                     {
@@ -111,8 +112,13 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
                     {
                         var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties) : null;
                         var properties = objectType.Properties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value));
+                        var flags = GetValidationFlags(isResourceBodyType);
+                        if (objectType.Sensitive is true)
+                        {
+                            flags |= TypeSymbolValidationFlags.IsSecure;
+                        }
 
-                        return new ObjectType(objectType.Name, GetValidationFlags(isResourceBodyType), properties, additionalProperties is not null ? new(additionalProperties) : null);
+                        return new ObjectType(objectType.Name, flags, properties, additionalProperties is not null ? new(additionalProperties) : null);
                     }
                 case Azure.Bicep.Types.Concrete.ArrayType arrayType:
                     {
