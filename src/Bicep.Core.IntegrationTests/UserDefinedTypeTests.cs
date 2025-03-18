@@ -1872,4 +1872,19 @@ param myParam string
             ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"int | null\" but the provided value is of type \"null | string\"."),
         });
     }
+
+    [TestMethod]
+    public void Mark_resource_derived_output_types_as_secure_if_they_contain_sensitive_data()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
+            """
+                param siteProperties object
+
+                output siteProperties resourceInput<'Microsoft.Web/sites@2022-09-01'>.properties = siteProperties
+                """);
+
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("$.outputs.siteProperties.type", "secureObject");
+    }
 }

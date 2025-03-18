@@ -498,7 +498,11 @@ namespace Bicep.Core.Emit
 
                 return ExpressionFactory.CreateObject(new[]
                 {
-                    TypeProperty(GetNonLiteralTypeName(DerivedType), sourceSyntax),
+                    TypeProperty(
+                        GetNonLiteralTypeName(
+                            DerivedType,
+                            TypeHelper.FindPathsToSecureTypeComponents(DerivedType, false).Any()),
+                        sourceSyntax),
                     ExpressionFactory.CreateObjectProperty(LanguageConstants.ParameterMetadataPropertyName,
                         ExpressionFactory.CreateObject(
                             ExpressionFactory.CreateObjectProperty(
@@ -806,11 +810,31 @@ namespace Bicep.Core.Emit
 
         private ObjectExpression GetTypePropertiesForUnionTypeExpression(UnionTypeExpression expression)
         {
+            static bool IsPotentiallySensitive(TypeSymbol type) => type switch
+            {
+                UnionType union => union.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure) ||
+                    union.Members.Any(m => m.Type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure)),
+                _ => type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure),
+            };
+
             var (nullable, nonLiteralTypeName, allowedValues) = TypeHelper.TryRemoveNullability(expression.ExpressedUnionType) switch
             {
-                UnionType nonNullableUnion => (true, GetNonLiteralTypeName(nonNullableUnion.Members.First().Type), GetAllowedValuesForUnionType(nonNullableUnion, expression.SourceSyntax)),
-                TypeSymbol nonNullable => (true, GetNonLiteralTypeName(nonNullable), SingleElementArray(ToLiteralValue(nonNullable))),
-                _ => (false, GetNonLiteralTypeName(expression.ExpressedUnionType.Members.First().Type), GetAllowedValuesForUnionType(expression.ExpressedUnionType, expression.SourceSyntax)),
+                UnionType nonNullableUnion => (
+                    true,
+                    GetNonLiteralTypeName(
+                        nonNullableUnion.Members.First().Type,
+                        IsPotentiallySensitive(nonNullableUnion)),
+                    GetAllowedValuesForUnionType(nonNullableUnion, expression.SourceSyntax)),
+                TypeSymbol nonNullable => (
+                    true,
+                    GetNonLiteralTypeName(nonNullable, IsPotentiallySensitive(nonNullable)),
+                    SingleElementArray(ToLiteralValue(nonNullable))),
+                _ => (
+                    false,
+                    GetNonLiteralTypeName(
+                        expression.ExpressedUnionType.Members.First().Type,
+                        IsPotentiallySensitive(expression.ExpressedUnionType)),
+                    GetAllowedValuesForUnionType(expression.ExpressedUnionType, expression.SourceSyntax)),
             };
 
             var properties = new List<ObjectPropertyExpression>
@@ -976,14 +1000,14 @@ namespace Bicep.Core.Emit
             _ => throw new ArgumentException("Union types used in ARM type checks must be composed entirely of literal types"),
         };
 
-        private static string GetNonLiteralTypeName(TypeSymbol? type) => type switch
+        private static string GetNonLiteralTypeName(TypeSymbol? type, bool useSecureVariant) => type switch
         {
-            StringLiteralType or StringType => "string",
+            StringLiteralType or StringType => useSecureVariant ? "securestring" : "string",
             IntegerLiteralType or IntegerType => "int",
             BooleanLiteralType or BooleanType => "bool",
-            ObjectType or DiscriminatedObjectType => "object",
+            ObjectType or DiscriminatedObjectType => useSecureVariant ? "secureObject" : "object",
             ArrayType => "array",
-            UnionType @union => @union.Members.Select(m => GetNonLiteralTypeName(m.Type)).Distinct().Single(),
+            UnionType @union => @union.Members.Select(m => GetNonLiteralTypeName(m.Type, useSecureVariant)).Distinct().Single(),
             // This would have been caught by the DeclaredTypeManager during initial type assignment
             _ => throw new ArgumentException($"Cannot resolve nonliteral type name of type {type?.GetType().Name}"),
         };
