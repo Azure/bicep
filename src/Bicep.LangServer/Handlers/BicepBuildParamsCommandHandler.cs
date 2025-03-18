@@ -46,14 +46,16 @@ namespace Bicep.LanguageServer.Handlers
 
         private async Task<string> GenerateCompiledParametersFileAndReturnOutputMessage(string bicepParamsFilePath, DocumentUri documentUri)
         {
-            string compiledFilePath = PathHelper.ResolveParametersFileOutputPath(bicepParamsFilePath, OutputFormatOption.Json);
-            string compiledFile = Path.GetFileName(compiledFilePath);
+            var compiledFilePath = PathHelper.ResolveParametersFileOutputPath(bicepParamsFilePath, OutputFormatOption.Json);
+            var compiledFile = Path.GetFileName(compiledFilePath);
+            var extension = Path.GetExtension(compiledFilePath).ToLowerInvariant();
 
-            // If the template exists and contains bicep generator metadata, we can go ahead and replace the file.
-            // If not, we'll fail the generate params.
-            if (File.Exists(compiledFilePath) && !TemplateIsParametersFile(File.ReadAllText(compiledFilePath)))
+            // If the template exists and has a .bicepparam extension, fail the build params.
+            // If the template exists and has a .json extension and contains the Bicep metadata, fail the build params.
+            // If not, replace the file.
+            if (File.Exists(compiledFilePath) && (extension == LanguageConstants.ParamsFileExtension || (extension == LanguageConstants.JsonFileExtension && !TemplateIsParametersFile(File.ReadAllText(compiledFilePath)))))
             {
-                return "Building parameters file failed. The file \"" + compiledFile + "\" already exists but does not contain the schema for a parameters file. If overwriting the file is intended, delete it manually and retry the Generate Parameters command.";
+                return "Building parameters file failed. The file \"" + compiledFile + "\" already exists. If overwriting the file is intended, delete it manually and retry the Build Parameters command.";
             }
 
             var compilation = await new CompilationHelper(bicepCompiler, compilationManager).GetRefreshedCompilation(documentUri);
