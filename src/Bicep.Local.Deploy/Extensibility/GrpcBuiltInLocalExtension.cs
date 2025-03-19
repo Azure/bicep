@@ -20,17 +20,20 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
 {
     private readonly BicepExtension.BicepExtensionClient client;
     private readonly Process process;
+    private readonly GrpcChannel channel;
 
-    private GrpcBuiltInLocalExtension(BicepExtension.BicepExtensionClient client, Process process)
+    private GrpcBuiltInLocalExtension(BicepExtension.BicepExtensionClient client, Process process, GrpcChannel channel)
     {
         this.client = client;
         this.process = process;
+        this.channel = channel;
     }
 
     public static async Task<LocalExtensibilityHost> Start(Uri pathToBinary)
     {
         string processArgs;
         Func<GrpcChannel> channelBuilder;
+        GrpcChannel? channel = null;
 
         if (Socket.OSSupportsUnixDomainSockets)
         {
@@ -80,15 +83,16 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
             process.BeginErrorReadLine();
             process.BeginOutputReadLine();
 
-            var client = new BicepExtension.BicepExtensionClient(channelBuilder());
+            channel = channelBuilder();
+            var client = new BicepExtension.BicepExtensionClient(channel);
 
             await GrpcChannelHelper.WaitForConnectionAsync(client, cts.Token);
 
-            return new GrpcBuiltInLocalExtension(client, process);
+            return new GrpcBuiltInLocalExtension(client, process, channel);
         }
         catch (Exception ex)
         {
-            await TerminateProcess(process);
+            await TerminateProcess(process, channel);
             throw new InvalidOperationException($"Failed to connect to extension {pathToBinary.LocalPath}", ex);
         }
     }
@@ -167,19 +171,16 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
 
     public override async ValueTask DisposeAsync()
     {
-        await TerminateProcess(process);
+        await TerminateProcess(process, channel);
     }
 
-    private static async Task TerminateProcess(Process process)
+    private static async Task TerminateProcess(Process process, GrpcChannel? channel)
     {
-        try
-        {
-            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-            await process.WaitForExitAsync(cts.Token);
-        }
-        finally
-        {
-            process.Kill();
-        }
+        // let's try and force-kill the process until we have a better option (e.g. sending a SIGTERM, or adding a Close event to the gRPC contract)
+        channel?.Dispose();
+        process.Kill();
+        // but if it doesn't, let's wait 15s before force killing it
+        var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+        await process.WaitForExitAsync(cts.Token);
     }
 }
