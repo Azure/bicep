@@ -7005,4 +7005,38 @@ var subnetId = vNet::subnets[0].id
 
         result.Should().NotHaveAnyDiagnostics();
     }
+
+    // https://github.com/azure/bicep/issues/16252
+    [TestMethod]
+    public void Diagnostic_is_emitted_when_secure_param_passed_to_nonsecure_target_or_nonsecure_param_passed_to_secure_target()
+    {
+        var result = CompilationHelper.Compile("""
+            @secure()
+            param secret string
+
+            param nonSensitive string
+
+            resource e 'Microsoft.CostManagement/exports@2024-08-01' = {
+              name: secret    // <-- Should flag assignment of sensitive data to non-sensitive slot
+              properties: {
+                definition: {
+                  timeframe: 'BillingMonthToDate'
+                  type: 'Usage'
+                }
+                deliveryInfo: {
+                  destination: {
+                    container: 'containerName'
+                    sasToken: nonSensitive   // <-- Should flag assignment of non-sensitive data to sensitive slot
+                  }
+                }
+              }
+            }
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP417", DiagnosticLevel.Warning, "The supplied value has been marked as secure but is being assigned to a target that is not expecting sensitive data."),
+            ("BCP418", DiagnosticLevel.Info, "The assignment target is expecting sensitive data but has been provided a non-sensitive value. Consider supplying the value as a secure parameter instead to prevent unauthorized disclosure to users who can view the template (via the portal, the CLI, or in source code)."),
+        });
+    }
 }

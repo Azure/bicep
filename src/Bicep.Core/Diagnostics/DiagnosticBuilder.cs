@@ -1890,6 +1890,16 @@ namespace Bicep.Core.Diagnostics
                     shouldWarn ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                     "BCP416",
                     $"The supplied string does not match the expected pattern of /${expectedPattern}/.");
+
+            public Diagnostic SensitiveValueAssignedToInsecureTarget(bool shouldDowngrade) => CoreDiagnostic(
+                shouldDowngrade ? DiagnosticLevel.Info : DiagnosticLevel.Warning,
+                "BCP417",
+                "The supplied value has been marked as secure but is being assigned to a target that is not expecting sensitive data.");
+
+            public Diagnostic NonsensitiveValueAssignedToSecureTarget(bool shouldDowngrade) => CoreDiagnostic(
+                shouldDowngrade ? DiagnosticLevel.Info : DiagnosticLevel.Warning,
+                "BCP418",
+                "The assignment target is expecting sensitive data but has been provided a non-sensitive value. Consider supplying the value as a secure parameter instead to prevent unauthorized disclosure to users who can view the template (via the portal, the CLI, or in source code).");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

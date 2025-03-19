@@ -315,6 +315,18 @@ namespace Bicep.Core.TypeSystem
                 return targetType;
             }
 
+            var valueIsSensitive = expressionType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure);
+            var targetIsSecure = targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure);
+
+            if (valueIsSensitive && !targetIsSecure)
+            {
+                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SensitiveValueAssignedToInsecureTarget(ShouldWarn(targetType)));
+            }
+            else if (!valueIsSensitive && targetIsSecure)
+            {
+                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).NonsensitiveValueAssignedToSecureTarget(ShouldWarn(targetType)));
+            }
+
             // integer assignability check
             if (targetType is IntegerType targetInteger)
             {
