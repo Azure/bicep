@@ -30,7 +30,7 @@ namespace Bicep.Core.Modules
         /// <summary>
         /// Gets the relative path to the module.
         /// </summary>
-        public string Path { get; }
+        public RelativePath Path { get; }
 
         public override bool Equals(object? obj)
         {

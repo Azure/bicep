@@ -13,6 +13,7 @@ using Bicep.Core.Registry.Extensions;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
@@ -109,8 +110,8 @@ namespace Bicep.Core.Registry
         public override async Task PublishExtension(LocalModuleReference reference, ExtensionPackage package)
         {
             var archive = await ExtensionV1Archive.Build(package);
-            var fileUri = PathHelper.TryResolveFilePath(reference.ReferencingFile.Uri, reference.Path)!;
-            FileResolver.Write(fileUri, archive.ToStream());
+            var fileHandle = reference.ReferencingFile.FileHandle.TryGetRelativeFile(reference.Path).Unwrap();
+            fileHandle.Write(archive);
         }
 
         public override Task<bool> CheckArtifactExists(ArtifactType artifactType, LocalModuleReference reference)
@@ -163,7 +164,7 @@ namespace Bicep.Core.Registry
             this.GetTypesTgzFile(reference).Write(entity.Package.Types);
         }
 
-        private IDirectoryHandle? TryGetArtifactDirectory(LocalModuleReference reference)
+        private static IDirectoryHandle? TryGetArtifactDirectory(LocalModuleReference reference)
         {
             if (TryReadContent(reference) is not { } binaryData)
             {
@@ -187,15 +188,11 @@ namespace Bicep.Core.Registry
             return directory;
         }
 
-        private BinaryData? TryReadContent(LocalModuleReference reference)
+        private static BinaryData? TryReadContent(LocalModuleReference reference)
         {
-            if (FileResolver.TryResolveFilePath(reference.ReferencingFile.Uri, reference.Path) is not { } fileUri ||
-                FileResolver.TryReadAsBinaryData(fileUri).TryUnwrap() is not { } binaryData)
-            {
-                return null;
-            }
+            var moduleFileHandle = reference.ReferencingFile.FileHandle.TryGetRelativeFile(reference.Path).TryUnwrap();
 
-            return binaryData;
+            return moduleFileHandle?.TryReadBinaryData().TryUnwrap();
         }
 
         private IFileHandle GetTypesTgzFile(LocalModuleReference reference) => this.GetFile(reference, "types.tgz");
@@ -210,6 +207,6 @@ namespace Bicep.Core.Registry
             this.TryGetFile(reference, path) ??
             throw new InvalidOperationException($"Failed to resolve file for {reference.FullyQualifiedReference}.");
 
-        private IFileHandle? TryGetFile(LocalModuleReference reference, string path) => this.TryGetArtifactDirectory(reference)?.GetFile(path);
+        private IFileHandle? TryGetFile(LocalModuleReference reference, string path) => TryGetArtifactDirectory(reference)?.GetFile(path);
     }
 }
