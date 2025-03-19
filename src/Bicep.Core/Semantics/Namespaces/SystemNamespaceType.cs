@@ -1195,7 +1195,7 @@ namespace Bicep.Core.Semantics.Namespaces
         private static FunctionResult LoadTextContentResultBuilder(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
             var arguments = functionCall.Arguments.ToImmutableArray();
-            if (TryLoadTextContentFromFile(model, diagnostics, (arguments[0], argumentTypes[0]), arguments.Length > 1 ? (arguments[1], argumentTypes[1]) : null, LanguageConstants.MaxLiteralCharacterLimit)
+            if (TryLoadTextContentFromFile(model, diagnostics, (arguments[0], argumentTypes[0]), arguments.Length > 1 ? (arguments[1], argumentTypes[1]) : null)
                 .IsSuccess(out var result, out var errorDiagnostic))
             {
                 return new(TypeFactory.CreateStringLiteralType(result.Content), new StringLiteralExpression(functionCall, result.Content));
@@ -1224,7 +1224,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 tokenSelectorPath = tokenSelectorType.RawStringValue;
             }
 
-            if (TryLoadTextContentFromFile(model, diagnostics, (arguments[0], argumentTypes[0]), arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null, LanguageConstants.MaxJsonFileCharacterLimit)
+            if (TryLoadTextContentFromFile(model, diagnostics, (arguments[0], argumentTypes[0]), arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null)
                 .IsSuccess(out var result, out var errorDiagnostic) &&
                 objectParser.TryExtractFromObject(result.Content, tokenSelectorPath, positionables, out errorDiagnostic, out var token))
             {
@@ -1346,11 +1346,6 @@ namespace Bicep.Core.Semantics.Namespaces
             }
 
             var bytes = auxiliaryFile.Content.ToArray();
-            var maxFileSize = LanguageConstants.MaxLiteralCharacterLimit / 4 * 3; //each base64 character represents 6 bits
-            if (bytes.Length > maxFileSize)
-            {
-                return new(DiagnosticBuilder.ForPosition(filePathArgument.syntax).FileExceedsMaximumSize(fileUri.LocalPath, maxFileSize, "bytes"));
-            }
 
             var content = Convert.ToBase64String(bytes, Base64FormattingOptions.None);
             return new(new LoadTextContentResult(fileUri, content));
