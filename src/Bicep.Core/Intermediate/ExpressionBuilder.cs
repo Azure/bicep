@@ -601,7 +601,7 @@ public class ExpressionBuilder
             .SelectMany(g => g.FirstOrDefault(t => t.Target.IndexExpression is null) is { } dependencyOnCollection
                 ? dependencyOnCollection.AsEnumerable()
                 : g.Distinct(t => t.Target))
-            .OrderBy(t => t.Target.Resource.Name)  // order to generate a deterministic template
+            .OrderBy(t => t.TargetKey)  // order to generate a deterministic template
             .Select(t => t.Expression)
             .ToImmutableArray();
 
@@ -1275,6 +1275,7 @@ public class ExpressionBuilder
     }
 
     private record DependencyExpression(
+        string TargetKey, // Used for sorting.
         ResourceDependency Target,
         ResourceDependencyExpression Expression);
 
@@ -1287,6 +1288,7 @@ public class ExpressionBuilder
         {
             Expression reference;
             ResourceDependency target;
+            string targetKey;
             var localReplacements = this.localReplacements;
             var allNodesInPathAccessCopyIndex = true;
 
@@ -1294,6 +1296,7 @@ public class ExpressionBuilder
             do
             {
                 target = path[i];
+                targetKey = target.Resource.Name;
                 var targetContext = i == 0 ? newContext : path[i - 1].Resource.DeclaringSyntax;
                 IndexReplacementContext? indexContext = null;
 
@@ -1304,6 +1307,7 @@ public class ExpressionBuilder
                             var metadata = Context.SemanticModel.ResourceMetadata.TryLookup(resource.DeclaringSyntax) as DeclaredResourceMetadata
                                 ?? throw new InvalidOperationException("Failed to find resource in cache");
 
+                            targetKey = ExpressionConverter.GetSymbolicName(Context.SemanticModel.ResourceAncestors, metadata);
                             indexContext = (resource.IsCollection && target.IndexExpression is null)
                                 ? null
                                 : new ExpressionBuilder(Context, localReplacements)
@@ -1352,7 +1356,7 @@ public class ExpressionBuilder
                 allNodesInPathAccessCopyIndex = allNodesInPathAccessCopyIndex && copyIndexAccesses.Length > 0;
             } while (++i < path.Length);
 
-            yield return new(target, new(null, reference));
+            yield return new(targetKey, target, new(null, reference));
         }
     }
 
