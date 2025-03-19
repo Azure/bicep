@@ -6,6 +6,7 @@ param sqlAdministratorLogin string
 
 @secure()
 param sqlAdministratorLoginPassword string = ''
+//@[45:047) [BCP418 (Warning)] The assignment target is expecting sensitive data but has been provided a non-sensitive value. Consider supplying the value as a secure parameter instead to prevent unauthorized disclosure to users who can view the template (via the portal, the CLI, or in source code). (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |''|
 param setWorkspaceIdentityRbacOnStorageAccount bool
 param createManagedPrivateEndpoint bool
 param defaultAdlsGen2AccountResourceId string = ''
@@ -67,6 +68,7 @@ resource name_resource 'Microsoft.Synapse/workspaces@2021-06-01' = {
     managedVirtualNetworkSettings: managedVirtualNetworkSettings
     sqlAdministratorLogin: sqlAdministratorLogin
     sqlAdministratorLoginPassword: sqlAdministratorLoginPassword
+//@[35:064) [BCP417 (Info)] The supplied value has been marked as secure but is being assigned to a target that is not expecting sensitive data. (bicep https://aka.ms/bicep/core-diagnostics#BCP417) |sqlAdministratorLoginPassword|
   }
   tags: tagValues
   dependsOn: [

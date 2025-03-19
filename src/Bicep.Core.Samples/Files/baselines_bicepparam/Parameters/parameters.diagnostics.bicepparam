@@ -17,7 +17,9 @@ param numberOfVMs = 1
 
 // parameter assignment to objects
 param password = 'strongPassword'
+//@[17:33) [BCP418 (Warning)] The assignment target is expecting sensitive data but has been provided a non-sensitive value. Consider supplying the value as a secure parameter instead to prevent unauthorized disclosure to users who can view the template (via the portal, the CLI, or in source code). (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |'strongPassword'|
 param secretObject = {
+//@[21:61) [BCP418 (Warning)] The assignment target is expecting sensitive data but has been provided a non-sensitive value. Consider supplying the value as a secure parameter instead to prevent unauthorized disclosure to users who can view the template (via the portal, the CLI, or in source code). (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |{\n  name : 'vm2'\n  location : 'westus'\n}|
   name : 'vm2'
   location : 'westus'
 }

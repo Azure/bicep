@@ -41,6 +41,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2019-12-01' = {
       computerName: virtualMachineName
       adminUsername: adminUsername
       adminPassword: adminPassword
+//@[21:34) [BCP417 (Info)] The supplied value has been marked as secure but is being assigned to a target that is not expecting sensitive data. (bicep https://aka.ms/bicep/core-diagnostics#BCP417) |adminPassword|
       windowsConfiguration: {
         provisionVMAgent: 'true'
 //@[26:32) [BCP036 (Warning)] The property "provisionVMAgent" expected a value of type "bool | null" but the provided value is of type "'true'". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP036) |'true'|

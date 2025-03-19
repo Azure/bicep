@@ -24,6 +24,7 @@ resource windowsVM 'Microsoft.Compute/virtualMachines@2020-12-01' = {
       computerName: 'computerName'
       adminUsername: adminUsername
       adminPassword: adminPassword
+//@[21:34) [BCP417 (Info)] The supplied value has been marked as secure but is being assigned to a target that is not expecting sensitive data. (bicep https://aka.ms/bicep/core-diagnostics#BCP417) |adminPassword|
     }
     storageProfile: {
       imageReference: {
