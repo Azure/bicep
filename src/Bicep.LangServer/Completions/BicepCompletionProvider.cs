@@ -34,26 +34,19 @@ using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
 namespace Bicep.LanguageServer.Completions
 {
-    public class BicepCompletionProvider : ICompletionProvider
+    public partial class BicepCompletionProvider : ICompletionProvider
     {
         private static readonly Container<string> ResourceSymbolCommitChars = new(":");
 
         private static readonly Container<string> PropertyAccessCommitChars = new(".");
 
-        private static readonly Regex ModuleRegistryWithoutAliasPattern = new(@"'br:(.*?):?'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
-        private static readonly Regex ModuleRegistryWithAliasPattern = new(@"'br/(.*?):(.*?):?'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
-
         private static readonly ResourceTypeSearchKeywords ResourceTypeSearchKeywords = new();
 
-        private readonly IFileResolver fileResolver;
-        private readonly IFileExplorer fileExplorer;
         private readonly IModuleReferenceCompletionProvider moduleReferenceCompletionProvider;
         private readonly ISnippetsProvider snippetsProvider;
 
-        public BicepCompletionProvider(IFileResolver fileResolver, IFileExplorer fileExplorer, ISnippetsProvider snippetsProvider, IModuleReferenceCompletionProvider moduleReferenceCompletionProvider)
+        public BicepCompletionProvider(ISnippetsProvider snippetsProvider, IModuleReferenceCompletionProvider moduleReferenceCompletionProvider)
         {
-            this.fileResolver = fileResolver;
-            this.fileExplorer = fileExplorer;
             this.snippetsProvider = snippetsProvider;
             this.moduleReferenceCompletionProvider = moduleReferenceCompletionProvider;
         }
@@ -102,7 +95,7 @@ namespace Bicep.LanguageServer.Completions
             return moduleReferenceCompletionProvider.ResolveCompletionItem(completionItem, cancellationToken);
         }
 
-        private IEnumerable<CompletionItem> GetParamIdentifierCompletions(SemanticModel paramsSemanticModel, BicepCompletionContext paramsCompletionContext)
+        private static IEnumerable<CompletionItem> GetParamIdentifierCompletions(SemanticModel paramsSemanticModel, BicepCompletionContext paramsCompletionContext)
         {
             if (paramsCompletionContext.Kind.HasFlag(BicepCompletionContextKind.ParamIdentifier) &&
                 paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var usingModel))
@@ -253,7 +246,7 @@ namespace Bicep.LanguageServer.Completions
                 : [];
         }
 
-        private IEnumerable<CompletionItem> GetSymbolCompletions(SemanticModel model, BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetSymbolCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.Expression) &&
                 !context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName))
@@ -509,7 +502,7 @@ namespace Bicep.LanguageServer.Completions
                 .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: false));
         }
 
-        private IEnumerable<CompletionItem> GetResourceTypeFollowerCompletions(BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetResourceTypeFollowerCompletions(BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceTypeFollower))
             {
@@ -529,21 +522,20 @@ namespace Bicep.LanguageServer.Completions
         }
 
         private record FileCompletionInfo(
-            Uri BicepFileParentUri,
-            Uri EnteredParentUri,
+            IOUri BicepFileParentUri,
+            IOUri EnteredParentUri,
             bool ShowCwdPrefix,
-            ImmutableArray<Uri> Files,
-            ImmutableArray<Uri> Directories);
+            ImmutableArray<IFileHandle> Files,
+            ImmutableArray<IDirectoryHandle> Directories);
 
-        private FileCompletionInfo? TryGetFilesForPathCompletions(Uri currentFileUri, string entered)
+        private static FileCompletionInfo? TryGetFilesForPathCompletions(IFileHandle currentFileHandle, string entered)
         {
             try
             {
-                var files = new List<Uri>();
-                var dirs = new List<Uri>();
+                var files = new List<IFileHandle>();
+                var dirs = new List<IDirectoryHandle>();
 
-                var currentFileIOUri = currentFileUri.ToIOUri();
-                var currentDirectory = this.fileExplorer.GetFile(currentFileIOUri).GetParent();
+                var currentDirectory = currentFileHandle.GetParent();
                 var searchDirectory = currentDirectory.GetDirectory(entered);
 
                 if (!searchDirectory.Exists() && !string.IsNullOrEmpty(entered))
@@ -553,19 +545,19 @@ namespace Bicep.LanguageServer.Completions
 
                 if (searchDirectory.Exists())
                 {
-                    files = [.. searchDirectory.EnumerateFiles().Select(x => x.Uri.ToUri())];
-                    dirs = [.. searchDirectory.EnumerateDirectories().Select(x => x.Uri.ToUri())];
+                    files = [.. searchDirectory.EnumerateFiles()];
+                    dirs = [.. searchDirectory.EnumerateDirectories()];
 
                     // include the parent folder as a completion if we're not at the file system root
                     if (searchDirectory.GetParent() is { } parentSearchDirectory)
                     {
-                        dirs.Add(parentSearchDirectory.Uri.ToUri());
+                        dirs.Add(parentSearchDirectory);
                     }
                 }
 
                 return new(
-                    BicepFileParentUri: currentDirectory.Uri.ToUri(),
-                    EnteredParentUri: searchDirectory.Uri.ToUri(),
+                    BicepFileParentUri: currentDirectory.Uri,
+                    EnteredParentUri: searchDirectory.Uri,
                     ShowCwdPrefix: entered.StartsWith("./"),
                     Files: [.. files],
                     Directories: [.. dirs]);
@@ -576,17 +568,17 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private IEnumerable<CompletionItem> CreateFileCompletionItems(Uri mainFileUri, Range replacementRange, FileCompletionInfo info, Predicate<Uri> predicate, CompletionPriority priority)
+        private static IEnumerable<CompletionItem> CreateFileCompletionItems(IFileHandle mainFileHandle, Range replacementRange, FileCompletionInfo info, Predicate<IFileHandle> predicate, CompletionPriority priority)
         {
-            foreach (var fileUri in info.Files)
+            foreach (var fileHandle in info.Files)
             {
-                if (fileUri == mainFileUri || !predicate(fileUri))
+                if (fileHandle.Uri == mainFileHandle.Uri || !predicate(fileHandle))
                 {
                     continue;
                 }
 
-                var completionName = info.EnteredParentUri.MakeRelativeUri(fileUri).ToString();
-                var completionValue = info.BicepFileParentUri.MakeRelativeUri(fileUri).ToString();
+                var completionName = fileHandle.Uri.GetPathRelativeTo(info.EnteredParentUri);
+                var completionValue = fileHandle.Uri.GetPathRelativeTo(info.BicepFileParentUri);
                 if (info.ShowCwdPrefix && !completionValue.StartsWith("../", StringComparison.Ordinal))
                 {
                     // "./" will not be preserved when making relative Uris. We have to go and manually add it.
@@ -603,12 +595,12 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private IEnumerable<CompletionItem> CreateDirectoryCompletionItems(Range replacementRange, FileCompletionInfo info, CompletionPriority priority = CompletionPriority.Low)
+        private static IEnumerable<CompletionItem> CreateDirectoryCompletionItems(Range replacementRange, FileCompletionInfo info, CompletionPriority priority = CompletionPriority.Low)
         {
-            foreach (var dirUri in info.Directories)
+            foreach (var dir in info.Directories)
             {
-                var completionName = info.EnteredParentUri.MakeRelativeUri(dirUri).ToString();
-                var completionValue = info.BicepFileParentUri.MakeRelativeUri(dirUri).ToString();
+                var completionName = dir.Uri.GetPathRelativeTo(info.EnteredParentUri).ToString();
+                var completionValue = dir.Uri.GetPathRelativeTo(info.BicepFileParentUri).ToString();
                 if (info.ShowCwdPrefix && !completionValue.StartsWith("../", StringComparison.Ordinal))
                 {
                     // "./" will not be preserved when making relative Uris. We have to go and manually add it.
@@ -652,7 +644,7 @@ namespace Bicep.LanguageServer.Completions
             try
             {
                 // These should only fail if we're not able to resolve cwd path or the entered string
-                if (TryGetFilesForPathCompletions(model.SourceFile.Uri, entered) is not { } fileCompletionInfo)
+                if (TryGetFilesForPathCompletions(model.SourceFile.FileHandle, entered) is not { } fileCompletionInfo)
                 {
                     return [];
                 }
@@ -664,14 +656,14 @@ namespace Bicep.LanguageServer.Completions
 
                 if (context.Kind.HasFlag(BicepCompletionContextKind.ExtendsFilePath))
                 {
-                    var bicepParamFileItems = CreateFileCompletionItems(model.SourceFile.Uri, replacementRange, fileCompletionInfo, IsBicepParamFile, CompletionPriority.High);
+                    var bicepParamFileItems = CreateFileCompletionItems(model.SourceFile.FileHandle, replacementRange, fileCompletionInfo, x => x.IsBicepParamFile(), CompletionPriority.High);
 
                     return bicepParamFileItems.Concat(dirItems);
                 }
 
                 // Prioritize .bicep files higher than other files.
-                var bicepFileItems = CreateFileCompletionItems(model.SourceFile.Uri, replacementRange, fileCompletionInfo, IsBicepFile, CompletionPriority.High);
-                var armTemplateFileItems = CreateFileCompletionItems(model.SourceFile.Uri, replacementRange, fileCompletionInfo, IsArmTemplateFileLike, CompletionPriority.Medium);
+                var bicepFileItems = CreateFileCompletionItems(model.SourceFile.FileHandle, replacementRange, fileCompletionInfo, x => x.IsBicepFile(), CompletionPriority.High);
+                var armTemplateFileItems = CreateFileCompletionItems(model.SourceFile.FileHandle, replacementRange, fileCompletionInfo, IsArmTemplateFile, CompletionPriority.Medium);
 
                 if (model.Features.ExtendableParamFilesEnabled && context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath))
                 {
@@ -692,32 +684,26 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // Local functions.
-
-            bool IsBicepFile(Uri fileUri) => PathHelper.HasBicepExtension(fileUri);
-
-            bool IsBicepParamFile(Uri fileUri) => PathHelper.HasBicepparamsExtension(fileUri);
-
-            bool IsArmTemplateFileLike(Uri fileUri)
+            bool IsArmTemplateFile(IFileHandle fileHandle)
             {
-                if (PathHelper.HasExtension(fileUri, LanguageConstants.ArmTemplateFileExtension))
+                if (!fileHandle.IsArmTemplateLikeFile())
+                {
+                    return false;
+                }
+
+                if (fileHandle.Uri.HasExtension(LanguageConstants.ArmTemplateFileExtension))
                 {
                     return true;
                 }
 
                 if (model.SourceFileGrouping.SourceFiles.Any(sourceFile =>
                         sourceFile is ArmTemplateFile &&
-                        sourceFile.Uri.LocalPath.Equals(fileUri.LocalPath, PathHelper.PathComparison)))
+                        sourceFile.FileHandle.Uri == fileHandle.Uri))
                 {
                     return true;
                 }
 
-                if (!PathHelper.HasExtension(fileUri, LanguageConstants.JsonFileExtension) &&
-                    !PathHelper.HasExtension(fileUri, LanguageConstants.JsoncFileExtension))
-                {
-                    return false;
-                }
-
-                if (fileResolver.TryReadAtMostNCharacters(fileUri, Encoding.UTF8, 2000).IsSuccess(out var fileContents) &&
+                if (fileHandle.TryPeekText(2000, Encoding.UTF8).IsSuccess(out var fileContents) &&
                     LanguageConstants.ArmTemplateSchemaRegex.IsMatch(fileContents))
                 {
                     return true;
@@ -727,11 +713,11 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private bool IsOciArtifactRegistryReference(BicepCompletionContext context)
+        private static bool IsOciArtifactRegistryReference(BicepCompletionContext context)
         {
             return context.ReplacementTarget is Token token &&
                 token.Text is string text &&
-                (ModuleRegistryWithoutAliasPattern.IsMatch(text) || ModuleRegistryWithAliasPattern.IsMatch(text));
+                (ModuleRegistryWithoutAliasPattern().IsMatch(text) || ModuleRegistryWithAliasPattern().IsMatch(text));
         }
 
         private static IEnumerable<CompletionItem> GetParameterTypeSnippets(SemanticModel model, BicepCompletionContext context)
@@ -803,7 +789,7 @@ namespace Bicep.LanguageServer.Completions
             return GetValueCompletionsForType(model, context, declaredType, output.Value, loopsAllowed: true);
         }
 
-        private IEnumerable<CompletionItem> GetOutputTypeFollowerCompletions(BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetOutputTypeFollowerCompletions(BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.OutputTypeFollower))
             {
@@ -812,7 +798,7 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private IEnumerable<CompletionItem> GetVariableNameFollowerCompletions(BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetVariableNameFollowerCompletions(BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.VariableNameFollower))
             {
@@ -1174,7 +1160,7 @@ namespace Bicep.LanguageServer.Completions
             };
         }
 
-        private IEnumerable<CompletionItem> GetMemberAccessCompletions(Compilation compilation, BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetMemberAccessCompletions(Compilation compilation, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.MemberAccess) || context.PropertyAccess == null)
             {
@@ -1209,7 +1195,7 @@ namespace Bicep.LanguageServer.Completions
                 .Select(m => CreateSymbolCompletion(m, context.ReplacementRange, model)));
         }
 
-        private IEnumerable<CompletionItem> GetTypeMemberAccessCompletions(Compilation compilation, BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetTypeMemberAccessCompletions(Compilation compilation, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.TypeMemberAccess) || context.TypePropertyAccess is null)
             {
@@ -1243,7 +1229,7 @@ namespace Bicep.LanguageServer.Completions
             return completions;
         }
 
-        private IEnumerable<CompletionItem> GetResourceAccessCompletions(Compilation compilation, BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetResourceAccessCompletions(Compilation compilation, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ResourceAccess) || context.ResourceAccess == null)
             {
@@ -1265,7 +1251,7 @@ namespace Bicep.LanguageServer.Completions
                 .Select(entry => CreateSymbolCompletion(entry.symbol!, context.ReplacementRange, model));
         }
 
-        private IEnumerable<CompletionItem> GetArrayIndexCompletions(Compilation compilation, BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetArrayIndexCompletions(Compilation compilation, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ArrayIndex) || context.ArrayAccess == null)
             {
@@ -1279,7 +1265,7 @@ namespace Bicep.LanguageServer.Completions
                 .Select(p => CreatePropertyIndexCompletion(p, context.ReplacementRange, CompletionPriority.High));
         }
 
-        private IEnumerable<CompletionItem> GetObjectPropertyNameCompletions(SemanticModel model, BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetObjectPropertyNameCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ObjectPropertyName) == false || context.Object == null)
             {
@@ -1447,7 +1433,7 @@ namespace Bicep.LanguageServer.Completions
             var entered = (functionArgument.Syntax.Arguments.ElementAtOrDefault(functionArgument.ArgumentIndex)?.Expression as StringSyntax)?.TryGetLiteralValue() ?? string.Empty;
 
             // These should only fail if we're not able to resolve cwd path or the entered string
-            if (TryGetFilesForPathCompletions(model.SourceFile.Uri, entered) is not { } fileCompletionInfo)
+            if (TryGetFilesForPathCompletions(model.SourceFile.FileHandle, entered) is not { } fileCompletionInfo)
             {
                 return [];
             }
@@ -1456,20 +1442,20 @@ namespace Bicep.LanguageServer.Completions
             if (argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringJsonFilePath))
             {
                 // Prioritize .json or .jsonc files higher than other files.
-                var jsonItems = CreateFileCompletionItems(model.SourceFile.Uri, context.ReplacementRange, fileCompletionInfo, (file) => PathHelper.HasExtension(file, "json") || PathHelper.HasExtension(file, "jsonc"), CompletionPriority.High);
-                var nonJsonItems = CreateFileCompletionItems(model.SourceFile.Uri, context.ReplacementRange, fileCompletionInfo, (file) => !PathHelper.HasExtension(file, "json") && !PathHelper.HasExtension(file, "jsonc"), CompletionPriority.Medium);
+                var jsonItems = CreateFileCompletionItems(model.SourceFile.FileHandle, context.ReplacementRange, fileCompletionInfo, file => file.Uri.HasExtension(LanguageConstants.JsonFileExtension) || file.Uri.HasExtension(LanguageConstants.JsoncFileExtension), CompletionPriority.High);
+                var nonJsonItems = CreateFileCompletionItems(model.SourceFile.FileHandle, context.ReplacementRange, fileCompletionInfo, file => !file.Uri.HasExtension(LanguageConstants.JsonFileExtension) && !file.Uri.HasExtension(LanguageConstants.JsoncFileExtension), CompletionPriority.Medium);
                 fileItems = jsonItems.Concat(nonJsonItems);
             }
             else if (argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringYamlFilePath))
             {
                 // Prioritize .yaml or .yml files higher than other files.
-                var yamlItems = CreateFileCompletionItems(model.SourceFile.Uri, context.ReplacementRange, fileCompletionInfo, (file) => PathHelper.HasExtension(file, "yaml") || PathHelper.HasExtension(file, "yml"), CompletionPriority.High);
-                var nonYamlItems = CreateFileCompletionItems(model.SourceFile.Uri, context.ReplacementRange, fileCompletionInfo, (file) => !PathHelper.HasExtension(file, "yaml") && !PathHelper.HasExtension(file, "yml"), CompletionPriority.Medium);
+                var yamlItems = CreateFileCompletionItems(model.SourceFile.FileHandle, context.ReplacementRange, fileCompletionInfo, file => file.Uri.HasExtension("yaml") || file.Uri.HasExtension("yml"), CompletionPriority.High);
+                var nonYamlItems = CreateFileCompletionItems(model.SourceFile.FileHandle, context.ReplacementRange, fileCompletionInfo, file => !file.Uri.HasExtension("yaml") && !file.Uri.HasExtension("yml"), CompletionPriority.Medium);
                 fileItems = yamlItems.Concat(nonYamlItems);
             }
             else
             {
-                fileItems = CreateFileCompletionItems(model.SourceFile.Uri, context.ReplacementRange, fileCompletionInfo, (_) => true, CompletionPriority.High);
+                fileItems = CreateFileCompletionItems(model.SourceFile.FileHandle, context.ReplacementRange, fileCompletionInfo, (_) => true, CompletionPriority.High);
             }
 
             var dirItems = CreateDirectoryCompletionItems(context.ReplacementRange, fileCompletionInfo, CompletionPriority.Medium);
@@ -1611,7 +1597,7 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private IEnumerable<CompletionItem> GetExpressionCompletions(SemanticModel model, BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetExpressionCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.Expression))
             {
@@ -1619,7 +1605,7 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private IEnumerable<CompletionItem> GetDisableNextLineDiagnosticsDirectiveCompletion(BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetDisableNextLineDiagnosticsDirectiveCompletion(BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.DisableNextLineDiagnosticsDirectiveStart))
             {
@@ -1932,9 +1918,8 @@ namespace Bicep.LanguageServer.Completions
 
         private static CompletionItemBuilder CreateFilePathCompletionBuilder(string name, string path, Range replacementRange, CompletionItemKind completionItemKind, CompletionPriority priority)
         {
-            // unescape string according to https://stackoverflow.com/questions/575440/url-encoding-using-c-sharp
-            path = StringUtils.EscapeBicepString(Uri.UnescapeDataString(path));
-            var item = CompletionItemBuilder.Create(completionItemKind, Uri.UnescapeDataString(name))
+            path = StringUtils.EscapeBicepString(path);
+            var item = CompletionItemBuilder.Create(completionItemKind, name)
                 .WithFilterText(path)
                 .WithSortText(GetSortText(name, priority));
             // Folder completions should keep us within the completion string
@@ -2243,5 +2228,11 @@ namespace Bicep.LanguageServer.Completions
 
             return null;
         }
+
+        [GeneratedRegex(@"'br:(.*?):?'?$", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant)]
+        private static partial Regex ModuleRegistryWithoutAliasPattern();
+
+        [GeneratedRegex(@"'br/(.*?):(.*?):?'?$", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant)]
+        private static partial Regex ModuleRegistryWithAliasPattern();
     }
 }

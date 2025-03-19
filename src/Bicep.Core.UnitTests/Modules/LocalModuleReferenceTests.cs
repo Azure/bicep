@@ -44,7 +44,7 @@ namespace Bicep.Core.UnitTests.Modules
         public void TryParseModuleReference_ValidLocalReference_ShouldParse(string value)
         {
             var reference = Parse(value);
-            reference.Path.Should().Be(value);
+            reference.Path.ToString().Should().Be(value);
         }
 
         private static LocalModuleReference Parse(string package)
