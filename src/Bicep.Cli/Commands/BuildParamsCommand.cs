@@ -131,7 +131,7 @@ public class BuildParamsCommand(
                 throw new CommandLineException($"Bicep file {bicepFileUri.LocalPath} provided with --bicep-file can only be used if the Bicep parameters \"using\" declaration refers to a Bicep file on disk.");
             }
 
-            if (!bicepSemanticModel.Root.FileUri.Equals(bicepFileUri))
+            if (!bicepSemanticModel.SourceFile.Uri.Equals(bicepFileUri))
             {
                 throw new CommandLineException($"Bicep file {bicepFileUri.LocalPath} provided with --bicep-file option doesn't match the Bicep file {bicepSemanticModel.Root.Name} referenced by the \"using\" declaration in the parameters file.");
             }

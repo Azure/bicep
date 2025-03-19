@@ -27,7 +27,6 @@ namespace Bicep.Core.Semantics
             this.Context = context;
             this.Syntax = sourceFile.ProgramSyntax;
             this.NamespaceResolver = namespaceResolver;
-            this.FileUri = sourceFile.Uri;
             this.FileKind = sourceFile.FileKind;
             this.LocalScopes = fileScope.ChildScopes;
 
@@ -212,8 +211,6 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<WildcardImportSymbol> WildcardImports { get; }
 
         public UsingDeclarationSyntax? UsingDeclarationSyntax => this.usingDeclarationLazy.Value;
-
-        public Uri FileUri { get; }
 
         /// <summary>
         /// Returns all the top-level declaration symbols.
