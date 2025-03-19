@@ -2229,10 +2229,10 @@ namespace Bicep.LanguageServer.Completions
             return null;
         }
 
-        [GeneratedRegex(@"'br:(.*?):?'?$", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled, "en-US")]
+        [GeneratedRegex(@"'br:(.*?):?'?$", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant)]
         private static partial Regex ModuleRegistryWithoutAliasPattern();
 
-        [GeneratedRegex(@"'br/(.*?):(.*?):?'?$", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled, "en-US")]
+        [GeneratedRegex(@"'br/(.*?):(.*?):?'?$", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant)]
         private static partial Regex ModuleRegistryWithAliasPattern();
     }
 }
