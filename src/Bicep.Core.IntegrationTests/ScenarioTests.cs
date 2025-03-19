@@ -7039,4 +7039,27 @@ var subnetId = vNet::subnets[0].id
             ("BCP418", DiagnosticLevel.Info, "The assignment target is expecting sensitive data but has been provided a non-sensitive value. Consider supplying the value as a secure parameter instead to prevent unauthorized disclosure to users who can view the template (via the portal, the CLI, or in source code)."),
         });
     }
+
+    [TestMethod]
+    public void Secure_param_with_default_value_should_have_IsSecure_type_validation_flag_set()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                @secure()
+                param secret string
+
+                module mod 'mod.bicep' = {
+                  name: 'mod'
+                  params: {
+                    withDefault: secret
+                  }
+                }
+                """),
+            ("mod.bicep", """
+                @secure()
+                param withDefault string = ''
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
 }

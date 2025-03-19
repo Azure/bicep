@@ -272,6 +272,8 @@ namespace Bicep.Core
 
         public static readonly ImmutableArray<string> DiscriminatorPreferenceOrder = ["type", "kind"];
 
+        public static readonly TypeSymbolValidationFlags TaintFlags = TypeSymbolValidationFlags.IsSecure;
+
         private static IEnumerable<NamedTypeProperty> CreateParameterModifierMetadataProperties()
         {
             yield return new NamedTypeProperty("description", String, TypePropertyFlags.Constant);
