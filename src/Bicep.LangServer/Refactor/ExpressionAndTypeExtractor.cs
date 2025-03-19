@@ -320,7 +320,7 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
             isPreferred: false,
             CodeFixKind.RefactorExtract,
             replacements,
-            semanticModel.Root.FileUri,
+            semanticModel.SourceFile.FileHandle.Uri,
             absoluteIdentifierPosition,
             telemetryEvent: BicepTelemetryEvent.ExtractionRefactoring(
                 kind,

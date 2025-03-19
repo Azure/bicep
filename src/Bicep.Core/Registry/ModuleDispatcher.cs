@@ -141,7 +141,7 @@ namespace Bicep.Core.Registry
 
                         var extensionUri = config.ConfigFileUri.Value.Resolve(extensionPath);
 
-                        return new(extensionUri.GetPathRelativeTo(referencingFile.Uri.ToIOUri()));
+                        return new(extensionUri.GetPathRelativeTo(referencingFile.FileHandle.Uri));
                     }
 
 

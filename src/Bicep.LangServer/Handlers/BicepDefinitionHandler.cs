@@ -16,8 +16,10 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.CompilationManager;
@@ -151,11 +153,11 @@ namespace Bicep.LanguageServer.Handlers
                     && context.Compilation.GetEntrypointSemanticModel().GetDeclaredType(stringToken) is { } stringType
                     && stringType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath)
                     && stringToken.TryGetLiteralValue() is { } stringTokenValue
-                    && fileResolver.TryResolveFilePath(context.Compilation.SourceFileGrouping.EntryPoint.Uri, stringTokenValue) is { } fileUri
-                    && fileExplorer.GetFile(fileUri.ToIOUri()).Exists())
+                    && RelativePath.TryCreate(stringTokenValue).Transform(context.Compilation.SourceFileGrouping.EntryPoint.FileHandle.TryGetRelativeFile).IsSuccess(out var relativeFile)
+                    && relativeFile.Exists())
                 {
                     return GetFileDefinitionLocation(
-                        fileUri,
+                        relativeFile.Uri.ToUri(),
                         stringToken,
                         context,
                         new() { Start = new(0, 0), End = new(0, 0) });
@@ -535,7 +537,7 @@ namespace Bicep.LanguageServer.Handlers
             return new();
         }
 
-        private LocationOrLocationLinks GetFileDefinitionLocation(
+        private static LocationOrLocationLinks GetFileDefinitionLocation(
             Uri fileUri,
             SyntaxBase originalSelectionSyntax,
             CompilationContext context,
