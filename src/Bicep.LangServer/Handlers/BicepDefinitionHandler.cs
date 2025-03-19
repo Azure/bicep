@@ -537,7 +537,7 @@ namespace Bicep.LanguageServer.Handlers
             return new();
         }
 
-        private LocationOrLocationLinks GetFileDefinitionLocation(
+        private static LocationOrLocationLinks GetFileDefinitionLocation(
             Uri fileUri,
             SyntaxBase originalSelectionSyntax,
             CompilationContext context,
