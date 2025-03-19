@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Text.Json;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceLink;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -20,12 +20,12 @@ public class SourceCodePositionTests
     [DataRow(0, 0, "\"[0:0]\"")]
     public void Serialization(int x, int y, string expectedSerialization)
     {
-        var position = new SourceCodePosition(x, y);
+        var position = new TextPosition(x, y);
         string serialized = JsonSerializer.Serialize(position);
 
         serialized.Should().Be(expectedSerialization);
 
-        var deserialized = JsonSerializer.Deserialize<SourceCodePosition>(serialized);
+        var deserialized = JsonSerializer.Deserialize<TextPosition>(serialized);
         deserialized.Should().Be(position);
     }
 
@@ -34,7 +34,7 @@ public class SourceCodePositionTests
     [DataRow(0, -1, "Column must be non-negative")]
     public void BadValues(int x, int y, string expectedMessage)
     {
-        ((Action)(() => new SourceCodePosition(x, y))).Should().Throw<ArgumentException>().WithMessage(expectedMessage);
+        ((Action)(() => new TextPosition(x, y))).Should().Throw<ArgumentException>().WithMessage(expectedMessage);
     }
 
     [DataTestMethod]
@@ -46,12 +46,12 @@ public class SourceCodePositionTests
     {
         try
         {
-            var deserialized = JsonSerializer.Deserialize<SourceCodePosition>(input);
+            var deserialized = JsonSerializer.Deserialize<TextPosition>(input);
             expectedMessage.Should().BeNull();
 
             expectedX.Should().NotBeNull();
             expectedY.Should().NotBeNull();
-            deserialized.Should().Be(new SourceCodePosition(expectedX!.Value, expectedY!.Value));
+            deserialized.Should().Be(new TextPosition(expectedX!.Value, expectedY!.Value));
         }
         catch (Exception ex)
         {

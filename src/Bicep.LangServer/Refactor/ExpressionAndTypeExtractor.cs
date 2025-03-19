@@ -305,8 +305,8 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
             relativeIdentifierOffsetInDeclaration);
         var absoluteIdentifierPosition = new Position()
         {
-            Line = declarationInsertionPosition.line + relativeIdentifierPositionInDeclaration.line,
-            Character = declarationInsertionPosition.character + relativeIdentifierPositionInDeclaration.character
+            Line = declarationInsertionPosition.Line + relativeIdentifierPositionInDeclaration.Line,
+            Character = declarationInsertionPosition.Character + relativeIdentifierPositionInDeclaration.Character,
         };
 
         CodeReplacement[] replacements = [new CodeReplacement(new TextSpan(declarationInsertionOffset, 0), declarationTextLines)];

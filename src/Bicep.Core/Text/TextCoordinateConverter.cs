@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
-using Bicep.Core.Parsing;
+using Bicep.Core.SourceLink;
 
 namespace Bicep.Core.Text
 {
@@ -34,7 +34,7 @@ namespace Bicep.Core.Text
             return [.. lineStarts];
         }
 
-        public static (int line, int character) GetPosition(IReadOnlyList<int> lineStarts, int offset)
+        public static TextPosition GetPosition(IReadOnlyList<int> lineStarts, int offset)
         {
             if (lineStarts.Count == 0)
             {
@@ -60,7 +60,7 @@ namespace Bicep.Core.Text
                 line = ~line - 1;
             }
 
-            return (line, offset - lineStarts[line]);
+            return new(line, offset - lineStarts[line]);
         }
 
         public static int GetOffset(IReadOnlyList<int> lineStarts, int line, int character)

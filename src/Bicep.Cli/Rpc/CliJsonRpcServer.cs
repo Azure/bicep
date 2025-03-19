@@ -258,6 +258,6 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         var start = TextCoordinateConverter.GetPosition(file.LineStarts, positionable.GetPosition());
         var end = TextCoordinateConverter.GetPosition(file.LineStarts, positionable.GetEndPosition());
 
-        return new(new(start.line, start.character), new(end.line, end.character));
+        return new(new(start.Line, start.Character), new(end.Line, end.Character));
     }
 }

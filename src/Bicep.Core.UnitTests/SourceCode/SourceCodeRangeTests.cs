@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Text.Json;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceLink;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -17,12 +17,12 @@ public class SourceCodeRangeTests
     [TestMethod]
     public void SerializesAndDeserializes()
     {
-        var range = new SourceCodeRange(new SourceCodePosition(123, 456), new SourceCodePosition(234, 567));
+        var range = new TextRange(new TextPosition(123, 456), new TextPosition(234, 567));
         string serialized = JsonSerializer.Serialize(range);
 
         serialized.Should().Be("\"[123:456]-[234:567]\"");
 
-        var deserialized = JsonSerializer.Deserialize<SourceCodeRange>(serialized);
+        var deserialized = JsonSerializer.Deserialize<TextRange>(serialized);
         deserialized.Should().Be(range);
     }
 }

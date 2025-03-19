@@ -2,8 +2,9 @@
 // Licensed under the MIT License.
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using Bicep.Core.Parsing;
 
-namespace Bicep.Core.Parsing
+namespace Bicep.Core.Text
 {
     public readonly record struct TextSpan : IPositionable
     {
@@ -109,7 +110,7 @@ namespace Bicep.Core.Parsing
                 return new TextSpan(a.Position + a.Length, b.Position - (a.Position + a.Length));
             }
 
-            return TextSpan.BetweenExclusive(b, a);
+            return BetweenExclusive(b, a);
         }
 
         /// <summary>

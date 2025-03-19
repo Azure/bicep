@@ -4,6 +4,7 @@
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Syntax
 {
