@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Providers;
 
@@ -45,6 +45,10 @@ namespace Bicep.Core.TypeSystem.Types
 
         public string ExtensionName => Settings.BicepExtensionName;
 
+        public string ExtensionVersion => Settings.TemplateExtensionVersion;
+
         public ObjectType? ConfigurationType => Settings.ConfigurationType;
+
+        public bool IsConfigurationRequired => ConfigurationType?.Properties.Values.Any(p => p.Flags.HasFlag(TypePropertyFlags.Required)) is true;
     }
 }

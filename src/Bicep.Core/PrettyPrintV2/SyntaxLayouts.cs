@@ -6,7 +6,6 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2.Documents;
 using Bicep.Core.Syntax;
-using Microsoft.Extensions.Primitives;
 using static Bicep.Core.PrettyPrintV2.Documents.DocumentOperators;
 
 namespace Bicep.Core.PrettyPrintV2
@@ -117,6 +116,14 @@ namespace Bicep.Core.PrettyPrintV2
                     syntax.SpecificationString,
                     syntax.WithClause,
                     syntax.AsClause));
+
+        private IEnumerable<Document> LayoutExtensionConfigAssignmentSyntax(ExtensionConfigAssignmentSyntax syntax) =>
+            this.LayoutLeadingNodes(syntax.LeadingNodes)
+                .Concat(
+                    this.Spread(
+                        syntax.Keyword,
+                        syntax.SpecificationString,
+                        syntax.WithClause));
 
         private IEnumerable<Document> LayoutExtensionWithClauseSyntax(ExtensionWithClauseSyntax syntax) =>
             this.Spread(

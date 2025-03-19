@@ -401,6 +401,16 @@ public record ExtensionExpression(
     protected override object? GetDebugAttributes() => new { Name };
 }
 
+public record ExtensionConfigAssignmentExpression(
+    SyntaxBase? SourceSyntax,
+    ExtensionConfigAssignmentSymbol ExtensionConfigAssignment) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitExtensionConfigAssignmentExpression(this);
+
+    protected override object? GetDebugAttributes() => new { ExtensionAlias = ExtensionConfigAssignment.Name };
+}
+
 public abstract record TypeDeclaringExpression(
     SyntaxBase? SourceSyntax,
     Expression? Description,
@@ -508,6 +518,7 @@ public record DeclaredModuleExpression(
     SyntaxBase BodySyntax,
     Expression Body,
     Expression? Parameters,
+    Expression? ExtensionConfigs,
     ImmutableArray<ResourceDependencyExpression> DependsOn,
     Expression? Description = null
 ) : DescribableExpression(SourceSyntax, Description)
