@@ -2351,6 +2351,16 @@ namespace Bicep.Core.TypeSystem
                 {
                     matchedFunctionResultValues.TryAdd(syntax, result.Value);
                 }
+
+                // FIXME: There's no way to update the validation flags on a constructed type, but the result should
+                // take on the "taint" flags of its arguments:
+                // return result.Type with
+                // {
+                //     ValidationFlags = result.Type.ValidationFlags |
+                //         argumentTypes.Aggregate(
+                //             TypeSymbolValidationFlags.Default,
+                //             (acc, curr) => acc | (curr.ValidationFlags & LanguageConstants.TaintFlags)),
+                // };
                 return result.Type;
             }
 

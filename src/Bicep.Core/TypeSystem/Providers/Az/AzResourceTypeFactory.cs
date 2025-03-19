@@ -100,6 +100,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
 
         private TypeSymbol ToTypeSymbol(Azure.Bicep.Types.Concrete.TypeBase typeBase, bool isResourceBodyType, bool isResourceBodyTopLevelPropertyType)
         {
+            var flags = GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType);
             switch (typeBase)
             {
                 case Azure.Bicep.Types.Concrete.AnyType:
@@ -107,16 +108,16 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 case Azure.Bicep.Types.Concrete.NullType:
                     return LanguageConstants.Null;
                 case Azure.Bicep.Types.Concrete.BooleanType:
-                    return TypeFactory.CreateBooleanType(GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType));
+                    return TypeFactory.CreateBooleanType(flags);
                 case Azure.Bicep.Types.Concrete.IntegerType @int:
-                    return TypeFactory.CreateIntegerType(@int.MinValue,
-                        @int.MaxValue,
-                        GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType));
+                    return TypeFactory.CreateIntegerType(@int.MinValue, @int.MaxValue, flags);
                 case Azure.Bicep.Types.Concrete.StringType @string:
-                    return TypeFactory.CreateStringType(@string.MinLength,
-                        @string.MaxLength,
-                        @string.Pattern,
-                        GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType));
+                    if (@string.Sensitive is true)
+                    {
+                        flags |= TypeSymbolValidationFlags.IsSecure;
+                    }
+
+                    return TypeFactory.CreateStringType(@string.MinLength, @string.MaxLength, @string.Pattern, flags);
                 case Azure.Bicep.Types.Concrete.BuiltInType builtInType:
                     return builtInType.Kind switch
                     {
@@ -134,6 +135,11 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                     };
                 case Azure.Bicep.Types.Concrete.ObjectType objectType:
                     {
+                        if (objectType.Sensitive is true)
+                        {
+                            flags |= TypeSymbolValidationFlags.IsSecure;
+                        }
+
                         var additionalProperties = objectType.AdditionalProperties != null
                             ? GetTypeReference(
                                 input: objectType.AdditionalProperties,
@@ -146,7 +152,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                             isResourceBodyTopLevelPropertyType: isResourceBodyType));
 
                         return new ObjectType(objectType.Name,
-                            GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType),
+                            flags,
                             properties,
                             additionalProperties is not null ? new(additionalProperties) : null);
                     }
@@ -161,8 +167,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                             unionType.Elements.Select(x => GetTypeReference(x, isResourceBodyType, isResourceBodyTopLevelPropertyType)));
                     }
                 case Azure.Bicep.Types.Concrete.StringLiteralType stringLiteralType:
-                    return TypeFactory.CreateStringLiteralType(stringLiteralType.Value,
-                        GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType));
+                    return TypeFactory.CreateStringLiteralType(stringLiteralType.Value, flags);
                 case Azure.Bicep.Types.Concrete.DiscriminatedObjectType discriminatedObjectType:
                     {
                         var elementReferences = discriminatedObjectType.Elements.Select(kvp => new DeferredTypeReference(() => ToCombinedType(
@@ -173,7 +178,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                             isResourceBodyTopLevelPropertyType)));
 
                         return new DiscriminatedObjectType(discriminatedObjectType.Name,
-                            GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType),
+                            flags,
                             discriminatedObjectType.Discriminator,
                             elementReferences);
                     }

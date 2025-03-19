@@ -125,8 +125,11 @@ param additionalMetadata string
 @maxLength(24)
 @allowed([
   'one'
+//@[02:007) [BCP418 (Warning)] The assignment target is expecting sensitive data but has been provided a non-sensitive value. Consider supplying the value as a secure parameter instead to prevent unauthorized disclosure to users who can view the template (via the portal, the CLI, or in source code). (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |'one'|
   'two'
+//@[02:007) [BCP418 (Warning)] The assignment target is expecting sensitive data but has been provided a non-sensitive value. Consider supplying the value as a secure parameter instead to prevent unauthorized disclosure to users who can view the template (via the portal, the CLI, or in source code). (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |'two'|
   'three'
+//@[02:009) [BCP418 (Warning)] The assignment target is expecting sensitive data but has been provided a non-sensitive value. Consider supplying the value as a secure parameter instead to prevent unauthorized disclosure to users who can view the template (via the portal, the CLI, or in source code). (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |'three'|
 ])
 @metadata({
   description: 'Name of the storage account'
@@ -156,7 +159,9 @@ param stringLiteralWithAllowedValuesSuperset string = stringLiteral
   @maxLength(10)
 @allowed([
   'Apple'
+//@[02:009) [BCP418 (Warning)] The assignment target is expecting sensitive data but has been provided a non-sensitive value. Consider supplying the value as a secure parameter instead to prevent unauthorized disclosure to users who can view the template (via the portal, the CLI, or in source code). (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |'Apple'|
   'Banana'
+//@[02:010) [BCP418 (Warning)] The assignment target is expecting sensitive data but has been provided a non-sensitive value. Consider supplying the value as a secure parameter instead to prevent unauthorized disclosure to users who can view the template (via the portal, the CLI, or in source code). (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |'Banana'|
 ])
 param decoratedString string
 //@[06:021) [no-unused-params (Warning)] Parameter "decoratedString" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |decoratedString|
@@ -190,6 +195,7 @@ param decoratedObject object = {
 //@[06:021) [no-unused-params (Warning)] Parameter "decoratedObject" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |decoratedObject|
 //@[22:028) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
 //@[29:265) [secure-parameter-default (Warning)] Secure parameters should not have hardcoded defaults (except for empty or newGuid()). (bicep core linter https://aka.ms/bicep/linter/secure-parameter-default) |= {\r\n  enabled: true\r\n  name: 'this is my object'\r\n  priority: 3\r\n  info: {\r\n    a: 'b'\r\n  }\r\n  empty: {\r\n  }\r\n  array: [\r\n    'string item'\r\n    12\r\n    true\r\n    [\r\n      'inner'\r\n      false\r\n    ]\r\n    {\r\n      a: 'b'\r\n    }\r\n  ]\r\n}|
+//@[31:265) [BCP418 (Warning)] The assignment target is expecting sensitive data but has been provided a non-sensitive value. Consider supplying the value as a secure parameter instead to prevent unauthorized disclosure to users who can view the template (via the portal, the CLI, or in source code). (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |{\r\n  enabled: true\r\n  name: 'this is my object'\r\n  priority: 3\r\n  info: {\r\n    a: 'b'\r\n  }\r\n  empty: {\r\n  }\r\n  array: [\r\n    'string item'\r\n    12\r\n    true\r\n    [\r\n      'inner'\r\n      false\r\n    ]\r\n    {\r\n      a: 'b'\r\n    }\r\n  ]\r\n}|
   enabled: true
   name: 'this is my object'
   priority: 3

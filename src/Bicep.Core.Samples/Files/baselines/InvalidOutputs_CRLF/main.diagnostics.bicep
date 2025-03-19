@@ -240,6 +240,7 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 
 output keyVaultSecretOutput string = kv.getSecret('mySecret')
 //@[37:61) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP180) |kv.getSecret('mySecret')|
+//@[37:61) [BCP417 (Warning)] The supplied value has been marked as secure but is being assigned to a target that is not expecting sensitive data. (bicep https://aka.ms/bicep/core-diagnostics#BCP417) |kv.getSecret('mySecret')|
 output keyVaultSecretInterpolatedOutput string = '${kv.getSecret('mySecret')}'
 //@[49:78) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (bicep core linter https://aka.ms/bicep/linter/simplify-interpolation) |'${kv.getSecret('mySecret')}'|
 //@[52:76) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP180) |kv.getSecret('mySecret')|
@@ -247,11 +248,13 @@ output keyVaultSecretObjectOutput object = {
 //@[34:40) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
   secret: kv.getSecret('mySecret')
 //@[10:34) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP180) |kv.getSecret('mySecret')|
+//@[10:34) [BCP417 (Warning)] The supplied value has been marked as secure but is being assigned to a target that is not expecting sensitive data. (bicep https://aka.ms/bicep/core-diagnostics#BCP417) |kv.getSecret('mySecret')|
 }
 output keyVaultSecretArrayOutput array = [
 //@[33:38) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|
   kv.getSecret('mySecret')
 //@[02:26) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP180) |kv.getSecret('mySecret')|
+//@[02:26) [BCP417 (Warning)] The supplied value has been marked as secure but is being assigned to a target that is not expecting sensitive data. (bicep https://aka.ms/bicep/core-diagnostics#BCP417) |kv.getSecret('mySecret')|
 ]
 output keyVaultSecretArrayInterpolatedOutput array = [
 //@[45:50) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|

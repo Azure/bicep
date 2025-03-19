@@ -176,8 +176,10 @@ resource myvm 'Microsoft.Compute/virtualMachines@2020-06-01' = [
         computerName: 'vm${i}'
         adminUsername: adminUsername
         adminPassword: adminPasswordOrKey
+//@[23:041) [BCP417 (Info)] The supplied value has been marked as secure but is being assigned to a target that is not expecting sensitive data. (bicep https://aka.ms/bicep/core-diagnostics#BCP417) |adminPasswordOrKey|
         linuxConfiguration: ((authenticationType == 'password') ? json('null') : linuxConfiguration)
-//@[66:78) [simplify-json-null (Warning)] Simplify json('null') to null (bicep core linter https://aka.ms/bicep/linter/simplify-json-null) |json('null')|
+//@[28:100) [BCP417 (Info)] The supplied value has been marked as secure but is being assigned to a target that is not expecting sensitive data. (bicep https://aka.ms/bicep/core-diagnostics#BCP417) |((authenticationType == 'password') ? json('null') : linuxConfiguration)|
+//@[66:078) [simplify-json-null (Warning)] Simplify json('null') to null (bicep core linter https://aka.ms/bicep/linter/simplify-json-null) |json('null')|
       }
       storageProfile: {
         imageReference: imageReference[OS]
@@ -195,7 +197,7 @@ resource myvm 'Microsoft.Compute/virtualMachines@2020-06-01' = [
     }
     dependsOn: [
       resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')
-//@[06:66) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP034) |resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')|
+//@[06:066) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP034) |resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')|
       availabilitySet
     ]
   }

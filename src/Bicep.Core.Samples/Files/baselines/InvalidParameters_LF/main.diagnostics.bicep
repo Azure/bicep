@@ -382,6 +382,7 @@ param someString string
     true
 //@[04:008) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "true". (bicep https://aka.ms/bicep/core-diagnostics#BCP034) |true|
     10
+//@[04:006) [BCP418 (Warning)] The assignment target is expecting sensitive data but has been provided a non-sensitive value. Consider supplying the value as a secure parameter instead to prevent unauthorized disclosure to users who can view the template (via the portal, the CLI, or in source code). (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |10|
     'foo'
 //@[04:009) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "'foo'". (bicep https://aka.ms/bicep/core-diagnostics#BCP034) |'foo'|
 ])
@@ -396,6 +397,7 @@ param someString string
 param someInteger int = 20
 //@[06:017) [no-unused-params (Warning)] Parameter "someInteger" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |someInteger|
 //@[22:026) [secure-parameter-default (Warning)] Secure parameters should not have hardcoded defaults (except for empty or newGuid()). (bicep core linter https://aka.ms/bicep/linter/secure-parameter-default) |= 20|
+//@[24:026) [BCP418 (Warning)] The assignment target is expecting sensitive data but has been provided a non-sensitive value. Consider supplying the value as a secure parameter instead to prevent unauthorized disclosure to users who can view the template (via the portal, the CLI, or in source code). (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |20|
 
 @allowed([], [], 2)
 //@[08:019) [BCP071 (Error)] Expected 1 argument, but got 3. (bicep https://aka.ms/bicep/core-diagnostics#BCP071) |([], [], 2)|

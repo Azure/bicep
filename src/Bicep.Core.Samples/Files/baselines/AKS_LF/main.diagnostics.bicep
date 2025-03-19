@@ -52,7 +52,9 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
         }
         servicePrincipalProfile: {
             clientId: servicePrincipalClientId
+//@[22:46) [BCP417 (Info)] The supplied value has been marked as secure but is being assigned to a target that is not expecting sensitive data. (bicep https://aka.ms/bicep/core-diagnostics#BCP417) |servicePrincipalClientId|
             secret: servicePrincipalClientSecret
+//@[20:48) [BCP417 (Info)] The supplied value has been marked as secure but is being assigned to a target that is not expecting sensitive data. (bicep https://aka.ms/bicep/core-diagnostics#BCP417) |servicePrincipalClientSecret|
         }
     }
 }

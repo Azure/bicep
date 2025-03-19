@@ -736,6 +736,7 @@ module secureModule1 'moduleb.bicep' = {
   params: {       
     stringParamA: kv.getSecret('mySecret')
 //@[018:042) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP180) |kv.getSecret('mySecret')|
+//@[018:042) [BCP417 (Warning)] The supplied value has been marked as secure but is being assigned to a target that is not expecting sensitive data. (bicep https://aka.ms/bicep/core-diagnostics#BCP417) |kv.getSecret('mySecret')|
     stringParamB: '${kv.getSecret('mySecret')}'
 //@[018:047) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (bicep core linter https://aka.ms/bicep/linter/simplify-interpolation) |'${kv.getSecret('mySecret')}'|
 //@[021:045) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP180) |kv.getSecret('mySecret')|
@@ -747,6 +748,7 @@ module secureModule1 'moduleb.bicep' = {
 //@[016:040) [BCP036 (Error)] The property "arrayParam" expected a value of type "array" but the provided value is of type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP036) |kv.getSecret('mySecret')|
     secureStringParam: '${kv.getSecret('mySecret')}'
 //@[023:052) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (bicep core linter https://aka.ms/bicep/linter/simplify-interpolation) |'${kv.getSecret('mySecret')}'|
+//@[023:052) [BCP418 (Warning)] The assignment target is expecting sensitive data but has been provided a non-sensitive value. Consider supplying the value as a secure parameter instead to prevent unauthorized disclosure to users who can view the template (via the portal, the CLI, or in source code). (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |'${kv.getSecret('mySecret')}'|
 //@[026:050) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP180) |kv.getSecret('mySecret')|
     secureObjectParam: kv.getSecret('mySecret')
 //@[023:047) [BCP036 (Error)] The property "secureObjectParam" expected a value of type "null | object" but the provided value is of type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP036) |kv.getSecret('mySecret')|

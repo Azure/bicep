@@ -130,6 +130,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         ",
             $"{description} Found possible secret: secure value 'obj.secureProp'"
         )]
+        [DataRow(
+            """
+            param siteProperties resourceInput<'Microsoft.Web/sites@2022-09-01'>.properties
+            
+            output siteProperties object = siteProperties
+            """,
+            $"{description} Found possible secret: secure value 'siteProperties.siteConfig.azureStorageAccounts.*.accessKey'")]
         [DataTestMethod]
         public void If_OutputReferencesSecureParamProperty_ShouldFail(string text, params string[] expectedMessages)
         {

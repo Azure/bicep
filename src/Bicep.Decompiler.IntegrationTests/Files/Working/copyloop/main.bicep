@@ -45,6 +45,7 @@ resource vmPrefix_resource 'Microsoft.Compute/virtualMachines@2020-06-01' = [
         adminUsername: 'vmadmin'
 //@[23:32) [adminusername-should-not-be-literal (Warning)] Property 'adminUserName' should not use a literal value. Use a param instead. Found literal string value "vmadmin" (bicep core linter https://aka.ms/bicep/linter/adminusername-should-not-be-literal) |'vmadmin'|
         adminPassword: adminPassword
+//@[23:36) [BCP417 (Info)] The supplied value has been marked as secure but is being assigned to a target that is not expecting sensitive data. (bicep https://aka.ms/bicep/core-diagnostics#BCP417) |adminPassword|
       }
       storageProfile: {
         imageReference: {
