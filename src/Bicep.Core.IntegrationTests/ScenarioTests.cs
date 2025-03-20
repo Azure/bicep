@@ -7006,7 +7006,7 @@ var subnetId = vNet::subnets[0].id
         result.Should().NotHaveAnyDiagnostics();
     }
 
-    // https://github.com/azure/bicep/issues/
+    // https://github.com/azure/bicep/issues/16332
     [TestMethod]
     public void DependsOn_order_is_deterministic_for_hierarchical_resource_symbolic_names()
     {
@@ -7065,5 +7065,30 @@ var subnetId = vNet::subnets[0].id
             result.Template.Should().HaveValueAtPath("$.resources.sa.dependsOn[0]", "keyVaultOne::secret");
             result.Template.Should().HaveValueAtPath("$.resources.sa.dependsOn[1]", "keyVaultTwo::secret");
         }
+    }
+
+    // https://github.com/azure/bicep/issues/16664
+    [TestMethod]
+    public void DependsOn_on_existing_resource_triggers_languageVersion_2()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                module empty 'empty.bicep' = {
+                  name: 'foo'
+                }
+                
+                resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
+                  name: 'storage'
+                  dependsOn: [
+                    empty
+                  ]
+                }
+                """),
+            ("empty.bicep", string.Empty));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("$.languageVersion", "2.0");
+        result.Template.Should().HaveJsonAtPath("$.resources.sa.dependsOn", """["empty"]""");
     }
 }
