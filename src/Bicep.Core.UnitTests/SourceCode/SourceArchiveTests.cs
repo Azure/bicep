@@ -8,6 +8,7 @@ using System.Text;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceLink;
+using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;

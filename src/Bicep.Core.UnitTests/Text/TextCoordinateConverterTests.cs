@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.SourceLink;
 using Bicep.Core.Text;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -123,7 +124,7 @@ namespace Bicep.Core.UnitTests.Text
         public void GetPosition_ValidLineStartsAndOffset_ReturnsConvertedPosition(int[] lineStarts, int offset, (int line, int character) expectedPosition)
         {
             var position = TextCoordinateConverter.GetPosition(lineStarts, offset);
-            position.Should().Be(expectedPosition);
+            position.Should().Be(new TextPosition(expectedPosition));
         }
 
         [DataTestMethod]

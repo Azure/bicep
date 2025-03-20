@@ -3,6 +3,7 @@
 
 using System.Text.Json;
 using Bicep.Core.SourceLink;
+using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

@@ -118,7 +118,7 @@ namespace Bicep.LanguageServer.Handlers
                                 var sourceId = targetFileInfo.SourceArtifact?.ArtifactId;
                                 yield return new DocumentLink<ExternalSourceDocumentLinkData>()
                                 {
-                                    Range = nestedLink.Range.ToRange(),
+                                    Range = nestedLink.Range.ToLspRange(),
                                     Data = new ExternalSourceDocumentLinkData(sourceId, linkToRawCompiledJson)
                                 };
                             }
@@ -127,7 +127,7 @@ namespace Bicep.LanguageServer.Handlers
                                 yield return new DocumentLink()
                                 {
                                     // This is a link to a file that we don't have source for, so we'll just display the main.json file
-                                    Range = nestedLink.Range.ToRange(),
+                                    Range = nestedLink.Range.ToLspRange(),
                                     Target = linkToRawCompiledJson
                                 };
                             }

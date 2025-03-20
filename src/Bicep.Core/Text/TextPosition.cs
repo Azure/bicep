@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
-namespace Bicep.Core.SourceLink
+namespace Bicep.Core.Text
 {
     [JsonConverter(typeof(TextPositionConverter))]
     public readonly record struct TextPosition
@@ -24,11 +24,15 @@ namespace Bicep.Core.SourceLink
 
         public int Character { get; }
 
-        public void Deconstruct(out int line, out int character) => (line, character) = (this.Line, this.Character);
-
-        public TextPosition((int line, int character) input)
-            : this(input.line, input.character)
+        public TextPosition((int line, int character) position)
+            : this(position.line, position.character)
         { }
+
+        public static implicit operator (int line, int character)(TextPosition position) => (position.Line, position.Character);
+
+        public static implicit operator TextPosition((int line, int character) position) => new(position.line, position.character);
+
+        public void Deconstruct(out int line, out int character) => (line, character) = (this.Line, this.Character);
 
         public static bool TryParse(string? value, [NotNullWhen(true)] out TextPosition? textPosition)
         {

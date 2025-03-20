@@ -3,14 +3,15 @@
 
 using System.Text.Json;
 using Bicep.Core.SourceLink;
+using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.UnitTests.SourceCode;
+namespace Bicep.Core.UnitTests.Text;
 
 [TestClass]
-public class SourceCodeRangeTests
+public class TextRangeTests
 {
     public TestContext? TestContext { get; set; }
 

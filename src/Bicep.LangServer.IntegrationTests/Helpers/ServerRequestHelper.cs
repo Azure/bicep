@@ -48,7 +48,7 @@ namespace Bicep.LangServer.IntegrationTests
             CompletionList completions = await client.RequestCompletion(new CompletionParams
             {
                 TextDocument = new TextDocumentIdentifier(bicepFile.Uri),
-                Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor)
+                Position = bicepFile.GetPosition(cursor),
             });
 
             var resolved = new List<CompletionItem>();
@@ -105,7 +105,7 @@ namespace Bicep.LangServer.IntegrationTests
             await client.RequestSignatureHelp(new SignatureHelpParams
             {
                 TextDocument = new TextDocumentIdentifier(bicepFile.Uri),
-                Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor),
+                Position = bicepFile.GetPosition(cursor),
                 Context = context ?? new SignatureHelpContext
                 {
                     TriggerKind = SignatureHelpTriggerKind.Invoked,
@@ -156,7 +156,7 @@ namespace Bicep.LangServer.IntegrationTests
             return await client.RequestHover(new HoverParams
             {
                 TextDocument = new TextDocumentIdentifier(bicepFile.Uri),
-                Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor)
+                Position = bicepFile.GetPosition(cursor),
             });
         }
 
@@ -165,7 +165,7 @@ namespace Bicep.LangServer.IntegrationTests
             var response = await client.RequestDefinition(new DefinitionParams
             {
                 TextDocument = new TextDocumentIdentifier(bicepFile.Uri),
-                Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor)
+                Position = bicepFile.GetPosition(cursor),
             });
 
             response.Should().NotBeNull();

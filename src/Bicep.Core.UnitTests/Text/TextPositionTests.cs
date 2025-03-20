@@ -2,15 +2,15 @@
 // Licensed under the MIT License.
 
 using System.Text.Json;
-using Bicep.Core.SourceLink;
+using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.UnitTests.SourceCode;
+namespace Bicep.Core.UnitTests.Text;
 
 [TestClass]
-public class SourceCodePositionTests
+public class TextPositionTests
 {
     public TestContext? TestContext { get; set; }
 
@@ -30,18 +30,17 @@ public class SourceCodePositionTests
     }
 
     [DataTestMethod]
-    [DataRow(-1, 0, "Line must be non-negative")]
-    [DataRow(0, -1, "Column must be non-negative")]
-    public void BadValues(int x, int y, string expectedMessage)
+    [DataRow(-1, 0)]
+    [DataRow(0, -1)]
+    public void BadValues(int line, int character)
     {
-        ((Action)(() => new TextPosition(x, y))).Should().Throw<ArgumentException>().WithMessage(expectedMessage);
+        ((Action)(() => new TextPosition(line, character))).Should().Throw<ArgumentOutOfRangeException>();
     }
 
     [DataTestMethod]
     [DataRow("\"[0:0]\"", 0, 0, null)]
-    [DataRow("\"[0,0]\"", null, null, "Invalid input format for deserialization of SourceCodePosition")]
-    [DataRow("\":0:0]\"", null, null, "Invalid input format for deserialization of SourceCodePosition")]
-    [DataRow("\"[-1:0]\"", null, null, "Line must be non-negative")]
+    [DataRow("\"[0,0]\"", null, null, "Invalid input format for deserialization of TextPosition")]
+    [DataRow("\":0:0]\"", null, null, "Invalid input format for deserialization of TextPosition")]
     public void Deserialization(string input, int? expectedX, int? expectedY, string? expectedMessage)
     {
         try

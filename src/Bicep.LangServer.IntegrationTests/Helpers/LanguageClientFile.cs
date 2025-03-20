@@ -24,7 +24,7 @@ namespace Bicep.LangServer.IntegrationTests.Helpers
 
         public ImmutableArray<int> LineStarts { get; }
 
-        public Position GetPosition(int offset) => TextCoordinateConverter.GetPosition(this.LineStarts, offset);
+        public (int line, int character) GetPosition(int offset) => TextCoordinateConverter.GetPosition(this.LineStarts, offset);
 
         public Range GetRange(TextSpan span) => new()
         {

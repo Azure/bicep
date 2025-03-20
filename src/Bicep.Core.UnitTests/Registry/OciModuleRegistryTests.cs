@@ -717,7 +717,7 @@ namespace Bicep.Core.UnitTests.Registry
             var (_, failureBuilder) = (await ociRegistry.RestoreArtifacts(new[] { reference })).SingleOrDefault();
             if (failureBuilder is { })
             {
-                var builder = new DiagnosticBuilderInternal(new Core.Parsing.TextSpan());
+                var builder = new DiagnosticBuilderInternal(new Core.Text.TextSpan());
                 var diagnostic = failureBuilder(builder);
                 if (diagnostic is { })
                 {

@@ -11,6 +11,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrintV2;
+using Bicep.Core.Text;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 

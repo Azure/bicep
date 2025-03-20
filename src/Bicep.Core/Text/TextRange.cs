@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Bicep.Core.SourceLink
+namespace Bicep.Core.Text
 {
     [JsonConverter(typeof(TextRangeConverter))]
     public readonly record struct TextRange(TextPosition Start, TextPosition End)

@@ -65,12 +65,12 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
+            var bicepFile = new LanguageClientFile(uri, dataSet.Bicep);
 
             var helper = await ServerWithTestNamespaceProvider.GetAsync();
             await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);
 
             var symbolTable = compilation.ReconstructSymbolTable();
-            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
             var symbolReferences = SyntaxAggregator.Aggregate(
                 compilation.SourceFileGrouping.EntryPoint.ProgramSyntax,
@@ -100,8 +100,8 @@ namespace Bicep.LangServer.IntegrationTests
 
                 var hover = await helper.Client.RequestHover(new HoverParams
                 {
-                    TextDocument = new TextDocumentIdentifier(uri),
-                    Position = TextCoordinateConverter.GetPosition(lineStarts, nodeForHover.Span.Position)
+                    TextDocument = bicepFile.Uri,
+                    Position = bicepFile.GetPosition(nodeForHover.Span.Position)
                 });
 
                 // fancy method to give us some annotated source code to look at if any assertions fail :)
@@ -154,6 +154,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
+            var bicepFile = new LanguageClientFile(uri, dataSet.Bicep);
 
             var helper = await DefaultServer.GetAsync();
             await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);
@@ -181,8 +182,8 @@ namespace Bicep.LangServer.IntegrationTests
             {
                 var hover = await helper.Client.RequestHover(new HoverParams
                 {
-                    TextDocument = new TextDocumentIdentifier(uri),
-                    Position = TextCoordinateConverter.GetPosition(lineStarts, node.Span.Position)
+                    TextDocument = bicepFile.Uri,
+                    Position = bicepFile.GetPosition(node.Span.Position),
                 });
 
                 // fancy method to give us some annotated source code to look at if any assertions fail :)

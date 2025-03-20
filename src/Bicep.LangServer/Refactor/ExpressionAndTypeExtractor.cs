@@ -403,7 +403,7 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
     {
         ImmutableArray<int> lineStarts = sourceFile.LineStarts;
 
-        var extractionLine = TextCoordinateConverter.GetPosition(lineStarts, extractionOffset).line;
+        var extractionLine = TextCoordinateConverter.GetPosition(lineStarts, extractionOffset).Line;
 
         var existingDeclarationStatement = sourceFile.ProgramSyntax.Children.OfType<StatementSyntax>()
             .Where(s => s.GetType() == declarationSyntaxType)
@@ -413,7 +413,7 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
         if (existingDeclarationStatement is { })
         {
             // Insert after the existing declaration of the same type
-            int existingDeclarationLine = TextCoordinateConverter.GetPosition(lineStarts, existingDeclarationStatement.GetEndPosition()).line;
+            int existingDeclarationLine = TextCoordinateConverter.GetPosition(lineStarts, existingDeclarationStatement.GetEndPosition()).Line;
             var insertionLine = existingDeclarationLine + 1;
 
             // Is there a blank line above this existing statement that we found (excluding its leading nodes/comments)?
@@ -448,7 +448,7 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
 
     public static int GetFirstLineOfStatementIncludingComments(IReadOnlyList<int> lineStarts, ProgramSyntax programSyntax, StatementSyntax statementSyntax)
     {
-        var statementStartLine = TextCoordinateConverter.GetPosition(lineStarts, statementSyntax.Span.Position).line; // Includes trivia but not comments
+        var statementStartLine = TextCoordinateConverter.GetPosition(lineStarts, statementSyntax.Span.Position).Line; // Includes trivia but not comments
 
         for (int line = statementStartLine; line >= 1; --line)
         {
@@ -468,7 +468,7 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
 
     private static int GetLastLineOfStatement(BicepSourceFile sourceFile, StatementSyntax statementSyntax)
     {
-        return TextCoordinateConverter.GetPosition(sourceFile.LineStarts, statementSyntax.GetEndPosition()).line;
+        return TextCoordinateConverter.GetPosition(sourceFile.LineStarts, statementSyntax.GetEndPosition()).Line;
     }
 
     private (bool addBefore, bool addAfter) ShouldAddBlankLines(StatementSyntax statementSyntax)

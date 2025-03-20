@@ -66,10 +66,10 @@ namespace Bicep.Core.UnitTests.Utils
             var output = new StringBuilder();
             var programLines = StringUtils.SplitOnNewLine(fileText).ToArray();
 
-            var annotationsByLine = annotationPositions.ToLookup(x => x.Value.line, x => x.Key);
+            var annotationsByLine = annotationPositions.ToLookup(x => x.Value.Line, x => x.Key);
 
-            var minLine = annotationPositions.Values.Aggregate(int.MaxValue, (min, curr) => Math.Min(curr.line, min));
-            var maxLine = annotationPositions.Values.Aggregate(0, (max, curr) => Math.Max(curr.line, max)) + 1;
+            var minLine = annotationPositions.Values.Aggregate(int.MaxValue, (min, curr) => Math.Min(curr.Line, min));
+            var maxLine = annotationPositions.Values.Aggregate(0, (max, curr) => Math.Max(curr.Line, max)) + 1;
 
             minLine = Math.Max(0, minLine - context);
             maxLine = Math.Min(lineStarts.Length, maxLine + context);
@@ -89,11 +89,11 @@ namespace Bicep.Core.UnitTests.Utils
                 output.Append(programLines[i]);
                 output.Append('\n');
 
-                var annotationsToDisplay = annotationsByLine[i].OrderBy(x => annotationPositions[x].character);
+                var annotationsToDisplay = annotationsByLine[i].OrderBy(x => annotationPositions[x].Character);
                 foreach (var annotation in annotationsToDisplay)
                 {
                     var position = annotationPositions[annotation];
-                    output.Append(new String(' ', gutterOffset + position.character));
+                    output.Append(new String(' ', gutterOffset + position.Character));
 
                     switch (annotation.Span.Length)
                     {

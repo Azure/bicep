@@ -158,7 +158,7 @@ var foo = 'i am just a |normal string!'
             LanguageClientFile bicepFile,
             int cursor)
         {
-            Position position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor);
+            Position position = bicepFile.GetPosition(cursor);
 
             return await GetCodeActions(bicepFile, new Range(position, position));
         }

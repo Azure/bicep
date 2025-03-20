@@ -20,8 +20,8 @@ namespace Bicep.LanguageServer.Utils
 
         public static Range GetRange(ImmutableArray<int> lineStarts, int startOffset, int endOffset)
         {
-            var start = TextCoordinateConverter.GetPosition(lineStarts, startOffset);
-            var end = TextCoordinateConverter.GetPosition(lineStarts, endOffset);
+            var start = GetPosition(lineStarts, startOffset);
+            var end = GetPosition(lineStarts, endOffset);
             return new Range(start, end);
         }
 
