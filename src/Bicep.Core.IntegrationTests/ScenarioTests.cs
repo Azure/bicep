@@ -7005,4 +7005,65 @@ var subnetId = vNet::subnets[0].id
 
         result.Should().NotHaveAnyDiagnostics();
     }
+
+    // https://github.com/azure/bicep/issues/
+    [TestMethod]
+    public void DependsOn_order_is_deterministic_for_hierarchical_resource_symbolic_names()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(SymbolicNameCodegenEnabled: true)), """
+                resource keyVaultOne 'Microsoft.KeyVault/vaults@2019-09-01' = {
+                  name: 'vault1'
+                  location: 'westus'
+                  properties: {
+                    sku: {
+                      name: 'standard'
+                      family: 'A'
+                    }
+                    tenantId: '00000000-0000-0000-0000-000000000000'
+                  }
+                  
+                  resource secret 'secrets' = {
+                    name: 'secret'
+                    properties: {}
+                  }
+                }
+
+                resource keyVaultTwo 'Microsoft.KeyVault/vaults@2019-09-01' = {
+                  name: 'vault2'
+                  location: 'westus'
+                  properties: {
+                    sku: {
+                      name: 'standard'
+                      family: 'A'
+                    }
+                    tenantId: '00000000-0000-0000-0000-000000000000'
+                  }
+                  
+                  resource secret 'secrets' = {
+                    name: 'secret'
+                    properties: {}
+                  }
+                }
+
+                resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' = {
+                    name: 'storage'
+                    location: 'westus'
+                    sku: {
+                        name: 'Premium_LRS'
+                    }
+                    kind: 'StorageV2'
+                    tags: {
+                        key1: keyVaultTwo::secret.name
+                        key2: keyVaultOne::secret.name
+                    }
+                }
+                """);
+
+            result.Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.resources.sa.dependsOn[0]", "keyVaultOne::secret");
+            result.Template.Should().HaveValueAtPath("$.resources.sa.dependsOn[1]", "keyVaultTwo::secret");
+        }
+    }
 }
