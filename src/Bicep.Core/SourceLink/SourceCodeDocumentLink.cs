@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Text;
+
 namespace Bicep.Core.SourceLink;
 
 /// <summary>
@@ -10,7 +12,7 @@ namespace Bicep.Core.SourceLink;
 /// <param name="Range">Span of the origin of this link in the source file (e.g. the module path of a module declaration syntax line)</param>
 /// <param name="Target">The target file for this link (e.g. the path of the source file pointed to by the module path inside the source.tgz file)</param>
 public record SourceCodeDocumentLink<TTarget>(
-    SourceCodeRange Range,
+    TextRange Range,
     TTarget Target
 );
 
@@ -18,7 +20,7 @@ public record SourceCodeDocumentLink<TTarget>(
 public record SourceCodeDocumentUriLink : SourceCodeDocumentLink<Uri>
 {
     public SourceCodeDocumentUriLink(
-        SourceCodeRange Range,
+        TextRange Range,
         Uri Target)
     : base(Range, Target)
     { }
@@ -28,7 +30,7 @@ public record SourceCodeDocumentUriLink : SourceCodeDocumentLink<Uri>
 public record SourceCodeDocumentPathLink : SourceCodeDocumentLink<string>
 {
     public SourceCodeDocumentPathLink(
-        SourceCodeRange Range,
+        TextRange Range,
         string Target)
     : base(Range, Target)
     { }

@@ -43,10 +43,10 @@ public static class SourceCodeDocumentLinkHelper
                     syntax.Path is { } &&
                     artifact.Result.IsSuccess(out var uri))
                 {
-                    var start = new SourceCodePosition(TextCoordinateConverter.GetPosition(referencingFileLineStarts, syntax.Path.Span.Position));
-                    var end = new SourceCodePosition(TextCoordinateConverter.GetPosition(referencingFileLineStarts, syntax.Path.Span.Position + syntax.Path.Span.Length));
+                    var start = new TextPosition(TextCoordinateConverter.GetPosition(referencingFileLineStarts, syntax.Path.Span.Position));
+                    var end = new TextPosition(TextCoordinateConverter.GetPosition(referencingFileLineStarts, syntax.Path.Span.Position + syntax.Path.Span.Length));
 
-                    linksForReferencingFile.Add(new SourceCodeDocumentUriLink(new SourceCodeRange(start, end), uri));
+                    linksForReferencingFile.Add(new SourceCodeDocumentUriLink(new TextRange(start, end), uri));
                 }
             }
 

@@ -5,10 +5,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Bicep.Core.SourceLink
+namespace Bicep.Core.Text
 {
     [JsonConverter(typeof(SourceCodePositionConverter))]
-    public record SourceCodePosition
+    public record TextPosition
     {
         private int line, column;
 
@@ -30,22 +30,22 @@ namespace Bicep.Core.SourceLink
             }
         }
 
-        public SourceCodePosition(int Line, int Column)
+        public TextPosition(int Line, int Column)
         {
             this.Line = Line;
             this.Column = Column;
         }
 
-        public SourceCodePosition((int line, int column) input)
+        public TextPosition((int line, int column) input)
             : this(input.line, input.column)
         { }
 
-        public static bool TryParse(string s, [NotNullWhen(true)] out SourceCodePosition? sourceCodePosition)
+        public static bool TryParse(string s, [NotNullWhen(true)] out TextPosition? sourceCodePosition)
         {
             var parts = s?.TrimStart('"').TrimStart('[').TrimEnd(']').TrimEnd('"').Split(":");
             if (parts?.Length == 2 && int.TryParse(parts[0], out int line) && int.TryParse(parts[1], out int column))
             {
-                sourceCodePosition = new SourceCodePosition(line, column);
+                sourceCodePosition = new TextPosition(line, column);
                 return true;
             }
             else
@@ -61,22 +61,22 @@ namespace Bicep.Core.SourceLink
         }
     }
 
-    public class SourceCodePositionConverter : JsonConverter<SourceCodePosition>
+    public class SourceCodePositionConverter : JsonConverter<TextPosition>
     {
-        public override SourceCodePosition Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override TextPosition Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var s = reader.GetString();
-            if (s is { } && SourceCodePosition.TryParse(s, out SourceCodePosition? sourceCodePosition))
+            if (s is { } && TextPosition.TryParse(s, out TextPosition? sourceCodePosition))
             {
                 return sourceCodePosition;
             }
             else
             {
-                throw new ArgumentException($"Invalid input format for deserialization of {nameof(SourceCodePosition)}");
+                throw new ArgumentException($"Invalid input format for deserialization of {nameof(TextPosition)}");
             }
         }
 
-        public override void Write(Utf8JsonWriter writer, SourceCodePosition value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, TextPosition value, JsonSerializerOptions options)
         {
             writer.WriteStringValue(value.ToString());
         }
