@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Text.Json;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceLink;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Bicep.Core.SourceCode;
+namespace Bicep.Core.SourceLink;
 
 /// <summary>
 /// Represents a link from a range inside a source file that points to another source file

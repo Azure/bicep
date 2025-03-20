@@ -8,7 +8,7 @@ using System.IO.Abstractions.TestingHelpers;
 using System.Text.RegularExpressions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceLink;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Extensions;

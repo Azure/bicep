@@ -7,7 +7,7 @@ using System.IO.Compression;
 using System.Text;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceLink;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
@@ -16,7 +16,7 @@ using Bicep.IO.FileSystem;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using static Bicep.Core.SourceCode.SourceArchive;
+using static Bicep.Core.SourceLink.SourceArchive;
 
 namespace Bicep.Core.UnitTests.SourceCode;
 

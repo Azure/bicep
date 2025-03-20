@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceLink;
 using Position = OmniSharp.Extensions.LanguageServer.Protocol.Models.Position;
 
 namespace Bicep.LanguageServer.Extensions

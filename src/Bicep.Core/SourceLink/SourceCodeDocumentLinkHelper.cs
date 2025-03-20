@@ -10,7 +10,7 @@ using Bicep.Core.Workspaces;
 using Uri = System.Uri;
 
 
-namespace Bicep.Core.SourceCode;
+namespace Bicep.Core.SourceLink;
 
 public static class SourceCodeDocumentLinkHelper
 {

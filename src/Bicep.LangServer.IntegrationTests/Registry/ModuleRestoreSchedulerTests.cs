@@ -11,7 +11,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceLink;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests;
 using Bicep.Core.Utils;

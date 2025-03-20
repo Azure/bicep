@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Bicep.Core.SourceCode
+namespace Bicep.Core.SourceLink
 {
     [JsonConverter(typeof(SourceCodeRangeConverter))]
     public record SourceCodeRange(SourceCodePosition Start, SourceCodePosition End)
