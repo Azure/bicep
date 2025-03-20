@@ -48,7 +48,7 @@ namespace Bicep.Core.Text
 
             if (separatorIndex < 2 || separatorIndex >= value.Length - 2)
             {
-                // It seems 
+                // Handle both , and : as separators to allow for future migration.
                 separatorIndex = value.IndexOf(':');
             }
 
