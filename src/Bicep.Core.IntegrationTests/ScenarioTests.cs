@@ -6321,14 +6321,11 @@ param p invalidRecursiveObjectType = {}
         ]);
     }
 
-    [DataTestMethod]
-    [DataRow(true)]
-    [DataRow(false)]
+    [TestMethod]
     // https://github.com/azure/bicep/issues/13596
-    public void Test_Issue13596(bool enableSymbolicNameCodegen)
+    public void Test_Issue13596()
     {
         var result = CompilationHelper.Compile(
-            new ServiceBuilder().WithFeatureOverrides(new(SymbolicNameCodegenEnabled: enableSymbolicNameCodegen)),
             ("main.bicep", """
                 module mod 'empty.bicep' = {
                   name: 'mod'
@@ -6352,15 +6349,7 @@ param p invalidRecursiveObjectType = {}
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         result.Template.Should().NotBeNull();
-
-        if (enableSymbolicNameCodegen)
-        {
-            result.Template.Should().HaveJsonAtPath("$.resources.secret.dependsOn", """["mod"]""");
-        }
-        else
-        {
-            result.Template.Should().HaveJsonAtPath("$.resources[?(@.name=='vault/secret')].dependsOn", """["[resourceId('Microsoft.Resources/deployments', 'mod')]"]""");
-        }
+        result.Template.Should().HaveJsonAtPath("$.resources.secret.dependsOn", """["mod"]""");
     }
 
     [TestMethod]
