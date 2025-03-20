@@ -17,7 +17,7 @@ namespace Bicep.Core.Text
 
         public static bool TryParse(string? value, [NotNullWhen(true)] out TextRange? textRange)
         {
-            // Format: "[x1,y1]-[x2,y2]"
+            // Format: "[x1:y1]-[x2:y2]" ("[x1,y1]-[x2,y2]" makes more sense...but it's very expensive to migrate)
             // where
             //   x1: start line
             //   x2: start character
@@ -43,10 +43,7 @@ namespace Bicep.Core.Text
             return false;
         }
 
-        public override string ToString()
-        {
-            return $"{Start}-{End}";
-        }
+        public override string ToString() => $"{this.Start}-{this.End}";
     }
 
     public class TextRangeConverter : JsonConverter<TextRange>

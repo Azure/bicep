@@ -1,15 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Text
 {
-    public readonly record struct TextSpan : IPositionable
+    public readonly partial record struct TextSpan : IPositionable
     {
-        private static readonly Regex TextSpanPattern = new(@"^\[(?<startInclusive>\d+)\:(?<endExclusive>\d+)\]$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-
         public static readonly TextSpan Nil = new(-1, 0, true);
 
         public static readonly TextSpan TextDocumentStart = new(0, 0);
@@ -222,7 +221,7 @@ namespace Bicep.Core.Text
                 return false;
             }
 
-            var match = TextSpanPattern.Match(text);
+            var match = TextSpanPattern().Match(text);
             if (match.Success == false)
             {
                 return false;
@@ -262,5 +261,8 @@ namespace Bicep.Core.Text
         /// <param name="after">The sequence of nullable positionables</param>
         public static IPositionable LastNonNull(IPositionable first, params IPositionable?[] after)
             => after.LastOrDefault(x => x is not null) ?? first;
+
+        [GeneratedRegex(@"^\[(?<startInclusive>[0-9]+)\:(?<endExclusive>[0-9]+)\]$")]
+        private static partial Regex TextSpanPattern();
     }
 }

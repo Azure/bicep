@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 
 namespace Bicep.Core.Text
 {
-    [JsonConverter(typeof(TextPositionConverter))]
     public readonly record struct TextPosition
     {
         public TextPosition(int line, int character)
@@ -36,22 +35,31 @@ namespace Bicep.Core.Text
 
         public static bool TryParse(string? value, [NotNullWhen(true)] out TextPosition? textPosition)
         {
-            // Format: "[line:character]"
+            // Current format: "[line:character]"
+            // Future format: "[line,character]"
+            // The current format must be supported for backwards compatibility.
             if (string.IsNullOrEmpty(value) || value.Length < 5 || value[0] != '[' || value[^1] != ']')
             {
                 textPosition = null;
                 return false;
             }
 
-            var colonIndex = value.IndexOf(':');
-            if (colonIndex < 2 || colonIndex >= value.Length - 2)
+            var separatorIndex = value.IndexOf(',');
+
+            if (separatorIndex < 2 || separatorIndex >= value.Length - 2)
+            {
+                // It seems 
+                separatorIndex = value.IndexOf(':');
+            }
+
+            if (separatorIndex < 2 || separatorIndex >= value.Length - 2)
             {
                 textPosition = null;
                 return false;
             }
 
-            if (int.TryParse(value.AsSpan(1, colonIndex - 1), out var line) &&
-                int.TryParse(value.AsSpan(colonIndex + 1, value.Length - colonIndex - 2), out var character))
+            if (int.TryParse(value.AsSpan(1, separatorIndex - 1), out var line) &&
+                int.TryParse(value.AsSpan(separatorIndex + 1, value.Length - separatorIndex - 2), out var character))
             {
                 textPosition = new TextPosition(line, character);
                 return true;
@@ -61,27 +69,8 @@ namespace Bicep.Core.Text
             return false;
         }
 
+        // TODO: Use [line,character] instead of [line:character].
+        // The current format must be supported for an extended period before transitioning to the new one.
         public override string ToString() => $"[{this.Line}:{this.Character}]";
-
-        public class TextPositionConverter : JsonConverter<TextPosition>
-        {
-            public override TextPosition Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            {
-                var s = reader.GetString();
-                if (s is { } && TextPosition.TryParse(s, out TextPosition? sourceCodePosition))
-                {
-                    return sourceCodePosition.Value;
-                }
-                else
-                {
-                    throw new ArgumentException($"Invalid input format for deserialization of {nameof(TextPosition)}");
-                }
-            }
-
-            public override void Write(Utf8JsonWriter writer, TextPosition value, JsonSerializerOptions options)
-            {
-                writer.WriteStringValue(value.ToString());
-            }
-        }
     }
 }

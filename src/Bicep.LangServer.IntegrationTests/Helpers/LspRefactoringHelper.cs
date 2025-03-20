@@ -33,7 +33,7 @@ public static class LspRefactoringHelper
         // Convert to Bicep coordinates
         var lineStarts = TextCoordinateConverter.GetLineStarts(bicepText);
         var convertedChanges = changes.Select(c =>
-            (NewText: c.NewText, Span: c.Range.ToTextSpan(lineStarts)))
+            (c.NewText, Span: bicepFile.GetSpan(c.Range)))
             .ToArray();
 
         for (var i = 0; i < changes.Length; ++i)
@@ -47,7 +47,7 @@ public static class LspRefactoringHelper
             // the handler can contain tabs. convert to double space to simplify printing.
             textToInsert = textToInsert.Replace("\t", "  ");
 
-            bicepText = bicepText.Substring(0, start) + textToInsert + bicepText.Substring(end);
+            bicepText = string.Concat(bicepFile.Text.AsSpan(0, start), textToInsert, bicepFile.Text.AsSpan(end));
 
             // Adjust indices for the remaining changes to account for this replacement
             int replacementOffset = textToInsert.Length - (end - start);
