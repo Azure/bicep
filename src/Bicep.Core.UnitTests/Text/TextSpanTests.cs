@@ -5,7 +5,7 @@ using Bicep.Core.Text;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.UnitTests.Parsing
+namespace Bicep.Core.UnitTests.Text
 {
     [TestClass]
     public class TextSpanTests
