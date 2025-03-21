@@ -7,78 +7,58 @@ using System.Text.Json.Serialization;
 
 namespace Bicep.Core.Text
 {
-    [JsonConverter(typeof(SourceCodePositionConverter))]
-    public record TextPosition
+    public readonly record struct TextPosition
     {
-        private int line, column;
-
-        public int Line
+        public TextPosition(int line, int character)
         {
-            get => line;
-            set
+            ArgumentOutOfRangeException.ThrowIfNegative(line, nameof(line));
+            ArgumentOutOfRangeException.ThrowIfNegative(character, nameof(character));
+
+            this.Line = line;
+            this.Character = character;
+        }
+
+        public TextPosition((int line, int character) input)
+            : this(input.line, input.character)
+        { 
+        }
+
+        public int Line { get; }
+
+        public int Character { get; }
+
+        public static TextPosition? TryParse(string? value)
+        {
+            // Current format: "[line:character]"
+            // Future format: "[line,character]"
+            // The current format must be supported for backwards compatibility.
+            if (string.IsNullOrEmpty(value) || value.Length < 5 || value[0] != '[' || value[^1] != ']')
             {
-                line = value >= 0 ? value : throw new ArgumentException($"{nameof(Line)} must be non-negative");
+                return null;
             }
-        }
 
-        public int Column
-        {
-            get => column;
-            set
+            var separatorIndex = value.IndexOf(',');
+
+            if (separatorIndex < 2 || separatorIndex >= value.Length - 2)
             {
-                column = value >= 0 ? value : throw new ArgumentException($"{nameof(Column)} must be non-negative");
+                // Handle both , and : as separators to allow for future migration.
+                separatorIndex = value.IndexOf(':');
             }
-        }
 
-        public TextPosition(int Line, int Column)
-        {
-            this.Line = Line;
-            this.Column = Column;
-        }
-
-        public TextPosition((int line, int column) input)
-            : this(input.line, input.column)
-        { }
-
-        public static bool TryParse(string s, [NotNullWhen(true)] out TextPosition? sourceCodePosition)
-        {
-            var parts = s?.TrimStart('"').TrimStart('[').TrimEnd(']').TrimEnd('"').Split(":");
-            if (parts?.Length == 2 && int.TryParse(parts[0], out int line) && int.TryParse(parts[1], out int column))
+            if (separatorIndex < 2 || separatorIndex >= value.Length - 2)
             {
-                sourceCodePosition = new TextPosition(line, column);
-                return true;
+                return null;
             }
-            else
+
+            if (int.TryParse(value.AsSpan(1, separatorIndex - 1), out var line) &&
+                int.TryParse(value.AsSpan(separatorIndex + 1, value.Length - separatorIndex - 2), out var character))
             {
-                sourceCodePosition = null;
-                return false;
+                return new TextPosition(line, character);
             }
+
+            return null;
         }
 
-        public override string ToString()
-        {
-            return $"[{Line}:{Column}]";
-        }
-    }
-
-    public class SourceCodePositionConverter : JsonConverter<TextPosition>
-    {
-        public override TextPosition Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            var s = reader.GetString();
-            if (s is { } && TextPosition.TryParse(s, out TextPosition? sourceCodePosition))
-            {
-                return sourceCodePosition;
-            }
-            else
-            {
-                throw new ArgumentException($"Invalid input format for deserialization of {nameof(TextPosition)}");
-            }
-        }
-
-        public override void Write(Utf8JsonWriter writer, TextPosition value, JsonSerializerOptions options)
-        {
-            writer.WriteStringValue(value.ToString());
-        }
+        public override string ToString() => $"[{this.Line}:{this.Character}]";
     }
 }

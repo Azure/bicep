@@ -12,50 +12,22 @@ namespace Bicep.Core.UnitTests.Text;
 [TestClass]
 public class TextPositionTests
 {
-    public TestContext? TestContext { get; set; }
-
     [DataTestMethod]
-    [DataRow(123, 456, "\"[123:456]\"")]
-    [DataRow(0, 1, "\"[0:1]\"")]
-    [DataRow(0, 0, "\"[0:0]\"")]
-    public void Serialization(int x, int y, string expectedSerialization)
+    [DataRow(-1, 0)]
+    [DataRow(0, -1)]
+    public void TextPosition_NegativeLineOrCharacter_Throws(int line, int character)
     {
-        var position = new TextPosition(x, y);
-        string serialized = JsonSerializer.Serialize(position);
-
-        serialized.Should().Be(expectedSerialization);
-
-        var deserialized = JsonSerializer.Deserialize<TextPosition>(serialized);
-        deserialized.Should().Be(position);
+        FluentActions.Invoking(() => new TextPosition(line, character)).Should().Throw<ArgumentOutOfRangeException>();
     }
 
     [DataTestMethod]
-    [DataRow(-1, 0, "Line must be non-negative")]
-    [DataRow(0, -1, "Column must be non-negative")]
-    public void BadValues(int x, int y, string expectedMessage)
+    [DataRow(10, 0)]
+    [DataRow(0, 10)]
+    public void TextPosition_NonNegativeLineOrCharacter_DoesNotThrow(int line, int character)
     {
-        ((Action)(() => new TextPosition(x, y))).Should().Throw<ArgumentException>().WithMessage(expectedMessage);
-    }
+        var position = new TextPosition(line, character);
 
-    [DataTestMethod]
-    [DataRow("\"[0:0]\"", 0, 0, null)]
-    [DataRow("\"[0,0]\"", null, null, "Invalid input format for deserialization of SourceCodePosition")]
-    [DataRow("\":0:0]\"", null, null, "Invalid input format for deserialization of SourceCodePosition")]
-    [DataRow("\"[-1:0]\"", null, null, "Line must be non-negative")]
-    public void Deserialization(string input, int? expectedX, int? expectedY, string? expectedMessage)
-    {
-        try
-        {
-            var deserialized = JsonSerializer.Deserialize<TextPosition>(input);
-            expectedMessage.Should().BeNull();
-
-            expectedX.Should().NotBeNull();
-            expectedY.Should().NotBeNull();
-            deserialized.Should().Be(new TextPosition(expectedX!.Value, expectedY!.Value));
-        }
-        catch (Exception ex)
-        {
-            ex.Message.Should().Be(expectedMessage);
-        }
+        position.Line.Should().Be(line);
+        position.Character.Should().Be(character);
     }
 }

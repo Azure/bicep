@@ -12,10 +12,8 @@ namespace Bicep.Core.UnitTests.Text;
 [TestClass]
 public class TextRangeTests
 {
-    public TestContext? TestContext { get; set; }
-
     [TestMethod]
-    public void SerializesAndDeserializes()
+    public void Deserialize_SerializedTextRange_Roudtrips()
     {
         var range = new TextRange(new TextPosition(123, 456), new TextPosition(234, 567));
         string serialized = JsonSerializer.Serialize(range);
