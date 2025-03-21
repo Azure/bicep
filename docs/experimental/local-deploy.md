@@ -21,8 +21,10 @@ This feature is currently experimental while we collect feedback.
 ### Interactive (Deploy Pane)
 1. Open a `.bicepparam` file in your editor.
 1. Press the Deployment Pane button visible in the top right of your editor window.
+
     ![](../images/localdeploy-deploypane-button.png)
 1. Press the `Deploy` buttons to deploy locally.
+
     ![](../images/localdeploy-deploypane-ui.png)
 
 ### Via CLI
