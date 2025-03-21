@@ -9,7 +9,6 @@ using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
-using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;

@@ -3,7 +3,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Reflection;
-using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;

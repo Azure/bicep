@@ -3,6 +3,7 @@
 using System.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 using JetBrains.Annotations;
 
 namespace Bicep.Core.Syntax

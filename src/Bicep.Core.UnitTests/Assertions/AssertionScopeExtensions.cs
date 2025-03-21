@@ -8,6 +8,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.SourceGraph;
 using FluentAssertions.Execution;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.UnitTests.Assertions
 {

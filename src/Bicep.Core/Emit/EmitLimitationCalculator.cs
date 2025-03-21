@@ -9,7 +9,6 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Navigation;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
@@ -22,6 +21,7 @@ using Bicep.Core.Utils;
 using Bicep.Core.SourceGraph;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Emit
 {
