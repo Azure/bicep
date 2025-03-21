@@ -7,7 +7,8 @@ using System.IO.Compression;
 using System.Text;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceLink;
+using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
@@ -16,7 +17,7 @@ using Bicep.IO.FileSystem;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using static Bicep.Core.SourceCode.SourceArchive;
+using static Bicep.Core.SourceLink.SourceArchive;
 
 namespace Bicep.Core.UnitTests.SourceCode;
 
@@ -223,22 +224,22 @@ public class SourceArchiveTests
                 PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main&.bicep"),
                 new SourceCodeDocumentUriLink[]
                 {
-                    new(new SourceCodeRange(1, 2, 1, 3), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/modules/localJsonModule.json")),
-                    new(new SourceCodeRange(11, 2, 11, 3), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/modules/localBicepModule.bicep")),
-                    new(new SourceCodeRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{CacheRootUri}/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json")),
+                    new(new TextRange(1, 2, 1, 3), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/modules/localJsonModule.json")),
+                    new(new TextRange(11, 2, 11, 3), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/modules/localBicepModule.bicep")),
+                    new(new TextRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{CacheRootUri}/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json")),
                 }
             },
             {
                 PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/modules/localBicepModule.bicep"),
                 new SourceCodeDocumentUriLink[]
                 {
-                    new(new SourceCodeRange(123, 124, 234, 235), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main&.bicep")),
-                    new(new SourceCodeRange(234, 235, 345, 346), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main.json")),
-                    new(new SourceCodeRange(123, 456, 234, 567), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main&.bicep")),
-                    new(new SourceCodeRange(1234, 4567, 2345, 5678), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/wherever/template spec 1.json")),
-                    new(new SourceCodeRange(345, 2, 345, 3), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/modules/localJsonModule.json")),
-                    new(new SourceCodeRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/wherever/template spec 1.json")),
-                    new(new SourceCodeRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{CacheRootUri}/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json")),
+                    new(new TextRange(123, 124, 234, 235), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main&.bicep")),
+                    new(new TextRange(234, 235, 345, 346), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main.json")),
+                    new(new TextRange(123, 456, 234, 567), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main&.bicep")),
+                    new(new TextRange(1234, 4567, 2345, 5678), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/wherever/template spec 1.json")),
+                    new(new TextRange(345, 2, 345, 3), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/modules/localJsonModule.json")),
+                    new(new TextRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/wherever/template spec 1.json")),
+                    new(new TextRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{CacheRootUri}/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json")),
                 }
             },
             {
@@ -246,13 +247,13 @@ public class SourceArchiveTests
                 PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/wherever/template spec 1.json"),
                 new SourceCodeDocumentUriLink[]
                 {
-                    new(new SourceCodeRange(123, 124, 234, 235), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main&.bicep")),
-                    new(new SourceCodeRange(234, 235, 345, 346), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main.json")),
-                    new(new SourceCodeRange(123, 456, 234, 567), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main&.bicep")),
-                    new(new SourceCodeRange(1234, 4567, 2345, 5678), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/cache/wherever/template spec 1.json")),
-                    new(new SourceCodeRange(345, 2, 345, 3), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/modules/localJsonModule.json")),
-                    new(new SourceCodeRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/cache/wherever/template spec 1.json")),
-                    new(new SourceCodeRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{CacheRootUri}/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json")),
+                    new(new TextRange(123, 124, 234, 235), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main&.bicep")),
+                    new(new TextRange(234, 235, 345, 346), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main.json")),
+                    new(new TextRange(123, 456, 234, 567), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main&.bicep")),
+                    new(new TextRange(1234, 4567, 2345, 5678), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/cache/wherever/template spec 1.json")),
+                    new(new TextRange(345, 2, 345, 3), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/modules/localJsonModule.json")),
+                    new(new TextRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/cache/wherever/template spec 1.json")),
+                    new(new TextRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{CacheRootUri}/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json")),
                 }
             },
         };
@@ -274,20 +275,20 @@ public class SourceArchiveTests
                 "main&.bicep",
                 new SourceCodeDocumentPathLink[]
                 {
-                    new(new SourceCodeRange(1, 2, 1, 3), "modules/localJsonModule.json"),
-                    new(new SourceCodeRange(11, 2, 11, 3), "modules/localBicepModule.bicep"),
-                    new(new SourceCodeRange(12, 45, 23, 56), "<cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json"),
+                    new(new TextRange(1, 2, 1, 3), "modules/localJsonModule.json"),
+                    new(new TextRange(11, 2, 11, 3), "modules/localBicepModule.bicep"),
+                    new(new TextRange(12, 45, 23, 56), "<cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json"),
                 }
             },
             {
                 "modules/localBicepModule.bicep",
                 new SourceCodeDocumentPathLink[]
                 {
-                    new(new SourceCodeRange(123, 124, 234, 235), "main&.bicep"),
-                    new(new SourceCodeRange(234, 235, 345, 346), "main.json"),
-                    new(new SourceCodeRange(123, 456, 234, 567), "main&.bicep"),
-                    new(new SourceCodeRange(345, 2, 345, 3), "modules/localJsonModule.json"),
-                    new(new SourceCodeRange(12, 45, 23, 56), "<cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json"),
+                    new(new TextRange(123, 124, 234, 235), "main&.bicep"),
+                    new(new TextRange(234, 235, 345, 346), "main.json"),
+                    new(new TextRange(123, 456, 234, 567), "main&.bicep"),
+                    new(new TextRange(345, 2, 345, 3), "modules/localJsonModule.json"),
+                    new(new TextRange(12, 45, 23, 56), "<cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json"),
                 }
             },
         };

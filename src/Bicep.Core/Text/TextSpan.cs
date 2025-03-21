@@ -7,8 +7,6 @@ namespace Bicep.Core.Parsing
 {
     public readonly record struct TextSpan : IPositionable
     {
-        private static readonly Regex TextSpanPattern = new(@"^\[(?<startInclusive>\d+)\:(?<endExclusive>\d+)\]$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-
         public static readonly TextSpan Nil = new(-1, 0, true);
 
         public static readonly TextSpan TextDocumentStart = new(0, 0);
@@ -200,51 +198,6 @@ namespace Bicep.Core.Parsing
 
             // this method is not pair order agnostic
             return false;
-        }
-
-        public static TextSpan Parse(string text)
-        {
-            if (TryParse(text, out TextSpan span))
-            {
-                return span;
-            }
-
-            throw new FormatException($"The specified text span string '{text}' is not valid.");
-        }
-
-        public static bool TryParse(string? text, out TextSpan span)
-        {
-            span = Nil;
-
-            if (text == null)
-            {
-                return false;
-            }
-
-            var match = TextSpanPattern.Match(text);
-            if (match.Success == false)
-            {
-                return false;
-            }
-
-            if (int.TryParse(match.Groups["startInclusive"].Value, out int startInclusive) == false)
-            {
-                return false;
-            }
-
-            if (int.TryParse(match.Groups["endExclusive"].Value, out int endExclusive) == false)
-            {
-                return false;
-            }
-
-            int length = endExclusive - startInclusive;
-            if (length < 0)
-            {
-                return false;
-            }
-
-            span = new TextSpan(startInclusive, length);
-            return true;
         }
 
         /// <summary>

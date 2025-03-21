@@ -4,10 +4,10 @@
 using System.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceLink;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
-using static Bicep.Core.SourceCode.SourceArchive;
+using static Bicep.Core.SourceLink.SourceArchive;
 
 namespace Bicep.Core.UnitTests.Utils
 {

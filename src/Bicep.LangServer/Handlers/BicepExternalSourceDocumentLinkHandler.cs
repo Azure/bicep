@@ -8,7 +8,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceLink;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;

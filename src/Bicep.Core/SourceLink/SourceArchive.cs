@@ -22,7 +22,7 @@ using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
-namespace Bicep.Core.SourceCode
+namespace Bicep.Core.SourceLink
 {
     public class SourceNotAvailableException : Exception
     {

@@ -2,7 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Text.Json;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceLink;
+using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,7 +17,7 @@ public class SourceCodeDocumentPathLinkTests
     public void SerializesAndDeserializes()
     {
         var link = new SourceCodeDocumentPathLink(
-            new SourceCodeRange(123, 456, 234, 567),
+            new TextRange(123, 456, 234, 567),
             "../modules/target.bicep");
         string serialized = JsonSerializer.Serialize(link);
 

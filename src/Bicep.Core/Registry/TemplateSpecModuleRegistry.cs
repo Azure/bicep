@@ -9,7 +9,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Semantics;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceLink;
 using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;

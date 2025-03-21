@@ -5,7 +5,7 @@ using System.Diagnostics;
 using Bicep.Core.FileSystem;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
-namespace Bicep.Core.SourceCode
+namespace Bicep.Core.SourceLink
 {
     public static class SourceCodePathHelper
     {
