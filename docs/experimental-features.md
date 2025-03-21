@@ -21,7 +21,7 @@ Allows Bicep to use an extensibility model to deploy non-ARM resources. Currentl
 Enables code formatting with the legacy formatter. This feature flag is introduced to ensure a safer transition to the v2 formatter that implements a pretty-printing algorithm. It is intended for temporary use and will be phased out soon.
 
 ### `localDeploy`
-Enables local deployment capability. See [Bicep Local Providers](https://github.com/anthony-c-martin/bicep-local-providers) for more information.
+Enables Bicep to run deployments locally, so that you can run Bicep extensions without a dependency on Azure (for example, to run scripts, or to interact with non-Azure APIs like Kubernetes or GitHub). For more information, see [Using Local Deploy](./experimental/local-deploy.md).
 
 ### `moduleExtensionConfigs`
 
@@ -59,6 +59,3 @@ The feature introduces waitUntil and retryOn decorators on resource data type. w
 
 ### `publish-extension` CLI Command
 Command that allows the publishing of extensions to container registries. For more information, see [Using the Publish Extension Command](./experimental/publish-extension-command.md).
-
-### Deployment Pane
-The Deployment Pane is a UI panel in VSCode that allows you to connect to your Azure subscription and execute validate, deploy & whatif operations and get instant feedback without leaving the editor. For more information, see [Using the Deployment Pane](./experimental/deploy-ui.md).
