@@ -10,21 +10,21 @@ exports[`handles synchronous deployment failures correctly 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Deployment Scope
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <vscode-table
           role="table"
@@ -89,21 +89,21 @@ exports[`handles synchronous deployment failures correctly 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Parameters
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <vscode-button
           role="button"
@@ -113,7 +113,7 @@ exports[`handles synchronous deployment failures correctly 1`] = `
           Pick JSON Parameters File
         </vscode-button>
         <div
-          class="sc-dstKZu bvQTJX"
+          class="sc-cRHGzb wzqlD"
         >
           <vscode-label
             for=""
@@ -134,21 +134,21 @@ exports[`handles synchronous deployment failures correctly 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Actions
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <div
           class="controls"
@@ -182,21 +182,21 @@ exports[`handles synchronous deployment failures correctly 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Result
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <vscode-table
           role="table"
@@ -227,7 +227,7 @@ exports[`handles synchronous deployment failures correctly 1`] = `
                   >
                     <div
                       aria-hidden="true"
-                      class="sc-gtLWhw dxZIxj codicon codicon-globe"
+                      class="sc-gnOvAp jiyPEE codicon codicon-globe"
                       data-testid="globe-codicon"
                     />
                   </a>
@@ -302,21 +302,21 @@ exports[`renders the App component with deployment state 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Deployment Scope
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <vscode-table
           role="table"
@@ -381,21 +381,21 @@ exports[`renders the App component with deployment state 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Parameters
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <vscode-button
           role="button"
@@ -405,7 +405,7 @@ exports[`renders the App component with deployment state 1`] = `
           Pick JSON Parameters File
         </vscode-button>
         <div
-          class="sc-dstKZu bvQTJX"
+          class="sc-cRHGzb wzqlD"
         >
           <vscode-label
             for=""
@@ -426,21 +426,21 @@ exports[`renders the App component with deployment state 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Actions
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <div
           class="controls"
@@ -489,21 +489,21 @@ exports[`runs a deployment 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Deployment Scope
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <vscode-table
           role="table"
@@ -568,21 +568,21 @@ exports[`runs a deployment 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Parameters
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <vscode-button
           role="button"
@@ -592,7 +592,7 @@ exports[`runs a deployment 1`] = `
           Pick JSON Parameters File
         </vscode-button>
         <div
-          class="sc-dstKZu bvQTJX"
+          class="sc-cRHGzb wzqlD"
         >
           <vscode-label
             for=""
@@ -613,21 +613,21 @@ exports[`runs a deployment 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Actions
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <div
           class="controls"
@@ -661,21 +661,21 @@ exports[`runs a deployment 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Result
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <vscode-table
           role="table"
@@ -706,7 +706,7 @@ exports[`runs a deployment 1`] = `
                   >
                     <div
                       aria-hidden="true"
-                      class="sc-gtLWhw dxZIxj codicon codicon-globe"
+                      class="sc-gnOvAp jiyPEE codicon codicon-globe"
                       data-testid="globe-codicon"
                     />
                   </a>
@@ -740,21 +740,21 @@ exports[`runs a deployment 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Operations
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <vscode-table
           role="table"
@@ -813,7 +813,7 @@ exports[`runs a deployment 1`] = `
                 >
                   <div
                     aria-hidden="true"
-                    class="sc-gtLWhw dxZIxj codicon codicon-globe"
+                    class="sc-gnOvAp jiyPEE codicon codicon-globe"
                     data-testid="globe-codicon"
                   />
                 </a>
@@ -854,21 +854,21 @@ exports[`runs a deployment 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Outputs
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <vscode-table
           role="table"
@@ -932,21 +932,21 @@ exports[`supports the scope picker 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Deployment Scope
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <vscode-table
           role="table"
@@ -1011,21 +1011,21 @@ exports[`supports the scope picker 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Parameters
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <vscode-button
           role="button"
@@ -1035,7 +1035,7 @@ exports[`supports the scope picker 1`] = `
           Pick JSON Parameters File
         </vscode-button>
         <div
-          class="sc-dstKZu bvQTJX"
+          class="sc-cRHGzb wzqlD"
         >
           <vscode-label
             for=""
@@ -1056,21 +1056,21 @@ exports[`supports the scope picker 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Actions
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <div
           class="controls"
@@ -1113,21 +1113,21 @@ exports[`validates a deployment 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Deployment Scope
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <vscode-table
           role="table"
@@ -1192,21 +1192,21 @@ exports[`validates a deployment 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Parameters
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <vscode-button
           role="button"
@@ -1216,7 +1216,7 @@ exports[`validates a deployment 1`] = `
           Pick JSON Parameters File
         </vscode-button>
         <div
-          class="sc-dstKZu bvQTJX"
+          class="sc-cRHGzb wzqlD"
         >
           <vscode-label
             for=""
@@ -1237,21 +1237,21 @@ exports[`validates a deployment 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Actions
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <div
           class="controls"
@@ -1285,21 +1285,21 @@ exports[`validates a deployment 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Result
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <vscode-table
           role="table"
@@ -1390,21 +1390,21 @@ exports[`what-ifs a deployment 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Deployment Scope
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <vscode-table
           role="table"
@@ -1469,21 +1469,21 @@ exports[`what-ifs a deployment 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Parameters
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <vscode-button
           role="button"
@@ -1493,7 +1493,7 @@ exports[`what-ifs a deployment 1`] = `
           Pick JSON Parameters File
         </vscode-button>
         <div
-          class="sc-dstKZu bvQTJX"
+          class="sc-cRHGzb wzqlD"
         >
           <vscode-label
             for=""
@@ -1514,21 +1514,21 @@ exports[`what-ifs a deployment 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Actions
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <div
           class="controls"
@@ -1562,21 +1562,21 @@ exports[`what-ifs a deployment 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           Result
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <vscode-table
           role="table"
@@ -1612,21 +1612,21 @@ exports[`what-ifs a deployment 1`] = `
         role="separator"
       />
       <div
-        class="sc-kLhKbu fDTixb"
+        class="sc-kFkjun evplKm"
       >
         <div
           aria-hidden="true"
-          class="sc-gtLWhw cXkuWu codicon codicon-chevron-up"
+          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3
-          class="sc-khLCKb fhvCkw"
+          class="sc-jRLeyu eNRkQB"
         >
           What-If Changes
         </h3>
       </div>
       <div
-        class="sc-ixGGxD iqJOAT"
+        class="sc-ihGilW jRRATf"
       >
         <vscode-table
           role="table"

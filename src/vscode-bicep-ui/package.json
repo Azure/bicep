@@ -14,6 +14,7 @@
   "scripts": {
     "build": "turbo build",
     "test": "turbo test",
+    "test:fix": "turbo test --force -- -u",
     "lint": "turbo lint",
     "lint:fix": "turbo lint:fix",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""

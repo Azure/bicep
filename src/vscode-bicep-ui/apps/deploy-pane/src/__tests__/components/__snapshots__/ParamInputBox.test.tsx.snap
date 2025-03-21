@@ -3,7 +3,7 @@
 exports[`renders a JSON input 1`] = `
 <div>
   <div
-    class="sc-kLhKbu iCmsqj"
+    class="sc-kFkjun gyeYIG"
   >
     <vscode-label
       id="vscode-label-3"
@@ -20,7 +20,7 @@ exports[`renders a JSON input 1`] = `
 exports[`renders a bool input 1`] = `
 <div>
   <div
-    class="sc-kLhKbu iCmsqj"
+    class="sc-kFkjun gyeYIG"
   >
     <vscode-checkbox>
       myBoolParam
@@ -32,7 +32,7 @@ exports[`renders a bool input 1`] = `
 exports[`renders a string input 1`] = `
 <div>
   <div
-    class="sc-kLhKbu iCmsqj"
+    class="sc-kFkjun gyeYIG"
   >
     <vscode-label
       id="vscode-label-1"
@@ -47,7 +47,7 @@ exports[`renders a string input 1`] = `
 exports[`renders an integer input 1`] = `
 <div>
   <div
-    class="sc-kLhKbu iCmsqj"
+    class="sc-kFkjun gyeYIG"
   >
     <vscode-label
       id="vscode-label-2"
