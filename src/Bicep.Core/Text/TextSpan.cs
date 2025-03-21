@@ -7,8 +7,6 @@ namespace Bicep.Core.Parsing
 {
     public readonly record struct TextSpan : IPositionable
     {
-        private static readonly Regex TextSpanPattern = new(@"^\[(?<startInclusive>\d+)\:(?<endExclusive>\d+)\]$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-
         public static readonly TextSpan Nil = new(-1, 0, true);
 
         public static readonly TextSpan TextDocumentStart = new(0, 0);
@@ -212,27 +210,29 @@ namespace Bicep.Core.Parsing
             throw new FormatException($"The specified text span string '{text}' is not valid.");
         }
 
-        public static bool TryParse(string? text, out TextSpan span)
+        public static bool TryParse(string? value, out TextSpan span)
         {
+            // Format: "[startInclusive:endExclusive]"
             span = Nil;
 
-            if (text == null)
+            if (value == null)
             {
                 return false;
             }
 
-            var match = TextSpanPattern.Match(text);
-            if (match.Success == false)
+            if (string.IsNullOrEmpty(value) || value.Length < 5 || value[0] != '[' || value[^1] != ']')
             {
                 return false;
             }
 
-            if (int.TryParse(match.Groups["startInclusive"].Value, out int startInclusive) == false)
+            var colonIndex = value.IndexOf(':');
+            if (colonIndex < 2 || colonIndex >= value.Length - 2)
             {
                 return false;
             }
 
-            if (int.TryParse(match.Groups["endExclusive"].Value, out int endExclusive) == false)
+            if (!int.TryParse(value.AsSpan(1, colonIndex - 1), out var startInclusive) ||
+                !int.TryParse(value.AsSpan(colonIndex + 1, value.Length - colonIndex - 2), out var endExclusive))
             {
                 return false;
             }
