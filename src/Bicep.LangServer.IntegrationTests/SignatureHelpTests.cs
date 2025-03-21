@@ -11,7 +11,7 @@ using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Utils;

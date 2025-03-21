@@ -11,7 +11,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

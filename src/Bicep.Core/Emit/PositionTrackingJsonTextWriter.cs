@@ -8,7 +8,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 

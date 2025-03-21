@@ -8,7 +8,7 @@ using System.ServiceModel.Syndication;
 using System.Text;
 using System.Threading.Tasks;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Formatting;

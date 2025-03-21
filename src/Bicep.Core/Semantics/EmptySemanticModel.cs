@@ -8,7 +8,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 
 namespace Bicep.Core.Semantics
 {

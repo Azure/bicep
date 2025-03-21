@@ -15,7 +15,7 @@ using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Syntax;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Settings;
 using Bicep.LanguageServer.Telemetry;

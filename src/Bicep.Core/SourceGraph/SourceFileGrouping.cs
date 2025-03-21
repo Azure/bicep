@@ -11,7 +11,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 
-namespace Bicep.Core.Workspaces;
+namespace Bicep.Core.SourceGraph;
 
 public record ImplicitExtension(
     string Name,

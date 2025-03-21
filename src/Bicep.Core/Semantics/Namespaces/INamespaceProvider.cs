@@ -4,7 +4,7 @@
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 
 namespace Bicep.Core.Semantics.Namespaces;
 

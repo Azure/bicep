@@ -8,7 +8,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.Syntax;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Registry.Oci

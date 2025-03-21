@@ -10,7 +10,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

@@ -10,7 +10,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Decompiler;
 using Bicep.LanguageServer.Telemetry;
 using Newtonsoft.Json;

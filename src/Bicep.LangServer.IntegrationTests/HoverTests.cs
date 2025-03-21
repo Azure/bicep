@@ -18,7 +18,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using Bicep.LangServer.IntegrationTests.Assertions;

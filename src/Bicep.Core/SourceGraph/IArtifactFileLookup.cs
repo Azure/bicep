@@ -6,9 +6,9 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Providers;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 
-namespace Bicep.Core.Workspaces
+namespace Bicep.Core.SourceGraph
 {
     public interface IArtifactFileLookup
     {

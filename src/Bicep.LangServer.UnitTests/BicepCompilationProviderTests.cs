@@ -6,7 +6,7 @@ using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Bicep.LanguageServer.Providers;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;

@@ -4,7 +4,7 @@
 using Bicep.Core.Parsing;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using FluentAssertions.Execution;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;

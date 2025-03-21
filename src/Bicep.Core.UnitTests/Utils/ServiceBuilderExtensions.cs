@@ -13,7 +13,7 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.MicrosoftGraph;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Features;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 
 namespace Bicep.Core.UnitTests.Utils;
 

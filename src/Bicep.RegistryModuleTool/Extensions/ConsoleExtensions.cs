@@ -6,7 +6,7 @@ using System.CommandLine.IO;
 using System.CommandLine.Rendering;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Text;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 
 namespace Bicep.RegistryModuleTool.Extensions
 {

@@ -3,7 +3,7 @@
 using System.Diagnostics;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Formatting;

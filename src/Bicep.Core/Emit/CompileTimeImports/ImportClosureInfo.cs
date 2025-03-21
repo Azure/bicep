@@ -13,7 +13,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 

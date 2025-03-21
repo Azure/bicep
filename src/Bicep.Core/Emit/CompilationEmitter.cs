@@ -3,7 +3,7 @@
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit;
@@ -90,7 +90,7 @@ public class CompilationEmitter : ICompilationEmitter
     public TemplateResult Template()
     {
         var model = this.compilation.GetEntrypointSemanticModel();
-        if (model.SourceFileKind != Workspaces.BicepSourceFileKind.BicepFile)
+        if (model.SourceFileKind != SourceGraph.BicepSourceFileKind.BicepFile)
         {
             throw new InvalidOperationException($"Entry-point {model.SourceFile.FileHandle.Uri} is not a bicep file");
         }

@@ -9,7 +9,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 

@@ -13,7 +13,7 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Moq;
 
 namespace Bicep.Core.UnitTests.Utils

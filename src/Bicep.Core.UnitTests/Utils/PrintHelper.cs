@@ -8,7 +8,7 @@ using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 
 namespace Bicep.Core.UnitTests.Utils
 {

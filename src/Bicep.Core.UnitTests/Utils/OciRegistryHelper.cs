@@ -10,7 +10,7 @@ using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using FluentAssertions;

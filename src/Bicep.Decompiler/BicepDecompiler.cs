@@ -11,7 +11,7 @@ using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Rewriters;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Decompiler.ArmHelpers;
 using Bicep.Decompiler.Exceptions;
 using Newtonsoft.Json.Linq;

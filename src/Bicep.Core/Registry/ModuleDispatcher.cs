@@ -18,7 +18,7 @@ using Bicep.Core.SourceLink;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry

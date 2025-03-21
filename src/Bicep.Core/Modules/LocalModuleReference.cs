@@ -6,7 +6,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Modules

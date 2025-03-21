@@ -19,7 +19,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Registry;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Bicep.IO.FileSystem;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;

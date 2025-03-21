@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.FileSystem;
 
-namespace Bicep.Core.Workspaces
+namespace Bicep.Core.SourceGraph
 {
     /// <summary>
     /// Represents the active set of files and shared data that can be utilized to compile one or more bicep files.

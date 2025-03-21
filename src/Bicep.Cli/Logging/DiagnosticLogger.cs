@@ -6,7 +6,7 @@ using Bicep.Cli.Arguments;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Text;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
