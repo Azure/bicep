@@ -339,13 +339,15 @@ namespace Bicep.Core
 
             // Module name is optional.
             var nameRequirednessFlags = TypePropertyFlags.None;
+            // Taken from the official REST specs for Microsoft.Resources/deployments
+            var nameType = TypeFactory.CreateStringType(minLength: 1, maxLength: 64, pattern: @"^[-\w._()]+$");
 
             var moduleBody = new ObjectType(
                 typeName,
                 TypeSymbolValidationFlags.Default,
                 new[]
                 {
-                    new NamedTypeProperty(ModuleNamePropertyName, LanguageConstants.String, nameRequirednessFlags | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.LoopVariant),
+                    new NamedTypeProperty(ModuleNamePropertyName, nameType, nameRequirednessFlags | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.LoopVariant),
                     new NamedTypeProperty(ResourceScopePropertyName, CreateResourceScopeReference(moduleScope), scopePropertyFlags),
                     new NamedTypeProperty(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                     new NamedTypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
