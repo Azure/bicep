@@ -133,8 +133,8 @@ namespace Bicep.Core.TypeSystem
                     // We add the DSC constant here so we can have it as a completion when the feature is enabled.
                     // TODO: When no longer experimental, add directly to 'TargetScopeSyntax.GetDeclaredType()' instead.
                     return new DeclaredTypeAssignment(
-                        features.ResourceDSCEnabled
-                            ? TypeHelper.CreateTypeUnion(targetScope.GetDeclaredType(), TypeFactory.CreateStringLiteralType(LanguageConstants.TargetScopeTypeDSC))
+                        features.DesiredStateConfigurationEnabled
+                            ? TypeHelper.CreateTypeUnion(targetScope.GetDeclaredType(), TypeFactory.CreateStringLiteralType(LanguageConstants.TargetScopeTypeDesiredStateConfiguration))
                             : targetScope.GetDeclaredType(),
                         targetScope, DeclaredTypeFlags.Constant);
 

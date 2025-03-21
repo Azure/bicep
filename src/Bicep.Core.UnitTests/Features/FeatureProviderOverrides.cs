@@ -27,7 +27,7 @@ public record FeatureProviderOverrides(
     bool? ExtensibilityV2EmittingEnabled = default,
     bool? TypedVariablesEnabled = default,
     bool? ModuleExtensionConfigsEnabled = default,
-    bool? ResourceDSCEnabled = default)
+    bool? DesiredStateConfigurationEnabled = default)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
@@ -49,7 +49,7 @@ public record FeatureProviderOverrides(
         bool? ExtensibilityV2EmittingEnabled = default,
         bool? TypedVariablesEnabled = default,
         bool? ModuleExtensionConfigsEnabled = default,
-        bool? ResourceDSCEnabled = default
+        bool? DesiredStateConfigurationEnabled = default
     ) : this(
         FileHelper.GetCacheRootDirectory(testContext),
         RegistryEnabled,
@@ -70,6 +70,6 @@ public record FeatureProviderOverrides(
         ExtensibilityV2EmittingEnabled,
         TypedVariablesEnabled,
         ModuleExtensionConfigsEnabled,
-        ResourceDSCEnabled)
+        DesiredStateConfigurationEnabled)
     { }
 }

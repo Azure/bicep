@@ -51,5 +51,5 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool ModuleExtensionConfigsEnabled => overrides.ModuleExtensionConfigsEnabled ?? features.ModuleExtensionConfigsEnabled;
 
-    public bool ResourceDSCEnabled => overrides.ResourceDSCEnabled ?? features.ResourceDSCEnabled;
+    public bool DesiredStateConfigurationEnabled => overrides.DesiredStateConfigurationEnabled ?? features.DesiredStateConfigurationEnabled;
 }

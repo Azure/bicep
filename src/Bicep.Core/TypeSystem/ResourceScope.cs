@@ -20,6 +20,6 @@ namespace Bicep.Core.TypeSystem
 
         ResourceGroup = 1 << 5,
 
-        DSC = 1 << 6,
+        DesiredStateConfiguration = 1 << 6,
     }
 }

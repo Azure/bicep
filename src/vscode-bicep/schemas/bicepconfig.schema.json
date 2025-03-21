@@ -844,9 +844,9 @@
           "type": "boolean",
           "description": "If enabled, you can optionally add a type to variable declarations. See https://aka.ms/bicep/experimental-features#typedvariables"
         },
-        "resourceDSC": {
+        "desiredStateConfiguration": {
           "type": "boolean",
-          "description": "Enables the use of DSC resources via new scope. See https://aka.ms/bicep/experimental-features#resourcedsc"
+          "description": "Allows you to author Desired State Configuration documents using the target scope 'dsc'. See https://aka.ms/bicep/experimental-features#desiredstateconfiguration"
         }
       },
       "additionalProperties": false

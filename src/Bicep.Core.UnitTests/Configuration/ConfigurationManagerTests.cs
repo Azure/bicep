@@ -112,7 +112,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "secureOutputs": false,
           "resourceInfoCodegen": false,
           "typedVariables": false,
-          "resourceDSC": false
+          "desiredStateConfiguration": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -195,7 +195,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "typedVariables": false,
           "moduleExtensionConfigs": false,
-          "resourceDSC": false
+          "desiredStateConfiguration": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -303,7 +303,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "typedVariables": false,
           "moduleExtensionConfigs": false,
-          "resourceDSC": false
+          "desiredStateConfiguration": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -397,7 +397,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 ResourceInfoCodegen: false,
                 TypedVariables: false,
                 ModuleExtensionConfigs: false,
-                ResourceDSC: false);
+                DesiredStateConfiguration: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -484,7 +484,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 "resourceInfoCodegen": false,
                 "typedVariables": false,
                 "moduleExtensionConfigs": false,
-                "resourceDSC": false
+                "desiredStateConfiguration": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -857,7 +857,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "typedVariables": false,
           "moduleExtensionConfigs": false,
-          "resourceDSC": false
+          "desiredStateConfiguration": false
         },
         "formatting": {
           "indentKind": "Space",

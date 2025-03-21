@@ -61,7 +61,7 @@ namespace Bicep.Core.Emit
             }
 
             // The feature flag is checked during scope validation, so just always handle it here.
-            if (targetScope.HasFlag(ResourceScope.DSC))
+            if (targetScope.HasFlag(ResourceScope.DesiredStateConfiguration))
             {
                 return "https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2024/04/config/document.json"; // the trailing '#' is against DSC's schema
             }
