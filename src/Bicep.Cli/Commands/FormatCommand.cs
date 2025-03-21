@@ -13,6 +13,7 @@ using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Utils;
 using Bicep.Core.SourceGraph;
+using Bicep.Core.Text;
 
 namespace Bicep.Cli.Commands;
 

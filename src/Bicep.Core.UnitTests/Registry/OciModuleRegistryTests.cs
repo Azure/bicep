@@ -19,6 +19,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.UnitTests.Registry
 {
@@ -717,7 +718,7 @@ namespace Bicep.Core.UnitTests.Registry
             var (_, failureBuilder) = (await ociRegistry.RestoreArtifacts(new[] { reference })).SingleOrDefault();
             if (failureBuilder is { })
             {
-                var builder = new DiagnosticBuilderInternal(new Core.Parsing.TextSpan());
+                var builder = new DiagnosticBuilderInternal(new TextSpan());
                 var diagnostic = failureBuilder(builder);
                 if (diagnostic is { })
                 {
