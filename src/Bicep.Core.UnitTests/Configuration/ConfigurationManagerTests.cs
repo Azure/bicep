@@ -111,7 +111,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "localDeploy": false,
           "secureOutputs": false,
           "resourceInfoCodegen": false,
-          "typedVariables": false
+          "typedVariables": false,
+          "desiredStateConfiguration": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -193,7 +194,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "secureOutputs": false,
           "resourceInfoCodegen": false,
           "typedVariables": false,
-          "moduleExtensionConfigs": false
+          "moduleExtensionConfigs": false,
+          "desiredStateConfiguration": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -300,7 +302,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "secureOutputs": false,
           "resourceInfoCodegen": false,
           "typedVariables": false,
-          "moduleExtensionConfigs": false
+          "moduleExtensionConfigs": false,
+          "desiredStateConfiguration": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -393,7 +396,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 SecureOutputs: false,
                 ResourceInfoCodegen: false,
                 TypedVariables: false,
-                ModuleExtensionConfigs: false);
+                ModuleExtensionConfigs: false,
+                DesiredStateConfiguration: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -479,7 +483,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 "secureOutputs": false,
                 "resourceInfoCodegen": false,
                 "typedVariables": false,
-                "moduleExtensionConfigs": false
+                "moduleExtensionConfigs": false,
+                "desiredStateConfiguration": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -851,7 +856,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "secureOutputs": false,
           "resourceInfoCodegen": false,
           "typedVariables": false,
-          "moduleExtensionConfigs": false
+          "moduleExtensionConfigs": false,
+          "desiredStateConfiguration": false
         },
         "formatting": {
           "indentKind": "Space",

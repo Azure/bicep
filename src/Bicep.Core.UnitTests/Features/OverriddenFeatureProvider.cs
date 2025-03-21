@@ -50,4 +50,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool ExtensibilityV2EmittingEnabled => ModuleExtensionConfigsEnabled || (overrides.ExtensibilityV2EmittingEnabled ?? features.ExtensibilityV2EmittingEnabled);
 
     public bool ModuleExtensionConfigsEnabled => overrides.ModuleExtensionConfigsEnabled ?? features.ModuleExtensionConfigsEnabled;
+
+    public bool DesiredStateConfigurationEnabled => overrides.DesiredStateConfigurationEnabled ?? features.DesiredStateConfigurationEnabled;
 }

@@ -60,6 +60,12 @@ namespace Bicep.Core.Emit
                 return "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#";
             }
 
+            // The feature flag is checked during scope validation, so just always handle it here.
+            if (targetScope.HasFlag(ResourceScope.DesiredStateConfiguration))
+            {
+                return "https://raw.githubusercontent.com/PowerShell/DSC/main/schemas/2024/04/config/document.json"; // the trailing '#' is against DSC's schema
+            }
+
             return "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
         }
 
@@ -1256,7 +1262,7 @@ namespace Bicep.Core.Emit
                     }
                 }
 
-                // Emit the options property 
+                // Emit the options property
                 if (resource.RetryOn is not null || resource.WaitUntil is not null)
                 {
                     emitter.EmitObjectProperty("@options", () =>

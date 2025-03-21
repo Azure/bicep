@@ -843,6 +843,10 @@
         "typedVariables": {
           "type": "boolean",
           "description": "If enabled, you can optionally add a type to variable declarations. See https://aka.ms/bicep/experimental-features#typedvariables"
+        },
+        "desiredStateConfiguration": {
+          "type": "boolean",
+          "description": "Allows you to author Desired State Configuration documents using the target scope 'dsc'. See https://aka.ms/bicep/experimental-features#desiredstateconfiguration"
         }
       },
       "additionalProperties": false
