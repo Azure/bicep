@@ -1,5 +1,8 @@
 # Using Local Deploy (Experimental!)
 
+> [!NOTE]
+> This feature is currently experimental while we collect feedback.
+
 ## What is it?
 Bicep Local Deploy can be used to author Bicep files which use Bicep extensions that are designed to run fully locally, without the need for an Azure connection.
 
@@ -14,9 +17,9 @@ These extensions can be combined as you wish - for example, you could:
 * Read kubernetes config using a bash script and deploy Kubernetes resources with the kubernetes extension
 * Fetch secrets from KeyVault and upload them as GitHub secrets.
 
-This feature is currently experimental while we collect feedback.
+## How to use it?
 
-## Using
+To try out a particular extension, follow the README instructions from one of sample extensions linked above.
 
 ### Interactive (Deploy Pane)
 1. Open a `.bicepparam` file in your editor.
@@ -34,9 +37,65 @@ This feature is currently experimental while we collect feedback.
     ```
 
 ## Building your own extension
+### Quickstart
 Use one of the example repositories linked above as a starting point for creating your own extension.
 
-More detailed information for implementation guidance will be added here shortly.
+### Implementation notes
+A local extension consists of the following components:
+* A binary executable which exposes the Bicep Extensibility Protocol over a [gRPC](https://grpc.io/) connection. This allows you to model interactions with your custom resource types. The gRPC contract is defined [here](../../src/Bicep.Local.Extension/extension.proto).
+* Type metadata stored in a structured JSON format. This allows Bicep to understand your custom resource types for editor validation and code completion. You can use packages defined in [bicep-types](https://github.com/Azure/bicep-types) to define and generate this structured format for your own custom resource types.
+
+All extension binaries are expected to meet the following requirements:
+1. Accept all of the following CLI arguments:
+    * `--socket <socket_name>`: The path to the domain socket to connect on
+    * `--pipe <pipe_name>`: The named pipe to connect on
+    * `--wait-for-debugger`: Signals that you want to debug the extension, and that execution should pause until you are ready.
+1. Once started (either via domain socket or named pipe), exposes a gRPC endpoint over the relevant channel, adhereing to the [extension gRPC contract](../../src/Bicep.Local.Extension/extension.proto).
+1. Responds to SIGTERM to request a graceful shutdown.
+
+For .NET applications, there is a [NuGet package](https://www.nuget.org/packages/Azure.Bicep.Local.Extension) available which abstracts most of the above implementation.
+
+### Publishing
+Extensions can be published using the `bicep publish-extension` CLI command group. They can either be published to the local file system, or to an ACR instance.
+
+The command takes the following structure:
+```sh
+bicep publish-extension \
+  <path_to_types_index.json> \
+  --bin-osx-arm64 <path_to_osx_arm64_binary> \
+  --bin-linux-x64 <path_to_linux_x64_binary> \
+  --bin-win-x64 <path_to_windows_x86_binary> \
+  --target <path_or_acr_reference_to_output_extension> \
+  --force
+```
+
+* `<path_to_types_index.json>` is the file system path to your index.json for types.
+* `--target` must be either a local file system path, or an ACR registry spec string (e.g. `br:bicepextdemo.azurecr.io/extensions/keyvault:0.1.3`).
+* `--bin-<platform>` options signifiy different os/architecture flavors that are supported. These are optional - you don't need to support all architectures. If you don't support a particular option, then your extension will fail to run on that platform. Current options are: `linux-x64`, `linux-arm64`, `osx-x64`, `osx-arm64`, `win-x64` and `win-arm64`.
+
+### Consuming
+Here's an example bicepconfig.json you can use to share your extension with other users:
+```json
+{
+  "experimentalFeaturesEnabled": {
+    "extensibility": true,
+    "localDeploy": true
+  },
+  "cloud": {
+    "credentialPrecedence": [
+      "AzureCLI"
+    ],
+    "currentProfile": "AzureCloud"
+  },
+  "extensions": {
+    "http": "br:bicepextdemo.azurecr.io/extensions/http:0.1.1"
+  },
+  "implicitExtensions": []
+}
+```
+
+* You will need to update `extensions.http`: the key (`http`) should be the name of your extension, and the value (`br:bicepextdemo.azurecr.io/extensions/http:0.1.1`) should be the OCI reference path (or relative local file system path if building locally).
+
 
 ## Limitations
 1. Currently, it is not possible to mix and match Local and Azure resources in a single deployment. Please raise an issue if you would like to see this implemented.
