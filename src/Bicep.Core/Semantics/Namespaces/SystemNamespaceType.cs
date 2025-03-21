@@ -1806,6 +1806,23 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
                 }
 
+                if (featureProvider.OnlyIfNotExistsEnabled)
+                {
+                    yield return new DecoratorBuilder(LanguageConstants.OnlyIfNotExistsPropertyName)
+                    .WithDescription("Causes the resource deployment to be skipped if the resource already exists")
+                    .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
+                    .WithEvaluator((functionCall, decorated) =>
+                    {
+                        if (decorated is DeclaredResourceExpression declaredResourceExpression)
+                        {
+                            declaredResourceExpression.DecoratorConfig.Add("OnlyIfNotExists", new ArrayExpression(null, []));
+                            return declaredResourceExpression;
+                        }
+                        return decorated;
+                    })
+                    .Build();
+                }
+
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSealedPropertyName)
                     .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
                     .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
@@ -2040,7 +2057,10 @@ namespace Bicep.Core.Semantics.Namespaces
                                 functionCall.Parameters[0],
                                 functionCall.Parameters[1]
                         );
-                return declaredResourceExpression with { WaitUntil = new ArrayExpression(null, waitUntilParameters) };
+
+                declaredResourceExpression.DecoratorConfig.Add("WaitUntil", new ArrayExpression(null, waitUntilParameters));
+
+                return declaredResourceExpression;
             }
 
             return decorated;
@@ -2060,7 +2080,10 @@ namespace Bicep.Core.Semantics.Namespaces
                             functionCall.Parameters[1]
                     );
                 }
-                return declaredResourceExpression with { RetryOn = new ArrayExpression(null, [.. retryOnParameters]) };
+
+                declaredResourceExpression.DecoratorConfig.Add("RetryOn", new ArrayExpression(null, [.. retryOnParameters]));
+
+                return declaredResourceExpression;
             }
             return decorated;
         }

@@ -37,6 +37,8 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool WaitAndRetryEnabled => overrides.WaitAndRetryEnabled ?? features.WaitAndRetryEnabled;
 
+    public bool OnlyIfNotExistsEnabled => overrides.OnlyIfNotExistsEnabled ??  features.OnlyIfNotExistsEnabled;
+
     public bool LocalDeployEnabled => overrides.LocalDeployEnabled ?? features.LocalDeployEnabled;
 
     public bool SecureOutputsEnabled => overrides.SecureOutputsEnabled ?? features.SecureOutputsEnabled;

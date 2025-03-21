@@ -843,6 +843,10 @@
         "typedVariables": {
           "type": "boolean",
           "description": "If enabled, you can optionally add a type to variable declarations. See https://aka.ms/bicep/experimental-features#typedvariables"
+        },
+        "onlyIfNotExists": {
+          "type": "boolean",
+          "description": "If enabled, you can use the 'onlyIfNotExists' property on resources. See https://aka.ms/bicep/experimental-features#onlyifnotexists"
         }
       },
       "additionalProperties": false

@@ -163,6 +163,7 @@ namespace Bicep.Core
         public const string RetryOnPropertyName = "retryOn";
         public const string ExportPropertyName = "export";
         public const string TypeDiscriminatorDecoratorName = "discriminator";
+        public const string OnlyIfNotExistsPropertyName = "onlyIfNotExists";
 
         // module properties
         public const string ModuleParamsPropertyName = "params";
