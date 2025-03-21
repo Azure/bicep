@@ -11,7 +11,7 @@ using Bicep.Core.SourceLink;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using FluentAssertions;

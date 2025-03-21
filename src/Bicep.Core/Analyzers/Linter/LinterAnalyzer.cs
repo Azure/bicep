@@ -6,9 +6,9 @@ using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
 using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Semantics;
+using Bicep.Core.Text;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Analyzers.Linter

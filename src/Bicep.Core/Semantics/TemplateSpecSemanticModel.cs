@@ -4,7 +4,7 @@
 using System.Collections.Immutable;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 
 namespace Bicep.Core.Semantics
 {

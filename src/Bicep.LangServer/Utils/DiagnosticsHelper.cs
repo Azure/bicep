@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Text;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 
 namespace Bicep.LanguageServer.Utils
 {

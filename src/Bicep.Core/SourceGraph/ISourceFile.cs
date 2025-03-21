@@ -3,7 +3,7 @@
 
 using Bicep.IO.Abstraction;
 
-namespace Bicep.Core.Workspaces
+namespace Bicep.Core.SourceGraph
 {
     public interface ISourceFile
     {

@@ -5,7 +5,7 @@ using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.UnitTests;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Bicep.IO.FileSystem;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Configuration;

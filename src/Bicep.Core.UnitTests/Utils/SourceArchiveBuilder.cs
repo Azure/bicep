@@ -5,7 +5,7 @@ using System.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.SourceLink;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using FluentAssertions;
 using static Bicep.Core.SourceLink.SourceArchive;
 

@@ -4,7 +4,7 @@
 using Bicep.Core.Emit;
 using Bicep.Core.Parsing;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

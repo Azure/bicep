@@ -5,6 +5,7 @@ using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using FluentAssertions;
 
 namespace Bicep.Core.UnitTests.Utils

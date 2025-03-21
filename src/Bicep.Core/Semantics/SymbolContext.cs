@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {

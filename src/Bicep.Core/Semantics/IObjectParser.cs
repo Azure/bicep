@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Semantics
