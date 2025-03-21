@@ -200,53 +200,6 @@ namespace Bicep.Core.Parsing
             return false;
         }
 
-        public static TextSpan Parse(string text)
-        {
-            if (TryParse(text, out TextSpan span))
-            {
-                return span;
-            }
-
-            throw new FormatException($"The specified text span string '{text}' is not valid.");
-        }
-
-        public static bool TryParse(string? value, out TextSpan span)
-        {
-            // Format: "[startInclusive:endExclusive]"
-            span = Nil;
-
-            if (value == null)
-            {
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(value) || value.Length < 5 || value[0] != '[' || value[^1] != ']')
-            {
-                return false;
-            }
-
-            var colonIndex = value.IndexOf(':');
-            if (colonIndex < 2 || colonIndex >= value.Length - 2)
-            {
-                return false;
-            }
-
-            if (!int.TryParse(value.AsSpan(1, colonIndex - 1), out var startInclusive) ||
-                !int.TryParse(value.AsSpan(colonIndex + 1, value.Length - colonIndex - 2), out var endExclusive))
-            {
-                return false;
-            }
-
-            int length = endExclusive - startInclusive;
-            if (length < 0)
-            {
-                return false;
-            }
-
-            span = new TextSpan(startInclusive, length);
-            return true;
-        }
-
         /// <summary>
         /// Checks if a comes before b.
         /// </summary>
