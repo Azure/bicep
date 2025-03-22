@@ -1106,6 +1106,13 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
                     .WithOptionalParameter("default", LanguageConstants.String, "Default value to return if environment variable is not found.")
                     .Build();
+
+                yield return new FunctionOverloadBuilder("externalInput")
+                    .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
+                    .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.")
+                    .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.")
+                    .WithReturnType(LanguageConstants.Any)
+                    .Build();
             }
 
             foreach (var overload in GetAlwaysPermittedOverloads())
