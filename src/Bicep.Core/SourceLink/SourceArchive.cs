@@ -309,16 +309,16 @@ namespace Bicep.Core.SourceLink
 
             while (tarReader.GetNextEntry() is { } entry)
             {
-                string contents = entry.DataStream is null ? string.Empty : new StreamReader(entry.DataStream, Encoding.UTF8).ReadToEnd();
+                string contents = entry.DataStream is null ? string.Empty : new StreamReader(entry.DataStream).ReadToEnd();
                 filesBuilder.Add(entry.Name, contents);
             }
 
             var dictionary = filesBuilder.ToImmutableDictionary();
 
-            var metadataJson = dictionary[MetadataFileName]
-                ?? throw new BicepException("Incorrectly formatted source file: No {MetadataArchivedFileName} entry");
+            var metadataJson = dictionary.TryGetValue(MetadataFileName)
+                ?? throw new InvalidSourceArchiveException($"Incorrectly formatted source file: No {MetadataFileName} entry");
             var metadata = JsonSerializer.Deserialize(metadataJson, SourceArchiveSerializationContext.Default.SourceArchiveMetadata)
-                ?? throw new BicepException("Source archive has invalid metadata entry");
+                ?? throw new InvalidSourceArchiveException("Source archive has invalid metadata entry");
 
             var infos = new List<SourceFileInfo>();
             foreach (var info in metadata.SourceFiles.OrderBy(e => e.Path).ThenBy(e => e.ArchivePath))
