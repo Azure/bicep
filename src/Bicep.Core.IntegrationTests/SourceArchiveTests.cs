@@ -139,7 +139,7 @@ namespace Bicep.Core.IntegrationTests
 
             var file = sourceArchive.FindExpectedSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json");
             file.SourceArtifact.Should().BeNull();
-            file.Kind.Should().Be("armTemplate");
+            file.Kind.Should().Be(LinkedSourceFileKind.ArmTemplate);
         }
 
         [TestMethod]
@@ -167,7 +167,7 @@ namespace Bicep.Core.IntegrationTests
 
             var file = sourceArchive.FindExpectedSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json");
             file.SourceArtifact!.ArtifactId.Should().Be("mockregistry.io/test/module1:v1");
-            file.Kind.Should().Be("armTemplate");
+            file.Kind.Should().Be(LinkedSourceFileKind.ArmTemplate);
 
         }
 
