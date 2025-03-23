@@ -4,8 +4,8 @@
 using System.Collections.Immutable;
 using System.Text;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Text;
 using Bicep.Core.SourceGraph;
+using Bicep.Core.Text;
 
 namespace Bicep.LanguageServer.Utils
 {

@@ -20,7 +20,7 @@ namespace Bicep.Core.Text
 
         public TextPosition((int line, int character) input)
             : this(input.line, input.character)
-        { 
+        {
         }
 
         public int Line { get; }

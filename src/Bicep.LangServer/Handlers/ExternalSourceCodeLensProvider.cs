@@ -4,8 +4,8 @@
 using System.Diagnostics;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.SourceLink;
 using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceLink;
 using Bicep.LanguageServer.Extensions;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;

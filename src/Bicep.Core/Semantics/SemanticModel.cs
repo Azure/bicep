@@ -18,13 +18,13 @@ using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
-using Bicep.Core.SourceGraph;
 
 namespace Bicep.Core.Semantics
 {

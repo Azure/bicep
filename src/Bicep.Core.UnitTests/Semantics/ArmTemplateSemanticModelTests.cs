@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.SourceGraph;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

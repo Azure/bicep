@@ -8,9 +8,9 @@ using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.SourceGraph;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {

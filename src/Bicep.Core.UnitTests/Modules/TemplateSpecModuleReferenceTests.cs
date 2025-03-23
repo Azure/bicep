@@ -5,9 +5,9 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.SourceGraph;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
