@@ -12,8 +12,8 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry.Extensions;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
-using Bicep.Core.SourceLink;
 using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceLink;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 

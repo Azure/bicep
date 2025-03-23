@@ -4,9 +4,9 @@
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Providers;
-using Bicep.Core.SourceGraph;
 
 namespace Bicep.Core.SourceGraph
 {

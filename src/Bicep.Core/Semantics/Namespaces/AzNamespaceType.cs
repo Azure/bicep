@@ -8,12 +8,12 @@ using Azure.Deployments.Core.Definitions.Identifiers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.SourceGraph;
 
 namespace Bicep.Core.Semantics.Namespaces
 {

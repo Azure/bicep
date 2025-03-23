@@ -3,8 +3,8 @@
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Text;
 using Bicep.Core.SourceGraph;
+using Bicep.Core.Text;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Utils;
 using FluentAssertions;

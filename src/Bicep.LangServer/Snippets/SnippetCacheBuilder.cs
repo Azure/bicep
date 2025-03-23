@@ -12,10 +12,10 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.SourceGraph;
 using Bicep.LanguageServer.Completions;
 
 namespace Bicep.LanguageServer.Snippets;

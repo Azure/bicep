@@ -11,9 +11,9 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
-using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 

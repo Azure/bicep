@@ -3,9 +3,9 @@
 
 using System.Collections.Immutable;
 using System.Globalization;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Rewriters;
-using Bicep.Core.SourceGraph;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Cli.Helpers;

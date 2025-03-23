@@ -5,12 +5,12 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
-using Bicep.Core.SourceGraph;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 

@@ -32,7 +32,7 @@ namespace Bicep.Core.Text
 
             if (parts.Length == 2 &&
                 TextPosition.TryParse(parts[0]) is { } start &&
-                TextPosition.TryParse(parts[1]) is { }  end)
+                TextPosition.TryParse(parts[1]) is { } end)
             {
                 return new TextRange(start, end);
             }

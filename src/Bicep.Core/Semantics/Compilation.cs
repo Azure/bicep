@@ -9,8 +9,8 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.Utils;
 using Bicep.Core.SourceGraph;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Semantics
 {

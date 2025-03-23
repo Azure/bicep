@@ -4,9 +4,9 @@
 using System.Collections.Immutable;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Text;
 using Bicep.Core.Utils;
-using Bicep.Core.SourceGraph;
 using Uri = System.Uri;
 
 
