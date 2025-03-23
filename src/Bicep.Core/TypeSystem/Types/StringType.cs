@@ -8,6 +8,11 @@ public class StringType : TypeSymbol
     internal StringType(long? minLength, long? maxLength, string? pattern, TypeSymbolValidationFlags validationFlags)
         : base(LanguageConstants.TypeNameString)
     {
+        if (pattern is not null && TypeHelper.TryGetRegularExpressionValidationException(pattern) is { } error)
+        {
+            throw new ArgumentException($"The supplied regular expression pattern /{pattern}/ is not valid", error);
+        }
+
         ValidationFlags = validationFlags;
         MinLength = minLength;
         MaxLength = maxLength;
