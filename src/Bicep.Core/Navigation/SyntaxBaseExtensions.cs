@@ -5,6 +5,7 @@ using System.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Navigation
 {

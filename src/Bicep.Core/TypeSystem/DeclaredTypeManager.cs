@@ -17,6 +17,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
 
@@ -130,7 +131,13 @@ namespace Bicep.Core.TypeSystem
                     return new DeclaredTypeAssignment(TypeFactory.CreateBooleanType(), assert);
 
                 case TargetScopeSyntax targetScope:
-                    return new DeclaredTypeAssignment(targetScope.GetDeclaredType(), targetScope, DeclaredTypeFlags.Constant);
+                    // We add the DSC constant here so we can have it as a completion when the feature is enabled.
+                    // TODO: When no longer experimental, add directly to 'TargetScopeSyntax.GetDeclaredType()' instead.
+                    return new DeclaredTypeAssignment(
+                        features.DesiredStateConfigurationEnabled
+                            ? TypeHelper.CreateTypeUnion(targetScope.GetDeclaredType(), TypeFactory.CreateStringLiteralType(LanguageConstants.TargetScopeTypeDesiredStateConfiguration))
+                            : targetScope.GetDeclaredType(),
+                        targetScope, DeclaredTypeFlags.Constant);
 
                 case IfConditionSyntax ifCondition:
                     return GetIfConditionType(ifCondition);

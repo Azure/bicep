@@ -170,13 +170,6 @@ namespace Bicep.Core.FileSystem
             return new Uri(uriString);
         }
 
-        public static bool HasAnyExtension(Uri uri)
-        {
-            var path = GetNormalizedPath(uri);
-
-            return Path.HasExtension(path);
-        }
-
         public static bool HasExtension(Uri uri, string extension)
         {
             var path = GetNormalizedPath(uri);
@@ -184,8 +177,6 @@ namespace Bicep.Core.FileSystem
 
             return path.EndsWith(extension, StringComparison.OrdinalIgnoreCase);
         }
-
-        public static Uri RemoveExtension(Uri uri) => ChangeExtension(uri, null);
 
         public static Uri ChangeToBicepExtension(Uri uri) => ChangeExtension(uri, BicepExtension);
 
@@ -213,16 +204,6 @@ namespace Bicep.Core.FileSystem
             return child.AbsolutePath.StartsWith(parentPath);
         }
 
-        public static bool IsEqualOrSubPathOf(Uri parent, Uri child)
-        {
-            if (parent == child)
-            {
-                return true;
-            }
-
-            return IsSubPathOf(parent, child);
-        }
-
         public static string GetRelativePath(Uri source, Uri target)
         {
             if (source.Scheme != target.Scheme)
@@ -247,8 +228,5 @@ namespace Bicep.Core.FileSystem
 
             return relativeUri;
         }
-
-        public static Uri ResolveFilePath(Uri parentFileUri, string childFilePath)
-            => TryResolveFilePath(parentFileUri, childFilePath) ?? throw new InvalidOperationException($"Failed to resolve file path for URI {parentFileUri} and child path {childFilePath}");
     }
 }

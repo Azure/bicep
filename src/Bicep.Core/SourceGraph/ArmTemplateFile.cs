@@ -5,7 +5,7 @@ using Azure.Deployments.Core.Definitions.Schema;
 using Bicep.IO.Abstraction;
 using Newtonsoft.Json.Linq;
 
-namespace Bicep.Core.Workspaces
+namespace Bicep.Core.SourceGraph
 {
     public class ArmTemplateFile : ISourceFile
     {

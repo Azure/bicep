@@ -3,7 +3,7 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Features;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 
 namespace Bicep.Cli.Helpers;
 

@@ -22,6 +22,7 @@ public record ExperimentalFeaturesEnabled(
     bool ResourceInfoCodegen,
     bool TypedVariables,
     bool ModuleExtensionConfigs,
+    bool DesiredStateConfiguration,
     bool OnlyIfNotExists)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)

@@ -6,6 +6,7 @@ using System.ServiceModel;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 using Json.Pointer;
 
 namespace Bicep.Core.Syntax

@@ -4,7 +4,7 @@
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceLink;
 using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry

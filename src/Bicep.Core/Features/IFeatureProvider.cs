@@ -43,6 +43,8 @@ public interface IFeatureProvider
 
     bool ModuleExtensionConfigsEnabled { get; }
 
+    bool DesiredStateConfigurationEnabled { get; }
+
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
         get
@@ -64,7 +66,8 @@ public interface IFeatureProvider
                 (SecureOutputsEnabled, CoreResources.ExperimentalFeatureNames_SecureOutputs, true, false),
                 (TypedVariablesEnabled, "Typed variables", true, false),
                 (ExtendableParamFilesEnabled, "Enable extendable parameters", true, false),
-                (ModuleExtensionConfigsEnabled, "Enables defining extension configs for modules", true, true)
+                (ModuleExtensionConfigsEnabled, "Enable defining extension configs for modules", true, true),
+                (DesiredStateConfigurationEnabled, "Enable defining Desired State Configuration documents", true, false),
             })
             {
                 if (enabled)

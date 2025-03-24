@@ -16,7 +16,6 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;

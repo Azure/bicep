@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Registry;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Bicep.LanguageServer.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;

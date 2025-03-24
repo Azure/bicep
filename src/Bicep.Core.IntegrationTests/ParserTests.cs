@@ -6,6 +6,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Syntax;
 using Bicep.Core.UnitTests.Utils;

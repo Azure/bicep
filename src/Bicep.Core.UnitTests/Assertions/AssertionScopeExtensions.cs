@@ -5,8 +5,9 @@ using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
 using FluentAssertions.Execution;
 
 namespace Bicep.Core.UnitTests.Assertions

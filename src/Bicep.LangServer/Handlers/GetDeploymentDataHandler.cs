@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Semantics;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Bicep.LanguageServer.CompilationManager;
 using MediatR;
 using Microsoft.Extensions.Logging;

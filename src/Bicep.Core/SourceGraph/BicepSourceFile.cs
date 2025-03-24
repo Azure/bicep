@@ -14,7 +14,7 @@ using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 
-namespace Bicep.Core.Workspaces
+namespace Bicep.Core.SourceGraph
 {
     public abstract class BicepSourceFile : ISourceFile
     {

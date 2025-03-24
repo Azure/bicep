@@ -14,11 +14,11 @@ using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Semantics;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceLink;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry
@@ -141,7 +141,7 @@ namespace Bicep.Core.Registry
 
                         var extensionUri = config.ConfigFileUri.Value.Resolve(extensionPath);
 
-                        return new(extensionUri.GetPathRelativeTo(referencingFile.Uri.ToIOUri()));
+                        return new(extensionUri.GetPathRelativeTo(referencingFile.FileHandle.Uri));
                     }
 
 

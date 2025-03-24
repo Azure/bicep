@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parsing;
 using Bicep.Core.Text;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;

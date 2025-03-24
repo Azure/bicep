@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceLink;
 using Bicep.Core.UnitTests.Registry;
 using FluentAssertions;
 using FluentAssertions.Primitives;

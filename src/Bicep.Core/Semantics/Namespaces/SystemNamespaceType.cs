@@ -26,7 +26,6 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;

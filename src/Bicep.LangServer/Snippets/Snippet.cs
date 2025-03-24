@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 using Bicep.LanguageServer.Completions;
 
 namespace Bicep.LanguageServer.Snippets

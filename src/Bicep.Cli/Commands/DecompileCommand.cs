@@ -6,7 +6,7 @@ using Bicep.Cli.Services;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Decompiler;
 using Microsoft.Extensions.Logging;
 

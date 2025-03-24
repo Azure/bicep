@@ -5,10 +5,10 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
@@ -27,7 +27,6 @@ namespace Bicep.Core.Semantics
             this.Context = context;
             this.Syntax = sourceFile.ProgramSyntax;
             this.NamespaceResolver = namespaceResolver;
-            this.FileUri = sourceFile.Uri;
             this.FileKind = sourceFile.FileKind;
             this.LocalScopes = fileScope.ChildScopes;
 
@@ -212,8 +211,6 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<WildcardImportSymbol> WildcardImports { get; }
 
         public UsingDeclarationSyntax? UsingDeclarationSyntax => this.usingDeclarationLazy.Value;
-
-        public Uri FileUri { get; }
 
         /// <summary>
         /// Returns all the top-level declaration symbols.

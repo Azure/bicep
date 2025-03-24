@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 
 namespace Bicep.LanguageServer.Extensions
 {

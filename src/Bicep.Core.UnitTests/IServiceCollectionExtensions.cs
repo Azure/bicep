@@ -21,7 +21,6 @@ using Bicep.Core.UnitTests.Mock.Registry;
 using Bicep.Core.UnitTests.Mock.Registry.Catalog;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;

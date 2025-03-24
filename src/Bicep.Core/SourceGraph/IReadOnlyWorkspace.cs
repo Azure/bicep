@@ -3,7 +3,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Bicep.Core.Workspaces
+namespace Bicep.Core.SourceGraph
 {
     public interface IReadOnlyWorkspace
     {
