@@ -591,7 +591,7 @@
     ],
     "minimumArgumentCount": 3,
     "maximumArgumentCount": 3,
-    "flags": "default",
+    "flags": "requiresInlining",
     "typeSignature": "(subscriptionId: string, location: string, physicalZone: string): string",
     "parameterTypeSignatures": [
       "subscriptionId: string",
@@ -624,7 +624,7 @@
     ],
     "minimumArgumentCount": 3,
     "maximumArgumentCount": 3,
-    "flags": "default",
+    "flags": "requiresInlining",
     "typeSignature": "(subscriptionId: string, location: string, physicalZones: array): string[]",
     "parameterTypeSignatures": [
       "subscriptionId: string",
@@ -657,7 +657,7 @@
     ],
     "minimumArgumentCount": 3,
     "maximumArgumentCount": 3,
-    "flags": "default",
+    "flags": "requiresInlining",
     "typeSignature": "(subscriptionId: string, location: string, logicalZone: string): string",
     "parameterTypeSignatures": [
       "subscriptionId: string",
@@ -690,7 +690,7 @@
     ],
     "minimumArgumentCount": 3,
     "maximumArgumentCount": 3,
-    "flags": "default",
+    "flags": "requiresInlining",
     "typeSignature": "(subscriptionId: string, location: string, logicalZones: array): string[]",
     "parameterTypeSignatures": [
       "subscriptionId: string",
