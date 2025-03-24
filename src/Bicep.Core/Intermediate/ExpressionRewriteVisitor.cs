@@ -384,7 +384,7 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
             TryRewrite(expression.Body, out var body) |
             TryRewriteStrict(expression.DependsOn, out var dependsOn) |
             TryRewriteDescription(expression, out var description) |
-            TryRewriteDictionary(expression.DecoratorConfig, out var decoratorConfig);
+            TryRewriteDictionaryStrict(expression.DecoratorConfig, out var decoratorConfig);
 
         return hasChanges ? expression with { Body = body, DependsOn = dependsOn, Description = description, DecoratorConfig = decoratorConfig } : expression;
     }
@@ -790,8 +790,8 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return hasChanges;
     }
 
-    private bool TryRewriteDictionary<TExpression>(ImmutableDictionary<string, TExpression>? dictionary, [NotNullIfNotNull("dictionary")] out ImmutableDictionary<string, TExpression>? newDictionary)
-        where TExpression : Expression
+    private bool TryRewriteDictionaryStrict<TExpression>(ImmutableDictionary<string, TExpression>? dictionary, [NotNullIfNotNull("dictionary")] out ImmutableDictionary<string, TExpression>? newDictionary)
+        where TExpression : ArrayExpression
     {
         if (dictionary is null)
         {

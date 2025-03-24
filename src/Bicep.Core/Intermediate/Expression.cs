@@ -498,8 +498,6 @@ public record DeclaredResourceExpression(
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredResourceExpression(this);
-
-    // public Dictionary<string, ArrayExpression> DecoratorConfig { get; } = new Dictionary<string, ArrayExpression>();
 }
 
 public record DeclaredModuleExpression(
