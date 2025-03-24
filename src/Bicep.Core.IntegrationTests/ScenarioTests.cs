@@ -7080,4 +7080,39 @@ var subnetId = vNet::subnets[0].id
         result.Template.Should().HaveValueAtPath("$.languageVersion", "2.0");
         result.Template.Should().HaveJsonAtPath("$.resources.sa.dependsOn", """["empty"]""");
     }
+
+    [TestMethod]
+    public void Non_spec_compliant_provider_sourced_regexes_degrade_gracefully()
+    {
+        var result = CompilationHelper.Compile("""
+            param name string
+            param location string = resourceGroup().location
+            param sku object
+            param administratorLogin string
+            @secure()
+            param administratorLoginPassword string
+            param version string
+
+            resource mysqlServer 'Microsoft.DBforMySQL/flexibleServers@2023-06-30' = {
+              name: name
+              location: location
+              sku: sku
+              properties: {
+                version: version
+                administratorLogin: administratorLogin
+                administratorLoginPassword: administratorLoginPassword
+              }
+
+              resource firewall_all 'firewallRules' = {
+                name: 'allow-all-IPs'
+                properties: {
+                  startIpAddress: '0.0.0.0'
+                  endIpAddress: '255.255.255.255'
+                }
+              }
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
 }
