@@ -1257,35 +1257,19 @@ namespace Bicep.Core.Emit
                 }
 
                 // Emit the options property if there are entries in the DecoratorConfig dictionary
-                if (resource.DecoratorConfig.Count > 0)
+                if (resource.DecoratorConfig?.Count > 0)
                 {
                     emitter.EmitObjectProperty("@options", () =>
                     {
-                        if (resource.DecoratorConfig.ContainsKey("RetryOn"))
+                        foreach (var (name, items) in resource.DecoratorConfig)
                         {
-                            emitter.EmitArrayProperty("retryOn", () =>
+                            emitter.EmitArrayProperty(name, () =>
                             {
-                                foreach (var item in resource.DecoratorConfig["RetryOn"].Items)
+                                foreach (var item in items.Items)
                                 {
                                     emitter.EmitExpression(item);
                                 }
                             });
-                        }
-
-                        if (resource.DecoratorConfig.ContainsKey("WaitUntil"))
-                        {
-                            emitter.EmitArrayProperty("waitUntil", () =>
-                            {
-                                foreach (var item in resource.DecoratorConfig["WaitUntil"].Items)
-                                {
-                                    emitter.EmitExpression(item);
-                                }
-                            });
-                        }
-
-                        if (resource.DecoratorConfig.ContainsKey("OnlyIfNotExists"))
-                        {
-                            emitter.EmitProperty("onlyIfNotExists", new ArrayExpression(null, []));
                         }
                     });
                 }

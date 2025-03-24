@@ -492,13 +492,14 @@ public record DeclaredResourceExpression(
     SyntaxBase BodySyntax,
     Expression Body,
     ImmutableArray<ResourceDependencyExpression> DependsOn,
-    Expression? Description = null
+    Expression? Description = null,
+    ImmutableDictionary<string, ArrayExpression>? DecoratorConfig = null
 ) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDeclaredResourceExpression(this);
 
-    public Dictionary<string, ArrayExpression> DecoratorConfig { get; } = new Dictionary<string, ArrayExpression>();
+    // public Dictionary<string, ArrayExpression> DecoratorConfig { get; } = new Dictionary<string, ArrayExpression>();
 }
 
 public record DeclaredModuleExpression(
