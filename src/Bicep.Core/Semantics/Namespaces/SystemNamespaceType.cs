@@ -1111,7 +1111,21 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
                     .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.")
                     .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.")
-                    .WithReturnType(LanguageConstants.Any)
+                    .WithReturnResultBuilder((model, diagnostics, functionCall, argumentTypes) =>
+                    {
+                        var arguments = functionCall.Arguments.ToImmutableArray();
+                        
+                        if (argumentTypes.Length < 1 || argumentTypes[0] is not StringLiteralType stringLiteral)
+                        {
+                            return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).CompileTimeConstantRequired()));
+                        }
+
+                        var inputType = stringLiteral.RawStringValue;
+
+                        return new(LanguageConstants.Any, new ExternalInputExpression(functionCall, inputType));
+
+                    }, LanguageConstants.Any)
+                    // .WithReturnType(LanguageConstants.Any)
                     .Build();
             }
 

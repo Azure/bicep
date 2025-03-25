@@ -643,6 +643,12 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return expression;
     }
 
+    void IExpressionVisitor.VisitExternalInputExpression(ExternalInputExpression expression) => ReplaceCurrent(expression, ReplaceExternalInputExpression);
+    public virtual Expression ReplaceExternalInputExpression(ExternalInputExpression expression)
+    {
+        return expression;
+    }
+
     void IExpressionVisitor.VisitImportedVariableReferenceExpression(ImportedVariableReferenceExpression expression) => ReplaceCurrent(expression, ReplaceImportedVariableReferenceExpression);
     public virtual Expression ReplaceImportedVariableReferenceExpression(ImportedVariableReferenceExpression expression)
     {
