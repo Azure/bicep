@@ -23,7 +23,7 @@ public record ExperimentalFeaturesEnabled(
     bool TypedVariables,
     bool ModuleExtensionConfigs,
     bool DesiredStateConfiguration,
-    bool ExternalInput)
+    bool ExternalInputFunction)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();

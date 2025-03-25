@@ -20,7 +20,7 @@ Enables the ability to extend bicepparam files from other bicepparam files. For 
 ### `extensibility`
 Allows Bicep to use an extensibility model to deploy non-ARM resources. Currently, we support Kubernetes extension ([Bicep Kubernetes extension](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/bicep-kubernetes-extension)) and Microsoft Graph extension ([Bicep templates for Microsoft Graph](https://aka.ms/graphbicep)).
 
-### `externalInput`
+### `externalInputFunction`
 Enables the `externalInput` function to allow reading input that will be resolved later by external tooling. This is useful for example for reading environment variables, and inline-provided parameter values during deployment.
 
 ### `legacyFormatter`

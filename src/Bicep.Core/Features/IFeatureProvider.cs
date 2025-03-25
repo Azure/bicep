@@ -43,7 +43,7 @@ public interface IFeatureProvider
 
     bool DesiredStateConfigurationEnabled { get; }
 
-    bool ExternalInputEnabled { get; }
+    bool ExternalInputFunctionEnabled { get; }
 
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
@@ -67,7 +67,7 @@ public interface IFeatureProvider
                 (ExtendableParamFilesEnabled, "Enable extendable parameters", true, false),
                 (ModuleExtensionConfigsEnabled, "Enable defining extension configs for modules", true, true),
                 (DesiredStateConfigurationEnabled, "Enable defining Desired State Configuration documents", true, false),
-                (ExternalInputEnabled, "Enable external input", true, false),
+                (ExternalInputFunctionEnabled, "Enable external input", true, false),
             })
             {
                 if (enabled)
