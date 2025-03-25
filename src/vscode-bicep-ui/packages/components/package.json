@@ -47,7 +47,7 @@
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "storybook": "^8.6.4",
     "styled-components": "^6.1.16",
-    "vite": "^5.4.12",
+    "vite": "^5.4.15",
     "vite-plugin-dts": "^4.5.0",
     "vite-plugin-lib-inject-css": "^2.2.1",
     "vite-plugin-svgr": "^4.3.0",
