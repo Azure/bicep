@@ -67,7 +67,7 @@ public interface IFeatureProvider
                 (ExtendableParamFilesEnabled, "Enable extendable parameters", true, false),
                 (ModuleExtensionConfigsEnabled, "Enable defining extension configs for modules", true, true),
                 (DesiredStateConfigurationEnabled, "Enable defining Desired State Configuration documents", true, false),
-                (ExternalInputFunctionEnabled, "Enable external input", true, false),
+                (ExternalInputFunctionEnabled, CoreResources.ExperimentalFeatureNames_ExternalInputFunction, true, false),
             })
             {
                 if (enabled)

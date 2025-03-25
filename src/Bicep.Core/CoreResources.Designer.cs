@@ -187,6 +187,15 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to External input function.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_ExternalInputFunction {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_ExternalInputFunction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Resource-derived types.
         /// </summary>
         internal static string ExperimentalFeatureNames_ResourceDerivedTypes {

@@ -848,9 +848,9 @@
           "type": "boolean",
           "description": "Allows you to author Desired State Configuration documents using the target scope 'dsc'. See https://aka.ms/bicep/experimental-features#desiredstateconfiguration"
         },
-        "externalInput": {
+        "externalInputFunction": {
           "type": "boolean",
-          "description": "Enables the 'externalInput' function for reading input that will be resolved later by external tooling. See https://aka.ms/bicep/experimental-features#externalinput"
+          "description": "Enables the 'externalInput' function for reading input that will be resolved later by external tooling. See https://aka.ms/bicep/experimental-features#externalinputfunction"
         }
       },
       "additionalProperties": false

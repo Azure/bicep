@@ -197,7 +197,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "typedVariables": false,
           "moduleExtensionConfigs": false,
           "desiredStateConfiguration": false,
-          "externalInput": false
+          "externalInputFunction": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -489,7 +489,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 "typedVariables": false,
                 "moduleExtensionConfigs": false,
                 "desiredStateConfiguration": false,
-                "externalInput": false
+                "externalInputFunction": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -863,7 +863,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "typedVariables": false,
           "moduleExtensionConfigs": false,
           "desiredStateConfiguration": false,
-          "externalInput": false
+          "externalInputFunction": false
         },
         "formatting": {
           "indentKind": "Space",

@@ -57,11 +57,6 @@ public class ParameterAssignmentEvaluator
                 return this.EvaluateUserDefinedFunction(functionExpression, parameters, additionalnfo);
             }
 
-            if (string.Equals(functionExpression.Function, "externalInput", StringComparison.OrdinalIgnoreCase))
-            {
-                return "[evaluateInput('sys.cli')]";
-            }
-
             return evaluationHelper.EvaluationContext.EvaluateFunction(functionExpression, parameters, this, additionalnfo);
         }
 
