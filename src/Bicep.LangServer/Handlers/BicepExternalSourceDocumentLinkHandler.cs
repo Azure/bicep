@@ -103,34 +103,31 @@ namespace Bicep.LanguageServer.Handlers
                         yield break;
                     }
 
-                    if (currentDocumentSourceArchive.DocumentLinks.TryGetValue(currentDocumentRelativeFile, out var nestedLinks))
+                    foreach (var nestedLink in currentDocumentSourceArchive.FindDocumentLinks(currentDocumentRelativeFile))
                     {
-                        foreach (var nestedLink in nestedLinks)
-                        {
-                            var targetFileInfo = currentDocumentSourceArchive.FindExpectedSourceFile(nestedLink.Target);
-                            var linkToRawCompiledJson = new ExternalSourceReference(request.TextDocument.Uri)
-                                .WithRequestForSourceFile(targetFileInfo.Path).ToUri().ToString();
+                        var targetFileInfo = currentDocumentSourceArchive.FindExpectedSourceFile(nestedLink.Target);
+                        var linkToRawCompiledJson = new ExternalSourceReference(request.TextDocument.Uri)
+                            .WithRequestForSourceFile(targetFileInfo.Path).ToUri().ToString();
 
-                            // Does this nested link have a pointer to its artifact so we can try restoring it and get the source?
-                            if (targetFileInfo.SourceArtifact is { })
+                        // Does this nested link have a pointer to its artifact so we can try restoring it and get the source?
+                        if (targetFileInfo.SourceArtifact is { })
+                        {
+                            // Yes, it's an external module with source.  We won't set the target now - we'll wait until the user clicks on it to resolve it, to give us a chance to restore the module.
+                            var sourceId = targetFileInfo.SourceArtifact?.ArtifactId;
+                            yield return new DocumentLink<ExternalSourceDocumentLinkData>()
                             {
-                                // Yes, it's an external module with source.  We won't set the target now - we'll wait until the user clicks on it to resolve it, to give us a chance to restore the module.
-                                var sourceId = targetFileInfo.SourceArtifact?.ArtifactId;
-                                yield return new DocumentLink<ExternalSourceDocumentLinkData>()
-                                {
-                                    Range = nestedLink.Range.ToRange(),
-                                    Data = new ExternalSourceDocumentLinkData(sourceId, linkToRawCompiledJson)
-                                };
-                            }
-                            else
+                                Range = nestedLink.Range.ToRange(),
+                                Data = new ExternalSourceDocumentLinkData(sourceId, linkToRawCompiledJson)
+                            };
+                        }
+                        else
+                        {
+                            yield return new DocumentLink()
                             {
-                                yield return new DocumentLink()
-                                {
-                                    // This is a link to a file that we don't have source for, so we'll just display the main.json file
-                                    Range = nestedLink.Range.ToRange(),
-                                    Target = linkToRawCompiledJson
-                                };
-                            }
+                                // This is a link to a file that we don't have source for, so we'll just display the main.json file
+                                Range = nestedLink.Range.ToRange(),
+                                Target = linkToRawCompiledJson
+                            };
                         }
                     }
                 }

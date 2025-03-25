@@ -18,6 +18,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using static Bicep.Core.SourceLink.SourceArchive;
+using FluentAssertions.Execution;
 
 namespace Bicep.Core.UnitTests.SourceCode;
 
@@ -263,37 +264,31 @@ public class SourceArchiveTests
         using var stream = SourceArchive.PackSourcesIntoStream(mainBicep.SourceFile.Uri, cacheRootDirectory, linksInput, mainBicep, mainJson, standaloneJson, templateSpecMainJson, localModuleJson, localModuleBicep, externalModuleJson);
         stream.Length.Should().BeGreaterThan(0);
 
-        SourceArchive? sourceArchive = SourceArchive.UnpackFromStream(stream).TryUnwrap();
+        SourceArchive? sourceArchive = SourceArchive.UnpackFromStream(stream).TryUnwrap()!;
         sourceArchive.Should().NotBeNull();
 
-        var archivedLinks = sourceArchive!.DocumentLinks;
+        var mainLinks = sourceArchive.FindDocumentLinks("main&.bicep");
+        var moduleLinks = sourceArchive.FindDocumentLinks("modules/localBicepModule.bicep");
 
-        var expected = new Dictionary<string, SourceCodeDocumentPathLink[]>()
+        // Note: the template spec files will be filtered out
+        using (new AssertionScope())
         {
-            // Note: the template spec files will be filtered out
+            mainLinks.Should().BeEquivalentTo(new SourceCodeDocumentPathLink[]
             {
-                "main&.bicep",
-                new SourceCodeDocumentPathLink[]
-                {
-                    new(new TextRange(1, 2, 1, 3), "modules/localJsonModule.json"),
-                    new(new TextRange(11, 2, 11, 3), "modules/localBicepModule.bicep"),
-                    new(new TextRange(12, 45, 23, 56), "<cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json"),
-                }
-            },
-            {
-                "modules/localBicepModule.bicep",
-                new SourceCodeDocumentPathLink[]
-                {
-                    new(new TextRange(123, 124, 234, 235), "main&.bicep"),
-                    new(new TextRange(234, 235, 345, 346), "main.json"),
-                    new(new TextRange(123, 456, 234, 567), "main&.bicep"),
-                    new(new TextRange(345, 2, 345, 3), "modules/localJsonModule.json"),
-                    new(new TextRange(12, 45, 23, 56), "<cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json"),
-                }
-            },
-        };
+                new(new TextRange(1, 2, 1, 3), "modules/localJsonModule.json"),
+                new(new TextRange(11, 2, 11, 3), "modules/localBicepModule.bicep"),
+                new(new TextRange(12, 45, 23, 56), "<cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json"),
+            });
 
-        archivedLinks.Should().BeEquivalentTo(expected);
+            moduleLinks.Should().BeEquivalentTo(new SourceCodeDocumentPathLink[]
+            {
+                new(new TextRange(123, 124, 234, 235), "main&.bicep"),
+                new(new TextRange(234, 235, 345, 346), "main.json"),
+                new(new TextRange(123, 456, 234, 567), "main&.bicep"),
+                new(new TextRange(345, 2, 345, 3), "modules/localJsonModule.json"),
+                new(new TextRange(12, 45, 23, 56), "<cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json"),
+            });
+        }
     }
 
     [DataRow(

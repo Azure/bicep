@@ -36,14 +36,6 @@ namespace Bicep.Core.SourceLink
 
         public string EntrypointRelativePath => InstanceMetadata.EntryPoint;
 
-        // The version of Bicep which created this deserialized archive instance.
-        public string FriendlyBicepVersion => InstanceMetadata.BicepVersion ?? "unknown";
-
-        // The version of the metadata file format used by this archive instance.
-        public int MetadataVersion => InstanceMetadata.MetadataVersion;
-
-        public IReadOnlyDictionary<string, SourceCodeDocumentPathLink[]> DocumentLinks => InstanceMetadata.DocumentLinks ?? new Dictionary<string, SourceCodeDocumentPathLink[]>();
-
         // This is the info we expose via SourceFiles
         public record SourceFileInfo(
             // Note: Path is also used as the key for source file retrieval
@@ -131,7 +123,7 @@ namespace Bicep.Core.SourceLink
             {
                 using (var tarWriter = new TarWriter(gz, leaveOpen: true))
                 {
-                    var filesMetadata = new List<LinkedSourceFile>();
+                    var filesMetadata = new List<LinkedSourceFileMetadata>();
                     string? entryPointPath = null;
 
                     var paths = sourceFiles.Select(f => GetPath(f.SourceFile.Uri)).ToArray();
@@ -172,7 +164,7 @@ namespace Bicep.Core.SourceLink
 
                         WriteNewFileEntry(tarWriter, archivePath, source);
                         filesMetadata.Add(
-                            new LinkedSourceFile(
+                            new LinkedSourceFileMetadata(
                                 relativePath,
                                 archivePath,
                                 kind,
@@ -209,6 +201,9 @@ namespace Bicep.Core.SourceLink
             return stream;
         }
 
+        public ImmutableArray<SourceCodeDocumentPathLink> FindDocumentLinks(string relativePath) =>
+            this.InstanceMetadata.DocumentLinks.TryGetValue(relativePath, out var links) ? links : [];
+
         private static (string relativePath, string archivePath) CalculateRelativeAndArchivePaths(string path, string root, string rootName)
         {
             // Replace root of the path with root's "friendly" name to help avoid unintended
@@ -234,7 +229,7 @@ namespace Bicep.Core.SourceLink
             return SourceCodePathHelper.NormalizeSlashes(uri.LocalPath);
         }
 
-        private static string UniquifyArchivePath(IList<LinkedSourceFile> filesMetadata, string archivePath)
+        private static string UniquifyArchivePath(IList<LinkedSourceFileMetadata> filesMetadata, string archivePath)
         {
             int suffix = 1;
             string tryPath = archivePath;
@@ -287,14 +282,14 @@ namespace Bicep.Core.SourceLink
 
         private string? GetRequiredBicepVersionMessage()
         {
-            if (MetadataVersion < CurrentMetadataVersion)
+            if (InstanceMetadata.MetadataVersion < CurrentMetadataVersion)
             {
-                return $"This source code was published with an older, incompatible version of Bicep ({FriendlyBicepVersion}). You are using version {ThisAssembly.AssemblyVersion}.";
+                return $"This source code was published with an older, incompatible version of Bicep ({InstanceMetadata.BicepVersion}). You are using version {ThisAssembly.AssemblyVersion}.";
             }
 
-            if (MetadataVersion > CurrentMetadataVersion)
+            if (InstanceMetadata.MetadataVersion > CurrentMetadataVersion)
             {
-                return $"This source code was published with a newer, incompatible version of Bicep ({FriendlyBicepVersion}). You are using version {ThisAssembly.AssemblyVersion}. You need a newer version in order to view the module source.";
+                return $"This source code was published with a newer, incompatible version of Bicep ({InstanceMetadata.BicepVersion}). You are using version {ThisAssembly.AssemblyVersion}. You need a newer version in order to view the module source.";
             }
 
             return null;
@@ -316,43 +311,30 @@ namespace Bicep.Core.SourceLink
             var dictionary = filesBuilder.ToImmutableDictionary();
 
             var metadataJson = dictionary.TryGetValue(MetadataFileName)
-                ?? throw new InvalidSourceArchiveException($"Incorrectly formatted source file: No {MetadataFileName} entry");
-            var metadata = JsonSerializer.Deserialize(metadataJson, SourceArchiveSerializationContext.Default.SourceArchiveMetadata)
-                ?? throw new InvalidSourceArchiveException("Source archive has invalid metadata entry");
+                ?? throw new InvalidOperationException($"Incorrectly formatted source file: No {MetadataFileName} entry");
+            var metadata = JsonSerializer.Deserialize(metadataJson, SourceArchiveMetadataSerializationContext.Default.SourceArchiveMetadata)
+                ?? throw new InvalidOperationException("Source archive has invalid metadata entry");
 
             var infos = new List<SourceFileInfo>();
             foreach (var info in metadata.SourceFiles.OrderBy(e => e.Path).ThenBy(e => e.ArchivePath))
             {
                 var contents = dictionary[info.ArchivePath]
                     ?? throw new BicepException("Incorrectly formatted source file: File entry not found: \"{info.ArchivePath}\"");
-                var artifactId = TrimScheme(info.SourceArtifactId ?? string.Empty);
-                OciArtifactAddressComponents? artifactReference = artifactId is { } ? OciArtifactAddressComponents.TryParse(artifactId).TryUnwrap() : null;
-                infos.Add(new SourceFileInfo(info.Path, info.ArchivePath, info.Kind, contents, artifactReference));
+                infos.Add(new SourceFileInfo(info.Path, info.ArchivePath, info.Kind, contents, info.SourceArtifactAddressComponents));
             }
 
             this.InstanceMetadata = metadata;
             this.SourceFiles = [.. infos];
         }
 
-        private string? TrimScheme(string artifactId)
-        {
-            if (artifactId.StartsWith(OciArtifactReferenceFacts.SchemeWithColon))
-            {
-                return artifactId[OciArtifactReferenceFacts.SchemeWithColon.Length..];
-            }
-
-            // Skip unknown schemes for possible future compatibility
-            return null;
-        }
-
         private static string CreateMetadataFileContents(
             string entrypointPath,
-            IEnumerable<LinkedSourceFile> files,
+            IEnumerable<LinkedSourceFileMetadata> files,
             IReadOnlyDictionary<string, SourceCodeDocumentPathLink[]>? documentLinks
         )
         {
-            var metadata = new SourceArchiveMetadata(CurrentMetadataVersion, CurrentBicepVersion, entrypointPath, files, documentLinks);
-            return JsonSerializer.Serialize(metadata, SourceArchiveSerializationContext.Default.SourceArchiveMetadata);
+            var metadata = new SourceArchiveMetadata(CurrentMetadataVersion, CurrentBicepVersion, entrypointPath, files.ToImmutableArray(), documentLinks?.ToImmutableDictionary(x => x.Key, x => x.Value.ToImmutableArray()));
+            return JsonSerializer.Serialize(metadata, SourceArchiveMetadataSerializationContext.Default.SourceArchiveMetadata);
         }
 
         private static IReadOnlyDictionary<string, SourceCodeDocumentPathLink[]>? UriDocumentLinksToPathBasedLinks(

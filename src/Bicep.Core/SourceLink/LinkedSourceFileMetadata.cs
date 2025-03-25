@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Text.Json.Serialization;
+using Bicep.Core.Registry.Oci;
 
 namespace Bicep.Core.SourceLink
 {
@@ -19,5 +20,27 @@ namespace Bicep.Core.SourceLink
         string Path,
         string ArchivePath,
         LinkedSourceFileKind Kind,
-        string? SourceArtifactId);
+        string? SourceArtifactId)
+    {
+        [JsonIgnore]
+        public OciArtifactAddressComponents? SourceArtifactAddressComponents { get; } = TryParse(SourceArtifactId);
+
+        public static OciArtifactAddressComponents? TryParse(string? sourceArtifactId)
+        {
+            if (sourceArtifactId is null)
+            {
+                return null;
+            }
+
+            if (sourceArtifactId.StartsWith(OciArtifactReferenceFacts.SchemeWithColon))
+            {
+                sourceArtifactId = sourceArtifactId[OciArtifactReferenceFacts.SchemeWithColon.Length..];
+
+                return OciArtifactAddressComponents.TryParse(sourceArtifactId).TryUnwrap();
+            }
+
+            // Skip unknown schemes for possible future compatibility
+            return null;
+        }
+    }
 }
