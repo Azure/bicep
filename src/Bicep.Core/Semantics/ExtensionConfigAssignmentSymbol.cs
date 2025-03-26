@@ -12,7 +12,6 @@ namespace Bicep.Core.Semantics
         {
             public ExtensionConfigAssignmentNameSource(ExtensionConfigAssignmentSyntax syntax)
             {
-                // TODO(kylealbert): is this right?
                 this.Span = syntax.SpecificationString.Span;
             }
 

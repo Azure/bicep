@@ -256,9 +256,9 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return hasChanges ? expression with { Config = config, Description = description } : expression;
     }
 
-    void IExpressionVisitor.VisitExtensionConfigAssignmentExpression(ExtensionConfigAssignmentExpression expression) => ReplaceCurrent(expression, ReplaceExtensionConfigAssignmentExpression);
+    void IExpressionVisitor.VisitExtensionConfigAssignmentReferenceExpression(ExtensionConfigAssignmentReferenceExpression expression) => ReplaceCurrent(expression, ReplaceExtensionConfigAssignmentReferenceExpression);
 
-    public virtual Expression ReplaceExtensionConfigAssignmentExpression(ExtensionConfigAssignmentExpression expression)
+    public virtual Expression ReplaceExtensionConfigAssignmentReferenceExpression(ExtensionConfigAssignmentReferenceExpression expression)
     {
         return expression;
     }

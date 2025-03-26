@@ -184,7 +184,7 @@ namespace Bicep.Core.Emit
                 case ParametersAssignmentReferenceExpression exp:
                     return CreateFunction("parameters", new JTokenExpression(exp.Parameter.Name));
 
-                case ExtensionConfigAssignmentExpression exp:
+                case ExtensionConfigAssignmentReferenceExpression exp:
                     return CreateFunction("extensionConfigs", new JTokenExpression(exp.ExtensionConfigAssignment.Name));
 
                 case LambdaExpression exp:

@@ -163,10 +163,8 @@ public abstract class ExpressionVisitor : IExpressionVisitor
         Visit(expression.Config);
     }
 
-    public void VisitExtensionConfigAssignmentExpression(ExtensionConfigAssignmentExpression expression)
+    public void VisitExtensionConfigAssignmentReferenceExpression(ExtensionConfigAssignmentReferenceExpression expression)
     {
-        // TODO(kylealbert): Is this needed?
-        //Visit(expression.Config);
     }
 
     public virtual void VisitDeclaredParameterExpression(DeclaredParameterExpression expression)

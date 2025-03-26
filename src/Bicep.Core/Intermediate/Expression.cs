@@ -401,12 +401,12 @@ public record ExtensionExpression(
     protected override object? GetDebugAttributes() => new { Name };
 }
 
-public record ExtensionConfigAssignmentExpression(
+public record ExtensionConfigAssignmentReferenceExpression(
     SyntaxBase? SourceSyntax,
     ExtensionConfigAssignmentSymbol ExtensionConfigAssignment) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
-        => visitor.VisitExtensionConfigAssignmentExpression(this);
+        => visitor.VisitExtensionConfigAssignmentReferenceExpression(this);
 
     protected override object? GetDebugAttributes() => new { ExtensionAlias = ExtensionConfigAssignment.Name };
 }
