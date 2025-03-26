@@ -8,12 +8,12 @@ using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Intermediate;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 

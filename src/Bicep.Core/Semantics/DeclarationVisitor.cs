@@ -7,8 +7,8 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {

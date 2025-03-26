@@ -6,9 +6,9 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
