@@ -206,6 +206,7 @@ public abstract class ExpressionVisitor : IExpressionVisitor
         VisitDescribableExpression(expression);
         Visit(expression.Body);
         Visit(expression.DependsOn);
+        Visit(expression.DecoratorConfig);
     }
 
     public virtual void VisitDeclaredAssertExpression(DeclaredAssertExpression expression)
@@ -424,6 +425,19 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     protected void Visit(IEnumerable<Expression> expressions)
     {
         foreach (var expression in expressions)
+        {
+            this.Visit(expression);
+        }
+    }
+
+    protected void Visit(IDictionary<string, ArrayExpression>? expressions)
+    {
+        if (expressions is null)
+        {
+            return;
+        }
+
+        foreach (var (key, expression) in expressions)
         {
             this.Visit(expression);
         }

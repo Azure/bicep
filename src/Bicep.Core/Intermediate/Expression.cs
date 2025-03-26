@@ -503,8 +503,7 @@ public record DeclaredResourceExpression(
     Expression Body,
     ImmutableArray<ResourceDependencyExpression> DependsOn,
     Expression? Description = null,
-    ArrayExpression? RetryOn = null,
-    ArrayExpression? WaitUntil = null
+    ImmutableDictionary<string, ArrayExpression>? DecoratorConfig = null
 ) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)
