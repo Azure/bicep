@@ -30,44 +30,80 @@ namespace Bicep.Core.SourceLink
     /// </summary>
     public class SourceArchive
     {
-        private SourceArchiveMetadata InstanceMetadata { get; init; }
+        private readonly SourceArchiveMetadata metadata;
 
-        public ImmutableArray<SourceFileInfo> SourceFiles { get; init; }
-
-        public string EntrypointRelativePath => InstanceMetadata.EntryPoint;
-
-        // This is the info we expose via SourceFiles
-        public record SourceFileInfo(
-            // Note: Path is also used as the key for source file retrieval
-            string Path,        // The location, relative to the main.bicep file's folder or one of the other roots.
-            string ArchivePath, // The location (relative to root) of where the file is stored in the archive (munged from Path, e.g. in case Path starts with "../")
-            LinkedSourceFileKind Kind,    // Kind of source
-            string Contents,    // File contents
-            IOciArtifactAddressComponents? SourceArtifact // Points to an external artifact that contains the source for this module (e.g. "br:contoso.io/test/module1:v1"), appears in v0.26 and higher
-        );
+        private readonly ImmutableDictionary<string, string> fileEntries;
 
         public record SourceFileWithArtifactReference(
             ISourceFile SourceFile,
             ArtifactReference? SourceArtifact);
 
+        private SourceArchive(SourceArchiveMetadata metadata, ImmutableDictionary<string, string> fileEntries)
+        {
+            this.metadata = metadata;
+            this.fileEntries = fileEntries;
+        }
+
+        public string EntrypointRelativePath => metadata.EntryPoint;
+
+        public int SourceFileCount => metadata.SourceFiles.Length;
+
         public static ResultWithException<SourceArchive> UnpackFromStream(Stream stream)
         {
             try
             {
-                var archive = new SourceArchive(stream);
-                if (archive.GetRequiredBicepVersionMessage() is string message)
+                var fileEntries = new Dictionary<string, string>();
+                var gz = new GZipStream(stream, CompressionMode.Decompress);
+                using var tarReader = new TarReader(gz);
+
+                while (tarReader.GetNextEntry() is { } entry)
                 {
-                    return new(new Exception(message));
+                    string contents = entry.DataStream is null ? string.Empty : new StreamReader(entry.DataStream).ReadToEnd();
+                    fileEntries.Add(entry.Name, contents);
                 }
-                else
+
+                var metadataJson = fileEntries.TryGetValue(MetadataFileName)
+                    ?? throw new InvalidOperationException($"Incorrectly formatted source file: No {MetadataFileName} entry");
+                var metadata = JsonSerializer.Deserialize(metadataJson, SourceArchiveMetadataSerializationContext.Default.SourceArchiveMetadata)
+                    ?? throw new InvalidOperationException("Source archive has invalid metadata entry");
+
+                if (metadata.MetadataVersion < CurrentMetadataVersion)
                 {
-                    return new(archive);
+                    throw new InvalidOperationException($"This source code was published with an older, incompatible version of Bicep ({metadata.BicepVersion}). You are using version {ThisAssembly.AssemblyVersion}.");
                 }
+
+                if (metadata.MetadataVersion > CurrentMetadataVersion)
+                {
+                    throw new InvalidOperationException($"This source code was published with a newer, incompatible version of Bicep ({metadata.BicepVersion}). You are using version {ThisAssembly.AssemblyVersion}. You need a newer version in order to view the module source.");
+                }
+
+                return new(new SourceArchive(metadata, fileEntries.ToImmutableDictionary()));
             }
             catch (Exception ex)
             {
                 return new(ex);
             }
+        }
+
+        public BinaryData ToBinaryData()
+        {
+            var stream = new MemoryStream();
+            using (var gz = new GZipStream(stream, CompressionMode.Compress, leaveOpen: true))
+            using (var tarWriter = new TarWriter(gz, leaveOpen: true))
+            {
+                var metadataJson = JsonSerializer.Serialize(this.metadata, SourceArchiveMetadataSerializationContext.Default.SourceArchiveMetadata);
+                WriteNewFileEntry(tarWriter, MetadataFileName, metadataJson);
+
+                foreach (var sourceFileMetadata in this.metadata.SourceFiles)
+                {
+                    var contents = this.fileEntries[sourceFileMetadata.ArchivePath];
+                    WriteNewFileEntry(tarWriter, sourceFileMetadata.ArchivePath, contents);
+                }
+            }
+
+            stream.Seek(0, SeekOrigin.Begin);
+
+            return BinaryData.FromStream(stream);
         }
 
         /// <summary>
@@ -201,8 +237,16 @@ namespace Bicep.Core.SourceLink
             return stream;
         }
 
-        public ImmutableArray<SourceCodeDocumentPathLink> FindDocumentLinks(string relativePath) =>
-            this.InstanceMetadata.DocumentLinks.TryGetValue(relativePath, out var links) ? links : [];
+        public ImmutableArray<SourceCodeDocumentPathLink> FindDocumentLinks(string path) => this.metadata.DocumentLinks[path];
+
+        public LinkedSourceFile FindSourceFile(string path)
+        {
+            // TODO(shenglol): Binary search.
+            var metadata = this.metadata.SourceFiles.Single(x => x.Path.Equals(path, StringComparison.Ordinal));
+            var contents = this.fileEntries[metadata.ArchivePath];
+
+            return new(metadata, contents);
+        }
 
         private static (string relativePath, string archivePath) CalculateRelativeAndArchivePaths(string path, string root, string rootName)
         {
@@ -266,65 +310,6 @@ namespace Bicep.Core.SourceLink
             }
 
             return rootNamesMap;
-        }
-
-        public SourceFileInfo FindExpectedSourceFile(string path)
-        {
-            // Note: We can use ordinal compare here because even if the module was published from Windows, the paths written into the
-            //   source archive will be consistent in casing
-            if (this.SourceFiles.FirstOrDefault(f => 0 == StringComparer.Ordinal.Compare(f.Path, path)) is { } sourceFile)
-            {
-                return sourceFile;
-            }
-
-            throw new Exception($"Unable to find source file \"{path}\" in the source archive");
-        }
-
-        private string? GetRequiredBicepVersionMessage()
-        {
-            if (InstanceMetadata.MetadataVersion < CurrentMetadataVersion)
-            {
-                return $"This source code was published with an older, incompatible version of Bicep ({InstanceMetadata.BicepVersion}). You are using version {ThisAssembly.AssemblyVersion}.";
-            }
-
-            if (InstanceMetadata.MetadataVersion > CurrentMetadataVersion)
-            {
-                return $"This source code was published with a newer, incompatible version of Bicep ({InstanceMetadata.BicepVersion}). You are using version {ThisAssembly.AssemblyVersion}. You need a newer version in order to view the module source.";
-            }
-
-            return null;
-        }
-
-        private SourceArchive(Stream stream)
-        {
-            var filesBuilder = ImmutableDictionary.CreateBuilder<string, string>();
-
-            var gz = new GZipStream(stream, CompressionMode.Decompress);
-            using var tarReader = new TarReader(gz);
-
-            while (tarReader.GetNextEntry() is { } entry)
-            {
-                string contents = entry.DataStream is null ? string.Empty : new StreamReader(entry.DataStream).ReadToEnd();
-                filesBuilder.Add(entry.Name, contents);
-            }
-
-            var dictionary = filesBuilder.ToImmutableDictionary();
-
-            var metadataJson = dictionary.TryGetValue(MetadataFileName)
-                ?? throw new InvalidOperationException($"Incorrectly formatted source file: No {MetadataFileName} entry");
-            var metadata = JsonSerializer.Deserialize(metadataJson, SourceArchiveMetadataSerializationContext.Default.SourceArchiveMetadata)
-                ?? throw new InvalidOperationException("Source archive has invalid metadata entry");
-
-            var infos = new List<SourceFileInfo>();
-            foreach (var info in metadata.SourceFiles.OrderBy(e => e.Path).ThenBy(e => e.ArchivePath))
-            {
-                var contents = dictionary[info.ArchivePath]
-                    ?? throw new BicepException("Incorrectly formatted source file: File entry not found: \"{info.ArchivePath}\"");
-                infos.Add(new SourceFileInfo(info.Path, info.ArchivePath, info.Kind, contents, info.SourceArtifactAddressComponents));
-            }
-
-            this.InstanceMetadata = metadata;
-            this.SourceFiles = [.. infos];
         }
 
         private static string CreateMetadataFileContents(

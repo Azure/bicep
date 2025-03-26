@@ -673,7 +673,8 @@ namespace Bicep.Core.UnitTests.Registry
                 var sourceFileFactory = new SourceFileFactory(BicepTestConstants.ConfigurationManager, featureProviderFactoryMock.Object, BicepTestConstants.AuxiliaryFileCache, BicepTestConstants.FileExplorer);
                 sources = new SourceArchiveBuilder(sourceFileFactory)
                     .WithBicepFile(uri, "// contents")
-                    .BuildBinaryData();
+                    .Build()
+                    .ToBinaryData();
             }
 
             await ociRegistry.PublishModule(moduleReference, template, sources, "http://documentation", "description");
@@ -701,7 +702,7 @@ namespace Bicep.Core.UnitTests.Registry
 
             if (sources is { })
             {
-                actualSourceResult.UnwrapOrThrow().Should().BeEquivalentTo(SourceArchive.UnpackFromStream(sources.ToStream()).UnwrapOrThrow());
+                actualSourceResult.UnwrapOrThrow().Should().HaveData(sources);
             }
             else
             {

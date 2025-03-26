@@ -19,6 +19,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using static Bicep.Core.SourceLink.SourceArchive;
 using FluentAssertions.Execution;
+using System.Text.Json;
 
 namespace Bicep.Core.UnitTests.SourceCode;
 
@@ -187,21 +188,22 @@ public class SourceArchiveTests
             cacheRootDirectory, mainBicep, mainJson, standaloneJson, templateSpecMainJson, localModuleJson, templateSpecMainJson2, externalModuleJson);
         stream.Length.Should().BeGreaterThan(0);
 
-        SourceArchive? sourceArchive = SourceArchive.UnpackFromStream(stream).UnwrapOrThrow();
-        sourceArchive!.EntrypointRelativePath.Should().Be("main.bicep");
+        SourceArchive? sourceArchive = SourceArchive.UnpackFromStream(stream).UnwrapOrThrow()!;
 
-
-        var archivedFiles = sourceArchive.SourceFiles.ToArray();
-        archivedFiles.Should().BeEquivalentTo(
-            new SourceArchive.SourceFileInfo[] {
-                // Note: the template spec files will be filtered out
-                new ("main.bicep", "files/main.bicep", LinkedSourceFileKind.Bicep, MainDotBicepSource, null),
-                new ("main.json", "files/main.json", LinkedSourceFileKind.ArmTemplate, MainDotJsonSource, null),
-                new ("standalone.json", "files/standalone.json", LinkedSourceFileKind.ArmTemplate, StandaloneJsonSource, null),
-                new ("localModule.json", "files/localModule.json", LinkedSourceFileKind.ArmTemplate,  LocalModuleDotJsonSource, null),
-                new ("<cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json", "files/_cache_/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json",
-                    LinkedSourceFileKind.ArmTemplate, ExternalModuleDotJsonSource, OciRegistryHelper.ParseModuleReference("br:mcr.microsoft.com/bicep/storage/storage-account:1.0.1")),
-            });
+        sourceArchive.EntrypointRelativePath.Should().Be("main.bicep");
+        sourceArchive.Should().HaveSourceFiles(new LinkedSourceFile[]
+        {
+            // Note: the template spec files will be filtered out
+            new(new("main.bicep", "files/main.bicep", LinkedSourceFileKind.Bicep, null), MainDotBicepSource),
+            new(new("main.json", "files/main.json", LinkedSourceFileKind.ArmTemplate, null), MainDotJsonSource),
+            new(new("standalone.json", "files/standalone.json", LinkedSourceFileKind.ArmTemplate, null), StandaloneJsonSource),
+            new(new("localModule.json", "files/localModule.json", LinkedSourceFileKind.ArmTemplate, null),  LocalModuleDotJsonSource),
+            new(new(
+                "<cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json",
+                "files/_cache_/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json",
+                LinkedSourceFileKind.ArmTemplate,
+                "br:mcr.microsoft.com/bicep/storage/storage-account:1.0.1"), ExternalModuleDotJsonSource),
+        });
     }
 
     [TestMethod]
@@ -439,12 +441,33 @@ public class SourceArchiveTests
         var fileExplorer = new FileSystemFileExplorer(fs);
         var cacheRootDirectory = fileExplorer.GetDirectory(CacheRootUri);
         using var stream = SourceArchive.PackSourcesIntoStream(files[0].SourceFile.Uri, cacheRootDirectory, files);
-        SourceArchive sourceArchive = SourceArchive.UnpackFromStream(stream).UnwrapOrThrow();
 
-        sourceArchive.EntrypointRelativePath.Should().Be(expectedPaths[0], "entrypoint path should be correct");
+        var gz = new GZipStream(stream, CompressionMode.Decompress);
+        using var tarReader = new TarReader(gz);
 
-        sourceArchive.EntrypointRelativePath.Should().NotContain("username", "shouldn't have username in source paths");
-        foreach (var file in sourceArchive.SourceFiles)
+        SourceArchiveMetadata? metadata = null;
+        Dictionary<string, string> filesByPath = new();
+
+        while (tarReader.GetNextEntry() is { } entry)
+        {
+            var contents = new StreamReader(entry.DataStream!).ReadToEnd();
+
+            if (entry.Name == SourceArchiveConstants.MetadataFileName)
+            {
+                metadata = JsonSerializer.Deserialize(contents, SourceArchiveMetadataSerializationContext.Default.SourceArchiveMetadata);
+            }
+            else
+            {
+                filesByPath[entry.Name] = contents;
+            }
+        }
+
+        metadata.Should().NotBeNull();
+
+        metadata!.EntryPoint.Should().Be(expectedPaths[0], "entrypoint path should be correct");
+        metadata!.EntryPoint.Should().NotContain("username", "shouldn't have username in source paths");
+
+        foreach (var file in metadata.SourceFiles)
         {
             file.Path.Should().NotContain("username", "shouldn't have username in source paths");
             file.ArchivePath.Should().NotContain("username", "shouldn't have username in source paths");
@@ -452,9 +475,10 @@ public class SourceArchiveTests
 
         for (int i = 0; i < inputPaths.Length; ++i)
         {
-            var archivedTestFile = sourceArchive.SourceFiles.Single(f => f.Contents.Equals(files[i].SourceFile.Text));
-            archivedTestFile.Path.Should().Be(expectedPaths[i]);
-            archivedTestFile.ArchivePath.Should().Be(expectedArchivePaths[i]);
+            var archivedTestFile = metadata!.SourceFiles.SingleOrDefault(x => x.Path == expectedPaths[i]);
+            archivedTestFile.Should().NotBeNull();
+            archivedTestFile!.ArchivePath.Should().Be(expectedArchivePaths[i]);
+            filesByPath[archivedTestFile!.ArchivePath].Should().Be(files[i].SourceFile.Text);
         }
     }
 
@@ -507,27 +531,16 @@ public class SourceArchiveTests
 
         SourceArchive sourceArchive = SourceArchive.UnpackFromStream(stream).UnwrapOrThrow();
 
-        var archivedFile1 = sourceArchive.SourceFiles.SingleOrDefault(f => f.Path == expectedPath1);
-        var archivedFile2 = sourceArchive.SourceFiles.SingleOrDefault(f => f.Path == expectedPath2);
-        var archivedFile3 = sourceArchive.SourceFiles.SingleOrDefault(f => f.Path == expectedPath3);
+        var archivedFile1 = sourceArchive.FindSourceFile(expectedPath1);
+        archivedFile1.Metadata.ArchivePath.Should().Be(expectedArchivePath1);
 
-        archivedFile1.Should().NotBeNull($"Couldn't find source file \"{inputBicepPath1}\" in archive");
-        archivedFile2.Should().NotBeNull($"Couldn't find source file \"{inputBicepPath2}\" in archive");
-        if (inputBicepPath3 is not null)
-        {
-            archivedFile3.Should().NotBeNull($"Couldn't find source file \"{inputBicepPath3}\" in archive");
-        }
-
-        archivedFile1!.Path.Should().Be(expectedPath1);
-        archivedFile1.ArchivePath.Should().Be(expectedArchivePath1);
-
-        archivedFile2!.Path.Should().Be(expectedPath2);
-        archivedFile2.ArchivePath.Should().Be(expectedArchivePath2);
+        var archivedFile2 = sourceArchive.FindSourceFile(expectedPath2);
+        archivedFile2.Metadata.ArchivePath.Should().Be(expectedArchivePath2);
 
         if (inputBicepPath3 is not null)
         {
-            archivedFile3!.Path.Should().Be(expectedPath3);
-            archivedFile3.ArchivePath.Should().Be(expectedArchivePath3);
+            var archivedFile3 = sourceArchive.FindSourceFile(expectedPath3!);
+            archivedFile3.Metadata.ArchivePath.Should().Be(expectedArchivePath3);
         }
     }
 
@@ -540,12 +553,12 @@ public class SourceArchiveTests
                 @"
                 {
                   ""metadataVersion"": 1,
-                  ""entryPoint"": ""file:///main.bicep"",
+                  ""entryPoint"": ""main.bicep"",
                   ""I am an unrecognized property name"": {},
                   ""bicepVersion"": ""0.18.19"",
                   ""sourceFiles"": [
                     {
-                      ""path"": ""file:///main.bicep"",
+                      ""path"": ""main.bicep"",
                       ""archivePath"": ""files/main.bicep"",
                       ""kind"": ""bicep"",
                       ""I am also recognition challenged"": ""Hi, Mom!""
@@ -560,11 +573,8 @@ public class SourceArchiveTests
         );
 
         var sut = SourceArchive.UnpackFromStream(zip).UnwrapOrThrow();
-        var file = sut.SourceFiles.Single();
 
-        file.Kind.Should().Be(LinkedSourceFileKind.Bicep);
-        file.Contents.Should().Be("bicep contents");
-        file.Path.Should().Contain("main.bicep");
+        sut.FindSourceFile("main.bicep").Contents.Should().Be("bicep contents");
     }
 
     [TestMethod]
@@ -596,11 +606,11 @@ public class SourceArchiveTests
         );
 
         var sut = SourceArchive.UnpackFromStream(zip).UnwrapOrThrow();
-        var file = sut.SourceFiles.Single();
 
-        file.Kind.Should().Be(LinkedSourceFileKind.Bicep);
+        var file = sut.FindSourceFile("main.bicep");
+
+        file.Metadata.Kind.Should().Be(LinkedSourceFileKind.Bicep);
         file.Contents.Should().Be("bicep contents");
-        file.Path.Should().Be("main.bicep");
     }
 
     [TestMethod]
@@ -640,11 +650,11 @@ public class SourceArchiveTests
         );
 
         var sut = SourceArchive.UnpackFromStream(zip).UnwrapOrThrow();
-        var file = sut.SourceFiles.Single();
 
-        file.Kind.Should().Be(LinkedSourceFileKind.Bicep);
+        var file = sut.FindSourceFile("main.bicep");
+
+        file.Metadata.Kind.Should().Be(LinkedSourceFileKind.Bicep);
         file.Contents.Should().Be("bicep contents");
-        file.Path.Should().Contain("main.bicep");
     }
 
     [TestMethod]
@@ -716,17 +726,15 @@ public class SourceArchiveTests
         var outFolder = FileHelper.GetUniqueTestOutputPath(TestContext!);
         var ms = new MemoryStream();
         using (var gz = new GZipStream(ms, CompressionMode.Compress, leaveOpen: true))
+        using (var tarWriter = new TarWriter(gz, leaveOpen: true))
         {
-            using (var tarWriter = new TarWriter(gz, leaveOpen: true))
+            foreach (var (relativePath, contents) in files)
             {
-                foreach (var (relativePath, contents) in files)
-                {
-                    // Intentionally creating the archive differently than SourceArchive does it.
-                    Directory.CreateDirectory(outFolder);
-                    var fileName = Path.Join(outFolder, new Guid().ToString());
-                    File.WriteAllText(fileName, contents, Encoding.UTF8);
-                    tarWriter.WriteEntry(fileName, relativePath);
-                }
+                // Intentionally creating the archive differently than SourceArchive does it.
+                Directory.CreateDirectory(outFolder);
+                var fileName = Path.Join(outFolder, new Guid().ToString());
+                File.WriteAllText(fileName, contents, Encoding.UTF8);
+                tarWriter.WriteEntry(fileName, relativePath);
             }
         }
 

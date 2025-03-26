@@ -21,6 +21,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using FluentAssertions.Execution;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -110,8 +111,8 @@ namespace Bicep.Core.IntegrationTests
             // act
             var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
 
-            sourceArchive.FindExpectedSourceFile("local.bicep").SourceArtifact.Should().BeNull();
-            sourceArchive.FindExpectedSourceFile("modules/local.bicep").SourceArtifact.Should().BeNull();
+            sourceArchive.FindSourceFile("local.bicep").Metadata.ArtifactAddress.Should().BeNull();
+            sourceArchive.FindSourceFile("modules/local.bicep").Metadata.ArtifactAddress.Should().BeNull();
         }
 
         [TestMethod]
@@ -137,9 +138,9 @@ namespace Bicep.Core.IntegrationTests
             // act
             var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
 
-            var file = sourceArchive.FindExpectedSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json");
-            file.SourceArtifact.Should().BeNull();
-            file.Kind.Should().Be(LinkedSourceFileKind.ArmTemplate);
+            var file = sourceArchive.FindSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json");
+            file.Metadata.ArtifactAddress.Should().BeNull();
+            file.Metadata.Kind.Should().Be(LinkedSourceFileKind.ArmTemplate);
         }
 
         [TestMethod]
@@ -165,9 +166,9 @@ namespace Bicep.Core.IntegrationTests
             // act
             var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
 
-            var file = sourceArchive.FindExpectedSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json");
-            file.SourceArtifact!.ArtifactId.Should().Be("mockregistry.io/test/module1:v1");
-            file.Kind.Should().Be(LinkedSourceFileKind.ArmTemplate);
+            var file = sourceArchive.FindSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json");
+            file.Metadata.ArtifactAddress?.ArtifactId.Should().Be("mockregistry.io/test/module1:v1");
+            file.Metadata.Kind.Should().Be(LinkedSourceFileKind.ArmTemplate);
 
         }
 
@@ -239,14 +240,14 @@ namespace Bicep.Core.IntegrationTests
             // act
             var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
 
-            sourceArchive.SourceFiles.Select(sf => (sf.Path, sf.SourceArtifact?.ArtifactId))
-                .Should().BeEquivalentTo(new[] {
-                    ("main.bicep", null),
-                    ("<cache>/br/mockregistry.io/test$module1/v1$/main.json", "mockregistry.io/test/module1:v1"),
-                    ("<cache>/br/mockregistry.io/test$module1/v2$/main.json", "mockregistry.io/test/module1:v2"),
-                    ("<cache>/br/mockregistry.io/test$module2/v1$/main.json", "mockregistry.io/test/module2:v1"),
-                    ("local.bicep", null)
-            });
+            using (new AssertionScope())
+            {
+                sourceArchive.FindSourceFile("main.bicep").Metadata.ArtifactAddress.Should().BeNull();
+                sourceArchive.FindSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json").Metadata.ArtifactAddress?.ArtifactId.Should().Be("mockregistry.io/test/module1:v1");
+                sourceArchive.FindSourceFile("<cache>/br/mockregistry.io/test$module1/v2$/main.json").Metadata.ArtifactAddress?.ArtifactId.Should().Be("mockregistry.io/test/module1:v2");
+                sourceArchive.FindSourceFile("<cache>/br/mockregistry.io/test$module2/v1$/main.json").Metadata.ArtifactAddress?.ArtifactId.Should().Be("mockregistry.io/test/module2:v1");
+                sourceArchive.FindSourceFile("local.bicep").Metadata.ArtifactAddress.Should().BeNull();
+            }
         }
 
         [TestMethod]
@@ -278,11 +279,11 @@ namespace Bicep.Core.IntegrationTests
             // act
             var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
 
-            sourceArchive.SourceFiles.Select(sf => (sf.Path, sf.SourceArtifact?.ArtifactId))
-                .Should().BeEquivalentTo(new[] {
-                    ("main.bicep", null),
-                    ("<cache>/br/mockregistry.io/test$module1/v1$/main.json", "mockregistry.io/test/module1:v1"),
-            });
+            using (new AssertionScope())
+            {
+                sourceArchive.FindSourceFile("main.bicep").Metadata.ArtifactAddress.Should().BeNull();
+                sourceArchive.FindSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json").Metadata.ArtifactAddress?.ArtifactId.Should().Be("mockregistry.io/test/module1:v1");
+            }
         }
     }
 }

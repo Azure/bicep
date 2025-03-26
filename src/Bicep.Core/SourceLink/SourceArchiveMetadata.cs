@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
 
 namespace Bicep.Core.SourceLink
@@ -29,12 +30,12 @@ namespace Bicep.Core.SourceLink
     ///   "bicepVersion": "0.18.19",
     ///   "sourceFiles": [
     ///     {
-    ///         "sourcePath": "my entrypoint.bicep",
+    ///         "path": "my entrypoint.bicep",
     ///         "archivePath": "files/my entrypoint.bicep",
     ///         "kind": "bicep"
     ///     },
     ///     {
-    ///         "sourcePath": "modules/main.bicep",
+    ///         "path": "modules/main.bicep",
     ///         "archivePath": "files/modules/main.bicep",
     ///         "kind": "bicep"
     ///     },
@@ -56,6 +57,8 @@ namespace Bicep.Core.SourceLink
         ImmutableDictionary<string, ImmutableArray<SourceCodeDocumentPathLink>>? DocumentLinks)
     {
         public string BicepVersion { get; } = BicepVersion ?? "unknown";
+
+        public ImmutableArray<LinkedSourceFileMetadata> SourceFiles { get; } = [.. SourceFiles.OrderBy(x => x.Path).ThenBy(x => x.ArchivePath)];
 
         public ImmutableDictionary<string, ImmutableArray<SourceCodeDocumentPathLink>> DocumentLinks { get; } = DocumentLinks ?? ImmutableDictionary<string, ImmutableArray<SourceCodeDocumentPathLink>>.Empty;
     }

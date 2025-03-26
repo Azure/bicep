@@ -84,7 +84,7 @@ namespace Bicep.LanguageServer.Handlers
                 if (success)
                 {
                     Debug.Assert(sourceArchive is { });
-                    var requestedFile = sourceArchive.FindExpectedSourceFile(request.requestedSourceFile);
+                    var requestedFile = sourceArchive.FindSourceFile(request.requestedSourceFile);
                     telemetryProvider.PostEvent(CreateSuccessTelemetry(sourceArchive, request.requestedSourceFile));
                     return Task.FromResult(new BicepExternalSourceResponse(requestedFile.Contents));
                 }
@@ -138,7 +138,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             return ExternalSourceRequestSuccess(
                 hasSource: sourceArchive is not null,
-                archiveFilesCount: sourceArchive?.SourceFiles.Length ?? 0,
+                archiveFilesCount: sourceArchive?.SourceFileCount ?? 0,
                 fileExtension: Path.GetExtension(requestedSourceFile) ?? (requestedSourceFile is null ? ".json" : string.Empty),
                 requestType: requestedSourceFile switch
                 {

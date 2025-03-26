@@ -105,15 +105,14 @@ namespace Bicep.LanguageServer.Handlers
 
                     foreach (var nestedLink in currentDocumentSourceArchive.FindDocumentLinks(currentDocumentRelativeFile))
                     {
-                        var targetFileInfo = currentDocumentSourceArchive.FindExpectedSourceFile(nestedLink.Target);
+                        var targetFileInfo = currentDocumentSourceArchive.FindSourceFile(nestedLink.Target);
                         var linkToRawCompiledJson = new ExternalSourceReference(request.TextDocument.Uri)
-                            .WithRequestForSourceFile(targetFileInfo.Path).ToUri().ToString();
+                            .WithRequestForSourceFile(targetFileInfo.Metadata.Path).ToUri().ToString();
 
                         // Does this nested link have a pointer to its artifact so we can try restoring it and get the source?
-                        if (targetFileInfo.SourceArtifact is { })
+                        if (targetFileInfo.Metadata.ArtifactAddress?.ArtifactId is { } sourceId)
                         {
                             // Yes, it's an external module with source.  We won't set the target now - we'll wait until the user clicks on it to resolve it, to give us a chance to restore the module.
-                            var sourceId = targetFileInfo.SourceArtifact?.ArtifactId;
                             yield return new DocumentLink<ExternalSourceDocumentLinkData>()
                             {
                                 Range = nestedLink.Range.ToRange(),

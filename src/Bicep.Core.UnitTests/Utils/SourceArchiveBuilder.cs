@@ -49,7 +49,7 @@ namespace Bicep.Core.UnitTests.Utils
             return SourceArchive.UnpackFromStream(stream).UnwrapOrThrow();
         }
 
-        public Stream BuildStream()
+        private Stream BuildStream()
         {
             if (SourceFiles.Count == 0)
             {
@@ -63,11 +63,6 @@ namespace Bicep.Core.UnitTests.Utils
                 EntrypointFile.Uri,
                 null,
                 [.. SourceFiles.Select(x => new SourceFileWithArtifactReference(x, null))]);
-        }
-
-        public BinaryData BuildBinaryData()
-        {
-            return BinaryData.FromStream(BuildStream());
         }
     }
 }

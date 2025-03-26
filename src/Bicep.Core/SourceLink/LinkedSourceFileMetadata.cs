@@ -23,7 +23,7 @@ namespace Bicep.Core.SourceLink
         string? SourceArtifactId)
     {
         [JsonIgnore]
-        public OciArtifactAddressComponents? SourceArtifactAddressComponents { get; } = TryParse(SourceArtifactId);
+        public OciArtifactAddressComponents? ArtifactAddress => TryParse(this.SourceArtifactId);
 
         public static OciArtifactAddressComponents? TryParse(string? sourceArtifactId)
         {
