@@ -726,25 +726,39 @@ Hello from Bicep!"));
         }
 
         [DataTestMethod]
-        [DataRow("MissingExtensionConfigsDeclaration")]
-        [DataRow("MissingRequiredExtensionConfig")]
-        [DataRow("MissingRequiredConfigProperty")]
-        [DataRow("PropertyIsNotDefinedInSchema")]
-        [DataRow("ConfigProvidedForExtensionThatDoesNotAcceptConfig")]
-        public void Module_with_invalid_extension_config_produces_diagnostic(string scenario)
+        [DataRow(
+            "MissingExtensionConfigsDeclaration",
+            "",
+            "BCP035",
+            """The specified "module" declaration is missing the following required properties: "extensionConfigs".""")]
+        [DataRow(
+            "MissingRequiredExtensionConfig",
+            "extensionConfigs: {}",
+            "BCP035",
+            """The specified "object" declaration is missing the following required properties: "kubernetes".""")]
+        [DataRow(
+            "MissingRequiredConfigProperty",
+            "extensionConfigs: { kubernetes: { namespace: 'other' } }",
+            "BCP035",
+            """The specified "object" declaration is missing the following required properties: "kubeConfig".""")]
+        [DataRow(
+            "PropertyIsNotDefinedInSchema",
+            "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other', extra: 'extra' } }",
+            "BCP037",
+            """The property "extra" is not allowed on objects of type "configuration". Permissible properties include "context".""")]
+        [DataRow(
+            "ConfigProvidedForExtensionThatDoesNotAcceptConfig",
+            "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other' }, graph: { } }",
+            "BCP037",
+            """The property "graph" is not allowed on objects of type "extensionConfigs". No other properties are allowed.""")]
+        public void Module_with_invalid_extension_config_produces_diagnostic(
+            string scenarioName,
+            string moduleExtensionConfigsStr,
+            string expectedDiagnosticCode,
+            string expectedDiagnosticMessage)
         {
             var mainUri = new Uri("file:///main.bicep");
             var moduleAUri = new Uri("file:///modulea.bicep");
-
-            var extensionConfigsStr = scenario switch
-            {
-                "MissingExtensionConfigsDeclaration" => "",
-                "MissingRequiredExtensionConfig" => "extensionConfigs: {}",
-                "MissingRequiredConfigProperty" => "extensionConfigs: { kubernetes: { namespace: 'other' } }",
-                "PropertyIsNotDefinedInSchema" => "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other', extra: 'extra' } }",
-                "ConfigProvidedForExtensionThatDoesNotAcceptConfig" => "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other' }, graph: { } }",
-                _ => throw new NotImplementedException()
-            };
 
             // TODO(kylealbert): Remove 'with' clause in template when that's removed
             // TODO(kylealbert): Uncomment graph when I figure out how to deal with the registry.
@@ -759,7 +773,7 @@ Hello from Bicep!"));
                         params: {
                           inputa: inputa
                         }
-                        {{extensionConfigsStr}}
+                        {{moduleExtensionConfigsStr}}
                       }
 
                       output outputa string = modulea.outputs.outputa
@@ -781,32 +795,19 @@ Hello from Bicep!"));
 
             var compilation = ServicesWithModuleExtensionConfigs.BuildCompilation(files, mainUri);
 
-            if (scenario is "MissingExtensionConfigsDeclaration")
-            {
-                compilation.Should().ContainSingleDiagnostic("BCP035", DiagnosticLevel.Error, """The specified "module" declaration is missing the following required properties: "extensionConfigs".""");
-            }
-            else if (scenario is "MissingRequiredExtensionConfig")
-            {
-                compilation.Should().ContainSingleDiagnostic("BCP035", DiagnosticLevel.Error, """The specified "object" declaration is missing the following required properties: "kubernetes".""");
-            }
-            else if (scenario is "MissingRequiredConfigProperty")
-            {
-                compilation.Should().ContainSingleDiagnostic("BCP035", DiagnosticLevel.Error, """The specified "object" declaration is missing the following required properties: "kubeConfig".""");
-            }
-            else if (scenario is "PropertyIsNotDefinedInSchema")
-            {
-                compilation.Should().ContainSingleDiagnostic("BCP037", DiagnosticLevel.Error, """The property "extra" is not allowed on objects of type "configuration". Permissible properties include "context".""");
-            }
-            else if (scenario is "ConfigProvidedForExtensionThatDoesNotAcceptConfig")
-            {
-                compilation.Should().ContainSingleDiagnostic("BCP037", DiagnosticLevel.Error, """The property "graph" is not allowed on objects of type "extensionConfigs". No other properties are allowed.""");
-            }
+            compilation.Should().ContainSingleDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
         }
 
         [DataTestMethod]
-        [DataRow("ParamsFile")]
-        [DataRow("MainFile")]
-        public void Extension_config_assignments_raise_error_diagnostic_if_expr_feature_disabled(string scenario)
+        [DataRow(
+            "ParamsFile",
+            "BCP337",
+            $"""This declaration type is not valid for a Bicep Parameters file. Specify a "{LanguageConstants.UsingKeyword}", "{LanguageConstants.ExtendsKeyword}", "{LanguageConstants.ParameterKeyword}" or "{LanguageConstants.VariableKeyword}" declaration.""")]
+        [DataRow(
+            "MainFile",
+            "BCP037",
+            """The property "extensionConfigs" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope".""")]
+        public void Extension_config_assignments_raise_error_diagnostic_if_expr_feature_disabled(string scenario, string expectedDiagnosticCode, string expectedDiagnosticMessage)
         {
             var paramsUri = new Uri("file:///main.bicepparam");
             var mainUri = new Uri("file:///main.bicep");
@@ -878,18 +879,8 @@ Hello from Bicep!"));
 
             var diagByFile = compilation.GetAllDiagnosticsByBicepFileUri();
 
-            if (scenario is "ParamsFile")
-            {
-                diagByFile[paramsUri].Should().ContainDiagnostic(f => f.UnrecognizedParamsFileDeclaration());
-            }
-            else if (scenario is "MainFile")
-            {
-                diagByFile[mainUri].Should().ContainDiagnostic("BCP037", DiagnosticLevel.Error, """The property "extensionConfigs" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope".""");
-            }
-            else
-            {
-                Assert.Fail($"No assertion for scenario {scenario}");
-            }
+            var fileUriWithDiag = scenario is "ParamsFile" ? paramsUri : mainUri;
+            diagByFile[fileUriWithDiag].Should().ContainSingleDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
         }
     }
 }

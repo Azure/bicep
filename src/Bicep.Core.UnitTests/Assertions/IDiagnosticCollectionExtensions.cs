@@ -36,13 +36,6 @@ namespace Bicep.Core.UnitTests.Assertions
             return new AndConstraint<IDiagnosticCollectionAssertions>(this);
         }
 
-        public AndConstraint<IDiagnosticCollectionAssertions> ContainDiagnostic(Func<DiagnosticBuilder.DiagnosticBuilderInternal, Diagnostic> diagnosticFactory, string because = "", params object[] becauseArgs)
-        {
-            var diagnostic = diagnosticFactory(DiagnosticBuilder.ForDocumentStart());
-
-            return ContainDiagnostic(diagnostic.Code, diagnostic.Level, diagnostic.Message, because, becauseArgs);
-        }
-
         public AndConstraint<IDiagnosticCollectionAssertions> NotContainDiagnostic(string code, string because = "", params object[] becauseArgs)
         {
             AssertionExtensions.Should(Subject).NotContain(x => x.Code == code, because, becauseArgs);
