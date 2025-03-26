@@ -10,13 +10,13 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Mock.Registry;
 using Bicep.Core.UnitTests.Mock.Registry.Catalog;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
 using Bicep.IO.FileSystem;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.Completions;
@@ -241,7 +241,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         {
             var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
                 RegistryCatalogMocks.MockPublicMetadataProvider([
-                    ("bicep/app/dapr-containerapp", null, null, [ new("1.0.1", null, null), new ("1.0.2", null, null) ])
+                    ("bicep/app/dapr-containerapp", null, null, [new("1.0.1", null, null), new("1.0.2", null, null)])
                 ])
             );
 

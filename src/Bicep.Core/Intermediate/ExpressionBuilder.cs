@@ -10,11 +10,11 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.Workspaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using static Bicep.Core.Emit.ScopeHelper;
 
@@ -605,7 +605,7 @@ public class ExpressionBuilder
             .SelectMany(g => g.FirstOrDefault(t => t.Target.IndexExpression is null) is { } dependencyOnCollection
                 ? dependencyOnCollection.AsEnumerable()
                 : g.Distinct(t => t.Target))
-            .OrderBy(t => t.Target.Resource.Name)  // order to generate a deterministic template
+            .OrderBy(t => t.TargetKey)  // order to generate a deterministic template
             .Select(t => t.Expression)
             .ToImmutableArray();
 
@@ -1282,6 +1282,7 @@ public class ExpressionBuilder
     }
 
     private record DependencyExpression(
+        string TargetKey, // Used for sorting.
         ResourceDependency Target,
         ResourceDependencyExpression Expression);
 
@@ -1294,6 +1295,7 @@ public class ExpressionBuilder
         {
             Expression reference;
             ResourceDependency target;
+            string targetKey;
             var localReplacements = this.localReplacements;
             var allNodesInPathAccessCopyIndex = true;
 
@@ -1301,6 +1303,7 @@ public class ExpressionBuilder
             do
             {
                 target = path[i];
+                targetKey = target.Resource.Name;
                 var targetContext = i == 0 ? newContext : path[i - 1].Resource.DeclaringSyntax;
                 IndexReplacementContext? indexContext = null;
 
@@ -1311,6 +1314,7 @@ public class ExpressionBuilder
                             var metadata = Context.SemanticModel.ResourceMetadata.TryLookup(resource.DeclaringSyntax) as DeclaredResourceMetadata
                                 ?? throw new InvalidOperationException("Failed to find resource in cache");
 
+                            targetKey = ExpressionConverter.GetSymbolicName(Context.SemanticModel.ResourceAncestors, metadata);
                             indexContext = (resource.IsCollection && target.IndexExpression is null)
                                 ? null
                                 : new ExpressionBuilder(Context, localReplacements)
@@ -1359,7 +1363,7 @@ public class ExpressionBuilder
                 allNodesInPathAccessCopyIndex = allNodesInPathAccessCopyIndex && copyIndexAccesses.Length > 0;
             } while (++i < path.Length);
 
-            yield return new(target, new(null, reference));
+            yield return new(targetKey, target, new(null, reference));
         }
     }
 
@@ -1624,6 +1628,10 @@ public class ExpressionBuilder
                     var indexContext = TryGetReplacementContext(scopeData.ResourceGroupProperty, scopeData.IndexExpression, newContext);
                     expressionEmitter.EmitProperty("resourceGroup", () => expressionEmitter.EmitExpression(scopeData.ResourceGroupProperty, indexContext));
                 }
+                return;
+            case ResourceScope.DesiredStateConfiguration:
+                // This scope just changes the schema so there are no properties to emit.
+                // We don't ever need to throw here because the feature is checked during scope validation.
                 return;
             default:
                 throw new InvalidOperationException($"Cannot format resourceId for scope {scopeData.RequestedScope}");

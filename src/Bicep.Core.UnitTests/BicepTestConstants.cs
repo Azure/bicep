@@ -24,7 +24,6 @@ using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using Bicep.IO.InMemory;

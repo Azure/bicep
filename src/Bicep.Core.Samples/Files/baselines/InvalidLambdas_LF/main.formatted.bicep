@@ -92,6 +92,4 @@ var multiLineTrailingCommas = map([0], (
   a,
   ,) => 'foo')
 
-var lineBeforeComma = map([0], (
-  a
-  ,b) => 'foo')
+var lineBeforeComma = map([0], (a, b) => 'foo')

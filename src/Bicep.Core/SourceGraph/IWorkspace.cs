@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 
-namespace Bicep.Core.Workspaces
+namespace Bicep.Core.SourceGraph
 {
     public interface IWorkspace : IReadOnlyWorkspace
     {

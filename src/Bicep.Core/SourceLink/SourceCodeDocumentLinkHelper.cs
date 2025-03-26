@@ -4,13 +4,13 @@
 using System.Collections.Immutable;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Text;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 using Uri = System.Uri;
 
 
-namespace Bicep.Core.SourceCode;
+namespace Bicep.Core.SourceLink;
 
 public static class SourceCodeDocumentLinkHelper
 {
@@ -43,10 +43,10 @@ public static class SourceCodeDocumentLinkHelper
                     syntax.Path is { } &&
                     artifact.Result.IsSuccess(out var uri))
                 {
-                    var start = new SourceCodePosition(TextCoordinateConverter.GetPosition(referencingFileLineStarts, syntax.Path.Span.Position));
-                    var end = new SourceCodePosition(TextCoordinateConverter.GetPosition(referencingFileLineStarts, syntax.Path.Span.Position + syntax.Path.Span.Length));
+                    var start = new TextPosition(TextCoordinateConverter.GetPosition(referencingFileLineStarts, syntax.Path.Span.Position));
+                    var end = new TextPosition(TextCoordinateConverter.GetPosition(referencingFileLineStarts, syntax.Path.Span.Position + syntax.Path.Span.Length));
 
-                    linksForReferencingFile.Add(new SourceCodeDocumentUriLink(new SourceCodeRange(start, end), uri));
+                    linksForReferencingFile.Add(new SourceCodeDocumentUriLink(new TextRange(start, end), uri));
                 }
             }
 

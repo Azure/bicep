@@ -21,7 +21,6 @@ using Bicep.Core.UnitTests.Mock.Registry;
 using Bicep.Core.UnitTests.Mock.Registry.Catalog;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
@@ -94,7 +93,7 @@ public static class IServiceCollectionExtensions
             .AddSingleton<IFeatureProviderFactory, OverriddenFeatureProviderFactory>();
 
     public static IServiceCollection WithEnvironmentVariables(this IServiceCollection services, params (string key, string? value)[] variables)
-        => WithEnvironment(services,  TestEnvironment.Default.WithVariables(variables));
+        => WithEnvironment(services, TestEnvironment.Default.WithVariables(variables));
 
     public static IServiceCollection WithEnvironment(this IServiceCollection services, IEnvironment environment)
         => Register(services, environment);

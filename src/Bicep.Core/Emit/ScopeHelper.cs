@@ -4,10 +4,10 @@ using System.Collections.Immutable;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Intermediate;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
@@ -36,6 +36,12 @@ namespace Bicep.Core.Emit
 
         private static ScopeData? ValidateScope(SemanticModel semanticModel, LogInvalidScopeDiagnostic logInvalidScopeFunc, ResourceScope supportedScopes, SyntaxBase bodySyntax, SyntaxBase? scopeValue)
         {
+            // If the DSC feature is enabled the scope is added to the supported scopes here so it doesn't have to be added to the Azure types.
+            if (semanticModel.Configuration.ExperimentalFeaturesEnabled.DesiredStateConfiguration)
+            {
+                supportedScopes |= ResourceScope.DesiredStateConfiguration;
+            }
+
             if (scopeValue is null)
             {
                 // no scope provided - use the target scope for the file

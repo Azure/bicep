@@ -6,7 +6,7 @@ using Azure.Deployments.Core.Uri;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 
 namespace Bicep.Core.Modules
 {

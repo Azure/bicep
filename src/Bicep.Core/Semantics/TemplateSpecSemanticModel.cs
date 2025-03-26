@@ -3,8 +3,8 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {

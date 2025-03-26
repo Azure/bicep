@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 
 namespace Bicep.Core.Registry
 {

@@ -60,6 +60,12 @@ namespace Bicep.Core.Emit
                 return "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#";
             }
 
+            // The feature flag is checked during scope validation, so just always handle it here.
+            if (targetScope.HasFlag(ResourceScope.DesiredStateConfiguration))
+            {
+                return "https://aka.ms/dsc/schemas/v3/bundled/config/document.json"; // the trailing '#' is against DSC's schema
+            }
+
             return "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
         }
 
@@ -1259,21 +1265,27 @@ namespace Bicep.Core.Emit
                 // Emit the options property
                 if (resource.RetryOn is not null || resource.WaitUntil is not null)
                 {
-                    emitter.EmitObjectProperty("options", () =>
+                    emitter.EmitObjectProperty("@options", () =>
                     {
                         if (resource.RetryOn is not null)
                         {
-                            emitter.EmitObjectProperty("retryOn", () =>
+                            emitter.EmitArrayProperty("retryOn", () =>
                             {
-                                emitter.EmitObjectProperties(resource.RetryOn);
+                                foreach (var item in resource.RetryOn.Items)
+                                {
+                                    emitter.EmitExpression(item);
+                                }
                             });
                         }
 
                         if (resource.WaitUntil is not null)
                         {
-                            emitter.EmitObjectProperty("waitUntil", () =>
+                            emitter.EmitArrayProperty("waitUntil", () =>
                             {
-                                emitter.EmitObjectProperties(resource.WaitUntil);
+                                foreach (var item in resource.WaitUntil.Items)
+                                {
+                                    emitter.EmitExpression(item);
+                                }
                             });
                         }
 
@@ -1811,8 +1823,8 @@ namespace Bicep.Core.Emit
                                 {
                                     emitter.EmitProperty(LanguageConstants.MetadataDescriptionPropertyName, description);
                                 }
-                                if (variablesByName.TryGetValue(exportedVariable.Name) is {} variable &&
-                                    variable.Type is {} variableType)
+                                if (variablesByName.TryGetValue(exportedVariable.Name) is { } variable &&
+                                    variable.Type is { } variableType)
                                 {
                                     emitter.EmitProperty(TypePropertyName, TypePropertiesForTypeExpression(variableType));
                                 }

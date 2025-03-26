@@ -135,7 +135,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                     return TypeFactory.CreateStringType(
                         @string.MinLength,
                         @string.MaxLength,
-                        @string.Pattern);
+                        TypeHelper.AsOptionalValidFiniteRegexPattern(@string.Pattern));
                 case Azure.Bicep.Types.Concrete.BuiltInType builtInType:
                     return builtInType.Kind switch
                     {

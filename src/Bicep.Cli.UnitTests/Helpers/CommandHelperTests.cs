@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Moq;
 using Bicep.Cli.Helpers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Bicep.Cli.UnitTests.Helpers;
 

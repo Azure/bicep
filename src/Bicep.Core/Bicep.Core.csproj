@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Azure.Bicep.Core</AssemblyName>
     <RootNamespace>Bicep.Core</RootNamespace>
@@ -25,7 +25,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Containers.ContainerRegistry" Version="1.1.1" />
-    <PackageReference Include="Azure.Identity" Version="1.13.1" />
+    <PackageReference Include="Azure.Identity" Version="1.13.2" />
     <PackageReference Include="Azure.ResourceManager.Resources" Version="1.9.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2024.3.0">
       <PrivateAssets>all</PrivateAssets>
@@ -41,7 +41,7 @@
     <PackageReference Include="SharpYaml" Version="2.1.1" />
     <PackageReference Include="Azure.Deployments.Templates" Version="1.224.0" />
     <PackageReference Include="Azure.Bicep.Types" Version="0.5.110" />
-    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.737" />
+    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.756" />
     <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.644" />
     <PackageReference Include="System.IO.Abstractions" Version="21.3.1" />
     <PackageReference Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.45" PrivateAssets="all" />

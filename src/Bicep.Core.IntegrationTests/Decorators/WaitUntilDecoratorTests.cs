@@ -35,10 +35,10 @@ namespace Bicep.Core.IntegrationTests.Decorators
 
             var (template, diagnostics, _) = CompilationHelper.Compile(services, fileContent);
 
-            var waitUntilObject = new JObject
+            var waitUntilObject = new JArray
             {
-                ["expression"] = output,
-                ["maxWaitTime"] = "PT20S"
+                output,
+                "PT20S"
             };
 
             using (new AssertionScope())
@@ -46,7 +46,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
                 diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
 
                 template.Should().NotBeNull()
-                    .And.HaveValueAtPath("$.resources[0].options.waitUntil", waitUntilObject);
+                    .And.HaveValueAtPath("$.resources[0].@options.waitUntil", waitUntilObject);
             }
         }
 
@@ -183,10 +183,10 @@ namespace Bicep.Core.IntegrationTests.Decorators
 
             var (template, diagnostics, _) = CompilationHelper.Compile(services, fileContent);
 
-            var waitUntilObject = new JObject
+            var waitUntilObject = new JArray
             {
-                ["expression"] = output,
-                ["maxWaitTime"] = "PT20S"
+                output,
+                "PT20S"
             };
 
             using (new AssertionScope())
@@ -194,7 +194,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
                 diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
 
                 template.Should().NotBeNull()
-                    .And.HaveValueAtPath("$.resources[0].options.waitUntil", waitUntilObject);
+                    .And.HaveValueAtPath("$.resources[0].@options.waitUntil", waitUntilObject);
             }
         }
 

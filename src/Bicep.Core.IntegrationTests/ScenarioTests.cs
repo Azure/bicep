@@ -6321,14 +6321,11 @@ param p invalidRecursiveObjectType = {}
         ]);
     }
 
-    [DataTestMethod]
-    [DataRow(true)]
-    [DataRow(false)]
+    [TestMethod]
     // https://github.com/azure/bicep/issues/13596
-    public void Test_Issue13596(bool enableSymbolicNameCodegen)
+    public void Test_Issue13596()
     {
         var result = CompilationHelper.Compile(
-            new ServiceBuilder().WithFeatureOverrides(new(SymbolicNameCodegenEnabled: enableSymbolicNameCodegen)),
             ("main.bicep", """
                 module mod 'empty.bicep' = {
                   name: 'mod'
@@ -6352,15 +6349,7 @@ param p invalidRecursiveObjectType = {}
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         result.Template.Should().NotBeNull();
-
-        if (enableSymbolicNameCodegen)
-        {
-            result.Template.Should().HaveJsonAtPath("$.resources.secret.dependsOn", """["mod"]""");
-        }
-        else
-        {
-            result.Template.Should().HaveJsonAtPath("$.resources[?(@.name=='vault/secret')].dependsOn", """["[resourceId('Microsoft.Resources/deployments', 'mod')]"]""");
-        }
+        result.Template.Should().HaveJsonAtPath("$.resources.secret.dependsOn", """["mod"]""");
     }
 
     [TestMethod]
@@ -7004,5 +6993,126 @@ var subnetId = vNet::subnets[0].id
             """);
 
         result.Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/azure/bicep/issues/16332
+    [TestMethod]
+    public void DependsOn_order_is_deterministic_for_hierarchical_resource_symbolic_names()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(SymbolicNameCodegenEnabled: true)), """
+                resource keyVaultOne 'Microsoft.KeyVault/vaults@2019-09-01' = {
+                  name: 'vault1'
+                  location: 'westus'
+                  properties: {
+                    sku: {
+                      name: 'standard'
+                      family: 'A'
+                    }
+                    tenantId: '00000000-0000-0000-0000-000000000000'
+                  }
+                  
+                  resource secret 'secrets' = {
+                    name: 'secret'
+                    properties: {}
+                  }
+                }
+
+                resource keyVaultTwo 'Microsoft.KeyVault/vaults@2019-09-01' = {
+                  name: 'vault2'
+                  location: 'westus'
+                  properties: {
+                    sku: {
+                      name: 'standard'
+                      family: 'A'
+                    }
+                    tenantId: '00000000-0000-0000-0000-000000000000'
+                  }
+                  
+                  resource secret 'secrets' = {
+                    name: 'secret'
+                    properties: {}
+                  }
+                }
+
+                resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' = {
+                    name: 'storage'
+                    location: 'westus'
+                    sku: {
+                        name: 'Premium_LRS'
+                    }
+                    kind: 'StorageV2'
+                    tags: {
+                        key1: keyVaultTwo::secret.name
+                        key2: keyVaultOne::secret.name
+                    }
+                }
+                """);
+
+            result.Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.resources.sa.dependsOn[0]", "keyVaultOne::secret");
+            result.Template.Should().HaveValueAtPath("$.resources.sa.dependsOn[1]", "keyVaultTwo::secret");
+        }
+    }
+
+    // https://github.com/azure/bicep/issues/16664
+    [TestMethod]
+    public void DependsOn_on_existing_resource_triggers_languageVersion_2()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                module empty 'empty.bicep' = {
+                  name: 'foo'
+                }
+                
+                resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
+                  name: 'storage'
+                  dependsOn: [
+                    empty
+                  ]
+                }
+                """),
+            ("empty.bicep", string.Empty));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("$.languageVersion", "2.0");
+        result.Template.Should().HaveJsonAtPath("$.resources.sa.dependsOn", """["empty"]""");
+    }
+
+    [TestMethod]
+    public void Non_spec_compliant_provider_sourced_regexes_degrade_gracefully()
+    {
+        var result = CompilationHelper.Compile("""
+            param name string
+            param location string = resourceGroup().location
+            param sku object
+            param administratorLogin string
+            @secure()
+            param administratorLoginPassword string
+            param version string
+
+            resource mysqlServer 'Microsoft.DBforMySQL/flexibleServers@2023-06-30' = {
+              name: name
+              location: location
+              sku: sku
+              properties: {
+                version: version
+                administratorLogin: administratorLogin
+                administratorLoginPassword: administratorLoginPassword
+              }
+
+              resource firewall_all 'firewallRules' = {
+                name: 'allow-all-IPs'
+                properties: {
+                  startIpAddress: '0.0.0.0'
+                  endIpAddress: '255.255.255.255'
+                }
+              }
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 }

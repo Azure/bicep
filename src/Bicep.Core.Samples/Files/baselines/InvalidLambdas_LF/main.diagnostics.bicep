@@ -205,4 +205,3 @@ var lineBeforeComma = map([0], (
   a
   ,b) => 'foo')
 
-//@[00:00) [BCP018 (Error)] Expected the ")" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||

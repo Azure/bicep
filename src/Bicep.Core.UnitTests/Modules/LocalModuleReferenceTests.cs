@@ -4,7 +4,7 @@
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -44,7 +44,7 @@ namespace Bicep.Core.UnitTests.Modules
         public void TryParseModuleReference_ValidLocalReference_ShouldParse(string value)
         {
             var reference = Parse(value);
-            reference.Path.Should().Be(value);
+            reference.Path.ToString().Should().Be(value);
         }
 
         private static LocalModuleReference Parse(string package)

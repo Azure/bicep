@@ -68,7 +68,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
                 containerClient,
                 [
                     new("br:registry.contoso.io/test/module1:v1", "param p1 bool", WithSource: true),
-                    new("br:registry.contoso.io/test/module2:v1", "param p2 string", WithSource : true),
+                    new("br:registry.contoso.io/test/module2:v1", "param p2 string", WithSource: true),
                     new("br:registry.contoso.io/test/module1:v2", "param p12 string", WithSource: false),
                 ]);
 
@@ -96,7 +96,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
                 [
                     new("br:registry.contoso.io/test/module1:v1", "param p1 bool", WithSource: true),
                     new("br:registry.contoso.io/test/module2:v1", "param p2 string", WithSource: true),
-                    new("br:registry.contoso.io/test/module1:v2", "param p12 string", WithSource : false),
+                    new("br:registry.contoso.io/test/module1:v2", "param p12 string", WithSource: false),
                 ]);
 
             var provider = new PrivateAcrModuleMetadataProvider(

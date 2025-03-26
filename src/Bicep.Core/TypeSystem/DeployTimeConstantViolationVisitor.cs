@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;

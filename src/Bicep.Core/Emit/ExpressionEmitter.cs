@@ -5,10 +5,10 @@ using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Expression.Serializers;
 using Bicep.Core.Intermediate;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Newtonsoft.Json.Linq;
 

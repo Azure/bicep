@@ -11,6 +11,9 @@ The following features can be optionally enabled through your `bicepconfig.json`
 ### `assertions`
 Should be enabled in tandem with `testFramework` experimental feature flag for expected functionality. Allows you to author boolean assertions using the `assert` keyword comparing the actual value of a parameter, variable, or resource name to an expected value. Assert statements can only be written directly within the Bicep file whose resources they reference. For more information, see [Bicep Experimental Test Framework](https://github.com/Azure/bicep/issues/11967).
 
+### `desiredStateConfiguration`
+Allows you to author configuration documents for [Microsoft's Desired State Configuration platform](https://github.com/PowerShell/DSC) using `targetScope = 'desiredStateConfiguration'`. If enabled, the file must only contain DSC resource instances. The built file is a valid configuration document to be used with the CLI. For example, `dsc.exe config test --file example.json`. This feature is in early development.
+
 ### `extendableParamFiles`
 Enables the ability to extend bicepparam files from other bicepparam files. For more information, see [Extendable Bicep Params Files](./experimental/extendable-param-files.md).
 
@@ -21,7 +24,7 @@ Allows Bicep to use an extensibility model to deploy non-ARM resources. Currentl
 Enables code formatting with the legacy formatter. This feature flag is introduced to ensure a safer transition to the v2 formatter that implements a pretty-printing algorithm. It is intended for temporary use and will be phased out soon.
 
 ### `localDeploy`
-Enables local deployment capability. See [Bicep Local Providers](https://github.com/anthony-c-martin/bicep-local-providers) for more information.
+Enables Bicep to run deployments locally, so that you can run Bicep extensions without a dependency on Azure (for example, to run scripts, or to interact with non-Azure APIs like Kubernetes or GitHub). For more information, see [Using Local Deploy](./experimental/local-deploy.md).
 
 ### `moduleExtensionConfigs`
 
@@ -59,6 +62,3 @@ The feature introduces waitUntil and retryOn decorators on resource data type. w
 
 ### `publish-extension` CLI Command
 Command that allows the publishing of extensions to container registries. For more information, see [Using the Publish Extension Command](./experimental/publish-extension-command.md).
-
-### Deployment Pane
-The Deployment Pane is a UI panel in VSCode that allows you to connect to your Azure subscription and execute validate, deploy & whatif operations and get instant feedback without leaving the editor. For more information, see [Using the Deployment Pane](./experimental/deploy-ui.md).

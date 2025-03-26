@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Emit
 {
@@ -31,6 +31,9 @@ namespace Bicep.Core.Emit
                 model.Root.ImportedSymbols.Any() ||
                 // there are any wildcard compile-time imports
                 model.Root.WildcardImports.Any() ||
+                // there are any existing resources with explicit dependencies
+                model.Root.ResourceDeclarations.Any(r => r.DeclaringResource.IsExistingResource() &&
+                    r.DeclaringResource.TryGetBody()?.TryGetPropertyByName(LanguageConstants.ResourceDependsOnPropertyName) is not null) ||
                 // any user-defined type declaration syntax is used (e.g., in a `param` or `output` statement)
                 SyntaxAggregator.Aggregate(model.SourceFile.ProgramSyntax,
                     seed: false,

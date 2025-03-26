@@ -9,9 +9,9 @@ using Bicep.Core.Features;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
-using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Completions.SyntaxPatterns;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Utils;
@@ -446,10 +446,10 @@ namespace Bicep.LanguageServer.Completions
 
         private static bool IsVariableNameFollowerContext(List<SyntaxBase> matchingNodes, int offset) =>
             // var foo |
-            SyntaxMatcher.IsTailMatch<VariableDeclarationSyntax>(matchingNodes, variable => 
-                offset > variable.Name.GetEndPosition() && 
+            SyntaxMatcher.IsTailMatch<VariableDeclarationSyntax>(matchingNodes, variable =>
+                offset > variable.Name.GetEndPosition() &&
                 variable.Type is null &&
-                variable.Assignment is SkippedTriviaSyntax && 
+                variable.Assignment is SkippedTriviaSyntax &&
                 offset <= variable.Assignment.Span.Position);
 
         private static bool IsTargetScopeContext(List<SyntaxBase> matchingNodes, int offset) =>

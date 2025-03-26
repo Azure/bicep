@@ -6,16 +6,22 @@ using System.IO.Abstractions.TestingHelpers;
 using System.Reflection;
 using System.Text;
 using Bicep.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Json;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Samples;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Mock.Registry;
+using Bicep.Core.UnitTests.Mock.Registry.Catalog;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.FileSystem;
 using Bicep.LangServer.IntegrationTests.Assertions;
@@ -41,12 +47,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using CompilationHelper = Bicep.Core.UnitTests.Utils.CompilationHelper;
 using LocalFileSystem = System.IO.Abstractions.FileSystem;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
-using Bicep.Core.UnitTests.Mock.Registry;
-using Bicep.Core.Registry.Catalog;
-using Bicep.Core.Configuration;
-using Bicep.Core.Workspaces;
-using Bicep.Core.Json;
-using Bicep.Core.UnitTests.Mock.Registry.Catalog;
 
 namespace Bicep.LangServer.IntegrationTests.Completions
 {
@@ -4278,9 +4278,9 @@ var file = " + functionName + @"(templ|)
 
             var publicModuleMetadataProvider = RegistryCatalogMocks.MockPublicMetadataProvider([
                    ("bicep/abc/foo/bar", "d1", "contoso.com/help1", []),
-                   ("bicep/abc/food/bar", "d2", "contoso.com/help2", []),
-                   ("bicep/abc/bar/bar", "d3", "contoso.com/help3", []),
-                ]);
+                ("bicep/abc/food/bar", "d2", "contoso.com/help2", []),
+                ("bicep/abc/bar/bar", "d3", "contoso.com/help3", []),
+            ]);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
@@ -4444,7 +4444,7 @@ var file = " + functionName + @"(templ|)
                 }
             );
         }
-        
+
         [DataTestMethod]
         [DataRow("var arr1 = [|]")]
         [DataRow("param arr array = [|]")]
@@ -5550,5 +5550,58 @@ output people Person[] = [{
   name:|
 }]
 """);
+
+        [TestMethod]
+        public async Task Resource_types_offered_as_completion_for_single_argument_to_resource_utility_type_with_unclosed_chevrons()
+        {
+            var mainContent = """
+                type acct = resourceInput<stor|
+                """;
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
+            DocumentUri mainUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
+
+            var bicepFile = new LanguageClientFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                text,
+                mainUri);
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+
+            var completions = await file.RequestAndResolveCompletions(cursors[0]);
+            var updated = file.ApplyCompletion(completions, "'Microsoft.Storage/storageAccounts'");
+            updated.Should().HaveSourceText("""
+                type acct = resourceInput<'Microsoft.Storage/storageAccounts@|'
+                """);
+        }
+
+        [TestMethod]
+        public async Task LoadFunctionsPathArgument_returnsFilesInCompletions_withUnclosedParentheses()
+        {
+            var mainUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
+
+            var (mainFileText, cursor) = ParserHelper.GetFileWithSingleCursor("var file = loadJsonContent('|'", '|');
+            var mainFile = new LanguageClientFile(mainUri, mainFileText);
+
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                [mainUri] = mainFileText,
+                [InMemoryFileResolver.GetFileUri("/path/to/json1.json")] = "{}",
+            };
+
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                TestContext,
+                fileTextsByUri,
+                mainUri,
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
+
+            var file = new FileRequestHelper(helper.Client, mainFile);
+
+            var completions = await file.RequestAndResolveCompletions(cursor);
+
+            var completionItems = completions.Where(x => x.Kind == CompletionItemKind.File).OrderBy(x => x.SortText);
+            completionItems.Should().SatisfyRespectively(x => x.Label.Should().Be("json1.json"));
+        }
     }
 }

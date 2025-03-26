@@ -7,7 +7,7 @@ using System.Reactive.Linq;
 using System.Reflection;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceLink;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;

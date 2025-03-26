@@ -4,7 +4,7 @@
 using System.Collections;
 using Bicep.Core.Collections.Trees;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Diagnostics
 {

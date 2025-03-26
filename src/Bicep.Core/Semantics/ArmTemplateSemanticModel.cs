@@ -14,9 +14,9 @@ using Bicep.Core.Emit;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.Workspaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
@@ -393,6 +393,6 @@ namespace Bicep.Core.Semantics
 
         private ITypeReference? TryGetTypeFromDefinition(JObject jObject)
             => (jObject.TryGetValue(LanguageConstants.TypeKeyword, out var typeToken) &&
-                typeToken.TryFromJToken<TemplateTypeDefinition>() is {} typeDefinition) ? GetType(typeDefinition) : null;
+                typeToken.TryFromJToken<TemplateTypeDefinition>() is { } typeDefinition) ? GetType(typeDefinition) : null;
     }
 }

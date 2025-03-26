@@ -16,7 +16,7 @@ using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using Newtonsoft.Json.Linq;
 
-namespace Bicep.Core.Workspaces
+namespace Bicep.Core.SourceGraph
 {
     public class SourceFileFactory : ISourceFileFactory
     {

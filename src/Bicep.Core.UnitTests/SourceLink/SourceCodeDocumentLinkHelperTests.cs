@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceLink;
+using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
@@ -45,7 +46,7 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
                 GetUri("main.bicep"),
                 new SourceCodeDocumentUriLink[]
                 {
-                    new(new SourceCodeRange(1, 18, 1, 34), GetUri("createVM.bicep")),
+                    new(new TextRange(1, 18, 1, 34), GetUri("createVM.bicep")),
                 }
             },
         });
@@ -71,7 +72,7 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
                 GetUri("main.bicep"),
                 new SourceCodeDocumentUriLink[]
                 {
-                    new(new SourceCodeRange(1, 18, 1, 37), GetUri("../createVM.bicep")),
+                    new(new TextRange(1, 18, 1, 37), GetUri("../createVM.bicep")),
                 }
             },
         });
@@ -121,15 +122,15 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
                 GetUri("createVM.bicep"),
                 new SourceCodeDocumentUriLink[]
                 {
-                    new(new SourceCodeRange(0, 12, 0, 34), GetUri("../../whatever.bicep")),
+                    new(new TextRange(0, 12, 0, 34), GetUri("../../whatever.bicep")),
                 }
             },
             {
                 GetUri("main.bicep"),
                 new SourceCodeDocumentUriLink[]
                 {
-                    new(new SourceCodeRange(0, 12, 0, 44), GetUri("modules/ai/bing-resources.json")),
-                    new(new SourceCodeRange(2, 18, 2, 34), GetUri("createVM.bicep")),
+                    new(new TextRange(0, 12, 0, 44), GetUri("modules/ai/bing-resources.json")),
+                    new(new TextRange(2, 18, 2, 34), GetUri("createVM.bicep")),
                 }
             },
         });
@@ -192,9 +193,9 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
                 GetUri("main.bicep"),
                 new SourceCodeDocumentUriLink[]
                 {
-                    new(new SourceCodeRange(0, 31, 0, 31+26), GetUri("access-policy/main.bicep")),
-                    new(new SourceCodeRange(8, 24, 8, 24+19), GetUri("secret/main.bicep")),
-                    new(new SourceCodeRange(23, 21, 23, 21+16), GetUri("key/main.bicep")),
+                    new(new TextRange(0, 31, 0, 31+26), GetUri("access-policy/main.bicep")),
+                    new(new TextRange(8, 24, 8, 24+19), GetUri("secret/main.bicep")),
+                    new(new TextRange(23, 21, 23, 21+16), GetUri("key/main.bicep")),
                 }
             },
         });

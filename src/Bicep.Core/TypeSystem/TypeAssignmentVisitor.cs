@@ -1066,7 +1066,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                if (syntax.Type is {})
+                if (syntax.Type is { })
                 {
                     if (!model.Features.TypedVariablesEnabled)
                     {
@@ -2157,6 +2157,13 @@ namespace Bicep.Core.TypeSystem
                 if (declaredType is ErrorType)
                 {
                     return declaredType;
+                }
+
+                // We add the DSC constant here so we can error with BCP033 when the feature isn't enabled.
+                // TODO: When no longer experimental, add directly to 'TargetScopeSyntax.GetDeclaredType()' instead.
+                if (features.DesiredStateConfigurationEnabled)
+                {
+                    declaredType = TypeHelper.CreateTypeUnion(declaredType, TypeFactory.CreateStringLiteralType(LanguageConstants.TargetScopeTypeDesiredStateConfiguration));
                 }
 
                 TypeValidator.GetCompileTimeConstantViolation(syntax.Value, diagnostics);

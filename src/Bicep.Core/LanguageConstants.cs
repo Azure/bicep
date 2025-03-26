@@ -91,6 +91,7 @@ namespace Bicep.Core
         public const string TargetScopeTypeManagementGroup = "managementGroup";
         public const string TargetScopeTypeSubscription = "subscription";
         public const string TargetScopeTypeResourceGroup = "resourceGroup";
+        public const string TargetScopeTypeDesiredStateConfiguration = "desiredStateConfiguration";
 
         public const string CopyLoopIdentifier = "copy";
 
@@ -309,6 +310,10 @@ namespace Bicep.Core
             {
                 yield return "resourceGroup";
             }
+            if (resourceScope.HasFlag(ResourceScope.DesiredStateConfiguration))
+            {
+                yield return "desiredStateConfiguration";
+            }
         }
 
         public static ResourceScopeType CreateResourceScopeReference(ResourceScope resourceScope)
@@ -335,10 +340,12 @@ namespace Bicep.Core
 
             // Module name is optional.
             var nameRequirednessFlags = TypePropertyFlags.None;
+            // Taken from the official REST specs for Microsoft.Resources/deployments
+            var nameType = TypeFactory.CreateStringType(minLength: 1, maxLength: 64, pattern: @"^[-\w._()]+$");
 
             List<NamedTypeProperty> moduleProperties =
             [
-                new(ModuleNamePropertyName, LanguageConstants.String, nameRequirednessFlags | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.LoopVariant),
+                new(ModuleNamePropertyName, nameType, nameRequirednessFlags | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.LoopVariant),
                 new(ResourceScopePropertyName, CreateResourceScopeReference(moduleScope), scopePropertyFlags),
                 new(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                 new(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),

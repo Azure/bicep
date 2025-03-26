@@ -81,8 +81,8 @@
       },
       "Azure.Bicep.Types.Az": {
         "type": "Transitive",
-        "resolved": "0.2.737",
-        "contentHash": "6ENkO9Y2+Qrlr+zPeErY/OVXc97tY3IL+4OAwQEbr06nW5F5+032QIXWj1ATrbruqbJ0tlE4BseH6ruM7zg8/A==",
+        "resolved": "0.2.756",
+        "contentHash": "arwntdwnNNDJ3AmK0LkT8zXUN73Wo4HTvbKUaq9BI+04wuUIcXpNpLDkYIhdvJfyN8ngwMc9o5T1qTyUggFoWA==",
         "dependencies": {
           "Azure.Bicep.Types": "0.5.110"
         }
@@ -222,14 +222,13 @@
       },
       "Azure.Identity": {
         "type": "Transitive",
-        "resolved": "1.13.1",
-        "contentHash": "4eeK9XztjTmvA4WN+qAvlUCSxSv45+LqTMeC8XT2giGGZHKthTMU2IuXcHjAOf5VLH3wE3Bo6EwhIcJxVB8RmQ==",
+        "resolved": "1.13.2",
+        "contentHash": "CngQVQELdzFmsGSWyGIPIUOCrII7nApMVWxVmJCKQQrWxRXcNquCsZ+njRJRnhFUfD+KMAhpjyRCaceE4EOL6A==",
         "dependencies": {
           "Azure.Core": "1.44.1",
-          "Microsoft.Identity.Client": "4.66.1",
-          "Microsoft.Identity.Client.Extensions.Msal": "4.66.1",
+          "Microsoft.Identity.Client": "4.67.2",
+          "Microsoft.Identity.Client.Extensions.Msal": "4.67.2",
           "System.Memory": "4.5.5",
-          "System.Text.Json": "6.0.10",
           "System.Threading.Tasks.Extensions": "4.5.4"
         }
       },
@@ -289,24 +288,24 @@
       },
       "Grpc.Core.Api": {
         "type": "Transitive",
-        "resolved": "2.67.0",
-        "contentHash": "cL1/2f8kc8lsAGNdfCU25deedXVehhLA6GXKLLN4hAWx16XN7BmjYn3gFU+FBpir5yJynvDTHEypr3Tl0j7x/Q=="
+        "resolved": "2.70.0",
+        "contentHash": "66UotvWcSIq41oiQhLWcQACyKPM4umxXNiht5DQTLZJfNwEswWOcS7Z0xIEHyNIBE7ZpjotH22bEjTkvhPxmVw=="
       },
       "Grpc.Net.Client": {
         "type": "Transitive",
-        "resolved": "2.67.0",
-        "contentHash": "ofTjJQfegWkVlk5R4k/LlwpcucpsBzntygd4iAeuKd/eLMkmBWoXN+xcjYJ5IibAahRpIJU461jABZvT6E9dwA==",
+        "resolved": "2.70.0",
+        "contentHash": "xNv0FFCVJa5S1beUtye82WFCxKThuE1jbN8DO1x1Rj8VSIWXLBUmfSID5a1fGzsU2R/EMfwPoWclJ2RMfQuGXw==",
         "dependencies": {
-          "Grpc.Net.Common": "2.67.0",
+          "Grpc.Net.Common": "2.70.0",
           "Microsoft.Extensions.Logging.Abstractions": "6.0.0"
         }
       },
       "Grpc.Net.Common": {
         "type": "Transitive",
-        "resolved": "2.67.0",
-        "contentHash": "gazn1cD2Eol0/W5ZJRV4PYbNrxJ9oMs8pGYux5S9E4MymClvl7aqYSmpqgmWAUWvziRqK9K+yt3cjCMfQ3x/5A==",
+        "resolved": "2.70.0",
+        "contentHash": "rBdEUMyCwa+iB8mqC6JKyPbj3SBHHkReJj/yy/XKJI63GcG6w9DJMMGTVcYHqq4Ci2W4m0HT4jt2pFfFscar8g==",
         "dependencies": {
-          "Grpc.Core.Api": "2.67.0"
+          "Grpc.Core.Api": "2.70.0"
         }
       },
       "Humanizer.Core": {
@@ -604,8 +603,8 @@
       },
       "Microsoft.Identity.Client": {
         "type": "Transitive",
-        "resolved": "4.66.1",
-        "contentHash": "mE+m3pZ7zSKocSubKXxwZcUrCzLflC86IdLxrVjS8tialy0b1L+aECBqRBC/ykcPlB4y7skg49TaTiA+O2UfDw==",
+        "resolved": "4.67.2",
+        "contentHash": "37t0TfekfG6XM8kue/xNaA66Qjtti5Qe1xA41CK+bEd8VD76/oXJc+meFJHGzygIC485dCpKoamG/pDfb9Qd7Q==",
         "dependencies": {
           "Microsoft.IdentityModel.Abstractions": "6.35.0",
           "System.Diagnostics.DiagnosticSource": "6.0.1"
@@ -613,10 +612,10 @@
       },
       "Microsoft.Identity.Client.Extensions.Msal": {
         "type": "Transitive",
-        "resolved": "4.66.1",
-        "contentHash": "osgt1J9Rve3LO7wXqpWoFx9UFjl0oeqoUMK/xEru7dvafQ28RgV1A17CoCGCCRSUbgDQ4Arg5FgGK2lQ3lXR4A==",
+        "resolved": "4.67.2",
+        "contentHash": "DKs+Lva6csEUZabw+JkkjtFgVmcXh4pJeQy5KH5XzPOaKNoZhAMYj1qpKd97qYTZKXIFH12bHPk0DA+6krw+Cw==",
         "dependencies": {
-          "Microsoft.Identity.Client": "4.66.1",
+          "Microsoft.Identity.Client": "4.67.2",
           "System.Security.Cryptography.ProtectedData": "4.5.0"
         }
       },
@@ -1560,11 +1559,11 @@
         "dependencies": {
           "Azure.Bicep.IO": "[1.0.0, )",
           "Azure.Bicep.Types": "[0.5.110, )",
-          "Azure.Bicep.Types.Az": "[0.2.737, )",
+          "Azure.Bicep.Types.Az": "[0.2.756, )",
           "Azure.Bicep.Types.K8s": "[0.1.644, )",
           "Azure.Containers.ContainerRegistry": "[1.1.1, )",
           "Azure.Deployments.Templates": "[1.224.0, )",
-          "Azure.Identity": "[1.13.1, )",
+          "Azure.Identity": "[1.13.2, )",
           "Azure.ResourceManager.Resources": "[1.9.0, )",
           "JsonPatch.Net": "[3.3.0, )",
           "JsonPath.Net": "[2.0.1, )",
@@ -1610,7 +1609,7 @@
         "dependencies": {
           "CommandLineParser": "[2.9.1, )",
           "Google.Protobuf": "[3.29.2, )",
-          "Grpc.Net.Client": "[2.67.0, )"
+          "Grpc.Net.Client": "[2.70.0, )"
         }
       },
       "bicep.core.unittests": {

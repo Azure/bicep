@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 
 namespace Bicep.Wasm.LanguageHelpers
 {

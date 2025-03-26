@@ -4,8 +4,8 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Syntax
 {
@@ -74,6 +74,8 @@ namespace Bicep.Core.Syntax
                 LanguageConstants.TargetScopeTypeManagementGroup => ResourceScope.ManagementGroup,
                 LanguageConstants.TargetScopeTypeSubscription => ResourceScope.Subscription,
                 LanguageConstants.TargetScopeTypeResourceGroup => ResourceScope.ResourceGroup,
+                // The feature flag is checked during scope validation, so just handle it here.
+                LanguageConstants.TargetScopeTypeDesiredStateConfiguration => ResourceScope.DesiredStateConfiguration,
                 _ => ResourceScope.None,
             };
         }

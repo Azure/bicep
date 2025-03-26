@@ -21,6 +21,8 @@ namespace Bicep.Core.SourceGraph
 
         public ReadOnlySpan<char> AsSpan() => this.value.AsSpan();
 
+        public override string ToString() => this.value;
+
         public static ResultWithDiagnosticBuilder<RelativePath> TryCreate(string path)
         {
             if (path.Length == 0)

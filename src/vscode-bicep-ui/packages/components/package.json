@@ -28,8 +28,8 @@
   },
   "devDependencies": {
     "@storybook/addon-essentials": "^8.5.3",
-    "@storybook/addon-interactions": "^8.6.3",
-    "@storybook/addon-links": "^8.5.3",
+    "@storybook/addon-interactions": "^8.6.4",
+    "@storybook/addon-links": "^8.6.6",
     "@storybook/addon-themes": "^8.4.7",
     "@storybook/blocks": "^8.5.0",
     "@storybook/react": "^8.4.7",
@@ -41,16 +41,16 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
-    "@vitest/coverage-v8": "^3.0.2",
+    "@vitest/coverage-v8": "^3.0.9",
     "@vscode/codicons": "^0.0.36",
     "happy-dom": "^17.0.2",
     "rollup-plugin-peer-deps-external": "^2.2.4",
-    "storybook": "^8.3.0",
-    "styled-components": "^6.1.13",
-    "vite": "^5.4.12",
+    "storybook": "^8.6.4",
+    "styled-components": "^6.1.16",
+    "vite": "^5.4.15",
     "vite-plugin-dts": "^4.5.0",
     "vite-plugin-lib-inject-css": "^2.2.1",
     "vite-plugin-svgr": "^4.3.0",
-    "vitest": "^3.0.5"
+    "vitest": "^3.0.8"
   }
 }

@@ -404,7 +404,7 @@ public class ParameterAssignmentEvaluator
         }
         catch (Exception ex)
         {
-            Trace.WriteLine($"Failed to generate template for {model.Root.FileUri}: {ex}");
+            Trace.WriteLine($"Failed to generate template for {model.SourceFile.FileHandle.Uri}: {ex}");
             return new(x => x.ReferencedModuleHasErrors());
         }
     }

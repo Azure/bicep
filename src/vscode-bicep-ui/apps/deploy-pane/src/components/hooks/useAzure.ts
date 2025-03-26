@@ -1,17 +1,12 @@
 import type { CloudError, Deployment, DeploymentOperation, ErrorResponse, WhatIfChange } from "@azure/arm-resources";
 import type { AccessToken, TokenCredential } from "@azure/identity";
-import type {
-  DeploymentScope,
-  DeployState,
-  TemplateMetadata,
-  UntypedError,
-} from "../../models";
+import type { DeploymentScope, DeployState, TemplateMetadata, UntypedError } from "../../models";
+import type { ParametersInputData } from "../sections/ParametersInputView";
 
 import { ResourceManagementClient } from "@azure/arm-resources";
 import { RestError } from "@azure/core-rest-pipeline";
 import { useState } from "react";
 import { getDate } from "./time";
-import type { ParametersInputData } from "../sections/ParametersInputView";
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
