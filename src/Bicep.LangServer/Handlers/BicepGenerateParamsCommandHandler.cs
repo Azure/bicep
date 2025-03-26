@@ -58,7 +58,7 @@ namespace Bicep.LanguageServer.Handlers
 
             // If the template exists and has a .json extension and contains the Bicep metadata, fail the generate params.
             // If not, continue to update the file.
-            if (extension == LanguageConstants.JsonFileExtension && File.Exists(compiledFilePath && !TemplateIsParametersFile(File.ReadAllText(compiledFilePath))))
+            if (extension == LanguageConstants.JsonFileExtension && File.Exists(compiledFilePath) && !TemplateIsParametersFile(File.ReadAllText(compiledFilePath)))
             {
                 return "Generating parameters file failed. The file \"" + compiledFile + "\" already exists. If overwriting the file is intended, delete it manually and retry the Generate Parameters command.";
             }
