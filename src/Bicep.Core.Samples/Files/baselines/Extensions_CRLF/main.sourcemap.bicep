@@ -28,12 +28,12 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
 //@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
 //@            "_EXPERIMENTAL_FEATURES_ENABLED": [
 //@              "Extensibility",
-//@              "Enables defining extension configs for modules"
+//@              "Enable defining extension configs for modules"
 //@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "6761252660116907708"
+//@              "templateHash": "16109138385919213017"
 //@            }
 //@          },
 //@          "extensions": {
@@ -93,12 +93,12 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
 //@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
 //@            "_EXPERIMENTAL_FEATURES_ENABLED": [
 //@              "Extensibility",
-//@              "Enables defining extension configs for modules"
+//@              "Enable defining extension configs for modules"
 //@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "718382094432436506"
+//@              "templateHash": "15982584485385996989"
 //@            }
 //@          },
 //@          "extensions": {
