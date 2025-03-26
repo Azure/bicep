@@ -1817,7 +1817,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic ExtendsNotSupported() => CoreError(
                 "BCP406",
-                $"The \"{LanguageConstants.ExtendsKeyword}\" keyword is not supported");
+                $"Using \"{LanguageConstants.ExtendsKeyword}\" keyword requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.ExtendableParamFiles)}\".");
 
             public Diagnostic MicrosoftGraphBuiltinRetired(ExtensionDeclarationSyntax? syntax)
             {
