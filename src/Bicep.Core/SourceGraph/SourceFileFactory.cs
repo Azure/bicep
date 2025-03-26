@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.CodeDom;
 using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Constants;
 using Azure.Deployments.Core.Definitions.Schema;
@@ -10,9 +9,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
-using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Text;
 using Bicep.IO.Abstraction;
@@ -110,7 +107,12 @@ namespace Bicep.Core.SourceGraph
             return new(fileUri, fileHandle, lineStarts, parser.Program(), this.configurationManager, this.featureProviderFactory, this.auxiliaryFileCache, parser.LexingErrorLookup, parser.ParsingErrorLookup);
         }
 
-        public ArmTemplateFile CreateArmTemplateFile(Uri fileUri, string fileContents) => CreateArmTemplateFile(fileUri, fileUri.IsFile ? this.fileExplorer.GetFile(fileUri.ToIOUri()) : DummyFileHandle.Instance, fileContents);
+        public ArmTemplateFile CreateArmTemplateFile(Uri fileUri, string fileContents) =>
+            CreateArmTemplateFile(
+                fileUri,
+                fileUri.IsFile ? this.fileExplorer.GetFile(fileUri.ToIOUri()) : DummyFileHandle.Instance,
+                fileContents,
+                this.featureProviderFactory);
 
         public TemplateSpecFile CreateTemplateSpecFile(Uri fileUri, string fileContents)
         {
@@ -136,7 +138,8 @@ namespace Bicep.Core.SourceGraph
                 return CreateErrorFile();
             }
         }
-        private static ArmTemplateFile CreateArmTemplateFile(Uri fileUri, IFileHandle fileHandle, string fileContents)
+
+        private static ArmTemplateFile CreateArmTemplateFile(Uri fileUri, IFileHandle fileHandle, string fileContents, IFeatureProviderFactory featureProviderFactory)
         {
             try
             {
@@ -146,15 +149,15 @@ namespace Bicep.Core.SourceGraph
 
                 var templateObject = ParseObject(fileContents);
 
-                return new(fileUri, fileHandle, fileContents, template, templateObject);
+                return new(fileUri, fileHandle, fileContents, template, templateObject, featureProviderFactory.GetFeatureProvider(fileUri));
             }
             catch (Exception)
             {
-                return new(fileUri, fileHandle, fileContents, null, null);
+                return new(fileUri, fileHandle, fileContents, null, null, featureProviderFactory.GetFeatureProvider(fileUri));
             }
         }
 
-        private static ArmTemplateFile CreateDummyArmTemplateFile(string content) => CreateArmTemplateFile(InMemoryMainTemplateUri, DummyFileHandle.Instance, content);
+        private ArmTemplateFile CreateDummyArmTemplateFile(string content) => CreateArmTemplateFile(InMemoryMainTemplateUri, DummyFileHandle.Instance, content, this.featureProviderFactory);
 
         private static void ValidateTemplate(Template template)
         {

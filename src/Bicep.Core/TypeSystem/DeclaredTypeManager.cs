@@ -3,7 +3,6 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
-using System.Configuration;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -19,7 +18,6 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.Utils;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -99,6 +97,9 @@ namespace Bicep.Core.TypeSystem
             {
                 case ExtensionDeclarationSyntax extension:
                     return GetExtensionType(extension);
+
+                case ExtensionConfigAssignmentSyntax extConfigAssignment:
+                    return GetExtensionConfigAssignmentType(extConfigAssignment);
 
                 case MetadataDeclarationSyntax metadata:
                     return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(metadata.Value), metadata);
@@ -1208,6 +1209,38 @@ namespace Bicep.Core.TypeSystem
             return null;
         }
 
+        private TypeSymbol? GetDeclaredExtensionConfigAssignmentType(ExtensionConfigAssignmentSyntax syntax)
+        {
+            if (!binder.FileSymbol.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var semanticModel, out var failureDiagnostic))
+            {
+                // failed to resolve using
+                return failureDiagnostic.IsError() ? ErrorType.Create(failureDiagnostic) : null;
+            }
+
+            // TODO(kylealbert): this needs some thought with spec strings, ext names, and aliases
+            if (syntax.TryGetSymbolName() is not { } symbolName)
+            {
+                return null;
+            }
+
+            if (semanticModel.Extensions.TryGetValue(symbolName, out var extensionMetadata))
+            {
+                return extensionMetadata.NamespaceType?.ConfigurationType;
+            }
+
+            return null;
+        }
+
+        private DeclaredTypeAssignment? GetExtensionConfigAssignmentType(ExtensionConfigAssignmentSyntax extConfigAssignment)
+        {
+            if (GetDeclaredExtensionConfigAssignmentType(extConfigAssignment) is { } configType)
+            {
+                return new(configType, extConfigAssignment);
+            }
+
+            return null;
+        }
+
         private DeclaredTypeAssignment GetResourceType(ResourceDeclarationSyntax syntax)
         {
             var declaredResourceType = GetDeclaredResourceType(syntax);
@@ -2103,6 +2136,23 @@ namespace Bicep.Core.TypeSystem
                 parameters.Add(new NamedTypeProperty(parameter.Name, type, flags, parameter.Description));
             }
 
+            List<NamedTypeProperty>? extensionConfigs = null;
+
+            if (features is { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true })
+            {
+                extensionConfigs = [];
+
+                foreach (var ext in moduleSemanticModel.Extensions.Values.Where(ext => ext.NamespaceType?.ConfigurationType is not null))
+                {
+                    var extAliasProperty = new NamedTypeProperty(
+                        ext.Alias,
+                        ext.NamespaceType!.ConfigurationType!,
+                        ext.NamespaceType.IsConfigurationRequired ? TypePropertyFlags.Required | TypePropertyFlags.WriteOnly : TypePropertyFlags.WriteOnly);
+
+                    extensionConfigs.Add(extAliasProperty);
+                }
+            }
+
             var outputs = new List<NamedTypeProperty>();
             foreach (var output in moduleSemanticModel.Outputs)
             {
@@ -2122,6 +2172,7 @@ namespace Bicep.Core.TypeSystem
             return LanguageConstants.CreateModuleType(
                 this.features,
                 parameters,
+                extensionConfigs,
                 outputs,
                 moduleSemanticModel.TargetScope,
                 binder.TargetScope,

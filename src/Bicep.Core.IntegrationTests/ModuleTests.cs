@@ -1,17 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Immutable;
+
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
@@ -83,10 +81,10 @@ output outputb string = '${inputa}-${inputb}'
 
             var compilation = Services.BuildCompilation(files, mainUri);
 
-            var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
             success.Should().BeTrue();
-            GetTemplate(compilation).Should().NotBeEmpty();
+            compilation.GetTestTemplate().Should().NotBeEmpty();
         }
 
         [TestMethod]
@@ -112,7 +110,7 @@ module mainRecursive 'main.bicep' = {
 
             var compilation = Services.BuildCompilation(files, mainUri);
 
-            var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
                 ("BCP094", DiagnosticLevel.Error, "This module references itself, which is not allowed."),
             });
@@ -166,7 +164,7 @@ module main 'main.bicep' = {
 
             var compilation = Services.BuildCompilation(files, mainUri);
 
-            var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
                 ("BCP095", DiagnosticLevel.Error, "The file is involved in a cycle (\"/modulea.bicep\" -> \"/moduleb.bicep\" -> \"/main.bicep\")."),
             });
@@ -224,7 +222,7 @@ module modulea 'modulea.bicep' = {
             var compiler = ServiceBuilder.Create(s => s.WithFileResolver(mockFileResolver.Object).WithDisabledAnalyzersConfiguration()).GetCompiler();
             var compilation = await compiler.CreateCompilation(mainFileUri);
 
-            var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile[mainFileUri].Should().HaveDiagnostics(new[] {
                 ("BCP093", DiagnosticLevel.Error, "File path \"modulea.bicep\" could not be resolved relative to \"/path/to/main.bicep\"."),
             });
@@ -296,11 +294,11 @@ output outputc2 int = inputb + 1
 
             var compilation = Services.BuildCompilation(files, mainUri);
 
-            var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
             success.Should().BeTrue();
 
-            var templateString = GetTemplate(compilation);
+            var templateString = compilation.GetTestTemplate();
             var template = JToken.Parse(templateString);
             template.Should().NotBeNull();
 
@@ -366,7 +364,7 @@ module modulea 'modulea.bicep' = {
             var compiler = ServiceBuilder.Create(s => s.WithFileResolver(mockFileResolver.Object).WithDisabledAnalyzersConfiguration()).GetCompiler();
             var compilation = await compiler.CreateCompilation(mainUri);
 
-            var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
                 ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. Mock read failure!"),
             });
@@ -802,31 +800,12 @@ module {symbolicName} 'mod.bicep' = [for x in []: {{
             result.Template.Should().HaveValueAtPath("$.outputs.allModNames.copy.input", $"[format('{symbolicNamePrefix}-{{0}}-{{1}}', range(0, 10)[copyIndex()], uniqueString('{symbolicName}', deployment().name))]");
         }
 
-        private static string GetTemplate(Compilation compilation)
-        {
-            var stringBuilder = new StringBuilder();
-            var stringWriter = new StringWriter(stringBuilder);
-
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
-            emitter.Emit(stringWriter);
-
-            return stringBuilder.ToString();
-        }
-
-        private static (bool success, IDictionary<Uri, ImmutableArray<IDiagnostic>> diagnosticsByFile) GetSuccessAndDiagnosticsByFile(Compilation compilation)
-        {
-            var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.Uri, kvp => kvp.Value);
-            var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => !d.IsError());
-
-            return (success, diagnosticsByFile);
-        }
-
         private static void ModuleTemplateHashValidator(Compilation compilation, string expectedTemplateHash)
         {
-            var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
             success.Should().BeTrue();
-            var templateString = GetTemplate(compilation);
+            var templateString = compilation.GetTestTemplate();
             var template = JToken.Parse(templateString);
             template.Should().NotBeNull();
             template.SelectToken(BicepTestConstants.GeneratorTemplateHashPath)?.ToString().Should().Be(expectedTemplateHash);

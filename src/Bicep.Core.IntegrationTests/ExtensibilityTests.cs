@@ -1,14 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.CodeAction;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
-using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
@@ -28,6 +26,8 @@ namespace Bicep.Core.IntegrationTests
             }
             """))
             .WithNamespaceProvider(TestExtensibilityNamespaceProvider.CreateWithDefaults());
+
+        private static ServiceBuilder ServicesWithModuleExtensionConfigs => Services.WithFeatureOverrides(new(ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true));
 
         [TestMethod]
         public void Bar_import_bad_config_is_blocked()
@@ -655,6 +655,232 @@ Hello from Bicep!"));
             result.Template.Should().HaveValueAtPath("$.languageVersion", "2.2-experimental");
             result.Template.Should().HaveValueAtPath("$.extensions.foo.name", "Foo");
             result.Template.Should().HaveValueAtPath("$.resources.myApp.extension", "foo");
+        }
+
+        [TestMethod]
+        public void Module_with_required_extension_config_can_be_compiled_successfully()
+        {
+            var paramsUri = new Uri("file:///main.bicepparam");
+            var mainUri = new Uri("file:///main.bicep");
+            var moduleAUri = new Uri("file:///modulea.bicep");
+
+            // TODO(kylealbert): Remove 'with' clause in template when that's removed
+            // TODO(kylealbert): Uncomment graph when I figure out how to deal with the registry.
+            var files = new Dictionary<Uri, string>
+            {
+                [paramsUri] =
+                    """
+                    using 'main.bicep'
+
+                    param inputa = 'abc'
+
+                    extension k8s with {
+                      kubeConfig: 'abc'
+                      namespace: 'other'
+                    }
+                    """,
+                [mainUri] =
+                    """
+                    param inputa string
+
+                    extension kubernetes with {
+                      kubeConfig: 'DELETE'
+                      namespace: 'DELETE'
+                    } as k8s
+
+                    //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview'
+
+                    module modulea 'modulea.bicep' = {
+                      name: 'modulea'
+                      params: {
+                        inputa: inputa
+                      }
+                      extensionConfigs: {
+                        kubernetes: {
+                          kubeConfig: 'fromModule'
+                          namespace: 'other'
+                        }
+                      }
+                    }
+
+                    output outputa string = modulea.outputs.outputa
+                    """,
+                [moduleAUri] =
+                    """
+                    param inputa string
+
+                    extension kubernetes with {
+                      kubeConfig: 'DELETE'
+                      namespace: 'DELETE'
+                    }
+
+                    //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
+
+                    output outputa string = inputa
+                    """
+            };
+
+            var compilation = ServicesWithModuleExtensionConfigs.BuildCompilation(files, paramsUri);
+
+            compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
+        }
+
+        [DataTestMethod]
+        [DataRow(
+            "MissingExtensionConfigsDeclaration",
+            "",
+            "BCP035",
+            """The specified "module" declaration is missing the following required properties: "extensionConfigs".""")]
+        [DataRow(
+            "MissingRequiredExtensionConfig",
+            "extensionConfigs: {}",
+            "BCP035",
+            """The specified "object" declaration is missing the following required properties: "kubernetes".""")]
+        [DataRow(
+            "MissingRequiredConfigProperty",
+            "extensionConfigs: { kubernetes: { namespace: 'other' } }",
+            "BCP035",
+            """The specified "object" declaration is missing the following required properties: "kubeConfig".""")]
+        [DataRow(
+            "PropertyIsNotDefinedInSchema",
+            "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other', extra: 'extra' } }",
+            "BCP037",
+            """The property "extra" is not allowed on objects of type "configuration". Permissible properties include "context".""")]
+        [DataRow(
+            "ConfigProvidedForExtensionThatDoesNotAcceptConfig",
+            "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other' }, graph: { } }",
+            "BCP037",
+            """The property "graph" is not allowed on objects of type "extensionConfigs". No other properties are allowed.""")]
+        public void Module_with_invalid_extension_config_produces_diagnostic(
+            string scenarioName,
+            string moduleExtensionConfigsStr,
+            string expectedDiagnosticCode,
+            string expectedDiagnosticMessage)
+        {
+            var mainUri = new Uri("file:///main.bicep");
+            var moduleAUri = new Uri("file:///modulea.bicep");
+
+            // TODO(kylealbert): Remove 'with' clause in template when that's removed
+            // TODO(kylealbert): Uncomment graph when I figure out how to deal with the registry.
+            var files = new Dictionary<Uri, string>
+            {
+                [mainUri] =
+                    $$"""
+                      param inputa string
+
+                      module modulea 'modulea.bicep' = {
+                        name: 'modulea'
+                        params: {
+                          inputa: inputa
+                        }
+                        {{moduleExtensionConfigsStr}}
+                      }
+
+                      output outputa string = modulea.outputs.outputa
+                      """,
+                [moduleAUri] =
+                    """
+                    param inputa string
+
+                    extension kubernetes with {
+                      kubeConfig: ''
+                      namespace: 'default'
+                    }
+
+                    //extension microsoftGraph as graph
+
+                    output outputa string = inputa
+                    """
+            };
+
+            var compilation = ServicesWithModuleExtensionConfigs.BuildCompilation(files, mainUri);
+
+            compilation.Should().ContainSingleDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
+        }
+
+        [DataTestMethod]
+        [DataRow(
+            "ParamsFile",
+            "BCP337",
+            $"""This declaration type is not valid for a Bicep Parameters file. Specify a "{LanguageConstants.UsingKeyword}", "{LanguageConstants.ExtendsKeyword}", "{LanguageConstants.ParameterKeyword}" or "{LanguageConstants.VariableKeyword}" declaration.""")]
+        [DataRow(
+            "MainFile",
+            "BCP037",
+            """The property "extensionConfigs" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope".""")]
+        public void Extension_config_assignments_raise_error_diagnostic_if_expr_feature_disabled(string scenario, string expectedDiagnosticCode, string expectedDiagnosticMessage)
+        {
+            var paramsUri = new Uri("file:///main.bicepparam");
+            var mainUri = new Uri("file:///main.bicep");
+            var moduleAUri = new Uri("file:///modulea.bicep");
+
+            // TODO(kylealbert): Remove 'with' clause in template when that's removed
+            // TODO(kylealbert): Uncomment graph when I figure out how to deal with the registry.
+            var files = new Dictionary<Uri, string>
+            {
+                [paramsUri] =
+                    """
+                    using 'main.bicep'
+
+                    param inputa = 'abc'
+
+                    extension k8s with {
+                      kubeConfig: 'abc'
+                      namespace: 'other'
+                    }
+                    """,
+                [mainUri] =
+                    """
+                    param inputa string
+
+                    extension kubernetes with {
+                      kubeConfig: 'DELETE'
+                      namespace: 'DELETE'
+                    } as k8s
+
+                    //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview'
+
+                    module modulea 'modulea.bicep' = {
+                      name: 'modulea'
+                      params: {
+                        inputa: inputa
+                      }
+                      extensionConfigs: {
+                        kubernetes: {
+                          kubeConfig: 'fromModule'
+                          namespace: 'other'
+                        }
+                      }
+                    }
+
+                    output outputa string = modulea.outputs.outputa
+                    """,
+                [moduleAUri] =
+                    """
+                    param inputa string
+
+                    extension kubernetes with {
+                      kubeConfig: 'DELETE'
+                      namespace: 'DELETE'
+                    }
+
+                    //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
+
+                    output outputa string = inputa
+                    """
+            };
+
+            if (scenario is "ParamsFile")
+            {
+                files[mainUri] = files[moduleAUri];
+                files.Remove(moduleAUri);
+            }
+
+            var compilation = Services.BuildCompilation(files, paramsUri);
+
+            var diagByFile = compilation.GetAllDiagnosticsByBicepFileUri();
+
+            var fileUriWithDiag = scenario is "ParamsFile" ? paramsUri : mainUri;
+            diagByFile[fileUriWithDiag].Should().ContainSingleDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
         }
     }
 }

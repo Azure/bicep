@@ -1410,6 +1410,73 @@ namespace Bicep.Core.Emit
             }, paramsObject.SourceSyntax);
         }
 
+        private void EmitModuleExtensionConfigs(ExpressionEmitter emitter, DeclaredModuleExpression module)
+        {
+            if (module.ExtensionConfigs is not ObjectExpression extConfigsObjExpr)
+            {
+                // 'extensionConfigs' is optional if the module has no required extension configurations
+                return;
+            }
+
+            emitter.EmitObjectProperty(
+                "extensionConfigs", () =>
+                {
+                    foreach (var extAliasPropertyExpr in extConfigsObjExpr.Properties)
+                    {
+                        if (extAliasPropertyExpr.TryGetKeyText() is not { } extAlias)
+                        {
+                            // should have been caught by earlier validation
+                            throw new ArgumentException("Disallowed interpolation in module extension config alias key");
+                        }
+
+                        if (extAliasPropertyExpr.Value is ObjectExpression extConfigObjExpr)
+                        {
+                            emitter.EmitObjectProperty(
+                                extAlias, () =>
+                                {
+                                    foreach (var extConfigPropertyExpr in extConfigObjExpr.Properties)
+                                    {
+                                        if (extConfigPropertyExpr.TryGetKeyText() is not { } extConfigPropertyName)
+                                        {
+                                            // should have been caught by earlier validation
+                                            throw new ArgumentException("Disallowed interpolation in module extension config property key");
+                                        }
+
+                                        // we can't just call EmitObjectProperties here because the ObjectSyntax is flatter than the structure we're generating
+                                        // because nested deployment extension configs are objects with a single value property
+                                        if (extConfigPropertyExpr.Value is ForLoopExpression @for)
+                                        {
+                                            // the value is a for-expression
+                                            // write a single property copy loop
+                                            emitter.EmitObjectProperty(extConfigPropertyName, () => { emitter.EmitCopyProperty(() => { emitter.EmitArray(() => { emitter.EmitCopyObject("value", @for.Expression, @for.Body, "value"); }, @for.SourceSyntax); }); });
+                                        }
+                                        else if (extConfigPropertyExpr.Value is ResourceReferenceExpression resource &&
+                                            module.Symbol.TryGetModuleType() is ModuleType moduleType &&
+                                            moduleType.TryGetExtensionConfigPropertyType(extAlias, extConfigPropertyName) is ResourceParameterType)
+                                        {
+                                            // TODO(kylealbert): verify this
+                                            // This is a resource being passed into a module, we actually want to pass in its id
+                                            // rather than the whole resource.
+                                            var idExpression = new PropertyAccessExpression(resource.SourceSyntax, resource, "id", AccessExpressionFlags.None);
+                                            emitter.EmitProperty(extConfigPropertyName, ExpressionEmitter.ConvertModuleExtensionConfig(idExpression));
+                                        }
+                                        else
+                                        {
+                                            // the value is not a for-expression - can emit normally
+                                            emitter.EmitProperty(extConfigPropertyName, ExpressionEmitter.ConvertModuleExtensionConfig(extConfigPropertyExpr.Value));
+                                        }
+                                    }
+                                }, extConfigObjExpr.SourceSyntax);
+                        }
+                        else
+                        {
+                            // TODO(kylealbert): ternaries, extension symbols
+                            throw new NotImplementedException($"Expression emit is not handled for {extAliasPropertyExpr.Value.GetType().Name}");
+                        }
+                    }
+                }, extConfigsObjExpr.SourceSyntax);
+        }
+
         private void EmitModuleForLocalDeploy(PositionTrackingJsonTextWriter jsonWriter, DeclaredModuleExpression module, ExpressionEmitter emitter)
         {
             emitter.EmitObject(() =>
@@ -1433,6 +1500,11 @@ namespace Bicep.Core.Emit
                 emitter.EmitObjectProperty("properties", () =>
                 {
                     EmitModuleParameters(emitter, module);
+
+                    if (this.Context.SemanticModel.Features is { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true })
+                    {
+                        EmitModuleExtensionConfigs(emitter, module);
+                    }
 
                     var moduleSemanticModel = GetModuleSemanticModel(module.Symbol);
 
@@ -1522,6 +1594,11 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty("mode", "Incremental");
 
                     EmitModuleParameters(emitter, module);
+
+                    if (Context.SemanticModel.Features is { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true })
+                    {
+                        EmitModuleExtensionConfigs(emitter, module);
+                    }
 
                     var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
 

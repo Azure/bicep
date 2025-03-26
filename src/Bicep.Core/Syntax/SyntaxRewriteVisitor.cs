@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Parsing;
@@ -363,6 +364,23 @@ namespace Bicep.Core.Syntax
             return new ExtensionDeclarationSyntax(leadingNodes, keyword, specification, withClause, asClause);
         }
         void ISyntaxVisitor.VisitExtensionDeclarationSyntax(ExtensionDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceExtensionDeclarationSyntax);
+
+        protected virtual SyntaxBase ReplaceExtensionConfigAssignmentSyntax(ExtensionConfigAssignmentSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.SpecificationString, out var specification);
+            hasChanges |= TryRewriteStrict(syntax.WithClause, out var withClause);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ExtensionConfigAssignmentSyntax(leadingNodes, keyword, specification, withClause);
+        }
+
+        void ISyntaxVisitor.VisitExtensionConfigAssignmentSyntax(ExtensionConfigAssignmentSyntax syntax) => ReplaceCurrent(syntax, ReplaceExtensionConfigAssignmentSyntax);
 
         protected virtual SyntaxBase ReplaceExtensionWithClauseSyntax(ExtensionWithClauseSyntax syntax)
         {

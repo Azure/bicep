@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using Bicep.Core;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
@@ -363,6 +364,13 @@ namespace Bicep.LanguageServer
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             AddTokenType(syntax.Alias, SemanticTokenType.Namespace);
+        }
+
+        public override void VisitExtensionConfigAssignmentSyntax(ExtensionConfigAssignmentSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            this.Visit(syntax.SpecificationString);
+            this.Visit(syntax.WithClause);
         }
 
         public override void VisitCompileTimeImportDeclarationSyntax(CompileTimeImportDeclarationSyntax syntax)

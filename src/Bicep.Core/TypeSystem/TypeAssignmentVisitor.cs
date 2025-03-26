@@ -3,18 +3,14 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
-using Azure.Deployments.Core.Diagnostics;
-using Azure.Deployments.Templates.Export;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Intermediate;
-using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
@@ -930,6 +926,55 @@ namespace Bicep.Core.TypeSystem
 
                 return namespaceType;
             });
+
+        public override void VisitExtensionConfigAssignmentSyntax(ExtensionConfigAssignmentSyntax syntax)
+            => AssignTypeWithDiagnostics(
+                syntax, diagnostics =>
+                {
+                    if (features is not { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true })
+                    {
+                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedParamsFileDeclaration());
+                    }
+
+                    if (binder.GetSymbolInfo(syntax) is not ExtensionConfigAssignmentSymbol configAssignmentSymbol)
+                    {
+                        // We have syntax or binding errors, which should have already been handled.
+                        return ErrorType.Empty();
+                    }
+
+                    var declaredType = typeManager.GetDeclaredType(syntax); // this is the config type
+
+                    if (declaredType is ErrorType)
+                    {
+                        return declaredType;
+                    }
+                    else if (declaredType is not null && declaredType.GetType() != typeof(ObjectType))
+                    {
+                        return ErrorType.Empty();
+                    }
+
+                    base.VisitExtensionConfigAssignmentSyntax(syntax);
+
+                    var configType = (ObjectType?)declaredType;
+
+                    if (configType is null) // Ext does not support configuration
+                    {
+                        diagnostics.Write(syntax.SpecificationString, x => x.ExtensionDoesNotSupportConfiguration(configAssignmentSymbol.Name));
+
+                        return ErrorType.Empty();
+                    }
+
+                    if (syntax.Config is not null)
+                    {
+                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Config, configType, false);
+                    }
+                    else if (syntax.WithClause.IsSkipped && configType.Properties.Any(p => p.Value.Flags.HasFlag(TypePropertyFlags.Required)))
+                    {
+                        diagnostics.Write(syntax, x => x.ExtensionRequiresConfiguration(configAssignmentSymbol.Name));
+                    }
+
+                    return configType;
+                });
 
         private void ValidateDecorators(IEnumerable<DecoratorSyntax> decoratorSyntaxes, TypeSymbol targetType, IDiagnosticWriter diagnostics)
         {

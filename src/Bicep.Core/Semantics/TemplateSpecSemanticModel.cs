@@ -24,6 +24,8 @@ namespace Bicep.Core.Semantics
 
         public ImmutableSortedDictionary<string, ParameterMetadata> Parameters => this.mainTemplateSemanticModel.Parameters;
 
+        public ImmutableSortedDictionary<string, ExtensionMetadata> Extensions => this.mainTemplateSemanticModel.Extensions;
+
         public ImmutableSortedDictionary<string, ExportMetadata> Exports => this.mainTemplateSemanticModel.Exports;
 
         public ImmutableArray<OutputMetadata> Outputs => this.mainTemplateSemanticModel.Outputs;
