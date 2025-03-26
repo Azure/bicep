@@ -63,11 +63,9 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private record NamespaceValue<T>(T Value, VisibilityDelegate IsVisible);
 
-        private static readonly ImmutableArray<NamespaceValue<FunctionOverload>> Overloads = [.. GetSystemOverloads()];
-
         private static readonly ImmutableArray<NamespaceValue<NamedTypeProperty>> AmbientSymbols = [.. GetSystemAmbientSymbols()];
 
-        private static IEnumerable<NamespaceValue<FunctionOverload>> GetSystemOverloads()
+        private static IEnumerable<NamespaceValue<FunctionOverload>> GetSystemOverloads(IFeatureProvider featureProvider)
         {
             static IEnumerable<FunctionOverload> GetAlwaysPermittedOverloads()
             {
@@ -1097,7 +1095,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
             }
 
-            static IEnumerable<FunctionOverload> GetParamsFilePermittedOverloads()
+            static IEnumerable<FunctionOverload> GetParamsFilePermittedOverloads(IFeatureProvider featureProvider)
             {
                 yield return new FunctionOverloadBuilder("readEnvironmentVariable")
                     .WithGenericDescription($"Reads the specified Environment variable as bicep string. Variable loading occurs during compilation, not at runtime.")
@@ -1106,6 +1104,30 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
                     .WithOptionalParameter("default", LanguageConstants.String, "Default value to return if environment variable is not found.")
                     .Build();
+
+                if (featureProvider.ExternalInputFunctionEnabled)
+                {
+                    yield return new FunctionOverloadBuilder("externalInput")
+                        .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
+                        .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.")
+                        .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.")
+                        .WithReturnResultBuilder((model, diagnostics, functionCall, argumentTypes) =>
+                        {
+                            var arguments = functionCall.Arguments;
+                            
+                            if (argumentTypes.Length < 1 || argumentTypes[0] is not StringLiteralType stringLiteral)
+                            {
+                                return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).CompileTimeConstantRequired()));
+                            }
+
+                            var inputType = stringLiteral.RawStringValue;
+
+                            return new(LanguageConstants.Any, new ExternalInputExpression(functionCall, inputType));
+
+                        }, LanguageConstants.Any)
+                        // .WithReturnType(LanguageConstants.Any)
+                        .Build();
+                }
             }
 
             foreach (var overload in GetAlwaysPermittedOverloads())
@@ -1113,7 +1135,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 yield return new(overload, (_, _) => true);
             }
 
-            foreach (var overload in GetParamsFilePermittedOverloads())
+            foreach (var overload in GetParamsFilePermittedOverloads(featureProvider))
             {
                 yield return new(overload, (_, sfk) => sfk == BicepSourceFileKind.ParamsFile);
             }
@@ -2025,7 +2047,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 aliasName,
                 Settings,
                 AmbientSymbols.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
-                Overloads.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
+                GetSystemOverloads(featureProvider).Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 BannedFunctions,
                 GetSystemDecorators(featureProvider).Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 new EmptyResourceTypeProvider());

@@ -114,22 +114,24 @@ public class ParameterAssignmentEvaluator
 
     public class Result
     {
-        private Result(JToken? value, ParameterKeyVaultReferenceExpression? keyVaultReference, IDiagnostic? diagnostic)
+        private Result(JToken? value, Expression? expression, ParameterKeyVaultReferenceExpression? keyVaultReference, IDiagnostic? diagnostic)
         {
             Value = value;
             KeyVaultReference = keyVaultReference;
+            Expression = expression;
             Diagnostic = diagnostic;
         }
 
         public JToken? Value { get; }
+        public Expression? Expression { get; }
         public ParameterKeyVaultReferenceExpression? KeyVaultReference { get; }
         public IDiagnostic? Diagnostic { get; }
 
-        public static Result For(JToken value) => new(value, null, null);
+        public static Result For(JToken value) => new(value, null, null, null);
+        public static Result For(Expression expression) => new(null, expression, null, null);
+        public static Result For(ParameterKeyVaultReferenceExpression expression) => new(null, null, expression, null);
 
-        public static Result For(ParameterKeyVaultReferenceExpression expression) => new(null, expression, null);
-
-        public static Result For(IDiagnostic diagnostic) => new(null, null, diagnostic);
+        public static Result For(IDiagnostic diagnostic) => new(null, null, null, diagnostic);
     }
 
     private readonly ConcurrentDictionary<ParameterAssignmentSymbol, Result> results = new();
@@ -183,6 +185,11 @@ public class ParameterAssignmentEvaluator
                     return Result.For(keyVaultReferenceExpression);
                 }
 
+                if (ExternalInputExpressionFinder.ContainsExternalInputExpression(intermediate))
+                {
+                    return Result.For(intermediate);
+                }
+
                 try
                 {
                     return Result.For(converter.ConvertExpression(intermediate).EvaluateExpression(context));
@@ -203,6 +210,11 @@ public class ParameterAssignmentEvaluator
                 {
                     var context = GetExpressionEvaluationContext();
                     var intermediate = converter.ConvertToIntermediateExpression(variable.DeclaringVariable.Value);
+
+                    if (ExternalInputExpressionFinder.ContainsExternalInputExpression(intermediate))
+                    {
+                        return Result.For(intermediate);
+                    }
 
                     return Result.For(converter.ConvertExpression(intermediate).EvaluateExpression(context));
                 }
@@ -406,6 +418,29 @@ public class ParameterAssignmentEvaluator
         {
             Trace.WriteLine($"Failed to generate template for {model.SourceFile.FileHandle.Uri}: {ex}");
             return new(x => x.ReferencedModuleHasErrors());
+        }
+    }
+
+    private class ExternalInputExpressionFinder : ExpressionVisitor
+    {
+        private ExternalInputExpressionFinder()
+        {
+        }
+
+        private readonly ImmutableList<Expression>.Builder expressions = 
+            ImmutableList.CreateBuilder<Expression>();
+
+        public static bool ContainsExternalInputExpression(Expression? expression)
+        {
+            var visitor = new ExternalInputExpressionFinder();
+            visitor.Visit(expression);
+            return visitor.expressions.Count > 0;
+        }
+
+        public override void VisitExternalInputExpression(ExternalInputExpression expression)
+        {
+            expressions.Add(expression);
+            base.VisitExternalInputExpression(expression);
         }
     }
 }

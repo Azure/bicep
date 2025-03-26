@@ -29,16 +29,30 @@ public class ParametersEmitter
         return Emit(sw);
     }
 
+    // public EmitResult Emit(TextWriter textWriter) => this.EmitOrFail(() =>
+    // {
+    //     using var writer = new JsonTextWriter(textWriter)
+    //     {
+    //         // don't close the textWriter when writer is disposed
+    //         CloseOutput = false,
+    //         Formatting = Formatting.Indented
+    //     };
+
+    //     var emitter = new ParametersJsonWriter(model);
+    //     emitter.Write(writer);
+    //     writer.Flush();
+    // });
+
     public EmitResult Emit(TextWriter textWriter) => this.EmitOrFail(() =>
     {
-        using var writer = new JsonTextWriter(textWriter)
+        using var writer = new SourceAwareJsonTextWriter(textWriter)
         {
             // don't close the textWriter when writer is disposed
             CloseOutput = false,
             Formatting = Formatting.Indented
         };
 
-        var emitter = new ParametersJsonWriter(model);
+        var emitter = new ParametersJsonWriterv2(model);
         emitter.Write(writer);
         writer.Flush();
     });

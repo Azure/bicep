@@ -684,9 +684,9 @@ namespace Bicep.Core.Emit
                 {
                     diagnostics.Write(result.Diagnostic);
                 }
-                if (result.Value is not null || result.KeyVaultReference is not null)
+                if (result.Value is not null || result.Expression is not null || result.KeyVaultReference is not null)
                 {
-                    generated[parameter] = new(result.Value, result.KeyVaultReference);
+                    generated[parameter] = new(result.Value, result.Expression, result.KeyVaultReference);
                 }
             }
 

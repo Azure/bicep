@@ -9,7 +9,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit;
 
-public record ParameterAssignmentValue(JToken? Value, ParameterKeyVaultReferenceExpression? KeyVaultReferenceExpression);
+public record ParameterAssignmentValue(JToken? Value, Expression? Expression, ParameterKeyVaultReferenceExpression? KeyVaultReferenceExpression);
 
 public record EmitLimitationInfo(
     IReadOnlyList<IDiagnostic> Diagnostics,
