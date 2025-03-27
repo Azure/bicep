@@ -882,5 +882,70 @@ Hello from Bicep!"));
             var fileUriWithDiag = scenario is "ParamsFile" ? paramsUri : mainUri;
             diagByFile[fileUriWithDiag].Should().ContainSingleDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
         }
+
+
+        [DataTestMethod]
+        [DataRow(
+            "FullInheritance",
+            "extensionConfigs: { kubernetes: k8s }")]
+        [DataRow(
+            "PiecemealInheritance",
+            "extensionConfigs: { kubernetes: { kubeConfig: k8s.kubeConfig, namespace: k8s.namespace } }")]
+        public void Modules_can_inherit_parent_module_extension_configs(string scenario, string moduleExtensionConfigsStr)
+        {
+            var paramsUri = new Uri("file:///main.bicepparam");
+            var mainUri = new Uri("file:///main.bicep");
+            var moduleAUri = new Uri("file:///modulea.bicep");
+
+            // TODO(kylealbert): Remove 'with' clause in template when that's removed
+            var files = new Dictionary<Uri, string>
+            {
+                [paramsUri] =
+                    """
+                    using 'main.bicep'
+
+                    param inputa = 'abc'
+
+                    extension k8s with {
+                      kubeConfig: 'abc'
+                      namespace: 'other'
+                    }
+                    """,
+                [mainUri] =
+                    $$"""
+                      param inputa string
+
+                      extension kubernetes with {
+                        kubeConfig: 'DELETE'
+                        namespace: 'DELETE'
+                      } as k8s
+
+                      module modulea 'modulea.bicep' = {
+                        name: 'modulea'
+                        params: {
+                          inputa: inputa
+                        }
+                        {{moduleExtensionConfigsStr}}
+                      }
+
+                      output outputa string = modulea.outputs.outputa
+                      """,
+                [moduleAUri] =
+                    """
+                    param inputa string
+
+                    extension kubernetes with {
+                      kubeConfig: 'DELETE'
+                      namespace: 'DELETE'
+                    }
+
+                    output outputa string = inputa
+                    """
+            };
+
+            var compilation = ServicesWithModuleExtensionConfigs.BuildCompilation(files, paramsUri);
+
+            compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
+        }
     }
 }
