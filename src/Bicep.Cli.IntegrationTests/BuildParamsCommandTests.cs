@@ -412,7 +412,7 @@ output foo string = foo
 
             var result = await Bicep(settings, "build-params", mainBicepParamPath, "--stdout");
 
-            result.Should().Fail().And.HaveStderrMatch($"*Error BCP406: Using \"extends\" keyword requires enabling EXPERIMENTAL feature \"ExtendableParamFiles\".");
+            result.Should().Fail().And.HaveStderrMatch($"*Error BCP406: Using \"extends\" keyword requires enabling EXPERIMENTAL feature \"ExtendableParamFiles\".*");
         }
 
         [TestMethod]
