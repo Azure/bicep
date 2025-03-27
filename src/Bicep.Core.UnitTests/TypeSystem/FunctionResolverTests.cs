@@ -368,22 +368,24 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 GetSystemOverloads());
 
             var functionCall = new FunctionCallSyntax(
-                new IdentifierSyntax(new Token(TokenType.Identifier, TextSpan.Nil, [], [])),
-                new Token(TokenType.LeftParen, TextSpan.Nil, [], []),
+                new IdentifierSyntax(new Token(TokenType.Identifier, new TextSpan(0, 7), [], [])),
+                new Token(TokenType.LeftParen, new TextSpan(7, 1), [], []),
                 new[]
                 {
-            new FunctionArgumentSyntax(new StringSyntax(
-                new[] { new Token(TokenType.StringComplete, TextSpan.Nil, [], []) },
-                [],
-                new[] { "https://example.com/path?query=value" }))
+                    new FunctionArgumentSyntax(new StringSyntax(
+                    new[] { new Token(TokenType.StringComplete, new TextSpan(8, 35), [], []) },
+                    [],
+                    new[] { "https://example.com/path?query=value" }))
                 },
-                new Token(TokenType.RightParen, TextSpan.Nil, [], []));
+            new Token(TokenType.RightParen, new TextSpan(43, 1), [], []));
+
+            var argumentTypes = ImmutableArray.Create<TypeSymbol>(LanguageConstants.String);
 
             var result = functionResolver.TryGetFunctionSymbol("parseUri")?.Overloads.First().ResultBuilder(
                 CreateDummySemanticModel(),
                 Repository.Create<IDiagnosticWriter>().Object,
                 functionCall,
-                []);
+                argumentTypes);
 
             result.Should().NotBeNull();
             result!.Type.Should().BeOfType<ObjectType>();
@@ -395,15 +397,6 @@ namespace Bicep.Core.UnitTests.TypeSystem
             result.Value.Should().BeOfType<ObjectExpression>();
 
             var objectExpression = (ObjectExpression)result.Value!;
-
-            //var resultObject = result as ObjectSyntax;
-
-            //Assert.IsNotNull(resultObject);
-            //var properties = resultObject.Properties.ToList();
-            //Assert.AreEqual("https", ((StringSyntax)properties.First(p => p.Key.Value == "scheme").Value).TryGetLiteralValue());
-            //Assert.AreEqual("example.com", ((StringSyntax)properties.First(p => p.Key.Value == "host").Value).TryGetLiteralValue());
-            //Assert.AreEqual("/path", ((StringSyntax)properties.First(p => p.Key.Value == "path").Value).TryGetLiteralValue());
-            //Assert.AreEqual("query=value", ((StringSyntax)properties.First(p => p.Key.Value == "query").Value).TryGetLiteralValue());
         }
 
         [DataTestMethod]
