@@ -7,7 +7,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.14" />
     <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="21.3.1" />
-    <PackageReference Include="Microsoft.NET.Sdk.WebAssembly.Pack" Version="8.0.11" />
+    <PackageReference Include="Microsoft.NET.Sdk.WebAssembly.Pack" Version="9.0.3" />
   </ItemGroup>
 
   <ItemGroup>
