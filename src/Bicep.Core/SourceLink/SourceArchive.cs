@@ -154,7 +154,7 @@ namespace Bicep.Core.SourceLink
                 if (artifact.Syntax is ModuleDeclarationSyntax &&
                     artifact.Reference is OciArtifactReference artifactReference &&
                     artifact.Result.IsSuccess(out var uri) &&
-                    TryUnpack(artifactReference.ModuleSourceTgzFile).IsSuccess())
+                    artifactReference.TryLoadSourceArchive().IsSuccess())
                     // Only those that were published with source
                 {
                     uriToArtifactReference[uri] = artifactReference;

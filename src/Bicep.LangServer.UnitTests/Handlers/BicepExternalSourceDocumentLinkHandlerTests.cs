@@ -94,7 +94,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 });
 
             var links = BicepExternalSourceDocumentLinkHandler.GetDocumentLinks(
-                moduleDispatcher,
                 sourceFileFactory,
                 new DocumentLinkParams() { TextDocument = documentId },
                 CancellationToken.None)

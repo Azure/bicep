@@ -129,11 +129,6 @@ namespace Bicep.Core.Registry
             return Task.FromResult<string?>(null);
         }
 
-        public override ResultWithException<SourceArchive> TryGetSource(TemplateSpecModuleReference reference)
-        {
-            return new(new SourceNotAvailableException());
-        }
-
         public override Uri? TryGetExtensionBinary(TemplateSpecModuleReference reference)
             => null;
     }

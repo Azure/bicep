@@ -53,7 +53,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var links = GetDocumentLinks(ModuleDispatcher, sourceFileFactory, request, cancellationToken);
+            var links = GetDocumentLinks(sourceFileFactory, request, cancellationToken);
             return Task.FromResult(new DocumentLinkContainer<ExternalSourceDocumentLinkData>(links));
         }
 
@@ -70,7 +70,7 @@ namespace Bicep.LanguageServer.Handlers
             ResolveProvider = true,
         };
 
-        public static IEnumerable<DocumentLink<ExternalSourceDocumentLinkData>> GetDocumentLinks(IModuleDispatcher moduleDispatcher, ISourceFileFactory sourceFileFactory, DocumentLinkParams request, CancellationToken cancellationToken)
+        public static IEnumerable<DocumentLink<ExternalSourceDocumentLinkData>> GetDocumentLinks(ISourceFileFactory sourceFileFactory, DocumentLinkParams request, CancellationToken cancellationToken)
         {
             var currentDocument = request.TextDocument;
             if (currentDocument.Uri.Scheme == LangServerConstants.ExternalSourceFileScheme)
@@ -97,7 +97,7 @@ namespace Bicep.LanguageServer.Handlers
                         yield break;
                     }
 
-                    if (!moduleDispatcher.TryGetModuleSources(currentDocumentArtifact).IsSuccess(out var currentDocumentSourceArchive, out var ex))
+                    if (!currentDocumentArtifact.TryLoadSourceArchive().IsSuccess(out var currentDocumentSourceArchive, out var ex))
                     {
                         Trace.WriteLine(ex.Message);
                         yield break;
@@ -182,7 +182,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             // If we get here, the module *should* have sources available (since we are going through delayed resolution), so show a message if we can't for some reason
-            if (!moduleDispatcher.TryGetModuleSources(targetArtifactReference).IsSuccess(out var sourceArchive, out var ex))
+            if (!targetArtifactReference.TryLoadSourceArchive().IsSuccess(out var sourceArchive, out var ex))
             {
                 server.Window.ShowWarning($"Unable to retrieve source code for module {targetArtifactReference.FullyQualifiedReference}. {ex.Message}");
                 telemetryProvider.PostEvent(ExternalSourceDocLinkClickFailure("tryGetModuleSources", ex.Message));

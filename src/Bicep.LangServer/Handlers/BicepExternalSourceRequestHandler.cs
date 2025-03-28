@@ -75,7 +75,7 @@ namespace Bicep.LanguageServer.Handlers
                     $"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'."));
             }
 
-            var success = moduleDispatcher.TryGetModuleSources(ociModuleReference).IsSuccess(out var sourceArchive, out var ex);
+            var success = ociModuleReference.TryLoadSourceArchive().IsSuccess(out var sourceArchive, out var ex);
 
             if (request.requestedSourceFile is { })
             {
