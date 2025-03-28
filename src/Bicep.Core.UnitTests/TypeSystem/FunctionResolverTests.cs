@@ -28,11 +28,6 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static SemanticModel CreateDummySemanticModel()
             => CompilationHelper.Compile("").Compilation.GetEntrypointSemanticModel();
 
-        private static IEnumerable<FunctionOverload> GetSystemOverloads()
-        {
-            return [];
-        }
-
         [DataTestMethod]
         [DynamicData(nameof(GetExactMatchData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void ExactOrPartialFunctionMatchShouldHaveCorrectReturnType(string displayName, string functionName, TypeSymbol expectedReturnType, IList<TypeSymbol> argumentTypes)
@@ -339,64 +334,66 @@ namespace Bicep.Core.UnitTests.TypeSystem
             returnType.ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.IsSecure);
         }
 
-        //[TestMethod]
-        //public void BuildUriFunction_ShouldReturnConstructedUri()
-        //{
-        //    var functionResolver = new FunctionResolver(
-        //        new ObjectType("dummy", TypeSymbolValidationFlags.Default, Enumerable.Empty<NamedTypeProperty>(), null),
-        //        GetSystemOverloads());
+        [TestMethod]
+        public void BuildUriFunction_ShouldReturnConstructedUri()
+        {
+            //var parameterValue = SyntaxFactory.CreateObject(
+            //    [
+            //        SyntaxFactory.CreateObjectProperty("scheme", SyntaxFactory.CreateStringLiteral("https")),
+            //        SyntaxFactory.CreateObjectProperty("host", SyntaxFactory.CreateStringLiteral("https"))
+            //    ]);
 
-        //    var components = new ObjectExpression(null, new[]
-        //    {
-        //        new ObjectPropertyExpression(null, new StringLiteralExpression(null, "scheme"), new StringLiteralExpression(null, "https")),
-        //        new ObjectPropertyExpression(null, new StringLiteralExpression(null, "host"), new StringLiteralExpression(null, "example.com")),
-        //        new ObjectPropertyExpression(null, new StringLiteralExpression(null, "path"), new StringLiteralExpression(null, "/path"))
-        //    });
+            var result = EvaluateFunction("buildUri", [LanguageConstants.Object], [new FunctionArgumentSyntax(SyntaxFactory.CreateObject([]))]);
 
-        //    var functionCall = new FunctionCallExpression(null, "buildUri", new[] { new FunctionArgumentSyntax(components) });
-
-        //    var result = functionResolver.ResolveFunctionCall(functionCall, CreateDummySemanticModel(), Repository.Create<IDiagnosticWriter>().Object);
-
-        //    Assert.AreEqual("https://example.com/path", ((StringLiteralExpression)result).Value);
-        //}
+            result.Type.Should().Be(LanguageConstants.String);
+        }
 
         [TestMethod]
         public void ParseUriFunction_ShouldReturnUriComponents()
         {
-            var functionResolver = new FunctionResolver(
-                new ObjectType("dummy", TypeSymbolValidationFlags.Default, [], null),
-                GetSystemOverloads());
-
-            var functionCall = new FunctionCallSyntax(
-                new IdentifierSyntax(new Token(TokenType.Identifier, new TextSpan(0, 7), [], [])),
-                new Token(TokenType.LeftParen, new TextSpan(7, 1), [], []),
-                new[]
-                {
-                    new FunctionArgumentSyntax(new StringSyntax(
-                    new[] { new Token(TokenType.StringComplete, new TextSpan(8, 35), [], []) },
-                    [],
-                    new[] { "https://example.com/path?query=value" }))
-                },
-            new Token(TokenType.RightParen, new TextSpan(43, 1), [], []));
-
-            var argumentTypes = ImmutableArray.Create<TypeSymbol>(LanguageConstants.String);
-
-            var result = functionResolver.TryGetFunctionSymbol("parseUri")?.Overloads.First().ResultBuilder(
-                CreateDummySemanticModel(),
-                Repository.Create<IDiagnosticWriter>().Object,
-                functionCall,
-                argumentTypes);
+            var result = EvaluateFunction(
+                functionName: "parseUri",
+                argumentTypes: [LanguageConstants.String],
+                arguments: [new FunctionArgumentSyntax(SyntaxFactory.CreateStringLiteral("https://example.com/path?query=value"))]);
 
             result.Should().NotBeNull();
-            result!.Type.Should().BeOfType<ObjectType>();
+            result.Type.Should().BeOfType<ObjectType>();
 
             var objectType = (ObjectType)result.Type;
             objectType.Should().NotBeNull();
 
-            result.Value.Should().NotBeNull();
-            result.Value.Should().BeOfType<ObjectExpression>();
-
-            var objectExpression = (ObjectExpression)result.Value!;
+            var properties = objectType.Properties.Values.OrderBy(p => p.Name).ToList();
+            properties.Should().SatisfyRespectively(
+                p =>
+                {
+                    p.Name.Should().Be("host");
+                    p.TypeReference.Should().Be(LanguageConstants.String);
+                    p.Flags.Should().HaveFlag(TypePropertyFlags.Required);
+                },
+                p =>
+                {
+                    p.Name.Should().Be("path");
+                    p.TypeReference.Should().Be(LanguageConstants.String);
+                    p.Flags.Should().NotHaveFlag(TypePropertyFlags.Required);
+                },
+                p =>
+                {
+                    p.Name.Should().Be("port");
+                    p.TypeReference.Should().Be(LanguageConstants.Int);
+                    p.Flags.Should().NotHaveFlag(TypePropertyFlags.Required);
+                },
+                p =>
+                {
+                    p.Name.Should().Be("query");
+                    p.TypeReference.Should().Be(LanguageConstants.String);
+                    p.Flags.Should().NotHaveFlag(TypePropertyFlags.Required);
+                },
+                p =>
+                {
+                    p.Name.Should().Be("scheme");
+                    p.TypeReference.Should().Be(LanguageConstants.String);
+                    p.Flags.Should().HaveFlag(TypePropertyFlags.Required);
+                });
         }
 
         [DataTestMethod]

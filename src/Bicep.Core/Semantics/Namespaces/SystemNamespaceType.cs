@@ -156,14 +156,14 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
 
                 yield return new FunctionOverloadBuilder("buildUri")
-                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("buildUri", LanguageConstants.String), LanguageConstants.String)
+                    .WithReturnType(LanguageConstants.String)
                     .WithGenericDescription("Constructs a URI from specified components and returns an object with these components.")
                     .WithRequiredParameter("components", GetParseOrBuildUriReturnType(), "An object containing URI components such as scheme, host, port, path, and query.")
                     .Build();
 
                 yield return new FunctionOverloadBuilder("parseUri")
                     .WithReturnType(GetParseOrBuildUriReturnType())
-                     .WithGenericDescription("Parses a URI string into its components (scheme, host, port, path, query).")
+                    .WithGenericDescription("Parses a URI string into its components (scheme, host, port, path, query).")
                     .WithRequiredParameter("baseUrl", LanguageConstants.String, "The complete URI to parse.")
                     .Build();
 
