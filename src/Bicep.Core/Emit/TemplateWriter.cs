@@ -1429,50 +1429,57 @@ namespace Bicep.Core.Emit
                             throw new ArgumentException("Disallowed interpolation in module extension config alias key");
                         }
 
-                        if (extAliasPropertyExpr.Value is ObjectExpression extConfigObjExpr)
-                        {
-                            emitter.EmitObjectProperty(
-                                extAlias, () =>
+                        emitter.EmitProperty(
+                            extAlias, () =>
+                            {
+                                if (extAliasPropertyExpr.Value is ObjectExpression extConfigObjExpr)
                                 {
-                                    foreach (var extConfigPropertyExpr in extConfigObjExpr.Properties)
-                                    {
-                                        if (extConfigPropertyExpr.TryGetKeyText() is not { } extConfigPropertyName)
+                                    emitter.EmitObject(
+                                        () =>
                                         {
-                                            // should have been caught by earlier validation
-                                            throw new ArgumentException("Disallowed interpolation in module extension config property key");
-                                        }
+                                            foreach (var extConfigPropertyExpr in extConfigObjExpr.Properties)
+                                            {
+                                                if (extConfigPropertyExpr.TryGetKeyText() is not { } extConfigPropertyName)
+                                                {
+                                                    // should have been caught by earlier validation
+                                                    throw new ArgumentException("Disallowed interpolation in module extension config property key");
+                                                }
 
-                                        // we can't just call EmitObjectProperties here because the ObjectSyntax is flatter than the structure we're generating
-                                        // because nested deployment extension configs are objects with a single value property
-                                        if (extConfigPropertyExpr.Value is ForLoopExpression @for)
-                                        {
-                                            // the value is a for-expression
-                                            // write a single property copy loop
-                                            emitter.EmitObjectProperty(extConfigPropertyName, () => { emitter.EmitCopyProperty(() => { emitter.EmitArray(() => { emitter.EmitCopyObject("value", @for.Expression, @for.Body, "value"); }, @for.SourceSyntax); }); });
-                                        }
-                                        else if (extConfigPropertyExpr.Value is ResourceReferenceExpression resource &&
-                                            module.Symbol.TryGetModuleType() is ModuleType moduleType &&
-                                            moduleType.TryGetExtensionConfigPropertyType(extAlias, extConfigPropertyName) is ResourceParameterType)
-                                        {
-                                            // TODO(kylealbert): verify this
-                                            // This is a resource being passed into a module, we actually want to pass in its id
-                                            // rather than the whole resource.
-                                            var idExpression = new PropertyAccessExpression(resource.SourceSyntax, resource, "id", AccessExpressionFlags.None);
-                                            emitter.EmitProperty(extConfigPropertyName, ExpressionEmitter.ConvertModuleExtensionConfig(idExpression));
-                                        }
-                                        else
-                                        {
-                                            // the value is not a for-expression - can emit normally
-                                            emitter.EmitProperty(extConfigPropertyName, ExpressionEmitter.ConvertModuleExtensionConfig(extConfigPropertyExpr.Value));
-                                        }
-                                    }
-                                }, extConfigObjExpr.SourceSyntax);
-                        }
-                        else
-                        {
-                            // TODO(kylealbert): ternaries, extension symbols
-                            throw new NotImplementedException($"Expression emit is not handled for {extAliasPropertyExpr.Value.GetType().Name}");
-                        }
+                                                // we can't just call EmitObjectProperties here because the ObjectSyntax is flatter than the structure we're generating
+                                                // because nested deployment extension configs are objects with a single value property
+                                                if (extConfigPropertyExpr.Value is ForLoopExpression @for)
+                                                {
+                                                    // the value is a for-expression
+                                                    // write a single property copy loop
+                                                    emitter.EmitObjectProperty(extConfigPropertyName, () => { emitter.EmitCopyProperty(() => { emitter.EmitArray(() => { emitter.EmitCopyObject("value", @for.Expression, @for.Body, "value"); }, @for.SourceSyntax); }); });
+                                                }
+                                                else if (extConfigPropertyExpr.Value is ResourceReferenceExpression resource &&
+                                                    module.Symbol.TryGetModuleType() is ModuleType moduleType &&
+                                                    moduleType.TryGetExtensionConfigPropertyType(extAlias, extConfigPropertyName) is ResourceParameterType)
+                                                {
+                                                    // TODO(kylealbert): verify this
+                                                    // This is a resource being passed into a module, we actually want to pass in its id
+                                                    // rather than the whole resource.
+                                                    var idExpression = new PropertyAccessExpression(resource.SourceSyntax, resource, "id", AccessExpressionFlags.None);
+                                                    emitter.EmitProperty(extConfigPropertyName, ExpressionEmitter.ConvertModuleExtensionConfig(idExpression));
+                                                }
+                                                else
+                                                {
+                                                    // the value is not a for-expression - can emit normally
+                                                    emitter.EmitProperty(extConfigPropertyName, ExpressionEmitter.ConvertModuleExtensionConfig(extConfigPropertyExpr.Value));
+                                                }
+                                            }
+                                        }, extConfigObjExpr.SourceSyntax);
+                                }
+                                else if (extAliasPropertyExpr.Value is PropertyAccessExpression or TernaryExpression)
+                                {
+                                    emitter.EmitLanguageExpression(extAliasPropertyExpr.Value);
+                                }
+                                else
+                                {
+                                    throw new NotImplementedException($"Expression emit is not handled for {extAliasPropertyExpr.Value.GetType().Name}");
+                                }
+                            }, extAliasPropertyExpr.SourceSyntax);
                     }
                 }, extConfigsObjExpr.SourceSyntax);
         }
