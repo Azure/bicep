@@ -81,7 +81,7 @@ namespace Bicep.Cli.Commands
             Stream? sourcesStream = null;
             if (publishSource)
             {
-                sourcesStream = SourceArchive.PackSourcesIntoStream(moduleDispatcher, compilation.SourceFileGrouping, compilation.GetEntrypointSemanticModel().Features.CacheRootDirectory);
+                sourcesStream = SourceArchive.PackSourcesIntoStream(compilation.SourceFileGrouping, compilation.GetEntrypointSemanticModel().Features.CacheRootDirectory);
                 Trace.WriteLine("Publishing Bicep module with source");
             }
 

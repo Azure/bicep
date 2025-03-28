@@ -22,6 +22,7 @@ using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using static Bicep.Core.SourceLink.SourceArchiveConstants;
+using Bicep.IO.Utils;
 
 namespace Bicep.Core.SourceLink
 {
@@ -47,6 +48,39 @@ namespace Bicep.Core.SourceLink
         public string EntrypointRelativePath => metadata.EntryPoint;
 
         public int SourceFileCount => metadata.SourceFiles.Length;
+
+        public static ResultWithException<SourceArchive> TryUnpack(TgzFileHandle sourceTgzFile)
+        {
+            if (!sourceTgzFile.Exists())
+            {
+                return new(new SourceNotAvailableException());
+            }
+
+            try
+            {
+                var fileEntries = sourceTgzFile.Extract();
+                var metadataJson = fileEntries.TryGetValue(MetadataFileName)
+                    ?? throw new InvalidOperationException($"Incorrectly formatted source file: No {MetadataFileName} entry");
+                var metadata = JsonSerializer.Deserialize(metadataJson, SourceArchiveMetadataSerializationContext.Default.SourceArchiveMetadata)
+                    ?? throw new InvalidOperationException("Source archive has invalid metadata entry");
+
+                if (metadata.MetadataVersion < CurrentMetadataVersion)
+                {
+                    throw new InvalidOperationException($"This source code was published with an older, incompatible version of Bicep ({metadata.BicepVersion}). You are using version {ThisAssembly.AssemblyVersion}.");
+                }
+
+                if (metadata.MetadataVersion > CurrentMetadataVersion)
+                {
+                    throw new InvalidOperationException($"This source code was published with a newer, incompatible version of Bicep ({metadata.BicepVersion}). You are using version {ThisAssembly.AssemblyVersion}. You need a newer version in order to view the module source.");
+                }
+
+                return new(new SourceArchive(metadata, fileEntries.ToImmutableDictionary()));
+            }
+            catch (Exception exception)
+            {
+                return new(exception);
+            }
+        }
 
         public static ResultWithException<SourceArchive> UnpackFromStream(Stream stream)
         {
@@ -111,23 +145,20 @@ namespace Bicep.Core.SourceLink
         /// in JSON form) into an archive (as a stream)
         /// </summary>
         /// <returns>A .tgz file as a binary stream</returns>
-        public static Stream PackSourcesIntoStream(IModuleDispatcher moduleDispatcher, SourceFileGrouping sourceFileGrouping, IDirectoryHandle? cacheRoot)
+        public static Stream PackSourcesIntoStream(SourceFileGrouping sourceFileGrouping, IDirectoryHandle? cacheRoot)
         {
             // Find the artifact reference for each source file of an external module that was published with sources
             Dictionary<Uri, OciArtifactReference> uriToArtifactReference = new();
             foreach (var artifact in sourceFileGrouping.ArtifactLookup.Values)
             {
-                if (artifact.Syntax is not ModuleDeclarationSyntax module ||
-                    artifact.Reference is not OciArtifactReference artifactReference ||
-                    !artifact.Result.IsSuccess(out var uri) ||
-                    uriToArtifactReference.ContainsKey(uri) ||
+                if (artifact.Syntax is ModuleDeclarationSyntax &&
+                    artifact.Reference is OciArtifactReference artifactReference &&
+                    artifact.Result.IsSuccess(out var uri) &&
+                    TryUnpack(artifactReference.ModuleCacheAccessor.SourceTgzFile).IsSuccess())
                     // Only those that were published with source
-                    !moduleDispatcher.TryGetModuleSources(artifact.Reference).IsSuccess(out var archive))
                 {
-                    continue;
+                    uriToArtifactReference[uri] = artifactReference;
                 }
-
-                uriToArtifactReference[uri] = artifactReference;
             }
 
             var sourceFilesWithArtifactReference =

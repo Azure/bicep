@@ -53,27 +53,15 @@ namespace Bicep.Core.IntegrationTests
             return services;
         }
 
-        private IModuleDispatcher CreateModuleDispatcher(IContainerRegistryClientFactory clientFactory)
+        private SourceArchive CreateSourceArchive(CompilationHelper.CompilationResult result)
         {
-            var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(CacheRootDirectory: CacheRoot));
-            var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
-                .AddSingleton(clientFactory)
-                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
-                .AddSingleton(featureProviderFactory)
-                ).Construct<IModuleDispatcher>();
-            return dispatcher;
+            return CreateSourceArchive(result.Compilation.SourceFileGrouping);
         }
 
-        private SourceArchive CreateSourceArchive(IModuleDispatcher moduleDispatcher, CompilationHelper.CompilationResult result)
-        {
-            return CreateSourceArchive(moduleDispatcher, result.Compilation.SourceFileGrouping);
-        }
-
-        private SourceArchive CreateSourceArchive(IModuleDispatcher moduleDispatcher, SourceFileGrouping sourceFileGrouping)
+        private SourceArchive CreateSourceArchive(SourceFileGrouping sourceFileGrouping)
         {
             return SourceArchive.UnpackFromStream(
                 SourceArchive.PackSourcesIntoStream(
-                    moduleDispatcher,
                     sourceFileGrouping,
                     CacheRoot))
                 .UnwrapOrThrow();
@@ -85,7 +73,6 @@ namespace Bicep.Core.IntegrationTests
         public async Task SourceArtifactId_ForLocalModules_ShouldBeNull()
         {
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(MockFileSystem, []);
-            var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
                 ("main.bicep", """
@@ -109,7 +96,7 @@ namespace Bicep.Core.IntegrationTests
             result.Should().NotHaveAnyDiagnostics();
 
             // act
-            var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
+            var sourceArchive = CreateSourceArchive(result);
 
             sourceArchive.FindSourceFile("local.bicep").Metadata.ArtifactAddress.Should().BeNull();
             sourceArchive.FindSourceFile("modules/local.bicep").Metadata.ArtifactAddress.Should().BeNull();
@@ -123,7 +110,6 @@ namespace Bicep.Core.IntegrationTests
                 [
                     new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: false),
                 ]);
-            var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
                 ("main.bicep", """
@@ -136,7 +122,7 @@ namespace Bicep.Core.IntegrationTests
             result.Should().NotHaveAnyDiagnostics();
 
             // act
-            var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
+            var sourceArchive = CreateSourceArchive(result);
 
             var file = sourceArchive.FindSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json");
             file.Metadata.ArtifactAddress.Should().BeNull();
@@ -151,7 +137,6 @@ namespace Bicep.Core.IntegrationTests
                 [
                     new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
                 ]);
-            var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
                 ("main.bicep", """
@@ -164,7 +149,7 @@ namespace Bicep.Core.IntegrationTests
             result.Should().NotHaveAnyDiagnostics();
 
             // act
-            var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
+            var sourceArchive = CreateSourceArchive(result);
 
             var file = sourceArchive.FindSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json");
             file.Metadata.ArtifactAddress?.ArtifactId.Should().Be("mockregistry.io/test/module1:v1");
@@ -182,7 +167,6 @@ namespace Bicep.Core.IntegrationTests
                     new("br:mockregistry.io/test/module2:v1", "param p2 string", WithSource: true),
                     new("br:mockregistry.io/test/module1:v2", "param p12 string", WithSource: true),
                 ]);
-            var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
                 ("main.bicep", """
@@ -238,7 +222,7 @@ namespace Bicep.Core.IntegrationTests
             result.Should().NotHaveAnyDiagnostics();
 
             // act
-            var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
+            var sourceArchive = CreateSourceArchive(result);
 
             using (new AssertionScope())
             {
@@ -258,7 +242,6 @@ namespace Bicep.Core.IntegrationTests
                 [
                     new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
                 ]);
-            var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
                 ("main.bicep", """
@@ -277,7 +260,7 @@ namespace Bicep.Core.IntegrationTests
             result.Should().OnlyContainDiagnostic("BCP192", Diagnostics.DiagnosticLevel.Error, "Unable to restore the artifact with reference \"br:mockregistry.io/test/module2:v1\"*");
 
             // act
-            var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
+            var sourceArchive = CreateSourceArchive(result);
 
             using (new AssertionScope())
             {
