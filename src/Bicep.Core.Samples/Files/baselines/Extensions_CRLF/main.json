@@ -11,7 +11,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18415478351645085255"
+      "templateHash": "16040165263574513880"
     }
   },
   "extensions": {
@@ -151,7 +151,7 @@
         },
         "mode": "Incremental",
         "extensionConfigs": {
-          "k8s": "[extensionConfigs('k8s').config]"
+          "k8s": "[extensionConfigs('k8s')]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -201,10 +201,10 @@
         "extensionConfigs": {
           "k8s": {
             "kubeConfig": {
-              "value": "[extensionConfigs('k8s').config.kubeConfig]"
+              "value": "[extensionConfigs('k8s').kubeConfig]"
             },
             "namespace": {
-              "value": "[extensionConfigs('k8s').config.namespace]"
+              "value": "[extensionConfigs('k8s').namespace]"
             }
           }
         },

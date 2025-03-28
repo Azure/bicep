@@ -206,7 +206,7 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 //@        "extensionConfigs": {
 //@        },
     k8s: k8s.config
-//@          "k8s": "[extensionConfigs('k8s').config]"
+//@          "k8s": "[extensionConfigs('k8s')]"
   }
 }
 
@@ -265,11 +265,11 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 //@          }
       kubeConfig: k8s.config.kubeConfig
 //@            "kubeConfig": {
-//@              "value": "[extensionConfigs('k8s').config.kubeConfig]"
+//@              "value": "[extensionConfigs('k8s').kubeConfig]"
 //@            },
       namespace: k8s.config.namespace
 //@            "namespace": {
-//@              "value": "[extensionConfigs('k8s').config.namespace]"
+//@              "value": "[extensionConfigs('k8s').namespace]"
 //@            }
     }
   }
