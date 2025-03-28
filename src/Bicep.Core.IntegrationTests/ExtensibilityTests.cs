@@ -887,10 +887,10 @@ Hello from Bicep!"));
         [DataTestMethod]
         [DataRow(
             "FullInheritance",
-            "extensionConfigs: { kubernetes: k8s }")]
+            "extensionConfigs: { kubernetes: k8.config }")]
         [DataRow(
             "PiecemealInheritance",
-            "extensionConfigs: { kubernetes: { kubeConfig: k8s.kubeConfig, namespace: k8s.namespace } }")]
+            "extensionConfigs: { kubernetes: { kubeConfig: k8s.config.kubeConfig, namespace: k8s.config.namespace } }")]
         public void Modules_can_inherit_parent_module_extension_configs(string scenario, string moduleExtensionConfigsStr)
         {
             var paramsUri = new Uri("file:///main.bicepparam");
