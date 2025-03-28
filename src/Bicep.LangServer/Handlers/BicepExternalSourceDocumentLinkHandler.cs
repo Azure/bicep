@@ -144,7 +144,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var data = request.Data;
 
-            var dummyFile = sourceFileFactory.CreateBicepFile(PathHelper.FilePathToFileUrl("main.bicep"), "");
+            var dummyFile = sourceFileFactory.CreateDummyArtifactReferencingFile();
             if (!OciArtifactReference.TryParse(dummyFile, ArtifactType.Module, null, data.TargetArtifactId).IsSuccess(out var targetArtifactReference, out var error))
             {
                 server.Window.ShowWarning($"Unable to parse the module source ID '{data.TargetArtifactId}': {error(DiagnosticBuilder.ForDocumentStart()).Message}");

@@ -11,6 +11,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
 using Bicep.Core.ArtifactCache;
+using Bicep.IO.Utils;
 
 namespace Bicep.Core.Registry.Oci
 {
@@ -78,7 +79,9 @@ namespace Bicep.Core.Registry.Oci
 
         public override bool IsExternal => true;
 
-        public OciModuleCacheAccessor ModuleCacheAccessor => this.lazyModuleCacheAccessor.Value;
+        public IFileHandle ModuleEntryPointFile => this.lazyModuleCacheAccessor.Value.EntryPointFile;
+
+        public TgzFileHandle ModuleSourceTgzFile => this.lazyModuleCacheAccessor.Value.SourceTgzFile;
 
         // unqualifiedReference is the reference without a scheme or alias, e.g. "example.azurecr.invalid/foo/bar:v3"
         // The referencingFile is needed to resolve aliases and experimental features

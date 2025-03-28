@@ -17,6 +17,7 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceLink;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
@@ -194,7 +195,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (reference is OciArtifactReference ociArtifactReference)
             {
-                return BicepExternalSourceRequestHandler.GetRegistryModuleSourceLinkUri(ociArtifactReference, moduleDispatcher?.TryGetModuleSources(reference).TryUnwrap());
+                return BicepExternalSourceRequestHandler.GetRegistryModuleSourceLinkUri(ociArtifactReference, SourceArchive.TryUnpack(ociArtifactReference.ModuleSourceTgzFile).TryUnwrap());
             }
 
             if (reference is TemplateSpecModuleReference templateSpecModuleReference)
