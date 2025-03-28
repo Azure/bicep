@@ -38,7 +38,7 @@ public class ParametersJsonWriter
 
             if (parameter.KeyVaultReferenceExpression is { } keyVaultReference)
             {
-                WriteKeyVaultReference(jsonWriter, keyVaultReference);
+                WriteKeyVaultReference(jsonWriter, keyVaultReference, "reference");
             }
             else if (parameter.Value is { } value)
             {
@@ -73,7 +73,30 @@ public class ParametersJsonWriter
             jsonWriter.WritePropertyName(extension.Name);
             jsonWriter.WriteStartObject();
 
-            // TODO(kylealbert): write config properties
+            var configProperties = model.EmitLimitationInfo.ExtensionConfigAssignments[extension];
+
+            foreach (var configProperty in configProperties)
+            {
+                jsonWriter.WritePropertyName(configProperty.Key);
+
+                if (configProperty.Value.KeyVaultReferenceExpression is { } keyVaultReference)
+                {
+                    WriteKeyVaultReference(jsonWriter, keyVaultReference, "keyVaultReference");
+                }
+                else if (configProperty.Value.Value is { } value)
+                {
+                    jsonWriter.WriteStartObject();
+
+                    jsonWriter.WritePropertyName("value");
+                    value.WriteTo(jsonWriter);
+
+                    jsonWriter.WriteEndObject();
+                }
+                else
+                {
+                    throw new InvalidOperationException($"The '{configProperty.Key}' property of the '{extension.Name}' extension config assignment defined neither a concrete value nor a key vault reference");
+                }
+            }
 
             jsonWriter.WriteEndObject();
         }
@@ -81,9 +104,9 @@ public class ParametersJsonWriter
         jsonWriter.WriteEndObject();
     }
 
-    private static void WriteKeyVaultReference(JsonWriter jsonWriter, ParameterKeyVaultReferenceExpression expression)
+    private static void WriteKeyVaultReference(JsonWriter jsonWriter, ParameterKeyVaultReferenceExpression expression, string referencePropertyName)
     {
-        jsonWriter.WritePropertyName("reference");
+        jsonWriter.WritePropertyName(referencePropertyName);
         jsonWriter.WriteStartObject();
 
         jsonWriter.WritePropertyName("keyVault");

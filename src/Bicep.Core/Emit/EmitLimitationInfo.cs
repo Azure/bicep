@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Intermediate;
@@ -11,8 +12,11 @@ namespace Bicep.Core.Emit;
 
 public record ParameterAssignmentValue(JToken? Value, ParameterKeyVaultReferenceExpression? KeyVaultReferenceExpression);
 
+public record ExtensionConfigAssignmentValue(JToken? Value, ParameterKeyVaultReferenceExpression? KeyVaultReferenceExpression);
+
 public record EmitLimitationInfo(
     IReadOnlyList<IDiagnostic> Diagnostics,
     ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> ModuleScopeData,
     ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> ResourceScopeData,
-    ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue> ParameterAssignments);
+    ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue> ParameterAssignments,
+    ImmutableDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>> ExtensionConfigAssignments);
