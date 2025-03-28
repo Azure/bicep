@@ -1890,6 +1890,10 @@ namespace Bicep.Core.Diagnostics
                     shouldWarn ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                     "BCP416",
                     $"The supplied string does not match the expected pattern of /${expectedPattern}/.");
+
+            public Diagnostic SpreadOperatorCannotBeUsedWithForLoop(SpreadExpressionSyntax spread) => CoreError(
+                "BCP417",
+                $"The spread operator \"{spread.Ellipsis.Text}\" cannot be used inside objects with property for-expressions.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
