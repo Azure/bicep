@@ -401,6 +401,18 @@ public record ExtensionExpression(
     protected override object? GetDebugAttributes() => new { Name };
 }
 
+public record ExtensionReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    ExtensionNamespaceSymbol ExtensionNamespace,
+    Expression? PropertyAccessExpression = null)
+    : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitExtensionReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { ExtensionAlias = ExtensionNamespace.Name };
+}
+
 public record ExtensionConfigAssignmentReferenceExpression(
     SyntaxBase? SourceSyntax,
     ExtensionConfigAssignmentSymbol ExtensionConfigAssignment) : Expression(SourceSyntax)
