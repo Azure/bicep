@@ -28,26 +28,14 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class SourceArchiveTests : TestBase
     {
-        private Dictionary<string, MockFileData> MockFiles = new();
-        [NotNull]
-        private MockFileSystem? MockFileSystem { get; set; }
+        private readonly MockFileSystem mockFileSystem = new();
 
         #region Helpers
-
-        [NotNull]
-        private IDirectoryHandle? CacheRoot { get; set; }
-
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            CacheRoot = FileHelper.GetCacheRootDirectory(TestContext);
-            MockFileSystem = new(MockFiles);
-        }
 
         private ServiceBuilder GetServices(IContainerRegistryClientFactory clientFactory)
         {
             var services = new ServiceBuilder()
-                .WithFeatureOverrides(new(CacheRootDirectory: CacheRoot))
+                .WithFileSystem(mockFileSystem)
                 .WithContainerRegistryClientFactory(clientFactory);
 
             return services;
@@ -61,9 +49,7 @@ namespace Bicep.Core.IntegrationTests
         private SourceArchive CreateSourceArchive(SourceFileGrouping sourceFileGrouping)
         {
             return SourceArchive.UnpackFromStream(
-                SourceArchive.PackSourcesIntoStream(
-                    sourceFileGrouping,
-                    CacheRoot))
+                SourceArchive.PackSourcesIntoStream(sourceFileGrouping))
                 .UnwrapOrThrow();
         }
 
@@ -72,7 +58,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task SourceArtifactId_ForLocalModules_ShouldBeNull()
         {
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(MockFileSystem, []);
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(mockFileSystem, []);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
                 ("main.bicep", """
@@ -106,7 +92,7 @@ namespace Bicep.Core.IntegrationTests
         public async Task SourceArtifactId_ForExternalModulesWithoutSource_ShouldBeNull()
         {
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
-                MockFileSystem,
+                mockFileSystem,
                 [
                     new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: false),
                 ]);
@@ -133,7 +119,7 @@ namespace Bicep.Core.IntegrationTests
         public async Task SourceArtifactId_ForExternalModulesWithSource_ShouldBeTheArtifactId()
         {
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
-                MockFileSystem,
+                mockFileSystem,
                 [
                     new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
                 ]);
@@ -161,7 +147,7 @@ namespace Bicep.Core.IntegrationTests
         public async Task SourceArtifactId_ShouldHandleMultipleRefsToSameModule()
         {
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
-                MockFileSystem,
+                mockFileSystem,
                 [
                     new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
                     new("br:mockregistry.io/test/module2:v1", "param p2 string", WithSource: true),
@@ -238,7 +224,7 @@ namespace Bicep.Core.IntegrationTests
         public async Task SourceArtifactId_ShouldIgnoreModuleRefsWithErrors()
         {
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
-                MockFileSystem,
+                mockFileSystem,
                 [
                     new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
                 ]);

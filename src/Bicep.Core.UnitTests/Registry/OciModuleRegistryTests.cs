@@ -674,7 +674,7 @@ namespace Bicep.Core.UnitTests.Registry
                 sources = new SourceArchiveBuilder(sourceFileFactory)
                     .WithBicepFile(uri, "// contents")
                     .Build()
-                    .ToBinaryData();
+                    .PackIntoBinaryData();
             }
 
             await ociRegistry.PublishModule(moduleReference, template, sources, "http://documentation", "description");

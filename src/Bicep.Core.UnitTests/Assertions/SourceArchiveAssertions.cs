@@ -30,7 +30,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
             Subject.Should().NotBeNull();
 
-            var ourData = Decompress(Subject!.ToBinaryData());
+            var ourData = Decompress(Subject!.PackIntoBinaryData());
             var theirData = Decompress(data);
 
             ourData.Should().Equal(theirData);

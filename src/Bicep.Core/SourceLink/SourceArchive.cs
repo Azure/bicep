@@ -49,7 +49,7 @@ namespace Bicep.Core.SourceLink
 
         public int SourceFileCount => metadata.SourceFiles.Length;
 
-        public static ResultWithException<SourceArchive> TryUnpack(TgzFileHandle sourceTgzFile)
+        public static ResultWithException<SourceArchive> TryUnpackFromFile(TgzFileHandle sourceTgzFile)
         {
             if (!sourceTgzFile.Exists())
             {
@@ -119,7 +119,7 @@ namespace Bicep.Core.SourceLink
             }
         }
 
-        public BinaryData ToBinaryData()
+        public BinaryData PackIntoBinaryData()
         {
             var stream = new MemoryStream();
             using (var gz = new GZipStream(stream, CompressionMode.Compress, leaveOpen: true))
@@ -145,7 +145,7 @@ namespace Bicep.Core.SourceLink
         /// in JSON form) into an archive (as a stream)
         /// </summary>
         /// <returns>A .tgz file as a binary stream</returns>
-        public static Stream PackSourcesIntoStream(SourceFileGrouping sourceFileGrouping, IDirectoryHandle? cacheRoot)
+        public static Stream PackSourcesIntoStream(SourceFileGrouping sourceFileGrouping)
         {
             // Find the artifact reference for each source file of an external module that was published with sources
             Dictionary<Uri, OciArtifactReference> uriToArtifactReference = new();
@@ -165,7 +165,7 @@ namespace Bicep.Core.SourceLink
                 sourceFileGrouping.SourceFiles.Select(x => new SourceFileWithArtifactReference(x, uriToArtifactReference.TryGetValue(x.Uri, out var reference) ? reference : null));
 
             var documentLinks = SourceCodeDocumentLinkHelper.GetAllModuleDocumentLinks(sourceFileGrouping);
-            return PackSourcesIntoStream(sourceFileGrouping.EntryPoint.Uri, cacheRoot, documentLinks, sourceFilesWithArtifactReference.ToArray());
+            return PackSourcesIntoStream(sourceFileGrouping.EntryPoint.Uri, sourceFileGrouping.EntryPoint.Features.CacheRootDirectory, documentLinks, sourceFilesWithArtifactReference.ToArray());
         }
 
         public static Stream PackSourcesIntoStream(Uri entrypointFileUri, IDirectoryHandle? cacheRoot, params SourceFileWithArtifactReference[] sourceFiles)

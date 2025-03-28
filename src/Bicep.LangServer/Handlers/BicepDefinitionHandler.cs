@@ -195,7 +195,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (reference is OciArtifactReference ociArtifactReference)
             {
-                return BicepExternalSourceRequestHandler.GetRegistryModuleSourceLinkUri(ociArtifactReference, SourceArchive.TryUnpack(ociArtifactReference.ModuleSourceTgzFile).TryUnwrap());
+                return BicepExternalSourceRequestHandler.GetRegistryModuleSourceLinkUri(ociArtifactReference, SourceArchive.TryUnpackFromFile(ociArtifactReference.ModuleSourceTgzFile).TryUnwrap());
             }
 
             if (reference is TemplateSpecModuleReference templateSpecModuleReference)

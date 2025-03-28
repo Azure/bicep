@@ -67,7 +67,7 @@ namespace Bicep.LangServer.IntegrationTests
                 }
                 else
                 {
-                    sourceTgzFileMock.Setup(x => x.OpenRead()).Returns(sourceArchive.ToBinaryData().ToStream());
+                    sourceTgzFileMock.Setup(x => x.OpenRead()).Returns(sourceArchive.PackIntoBinaryData().ToStream());
                 }
             }
 

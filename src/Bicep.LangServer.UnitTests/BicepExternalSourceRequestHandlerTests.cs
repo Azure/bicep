@@ -515,7 +515,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             if (sourceArchive is not null)
             {
-                sourceTgzFileMock.Setup(x => x.OpenRead()).Returns(sourceArchive.ToBinaryData().ToStream());
+                sourceTgzFileMock.Setup(x => x.OpenRead()).Returns(sourceArchive.PackIntoBinaryData().ToStream());
             }
             else
             {
