@@ -12,165 +12,24 @@ import {
   VscodeTextarea,
   VscodeTextfield,
 } from "@vscode-elements/react-elements";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { ErrorAlert } from "./ErrorAlert";
 
 export type ParameterInputData = {
-  inputValue?: unknown;
   value?: ParameterValue;
   isValid: boolean;
 };
 
 type InputProps = {
-  definition: ParamDefinition;
+  name: string;
+  inputId: string;
   disabled: boolean;
-  data: ParameterInputData;
-  onChangeData: (name: string, value: ParameterInputData) => void;
+  initialValue?: ParameterValue;
+  onValueChange: (value?: ParameterValue, error?: string) => void;
 };
 
 const getInputHtmlId = (definition: ParamDefinition) => `param-input-${definition.name.toLowerCase()}`;
-
-const ParamCheckboxInput: FC<InputProps> = (props) => {
-  const { definition, data, disabled, onChangeData } = props;
-  const { name, defaultValue } = definition;
-  const defaultInputValue = defaultValue as boolean;
-
-  const [inputValue, setInputValue] = useState<boolean>((data.inputValue as boolean) ?? defaultInputValue);
-
-  function handleChangeValue(value: boolean) {
-    onChangeData(definition.name, { inputValue: value, value: value, isValid: true });
-    setInputValue(value);
-  }
-
-  return (
-    <InputBoxWrapper disabled={disabled}>
-      <VscodeCheckbox
-        id={getInputHtmlId(definition)}
-        checked={inputValue}
-        onChange={() => handleChangeValue(!inputValue)}
-        disabled={disabled}
-      >
-        {name}
-      </VscodeCheckbox>
-    </InputBoxWrapper>
-  );
-};
-
-const ParamIntInput: FC<InputProps> = (props) => {
-  const { definition, data, disabled, onChangeData } = props;
-  const { name, defaultValue } = definition;
-  const defaultInputValue = `${defaultValue ?? 0}`;
-
-  const [inputValue, setInputValue] = useState<string>((data.inputValue as string) ?? defaultInputValue);
-  const [error, setError] = useState<string>();
-
-  function handleChangeValue(value: string) {
-    const newValueInt = Number(value);
-    if (Number.isInteger(newValueInt)) {
-      onChangeData(definition.name, { inputValue: value, value: newValueInt, isValid: true });
-      setError(undefined);
-    } else {
-      onChangeData(definition.name, { inputValue: value, isValid: false });
-      setError("Invalid integer value");
-    }
-    setInputValue(value);
-  }
-
-  return (
-    <InputBoxWrapper disabled={disabled} error={error}>
-      <VscodeLabel htmlFor={getInputHtmlId(definition)}>{name}</VscodeLabel>
-      <VscodeTextfield
-        id={getInputHtmlId(definition)}
-        value={inputValue}
-        onChange={(e) => handleChangeValue((e.currentTarget as HTMLInputElement).value)}
-        disabled={disabled}
-      />
-    </InputBoxWrapper>
-  );
-};
-
-const ParamStringInput: FC<InputProps> = (props) => {
-  const { definition, data, disabled, onChangeData } = props;
-  const { name, defaultValue } = definition;
-  const defaultInputValue = defaultValue as string;
-
-  const [inputValue, setInputValue] = useState<string>((data.inputValue as string) ?? defaultInputValue);
-
-  function handleChangeValue(value: string) {
-    setInputValue(value);
-    onChangeData(definition.name, { inputValue: value, value: value, isValid: true });
-  }
-
-  if (definition.allowedValues) {
-    return (
-      <InputBoxWrapper disabled={disabled}>
-        <VscodeLabel htmlFor={getInputHtmlId(definition)}>{name}</VscodeLabel>
-        <VscodeSingleSelect
-          id={getInputHtmlId(definition)}
-          onChange={(e) => handleChangeValue((e.currentTarget as HTMLSelectElement).value)}
-          disabled={disabled}
-        >
-          {definition.allowedValues.map((option) => (
-            <VscodeOption key={option} selected={inputValue === option}>
-              {option}
-            </VscodeOption>
-          ))}
-        </VscodeSingleSelect>
-      </InputBoxWrapper>
-    );
-  } else {
-    return (
-      <InputBoxWrapper disabled={disabled}>
-        <VscodeLabel htmlFor={getInputHtmlId(definition)}>{name}</VscodeLabel>
-        <VscodeTextfield
-          id={getInputHtmlId(definition)}
-          value={inputValue}
-          onChange={(e) => handleChangeValue((e.currentTarget as HTMLInputElement).value)}
-          disabled={disabled}
-        />
-      </InputBoxWrapper>
-    );
-  }
-};
-
-const ParamJsonInput: FC<InputProps> = (props) => {
-  const { definition, data, disabled, onChangeData } = props;
-  const { name, defaultValue } = definition;
-  const defaultInputValue = defaultValue ? JSON.stringify(defaultValue, null, 2) : "";
-
-  const [inputValue, setInputValue] = useState<string>((data.inputValue as string) ?? defaultInputValue);
-  const [error, setError] = useState<string>();
-
-  function handleChangeValue(value: string) {
-    try {
-      onChangeData(definition.name, {
-        inputValue: value,
-        value: value !== "" ? JSON.parse(value) : undefined,
-        isValid: true,
-      });
-      setError(undefined);
-    } catch {
-      onChangeData(definition.name, { inputValue: value, isValid: false });
-      setError("Invalid JSON value");
-    }
-    setInputValue(value);
-  }
-
-  return (
-    <InputBoxWrapper disabled={disabled} error={error}>
-      <VscodeLabel htmlFor={getInputHtmlId(definition)}>{name}</VscodeLabel>
-      <VscodeTextarea
-        id={getInputHtmlId(definition)}
-        className="code-textarea-container"
-        resize="vertical"
-        value={inputValue}
-        onChange={(e) => handleChangeValue((e.currentTarget as HTMLInputElement).value)}
-        disabled={disabled}
-      />
-    </InputBoxWrapper>
-  );
-};
 
 type InputBoxWrapperProps = PropsWithChildren<{
   disabled: boolean;
@@ -192,18 +51,224 @@ const InputBoxWrapper: FC<InputBoxWrapperProps> = (props) => {
   );
 };
 
-export const ParamInputBox: FC<InputProps> = (props) => {
-  const { definition } = props;
-  const { type } = definition;
+type ParamInputBoxProps = {
+  disabled: boolean;
+  definition: ParamDefinition;
+  initialValue?: ParameterValue;
+  onValueChange: (value?: ParameterValue, error?: string) => void;
+};
+
+export const ParamInputBox: FC<ParamInputBoxProps> = (props) => {
+  const { definition, initialValue, disabled, onValueChange } = props;
+  const { type, name } = definition;
+  const [error, setError] = useState<string>();
+
+  function handleValueChange(value: ParameterValue, error?: string) {
+    onValueChange(value, error);
+    setError(error);
+  } 
 
   switch (type) {
     case "bool":
-      return <ParamCheckboxInput {...props} />;
+      return <CheckboxInput 
+        name={name}
+        inputId={getInputHtmlId(definition)}
+        disabled={disabled}
+        initialValue={initialValue}
+        onValueChange={handleValueChange} />
     case "int":
-      return <ParamIntInput {...props} />;
+      return (
+        <InputBoxWrapper disabled={props.disabled} error={error}>
+          <IntInput
+            name={name}
+            inputId={getInputHtmlId(definition)}
+            disabled={disabled}
+            initialValue={initialValue}
+            onValueChange={handleValueChange} />
+        </InputBoxWrapper>
+      );
     case "string":
-      return <ParamStringInput {...props} />;
+      if (definition.allowedValues) {
+        return (
+          <InputBoxWrapper disabled={props.disabled} error={error}>
+            <DropdownInput
+              name={name}
+              inputId={getInputHtmlId(definition)}
+              disabled={disabled}
+              allowedValues={definition.allowedValues}
+              initialValue={initialValue}
+              onValueChange={handleValueChange} />
+          </InputBoxWrapper>
+        );
+      }
+
+      return (
+        <InputBoxWrapper disabled={props.disabled} error={error}>
+          <StringInput
+            name={name}
+            inputId={getInputHtmlId(definition)}
+            disabled={disabled}
+            initialValue={initialValue}
+            onValueChange={handleValueChange} />
+        </InputBoxWrapper>
+      );
     default:
-      return <ParamJsonInput {...props} />;
+      return (
+        <InputBoxWrapper disabled={props.disabled} error={error}>
+          <JsonInput
+            name={name}
+            inputId={getInputHtmlId(definition)}
+            disabled={disabled}
+            initialValue={initialValue}
+            onValueChange={handleValueChange} />
+        </InputBoxWrapper>
+      );
   }
+};
+
+const CheckboxInput: FC<InputProps> = (props) => {
+  const { name, inputId, disabled, initialValue, onValueChange } = props;
+  const [inputValue, setInputValue] = useState<boolean>();
+
+  function handleInputChange(value: boolean) {
+    onValueChange(value, undefined);
+    setInputValue(value);
+  }
+
+  useEffect(() => {
+    handleInputChange(initialValue as boolean ?? false);
+  }, [initialValue]);
+
+  return (
+    <>
+      <VscodeCheckbox
+        id={inputId}
+        checked={inputValue}
+        onChange={() => handleInputChange(!inputValue)}
+        disabled={disabled}
+      >
+        {name}
+      </VscodeCheckbox>
+    </>
+  );
+};
+
+const IntInput: FC<InputProps> = (props) => {
+  const { name, inputId, disabled, initialValue, onValueChange } = props;
+  const [inputValue, setInputValue] = useState<string>();
+
+  function handleInputChange(value: string) {
+    const newValueInt = Number(value);
+    if (Number.isInteger(newValueInt)) {
+      onValueChange(newValueInt, undefined);
+    } else {
+      onValueChange(undefined, "Invalid integer value");
+    }
+    setInputValue(value);
+  }
+
+  useEffect(() => {
+    handleInputChange(`${initialValue as number ?? 0}`);
+  }, [initialValue]);
+
+  return (
+    <>
+      <VscodeLabel htmlFor={inputId}>{name}</VscodeLabel>
+      <VscodeTextfield
+        id={inputId}
+        value={inputValue}
+        onChange={(e) => handleInputChange((e.currentTarget as HTMLInputElement).value)}
+        disabled={disabled}
+      />
+    </>
+  );
+};
+
+const JsonInput: FC<InputProps> = (props) => {
+  const { name, inputId, disabled, initialValue, onValueChange } = props;
+  const [inputValue, setInputValue] = useState<string>();
+
+  function handleInputChange(value: string) {
+    try {
+      onValueChange(value !== "" ? JSON.parse(value) : undefined, undefined);
+    } catch {
+      onValueChange(undefined, "Invalid JSON value");
+    }
+    setInputValue(value);
+  }
+
+  useEffect(() => {
+    handleInputChange(JSON.stringify(initialValue, null, 2) ?? '');
+  }, [initialValue]);
+
+  return (
+    <>
+      <VscodeLabel htmlFor={inputId}>{name}</VscodeLabel>
+      <VscodeTextarea
+        id={inputId}
+        className="code-textarea-container"
+        resize="vertical"
+        value={inputValue}
+        onChange={(e) => handleInputChange((e.currentTarget as HTMLInputElement).value)}
+        disabled={disabled}
+      />
+    </>
+  );
+};
+
+const StringInput: FC<InputProps> = (props) => {
+  const { name, inputId, disabled, initialValue, onValueChange } = props;
+  const [inputValue, setInputValue] = useState<string>();
+
+  function handleInputChange(value: string) {
+    onValueChange(value, undefined);
+    setInputValue(value);
+  }
+
+  useEffect(() => {
+    handleInputChange(initialValue as string ?? '');
+  }, [initialValue]);
+
+  return (
+    <>
+      <VscodeLabel htmlFor={inputId}>{name}</VscodeLabel>
+      <VscodeTextfield
+        id={inputId}
+        value={inputValue}
+        onChange={(e) => handleInputChange((e.currentTarget as HTMLInputElement).value)}
+        disabled={disabled}
+      />
+    </>
+  );
+};
+
+const DropdownInput: FC<InputProps & { allowedValues: string[] }> = (props) => {
+  const { name, inputId, allowedValues, disabled, initialValue, onValueChange } = props;
+  const [inputValue, setInputValue] = useState<string>();
+
+  function handleInputChange(value: string) {
+    onValueChange(value, undefined);
+    setInputValue(value);
+  }
+
+  useEffect(() => {
+    handleInputChange(initialValue as string ?? '');
+  }, [initialValue]);
+
+  return (
+    <>
+      <VscodeLabel htmlFor={inputId}>{name}</VscodeLabel>
+      <VscodeSingleSelect
+        id={inputId}
+        onChange={(e) => handleInputChange((e.currentTarget as HTMLSelectElement).value)}
+        disabled={disabled}
+      >
+        {allowedValues.map((option) => (
+          <VscodeOption key={option} selected={inputValue === option}>
+            {option}
+          </VscodeOption>
+        ))}
+      </VscodeSingleSelect>
+    </>
+  );
 };

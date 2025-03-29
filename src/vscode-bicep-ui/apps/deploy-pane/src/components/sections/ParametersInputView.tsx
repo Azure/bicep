@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { FC } from "react";
 import type { ParamDefinition, ParametersMetadata, TemplateMetadata } from "../../models";
 import type { ParameterInputData } from "../ParamInputBox";
@@ -7,14 +10,11 @@ import { useCallback, useEffect, useState } from "react";
 import { ParamInputBox } from "../ParamInputBox";
 import { FormSection } from "./FormSection";
 
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-
 export type ParametersInputData = Record<string, ParameterInputData>;
 
 interface ParametersInputViewProps {
   template?: TemplateMetadata;
-  parameters?: ParametersMetadata;
+  initialParameters?: ParametersMetadata;
   disabled: boolean;
   onParametersChange: (parameters: ParametersInputData) => void;
   onEnableEditing: () => void;
@@ -23,14 +23,14 @@ interface ParametersInputViewProps {
 
 export const ParametersInputView: FC<ParametersInputViewProps> = ({
   template,
-  parameters,
+  initialParameters,
   disabled,
   onParametersChange,
   onEnableEditing,
   onPickParametersFile,
 }) => {
   const definitions = template?.parameterDefinitions;
-  const sourceFilePath = parameters?.sourceFilePath;
+  const sourceFilePath = initialParameters?.sourceFilePath;
   const [values, setValues] = useState<ParametersInputData>({});
 
   const handleValueChange = useCallback(
@@ -43,11 +43,17 @@ export const ParametersInputView: FC<ParametersInputViewProps> = ({
   );
 
   useEffect(() => {
-    setValues((curValues) => getValues(definitions ?? [], curValues));
+    setValues((curValues) => getValuesForDefinitionsUpdate(definitions ?? [], curValues));
   }, [definitions]);
 
+  useEffect(() => {
+    if (initialParameters) {
+      setValues((curValues) => getValuesForInitialValueUpdate(initialParameters, curValues));
+    }
+  }, [initialParameters]);
+
   return (
-    <FormSection title="Parameters" hidden={!template || !parameters}>
+    <FormSection title="Parameters" hidden={!template || !initialParameters}>
       {sourceFilePath && (
         <VscodeTextfield value={sourceFilePath} disabled={true}>
           File Path
@@ -65,15 +71,15 @@ export const ParametersInputView: FC<ParametersInputViewProps> = ({
               key={definition.name}
               definition={definition}
               disabled={disabled}
-              data={values[definition.name]!}
-              onChangeData={handleValueChange}
+              initialValue={initialParameters?.parameters[definition.name]?.value ?? definition.defaultValue}
+              onValueChange={(value, error) => handleValueChange(definition.name, { value, isValid: !error })}
             />
           ))}
     </FormSection>
   );
 };
 
-function getValues(definitions: ParamDefinition[], prevValues: ParametersInputData): ParametersInputData {
+function getValuesForDefinitionsUpdate(definitions: ParamDefinition[], prevValues: ParametersInputData): ParametersInputData {
   const values = { ...prevValues };
   let hasUpdates = false;
 
@@ -88,4 +94,18 @@ function getValues(definitions: ParamDefinition[], prevValues: ParametersInputDa
   }
 
   return hasUpdates ? values : prevValues;
+}
+
+
+function getValuesForInitialValueUpdate(metadata: ParametersMetadata, prevValues: ParametersInputData): ParametersInputData {
+  const values = { ...prevValues };
+
+  for (const [name, param] of Object.entries(metadata.parameters)) {
+    values[name] = {
+      value: param.value,
+      isValid: true,
+    }
+  }
+
+  return values;
 }
