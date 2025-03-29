@@ -1076,15 +1076,22 @@ public class ExpressionBuilder
                 return new ParametersReferenceExpression(variableAccessSyntax, parameterSymbol);
 
             case ParameterAssignmentSymbol parameterSymbol:
+                if (Context.SemanticModel.SourceFileKind == BicepSourceFileKind.ParamsFile)
+                {
+                    // we're in a params file, so we have to inline the parameter usage as `parameters(...)` is not supported in params file
+                    return ConvertWithoutLowering(parameterSymbol.DeclaringParameterAssignment.Value);
+                }
+                
                 return new ParametersAssignmentReferenceExpression(variableAccessSyntax, parameterSymbol);
 
             case VariableSymbol variableSymbol:
-                if (Context.VariablesToInline.Contains(variableSymbol))
+                if (Context.VariablesToInline.Contains(variableSymbol) || Context.SemanticModel.SourceFileKind == BicepSourceFileKind.ParamsFile)
                 {
-                    // we've got a runtime dependency, so we have to inline the variable usage
+                    // 1. we've got a runtime dependency, so we have to inline the variable usage
+                    // 2. we're in a params file, so we have to inline the variable usage as `variables(...)` is not supported in params file
                     return ConvertWithoutLowering(variableSymbol.DeclaringVariable.Value);
                 }
-
+                
                 return new VariableReferenceExpression(variableAccessSyntax, variableSymbol);
 
             case ModuleSymbol moduleSymbol:

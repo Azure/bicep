@@ -39,7 +39,6 @@ namespace Bicep.Core.Semantics.Namespaces
 
         public const string BuiltInName = "sys";
         public const long UniqueStringHashLength = 13;
-
         private const string ConcatDescription = "Combines multiple arrays and returns the concatenated array, or combines multiple string values and returns the concatenated string.";
         private const string TakeDescription = "Returns an array or string. An array has the specified number of elements from the start of the array. A string has the specified number of characters from the start of the string.";
         private const string SkipDescription = "Returns a string with all the characters after the specified number of characters, or an array with all the elements after the specified number of elements.";
@@ -1111,21 +1110,8 @@ namespace Bicep.Core.Semantics.Namespaces
                         .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
                         .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.")
                         .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.")
-                        .WithReturnResultBuilder((model, diagnostics, functionCall, argumentTypes) =>
-                        {
-                            var arguments = functionCall.Arguments;
-                            
-                            if (argumentTypes.Length < 1 || argumentTypes[0] is not StringLiteralType stringLiteral)
-                            {
-                                return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).CompileTimeConstantRequired()));
-                            }
-
-                            var inputType = stringLiteral.RawStringValue;
-
-                            return new(LanguageConstants.Any, new ExternalInputExpression(functionCall, inputType));
-
-                        }, LanguageConstants.Any)
-                        // .WithReturnType(LanguageConstants.Any)
+                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, "externalInputs", exp.Parameters))
+                        .WithReturnType(LanguageConstants.Any)
                         .Build();
                 }
             }

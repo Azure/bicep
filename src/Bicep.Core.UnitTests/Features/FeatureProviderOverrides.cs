@@ -51,7 +51,7 @@ public record FeatureProviderOverrides(
         bool? TypedVariablesEnabled = default,
         bool? ModuleExtensionConfigsEnabled = default,
         bool? DesiredStateConfigurationEnabled = default,
-        bool? ExternalInputEnabled = default
+        bool? ExternalInputFunctionEnabled = default
     ) : this(
         FileHelper.GetCacheRootDirectory(testContext),
         RegistryEnabled,
@@ -73,6 +73,6 @@ public record FeatureProviderOverrides(
         TypedVariablesEnabled,
         ModuleExtensionConfigsEnabled,
         DesiredStateConfigurationEnabled,
-        ExternalInputEnabled)
+        ExternalInputFunctionEnabled)
     { }
 }

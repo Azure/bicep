@@ -39,7 +39,7 @@ public class ParametersJsonWriterv2
             {
                 emitter.EmitObjectProperty(assignment.Name, () => 
                 {
-                    var parameter = this.Context.SemanticModel.EmitLimitationInfo.ParameterAssignments[assignment];
+                    var parameter = this.Context.SemanticModel.EmitLimitationInfo.ParameterEmitInfo.ParameterAssignments[assignment];
 
                     if (parameter.KeyVaultReferenceExpression is { } keyVaultReference)
                     {
@@ -60,6 +60,25 @@ public class ParametersJsonWriterv2
                 });
             }
         });
+        
+        if (this.Context.SemanticModel.EmitLimitationInfo.ParameterEmitInfo.ExternalInputFunctionReferences.Count > 0)
+        {
+            emitter.EmitObjectProperty("externalInputs", () =>
+            {
+                foreach (var reference in this.Context.SemanticModel.EmitLimitationInfo.ParameterEmitInfo.ExternalInputFunctionReferences)
+                {
+                    var functionCall = reference.Key;
+                    var index = reference.Value;
+
+                    var expression = (FunctionCallExpression)ExpressionBuilder.Convert(functionCall);
+                    emitter.EmitObjectProperty(index.ToString(), () =>
+                    {
+                        emitter.EmitProperty("kind", expression.Parameters[0]);
+                        emitter.EmitProperty("options", expression.Parameters[1]);
+                    });
+                }
+            });
+        }
 
         jsonWriter.WriteEndObject();
         var content = jsonWriter.ToString();

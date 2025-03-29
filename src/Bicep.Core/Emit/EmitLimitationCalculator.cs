@@ -59,9 +59,9 @@ namespace Bicep.Core.Emit
             BlockSpreadInUnsupportedLocations(model, diagnostics);
             BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
 
-            var paramAssignments = CalculateParameterAssignments(model, diagnostics);
+            var parameterEmitInfo = CalculateParameterEmitInfo(model, diagnostics);
 
-            return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments);
+            return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, parameterEmitInfo);
         }
 
         private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
@@ -599,19 +599,22 @@ namespace Bicep.Core.Emit
                 .WhereNotNull()
                 .Select(forbiddenSafeAccessMarker => DiagnosticBuilder.ForPosition(forbiddenSafeAccessMarker).SafeDereferenceNotPermittedOnResourceCollections()));
 
-        private static ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue> CalculateParameterAssignments(SemanticModel model, IDiagnosticWriter diagnostics)
+        private static ParameterEmitInfo CalculateParameterEmitInfo(SemanticModel model, IDiagnosticWriter diagnostics)
         {
             if (model.Root.ParameterAssignments.IsEmpty ||
                 model.HasParsingErrors())
             {
-                return ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue>.Empty;
+                return new(ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue>.Empty, ImmutableDictionary<FunctionCallSyntax, int>.Empty);
             }
+
 
             var referencesInValues = model.Binder.Bindings.Values.OfType<DeclaredSymbol>().Distinct()
                 .ToImmutableDictionary(p => p, p => SymbolicReferenceCollector.CollectSymbolsReferenced(model.Binder, p.DeclaringSyntax));
             var generated = ImmutableDictionary.CreateBuilder<ParameterAssignmentSymbol, ParameterAssignmentValue>();
 
             var extendsDeclarations = model.SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>();
+
+            var externalInputRefs = ExternalInputFunctionReferenceVisitor.CollectExternalInputReferences(model);
 
             foreach (var extendsDeclaration in extendsDeclarations)
             {
@@ -623,7 +626,7 @@ namespace Bicep.Core.Emit
                     {
                         throw new UnreachableException("We have already verified this is a .bicepparam file");
                     }
-                    generated.AddRange(extendedSemanticModel.EmitLimitationInfo.ParameterAssignments);
+                    generated.AddRange(extendedSemanticModel.EmitLimitationInfo.ParameterEmitInfo.ParameterAssignments);
                 }
                 else
                 {
@@ -631,7 +634,9 @@ namespace Bicep.Core.Emit
                 }
             }
 
-            var evaluator = new ParameterAssignmentEvaluator(model);
+            var evaluator = new ParameterAssignmentEvaluator(
+                model, externalInputRefs.ParametersReferences, externalInputRefs.ExternalInputIndexMap);
+                
             HashSet<Symbol> erroredSymbols = new();
 
             foreach (var symbol in GetTopologicallySortedSymbols(referencesInValues))
@@ -676,7 +681,7 @@ namespace Bicep.Core.Emit
                 {
                     continue;
                 }
-
+        
                 // We may emit duplicate errors here - type checking will also execute some ARM functions and generate errors
                 // This is something we should improve before the first release.
                 var result = evaluator.EvaluateParameter(parameter);
@@ -690,7 +695,7 @@ namespace Bicep.Core.Emit
                 }
             }
 
-            return generated.ToImmutableDictionary();
+            return new(generated.ToImmutableDictionary(), externalInputRefs.ExternalInputIndexMap);
         }
 
         private static IEnumerable<DeclaredSymbol> GetTopologicallySortedSymbols(ImmutableDictionary<DeclaredSymbol, ImmutableDictionary<DeclaredSymbol, ImmutableSortedSet<SyntaxBase>>> referencesInValues)

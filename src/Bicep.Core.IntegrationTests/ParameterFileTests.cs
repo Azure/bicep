@@ -1,7 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -14,6 +17,13 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class ParameterFileTests
 {
+    private ServiceBuilder ServicesWithExternalInputFunctionEnabled => 
+        new ServiceBuilder()
+            .WithFeatureOverrides(new FeatureProviderOverrides(TestContext, ExternalInputFunctionEnabled: true));
+
+    [NotNull]
+    public TestContext? TestContext { get; set; }
+    
     [TestMethod]
     public void Parameters_file_cannot_reference_non_bicep_files()
     {
@@ -150,14 +160,14 @@ param baz string
         result.Diagnostics.Should().NotHaveAnyDiagnostics();
         var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
 
-        parameters["foo"].Should().DeepEqual("abc");
-        parameters["bar"].Should().DeepEqual(new JObject
+        parameters["foo"].Value.Should().DeepEqual("abc");
+        parameters["bar"].Value.Should().DeepEqual(new JObject
         {
             ["abc"] = "abc",
             ["abcWrapped"] = ">>abc<<",
             ["abcUpper"] = "ABC",
         });
-        parameters["baz"].Should().DeepEqual("BAZ,BAR,FOO");
+        parameters["baz"].Value.Should().DeepEqual("BAZ,BAR,FOO");
     }
 
     [TestMethod]
@@ -232,6 +242,300 @@ invalid file
         result.Should().HaveDiagnostics(new[]
         {
             ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
+        });
+    }
+
+    [TestMethod]
+    public void ExternalInput_assigned_to_parameter()
+    {
+        var result = CompilationHelper.CompileParams(
+            ServicesWithExternalInputFunctionEnabled,
+("parameters.bicepparam", @"
+using none
+param foo = externalInput('sys.cli', 'foo')
+"));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["foo"].Value.Should().BeNull();
+        parameters["foo"].Expression.Should().DeepEqual("""[externalInputs('0')]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["options"] = "foo",
+        });
+    }
+
+    [TestMethod]
+    public void ExternalInput_multiple_with_different_parameters()
+    {
+        var result = CompilationHelper.CompileParams(
+            ServicesWithExternalInputFunctionEnabled,
+("parameters.bicepparam", @"
+using none
+param foo = externalInput('sys.cli', 'foo')
+param bar = externalInput('sys.envVar', 'bar')
+param baz = externalInput('custom.binding', '__BINDING__')
+"));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+
+        parameters["foo"].Value.Should().BeNull();
+        parameters["foo"].Expression.Should().DeepEqual("""[externalInputs('0')]""");
+
+        parameters["bar"].Value.Should().BeNull();
+        parameters["bar"].Expression.Should().DeepEqual("""[externalInputs('1')]""");
+
+        parameters["baz"].Value.Should().BeNull();
+        parameters["baz"].Expression.Should().DeepEqual("""[externalInputs('2')]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["options"] = "foo",
+        });
+        externalInputs["1"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.envVar",
+            ["options"] = "bar",
+        });
+        externalInputs["2"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "custom.binding",
+            ["options"] = "__BINDING__",
+        });
+    }
+
+    [TestMethod]
+    public void ExternalInput_with_argument_referencing_variable()
+    {
+        var result = CompilationHelper.CompileParams(
+            ServicesWithExternalInputFunctionEnabled,
+("parameters.bicepparam", @"
+using none
+var bar = 'bar'
+param foo = externalInput('sys.cli', bar)
+"));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["foo"].Value.Should().BeNull();
+        parameters["foo"].Expression.Should().DeepEqual("""[externalInputs('0')]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["options"] = "bar",
+        });
+    }
+
+    [TestMethod]
+    public void ExternalInput_assigned_to_parameter_wrapped_inside_builtin_function()
+    {
+        var result = CompilationHelper.CompileParams(
+            ServicesWithExternalInputFunctionEnabled,
+("parameters.bicepparam", @"
+using none
+param foo = bool(externalInput('sys.cli', 'foo'))
+"));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["foo"].Value.Should().BeNull();
+        parameters["foo"].Expression.Should().DeepEqual("""[bool(externalInputs('0'))]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["options"] = "foo",
+        });
+    }
+
+    [TestMethod]
+    public void ExternalInput_variable_reference_on_parameter_assignment()
+    {
+        var result = CompilationHelper.CompileParams(
+            ServicesWithExternalInputFunctionEnabled,
+("parameters.bicepparam", @"
+using none
+var foo = bool(externalInput('sys.cli', 'foo'))
+param bar = foo
+"));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["bar"].Value.Should().BeNull();
+        parameters["bar"].Expression.Should().DeepEqual("""[bool(externalInputs('0'))]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["options"] = "foo",
+        });
+    }
+
+    [TestMethod]
+    public void ExternalInput_with_object_config()
+    {
+        var result = CompilationHelper.CompileParams(
+            ServicesWithExternalInputFunctionEnabled,
+("parameters.bicepparam", @"
+using none
+param foo = externalInput('custom.tool', {
+    path: '/path/to/file'
+    isSecure: true
+})
+"));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["foo"].Value.Should().BeNull();
+        parameters["foo"].Expression.Should().DeepEqual("""[externalInputs('0')]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "custom.tool",
+            ["options"] = new JObject
+            {
+                ["path"] = "/path/to/file",
+                ["isSecure"] = true,
+            },
+        });
+    }
+
+    [TestMethod]
+    public void ExternalInput_variable_reference_chain()
+    {
+        var result = CompilationHelper.CompileParams(
+            ServicesWithExternalInputFunctionEnabled,
+("parameters.bicepparam", @"
+using none
+var a = externalInput('sys.cli', 'a')
+var b = a
+param c = b
+"));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["c"].Value.Should().BeNull();
+        parameters["c"].Expression.Should().DeepEqual("""[externalInputs('0')]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["options"] = "a",
+        });
+    }
+
+    [TestMethod]
+    public void ExternalInput_param_reference_chain()
+    {
+        var result = CompilationHelper.CompileParams(
+            ServicesWithExternalInputFunctionEnabled,
+("parameters.bicepparam", @"
+using none
+param a = externalInput('sys.cli', 'a')
+param b = a
+param c = b
+"));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+
+        parameters["a"].Value.Should().BeNull();
+        parameters["a"].Expression.Should().DeepEqual("""[externalInputs('0')]""");
+
+        parameters["b"].Value.Should().BeNull();
+        parameters["b"].Expression.Should().DeepEqual("""[externalInputs('0')]""");
+
+        parameters["c"].Value.Should().BeNull();
+        parameters["c"].Expression.Should().DeepEqual("""[externalInputs('0')]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["options"] = "a",
+        });
+    }
+
+    [TestMethod]
+    public void ExternalInput_string_interpolation_of_param_references()
+    {
+        var result = CompilationHelper.CompileParams(
+            ServicesWithExternalInputFunctionEnabled,
+("parameters.bicepparam", @"
+using none
+param foo = int(externalInput('custom.binding', '__BINDING__'))
+param bar = externalInput('custom.binding', {
+    path: '/path/to/file'
+    isSecure: true
+})
+param baz = '${foo} combined with ${bar}'
+"));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+
+        parameters["foo"].Value.Should().BeNull();
+        parameters["foo"].Expression.Should().DeepEqual("""[int(externalInputs('0'))]""");
+
+        parameters["bar"].Value.Should().BeNull();
+        parameters["bar"].Expression.Should().DeepEqual("""[externalInputs('1')]""");
+
+        parameters["baz"].Value.Should().BeNull();
+        parameters["baz"].Expression.Should().DeepEqual(
+"""[format('{0} combined with {1}', int(externalInputs('0')), externalInputs('1'))]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "custom.binding",
+            ["options"] = "__BINDING__",
+        });
+        externalInputs["1"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "custom.binding",
+            ["options"] = new JObject
+            {
+                ["path"] = "/path/to/file",
+                ["isSecure"] = true,
+            },
+        });
+    }
+
+    [TestMethod]
+    public void ExternalInput_nested_variable_reference()
+    {
+        var result = CompilationHelper.CompileParams(
+            ServicesWithExternalInputFunctionEnabled,
+("parameters.bicepparam", @"
+using none
+var foo = '__BINDING__'
+var bar = 'Binding: ${foo}, Value: ${json(externalInput('custom.binding', foo))}'
+param baz = bar
+"));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["baz"].Value.Should().BeNull();
+        parameters["baz"].Expression.Should().DeepEqual(
+"""[format('Binding: {0}, Value: {1}', '__BINDING__', json(externalInputs('0')))]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "custom.binding",
+            ["options"] = "__BINDING__",
         });
     }
 }

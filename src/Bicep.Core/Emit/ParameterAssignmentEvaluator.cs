@@ -17,6 +17,7 @@ using Bicep.Core.Emit.CompileTimeImports;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.Syntax;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -147,8 +148,14 @@ public class ParameterAssignmentEvaluator
     private readonly ImmutableDictionary<string, WildcardImportPropertyReference> wildcardImportPropertiesByName;
     private readonly ImmutableDictionary<string, Expression> synthesizedVariableValuesByName;
     private readonly ExpressionConverter converter;
+    private readonly SemanticModel model;
+    private readonly ImmutableHashSet<ParameterAssignmentSyntax> paramsWithExternalInputFunctionRefs;
+    private readonly ImmutableDictionary<FunctionCallSyntax, int> externalInputFunctionIndexMap;
 
-    public ParameterAssignmentEvaluator(SemanticModel model)
+    public ParameterAssignmentEvaluator(
+        SemanticModel model, 
+        ImmutableHashSet<ParameterAssignmentSyntax> paramsWithExternalInputFunctionRefs,
+        ImmutableDictionary<FunctionCallSyntax, int> externalInputFunctionIndexMap)
     {
         this.paramsByName = model.Root.ParameterAssignments
             .GroupBy(x => x.Name, LanguageConstants.IdentifierComparer)
@@ -169,6 +176,9 @@ public class ParameterAssignmentEvaluator
         this.synthesizedVariableValuesByName = context.FunctionVariables.Values
             .GroupBy(result => result.Name)
             .ToImmutableDictionary(x => x.Key, x => x.First().Value);
+        this.model = model;
+        this.paramsWithExternalInputFunctionRefs = paramsWithExternalInputFunctionRefs;
+        this.externalInputFunctionIndexMap = externalInputFunctionIndexMap;
     }
 
     public Result EvaluateParameter(ParameterAssignmentSymbol parameter)
@@ -178,16 +188,21 @@ public class ParameterAssignmentEvaluator
             {
                 var context = GetExpressionEvaluationContext();
 
-                var intermediate = converter.ConvertToIntermediateExpression(parameter.DeclaringParameterAssignment.Value);
+                var declaringParam = parameter.DeclaringParameterAssignment;
+
+                var intermediate = converter.ConvertToIntermediateExpression(declaringParam.Value);
+
+                if (this.paramsWithExternalInputFunctionRefs.Contains(declaringParam))
+                {
+                    var rewrittenExpression = ExternalInputExpressionRewriter
+                        .Rewrite(intermediate, this.externalInputFunctionIndexMap);
+                        
+                    return Result.For(rewrittenExpression);
+                }
 
                 if (intermediate is ParameterKeyVaultReferenceExpression keyVaultReferenceExpression)
                 {
                     return Result.For(keyVaultReferenceExpression);
-                }
-
-                if (ExternalInputExpressionFinder.ContainsExternalInputExpression(intermediate))
-                {
-                    return Result.For(intermediate);
                 }
 
                 try
@@ -196,7 +211,7 @@ public class ParameterAssignmentEvaluator
                 }
                 catch (Exception ex)
                 {
-                    return Result.For(DiagnosticBuilder.ForPosition(parameter.DeclaringParameterAssignment.Value)
+                    return Result.For(DiagnosticBuilder.ForPosition(declaringParam.Value)
                         .FailedToEvaluateParameter(parameter.Name, ex.Message));
                 }
             });
@@ -210,11 +225,6 @@ public class ParameterAssignmentEvaluator
                 {
                     var context = GetExpressionEvaluationContext();
                     var intermediate = converter.ConvertToIntermediateExpression(variable.DeclaringVariable.Value);
-
-                    if (ExternalInputExpressionFinder.ContainsExternalInputExpression(intermediate))
-                    {
-                        return Result.For(intermediate);
-                    }
 
                     return Result.For(converter.ConvertExpression(intermediate).EvaluateExpression(context));
                 }
@@ -421,26 +431,43 @@ public class ParameterAssignmentEvaluator
         }
     }
 
-    private class ExternalInputExpressionFinder : ExpressionVisitor
+
+    private class ExternalInputExpressionRewriter : ExpressionRewriteVisitor
     {
-        private ExternalInputExpressionFinder()
+        private static readonly string ExternalInputsFunctionName = "externalInputs"; 
+        private readonly ImmutableDictionary<FunctionCallSyntax, int> externalInputFunctionIndexMap;
+
+        private ExternalInputExpressionRewriter(
+            ImmutableDictionary<FunctionCallSyntax, int> externalInputFunctionIndexMap)
         {
+            this.externalInputFunctionIndexMap = externalInputFunctionIndexMap;
         }
 
-        private readonly ImmutableList<Expression>.Builder expressions = 
-            ImmutableList.CreateBuilder<Expression>();
 
-        public static bool ContainsExternalInputExpression(Expression? expression)
+        public static Expression Rewrite(
+            Expression expression, 
+            ImmutableDictionary<FunctionCallSyntax, int> externalInputFunctionIndexMap)
         {
-            var visitor = new ExternalInputExpressionFinder();
-            visitor.Visit(expression);
-            return visitor.expressions.Count > 0;
+            var visitor = new ExternalInputExpressionRewriter(externalInputFunctionIndexMap);
+            var rewritten = visitor.Replace(expression);
+
+            return rewritten;
         }
 
-        public override void VisitExternalInputExpression(ExternalInputExpression expression)
+        public override Expression ReplaceFunctionCallExpression(FunctionCallExpression expression)
         {
-            expressions.Add(expression);
-            base.VisitExternalInputExpression(expression);
+            if (string.Equals(expression.Name, ExternalInputsFunctionName, LanguageConstants.IdentifierComparison) && 
+                expression.SourceSyntax is FunctionCallSyntax functionCallSyntax &&
+                externalInputFunctionIndexMap.TryGetValue(functionCallSyntax, out var index))
+            {
+                return new FunctionCallExpression(
+                    null,
+                    ExternalInputsFunctionName,
+                    [ExpressionFactory.CreateStringLiteral(index.ToString())]
+                );
+            }
+
+            return base.ReplaceFunctionCallExpression(expression);
         }
     }
 }
