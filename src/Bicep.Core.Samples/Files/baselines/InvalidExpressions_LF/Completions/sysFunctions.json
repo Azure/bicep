@@ -168,6 +168,27 @@
     }
   },
   {
+    "label": "buildUri",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nbuildUri(components: parseUri): string\n\n```  \nConstructs a URI from specified components and returns an object with these components.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_buildUri",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "buildUri($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "cidrHost",
     "kind": "function",
     "documentation": {
@@ -1039,6 +1060,27 @@
     "textEdit": {
       "range": {},
       "newText": "parseCidr($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "parseUri",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nparseUri(baseUrl: string): parseUri\n\n```  \nParses a URI string into its components (scheme, host, port, path, query).  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_parseUri",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "parseUri($0)"
     },
     "command": {
       "title": "signature help",
