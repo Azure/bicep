@@ -130,6 +130,8 @@ namespace Bicep.Core.SourceLink
             return CreateFor(sourceFileGrouping.EntryPoint.Uri, sourceFileGrouping.EntryPoint.Features.CacheRootDirectory, documentLinks, sourceFilesWithArtifactReference.ToArray());
         }
 
+        // TODO(shenglol): The method is only used by tests. It would be ideal to remove it.
+        // TODO(shenglol): Replace Uri with IOUri / IFileHandle.
         public static SourceArchive CreateFor(Uri entrypointFileUri, IDirectoryHandle? cacheRoot, IReadOnlyDictionary<Uri, SourceCodeDocumentUriLink[]>? documentLinks, params SourceFileWithArtifactReference[] sourceFiles)
         {
             // Don't package template spec files - they don't appear in the compiled JSON so we shouldn't expose them
