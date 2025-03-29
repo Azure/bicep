@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Bicep.Core.SourceLink;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
@@ -92,7 +93,10 @@ public record CachedModule(
         var sourceArchivePath = FileSystem.Path.Combine(ModuleCacheFolder, $"source.tgz");
         if (FileSystem.File.Exists(sourceArchivePath))
         {
-            return SourceArchive.UnpackFromStream(File.OpenRead(sourceArchivePath));
+            var sourceTgzFileMock = StrictMock.Of<IFileHandle>();
+            sourceTgzFileMock.Setup(x => x.Exists()).Returns(true);
+            sourceTgzFileMock.Setup(x => x.OpenRead()).Returns(FileSystem.File.OpenRead(sourceArchivePath));
+            return SourceArchive.TryUnpackFromFile(new(sourceTgzFileMock.Object));
         }
 
         return new(new SourceNotAvailableException());

@@ -45,12 +45,6 @@ namespace Bicep.Core.UnitTests.Utils
 
         public SourceArchive Build()
         {
-            var stream = BuildStream();
-            return SourceArchive.UnpackFromStream(stream).UnwrapOrThrow();
-        }
-
-        private Stream BuildStream()
-        {
             if (SourceFiles.Count == 0)
             {
                 // Add a default entrypoint
@@ -59,8 +53,9 @@ namespace Bicep.Core.UnitTests.Utils
 
             SourceFiles[0].Should().BeOfType<BicepFile>("Entrypoint should be a bicep file");
 
-            return SourceArchive.PackSourcesIntoStream(
+            return SourceArchive.CreateFor(
                 EntrypointFile.Uri,
+                null,
                 null,
                 [.. SourceFiles.Select(x => new SourceFileWithArtifactReference(x, null))]);
         }

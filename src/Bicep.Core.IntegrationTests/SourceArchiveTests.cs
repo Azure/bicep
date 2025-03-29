@@ -43,14 +43,7 @@ namespace Bicep.Core.IntegrationTests
 
         private SourceArchive CreateSourceArchive(CompilationHelper.CompilationResult result)
         {
-            return CreateSourceArchive(result.Compilation.SourceFileGrouping);
-        }
-
-        private SourceArchive CreateSourceArchive(SourceFileGrouping sourceFileGrouping)
-        {
-            return SourceArchive.UnpackFromStream(
-                SourceArchive.PackSourcesIntoStream(sourceFileGrouping))
-                .UnwrapOrThrow();
+            return SourceArchive.CreateFor(result.Compilation.SourceFileGrouping);
         }
 
         #endregion

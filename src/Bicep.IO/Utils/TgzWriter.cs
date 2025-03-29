@@ -1,13 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Formats.Tar;
 using System.IO.Compression;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Bicep.IO.Utils
 {
@@ -16,10 +12,10 @@ namespace Bicep.IO.Utils
         private readonly GZipStream gzipStream;
         private readonly TarWriter tarWriter;
 
-        public TgzWriter(Stream stream)
+        public TgzWriter(Stream stream, bool leaveOpen = false)
         {
-            this.gzipStream = new GZipStream(stream, CompressionMode.Compress);
-            this.tarWriter = new TarWriter(gzipStream);
+            this.gzipStream = new GZipStream(stream, CompressionMode.Compress, leaveOpen);
+            this.tarWriter = new TarWriter(this.gzipStream, leaveOpen);
         }
 
         public void WriteEntry(string name, string contents)
