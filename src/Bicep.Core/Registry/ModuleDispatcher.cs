@@ -309,12 +309,6 @@ namespace Bicep.Core.Registry
 
         private IArtifactRegistry GetRegistry(ArtifactReference reference) => this.registryProvider.GetRegistry(reference.Scheme);
 
-        public ResultWithException<SourceArchive> TryGetModuleSources(ArtifactReference reference)
-        {
-            var registry = this.GetRegistry(reference);
-            return registry.TryGetSource(reference);
-        }
-
         public Uri? TryGetExtensionBinary(ArtifactReference reference)
         {
             var registry = this.GetRegistry(reference);

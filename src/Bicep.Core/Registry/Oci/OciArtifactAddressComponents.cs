@@ -87,8 +87,8 @@ namespace Bicep.Core.Registry.Oci
             // the set of valid OCI artifact refs is a subset of the set of valid URIs if you remove the scheme portion from each URI
             // manually prepending any valid URI scheme allows to get free validation via the built-in URI parser
             if (!Uri.TryCreate($"{OciArtifactReferenceFacts.Scheme}://{unqualifiedReference}", UriKind.Absolute, out var artifactUri) ||
-            artifactUri.Segments.Length <= 1 ||
-            !string.Equals(artifactUri.Segments[0], "/", StringComparison.Ordinal))
+                artifactUri.Segments.Length <= 1 ||
+                !string.Equals(artifactUri.Segments[0], "/", StringComparison.Ordinal))
             {
                 return new(x => x.InvalidOciArtifactReference(aliasName, GetBadReference(unqualifiedReference)));
             }

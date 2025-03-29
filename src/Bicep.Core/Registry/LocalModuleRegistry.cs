@@ -133,11 +133,6 @@ namespace Bicep.Core.Registry
             return Task.FromResult<string?>(null);
         }
 
-        public override ResultWithException<SourceArchive> TryGetSource(LocalModuleReference reference)
-        {
-            return new(new SourceNotAvailableException());
-        }
-
         public override Uri? TryGetExtensionBinary(LocalModuleReference reference) => GetExtensionBinaryFile(reference).Uri.ToUri();
 
         protected override void WriteArtifactContentToCache(LocalModuleReference reference, LocalModuleEntity entity)

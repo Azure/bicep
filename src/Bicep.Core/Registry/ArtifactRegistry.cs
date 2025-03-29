@@ -42,8 +42,6 @@ namespace Bicep.Core.Registry
 
         public abstract Task<string?> TryGetModuleDescription(ModuleSymbol module, T reference);
 
-        public abstract ResultWithException<SourceArchive> TryGetSource(T reference);
-
         public bool IsArtifactRestoreRequired(ArtifactReference reference) => this.IsArtifactRestoreRequired(ConvertReference(reference));
 
         public Task<bool> CheckArtifactExists(ArtifactType artifactType, ArtifactReference reference)
@@ -68,8 +66,6 @@ namespace Bicep.Core.Registry
 
         public async Task<string?> TryGetModuleDescription(ModuleSymbol module, ArtifactReference reference) =>
             await this.TryGetModuleDescription(module, ConvertReference(reference));
-
-        public ResultWithException<SourceArchive> TryGetSource(ArtifactReference reference) => this.TryGetSource(ConvertReference(reference));
 
         public abstract Uri? TryGetExtensionBinary(T reference);
 

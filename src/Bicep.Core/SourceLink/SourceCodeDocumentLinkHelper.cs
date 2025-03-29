@@ -34,7 +34,7 @@ public static class SourceCodeDocumentLinkHelper
         foreach (var grouping in sourceFileGrouping.ArtifactLookup.Values.GroupBy(x => x.Origin))
         {
             var referencingFile = grouping.Key;
-            var referencingFileLineStarts = TextCoordinateConverter.GetLineStarts(referencingFile.Text);
+            var referencingFileLineStarts = referencingFile.LineStarts;
             var linksForReferencingFile = new List<SourceCodeDocumentUriLink>();
 
             foreach (var artifact in grouping)
