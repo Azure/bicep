@@ -340,7 +340,6 @@ namespace Bicep.Core.Emit
         public static Expression ConvertModuleExtensionConfig(Expression extensionConfigValueExpr) =>
             extensionConfigValueExpr switch
             {
-                // TODO(kylealbert): "extensionConfigs" function handling.
                 ResourceFunctionCallExpression functionCall when LanguageConstants.IdentifierComparer.Equals(functionCall.Name, AzResourceTypeProvider.GetSecretFunctionName)
                     => ExpressionFactory.CreateObject(
                         [ExpressionFactory.CreateObjectProperty("keyVaultReference", ConvertToKeyVaultReference(functionCall))],

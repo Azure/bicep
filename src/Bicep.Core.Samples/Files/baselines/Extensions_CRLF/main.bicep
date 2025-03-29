@@ -1,9 +1,9 @@
 // BEGIN: Extension declarations
 
-// extension kubernetes with {
-//   kubeConfig: 'DELETE'
-//   namespace: 'DELETE'
-// } as k8s
+extension kubernetes with {
+  kubeConfig: 'DELETE'
+  namespace: 'DELETE'
+} as k8s
 
 //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
 
@@ -22,11 +22,28 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
 }
 
 module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias.bicep' = {
-  name: 'moduleWithExtsWithoutAlaises'
+  name: 'moduleWithExtsWithoutAliases'
   extensionConfigs: {
     kubernetes: {
       kubeConfig: 'kubeConfig2FromModule'
       namespace: 'ns2FromModule'
+    }
+  }
+}
+
+module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  name: 'moduleWithExtsFullInheritance'
+  extensionConfigs: {
+    k8s: k8s.config
+  }
+}
+
+module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  name: 'moduleWithExtsPiecemealInheritance'
+  extensionConfigs: {
+    k8s: {
+      kubeConfig: k8s.config.kubeConfig
+      namespace: k8s.config.namespace
     }
   }
 }

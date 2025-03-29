@@ -3,6 +3,13 @@
   "contentVersion": "1.0.0.0",
   "parameters": {},
   "extensionConfigs": {
-    "k8s": {}
+    "k8s": {
+      "kubeConfig": {
+        "value": "configFromParamFile"
+      },
+      "namespace": {
+        "value": "nsFromParamFile"
+      }
+    }
   }
 }

@@ -1103,8 +1103,11 @@ public class ExpressionBuilder
             case ImportedVariableSymbol importedSymbol:
                 return new ImportedVariableReferenceExpression(variableAccessSyntax, importedSymbol);
 
+            case ExtensionNamespaceSymbol extensionNamespaceSymbol:
+                return new ExtensionReferenceExpression(variableAccessSyntax, extensionNamespaceSymbol);
+
             default:
-                throw new NotImplementedException($"Encountered an unexpected symbol kind '{symbol?.Kind}' when generating a variable access expression.");
+                throw new NotImplementedException($"Encountered an unexpected symbol kind '{symbol?.Kind}' and type '{symbol?.GetType().Name}' when generating a variable access expression.");
 
         }
     }
