@@ -11,8 +11,10 @@ using System.Threading;
 using Azure.Deployments.Engine.Host.Azure.ExtensibilityV2.Contract.Models;
 using Azure.Deployments.Extensibility.Core.V2.Json;
 using Azure.Deployments.Extensibility.Core.V2.Models;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
@@ -31,12 +33,12 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
     private readonly IModuleDispatcher moduleDispatcher;
     private readonly Func<Uri, Task<LocalExtensibilityHost>> extensionFactory;
 
-    public LocalExtensibilityHostManager(IModuleDispatcher moduleDispatcher, Func<Uri, Task<LocalExtensibilityHost>> extensionFactory)
+    public LocalExtensibilityHostManager(IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, ITokenCredentialFactory credentialFactory, Func<Uri, Task<LocalExtensibilityHost>> extensionFactory)
     {
         this.moduleDispatcher = moduleDispatcher;
         this.extensionFactory = extensionFactory;
         // Built in extension for handling nested deployments
-        RegisteredExtensions[new("LocalNested", "0.0.0")] = new NestedDeploymentBuiltInLocalExtension(this);
+        RegisteredExtensions[new("LocalNested", "0.0.0")] = new NestedDeploymentBuiltInLocalExtension(configurationManager, credentialFactory, this);
     }
 
     public async Task<HttpResponseMessage> CallExtensibilityHost(

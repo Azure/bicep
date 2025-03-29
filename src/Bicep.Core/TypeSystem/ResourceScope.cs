@@ -21,5 +21,7 @@ namespace Bicep.Core.TypeSystem
         ResourceGroup = 1 << 5,
 
         DesiredStateConfiguration = 1 << 6,
+
+        Local = 1 << 7,
     }
 }

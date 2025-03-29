@@ -159,7 +159,13 @@ public class NamespaceProvider : INamespaceProvider
 
         if (LanguageConstants.IdentifierComparer.Equals(extensionName, AzNamespaceType.BuiltInName))
         {
-            return AzNamespaceType.Create(aliasName, targetScope, resourceTypeProviderFactory.GetBuiltInAzResourceTypesProvider(), sourceFile.FileKind);
+            var typeProvider = targetScope switch
+            {
+                ResourceScope.Local => new EmptyResourceTypeProvider(),
+                _ => resourceTypeProviderFactory.GetBuiltInAzResourceTypesProvider(),
+            };
+
+            return AzNamespaceType.Create(aliasName, targetScope, typeProvider, sourceFile.FileKind);
         }
 
         if (LanguageConstants.IdentifierComparer.Equals(extensionName, K8sNamespaceType.BuiltInName))

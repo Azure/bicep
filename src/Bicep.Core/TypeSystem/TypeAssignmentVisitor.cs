@@ -2153,17 +2153,10 @@ namespace Bicep.Core.TypeSystem
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Decorators.First().At).DecoratorsNotAllowed());
                 }
 
-                var declaredType = syntax.GetDeclaredType();
+                var declaredType = TargetScopeSyntax.GetDeclaredType(features);
                 if (declaredType is ErrorType)
                 {
                     return declaredType;
-                }
-
-                // We add the DSC constant here so we can error with BCP033 when the feature isn't enabled.
-                // TODO: When no longer experimental, add directly to 'TargetScopeSyntax.GetDeclaredType()' instead.
-                if (features.DesiredStateConfigurationEnabled)
-                {
-                    declaredType = TypeHelper.CreateTypeUnion(declaredType, TypeFactory.CreateStringLiteralType(LanguageConstants.TargetScopeTypeDesiredStateConfiguration));
                 }
 
                 TypeValidator.GetCompileTimeConstantViolation(syntax.Value, diagnostics);

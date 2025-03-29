@@ -11,8 +11,11 @@ using Azure.Deployments.Extensibility.Contract;
 using Azure.Deployments.Extensibility.Core.V2.Models;
 using Azure.Deployments.Extensibility.Data;
 using Azure.Deployments.Extensibility.Messages;
+using Bicep.Core.Configuration;
+using Bicep.Core.Registry.Auth;
 using Json.More;
 using Json.Pointer;
+using Microsoft.WindowsAzure.ResourceStack.Common.Algorithms;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
@@ -21,10 +24,14 @@ namespace Bicep.Local.Deploy.Extensibility;
 
 public class NestedDeploymentBuiltInLocalExtension : LocalExtensibilityHost
 {
+    private readonly IConfigurationManager configurationManager;
+    private readonly ITokenCredentialFactory credentialFactory;
     private readonly LocalExtensibilityHostManager extensibilityHostManager;
 
-    public NestedDeploymentBuiltInLocalExtension(LocalExtensibilityHostManager extensibilityHandler)
+    public NestedDeploymentBuiltInLocalExtension(IConfigurationManager configurationManager, ITokenCredentialFactory credentialFactory, LocalExtensibilityHostManager extensibilityHandler)
     {
+        this.configurationManager = configurationManager;
+        this.credentialFactory = credentialFactory;
         this.extensibilityHostManager = extensibilityHandler;
     }
 
@@ -47,7 +54,50 @@ public class NestedDeploymentBuiltInLocalExtension : LocalExtensibilityHost
                         ["parameters"] = request.Properties["parameters"]?.DeepClone(),
                     };
 
-                    var result = await LocalDeployment.Deploy(extensibilityHostManager, template, parameters.ToJsonString(), cancellationToken);
+                    var scopeProp = request.Properties["scope"]?.GetValue<string>();
+                    var subscriptionId = request.Properties["subscriptionId"]?.GetValue<string>();
+                    var resourceGroupName = request.Properties["resourceGroup"]?.GetValue<string>();
+
+                    LocalDeployment.Result result;
+                    if (scopeProp != null ||
+                        subscriptionId != null ||
+                        resourceGroupName != null)
+                    {
+                        try
+                        {
+                            var deploymentName = request.Properties["name"]!.GetValue<string>();
+                            var sourceUri = request.Properties["sourceUri"]!.GetValue<string>();
+                            if (sourceUri is null)
+                            {
+                                throw new ArgumentException("Failed to parse sourceUri.");
+                            }
+
+                            // TODO handle tenant & mg scope
+                            if (subscriptionId == null)
+                            {
+                                throw new NotImplementedException("Above-subscription scope is not supported yet.");
+                            }
+
+                            // TODO improve on this
+                            DeploymentLocator locator = new(null, null, subscriptionId, resourceGroupName, deploymentName);
+                            var configuration = configurationManager.GetConfiguration(new Uri(sourceUri));
+
+                            result = await LocalAzureDeployment.Deploy(configuration, credentialFactory, locator, template, request.Properties["parameters"]?.ToString() ?? "{}", cancellationToken);
+                        }
+                        catch (Exception ex)
+                        {
+                            return new LocalExtensibilityOperationResponse(
+                                Resource: null,
+                                ErrorData: new ErrorData(
+                                    error: new Error(
+                                        "InvalidDeployment",
+                                        $"Failed to deploy to Azure. {ex}")));
+                        }
+                    }
+                    else
+                    {
+                        result = await LocalDeployment.Deploy(extensibilityHostManager, template, parameters.ToJsonString(), cancellationToken);
+                    }
 
                     if (result.Deployment.Properties.ProvisioningState != ProvisioningState.Succeeded)
                     {
