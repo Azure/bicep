@@ -74,7 +74,7 @@ export const App: FC = () => {
           <DeploymentScopeInputView scope={messages.scope} onPickScope={messages.pickScope} />
 
           <ParametersInputView
-            parameters={messages.paramsMetadata}
+            initialParameters={messages.paramsMetadata}
             template={messages.templateMetadata}
             disabled={isRunning}
             onParametersChange={setParameters}
@@ -113,7 +113,7 @@ export const App: FC = () => {
           {showLocalDeployControls && (
             <>
               <ParametersInputView
-                parameters={messages.paramsMetadata}
+                initialParameters={messages.paramsMetadata}
                 template={messages.templateMetadata}
                 disabled={localDeployRunning}
                 onParametersChange={setParameters}
