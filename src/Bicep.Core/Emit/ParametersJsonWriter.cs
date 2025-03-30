@@ -34,7 +34,7 @@ public class ParametersJsonWriter
             jsonWriter.WritePropertyName(assignment.Name);
             jsonWriter.WriteStartObject();
 
-            var parameter = model.EmitLimitationInfo.ParameterEmitInfo.ParameterAssignments[assignment];
+            var parameter = model.EmitLimitationInfo.ParameterAssignments[assignment];
 
             if (parameter.KeyVaultReferenceExpression is { } keyVaultReference)
             {

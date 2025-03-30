@@ -106,7 +106,8 @@ namespace Bicep.Core.Samples
                 "Files/baselines_bicepparam/Invalid_Variables/parameters.bicepparam",
                 "Files/baselines_bicepparam/Invalid_MismatchedTypes/parameters.bicepparam",
                 "Files/baselines_bicepparam/Parameters/parameters.bicepparam",
-                "Files/baselines_bicepparam/Variables/parameters.bicepparam");
+                "Files/baselines_bicepparam/Variables/parameters.bicepparam",
+                "Files/baselines_bicepparam/External_Inputs/parameters.bicepparam");
 
             foreach (var file in embeddedFiles)
             {

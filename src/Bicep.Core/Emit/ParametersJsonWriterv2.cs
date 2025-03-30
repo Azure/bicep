@@ -39,7 +39,7 @@ public class ParametersJsonWriterv2
             {
                 emitter.EmitObjectProperty(assignment.Name, () => 
                 {
-                    var parameter = this.Context.SemanticModel.EmitLimitationInfo.ParameterEmitInfo.ParameterAssignments[assignment];
+                    var parameter = this.Context.SemanticModel.EmitLimitationInfo.ParameterAssignments[assignment];
 
                     if (parameter.KeyVaultReferenceExpression is { } keyVaultReference)
                     {
@@ -61,11 +61,11 @@ public class ParametersJsonWriterv2
             }
         });
         
-        if (this.Context.SemanticModel.EmitLimitationInfo.ParameterEmitInfo.ExternalInputFunctionReferences.Count > 0)
+        if (this.Context.ExternalInputReferences.ExternalInputIndexMap.Count > 0)
         {
             emitter.EmitObjectProperty("externalInputs", () =>
             {
-                foreach (var reference in this.Context.SemanticModel.EmitLimitationInfo.ParameterEmitInfo.ExternalInputFunctionReferences)
+                foreach (var reference in this.Context.ExternalInputReferences.ExternalInputIndexMap)
                 {
                     var functionCall = reference.Key;
                     var index = reference.Value;

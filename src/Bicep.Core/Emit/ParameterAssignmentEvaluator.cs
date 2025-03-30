@@ -147,15 +147,10 @@ public class ParameterAssignmentEvaluator
     private readonly ImmutableDictionary<string, ImportedSymbol> importsByName;
     private readonly ImmutableDictionary<string, WildcardImportPropertyReference> wildcardImportPropertiesByName;
     private readonly ImmutableDictionary<string, Expression> synthesizedVariableValuesByName;
+    private readonly ExternalInputReferences externalInputReferences;
     private readonly ExpressionConverter converter;
-    private readonly SemanticModel model;
-    private readonly ImmutableHashSet<ParameterAssignmentSyntax> paramsWithExternalInputFunctionRefs;
-    private readonly ImmutableDictionary<FunctionCallSyntax, int> externalInputFunctionIndexMap;
 
-    public ParameterAssignmentEvaluator(
-        SemanticModel model, 
-        ImmutableHashSet<ParameterAssignmentSyntax> paramsWithExternalInputFunctionRefs,
-        ImmutableDictionary<FunctionCallSyntax, int> externalInputFunctionIndexMap)
+    public ParameterAssignmentEvaluator(SemanticModel model)
     {
         this.paramsByName = model.Root.ParameterAssignments
             .GroupBy(x => x.Name, LanguageConstants.IdentifierComparer)
@@ -176,9 +171,8 @@ public class ParameterAssignmentEvaluator
         this.synthesizedVariableValuesByName = context.FunctionVariables.Values
             .GroupBy(result => result.Name)
             .ToImmutableDictionary(x => x.Key, x => x.First().Value);
-        this.model = model;
-        this.paramsWithExternalInputFunctionRefs = paramsWithExternalInputFunctionRefs;
-        this.externalInputFunctionIndexMap = externalInputFunctionIndexMap;
+        
+        this.externalInputReferences = context.ExternalInputReferences;
     }
 
     public Result EvaluateParameter(ParameterAssignmentSymbol parameter)
@@ -192,10 +186,10 @@ public class ParameterAssignmentEvaluator
 
                 var intermediate = converter.ConvertToIntermediateExpression(declaringParam.Value);
 
-                if (this.paramsWithExternalInputFunctionRefs.Contains(declaringParam))
+                if (this.externalInputReferences.ParametersReferences.Contains(declaringParam))
                 {
                     var rewrittenExpression = ExternalInputExpressionRewriter
-                        .Rewrite(intermediate, this.externalInputFunctionIndexMap);
+                        .Rewrite(intermediate, this.externalInputReferences);
                         
                     return Result.For(rewrittenExpression);
                 }
@@ -432,23 +426,27 @@ public class ParameterAssignmentEvaluator
     }
 
 
+    /// <summary>
+    /// Rewrites the external input function calls to use the externalInputs function with the index of the external input.
+    /// e.g. externalInput('sys.cli', 'foo') becomes externalInputs('0')
+    /// </summary>
     private class ExternalInputExpressionRewriter : ExpressionRewriteVisitor
     {
         private static readonly string ExternalInputsFunctionName = "externalInputs"; 
-        private readonly ImmutableDictionary<FunctionCallSyntax, int> externalInputFunctionIndexMap;
+        private readonly ExternalInputReferences externalInputReferences;
 
         private ExternalInputExpressionRewriter(
-            ImmutableDictionary<FunctionCallSyntax, int> externalInputFunctionIndexMap)
+            ExternalInputReferences externalInputReferences)
         {
-            this.externalInputFunctionIndexMap = externalInputFunctionIndexMap;
+            this.externalInputReferences = externalInputReferences;
         }
 
 
         public static Expression Rewrite(
-            Expression expression, 
-            ImmutableDictionary<FunctionCallSyntax, int> externalInputFunctionIndexMap)
+            Expression expression,
+            ExternalInputReferences externalInputReferences)
         {
-            var visitor = new ExternalInputExpressionRewriter(externalInputFunctionIndexMap);
+            var visitor = new ExternalInputExpressionRewriter(externalInputReferences);
             var rewritten = visitor.Replace(expression);
 
             return rewritten;
@@ -458,7 +456,7 @@ public class ParameterAssignmentEvaluator
         {
             if (string.Equals(expression.Name, ExternalInputsFunctionName, LanguageConstants.IdentifierComparison) && 
                 expression.SourceSyntax is FunctionCallSyntax functionCallSyntax &&
-                externalInputFunctionIndexMap.TryGetValue(functionCallSyntax, out var index))
+                externalInputReferences.ExternalInputIndexMap.TryGetValue(functionCallSyntax, out var index))
             {
                 return new FunctionCallExpression(
                     null,

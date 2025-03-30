@@ -14,11 +14,14 @@ namespace Bicep.Core.Emit;
 public sealed class ExternalInputFunctionReferenceVisitor : AstVisitor
 {
     private readonly SemanticModel semanticModel;
-    private readonly ImmutableHashSet<FunctionCallSyntax>.Builder externalInputReferences;
+    private ParameterAssignmentSyntax? targetParameterAssignment;
+    private readonly ImmutableHashSet<ParameterAssignmentSyntax>.Builder parametersContainingExternalInput;
+    private readonly ImmutableDictionary<FunctionCallSyntax, int>.Builder externalInputReferences;
     private ExternalInputFunctionReferenceVisitor(SemanticModel semanticModel)
     {
         this.semanticModel = semanticModel;
-        this.externalInputReferences = ImmutableHashSet.CreateBuilder<FunctionCallSyntax>();
+        this.externalInputReferences = ImmutableDictionary.CreateBuilder<FunctionCallSyntax, int>();
+        this.parametersContainingExternalInput = ImmutableHashSet.CreateBuilder<ParameterAssignmentSyntax>();
     }
 
     public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
@@ -29,7 +32,7 @@ public sealed class ExternalInputFunctionReferenceVisitor : AstVisitor
         {
             return;
         }
-        
+
         switch (symbol)
         {
             case ParameterAssignmentSymbol parameterAssignmentSymbol:
@@ -51,51 +54,36 @@ public sealed class ExternalInputFunctionReferenceVisitor : AstVisitor
     {
         if (string.Equals(syntax.Name.IdentifierName, "externalInput", LanguageConstants.IdentifierComparison))
         {
-            this.externalInputReferences.Add(syntax);
+            this.externalInputReferences.TryAdd(syntax, this.externalInputReferences.Count);
+            if (this.targetParameterAssignment is not null)
+            {
+                this.parametersContainingExternalInput.Add(this.targetParameterAssignment);
+            }
         }
 
         base.VisitFunctionCallSyntax(syntax);
     }
 
-    public static ExternalInputReferencesResult CollectExternalInputReferences(SemanticModel model)
-    {
-        var parameterAssignments = model.Root.ParameterAssignments;
-        var paramReferences = ImmutableHashSet.CreateBuilder<ParameterAssignmentSyntax>(); 
-        var allFunctionRefs = ImmutableHashSet.CreateBuilder<FunctionCallSyntax>();
-        foreach (var parameterAssignment in parameterAssignments)
-        {
-            var assignmentSyntax = parameterAssignment.DeclaringParameterAssignment;
-            var functionRefs = CollectExternalInputReferencesInternal(model, assignmentSyntax);
-            if (functionRefs.Count > 0)
-            {
-                paramReferences.Add(assignmentSyntax);
-            }
-            allFunctionRefs.UnionWith(functionRefs);
-        }
-
-        var externalInputIndexMap = allFunctionRefs
-            .Select((functionCall, index) => (functionCall, index))
-            .ToImmutableDictionary(pair => pair.functionCall, pair => pair.index);
-
-        return new ExternalInputReferencesResult(
-            ParametersReferences: paramReferences.ToImmutable(),
-            ExternalInputIndexMap: externalInputIndexMap
-        );
-    }
-
-    private static ImmutableHashSet<FunctionCallSyntax> CollectExternalInputReferencesInternal(
-        SemanticModel model, 
-        ParameterAssignmentSyntax parameterAssignment)
+    public static ExternalInputReferences CollectExternalInputReferences(SemanticModel model)
     {
         var visitor = new ExternalInputFunctionReferenceVisitor(model);
-        visitor.Visit(parameterAssignment);
-        return visitor.externalInputReferences.ToImmutable();
-    }
+        foreach (var paramAssignment in model.Root.ParameterAssignments)
+        {
+            var declaringSyntax = paramAssignment.DeclaringParameterAssignment;
+            visitor.targetParameterAssignment = declaringSyntax;
+            declaringSyntax.Accept(visitor);
+        }
 
-    public record ExternalInputReferencesResult(
-        // parameters that contain external input function calls
-        ImmutableHashSet<ParameterAssignmentSyntax> ParametersReferences,
-        // map of external input function calls to unique indexes to be used to construct externalInput definition in parameters.json
-        ImmutableDictionary<FunctionCallSyntax, int> ExternalInputIndexMap
-    );
+        return new ExternalInputReferences(
+            ParametersReferences: visitor.parametersContainingExternalInput.ToImmutable(),
+            ExternalInputIndexMap: visitor.externalInputReferences.ToImmutable()
+        );
+    }
 }
+
+public record ExternalInputReferences(
+        // parameters that contain external input function calls
+    ImmutableHashSet<ParameterAssignmentSyntax> ParametersReferences,
+    // map of external input function calls to unique indexes to be used to construct externalInput definition in parameters.json
+    ImmutableDictionary<FunctionCallSyntax, int> ExternalInputIndexMap
+);

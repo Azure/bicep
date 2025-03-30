@@ -512,30 +512,4 @@ param baz = '${foo} combined with ${bar}'
             },
         });
     }
-
-    [TestMethod]
-    public void ExternalInput_nested_variable_reference()
-    {
-        var result = CompilationHelper.CompileParams(
-            ServicesWithExternalInputFunctionEnabled,
-("parameters.bicepparam", @"
-using none
-var foo = '__BINDING__'
-var bar = 'Binding: ${foo}, Value: ${json(externalInput('custom.binding', foo))}'
-param baz = bar
-"));
-
-        result.Should().NotHaveAnyDiagnostics();
-        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
-        parameters["baz"].Value.Should().BeNull();
-        parameters["baz"].Expression.Should().DeepEqual(
-"""[format('Binding: {0}, Value: {1}', '__BINDING__', json(externalInputs('0')))]""");
-
-        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
-        externalInputs["0"].Should().DeepEqual(new JObject
-        {
-            ["kind"] = "custom.binding",
-            ["options"] = "__BINDING__",
-        });
-    }
 }

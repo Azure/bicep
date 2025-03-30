@@ -19,6 +19,7 @@ namespace Bicep.Core.Emit
             VariablesToInline = InlineDependencyVisitor.GetVariablesToInline(semanticModel);
             ResourceDependencies = ResourceDependencyVisitor.GetResourceDependencies(semanticModel);
             FunctionVariables = FunctionVariableGeneratorVisitor.GetFunctionVariables(semanticModel);
+            ExternalInputReferences = ExternalInputFunctionReferenceVisitor.CollectExternalInputReferences(semanticModel);
         }
 
         public EmitterSettings Settings { get; }
@@ -36,5 +37,7 @@ namespace Bicep.Core.Emit
         public ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> ModuleScopeData => SemanticModel.EmitLimitationInfo.ModuleScopeData;
 
         public ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> ResourceScopeData => SemanticModel.EmitLimitationInfo.ResourceScopeData;
+
+        public ExternalInputReferences ExternalInputReferences { get; }
     }
 }

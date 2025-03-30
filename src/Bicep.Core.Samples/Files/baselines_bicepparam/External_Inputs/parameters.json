@@ -1,0 +1,107 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "singleParam": {
+      "expression": "[externalInputs('0')]"
+    },
+    "singleParamCast": {
+      "expression": "[bool(externalInputs('1'))]"
+    },
+    "foo": {
+      "expression": "[externalInputs('2')]"
+    },
+    "bar": {
+      "expression": "[externalInputs('3')]"
+    },
+    "baz": {
+      "expression": "[externalInputs('4')]"
+    },
+    "varRefArg": {
+      "expression": "[externalInputs('5')]"
+    },
+    "varRef": {
+      "expression": "[bool(externalInputs('6'))]"
+    },
+    "objectConfig": {
+      "expression": "[externalInputs('7')]"
+    },
+    "c": {
+      "expression": "[externalInputs('8')]"
+    },
+    "a1": {
+      "expression": "[externalInputs('9')]"
+    },
+    "b1": {
+      "expression": "[externalInputs('9')]"
+    },
+    "c1": {
+      "expression": "[externalInputs('9')]"
+    },
+    "first": {
+      "expression": "[int(externalInputs('10'))]"
+    },
+    "second": {
+      "expression": "[externalInputs('11')]"
+    },
+    "result": {
+      "expression": "[format('{0} combined with {1}', int(externalInputs('10')), externalInputs('11'))]"
+    }
+  },
+  "externalInputs": {
+    "4": {
+      "kind": "custom.binding",
+      "options": "__BINDING__"
+    },
+    "11": {
+      "kind": "custom.binding",
+      "options": {
+        "path": "/path/to/file",
+        "isSecure": true
+      }
+    },
+    "2": {
+      "kind": "sys.cli",
+      "options": "foo"
+    },
+    "10": {
+      "kind": "custom.binding",
+      "options": "__BINDING__"
+    },
+    "7": {
+      "kind": "custom.tool",
+      "options": {
+        "path": "/path/to/file",
+        "isSecure": true
+      }
+    },
+    "6": {
+      "kind": "sys.cli",
+      "options": "myVar"
+    },
+    "3": {
+      "kind": "sys.envVar",
+      "options": "bar"
+    },
+    "9": {
+      "kind": "sys.cli",
+      "options": "a"
+    },
+    "5": {
+      "kind": "sys.cli",
+      "options": "bar"
+    },
+    "0": {
+      "kind": "sys.cli",
+      "options": "foo"
+    },
+    "1": {
+      "kind": "sys.cli",
+      "options": "foo"
+    },
+    "8": {
+      "kind": "sys.cli",
+      "options": "a"
+    }
+  }
+}

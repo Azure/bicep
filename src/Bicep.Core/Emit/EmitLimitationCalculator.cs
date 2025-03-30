@@ -59,7 +59,7 @@ namespace Bicep.Core.Emit
             BlockSpreadInUnsupportedLocations(model, diagnostics);
             BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
 
-            var parameterEmitInfo = CalculateParameterEmitInfo(model, diagnostics);
+            var parameterEmitInfo = CalculateParameterAssignments(model, diagnostics);
 
             return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, parameterEmitInfo);
         }
@@ -70,7 +70,6 @@ namespace Bicep.Core.Emit
 
             // This method only checks, if in one deployment we do not have 2 or more resources with this same name in one deployment to avoid template validation error
             // This will not check resource constraints such as necessity of having unique virtual network names within resource group
-
             var duplicateResources = semanticModel.DeclaredResources
                 .GroupBy(x => x, new DeclaredResourceIdComparer(semanticModel, resourceScopeData))
                 .Where(group => group.Count() > 1);
@@ -599,12 +598,12 @@ namespace Bicep.Core.Emit
                 .WhereNotNull()
                 .Select(forbiddenSafeAccessMarker => DiagnosticBuilder.ForPosition(forbiddenSafeAccessMarker).SafeDereferenceNotPermittedOnResourceCollections()));
 
-        private static ParameterEmitInfo CalculateParameterEmitInfo(SemanticModel model, IDiagnosticWriter diagnostics)
+        private static ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue> CalculateParameterAssignments(SemanticModel model, IDiagnosticWriter diagnostics)
         {
             if (model.Root.ParameterAssignments.IsEmpty ||
                 model.HasParsingErrors())
             {
-                return new(ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue>.Empty, ImmutableDictionary<FunctionCallSyntax, int>.Empty);
+                return ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue>.Empty;
             }
 
 
@@ -613,8 +612,6 @@ namespace Bicep.Core.Emit
             var generated = ImmutableDictionary.CreateBuilder<ParameterAssignmentSymbol, ParameterAssignmentValue>();
 
             var extendsDeclarations = model.SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>();
-
-            var externalInputRefs = ExternalInputFunctionReferenceVisitor.CollectExternalInputReferences(model);
 
             foreach (var extendsDeclaration in extendsDeclarations)
             {
@@ -626,7 +623,7 @@ namespace Bicep.Core.Emit
                     {
                         throw new UnreachableException("We have already verified this is a .bicepparam file");
                     }
-                    generated.AddRange(extendedSemanticModel.EmitLimitationInfo.ParameterEmitInfo.ParameterAssignments);
+                    generated.AddRange(extendedSemanticModel.EmitLimitationInfo.ParameterAssignments);
                 }
                 else
                 {
@@ -634,8 +631,7 @@ namespace Bicep.Core.Emit
                 }
             }
 
-            var evaluator = new ParameterAssignmentEvaluator(
-                model, externalInputRefs.ParametersReferences, externalInputRefs.ExternalInputIndexMap);
+            var evaluator = new ParameterAssignmentEvaluator(model);
                 
             HashSet<Symbol> erroredSymbols = new();
 
@@ -695,7 +691,7 @@ namespace Bicep.Core.Emit
                 }
             }
 
-            return new(generated.ToImmutableDictionary(), externalInputRefs.ExternalInputIndexMap);
+            return generated.ToImmutableDictionary();
         }
 
         private static IEnumerable<DeclaredSymbol> GetTopologicallySortedSymbols(ImmutableDictionary<DeclaredSymbol, ImmutableDictionary<DeclaredSymbol, ImmutableSortedSet<SyntaxBase>>> referencesInValues)
