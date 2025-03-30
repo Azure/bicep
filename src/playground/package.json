@@ -36,7 +36,7 @@
     "bootstrap": "^5.3.3",
     "monaco-editor": "^0.52.2",
     "pako": "^2.1.0",
-    "react": "^19.0.0",
+    "react": "^19.1.0",
     "react-bootstrap": "^2.10.9",
     "react-dom": "^19.0.0"
   }
