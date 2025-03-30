@@ -31,32 +31,40 @@ namespace Bicep.Core.IntegrationTests
             var compilationResult = CompilationHelper.Compile(bicepFile);
             compilationResult.Diagnostics.Should().BeEmpty();
             
-            // Assert the ARM template has the expected format
             var armTemplate = compilationResult.Template;
             armTemplate.Should().NotBeNull();
-            
-            // Check for the outputs
             var outputs = armTemplate!["outputs"] as JObject;
             outputs.Should().NotBeNull();
+
+            // Define expected function names and output mappings
+            var zoneFunctionTests = new Dictionary<string, string>
+            {
+                { "logicalZone", "toLogicalZone" },
+                { "physicalZone", "toPhysicalZone" },
+                { "logicalZones", "toLogicalZones" },
+                { "physicalZones", "toPhysicalZones" },
+                { "emptyLogicalZones", "toLogicalZones" },
+                { "emptyPhysicalZones", "toPhysicalZones" }
+            };
+
+            foreach (var test in zoneFunctionTests)
+            {
+                VerifyOutputContainsFunction(outputs!, test.Key, test.Value);
+            }
+        }
+
+        private static void VerifyOutputContainsFunction(JObject outputs, string outputName, string expectedFunction)
+        {
+            outputs.Should().ContainKey(outputName, $"Output '{outputName}' should exist in template");
+            var output = outputs[outputName];
+            output.Should().NotBeNull($"Output '{outputName}' should not be null");
+
+            var valueToken = output!["value"];
+            valueToken.Should().NotBeNull($"Output '{outputName}' should have a value property");
             
-            // Verify each output uses the correct function
-            var logicalZone = outputs!["logicalZone"]?["value"]?.ToString() ?? string.Empty;
-            logicalZone.Should().Contain("toLogicalZone");
-            
-            var physicalZone = outputs["physicalZone"]?["value"]?.ToString() ?? string.Empty;
-            physicalZone.Should().Contain("toPhysicalZone");
-            
-            var logicalZones = outputs["logicalZones"]?["value"]?.ToString() ?? string.Empty;
-            logicalZones.Should().Contain("toLogicalZones");
-            
-            var physicalZones = outputs["physicalZones"]?["value"]?.ToString() ?? string.Empty;
-            physicalZones.Should().Contain("toPhysicalZones");
-            
-            var emptyLogicalZones = outputs["emptyLogicalZones"]?["value"]?.ToString() ?? string.Empty;
-            emptyLogicalZones.Should().Contain("toLogicalZones");
-            
-            var emptyPhysicalZones = outputs["emptyPhysicalZones"]?["value"]?.ToString() ?? string.Empty;
-            emptyPhysicalZones.Should().Contain("toPhysicalZones");
+            var valueString = valueToken!.ToString();
+            valueString.Should().Contain(expectedFunction, 
+                $"Output '{outputName}' should contain function '{expectedFunction}'");
         }
     }
 }
