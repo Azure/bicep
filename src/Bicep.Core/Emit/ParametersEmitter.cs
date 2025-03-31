@@ -26,9 +26,24 @@ public class ParametersEmitter
     {
         using var sw = new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, leaveOpen: true);
 
-        return Emit(sw);
+        return model.Features is { ExternalInputFunctionEnabled: true } ? Emitv2(sw) : Emit(sw);
     }
     public EmitResult Emit(TextWriter textWriter) => this.EmitOrFail(() =>
+    {
+        using var writer = new JsonTextWriter(textWriter)
+        {
+            // don't close the textWriter when writer is disposed
+            CloseOutput = false,
+            Formatting = Formatting.Indented
+        };
+
+        var emitter = new ParametersJsonWriter(model);
+        emitter.Write(writer);
+        writer.Flush();
+    });
+
+    // uses new ParametersJsonWriter that uses ExpressionEmitter in order to handle parameters that have expressions
+    public EmitResult Emitv2(TextWriter textWriter) => this.EmitOrFail(() =>
     {
         using var writer = new SourceAwareJsonTextWriter(textWriter)
         {
@@ -37,7 +52,7 @@ public class ParametersEmitter
             Formatting = Formatting.Indented
         };
 
-        var emitter = new ParametersJsonWriter(model);
+        var emitter = new ParametersJsonWriterv2(model);
         emitter.Write(writer);
         writer.Flush();
     });

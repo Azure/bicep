@@ -18,6 +18,7 @@ param baz = externalInput('custom.binding', '__BINDING__')
 
 // single param with variable reference
 var myVar = bool(externalInput('sys.cli', 'myVar'))
+//@[4:09) Variable myVar. Type: bool. Declaration start char: 0, length: 51
 param varRef = myVar
 //@[6:12) ParameterAssignment varRef. Type: bool. Declaration start char: 0, length: 20
 
@@ -30,7 +31,9 @@ param objectConfig = externalInput('custom.tool', {
 
 // variable reference chain
 var a = externalInput('sys.cli', 'a')
+//@[4:05) Variable a. Type: any. Declaration start char: 0, length: 37
 var b = a
+//@[4:05) Variable b. Type: any. Declaration start char: 0, length: 9
 param c = b
 //@[6:07) ParameterAssignment c. Type: any. Declaration start char: 0, length: 11
 
