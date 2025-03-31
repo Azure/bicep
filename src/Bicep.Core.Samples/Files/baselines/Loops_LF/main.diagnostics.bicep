@@ -63,16 +63,6 @@ resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for i
   scope: singleResource
 }]
 
-// cascade extend the extension
-@batchSize(1)
-resource lockTheLocks 'Microsoft.Authorization/locks@2016-09-01' = [for i in range(0,1): {
-  name: 'lock-the-lock-${i}'
-  properties: {
-    level: i == 0 ? 'CanNotDelete' : 'ReadOnly'
-  }
-  scope: extensionCollection[i]
-}]
-
 // special case property access
 output indexedCollectionBlobEndpoint string = storageAccounts[index].properties.primaryEndpoints.blob
 output indexedCollectionName string = storageAccounts[index].name

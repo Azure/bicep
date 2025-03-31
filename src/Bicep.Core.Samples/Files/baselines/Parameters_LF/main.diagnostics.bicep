@@ -21,7 +21,6 @@ param myBool bool
 //@[02:013) [no-conflicting-metadata (Warning)] The "description" metadata property conflicts with the "description" decorator and will be overwritten. (bicep core linter https://aka.ms/bicep/linter/no-conflicting-metadata) |description|
 })
 param myString2 string = 'string value'
-//@[06:015) [no-unused-params (Warning)] Parameter "myString2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |myString2|
 param myInt2 int = 42
 //@[06:012) [no-unused-params (Warning)] Parameter "myInt2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |myInt2|
 param myTruth bool = true

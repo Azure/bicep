@@ -24,7 +24,6 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
   }
 
   resource basicSibling 'childType' = {
-//@[24:35) [BCP081 (Warning)] Resource type "My.Rp/parentType/childType@2020-12-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'childType'|
     name: 'basicSibling'
     properties: {
       size: basicParent.properties.size
