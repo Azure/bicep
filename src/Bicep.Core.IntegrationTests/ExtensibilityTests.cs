@@ -16,20 +16,6 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class ExtensibilityTests : TestBase
     {
-        private static ServiceBuilder Services => new ServiceBuilder()
-            .WithFeatureOverrides(new(ExtensibilityEnabled: true))
-            .WithConfigurationPatch(c => c.WithExtensions("""
-            {
-              "az": "builtin:",
-              "kubernetes": "builtin:",
-              "foo": "builtin:",
-              "bar": "builtin:"
-            }
-            """))
-            .WithNamespaceProvider(TestExtensibilityNamespaceProvider.CreateWithDefaults());
-
-        private static ServiceBuilder ServicesWithModuleExtensionConfigs => Services.WithFeatureOverrides(new(ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true));
-
         [TestMethod]
         public void Bar_import_bad_config_is_blocked()
         {
@@ -659,7 +645,7 @@ Hello from Bicep!"));
         }
 
         [TestMethod]
-        public void Module_with_required_extension_config_can_be_compiled_successfully()
+        public async Task Module_with_required_extension_config_can_be_compiled_successfully()
         {
             var paramsUri = new Uri("file:///main.bicepparam");
             var mainUri = new Uri("file:///main.bicep");
@@ -689,7 +675,7 @@ Hello from Bicep!"));
                       namespace: 'DELETE'
                     } as k8s
 
-                    //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview'
+                    extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3'
 
                     module modulea 'modulea.bicep' = {
                       name: 'modulea'
@@ -715,13 +701,14 @@ Hello from Bicep!"));
                       namespace: 'DELETE'
                     }
 
-                    //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
+                    extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
 
                     output outputa string = inputa
                     """
             };
 
-            var compilation = ServicesWithModuleExtensionConfigs.BuildCompilation(files, paramsUri);
+            var services = await CreateServiceBuilderWithMockMsGraph(moduleExtensionConfigsEnabled: true);
+            var compilation = await services.BuildCompilationWithRestore(files, paramsUri);
 
             compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
         }
@@ -794,7 +781,7 @@ Hello from Bicep!"));
                     """
             };
 
-            var compilation = ServicesWithModuleExtensionConfigs.BuildCompilation(files, mainUri);
+            var compilation = CreateServiceBuilder(moduleExtensionConfigsEnabled: true).BuildCompilation(files, mainUri);
 
             compilation.Should().ContainSingleDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
         }
@@ -876,7 +863,7 @@ Hello from Bicep!"));
                 files.Remove(moduleAUri);
             }
 
-            var compilation = Services.BuildCompilation(files, paramsUri);
+            var compilation = CreateServiceBuilder().BuildCompilation(files, paramsUri);
 
             var diagByFile = compilation.GetAllDiagnosticsByBicepFileUri();
 
@@ -897,7 +884,7 @@ Hello from Bicep!"));
             "Ternary",
             "extensionConfigs: { kubernetes: { kubeConfig: inputa == 'a' ? k8s.config.kubeConfig : 'b', namespace: inputa == 'a' ? k8s.config.namespace : 'c' } }",
             """{ "kubernetes": { "kubeConfig": "[if(equals(parameters('inputa'), 'a'), extensionConfigs('k8s').kubeConfig, createObject('value', 'b'))]", "namespace": "[if(equals(parameters('inputa'), 'a'), extensionConfigs('k8s').namespace, createObject('value', 'c'))]" } }""")]
-        public void Modules_can_inherit_parent_module_extension_configs(string scenario, string moduleExtensionConfigsStr, string expectedExtConfigJson)
+        public async Task Modules_can_inherit_parent_module_extension_configs(string scenario, string moduleExtensionConfigsStr, string expectedExtConfigJson)
         {
             var paramsUri = new Uri("file:///main.bicepparam");
             var mainUri = new Uri("file:///main.bicep");
@@ -949,7 +936,8 @@ Hello from Bicep!"));
                     """
             };
 
-            var compilation = ServicesWithModuleExtensionConfigs.BuildCompilation(files, paramsUri);
+            var services = await CreateServiceBuilderWithMockMsGraph(moduleExtensionConfigsEnabled: true);
+            var compilation = services.BuildCompilation(files, paramsUri);
 
             compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
 
@@ -958,6 +946,30 @@ Hello from Bicep!"));
             templateToken.SelectToken("resources.modulea.properties.extensionConfigs")
                 .Should()
                 .DeepEqual(JToken.Parse(expectedExtConfigJson));
+        }
+
+        private ServiceBuilder CreateServiceBuilder(bool moduleExtensionConfigsEnabled = false) =>
+            new ServiceBuilder()
+                .WithConfigurationPatch(
+                    c => c.WithExtensions(
+                        """
+                        {
+                          "az": "builtin:",
+                          "kubernetes": "builtin:",
+                          "foo": "builtin:",
+                          "bar": "builtin:"
+                        }
+                        """))
+                .WithNamespaceProvider(TestExtensibilityNamespaceProvider.CreateWithDefaults())
+                .WithFeaturesOverridden(
+                    f => f with { ExtensibilityEnabled = true, ModuleExtensionConfigsEnabled = moduleExtensionConfigsEnabled });
+
+        private async Task<ServiceBuilder> CreateServiceBuilderWithMockMsGraph(bool moduleExtensionConfigsEnabled = false)
+        {
+            var services = CreateServiceBuilder(moduleExtensionConfigsEnabled);
+            services = await ExtensionTestHelper.AddMockMsGraphExtension(services, TestContext);
+
+            return services;
         }
     }
 }
