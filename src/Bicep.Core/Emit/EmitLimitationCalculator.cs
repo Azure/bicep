@@ -850,6 +850,19 @@ namespace Bicep.Core.Emit
                     diagnostics.Write(spread, x => x.SpreadOperatorUnsupportedInLocation(spread));
                 }
             }
+
+            foreach (var spread in SyntaxAggregator.AggregateByType<SpreadExpressionSyntax>(model.Root.Syntax))
+            {
+                if (model.Binder.GetParent(spread) is not ObjectSyntax parentObject)
+                {
+                    continue;
+                }
+
+                if (parentObject.Properties.Any(x => x.Value is ForSyntax))
+                {
+                    diagnostics.Write(spread, x => x.SpreadOperatorCannotBeUsedWithForLoop(spread));
+                }
+            }
         }
     }
 }

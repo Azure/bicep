@@ -36,6 +36,7 @@ public class ExpressionBuilder
     private static readonly ImmutableHashSet<string> ModulePropertiesToOmit = [
         AzResourceTypeProvider.ResourceNamePropertyName,
         LanguageConstants.ModuleParamsPropertyName,
+        LanguageConstants.ModuleExtensionConfigsPropertyName,
         LanguageConstants.ResourceScopePropertyName,
         LanguageConstants.ResourceDependsOnPropertyName,
     ];
@@ -567,7 +568,9 @@ public class ExpressionBuilder
             .Select(ConvertObjectProperty)
             .Append(CreateModuleNameExpression(symbol, objectBody));
         Expression bodyExpression = new ObjectExpression(body, properties.ToImmutableArray());
+
         var parameters = objectBody.TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName);
+        var extensionConfigs = objectBody.TryGetPropertyByName(LanguageConstants.ModuleExtensionConfigsPropertyName);
 
         if (condition is not null)
         {
@@ -591,6 +594,7 @@ public class ExpressionBuilder
             body,
             bodyExpression,
             parameters is not null ? ConvertWithoutLowering(parameters.Value) : null,
+            extensionConfigs is not null ? ConvertWithoutLowering(extensionConfigs.Value) : null,
             BuildDependencyExpressions(symbol, body));
     }
 
@@ -1078,6 +1082,9 @@ public class ExpressionBuilder
 
             case ParameterAssignmentSymbol parameterSymbol:
                 return new ParametersAssignmentReferenceExpression(variableAccessSyntax, parameterSymbol);
+
+            case ExtensionConfigAssignmentSymbol extensionConfigAssignmentSymbol:
+                return new ExtensionConfigAssignmentReferenceExpression(variableAccessSyntax, extensionConfigAssignmentSymbol);
 
             case VariableSymbol variableSymbol:
                 if (Context.VariablesToInline.Contains(variableSymbol))
@@ -1624,7 +1631,8 @@ public class ExpressionBuilder
                 }
                 return;
             case ResourceScope.DesiredStateConfiguration:
-                // This scope just changes the schema so there are no properties to emit.
+            case ResourceScope.Local:
+                // These scopes just changes the schema so there are no properties to emit.
                 // We don't ever need to throw here because the feature is checked during scope validation.
                 return;
             default:

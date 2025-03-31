@@ -176,11 +176,28 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
 
     private static async Task TerminateProcess(Process process, GrpcChannel? channel)
     {
-        // let's try and force-kill the process until we have a better option (e.g. sending a SIGTERM, or adding a Close event to the gRPC contract)
-        channel?.Dispose();
-        process.Kill();
-        // but if it doesn't, let's wait 15s before force killing it
-        var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-        await process.WaitForExitAsync(cts.Token);
+        try
+        {
+            if (!process.HasExited)
+            {
+                // let's try and force-kill the process until we have a better option (e.g. sending a SIGTERM, or adding a Close event to the gRPC contract)
+                process.Kill();
+
+                // wait for a maximum of 15s for shutdown to occur - otherwise, give up and detatch, in case the process has hung
+                var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+                await process.WaitForExitAsync(cts.Token);
+            }
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine($"Failed to terminate process for extension: {ex}");
+            // ignore exceptions - this is best-effort, and we want to avoid an exception from
+            // process.Kill() bubbling up and masking the original exception that was thrown
+        }
+        finally
+        {
+            channel?.Dispose();
+            process.Dispose();
+        }
     }
 }

@@ -1,21 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Immutable;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
 using Bicep.Core.Navigation;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
-using Bicep.Core.Syntax.Visitors;
-using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Providers;
-using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.Utils;
 
 namespace Bicep.Core.Semantics
 {
@@ -178,6 +171,20 @@ namespace Bicep.Core.Semantics
             base.VisitParameterAssignmentSyntax(syntax);
 
             var symbol = new ParameterAssignmentSymbol(this.context, syntax.Name.IdentifierName, syntax);
+            DeclareSymbol(symbol);
+        }
+
+        public override void VisitExtensionConfigAssignmentSyntax(ExtensionConfigAssignmentSyntax syntax)
+        {
+            base.VisitExtensionConfigAssignmentSyntax(syntax);
+
+            if (syntax.TryGetSymbolName() is not { } extAlias)
+            {
+                // TODO(kylealbert): Figure out specifics for spec strings vs alias.
+                return;
+            }
+
+            var symbol = new ExtensionConfigAssignmentSymbol(this.context, extAlias, syntax);
             DeclareSymbol(symbol);
         }
 
