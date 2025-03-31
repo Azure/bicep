@@ -41,6 +41,10 @@ namespace Bicep.Core.Emit
             {
                 supportedScopes |= ResourceScope.DesiredStateConfiguration;
             }
+            if (semanticModel.Configuration.ExperimentalFeaturesEnabled.LocalDeploy)
+            {
+                supportedScopes |= ResourceScope.Local;
+            }
 
             if (scopeValue is null)
             {

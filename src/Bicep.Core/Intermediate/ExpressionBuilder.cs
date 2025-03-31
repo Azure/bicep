@@ -1630,7 +1630,8 @@ public class ExpressionBuilder
                 }
                 return;
             case ResourceScope.DesiredStateConfiguration:
-                // This scope just changes the schema so there are no properties to emit.
+            case ResourceScope.Local:
+                // These scopes just changes the schema so there are no properties to emit.
                 // We don't ever need to throw here because the feature is checked during scope validation.
                 return;
             default:

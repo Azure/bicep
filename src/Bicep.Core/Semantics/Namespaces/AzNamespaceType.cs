@@ -284,7 +284,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithDescription("Returns a named subscription scope.")
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
                     .Build(),
-                ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
+                ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Local);
 
             const string resourceGroupGenericDescription = "Returns a resource group scope.";
             yield return (
@@ -310,7 +310,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
                     .Build(),
-                ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
+                ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Local);
 
             yield return (
                 new FunctionOverloadBuilder("deployment")
@@ -489,6 +489,42 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("resourceType", LanguageConstants.String, "The type of resource within the specified namespace")
                     .Build();
 
+                yield return new FunctionOverloadBuilder("toLogicalZone")
+                    .WithReturnType(LanguageConstants.String)
+                    .WithGenericDescription("Returns the logical zone corresponding to the given physical zone.")
+                    .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID of the deployed availability zones")
+                    .WithRequiredParameter("location", LanguageConstants.String, "The location of the availability zone mappings")
+                    .WithRequiredParameter("physicalZone", LanguageConstants.String, "The physical zone to convert")
+                    .WithFlags(FunctionFlags.RequiresInlining)
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("toLogicalZones")
+                    .WithReturnType(new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default))
+                    .WithGenericDescription("Returns the logical zone array corresponding to the given array of physical zones.")
+                    .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID of the deployed availability zones")
+                    .WithRequiredParameter("location", LanguageConstants.String, "The location of the availability zone mappings")
+                    .WithRequiredParameter("physicalZones", LanguageConstants.Array, "An array of physical zones to convert")
+                    .WithFlags(FunctionFlags.RequiresInlining)
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("toPhysicalZone")
+                    .WithReturnType(LanguageConstants.String)
+                    .WithGenericDescription("Returns the physical zone corresponding to the given logical zone.")
+                    .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID of the deployed availability zones")
+                    .WithRequiredParameter("location", LanguageConstants.String, "The location of the availability zone mappings")
+                    .WithRequiredParameter("logicalZone", LanguageConstants.String, "The logical zone to convert")
+                    .WithFlags(FunctionFlags.RequiresInlining)
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("toPhysicalZones")
+                    .WithReturnType(new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default))
+                    .WithGenericDescription("Returns the physical zone array corresponding to the given array of logical zones.")
+                    .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID of the deployed availability zones")
+                    .WithRequiredParameter("location", LanguageConstants.String, "The location of the availability zone mappings")
+                    .WithRequiredParameter("logicalZones", LanguageConstants.Array, "An array of logical zones to convert")
+                    .WithFlags(FunctionFlags.RequiresInlining)
+                    .Build();
+
                 // TODO: return type is string[]
                 // TODO: Location param should be of location type if we ever add it
                 yield return new FunctionOverloadBuilder("pickZones")
@@ -521,15 +557,15 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithFlags(FunctionFlags.RequiresInlining)
                     .Build();
             }
-
+ 
             foreach (var overload in GetBicepFilePermittedOverloads())
             {
-                yield return new(overload, (_, sfk) => sfk == BicepSourceFileKind.BicepFile);
+                yield return new(overload, (targetScope, sfk) => sfk == BicepSourceFileKind.BicepFile && targetScope != ResourceScope.Local);
             }
 
             foreach (var overload in GetParamsFilePermittedOverloads())
             {
-                yield return new(overload, (_, sfk) => sfk == BicepSourceFileKind.ParamsFile);
+                yield return new(overload, (targetScope, sfk) => sfk == BicepSourceFileKind.ParamsFile && targetScope != ResourceScope.Local);
             }
 
             foreach (var (overload, allowedScopes) in GetScopeFunctions())

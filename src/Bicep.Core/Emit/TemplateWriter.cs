@@ -113,7 +113,7 @@ namespace Bicep.Core.Emit
 
             if (Context.Settings.UseExperimentalTemplateLanguageVersion)
             {
-                if (Context.SemanticModel.Features.LocalDeployEnabled ||
+                if (Context.SemanticModel.TargetScope == ResourceScope.Local ||
                     Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
                 {
                     emitter.EmitProperty(LanguageVersionPropertyName, "2.2-experimental");
@@ -1029,17 +1029,19 @@ namespace Bicep.Core.Emit
 
         private void EmitExtensionsIfPresent(ExpressionEmitter emitter, ImmutableArray<ExtensionExpression> extensions)
         {
+            if (Context.SemanticModel.TargetScope == ResourceScope.Local)
+            {
+                extensions = extensions.Add(GetExtensionForLocalDeploy());
+            }
+
             if (!extensions.Any())
             {
                 return;
             }
 
             // TODO: Remove the EmitExtensions if conditions once ARM w37 is deployed to all regions.
-            if (Context.SemanticModel.Features.LocalDeployEnabled)
-            {
-                EmitExtensions(emitter, extensions.Add(GetExtensionForLocalDeploy()));
-            }
-            else if (Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
+            if (Context.SemanticModel.TargetScope == ResourceScope.Local ||
+                Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
             {
                 EmitExtensions(emitter, extensions);
             }
@@ -1251,7 +1253,7 @@ namespace Bicep.Core.Emit
                 var extensionSymbol = extensions.FirstOrDefault(i => metadata.Type.DeclaringNamespace.AliasNameEquals(i.Name));
                 if (extensionSymbol is not null)
                 {
-                    if (this.Context.SemanticModel.Features.LocalDeployEnabled ||
+                    if (Context.SemanticModel.TargetScope == ResourceScope.Local ||
                         this.Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
                     {
                         emitter.EmitProperty("extension", extensionSymbol.Name);
@@ -1294,7 +1296,7 @@ namespace Bicep.Core.Emit
                 }
 
                 if (metadata.IsAzResource ||
-                    this.Context.SemanticModel.Features.LocalDeployEnabled ||
+                    Context.SemanticModel.TargetScope == ResourceScope.Local ||
                     this.Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
                 {
                     emitter.EmitProperty("type", metadata.TypeReference.FormatType());
@@ -1499,6 +1501,9 @@ namespace Bicep.Core.Emit
 
                 emitter.EmitObjectProperty("properties", () =>
                 {
+                    ExpressionBuilder.EmitModuleScopeProperties(emitter, module);
+                    emitter.EmitObjectProperties((ObjectExpression)body);
+
                     EmitModuleParameters(emitter, module);
 
                     if (this.Context.SemanticModel.Features is { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true })
@@ -1516,6 +1521,11 @@ namespace Bicep.Core.Emit
                     moduleWriter.Write(moduleJsonWriter);
                     jsonWriter.AddNestedSourceMap(moduleJsonWriter.TrackingJsonWriter);
                     emitter.EmitProperty("template", moduleTextWriter.ToString());
+
+                    if (moduleBicepFile?.Uri is {} sourceUri)
+                    {
+                        emitter.EmitProperty("sourceUri", sourceUri.AbsoluteUri);
+                    }
                 });
 
                 this.EmitDependsOn(emitter, module.DependsOn);
@@ -1531,7 +1541,7 @@ namespace Bicep.Core.Emit
 
         private void EmitModule(PositionTrackingJsonTextWriter jsonWriter, DeclaredModuleExpression module, ExpressionEmitter emitter)
         {
-            if (this.Context.SemanticModel.Features.LocalDeployEnabled)
+            if (Context.SemanticModel.TargetScope == ResourceScope.Local)
             {
                 EmitModuleForLocalDeploy(jsonWriter, module, emitter);
                 return;

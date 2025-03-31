@@ -98,7 +98,6 @@ Here's an example bicepconfig.json you can use to share your extension with othe
 
 
 ## Limitations
-1. Currently, it is not possible to mix and match Local and Azure resources in a single deployment. Please raise an issue if you would like to see this implemented.
 1. Code signing for the proof-of-concept extensions has not been implemented, meaning you may run into errors running the samples on a Mac.
 
 ## Raising bugs or feature requests
