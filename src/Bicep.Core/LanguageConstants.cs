@@ -209,6 +209,8 @@ namespace Bicep.Core
 
         public const string AnyFunction = "any";
         public const string NameofFunctionName = "nameof";
+        public const string ExternalInputBicepFunctionName = "externalInput";
+        public const string ExternalInputArmFunctionName = "externalInputs";
 
         public static readonly TypeSymbol Any = new AnyType();
         public static readonly TypeSymbol Never = new UnionType("never", []);

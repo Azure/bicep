@@ -6,8 +6,8 @@ using System.Reflection.Metadata;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem.Types;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Emit;
 
@@ -45,9 +45,6 @@ public sealed class ExternalInputFunctionReferenceVisitor : AstVisitor
             case VariableSymbol variableSymbol:
                 Visit(variableSymbol.DeclaringSyntax);
                 break;
-
-            default:
-                return;
         }
 
         base.VisitVariableAccessSyntax(syntax);
@@ -56,7 +53,7 @@ public sealed class ExternalInputFunctionReferenceVisitor : AstVisitor
 
     public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
     {
-        if (string.Equals(syntax.Name.IdentifierName, "externalInput", LanguageConstants.IdentifierComparison))
+        if (string.Equals(syntax.Name.IdentifierName, LanguageConstants.ExternalInputBicepFunctionName, LanguageConstants.IdentifierComparison))
         {
             this.externalInputReferences.TryAdd(syntax, this.externalInputReferences.Count);
             if (this.targetParameterAssignment is not null)
@@ -76,6 +73,7 @@ public sealed class ExternalInputFunctionReferenceVisitor : AstVisitor
     public static ExternalInputReferences CollectExternalInputReferences(SemanticModel model)
     {
         var visitor = new ExternalInputFunctionReferenceVisitor(model);
+
         foreach (var paramAssignment in model.Root.ParameterAssignments)
         {
             var declaringSyntax = paramAssignment.DeclaringParameterAssignment;

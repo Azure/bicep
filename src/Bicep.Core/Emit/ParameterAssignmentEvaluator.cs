@@ -432,7 +432,6 @@ public class ParameterAssignmentEvaluator
     /// </summary>
     private class ExternalInputExpressionRewriter : ExpressionRewriteVisitor
     {
-        private static readonly string ExternalInputsFunctionName = "externalInputs"; 
         private readonly ExternalInputReferences externalInputReferences;
 
         private ExternalInputExpressionRewriter(
@@ -454,13 +453,13 @@ public class ParameterAssignmentEvaluator
 
         public override Expression ReplaceFunctionCallExpression(FunctionCallExpression expression)
         {
-            if (string.Equals(expression.Name, ExternalInputsFunctionName, LanguageConstants.IdentifierComparison) && 
+            if (string.Equals(expression.Name, LanguageConstants.ExternalInputArmFunctionName, LanguageConstants.IdentifierComparison) && 
                 expression.SourceSyntax is FunctionCallSyntax functionCallSyntax &&
                 externalInputReferences.ExternalInputIndexMap.TryGetValue(functionCallSyntax, out var index))
             {
                 return new FunctionCallExpression(
                     null,
-                    ExternalInputsFunctionName,
+                    LanguageConstants.ExternalInputArmFunctionName,
                     [ExpressionFactory.CreateStringLiteral(index.ToString())]
                 );
             }
