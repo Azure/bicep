@@ -11,7 +11,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16040165263574513880"
+      "templateHash": "12020416330095695020"
     }
   },
   "extensions": {
@@ -200,12 +200,8 @@
         "mode": "Incremental",
         "extensionConfigs": {
           "k8s": {
-            "kubeConfig": {
-              "value": "[extensionConfigs('k8s').kubeConfig]"
-            },
-            "namespace": {
-              "value": "[extensionConfigs('k8s').namespace]"
-            }
+            "kubeConfig": "[extensionConfigs('k8s').kubeConfig]",
+            "namespace": "[extensionConfigs('k8s').namespace]"
           }
         },
         "template": {

@@ -264,13 +264,9 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 //@          "k8s": {
 //@          }
       kubeConfig: k8s.config.kubeConfig
-//@            "kubeConfig": {
-//@              "value": "[extensionConfigs('k8s').kubeConfig]"
-//@            },
+//@            "kubeConfig": "[extensionConfigs('k8s').kubeConfig]",
       namespace: k8s.config.namespace
-//@            "namespace": {
-//@              "value": "[extensionConfigs('k8s').namespace]"
-//@            }
+//@            "namespace": "[extensionConfigs('k8s').namespace]"
     }
   }
 }
