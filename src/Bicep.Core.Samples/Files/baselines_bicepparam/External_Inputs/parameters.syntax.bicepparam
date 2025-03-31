@@ -1,5 +1,5 @@
 using none
-//@[00:1179) ProgramSyntax
+//@[00:1077) ProgramSyntax
 //@[00:0010) ├─UsingDeclarationSyntax
 //@[00:0005) | ├─Token(Identifier) |using|
 //@[06:0010) | └─NoneLiteralSyntax
@@ -115,38 +115,6 @@ param baz = externalInput('custom.binding', '__BINDING__')
 //@[44:0057) |   |   └─Token(StringComplete) |'__BINDING__'|
 //@[57:0058) |   └─Token(RightParen) |)|
 //@[58:0062) ├─Token(NewLine) |\r\n\r\n|
-
-// argument referencing variable
-//@[32:0034) ├─Token(NewLine) |\r\n|
-var arg = 'bar'
-//@[00:0015) ├─VariableDeclarationSyntax
-//@[00:0003) | ├─Token(Identifier) |var|
-//@[04:0007) | ├─IdentifierSyntax
-//@[04:0007) | | └─Token(Identifier) |arg|
-//@[08:0009) | ├─Token(Assignment) |=|
-//@[10:0015) | └─StringSyntax
-//@[10:0015) |   └─Token(StringComplete) |'bar'|
-//@[15:0017) ├─Token(NewLine) |\r\n|
-param varRefArg = externalInput('sys.cli', arg)
-//@[00:0047) ├─ParameterAssignmentSyntax
-//@[00:0005) | ├─Token(Identifier) |param|
-//@[06:0015) | ├─IdentifierSyntax
-//@[06:0015) | | └─Token(Identifier) |varRefArg|
-//@[16:0017) | ├─Token(Assignment) |=|
-//@[18:0047) | └─FunctionCallSyntax
-//@[18:0031) |   ├─IdentifierSyntax
-//@[18:0031) |   | └─Token(Identifier) |externalInput|
-//@[31:0032) |   ├─Token(LeftParen) |(|
-//@[32:0041) |   ├─FunctionArgumentSyntax
-//@[32:0041) |   | └─StringSyntax
-//@[32:0041) |   |   └─Token(StringComplete) |'sys.cli'|
-//@[41:0042) |   ├─Token(Comma) |,|
-//@[43:0046) |   ├─FunctionArgumentSyntax
-//@[43:0046) |   | └─VariableAccessSyntax
-//@[43:0046) |   |   └─IdentifierSyntax
-//@[43:0046) |   |     └─Token(Identifier) |arg|
-//@[46:0047) |   └─Token(RightParen) |)|
-//@[47:0051) ├─Token(NewLine) |\r\n\r\n|
 
 // single param with variable reference
 //@[39:0041) ├─Token(NewLine) |\r\n|

@@ -11,10 +11,6 @@ param foo = externalInput('sys.cli', 'foo')
 param bar = externalInput('sys.envVar', 'bar')
 param baz = externalInput('custom.binding', '__BINDING__')
 
-// argument referencing variable
-var arg = 'bar'
-param varRefArg = externalInput('sys.cli', arg)
-
 // single param with variable reference
 var myVar = bool(externalInput('sys.cli', 'myVar'))
 param varRef = myVar

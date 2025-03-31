@@ -22,8 +22,7 @@ namespace Bicep.Core.Emit
         private readonly SemanticModel model;
         private readonly IDictionary<VariableSymbol, Decision> shouldInlineCache;
 
-        private VariableSymbol? currentDeclaration;
-
+        private VariableSymbol? currentVariableDeclaration;
         // the following variables are only used when processing a single variable
         private readonly VariableDeclarationSyntax? targetVariable;
         private ImmutableStack<string>? currentStack;
@@ -34,11 +33,10 @@ namespace Bicep.Core.Emit
             this.model = model;
             this.shouldInlineCache = new Dictionary<VariableSymbol, Decision>();
             this.targetVariable = targetVariable;
-            this.currentDeclaration = null;
-
+            this.currentVariableDeclaration = null;
             if (targetVariable is not null)
             {
-                // the functionality 
+                // the functionality
                 this.currentStack = [];
                 this.capturedSequence = null;
             }
@@ -97,14 +95,19 @@ namespace Bicep.Core.Emit
             }
 
             // save previous declaration as we may call this recursively
-            var prevDeclaration = this.currentDeclaration;
+            var prevDeclaration = this.currentVariableDeclaration;
 
-            this.currentDeclaration = variableSymbol;
+            this.currentVariableDeclaration = variableSymbol;
             this.shouldInlineCache[variableSymbol] = Decision.NotInline;
             base.VisitVariableDeclarationSyntax(syntax);
 
             // restore previous declaration
-            this.currentDeclaration = prevDeclaration;
+            this.currentVariableDeclaration = prevDeclaration;
+        }
+
+        public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
+        {
+            base.VisitParameterDeclarationSyntax(syntax);
         }
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
@@ -143,12 +146,12 @@ namespace Bicep.Core.Emit
 
         private void VisitVariableAccessSyntaxInternal(VariableAccessSyntax syntax)
         {
-            if (currentDeclaration == null)
+            if (currentVariableDeclaration == null)
             {
                 return;
             }
 
-            if (shouldInlineCache[currentDeclaration] == Decision.Inline)
+            if (shouldInlineCache[currentVariableDeclaration] == Decision.Inline)
             {
                 // we've already made a decision to inline
                 return;
@@ -180,7 +183,7 @@ namespace Bicep.Core.Emit
                     }
 
                     // if we depend on a variable that requires inlining, then we also require inlining
-                    var newValue = shouldInlineCache[currentDeclaration] == Decision.Inline || shouldInline == Decision.Inline;
+                    var newValue = shouldInlineCache[currentVariableDeclaration] == Decision.Inline || shouldInline == Decision.Inline;
                     SetInlineCache(newValue);
 
                     this.currentStack = previousStack;
@@ -189,7 +192,7 @@ namespace Bicep.Core.Emit
                 case ResourceSymbol:
                 case ModuleSymbol:
                 case ParameterSymbol parameterSymbol when model.ResourceMetadata.TryLookup(syntax) is ResourceMetadata:
-                    if (this.currentDeclaration is not null && shouldInlineCache[currentDeclaration] != Decision.SkipInline)
+                    if (this.currentVariableDeclaration is not null && shouldInlineCache[currentVariableDeclaration] != Decision.SkipInline)
                     {
                         //inline only if declaration wasn't explicitly excluded from inlining, to avoid inlining usages which are permitted
                         SetInlineCache(true);
@@ -204,12 +207,12 @@ namespace Bicep.Core.Emit
             // resources and modules (id, name, type, apiVersion). Once https://github.com/Azure/bicep/issues/1177 is fixed,
             // it should be possible to make this more robust to handle nested deploy-time constants.
 
-            if (currentDeclaration == null)
+            if (currentVariableDeclaration == null)
             {
                 return;
             }
 
-            if (shouldInlineCache[currentDeclaration] == Decision.Inline)
+            if (shouldInlineCache[currentVariableDeclaration] == Decision.Inline)
             {
                 // we've already made a decision to inline
                 return;
@@ -267,12 +270,12 @@ namespace Bicep.Core.Emit
 
         private void VisitFunctionCallSyntaxBaseInternal(FunctionSymbol? functionSymbol, FunctionCallSyntaxBase syntax)
         {
-            if (currentDeclaration == null)
+            if (currentVariableDeclaration == null)
             {
                 return;
             }
 
-            if (shouldInlineCache[currentDeclaration] == Decision.Inline)
+            if (shouldInlineCache[currentVariableDeclaration] == Decision.Inline)
             {
                 // we've already made a decision to inline
                 return;
@@ -287,16 +290,16 @@ namespace Bicep.Core.Emit
 
         private void SetInlineCache(bool shouldInline)
         {
-            if (this.currentDeclaration is not null)
+            if (this.currentVariableDeclaration is not null)
             {
-                this.shouldInlineCache[this.currentDeclaration] = shouldInline ? Decision.Inline : Decision.NotInline;
+                this.shouldInlineCache[this.currentVariableDeclaration] = shouldInline ? Decision.Inline : Decision.NotInline;
             }
         }
         private void SetSkipInlineCache(bool shouldNotInline)
         {
-            if (this.currentDeclaration is not null)
+            if (this.currentVariableDeclaration is not null)
             {
-                this.shouldInlineCache[this.currentDeclaration] = shouldNotInline ? Decision.SkipInline : Decision.Inline;
+                this.shouldInlineCache[this.currentVariableDeclaration] = shouldNotInline ? Decision.SkipInline : Decision.Inline;
             }
         }
 

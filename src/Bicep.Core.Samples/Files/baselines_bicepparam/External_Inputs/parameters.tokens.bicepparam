@@ -70,26 +70,6 @@ param baz = externalInput('custom.binding', '__BINDING__')
 //@[57:58) RightParen |)|
 //@[58:62) NewLine |\r\n\r\n|
 
-// argument referencing variable
-//@[32:34) NewLine |\r\n|
-var arg = 'bar'
-//@[00:03) Identifier |var|
-//@[04:07) Identifier |arg|
-//@[08:09) Assignment |=|
-//@[10:15) StringComplete |'bar'|
-//@[15:17) NewLine |\r\n|
-param varRefArg = externalInput('sys.cli', arg)
-//@[00:05) Identifier |param|
-//@[06:15) Identifier |varRefArg|
-//@[16:17) Assignment |=|
-//@[18:31) Identifier |externalInput|
-//@[31:32) LeftParen |(|
-//@[32:41) StringComplete |'sys.cli'|
-//@[41:42) Comma |,|
-//@[43:46) Identifier |arg|
-//@[46:47) RightParen |)|
-//@[47:51) NewLine |\r\n\r\n|
-
 // single param with variable reference
 //@[39:41) NewLine |\r\n|
 var myVar = bool(externalInput('sys.cli', 'myVar'))

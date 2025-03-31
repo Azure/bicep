@@ -61,7 +61,8 @@ public class ParametersJsonWriterv2
             }
         });
         
-        if (this.Context.ExternalInputReferences.ExternalInputIndexMap.Count > 0)
+        if (this.Context.SemanticModel.Root.ParameterAssignments.Length > 0 &&
+            this.Context.ExternalInputReferences.ExternalInputIndexMap.Count > 0)
         {
             emitter.EmitObjectProperty("externalInputs", () =>
             {

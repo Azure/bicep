@@ -17,87 +17,80 @@
     "baz": {
       "expression": "[externalInputs('4')]"
     },
-    "varRefArg": {
-      "expression": "[externalInputs('5')]"
-    },
     "varRef": {
-      "expression": "[bool(externalInputs('6'))]"
+      "expression": "[bool(externalInputs('5'))]"
     },
     "objectConfig": {
-      "expression": "[externalInputs('7')]"
+      "expression": "[externalInputs('6')]"
     },
     "c": {
-      "expression": "[externalInputs('8')]"
+      "expression": "[externalInputs('7')]"
     },
     "a1": {
-      "expression": "[externalInputs('9')]"
+      "expression": "[externalInputs('8')]"
     },
     "b1": {
-      "expression": "[externalInputs('9')]"
+      "expression": "[externalInputs('8')]"
     },
     "c1": {
-      "expression": "[externalInputs('9')]"
+      "expression": "[externalInputs('8')]"
     },
     "first": {
-      "expression": "[int(externalInputs('10'))]"
+      "expression": "[int(externalInputs('9'))]"
     },
     "second": {
-      "expression": "[externalInputs('11')]"
+      "expression": "[externalInputs('10')]"
     },
     "result": {
-      "expression": "[format('{0} combined with {1}', int(externalInputs('10')), externalInputs('11'))]"
+      "expression": "[format('{0} combined with {1}', int(externalInputs('9')), externalInputs('10'))]"
     }
   },
   "externalInputs": {
-    "4": {
+    "9": {
       "kind": "custom.binding",
       "options": "__BINDING__"
-    },
-    "11": {
-      "kind": "custom.binding",
-      "options": {
-        "path": "/path/to/file",
-        "isSecure": true
-      }
-    },
-    "2": {
-      "kind": "sys.cli",
-      "options": "foo"
-    },
-    "10": {
-      "kind": "custom.binding",
-      "options": "__BINDING__"
-    },
-    "7": {
-      "kind": "custom.tool",
-      "options": {
-        "path": "/path/to/file",
-        "isSecure": true
-      }
-    },
-    "6": {
-      "kind": "sys.cli",
-      "options": "myVar"
     },
     "3": {
       "kind": "sys.envVar",
       "options": "bar"
     },
-    "9": {
-      "kind": "sys.cli",
-      "options": "a"
-    },
-    "5": {
-      "kind": "sys.cli",
-      "options": "bar"
-    },
-    "0": {
+    "2": {
       "kind": "sys.cli",
       "options": "foo"
     },
     "1": {
       "kind": "sys.cli",
       "options": "foo"
+    },
+    "4": {
+      "kind": "custom.binding",
+      "options": "__BINDING__"
+    },
+    "6": {
+      "kind": "custom.tool",
+      "options": {
+        "path": "/path/to/file",
+        "isSecure": true
+      }
+    },
+    "7": {
+      "kind": "sys.cli",
+      "options": "a"
+    },
+    "0": {
+      "kind": "sys.cli",
+      "options": "foo"
+    },
+    "5": {
+      "kind": "sys.cli",
+      "options": "myVar"
+    },
+    "10": {
+      "kind": "custom.binding",
+      "options": {
+        "path": "/path/to/file",
+        "isSecure": true
+      }
     },
     "8": {
       "kind": "sys.cli",

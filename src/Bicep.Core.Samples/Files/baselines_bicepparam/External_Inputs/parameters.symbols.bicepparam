@@ -16,11 +16,6 @@ param bar = externalInput('sys.envVar', 'bar')
 param baz = externalInput('custom.binding', '__BINDING__')
 //@[6:09) ParameterAssignment baz. Type: any. Declaration start char: 0, length: 58
 
-// argument referencing variable
-var arg = 'bar'
-param varRefArg = externalInput('sys.cli', arg)
-//@[6:15) ParameterAssignment varRefArg. Type: any. Declaration start char: 0, length: 47
-
 // single param with variable reference
 var myVar = bool(externalInput('sys.cli', 'myVar'))
 param varRef = myVar

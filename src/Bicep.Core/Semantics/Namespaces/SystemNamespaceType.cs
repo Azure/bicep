@@ -1111,7 +1111,16 @@ namespace Bicep.Core.Semantics.Namespaces
                         .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.")
                         .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.")
                         .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, "externalInputs", exp.Parameters))
-                        .WithReturnType(LanguageConstants.Any)
+                        .WithReturnResultBuilder((model, diagnostics, functionCall, argumentTypes) =>
+                        {
+                            var visitor = new CompileTimeConstantVisitor(diagnostics);
+                            foreach (var arg in functionCall.Arguments)
+                            {
+                                arg.Accept(visitor);
+                            }
+
+                            return new(LanguageConstants.Any);
+                        }, LanguageConstants.Any)
                         .Build();
                 }
             }
