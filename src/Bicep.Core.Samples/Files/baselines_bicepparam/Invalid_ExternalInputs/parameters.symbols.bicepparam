@@ -28,3 +28,11 @@ param p5 = externalInput('sys.cli', {
   name: myVar5
 })
 
+param p6 = externalInput('custom', 'test')
+//@[6:8) ParameterAssignment p6. Type: any. Declaration start char: 0, length: 42
+param p7 = externalInput(p6)
+//@[6:8) ParameterAssignment p7. Type: any. Declaration start char: 0, length: 28
+
+param p8 = externalInput('custom', externalInput('custom', 'foo'))
+//@[6:8) ParameterAssignment p8. Type: any. Declaration start char: 0, length: 66
+

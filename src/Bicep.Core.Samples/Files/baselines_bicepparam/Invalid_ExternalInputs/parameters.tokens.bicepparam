@@ -131,6 +131,44 @@ param p5 = externalInput('sys.cli', {
 })
 //@[00:01) RightBrace |}|
 //@[01:02) RightParen |)|
-//@[02:04) NewLine |\r\n|
+//@[02:06) NewLine |\r\n\r\n|
+
+param p6 = externalInput('custom', 'test')
+//@[00:05) Identifier |param|
+//@[06:08) Identifier |p6|
+//@[09:10) Assignment |=|
+//@[11:24) Identifier |externalInput|
+//@[24:25) LeftParen |(|
+//@[25:33) StringComplete |'custom'|
+//@[33:34) Comma |,|
+//@[35:41) StringComplete |'test'|
+//@[41:42) RightParen |)|
+//@[42:44) NewLine |\r\n|
+param p7 = externalInput(p6)
+//@[00:05) Identifier |param|
+//@[06:08) Identifier |p7|
+//@[09:10) Assignment |=|
+//@[11:24) Identifier |externalInput|
+//@[24:25) LeftParen |(|
+//@[25:27) Identifier |p6|
+//@[27:28) RightParen |)|
+//@[28:32) NewLine |\r\n\r\n|
+
+param p8 = externalInput('custom', externalInput('custom', 'foo'))
+//@[00:05) Identifier |param|
+//@[06:08) Identifier |p8|
+//@[09:10) Assignment |=|
+//@[11:24) Identifier |externalInput|
+//@[24:25) LeftParen |(|
+//@[25:33) StringComplete |'custom'|
+//@[33:34) Comma |,|
+//@[35:48) Identifier |externalInput|
+//@[48:49) LeftParen |(|
+//@[49:57) StringComplete |'custom'|
+//@[57:58) Comma |,|
+//@[59:64) StringComplete |'foo'|
+//@[64:65) RightParen |)|
+//@[65:66) RightParen |)|
+//@[66:68) NewLine |\r\n|
 
 //@[00:00) EndOfFile ||

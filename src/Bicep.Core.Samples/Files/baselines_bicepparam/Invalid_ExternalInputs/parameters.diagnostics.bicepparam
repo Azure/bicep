@@ -29,3 +29,10 @@ param p5 = externalInput('sys.cli', {
 //@[08:14) [BCP032 (Error)] The value must be a compile-time constant. (bicep https://aka.ms/bicep/core-diagnostics#BCP032) |myVar5|
 })
 
+param p6 = externalInput('custom', 'test')
+param p7 = externalInput(p6)
+//@[25:27) [BCP032 (Error)] The value must be a compile-time constant. (bicep https://aka.ms/bicep/core-diagnostics#BCP032) |p6|
+
+param p8 = externalInput('custom', externalInput('custom', 'foo'))
+//@[35:65) [BCP032 (Error)] The value must be a compile-time constant. (bicep https://aka.ms/bicep/core-diagnostics#BCP032) |externalInput('custom', 'foo')|
+

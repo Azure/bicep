@@ -37,7 +37,7 @@ public class ParametersEmitter
             Formatting = Formatting.Indented
         };
 
-        var emitter = new ParametersJsonWriterv2(model);
+        var emitter = new ParametersJsonWriter(model);
         emitter.Write(writer);
         writer.Flush();
     });

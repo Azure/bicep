@@ -1,5 +1,5 @@
 using none
-//@[00:427) ProgramSyntax
+//@[00:573) ProgramSyntax
 //@[00:010) ├─UsingDeclarationSyntax
 //@[00:005) | ├─Token(Identifier) |using|
 //@[06:010) | └─NoneLiteralSyntax
@@ -215,6 +215,72 @@ param p5 = externalInput('sys.cli', {
 })
 //@[00:001) |   |   └─Token(RightBrace) |}|
 //@[01:002) |   └─Token(RightParen) |)|
-//@[02:004) ├─Token(NewLine) |\r\n|
+//@[02:006) ├─Token(NewLine) |\r\n\r\n|
+
+param p6 = externalInput('custom', 'test')
+//@[00:042) ├─ParameterAssignmentSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:008) | ├─IdentifierSyntax
+//@[06:008) | | └─Token(Identifier) |p6|
+//@[09:010) | ├─Token(Assignment) |=|
+//@[11:042) | └─FunctionCallSyntax
+//@[11:024) |   ├─IdentifierSyntax
+//@[11:024) |   | └─Token(Identifier) |externalInput|
+//@[24:025) |   ├─Token(LeftParen) |(|
+//@[25:033) |   ├─FunctionArgumentSyntax
+//@[25:033) |   | └─StringSyntax
+//@[25:033) |   |   └─Token(StringComplete) |'custom'|
+//@[33:034) |   ├─Token(Comma) |,|
+//@[35:041) |   ├─FunctionArgumentSyntax
+//@[35:041) |   | └─StringSyntax
+//@[35:041) |   |   └─Token(StringComplete) |'test'|
+//@[41:042) |   └─Token(RightParen) |)|
+//@[42:044) ├─Token(NewLine) |\r\n|
+param p7 = externalInput(p6)
+//@[00:028) ├─ParameterAssignmentSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:008) | ├─IdentifierSyntax
+//@[06:008) | | └─Token(Identifier) |p7|
+//@[09:010) | ├─Token(Assignment) |=|
+//@[11:028) | └─FunctionCallSyntax
+//@[11:024) |   ├─IdentifierSyntax
+//@[11:024) |   | └─Token(Identifier) |externalInput|
+//@[24:025) |   ├─Token(LeftParen) |(|
+//@[25:027) |   ├─FunctionArgumentSyntax
+//@[25:027) |   | └─VariableAccessSyntax
+//@[25:027) |   |   └─IdentifierSyntax
+//@[25:027) |   |     └─Token(Identifier) |p6|
+//@[27:028) |   └─Token(RightParen) |)|
+//@[28:032) ├─Token(NewLine) |\r\n\r\n|
+
+param p8 = externalInput('custom', externalInput('custom', 'foo'))
+//@[00:066) ├─ParameterAssignmentSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:008) | ├─IdentifierSyntax
+//@[06:008) | | └─Token(Identifier) |p8|
+//@[09:010) | ├─Token(Assignment) |=|
+//@[11:066) | └─FunctionCallSyntax
+//@[11:024) |   ├─IdentifierSyntax
+//@[11:024) |   | └─Token(Identifier) |externalInput|
+//@[24:025) |   ├─Token(LeftParen) |(|
+//@[25:033) |   ├─FunctionArgumentSyntax
+//@[25:033) |   | └─StringSyntax
+//@[25:033) |   |   └─Token(StringComplete) |'custom'|
+//@[33:034) |   ├─Token(Comma) |,|
+//@[35:065) |   ├─FunctionArgumentSyntax
+//@[35:065) |   | └─FunctionCallSyntax
+//@[35:048) |   |   ├─IdentifierSyntax
+//@[35:048) |   |   | └─Token(Identifier) |externalInput|
+//@[48:049) |   |   ├─Token(LeftParen) |(|
+//@[49:057) |   |   ├─FunctionArgumentSyntax
+//@[49:057) |   |   | └─StringSyntax
+//@[49:057) |   |   |   └─Token(StringComplete) |'custom'|
+//@[57:058) |   |   ├─Token(Comma) |,|
+//@[59:064) |   |   ├─FunctionArgumentSyntax
+//@[59:064) |   |   | └─StringSyntax
+//@[59:064) |   |   |   └─Token(StringComplete) |'foo'|
+//@[64:065) |   |   └─Token(RightParen) |)|
+//@[65:066) |   └─Token(RightParen) |)|
+//@[66:068) ├─Token(NewLine) |\r\n|
 
 //@[00:000) └─Token(EndOfFile) ||

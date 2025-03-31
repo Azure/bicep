@@ -22,3 +22,8 @@ var myVar5 = {
 param p5 = externalInput('sys.cli', {
   name: myVar5
 })
+
+param p6 = externalInput('custom', 'test')
+param p7 = externalInput(p6)
+
+param p8 = externalInput('custom', externalInput('custom', 'foo'))
