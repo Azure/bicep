@@ -64,7 +64,7 @@ public class ParametersJsonWriter
         if (this.Context.SemanticModel.Root.ParameterAssignments.Length > 0 &&
             this.Context.ExternalInputReferences.ExternalInputIndexMap.Count > 0)
         {
-            emitter.EmitObjectProperty("externalInputs", () =>
+            emitter.EmitObjectProperty("externalInputDefinitions", () =>
             {
                 foreach (var reference in this.Context.ExternalInputReferences.ExternalInputIndexMap)
                 {

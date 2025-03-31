@@ -45,29 +45,29 @@
       "expression": "[format('{0} combined with {1}', int(externalInputs('9')), externalInputs('10'))]"
     }
   },
-  "externalInputs": {
-    "9": {
-      "kind": "custom.binding",
-      "options": "__BINDING__"
-    },
-    "3": {
-      "kind": "sys.envVar",
-      "options": "bar"
-    },
+  "externalInputDefinitions": {
     "2": {
       "kind": "sys.cli",
       "options": "foo"
     },
-    "1": {
+    "8": {
       "kind": "sys.cli",
-      "options": "foo"
+      "options": "a"
+    },
+    "5": {
+      "kind": "sys.cli",
+      "options": "myVar"
+    },
+    "9": {
+      "kind": "custom.binding",
+      "options": "__BINDING__"
     },
     "4": {
       "kind": "custom.binding",
       "options": "__BINDING__"
     },
-    "6": {
-      "kind": "custom.tool",
+    "10": {
+      "kind": "custom.binding",
       "options": {
         "path": "/path/to/file",
         "isSecure": true
@@ -81,20 +81,20 @@
       "kind": "sys.cli",
       "options": "foo"
     },
-    "5": {
-      "kind": "sys.cli",
-      "options": "myVar"
-    },
-    "10": {
-      "kind": "custom.binding",
+    "6": {
+      "kind": "custom.tool",
       "options": {
         "path": "/path/to/file",
         "isSecure": true
       }
     },
-    "8": {
+    "1": {
       "kind": "sys.cli",
-      "options": "a"
+      "options": "foo"
+    },
+    "3": {
+      "kind": "sys.envVar",
+      "options": "bar"
     }
   }
 }

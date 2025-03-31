@@ -43,7 +43,7 @@ namespace Bicep.Core.IntegrationTests
                 return [];
             }
 
-            var externalInputsObject = parametersJToken["externalInputs"] as JObject;
+            var externalInputsObject = parametersJToken["externalInputDefinitions"] as JObject;
             externalInputsObject.Should().NotBeNull();
 
             return externalInputsObject!;
