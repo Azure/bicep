@@ -652,7 +652,6 @@ Hello from Bicep!"));
             var moduleAUri = new Uri("file:///modulea.bicep");
 
             // TODO(kylealbert): Remove 'with' clause in template when that's removed
-            // TODO(kylealbert): Uncomment graph when I figure out how to deal with the registry.
             var files = new Dictionary<Uri, string>
             {
                 [paramsUri] =
@@ -739,7 +738,12 @@ Hello from Bicep!"));
             "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other' }, graph: { } }",
             "BCP037",
             """The property "graph" is not allowed on objects of type "extensionConfigs". No other properties are allowed.""")]
-        public void Module_with_invalid_extension_config_produces_diagnostic(
+        [DataRow(
+            "ConfigProvidedForNonExistentExtension",
+            "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other' }, nonExistent: { } }",
+            "BCP037",
+            """The property "nonExistent" is not allowed on objects of type "extensionConfigs". No other properties are allowed.""")]
+        public async Task Module_with_invalid_extension_config_produces_diagnostic(
             string scenarioName,
             string moduleExtensionConfigsStr,
             string expectedDiagnosticCode,
@@ -749,7 +753,6 @@ Hello from Bicep!"));
             var moduleAUri = new Uri("file:///modulea.bicep");
 
             // TODO(kylealbert): Remove 'with' clause in template when that's removed
-            // TODO(kylealbert): Uncomment graph when I figure out how to deal with the registry.
             var files = new Dictionary<Uri, string>
             {
                 [mainUri] =
@@ -775,13 +778,14 @@ Hello from Bicep!"));
                       namespace: 'default'
                     }
 
-                    //extension microsoftGraph as graph
+                    extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
 
                     output outputa string = inputa
                     """
             };
 
-            var compilation = CreateServiceBuilder(moduleExtensionConfigsEnabled: true).BuildCompilation(files, mainUri);
+            var services = await CreateServiceBuilderWithMockMsGraph(moduleExtensionConfigsEnabled: true);
+            var compilation = await services.BuildCompilationWithRestore(files, mainUri);
 
             compilation.Should().ContainSingleDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
         }
@@ -802,7 +806,6 @@ Hello from Bicep!"));
             var moduleAUri = new Uri("file:///modulea.bicep");
 
             // TODO(kylealbert): Remove 'with' clause in template when that's removed
-            // TODO(kylealbert): Uncomment graph when I figure out how to deal with the registry.
             var files = new Dictionary<Uri, string>
             {
                 [paramsUri] =
@@ -824,8 +827,6 @@ Hello from Bicep!"));
                       kubeConfig: 'DELETE'
                       namespace: 'DELETE'
                     } as k8s
-
-                    //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview'
 
                     module modulea 'modulea.bicep' = {
                       name: 'modulea'
@@ -850,8 +851,6 @@ Hello from Bicep!"));
                       kubeConfig: 'DELETE'
                       namespace: 'DELETE'
                     }
-
-                    //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
 
                     output outputa string = inputa
                     """
@@ -967,7 +966,7 @@ Hello from Bicep!"));
         private async Task<ServiceBuilder> CreateServiceBuilderWithMockMsGraph(bool moduleExtensionConfigsEnabled = false)
         {
             var services = CreateServiceBuilder(moduleExtensionConfigsEnabled);
-            services = await ExtensionTestHelper.AddMockMsGraphExtension(CreateServiceBuilder(), TestContext);
+            services = await ExtensionTestHelper.AddMockMsGraphExtension(services, TestContext);
 
             return services;
         }
