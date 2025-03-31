@@ -1,3 +1,14 @@
+// BEGIN: Parameters
+
+param strParam1 string
+
+@secure()
+param secureStrParam1 string
+
+param boolParam1 bool
+
+// END: Parameters
+
 // BEGIN: Extension declarations
 
 extension kubernetes with {
@@ -5,9 +16,24 @@ extension kubernetes with {
   namespace: 'DELETE'
 } as k8s
 
-//extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
+//extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
 
 // END: Extension declarations
+
+// BEGIN: Key vaults
+
+resource kv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+//@[9:12) [no-unused-existing-resources (Warning)] Existing resource "kv1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-existing-resources) |kv1|
+  name: 'kv1'
+}
+
+resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+//@[9:18) [no-unused-existing-resources (Warning)] Existing resource "scopedKv1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-existing-resources) |scopedKv1|
+  name: 'scopedKv1'
+  scope: resourceGroup('otherGroup')
+}
+
+// END: Key vaults
 
 // BEGIN: Extension configs for modules
 
@@ -31,6 +57,27 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
   }
 }
 
+module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  name: 'moduleExtConfigsFromParams'
+  extensionConfigs: {
+    k8s: {
+      kubeConfig: boolParam1 ? secureStrParam1 : strParam1
+      namespace: boolParam1 ? strParam1 : 'falseCond'
+    }
+  }
+}
+
+// TODO(kylealbert): Allow key vault references in extension configs
+// module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//   name: 'moduleExtConfigKeyVaultReference'
+//   extensionConfigs: {
+//     k8s: {
+//       kubeConfig: kv1.getSecret('myKubeConfig'),
+//       namespace: scopedKv1.getSecret('myNamespace')
+//     }
+//   }
+// }
+
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
   name: 'moduleWithExtsFullInheritance'
   extensionConfigs: {
@@ -47,6 +94,19 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
     }
   }
 }
+
+// TODO(kylealbert): Figure out if this is allowable
+// var k8sConfigDeployTime = {
+//   kubeConfig: k8s.config.kubeConfig
+//   namespace: strParam1
+// }
+
+// module moduleWithExtsUsingVar 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//   name: 'moduleWithExtsUsingVar'
+//   extensionConfigs: {
+//     k8s: k8sConfigDeployTime
+//   }
+// }
 
 // END: Extension configs for modules
 

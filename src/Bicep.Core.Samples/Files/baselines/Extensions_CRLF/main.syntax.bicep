@@ -1,5 +1,50 @@
+// BEGIN: Parameters
+//@[00:2775) ProgramSyntax
+//@[20:0024) ├─Token(NewLine) |\r\n\r\n|
+
+param strParam1 string
+//@[00:0022) ├─ParameterDeclarationSyntax
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0015) | ├─IdentifierSyntax
+//@[06:0015) | | └─Token(Identifier) |strParam1|
+//@[16:0022) | └─TypeVariableAccessSyntax
+//@[16:0022) |   └─IdentifierSyntax
+//@[16:0022) |     └─Token(Identifier) |string|
+//@[22:0026) ├─Token(NewLine) |\r\n\r\n|
+
+@secure()
+//@[00:0039) ├─ParameterDeclarationSyntax
+//@[00:0009) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0009) | | └─FunctionCallSyntax
+//@[01:0007) | |   ├─IdentifierSyntax
+//@[01:0007) | |   | └─Token(Identifier) |secure|
+//@[07:0008) | |   ├─Token(LeftParen) |(|
+//@[08:0009) | |   └─Token(RightParen) |)|
+//@[09:0011) | ├─Token(NewLine) |\r\n|
+param secureStrParam1 string
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0021) | ├─IdentifierSyntax
+//@[06:0021) | | └─Token(Identifier) |secureStrParam1|
+//@[22:0028) | └─TypeVariableAccessSyntax
+//@[22:0028) |   └─IdentifierSyntax
+//@[22:0028) |     └─Token(Identifier) |string|
+//@[28:0032) ├─Token(NewLine) |\r\n\r\n|
+
+param boolParam1 bool
+//@[00:0021) ├─ParameterDeclarationSyntax
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0016) | ├─IdentifierSyntax
+//@[06:0016) | | └─Token(Identifier) |boolParam1|
+//@[17:0021) | └─TypeVariableAccessSyntax
+//@[17:0021) |   └─IdentifierSyntax
+//@[17:0021) |     └─Token(Identifier) |bool|
+//@[21:0025) ├─Token(NewLine) |\r\n\r\n|
+
+// END: Parameters
+//@[18:0022) ├─Token(NewLine) |\r\n\r\n|
+
 // BEGIN: Extension declarations
-//@[00:1330) ProgramSyntax
 //@[32:0036) ├─Token(NewLine) |\r\n\r\n|
 
 extension kubernetes with {
@@ -36,11 +81,79 @@ extension kubernetes with {
 //@[05:0008) |     └─Token(Identifier) |k8s|
 //@[08:0012) ├─Token(NewLine) |\r\n\r\n|
 
-//extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
-//@[94:0098) ├─Token(NewLine) |\r\n\r\n|
+//extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
+//@[84:0088) ├─Token(NewLine) |\r\n\r\n|
 
 // END: Extension declarations
 //@[30:0034) ├─Token(NewLine) |\r\n\r\n|
+
+// BEGIN: Key vaults
+//@[20:0024) ├─Token(NewLine) |\r\n\r\n|
+
+resource kv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+//@[00:0082) ├─ResourceDeclarationSyntax
+//@[00:0008) | ├─Token(Identifier) |resource|
+//@[09:0012) | ├─IdentifierSyntax
+//@[09:0012) | | └─Token(Identifier) |kv1|
+//@[13:0051) | ├─StringSyntax
+//@[13:0051) | | └─Token(StringComplete) |'Microsoft.KeyVault/vaults@2019-09-01'|
+//@[52:0060) | ├─Token(Identifier) |existing|
+//@[61:0062) | ├─Token(Assignment) |=|
+//@[63:0082) | └─ObjectSyntax
+//@[63:0064) |   ├─Token(LeftBrace) |{|
+//@[64:0066) |   ├─Token(NewLine) |\r\n|
+  name: 'kv1'
+//@[02:0013) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0013) |   | └─StringSyntax
+//@[08:0013) |   |   └─Token(StringComplete) |'kv1'|
+//@[13:0015) |   ├─Token(NewLine) |\r\n|
+}
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0005) ├─Token(NewLine) |\r\n\r\n|
+
+resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+//@[00:0132) ├─ResourceDeclarationSyntax
+//@[00:0008) | ├─Token(Identifier) |resource|
+//@[09:0018) | ├─IdentifierSyntax
+//@[09:0018) | | └─Token(Identifier) |scopedKv1|
+//@[19:0057) | ├─StringSyntax
+//@[19:0057) | | └─Token(StringComplete) |'Microsoft.KeyVault/vaults@2019-09-01'|
+//@[58:0066) | ├─Token(Identifier) |existing|
+//@[67:0068) | ├─Token(Assignment) |=|
+//@[69:0132) | └─ObjectSyntax
+//@[69:0070) |   ├─Token(LeftBrace) |{|
+//@[70:0072) |   ├─Token(NewLine) |\r\n|
+  name: 'scopedKv1'
+//@[02:0019) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0019) |   | └─StringSyntax
+//@[08:0019) |   |   └─Token(StringComplete) |'scopedKv1'|
+//@[19:0021) |   ├─Token(NewLine) |\r\n|
+  scope: resourceGroup('otherGroup')
+//@[02:0036) |   ├─ObjectPropertySyntax
+//@[02:0007) |   | ├─IdentifierSyntax
+//@[02:0007) |   | | └─Token(Identifier) |scope|
+//@[07:0008) |   | ├─Token(Colon) |:|
+//@[09:0036) |   | └─FunctionCallSyntax
+//@[09:0022) |   |   ├─IdentifierSyntax
+//@[09:0022) |   |   | └─Token(Identifier) |resourceGroup|
+//@[22:0023) |   |   ├─Token(LeftParen) |(|
+//@[23:0035) |   |   ├─FunctionArgumentSyntax
+//@[23:0035) |   |   | └─StringSyntax
+//@[23:0035) |   |   |   └─Token(StringComplete) |'otherGroup'|
+//@[35:0036) |   |   └─Token(RightParen) |)|
+//@[36:0038) |   ├─Token(NewLine) |\r\n|
+}
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0005) ├─Token(NewLine) |\r\n\r\n|
+
+// END: Key vaults
+//@[18:0022) ├─Token(NewLine) |\r\n\r\n|
 
 // BEGIN: Extension configs for modules
 //@[39:0043) ├─Token(NewLine) |\r\n\r\n|
@@ -167,6 +280,107 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
 //@[00:0001) |   └─Token(RightBrace) |}|
 //@[01:0005) ├─Token(NewLine) |\r\n\r\n|
 
+module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[00:0289) ├─ModuleDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |module|
+//@[07:0033) | ├─IdentifierSyntax
+//@[07:0033) | | └─Token(Identifier) |moduleExtConfigsFromParams|
+//@[34:0082) | ├─StringSyntax
+//@[34:0082) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[83:0084) | ├─Token(Assignment) |=|
+//@[85:0289) | └─ObjectSyntax
+//@[85:0086) |   ├─Token(LeftBrace) |{|
+//@[86:0088) |   ├─Token(NewLine) |\r\n|
+  name: 'moduleExtConfigsFromParams'
+//@[02:0036) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0036) |   | └─StringSyntax
+//@[08:0036) |   |   └─Token(StringComplete) |'moduleExtConfigsFromParams'|
+//@[36:0038) |   ├─Token(NewLine) |\r\n|
+  extensionConfigs: {
+//@[02:0160) |   ├─ObjectPropertySyntax
+//@[02:0018) |   | ├─IdentifierSyntax
+//@[02:0018) |   | | └─Token(Identifier) |extensionConfigs|
+//@[18:0019) |   | ├─Token(Colon) |:|
+//@[20:0160) |   | └─ObjectSyntax
+//@[20:0021) |   |   ├─Token(LeftBrace) |{|
+//@[21:0023) |   |   ├─Token(NewLine) |\r\n|
+    k8s: {
+//@[04:0132) |   |   ├─ObjectPropertySyntax
+//@[04:0007) |   |   | ├─IdentifierSyntax
+//@[04:0007) |   |   | | └─Token(Identifier) |k8s|
+//@[07:0008) |   |   | ├─Token(Colon) |:|
+//@[09:0132) |   |   | └─ObjectSyntax
+//@[09:0010) |   |   |   ├─Token(LeftBrace) |{|
+//@[10:0012) |   |   |   ├─Token(NewLine) |\r\n|
+      kubeConfig: boolParam1 ? secureStrParam1 : strParam1
+//@[06:0058) |   |   |   ├─ObjectPropertySyntax
+//@[06:0016) |   |   |   | ├─IdentifierSyntax
+//@[06:0016) |   |   |   | | └─Token(Identifier) |kubeConfig|
+//@[16:0017) |   |   |   | ├─Token(Colon) |:|
+//@[18:0058) |   |   |   | └─TernaryOperationSyntax
+//@[18:0028) |   |   |   |   ├─VariableAccessSyntax
+//@[18:0028) |   |   |   |   | └─IdentifierSyntax
+//@[18:0028) |   |   |   |   |   └─Token(Identifier) |boolParam1|
+//@[29:0030) |   |   |   |   ├─Token(Question) |?|
+//@[31:0046) |   |   |   |   ├─VariableAccessSyntax
+//@[31:0046) |   |   |   |   | └─IdentifierSyntax
+//@[31:0046) |   |   |   |   |   └─Token(Identifier) |secureStrParam1|
+//@[47:0048) |   |   |   |   ├─Token(Colon) |:|
+//@[49:0058) |   |   |   |   └─VariableAccessSyntax
+//@[49:0058) |   |   |   |     └─IdentifierSyntax
+//@[49:0058) |   |   |   |       └─Token(Identifier) |strParam1|
+//@[58:0060) |   |   |   ├─Token(NewLine) |\r\n|
+      namespace: boolParam1 ? strParam1 : 'falseCond'
+//@[06:0053) |   |   |   ├─ObjectPropertySyntax
+//@[06:0015) |   |   |   | ├─IdentifierSyntax
+//@[06:0015) |   |   |   | | └─Token(Identifier) |namespace|
+//@[15:0016) |   |   |   | ├─Token(Colon) |:|
+//@[17:0053) |   |   |   | └─TernaryOperationSyntax
+//@[17:0027) |   |   |   |   ├─VariableAccessSyntax
+//@[17:0027) |   |   |   |   | └─IdentifierSyntax
+//@[17:0027) |   |   |   |   |   └─Token(Identifier) |boolParam1|
+//@[28:0029) |   |   |   |   ├─Token(Question) |?|
+//@[30:0039) |   |   |   |   ├─VariableAccessSyntax
+//@[30:0039) |   |   |   |   | └─IdentifierSyntax
+//@[30:0039) |   |   |   |   |   └─Token(Identifier) |strParam1|
+//@[40:0041) |   |   |   |   ├─Token(Colon) |:|
+//@[42:0053) |   |   |   |   └─StringSyntax
+//@[42:0053) |   |   |   |     └─Token(StringComplete) |'falseCond'|
+//@[53:0055) |   |   |   ├─Token(NewLine) |\r\n|
+    }
+//@[04:0005) |   |   |   └─Token(RightBrace) |}|
+//@[05:0007) |   |   ├─Token(NewLine) |\r\n|
+  }
+//@[02:0003) |   |   └─Token(RightBrace) |}|
+//@[03:0005) |   ├─Token(NewLine) |\r\n|
+}
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0005) ├─Token(NewLine) |\r\n\r\n|
+
+// TODO(kylealbert): Allow key vault references in extension configs
+//@[68:0070) ├─Token(NewLine) |\r\n|
+// module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[99:0101) ├─Token(NewLine) |\r\n|
+//   name: 'moduleExtConfigKeyVaultReference'
+//@[45:0047) ├─Token(NewLine) |\r\n|
+//   extensionConfigs: {
+//@[24:0026) ├─Token(NewLine) |\r\n|
+//     k8s: {
+//@[13:0015) ├─Token(NewLine) |\r\n|
+//       kubeConfig: kv1.getSecret('myKubeConfig'),
+//@[51:0053) ├─Token(NewLine) |\r\n|
+//       namespace: scopedKv1.getSecret('myNamespace')
+//@[54:0056) ├─Token(NewLine) |\r\n|
+//     }
+//@[08:0010) ├─Token(NewLine) |\r\n|
+//   }
+//@[06:0008) ├─Token(NewLine) |\r\n|
+// }
+//@[04:0008) ├─Token(NewLine) |\r\n\r\n|
+
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@[00:0187) ├─ModuleDeclarationSyntax
 //@[00:0006) | ├─Token(Identifier) |module|
@@ -292,6 +506,30 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 }
 //@[00:0001) |   └─Token(RightBrace) |}|
 //@[01:0005) ├─Token(NewLine) |\r\n\r\n|
+
+// TODO(kylealbert): Figure out if this is allowable
+//@[52:0054) ├─Token(NewLine) |\r\n|
+// var k8sConfigDeployTime = {
+//@[30:0032) ├─Token(NewLine) |\r\n|
+//   kubeConfig: k8s.config.kubeConfig
+//@[38:0040) ├─Token(NewLine) |\r\n|
+//   namespace: strParam1
+//@[25:0027) ├─Token(NewLine) |\r\n|
+// }
+//@[04:0008) ├─Token(NewLine) |\r\n\r\n|
+
+// module moduleWithExtsUsingVar 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[85:0087) ├─Token(NewLine) |\r\n|
+//   name: 'moduleWithExtsUsingVar'
+//@[35:0037) ├─Token(NewLine) |\r\n|
+//   extensionConfigs: {
+//@[24:0026) ├─Token(NewLine) |\r\n|
+//     k8s: k8sConfigDeployTime
+//@[31:0033) ├─Token(NewLine) |\r\n|
+//   }
+//@[06:0008) ├─Token(NewLine) |\r\n|
+// }
+//@[04:0008) ├─Token(NewLine) |\r\n\r\n|
 
 // END: Extension configs for modules
 //@[37:0039) ├─Token(NewLine) |\r\n|

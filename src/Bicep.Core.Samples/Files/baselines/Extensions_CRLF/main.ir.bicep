@@ -1,5 +1,23 @@
+// BEGIN: Parameters
+//@[00:2775) ProgramExpression
+
+param strParam1 string
+//@[00:0022) ├─DeclaredParameterExpression { Name = strParam1 }
+//@[16:0022) | └─AmbientTypeReferenceExpression { Name = string }
+
+@secure()
+//@[00:0039) ├─DeclaredParameterExpression { Name = secureStrParam1 }
+//@[01:0009) | ├─FunctionCallExpression { Name = secure }
+param secureStrParam1 string
+//@[22:0028) | └─AmbientTypeReferenceExpression { Name = string }
+
+param boolParam1 bool
+//@[00:0021) ├─DeclaredParameterExpression { Name = boolParam1 }
+//@[17:0021) | └─AmbientTypeReferenceExpression { Name = bool }
+
+// END: Parameters
+
 // BEGIN: Extension declarations
-//@[00:1330) ProgramExpression
 
 extension kubernetes with {
 //@[00:0084) ├─ExtensionExpression { Name = k8s }
@@ -14,9 +32,26 @@ extension kubernetes with {
 //@[13:0021) |     └─StringLiteralExpression { Value = DELETE }
 } as k8s
 
-//extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
+//extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
 
 // END: Extension declarations
+
+// BEGIN: Key vaults
+
+resource kv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+//@[00:0082) ├─DeclaredResourceExpression
+//@[63:0082) | └─ObjectExpression
+  name: 'kv1'
+}
+
+resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+//@[00:0132) ├─DeclaredResourceExpression
+//@[69:0132) | └─ObjectExpression
+  name: 'scopedKv1'
+  scope: resourceGroup('otherGroup')
+}
+
+// END: Key vaults
 
 // BEGIN: Extension configs for modules
 
@@ -70,6 +105,48 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
   }
 }
 
+module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[00:0289) ├─DeclaredModuleExpression
+//@[85:0289) | ├─ObjectExpression
+  name: 'moduleExtConfigsFromParams'
+//@[02:0036) | | └─ObjectPropertyExpression
+//@[02:0006) | |   ├─StringLiteralExpression { Value = name }
+//@[08:0036) | |   └─StringLiteralExpression { Value = moduleExtConfigsFromParams }
+  extensionConfigs: {
+//@[20:0160) | └─ObjectExpression
+    k8s: {
+//@[04:0132) |   └─ObjectPropertyExpression
+//@[04:0007) |     ├─StringLiteralExpression { Value = k8s }
+//@[09:0132) |     └─ObjectExpression
+      kubeConfig: boolParam1 ? secureStrParam1 : strParam1
+//@[06:0058) |       ├─ObjectPropertyExpression
+//@[06:0016) |       | ├─StringLiteralExpression { Value = kubeConfig }
+//@[18:0058) |       | └─TernaryExpression
+//@[18:0028) |       |   ├─ParametersReferenceExpression { Parameter = boolParam1 }
+//@[31:0046) |       |   ├─ParametersReferenceExpression { Parameter = secureStrParam1 }
+//@[49:0058) |       |   └─ParametersReferenceExpression { Parameter = strParam1 }
+      namespace: boolParam1 ? strParam1 : 'falseCond'
+//@[06:0053) |       └─ObjectPropertyExpression
+//@[06:0015) |         ├─StringLiteralExpression { Value = namespace }
+//@[17:0053) |         └─TernaryExpression
+//@[17:0027) |           ├─ParametersReferenceExpression { Parameter = boolParam1 }
+//@[30:0039) |           ├─ParametersReferenceExpression { Parameter = strParam1 }
+//@[42:0053) |           └─StringLiteralExpression { Value = falseCond }
+    }
+  }
+}
+
+// TODO(kylealbert): Allow key vault references in extension configs
+// module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//   name: 'moduleExtConfigKeyVaultReference'
+//   extensionConfigs: {
+//     k8s: {
+//       kubeConfig: kv1.getSecret('myKubeConfig'),
+//       namespace: scopedKv1.getSecret('myNamespace')
+//     }
+//   }
+// }
+
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@[00:0187) ├─DeclaredModuleExpression
 //@[93:0187) | ├─ObjectExpression
@@ -115,6 +192,19 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
     }
   }
 }
+
+// TODO(kylealbert): Figure out if this is allowable
+// var k8sConfigDeployTime = {
+//   kubeConfig: k8s.config.kubeConfig
+//   namespace: strParam1
+// }
+
+// module moduleWithExtsUsingVar 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//   name: 'moduleWithExtsUsingVar'
+//   extensionConfigs: {
+//     k8s: k8sConfigDeployTime
+//   }
+// }
 
 // END: Extension configs for modules
 
