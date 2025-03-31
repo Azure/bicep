@@ -425,14 +425,9 @@ public abstract class ExpressionVisitor : IExpressionVisitor
         }
     }
 
-    protected void Visit(IDictionary<string, ArrayExpression>? expressions)
+    protected void Visit(IReadOnlyDictionary<string, ArrayExpression> dictionary)
     {
-        if (expressions is null)
-        {
-            return;
-        }
-
-        foreach (var (key, expression) in expressions)
+        foreach (var (key, expression) in dictionary)
         {
             this.Visit(expression);
         }

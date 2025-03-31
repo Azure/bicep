@@ -790,17 +790,11 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return hasChanges;
     }
 
-    private bool TryRewriteDictionaryStrict<TExpression>(ImmutableDictionary<string, TExpression>? dictionary, [NotNullIfNotNull("dictionary")] out ImmutableDictionary<string, TExpression>? newDictionary)
+    private bool TryRewriteDictionaryStrict<TExpression>(ImmutableDictionary<string, TExpression> dictionary, out ImmutableDictionary<string, TExpression> newDictionary)
         where TExpression : ArrayExpression
     {
-        if (dictionary is null)
-        {
-            newDictionary = null;
-            return false;
-        }
-
         var hasChanges = false;
-        var newDictionaryList = ImmutableDictionary.CreateBuilder<string, TExpression>();
+        var newDictionaryList = ImmutableDictionary.CreateBuilder<string, TExpression>(dictionary.KeyComparer, dictionary.ValueComparer);
         foreach (var (key, expression) in dictionary)
         {
             hasChanges |= TryRewriteStrict(expression, out var newExpression);

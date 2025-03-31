@@ -2046,8 +2046,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 return declaredResourceExpression with
                 {
-                    DecoratorConfig = declaredResourceExpression.DecoratorConfig?.Add(functionCall.Name, new ArrayExpression(null, functionCall.Parameters))
-                        ?? ImmutableDictionary<string, ArrayExpression>.Empty.Add(functionCall.Name, new ArrayExpression(null, functionCall.Parameters))
+                    DecoratorConfig = declaredResourceExpression.DecoratorConfig.Add(functionCall.Name, new ArrayExpression(functionCall.SourceSyntax, functionCall.Parameters))
                 };
             }
             return decorated;

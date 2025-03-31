@@ -1263,7 +1263,7 @@ namespace Bicep.Core.Emit
                 }
 
                 // Emit the options property if there are entries in the DecoratorConfig dictionary
-                if (resource.DecoratorConfig?.Count > 0)
+                if (resource.DecoratorConfig.Count > 0)
                 {
                     emitter.EmitObjectProperty("@options", () =>
                     {

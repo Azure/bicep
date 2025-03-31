@@ -492,8 +492,8 @@ public record DeclaredResourceExpression(
     SyntaxBase BodySyntax,
     Expression Body,
     ImmutableArray<ResourceDependencyExpression> DependsOn,
-    Expression? Description = null,
-    ImmutableDictionary<string, ArrayExpression>? DecoratorConfig = null
+    ImmutableDictionary<string, ArrayExpression> DecoratorConfig,
+    Expression? Description = null
 ) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)
