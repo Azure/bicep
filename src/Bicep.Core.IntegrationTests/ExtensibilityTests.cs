@@ -884,7 +884,6 @@ Hello from Bicep!"));
             diagByFile[fileUriWithDiag].Should().ContainSingleDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
         }
 
-
         [DataTestMethod]
         [DataRow(
             "FullInheritance",
@@ -898,7 +897,7 @@ Hello from Bicep!"));
             "Ternary",
             "extensionConfigs: { kubernetes: { kubeConfig: inputa == 'a' ? k8s.config.kubeConfig : 'b', namespace: inputa == 'a' ? k8s.config.namespace : 'c' } }",
             """{ "kubernetes": { "kubeConfig": "[if(equals(parameters('inputa'), 'a'), extensionConfigs('k8s').kubeConfig, createObject('value', 'b'))]", "namespace": "[if(equals(parameters('inputa'), 'a'), extensionConfigs('k8s').namespace, createObject('value', 'c'))]" } }""")]
-        public void Modules_can_inherit_parent_module_extension_configs(string scenario, string moduleExtensionConfigsStr, string expectedTemplateJson)
+        public void Modules_can_inherit_parent_module_extension_configs(string scenario, string moduleExtensionConfigsStr, string expectedExtConfigJson)
         {
             var paramsUri = new Uri("file:///main.bicepparam");
             var mainUri = new Uri("file:///main.bicep");
@@ -958,7 +957,7 @@ Hello from Bicep!"));
 
             templateToken.SelectToken("resources.modulea.properties.extensionConfigs")
                 .Should()
-                .DeepEqual(JToken.Parse(expectedTemplateJson));
+                .DeepEqual(JToken.Parse(expectedExtConfigJson));
         }
     }
 }
