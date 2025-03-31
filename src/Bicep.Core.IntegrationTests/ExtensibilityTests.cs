@@ -69,7 +69,8 @@ extension bar with {
         [TestMethod]
         public void Ambiguous_type_references_return_errors()
         {
-            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
+            var services = CreateServiceBuilder();
+            var result = CompilationHelper.Compile(services, """
             extension bar with {
             connectionString: 'asdf'
             } as stg
@@ -86,7 +87,7 @@ extension bar with {
                 ("BCP264", DiagnosticLevel.Error, "Resource type \"container\" is declared in multiple imported namespaces (\"stg\", \"stg2\"), and must be fully-qualified."),
             });
 
-            result = CompilationHelper.Compile(CreateServiceBuilder(), """
+            result = CompilationHelper.Compile(services, """
             extension bar with {
             connectionString: 'asdf'
             } as stg
@@ -174,8 +175,9 @@ extension bar with {
         [TestMethod]
         public void Foo_import_existing_requires_uniqueName()
         {
+            var services = CreateServiceBuilder();
             // we've accidentally used 'name' even though this resource type doesn't support it
-            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
+            var result = CompilationHelper.Compile(services, """
             extension foo
 
             resource myApp 'application' existing = {
@@ -191,7 +193,7 @@ extension bar with {
             });
 
             // oops! let's change it to 'uniqueName'
-            result = CompilationHelper.Compile(CreateServiceBuilder(), """
+            result = CompilationHelper.Compile(services, """
             extension foo as foo
 
             resource myApp 'application' existing = {
