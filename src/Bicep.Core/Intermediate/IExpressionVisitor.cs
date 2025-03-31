@@ -131,8 +131,6 @@ public interface IExpressionVisitor
 
     void VisitParameterKeyVaultReferenceExpression(ParameterKeyVaultReferenceExpression expression);
 
-    void VisitExternalInputExpression(ExternalInputExpression expression);
-
     void VisitImportedVariableReferenceExpression(ImportedVariableReferenceExpression expression);
 
     void VisitWildcardImportVariablePropertyReferenceExpression(WildcardImportVariablePropertyReferenceExpression expression);

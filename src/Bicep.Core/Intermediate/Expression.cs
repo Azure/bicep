@@ -968,12 +968,3 @@ public record ResourceDerivedTypeExpression(
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitResourceDerivedTypeExpression(this);
 }
-
-public record ExternalInputExpression(
-    SyntaxBase? SourceSyntax,
-    string Type
-) : Expression(SourceSyntax)
-{
-    public override void Accept(IExpressionVisitor visitor)
-        => visitor.VisitExternalInputExpression(this);
-}
