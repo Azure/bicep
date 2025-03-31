@@ -363,6 +363,7 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     public virtual void VisitParameterKeyVaultReferenceExpression(ParameterKeyVaultReferenceExpression expression)
     {
     }
+
     public virtual void VisitImportedVariableReferenceExpression(ImportedVariableReferenceExpression expression)
     {
     }
