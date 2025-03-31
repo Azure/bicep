@@ -1082,6 +1082,7 @@ public class ExpressionBuilder
             case ParameterAssignmentSymbol parameterSymbol:
                 if (Context.ExternalInputReferences.ParametersReferences.Contains(parameterSymbol.DeclaringParameterAssignment))
                 {
+                    // we're evaluating a parameter that has an external input function reference, so inline it
                     return ConvertWithoutLowering(parameterSymbol.DeclaringParameterAssignment.Value);
                 }
                 return new ParametersAssignmentReferenceExpression(variableAccessSyntax, parameterSymbol);
@@ -1093,8 +1094,8 @@ public class ExpressionBuilder
                 if (Context.VariablesToInline.Contains(variableSymbol) || 
                     Context.ExternalInputReferences.VariablesReferences.Contains(variableSymbol.DeclaringVariable))
                 {
-                    // we've got a runtime dependency, so we have to inline the variable usage
-                    // or we're evaluating a variable that has an external input function reference
+                    // we've got a runtime dependency, or we're evaluating a variable that has an external input function reference,
+                    //  so we have to inline the variable usage
                     return ConvertWithoutLowering(variableSymbol.DeclaringVariable.Value);
                 }
 
