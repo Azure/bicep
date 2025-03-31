@@ -4,9 +4,9 @@
 using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Utils;
-using Bicep.Core.SourceGraph;
 
 namespace Bicep.Core.Registry
 {

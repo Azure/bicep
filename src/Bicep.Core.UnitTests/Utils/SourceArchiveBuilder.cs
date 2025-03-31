@@ -4,8 +4,8 @@
 using System.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
-using Bicep.Core.SourceLink;
 using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceLink;
 using FluentAssertions;
 using static Bicep.Core.SourceLink.SourceArchive;
 

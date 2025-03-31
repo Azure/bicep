@@ -11,9 +11,9 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
-using Bicep.Core.SourceGraph;
 
 namespace Bicep.Core;
 

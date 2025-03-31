@@ -12,8 +12,8 @@ using Bicep.Core.Exceptions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
-using Bicep.Core.SourceLink;
 using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceLink;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands

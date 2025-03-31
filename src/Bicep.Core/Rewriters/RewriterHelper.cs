@@ -3,8 +3,8 @@
 
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
 using Bicep.Core.SourceGraph;
+using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Rewriters;
 

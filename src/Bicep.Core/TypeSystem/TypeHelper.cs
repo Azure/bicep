@@ -721,6 +721,41 @@ namespace Bicep.Core.TypeSystem
                 property.Flags & ~flagsToRemove,
                 property.Description));
 
+        /// <summary>
+        /// Validates that the supplied pattern is: 1) a syntactically valid regular expression, and 2) compatible with
+        /// .NET's non-backtracking regular expression engine.
+        /// </summary>
+        /// <param name="pattern">The regular expression pattern</param>
+        /// <returns>The pattern string iff it can be used with the non-backtracking engine.</returns>
+        public static string? AsOptionalValidFiniteRegexPattern(string? pattern)
+        {
+            if (pattern is not null && TryGetRegularExpressionValidationException(pattern) is null)
+            {
+                return pattern;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Attempts to instantiate a <see cref="Regex"/> with the supplied pattern and returns the error raised
+        /// thereby.
+        /// </summary>
+        /// <param name="pattern">The regular expression pattern</param>
+        /// <returns>The exception raised by <see cref="Regex.Regex(string, RegexOptions)"/>, if any.</returns>
+        public static Exception? TryGetRegularExpressionValidationException(string pattern)
+        {
+            try
+            {
+                var _ = new Regex(pattern, RegexOptions.NonBacktracking);
+                return null;
+            }
+            catch (Exception e)
+            {
+                return e;
+            }
+        }
+
         public static bool MatchesPattern(string pattern, string value)
             => Regex.IsMatch(value, pattern, RegexOptions.NonBacktracking);
     }

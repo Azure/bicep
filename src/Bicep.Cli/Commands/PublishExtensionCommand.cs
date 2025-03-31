@@ -13,8 +13,8 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Extensions;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.SourceGraph;
+using Bicep.Core.TypeSystem;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands

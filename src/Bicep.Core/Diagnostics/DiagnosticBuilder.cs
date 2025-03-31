@@ -11,12 +11,12 @@ using Bicep.Core.Registry;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
-using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
-using Bicep.Core.Text;
 
 namespace Bicep.Core.Diagnostics
 {
@@ -1817,7 +1817,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic ExtendsNotSupported() => CoreError(
                 "BCP406",
-                $"The \"{LanguageConstants.ExtendsKeyword}\" keyword is not supported");
+                $"Using \"{LanguageConstants.ExtendsKeyword}\" keyword requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.ExtendableParamFiles)}\".");
 
             public Diagnostic MicrosoftGraphBuiltinRetired(ExtensionDeclarationSyntax? syntax)
             {
@@ -1890,6 +1890,10 @@ namespace Bicep.Core.Diagnostics
                     shouldWarn ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                     "BCP416",
                     $"The supplied string does not match the expected pattern of /${expectedPattern}/.");
+
+            public Diagnostic SpreadOperatorCannotBeUsedWithForLoop(SpreadExpressionSyntax spread) => CoreError(
+                "BCP417",
+                $"The spread operator \"{spread.Ellipsis.Text}\" cannot be used inside objects with property for-expressions.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

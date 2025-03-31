@@ -256,6 +256,13 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return hasChanges ? expression with { Config = config, Description = description } : expression;
     }
 
+    void IExpressionVisitor.VisitExtensionConfigAssignmentReferenceExpression(ExtensionConfigAssignmentReferenceExpression expression) => ReplaceCurrent(expression, ReplaceExtensionConfigAssignmentReferenceExpression);
+
+    public virtual Expression ReplaceExtensionConfigAssignmentReferenceExpression(ExtensionConfigAssignmentReferenceExpression expression)
+    {
+        return expression;
+    }
+
     void IExpressionVisitor.VisitDeclaredParameterExpression(DeclaredParameterExpression expression) => ReplaceCurrent(expression, ReplaceDeclaredParameterExpression);
     public virtual Expression ReplaceDeclaredParameterExpression(DeclaredParameterExpression expression)
     {
@@ -394,10 +401,11 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         var hasChanges =
             TryRewrite(expression.Body, out var body) |
             TryRewrite(expression.Parameters, out var parameters) |
+            TryRewrite(expression.ExtensionConfigs, out var extensionConfigs) |
             TryRewriteStrict(expression.DependsOn, out var dependsOn) |
             TryRewriteDescription(expression, out var description);
 
-        return hasChanges ? expression with { Body = body, Parameters = parameters, DependsOn = dependsOn, Description = description } : expression;
+        return hasChanges ? expression with { Body = body, Parameters = parameters, ExtensionConfigs = extensionConfigs, DependsOn = dependsOn, Description = description } : expression;
     }
 
     void IExpressionVisitor.VisitResourceDependencyExpression(ResourceDependencyExpression expression) => ReplaceCurrent(expression, ReplaceResourceDependencyExpression);

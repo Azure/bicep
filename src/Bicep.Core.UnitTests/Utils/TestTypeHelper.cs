@@ -8,12 +8,12 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.SourceGraph;
 using Moq;
 
 namespace Bicep.Core.UnitTests.Utils

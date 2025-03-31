@@ -3,9 +3,9 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
-using Bicep.Core.SourceGraph;
 
 namespace Bicep.Core.Semantics;
 

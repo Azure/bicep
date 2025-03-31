@@ -18,6 +18,8 @@ namespace Bicep.Core.Samples
 
         public static DataSet Empty => CreateDataSet();
 
+        public static DataSet Extensions_CRLF => CreateDataSet();
+
         public static DataSet Functions_LF => CreateDataSet();
 
         public static DataSet Imports_LF => CreateDataSet();

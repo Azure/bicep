@@ -6,7 +6,6 @@ using Azure.Containers.ContainerRegistry;
 using Bicep.Cli.Models;
 using Bicep.Cli.UnitTests.Assertions;
 using Bicep.Core.Configuration;
-using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
@@ -291,6 +290,7 @@ output foo string = foo
                 AssertNoErrors(error);
             }
 
+            data.Compiled.Should().NotBeNull();
             data.Compiled!.ShouldHaveExpectedJsonValue();
         }
 
@@ -309,6 +309,7 @@ output foo string = foo
                 AssertNoErrors(error);
             }
 
+            data.Compiled.Should().NotBeNull();
             data.Compiled!.ReadFromOutputFolder().Should().OnlyContainLFNewline();
             data.Compiled!.ShouldHaveExpectedJsonValue();
         }
@@ -332,6 +333,7 @@ output foo string = foo
             var parametersStdout = output.FromJson<BuildParamsStdout>();
             parametersStdout.parametersJson.Should().OnlyContainLFNewline();
 
+            data.Compiled.Should().NotBeNull();
             data.Compiled!.WriteToOutputFolder(parametersStdout.parametersJson);
             data.Compiled.ShouldHaveExpectedJsonValue();
         }
@@ -410,7 +412,7 @@ output foo string = foo
 
             var result = await Bicep(settings, "build-params", mainBicepParamPath, "--stdout");
 
-            result.Should().Fail().And.HaveStderrMatch($"*Error BCP406: The \"extends\" keyword is not supported*");
+            result.Should().Fail().And.HaveStderrMatch($"*Error BCP406: Using \"extends\" keyword requires enabling EXPERIMENTAL feature \"ExtendableParamFiles\".*");
         }
 
         [TestMethod]
