@@ -6,6 +6,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -887,11 +888,17 @@ Hello from Bicep!"));
         [DataTestMethod]
         [DataRow(
             "FullInheritance",
-            "extensionConfigs: { kubernetes: k8.config }")]
+            "extensionConfigs: { kubernetes: k8s.config }",
+            """{ "kubernetes": "[extensionConfigs('k8s')]" }""")]
         [DataRow(
             "PiecemealInheritance",
-            "extensionConfigs: { kubernetes: { kubeConfig: k8s.config.kubeConfig, namespace: k8s.config.namespace } }")]
-        public void Modules_can_inherit_parent_module_extension_configs(string scenario, string moduleExtensionConfigsStr)
+            "extensionConfigs: { kubernetes: { kubeConfig: k8s.config.kubeConfig, namespace: k8s.config.namespace } }",
+            """{ "kubernetes": { kubeConfig: "[extensionConfigs('k8s').kubeConfig]", namespace: "[extensionConfigs('k8s').namespace]" } }""")]
+        [DataRow(
+            "Ternary",
+            "extensionConfigs: { kubernetes: { kubeConfig: inputa == 'a' ? k8s.config.kubeConfig : 'b', namespace: inputa == 'a' ? k8s.config.namespace : 'c' } }",
+            """{ "kubernetes": { "kubeConfig": "[if(equals(parameters('inputa'), 'a'), extensionConfigs('k8s').kubeConfig, createObject('value', 'b'))]", "namespace": "[if(equals(parameters('inputa'), 'a'), extensionConfigs('k8s').namespace, createObject('value', 'c'))]" } }""")]
+        public void Modules_can_inherit_parent_module_extension_configs(string scenario, string moduleExtensionConfigsStr, string expectedTemplateJson)
         {
             var paramsUri = new Uri("file:///main.bicepparam");
             var mainUri = new Uri("file:///main.bicep");
@@ -946,6 +953,12 @@ Hello from Bicep!"));
             var compilation = ServicesWithModuleExtensionConfigs.BuildCompilation(files, paramsUri);
 
             compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
+
+            var templateToken = JToken.Parse(compilation.GetTestTemplate(mainUri));
+
+            templateToken.SelectToken("resources.modulea.properties.extensionConfigs")
+                .Should()
+                .DeepEqual(JToken.Parse(expectedTemplateJson));
         }
     }
 }
