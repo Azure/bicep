@@ -110,7 +110,7 @@ public class ParametersJsonWriter
         });
     }
 
-    private void WriteExtensionConfigs(ExpressionEmitter emitter, IEnumerable<ExtensionConfigAssignmentSymbol> extensionConfigAssignments)
+    private static void WriteExtensionConfigs(ExpressionEmitter emitter, IEnumerable<ExtensionConfigAssignmentSymbol> extensionConfigAssignments)
     {
         emitter.EmitObjectProperty("extensionConfigs", () =>
         {
