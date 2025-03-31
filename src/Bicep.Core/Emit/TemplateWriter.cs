@@ -114,7 +114,9 @@ namespace Bicep.Core.Emit
             if (Context.Settings.UseExperimentalTemplateLanguageVersion)
             {
                 if (Context.SemanticModel.Features.LocalDeployEnabled ||
-                    Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
+                    Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled ||
+                    Context.SemanticModel.Features.OnlyIfNotExistsEnabled ||
+                    Context.SemanticModel.Features.WaitAndRetryEnabled)
                 {
                     emitter.EmitProperty(LanguageVersionPropertyName, "2.2-experimental");
                 }

@@ -39,7 +39,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
                 diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
 
                 template.Should().NotBeNull()
-                    .And.HaveValueAtPath("$.resources[0].@options.onlyIfNotExists", onlyIfNotExistsJObject);
+                    .And.HaveValueAtPath("$.resources['sqlServer'].@options.onlyIfNotExists", onlyIfNotExistsJObject);
             }
         }
 
@@ -68,10 +68,11 @@ namespace Bicep.Core.IntegrationTests.Decorators
             {
                 diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
 
+                template.Should().NotBeNull().And.HaveValueAtPath("$.languageVersion", "2.2-experimental");
                 template.Should().NotBeNull()
-                    .And.HaveValueAtPath("$.resources[0].@options.onlyIfNotExists", onlyIfNotExistsJObject);
+                    .And.HaveValueAtPath("$.resources['sqlServer'].@options.onlyIfNotExists", onlyIfNotExistsJObject);
                 template.Should().NotBeNull()
-                    .And.HaveValueAtPath("$.resources[0].@options.retryOn", retryOnJObject);
+                    .And.HaveValueAtPath("$.resources['sqlServer'].@options.retryOn", retryOnJObject);
             }
         }
 
@@ -150,7 +151,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
                 diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
 
                 template.Should().NotBeNull()
-                    .And.HaveValueAtPath("$.resources[0].@options.onlyIfNotExists", onlyIfNotExistsJObject);
+                    .And.HaveValueAtPath("$.resources['sqlServer'].@options.onlyIfNotExists", onlyIfNotExistsJObject);
             }
         }
 
