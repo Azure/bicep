@@ -8,6 +8,7 @@ using Azure;
 using Azure.Core;
 using Azure.Deployments.Core;
 using Azure.Deployments.Core.Definitions;
+using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Interfaces;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
@@ -24,7 +25,7 @@ namespace Bicep.Local.Deploy;
 
 public static class LocalAzureDeployment
 {
-    public static async Task<LocalDeployment.Result> Deploy(RootConfiguration configuration, ITokenCredentialFactory credentialFactory, DeploymentLocator deploymentLocator, string templateString, string parametersString, CancellationToken cancellationToken)
+    private static ArmDeploymentCollection GetDeploymentsClient(RootConfiguration configuration, ITokenCredentialFactory credentialFactory, DeploymentLocator deploymentLocator)
     {
         var options = new ArmClientOptions();
         options.Diagnostics.ApplySharedResourceManagerSettings();
@@ -38,16 +39,22 @@ public static class LocalAzureDeployment
             throw new NotImplementedException("Above-subscription scope is not supported yet.");
         }
 
-        var deploymentCollection = deploymentLocator switch {
+        return deploymentLocator switch {
             { SubscriptionId: {}, ResourceGroupName: null } => armClient.GetSubscriptionResource(new ResourceIdentifier($"/subscriptions/{deploymentLocator.SubscriptionId}")).GetArmDeployments(),
             { SubscriptionId: {}, ResourceGroupName: {} } => armClient.GetResourceGroupResource(new ResourceIdentifier($"/subscriptions/{deploymentLocator.SubscriptionId}/resourceGroups/{deploymentLocator.ResourceGroupName}")).GetArmDeployments(),
             _ => throw new NotImplementedException("Above-subscription scope is not supported yet."),
         };
+    }
 
+    public static async Task StartDeployment(RootConfiguration configuration, ITokenCredentialFactory credentialFactory, DeploymentLocator deploymentLocator, string templateString, string parametersString, CancellationToken cancellationToken)
+    {
+        var deploymentsClient = GetDeploymentsClient(configuration, credentialFactory, deploymentLocator);
+
+        var paramsDefinition = parametersString.FromJson<DeploymentParametersDefinition>();
         var deploymentProperties = new ArmDeploymentProperties(ArmDeploymentMode.Incremental)
         {
             Template = BinaryData.FromString(templateString),
-            Parameters = BinaryData.FromString(parametersString),
+            Parameters = BinaryData.FromString(paramsDefinition.Parameters.ToJson()),
         };
         var armDeploymentContent = new ArmDeploymentContent(deploymentProperties);
 
@@ -57,9 +64,14 @@ public static class LocalAzureDeployment
             armDeploymentContent.Location = "West US 3";
         }
 
-        var deploymentOperation = await deploymentCollection.CreateOrUpdateAsync(WaitUntil.Completed, deploymentLocator.DeploymentName, armDeploymentContent, cancellationToken);
+        await deploymentsClient.CreateOrUpdateAsync(WaitUntil.Started, deploymentLocator.DeploymentName, armDeploymentContent, cancellationToken);
+    }
 
-        var response = await deploymentOperation.WaitForCompletionAsync(cancellationToken);
+    public static async Task<LocalDeploymentResult> CheckDeployment(RootConfiguration configuration, ITokenCredentialFactory credentialFactory, DeploymentLocator deploymentLocator, CancellationToken cancellationToken)
+    {
+        var deploymentsClient = GetDeploymentsClient(configuration, credentialFactory, deploymentLocator);
+
+        var response = await deploymentsClient.GetAsync(deploymentLocator.DeploymentName, cancellationToken);
         var content = response.GetRawResponse().Content.ToString().FromDeploymentsJson<DeploymentContent>();
 
         return new(content, []);

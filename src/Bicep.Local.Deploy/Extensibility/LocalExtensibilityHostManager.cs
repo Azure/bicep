@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization.Metadata;
 using System.Threading;
+using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Engine.Host.Azure.ExtensibilityV2.Contract.Models;
 using Azure.Deployments.Extensibility.Core.V2.Json;
 using Azure.Deployments.Extensibility.Core.V2.Models;
@@ -17,6 +18,8 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
+using Microsoft.Azure.Deployments.Service.Shared.Jobs;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using IAsyncDisposable = System.IAsyncDisposable;
 
@@ -32,13 +35,21 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
     private Dictionary<ExtensionKey, LocalExtensibilityHost> RegisteredExtensions = new();
     private readonly IModuleDispatcher moduleDispatcher;
     private readonly Func<Uri, Task<LocalExtensibilityHost>> extensionFactory;
+    private readonly WorkerJobDispatcherClient jobDispatcher;
+    private readonly LocalDeploymentEngine localDeploymentEngine;
 
     public LocalExtensibilityHostManager(IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, ITokenCredentialFactory credentialFactory, Func<Uri, Task<LocalExtensibilityHost>> extensionFactory)
     {
+        var services = new ServiceCollection()
+            .RegisterLocalDeployServices(this)
+            .BuildServiceProvider();
+
         this.moduleDispatcher = moduleDispatcher;
         this.extensionFactory = extensionFactory;
+        this.localDeploymentEngine = services.GetRequiredService<LocalDeploymentEngine>();
+        this.jobDispatcher = services.GetRequiredService<WorkerJobDispatcherClient>();
         // Built in extension for handling nested deployments
-        RegisteredExtensions[new("LocalNested", "0.0.0")] = new NestedDeploymentBuiltInLocalExtension(configurationManager, credentialFactory, this);
+        RegisteredExtensions[new("LocalNested", "0.0.0")] = new NestedDeploymentBuiltInLocalExtension(localDeploymentEngine, configurationManager, credentialFactory);
     }
 
     public async Task<HttpResponseMessage> CallExtensibilityHost(
@@ -184,6 +195,21 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
         }
     }
 
+    public async Task<LocalDeploymentResult> Deploy(string templateString, string parametersString, CancellationToken cancellationToken)
+    {
+        var name = Guid.NewGuid().ToString();
+        await localDeploymentEngine.StartDeployment(name, templateString, parametersString, cancellationToken);
+
+        var result = await localDeploymentEngine.CheckDeployment(name);
+        while (result.Deployment.Properties.ProvisioningState?.IsTerminal() != true)
+        {
+            await Task.Delay(20, cancellationToken);
+            result = await localDeploymentEngine.CheckDeployment(name);
+        }
+
+        return result;
+    }
+
     public async ValueTask DisposeAsync()
     {
         await Task.WhenAll(RegisteredExtensions.Values.Select(async extension =>
@@ -197,5 +223,6 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
                 // TODO: handle errors shutting down processes gracefully
             }
         }));
+        jobDispatcher.Dispose();
     }
 }
