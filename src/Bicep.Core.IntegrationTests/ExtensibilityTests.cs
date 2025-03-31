@@ -19,7 +19,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void Bar_import_bad_config_is_blocked()
         {
-            var result = CompilationHelper.Compile(Services, @"
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), @"
 extension bar with {
   madeUpProperty: 'asdf'
 } as stg
@@ -33,7 +33,7 @@ extension bar with {
         [TestMethod]
         public void Bar_import_can_be_duplicated()
         {
-            var result = CompilationHelper.Compile(Services, """
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
             extension bar with {
                 connectionString: 'connectionString1'
             } as stg
@@ -48,7 +48,7 @@ extension bar with {
         [TestMethod]
         public void Bar_import_basic_test()
         {
-            var result = CompilationHelper.Compile(Services, """
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
             extension bar with {
                connectionString: 'asdf'
             } as stg
@@ -69,7 +69,7 @@ extension bar with {
         [TestMethod]
         public void Ambiguous_type_references_return_errors()
         {
-            var result = CompilationHelper.Compile(Services, """
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
             extension bar with {
             connectionString: 'asdf'
             } as stg
@@ -86,7 +86,7 @@ extension bar with {
                 ("BCP264", DiagnosticLevel.Error, "Resource type \"container\" is declared in multiple imported namespaces (\"stg\", \"stg2\"), and must be fully-qualified."),
             });
 
-            result = CompilationHelper.Compile(Services, """
+            result = CompilationHelper.Compile(CreateServiceBuilder(), """
             extension bar with {
             connectionString: 'asdf'
             } as stg
@@ -105,7 +105,7 @@ extension bar with {
         [TestMethod]
         public void Bar_import_basic_test_loops_and_referencing()
         {
-            var result = CompilationHelper.Compile(Services, """
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
             extension bar with {
                 connectionString: 'asdf'
             } as stg
@@ -145,7 +145,7 @@ extension bar with {
         [TestMethod]
         public void Foo_import_basic_test_loops_and_referencing()
         {
-            var result = CompilationHelper.Compile(Services, """
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
             extension foo as foo
             param numApps int
 
@@ -175,7 +175,7 @@ extension bar with {
         public void Foo_import_existing_requires_uniqueName()
         {
             // we've accidentally used 'name' even though this resource type doesn't support it
-            var result = CompilationHelper.Compile(Services, """
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
             extension foo
 
             resource myApp 'application' existing = {
@@ -191,7 +191,7 @@ extension bar with {
             });
 
             // oops! let's change it to 'uniqueName'
-            result = CompilationHelper.Compile(Services, """
+            result = CompilationHelper.Compile(CreateServiceBuilder(), """
             extension foo as foo
 
             resource myApp 'application' existing = {
@@ -208,7 +208,7 @@ extension bar with {
         [TestMethod]
         public void Kubernetes_import_existing_warns_with_readonly_fields()
         {
-            var result = CompilationHelper.Compile(Services, """
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
             extension kubernetes with {
             namespace: 'default'
             kubeConfig: ''
@@ -238,7 +238,7 @@ extension bar with {
         [TestMethod]
         public void Kubernetes_competing_imports_are_blocked()
         {
-            var result = CompilationHelper.Compile(Services, @"
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), @"
 extension kubernetes with {
   namespace: 'default'
   kubeConfig: ''
@@ -262,7 +262,7 @@ extension kubernetes with {
         [TestMethod]
         public void Kubernetes_import_existing_resources()
         {
-            var result = CompilationHelper.Compile(Services, @"
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), @"
 extension kubernetes with {
   namespace: 'default'
   kubeConfig: ''
@@ -298,7 +298,7 @@ resource configmap 'core/ConfigMap@v1' existing = {
         [TestMethod]
         public void Kubernetes_import_existing_connectionstring_test()
         {
-            var result = CompilationHelper.Compile(Services, @"
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), @"
 extension kubernetes with {
   namespace: 'default'
   kubeConfig: ''
@@ -336,7 +336,7 @@ resource secret 'core/Secret@v1' = {
         [TestMethod]
         public void Kubernetes_CustomResourceType_EmitWarning()
         {
-            var result = CompilationHelper.Compile(Services, """
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
                 extension kubernetes with {
                   namespace: 'default'
                   kubeConfig: ''
@@ -357,7 +357,7 @@ resource secret 'core/Secret@v1' = {
         [TestMethod]
         public void Kubernetes_AmbiguousFallbackType_MustFullyQualify()
         {
-            var result = CompilationHelper.Compile(Services, """
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
                 extension kubernetes with {
                   namespace: 'default'
                   kubeConfig: ''
@@ -391,7 +391,7 @@ resource secret 'core/Secret@v1' = {
         [TestMethod]
         public void Bar_import_basic_test_with_qualified_type()
         {
-            var result = CompilationHelper.Compile(Services, """
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
             extension bar with {
             connectionString: 'asdf'
             } as stg
@@ -412,7 +412,7 @@ resource secret 'core/Secret@v1' = {
         [TestMethod]
         public void Invalid_namespace_qualifier_returns_error()
         {
-            var result = CompilationHelper.Compile(Services, """
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
             extension bar with {
             connectionString: 'asdf'
             } as stg
@@ -437,7 +437,7 @@ resource secret 'core/Secret@v1' = {
         [TestMethod]
         public void Child_resource_with_parent_namespace_mismatch_returns_error()
         {
-            var result = CompilationHelper.Compile(Services, @"
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), @"
 extension bar with {
   connectionString: 'asdf'
 } as stg
@@ -460,7 +460,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
         [TestMethod]
         public void Bar_import_end_to_end_test()
         {
-            var result = CompilationHelper.Compile(Services,
+            var result = CompilationHelper.Compile(CreateServiceBuilder(),
                 ("main.bicep", @"
 param accountName string
 
@@ -629,7 +629,7 @@ Hello from Bicep!"));
                     """))
                 .WithNamespaceProvider(TestExtensibilityNamespaceProvider.CreateWithDefaults());
 
-            var result = CompilationHelper.Compile(services, """
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
                 extension foo as foo
 
                 resource myApp 'application' = {
@@ -967,7 +967,7 @@ Hello from Bicep!"));
         private async Task<ServiceBuilder> CreateServiceBuilderWithMockMsGraph(bool moduleExtensionConfigsEnabled = false)
         {
             var services = CreateServiceBuilder(moduleExtensionConfigsEnabled);
-            services = await ExtensionTestHelper.AddMockMsGraphExtension(services, TestContext);
+            services = await ExtensionTestHelper.AddMockMsGraphExtension(CreateServiceBuilder(), TestContext);
 
             return services;
         }
