@@ -172,7 +172,7 @@ public class SecureOutputsTests
         result.Diagnostics.Should().NotHaveAnyDiagnostics();
 
         // Verify referencing secure output in a resource property will be translated to listOutputsWithSecureValues function
-        result.Template.Should().HaveValueAtPath("$.resources[0].properties.value", "[listOutputsWithSecureValues(resourceId('Microsoft.Resources/deployments', 'foo'), '2022-09-01').secureOutput]");
+        result.Template.Should().HaveValueAtPath("$.resources['key'].properties.value", "[listOutputsWithSecureValues(resourceId('Microsoft.Resources/deployments', 'foo'), '2022-09-01').secureOutput]");
 
         // Verify referencing secure output will be translated to listOutputsWithSecureValues function
         result.Template.Should().HaveValueAtPath("$.outputs['outputSecureVal'].value", "[listOutputsWithSecureValues(resourceId('Microsoft.Resources/deployments', 'foo'), '2022-09-01').secureOutput]");
@@ -181,9 +181,65 @@ public class SecureOutputsTests
         result.Template.Should().HaveValueAtPath("$.outputs['outputNormalVal'].value", "[listOutputsWithSecureValues(resourceId('Microsoft.Resources/deployments', 'foo'), '2022-09-01').normalOutput]");
 
         // Verify referencing normal value from a deployment which does NOT contain any secure outputs will be translated to normal reference function
-        result.Template.Should().HaveValueAtPath("$.outputs['outputNormalVal2'].value", "[reference(resourceId('Microsoft.Resources/deployments', 'bar'), '2022-09-01').outputs.normalOutput.value]");
+        result.Template.Should().HaveValueAtPath("$.outputs['outputNormalVal2'].value", "[reference('bar').outputs.normalOutput.value]");
 
         // Verify referencing normal value from a deployment which does NOT contain any secure outputs but secure parameters will be translated to normal reference function
-        result.Template.Should().HaveValueAtPath("$.outputs['outputNormalVal3'].value", "[reference(resourceId('Microsoft.Resources/deployments', 'baz'), '2022-09-01').outputs.normalOutput.value]");
+        result.Template.Should().HaveValueAtPath("$.outputs['outputNormalVal3'].value", "[reference('baz').outputs.normalOutput.value]");
+    }
+
+    [TestMethod]
+    public void Test_Deployments_Secure_Outputs_Using_Language_Version_2_0()
+    {
+        // secure parameter does NOT use language version 2.0
+        var result = CompilationHelper.Compile(
+            ("main.bicep", @"
+                @secure()
+                param secureInput string
+            ")
+        );
+        result.Template?.Root.ToString().Should().NotContain("\"languageVersion\": \"2.0\"");
+
+        // Generated template uses language version 2.0 when secure output is declared.
+        result = CompilationHelper.Compile(
+            ("main.bicep", @"
+                @secure()
+                param myInput string
+ 
+                @secure()
+                output myOutput string = myInput
+            ")
+        );
+        result.Template?.Root.ToString().Should().Contain("\"languageVersion\": \"2.0\"");
+
+        // Generated template uses language version 2.0 when secure output is declared in modules.
+        result = CompilationHelper.Compile(
+            ("main.bicep", @"
+                module foo 'foo.bicep' = {
+                  name: 'foo'
+                  params: {
+                    myInput : 'password'
+                  }
+                }
+
+                module bar 'bar.bicep' = {
+                  name: 'bar'
+                  params: {
+                    secureInput : foo.outputs.myOutput
+                  }
+                }
+            "),
+            ("foo.bicep", @"
+                @secure()
+                param myInput string
+ 
+                @secure()
+                output myOutput string = myInput
+            "),
+            ("bar.bicep", @"
+                @secure()
+                param secureInput string
+            ")
+        );
+        result.Template?.Root.ToString().Should().Contain("\"languageVersion\": \"2.0\"");
     }
 }

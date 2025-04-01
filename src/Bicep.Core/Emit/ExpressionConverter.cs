@@ -487,9 +487,9 @@ namespace Bicep.Core.Emit
                     return GetModuleNameExpression(reference.Module, reference.IndexContext?.Index);
 
                 case "outputs":
+                    // When referencing secure outputs, convert to listOutputsWithSecureValues function
                     var moduleSymbol = reference.Module;
-                    if (expression.SourceSyntax is null ||
-                        (FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(context.SemanticModel, expression.SourceSyntax).Any()))
+                    if (expression.IsReferencingSecureOutputs(context.SemanticModel))
                     {
                         var deploymentResourceId = GetFullyQualifiedResourceId(moduleSymbol, reference.IndexContext?.Index);
                         var apiVersion = new JTokenExpression(EmitConstants.NestedDeploymentResourceApiVersion);

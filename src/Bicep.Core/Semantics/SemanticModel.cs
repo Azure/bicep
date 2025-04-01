@@ -142,11 +142,11 @@ namespace Bicep.Core.Semantics
                         // Resource type parameters are a special case, we need to convert to a dedicated
                         // type so we can compare differently for assignment and code generation.
                         var type = new UnresolvedResourceType(resourceType.TypeReference);
-                        outputs.Add(new OutputMetadata(output.Name, type, description));
+                        outputs.Add(new OutputMetadata(output.Name, type, description, output.DeclaringOutput.HasSecureDecorator));
                     }
                     else
                     {
-                        outputs.Add(new OutputMetadata(output.Name, output.Type, description));
+                        outputs.Add(new OutputMetadata(output.Name, output.Type, description, output.DeclaringOutput.HasSecureDecorator));
                     }
                 }
 

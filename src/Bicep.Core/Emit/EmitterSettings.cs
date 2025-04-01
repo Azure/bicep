@@ -46,7 +46,11 @@ namespace Bicep.Core.Emit
                     resultSelector: result => result,
                     continuationFunction: (result, syntax) => !result) ||
                 // there are optional module names
-                model.Root.ModuleDeclarations.Any(module => module.TryGetBodyProperty(LanguageConstants.ModuleNamePropertyName) is null);
+                model.Root.ModuleDeclarations.Any(module => module.TryGetBodyProperty(LanguageConstants.ModuleNamePropertyName) is null) ||
+                // there are secure outputs
+                model.Outputs.Any(output => output.isSecure) ||
+                // there are secure outputs in modules
+                model.Root.ModuleDeclarations.Any(module => module.TryGetSemanticModel().TryUnwrap()?.Outputs.Any(output => output.isSecure) ?? false);
         }
 
         /// <summary>

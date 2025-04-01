@@ -3,6 +3,8 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics;
+using Bicep.Core.Analyzers.Linter.Common;
+using System.Linq.Expressions;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -207,6 +209,9 @@ public record PropertyAccessExpression(
         => visitor.VisitPropertyAccessExpression(this);
 
     protected override object? GetDebugAttributes() => new { PropertyName };
+
+    public bool IsReferencingSecureOutputs(SemanticModel model) => (this.SourceSyntax is null ||
+                        (FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(model, this.SourceSyntax).Any()));
 }
 
 public record ResourceReferenceExpression(
