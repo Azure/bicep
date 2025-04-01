@@ -1,1 +1,1 @@
-This content has been moved to [Deployment Pane](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/visual-studio-code?tabs=azure-cli#deployment-pane)
+This content has been moved to [Deployment Pane](https://learn.microsoft.com/azure/azure-resource-manager/bicep/visual-studio-code#deployment-pane).
