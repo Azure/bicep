@@ -68,7 +68,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
             {
                 diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
 
-                template.Should().NotBeNull().And.HaveValueAtPath("$.languageVersion", "2.2-experimental");
+                template.Should().NotBeNull().And.HaveValueAtPath("$.languageVersion", "2.1-experimental");
                 template.Should().NotBeNull()
                     .And.HaveValueAtPath("$.resources['sqlServer'].@options.onlyIfNotExists", onlyIfNotExistsJObject);
                 template.Should().NotBeNull()

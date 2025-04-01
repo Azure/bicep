@@ -113,10 +113,9 @@ namespace Bicep.Core.Emit
 
             if (Context.Settings.UseExperimentalTemplateLanguageVersion)
             {
+                // Note (tasmalligan): 2.2 epxerimental is being used for extensibility migration and local deploy
                 if (Context.SemanticModel.TargetScope == ResourceScope.Local ||
-                    Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled ||
-                    Context.SemanticModel.Features.OnlyIfNotExistsEnabled ||
-                    Context.SemanticModel.Features.WaitAndRetryEnabled)
+                    Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
                 {
                     emitter.EmitProperty(LanguageVersionPropertyName, "2.2-experimental");
                 }
