@@ -162,7 +162,7 @@ param coords = {
             uri => Task.FromResult(extensionMock.Object));
         await extensibilityHandler.InitializeExtensions(result.Compilation);
 
-        var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
+        var localDeployResult = await extensibilityHandler.Deploy(templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
 
         localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Succeeded);
         localDeployResult.Deployment.Properties.Outputs["forecastString"].Value.Should().DeepEqual("Forecast: Name");
@@ -275,7 +275,7 @@ param coords = {
             uri => Task.FromResult(extensionMock.Object));
         await extensibilityHandler.InitializeExtensions(result.Compilation);
 
-        var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
+        var localDeployResult = await extensibilityHandler.Deploy(templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
 
         localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Failed, because: $"Extension returned '{nameof(Resource)}' and '{nameof(ErrorData)}' as part of its response and it is not allowed. Extensions should return one or the other to indicate success or failure respectively.");
         localDeployResult.Deployment.Properties.Error.Should().NotBeNull();
@@ -381,7 +381,7 @@ param coords = {
             uri => Task.FromResult(extensionMock.Object));
         await extensibilityHandler.InitializeExtensions(result.Compilation);
 
-        var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
+        var localDeployResult = await extensibilityHandler.Deploy(templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
 
         localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Failed, because: $"Extension did not return '{nameof(Resource)}' or '{nameof(ErrorData)}' as part of its response. Extensions should return one or the other to indicate success or failure respectively.");
         localDeployResult.Deployment.Properties.Error.Should().NotBeNull();
@@ -478,7 +478,7 @@ param coords = {
             uri => Task.FromResult(extensionMock.Object));
         await extensibilityHandler.InitializeExtensions(result.Compilation);
 
-        var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
+        var localDeployResult = await extensibilityHandler.Deploy(templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
 
         localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Failed, because: "Extension returned a failure when attempting to create a resource.");
         localDeployResult.Deployment.Properties.Error.Should().NotBeNull();
