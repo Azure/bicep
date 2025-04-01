@@ -246,6 +246,20 @@ module moduleComplexKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.
 //@[001:005) NewLine |\r\n\r\n|
 
 // END: Extension configs for modules
-//@[037:039) NewLine |\r\n|
+//@[037:041) NewLine |\r\n\r\n|
+
+// BEGIN: Outputs
+//@[017:021) NewLine |\r\n\r\n|
+
+output k8sNamespace object = k8s // This is a namespace type
+//@[000:006) Identifier |output|
+//@[007:019) Identifier |k8sNamespace|
+//@[020:026) Identifier |object|
+//@[027:028) Assignment |=|
+//@[029:032) Identifier |k8s|
+//@[060:064) NewLine |\r\n\r\n|
+
+// END: Outputs
+//@[015:017) NewLine |\r\n|
 
 //@[000:000) EndOfFile ||

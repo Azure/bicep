@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:1569) ProgramSyntax
+//@[000:1673) ProgramSyntax
 //@[020:0024) ├─Token(NewLine) |\r\n\r\n|
 
 param boolParam1 bool
@@ -377,6 +377,26 @@ module moduleComplexKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.
 //@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 // END: Extension configs for modules
-//@[037:0039) ├─Token(NewLine) |\r\n|
+//@[037:0041) ├─Token(NewLine) |\r\n\r\n|
+
+// BEGIN: Outputs
+//@[017:0021) ├─Token(NewLine) |\r\n\r\n|
+
+output k8sNamespace object = k8s // This is a namespace type
+//@[000:0032) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0019) | ├─IdentifierSyntax
+//@[007:0019) | | └─Token(Identifier) |k8sNamespace|
+//@[020:0026) | ├─TypeVariableAccessSyntax
+//@[020:0026) | | └─IdentifierSyntax
+//@[020:0026) | |   └─Token(Identifier) |object|
+//@[027:0028) | ├─Token(Assignment) |=|
+//@[029:0032) | └─VariableAccessSyntax
+//@[029:0032) |   └─IdentifierSyntax
+//@[029:0032) |     └─Token(Identifier) |k8s|
+//@[060:0064) ├─Token(NewLine) |\r\n\r\n|
+
+// END: Outputs
+//@[015:0017) ├─Token(NewLine) |\r\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

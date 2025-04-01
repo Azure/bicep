@@ -104,6 +104,43 @@ resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 //@[00:001) RightBrace |}|
 //@[01:005) NewLine |\r\n\r\n|
 
+resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
+//@[00:008) Identifier |resource|
+//@[09:022) Identifier |testResource1|
+//@[23:053) StringComplete |'az:My.Rp/TestType@2020-01-01'|
+//@[54:055) Assignment |=|
+//@[56:057) LeftBrace |{|
+//@[57:059) NewLine |\r\n|
+  name: k8s.config.namespace
+//@[02:006) Identifier |name|
+//@[06:007) Colon |:|
+//@[08:011) Identifier |k8s|
+//@[11:012) Dot |.|
+//@[12:018) Identifier |config|
+//@[18:019) Dot |.|
+//@[19:028) Identifier |namespace|
+//@[28:030) NewLine |\r\n|
+  properties: {
+//@[02:012) Identifier |properties|
+//@[12:013) Colon |:|
+//@[14:015) LeftBrace |{|
+//@[15:017) NewLine |\r\n|
+    secret: k8s.config.kubeConfig
+//@[04:010) Identifier |secret|
+//@[10:011) Colon |:|
+//@[12:015) Identifier |k8s|
+//@[15:016) Dot |.|
+//@[16:022) Identifier |config|
+//@[22:023) Dot |.|
+//@[23:033) Identifier |kubeConfig|
+//@[33:035) NewLine |\r\n|
+  }
+//@[02:003) RightBrace |}|
+//@[03:005) NewLine |\r\n|
+}
+//@[00:001) RightBrace |}|
+//@[01:005) NewLine |\r\n\r\n|
+
 // END: Key vaults
 //@[18:022) NewLine |\r\n\r\n|
 
@@ -371,6 +408,34 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 //@[04:008) NewLine |\r\n\r\n|
 
 // END: Extension configs for modules
-//@[37:039) NewLine |\r\n|
+//@[37:041) NewLine |\r\n\r\n|
+
+// BEGIN: Outputs
+//@[17:021) NewLine |\r\n\r\n|
+
+output k8sConfig object = k8s.config
+//@[00:006) Identifier |output|
+//@[07:016) Identifier |k8sConfig|
+//@[17:023) Identifier |object|
+//@[24:025) Assignment |=|
+//@[26:029) Identifier |k8s|
+//@[29:030) Dot |.|
+//@[30:036) Identifier |config|
+//@[36:040) NewLine |\r\n\r\n|
+
+output k8sNamespace string = k8s.config.namespace
+//@[00:006) Identifier |output|
+//@[07:019) Identifier |k8sNamespace|
+//@[20:026) Identifier |string|
+//@[27:028) Assignment |=|
+//@[29:032) Identifier |k8s|
+//@[32:033) Dot |.|
+//@[33:039) Identifier |config|
+//@[39:040) Dot |.|
+//@[40:049) Identifier |namespace|
+//@[49:053) NewLine |\r\n\r\n|
+
+// END: Outputs
+//@[15:017) NewLine |\r\n|
 
 //@[00:000) EndOfFile ||

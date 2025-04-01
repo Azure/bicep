@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[00:2775) ProgramExpression
+//@[00:3059) ProgramExpression
 
 param strParam1 string
 //@[00:0022) ├─DeclaredParameterExpression { Name = strParam1 }
@@ -49,6 +49,23 @@ resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 //@[69:0132) | └─ObjectExpression
   name: 'scopedKv1'
   scope: resourceGroup('otherGroup')
+}
+
+resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
+//@[00:0147) ├─DeclaredResourceExpression
+//@[56:0147) | └─ObjectExpression
+  name: k8s.config.namespace
+  properties: {
+//@[02:0055) |   └─ObjectPropertyExpression
+//@[02:0012) |     ├─StringLiteralExpression { Value = properties }
+//@[14:0055) |     └─ObjectExpression
+    secret: k8s.config.kubeConfig
+//@[04:0033) |       └─ObjectPropertyExpression
+//@[04:0010) |         ├─StringLiteralExpression { Value = secret }
+//@[12:0033) |         └─PropertyAccessExpression { PropertyName = kubeConfig }
+//@[12:0022) |           └─PropertyAccessExpression { PropertyName = config }
+//@[12:0015) |             └─ExtensionReferenceExpression { ExtensionAlias = k8s }
+  }
 }
 
 // END: Key vaults
@@ -165,30 +182,30 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 }
 
 module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[00:0275) └─DeclaredModuleExpression
-//@[98:0275)   ├─ObjectExpression
+//@[00:0275) ├─DeclaredModuleExpression
+//@[98:0275) | ├─ObjectExpression
   name: 'moduleWithExtsPiecemealInheritance'
-//@[02:0044)   | └─ObjectPropertyExpression
-//@[02:0006)   |   ├─StringLiteralExpression { Value = name }
-//@[08:0044)   |   └─StringLiteralExpression { Value = moduleWithExtsPiecemealInheritance }
+//@[02:0044) | | └─ObjectPropertyExpression
+//@[02:0006) | |   ├─StringLiteralExpression { Value = name }
+//@[08:0044) | |   └─StringLiteralExpression { Value = moduleWithExtsPiecemealInheritance }
   extensionConfigs: {
-//@[20:0125)   └─ObjectExpression
+//@[20:0125) | └─ObjectExpression
     k8s: {
-//@[04:0097)     └─ObjectPropertyExpression
-//@[04:0007)       ├─StringLiteralExpression { Value = k8s }
-//@[09:0097)       └─ObjectExpression
+//@[04:0097) |   └─ObjectPropertyExpression
+//@[04:0007) |     ├─StringLiteralExpression { Value = k8s }
+//@[09:0097) |     └─ObjectExpression
       kubeConfig: k8s.config.kubeConfig
-//@[06:0039)         ├─ObjectPropertyExpression
-//@[06:0016)         | ├─StringLiteralExpression { Value = kubeConfig }
-//@[18:0039)         | └─PropertyAccessExpression { PropertyName = kubeConfig }
-//@[18:0028)         |   └─PropertyAccessExpression { PropertyName = config }
-//@[18:0021)         |     └─ExtensionReferenceExpression { ExtensionAlias = k8s }
+//@[06:0039) |       ├─ObjectPropertyExpression
+//@[06:0016) |       | ├─StringLiteralExpression { Value = kubeConfig }
+//@[18:0039) |       | └─PropertyAccessExpression { PropertyName = kubeConfig }
+//@[18:0028) |       |   └─PropertyAccessExpression { PropertyName = config }
+//@[18:0021) |       |     └─ExtensionReferenceExpression { ExtensionAlias = k8s }
       namespace: k8s.config.namespace
-//@[06:0037)         └─ObjectPropertyExpression
-//@[06:0015)           ├─StringLiteralExpression { Value = namespace }
-//@[17:0037)           └─PropertyAccessExpression { PropertyName = namespace }
-//@[17:0027)             └─PropertyAccessExpression { PropertyName = config }
-//@[17:0020)               └─ExtensionReferenceExpression { ExtensionAlias = k8s }
+//@[06:0037) |       └─ObjectPropertyExpression
+//@[06:0015) |         ├─StringLiteralExpression { Value = namespace }
+//@[17:0037) |         └─PropertyAccessExpression { PropertyName = namespace }
+//@[17:0027) |           └─PropertyAccessExpression { PropertyName = config }
+//@[17:0020) |             └─ExtensionReferenceExpression { ExtensionAlias = k8s }
     }
   }
 }
@@ -207,4 +224,21 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 // }
 
 // END: Extension configs for modules
+
+// BEGIN: Outputs
+
+output k8sConfig object = k8s.config
+//@[00:0036) ├─DeclaredOutputExpression { Name = k8sConfig }
+//@[17:0023) | ├─AmbientTypeReferenceExpression { Name = object }
+//@[26:0036) | └─PropertyAccessExpression { PropertyName = config }
+//@[26:0029) |   └─ExtensionReferenceExpression { ExtensionAlias = k8s }
+
+output k8sNamespace string = k8s.config.namespace
+//@[00:0049) └─DeclaredOutputExpression { Name = k8sNamespace }
+//@[20:0026)   ├─AmbientTypeReferenceExpression { Name = string }
+//@[29:0049)   └─PropertyAccessExpression { PropertyName = namespace }
+//@[29:0039)     └─PropertyAccessExpression { PropertyName = config }
+//@[29:0032)       └─ExtensionReferenceExpression { ExtensionAlias = k8s }
+
+// END: Outputs
 

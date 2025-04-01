@@ -23,14 +23,22 @@ extension kubernetes with {
 // BEGIN: Key vaults
 
 resource kv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
-//@[9:12) [no-unused-existing-resources (Warning)] Existing resource "kv1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-existing-resources) |kv1|
+//@[09:12) [no-unused-existing-resources (Warning)] Existing resource "kv1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-existing-resources) |kv1|
   name: 'kv1'
 }
 
 resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
-//@[9:18) [no-unused-existing-resources (Warning)] Existing resource "scopedKv1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-existing-resources) |scopedKv1|
+//@[09:18) [no-unused-existing-resources (Warning)] Existing resource "scopedKv1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-existing-resources) |scopedKv1|
   name: 'scopedKv1'
   scope: resourceGroup('otherGroup')
+}
+
+resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
+//@[23:53) [BCP081 (Warning)] Resource type "My.Rp/TestType@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'az:My.Rp/TestType@2020-01-01'|
+  name: k8s.config.namespace
+  properties: {
+    secret: k8s.config.kubeConfig
+  }
 }
 
 // END: Key vaults
@@ -109,4 +117,13 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 // }
 
 // END: Extension configs for modules
+
+// BEGIN: Outputs
+
+output k8sConfig object = k8s.config
+//@[17:23) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
+
+output k8sNamespace string = k8s.config.namespace
+
+// END: Outputs
 

@@ -11,7 +11,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5608072594600283329"
+      "templateHash": "548968234412626937"
     }
   },
   "parameters": {
@@ -54,6 +54,14 @@
       "apiVersion": "2019-09-01",
       "resourceGroup": "otherGroup",
       "name": "scopedKv1"
+    },
+    "testResource1": {
+      "type": "My.Rp/TestType",
+      "apiVersion": "2020-01-01",
+      "name": "[extensionConfigs('k8s').namespace]",
+      "properties": {
+        "secret": "[extensionConfigs('k8s').kubeConfig]"
+      }
     },
     "moduleWithExtsWithAliases": {
       "type": "Microsoft.Resources/deployments",
@@ -314,6 +322,16 @@
           "resources": {}
         }
       }
+    }
+  },
+  "outputs": {
+    "k8sConfig": {
+      "type": "object",
+      "value": "[extensionConfigs('k8s')]"
+    },
+    "k8sNamespace": {
+      "type": "string",
+      "value": "[extensionConfigs('k8s').namespace]"
     }
   }
 }

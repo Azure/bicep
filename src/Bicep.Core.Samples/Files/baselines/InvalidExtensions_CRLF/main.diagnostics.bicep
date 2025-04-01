@@ -66,3 +66,11 @@ module moduleComplexKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.
 
 // END: Extension configs for modules
 
+// BEGIN: Outputs
+
+output k8sNamespace object = k8s // This is a namespace type
+//@[20:026) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
+//@[29:032) [BCP033 (Error)] Expected a value of type "object" but the provided value is of type "k8s". (bicep https://aka.ms/bicep/core-diagnostics#BCP033) |k8s|
+
+// END: Outputs
+

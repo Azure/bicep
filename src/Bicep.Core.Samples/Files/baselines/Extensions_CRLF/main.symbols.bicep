@@ -37,6 +37,14 @@ resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
   scope: resourceGroup('otherGroup')
 }
 
+resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
+//@[9:22) Resource testResource1. Type: My.Rp/TestType@2020-01-01. Declaration start char: 0, length: 147
+  name: k8s.config.namespace
+  properties: {
+    secret: k8s.config.kubeConfig
+  }
+}
+
 // END: Key vaults
 
 // BEGIN: Extension configs for modules
@@ -118,4 +126,14 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 // }
 
 // END: Extension configs for modules
+
+// BEGIN: Outputs
+
+output k8sConfig object = k8s.config
+//@[7:16) Output k8sConfig. Type: object. Declaration start char: 0, length: 36
+
+output k8sNamespace string = k8s.config.namespace
+//@[7:19) Output k8sNamespace. Type: string. Declaration start char: 0, length: 49
+
+// END: Outputs
 

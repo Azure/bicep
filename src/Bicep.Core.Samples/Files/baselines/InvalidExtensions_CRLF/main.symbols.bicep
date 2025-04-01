@@ -66,3 +66,10 @@ module moduleComplexKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.
 
 // END: Extension configs for modules
 
+// BEGIN: Outputs
+
+output k8sNamespace object = k8s // This is a namespace type
+//@[7:19) Output k8sNamespace. Type: object. Declaration start char: 0, length: 32
+
+// END: Outputs
+
