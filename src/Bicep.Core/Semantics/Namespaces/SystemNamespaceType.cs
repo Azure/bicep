@@ -1110,7 +1110,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
                         .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.")
                         .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.")
-                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputArmFunctionName, exp.Parameters))
+                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, exp.Parameters))
                         .WithReturnResultBuilder((model, diagnostics, functionCall, argumentTypes) =>
                         {
                             var visitor = new CompileTimeConstantVisitor(diagnostics);

@@ -16,15 +16,15 @@ public sealed class ExternalInputFunctionReferenceVisitor : AstVisitor
     private readonly SemanticModel semanticModel;
     private ParameterAssignmentSyntax? targetParameterAssignment;
     private VariableDeclarationSyntax? targetVariableDeclaration;
-    private readonly ImmutableHashSet<ParameterAssignmentSyntax>.Builder parametersContainingExternalInput;
-    private readonly ImmutableHashSet<VariableDeclarationSyntax>.Builder variablesContainingExternalInput;
-    private readonly ImmutableDictionary<FunctionCallSyntax, int>.Builder externalInputReferences;
+    private readonly ImmutableHashSet<ParameterAssignmentSymbol>.Builder parametersContainingExternalInput;
+    private readonly ImmutableHashSet<VariableSymbol>.Builder variablesContainingExternalInput;
+    private readonly ImmutableDictionary<FunctionCallSyntaxBase, int>.Builder externalInputReferences;
     private ExternalInputFunctionReferenceVisitor(SemanticModel semanticModel)
     {
         this.semanticModel = semanticModel;
-        this.externalInputReferences = ImmutableDictionary.CreateBuilder<FunctionCallSyntax, int>();
-        this.parametersContainingExternalInput = ImmutableHashSet.CreateBuilder<ParameterAssignmentSyntax>();
-        this.variablesContainingExternalInput = ImmutableHashSet.CreateBuilder<VariableDeclarationSyntax>();
+        this.externalInputReferences = ImmutableDictionary.CreateBuilder<FunctionCallSyntaxBase, int>();
+        this.parametersContainingExternalInput = ImmutableHashSet.CreateBuilder<ParameterAssignmentSymbol>();
+        this.variablesContainingExternalInput = ImmutableHashSet.CreateBuilder<VariableSymbol>();
     }
 
     public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
@@ -53,21 +53,14 @@ public sealed class ExternalInputFunctionReferenceVisitor : AstVisitor
 
     public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
     {
-        if (string.Equals(syntax.Name.IdentifierName, LanguageConstants.ExternalInputBicepFunctionName, LanguageConstants.IdentifierComparison))
-        {
-            this.externalInputReferences.TryAdd(syntax, this.externalInputReferences.Count);
-            if (this.targetParameterAssignment is not null)
-            {
-                this.parametersContainingExternalInput.Add(this.targetParameterAssignment);
-            }
-            
-            if (this.targetVariableDeclaration is not null)
-            {
-                this.variablesContainingExternalInput.Add(this.targetVariableDeclaration);
-            }
-        }
-
+        VisitFunctionCallSyntaxInternal(syntax);
         base.VisitFunctionCallSyntax(syntax);
+    }
+
+    public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
+    {
+        VisitFunctionCallSyntaxInternal(syntax);
+        base.VisitInstanceFunctionCallSyntax(syntax);
     }
 
     public static ExternalInputReferences CollectExternalInputReferences(SemanticModel model)
@@ -94,13 +87,42 @@ public sealed class ExternalInputFunctionReferenceVisitor : AstVisitor
             ExternalInputIndexMap: visitor.externalInputReferences.ToImmutable()
         );
     }
+
+    private void VisitFunctionCallSyntaxInternal(FunctionCallSyntaxBase functionCallSyntax)
+    {
+        if (SemanticModelHelper.TryGetNamedFunction(
+                semanticModel, 
+                SystemNamespaceType.BuiltInName, 
+                LanguageConstants.ExternalInputBicepFunctionName, 
+                functionCallSyntax) is { } functionCall)
+        {
+            this.externalInputReferences.TryAdd(functionCall, this.externalInputReferences.Count);
+            if (this.targetParameterAssignment is not null)
+            {
+                var symbol = semanticModel.GetSymbolInfo(this.targetParameterAssignment);
+                if (symbol is ParameterAssignmentSymbol parameterAssignmentSymbol)
+                {
+                    this.parametersContainingExternalInput.Add(parameterAssignmentSymbol);
+                }
+            }
+            
+            if (this.targetVariableDeclaration is not null)
+            {
+                var symbol = semanticModel.GetSymbolInfo(this.targetVariableDeclaration);
+                if (symbol is VariableSymbol variableSymbol)
+                {
+                    this.variablesContainingExternalInput.Add(variableSymbol);
+                }
+            }
+        }
+    }
 }
 
 public record ExternalInputReferences(
     // parameters that contain external input function calls
-    ImmutableHashSet<ParameterAssignmentSyntax> ParametersReferences,
+    ImmutableHashSet<ParameterAssignmentSymbol> ParametersReferences,
     // variables that contain external input function calls
-    ImmutableHashSet<VariableDeclarationSyntax> VariablesReferences,
+    ImmutableHashSet<VariableSymbol> VariablesReferences,
     // map of external input function calls to unique indexes to be used to construct externalInput definition in parameters.json
-    ImmutableDictionary<FunctionCallSyntax, int> ExternalInputIndexMap
+    ImmutableDictionary<FunctionCallSyntaxBase, int> ExternalInputIndexMap
 );

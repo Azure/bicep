@@ -186,7 +186,7 @@ public class ParameterAssignmentEvaluator
 
                 var intermediate = converter.ConvertToIntermediateExpression(declaringParam.Value);
 
-                if (this.externalInputReferences.ParametersReferences.Contains(declaringParam))
+                if (this.externalInputReferences.ParametersReferences.Contains(parameter))
                 {
                     var rewrittenExpression = ExternalInputExpressionRewriter
                         .Rewrite(intermediate, this.externalInputReferences);
@@ -440,26 +440,24 @@ public class ParameterAssignmentEvaluator
             this.externalInputReferences = externalInputReferences;
         }
 
-
         public static Expression Rewrite(
             Expression expression,
             ExternalInputReferences externalInputReferences)
         {
             var visitor = new ExternalInputExpressionRewriter(externalInputReferences);
             var rewritten = visitor.Replace(expression);
-
             return rewritten;
         }
 
         public override Expression ReplaceFunctionCallExpression(FunctionCallExpression expression)
         {
-            if (string.Equals(expression.Name, LanguageConstants.ExternalInputArmFunctionName, LanguageConstants.IdentifierComparison) && 
-                expression.SourceSyntax is FunctionCallSyntax functionCallSyntax &&
+            if (LanguageConstants.IdentifierComparer.Equals(expression.Name, LanguageConstants.ExternalInputsArmFunctionName) && 
+                expression.SourceSyntax is FunctionCallSyntaxBase functionCallSyntax &&
                 externalInputReferences.ExternalInputIndexMap.TryGetValue(functionCallSyntax, out var index))
             {
                 return new FunctionCallExpression(
-                    null,
-                    LanguageConstants.ExternalInputArmFunctionName,
+                    functionCallSyntax,
+                    LanguageConstants.ExternalInputsArmFunctionName,
                     [ExpressionFactory.CreateStringLiteral(index.ToString())]
                 );
             }

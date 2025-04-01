@@ -59,9 +59,9 @@ namespace Bicep.Core.Emit
             BlockSpreadInUnsupportedLocations(model, diagnostics);
             BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
 
-            var parameterEmitInfo = CalculateParameterAssignments(model, diagnostics);
+            var parameterAssignments = CalculateParameterAssignments(model, diagnostics);
 
-            return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, parameterEmitInfo);
+            return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, parameterAssignments);
         }
 
         private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)

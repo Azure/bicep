@@ -12,8 +12,6 @@ namespace Bicep.Core.Emit;
 
 public record ParameterAssignmentValue(JToken? Value, Expression? Expression, ParameterKeyVaultReferenceExpression? KeyVaultReferenceExpression);
 
-public record ExternalInputDefinition(JToken Type, JToken? Options);
-
 public record EmitLimitationInfo(
     IReadOnlyList<IDiagnostic> Diagnostics,
     ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> ModuleScopeData,
