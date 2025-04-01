@@ -29,28 +29,7 @@ public class SecureOutputsTests
     public TestContext? TestContext { get; set; }
 
     [TestMethod]
-    public void Test_Issue2163_Deployments_Secure_Outputs_E2E()
-    {
-        // https://github.com/Azure/bicep/issues/2163
-        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, SecureOutputsEnabled: true)),
-            ("main.bicep", @"
-                module foo 'foo.bicep' = {
-                  name: 'foo'
-                }
- 
-                output myOutput string = foo.outputs.secureOutput
-            "),
-            ("foo.bicep", @"
-                @secure()
-                output secureOutput string = '***secret***'
-            ")
-        );
-
-        result.Diagnostics.Should().NotHaveAnyDiagnostics();
-    }
-
-    [TestMethod]
-    public void Test_Issue2163_Deployments_Secure_Outputs_Expect_Error_SecureOutputsNotEnabled()
+    public void Test_Deployments_Secure_Outputs_Expect_No_Error()
     {
         // https://github.com/Azure/bicep/issues/2163
         var result = CompilationHelper.Compile(
@@ -75,18 +54,54 @@ public class SecureOutputsTests
                 output myOutput string = myInput
             ")
         );
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
-            ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
-            ("BCP129", DiagnosticLevel.Error, "Function \"secure\" cannot be used as an output decorator.")
-        });
+        result.Diagnostics.Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
-    public void Test_Issue2163_Deployments_Secure_Outputs_Decorator_Translates_To_SecureString_And_SecureObject()
+    public void Test_Deployments_Secure_Outputs_Expect_Error()
+    {
+        // Test implicit secure value.
+        var result = CompilationHelper.Compile(
+            ("main.bicep", @"
+                @secure()
+                param myInput string
+
+                output myOutput string = myInput
+            ")
+        );
+        result.Diagnostics.Should().ContainDiagnostic("outputs-should-not-contain-secrets", DiagnosticLevel.Warning, "Outputs should not contain secrets. Found possible secret: secure value 'myInput'");
+
+        // Test referencing sub-module secure output value.
+        result = CompilationHelper.Compile(
+            ("main.bicep", @"
+                @secure()
+                param myInput string
+ 
+                module foo 'foo.bicep' = {
+                  name: 'foo'
+                  params: {
+                    myInput : myInput
+                  }
+                }
+
+                output myOutput string = foo.outputs.myOutput
+            "),
+            ("foo.bicep", @"
+                @secure()
+                param myInput string
+
+                @secure()
+                output myOutput string = myInput
+            ")
+        );
+        result.Diagnostics.Should().ContainDiagnostic("outputs-should-not-contain-secrets", DiagnosticLevel.Warning, "Outputs should not contain secrets. Found possible secret: secure value 'foo.outputs.myOutput'");
+    }
+
+    [TestMethod]
+    public void Test_Deployments_Secure_Outputs_Decorator_Translates_To_SecureString_And_SecureObject()
     {
         // https://github.com/Azure/bicep/issues/2163
-        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, SecureOutputsEnabled: true)),
+        var result = CompilationHelper.Compile(
             ("main.bicep", @"
                 @secure()
                 output secureStringOutput string = 'intern project 2024'
@@ -105,10 +120,10 @@ public class SecureOutputsTests
     }
 
     [TestMethod]
-    public void Test_Issue2163_Deployments_Secure_Outputs_Call_Correct_API()
+    public void Test_Deployments_Secure_Outputs_Call_Correct_API()
     {
         // https://github.com/Azure/bicep/issues/2163
-        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, SecureOutputsEnabled: true)),
+        var result = CompilationHelper.Compile(
             ("main.bicep", @"
                 module foo 'foo.bicep' = {
                   name: 'foo'
@@ -133,6 +148,7 @@ public class SecureOutputsTests
                 }
 
                 output outputNormalVal string = foo.outputs.normalOutput
+                @secure()
                 output outputSecureVal string = foo.outputs.secureOutput
                 output outputNormalVal2 string = bar.outputs.normalOutput
                 output outputNormalVal3 string = baz.outputs.normalOutput

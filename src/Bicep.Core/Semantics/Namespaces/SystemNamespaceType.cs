@@ -1614,7 +1614,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSecurePropertyName)
                     .WithDescription("Makes the parameter a secure parameter.")
-                    .WithFlags(featureProvider.SecureOutputsEnabled ? FunctionFlags.ParameterOutputOrTypeDecorator : FunctionFlags.ParameterOrTypeDecorator)
+                    .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                     .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
                     .WithValidator(ValidateNotTargetingAlias)
                     .WithEvaluator((functionCall, decorated) =>

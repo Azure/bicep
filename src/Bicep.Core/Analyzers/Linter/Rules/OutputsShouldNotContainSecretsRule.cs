@@ -1,10 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Reflection;
 using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
@@ -54,9 +57,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
             {
-                if (this.model.Features.SecureOutputsEnabled)
+                // If the output has a secure decorator, don't emit a diagnostic.
+                if (syntax.HasSecureDecorator)
                 {
-                    // SecureOutputs feature is enabled, so we don't need to check for secrets in outputs
                     return;
                 }
 

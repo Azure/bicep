@@ -214,15 +214,6 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Secure outputs.
-        /// </summary>
-        internal static string ExperimentalFeatureNames_SecureOutputs {
-            get {
-                return ResourceManager.GetString("ExperimentalFeatureNames_SecureOutputs", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Source mapping.
         /// </summary>
         internal static string ExperimentalFeatureNames_SourceMapping {

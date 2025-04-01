@@ -393,7 +393,6 @@ namespace Bicep.Core.UnitTests.Configuration
                 Assertions: false,
                 WaitAndRetry: false,
                 LocalDeploy: false,
-                SecureOutputs: false,
                 ResourceInfoCodegen: false,
                 TypedVariables: false,
                 ModuleExtensionConfigs: false,

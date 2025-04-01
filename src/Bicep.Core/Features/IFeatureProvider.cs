@@ -31,8 +31,6 @@ public interface IFeatureProvider
 
     bool ExtendableParamFilesEnabled { get; }
 
-    bool SecureOutputsEnabled { get; }
-
     bool ResourceInfoCodegenEnabled { get; }
 
     bool TypedVariablesEnabled { get; }
@@ -60,7 +58,6 @@ public interface IFeatureProvider
                 (AssertsEnabled, CoreResources.ExperimentalFeatureNames_Asserts, true, true),
                 (WaitAndRetryEnabled, CoreResources.ExperimentalFeatureNames_WaitAndRetry, true, false),
                 (LocalDeployEnabled, "Enable local deploy", false, false),
-                (SecureOutputsEnabled, CoreResources.ExperimentalFeatureNames_SecureOutputs, true, false),
                 (TypedVariablesEnabled, "Typed variables", true, false),
                 (ExtendableParamFilesEnabled, "Enable extendable parameters", true, false),
                 (ModuleExtensionConfigsEnabled, "Enable defining extension configs for modules", true, true),
