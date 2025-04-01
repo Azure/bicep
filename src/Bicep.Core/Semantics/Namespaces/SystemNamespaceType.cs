@@ -1810,7 +1810,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("predicate", OneParamLambda(LanguageConstants.Object, LanguageConstants.Bool), "The predicate applied to the resource.")
                     .WithRequiredParameter("maxWaitTime", LanguageConstants.String, "Maximum time used to wait until the predicate is true. Please be cautious as max wait time adds to total deployment time. It cannot be a negative value. Use [ISO 8601 duration format](https://en.wikipedia.org/wiki/ISO_8601#Durations).")
                     .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
-                    .WithEvaluator(WaitUntilEvaluator)
+                    .WithEvaluator(AddDecoratorConfigToResource)
                     .Build();
 
                     yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
@@ -1818,7 +1818,16 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("exceptionCodes", LanguageConstants.StringArray, "List of exceptions.")
                     .WithOptionalParameter("retryCount", TypeFactory.CreateIntegerType(minValue: 1), "Maximum number if retries on the exception.")
                     .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
-                    .WithEvaluator(RetryOnEvaluator)
+                    .WithEvaluator(AddDecoratorConfigToResource)
+                    .Build();
+                }
+
+                if (featureProvider.OnlyIfNotExistsEnabled)
+                {
+                    yield return new DecoratorBuilder(LanguageConstants.OnlyIfNotExistsPropertyName)
+                    .WithDescription("Causes the resource deployment to be skipped if the resource already exists")
+                    .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
+                    .WithEvaluator(AddDecoratorConfigToResource)
                     .Build();
                 }
 
@@ -2048,35 +2057,14 @@ namespace Bicep.Core.Semantics.Namespaces
                 new EmptyResourceTypeProvider());
         }
 
-        private static Expression WaitUntilEvaluator(FunctionCallExpression functionCall, Expression decorated)
+        private static Expression AddDecoratorConfigToResource(FunctionCallExpression functionCall, Expression decorated)
         {
             if (decorated is DeclaredResourceExpression declaredResourceExpression)
             {
-                var waitUntilParameters = ImmutableArray.Create<Expression>(
-                                functionCall.Parameters[0],
-                                functionCall.Parameters[1]
-                        );
-                return declaredResourceExpression with { WaitUntil = new ArrayExpression(null, waitUntilParameters) };
-            }
-
-            return decorated;
-        }
-
-        private static Expression RetryOnEvaluator(FunctionCallExpression functionCall, Expression decorated)
-        {
-            if (decorated is DeclaredResourceExpression declaredResourceExpression)
-            {
-                var retryOnParameters = new List<Expression>
-                        {
-                                functionCall.Parameters[0]
-                        };
-                if (functionCall.Parameters.Length > 1)
+                return declaredResourceExpression with
                 {
-                    retryOnParameters.Add(
-                            functionCall.Parameters[1]
-                    );
-                }
-                return declaredResourceExpression with { RetryOn = new ArrayExpression(null, [.. retryOnParameters]) };
+                    DecoratorConfig = declaredResourceExpression.DecoratorConfig.Add(functionCall.Name, new ArrayExpression(functionCall.SourceSyntax, functionCall.Parameters))
+                };
             }
             return decorated;
         }

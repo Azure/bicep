@@ -542,4 +542,7 @@
   <data name="ExperimentalFeatureNames_SecureOutputs" xml:space="preserve">
     <value>Secure outputs</value>
   </data>
+  <data name="ExperimentalFeatureNames_OnlyIfNotExists" xml:space="preserve">
+    <value>Enable OnlyIfNotExists feature</value>
+  </data>
 </root>

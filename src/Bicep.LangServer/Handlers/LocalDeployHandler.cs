@@ -4,8 +4,10 @@
 using System.Collections.Immutable;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Core.ErrorResponses;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.LanguageServer.CompilationManager;
@@ -47,12 +49,16 @@ public record LocalDeployResponse(
 public class LocalDeployHandler : IJsonRpcRequestHandler<LocalDeployRequest, LocalDeployResponse>
 {
     private readonly IModuleDispatcher moduleDispatcher;
+    private readonly IConfigurationManager configurationManager;
+    private readonly ITokenCredentialFactory credentialFactory;
     private readonly ICompilationManager compilationManager;
     private readonly ILanguageServerFacade server;
 
-    public LocalDeployHandler(IModuleDispatcher moduleDispatcher, ICompilationManager compilationManager, ILanguageServerFacade server)
+    public LocalDeployHandler(IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, ITokenCredentialFactory credentialFactory, ICompilationManager compilationManager, ILanguageServerFacade server)
     {
         this.moduleDispatcher = moduleDispatcher;
+        this.configurationManager = configurationManager;
+        this.credentialFactory = credentialFactory;
         this.compilationManager = compilationManager;
         this.server = server;
     }
@@ -81,7 +87,7 @@ public class LocalDeployHandler : IJsonRpcRequestHandler<LocalDeployRequest, Loc
                 throw new InvalidOperationException("Bicep file had errors.");
             }
 
-            await using LocalExtensibilityHostManager extensibilityHandler = new(moduleDispatcher, GrpcBuiltInLocalExtension.Start);
+            await using LocalExtensibilityHostManager extensibilityHandler = new(moduleDispatcher, configurationManager, credentialFactory, GrpcBuiltInLocalExtension.Start);
             await extensibilityHandler.InitializeExtensions(context.Compilation);
 
             var result = await LocalDeployment.Deploy(extensibilityHandler, templateString, parametersString, cancellationToken);
@@ -101,7 +107,7 @@ public class LocalDeployHandler : IJsonRpcRequestHandler<LocalDeployRequest, Loc
     private static LocalDeploymentOperationContent FromOperation(DeploymentOperationDefinition operation)
     {
         var result = operation.Properties.StatusMessage.TryFromJToken<OperationResult>();
-        var error = result?.Error?.Message.TryFromJson<ErrorResponseMessage>()?.Error;
+        var error = result?.Error?.Message.TryFromJson<ErrorResponseMessage>()?.Error ?? result?.Error;
         var operationError = error is { } ? new LocalDeploymentOperationError(error.Code, error.Message, error.Target) : null;
 
         return new LocalDeploymentOperationContent(
