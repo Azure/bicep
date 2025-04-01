@@ -39,3 +39,9 @@ param second = externalInput('custom.binding', {
 })
 param result = '${first} combined with ${second}'
 
+// instance function call
+param myParam = sys.externalInput('sys.cli', 'myParam')
+
+// check sanitized externaInputDefinition
+param coolParam = externalInput('sys&sons.cool#param provider')
+

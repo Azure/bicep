@@ -246,7 +246,29 @@ invalid file
     }
 
     [TestMethod]
-    public void ExternalInput_assigned_to_parameter()
+    public void ExternalInput_assigned_to_parameter_without_config()
+    {
+        var result = CompilationHelper.CompileParams(
+            ServicesWithExternalInputFunctionEnabled,
+("parameters.bicepparam", @"
+using none
+param foo = externalInput('my.param.provider')
+"));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["foo"].Value.Should().BeNull();
+        parameters["foo"].Expression.Should().DeepEqual("""[externalInputs('my_param_provider_0')]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["my_param_provider_0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "my.param.provider",
+        });
+    }
+
+    [TestMethod]
+    public void ExternalInput_assigned_to_parameter_with_config()
     {
         var result = CompilationHelper.CompileParams(
             ServicesWithExternalInputFunctionEnabled,
@@ -258,10 +280,10 @@ param foo = externalInput('sys.cli', 'foo')
         result.Should().NotHaveAnyDiagnostics();
         var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
         parameters["foo"].Value.Should().BeNull();
-        parameters["foo"].Expression.Should().DeepEqual("""[externalInputs('0')]""");
+        parameters["foo"].Expression.Should().DeepEqual("""[externalInputs('sys_cli_0')]""");
 
         var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
-        externalInputs["0"].Should().DeepEqual(new JObject
+        externalInputs["sys_cli_0"].Should().DeepEqual(new JObject
         {
             ["kind"] = "sys.cli",
             ["options"] = "foo",

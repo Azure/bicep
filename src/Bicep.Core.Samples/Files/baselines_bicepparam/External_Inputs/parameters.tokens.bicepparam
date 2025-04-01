@@ -221,6 +221,34 @@ param result = '${first} combined with ${second}'
 //@[23:41) StringMiddlePiece |} combined with ${|
 //@[41:47) Identifier |second|
 //@[47:49) StringRightPiece |}'|
-//@[49:51) NewLine |\r\n|
+//@[49:53) NewLine |\r\n\r\n|
+
+// instance function call
+//@[25:27) NewLine |\r\n|
+param myParam = sys.externalInput('sys.cli', 'myParam')
+//@[00:05) Identifier |param|
+//@[06:13) Identifier |myParam|
+//@[14:15) Assignment |=|
+//@[16:19) Identifier |sys|
+//@[19:20) Dot |.|
+//@[20:33) Identifier |externalInput|
+//@[33:34) LeftParen |(|
+//@[34:43) StringComplete |'sys.cli'|
+//@[43:44) Comma |,|
+//@[45:54) StringComplete |'myParam'|
+//@[54:55) RightParen |)|
+//@[55:59) NewLine |\r\n\r\n|
+
+// check sanitized externaInputDefinition
+//@[41:43) NewLine |\r\n|
+param coolParam = externalInput('sys&sons.cool#param provider')
+//@[00:05) Identifier |param|
+//@[06:15) Identifier |coolParam|
+//@[16:17) Assignment |=|
+//@[18:31) Identifier |externalInput|
+//@[31:32) LeftParen |(|
+//@[32:62) StringComplete |'sys&sons.cool#param provider'|
+//@[62:63) RightParen |)|
+//@[63:65) NewLine |\r\n|
 
 //@[00:00) EndOfFile ||

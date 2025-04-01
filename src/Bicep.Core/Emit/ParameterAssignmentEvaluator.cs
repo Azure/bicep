@@ -5,10 +5,8 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using Azure.Deployments.Core.Definitions.Schema;
-using Azure.Deployments.Core.Diagnostics;
 using Azure.Deployments.Core.ErrorResponses;
 using Azure.Deployments.Expression.Expressions;
-using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Expressions;
 using Azure.Deployments.Templates.Extensions;
 using Bicep.Core.ArmHelpers;
@@ -453,12 +451,12 @@ public class ParameterAssignmentEvaluator
         {
             if (LanguageConstants.IdentifierComparer.Equals(expression.Name, LanguageConstants.ExternalInputsArmFunctionName) && 
                 expression.SourceSyntax is FunctionCallSyntaxBase functionCallSyntax &&
-                externalInputReferences.ExternalInputIndexMap.TryGetValue(functionCallSyntax, out var index))
+                externalInputReferences.ExternalInputIndexMap.TryGetValue(functionCallSyntax, out var definitionKey))
             {
                 return new FunctionCallExpression(
                     functionCallSyntax,
                     LanguageConstants.ExternalInputsArmFunctionName,
-                    [ExpressionFactory.CreateStringLiteral(index.ToString())]
+                    [ExpressionFactory.CreateStringLiteral(definitionKey)]
                 );
             }
 

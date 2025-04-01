@@ -1,5 +1,5 @@
 using none
-//@[00:1077) ProgramSyntax
+//@[00:1273) ProgramSyntax
 //@[00:0010) ├─UsingDeclarationSyntax
 //@[00:0005) | ├─Token(Identifier) |using|
 //@[06:0010) | └─NoneLiteralSyntax
@@ -360,6 +360,50 @@ param result = '${first} combined with ${second}'
 //@[41:0047) |   | └─IdentifierSyntax
 //@[41:0047) |   |   └─Token(Identifier) |second|
 //@[47:0049) |   └─Token(StringRightPiece) |}'|
-//@[49:0051) ├─Token(NewLine) |\r\n|
+//@[49:0053) ├─Token(NewLine) |\r\n\r\n|
+
+// instance function call
+//@[25:0027) ├─Token(NewLine) |\r\n|
+param myParam = sys.externalInput('sys.cli', 'myParam')
+//@[00:0055) ├─ParameterAssignmentSyntax
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0013) | ├─IdentifierSyntax
+//@[06:0013) | | └─Token(Identifier) |myParam|
+//@[14:0015) | ├─Token(Assignment) |=|
+//@[16:0055) | └─InstanceFunctionCallSyntax
+//@[16:0019) |   ├─VariableAccessSyntax
+//@[16:0019) |   | └─IdentifierSyntax
+//@[16:0019) |   |   └─Token(Identifier) |sys|
+//@[19:0020) |   ├─Token(Dot) |.|
+//@[20:0033) |   ├─IdentifierSyntax
+//@[20:0033) |   | └─Token(Identifier) |externalInput|
+//@[33:0034) |   ├─Token(LeftParen) |(|
+//@[34:0043) |   ├─FunctionArgumentSyntax
+//@[34:0043) |   | └─StringSyntax
+//@[34:0043) |   |   └─Token(StringComplete) |'sys.cli'|
+//@[43:0044) |   ├─Token(Comma) |,|
+//@[45:0054) |   ├─FunctionArgumentSyntax
+//@[45:0054) |   | └─StringSyntax
+//@[45:0054) |   |   └─Token(StringComplete) |'myParam'|
+//@[54:0055) |   └─Token(RightParen) |)|
+//@[55:0059) ├─Token(NewLine) |\r\n\r\n|
+
+// check sanitized externaInputDefinition
+//@[41:0043) ├─Token(NewLine) |\r\n|
+param coolParam = externalInput('sys&sons.cool#param provider')
+//@[00:0063) ├─ParameterAssignmentSyntax
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0015) | ├─IdentifierSyntax
+//@[06:0015) | | └─Token(Identifier) |coolParam|
+//@[16:0017) | ├─Token(Assignment) |=|
+//@[18:0063) | └─FunctionCallSyntax
+//@[18:0031) |   ├─IdentifierSyntax
+//@[18:0031) |   | └─Token(Identifier) |externalInput|
+//@[31:0032) |   ├─Token(LeftParen) |(|
+//@[32:0062) |   ├─FunctionArgumentSyntax
+//@[32:0062) |   | └─StringSyntax
+//@[32:0062) |   |   └─Token(StringComplete) |'sys&sons.cool#param provider'|
+//@[62:0063) |   └─Token(RightParen) |)|
+//@[63:0065) ├─Token(NewLine) |\r\n|
 
 //@[00:0000) └─Token(EndOfFile) ||

@@ -56,3 +56,11 @@ param second = externalInput('custom.binding', {
 param result = '${first} combined with ${second}'
 //@[6:12) ParameterAssignment result. Type: string. Declaration start char: 0, length: 49
 
+// instance function call
+param myParam = sys.externalInput('sys.cli', 'myParam')
+//@[6:13) ParameterAssignment myParam. Type: any. Declaration start char: 0, length: 55
+
+// check sanitized externaInputDefinition
+param coolParam = externalInput('sys&sons.cool#param provider')
+//@[6:15) ParameterAssignment coolParam. Type: any. Declaration start char: 0, length: 63
+

@@ -3,8 +3,8 @@
 
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit;
@@ -64,21 +64,7 @@ public class ParametersJsonWriter
         if (this.Context.SemanticModel.Root.ParameterAssignments.Length > 0 &&
             this.Context.ExternalInputReferences.ExternalInputIndexMap.Count > 0)
         {
-            emitter.EmitObjectProperty("externalInputDefinitions", () =>
-            {
-                foreach (var reference in this.Context.ExternalInputReferences.ExternalInputIndexMap)
-                {
-                    var functionCall = reference.Key;
-                    var index = reference.Value;
-
-                    var expression = (FunctionCallExpression)ExpressionBuilder.Convert(functionCall);
-                    emitter.EmitObjectProperty(index.ToString(), () =>
-                    {
-                        emitter.EmitProperty("kind", expression.Parameters[0]);
-                        emitter.EmitProperty("options", expression.Parameters[1]);
-                    });
-                }
-            });
+            WriteExternalInputDefinitions(emitter, this.Context.ExternalInputReferences.ExternalInputIndexMap);
         }
 
         if (this.Context.SemanticModel.Features is { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true })
@@ -90,6 +76,26 @@ public class ParametersJsonWriter
 
         var content = jsonWriter.ToString();
         return content.FromJson<JToken>();
+    }
+
+    private void WriteExternalInputDefinitions(ExpressionEmitter emitter, IDictionary<FunctionCallSyntaxBase, string> externalInputIndexMap)
+    {
+        emitter.EmitObjectProperty("externalInputDefinitions", () =>
+        {
+            foreach (var reference in externalInputIndexMap)
+            {
+                var expression = (FunctionCallExpression)ExpressionBuilder.Convert(reference.Key);
+
+                emitter.EmitObjectProperty(reference.Value, () =>
+                {
+                    emitter.EmitProperty("kind", expression.Parameters[0]);
+                    if (expression.Parameters.Length > 1)
+                    {
+                        emitter.EmitProperty("options", expression.Parameters[1]);
+                    }
+                });
+            }
+        });
     }
 
     private static void WriteKeyVaultReference(ExpressionEmitter emitter, ParameterKeyVaultReferenceExpression keyVaultReference)
