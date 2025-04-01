@@ -57,9 +57,9 @@ namespace Bicep.Core.Emit
             BlockSpreadInUnsupportedLocations(model, diagnostics);
             BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
 
-            var parameterAssignments = CalculateParameterAssignments(model, diagnostics);
+            var paramAssignments = CalculateParameterAssignments(model, diagnostics);
 
-            return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, parameterAssignments);
+            return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments);
         }
 
         private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
@@ -604,7 +604,6 @@ namespace Bicep.Core.Emit
                 return ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue>.Empty;
             }
 
-
             var referencesInValues = model.Binder.Bindings.Values.OfType<DeclaredSymbol>().Distinct()
                 .ToImmutableDictionary(p => p, p => SymbolicReferenceCollector.CollectSymbolsReferenced(model.Binder, p.DeclaringSyntax));
             var generated = ImmutableDictionary.CreateBuilder<ParameterAssignmentSymbol, ParameterAssignmentValue>();
@@ -630,7 +629,6 @@ namespace Bicep.Core.Emit
             }
 
             var evaluator = new ParameterAssignmentEvaluator(model);
-                
             HashSet<Symbol> erroredSymbols = new();
 
             foreach (var symbol in GetTopologicallySortedSymbols(referencesInValues))
@@ -675,7 +673,6 @@ namespace Bicep.Core.Emit
                 {
                     continue;
                 }
-        
                 // We may emit duplicate errors here - type checking will also execute some ARM functions and generate errors
                 // This is something we should improve before the first release.
                 var result = evaluator.EvaluateParameter(parameter);

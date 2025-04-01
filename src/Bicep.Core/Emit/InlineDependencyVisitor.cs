@@ -23,6 +23,7 @@ namespace Bicep.Core.Emit
         private readonly IDictionary<VariableSymbol, Decision> shouldInlineCache;
 
         private VariableSymbol? currentDeclaration;
+
         // the following variables are only used when processing a single variable
         private readonly VariableDeclarationSyntax? targetVariable;
         private ImmutableStack<string>? currentStack;
@@ -34,6 +35,7 @@ namespace Bicep.Core.Emit
             this.shouldInlineCache = new Dictionary<VariableSymbol, Decision>();
             this.targetVariable = targetVariable;
             this.currentDeclaration = null;
+            
             if (targetVariable is not null)
             {
                 // the functionality 
