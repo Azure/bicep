@@ -114,7 +114,9 @@ namespace Bicep.Core.Emit
             if (Context.Settings.UseExperimentalTemplateLanguageVersion)
             {
                 if (Context.SemanticModel.TargetScope == ResourceScope.Local ||
-                    Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
+                    Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled ||
+                    Context.SemanticModel.Features.OnlyIfNotExistsEnabled ||
+                    Context.SemanticModel.Features.WaitAndRetryEnabled)
                 {
                     emitter.EmitProperty(LanguageVersionPropertyName, "2.2-experimental");
                 }
@@ -1264,35 +1266,22 @@ namespace Bicep.Core.Emit
                     }
                 }
 
-                // Emit the options property
-                if (resource.RetryOn is not null || resource.WaitUntil is not null)
+                // Emit the options property if there are entries in the DecoratorConfig dictionary
+                if (resource.DecoratorConfig.Count > 0)
                 {
                     emitter.EmitObjectProperty("@options", () =>
                     {
-                        if (resource.RetryOn is not null)
+                        foreach (var (name, items) in resource.DecoratorConfig)
                         {
-                            emitter.EmitArrayProperty("retryOn", () =>
+                            emitter.EmitArrayProperty(name, () =>
                             {
-                                foreach (var item in resource.RetryOn.Items)
+                                foreach (var item in items.Items)
                                 {
                                     emitter.EmitExpression(item);
                                 }
                             });
                         }
-
-                        if (resource.WaitUntil is not null)
-                        {
-                            emitter.EmitArrayProperty("waitUntil", () =>
-                            {
-                                foreach (var item in resource.WaitUntil.Items)
-                                {
-                                    emitter.EmitExpression(item);
-                                }
-                            });
-                        }
-
                     });
-
                 }
 
                 if (metadata.IsAzResource ||

@@ -38,6 +38,19 @@ Enables Bicep to run deployments locally, so that you can run Bicep extensions w
 Moves defining extension configurations to the module level rather than from within a template. The feature also
 includes enhancements for Deployment stacks extensibility integration. This feature is not ready for use.
 
+### `onlyIfNotExists`
+The feature introduces the onlyIfNotExists decorator on a resource. The decorator will only deploy the resource if it does not exist. (Note: This feature will not work until the backend service support has been deployed)
+```
+@onlyIfNotExists()
+resource onlyDeployIfNotExists 'Microsoft...' = {
+  name: 'example'
+  location: 'eastus'
+  properties: {
+    ...
+  }
+}
+```
+
 ### `resourceDerivedTypes`
 
 If enabled, templates can reuse resource types wherever a type is expected. For example, to declare a parameter `foo` that should be usable as the name of an Azure Storage account, the following syntax would be used: `param foo resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.name`. **NB:** Because resource types may be inaccurate in some cases, no constraints other than the ARM type primitive will be enforced on resource derived types within the ARM deployment engine. Resource-derived types will be checked by Bicep at compile time, but violations will be emitted as warnings rather than errors.

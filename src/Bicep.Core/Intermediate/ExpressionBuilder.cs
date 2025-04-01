@@ -713,7 +713,8 @@ public class ExpressionBuilder
             Context.ResourceScopeData[resource],
             body,
             bodyExpression,
-            BuildDependencyExpressions(resource.Symbol, body));
+            BuildDependencyExpressions(resource.Symbol, body),
+            ImmutableDictionary<string, ArrayExpression>.Empty);
     }
 
     private Expression ConvertArray(ArraySyntax array)

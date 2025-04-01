@@ -847,6 +847,10 @@
         "desiredStateConfiguration": {
           "type": "boolean",
           "description": "Allows you to author Desired State Configuration documents using the target scope 'dsc'. See https://aka.ms/bicep/experimental-features#desiredstateconfiguration"
+        },
+        "onlyIfNotExists": {
+          "type": "boolean",
+          "description": "If enabled, you can use the 'onlyIfNotExists' property on resources. See https://aka.ms/bicep/experimental-features#onlyifnotexists"
         }
       },
       "additionalProperties": false
