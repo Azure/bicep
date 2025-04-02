@@ -291,6 +291,89 @@ param foo = externalInput('sys.cli', 'foo')
     }
 
     [TestMethod]
+    public void ExternalInput_parameter_with_variable_references()
+    {
+        var result = CompilationHelper.CompileParams(
+            ServicesWithExternalInputFunctionEnabled,
+("parameters.bicepparam", @"
+using none
+var foo = externalInput('sys.cli', 'foo')
+var foo2 = '${foo}-${externalInput('sys.cli', 'foo2')}'
+param foo3 = foo2
+"));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["foo3"].Value.Should().BeNull();
+        parameters["foo3"].Expression.Should().DeepEqual("""[format('{0}-{1}', externalInputs('sys_cli_0'), externalInputs('sys_cli_1'))]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["sys_cli_0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["options"] = "foo",
+        });
+        externalInputs["sys_cli_1"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["options"] = "foo2",
+        });
+    }
+
+    [TestMethod]
+    public void ExternalInput_parameter_with_param_references()
+    {
+        var result = CompilationHelper.CompileParams(
+            ServicesWithExternalInputFunctionEnabled,
+("parameters.bicepparam", @"
+using none
+param foo = externalInput('sys.cli', 'foo')
+param foo2 = foo
+param foo3 = foo2
+"));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["foo"].Value.Should().BeNull();
+        parameters["foo"].Expression.Should().DeepEqual("""[externalInputs('sys_cli_0')]""");
+
+        parameters["foo2"].Value.Should().BeNull();
+        parameters["foo2"].Expression.Should().DeepEqual("""[externalInputs('sys_cli_0')]""");
+
+        parameters["foo3"].Value.Should().BeNull();
+        parameters["foo3"].Expression.Should().DeepEqual("""[externalInputs('sys_cli_0')]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["sys_cli_0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["options"] = "foo",
+        });
+    }
+
+    [TestMethod]
+    public void ExternalInput_parameter_with_cyclic_references()
+    {
+        var result = CompilationHelper.CompileParams(
+            ServicesWithExternalInputFunctionEnabled,
+("parameters.bicepparam", @"
+using none
+param a = '${b}-${externalInput('sys.cli', 'a')}'
+var b = '${c}-${a}'
+param c = b
+"));
+
+        result.Should().NotGenerateParameters();
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP062", DiagnosticLevel.Error, """The referenced declaration with name "b" is not valid."""),
+            ("BCP080", DiagnosticLevel.Error, """The expression is involved in a cycle ("c" -> "b")."""),
+            ("BCP080", DiagnosticLevel.Error, """The expression is involved in a cycle ("a" -> "b")."""),
+            ("BCP080", DiagnosticLevel.Error, """The expression is involved in a cycle ("b" -> "c")."""),
+        });
+    }
+
+    [TestMethod]
     public void ExternalInput_non_compile_time_constant_is_blocked()
     {
         var result = CompilationHelper.CompileParams(

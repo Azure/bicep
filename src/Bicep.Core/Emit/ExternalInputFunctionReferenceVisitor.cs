@@ -14,8 +14,8 @@ namespace Bicep.Core.Emit;
 public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
 {
     private readonly SemanticModel semanticModel;
-    private ParameterAssignmentSyntax? targetParameterAssignment;
-    private VariableDeclarationSyntax? targetVariableDeclaration;
+    private ParameterAssignmentSymbol? targetParameterAssignment;
+    private VariableSymbol? targetVariableDeclaration;
     private readonly ImmutableHashSet<ParameterAssignmentSymbol>.Builder parametersContainingExternalInput;
     private readonly ImmutableHashSet<VariableSymbol>.Builder variablesContainingExternalInput;
     private readonly ImmutableDictionary<FunctionCallSyntaxBase, string>.Builder externalInputReferences;
@@ -26,30 +26,6 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
         this.parametersContainingExternalInput = ImmutableHashSet.CreateBuilder<ParameterAssignmentSymbol>();
         this.variablesContainingExternalInput = ImmutableHashSet.CreateBuilder<VariableSymbol>();
     }
-
-    public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
-    {
-        var symbol = semanticModel.GetSymbolInfo(syntax);
-
-        if (symbol is DeclaredSymbol declaredSymbol && declaredSymbol.Type is ErrorType)
-        {
-            return;
-        }
-
-        switch (symbol)
-        {
-            case ParameterAssignmentSymbol parameterAssignmentSymbol:
-                Visit(parameterAssignmentSymbol.DeclaringSyntax);
-                break;
-
-            case VariableSymbol variableSymbol:
-                Visit(variableSymbol.DeclaringSyntax);
-                break;
-        }
-
-        base.VisitVariableAccessSyntax(syntax);
-    }
-
 
     public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
     {
@@ -65,21 +41,63 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
 
     public static ExternalInputReferences CollectExternalInputReferences(SemanticModel model)
     {
+        void ProcessDirectReferences(
+            ExternalInputFunctionReferenceVisitor visitor,
+            IEnumerable<DeclaredSymbol> declaredSymbols)
+        {
+            foreach (var symbol in declaredSymbols)
+            {
+                switch (symbol)
+                {
+                    case ParameterAssignmentSymbol parameterAssignment:
+                        visitor.targetParameterAssignment = parameterAssignment;
+                        parameterAssignment.DeclaringParameterAssignment.Accept(visitor);
+                        break;
+
+                    case VariableSymbol variableDeclaration:
+                        visitor.targetVariableDeclaration = variableDeclaration;
+                        variableDeclaration.DeclaringVariable.Accept(visitor);
+                        break;
+                }
+            }
+        }
+
+        void ProcessSymbolClosures(
+            ExternalInputFunctionReferenceVisitor visitor,
+            IEnumerable<DeclaredSymbol> declaredSymbols)
+        {
+            foreach (var symbol in declaredSymbols)
+            {
+                var symbolClosure = model.Binder.GetReferencedSymbolClosureFor(symbol);
+                if (visitor.parametersContainingExternalInput.Any(symbolClosure.Contains) ||
+                    visitor.variablesContainingExternalInput.Any(symbolClosure.Contains))
+                {
+                    switch (symbol)
+                    {
+                        case ParameterAssignmentSymbol parameterAssignment:
+                            visitor.parametersContainingExternalInput.Add(parameterAssignment);
+                            break;
+
+                        case VariableSymbol variableDeclaration:
+                            visitor.variablesContainingExternalInput.Add(variableDeclaration);
+                            break;
+                    }
+                }
+            }
+        }
+
         var visitor = new ExternalInputFunctionReferenceVisitor(model);
 
-        foreach (var paramAssignment in model.Root.ParameterAssignments)
-        {
-            var declaringSyntax = paramAssignment.DeclaringParameterAssignment;
-            visitor.targetParameterAssignment = declaringSyntax;
-            declaringSyntax.Accept(visitor);
-        }
+        // Process the parameter assignments and variable declarations to find any direct references
+        // to the external input function.
+        ProcessDirectReferences(visitor, model.Root.ParameterAssignments);
+        ProcessDirectReferences(visitor, model.Root.VariableDeclarations);
 
-        foreach (var variableDeclaration in model.Root.VariableDeclarations)
-        {
-            var declaringSyntax = variableDeclaration.DeclaringVariable;
-            visitor.targetVariableDeclaration = declaringSyntax;
-            declaringSyntax.Accept(visitor);
-        }
+        // Process the symbol closures to find any external input references
+        // that are not directly referenced in the parameter or variable declarations.
+        ProcessSymbolClosures(visitor, model.Root.ParameterAssignments);
+        ProcessSymbolClosures(visitor, model.Root.VariableDeclarations);
+
 
         return new ExternalInputReferences(
             ParametersReferences: visitor.parametersContainingExternalInput.ToImmutable(),
@@ -109,20 +127,12 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
 
             if (this.targetParameterAssignment is not null)
             {
-                var symbol = semanticModel.GetSymbolInfo(this.targetParameterAssignment);
-                if (symbol is ParameterAssignmentSymbol parameterAssignmentSymbol)
-                {
-                    this.parametersContainingExternalInput.Add(parameterAssignmentSymbol);
-                }
+                this.parametersContainingExternalInput.Add(this.targetParameterAssignment);
             }
             
             if (this.targetVariableDeclaration is not null)
             {
-                var symbol = semanticModel.GetSymbolInfo(this.targetVariableDeclaration);
-                if (symbol is VariableSymbol variableSymbol)
-                {
-                    this.variablesContainingExternalInput.Add(variableSymbol);
-                }
+                this.variablesContainingExternalInput.Add(this.targetVariableDeclaration);
             }
         }
     }

@@ -18,37 +18,37 @@
       "expression": "[externalInputs('custom_binding_4')]"
     },
     "varRef": {
-      "expression": "[bool(externalInputs('sys_cli_5'))]"
+      "expression": "[bool(externalInputs('sys_cli_11'))]"
     },
     "objectConfig": {
-      "expression": "[externalInputs('custom_tool_6')]"
+      "expression": "[externalInputs('custom_tool_5')]"
     },
     "c": {
-      "expression": "[externalInputs('sys_cli_7')]"
+      "expression": "[externalInputs('sys_cli_12')]"
     },
     "a1": {
-      "expression": "[externalInputs('sys_cli_8')]"
+      "expression": "[externalInputs('sys_cli_6')]"
     },
     "b1": {
-      "expression": "[externalInputs('sys_cli_8')]"
+      "expression": "[externalInputs('sys_cli_6')]"
     },
     "c1": {
-      "expression": "[externalInputs('sys_cli_8')]"
+      "expression": "[externalInputs('sys_cli_6')]"
     },
     "first": {
-      "expression": "[int(externalInputs('custom_binding_9'))]"
+      "expression": "[int(externalInputs('custom_binding_7'))]"
     },
     "second": {
-      "expression": "[externalInputs('custom_binding_10')]"
+      "expression": "[externalInputs('custom_binding_8')]"
     },
     "result": {
-      "expression": "[format('{0} combined with {1}', int(externalInputs('custom_binding_9')), externalInputs('custom_binding_10'))]"
+      "expression": "[format('{0} combined with {1}', int(externalInputs('custom_binding_7')), externalInputs('custom_binding_8'))]"
     },
     "myParam": {
-      "expression": "[externalInputs('sys_cli_11')]"
+      "expression": "[externalInputs('sys_cli_9')]"
     },
     "coolParam": {
-      "expression": "[externalInputs('sys_sons_cool_param_provider_12')]"
+      "expression": "[externalInputs('sys_sons_cool_param_provider_10')]"
     }
   },
   "externalInputDefinitions": {
@@ -56,46 +56,35 @@
       "kind": "sys.envVar",
       "options": "bar"
     },
-    "sys_cli_8": {
+    "sys_sons_cool_param_provider_10": {
+      "kind": "sys&sons.cool#param provider"
+    },
+    "sys_cli_11": {
       "kind": "sys.cli",
-      "options": "a"
+      "options": "myVar"
+    },
+    "custom_binding_7": {
+      "kind": "custom.binding",
+      "options": "__BINDING__"
+    },
+    "sys_cli_9": {
+      "kind": "sys.cli",
+      "options": "myParam"
     },
     "sys_cli_1": {
       "kind": "sys.cli",
       "options": "foo"
     },
-    "sys_cli_0": {
-      "kind": "sys.cli",
-      "options": "foo"
-    },
-    "sys_cli_7": {
-      "kind": "sys.cli",
-      "options": "a"
-    },
-    "sys_sons_cool_param_provider_12": {
-      "kind": "sys&sons.cool#param provider"
-    },
-    "sys_cli_11": {
-      "kind": "sys.cli",
-      "options": "myParam"
-    },
     "sys_cli_2": {
       "kind": "sys.cli",
       "options": "foo"
     },
-    "custom_binding_10": {
-      "kind": "custom.binding",
-      "options": {
-        "path": "/path/to/file",
-        "isSecure": true
-      }
-    },
-    "sys_cli_5": {
+    "sys_cli_6": {
       "kind": "sys.cli",
-      "options": "myVar"
+      "options": "a"
     },
-    "custom_tool_6": {
-      "kind": "custom.tool",
+    "custom_binding_8": {
+      "kind": "custom.binding",
       "options": {
         "path": "/path/to/file",
         "isSecure": true
@@ -105,9 +94,20 @@
       "kind": "custom.binding",
       "options": "__BINDING__"
     },
-    "custom_binding_9": {
-      "kind": "custom.binding",
-      "options": "__BINDING__"
+    "custom_tool_5": {
+      "kind": "custom.tool",
+      "options": {
+        "path": "/path/to/file",
+        "isSecure": true
+      }
+    },
+    "sys_cli_0": {
+      "kind": "sys.cli",
+      "options": "foo"
+    },
+    "sys_cli_12": {
+      "kind": "sys.cli",
+      "options": "a"
     }
   }
 }
