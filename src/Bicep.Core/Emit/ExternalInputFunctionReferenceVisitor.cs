@@ -97,14 +97,13 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
                 functionCallSyntax) is { } functionCall)
         {
             if (functionCallSyntax.Arguments.Length < 1 || 
-                functionCallSyntax.Arguments[0].Expression is not StringSyntax kindSyntax ||
-                kindSyntax.TryGetLiteralValue() is not { } kindValue)
+                this.semanticModel.GetTypeInfo(functionCallSyntax.Arguments[0]) is not StringLiteralType stringLiteral)
             {
-                throw new UnreachableException("The first argument of the externalInput function must be of type string.");
+                return;
             }
 
             var index = this.externalInputReferences.Count;
-            var definitionKey = GetExternalInputDefinitionName(kindValue, index);
+            var definitionKey = GetExternalInputDefinitionName(stringLiteral.RawStringValue, index);
 
             this.externalInputReferences.TryAdd(functionCall, definitionKey);
 
