@@ -321,6 +321,24 @@ param foo3 = foo2
     }
 
     [TestMethod]
+    public void No_parameters_containing_external_input_should_not_generate_external_input_definitions()
+    {
+        var result = CompilationHelper.CompileParams(
+            ServicesWithExternalInputFunctionEnabled,
+("parameters.bicepparam", @"
+using none
+param foo = 'foo'
+var baz = externalInput('sys.cli', 'baz')
+"));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["foo"].Value.Should().DeepEqual("foo");
+        parameters["foo"].Expression.Should().BeNull();
+        result.Parameters.Should().NotHaveValueAtPath("$.externalInputDefinitions");
+    }
+
+    [TestMethod]
     public void ExternalInput_parameter_with_param_references()
     {
         var result = CompilationHelper.CompileParams(
