@@ -7115,4 +7115,107 @@ var subnetId = vNet::subnets[0].id
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
+
+    [TestMethod]
+    public void Wrong_parameter_structure_to_buildUri_function_should_emit_diagnostics()
+    {
+        var result = CompilationHelper.Compile("""
+            var components = {
+              scheme: 'https'
+              host2: 'example.com'
+            }
+
+            var uri = buildUri(components)
+""");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+            [
+                ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"host\"."),
+                ("BCP089", DiagnosticLevel.Error, "The property \"host2\" is not allowed on objects of type \"parseUri\". Did you mean \"host\"?")
+            ]);
+    }
+
+    [TestMethod]
+    public void Correct_parameter_structure_to_buildUri_function_should_not_emit_diagnostics()
+    {
+        var result = CompilationHelper.Compile("""
+        var components = {
+          scheme: 'https'
+          host: 'example.com'
+        }
+
+        var uri = buildUri(components)
+""");
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Missing_scheme_in_buildUri_function_should_emit_diagnostics()
+    {
+        var result = CompilationHelper.Compile("""
+        var components = {
+          host: 'example.com'
+        }
+
+        var uri = buildUri(components)
+""");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+            [
+                ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"scheme\".")
+            ]);
+    }
+
+    [TestMethod]
+    public void Invalid_property_in_buildUri_function_should_emit_diagnostics()
+    {
+        var result = CompilationHelper.Compile("""
+        var components = {
+          scheme: 'https'
+          host: 'example.com'
+          invalidProperty: 'value'
+        }
+
+        var uri = buildUri(components)
+""");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+            [
+                ("BCP089", DiagnosticLevel.Error, "The property \"invalidProperty\" is not allowed on objects of type \"parseUri\".")
+            ]);
+    }
+
+    [TestMethod]
+    public void Empty_object_in_buildUri_function_should_emit_diagnostics()
+    {
+        var result = CompilationHelper.Compile("""
+        var components = {}
+
+        var uri = buildUri(components)
+""");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+            [
+                ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"scheme\", \"host\".")
+            ]);
+    }
+
+    [TestMethod]
+    public void Additional_properties_in_buildUri_function_should_emit_diagnostics()
+    {
+        var result = CompilationHelper.Compile("""
+        var components = {
+          scheme: 'https'
+          host: 'example.com'
+          path: '/path'
+          query: 'query=value'
+          fragment: 'section'
+        }
+
+        var uri = buildUri(components)
+""");
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
 }
