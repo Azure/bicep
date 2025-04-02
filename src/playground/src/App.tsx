@@ -74,7 +74,14 @@ export const App : React.FC<Props> = (props) => {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
     const shareLink = getShareLink(bicepContent);
-    navigator.clipboard.writeText(shareLink);
+
+    const shareHtml = `<a href="${shareLink}">View in Bicep Playground</a>`;
+    const clipboardItem = new ClipboardItem({
+        ["text/plain"]: new Blob([shareLink], { type: "text/plain" }),
+        ["text/html"]: new Blob([shareHtml], { type: "text/html" }),
+    });
+
+    navigator.clipboard.write([clipboardItem]);
   }
 
   const handleDecompileClick = (file: File) => {
