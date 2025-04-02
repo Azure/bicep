@@ -27,6 +27,8 @@ public interface IFeatureProvider
 
     bool WaitAndRetryEnabled { get; }
 
+    bool OnlyIfNotExistsEnabled { get; }
+
     bool LocalDeployEnabled { get; }
 
     bool ExtendableParamFilesEnabled { get; }
@@ -56,7 +58,8 @@ public interface IFeatureProvider
                 (SourceMappingEnabled, CoreResources.ExperimentalFeatureNames_SourceMapping, true, false),
                 (TestFrameworkEnabled, CoreResources.ExperimentalFeatureNames_TestFramework, false, false),
                 (AssertsEnabled, CoreResources.ExperimentalFeatureNames_Asserts, true, true),
-                (WaitAndRetryEnabled, CoreResources.ExperimentalFeatureNames_WaitAndRetry, true, false),
+                (WaitAndRetryEnabled, CoreResources.ExperimentalFeatureNames_WaitAndRetry, true, true),
+                (OnlyIfNotExistsEnabled, CoreResources.ExperimentalFeatureNames_OnlyIfNotExists, true, true),
                 (LocalDeployEnabled, "Enable local deploy", false, false),
                 (TypedVariablesEnabled, "Typed variables", true, false),
                 (ExtendableParamFilesEnabled, "Enable extendable parameters", true, false),

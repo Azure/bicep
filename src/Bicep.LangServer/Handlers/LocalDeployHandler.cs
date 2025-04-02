@@ -89,8 +89,7 @@ public class LocalDeployHandler : IJsonRpcRequestHandler<LocalDeployRequest, Loc
 
             await using LocalExtensibilityHostManager extensibilityHandler = new(moduleDispatcher, configurationManager, credentialFactory, GrpcBuiltInLocalExtension.Start);
             await extensibilityHandler.InitializeExtensions(context.Compilation);
-
-            var result = await LocalDeployment.Deploy(extensibilityHandler, templateString, parametersString, cancellationToken);
+            var result = await extensibilityHandler.Deploy(templateString, parametersString, cancellationToken);
 
             return FromResult(result);
         }
@@ -116,7 +115,7 @@ public class LocalDeployHandler : IJsonRpcRequestHandler<LocalDeployRequest, Loc
             operationError);
     }
 
-    private static LocalDeployResponse FromResult(LocalDeployment.Result result)
+    private static LocalDeployResponse FromResult(LocalDeploymentResult result)
     {
         var deployError = result.Deployment.Properties.Error is { } error ?
             new LocalDeploymentOperationError(error.Code, error.Message, error.Target) : null;

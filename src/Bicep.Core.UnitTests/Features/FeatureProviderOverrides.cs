@@ -26,7 +26,8 @@ public record FeatureProviderOverrides(
     bool? ExtensibilityV2EmittingEnabled = default,
     bool? TypedVariablesEnabled = default,
     bool? ModuleExtensionConfigsEnabled = default,
-    bool? DesiredStateConfigurationEnabled = default)
+    bool? DesiredStateConfigurationEnabled = default,
+    bool? OnlyIfNotExistsEnabled = default)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
@@ -47,7 +48,8 @@ public record FeatureProviderOverrides(
         bool? ExtensibilityV2EmittingEnabled = default,
         bool? TypedVariablesEnabled = default,
         bool? ModuleExtensionConfigsEnabled = default,
-        bool? DesiredStateConfigurationEnabled = default
+        bool? DesiredStateConfigurationEnabled = default,
+        bool? OnlyIfNotExistsEnabled = default
     ) : this(
         FileHelper.GetCacheRootDirectory(testContext),
         RegistryEnabled,
@@ -67,6 +69,7 @@ public record FeatureProviderOverrides(
         ExtensibilityV2EmittingEnabled,
         TypedVariablesEnabled,
         ModuleExtensionConfigsEnabled,
-        DesiredStateConfigurationEnabled)
+        DesiredStateConfigurationEnabled,
+        OnlyIfNotExistsEnabled)
     { }
 }

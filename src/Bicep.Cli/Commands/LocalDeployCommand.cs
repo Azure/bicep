@@ -83,14 +83,13 @@ public class LocalDeployCommand : ICommand
 
         await using LocalExtensibilityHostManager extensibilityHandler = new(moduleDispatcher, configurationManager, credentialFactory, GrpcBuiltInLocalExtension.Start);
         await extensibilityHandler.InitializeExtensions(compilation);
-
-        var result = await LocalDeployment.Deploy(extensibilityHandler, templateString, parametersString, cancellationToken);
+        var result = await extensibilityHandler.Deploy(templateString, parametersString, cancellationToken);
 
         await WriteSummary(result);
         return 0;
     }
 
-    private async Task WriteSummary(LocalDeployment.Result result)
+    private async Task WriteSummary(LocalDeploymentResult result)
     {
         if (result.Deployment.Properties.Outputs is { } outputs)
         {
