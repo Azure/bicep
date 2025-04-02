@@ -52,11 +52,13 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
                     case ParameterAssignmentSymbol parameterAssignment:
                         visitor.targetParameterAssignment = parameterAssignment;
                         parameterAssignment.DeclaringParameterAssignment.Accept(visitor);
+                        visitor.targetParameterAssignment = null;
                         break;
 
                     case VariableSymbol variableDeclaration:
                         visitor.targetVariableDeclaration = variableDeclaration;
                         variableDeclaration.DeclaringVariable.Accept(visitor);
+                        visitor.targetVariableDeclaration = null;
                         break;
                 }
             }
@@ -109,7 +111,7 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
     private void VisitFunctionCallSyntaxInternal(FunctionCallSyntaxBase functionCallSyntax)
     {
         if (SemanticModelHelper.TryGetNamedFunction(
-                semanticModel, 
+                this.semanticModel, 
                 SystemNamespaceType.BuiltInName, 
                 LanguageConstants.ExternalInputBicepFunctionName, 
                 functionCallSyntax) is { } functionCall)
