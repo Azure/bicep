@@ -1,9 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Reflection;
 using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax.Comparers;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Syntax;
@@ -90,8 +93,8 @@ public static class SyntaxExtensions
     /// <summary>
     /// Checks for secure decorator in output decleration.
     /// </summary>
-    public static bool HasSecureDecorator(this OutputDeclarationSyntax syntax)
+    public static bool HasSecureDecorator(this DecorableSyntax syntax, IBinder binder, ITypeManager typeManager)
     {
-        return syntax.Decorators.Any(decorator => decorator.Expression is FunctionCallSyntax functionCallSyntax && functionCallSyntax.Name.ToString() == LanguageConstants.ParameterSecurePropertyName);
+        return SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSecurePropertyName) is not null;
     }
 }

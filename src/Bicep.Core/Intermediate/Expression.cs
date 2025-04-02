@@ -3,8 +3,6 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics;
-using Bicep.Core.Analyzers.Linter.Common;
-using System.Linq.Expressions;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;

@@ -14,6 +14,21 @@ namespace Bicep.Core.TypeSystem
                 _ => type
             };
 
+        public static bool IsSecureType(this ITypeReference type)
+        {
+            var typeSymbol = type.Type;
+
+            // In case of an object type containing secure types in its properties or additional properties, walk through the object recursively.
+            if (typeSymbol.TypeKind == TypeKind.Object)
+            {
+                var objectType = (ObjectType)typeSymbol;
+                return objectType.Properties.Select(kvp => kvp.Value).Any(subType => subType.TypeReference.IsSecureType())
+                    || (objectType.AdditionalProperties?.TypeReference.IsSecureType() ?? false);
+            }
+
+            return typeSymbol.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure);
+        }
+
         public static bool IsIntegerOrIntegerLiteral(this TypeSymbol type) =>
              type is IntegerType or IntegerLiteralType;
 
