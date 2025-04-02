@@ -105,7 +105,8 @@ namespace Bicep.Core.Semantics
                     .Select(outputProperty => new OutputMetadata(
                         outputProperty.Key,
                         GetType(outputProperty.Value),
-                        TryGetMetadataDescription(outputProperty.Value.Metadata)))
+                        TryGetMetadataDescription(outputProperty.Value.Metadata),
+                        false))
                     .ToImmutableArray();
             });
         }

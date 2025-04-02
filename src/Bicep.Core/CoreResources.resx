@@ -536,4 +536,7 @@
     <value>Runtime value '{0}' will reduce the precision of what-if analysis for module '{1}'</value>
     <comment>{0} Parameter name</comment>
   </data>
+  <data name="ExperimentalFeatureNames_OnlyIfNotExists" xml:space="preserve">
+    <value>Enable OnlyIfNotExists feature</value>
+  </data>
 </root>

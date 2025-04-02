@@ -4,7 +4,7 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics.Metadata
 {
-    public record OutputMetadata(string Name, ITypeReference TypeReference, string? Description, bool isSecure = false)
+    public record OutputMetadata(string Name, ITypeReference TypeReference, string? Description, bool IsSecure)
     {
     }
 }

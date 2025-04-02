@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.Semantics;
 using Bicep.Core.Text;
 
 namespace Bicep.Core.Syntax
@@ -38,7 +40,5 @@ namespace Bicep.Core.Syntax
         public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? this.Keyword, Value);
 
         public TypeSyntax? OutputType => this.Type as TypeSyntax;
-
-        public bool HasSecureDecorator => this.Decorators.Any(decorator => decorator.Expression is FunctionCallSyntax functionCallSyntax && functionCallSyntax.Name.ToString() == LanguageConstants.ParameterSecurePropertyName);
     }
 }

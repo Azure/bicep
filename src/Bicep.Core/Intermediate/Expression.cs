@@ -209,9 +209,6 @@ public record PropertyAccessExpression(
         => visitor.VisitPropertyAccessExpression(this);
 
     protected override object? GetDebugAttributes() => new { PropertyName };
-
-    public bool IsReferencingSecureOutputs(SemanticModel model) => (this.SourceSyntax is null ||
-                        (FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(model, this.SourceSyntax).Any()));
 }
 
 public record ResourceReferenceExpression(

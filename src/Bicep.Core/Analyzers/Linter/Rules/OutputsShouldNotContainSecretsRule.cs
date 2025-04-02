@@ -57,8 +57,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
             {
-                // If the output has a secure decorator, don't emit a diagnostic.
-                if (syntax.HasSecureDecorator)
+                // If the output has a secure decorator and contains secure values, don't emit a diagnostic.
+                // If the output contains secure values but doesn't have a secure decorator, emit a warning diagnostic.
+                if (syntax.IsSecureOutput(model) && syntax.HasSecureDecorator())
                 {
                     return;
                 }

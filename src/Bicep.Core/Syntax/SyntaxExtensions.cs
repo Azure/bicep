@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax.Comparers;
@@ -76,5 +77,21 @@ public static class SyntaxExtensions
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Checks recursively for secure values/secrets in output. If so, the output is marked as secure.
+    /// </summary>
+    public static bool IsSecureOutput(this OutputDeclarationSyntax syntax, SemanticModel model)
+    {
+        return FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(model, syntax).Any();
+    }
+
+    /// <summary>
+    /// Checks for secure decorator in output decleration.
+    /// </summary>
+    public static bool HasSecureDecorator(this OutputDeclarationSyntax syntax)
+    {
+        return syntax.Decorators.Any(decorator => decorator.Expression is FunctionCallSyntax functionCallSyntax && functionCallSyntax.Name.ToString() == LanguageConstants.ParameterSecurePropertyName);
     }
 }
