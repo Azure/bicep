@@ -69,8 +69,8 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
             foreach (var symbol in declaredSymbols)
             {
                 var symbolClosure = model.Binder.GetReferencedSymbolClosureFor(symbol);
-                if (visitor.parametersContainingExternalInput.Any(symbolClosure.Contains) ||
-                    visitor.variablesContainingExternalInput.Any(symbolClosure.Contains))
+                if (symbolClosure.Overlaps(visitor.parametersContainingExternalInput) ||
+                    symbolClosure.Overlaps(visitor.variablesContainingExternalInput))
                 {
                     switch (symbol)
                     {
