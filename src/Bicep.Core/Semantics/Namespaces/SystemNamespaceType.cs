@@ -39,7 +39,6 @@ namespace Bicep.Core.Semantics.Namespaces
 
         public const string BuiltInName = "sys";
         public const long UniqueStringHashLength = 13;
-
         private const string ConcatDescription = "Combines multiple arrays and returns the concatenated array, or combines multiple string values and returns the concatenated string.";
         private const string TakeDescription = "Returns an array or string. An array has the specified number of elements from the start of the array. A string has the specified number of characters from the start of the string.";
         private const string SkipDescription = "Returns a string with all the characters after the specified number of characters, or an array with all the elements after the specified number of elements.";
@@ -63,11 +62,9 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private record NamespaceValue<T>(T Value, VisibilityDelegate IsVisible);
 
-        private static readonly ImmutableArray<NamespaceValue<FunctionOverload>> Overloads = [.. GetSystemOverloads()];
-
         private static readonly ImmutableArray<NamespaceValue<NamedTypeProperty>> AmbientSymbols = [.. GetSystemAmbientSymbols()];
 
-        private static IEnumerable<NamespaceValue<FunctionOverload>> GetSystemOverloads()
+        private static IEnumerable<NamespaceValue<FunctionOverload>> GetSystemOverloads(IFeatureProvider featureProvider)
         {
             static IEnumerable<FunctionOverload> GetAlwaysPermittedOverloads()
             {
@@ -1097,7 +1094,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
             }
 
-            static IEnumerable<FunctionOverload> GetParamsFilePermittedOverloads()
+            static IEnumerable<FunctionOverload> GetParamsFilePermittedOverloads(IFeatureProvider featureProvider)
             {
                 yield return new FunctionOverloadBuilder("readEnvironmentVariable")
                     .WithGenericDescription($"Reads the specified Environment variable as bicep string. Variable loading occurs during compilation, not at runtime.")
@@ -1106,6 +1103,26 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
                     .WithOptionalParameter("default", LanguageConstants.String, "Default value to return if environment variable is not found.")
                     .Build();
+
+                if (featureProvider.ExternalInputFunctionEnabled)
+                {
+                    yield return new FunctionOverloadBuilder(LanguageConstants.ExternalInputBicepFunctionName)
+                        .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
+                        .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.")
+                        .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.")
+                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, exp.Parameters))
+                        .WithReturnResultBuilder((model, diagnostics, functionCall, argumentTypes) =>
+                        {
+                            var visitor = new CompileTimeConstantVisitor(diagnostics);
+                            foreach (var arg in functionCall.Arguments)
+                            {
+                                arg.Accept(visitor);
+                            }
+
+                            return new(LanguageConstants.Any);
+                        }, LanguageConstants.Any)
+                        .Build();
+                }
             }
 
             foreach (var overload in GetAlwaysPermittedOverloads())
@@ -1113,7 +1130,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 yield return new(overload, (_, _) => true);
             }
 
-            foreach (var overload in GetParamsFilePermittedOverloads())
+            foreach (var overload in GetParamsFilePermittedOverloads(featureProvider))
             {
                 yield return new(overload, (_, sfk) => sfk == BicepSourceFileKind.ParamsFile);
             }
@@ -2034,7 +2051,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 aliasName,
                 Settings,
                 AmbientSymbols.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
-                Overloads.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
+                GetSystemOverloads(featureProvider).Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 BannedFunctions,
                 GetSystemDecorators(featureProvider).Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 new EmptyResourceTypeProvider());

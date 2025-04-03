@@ -1068,8 +1068,6 @@ public class ExpressionBuilder
 
     private Expression ConvertVariableAccess(VariableAccessSyntax variableAccessSyntax)
     {
-        var name = variableAccessSyntax.Name.IdentifierName;
-
         var symbol = Context.SemanticModel.GetSymbolInfo(variableAccessSyntax);
 
         switch (symbol)
@@ -1081,15 +1079,22 @@ public class ExpressionBuilder
                 return new ParametersReferenceExpression(variableAccessSyntax, parameterSymbol);
 
             case ParameterAssignmentSymbol parameterSymbol:
+                if (Context.ExternalInputReferences.ParametersReferences.Contains(parameterSymbol))
+                {
+                    // we're evaluating a parameter that has an external input function reference, so inline it
+                    return ConvertWithoutLowering(parameterSymbol.DeclaringParameterAssignment.Value);
+                }
                 return new ParametersAssignmentReferenceExpression(variableAccessSyntax, parameterSymbol);
 
             case ExtensionConfigAssignmentSymbol extensionConfigAssignmentSymbol:
                 return new ExtensionConfigAssignmentReferenceExpression(variableAccessSyntax, extensionConfigAssignmentSymbol);
 
             case VariableSymbol variableSymbol:
-                if (Context.VariablesToInline.Contains(variableSymbol))
+                if (Context.VariablesToInline.Contains(variableSymbol) || 
+                    Context.ExternalInputReferences.VariablesReferences.Contains(variableSymbol))
                 {
-                    // we've got a runtime dependency, so we have to inline the variable usage
+                    // we've got a runtime dependency, or we're evaluating a variable that has an external input function reference,
+                    // so we have to inline the variable usage
                     return ConvertWithoutLowering(variableSymbol.DeclaringVariable.Value);
                 }
 
