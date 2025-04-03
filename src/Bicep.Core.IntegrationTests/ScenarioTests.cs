@@ -7115,4 +7115,38 @@ var subnetId = vNet::subnets[0].id
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
+
+    [TestMethod]
+    public void Wrong_parameter_structure_to_buildUri_function_should_emit_diagnostics()
+    {
+        var result = CompilationHelper.Compile("""
+            var components = {
+              scheme: 'https'
+              host2: 'example.com'
+            }
+
+            var uri = buildUri(components)
+""");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+            [
+                ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"host\"."),
+                ("BCP089", DiagnosticLevel.Error, "The property \"host2\" is not allowed on objects of type \"parseUri\". Did you mean \"host\"?")
+            ]);
+    }
+
+    [TestMethod]
+    public void Correct_parameter_structure_to_buildUri_function_should_not_emit_diagnostics()
+    {
+        var result = CompilationHelper.Compile("""
+        var components = {
+          scheme: 'https'
+          host: 'example.com'
+        }
+
+        var uri = buildUri(components)
+""");
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
 }

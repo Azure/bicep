@@ -152,6 +152,18 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("network", LanguageConstants.String, "String in CIDR notation containing an IP address range to be converted.")
                     .Build();
 
+                yield return new FunctionOverloadBuilder("buildUri")
+                    .WithReturnType(LanguageConstants.String)
+                    .WithGenericDescription("Constructs a URI from specified components and returns an object with these components.")
+                    .WithRequiredParameter("components", GetParseOrBuildUriReturnType(), "An object containing URI components such as scheme, host, port, path, and query.")
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("parseUri")
+                    .WithReturnType(GetParseOrBuildUriReturnType())
+                    .WithGenericDescription("Parses a URI string into its components (scheme, host, port, path, query).")
+                    .WithRequiredParameter("baseUrl", LanguageConstants.String, "The complete URI to parse.")
+                    .Build();
+
                 yield return new FunctionOverloadBuilder("concat")
                     .WithReturnType(LanguageConstants.String)
                     .WithGenericDescription(ConcatDescription)
@@ -1147,6 +1159,18 @@ namespace Bicep.Core.Semantics.Namespaces
                 new NamedTypeProperty("lastUsable", LanguageConstants.String),
                 new NamedTypeProperty("cidr", TypeFactory.CreateIntegerType(0, 255)),
             }, null);
+        }
+
+        private static ObjectType GetParseOrBuildUriReturnType()
+        {
+            return new ObjectType("parseUri", TypeSymbolValidationFlags.Default, new[]
+            {
+                new NamedTypeProperty("scheme", LanguageConstants.String, TypePropertyFlags.Required),
+                new NamedTypeProperty("host", LanguageConstants.String, TypePropertyFlags.Required),
+                new NamedTypeProperty("port", LanguageConstants.Int, TypePropertyFlags.None),
+                new NamedTypeProperty("path", LanguageConstants.String, TypePropertyFlags.None),
+                new NamedTypeProperty("query", LanguageConstants.String, TypePropertyFlags.None),
+             }, null);
         }
 
         private static FunctionOverload.ResultBuilderDelegate TryDeriveLiteralReturnType(string armFunctionName, TypeSymbol nonLiteralReturnType) =>
