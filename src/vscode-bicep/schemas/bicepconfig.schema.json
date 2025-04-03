@@ -833,8 +833,8 @@
           "description": "If enabled, templates can reuse resource types wherever a type is expected. See https://aka.ms/bicep/experimental-features#resourcederivedtypes"
         },
         "secureOutputs": {
-            "type": "boolean",
-            "description": "If enabled, users can use the secure decorator for outputs. See https://aka.ms/bicep/experimental-features#secureoutputs"
+          "type": "boolean",
+          "description": "If enabled, users can use the secure decorator for outputs. See https://aka.ms/bicep/experimental-features#secureoutputs"
         },
         "resourceInfoCodegen": {
             "type": "boolean",
@@ -847,6 +847,10 @@
         "desiredStateConfiguration": {
           "type": "boolean",
           "description": "Allows you to author Desired State Configuration documents using the target scope 'dsc'. See https://aka.ms/bicep/experimental-features#desiredstateconfiguration"
+        },
+        "externalInputFunction": {
+          "type": "boolean",
+          "description": "Enables the 'externalInput' function for reading input that will be resolved later by external tooling. See https://aka.ms/bicep/experimental-features#externalinputfunction"
         },
         "onlyIfNotExists": {
           "type": "boolean",

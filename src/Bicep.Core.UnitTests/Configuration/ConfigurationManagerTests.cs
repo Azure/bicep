@@ -113,6 +113,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "typedVariables": false,
           "desiredStateConfiguration": false,
+          "externalInputFunction": false,
           "onlyIfNotExists": false
         },
         "formatting": {
@@ -197,6 +198,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "typedVariables": false,
           "moduleExtensionConfigs": false,
           "desiredStateConfiguration": false,
+          "externalInputFunction": false,
           "onlyIfNotExists": false
         },
         "formatting": {
@@ -306,6 +308,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "typedVariables": false,
           "moduleExtensionConfigs": false,
           "desiredStateConfiguration": false,
+          "externalInputFunction": false,
           "onlyIfNotExists": false
         },
         "formatting": {
@@ -401,6 +404,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 TypedVariables: false,
                 ModuleExtensionConfigs: false,
                 DesiredStateConfiguration: false,
+                ExternalInputFunction: false,
                 OnlyIfNotExists: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
@@ -489,6 +493,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 "typedVariables": false,
                 "moduleExtensionConfigs": false,
                 "desiredStateConfiguration": false,
+                "externalInputFunction": false,
                 "onlyIfNotExists": false
             },
             "formatting": {
@@ -863,6 +868,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "typedVariables": false,
           "moduleExtensionConfigs": false,
           "desiredStateConfiguration": false,
+          "externalInputFunction": false,
           "onlyIfNotExists": false
         },
         "formatting": {

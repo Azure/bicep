@@ -28,6 +28,7 @@ public record FeatureProviderOverrides(
     bool? TypedVariablesEnabled = default,
     bool? ModuleExtensionConfigsEnabled = default,
     bool? DesiredStateConfigurationEnabled = default,
+    bool? ExternalInputFunctionEnabled = default,
     bool? OnlyIfNotExistsEnabled = default)
 {
     public FeatureProviderOverrides(
@@ -51,6 +52,7 @@ public record FeatureProviderOverrides(
         bool? TypedVariablesEnabled = default,
         bool? ModuleExtensionConfigsEnabled = default,
         bool? DesiredStateConfigurationEnabled = default,
+        bool? ExternalInputFunctionEnabled = default,
         bool? OnlyIfNotExistsEnabled = default
     ) : this(
         FileHelper.GetCacheRootDirectory(testContext),
@@ -73,6 +75,7 @@ public record FeatureProviderOverrides(
         TypedVariablesEnabled,
         ModuleExtensionConfigsEnabled,
         DesiredStateConfigurationEnabled,
+        ExternalInputFunctionEnabled,
         OnlyIfNotExistsEnabled)
     { }
 }

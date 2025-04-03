@@ -54,4 +54,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool ModuleExtensionConfigsEnabled => overrides.ModuleExtensionConfigsEnabled ?? features.ModuleExtensionConfigsEnabled;
 
     public bool DesiredStateConfigurationEnabled => overrides.DesiredStateConfigurationEnabled ?? features.DesiredStateConfigurationEnabled;
+
+    public bool ExternalInputFunctionEnabled => overrides.ExternalInputFunctionEnabled ?? features.ExternalInputFunctionEnabled;
 }
