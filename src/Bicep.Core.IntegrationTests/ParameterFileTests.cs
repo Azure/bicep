@@ -286,7 +286,7 @@ param foo = externalInput('sys.cli', 'foo')
         externalInputs["sys_cli_0"].Should().DeepEqual(new JObject
         {
             ["kind"] = "sys.cli",
-            ["options"] = "foo",
+            ["config"] = "foo",
         });
     }
 
@@ -311,12 +311,12 @@ param foo3 = foo2
         externalInputs["sys_cli_0"].Should().DeepEqual(new JObject
         {
             ["kind"] = "sys.cli",
-            ["options"] = "foo",
+            ["config"] = "foo",
         });
         externalInputs["sys_cli_1"].Should().DeepEqual(new JObject
         {
             ["kind"] = "sys.cli",
-            ["options"] = "foo2",
+            ["config"] = "foo2",
         });
     }
 
@@ -365,7 +365,7 @@ param foo3 = foo2
         externalInputs["sys_cli_0"].Should().DeepEqual(new JObject
         {
             ["kind"] = "sys.cli",
-            ["options"] = "foo",
+            ["config"] = "foo",
         });
     }
 
