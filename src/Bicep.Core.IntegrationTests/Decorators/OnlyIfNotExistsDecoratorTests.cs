@@ -32,7 +32,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
             }
             ");
 
-            var onlyIfNotExistsJObject = new JArray{};
+            var onlyIfNotExistsJObject = new JArray { };
 
             using (new AssertionScope())
             {
@@ -144,7 +144,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
             }]
             ");
 
-            var onlyIfNotExistsJObject = new JArray{};
+            var onlyIfNotExistsJObject = new JArray { };
 
             using (new AssertionScope())
             {
