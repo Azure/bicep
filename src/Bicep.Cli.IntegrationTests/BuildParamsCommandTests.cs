@@ -39,6 +39,16 @@ namespace Bicep.Cli.IntegrationTests
             };
 
         [TestMethod]
+        public async Task Build_Params_With_NonExisting_File_ShouldFail_WithExpectedErrorMessage()
+        {
+            var (output, error, result) = await Bicep(Settings, "build-params", "/tmp/nonexisting.bicepparam");
+
+            result.Should().Be(1);
+            output.Should().BeEmpty();
+            error.Should().Contain($"The specified file \"/tmp/nonexisting.bicepparam\" does not exist.");
+        }
+
+        [TestMethod]
         public async Task Build_Params_With_Incorrect_Bicep_File_Extension_ShouldFail_WithExpectedErrorMessage()
         {
             var bicepparamsPath = FileHelper.SaveResultFile(TestContext, "input.bicepparam", "using './main.bicep'");
