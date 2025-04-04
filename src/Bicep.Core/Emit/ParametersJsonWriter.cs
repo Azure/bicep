@@ -69,7 +69,7 @@ public class ParametersJsonWriter
 
         if (this.Context.SemanticModel.Features is { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true })
         {
-            WriteExtensionConfigs(emitter, this.Context.SemanticModel.Root.ExtensionConfigAssignments);
+            WriteExtensionConfigs(emitter, jsonWriter);
         }
 
         jsonWriter.WriteEndObject();
@@ -98,86 +98,55 @@ public class ParametersJsonWriter
         });
     }
 
-    private static void WriteKeyVaultReference(ExpressionEmitter emitter, ParameterKeyVaultReferenceExpression keyVaultReference)
+    private void WriteExtensionConfigs(ExpressionEmitter emitter, PositionTrackingJsonTextWriter jsonWriter)
     {
-        emitter.EmitObjectProperty("reference", () =>
-        {
-            emitter.EmitObjectProperty("keyVault", () =>
+        emitter.EmitObjectProperty(
+            "extensionConfigs", () =>
             {
-                emitter.EmitProperty("id", keyVaultReference.KeyVaultId);
+                foreach (var extension in this.Context.SemanticModel.Root.ExtensionConfigAssignments)
+                {
+                    emitter.EmitObjectProperty(
+                        extension.Name, () =>
+                        {
+                            var configProperties = this.Context.SemanticModel.EmitLimitationInfo.ExtensionConfigAssignments[extension];
+
+                            foreach (var configProperty in configProperties)
+                            {
+                                emitter.EmitObjectProperty(
+                                    configProperty.Key, () =>
+                                    {
+                                        if (configProperty.Value.KeyVaultReferenceExpression is { } keyVaultReference)
+                                        {
+                                            WriteKeyVaultReference(emitter, keyVaultReference, "keyVaultReference");
+                                        }
+                                        else if (configProperty.Value.Value is { } value)
+                                        {
+                                            emitter.EmitProperty("value", () => value.WriteTo(jsonWriter));
+                                        }
+                                        else
+                                        {
+                                            throw new InvalidOperationException($"The '{configProperty.Key}' property of the '{extension.Name}' extension config assignment defined neither a concrete value nor a key vault reference");
+                                        }
+                                    });
+                            }
+                        });
+                }
             });
-
-            emitter.EmitProperty("secretName", keyVaultReference.SecretName);
-
-            if (keyVaultReference.SecretVersion is { } secretVersion)
-            {
-                emitter.EmitProperty("secretVersion", secretVersion);
-            }
-        });
     }
 
-    private void WriteExtensionConfigs(JsonTextWriter jsonWriter)
+    private static void WriteKeyVaultReference(ExpressionEmitter emitter, ParameterKeyVaultReferenceExpression keyVaultReference, string referencePropertyName)
     {
-        jsonWriter.WritePropertyName("extensionConfigs");
-        jsonWriter.WriteStartObject();
-
-        foreach (var extension in this.Context.SemanticModel.Root.ExtensionConfigAssignments)
-        {
-            jsonWriter.WritePropertyName(extension.Name);
-            jsonWriter.WriteStartObject();
-
-            var configProperties = this.Context.SemanticModel.EmitLimitationInfo.ExtensionConfigAssignments[extension];
-
-            foreach (var configProperty in configProperties)
+        emitter.EmitObjectProperty(
+            referencePropertyName, () =>
             {
-                jsonWriter.WritePropertyName(configProperty.Key);
-                jsonWriter.WriteStartObject();
+                emitter.EmitObjectProperty("keyVault", () => emitter.EmitProperty("id", keyVaultReference.KeyVaultId));
 
-                if (configProperty.Value.KeyVaultReferenceExpression is { } keyVaultReference)
+                emitter.EmitProperty("secretName", keyVaultReference.SecretName);
+
+                if (keyVaultReference.SecretVersion is { } secretVersion)
                 {
-                    WriteKeyVaultReference(jsonWriter, keyVaultReference, "keyVaultReference");
+                    emitter.EmitProperty("secretVersion", secretVersion);
                 }
-                else if (configProperty.Value.Value is { } value)
-                {
-                    jsonWriter.WritePropertyName("value");
-                    value.WriteTo(jsonWriter);
-                }
-                else
-                {
-                    throw new InvalidOperationException($"The '{configProperty.Key}' property of the '{extension.Name}' extension config assignment defined neither a concrete value nor a key vault reference");
-                }
-
-                jsonWriter.WriteEndObject();
-            }
-
-            jsonWriter.WriteEndObject();
-        }
-
-        jsonWriter.WriteEndObject();
-    }
-
-    private static void WriteKeyVaultReference(JsonWriter jsonWriter, ParameterKeyVaultReferenceExpression expression, string referencePropertyName)
-    {
-        jsonWriter.WritePropertyName(referencePropertyName);
-        jsonWriter.WriteStartObject();
-
-        jsonWriter.WritePropertyName("keyVault");
-        jsonWriter.WriteStartObject();
-
-        jsonWriter.WritePropertyName("id");
-        jsonWriter.WriteValue(expression.KeyVaultId);
-
-        jsonWriter.WriteEndObject();
-
-        jsonWriter.WritePropertyName("secretName");
-        jsonWriter.WriteValue(expression.SecretName);
-
-        if (expression.SecretVersion is string secretVersion)
-        {
-            jsonWriter.WritePropertyName("secretVersion");
-            jsonWriter.WriteValue(secretVersion);
-        }
-
-        jsonWriter.WriteEndObject();
+            });
     }
 }
