@@ -623,7 +623,7 @@ var nameofEmpty = nameof()
 @concat()
 //@[01:07) [BCP152 (Error)] Function "concat" cannot be used as a decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP152) |concat|
 @sys.secure()
-//@[00:13) [BCP290 (Error)] Expected a parameter or type declaration after the decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP290) |@sys.secure()|
+//@[00:13) [BCP292 (Error)] Expected a parameter, output, or type declaration after the decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP292) |@sys.secure()|
 xxxxx
 //@[00:05) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (bicep https://aka.ms/bicep/core-diagnostics#BCP007) |xxxxx|
 
