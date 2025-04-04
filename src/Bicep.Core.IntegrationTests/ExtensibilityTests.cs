@@ -634,7 +634,7 @@ Hello from Bicep!"));
                     """))
                 .WithNamespaceProvider(TestExtensibilityNamespaceProvider.CreateWithDefaults());
 
-            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
+            var result = CompilationHelper.Compile(services, """
                 extension foo as foo
 
                 resource myApp 'application' = {

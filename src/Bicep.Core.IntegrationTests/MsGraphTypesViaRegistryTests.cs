@@ -20,8 +20,11 @@ namespace Bicep.Core.IntegrationTests
     {
         private async Task<ServiceBuilder> GetServices()
         {
-            var services = new ServiceBuilder();
+            var services = new ServiceBuilder()
+                .WithFeaturesOverridden(f => f with { ExtensibilityEnabled = true });
+
             services = await ExtensionTestHelper.AddMockMsGraphExtension(services, TestContext);
+
             return services;
         }
 
