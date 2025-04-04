@@ -34,6 +34,10 @@ namespace Bicep.Core.Emit
                 // there are any existing resources with explicit dependencies
                 model.Root.ResourceDeclarations.Any(r => r.DeclaringResource.IsExistingResource() &&
                     r.DeclaringResource.TryGetBody()?.TryGetPropertyByName(LanguageConstants.ResourceDependsOnPropertyName) is not null) ||
+                // there are secure outputs
+                model.Outputs.Any(output => output.IsSecure) ||
+                // there are secure outputs in modules
+                model.Root.ModuleDeclarations.Any(module => module.TryGetSemanticModel().TryUnwrap()?.Outputs.Any(output => output.IsSecure) ?? false) ||
                 // any user-defined type declaration syntax is used (e.g., in a `param` or `output` statement)
                 SyntaxAggregator.Aggregate(model.SourceFile.ProgramSyntax,
                     seed: false,

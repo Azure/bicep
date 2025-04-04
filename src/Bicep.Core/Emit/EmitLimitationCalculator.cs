@@ -18,6 +18,7 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
@@ -68,7 +69,6 @@ namespace Bicep.Core.Emit
 
             // This method only checks, if in one deployment we do not have 2 or more resources with this same name in one deployment to avoid template validation error
             // This will not check resource constraints such as necessity of having unique virtual network names within resource group
-
             var duplicateResources = semanticModel.DeclaredResources
                 .GroupBy(x => x, new DeclaredResourceIdComparer(semanticModel, resourceScopeData))
                 .Where(group => group.Count() > 1);
@@ -674,7 +674,6 @@ namespace Bicep.Core.Emit
                 {
                     continue;
                 }
-
                 // We may emit duplicate errors here - type checking will also execute some ARM functions and generate errors
                 // This is something we should improve before the first release.
                 var result = evaluator.EvaluateParameter(parameter);
@@ -682,9 +681,9 @@ namespace Bicep.Core.Emit
                 {
                     diagnostics.Write(result.Diagnostic);
                 }
-                if (result.Value is not null || result.KeyVaultReference is not null)
+                if (result.Value is not null || result.Expression is not null || result.KeyVaultReference is not null)
                 {
-                    generated[parameter] = new(result.Value, result.KeyVaultReference);
+                    generated[parameter] = new(result.Value, result.Expression, result.KeyVaultReference);
                 }
             }
 
@@ -956,6 +955,19 @@ namespace Bicep.Core.Emit
                 foreach (var spread in body.Children.OfType<SpreadExpressionSyntax>())
                 {
                     diagnostics.Write(spread, x => x.SpreadOperatorUnsupportedInLocation(spread));
+                }
+            }
+
+            foreach (var spread in SyntaxAggregator.AggregateByType<SpreadExpressionSyntax>(model.Root.Syntax))
+            {
+                if (model.Binder.GetParent(spread) is not ObjectSyntax parentObject)
+                {
+                    continue;
+                }
+
+                if (parentObject.Properties.Any(x => x.Value is ForSyntax))
+                {
+                    diagnostics.Write(spread, x => x.SpreadOperatorCannotBeUsedWithForLoop(spread));
                 }
             }
         }

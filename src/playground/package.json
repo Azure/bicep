@@ -13,7 +13,7 @@
   "private": true,
   "devDependencies": {
     "@eslint/js": "^9.23.0",
-    "@types/node": "^22.13.11",
+    "@types/node": "^22.13.14",
     "@types/pako": "^2.0.3",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
@@ -22,13 +22,13 @@
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-jest": "^28.11.0",
     "eslint-plugin-notice": "^1.0.0",
-    "eslint-plugin-prettier": "^5.2.3",
+    "eslint-plugin-prettier": "^5.2.5",
     "nerdbank-gitversioning": "^3.7.115",
     "typescript": "^5.8.2",
-    "typescript-eslint": "^8.27.0",
-    "vite": "^6.2.3",
+    "typescript-eslint": "^8.28.0",
+    "vite": "^6.2.5",
     "vite-plugin-ejs": "^1.7.0",
-    "vite-plugin-monaco-editor": "^1.1.0",
+    "vite-plugin-monaco-editor-esm": "^2.0.2",
     "vite-plugin-static-copy": "^2.3.0"
   },
   "dependencies": {
@@ -36,8 +36,8 @@
     "bootstrap": "^5.3.3",
     "monaco-editor": "^0.52.2",
     "pako": "^2.1.0",
-    "react": "^19.0.0",
+    "react": "^19.1.0",
     "react-bootstrap": "^2.10.9",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.1.0"
   }
 }

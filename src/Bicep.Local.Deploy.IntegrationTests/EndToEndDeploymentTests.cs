@@ -12,6 +12,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Auth;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
@@ -50,6 +51,8 @@ public class EndToEndDeploymentTests : TestBase
 }
 """),
             ("main.bicep", """
+targetScope = 'local'
+
 extension http
 
 param coords {
@@ -152,10 +155,14 @@ param coords = {
             });
 
         var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
-        await using LocalExtensibilityHostManager extensibilityHandler = new(dispatcher, uri => Task.FromResult(extensionMock.Object));
+        await using LocalExtensibilityHostManager extensibilityHandler = new(
+            dispatcher,
+            StrictMock.Of<IConfigurationManager>().Object,
+            StrictMock.Of<ITokenCredentialFactory>().Object,
+            uri => Task.FromResult(extensionMock.Object));
         await extensibilityHandler.InitializeExtensions(result.Compilation);
 
-        var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
+        var localDeployResult = await extensibilityHandler.Deploy(templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
 
         localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Succeeded);
         localDeployResult.Deployment.Properties.Outputs["forecastString"].Value.Should().DeepEqual("Forecast: Name");
@@ -191,6 +198,8 @@ param coords = {
 }
 """),
             ("main.bicep", """
+targetScope = 'local'
+
 extension http
 
 param coords {
@@ -259,10 +268,14 @@ param coords = {
             });
 
         var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
-        await using LocalExtensibilityHostManager extensibilityHandler = new(dispatcher, uri => Task.FromResult(extensionMock.Object));
+        await using LocalExtensibilityHostManager extensibilityHandler = new(
+            dispatcher,
+            StrictMock.Of<IConfigurationManager>().Object,
+            StrictMock.Of<ITokenCredentialFactory>().Object,
+            uri => Task.FromResult(extensionMock.Object));
         await extensibilityHandler.InitializeExtensions(result.Compilation);
 
-        var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
+        var localDeployResult = await extensibilityHandler.Deploy(templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
 
         localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Failed, because: $"Extension returned '{nameof(Resource)}' and '{nameof(ErrorData)}' as part of its response and it is not allowed. Extensions should return one or the other to indicate success or failure respectively.");
         localDeployResult.Deployment.Properties.Error.Should().NotBeNull();
@@ -291,6 +304,8 @@ param coords = {
 }
 """),
             ("main.bicep", """
+targetScope = 'local'
+
 extension http
 
 param coords {
@@ -359,10 +374,14 @@ param coords = {
             });
 
         var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
-        await using LocalExtensibilityHostManager extensibilityHandler = new(dispatcher, uri => Task.FromResult(extensionMock.Object));
+        await using LocalExtensibilityHostManager extensibilityHandler = new(
+            dispatcher,
+            StrictMock.Of<IConfigurationManager>().Object,
+            StrictMock.Of<ITokenCredentialFactory>().Object,
+            uri => Task.FromResult(extensionMock.Object));
         await extensibilityHandler.InitializeExtensions(result.Compilation);
 
-        var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
+        var localDeployResult = await extensibilityHandler.Deploy(templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
 
         localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Failed, because: $"Extension did not return '{nameof(Resource)}' or '{nameof(ErrorData)}' as part of its response. Extensions should return one or the other to indicate success or failure respectively.");
         localDeployResult.Deployment.Properties.Error.Should().NotBeNull();
@@ -391,6 +410,8 @@ param coords = {
 }
 """),
             ("main.bicep", """
+targetScope = 'local'
+
 extension http
 
 param coords {
@@ -450,10 +471,14 @@ param coords = {
             });
 
         var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
-        await using LocalExtensibilityHostManager extensibilityHandler = new(dispatcher, uri => Task.FromResult(extensionMock.Object));
+        await using LocalExtensibilityHostManager extensibilityHandler = new(
+            dispatcher,
+            StrictMock.Of<IConfigurationManager>().Object,
+            StrictMock.Of<ITokenCredentialFactory>().Object,
+            uri => Task.FromResult(extensionMock.Object));
         await extensibilityHandler.InitializeExtensions(result.Compilation);
 
-        var localDeployResult = await LocalDeployment.Deploy(extensibilityHandler, templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
+        var localDeployResult = await extensibilityHandler.Deploy(templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
 
         localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Failed, because: "Extension returned a failure when attempting to create a resource.");
         localDeployResult.Deployment.Properties.Error.Should().NotBeNull();

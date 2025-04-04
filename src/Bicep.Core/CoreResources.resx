@@ -505,6 +505,9 @@
   <data name="ExperimentalFeatureNames_WaitAndRetry" xml:space="preserve">
     <value>Enable wait and retry feature</value>
   </data>
+  <data name="ExperimentalFeatureNames_ExternalInputFunction" xml:space="preserve">
+    <value>External input function</value>
+  </data>
   <data name="NoSymbolicReferencesInInnerScopedDeploymentResourcesDescription" xml:space="preserve">
     <value>Nested deployment resources cannot refer to top-level symbols from within the 'template' property when inner-scoped evaluation is used.</value>
   </data>
@@ -536,7 +539,7 @@
     <value>Runtime value '{0}' will reduce the precision of what-if analysis for module '{1}'</value>
     <comment>{0} Parameter name</comment>
   </data>
-  <data name="ExperimentalFeatureNames_SecureOutputs" xml:space="preserve">
-    <value>Secure outputs</value>
+  <data name="ExperimentalFeatureNames_OnlyIfNotExists" xml:space="preserve">
+    <value>Enable OnlyIfNotExists feature</value>
   </data>
 </root>

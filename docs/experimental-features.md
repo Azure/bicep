@@ -25,6 +25,9 @@ Enables the ability to extend bicepparam files from other bicepparam files. For 
 
 Allows Bicep to use an extensibility model to deploy non-ARM resources. Currently, we support Kubernetes extension ([Bicep Kubernetes extension](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/bicep-kubernetes-extension)) and Microsoft Graph extension ([Bicep templates for Microsoft Graph](https://aka.ms/graphbicep)).
 
+### `externalInputFunction`
+Enables the `externalInput` function to allow reading input that will be resolved later by external tooling. This is useful for tools that require the ability to inject values at deployment time. Note: This feature will not work until the backend service support has been deployed.
+
 ### `legacyFormatter`
 
 Enables code formatting with the legacy formatter. This feature flag is introduced to ensure a safer transition to the v2 formatter that implements a pretty-printing algorithm. It is intended for temporary use and will be phased out soon.
@@ -38,6 +41,19 @@ Enables Bicep to run deployments locally, so that you can run Bicep extensions w
 Moves defining extension configurations to the module level rather than from within a template. The feature also
 includes enhancements for Deployment stacks extensibility integration. This feature is not ready for use.
 
+### `onlyIfNotExists`
+The feature introduces the onlyIfNotExists decorator on a resource. The decorator will only deploy the resource if it does not exist. (Note: This feature will not work until the backend service support has been deployed)
+```
+@onlyIfNotExists()
+resource onlyDeployIfNotExists 'Microsoft...' = {
+  name: 'example'
+  location: 'eastus'
+  properties: {
+    ...
+  }
+}
+```
+
 ### `resourceDerivedTypes`
 
 If enabled, templates can reuse resource types wherever a type is expected. For example, to declare a parameter `foo` that should be usable as the name of an Azure Storage account, the following syntax would be used: `param foo resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.name`. **NB:** Because resource types may be inaccurate in some cases, no constraints other than the ARM type primitive will be enforced on resource derived types within the ARM deployment engine. Resource-derived types will be checked by Bicep at compile time, but violations will be emitted as warnings rather than errors.
@@ -49,10 +65,6 @@ Enables the 'resourceInfo' function for simplified code generation.
 ### `resourceTypedParamsAndOutputs`
 
 Enables the type for a parameter or output to be of type resource to make it easier to pass resource references between modules. This feature is only partially implemented. See [Simplifying resource referencing](https://github.com/azure/bicep/issues/2245).
-
-### `secureOutputs`
-
-Permits the usage of the `@secure()` decorator for module outputs. This feature must have also been enabled in your Azure subscription or tenant, or the deployment will fail. See [Add securestring support for template output type](https://github.com/Azure/bicep/issues/2163).
 
 ### `sourceMapping`
 

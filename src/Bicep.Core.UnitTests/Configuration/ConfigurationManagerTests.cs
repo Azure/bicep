@@ -109,10 +109,11 @@ namespace Bicep.Core.UnitTests.Configuration
           "assertions": false,
           "waitAndRetry": false,
           "localDeploy": false,
-          "secureOutputs": false,
           "resourceInfoCodegen": false,
           "typedVariables": false,
-          "desiredStateConfiguration": false
+          "desiredStateConfiguration": false,
+          "externalInputFunction": false,
+          "onlyIfNotExists": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -191,11 +192,12 @@ namespace Bicep.Core.UnitTests.Configuration
           "assertions": false,
           "waitAndRetry": false,
           "localDeploy": false,
-          "secureOutputs": false,
           "resourceInfoCodegen": false,
           "typedVariables": false,
           "moduleExtensionConfigs": false,
-          "desiredStateConfiguration": false
+          "desiredStateConfiguration": false,
+          "externalInputFunction": false,
+          "onlyIfNotExists": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -299,11 +301,12 @@ namespace Bicep.Core.UnitTests.Configuration
           "assertions": false,
           "waitAndRetry": false,
           "localDeploy": false,
-          "secureOutputs": false,
           "resourceInfoCodegen": false,
           "typedVariables": false,
           "moduleExtensionConfigs": false,
-          "desiredStateConfiguration": false
+          "desiredStateConfiguration": false,
+          "externalInputFunction": false,
+          "onlyIfNotExists": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -393,11 +396,12 @@ namespace Bicep.Core.UnitTests.Configuration
                 Assertions: false,
                 WaitAndRetry: false,
                 LocalDeploy: false,
-                SecureOutputs: false,
                 ResourceInfoCodegen: false,
                 TypedVariables: false,
                 ModuleExtensionConfigs: false,
-                DesiredStateConfiguration: false);
+                DesiredStateConfiguration: false,
+                ExternalInputFunction: false,
+                OnlyIfNotExists: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -480,11 +484,12 @@ namespace Bicep.Core.UnitTests.Configuration
                 "assertions": false,
                 "waitAndRetry": false,
                 "localDeploy": false,
-                "secureOutputs": false,
                 "resourceInfoCodegen": false,
                 "typedVariables": false,
                 "moduleExtensionConfigs": false,
-                "desiredStateConfiguration": false
+                "desiredStateConfiguration": false,
+                "externalInputFunction": false,
+                "onlyIfNotExists": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -853,11 +858,12 @@ namespace Bicep.Core.UnitTests.Configuration
           "assertions": false,
           "waitAndRetry": false,
           "localDeploy": false,
-          "secureOutputs": false,
           "resourceInfoCodegen": false,
           "typedVariables": false,
           "moduleExtensionConfigs": false,
-          "desiredStateConfiguration": false
+          "desiredStateConfiguration": false,
+          "externalInputFunction": false,
+          "onlyIfNotExists": false
         },
         "formatting": {
           "indentKind": "Space",

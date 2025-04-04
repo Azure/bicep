@@ -44,9 +44,9 @@ namespace Bicep.Core.IntegrationTests.Decorators
             using (new AssertionScope())
             {
                 diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
-
+                template.Should().NotBeNull().And.HaveValueAtPath("$.languageVersion", "2.1-experimental");
                 template.Should().NotBeNull()
-                    .And.HaveValueAtPath("$.resources[0].@options.waitUntil", waitUntilObject);
+                    .And.HaveValueAtPath("$.resources['sqlServer'].@options.waitUntil", waitUntilObject);
             }
         }
 
@@ -194,7 +194,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
                 diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
 
                 template.Should().NotBeNull()
-                    .And.HaveValueAtPath("$.resources[0].@options.waitUntil", waitUntilObject);
+                    .And.HaveValueAtPath("$.resources['sqlServer'].@options.waitUntil", waitUntilObject);
             }
         }
 

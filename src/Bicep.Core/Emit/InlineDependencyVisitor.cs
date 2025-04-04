@@ -35,7 +35,7 @@ namespace Bicep.Core.Emit
             this.shouldInlineCache = new Dictionary<VariableSymbol, Decision>();
             this.targetVariable = targetVariable;
             this.currentDeclaration = null;
-
+            
             if (targetVariable is not null)
             {
                 // the functionality 

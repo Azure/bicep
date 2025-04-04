@@ -39,7 +39,6 @@ namespace Bicep.Core.Semantics.Namespaces
 
         public const string BuiltInName = "sys";
         public const long UniqueStringHashLength = 13;
-
         private const string ConcatDescription = "Combines multiple arrays and returns the concatenated array, or combines multiple string values and returns the concatenated string.";
         private const string TakeDescription = "Returns an array or string. An array has the specified number of elements from the start of the array. A string has the specified number of characters from the start of the string.";
         private const string SkipDescription = "Returns a string with all the characters after the specified number of characters, or an array with all the elements after the specified number of elements.";
@@ -63,11 +62,9 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private record NamespaceValue<T>(T Value, VisibilityDelegate IsVisible);
 
-        private static readonly ImmutableArray<NamespaceValue<FunctionOverload>> Overloads = [.. GetSystemOverloads()];
-
         private static readonly ImmutableArray<NamespaceValue<NamedTypeProperty>> AmbientSymbols = [.. GetSystemAmbientSymbols()];
 
-        private static IEnumerable<NamespaceValue<FunctionOverload>> GetSystemOverloads()
+        private static IEnumerable<NamespaceValue<FunctionOverload>> GetSystemOverloads(IFeatureProvider featureProvider)
         {
             static IEnumerable<FunctionOverload> GetAlwaysPermittedOverloads()
             {
@@ -153,6 +150,18 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithReturnType(GetParseCidrReturnType())
                     .WithGenericDescription("Parses an IP address range in CIDR notation to get various properties of the address range.")
                     .WithRequiredParameter("network", LanguageConstants.String, "String in CIDR notation containing an IP address range to be converted.")
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("buildUri")
+                    .WithReturnType(LanguageConstants.String)
+                    .WithGenericDescription("Constructs a URI from specified components and returns an object with these components.")
+                    .WithRequiredParameter("components", GetParseOrBuildUriReturnType(), "An object containing URI components such as scheme, host, port, path, and query.")
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("parseUri")
+                    .WithReturnType(GetParseOrBuildUriReturnType())
+                    .WithGenericDescription("Parses a URI string into its components (scheme, host, port, path, query).")
+                    .WithRequiredParameter("baseUrl", LanguageConstants.String, "The complete URI to parse.")
                     .Build();
 
                 yield return new FunctionOverloadBuilder("concat")
@@ -1097,7 +1106,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
             }
 
-            static IEnumerable<FunctionOverload> GetParamsFilePermittedOverloads()
+            static IEnumerable<FunctionOverload> GetParamsFilePermittedOverloads(IFeatureProvider featureProvider)
             {
                 yield return new FunctionOverloadBuilder("readEnvironmentVariable")
                     .WithGenericDescription($"Reads the specified Environment variable as bicep string. Variable loading occurs during compilation, not at runtime.")
@@ -1106,6 +1115,26 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
                     .WithOptionalParameter("default", LanguageConstants.String, "Default value to return if environment variable is not found.")
                     .Build();
+
+                if (featureProvider.ExternalInputFunctionEnabled)
+                {
+                    yield return new FunctionOverloadBuilder(LanguageConstants.ExternalInputBicepFunctionName)
+                        .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
+                        .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.")
+                        .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.")
+                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, exp.Parameters))
+                        .WithReturnResultBuilder((model, diagnostics, functionCall, argumentTypes) =>
+                        {
+                            var visitor = new CompileTimeConstantVisitor(diagnostics);
+                            foreach (var arg in functionCall.Arguments)
+                            {
+                                arg.Accept(visitor);
+                            }
+
+                            return new(LanguageConstants.Any);
+                        }, LanguageConstants.Any)
+                        .Build();
+                }
             }
 
             foreach (var overload in GetAlwaysPermittedOverloads())
@@ -1113,7 +1142,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 yield return new(overload, (_, _) => true);
             }
 
-            foreach (var overload in GetParamsFilePermittedOverloads())
+            foreach (var overload in GetParamsFilePermittedOverloads(featureProvider))
             {
                 yield return new(overload, (_, sfk) => sfk == BicepSourceFileKind.ParamsFile);
             }
@@ -1130,6 +1159,18 @@ namespace Bicep.Core.Semantics.Namespaces
                 new NamedTypeProperty("lastUsable", LanguageConstants.String),
                 new NamedTypeProperty("cidr", TypeFactory.CreateIntegerType(0, 255)),
             }, null);
+        }
+
+        private static ObjectType GetParseOrBuildUriReturnType()
+        {
+            return new ObjectType("parseUri", TypeSymbolValidationFlags.Default, new[]
+            {
+                new NamedTypeProperty("scheme", LanguageConstants.String, TypePropertyFlags.Required),
+                new NamedTypeProperty("host", LanguageConstants.String, TypePropertyFlags.Required),
+                new NamedTypeProperty("port", LanguageConstants.Int, TypePropertyFlags.None),
+                new NamedTypeProperty("path", LanguageConstants.String, TypePropertyFlags.None),
+                new NamedTypeProperty("query", LanguageConstants.String, TypePropertyFlags.None),
+             }, null);
         }
 
         private static FunctionOverload.ResultBuilderDelegate TryDeriveLiteralReturnType(string armFunctionName, TypeSymbol nonLiteralReturnType) =>
@@ -1614,7 +1655,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSecurePropertyName)
                     .WithDescription("Makes the parameter a secure parameter.")
-                    .WithFlags(featureProvider.SecureOutputsEnabled ? FunctionFlags.ParameterOutputOrTypeDecorator : FunctionFlags.ParameterOrTypeDecorator)
+                    .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                     .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
                     .WithValidator(ValidateNotTargetingAlias)
                     .WithEvaluator((functionCall, decorated) =>
@@ -1793,7 +1834,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("predicate", OneParamLambda(LanguageConstants.Object, LanguageConstants.Bool), "The predicate applied to the resource.")
                     .WithRequiredParameter("maxWaitTime", LanguageConstants.String, "Maximum time used to wait until the predicate is true. Please be cautious as max wait time adds to total deployment time. It cannot be a negative value. Use [ISO 8601 duration format](https://en.wikipedia.org/wiki/ISO_8601#Durations).")
                     .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
-                    .WithEvaluator(WaitUntilEvaluator)
+                    .WithEvaluator(AddDecoratorConfigToResource)
                     .Build();
 
                     yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
@@ -1801,7 +1842,16 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("exceptionCodes", LanguageConstants.StringArray, "List of exceptions.")
                     .WithOptionalParameter("retryCount", TypeFactory.CreateIntegerType(minValue: 1), "Maximum number if retries on the exception.")
                     .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
-                    .WithEvaluator(RetryOnEvaluator)
+                    .WithEvaluator(AddDecoratorConfigToResource)
+                    .Build();
+                }
+
+                if (featureProvider.OnlyIfNotExistsEnabled)
+                {
+                    yield return new DecoratorBuilder(LanguageConstants.OnlyIfNotExistsPropertyName)
+                    .WithDescription("Causes the resource deployment to be skipped if the resource already exists")
+                    .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
+                    .WithEvaluator(AddDecoratorConfigToResource)
                     .Build();
                 }
 
@@ -2025,41 +2075,20 @@ namespace Bicep.Core.Semantics.Namespaces
                 aliasName,
                 Settings,
                 AmbientSymbols.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
-                Overloads.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
+                GetSystemOverloads(featureProvider).Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 BannedFunctions,
                 GetSystemDecorators(featureProvider).Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 new EmptyResourceTypeProvider());
         }
 
-        private static Expression WaitUntilEvaluator(FunctionCallExpression functionCall, Expression decorated)
+        private static Expression AddDecoratorConfigToResource(FunctionCallExpression functionCall, Expression decorated)
         {
             if (decorated is DeclaredResourceExpression declaredResourceExpression)
             {
-                var waitUntilParameters = ImmutableArray.Create<Expression>(
-                                functionCall.Parameters[0],
-                                functionCall.Parameters[1]
-                        );
-                return declaredResourceExpression with { WaitUntil = new ArrayExpression(null, waitUntilParameters) };
-            }
-
-            return decorated;
-        }
-
-        private static Expression RetryOnEvaluator(FunctionCallExpression functionCall, Expression decorated)
-        {
-            if (decorated is DeclaredResourceExpression declaredResourceExpression)
-            {
-                var retryOnParameters = new List<Expression>
-                        {
-                                functionCall.Parameters[0]
-                        };
-                if (functionCall.Parameters.Length > 1)
+                return declaredResourceExpression with
                 {
-                    retryOnParameters.Add(
-                            functionCall.Parameters[1]
-                    );
-                }
-                return declaredResourceExpression with { RetryOn = new ArrayExpression(null, [.. retryOnParameters]) };
+                    DecoratorConfig = declaredResourceExpression.DecoratorConfig.Add(functionCall.Name, new ArrayExpression(functionCall.SourceSyntax, functionCall.Parameters))
+                };
             }
             return decorated;
         }
