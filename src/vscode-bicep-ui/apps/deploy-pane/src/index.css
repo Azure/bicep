@@ -12,6 +12,40 @@ body {
   flex-direction: column;
 }
 
+.form-section .form-title {
+  display: flex;
+  user-select: none;
+  cursor: pointer;
+}
+
+.form-title h3 {
+  margin: 0;
+  text-transform: uppercase;
+  font-size: 13px;
+  min-width: 3ch;
+}
+
+.form-section .form-content {
+  display: grid;
+  grid-auto-flow: row;
+  grid-row-gap: 0.5rem;
+  padding: 0.75rem;
+}
+
+.alert-error {
+  color: var(--vscode-statusBarItem-errorForeground);
+  background-color: var(--vscode-statusBarItem-errorBackground);
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  align-self: center;
+}
+
+.input-row {
+  display: grid;
+  grid-auto-flow: row;
+}
+
 vscode-badge {
   white-space: nowrap;
 }
