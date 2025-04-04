@@ -90,7 +90,7 @@ public class ParametersJsonWriter
                     emitter.EmitProperty("kind", expression.Parameters[0]);
                     if (expression.Parameters.Length > 1)
                     {
-                        emitter.EmitProperty("options", expression.Parameters[1]);
+                        emitter.EmitProperty("config", expression.Parameters[1]);
                     }
                 });
             }
