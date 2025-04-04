@@ -1310,6 +1310,7 @@ output output5 bool = input5
 
         var bicepparamText = @"
 using 'main.bicep'
+
 param input = int(externalInput('custom.binding', 'input'))
 
 param input2 = string(externalInput('custom.uriForPath', {
@@ -1359,17 +1360,17 @@ param input5 = bool(externalInput('sys.cli'))
                 };
             });
 
-            var evaluated = TemplateEvaluator.Evaluate(templateResult.Template, paramResult.Parameters).ToJToken();
+            var evaluated = TemplateEvaluator.Evaluate(templateResult.Template, JToken.Parse(parametersWithExternalInputs)).ToJToken();
 
-            evaluated.Should().HaveValueAtPath("$.outputs['input'].value", 123);
-            evaluated.Should().HaveValueAtPath("$.outputs['input2'].value", "https://example.com?sas=token");
-            evaluated.Should().HaveValueAtPath("$.outputs['input3'].value", "test1_combined_with_test2");
-            evaluated.Should().HaveValueAtPath("$.outputs['input4'].value", new JObject
+            evaluated.Should().HaveValueAtPath("$.outputs['output'].value", 123);
+            evaluated.Should().HaveValueAtPath("$.outputs['output2'].value", "https://example.com?sas=token");
+            evaluated.Should().HaveValueAtPath("$.outputs['output3'].value", "test1_combined_with_test2");
+            evaluated.Should().HaveValueAtPath("$.outputs['output4'].value", new JObject
             {
                 ["key1"] = "value1",
                 ["key2"] = "value2"
             });
-            evaluated.Should().HaveValueAtPath("$.outputs['input5'].value", "false");
+            evaluated.Should().HaveValueAtPath("$.outputs['output5'].value", false);
         }
     }
 }
