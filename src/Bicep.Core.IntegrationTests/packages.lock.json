@@ -2,6 +2,23 @@
   "version": 1,
   "dependencies": {
     "net8.0": {
+      "Azure.Deployments.ClientTools": {
+        "type": "Direct",
+        "requested": "[1.316.0, )",
+        "resolved": "1.316.0",
+        "contentHash": "opQceFOlgm0+Ot94xVNANau364ib7RzGFs9sFmJHx+UkdbTU1o66IM5rnd+loFZTvmJjnzx+EAyNw6ROoO8T6w==",
+        "dependencies": {
+          "Azure.Deployments.Core": "1.316.0",
+          "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
+          "Microsoft.PowerPlatform.ResourceStack": "7.0.0.2070",
+          "Newtonsoft.Json": "13.0.3",
+          "System.Collections.Immutable": "8.0.0",
+          "System.Diagnostics.DiagnosticSource": "8.0.1",
+          "System.IO.Packaging": "8.0.1",
+          "System.Memory": "4.5.5",
+          "System.Reflection.Emit.Lightweight": "4.7.0"
+        }
+      },
       "FluentAssertions": {
         "type": "Direct",
         "requested": "[7.0.0, )",
@@ -103,14 +120,16 @@
       },
       "Azure.Deployments.Core": {
         "type": "Transitive",
-        "resolved": "1.241.0",
-        "contentHash": "ras2E2CErjAb0GUJvHn79W/+ERsRB86nnSxsrv/iXayWQyIyqqOlK5Ebh7NRwYWiSnCn0bqcrXQMZMyq0C3k8g==",
+        "resolved": "1.316.0",
+        "contentHash": "x80SamOm24cB0TTyHBRQxlxn+ADUWwvU/1o4WKoR+Q8yU/W3xui/rLb7VEoli/zMSKJDmr33CwNluq/0suWG8g==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
           "Microsoft.PowerPlatform.ResourceStack": "7.0.0.2070",
           "Newtonsoft.Json": "13.0.3",
           "System.Collections.Immutable": "8.0.0",
           "System.Diagnostics.DiagnosticSource": "8.0.1",
+          "System.IO.Packaging": "8.0.1",
+          "System.Memory": "4.5.5",
           "System.Reflection.Emit.Lightweight": "4.7.0"
         }
       },

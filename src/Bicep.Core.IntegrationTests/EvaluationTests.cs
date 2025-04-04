@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Diagnostics.CodeAnalysis;
+using Azure.Deployments.ClientTools;
 using Azure.Deployments.Core.Definitions.Identifiers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
@@ -1287,6 +1288,84 @@ output groupByWithValMapTest object = groupBy([
   ]
 }
 """);
+        }
+    }
+
+        [TestMethod]
+    public async Task ExternalInput_functions_are_evaluated_correctlyAsync()
+    {
+        var bicepFile = @"
+param input int
+param input2 string
+param input3 string
+param input4 object
+param input5 string
+
+output output int = input
+output output2 object = input2
+output output3 string = input3
+output output4 object = input4
+output output5 string = input5
+";
+
+        var bicepparamText = @"
+using 'main.bicep'
+param input = int(externalInput('custom.binding', 'input'))
+
+param input2 = string(externalInput('custom.uriForPath', {
+  path: '/path/to/file'
+}))
+
+param input3 = '${externalInput('custom.binding', '__BINDING__')}_combined_with_${externalInput('custom.binding', '__ANOTHER_BINDING__')}'
+
+param input4 = json(externalInput('custom.binding', 'objectInput'))
+
+param input5 = externalInput('sys.cli')
+"
+;
+
+        var paramResult = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepFile));
+
+        var templateResult = CompilationHelper.Compile(bicepFile);
+
+        var bindingValues = new Dictionary<JToken, string>
+        {
+            { "input",  "123" },
+            { "__BINDING__", "test1" },
+            { "__ANOTHER_BINDING__", "test2" },
+            { "objectInput", "{ \"key1\": \"value1\", \"key2\": \"value2\" }" }
+        };
+
+        using (new AssertionScope())
+        {
+            templateResult.Should().NotHaveAnyDiagnostics();
+            paramResult.Should().NotHaveAnyDiagnostics();
+
+            // provide external inputs
+            var parametersWithExternalInputs = await ParametersProcessor.Process(paramResult.Parameters!.ToString()!, async (kind, config) =>
+            {
+                await Task.CompletedTask;
+
+                return kind switch
+                {
+                    "custom.binding" => bindingValues[config!],
+                    "custom.uriForPath" => "https://example.com?sas=token",
+                    "sys.cli" => "foo",
+                    _ => throw new InvalidOperationException(),
+                };
+            });
+
+            var evaluated = TemplateEvaluator.Evaluate(templateResult.Template, paramResult.Parameters).ToJToken();
+
+            evaluated.Should().HaveValueAtPath("$.outputs['input'].value", 123);
+            evaluated.Should().HaveValueAtPath("$.outputs['input2'].value", "https://example.com?sas=token");
+            evaluated.Should().HaveValueAtPath("$.outputs['input3'].value", "test1_combined_with_test2");
+            evaluated.Should().HaveValueAtPath("$.outputs['input4'].value", new JObject
+            {
+                ["key1"] = "value1",
+                ["key2"] = "value2"
+            });
+            evaluated.Should().HaveValueAtPath("$.outputs['input5'].value", "foo");
         }
     }
 }
