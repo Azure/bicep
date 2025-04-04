@@ -98,7 +98,8 @@ namespace Bicep.Core.Emit
                         || levelUpSymbol is not PropertySymbol propertySymbol
                         || !(TypeHelper.TryRemoveNullability(propertySymbol.Type) ?? propertySymbol.Type).ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
                     {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).FunctionOnlyValidInModuleSecureParameterAndExtensionConfigAssignment(functionSymbol.Name));
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax)
+                            .FunctionOnlyValidInModuleSecureParameterAndExtensionConfigAssignment(functionSymbol.Name, semanticModel.Features is { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true }));
                     }
                 }
 
