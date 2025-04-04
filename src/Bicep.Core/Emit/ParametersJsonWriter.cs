@@ -29,7 +29,7 @@ public class ParametersJsonWriter
     private JToken GenerateParametersJToken(PositionTrackingJsonTextWriter jsonWriter)
     {
         var emitter = new ExpressionEmitter(jsonWriter, this.Context);
-        
+
         jsonWriter.WriteStartObject();
         emitter.EmitProperty("$schema", "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#");
         emitter.EmitProperty("contentVersion", "1.0.0.0");
@@ -37,7 +37,7 @@ public class ParametersJsonWriter
         {
             foreach (var assignment in this.Context.SemanticModel.Root.ParameterAssignments)
             {
-                emitter.EmitObjectProperty(assignment.Name, () => 
+                emitter.EmitObjectProperty(assignment.Name, () =>
                 {
                     var parameter = this.Context.SemanticModel.EmitLimitationInfo.ParameterAssignments[assignment];
 
@@ -60,7 +60,7 @@ public class ParametersJsonWriter
                 });
             }
         });
-        
+
         if (this.Context.ExternalInputReferences.ParametersReferences.Count > 0)
         {
             WriteExternalInputDefinitions(emitter, this.Context.ExternalInputReferences.ExternalInputIndexMap);

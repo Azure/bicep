@@ -2069,8 +2069,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             CompileAndTest(
                 bicep,
                 new Options(
-                    AdditionalFiles: new[]
-                    {
+                    AdditionalFiles: [
                         (
                         "nestedtemplates/virtualNetworks.bicep",
                         @"
@@ -2085,7 +2084,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                             output nsgID string = 'name'
                         "
                         )
-                    }),
+                    ]),
                 expectedMessages: []);
         }
 

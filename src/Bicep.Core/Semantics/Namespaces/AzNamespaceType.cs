@@ -521,7 +521,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithFlags(FunctionFlags.RequiresInlining)
                     .Build();
             }
- 
+
             foreach (var overload in GetBicepFilePermittedOverloads())
             {
                 yield return new(overload, (targetScope, sfk) => sfk == BicepSourceFileKind.BicepFile && targetScope != ResourceScope.Local);

@@ -1090,7 +1090,7 @@ public class ExpressionBuilder
                 return new ExtensionConfigAssignmentReferenceExpression(variableAccessSyntax, extensionConfigAssignmentSymbol);
 
             case VariableSymbol variableSymbol:
-                if (Context.VariablesToInline.Contains(variableSymbol) || 
+                if (Context.VariablesToInline.Contains(variableSymbol) ||
                     Context.ExternalInputReferences.VariablesReferences.Contains(variableSymbol))
                 {
                     // we've got a runtime dependency, or we're evaluating a variable that has an external input function reference,

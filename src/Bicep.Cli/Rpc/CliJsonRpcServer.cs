@@ -79,7 +79,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
 
         return new(
             paramsResult.Success,
-            GetDiagnostics(compilation).ToImmutableArray(),
+            [ ..GetDiagnostics(compilation) ],
             paramsResult.Parameters,
             paramsResult.Template?.Template,
             paramsResult.TemplateSpecId);
