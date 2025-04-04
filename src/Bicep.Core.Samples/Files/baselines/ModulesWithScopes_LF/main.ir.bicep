@@ -1,9 +1,9 @@
 targetScope = 'tenant'
-//@[000:1075) ProgramExpression
+//@[000:1047) ProgramExpression
 
 module myManagementGroupMod 'modules/managementgroup.bicep' = {
-//@[000:0145) ├─DeclaredModuleExpression
-//@[062:0145) | └─ObjectExpression
+//@[000:0142) ├─DeclaredModuleExpression
+//@[062:0142) | └─ObjectExpression
   name: 'myManagementGroupMod'
 //@[002:0030) |   └─ObjectPropertyExpression
 //@[002:0006) |     ├─StringLiteralExpression { Value = name }
@@ -11,8 +11,8 @@ module myManagementGroupMod 'modules/managementgroup.bicep' = {
   scope: managementGroup('myManagementGroup')
 }
 module myManagementGroupModWithDuplicatedNameButDifferentScope 'modules/managementgroup_empty.bicep' = {
-//@[000:0187) ├─DeclaredModuleExpression
-//@[103:0187) | └─ObjectExpression
+//@[000:0184) ├─DeclaredModuleExpression
+//@[103:0184) | └─ObjectExpression
   name: 'myManagementGroupMod'
 //@[002:0030) |   └─ObjectPropertyExpression
 //@[002:0006) |     ├─StringLiteralExpression { Value = name }
@@ -20,8 +20,8 @@ module myManagementGroupModWithDuplicatedNameButDifferentScope 'modules/manageme
   scope: managementGroup('myManagementGroup2')
 }
 module mySubscriptionMod 'modules/subscription.bicep' = {
-//@[000:0152) ├─DeclaredModuleExpression
-//@[056:0152) | └─ObjectExpression
+//@[000:0149) ├─DeclaredModuleExpression
+//@[056:0149) | └─ObjectExpression
   name: 'mySubscriptionMod'
 //@[002:0027) |   └─ObjectPropertyExpression
 //@[002:0006) |     ├─StringLiteralExpression { Value = name }
@@ -30,13 +30,13 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 }
 
 module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length('foo') == 3) {
-//@[000:0202) ├─DeclaredModuleExpression
+//@[000:0199) ├─DeclaredModuleExpression
 //@[073:0091) | └─ConditionExpression
 //@[073:0091) |   ├─BinaryExpression { Operator = Equals }
 //@[073:0086) |   | ├─FunctionCallExpression { Name = length }
 //@[080:0085) |   | | └─StringLiteralExpression { Value = foo }
 //@[090:0091) |   | └─IntegerLiteralExpression { Value = 3 }
-//@[093:0202) |   └─ObjectExpression
+//@[093:0199) |   └─ObjectExpression
   name: 'mySubscriptionModWithCondition'
 //@[002:0040) |     └─ObjectPropertyExpression
 //@[002:0006) |       ├─StringLiteralExpression { Value = name }
@@ -45,8 +45,8 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 }
 
 module mySubscriptionModWithDuplicatedNameButDifferentScope 'modules/subscription_empty.bicep' = {
-//@[000:0193) ├─DeclaredModuleExpression
-//@[097:0193) | └─ObjectExpression
+//@[000:0190) ├─DeclaredModuleExpression
+//@[097:0190) | └─ObjectExpression
   name: 'mySubscriptionMod'
 //@[002:0027) |   └─ObjectPropertyExpression
 //@[002:0006) |     ├─StringLiteralExpression { Value = name }
