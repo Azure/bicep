@@ -1807,13 +1807,23 @@ namespace Bicep.Core.TypeSystem
                         throw new InvalidOperationException("Expected ImportWithClauseSyntax to have a parent.");
                     }
 
-                    if (GetDeclaredTypeAssignment(parent) is not { } extensionAssignment ||
-                        extensionAssignment.Reference.Type is not NamespaceType namespaceType)
+                    ObjectType? configType = null;
+
+                    if (GetDeclaredTypeAssignment(parent) is not { } extensionAssignment)
                     {
                         return null;
                     }
 
-                    if (namespaceType.ConfigurationType is null)
+                    if (extensionAssignment.Reference.Type is NamespaceType namespaceType)
+                    {
+                        configType = namespaceType.ConfigurationType;
+                    }
+                    else if (parent is ExtensionConfigAssignmentSyntax && extensionAssignment.Reference.Type is ObjectType configTypeFromAssignment)
+                    {
+                        configType = configTypeFromAssignment;
+                    }
+
+                    if (configType is null)
                     {
                         // this namespace doesn't support configuration, but it has been provided.
                         // we'll check for this during type assignment.
@@ -1822,7 +1832,7 @@ namespace Bicep.Core.TypeSystem
 
                     // the object is an item in an array
                     // use the item's type and propagate flags
-                    return TryCreateAssignment(ResolveDiscriminatedObjects(namespaceType.ConfigurationType.Type, syntax), syntax, extensionAssignment.Flags);
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(configType.Type, syntax), syntax, extensionAssignment.Flags);
                 case FunctionArgumentSyntax:
                 case OutputDeclarationSyntax parentOutput when syntax == parentOutput.Value:
                 case VariableDeclarationSyntax parentVariable when syntax == parentVariable.Value:

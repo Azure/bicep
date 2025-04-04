@@ -78,6 +78,7 @@ public class ParametersJsonWriter
             foreach (var configProperty in configProperties)
             {
                 jsonWriter.WritePropertyName(configProperty.Key);
+                jsonWriter.WriteStartObject();
 
                 if (configProperty.Value.KeyVaultReferenceExpression is { } keyVaultReference)
                 {
@@ -85,17 +86,15 @@ public class ParametersJsonWriter
                 }
                 else if (configProperty.Value.Value is { } value)
                 {
-                    jsonWriter.WriteStartObject();
-
                     jsonWriter.WritePropertyName("value");
                     value.WriteTo(jsonWriter);
-
-                    jsonWriter.WriteEndObject();
                 }
                 else
                 {
                     throw new InvalidOperationException($"The '{configProperty.Key}' property of the '{extension.Name}' extension config assignment defined neither a concrete value nor a key vault reference");
                 }
+
+                jsonWriter.WriteEndObject();
             }
 
             jsonWriter.WriteEndObject();
