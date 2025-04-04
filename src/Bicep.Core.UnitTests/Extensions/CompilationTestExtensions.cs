@@ -32,16 +32,22 @@ public static class CompilationTestExtensions
         var stringBuilder = new StringBuilder();
         var stringWriter = new StringWriter(stringBuilder);
 
-        var sourceFileModel = bicepFileUri switch
+        SemanticModel? bicepFileModel;
+        if (bicepFileUri is not null)
         {
-            not null when compilation.SourceFileGrouping.SourceFiles.OfType<BicepFile>().SingleOrDefault(f => f.Uri == bicepFileUri) is { } bicepFile
-                => compilation.GetSemanticModel(bicepFile),
-            _ when compilation.SourceFileGrouping.EntryPoint is BicepFile
-                => compilation.GetEntrypointSemanticModel(),
-            _ => throw new InvalidOperationException($"The compilation entry point is a '{compilation.SourceFileGrouping.EntryPoint.GetType().Name}' and not a '{nameof(BicepFile)}'. An ARM template cannot be emitted.")
-        };
+            var targetFile = compilation.SourceFileGrouping.SourceFiles.OfType<BicepFile>().Single(f => f.Uri == bicepFileUri);
+            bicepFileModel = compilation.GetSemanticModel(targetFile);
+        }
+        else if (compilation.SourceFileGrouping.EntryPoint is BicepFile)
+        {
+            bicepFileModel = compilation.GetEntrypointSemanticModel();
+        }
+        else
+        {
+            throw new InvalidOperationException($"The compilation entry point is a '{compilation.SourceFileGrouping.EntryPoint.GetType().Name}' and not a '{nameof(BicepFile)}'. An ARM template cannot be emitted.");
+        }
 
-        var emitter = new TemplateEmitter(sourceFileModel);
+        var emitter = new TemplateEmitter(bicepFileModel);
         emitter.Emit(stringWriter);
 
         return stringBuilder.ToString();
