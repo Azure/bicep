@@ -23,7 +23,6 @@ extension kubernetes with {
 // BEGIN: Key vaults
 
 resource kv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
-//@[09:12) [no-unused-existing-resources (Warning)] Existing resource "kv1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-existing-resources) |kv1|
   name: 'kv1'
 }
 
@@ -75,16 +74,15 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
   }
 }
 
-// TODO(kylealbert): Allow key vault references in extension configs
-// module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//   name: 'moduleExtConfigKeyVaultReference'
-//   extensionConfigs: {
-//     k8s: {
-//       kubeConfig: kv1.getSecret('myKubeConfig'),
-//       namespace: scopedKv1.getSecret('myNamespace')
-//     }
-//   }
-// }
+module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  name: 'moduleExtConfigKeyVaultReference'
+  extensionConfigs: {
+    k8s: {
+      kubeConfig: kv1.getSecret('myKubeConfig')
+      namespace: 'default'
+    }
+  }
+}
 
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
   name: 'moduleWithExtsFullInheritance'
@@ -122,6 +120,7 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 
 output k8sConfig object = k8s.config
 //@[17:23) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
+//@[30:36) [outputs-should-not-contain-secrets (Warning)] Outputs should not contain secrets. Found possible secret: secure value 'k8s.config.kubeConfig' (bicep core linter https://aka.ms/bicep/linter/outputs-should-not-contain-secrets) |config|
 
 output k8sNamespace string = k8s.config.namespace
 

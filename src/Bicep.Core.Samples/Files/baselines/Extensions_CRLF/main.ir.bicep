@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[00:3059) ProgramExpression
+//@[00:2936) ProgramExpression
 
 param strParam1 string
 //@[00:0022) ├─DeclaredParameterExpression { Name = strParam1 }
@@ -153,16 +153,32 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
   }
 }
 
-// TODO(kylealbert): Allow key vault references in extension configs
-// module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//   name: 'moduleExtConfigKeyVaultReference'
-//   extensionConfigs: {
-//     k8s: {
-//       kubeConfig: kv1.getSecret('myKubeConfig'),
-//       namespace: scopedKv1.getSecret('myNamespace')
-//     }
-//   }
-// }
+module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[00:0267) ├─DeclaredModuleExpression
+//@[95:0267) | ├─ObjectExpression
+  name: 'moduleExtConfigKeyVaultReference'
+//@[02:0042) | | └─ObjectPropertyExpression
+//@[02:0006) | |   ├─StringLiteralExpression { Value = name }
+//@[08:0042) | |   └─StringLiteralExpression { Value = moduleExtConfigKeyVaultReference }
+  extensionConfigs: {
+//@[20:0122) | └─ObjectExpression
+    k8s: {
+//@[04:0094) |   └─ObjectPropertyExpression
+//@[04:0007) |     ├─StringLiteralExpression { Value = k8s }
+//@[09:0094) |     └─ObjectExpression
+      kubeConfig: kv1.getSecret('myKubeConfig')
+//@[06:0047) |       ├─ObjectPropertyExpression
+//@[06:0016) |       | ├─StringLiteralExpression { Value = kubeConfig }
+//@[18:0047) |       | └─ResourceFunctionCallExpression { Name = getSecret }
+//@[18:0021) |       |   ├─ResourceReferenceExpression
+//@[32:0046) |       |   └─StringLiteralExpression { Value = myKubeConfig }
+      namespace: 'default'
+//@[06:0026) |       └─ObjectPropertyExpression
+//@[06:0015) |         ├─StringLiteralExpression { Value = namespace }
+//@[17:0026) |         └─StringLiteralExpression { Value = default }
+    }
+  }
+}
 
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@[00:0187) ├─DeclaredModuleExpression

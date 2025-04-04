@@ -72,16 +72,15 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
   }
 }
 
-// TODO(kylealbert): Allow key vault references in extension configs
-// module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//   name: 'moduleExtConfigKeyVaultReference'
-//   extensionConfigs: {
-//     k8s: {
-//       kubeConfig: kv1.getSecret('myKubeConfig'),
-//       namespace: scopedKv1.getSecret('myNamespace')
-//     }
-//   }
-// }
+module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  name: 'moduleExtConfigKeyVaultReference'
+  extensionConfigs: {
+    k8s: {
+      kubeConfig: kv1.getSecret('myKubeConfig')
+      namespace: 'default'
+    }
+  }
+}
 
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
   name: 'moduleWithExtsFullInheritance'

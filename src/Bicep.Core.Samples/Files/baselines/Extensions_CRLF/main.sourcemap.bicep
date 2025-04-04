@@ -26,7 +26,7 @@ extension kubernetes with {
 //@      "version": "1.0.0",
 //@      "config": {
 //@        "kubeConfig": {
-//@          "type": "string",
+//@          "type": "secureString",
 //@        },
 //@        "namespace": {
 //@          "type": "string",
@@ -108,7 +108,7 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "16109138385919213017"
+//@              "templateHash": "13022283377733806646"
 //@            }
 //@          },
 //@          "extensions": {
@@ -117,7 +117,7 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
 //@              "version": "1.0.0",
 //@              "config": {
 //@                "kubeConfig": {
-//@                  "type": "string",
+//@                  "type": "secureString",
 //@                  "defaultValue": "DELETE"
 //@                },
 //@                "namespace": {
@@ -173,7 +173,7 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "15982584485385996989"
+//@              "templateHash": "14368205701170746508"
 //@            }
 //@          },
 //@          "extensions": {
@@ -182,7 +182,7 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
 //@              "version": "1.0.0",
 //@              "config": {
 //@                "kubeConfig": {
-//@                  "type": "string",
+//@                  "type": "secureString",
 //@                  "defaultValue": "DELETE"
 //@                },
 //@                "namespace": {
@@ -238,7 +238,7 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "16109138385919213017"
+//@              "templateHash": "13022283377733806646"
 //@            }
 //@          },
 //@          "extensions": {
@@ -247,7 +247,7 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
 //@              "version": "1.0.0",
 //@              "config": {
 //@                "kubeConfig": {
-//@                  "type": "string",
+//@                  "type": "secureString",
 //@                  "defaultValue": "DELETE"
 //@                },
 //@                "namespace": {
@@ -277,16 +277,75 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
   }
 }
 
-// TODO(kylealbert): Allow key vault references in extension configs
-// module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//   name: 'moduleExtConfigKeyVaultReference'
-//   extensionConfigs: {
-//     k8s: {
-//       kubeConfig: kv1.getSecret('myKubeConfig'),
-//       namespace: scopedKv1.getSecret('myNamespace')
-//     }
-//   }
-// }
+module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@    "moduleExtConfigFromKeyVaultReference": {
+//@      "type": "Microsoft.Resources/deployments",
+//@      "apiVersion": "2022-09-01",
+//@      "properties": {
+//@        "expressionEvaluationOptions": {
+//@          "scope": "inner"
+//@        },
+//@        "mode": "Incremental",
+//@        "template": {
+//@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.2-experimental",
+//@          "contentVersion": "1.0.0.0",
+//@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Extensibility",
+//@              "Enable defining extension configs for modules"
+//@            ],
+//@            "_generator": {
+//@              "name": "bicep",
+//@              "version": "dev",
+//@              "templateHash": "13022283377733806646"
+//@            }
+//@          },
+//@          "extensions": {
+//@            "k8s": {
+//@              "name": "Kubernetes",
+//@              "version": "1.0.0",
+//@              "config": {
+//@                "kubeConfig": {
+//@                  "type": "secureString",
+//@                  "defaultValue": "DELETE"
+//@                },
+//@                "namespace": {
+//@                  "type": "string",
+//@                  "defaultValue": "DELETE"
+//@                }
+//@              }
+//@            }
+//@          },
+//@          "resources": {}
+//@        }
+//@      }
+//@    },
+  name: 'moduleExtConfigKeyVaultReference'
+//@      "name": "moduleExtConfigKeyVaultReference",
+  extensionConfigs: {
+//@        "extensionConfigs": {
+//@        },
+    k8s: {
+//@          "k8s": {
+//@          }
+      kubeConfig: kv1.getSecret('myKubeConfig')
+//@            "kubeConfig": {
+//@              "keyVaultReference": {
+//@                "keyVault": {
+//@                  "id": "[resourceId('Microsoft.KeyVault/vaults', 'kv1')]"
+//@                },
+//@                "secretName": "myKubeConfig"
+//@              }
+//@            },
+      namespace: 'default'
+//@            "namespace": {
+//@              "value": "default"
+//@            }
+    }
+  }
+}
 
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@    "moduleWithExtsUsingFullInheritance": {
@@ -310,7 +369,7 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "16109138385919213017"
+//@              "templateHash": "13022283377733806646"
 //@            }
 //@          },
 //@          "extensions": {
@@ -319,7 +378,7 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 //@              "version": "1.0.0",
 //@              "config": {
 //@                "kubeConfig": {
-//@                  "type": "string",
+//@                  "type": "secureString",
 //@                  "defaultValue": "DELETE"
 //@                },
 //@                "namespace": {
@@ -365,7 +424,7 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "16109138385919213017"
+//@              "templateHash": "13022283377733806646"
 //@            }
 //@          },
 //@          "extensions": {
@@ -374,7 +433,7 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 //@              "version": "1.0.0",
 //@              "config": {
 //@                "kubeConfig": {
-//@                  "type": "string",
+//@                  "type": "secureString",
 //@                  "defaultValue": "DELETE"
 //@                },
 //@                "namespace": {

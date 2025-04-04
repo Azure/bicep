@@ -281,26 +281,52 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
 //@[00:001) RightBrace |}|
 //@[01:005) NewLine |\r\n\r\n|
 
-// TODO(kylealbert): Allow key vault references in extension configs
-//@[68:070) NewLine |\r\n|
-// module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[99:101) NewLine |\r\n|
-//   name: 'moduleExtConfigKeyVaultReference'
-//@[45:047) NewLine |\r\n|
-//   extensionConfigs: {
-//@[24:026) NewLine |\r\n|
-//     k8s: {
-//@[13:015) NewLine |\r\n|
-//       kubeConfig: kv1.getSecret('myKubeConfig'),
-//@[51:053) NewLine |\r\n|
-//       namespace: scopedKv1.getSecret('myNamespace')
-//@[54:056) NewLine |\r\n|
-//     }
-//@[08:010) NewLine |\r\n|
-//   }
-//@[06:008) NewLine |\r\n|
-// }
-//@[04:008) NewLine |\r\n\r\n|
+module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[00:006) Identifier |module|
+//@[07:043) Identifier |moduleExtConfigFromKeyVaultReference|
+//@[44:092) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[93:094) Assignment |=|
+//@[95:096) LeftBrace |{|
+//@[96:098) NewLine |\r\n|
+  name: 'moduleExtConfigKeyVaultReference'
+//@[02:006) Identifier |name|
+//@[06:007) Colon |:|
+//@[08:042) StringComplete |'moduleExtConfigKeyVaultReference'|
+//@[42:044) NewLine |\r\n|
+  extensionConfigs: {
+//@[02:018) Identifier |extensionConfigs|
+//@[18:019) Colon |:|
+//@[20:021) LeftBrace |{|
+//@[21:023) NewLine |\r\n|
+    k8s: {
+//@[04:007) Identifier |k8s|
+//@[07:008) Colon |:|
+//@[09:010) LeftBrace |{|
+//@[10:012) NewLine |\r\n|
+      kubeConfig: kv1.getSecret('myKubeConfig')
+//@[06:016) Identifier |kubeConfig|
+//@[16:017) Colon |:|
+//@[18:021) Identifier |kv1|
+//@[21:022) Dot |.|
+//@[22:031) Identifier |getSecret|
+//@[31:032) LeftParen |(|
+//@[32:046) StringComplete |'myKubeConfig'|
+//@[46:047) RightParen |)|
+//@[47:049) NewLine |\r\n|
+      namespace: 'default'
+//@[06:015) Identifier |namespace|
+//@[15:016) Colon |:|
+//@[17:026) StringComplete |'default'|
+//@[26:028) NewLine |\r\n|
+    }
+//@[04:005) RightBrace |}|
+//@[05:007) NewLine |\r\n|
+  }
+//@[02:003) RightBrace |}|
+//@[03:005) NewLine |\r\n|
+}
+//@[00:001) RightBrace |}|
+//@[01:005) NewLine |\r\n\r\n|
 
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@[00:006) Identifier |module|

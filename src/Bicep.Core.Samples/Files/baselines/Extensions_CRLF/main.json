@@ -11,7 +11,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "548968234412626937"
+      "templateHash": "12759032955821215334"
     }
   },
   "parameters": {
@@ -31,7 +31,7 @@
       "version": "1.0.0",
       "config": {
         "kubeConfig": {
-          "type": "string",
+          "type": "secureString",
           "defaultValue": "DELETE"
         },
         "namespace": {
@@ -95,7 +95,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16109138385919213017"
+              "templateHash": "13022283377733806646"
             }
           },
           "extensions": {
@@ -104,7 +104,7 @@
               "version": "1.0.0",
               "config": {
                 "kubeConfig": {
-                  "type": "string",
+                  "type": "secureString",
                   "defaultValue": "DELETE"
                 },
                 "namespace": {
@@ -150,7 +150,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15982584485385996989"
+              "templateHash": "14368205701170746508"
             }
           },
           "extensions": {
@@ -159,7 +159,7 @@
               "version": "1.0.0",
               "config": {
                 "kubeConfig": {
-                  "type": "string",
+                  "type": "secureString",
                   "defaultValue": "DELETE"
                 },
                 "namespace": {
@@ -201,7 +201,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16109138385919213017"
+              "templateHash": "13022283377733806646"
             }
           },
           "extensions": {
@@ -210,7 +210,67 @@
               "version": "1.0.0",
               "config": {
                 "kubeConfig": {
+                  "type": "secureString",
+                  "defaultValue": "DELETE"
+                },
+                "namespace": {
                   "type": "string",
+                  "defaultValue": "DELETE"
+                }
+              }
+            }
+          },
+          "resources": {}
+        }
+      }
+    },
+    "moduleExtConfigFromKeyVaultReference": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "moduleExtConfigKeyVaultReference",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "k8s": {
+            "kubeConfig": {
+              "keyVaultReference": {
+                "keyVault": {
+                  "id": "[resourceId('Microsoft.KeyVault/vaults', 'kv1')]"
+                },
+                "secretName": "myKubeConfig"
+              }
+            },
+            "namespace": {
+              "value": "default"
+            }
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.2-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Extensibility",
+              "Enable defining extension configs for modules"
+            ],
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "13022283377733806646"
+            }
+          },
+          "extensions": {
+            "k8s": {
+              "name": "Kubernetes",
+              "version": "1.0.0",
+              "config": {
+                "kubeConfig": {
+                  "type": "secureString",
                   "defaultValue": "DELETE"
                 },
                 "namespace": {
@@ -249,7 +309,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16109138385919213017"
+              "templateHash": "13022283377733806646"
             }
           },
           "extensions": {
@@ -258,7 +318,7 @@
               "version": "1.0.0",
               "config": {
                 "kubeConfig": {
-                  "type": "string",
+                  "type": "secureString",
                   "defaultValue": "DELETE"
                 },
                 "namespace": {
@@ -300,7 +360,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16109138385919213017"
+              "templateHash": "13022283377733806646"
             }
           },
           "extensions": {
@@ -309,7 +369,7 @@
               "version": "1.0.0",
               "config": {
                 "kubeConfig": {
-                  "type": "string",
+                  "type": "secureString",
                   "defaultValue": "DELETE"
                 },
                 "namespace": {
