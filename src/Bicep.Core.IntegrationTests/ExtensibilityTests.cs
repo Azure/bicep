@@ -16,6 +16,9 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class ExtensibilityTests : TestBase
     {
+        private const string MockSubscriptionId = "00000000-0000-0000-0000-000000000001";
+        private const string MockResourceGroupName = "mock-rg";
+
         [TestMethod]
         public void Bar_import_bad_config_is_blocked()
         {
@@ -646,8 +649,14 @@ Hello from Bicep!"));
             result.Template.Should().HaveValueAtPath("$.resources.myApp.extension", "foo");
         }
 
-        [TestMethod]
-        public async Task Module_with_required_extension_config_can_be_compiled_successfully()
+        [DataTestMethod]
+        [DataRow(
+            "InlineValues", "{ kubeConfig: 'fromModule', namespace: 'other' }", null)]
+        [DataRow(
+            "KeyVaultReference",
+            "{ kubeConfig: kv.getSecret('myKubeConfig'), namespace: 'other' }",
+            $$"""{ kubeConfig: az.getSecret('{{MockSubscriptionId}}', '{{MockResourceGroupName}}', 'kv', 'myKubeConfig'), namespace: 'other' }""")]
+        public async Task Module_with_required_extension_config_can_be_compiled_successfully(string scenario, string moduleKubeExtConfig, string? paramsKubeExtConfig)
         {
             var paramsUri = new Uri("file:///main.bicepparam");
             var mainUri = new Uri("file:///main.bicep");
@@ -657,42 +666,40 @@ Hello from Bicep!"));
             var files = new Dictionary<Uri, string>
             {
                 [paramsUri] =
-                    """
-                    using 'main.bicep'
+                    $$"""
+                      using 'main.bicep'
 
-                    param inputa = 'abc'
+                      param inputa = 'abc'
 
-                    extension k8s with {
-                      kubeConfig: 'abc'
-                      namespace: 'other'
-                    }
-                    """,
+                      extension k8s with {{paramsKubeExtConfig ?? moduleKubeExtConfig}}
+                      """,
                 [mainUri] =
-                    """
-                    param inputa string
+                    $$"""
+                      param inputa string
 
-                    extension kubernetes with {
-                      kubeConfig: 'DELETE'
-                      namespace: 'DELETE'
-                    } as k8s
+                      extension kubernetes with {
+                        kubeConfig: 'DELETE'
+                        namespace: 'DELETE'
+                      } as k8s
 
-                    extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3'
+                      extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3'
 
-                    module modulea 'modulea.bicep' = {
-                      name: 'modulea'
-                      params: {
-                        inputa: inputa
+                      resource kv 'Microsoft.KeyVault/vaults@2021-06-01-preview' existing = {
+                        name: 'kv'
                       }
-                      extensionConfigs: {
-                        kubernetes: {
-                          kubeConfig: 'fromModule'
-                          namespace: 'other'
+
+                      module modulea 'modulea.bicep' = {
+                        name: 'modulea'
+                        params: {
+                          inputa: inputa
+                        }
+                        extensionConfigs: {
+                          kubernetes: {{moduleKubeExtConfig}}
                         }
                       }
-                    }
 
-                    output outputa string = modulea.outputs.outputa
-                    """,
+                      output outputa string = modulea.outputs.outputa
+                      """,
                 [moduleAUri] =
                     """
                     param inputa string

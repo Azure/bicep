@@ -937,8 +937,9 @@ namespace Bicep.Core.Diagnostics
                     ? $"Unique resource or deployment name is required when looping. The loop item variable \"{itemVariableName}\" must be referenced in at least one of the value expressions of the following properties: {ToQuotedString(expectedVariantProperties)}"
                     : $"Unique resource or deployment name is required when looping. The loop item variable \"{itemVariableName}\" or the index variable \"{indexVariableName}\" must be referenced in at least one of the value expressions of the following properties in the loop body: {ToQuotedString(expectedVariantProperties)}");
 
-            public Diagnostic FunctionOnlyValidInModuleSecureParameterAssignment(string functionName) => CoreError(
+            public Diagnostic FunctionOnlyValidInModuleSecureParameterAndExtensionConfigAssignment(string functionName) => CoreError(
                 "BCP180",
+                // TODO(kylealbert): update text.
                 $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator.");
 
             public Diagnostic RuntimeValueNotAllowedInRunTimeFunctionArguments(string functionName, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)

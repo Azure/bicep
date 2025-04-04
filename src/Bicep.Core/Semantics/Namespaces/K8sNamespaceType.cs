@@ -29,7 +29,7 @@ namespace Bicep.Core.Semantics.Namespaces
             return new ObjectType("configuration", TypeSymbolValidationFlags.Default, new[]
             {
                 new NamedTypeProperty("namespace", LanguageConstants.String, TypePropertyFlags.Required, "The default Kubernetes namespace to deploy resources to."),
-                new NamedTypeProperty("kubeConfig", LanguageConstants.String, TypePropertyFlags.Required, "The Kubernetes configuration file, base-64 encoded."),
+                new NamedTypeProperty("kubeConfig", LanguageConstants.SecureString, TypePropertyFlags.Required, "The Kubernetes configuration file, base-64 encoded."),
                 new NamedTypeProperty("context", LanguageConstants.String),
             }, null);
         }
