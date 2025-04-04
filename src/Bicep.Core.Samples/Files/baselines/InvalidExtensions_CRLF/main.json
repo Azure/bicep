@@ -11,18 +11,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12759032955821215334"
-    }
-  },
-  "parameters": {
-    "strParam1": {
-      "type": "string"
-    },
-    "secureStrParam1": {
-      "type": "securestring"
-    },
-    "boolParam1": {
-      "type": "bool"
+      "templateHash": "18415478351645085255"
     }
   },
   "extensions": {
@@ -31,7 +20,7 @@
       "version": "1.0.0",
       "config": {
         "kubeConfig": {
-          "type": "secureString",
+          "type": "string",
           "defaultValue": "DELETE"
         },
         "namespace": {
@@ -42,27 +31,6 @@
     }
   },
   "resources": {
-    "kv1": {
-      "existing": true,
-      "type": "Microsoft.KeyVault/vaults",
-      "apiVersion": "2019-09-01",
-      "name": "kv1"
-    },
-    "scopedKv1": {
-      "existing": true,
-      "type": "Microsoft.KeyVault/vaults",
-      "apiVersion": "2019-09-01",
-      "resourceGroup": "otherGroup",
-      "name": "scopedKv1"
-    },
-    "testResource1": {
-      "type": "My.Rp/TestType",
-      "apiVersion": "2020-01-01",
-      "name": "[extensionConfigs('k8s').namespace]",
-      "properties": {
-        "secret": "[extensionConfigs('k8s').kubeConfig]"
-      }
-    },
     "moduleWithExtsWithAliases": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
@@ -95,7 +63,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13022283377733806646"
+              "templateHash": "16109138385919213017"
             }
           },
           "extensions": {
@@ -104,7 +72,7 @@
               "version": "1.0.0",
               "config": {
                 "kubeConfig": {
-                  "type": "secureString",
+                  "type": "string",
                   "defaultValue": "DELETE"
                 },
                 "namespace": {
@@ -150,7 +118,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "14368205701170746508"
+              "templateHash": "15982584485385996989"
             }
           },
           "extensions": {
@@ -159,118 +127,7 @@
               "version": "1.0.0",
               "config": {
                 "kubeConfig": {
-                  "type": "secureString",
-                  "defaultValue": "DELETE"
-                },
-                "namespace": {
                   "type": "string",
-                  "defaultValue": "DELETE"
-                }
-              }
-            }
-          },
-          "resources": {}
-        }
-      }
-    },
-    "moduleExtConfigsFromParams": {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "moduleExtConfigsFromParams",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "extensionConfigs": {
-          "k8s": {
-            "kubeConfig": "[if(parameters('boolParam1'), createObject('value', parameters('secureStrParam1')), createObject('value', parameters('strParam1')))]",
-            "namespace": "[if(parameters('boolParam1'), createObject('value', parameters('strParam1')), createObject('value', 'falseCond'))]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "2.2-experimental",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
-            "_EXPERIMENTAL_FEATURES_ENABLED": [
-              "Extensibility",
-              "Enable defining extension configs for modules"
-            ],
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "13022283377733806646"
-            }
-          },
-          "extensions": {
-            "k8s": {
-              "name": "Kubernetes",
-              "version": "1.0.0",
-              "config": {
-                "kubeConfig": {
-                  "type": "secureString",
-                  "defaultValue": "DELETE"
-                },
-                "namespace": {
-                  "type": "string",
-                  "defaultValue": "DELETE"
-                }
-              }
-            }
-          },
-          "resources": {}
-        }
-      }
-    },
-    "moduleExtConfigFromKeyVaultReference": {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "moduleExtConfigKeyVaultReference",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "extensionConfigs": {
-          "k8s": {
-            "kubeConfig": {
-              "keyVaultReference": {
-                "keyVault": {
-                  "id": "[resourceId('Microsoft.KeyVault/vaults', 'kv1')]"
-                },
-                "secretName": "myKubeConfig"
-              }
-            },
-            "namespace": {
-              "value": "default"
-            }
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "2.2-experimental",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
-            "_EXPERIMENTAL_FEATURES_ENABLED": [
-              "Extensibility",
-              "Enable defining extension configs for modules"
-            ],
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "13022283377733806646"
-            }
-          },
-          "extensions": {
-            "k8s": {
-              "name": "Kubernetes",
-              "version": "1.0.0",
-              "config": {
-                "kubeConfig": {
-                  "type": "secureString",
                   "defaultValue": "DELETE"
                 },
                 "namespace": {
@@ -294,7 +151,7 @@
         },
         "mode": "Incremental",
         "extensionConfigs": {
-          "k8s": "[extensionConfigs('k8s')]"
+          "k8s": "[extensionConfigs('k8s').config]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -309,7 +166,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13022283377733806646"
+              "templateHash": "16109138385919213017"
             }
           },
           "extensions": {
@@ -318,7 +175,7 @@
               "version": "1.0.0",
               "config": {
                 "kubeConfig": {
-                  "type": "secureString",
+                  "type": "string",
                   "defaultValue": "DELETE"
                 },
                 "namespace": {
@@ -343,8 +200,12 @@
         "mode": "Incremental",
         "extensionConfigs": {
           "k8s": {
-            "kubeConfig": "[extensionConfigs('k8s').kubeConfig]",
-            "namespace": "[extensionConfigs('k8s').namespace]"
+            "kubeConfig": {
+              "value": "[extensionConfigs('k8s').config.kubeConfig]"
+            },
+            "namespace": {
+              "value": "[extensionConfigs('k8s').config.namespace]"
+            }
           }
         },
         "template": {
@@ -360,7 +221,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13022283377733806646"
+              "templateHash": "16109138385919213017"
             }
           },
           "extensions": {
@@ -369,7 +230,7 @@
               "version": "1.0.0",
               "config": {
                 "kubeConfig": {
-                  "type": "secureString",
+                  "type": "string",
                   "defaultValue": "DELETE"
                 },
                 "namespace": {
@@ -382,16 +243,6 @@
           "resources": {}
         }
       }
-    }
-  },
-  "outputs": {
-    "k8sConfig": {
-      "type": "object",
-      "value": "[extensionConfigs('k8s')]"
-    },
-    "k8sNamespace": {
-      "type": "string",
-      "value": "[extensionConfigs('k8s').namespace]"
     }
   }
 }

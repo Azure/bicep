@@ -184,6 +184,9 @@ namespace Bicep.Core.Emit
                 case ParametersAssignmentReferenceExpression exp:
                     return CreateFunction("parameters", new JTokenExpression(exp.Parameter.Name));
 
+                case ExtensionReferenceExpression exp:
+                    return CreateFunction("extensionConfigs", new JTokenExpression(exp.ExtensionNamespace.Name));
+
                 case ExtensionConfigAssignmentReferenceExpression exp:
                     return CreateFunction("extensionConfigs", new JTokenExpression(exp.ExtensionConfigAssignment.Name));
 
@@ -228,6 +231,8 @@ namespace Bicep.Core.Emit
                 => GetConverter(resource.IndexContext).ConvertResourcePropertyAccess(resource, exp),
             ModuleReferenceExpression module
                 => GetConverter(module.IndexContext).ConvertModulePropertyAccess(module, exp),
+            ExtensionReferenceExpression extension
+                => ConvertExtensionPropertyAccess(extension, exp),
             _ => ConvertAccessExpression(exp),
         };
 
@@ -505,6 +510,13 @@ namespace Bicep.Core.Emit
                     throw new InvalidOperationException($"Unsupported module property: {expression.PropertyName}");
             }
         }
+
+        private LanguageExpression ConvertExtensionPropertyAccess(ExtensionReferenceExpression reference, PropertyAccessExpression expression) =>
+            expression.PropertyName switch
+            {
+                "config" => CreateFunction("extensionConfigs", new JTokenExpression(reference.ExtensionNamespace.Name)),
+                _ => throw new InvalidOperationException($"Unsupported extension property: {expression.PropertyName}")
+            };
 
         public IEnumerable<LanguageExpression> GetResourceNameSegments(DeclaredResourceMetadata resource)
             => GetResourceNameSegments(resource, expressionBuilder.GetResourceNameSyntaxSegments(resource).ToImmutableArray());
