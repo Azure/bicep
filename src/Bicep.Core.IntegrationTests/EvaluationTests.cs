@@ -1292,20 +1292,20 @@ output groupByWithValMapTest object = groupBy([
     }
 
         [TestMethod]
-    public async Task ExternalInput_functions_are_evaluated_correctlyAsync()
+    public async Task ExternalInput_functions_are_evaluated_correctly()
     {
         var bicepFile = @"
 param input int
 param input2 string
 param input3 string
 param input4 object
-param input5 string
+param input5 bool
 
 output output int = input
-output output2 object = input2
+output output2 string = input2
 output output3 string = input3
 output output4 object = input4
-output output5 string = input5
+output output5 bool = input5
 ";
 
         var bicepparamText = @"
@@ -1320,11 +1320,15 @@ param input3 = '${externalInput('custom.binding', '__BINDING__')}_combined_with_
 
 param input4 = json(externalInput('custom.binding', 'objectInput'))
 
-param input5 = externalInput('sys.cli')
+param input5 = bool(externalInput('sys.cli'))
 "
 ;
 
-        var paramResult = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepFile));
+        var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ExternalInputFunctionEnabled: true));
+
+        var paramResult = CompilationHelper.CompileParams(
+            services,
+            ("parameters.bicepparam", bicepparamText), ("main.bicep", bicepFile));
 
         var templateResult = CompilationHelper.Compile(bicepFile);
 
@@ -1350,7 +1354,7 @@ param input5 = externalInput('sys.cli')
                 {
                     "custom.binding" => bindingValues[config!],
                     "custom.uriForPath" => "https://example.com?sas=token",
-                    "sys.cli" => "foo",
+                    "sys.cli" => "false",
                     _ => throw new InvalidOperationException(),
                 };
             });
@@ -1365,7 +1369,7 @@ param input5 = externalInput('sys.cli')
                 ["key1"] = "value1",
                 ["key2"] = "value2"
             });
-            evaluated.Should().HaveValueAtPath("$.outputs['input5'].value", "foo");
+            evaluated.Should().HaveValueAtPath("$.outputs['input5'].value", "false");
         }
     }
 }
