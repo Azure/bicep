@@ -17,6 +17,7 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceLink;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
@@ -41,8 +42,6 @@ namespace Bicep.LanguageServer.Handlers
     {
         private readonly ISymbolResolver symbolResolver;
         private readonly ICompilationManager compilationManager;
-        private readonly IFileResolver fileResolver;
-        private readonly IFileExplorer fileExplorer;
         private readonly ILanguageServerFacade languageServer;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly DocumentSelectorFactory documentSelectorFactory;
@@ -50,16 +49,12 @@ namespace Bicep.LanguageServer.Handlers
         public BicepDefinitionHandler(
             ISymbolResolver symbolResolver,
             ICompilationManager compilationManager,
-            IFileResolver fileResolver,
-            IFileExplorer fileExplorer,
             ILanguageServerFacade languageServer,
             IModuleDispatcher moduleDispatcher,
             DocumentSelectorFactory documentSelectorFactory) : base()
         {
             this.symbolResolver = symbolResolver;
             this.compilationManager = compilationManager;
-            this.fileResolver = fileResolver;
-            this.fileExplorer = fileExplorer;
             this.languageServer = languageServer;
             this.moduleDispatcher = moduleDispatcher;
             this.documentSelectorFactory = documentSelectorFactory;
@@ -200,7 +195,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (reference is OciArtifactReference ociArtifactReference)
             {
-                return BicepExternalSourceRequestHandler.GetRegistryModuleSourceLinkUri(ociArtifactReference, moduleDispatcher?.TryGetModuleSources(reference).TryUnwrap());
+                return BicepExternalSourceRequestHandler.GetRegistryModuleSourceLinkUri(ociArtifactReference, ociArtifactReference.TryLoadSourceArchive().TryUnwrap());
             }
 
             if (reference is TemplateSpecModuleReference templateSpecModuleReference)

@@ -10,16 +10,21 @@ using Bicep.Core.Features;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.IO.Abstraction;
+using Bicep.Core.ArtifactCache;
+using Bicep.IO.Utils;
 
 namespace Bicep.Core.Registry.Oci
 {
     public class OciArtifactReference : ArtifactReference, IOciArtifactReference
     {
+        private readonly Lazy<OciModuleCacheAccessor> lazyModuleCacheAccessor;
+
         public OciArtifactReference(BicepSourceFile referencingFile, ArtifactType type, IOciArtifactAddressComponents artifactIdParts) :
             base(referencingFile, OciArtifactReferenceFacts.Scheme)
         {
             Type = type;
             AddressComponents = artifactIdParts;
+            lazyModuleCacheAccessor = new(() => new OciModuleCacheAccessor(this.AddressComponents, this.ReferencingFile.Features.CacheRootDirectory));
         }
 
         public OciArtifactReference(BicepSourceFile referencingFile, ArtifactType type, string registry, string repository, string? tag, string? digest) :
@@ -35,6 +40,7 @@ namespace Bicep.Core.Registry.Oci
 
             Type = type;
             AddressComponents = new OciArtifactAddressComponents(registry, repository, tag, digest);
+            lazyModuleCacheAccessor = new(() => new OciModuleCacheAccessor(this.AddressComponents, this.ReferencingFile.Features.CacheRootDirectory));
         }
 
         public IOciArtifactAddressComponents AddressComponents { get; }
@@ -72,6 +78,10 @@ namespace Bicep.Core.Registry.Oci
         public override string UnqualifiedReference => ArtifactId;
 
         public override bool IsExternal => true;
+
+        public IFileHandle ModuleEntryPointFile => this.lazyModuleCacheAccessor.Value.EntryPointFile;
+
+        public TgzFileHandle ModuleSourceTgzFile => this.lazyModuleCacheAccessor.Value.SourceTgzFile;
 
         // unqualifiedReference is the reference without a scheme or alias, e.g. "example.azurecr.invalid/foo/bar:v3"
         // The referencingFile is needed to resolve aliases and experimental features

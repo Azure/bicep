@@ -10,6 +10,7 @@ using Bicep.LanguageServer.Extensions;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
+using Bicep.Core.Utils;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -48,7 +49,7 @@ namespace Bicep.LanguageServer.Handlers
                     var isDisplayingCompiledJson = externalReference.IsRequestingCompiledJson;
                     if (externalReference.ToArtifactReference(sourceFileFactory.CreateDummyArtifactReferencingFile()).IsSuccess(out var artifactReference, out message))
                     {
-                        var sourceArchiveResult = moduleDispatcher.TryGetModuleSources(artifactReference);
+                        var sourceArchiveResult = artifactReference.TryLoadSourceArchive();
 
                         if (isDisplayingCompiledJson)
                         {

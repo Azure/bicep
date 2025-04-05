@@ -38,9 +38,6 @@ namespace Bicep.Core.Registry
 
         void PruneRestoreStatuses();
 
-        // Retrieves the sources that have been restored along with the module into the cache (if available)
-        ResultWithException<SourceArchive> TryGetModuleSources(ArtifactReference reference);
-
         Uri? TryGetExtensionBinary(ArtifactReference reference);
     }
 }
