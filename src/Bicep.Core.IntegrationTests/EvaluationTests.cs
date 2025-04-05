@@ -1300,12 +1300,22 @@ param input2 string
 param input3 string
 param input4 object
 param input5 bool
+param input6 int
+param myParam customType
+param input7 customType
 
 output output int = input
 output output2 string = input2
 output output3 string = input3
 output output4 object = input4
 output output5 bool = input5
+output output6 int = input6
+output output7 customType = input7
+
+type customType = {
+    foo: string
+    bar: int
+}
 ";
 
         var bicepparamText = @"
@@ -1322,6 +1332,13 @@ param input3 = '${externalInput('custom.binding', '__BINDING__')}_combined_with_
 param input4 = json(externalInput('custom.binding', 'objectInput'))
 
 param input5 = bool(externalInput('sys.cli'))
+
+var foo = int(externalInput('custom.binding', 'input'))
+
+param input6 = foo
+
+param myParam = json(externalInput('custom.binding', 'input7'))
+param input7 = myParam
 "
 ;
 
@@ -1338,13 +1355,14 @@ param input5 = bool(externalInput('sys.cli'))
             { "input",  "123" },
             { "__BINDING__", "test1" },
             { "__ANOTHER_BINDING__", "test2" },
-            { "objectInput", "{ \"key1\": \"value1\", \"key2\": \"value2\" }" }
+            { "objectInput", "{ \"key1\": \"value1\", \"key2\": \"value2\" }" },
+            { "input7", "{ \"foo\": \"bar\", \"bar\": 123 }" },
         };
 
         using (new AssertionScope())
         {
-            templateResult.Should().NotHaveAnyDiagnostics();
-            paramResult.Should().NotHaveAnyDiagnostics();
+            templateResult.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            paramResult.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
             // provide external inputs
             var parametersWithExternalInputs = await ParametersProcessor.Process(paramResult.Parameters!.ToString()!, async (kind, config) =>
@@ -1371,6 +1389,12 @@ param input5 = bool(externalInput('sys.cli'))
                 ["key2"] = "value2"
             });
             evaluated.Should().HaveValueAtPath("$.outputs['output5'].value", false);
+            evaluated.Should().HaveValueAtPath("$.outputs['output6'].value", 123);
+            evaluated.Should().HaveValueAtPath("$.outputs['output7'].value", new JObject
+            {
+                ["foo"] = "bar",
+                ["bar"] = 123
+            });
         }
     }
 }
