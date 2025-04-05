@@ -23,7 +23,7 @@ namespace Bicep.IO.Utils
         {
             if (!this.Exists())
             {
-                throw new InvalidOperationException("The file does not exist.");
+                throw new InvalidOperationException($"The file {this.fileHandle.Uri} does not exist.");
             }
 
             var entries = new Dictionary<string, string>();
