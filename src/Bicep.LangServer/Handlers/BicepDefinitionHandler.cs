@@ -126,6 +126,18 @@ namespace Bicep.LanguageServer.Handlers
                     return HandleModuleReference(context, stringToken, sourceFile, moduleReference);
                 }
             }
+            {
+                if (SyntaxMatcher.IsTailMatch<StepDeclarationSyntax, StringSyntax, Token>(
+                     matchingNodes,
+                     (stepSyntax, stringSyntax, token) => stepSyntax.Path == stringSyntax && token.Type == TokenType.StringComplete)
+                 && matchingNodes[^3] is StepDeclarationSyntax stepSyntax
+                 && matchingNodes[^2] is StringSyntax stringToken
+                 && context.Compilation.SourceFileGrouping.TryGetSourceFile(stepSyntax).IsSuccess(out var sourceFile)
+                 && this.moduleDispatcher.TryGetArtifactReference(context.Compilation.SourceFileGrouping.EntryPoint, stepSyntax).IsSuccess(out var reference))
+                {
+                    return HandleModuleReference(context, stringToken, sourceFile, reference);
+                }
+            }
             { // Definition handler for a non symbol bound to implement import path goto.
                 // try to resolve import path syntax from given offset using tail matching.
                 if (SyntaxMatcher.IsTailMatch<CompileTimeImportDeclarationSyntax, CompileTimeImportFromClauseSyntax, StringSyntax, Token>(

@@ -51,6 +51,11 @@ public class NamespaceProvider : INamespaceProvider
             yield return new(sysProvider.Name, nsType, null);
         }
 
+        if (targetScope == ResourceScope.Ev2Mockup)
+        {
+            yield return new("ev2", Ev2NamespaceType.Create("ev2"), null);
+        }
+
         var assignedProviders = new HashSet<string>(LanguageConstants.IdentifierComparer);
         foreach (var extension in extensions)
         {
@@ -162,6 +167,7 @@ public class NamespaceProvider : INamespaceProvider
             var typeProvider = targetScope switch
             {
                 ResourceScope.Local => new EmptyResourceTypeProvider(),
+                ResourceScope.Ev2Mockup => new EmptyResourceTypeProvider(),
                 _ => resourceTypeProviderFactory.GetBuiltInAzResourceTypesProvider(),
             };
 
@@ -171,6 +177,11 @@ public class NamespaceProvider : INamespaceProvider
         if (LanguageConstants.IdentifierComparer.Equals(extensionName, K8sNamespaceType.BuiltInName))
         {
             return K8sNamespaceType.Create(aliasName);
+        }
+
+        if (LanguageConstants.IdentifierComparer.Equals(extensionName, Ev2NamespaceType.BuiltInName))
+        {
+            return Ev2NamespaceType.Create(aliasName);
         }
 
         // microsoftGraph built-in extension is no longer supported.

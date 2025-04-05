@@ -1,0 +1,6 @@
+{
+  "experimentalFeaturesEnabled": {
+    "externalInputFunction": true,
+    "typedVariables": true
+  }
+}

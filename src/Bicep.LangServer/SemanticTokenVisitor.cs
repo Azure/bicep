@@ -196,6 +196,13 @@ namespace Bicep.LanguageServer
             base.VisitModuleDeclarationSyntax(syntax);
         }
 
+        public override void VisitStepDeclarationSyntax(StepDeclarationSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Name, SemanticTokenType.Variable);
+            base.VisitStepDeclarationSyntax(syntax);
+        }
+
         public override void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);

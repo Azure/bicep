@@ -123,6 +123,7 @@ namespace Bicep.Core.Syntax
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
             hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
             hasChanges |= TryRewriteStrict(syntax.Name, out var name);
+            hasChanges |= TryRewriteStrict(syntax.Type, out var type);
             hasChanges |= TryRewrite(syntax.Assignment, out var assignment);
             hasChanges |= TryRewrite(syntax.Value, out var value);
 
@@ -131,7 +132,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new MetadataDeclarationSyntax(leadingNodes, keyword, name, assignment, value);
+            return new MetadataDeclarationSyntax(leadingNodes, keyword, name, type, assignment, value);
         }
         void ISyntaxVisitor.VisitMetadataDeclarationSyntax(MetadataDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceMetadataDeclarationSyntax);
 
@@ -311,6 +312,25 @@ namespace Bicep.Core.Syntax
             return new ModuleDeclarationSyntax(leadingNodes, keyword, name, path, assignment, newlines.Cast<Token>().ToImmutableArray(), value);
         }
         void ISyntaxVisitor.VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceModuleDeclarationSyntax);
+
+        protected virtual SyntaxBase ReplaceStepDeclarationSyntax(StepDeclarationSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Name, out var name);
+            hasChanges |= TryRewrite(syntax.Path, out var path);
+            hasChanges |= TryRewrite(syntax.Assignment, out var assignment);
+            hasChanges |= TryRewrite(syntax.Newlines, out var newlines);
+            hasChanges |= TryRewrite(syntax.Value, out var value);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ModuleDeclarationSyntax(leadingNodes, keyword, name, path, assignment, newlines.Cast<Token>().ToImmutableArray(), value);
+        }
+        void ISyntaxVisitor.VisitStepDeclarationSyntax(StepDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceStepDeclarationSyntax);
 
         protected virtual SyntaxBase ReplaceTestDeclarationSyntax(TestDeclarationSyntax syntax)
         {

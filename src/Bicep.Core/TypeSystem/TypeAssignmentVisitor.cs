@@ -1044,6 +1044,14 @@ namespace Bicep.Core.TypeSystem
             {
                 var errors = new List<IDiagnostic>();
 
+                if (syntax.Type is { })
+                {
+                    var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnostics);
+                    diagnostics.WriteMultiple(GetDeclarationAssignmentDiagnostics(declaredType, syntax.Value));
+
+                    return declaredType;
+                }
+
                 var valueType = typeManager.GetTypeInfo(syntax.Value);
                 CollectErrors(errors, valueType);
 

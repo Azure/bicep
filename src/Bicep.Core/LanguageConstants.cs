@@ -70,6 +70,7 @@ namespace Bicep.Core
         public const string VariableKeyword = "var";
         public const string ResourceKeyword = "resource";
         public const string ModuleKeyword = "module";
+        public const string StepKeyword = "step";
         public const string TestKeyword = "test";
         public const string FunctionKeyword = "func";
         public const string ExistingKeyword = "existing";
@@ -93,6 +94,7 @@ namespace Bicep.Core
         public const string TargetScopeTypeResourceGroup = "resourceGroup";
         public const string TargetScopeTypeDesiredStateConfiguration = "desiredStateConfiguration";
         public const string TargetScopeTypeLocal = "local";
+        public const string TargetScopeTypeEv2Mockup = "ev2mockup";
 
         public const string CopyLoopIdentifier = "copy";
 
@@ -321,6 +323,10 @@ namespace Bicep.Core
             if (resourceScope.HasFlag(ResourceScope.Local))
             {
                 yield return "local";
+            }
+            if (resourceScope.HasFlag(ResourceScope.Ev2Mockup))
+            {
+                yield return "ev2mockup";
             }
         }
 

@@ -236,7 +236,8 @@ namespace Bicep.LanguageServer.Completions
                 ConvertFlag(ExpectingContextualAsKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingExtensionAsKeyword) |
                 ConvertFlag(ExpectingContextualFromKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingImportFromKeyword) |
                 ConvertFlag(IsAfterSpreadTokenContext(matchingNodes, offset), BicepCompletionContextKind.Expression) |
-                ConvertFlag(IsVariableNameFollowerContext(matchingNodes, offset), BicepCompletionContextKind.VariableNameFollower);
+                ConvertFlag(IsVariableNameFollowerContext(matchingNodes, offset), BicepCompletionContextKind.VariableNameFollower) |
+                ConvertFlag(IsMetadataNameFollowerContext(matchingNodes, offset), BicepCompletionContextKind.MetadataNameFollower);
 
             if (bicepFile.Features.ExtensibilityEnabled)
             {
@@ -451,6 +452,14 @@ namespace Bicep.LanguageServer.Completions
                 variable.Type is null &&
                 variable.Assignment is SkippedTriviaSyntax &&
                 offset <= variable.Assignment.Span.Position);
+
+        private static bool IsMetadataNameFollowerContext(List<SyntaxBase> matchingNodes, int offset) =>
+            // metadata foo |
+            SyntaxMatcher.IsTailMatch<MetadataDeclarationSyntax>(matchingNodes, metadata =>
+                offset > metadata.Name.GetEndPosition() &&
+                metadata.Type is null &&
+                metadata.Assignment is SkippedTriviaSyntax &&
+                offset <= metadata.Assignment.Span.Position);
 
         private static bool IsTargetScopeContext(List<SyntaxBase> matchingNodes, int offset) =>
             SyntaxMatcher.IsTailMatch<TargetScopeSyntax>(matchingNodes, targetScope =>

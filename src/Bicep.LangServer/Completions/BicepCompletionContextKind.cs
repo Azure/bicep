@@ -263,5 +263,10 @@ namespace Bicep.LanguageServer.Completions
         /// The location immediately after a name in a variable declaration.
         /// </summary>
         VariableNameFollower = 1UL << 48,
+
+        /// <summary>
+        /// The location immediately after a name in a metadata declaration.
+        /// </summary>
+        MetadataNameFollower = 1UL << 49,
     }
 }

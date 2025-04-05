@@ -81,6 +81,11 @@ namespace Bicep.Core.Emit
 
         public void Write(SourceAwareJsonTextWriter writer)
         {
+            if (this.Context.SemanticModel.TargetScope == ResourceScope.Ev2Mockup)
+            {
+                throw new InvalidOperationException("This isn't a functional mockup!.");
+            }
+
             // Template is used for calculating template hash, template jtoken is used for writing to file.
             var (template, templateJToken) = GenerateTemplateWithoutHash(writer.TrackingJsonWriter);
             var templateHash = TemplateHelpers.ComputeTemplateHash(template.ToJToken());

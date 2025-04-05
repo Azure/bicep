@@ -912,6 +912,7 @@ namespace Bicep.Decompiler
                 leadingNodes,
                 SyntaxFactory.MetadataKeywordToken,
                 SyntaxFactory.CreateIdentifierWithTrailingSpace(value.Name),
+                null,
                 SyntaxFactory.AssignmentToken,
                 ParseJToken(value.Value)
                 );

@@ -108,16 +108,12 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
         );
     }
 
-    private void VisitFunctionCallSyntaxInternal(FunctionCallSyntaxBase functionCallSyntax)
+    private void VisitFunctionCallSyntaxInternal(FunctionCallSyntaxBase functionCall)
     {
-        if (SemanticModelHelper.TryGetNamedFunction(
-                this.semanticModel, 
-                SystemNamespaceType.BuiltInName, 
-                LanguageConstants.ExternalInputBicepFunctionName, 
-                functionCallSyntax) is { } functionCall)
+        if (functionCall.NameEquals("externalInput"))
         {
-            if (functionCallSyntax.Arguments.Length < 1 || 
-                this.semanticModel.GetTypeInfo(functionCallSyntax.Arguments[0]) is not StringLiteralType stringLiteral)
+            if (functionCall.Arguments.Length < 1 || 
+                this.semanticModel.GetTypeInfo(functionCall.Arguments[0]) is not StringLiteralType stringLiteral)
             {
                 return;
             }

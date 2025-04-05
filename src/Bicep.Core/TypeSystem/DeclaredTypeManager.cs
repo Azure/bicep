@@ -102,7 +102,7 @@ namespace Bicep.Core.TypeSystem
                     return GetExtensionConfigAssignmentType(extConfigAssignment);
 
                 case MetadataDeclarationSyntax metadata:
-                    return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(metadata.Value), metadata);
+                    return GetMetadataTypeIfDefined(metadata);
 
                 case ParameterDeclarationSyntax parameter:
                     return GetParameterType(parameter);
@@ -481,6 +481,19 @@ namespace Bicep.Core.TypeSystem
         }
 
         private DeclaredTypeAssignment? GetVariableTypeIfDefined(VariableDeclarationSyntax syntax)
+        {
+            if (syntax.Type is null)
+            {
+                return null;
+            }
+
+            var declaredType = TryGetTypeFromTypeSyntax(syntax.Type) ??
+                ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidVariableType(GetValidTypeNames()));
+
+            return new(ApplyTypeModifyingDecorators(DisallowNamespaceTypes(declaredType.Type, syntax.Type), syntax), syntax);
+        }
+
+        private DeclaredTypeAssignment? GetMetadataTypeIfDefined(MetadataDeclarationSyntax syntax)
         {
             if (syntax.Type is null)
             {
@@ -1526,6 +1539,7 @@ namespace Bicep.Core.TypeSystem
                 case FunctionArgumentSyntax:
                 case OutputDeclarationSyntax parentOutput when syntax == parentOutput.Value:
                 case VariableDeclarationSyntax parentVariable when syntax == parentVariable.Value:
+                case MetadataDeclarationSyntax metadata when syntax == metadata.Value:
                     return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
                 case ParameterDefaultValueSyntax when this.binder.GetParent(parent) is ParameterDeclarationSyntax parameterDeclaration:
                     return GetNonNullableTypeAssignment(parameterDeclaration)?.ReplaceDeclaringSyntax(syntax);
@@ -1824,6 +1838,7 @@ namespace Bicep.Core.TypeSystem
                 case FunctionArgumentSyntax:
                 case OutputDeclarationSyntax parentOutput when syntax == parentOutput.Value:
                 case VariableDeclarationSyntax parentVariable when syntax == parentVariable.Value:
+                case MetadataDeclarationSyntax metadata when syntax == metadata.Value:
                     if (GetNonNullableTypeAssignment(parent) is not { } parentAssignment)
                     {
                         return null;

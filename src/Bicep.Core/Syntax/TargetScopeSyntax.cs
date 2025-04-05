@@ -65,6 +65,8 @@ namespace Bicep.Core.Syntax
                 scopes.Add(LanguageConstants.TargetScopeTypeLocal);
             }
 
+            scopes.Add(LanguageConstants.TargetScopeTypeEv2Mockup);
+
             return TypeHelper.CreateTypeUnion(
                 scopes.Select(x => TypeFactory.CreateStringLiteralType(x)).ToImmutableArray());
         }

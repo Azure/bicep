@@ -8,7 +8,7 @@ namespace Bicep.Core.Syntax
 {
     public class MetadataDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
     {
-        public MetadataDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase assignment, SyntaxBase value)
+        public MetadataDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase? type, SyntaxBase assignment, SyntaxBase value)
             : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.MetadataKeyword);
@@ -18,13 +18,16 @@ namespace Bicep.Core.Syntax
 
             this.Keyword = keyword;
             this.Name = name;
+            this.Type = type;
             this.Assignment = assignment;
-            this.Value = value;
+            this.Value = value; 
         }
 
         public Token Keyword { get; }
 
         public IdentifierSyntax Name { get; }
+
+        public SyntaxBase? Type { get; }
 
         public SyntaxBase Assignment { get; }
 

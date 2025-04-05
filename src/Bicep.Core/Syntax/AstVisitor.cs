@@ -54,6 +54,7 @@ namespace Bicep.Core.Syntax
         {
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Name);
+            this.Visit(syntax.Type);
             this.Visit(syntax.Value);
         }
 
@@ -105,6 +106,13 @@ namespace Bicep.Core.Syntax
         }
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Path);
+            this.Visit(syntax.Value);
+        }
+        public override void VisitStepDeclarationSyntax(StepDeclarationSyntax syntax)
         {
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Name);

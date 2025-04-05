@@ -76,6 +76,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetOutputValueCompletions(model, context))
                 .Concat(GetOutputTypeFollowerCompletions(context))
                 .Concat(GetVariableNameFollowerCompletions(context))
+                .Concat(GetMetadataNameFollowerCompletions(context))
                 .Concat(GetTargetScopeCompletions(model, context))
                 .Concat(GetExtensionCompletions(model, context))
                 .Concat(GetCompileTimeImportCompletions(model, context))
@@ -316,6 +317,11 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.VariableNameFollower) &&
                 model.Features.TypedVariablesEnabled)
+            {
+                return GetTypeCompletions(model, context);
+            }
+
+            if (context.Kind.HasFlag(BicepCompletionContextKind.MetadataNameFollower))
             {
                 return GetTypeCompletions(model, context);
             }
@@ -801,6 +807,15 @@ namespace Bicep.LanguageServer.Completions
         private static IEnumerable<CompletionItem> GetVariableNameFollowerCompletions(BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.VariableNameFollower))
+            {
+                const string equals = "=";
+                yield return CreateOperatorCompletion(equals, context.ReplacementRange, preselect: true);
+            }
+        }
+
+        private static IEnumerable<CompletionItem> GetMetadataNameFollowerCompletions(BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.MetadataNameFollower))
             {
                 const string equals = "=";
                 yield return CreateOperatorCompletion(equals, context.ReplacementRange, preselect: true);

@@ -61,7 +61,8 @@ namespace Bicep.Core.Parsing
                             LanguageConstants.FunctionKeyword => this.FunctionDeclaration(leadingNodes),
                             LanguageConstants.ResourceKeyword => this.ResourceDeclaration(leadingNodes),
                             LanguageConstants.OutputKeyword => this.OutputDeclaration(leadingNodes),
-                            LanguageConstants.ModuleKeyword => this.ModuleDeclaration(leadingNodes),
+                            LanguageConstants.ModuleKeyword => this.ModuleDeclaration(leadingNodes, false),
+                            LanguageConstants.StepKeyword => this.ModuleDeclaration(leadingNodes, true),
                             LanguageConstants.TestKeyword => this.TestDeclaration(leadingNodes),
                             LanguageConstants.ImportKeyword => this.ImportDeclaration(leadingNodes),
                             LanguageConstants.ExtensionKeyword => this.ExtensionDeclaration(ExpectKeyword(current.Text), leadingNodes),
@@ -92,14 +93,21 @@ namespace Bicep.Core.Parsing
             return new TargetScopeSyntax(leadingNodes, keyword, assignment, value);
         }
 
-        private SyntaxBase MetadataDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+        protected SyntaxBase MetadataDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.MetadataKeyword);
-            var name = this.IdentifierWithRecovery(b => b.ExpectedMetadataIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
-            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedMetadataIdentifier(), RecoveryFlags.None, TokenType.Identifier, TokenType.NewLine);
+            var type = WithRecoveryNullable(() => reader.Peek().Type switch
+            {
+                TokenType.EndOfFile or
+                TokenType.NewLine or
+                TokenType.Assignment => null,
+                _ => Type(allowOptionalResourceType: false),
+            }, GetSuppressionFlag(name), TokenType.Assignment, TokenType.NewLine);
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type ?? name), TokenType.NewLine);
             var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
 
-            return new MetadataDeclarationSyntax(leadingNodes, keyword, name, assignment, value);
+            return new MetadataDeclarationSyntax(leadingNodes, keyword, name, type, assignment, value);
         }
 
         private SyntaxBase TypeDeclaration(IEnumerable<SyntaxBase> leadingNodes)
@@ -204,9 +212,9 @@ namespace Bicep.Core.Parsing
             return new ResourceDeclarationSyntax(leadingNodes, keyword, name, type, existingKeyword, assignment, newlines, value);
         }
 
-        private SyntaxBase ModuleDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+        private SyntaxBase ModuleDeclaration(IEnumerable<SyntaxBase> leadingNodes, bool step)
         {
-            var keyword = ExpectKeyword(LanguageConstants.ModuleKeyword);
+            var keyword = reader.Read();
             var name = this.IdentifierWithRecovery(b => b.ExpectedModuleIdentifier(), RecoveryFlags.None, TokenType.StringComplete, TokenType.StringLeftPiece, TokenType.NewLine);
 
             // TODO: Unify StringSyntax with TypeSyntax
@@ -234,7 +242,9 @@ namespace Bicep.Core.Parsing
                 GetSuppressionFlag(assignment),
                 TokenType.NewLine);
 
-            return new ModuleDeclarationSyntax(leadingNodes, keyword, name, path, assignment, newlines, value);
+            return step ? 
+                new StepDeclarationSyntax(leadingNodes, keyword, name, path, assignment, newlines, value) :
+                new ModuleDeclarationSyntax(leadingNodes, keyword, name, path, assignment, newlines, value);
         }
         private SyntaxBase TestDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {

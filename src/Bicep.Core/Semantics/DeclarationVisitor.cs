@@ -135,6 +135,14 @@ namespace Bicep.Core.Semantics
             DeclareSymbol(symbol);
         }
 
+        public override void VisitStepDeclarationSyntax(StepDeclarationSyntax syntax)
+        {
+            base.VisitStepDeclarationSyntax(syntax);
+
+            var symbol = new StepSymbol(this.context, syntax.Name.IdentifierName, syntax);
+            DeclareSymbol(symbol);
+        }
+
         public override void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax)
         {
             base.VisitTestDeclarationSyntax(syntax);

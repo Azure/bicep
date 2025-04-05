@@ -1,0 +1,25 @@
+{
+  "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/ConfigurationSpecification.json",
+  "settings": {
+    "waitTime": "PT3M"
+  },
+  "geographies": [
+    {
+      "name": "United States",
+      "regions": [
+        {
+          "name": "eastus",
+          "settings": {
+            "waitTime": "PT2M"
+          }
+        },
+        {
+          "name": "centralus",
+          "settings": {
+            "waitTime": "PT1M"
+          }
+        }
+      ]
+    }
+  ]
+}
