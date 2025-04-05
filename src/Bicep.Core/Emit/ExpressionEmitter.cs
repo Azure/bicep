@@ -251,7 +251,7 @@ namespace Bicep.Core.Emit
                             // because the object syntax here does not match the JSON equivalent due to the presence of { "value": ... } wrappers
                             // for now, we will manually replace the copy index in the converted expression
                             // this approach will not work for nested property loops
-                            var visitor = new LanguageExpressionVisitor
+                            var visitor = new LanguageExpressionDelegatedVisitor
                             {
                                 OnFunctionExpression = function =>
                                 {

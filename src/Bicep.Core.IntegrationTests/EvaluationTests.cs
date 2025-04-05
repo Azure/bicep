@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Diagnostics.CodeAnalysis;
+using Azure.Deployments.ClientTools;
 using Azure.Deployments.Core.Definitions.Identifiers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
@@ -1287,6 +1288,113 @@ output groupByWithValMapTest object = groupBy([
   ]
 }
 """);
+        }
+    }
+
+        [TestMethod]
+    public async Task ExternalInput_functions_are_evaluated_correctly()
+    {
+        var bicepFile = @"
+param input int
+param input2 string
+param input3 string
+param input4 object
+param input5 bool
+param input6 int
+param myParam customType
+param input7 customType
+
+output output int = input
+output output2 string = input2
+output output3 string = input3
+output output4 object = input4
+output output5 bool = input5
+output output6 int = input6
+output output7 customType = input7
+
+type customType = {
+    foo: string
+    bar: int
+}
+";
+
+        var bicepparamText = @"
+using 'main.bicep'
+
+param input = int(externalInput('custom.binding', 'input'))
+
+param input2 = string(externalInput('custom.uriForPath', {
+  path: '/path/to/file'
+}))
+
+param input3 = '${externalInput('custom.binding', '__BINDING__')}_combined_with_${externalInput('custom.binding', '__ANOTHER_BINDING__')}'
+
+param input4 = json(externalInput('custom.binding', 'objectInput'))
+
+param input5 = bool(externalInput('sys.cli'))
+
+var foo = int(externalInput('custom.binding', 'input'))
+
+param input6 = foo
+
+param myParam = json(externalInput('custom.binding', 'input7'))
+param input7 = myParam
+"
+;
+
+        var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ExternalInputFunctionEnabled: true));
+
+        var paramResult = CompilationHelper.CompileParams(
+            services,
+            ("parameters.bicepparam", bicepparamText), ("main.bicep", bicepFile));
+
+        var templateResult = CompilationHelper.Compile(bicepFile);
+
+        var bindingValues = new Dictionary<JToken, string>
+        {
+            { "input",  "123" },
+            { "__BINDING__", "test1" },
+            { "__ANOTHER_BINDING__", "test2" },
+            { "objectInput", "{ \"key1\": \"value1\", \"key2\": \"value2\" }" },
+            { "input7", "{ \"foo\": \"bar\", \"bar\": 123 }" },
+        };
+
+        using (new AssertionScope())
+        {
+            templateResult.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            paramResult.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            // provide external inputs
+            var parametersWithExternalInputs = await ParametersProcessor.Process(paramResult.Parameters!.ToString()!, async (kind, config) =>
+            {
+                await Task.CompletedTask;
+
+                return kind switch
+                {
+                    "custom.binding" => bindingValues[config!],
+                    "custom.uriForPath" => "https://example.com?sas=token",
+                    "sys.cli" => "false",
+                    _ => throw new InvalidOperationException(),
+                };
+            });
+
+            var evaluated = TemplateEvaluator.Evaluate(templateResult.Template, JToken.Parse(parametersWithExternalInputs)).ToJToken();
+
+            evaluated.Should().HaveValueAtPath("$.outputs['output'].value", 123);
+            evaluated.Should().HaveValueAtPath("$.outputs['output2'].value", "https://example.com?sas=token");
+            evaluated.Should().HaveValueAtPath("$.outputs['output3'].value", "test1_combined_with_test2");
+            evaluated.Should().HaveValueAtPath("$.outputs['output4'].value", new JObject
+            {
+                ["key1"] = "value1",
+                ["key2"] = "value2"
+            });
+            evaluated.Should().HaveValueAtPath("$.outputs['output5'].value", false);
+            evaluated.Should().HaveValueAtPath("$.outputs['output6'].value", 123);
+            evaluated.Should().HaveValueAtPath("$.outputs['output7'].value", new JObject
+            {
+                ["foo"] = "bar",
+                ["bar"] = 123
+            });
         }
     }
 }

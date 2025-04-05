@@ -119,7 +119,7 @@ public class NestedDeploymentBuiltInLocalExtension : LocalExtensibilityHost
             {
                 GuardHelper.ArgumentNotNull(identifiers.SourceUri);
                 var configuration = configurationManager.GetConfiguration(new Uri(identifiers.SourceUri));
-                DeploymentLocator locator = new(null, null, identifiers.SubscriptionId, identifiers.ResourceGroup, identifiers.Name);
+                DeploymentLocator locator = new("", null, identifiers.SubscriptionId, identifiers.ResourceGroup, identifiers.Name);
 
                 await LocalAzureDeployment.StartDeployment(configuration, credentialFactory, locator, template, parameters.ToJsonString(), cancellationToken);
                 var result = await LocalAzureDeployment.CheckDeployment(configuration, credentialFactory, locator, cancellationToken);
@@ -154,7 +154,7 @@ public class NestedDeploymentBuiltInLocalExtension : LocalExtensibilityHost
             {
                 GuardHelper.ArgumentNotNull(identifiers.SourceUri);
                 var configuration = configurationManager.GetConfiguration(new Uri(identifiers.SourceUri));
-                DeploymentLocator locator = new(null, null, identifiers.SubscriptionId, identifiers.ResourceGroup, identifiers.Name);
+                DeploymentLocator locator = new("", null, identifiers.SubscriptionId, identifiers.ResourceGroup, identifiers.Name);
 
                 var result = await LocalAzureDeployment.CheckDeployment(configuration, credentialFactory, locator, cancellationToken);
 

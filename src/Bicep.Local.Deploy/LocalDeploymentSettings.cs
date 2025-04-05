@@ -271,6 +271,14 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
     public int ExportTemplateMaximumExportedResourcesCount => int.MaxValue;
 
     public bool EnforceAntiSSRF => false;
+    
+    public int ApiReferenceRetryCount { get; } = 3;
+
+    public TimeSpan ApiReferenceRetryInterval { get; } = TimeSpan.FromSeconds(1);
+
+    public TimeSpan ApiReferenceRetryTimeout { get; } = TimeSpan.FromSeconds(40);
+
+    public bool PreserveAbsoluteUriInRelativePath => false;
 
     IReadOnlyDictionary<string, IEnumerable<string>> IAzureDeploymentSettings.DisabledTenantDictionary => ImmutableDictionary<string, IEnumerable<string>>.Empty;
 

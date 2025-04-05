@@ -2,9 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Linq;
+using Azure.Deployments.Core.Components;
 using Azure.Deployments.Core.EventSources;
 using Azure.Deployments.Core.Exceptions;
 using Azure.Deployments.Core.FeatureEnablement;
+using Azure.Deployments.Core.Interfaces;
+using Azure.Deployments.Core.Telemetry;
 using Azure.Deployments.Engine;
 using Azure.Deployments.Engine.Dependencies;
 using Azure.Deployments.Engine.Host.Azure;
@@ -26,6 +29,7 @@ using Microsoft.Azure.Deployments.Shared.Host;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
+using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs.Configuration;
 using Microsoft.WindowsAzure.ResourceStack.Common.EventSources;
 using Microsoft.WindowsAzure.ResourceStack.Common.Storage.Volatile;
 
@@ -38,16 +42,19 @@ public static class IServiceCollectionExtensions
         var eventSource = new TraceEventSource();
         services.AddSingleton<IGeneralEventSource>(eventSource);
         services.AddSingleton<IDeploymentEventSource>(eventSource);
+        services.AddSingleton<IDeploymentMetricsReporter, NoOpDeploymentMetricsReporter>();
 
+        services.AddSingleton<IHttpContentHandler, LocalHttpContentHandler>();
         services.AddSingleton<IKeyVaultDataProvider, LocalKeyVaultDataProvider>();
         services.AddSingleton<IAzureDeploymentSettings, LocalDeploymentSettings>();
         services.AddSingleton<IEnablementConfigProvider, LocalEnablementConfigProvider>();
         services.AddSingleton<IAzureDeploymentEngineHost, LocalDeploymentEngineHost>();
         services.AddSingleton<IPreflightEngineHost, PreflightEngineHost>();
-        services.AddSingleton<IDeploymentDependency, DependencyProcessor>();
+        services.AddSingleton<IDependencyProcessor, DependencyProcessor>();
         services.AddSingleton<ITemplateExceptionHandler, TemplateExceptionHandler>();
-
+        
         services.AddSingleton<AzureDeploymentValidation>();
+        services.AddSingleton<IExtensionConfigSchemaDirectoryFactory, FactBasedExtensionConfigSchemaDirectoryFactory>();
         services.AddSingleton<IAzureDeploymentConfiguration, LocalDeploymentConfiguration>();
         services.AddSingleton<AzureDeploymentEngine>();
         services.AddSingleton<IDeploymentEntityFactory, VolatileDeploymentEntityFactory>();
@@ -65,6 +72,7 @@ public static class IServiceCollectionExtensions
         services.AddSingleton<VolatileMemoryStorage>();
         services.AddSingleton<IJobInstanceResolver, JobInstanceResolver>();
         services.AddSingleton<JobCallbackFactory, DeploymentJobCallbackFactory>();
+        services.AddSingleton<IJobsConfigurationProvider, JobsConfigurationProvider>();
         services.AddSingleton<WorkerJobDispatcherClient>();
 
         services.AddSingleton<IDeploymentsRequestContext, LocalRequestContext>();

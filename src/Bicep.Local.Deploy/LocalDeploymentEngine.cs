@@ -81,7 +81,7 @@ public class LocalDeploymentEngine
                 throw new NotImplementedException("Only resources with extensions are supported");
             }
 
-            var context = DeploymentContextWithScopeDefinition.CreateAtResourceGroup(
+            var context = DeploymentRequestContextWithScopeDefinition.CreateAtResourceGroup(
                 tenantId: Guid.Empty.ToString(),
                 subscriptionId: Guid.Empty.ToString(),
                 resourceGroupName: "local",
@@ -127,7 +127,7 @@ public class LocalDeploymentEngine
         {
             RequestCorrelationContext.Current.Initialize(apiVersion: requestContext.ApiVersion);
 
-            var context = DeploymentContextWithScopeDefinition.CreateAtResourceGroup(
+            var context = DeploymentRequestContextWithScopeDefinition.CreateAtResourceGroup(
                 tenantId: Guid.Empty.ToString(),
                 subscriptionId: Guid.Empty.ToString(),
                 resourceGroupName: "local",
@@ -142,9 +142,9 @@ public class LocalDeploymentEngine
 
             return new(
                 deploymentEngine.CreateDeploymentDefinition(entity, requestContext.ApiVersion),
-                operationEntities
+                [.. operationEntities
                     .Where(operation => operation.TargetResource is not null)
-                    .Select(operation => deploymentEngine.CreateDeploymentOperationDefinition(entity, operation)).ToImmutableArray());
+                    .Select(operation => deploymentEngine.CreateDeploymentOperationDefinition(entity, operation, requestContext.Location))]);
         }
     }
 
