@@ -111,12 +111,12 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
     private void VisitFunctionCallSyntaxInternal(FunctionCallSyntaxBase functionCallSyntax)
     {
         if (SemanticModelHelper.TryGetNamedFunction(
-                this.semanticModel, 
-                SystemNamespaceType.BuiltInName, 
-                LanguageConstants.ExternalInputBicepFunctionName, 
+                this.semanticModel,
+                SystemNamespaceType.BuiltInName,
+                LanguageConstants.ExternalInputBicepFunctionName,
                 functionCallSyntax) is { } functionCall)
         {
-            if (functionCallSyntax.Arguments.Length < 1 || 
+            if (functionCallSyntax.Arguments.Length < 1 ||
                 this.semanticModel.GetTypeInfo(functionCallSyntax.Arguments[0]) is not StringLiteralType stringLiteral)
             {
                 return;
@@ -131,7 +131,7 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
             {
                 this.parametersContainingExternalInput.Add(this.targetParameterAssignment);
             }
-            
+
             if (this.targetVariableDeclaration is not null)
             {
                 this.variablesContainingExternalInput.Add(this.targetVariableDeclaration);

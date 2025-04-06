@@ -4,8 +4,8 @@
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
-using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -17,13 +17,13 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class ParameterFileTests
 {
-    private ServiceBuilder ServicesWithExternalInputFunctionEnabled => 
+    private ServiceBuilder ServicesWithExternalInputFunctionEnabled =>
         new ServiceBuilder()
             .WithFeatureOverrides(new FeatureProviderOverrides(TestContext, ExternalInputFunctionEnabled: true));
 
     [NotNull]
     public TestContext? TestContext { get; set; }
-    
+
     [TestMethod]
     public void Parameters_file_cannot_reference_non_bicep_files()
     {
