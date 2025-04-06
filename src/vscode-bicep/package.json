@@ -776,7 +776,7 @@
     "@typescript-eslint/parser": "^8.26.1",
     "@vscode/test-electron": "^2.4.1",
     "@vscode/vsce": "^3.2.1",
-    "copy-webpack-plugin": "^12.0.2",
+    "copy-webpack-plugin": "^13.0.0",
     "css-loader": "^7.1.2",
     "esbuild-loader": "^4.3.0",
     "eslint": "^9.23.0",
