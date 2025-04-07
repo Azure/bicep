@@ -119,6 +119,9 @@ namespace Bicep.Core.TypeSystem
                 case ModuleDeclarationSyntax module:
                     return GetModuleType(module);
 
+                case RolloutDeclarationSyntax rollout:
+                    return GetRolloutType(rollout);
+
                 case TestDeclarationSyntax test:
                     return GetTestType(test);
 
@@ -1272,6 +1275,11 @@ namespace Bicep.Core.TypeSystem
                 syntax);
         }
 
+        private DeclaredTypeAssignment GetRolloutType(RolloutDeclarationSyntax syntax)
+        {
+            return new DeclaredTypeAssignment(Ev2NamespaceType.RolloutSpecType.Properties["rolloutMetadata"].TypeReference.Type, syntax);
+        }
+
         private DeclaredTypeAssignment GetTestType(TestDeclarationSyntax syntax)
         {
             var declaredTestType = GetDeclaredTestType(syntax);
@@ -1540,6 +1548,9 @@ namespace Bicep.Core.TypeSystem
                 case OutputDeclarationSyntax parentOutput when syntax == parentOutput.Value:
                 case VariableDeclarationSyntax parentVariable when syntax == parentVariable.Value:
                 case MetadataDeclarationSyntax metadata when syntax == metadata.Value:
+                case RolloutDeclarationSyntax rollout when syntax == rollout.Value:
+                case StageDeclarationSyntax stage when syntax == stage.Value:
+                case StepDeclarationSyntax step when syntax == step.Value:
                     return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
                 case ParameterDefaultValueSyntax when this.binder.GetParent(parent) is ParameterDeclarationSyntax parameterDeclaration:
                     return GetNonNullableTypeAssignment(parameterDeclaration)?.ReplaceDeclaringSyntax(syntax);
@@ -1839,6 +1850,9 @@ namespace Bicep.Core.TypeSystem
                 case OutputDeclarationSyntax parentOutput when syntax == parentOutput.Value:
                 case VariableDeclarationSyntax parentVariable when syntax == parentVariable.Value:
                 case MetadataDeclarationSyntax metadata when syntax == metadata.Value:
+                case RolloutDeclarationSyntax rollout when syntax == rollout.Value:
+                case StageDeclarationSyntax stage when syntax == stage.Value:
+                case StepDeclarationSyntax step when syntax == step.Value:
                     if (GetNonNullableTypeAssignment(parent) is not { } parentAssignment)
                     {
                         return null;

@@ -70,6 +70,10 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutModuleDeclarationSyntax);
 
+        public void VisitRolloutDeclarationSyntax(RolloutDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutRolloutDeclarationSyntax);
+
+        public void VisitStageDeclarationSyntax(StageDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutStageDeclarationSyntax);
+
         public void VisitStepDeclarationSyntax(StepDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutStepDeclarationSyntax);
 
         public void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutTestDeclarationSyntax);

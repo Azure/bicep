@@ -112,6 +112,18 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Path);
             this.Visit(syntax.Value);
         }
+        public override void VisitRolloutDeclarationSyntax(RolloutDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Value);
+        }
+        public override void VisitStageDeclarationSyntax(StageDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Value);
+        }
         public override void VisitStepDeclarationSyntax(StepDeclarationSyntax syntax)
         {
             this.VisitNodes(syntax.LeadingNodes);

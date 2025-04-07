@@ -191,6 +191,28 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Newlines,
                 syntax.Value);
 
+        private IEnumerable<Document> LayoutRolloutDeclarationSyntax(RolloutDeclarationSyntax syntax) =>
+            this.LayoutResourceOrModuleDeclarationSyntax(
+                syntax.LeadingNodes,
+                syntax.Keyword,
+                syntax.Name,
+                null,
+                null,
+                syntax.Assignment,
+                syntax.Newlines,
+                syntax.Value);
+
+        private IEnumerable<Document> LayoutStageDeclarationSyntax(StageDeclarationSyntax syntax) =>
+            this.LayoutResourceOrModuleDeclarationSyntax(
+                syntax.LeadingNodes,
+                syntax.Keyword,
+                syntax.Name,
+                null,
+                null,
+                syntax.Assignment,
+                syntax.Newlines,
+                syntax.Value);
+
         private IEnumerable<Document> LayoutStepDeclarationSyntax(StepDeclarationSyntax syntax) =>
             this.LayoutResourceOrModuleDeclarationSyntax(
                 syntax.LeadingNodes,
@@ -334,7 +356,7 @@ namespace Bicep.Core.PrettyPrintV2
             ImmutableArray<SyntaxBase> leadingNodes,
             SyntaxBase keyword,
             SyntaxBase name,
-            SyntaxBase typeOrPath,
+            SyntaxBase? typeOrPath,
             SyntaxBase? existingKeyword,
             SyntaxBase assignment,
             ImmutableArray<Token> newlines,
@@ -348,15 +370,13 @@ namespace Bicep.Core.PrettyPrintV2
             {
                 var valueGroup = this.IndentGroup(newlines.Append(value));
 
-                return this.LayoutLeadingNodes(leadingNodes).Concat(existingKeyword is not null
-                    ? this.Spread(keyword, name, typeOrPath, existingKeyword, assignment, valueGroup)
-                    : this.Spread(keyword, name, typeOrPath, assignment, valueGroup));
+                object?[] ifNodes = [keyword, name, typeOrPath, existingKeyword, assignment, valueGroup];
+
+                return this.LayoutLeadingNodes(leadingNodes).Concat(this.Spread([.. ifNodes.WhereNotNull()]));
             }
 
-            return this.LayoutLeadingNodes(leadingNodes)
-                .Concat(existingKeyword is not null
-                    ? this.Spread(keyword, name, typeOrPath, existingKeyword, assignment, value)
-                    : this.Spread(keyword, name, typeOrPath, assignment, value));
+            object?[] nodes = [keyword, name, typeOrPath, existingKeyword, assignment, value];
+            return this.LayoutLeadingNodes(leadingNodes).Concat(this.Spread([.. nodes.WhereNotNull()]));
         }
 
         private IEnumerable<Document> LayoutResourceTypeSyntax(ResourceTypeSyntax syntax) =>

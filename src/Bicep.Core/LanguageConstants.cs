@@ -71,6 +71,8 @@ namespace Bicep.Core
         public const string ResourceKeyword = "resource";
         public const string ModuleKeyword = "module";
         public const string StepKeyword = "step";
+        public const string StageKeyword = "stage";
+        public const string RolloutKeyword = "rollout";
         public const string TestKeyword = "test";
         public const string FunctionKeyword = "func";
         public const string ExistingKeyword = "existing";

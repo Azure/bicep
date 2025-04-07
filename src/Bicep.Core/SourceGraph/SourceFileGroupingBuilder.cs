@@ -13,6 +13,7 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
@@ -341,6 +342,7 @@ namespace Bicep.Core.SourceGraph
         };
 
         private static IEnumerable<IArtifactReferenceSyntax> GetArtifactReferences(ProgramSyntax program)
-            => program.Declarations.OfType<IArtifactReferenceSyntax>();
+            => SyntaxAggregator.Aggregate(program, x => x is IArtifactReferenceSyntax)
+                .OfType<IArtifactReferenceSyntax>();
     }
 }

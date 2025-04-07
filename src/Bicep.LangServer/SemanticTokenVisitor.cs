@@ -203,6 +203,20 @@ namespace Bicep.LanguageServer
             base.VisitStepDeclarationSyntax(syntax);
         }
 
+        public override void VisitStageDeclarationSyntax(StageDeclarationSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Name, SemanticTokenType.Variable);
+            base.VisitStageDeclarationSyntax(syntax);
+        }
+
+        public override void VisitRolloutDeclarationSyntax(RolloutDeclarationSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Name, SemanticTokenType.Variable);
+            base.VisitRolloutDeclarationSyntax(syntax);
+        }
+
         public override void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);

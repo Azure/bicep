@@ -14,14 +14,9 @@ namespace Bicep.Core.Semantics
         {
         }
 
-        public StepDeclarationSyntax DeclaringModule => (StepDeclarationSyntax)this.DeclaringSyntax;
-
         public override void Accept(SymbolVisitor visitor) => visitor.VisitStepSymbol(this);
 
         public override SymbolKind Kind => SymbolKind.Step;
-
-        public ResultWithDiagnostic<ISemanticModel> TryGetSemanticModel()
-            => DeclaringModule.TryGetReferencedModel(Context.SourceFileLookup, Context.ModelLookup, b => b.ModuleDeclarationMustReferenceBicepModule());
 
         public override IEnumerable<Symbol> Descendants
         {

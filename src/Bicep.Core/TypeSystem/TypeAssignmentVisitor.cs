@@ -355,6 +355,27 @@ namespace Bicep.Core.TypeSystem
 
             });
 
+        public override void VisitRolloutDeclarationSyntax(RolloutDeclarationSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax);
+                if (declaredType is null)
+                {
+                    return ErrorType.Empty();
+                }
+
+                var singleDeclaredType = declaredType.UnwrapArrayType();
+
+                this.ValidateDecorators(syntax.Decorators, declaredType, diagnostics);
+
+                if (singleDeclaredType is ErrorType)
+                {
+                    return singleDeclaredType;
+                }
+
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Value, declaredType);
+            });
+
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {

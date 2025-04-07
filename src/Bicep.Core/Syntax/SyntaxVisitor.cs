@@ -59,6 +59,10 @@ namespace Bicep.Core.Syntax
         public abstract void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax);
 
         public abstract void VisitStepDeclarationSyntax(StepDeclarationSyntax syntax);
+        
+        public abstract void VisitStageDeclarationSyntax(StageDeclarationSyntax syntax);
+
+        public abstract void VisitRolloutDeclarationSyntax(RolloutDeclarationSyntax syntax);
 
         public abstract void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax);
 

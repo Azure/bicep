@@ -1129,6 +1129,20 @@ namespace Bicep.Core.Parsing
                     return this.Declaration(LanguageConstants.ResourceKeyword);
                 }
 
+                if (HasExpressionFlag(expressionFlags, ExpressionFlags.AllowStageDeclarations) &&
+                    CheckKeyword(LanguageConstants.StageKeyword) &&
+                    Check(this.reader.PeekAhead(), TokenType.Identifier))
+                {
+                    return this.Declaration(LanguageConstants.StageKeyword);
+                }
+
+                if (HasExpressionFlag(expressionFlags, ExpressionFlags.AllowStepDeclarations) &&
+                    CheckKeyword(LanguageConstants.StepKeyword) &&
+                    Check(this.reader.PeekAhead(), TokenType.Identifier))
+                {
+                    return this.Declaration(LanguageConstants.StepKeyword);
+                }
+
                 if (current.Type == TokenType.Ellipsis)
                 {
                     return SpreadExpression([TokenType.Comma, TokenType.NewLine, TokenType.RightBrace]);

@@ -61,8 +61,10 @@ namespace Bicep.Core.Parsing
                             LanguageConstants.FunctionKeyword => this.FunctionDeclaration(leadingNodes),
                             LanguageConstants.ResourceKeyword => this.ResourceDeclaration(leadingNodes),
                             LanguageConstants.OutputKeyword => this.OutputDeclaration(leadingNodes),
-                            LanguageConstants.ModuleKeyword => this.ModuleDeclaration(leadingNodes, false),
-                            LanguageConstants.StepKeyword => this.ModuleDeclaration(leadingNodes, true),
+                            LanguageConstants.ModuleKeyword => this.ModuleDeclaration(leadingNodes),
+                            LanguageConstants.StepKeyword => this.StepDeclaration(leadingNodes),
+                            LanguageConstants.StageKeyword => this.RolloutOrStageDeclaration(leadingNodes, stage: true),
+                            LanguageConstants.RolloutKeyword => this.RolloutOrStageDeclaration(leadingNodes, stage: false),
                             LanguageConstants.TestKeyword => this.TestDeclaration(leadingNodes),
                             LanguageConstants.ImportKeyword => this.ImportDeclaration(leadingNodes),
                             LanguageConstants.ExtensionKeyword => this.ExtensionDeclaration(ExpectKeyword(current.Text), leadingNodes),
@@ -212,7 +214,7 @@ namespace Bicep.Core.Parsing
             return new ResourceDeclarationSyntax(leadingNodes, keyword, name, type, existingKeyword, assignment, newlines, value);
         }
 
-        private SyntaxBase ModuleDeclaration(IEnumerable<SyntaxBase> leadingNodes, bool step)
+        private SyntaxBase ModuleDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = reader.Read();
             var name = this.IdentifierWithRecovery(b => b.ExpectedModuleIdentifier(), RecoveryFlags.None, TokenType.StringComplete, TokenType.StringLeftPiece, TokenType.NewLine);
@@ -242,9 +244,63 @@ namespace Bicep.Core.Parsing
                 GetSuppressionFlag(assignment),
                 TokenType.NewLine);
 
-            return step ? 
-                new StepDeclarationSyntax(leadingNodes, keyword, name, path, assignment, newlines, value) :
-                new ModuleDeclarationSyntax(leadingNodes, keyword, name, path, assignment, newlines, value);
+            return new ModuleDeclarationSyntax(leadingNodes, keyword, name, path, assignment, newlines, value);
+        }
+
+        private SyntaxBase StepDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+        {
+            var keyword = reader.Read();
+            var name = this.IdentifierWithRecovery(b => b.ExpectedModuleIdentifier(), RecoveryFlags.None, TokenType.StringComplete, TokenType.StringLeftPiece, TokenType.NewLine);
+
+            // TODO: Unify StringSyntax with TypeSyntax
+            var path = this.WithRecovery(
+                () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedModulePathString()),
+                GetSuppressionFlag(name),
+                TokenType.Assignment, TokenType.NewLine);
+
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(path), TokenType.LeftBrace, TokenType.NewLine);
+            var newlines = reader.Peek(skipNewlines: true).IsKeyword(LanguageConstants.IfKeyword)
+                ? this.NewLines().ToImmutableArray()
+                : [];
+
+            var value = this.WithRecovery(() =>
+                {
+                    var current = reader.Peek();
+                    return current.Type switch
+                    {
+                        TokenType.LeftBrace => this.Object(ExpressionFlags.AllowComplexLiterals),
+                        _ => throw new ExpectedTokenException(current, b => b.ExpectBodyStartOrIfOrLoopStart())
+                    };
+                },
+                GetSuppressionFlag(assignment),
+                TokenType.NewLine);
+
+            return new StepDeclarationSyntax(leadingNodes, keyword, name, path, assignment, newlines, value);
+        }
+
+        private SyntaxBase RolloutOrStageDeclaration(IEnumerable<SyntaxBase> leadingNodes, bool stage)
+        {
+            var keyword = reader.Read();
+            var name = this.IdentifierWithRecovery(b => b.ExpectedModuleIdentifier(), RecoveryFlags.None, TokenType.StringComplete, TokenType.StringLeftPiece, TokenType.NewLine);
+
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.LeftBrace, TokenType.NewLine);
+            Token[] newlines = [];
+
+            var value = this.WithRecovery(() =>
+                {
+                    var current = reader.Peek();
+                    return current.Type switch
+                    {
+                        TokenType.LeftBrace => this.Object(ExpressionFlags.AllowComplexLiterals | (stage ? ExpressionFlags.AllowStepDeclarations : ExpressionFlags.AllowStageDeclarations)),
+                        _ => throw new ExpectedTokenException(current, b => b.ExpectBodyStartOrIfOrLoopStart())
+                    };
+                },
+                GetSuppressionFlag(assignment),
+                TokenType.NewLine);
+
+            return stage ? 
+                new StageDeclarationSyntax(leadingNodes, keyword, name, assignment, [], value) :
+                new RolloutDeclarationSyntax(leadingNodes, keyword, name, assignment, [], value);
         }
         private SyntaxBase TestDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
