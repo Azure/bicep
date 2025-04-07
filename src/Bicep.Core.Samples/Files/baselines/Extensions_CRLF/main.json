@@ -11,7 +11,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12990472231467698733"
+      "templateHash": "5836448966230637904"
     }
   },
   "parameters": {
@@ -58,9 +58,9 @@
     "testResource1": {
       "type": "My.Rp/TestType",
       "apiVersion": "2020-01-01",
-      "name": "[extensionConfigs('k8s').namespace]",
+      "name": "[extensions('k8s').config.namespace]",
       "properties": {
-        "secret": "[extensionConfigs('k8s').kubeConfig]"
+        "secret": "[extensions('k8s').config.kubeConfig]"
       }
     },
     "moduleWithExtsWithAliases": {
@@ -294,7 +294,7 @@
         },
         "mode": "Incremental",
         "extensionConfigs": {
-          "k8s": "[extensionConfigs('k8s')]"
+          "k8s": "[extensions('k8s').config]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -343,8 +343,8 @@
         "mode": "Incremental",
         "extensionConfigs": {
           "k8s": {
-            "kubeConfig": "[extensionConfigs('k8s').kubeConfig]",
-            "namespace": "[extensionConfigs('k8s').namespace]"
+            "kubeConfig": "[extensions('k8s').config.kubeConfig]",
+            "namespace": "[extensions('k8s').config.namespace]"
           }
         },
         "template": {
@@ -387,11 +387,11 @@
   "outputs": {
     "k8sConfig": {
       "type": "object",
-      "value": "[extensionConfigs('k8s')]"
+      "value": "[extensions('k8s').config]"
     },
     "k8sNamespace": {
       "type": "string",
-      "value": "[extensionConfigs('k8s').namespace]"
+      "value": "[extensions('k8s').config.namespace]"
     }
   }
 }

@@ -71,14 +71,14 @@ resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
 //@    "testResource1": {
 //@      "type": "My.Rp/TestType",
 //@      "apiVersion": "2020-01-01",
-//@      "name": "[extensionConfigs('k8s').namespace]",
+//@      "name": "[extensions('k8s').config.namespace]",
 //@    },
   name: k8s.config.namespace
   properties: {
 //@      "properties": {
 //@      }
     secret: k8s.config.kubeConfig
-//@        "secret": "[extensionConfigs('k8s').kubeConfig]"
+//@        "secret": "[extensions('k8s').config.kubeConfig]"
   }
 }
 
@@ -398,7 +398,7 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 //@        "extensionConfigs": {
 //@        },
     k8s: k8s.config
-//@          "k8s": "[extensionConfigs('k8s')]"
+//@          "k8s": "[extensions('k8s').config]"
   }
 }
 
@@ -456,9 +456,9 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 //@          "k8s": {
 //@          }
       kubeConfig: k8s.config.kubeConfig
-//@            "kubeConfig": "[extensionConfigs('k8s').kubeConfig]",
+//@            "kubeConfig": "[extensions('k8s').config.kubeConfig]",
       namespace: k8s.config.namespace
-//@            "namespace": "[extensionConfigs('k8s').namespace]"
+//@            "namespace": "[extensions('k8s').config.namespace]"
     }
   }
 }
@@ -483,13 +483,13 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 output k8sConfig object = k8s.config
 //@    "k8sConfig": {
 //@      "type": "object",
-//@      "value": "[extensionConfigs('k8s')]"
+//@      "value": "[extensions('k8s').config]"
 //@    },
 
 output k8sNamespace string = k8s.config.namespace
 //@    "k8sNamespace": {
 //@      "type": "string",
-//@      "value": "[extensionConfigs('k8s').namespace]"
+//@      "value": "[extensions('k8s').config.namespace]"
 //@    }
 
 // END: Outputs
