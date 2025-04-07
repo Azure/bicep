@@ -990,7 +990,7 @@
       "OpenTelemetry": {
         "type": "Transitive",
         "resolved": "1.9.0",
-        "contentHash": "7scS6BUhwYeSXEDGhCxMSezmvyCoDU5kFQbmfyW9iVvVTcWhec+1KIN33/LOCdBXRkzt2y7+g03mkdAB0XZ9Fw==",
+        "contentHash": "BXRxt2dWFgU9CL+Oh0QOYRHklNZ31Nw9GBR9jojDgtnkahkOPO8Qug3Xu4ipYWJzSXE8Hg0bprdwvOtx+LMDuw==",
         "dependencies": {
           "Microsoft.Extensions.Diagnostics.Abstractions": "8.0.0",
           "Microsoft.Extensions.Logging.Configuration": "8.0.0",
@@ -1000,7 +1000,7 @@
       "OpenTelemetry.Api": {
         "type": "Transitive",
         "resolved": "1.9.0",
-        "contentHash": "Xz8ZvM1Lm0m7BbtGBnw2JlPo++YKyMp08zMK5p0mf+cIi5jeMt2+QsYu9X6YEAbjCxBQYwEak5Z8sY6Ig2WcwQ==",
+        "contentHash": "Y8fTZ2F7+l0i+BqgRrPOYxnYejok610dIILI1j7gNnWeodIQ+kuiYBZy8hhriNYT/roglpj6p2vyQK0RW5ywzg==",
         "dependencies": {
           "System.Diagnostics.DiagnosticSource": "8.0.0"
         }
@@ -1008,7 +1008,7 @@
       "OpenTelemetry.Api.ProviderBuilderExtensions": {
         "type": "Transitive",
         "resolved": "1.9.0",
-        "contentHash": "L0D4LBR5JFmwLun5MCWVGapsJLV0ANZ+XXu9NEI3JE/HRKkRuUO+J2MuHD5DBwiU//QMYYM4B22oev1hVLoHDQ==",
+        "contentHash": "L45FqTZN15eKpSOCRsG4duB0JNea4zYgrj5SnN+nWXj9dupAr/PI6vkcY80qjKEKO7vMd9chuikzDGwTIbTPLA==",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
           "OpenTelemetry.Api": "1.9.0"
