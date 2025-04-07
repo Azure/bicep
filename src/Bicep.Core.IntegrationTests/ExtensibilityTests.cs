@@ -890,15 +890,15 @@ Hello from Bicep!"));
         [DataRow(
             "FullInheritance",
             "extensionConfigs: { kubernetes: k8s.config }",
-            """{ "kubernetes": "[extensionConfigs('k8s')]" }""")]
+            """{ "kubernetes": "[extensions('k8s').config]" }""")]
         [DataRow(
             "PiecemealInheritance",
             "extensionConfigs: { kubernetes: { kubeConfig: k8s.config.kubeConfig, namespace: k8s.config.namespace } }",
-            """{ "kubernetes": { kubeConfig: "[extensionConfigs('k8s').kubeConfig]", namespace: "[extensionConfigs('k8s').namespace]" } }""")]
+            """{ "kubernetes": { kubeConfig: "[extensions('k8s').config.kubeConfig]", namespace: "[extensions('k8s').config.namespace]" } }""")]
         [DataRow(
             "Ternary",
             "extensionConfigs: { kubernetes: { kubeConfig: inputa == 'a' ? k8s.config.kubeConfig : 'b', namespace: inputa == 'a' ? k8s.config.namespace : 'c' } }",
-            """{ "kubernetes": { "kubeConfig": "[if(equals(parameters('inputa'), 'a'), extensionConfigs('k8s').kubeConfig, createObject('value', 'b'))]", "namespace": "[if(equals(parameters('inputa'), 'a'), extensionConfigs('k8s').namespace, createObject('value', 'c'))]" } }""")]
+            """{ "kubernetes": { "kubeConfig": "[if(equals(parameters('inputa'), 'a'), extensions('k8s').config.kubeConfig, createObject('value', 'b'))]", "namespace": "[if(equals(parameters('inputa'), 'a'), extensions('k8s').config.namespace, createObject('value', 'c'))]" } }""")]
         public async Task Modules_can_inherit_parent_module_extension_configs(string scenario, string moduleExtensionConfigsStr, string expectedExtConfigJson)
         {
             var paramsUri = new Uri("file:///main.bicepparam");
