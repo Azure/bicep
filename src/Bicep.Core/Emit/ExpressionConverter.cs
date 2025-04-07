@@ -6,7 +6,6 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
 using Azure.Deployments.Expression.Expressions;
-using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
@@ -675,7 +674,7 @@ namespace Bicep.Core.Emit
             return CreateFunction(
                 referenceFunctionName,
                 GetConverter(indexContext).GetFullyQualifiedResourceId(moduleSymbol, indexContext?.Index),
-                new JTokenExpression(EmitConstants.NestedDeploymentResourceApiVersion));
+                new JTokenExpression(EmitConstants.GetNestedDeploymentResourceApiVersion(context.SemanticModel.Features)));
         }
 
         public FunctionExpression GetReferenceExpression(ResourceMetadata resource, IndexReplacementContext? indexContext, bool full)

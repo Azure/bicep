@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Features;
 
 namespace Bicep.Core.Emit;
 
@@ -11,4 +13,5 @@ namespace Bicep.Core.Emit;
 public record EmitResult(
     EmitStatus Status,
     ImmutableArray<IDiagnostic> Diagnostics,
+    IFeatureProvider? Features,
     SourceMap? SourceMap = null);

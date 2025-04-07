@@ -1,14 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Diagnostics;
@@ -17,6 +12,7 @@ using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Templates.Engines;
 using Bicep.Core.Emit;
+using Bicep.Core.Features;
 using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
@@ -189,7 +185,7 @@ namespace Bicep.Core.Utils
             }
         }
 
-        public static Template Evaluate(JToken? templateJtoken, JToken? parametersJToken = null, Func<EvaluationConfiguration, EvaluationConfiguration>? configBuilder = null)
+        public static Template Evaluate(JToken? templateJtoken, JToken? parametersJToken = null, Func<EvaluationConfiguration, EvaluationConfiguration>? configBuilder = null, IFeatureProvider? features = null)
         {
             var configuration = EvaluationConfiguration.Default;
 
@@ -198,10 +194,10 @@ namespace Bicep.Core.Utils
                 configuration = configBuilder(configuration);
             }
 
-            return EvaluateTemplate(templateJtoken, parametersJToken, configuration);
+            return EvaluateTemplate(templateJtoken, parametersJToken, configuration, features);
         }
 
-        private static Template EvaluateTemplate(JToken? templateJtoken, JToken? parametersJToken, EvaluationConfiguration config)
+        private static Template EvaluateTemplate(JToken? templateJtoken, JToken? parametersJToken, EvaluationConfiguration config, IFeatureProvider? features)
         {
             templateJtoken = templateJtoken ?? throw new ArgumentNullException(nameof(templateJtoken));
 
@@ -245,21 +241,23 @@ namespace Bicep.Core.Utils
                 var template = TemplateEngine.ParseTemplate(templateJtoken.ToString());
                 var parameters = ConvertParameters(parametersJToken);
 
-                TemplateEngine.ValidateTemplate(template, EmitConstants.NestedDeploymentResourceApiVersion, deploymentScope);
+                var expectedApiVersion = features is not null ? EmitConstants.GetNestedDeploymentResourceApiVersion(features) : EmitConstants.NestedDeploymentResourceApiVersion;
+
+                TemplateEngine.ValidateTemplate(template, expectedApiVersion, deploymentScope);
 
                 TemplateEngine.ProcessTemplateLanguageExpressions(
                     managementGroupName: config.ManagementGroup,
                     subscriptionId: config.SubscriptionId,
                     resourceGroupName: config.ResourceGroup,
                     template: template,
-                    apiVersion: EmitConstants.NestedDeploymentResourceApiVersion,
+                    apiVersion: expectedApiVersion,
                     inputParameters: new(parameters),
                     metadata: metadata,
                     metricsRecorder: new TemplateMetricsRecorder());
 
                 ProcessTemplateLanguageExpressions(template, config, deploymentScope);
 
-                TemplateEngine.ValidateProcessedTemplate(template, EmitConstants.NestedDeploymentResourceApiVersion, deploymentScope);
+                TemplateEngine.ValidateProcessedTemplate(template, expectedApiVersion, deploymentScope);
 
                 return template;
             }
