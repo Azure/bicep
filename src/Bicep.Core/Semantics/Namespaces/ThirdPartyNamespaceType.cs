@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.ThirdParty;
@@ -12,7 +13,7 @@ namespace Bicep.Core.Semantics.Namespaces
 {
     public static class ThirdPartyNamespaceType
     {
-        public static NamespaceType Create(string? aliasName, IResourceTypeProvider resourceTypeProvider, ArtifactReference? artifact)
+        public static NamespaceType Create(string? aliasName, IResourceTypeProvider resourceTypeProvider, ArtifactReference? artifact, IFeatureProvider features)
         {
             if (resourceTypeProvider is ThirdPartyResourceTypeProvider thirdPartyProvider &&
                 thirdPartyProvider.GetNamespaceConfiguration() is NamespaceConfiguration namespaceConfig)
@@ -27,7 +28,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 return new NamespaceType(
                     aliasName ?? namespaceConfig.Name,
                     namespaceSettings,
-                    ExtensionNamespaceTypeHelper.GetExtensionNamespaceObjectProperties(namespaceSettings),
+                    ExtensionNamespaceTypeHelper.GetExtensionNamespaceObjectProperties(namespaceSettings, features),
                     ImmutableArray<FunctionOverload>.Empty,
                     ImmutableArray<BannedFunction>.Empty,
                     ImmutableArray<Decorator>.Empty,

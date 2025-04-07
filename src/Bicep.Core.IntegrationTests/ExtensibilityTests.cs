@@ -851,6 +851,7 @@ Hello from Bicep!"));
                     }
 
                     output outputa string = modulea.outputs.outputa
+                    output extOutput object = k8s.config
                     """,
                 [moduleAUri] =
                     """
@@ -876,7 +877,13 @@ Hello from Bicep!"));
             var diagByFile = compilation.GetAllDiagnosticsByBicepFileUri();
 
             var fileUriWithDiag = scenario is "ParamsFile" ? paramsUri : mainUri;
-            diagByFile[fileUriWithDiag].Should().ContainSingleDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
+
+            diagByFile[fileUriWithDiag].Should().ContainDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
+
+            if (scenario is "MainFile")
+            {
+                diagByFile[mainUri].Should().ContainDiagnostic("BCP052", DiagnosticLevel.Error, """The type "k8s" does not contain property "config".""");
+            }
         }
 
         [DataTestMethod]

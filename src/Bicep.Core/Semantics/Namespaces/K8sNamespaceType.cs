@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Features;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.K8s;
@@ -34,12 +35,12 @@ namespace Bicep.Core.Semantics.Namespaces
             }, null);
         }
 
-        public static NamespaceType Create(string aliasName)
+        public static NamespaceType Create(string aliasName, IFeatureProvider features)
         {
             return new NamespaceType(
                 aliasName,
                 Settings,
-                ExtensionNamespaceTypeHelper.GetExtensionNamespaceObjectProperties(Settings),
+                ExtensionNamespaceTypeHelper.GetExtensionNamespaceObjectProperties(Settings, features),
                 ImmutableArray<FunctionOverload>.Empty,
                 ImmutableArray<BannedFunction>.Empty,
                 ImmutableArray<Decorator>.Empty,

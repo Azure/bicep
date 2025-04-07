@@ -60,8 +60,6 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IResourceTypeProviderFactory ResourceTypeProviderFactory = new ResourceTypeProviderFactory(FileSystem);
 
-        public static readonly INamespaceProvider NamespaceProvider = new NamespaceProvider(ResourceTypeProviderFactory);
-
         public static readonly IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
 
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
@@ -80,6 +78,8 @@ namespace Bicep.Core.UnitTests
         public static readonly IConfigurationManager BuiltInOnlyConfigurationManager = IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration);
 
         public static readonly IFeatureProvider Features = new OverriddenFeatureProvider(new FeatureProvider(BuiltInConfiguration, FileExplorer), FeatureOverrides);
+
+        public static readonly INamespaceProvider NamespaceProvider = new NamespaceProvider(ResourceTypeProviderFactory);
 
         public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
 

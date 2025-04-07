@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Immutable;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
@@ -255,7 +256,7 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static INamespaceProvider Create()
             => new NamespaceProvider(
-                   TestTypeHelper.CreateResourceTypeLoaderFactory(
+                TestTypeHelper.CreateResourceTypeLoaderFactory(
                     TestTypeHelper.CreateAzResourceTypeProviderWithTypes(Types)));
     }
 }
