@@ -1,10 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Formats.Tar;
+using System.IO.Compression;
 using Bicep.Core.SourceLink;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
+using static Bicep.Core.SourceLink.SourceArchive;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
@@ -21,34 +24,46 @@ namespace Bicep.Core.UnitTests.Assertions
 
         protected override string Identifier => "SourceArchive";
 
-        public AndConstraint<SourceArchiveAssertions> BeEquivalentTo(SourceArchive archive)
+        public AndConstraint<SourceArchiveAssertions> HaveData(BinaryData data)
         {
             using var _scope = new AssertionScope();
 
             Subject.Should().NotBeNull();
 
-            Subject!.EntrypointRelativePath.Should().Be(archive.EntrypointRelativePath);
-            Subject.SourceFiles.Select(entry => entry.Path).Should().BeEquivalentTo(archive.SourceFiles.Select(entry => entry.Path));
+            var ourData = Decompress(Subject!.PackIntoBinaryData());
+            var theirData = Decompress(data);
 
-            var ourFiles = Subject.SourceFiles.ToArray();
-            var theirFiles = archive.SourceFiles.ToArray();
+            ourData.Should().Equal(theirData);
 
-            ourFiles.Count().Should().Be(theirFiles.Count());
+            return new(this);
+        }
 
-            for (int i = 0; i < ourFiles.Count(); ++i)
+        public AndConstraint<SourceArchiveAssertions> HaveSourceFiles(IEnumerable<LinkedSourceFile> sourceFiles)
+        {
+            using (new AssertionScope())
             {
-                var ourFile = ourFiles[i];
-                var theirFile = theirFiles[i];
-
-                ourFile.Path.Should().Be(theirFile.Path);
-                ourFile.Kind.Should().Be(theirFile.Kind);
-                ourFile.ArchivePath.Should().Be(theirFile.ArchivePath);
-
-                using var _scope2 = new AssertionScope($"archived path: {ourFile.ArchivePath}");
-                ourFile.Contents.Should().Be(theirFile.Contents);
+                foreach (var sourceFile in sourceFiles)
+                {
+                    Subject!.FindSourceFile(sourceFile.Metadata.Path).Should().BeEquivalentTo(sourceFile);
+                }
             }
 
             return new(this);
+        }
+
+        private static IReadOnlyDictionary<string, string> Decompress(BinaryData sourceArchiveData)
+        {
+            var fileEntries = new Dictionary<string, string>();
+            var gz = new GZipStream(sourceArchiveData.ToStream(), CompressionMode.Decompress);
+            using var tarReader = new TarReader(gz);
+
+            while (tarReader.GetNextEntry() is { } entry)
+            {
+                string contents = entry.DataStream is null ? "" : BinaryData.FromStream(entry.DataStream).ToString();
+                fileEntries.Add(entry.Name, contents);
+            }
+
+            return fileEntries;
         }
     }
 }
