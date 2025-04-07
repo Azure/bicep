@@ -167,10 +167,6 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     {
     }
 
-    public void VisitExtensionConfigAssignmentReferenceExpression(ExtensionConfigAssignmentReferenceExpression expression)
-    {
-    }
-
     public virtual void VisitDeclaredParameterExpression(DeclaredParameterExpression expression)
     {
         VisitTypeDeclaringExpression(expression);
