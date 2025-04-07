@@ -11,6 +11,7 @@ using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Core.EventSources;
 using Azure.Deployments.Core.Exceptions;
 using Azure.Deployments.Core.FeatureEnablement;
+using Azure.Deployments.Core.Telemetry;
 using Azure.Deployments.Engine.Host.Azure.Interfaces;
 using Azure.Deployments.Engine.Host.Azure.Workers.Metadata;
 using Azure.Deployments.Engine.Host.External;
@@ -40,8 +41,10 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         IAzureDeploymentSettings settings,
         IDataProviderHolder dataProviderHolder,
         ITemplateExceptionHandler exceptionHandler,
-        IEnablementConfigProvider enablementConfigProvider)
-        : base(settings, deploymentEventSource, keyVaultDataProvider, requestContext, dataProviderHolder, exceptionHandler, enablementConfigProvider)
+        IEnablementConfigProvider enablementConfigProvider,
+        IHttpContentHandler contentHandler,
+        IDeploymentMetricsReporter metricsReporter)
+        : base(settings, contentHandler, deploymentEventSource, metricsReporter, keyVaultDataProvider, requestContext, dataProviderHolder, exceptionHandler, enablementConfigProvider)
     {
         this.extensibilityHandler = extensibilityHandler;
     }
@@ -98,36 +101,6 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         return stringToBeSanitized;
     }
 
-    protected override async Task<T> ReadAsJson<T>(HttpContent content, bool rewindContentStream = false)
-    {
-        using var contentStream = await content.ReadAsStreamAsync();
-
-        return contentStream.FromJsonStream<T>();
-    }
-
-    protected override async Task<T> TryReadAsJson<T>(HttpContent content, bool rewindContentStream = false)
-    {
-        try
-        {
-            return await ReadAsJson<T>(content, rewindContentStream);
-        }
-        catch
-        {
-            return default;
-        }
-    }
-
-    protected override async Task<string> TryReadAsString(HttpContent content, bool rewindContentStream = false)
-    {
-        try
-        {
-            return await content.ReadAsStringAsync();
-        }
-        catch
-        {
-            return default;
-        }
-    }
 
     public override async Task<HttpResponseMessage> CallExtensibilityHostV2(
         HttpMethod requestMethod,
