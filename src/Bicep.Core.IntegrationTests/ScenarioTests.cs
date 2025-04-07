@@ -7126,7 +7126,7 @@ var subnetId = vNet::subnets[0].id
             }
 
             var uri = buildUri(components)
-""");
+            """);
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
             [
@@ -7145,8 +7145,47 @@ var subnetId = vNet::subnets[0].id
         }
 
         var uri = buildUri(components)
-""");
+        """);
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/azure/bicep/issues/16816
+    [TestMethod]
+    public void Test_Issue16816()
+    {
+        var result = CompilationHelper.Compile(
+            ("empty.bicep", string.Empty),
+            ("main.bicep", """
+                @minLength(1)
+                @maxLength(63)
+                param parameter string
+
+                var moduleName = '${parameter}-${uniqueString(deployment().name)}'
+
+                module MyModule 'empty.bicep' = {
+                  name: substring(moduleName, 0, min(length(moduleName), 64))
+                }
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Substring_raises_diagnostic_on_out_of_bounds_parameters()
+    {
+        var result = CompilationHelper.Compile("""
+            @minValue(2)
+            param x int
+
+            output foo1 string = substring('foo', 2, x)
+            output foo2 string = substring('f', x)
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP327", DiagnosticLevel.Error, "The provided value (which will always be greater than or equal to 2) is too large to assign to a target for which the maximum allowable value is 1."),
+            ("BCP327", DiagnosticLevel.Error, "The provided value (which will always be greater than or equal to 2) is too large to assign to a target for which the maximum allowable value is 1."),
+        });
     }
 }

@@ -536,13 +536,13 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow(TypeFactory.CreateStringType(4, 5), TypeFactory.CreateStringType(9, 10), TypeFactory.CreateIntegerLiteralType(5)),
                 CreateRow(LanguageConstants.String, LanguageConstants.String, TypeFactory.CreateIntegerLiteralType(5)),
 
-                CreateRow(TypeFactory.CreateStringType(null, 5), LanguageConstants.String, LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(5)),
-                CreateRow(TypeFactory.CreateStringType(null, 5), LanguageConstants.Any, LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(5)),
-                CreateRow(TypeFactory.CreateStringType(null, 5), LanguageConstants.String, LanguageConstants.Any, TypeFactory.CreateIntegerLiteralType(5)),
-                CreateRow(TypeFactory.CreateStringType(null, 5, validationFlags: LanguageConstants.SecureString.ValidationFlags), LanguageConstants.SecureString, LanguageConstants.Any, TypeFactory.CreateIntegerLiteralType(5)),
-                CreateRow(TypeFactory.CreateStringType(null, 5), TypeFactory.CreateStringType(9, 10), LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(5)),
-                CreateRow(TypeFactory.CreateStringType(null, 10), TypeFactory.CreateStringType(9, 10), LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(50)),
-                CreateRow(TypeFactory.CreateStringType(4, 5), TypeFactory.CreateStringType(9, 10), TypeFactory.CreateIntegerLiteralType(5), TypeFactory.CreateIntegerLiteralType(5)),
+                CreateRow(TypeFactory.CreateStringType(5, 5), LanguageConstants.String, LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(5)),
+                CreateRow(TypeFactory.CreateStringType(5, 5), LanguageConstants.Any, LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(5)),
+                CreateRow(TypeFactory.CreateStringType(5, 5), LanguageConstants.String, LanguageConstants.Any, TypeFactory.CreateIntegerLiteralType(5)),
+                CreateRow(TypeFactory.CreateStringType(5, 5, validationFlags: LanguageConstants.SecureString.ValidationFlags), LanguageConstants.SecureString, LanguageConstants.Any, TypeFactory.CreateIntegerLiteralType(5)),
+                CreateRow(TypeFactory.CreateStringType(5, 5), TypeFactory.CreateStringType(9, 10), LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(5)),
+                CreateRow(TypeFactory.CreateStringType(50, 50), TypeFactory.CreateStringType(9, 10), LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(50)),
+                CreateRow(TypeFactory.CreateStringType(5, 5), TypeFactory.CreateStringType(9, 10), TypeFactory.CreateIntegerLiteralType(5), TypeFactory.CreateIntegerLiteralType(5)),
                 CreateRow(TypeFactory.CreateStringType(2, 2), TypeFactory.CreateStringType(9, 10), TypeFactory.CreateIntegerLiteralType(5), TypeFactory.CreateIntegerLiteralType(2)),
             };
         }

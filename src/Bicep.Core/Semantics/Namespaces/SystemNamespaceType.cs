@@ -377,53 +377,95 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithReturnResultBuilder(
                         TryDeriveLiteralReturnType("substring", (_, _, _, argumentTypes) =>
                         {
-                            var originalString = argumentTypes[0] as StringType;
-                            var literalStartIndex = argumentTypes[1] as IntegerLiteralType;
-                            var literalLength = argumentTypes.Skip(2).FirstOrDefault() as IntegerLiteralType;
-
-                            if (literalLength is null)
+                            switch (argumentTypes.Skip(2).FirstOrDefault())
                             {
-                                long? minLength = literalStartIndex is null ? null : ((originalString?.MinLength ?? 0) - literalStartIndex.Value) switch
-                                {
-                                    <= 0 => null,
-                                    long otherwise => otherwise,
-                                };
-                                long? maxLength = literalStartIndex is null ? originalString?.MaxLength : originalString?.MaxLength.HasValue == true
-                                    ? Math.Max(0, originalString.MaxLength.Value - literalStartIndex.Value)
-                                    : null;
-
-                                return new(TypeFactory.CreateStringType(minLength, maxLength, validationFlags: argumentTypes[0].ValidationFlags));
+                                case IntegerLiteralType intLiteral:
+                                    return new(TypeFactory.CreateStringType(
+                                        intLiteral.Value,
+                                        intLiteral.Value,
+                                        validationFlags: argumentTypes[0].ValidationFlags));
+                                case IntegerType @int:
+                                    return new(TypeFactory.CreateStringType(
+                                        @int.MinValue,
+                                        @int.MaxValue,
+                                        validationFlags: argumentTypes[0].ValidationFlags));
                             }
 
-                            if (literalStartIndex is null || originalString is null)
+                            (long? minLength, long? maxLength) = argumentTypes[0] switch
                             {
-                                return new(TypeFactory.CreateStringType(minLength: null,
-                                    maxLength: originalString?.MaxLength.HasValue == true
-                                        ? Math.Min(literalLength.Value, originalString.MaxLength.Value)
-                                        : literalLength.Value,
-                                    validationFlags: argumentTypes[0].ValidationFlags));
-                            }
-
-                            long derivedMaxLength = originalString.MaxLength.HasValue
-                                ? Math.Min(Math.Max(0, originalString.MaxLength.Value - literalStartIndex.Value), literalLength.Value)
-                                : literalLength.Value;
-                            long? derivedMinLength = ((originalString.MinLength ?? 0) - literalStartIndex.Value) switch
-                            {
-                                <= 0 => null,
-                                long otherwise => otherwise,
+                                StringLiteralType literal => (literal.RawStringValue.Length, literal.RawStringValue.Length),
+                                StringType @string => (@string.MinLength, @string.MaxLength),
+                                _ => (null, null),
                             };
-                            if (derivedMinLength.HasValue && derivedMinLength.Value > derivedMaxLength)
+
+                            switch (argumentTypes[1])
                             {
-                                derivedMinLength = derivedMaxLength;
+                                case IntegerLiteralType intLiteral:
+                                    minLength = minLength.HasValue && minLength.Value >= intLiteral.Value
+                                        ? minLength.Value - intLiteral.Value
+                                        : null;
+                                    maxLength = maxLength.HasValue && maxLength.Value >= intLiteral.Value
+                                        ? maxLength.Value - intLiteral.Value
+                                        : maxLength;
+                                    break;
+                                case IntegerType @int:
+                                    minLength = minLength.HasValue && @int.MaxValue.HasValue
+                                        ? Math.Max(0, minLength.Value - @int.MaxValue.Value)
+                                        : null;
+                                    maxLength = maxLength.HasValue && @int.MinValue.HasValue
+                                        ? Math.Max(0, maxLength.Value - @int.MinValue.Value)
+                                        : maxLength;
+                                    break;
+                                default:
+                                    minLength = null;
+                                    break;
                             }
 
-                            return new(TypeFactory.CreateStringType(derivedMinLength, derivedMaxLength, validationFlags: originalString.ValidationFlags));
+                            return new(TypeFactory.CreateStringType(minLength, maxLength, validationFlags: argumentTypes[0].ValidationFlags));
                         }),
                         LanguageConstants.String)
                     .WithGenericDescription("Returns a substring that starts at the specified character position and contains the specified number of characters.")
-                    .WithRequiredParameter("stringToParse", LanguageConstants.String, "The original string from which the substring is extracted.")
-                    .WithRequiredParameter("startIndex", LanguageConstants.Int, "The zero-based starting character position for the substring.")
-                    .WithOptionalParameter("length", LanguageConstants.Int, "The number of characters for the substring. Must refer to a location within the string. Must be zero or greater.")
+                    .WithRequiredParameter(
+                        "stringToParse",
+                        LanguageConstants.String,
+                        "The original string from which the substring is extracted.")
+                    .WithRequiredParameter(
+                        "startIndex",
+                        TypeFactory.CreateIntegerType(minValue: 0),
+                        "The zero-based starting character position for the substring.",
+                        getArgumentType => TypeFactory.CreateIntegerType(
+                            minValue: 0,
+                            maxValue: getArgumentType(0) switch
+                            {
+                                StringLiteralType stringLiteral => stringLiteral.RawStringValue.Length,
+                                StringType @string => @string.MaxLength,
+                                _ => null
+                            }))
+                    .WithOptionalParameter(
+                        "length",
+                        TypeFactory.CreateIntegerType(minValue: 0),
+                        "The number of characters for the substring. Must refer to a location within the string. Must be zero or greater.",
+                        getArgumentType =>
+                        {
+                            var maxInputLength = getArgumentType(0) switch
+                            {
+                                StringLiteralType stringLiteral => stringLiteral.RawStringValue.Length,
+                                StringType @string => @string.MaxLength,
+                                _ => null
+                            };
+                            return TypeFactory.CreateIntegerType(
+                                minValue: 0,
+                                maxValue: maxInputLength is long derivedMax
+                                    ? getArgumentType(1) switch
+                                    {
+                                        IntegerLiteralType intLiteral when derivedMax >= intLiteral.Value
+                                            => derivedMax - intLiteral.Value,
+                                        IntegerType { MinValue: long minStart } when derivedMax >= minStart
+                                            => derivedMax - minStart,
+                                        _ => derivedMax,
+                                    }
+                                    : null);
+                        })
                     .Build();
 
                 yield return new FunctionOverloadBuilder("take")
@@ -742,10 +784,79 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
                     .Build();
 
+                static long? MinOf(TypeSymbol type) => type switch
+                {
+                    IntegerType @int => @int.MinValue,
+                    IntegerLiteralType intLiteral => intLiteral.Value,
+                    _ => null,
+                };
+                static long? MaxOf(TypeSymbol type) => type switch
+                {
+                    IntegerType @int => @int.MaxValue,
+                    IntegerLiteralType intLiteral => intLiteral.Value,
+                    _ => null,
+                };
+
+                static FunctionResult CalculateMin(
+                    SemanticModel model,
+                    IDiagnosticWriter diagnostics,
+                    FunctionCallSyntaxBase syntax,
+                    ImmutableArray<TypeSymbol> argumentTypes)
+                {
+                    long? min = MinOf(argumentTypes[0]);
+                    long? max = MaxOf(argumentTypes[0]);
+
+                    for (int i = 1; i < argumentTypes.Length; i++)
+                    {
+                        if (min.HasValue)
+                        {
+                            min = MinOf(argumentTypes[i]) is { } minAtIdx
+                                ? Math.Min(min.Value, minAtIdx)
+                                : null;
+                        }
+
+                        if (MaxOf(argumentTypes[i]) is { } maxAtIdx)
+                        {
+                            max = max.HasValue
+                                ? Math.Min(max.Value, maxAtIdx)
+                                : maxAtIdx;
+                        }
+                    }
+
+                    return new(TypeFactory.CreateIntegerType(min, max));
+                }
+
+                static FunctionResult CalculateMax(
+                    SemanticModel model,
+                    IDiagnosticWriter diagnostics,
+                    FunctionCallSyntaxBase syntax,
+                    ImmutableArray<TypeSymbol> argumentTypes)
+                {
+                    long? min = MinOf(argumentTypes[0]);
+                    long? max = MaxOf(argumentTypes[0]);
+
+                    for (int i = 1; i < argumentTypes.Length; i++)
+                    {
+                        if (MinOf(argumentTypes[i]) is { } minAtIdx)
+                        {
+                            min = min.HasValue ? Math.Max(min.Value, minAtIdx) : minAtIdx;
+                        }
+
+                        if (max.HasValue)
+                        {
+                            max = MaxOf(argumentTypes[i]) is { } maxAtIdx
+                                ? Math.Max(max.Value, maxAtIdx)
+                                : null;
+                        }
+                    }
+
+                    return new(TypeFactory.CreateIntegerType(min, max));
+                }
+
                 // TODO: Needs to support number type as well
                 // TODO: Docs need updates
                 yield return new FunctionOverloadBuilder("min")
-                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("min", LanguageConstants.Int), LanguageConstants.Int)
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("min", CalculateMin), LanguageConstants.Int)
                     .WithGenericDescription(MinDescription)
                     .WithDescription("Returns the minimum value from the specified integers.")
                     .WithVariableParameter("int", LanguageConstants.Int, minimumCount: 1, "One of the integers used to calculate the minimum value")
@@ -753,7 +864,13 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 // TODO: Docs need updates
                 yield return new FunctionOverloadBuilder("min")
-                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("min", LanguageConstants.Int), LanguageConstants.Int)
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("min", (model, diagnostics, syntax, argumentTypes) => argumentTypes[0] switch
+                    {
+                        TupleType tuple => CalculateMin(model, diagnostics, syntax, [..tuple.Items.Select(t => t.Type)]),
+                        TypedArrayType typedArray when typedArray.Item.Type is IntegerType or IntegerLiteralType
+                            => new(typedArray.Item.Type),
+                        _ => new(LanguageConstants.Int),
+                    }), LanguageConstants.Int)
                     .WithGenericDescription(MinDescription)
                     .WithDescription("Returns the minimum value from an array of integers.")
                     .WithRequiredParameter("intArray", new TypedArrayType(LanguageConstants.Int, TypeSymbolValidationFlags.Default), "The array of integers.")
@@ -762,7 +879,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 // TODO: Needs to support number type as well
                 // TODO: Docs need updates
                 yield return new FunctionOverloadBuilder("max")
-                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("max", LanguageConstants.Int), LanguageConstants.Int)
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("max", CalculateMax), LanguageConstants.Int)
                     .WithGenericDescription(MaxDescription)
                     .WithDescription("Returns the maximum value from the specified integers.")
                     .WithVariableParameter("int", LanguageConstants.Int, minimumCount: 1, "One of the integers used to calculate the maximum value")
@@ -770,7 +887,13 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 // TODO: Docs need updates
                 yield return new FunctionOverloadBuilder("max")
-                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("max", LanguageConstants.Int), LanguageConstants.Int)
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("max", (model, diagnostics, syntax, argumentTypes) => argumentTypes[0] switch
+                    {
+                        TupleType tuple => CalculateMax(model, diagnostics, syntax, [.. tuple.Items.Select(t => t.Type)]),
+                        TypedArrayType typedArray when typedArray.Item.Type is IntegerType or IntegerLiteralType
+                            => new(typedArray.Item.Type),
+                        _ => new(LanguageConstants.Int),
+                    }), LanguageConstants.Int)
                     .WithGenericDescription(MaxDescription)
                     .WithDescription("Returns the maximum value from an array of integers.")
                     .WithRequiredParameter("intArray", new TypedArrayType(LanguageConstants.Int, TypeSymbolValidationFlags.Default), "The array of integers.")
