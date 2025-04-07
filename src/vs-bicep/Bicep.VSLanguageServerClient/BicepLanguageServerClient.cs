@@ -29,6 +29,7 @@ namespace Bicep.VSLanguageServerClient
     [Export(typeof(ILanguageClient))]
     [ContentType(BicepLanguageServerClientConstants.BicepContentType)]
     [ContentType(BicepLanguageServerClientConstants.BicepConfigContentType)]
+    [ContentType(BicepLanguageServerClientConstants.BicepParamContentType)]
     public class BicepLanguageServerClient : ILanguageClient, ILanguageClientCustomMessage2
     {
         private IClientProcess? process;
@@ -58,7 +59,7 @@ namespace Bicep.VSLanguageServerClient
 
         public virtual object InitializationOptions => new();
 
-        public IEnumerable<string> FilesToWatch => [];
+                public IEnumerable<string> FilesToWatch => [];
 
         public bool ShowNotificationOnInitializeFailed => true;
 

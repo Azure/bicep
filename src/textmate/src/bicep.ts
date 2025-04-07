@@ -251,7 +251,7 @@ const grammar: Grammar = {
   $schema: tm.schema,
   name: "Bicep",
   scopeName: "source.bicep",
-  fileTypes: [".bicep"],
+  fileTypes: [".bicep", ".bicepparam"],
   patterns: withComments([expression]),
 };
 
