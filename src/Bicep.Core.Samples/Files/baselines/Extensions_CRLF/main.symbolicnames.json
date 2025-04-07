@@ -11,7 +11,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12759032955821215334"
+      "templateHash": "12990472231467698733"
     }
   },
   "parameters": {
@@ -65,7 +65,7 @@
     },
     "moduleWithExtsWithAliases": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-03-01",
       "name": "moduleWithExtsWithAliases",
       "properties": {
         "expressionEvaluationOptions": {
@@ -120,7 +120,7 @@
     },
     "moduleWithExtsWithoutAliases": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-03-01",
       "name": "moduleWithExtsWithoutAliases",
       "properties": {
         "expressionEvaluationOptions": {
@@ -175,7 +175,7 @@
     },
     "moduleExtConfigsFromParams": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-03-01",
       "name": "moduleExtConfigsFromParams",
       "properties": {
         "expressionEvaluationOptions": {
@@ -226,7 +226,7 @@
     },
     "moduleExtConfigFromKeyVaultReference": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-03-01",
       "name": "moduleExtConfigKeyVaultReference",
       "properties": {
         "expressionEvaluationOptions": {
@@ -286,7 +286,7 @@
     },
     "moduleWithExtsUsingFullInheritance": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-03-01",
       "name": "moduleWithExtsFullInheritance",
       "properties": {
         "expressionEvaluationOptions": {
@@ -334,7 +334,7 @@
     },
     "moduleWithExtsUsingPiecemealInheritance": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-03-01",
       "name": "moduleWithExtsPiecemealInheritance",
       "properties": {
         "expressionEvaluationOptions": {

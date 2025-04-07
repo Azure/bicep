@@ -89,7 +89,7 @@ resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
 module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@    "moduleWithExtsWithAliases": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-03-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -154,7 +154,7 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
 module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias.bicep' = {
 //@    "moduleWithExtsWithoutAliases": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-03-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -219,7 +219,7 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
 module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@    "moduleExtConfigsFromParams": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-03-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -280,7 +280,7 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
 module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@    "moduleExtConfigFromKeyVaultReference": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-03-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -350,7 +350,7 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@    "moduleWithExtsUsingFullInheritance": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-03-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -405,7 +405,7 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@    "moduleWithExtsUsingPiecemealInheritance": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-03-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
