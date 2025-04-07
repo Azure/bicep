@@ -59,7 +59,7 @@ namespace Bicep.VSLanguageServerClient
 
         public virtual object InitializationOptions => new();
 
-                public IEnumerable<string> FilesToWatch => [];
+        public IEnumerable<string> FilesToWatch => [];
 
         public bool ShowNotificationOnInitializeFailed => true;
 
