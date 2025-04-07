@@ -5,6 +5,7 @@ using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Extensions;
@@ -130,24 +131,26 @@ namespace Bicep.Core.Emit
                 case ResourceFunctionCallExpression listFunction when listFunction.Name.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix):
                     {
                         var resource = listFunction.Resource.Metadata;
-                        var resourceIdExpression = new PropertyAccessExpression(
-                            listFunction.Resource.SourceSyntax,
-                            listFunction.Resource,
-                            "id",
-                            AccessExpressionFlags.None);
+
+                        var functionTargetExpression =
+                            context.Settings.EnableSymbolicNames && resource is DeclaredResourceMetadata declared
+                                ? GenerateSymbolicReference(declared, listFunction.Resource.IndexContext)
+                                : ConvertExpression(new PropertyAccessExpression(
+                                    listFunction.Resource.SourceSyntax,
+                                    listFunction.Resource,
+                                    "id",
+                                    AccessExpressionFlags.None));
 
                         var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
-                        var apiVersionExpression = new StringLiteralExpression(listFunction.Resource.SourceSyntax, apiVersion);
+                        var apiVersionExpression = new JTokenExpression(apiVersion);
 
                         var listArgs = listFunction.Parameters.Length switch
                         {
-                            0 => new Expression[] { resourceIdExpression, apiVersionExpression, },
-                            _ => new Expression[] { resourceIdExpression, }.Concat(listFunction.Parameters),
+                            0 => new LanguageExpression[] { functionTargetExpression, apiVersionExpression, },
+                            _ => new LanguageExpression[] { functionTargetExpression, }.Concat(listFunction.Parameters.Select(ConvertExpression)),
                         };
 
-                        return CreateFunction(
-                            listFunction.Name,
-                            listArgs.Select(p => ConvertExpression(p)));
+                        return CreateFunction(listFunction.Name, listArgs);
                     }
 
                 case PropertyAccessExpression exp:
