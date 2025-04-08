@@ -574,18 +574,5 @@ module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlia
   }
 }
 
-// TODO(kylealbert): Figure out if this is allowable
-// var k8sConfigDeployTime = {
-//   kubeConfig: k8s.config.kubeConfig
-//   namespace: strParam1
-// }
-
-// module moduleWithExtsUsingVar 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//   name: 'moduleWithExtsUsingVar'
-//   extensionConfigs: {
-//     k8s: k8sConfigDeployTime
-//   }
-// }
-
 // END: Extension configs for modules
 

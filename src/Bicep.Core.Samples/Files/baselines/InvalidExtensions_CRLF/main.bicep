@@ -32,7 +32,7 @@ resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 
 var configProp = 'config'
 
-// Extension symbols are blocked in resources because each config property returns an object { value, keyVaultReference } and "value" is available when a reference is provided.
+// Extension symbols are blocked in resources because each config property returns an object { value, keyVaultReference } and "value" is not available when a reference is provided.
 // Users should use deployment parameters for this scenario.
 resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
   name: k8s.config.namespace
@@ -70,6 +70,19 @@ module moduleComplexKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.
       kubeConfig: boolParam1 ? kv1.getSecret('myKubeConfig') : scopedKv1.getSecret('myOtherKubeConfig')
       namespace: boolParam1 ? kv1.getSecret('myKubeConfig') : kv1.getSecret('myOtherKubeConfig')
     }
+  }
+}
+
+// TODO(kylealbert): Figure out if this can be made allowable easily, potentially by inlining.
+var k8sConfigDeployTime = {
+  kubeConfig: k8s.config.kubeConfig
+  namespace: strParam1
+}
+
+module moduleWithExtsUsingVar 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  name: 'moduleWithExtsUsingVar'
+  extensionConfigs: {
+    k8s: k8sConfigDeployTime
   }
 }
 

@@ -99,8 +99,8 @@ var configProp = 'config'
 //@[017:025) StringComplete |'config'|
 //@[025:029) NewLine |\r\n\r\n|
 
-// Extension symbols are blocked in resources because each config property returns an object { value, keyVaultReference } and "value" is available when a reference is provided.
-//@[176:178) NewLine |\r\n|
+// Extension symbols are blocked in resources because each config property returns an object { value, keyVaultReference } and "value" is not available when a reference is provided.
+//@[180:182) NewLine |\r\n|
 // Users should use deployment parameters for this scenario.
 //@[060:062) NewLine |\r\n|
 resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
@@ -302,6 +302,61 @@ module moduleComplexKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.
     }
 //@[004:005) RightBrace |}|
 //@[005:007) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
+// TODO(kylealbert): Figure out if this can be made allowable easily, potentially by inlining.
+//@[094:096) NewLine |\r\n|
+var k8sConfigDeployTime = {
+//@[000:003) Identifier |var|
+//@[004:023) Identifier |k8sConfigDeployTime|
+//@[024:025) Assignment |=|
+//@[026:027) LeftBrace |{|
+//@[027:029) NewLine |\r\n|
+  kubeConfig: k8s.config.kubeConfig
+//@[002:012) Identifier |kubeConfig|
+//@[012:013) Colon |:|
+//@[014:017) Identifier |k8s|
+//@[017:018) Dot |.|
+//@[018:024) Identifier |config|
+//@[024:025) Dot |.|
+//@[025:035) Identifier |kubeConfig|
+//@[035:037) NewLine |\r\n|
+  namespace: strParam1
+//@[002:011) Identifier |namespace|
+//@[011:012) Colon |:|
+//@[013:022) Identifier |strParam1|
+//@[022:024) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
+module moduleWithExtsUsingVar 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:006) Identifier |module|
+//@[007:029) Identifier |moduleWithExtsUsingVar|
+//@[030:078) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[079:080) Assignment |=|
+//@[081:082) LeftBrace |{|
+//@[082:084) NewLine |\r\n|
+  name: 'moduleWithExtsUsingVar'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:032) StringComplete |'moduleWithExtsUsingVar'|
+//@[032:034) NewLine |\r\n|
+  extensionConfigs: {
+//@[002:018) Identifier |extensionConfigs|
+//@[018:019) Colon |:|
+//@[020:021) LeftBrace |{|
+//@[021:023) NewLine |\r\n|
+    k8s: k8sConfigDeployTime
+//@[004:007) Identifier |k8s|
+//@[007:008) Colon |:|
+//@[009:028) Identifier |k8sConfigDeployTime|
+//@[028:030) NewLine |\r\n|
   }
 //@[002:003) RightBrace |}|
 //@[003:005) NewLine |\r\n|

@@ -494,30 +494,6 @@ module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlia
 //@[000:001) RightBrace |}|
 //@[001:005) NewLine |\r\n\r\n|
 
-// TODO(kylealbert): Figure out if this is allowable
-//@[052:054) NewLine |\r\n|
-// var k8sConfigDeployTime = {
-//@[030:032) NewLine |\r\n|
-//   kubeConfig: k8s.config.kubeConfig
-//@[038:040) NewLine |\r\n|
-//   namespace: strParam1
-//@[025:027) NewLine |\r\n|
-// }
-//@[004:008) NewLine |\r\n\r\n|
-
-// module moduleWithExtsUsingVar 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[085:087) NewLine |\r\n|
-//   name: 'moduleWithExtsUsingVar'
-//@[035:037) NewLine |\r\n|
-//   extensionConfigs: {
-//@[024:026) NewLine |\r\n|
-//     k8s: k8sConfigDeployTime
-//@[031:033) NewLine |\r\n|
-//   }
-//@[006:008) NewLine |\r\n|
-// }
-//@[004:008) NewLine |\r\n\r\n|
-
 // END: Extension configs for modules
 //@[037:039) NewLine |\r\n|
 

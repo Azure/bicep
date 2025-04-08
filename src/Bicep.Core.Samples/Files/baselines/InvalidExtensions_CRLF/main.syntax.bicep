@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:2383) ProgramSyntax
+//@[000:2759) ProgramSyntax
 //@[020:0024) ├─Token(NewLine) |\r\n\r\n|
 
 param boolParam1 bool
@@ -139,8 +139,8 @@ var configProp = 'config'
 //@[017:0025) |   └─Token(StringComplete) |'config'|
 //@[025:0029) ├─Token(NewLine) |\r\n\r\n|
 
-// Extension symbols are blocked in resources because each config property returns an object { value, keyVaultReference } and "value" is available when a reference is provided.
-//@[176:0178) ├─Token(NewLine) |\r\n|
+// Extension symbols are blocked in resources because each config property returns an object { value, keyVaultReference } and "value" is not available when a reference is provided.
+//@[180:0182) ├─Token(NewLine) |\r\n|
 // Users should use deployment parameters for this scenario.
 //@[060:0062) ├─Token(NewLine) |\r\n|
 resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
@@ -468,6 +468,90 @@ module moduleComplexKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.
     }
 //@[004:0005) |   |   |   └─Token(RightBrace) |}|
 //@[005:0007) |   |   ├─Token(NewLine) |\r\n|
+  }
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
+
+// TODO(kylealbert): Figure out if this can be made allowable easily, potentially by inlining.
+//@[094:0096) ├─Token(NewLine) |\r\n|
+var k8sConfigDeployTime = {
+//@[000:0091) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0023) | ├─IdentifierSyntax
+//@[004:0023) | | └─Token(Identifier) |k8sConfigDeployTime|
+//@[024:0025) | ├─Token(Assignment) |=|
+//@[026:0091) | └─ObjectSyntax
+//@[026:0027) |   ├─Token(LeftBrace) |{|
+//@[027:0029) |   ├─Token(NewLine) |\r\n|
+  kubeConfig: k8s.config.kubeConfig
+//@[002:0035) |   ├─ObjectPropertySyntax
+//@[002:0012) |   | ├─IdentifierSyntax
+//@[002:0012) |   | | └─Token(Identifier) |kubeConfig|
+//@[012:0013) |   | ├─Token(Colon) |:|
+//@[014:0035) |   | └─PropertyAccessSyntax
+//@[014:0024) |   |   ├─PropertyAccessSyntax
+//@[014:0017) |   |   | ├─VariableAccessSyntax
+//@[014:0017) |   |   | | └─IdentifierSyntax
+//@[014:0017) |   |   | |   └─Token(Identifier) |k8s|
+//@[017:0018) |   |   | ├─Token(Dot) |.|
+//@[018:0024) |   |   | └─IdentifierSyntax
+//@[018:0024) |   |   |   └─Token(Identifier) |config|
+//@[024:0025) |   |   ├─Token(Dot) |.|
+//@[025:0035) |   |   └─IdentifierSyntax
+//@[025:0035) |   |     └─Token(Identifier) |kubeConfig|
+//@[035:0037) |   ├─Token(NewLine) |\r\n|
+  namespace: strParam1
+//@[002:0022) |   ├─ObjectPropertySyntax
+//@[002:0011) |   | ├─IdentifierSyntax
+//@[002:0011) |   | | └─Token(Identifier) |namespace|
+//@[011:0012) |   | ├─Token(Colon) |:|
+//@[013:0022) |   | └─VariableAccessSyntax
+//@[013:0022) |   |   └─IdentifierSyntax
+//@[013:0022) |   |     └─Token(Identifier) |strParam1|
+//@[022:0024) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
+
+module moduleWithExtsUsingVar 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:0177) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0029) | ├─IdentifierSyntax
+//@[007:0029) | | └─Token(Identifier) |moduleWithExtsUsingVar|
+//@[030:0078) | ├─StringSyntax
+//@[030:0078) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[079:0080) | ├─Token(Assignment) |=|
+//@[081:0177) | └─ObjectSyntax
+//@[081:0082) |   ├─Token(LeftBrace) |{|
+//@[082:0084) |   ├─Token(NewLine) |\r\n|
+  name: 'moduleWithExtsUsingVar'
+//@[002:0032) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0032) |   | └─StringSyntax
+//@[008:0032) |   |   └─Token(StringComplete) |'moduleWithExtsUsingVar'|
+//@[032:0034) |   ├─Token(NewLine) |\r\n|
+  extensionConfigs: {
+//@[002:0056) |   ├─ObjectPropertySyntax
+//@[002:0018) |   | ├─IdentifierSyntax
+//@[002:0018) |   | | └─Token(Identifier) |extensionConfigs|
+//@[018:0019) |   | ├─Token(Colon) |:|
+//@[020:0056) |   | └─ObjectSyntax
+//@[020:0021) |   |   ├─Token(LeftBrace) |{|
+//@[021:0023) |   |   ├─Token(NewLine) |\r\n|
+    k8s: k8sConfigDeployTime
+//@[004:0028) |   |   ├─ObjectPropertySyntax
+//@[004:0007) |   |   | ├─IdentifierSyntax
+//@[004:0007) |   |   | | └─Token(Identifier) |k8s|
+//@[007:0008) |   |   | ├─Token(Colon) |:|
+//@[009:0028) |   |   | └─VariableAccessSyntax
+//@[009:0028) |   |   |   └─IdentifierSyntax
+//@[009:0028) |   |   |     └─Token(Identifier) |k8sConfigDeployTime|
+//@[028:0030) |   |   ├─Token(NewLine) |\r\n|
   }
 //@[002:0003) |   |   └─Token(RightBrace) |}|
 //@[003:0005) |   ├─Token(NewLine) |\r\n|

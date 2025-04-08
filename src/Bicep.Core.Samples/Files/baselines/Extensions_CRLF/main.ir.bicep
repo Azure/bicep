@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:3316) ProgramExpression
+//@[000:2956) ProgramExpression
 
 param strParam1 string
 //@[000:0022) ├─DeclaredParameterExpression { Name = strParam1 }
@@ -281,19 +281,6 @@ module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlia
     }
   }
 }
-
-// TODO(kylealbert): Figure out if this is allowable
-// var k8sConfigDeployTime = {
-//   kubeConfig: k8s.config.kubeConfig
-//   namespace: strParam1
-// }
-
-// module moduleWithExtsUsingVar 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//   name: 'moduleWithExtsUsingVar'
-//   extensionConfigs: {
-//     k8s: k8sConfigDeployTime
-//   }
-// }
 
 // END: Extension configs for modules
 

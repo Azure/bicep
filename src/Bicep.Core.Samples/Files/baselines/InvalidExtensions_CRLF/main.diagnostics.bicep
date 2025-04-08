@@ -32,7 +32,7 @@ resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 
 var configProp = 'config'
 
-// Extension symbols are blocked in resources because each config property returns an object { value, keyVaultReference } and "value" is available when a reference is provided.
+// Extension symbols are blocked in resources because each config property returns an object { value, keyVaultReference } and "value" is not available when a reference is provided.
 // Users should use deployment parameters for this scenario.
 resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
 //@[23:53) [BCP081 (Warning)] Resource type "My.Rp/TestType@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'az:My.Rp/TestType@2020-01-01'|
@@ -79,6 +79,22 @@ module moduleComplexKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.
 //@[30:59) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator or a secure extension configuration property. (bicep https://aka.ms/bicep/core-diagnostics#BCP180) |kv1.getSecret('myKubeConfig')|
 //@[62:96) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator or a secure extension configuration property. (bicep https://aka.ms/bicep/core-diagnostics#BCP180) |kv1.getSecret('myOtherKubeConfig')|
     }
+  }
+}
+
+// TODO(kylealbert): Figure out if this can be made allowable easily, potentially by inlining.
+var k8sConfigDeployTime = {
+  kubeConfig: k8s.config.kubeConfig
+//@[14:17) [BCP418 (Error)] Extensions cannot be referenced here. Extensions can only be referenced by module extension configurations. (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |k8s|
+  namespace: strParam1
+//@[13:22) [BCP057 (Error)] The name "strParam1" does not exist in the current context. (bicep https://aka.ms/bicep/core-diagnostics#BCP057) |strParam1|
+}
+
+module moduleWithExtsUsingVar 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  name: 'moduleWithExtsUsingVar'
+  extensionConfigs: {
+    k8s: k8sConfigDeployTime
+//@[09:28) [BCP062 (Error)] The referenced declaration with name "k8sConfigDeployTime" is not valid. (bicep https://aka.ms/bicep/core-diagnostics#BCP062) |k8sConfigDeployTime|
   }
 }
 
