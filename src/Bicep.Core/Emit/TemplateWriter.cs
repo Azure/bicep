@@ -1517,7 +1517,7 @@ namespace Bicep.Core.Emit
                     jsonWriter.AddNestedSourceMap(moduleJsonWriter.TrackingJsonWriter);
                     emitter.EmitProperty("template", moduleTextWriter.ToString());
 
-                    if (moduleBicepFile?.Uri is {} sourceUri)
+                    if (moduleBicepFile?.Uri is { } sourceUri)
                     {
                         emitter.EmitProperty("sourceUri", sourceUri.AbsoluteUri);
                     }

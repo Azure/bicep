@@ -53,7 +53,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var links = GetDocumentLinks(ModuleDispatcher, sourceFileFactory, request, cancellationToken);
+            var links = GetDocumentLinks(sourceFileFactory, request, cancellationToken);
             return Task.FromResult(new DocumentLinkContainer<ExternalSourceDocumentLinkData>(links));
         }
 
@@ -70,7 +70,7 @@ namespace Bicep.LanguageServer.Handlers
             ResolveProvider = true,
         };
 
-        public static IEnumerable<DocumentLink<ExternalSourceDocumentLinkData>> GetDocumentLinks(IModuleDispatcher moduleDispatcher, ISourceFileFactory sourceFileFactory, DocumentLinkParams request, CancellationToken cancellationToken)
+        public static IEnumerable<DocumentLink<ExternalSourceDocumentLinkData>> GetDocumentLinks(ISourceFileFactory sourceFileFactory, DocumentLinkParams request, CancellationToken cancellationToken)
         {
             var currentDocument = request.TextDocument;
             if (currentDocument.Uri.Scheme == LangServerConstants.ExternalSourceFileScheme)
@@ -97,40 +97,36 @@ namespace Bicep.LanguageServer.Handlers
                         yield break;
                     }
 
-                    if (!moduleDispatcher.TryGetModuleSources(currentDocumentArtifact).IsSuccess(out var currentDocumentSourceArchive, out var ex))
+                    if (!currentDocumentArtifact.TryLoadSourceArchive().IsSuccess(out var currentDocumentSourceArchive, out var ex))
                     {
                         Trace.WriteLine(ex.Message);
                         yield break;
                     }
 
-                    if (currentDocumentSourceArchive.DocumentLinks.TryGetValue(currentDocumentRelativeFile, out var nestedLinks))
+                    foreach (var nestedLink in currentDocumentSourceArchive.FindDocumentLinks(currentDocumentRelativeFile))
                     {
-                        foreach (var nestedLink in nestedLinks)
-                        {
-                            var targetFileInfo = currentDocumentSourceArchive.FindExpectedSourceFile(nestedLink.Target);
-                            var linkToRawCompiledJson = new ExternalSourceReference(request.TextDocument.Uri)
-                                .WithRequestForSourceFile(targetFileInfo.Path).ToUri().ToString();
+                        var targetFileInfo = currentDocumentSourceArchive.FindSourceFile(nestedLink.Target);
+                        var linkToRawCompiledJson = new ExternalSourceReference(request.TextDocument.Uri)
+                            .WithRequestForSourceFile(targetFileInfo.Metadata.Path).ToUri().ToString();
 
-                            // Does this nested link have a pointer to its artifact so we can try restoring it and get the source?
-                            if (targetFileInfo.SourceArtifact is { })
+                        // Does this nested link have a pointer to its artifact so we can try restoring it and get the source?
+                        if (targetFileInfo.Metadata.ArtifactAddress?.ArtifactId is { } sourceId)
+                        {
+                            // Yes, it's an external module with source.  We won't set the target now - we'll wait until the user clicks on it to resolve it, to give us a chance to restore the module.
+                            yield return new DocumentLink<ExternalSourceDocumentLinkData>()
                             {
-                                // Yes, it's an external module with source.  We won't set the target now - we'll wait until the user clicks on it to resolve it, to give us a chance to restore the module.
-                                var sourceId = targetFileInfo.SourceArtifact?.ArtifactId;
-                                yield return new DocumentLink<ExternalSourceDocumentLinkData>()
-                                {
-                                    Range = nestedLink.Range.ToRange(),
-                                    Data = new ExternalSourceDocumentLinkData(sourceId, linkToRawCompiledJson)
-                                };
-                            }
-                            else
+                                Range = nestedLink.Range.ToRange(),
+                                Data = new ExternalSourceDocumentLinkData(sourceId, linkToRawCompiledJson)
+                            };
+                        }
+                        else
+                        {
+                            yield return new DocumentLink()
                             {
-                                yield return new DocumentLink()
-                                {
-                                    // This is a link to a file that we don't have source for, so we'll just display the main.json file
-                                    Range = nestedLink.Range.ToRange(),
-                                    Target = linkToRawCompiledJson
-                                };
-                            }
+                                // This is a link to a file that we don't have source for, so we'll just display the main.json file
+                                Range = nestedLink.Range.ToRange(),
+                                Target = linkToRawCompiledJson
+                            };
                         }
                     }
                 }
@@ -148,7 +144,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var data = request.Data;
 
-            var dummyFile = sourceFileFactory.CreateBicepFile(PathHelper.FilePathToFileUrl("main.bicep"), "");
+            var dummyFile = sourceFileFactory.CreateDummyArtifactReferencingFile();
             if (!OciArtifactReference.TryParse(dummyFile, ArtifactType.Module, null, data.TargetArtifactId).IsSuccess(out var targetArtifactReference, out var error))
             {
                 server.Window.ShowWarning($"Unable to parse the module source ID '{data.TargetArtifactId}': {error(DiagnosticBuilder.ForDocumentStart()).Message}");
@@ -186,7 +182,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             // If we get here, the module *should* have sources available (since we are going through delayed resolution), so show a message if we can't for some reason
-            if (!moduleDispatcher.TryGetModuleSources(targetArtifactReference).IsSuccess(out var sourceArchive, out var ex))
+            if (!targetArtifactReference.TryLoadSourceArchive().IsSuccess(out var sourceArchive, out var ex))
             {
                 server.Window.ShowWarning($"Unable to retrieve source code for module {targetArtifactReference.FullyQualifiedReference}. {ex.Message}");
                 telemetryProvider.PostEvent(ExternalSourceDocLinkClickFailure("tryGetModuleSources", ex.Message));

@@ -170,7 +170,7 @@ public class ParameterAssignmentEvaluator
         this.synthesizedVariableValuesByName = context.FunctionVariables.Values
             .GroupBy(result => result.Name)
             .ToImmutableDictionary(x => x.Key, x => x.First().Value);
-        
+
         this.externalInputReferences = context.ExternalInputReferences;
     }
 
@@ -189,7 +189,7 @@ public class ParameterAssignmentEvaluator
                 {
                     var rewrittenExpression = ExternalInputExpressionRewriter
                         .Rewrite(intermediate, this.externalInputReferences);
-                        
+
                     return Result.For(rewrittenExpression);
                 }
 
@@ -502,7 +502,7 @@ public class ParameterAssignmentEvaluator
 
         public override Expression ReplaceFunctionCallExpression(FunctionCallExpression expression)
         {
-            if (LanguageConstants.IdentifierComparer.Equals(expression.Name, LanguageConstants.ExternalInputsArmFunctionName) && 
+            if (LanguageConstants.IdentifierComparer.Equals(expression.Name, LanguageConstants.ExternalInputsArmFunctionName) &&
                 expression.SourceSyntax is FunctionCallSyntaxBase functionCallSyntax &&
                 externalInputReferences.ExternalInputIndexMap.TryGetValue(functionCallSyntax, out var definitionKey))
             {

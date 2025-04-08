@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Azure.Deployments.Core.Exceptions;
+using Azure.Deployments.Core.Interfaces;
 using Azure.Deployments.Engine;
 using Azure.Deployments.Engine.Dependencies;
 using Azure.Deployments.Engine.Host.Azure.Interfaces;
@@ -14,9 +15,10 @@ public class LocalDeploymentConfiguration : IAzureDeploymentConfiguration
         IAzureDeploymentSettings settings,
         IAzureDeploymentEngineHost host,
         IPreflightEngineHost preflightEngineHost,
-        IDeploymentDependency dependency,
+        IDependencyProcessor dependency,
         ITemplateExceptionHandler exceptionHandler,
-        IDataProviderHolder dataProviders)
+        IDataProviderHolder dataProviders,
+        IExtensionConfigSchemaDirectoryFactory extensionConfigSchemaDirectoryFactory)
     {
         Settings = settings;
         Host = host;
@@ -24,6 +26,7 @@ public class LocalDeploymentConfiguration : IAzureDeploymentConfiguration
         DependencyProcessor = dependency;
         TemplateExceptionHandler = exceptionHandler;
         DataProviders = dataProviders;
+        ExtensionConfigSchemaDirectoryFactory = extensionConfigSchemaDirectoryFactory;
     }
 
     public IAzureDeploymentSettings Settings { get; }
@@ -34,9 +37,11 @@ public class LocalDeploymentConfiguration : IAzureDeploymentConfiguration
 
     public ExportTemplateResourceEngine? ExportTemplateResourceEngine { get; }
 
-    public IDeploymentDependency DependencyProcessor { get; }
+    public IDependencyProcessor DependencyProcessor { get; }
 
     public ITemplateExceptionHandler TemplateExceptionHandler { get; }
 
     public IDataProviderHolder DataProviders { get; }
+
+    public IExtensionConfigSchemaDirectoryFactory ExtensionConfigSchemaDirectoryFactory { get; }
 }

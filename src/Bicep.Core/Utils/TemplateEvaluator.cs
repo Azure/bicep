@@ -5,12 +5,14 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Configuration;
+using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Diagnostics;
 using Azure.Deployments.Core.ErrorResponses;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Templates.Engines;
+using Azure.Deployments.Templates.Expressions;
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
@@ -253,6 +255,7 @@ namespace Bicep.Core.Utils
                     apiVersion: expectedApiVersion,
                     inputParameters: new(parameters),
                     metadata: metadata,
+                    extensionConfigs: [], // TODO: check this with Kyle
                     metricsRecorder: new TemplateMetricsRecorder());
 
                 ProcessTemplateLanguageExpressions(template, config, deploymentScope);
@@ -279,7 +282,25 @@ namespace Bicep.Core.Utils
             }
 
             var parametersObject = parametersJToken["parameters"] as JObject;
-            return parametersObject!.Properties().ToImmutableDictionary(x => x.Name, x => x.Value["value"]!);
+
+            var externalInputsObject = parametersJToken["externalInputs"] as JObject;
+            var externalInputs = externalInputsObject?.Properties().ToImmutableDictionary(
+                x => x.Name, 
+                x => new DeploymentExternalInput { Value = x.Value["value"] }) ?? ImmutableDictionary<string, DeploymentExternalInput>.Empty;
+
+            var helper = new ParameterExpressionEvaluationHelper(
+                metricsRecorder: new TemplateMetricsRecorder(),
+                externalInputs: externalInputs);
+
+            
+            return parametersObject!.Properties().ToImmutableDictionary(x => x.Name, x => {
+                if (x.Value["expression"] is { } expression)
+                {
+                    return ExpressionsEngine.ParseLanguageExpression(expression.ToString()).EvaluateExpression(helper.EvaluationContext);
+                }
+
+                return x.Value["value"]!;
+            });
         }
 
         private static TemplateDeploymentScope GetDeploymentScope(string templateSchema)

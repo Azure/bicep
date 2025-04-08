@@ -2385,7 +2385,7 @@ namespace Bicep.Core.TypeSystem
                 for (var i = 0; i < syntax.Arguments.Length; i++)
                 {
                     var argumentSyntax = syntax.Arguments[i];
-                    var targetType = matchedOverload.GetArgumentType(i);
+                    var targetType = matchedOverload.GetArgumentType(i, getFunctionArgumentType: i => GetTypeInfo(syntax.Arguments[i]));
 
                     TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, argumentSyntax, targetType);
                 }

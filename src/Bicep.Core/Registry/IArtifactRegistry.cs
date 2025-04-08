@@ -97,13 +97,6 @@ namespace Bicep.Core.Registry
         /// </summary>
         Task<string?> TryGetModuleDescription(ModuleSymbol module, ArtifactReference reference);
 
-        /// <summary>
-        /// Returns the source code for the module, if available.
-        /// </summary>
-        /// <param name="reference">The module reference</param>
-        /// <returns>A source archive</returns>
-        ResultWithException<SourceArchive> TryGetSource(ArtifactReference reference);
-
         Uri? TryGetExtensionBinary(ArtifactReference reference);
     }
 }

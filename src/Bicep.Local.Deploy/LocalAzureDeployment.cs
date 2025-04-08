@@ -39,9 +39,10 @@ public static class LocalAzureDeployment
             throw new NotImplementedException("Above-subscription scope is not supported yet.");
         }
 
-        return deploymentLocator switch {
-            { SubscriptionId: {}, ResourceGroupName: null } => armClient.GetSubscriptionResource(new ResourceIdentifier($"/subscriptions/{deploymentLocator.SubscriptionId}")).GetArmDeployments(),
-            { SubscriptionId: {}, ResourceGroupName: {} } => armClient.GetResourceGroupResource(new ResourceIdentifier($"/subscriptions/{deploymentLocator.SubscriptionId}/resourceGroups/{deploymentLocator.ResourceGroupName}")).GetArmDeployments(),
+        return deploymentLocator switch
+        {
+            { SubscriptionId: { }, ResourceGroupName: null } => armClient.GetSubscriptionResource(new ResourceIdentifier($"/subscriptions/{deploymentLocator.SubscriptionId}")).GetArmDeployments(),
+            { SubscriptionId: { }, ResourceGroupName: { } } => armClient.GetResourceGroupResource(new ResourceIdentifier($"/subscriptions/{deploymentLocator.SubscriptionId}/resourceGroups/{deploymentLocator.ResourceGroupName}")).GetArmDeployments(),
             _ => throw new NotImplementedException("Above-subscription scope is not supported yet."),
         };
     }

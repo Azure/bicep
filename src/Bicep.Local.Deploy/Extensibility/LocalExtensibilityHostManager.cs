@@ -10,6 +10,7 @@ using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Engine.Host.Azure.ExtensibilityV2.Contract.Models;
+using Azure.Deployments.Engine.Host.Azure.Instrumentation;
 using Azure.Deployments.Extensibility.Core.V2.Json;
 using Azure.Deployments.Extensibility.Core.V2.Models;
 using Bicep.Core.Configuration;
@@ -21,6 +22,8 @@ using Bicep.Core.TypeSystem.Types;
 using Microsoft.Azure.Deployments.Service.Shared.Jobs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using OpenTelemetry;
+using OpenTelemetry.Trace;
 using IAsyncDisposable = System.IAsyncDisposable;
 
 
@@ -38,8 +41,17 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
     private readonly WorkerJobDispatcherClient jobDispatcher;
     private readonly LocalDeploymentEngine localDeploymentEngine;
 
+    /// <summary>
+    /// Gets or sets the trace provider, required to enable producing non-null activities.
+    /// </summary>
+    private TracerProvider TraceProvider { get; set; }
+
     public LocalExtensibilityHostManager(IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, ITokenCredentialFactory credentialFactory, Func<Uri, Task<LocalExtensibilityHost>> extensionFactory)
     {
+        this.TraceProvider = Sdk.CreateTracerProviderBuilder()
+            .AddSource(OperationActivitySource.DefaultName)
+            .Build();
+
         var services = new ServiceCollection()
             .RegisterLocalDeployServices(this)
             .BuildServiceProvider();

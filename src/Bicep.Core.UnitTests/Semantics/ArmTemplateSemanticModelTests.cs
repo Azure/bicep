@@ -652,7 +652,7 @@ public class ArmTemplateSemanticModelTests
         // Verify all outputs except 'normalString' is marked as secure.
         foreach (var output in model.Outputs)
         {
-            if(output.Name == "normalString")
+            if (output.Name == "normalString")
             {
                 output.IsSecure.Should().BeFalse();
                 continue;

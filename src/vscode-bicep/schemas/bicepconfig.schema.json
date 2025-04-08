@@ -447,7 +447,6 @@
                           "description": "Customize the list of hosts to disallow",
                           "type": "array",
                           "default": [
-                            "api.loganalytics.io",
                             "azuredatalakeanalytics.net",
                             "azuredatalakestore.net",
                             "batch.core.windows.net",
@@ -459,8 +458,6 @@
                             "login.microsoftonline.com",
                             "management.azure.com",
                             "management.core.windows.net",
-                            "region.asazure.windows.net",
-                            "trafficmanager.net",
                             "vault.azure.net"
                           ],
                           "items": {

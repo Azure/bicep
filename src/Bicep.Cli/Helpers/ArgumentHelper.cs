@@ -44,6 +44,10 @@ public class ArgumentHelper
         {
             throw new CommandLineException(string.Format(CliResources.UnrecognizedBicepparamsFileExtensionMessage, fileUri.LocalPath));
         }
+        if (!File.Exists(fileUri.LocalPath))
+        {
+            throw new CommandLineException(string.Format(CliResources.FileDoesNotExistFormat, fileUri.LocalPath));
+        }
     }
 
     public static void ValidateBicepOrBicepParamFile(Uri fileUri)
