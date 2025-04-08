@@ -30,9 +30,9 @@ namespace Bicep.Core.Emit
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
-            var visitingTopExtensionReference = !VisitingTopExtensionReference && model.GetSymbolInfo(syntax) is ExtensionNamespaceSymbol;
+            var visitingTopExtensionRefThisVisit = !VisitingTopExtensionReference && model.GetSymbolInfo(syntax) is ExtensionNamespaceSymbol;
 
-            if (visitingTopExtensionReference)
+            if (visitingTopExtensionRefThisVisit)
             {
                 VisitingTopExtensionReference = true;
 
@@ -44,7 +44,7 @@ namespace Bicep.Core.Emit
 
             base.VisitVariableAccessSyntax(syntax);
 
-            if (visitingTopExtensionReference)
+            if (visitingTopExtensionRefThisVisit)
             {
                 VisitingTopExtensionReference = false;
             }
@@ -61,12 +61,13 @@ namespace Bicep.Core.Emit
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
-            var insideExtensionConfigs = false;
+            var insideModuleExtConfigsThisVisit = false;
 
-            if (InsideModuleDeclaration && syntax.TryGetKeyText() == LanguageConstants.ModuleExtensionConfigsPropertyName
-                && model.Binder.GetParent(syntax) is ObjectSyntax extensionConfigObjSyntax)
+            if (!InsideModuleExtensionConfigs && InsideModuleDeclaration
+                && syntax.TryGetKeyText() == LanguageConstants.ModuleExtensionConfigsPropertyName
+                && model.Binder.GetParent(syntax) is ObjectSyntax objectSyntax)
             {
-                InsideModuleExtensionConfigs = insideExtensionConfigs = model.Binder.GetParent(extensionConfigObjSyntax) switch
+                InsideModuleExtensionConfigs = insideModuleExtConfigsThisVisit = model.Binder.GetParent(objectSyntax) switch
                 {
                     ModuleDeclarationSyntax => true,
                     ForSyntax @for when model.Binder.GetParent(@for) is ModuleDeclarationSyntax => true,
@@ -76,7 +77,7 @@ namespace Bicep.Core.Emit
 
             base.VisitObjectPropertySyntax(syntax);
 
-            if (insideExtensionConfigs)
+            if (insideModuleExtConfigsThisVisit)
             {
                 InsideModuleExtensionConfigs = false;
             }
