@@ -832,7 +832,7 @@ param enabled = []
 
             var (output, error, result) = await Bicep("generate-params", "--include-params", "all", "--output-format", "bicepparam", bicepFilePath);
 
-            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.bicepparam")).ReplaceLineEndings();
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.bicepparam")).ReplaceLineEndings().Trim();
 
             using (new AssertionScope())
             {
@@ -852,7 +852,7 @@ param baz = {
   bar: 'hello'
   baz: 42
 }
-".ReplaceLineEndings());
+".ReplaceLineEndings().Trim());
             }
         }
     }
