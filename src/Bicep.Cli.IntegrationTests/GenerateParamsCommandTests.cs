@@ -531,9 +531,9 @@ param required string";
         public async Task GenerateParams_UserDefinedTypeParameters_JsonFormat_Should_Succeed()
         {
             var bicep = $@"
-                param foo object = { bar: 'hello', baz: 42 }
-                param bar { bar: string, baz: int }
-                param baz { bar: string, baz: int } = { bar: 'hello', baz: 42 }
+                param foo object = {{ bar: 'hello', baz: 42 }}
+                param bar {{ bar: string, baz: int }}
+                param baz {{ bar: string, baz: int }} = {{ bar: 'hello', baz: 42 }}
             ";
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
@@ -819,9 +819,9 @@ param enabled = []
         public async Task GenerateParams_UserDefinedTypeParameters_BicepparamFormat_Should_Succeed()
         {
             var bicep = $@"
-                param foo object = { bar: 'hello', baz: 42 }
-                param bar { bar: string, baz: int }
-                param baz { bar: string, baz: int } = { bar: 'hello', baz: 42 }
+                param foo object = {{ bar: 'hello', baz: 42 }}
+                param bar {{ bar: string, baz: int }}
+                param baz {{ bar: string, baz: int }} = {{ bar: 'hello', baz: 42 }}
             ";
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
