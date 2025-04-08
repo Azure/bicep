@@ -74,7 +74,6 @@ namespace Bicep.Core.UnitTests.Configuration
               "no-hardcoded-env-urls": {
                 "level": "warning",
                 "disallowedhosts": [
-                  "api.loganalytics.io",
                   "azuredatalakeanalytics.net",
                   "azuredatalakestore.net",
                   "batch.core.windows.net",
@@ -86,8 +85,6 @@ namespace Bicep.Core.UnitTests.Configuration
                   "login.microsoftonline.com",
                   "management.azure.com",
                   "management.core.windows.net",
-                  "region.asazure.windows.net",
-                  "trafficmanager.net",
                   "vault.azure.net"
                 ],
                 "excludedhosts": [
@@ -264,7 +261,6 @@ namespace Bicep.Core.UnitTests.Configuration
               "no-hardcoded-env-urls": {
                 "level": "off",
                 "disallowedhosts": [
-                  "api.loganalytics.io",
                   "azuredatalakeanalytics.net",
                   "azuredatalakestore.net",
                   "batch.core.windows.net",
@@ -276,8 +272,6 @@ namespace Bicep.Core.UnitTests.Configuration
                   "login.microsoftonline.com",
                   "management.azure.com",
                   "management.core.windows.net",
-                  "region.asazure.windows.net",
-                  "trafficmanager.net",
                   "vault.azure.net"
                 ],
                 "excludedhosts": [
@@ -450,7 +444,6 @@ namespace Bicep.Core.UnitTests.Configuration
                     "no-hardcoded-env-urls": {
                     "level": "warning",
                     "disallowedhosts": [
-                        "api.loganalytics.io",
                         "azuredatalakeanalytics.net",
                         "azuredatalakestore.net",
                         "batch.core.windows.net",
@@ -462,8 +455,6 @@ namespace Bicep.Core.UnitTests.Configuration
                         "login.microsoftonline.com",
                         "management.azure.com",
                         "management.core.windows.net",
-                        "region.asazure.windows.net",
-                        "trafficmanager.net",
                         "vault.azure.net"
                     ],
                     "excludedhosts": [
@@ -731,9 +722,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 "azuredatalakestore.net",
                 "azuredatalakeanalytics.net",
                 "vault.azure.net",
-                "api.loganalytics.io",
                 "asazure.windows.net",
-                "region.asazure.windows.net",
                 "batch.core.windows.net"
                 ]
             }
@@ -834,9 +823,7 @@ namespace Bicep.Core.UnitTests.Configuration
                   "azuredatalakestore.net",
                   "azuredatalakeanalytics.net",
                   "vault.azure.net",
-                  "api.loganalytics.io",
                   "asazure.windows.net",
-                  "region.asazure.windows.net",
                   "batch.core.windows.net"
                 ],
                 "excludedhosts": [
