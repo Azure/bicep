@@ -89,6 +89,70 @@ resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 // END: Key Vaults
 //@[018:022) NewLine |\r\n\r\n|
 
+// BEGIN: Resources
+//@[019:023) NewLine |\r\n\r\n|
+
+var configProp = 'config'
+//@[000:003) Identifier |var|
+//@[004:014) Identifier |configProp|
+//@[015:016) Assignment |=|
+//@[017:025) StringComplete |'config'|
+//@[025:029) NewLine |\r\n\r\n|
+
+// Extension symbols are blocked in resources because each config property returns an object { value, keyVaultReference } and "value" is available when a reference is provided.
+//@[176:178) NewLine |\r\n|
+// Users should use deployment parameters for this scenario.
+//@[060:062) NewLine |\r\n|
+resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
+//@[000:008) Identifier |resource|
+//@[009:022) Identifier |testResource1|
+//@[023:053) StringComplete |'az:My.Rp/TestType@2020-01-01'|
+//@[054:055) Assignment |=|
+//@[056:057) LeftBrace |{|
+//@[057:059) NewLine |\r\n|
+  name: k8s.config.namespace
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:011) Identifier |k8s|
+//@[011:012) Dot |.|
+//@[012:018) Identifier |config|
+//@[018:019) Dot |.|
+//@[019:028) Identifier |namespace|
+//@[028:030) NewLine |\r\n|
+  properties: {
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
+    secret: k8s.config.kubeConfig
+//@[004:010) Identifier |secret|
+//@[010:011) Colon |:|
+//@[012:015) Identifier |k8s|
+//@[015:016) Dot |.|
+//@[016:022) Identifier |config|
+//@[022:023) Dot |.|
+//@[023:033) Identifier |kubeConfig|
+//@[033:035) NewLine |\r\n|
+    ns: k8s[configProp].namespace
+//@[004:006) Identifier |ns|
+//@[006:007) Colon |:|
+//@[008:011) Identifier |k8s|
+//@[011:012) LeftSquare |[|
+//@[012:022) Identifier |configProp|
+//@[022:023) RightSquare |]|
+//@[023:024) Dot |.|
+//@[024:033) Identifier |namespace|
+//@[033:035) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
+// END: Resources
+//@[017:021) NewLine |\r\n\r\n|
+
 // BEGIN: Extension configs for modules
 //@[039:043) NewLine |\r\n\r\n|
 
@@ -251,13 +315,38 @@ module moduleComplexKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.
 // BEGIN: Outputs
 //@[017:021) NewLine |\r\n\r\n|
 
-output k8sNamespace object = k8s // This is a namespace type
+// Extension symbols are blocked for outputs for now. Users should use deployment parameters for this scenario.
+//@[111:115) NewLine |\r\n\r\n|
+
+output k8sTheNamespace object = k8s // This is a namespace type
+//@[000:006) Identifier |output|
+//@[007:022) Identifier |k8sTheNamespace|
+//@[023:029) Identifier |object|
+//@[030:031) Assignment |=|
+//@[032:035) Identifier |k8s|
+//@[063:067) NewLine |\r\n\r\n|
+
+output k8sConfig object = k8s.config
+//@[000:006) Identifier |output|
+//@[007:016) Identifier |k8sConfig|
+//@[017:023) Identifier |object|
+//@[024:025) Assignment |=|
+//@[026:029) Identifier |k8s|
+//@[029:030) Dot |.|
+//@[030:036) Identifier |config|
+//@[036:040) NewLine |\r\n\r\n|
+
+output k8sNamespace string = k8s.config.namespace
 //@[000:006) Identifier |output|
 //@[007:019) Identifier |k8sNamespace|
-//@[020:026) Identifier |object|
+//@[020:026) Identifier |string|
 //@[027:028) Assignment |=|
 //@[029:032) Identifier |k8s|
-//@[060:064) NewLine |\r\n\r\n|
+//@[032:033) Dot |.|
+//@[033:039) Identifier |config|
+//@[039:040) Dot |.|
+//@[040:049) Identifier |namespace|
+//@[049:053) NewLine |\r\n\r\n|
 
 // END: Outputs
 //@[015:017) NewLine |\r\n|

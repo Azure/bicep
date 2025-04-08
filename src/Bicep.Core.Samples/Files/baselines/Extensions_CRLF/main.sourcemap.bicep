@@ -67,21 +67,6 @@ resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
   scope: resourceGroup('otherGroup')
 }
 
-resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
-//@    "testResource1": {
-//@      "type": "My.Rp/TestType",
-//@      "apiVersion": "2020-01-01",
-//@      "name": "[extensions('k8s').config.namespace]",
-//@    },
-  name: k8s.config.namespace
-  properties: {
-//@      "properties": {
-//@      }
-    secret: k8s.config.kubeConfig
-//@        "secret": "[extensions('k8s').config.kubeConfig]"
-  }
-}
-
 // END: Key vaults
 
 // BEGIN: Extension configs for modules
@@ -446,7 +431,7 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 //@          "resources": {}
 //@        }
 //@      }
-//@    }
+//@    },
   name: 'moduleWithExtsPiecemealInheritance'
 //@      "name": "moduleWithExtsPiecemealInheritance",
   extensionConfigs: {
@@ -459,6 +444,132 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 //@            "kubeConfig": "[extensions('k8s').config.kubeConfig]",
       namespace: k8s.config.namespace
 //@            "namespace": "[extensions('k8s').config.namespace]"
+    }
+  }
+}
+
+module moduleWithExtsUsingPiecemealInheritanceLooped 'child/hasConfigurableExtensionsWithAlias.bicep' = [for i in range(0, 4): {
+//@    "moduleWithExtsUsingPiecemealInheritanceLooped": {
+//@      "copy": {
+//@        "name": "moduleWithExtsUsingPiecemealInheritanceLooped",
+//@        "count": "[length(range(0, 4))]"
+//@      },
+//@      "type": "Microsoft.Resources/deployments",
+//@      "apiVersion": "2025-03-01",
+//@      "properties": {
+//@        "expressionEvaluationOptions": {
+//@          "scope": "inner"
+//@        },
+//@        "mode": "Incremental",
+//@        "template": {
+//@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.2-experimental",
+//@          "contentVersion": "1.0.0.0",
+//@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Extensibility",
+//@              "Enable defining extension configs for modules"
+//@            ],
+//@            "_generator": {
+//@              "name": "bicep",
+//@              "version": "dev",
+//@              "templateHash": "13022283377733806646"
+//@            }
+//@          },
+//@          "extensions": {
+//@            "k8s": {
+//@              "name": "Kubernetes",
+//@              "version": "1.0.0",
+//@              "config": {
+//@                "kubeConfig": {
+//@                  "type": "secureString",
+//@                  "defaultValue": "DELETE"
+//@                },
+//@                "namespace": {
+//@                  "type": "string",
+//@                  "defaultValue": "DELETE"
+//@                }
+//@              }
+//@            }
+//@          },
+//@          "resources": {}
+//@        }
+//@      }
+//@    },
+  name: 'moduleWithExtsPiecemealInheritanceLooped${i}'
+//@      "name": "[format('moduleWithExtsPiecemealInheritanceLooped{0}', range(0, 4)[copyIndex()])]",
+  extensionConfigs: {
+//@        "extensionConfigs": {
+//@        },
+    k8s: {
+//@          "k8s": {
+//@          }
+      kubeConfig: k8s.config.kubeConfig
+//@            "kubeConfig": "[extensions('k8s').config.kubeConfig]",
+      namespace: k8s.config.namespace
+//@            "namespace": "[extensions('k8s').config.namespace]"
+    }
+  }
+}]
+
+module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@    "moduleExtConfigsConditionalMixed": {
+//@      "type": "Microsoft.Resources/deployments",
+//@      "apiVersion": "2025-03-01",
+//@      "properties": {
+//@        "expressionEvaluationOptions": {
+//@          "scope": "inner"
+//@        },
+//@        "mode": "Incremental",
+//@        "template": {
+//@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.2-experimental",
+//@          "contentVersion": "1.0.0.0",
+//@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Extensibility",
+//@              "Enable defining extension configs for modules"
+//@            ],
+//@            "_generator": {
+//@              "name": "bicep",
+//@              "version": "dev",
+//@              "templateHash": "13022283377733806646"
+//@            }
+//@          },
+//@          "extensions": {
+//@            "k8s": {
+//@              "name": "Kubernetes",
+//@              "version": "1.0.0",
+//@              "config": {
+//@                "kubeConfig": {
+//@                  "type": "secureString",
+//@                  "defaultValue": "DELETE"
+//@                },
+//@                "namespace": {
+//@                  "type": "string",
+//@                  "defaultValue": "DELETE"
+//@                }
+//@              }
+//@            }
+//@          },
+//@          "resources": {}
+//@        }
+//@      }
+//@    }
+  name: 'moduleExtConfigsConditionalMixedValueAndInheritance'
+//@      "name": "moduleExtConfigsConditionalMixedValueAndInheritance",
+  extensionConfigs: {
+//@        "extensionConfigs": {
+//@        },
+    k8s: {
+//@          "k8s": {
+//@          }
+      kubeConfig: boolParam1 ? secureStrParam1 : k8s.config.kubeConfig
+//@            "kubeConfig": "[if(parameters('boolParam1'), createObject('value', parameters('secureStrParam1')), extensions('k8s').config.kubeConfig)]",
+      namespace: boolParam1 ? strParam1 : k8s.config.namespace
+//@            "namespace": "[if(parameters('boolParam1'), createObject('value', parameters('strParam1')), extensions('k8s').config.namespace)]"
     }
   }
 }
@@ -477,20 +588,4 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 // }
 
 // END: Extension configs for modules
-
-// BEGIN: Outputs
-
-output k8sConfig object = k8s.config
-//@    "k8sConfig": {
-//@      "type": "object",
-//@      "value": "[extensions('k8s').config]"
-//@    },
-
-output k8sNamespace string = k8s.config.namespace
-//@    "k8sNamespace": {
-//@      "type": "string",
-//@      "value": "[extensions('k8s').config.namespace]"
-//@    }
-
-// END: Outputs
 

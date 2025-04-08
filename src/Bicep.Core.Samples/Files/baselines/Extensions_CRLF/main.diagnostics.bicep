@@ -27,17 +27,9 @@ resource kv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 }
 
 resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
-//@[09:18) [no-unused-existing-resources (Warning)] Existing resource "scopedKv1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-existing-resources) |scopedKv1|
+//@[9:18) [no-unused-existing-resources (Warning)] Existing resource "scopedKv1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-existing-resources) |scopedKv1|
   name: 'scopedKv1'
   scope: resourceGroup('otherGroup')
-}
-
-resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
-//@[23:53) [BCP081 (Warning)] Resource type "My.Rp/TestType@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'az:My.Rp/TestType@2020-01-01'|
-  name: k8s.config.namespace
-  properties: {
-    secret: k8s.config.kubeConfig
-  }
 }
 
 // END: Key vaults
@@ -101,6 +93,26 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
   }
 }
 
+module moduleWithExtsUsingPiecemealInheritanceLooped 'child/hasConfigurableExtensionsWithAlias.bicep' = [for i in range(0, 4): {
+  name: 'moduleWithExtsPiecemealInheritanceLooped${i}'
+  extensionConfigs: {
+    k8s: {
+      kubeConfig: k8s.config.kubeConfig
+      namespace: k8s.config.namespace
+    }
+  }
+}]
+
+module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  name: 'moduleExtConfigsConditionalMixedValueAndInheritance'
+  extensionConfigs: {
+    k8s: {
+      kubeConfig: boolParam1 ? secureStrParam1 : k8s.config.kubeConfig
+      namespace: boolParam1 ? strParam1 : k8s.config.namespace
+    }
+  }
+}
+
 // TODO(kylealbert): Figure out if this is allowable
 // var k8sConfigDeployTime = {
 //   kubeConfig: k8s.config.kubeConfig
@@ -115,14 +127,4 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 // }
 
 // END: Extension configs for modules
-
-// BEGIN: Outputs
-
-output k8sConfig object = k8s.config
-//@[17:23) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
-//@[30:36) [outputs-should-not-contain-secrets (Warning)] Outputs should not contain secrets. Found possible secret: secure value 'k8s.config.kubeConfig' (bicep core linter https://aka.ms/bicep/linter/outputs-should-not-contain-secrets) |config|
-
-output k8sNamespace string = k8s.config.namespace
-
-// END: Outputs
 

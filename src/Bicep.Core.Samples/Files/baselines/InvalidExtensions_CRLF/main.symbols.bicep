@@ -32,6 +32,24 @@ resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 
 // END: Key Vaults
 
+// BEGIN: Resources
+
+var configProp = 'config'
+//@[4:14) Variable configProp. Type: 'config'. Declaration start char: 0, length: 25
+
+// Extension symbols are blocked in resources because each config property returns an object { value, keyVaultReference } and "value" is available when a reference is provided.
+// Users should use deployment parameters for this scenario.
+resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
+//@[9:22) Resource testResource1. Type: My.Rp/TestType@2020-01-01. Declaration start char: 0, length: 182
+  name: k8s.config.namespace
+  properties: {
+    secret: k8s.config.kubeConfig
+    ns: k8s[configProp].namespace
+  }
+}
+
+// END: Resources
+
 // BEGIN: Extension configs for modules
 
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
@@ -68,8 +86,16 @@ module moduleComplexKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.
 
 // BEGIN: Outputs
 
-output k8sNamespace object = k8s // This is a namespace type
-//@[7:19) Output k8sNamespace. Type: object. Declaration start char: 0, length: 32
+// Extension symbols are blocked for outputs for now. Users should use deployment parameters for this scenario.
+
+output k8sTheNamespace object = k8s // This is a namespace type
+//@[7:22) Output k8sTheNamespace. Type: object. Declaration start char: 0, length: 35
+
+output k8sConfig object = k8s.config
+//@[7:16) Output k8sConfig. Type: object. Declaration start char: 0, length: 36
+
+output k8sNamespace string = k8s.config.namespace
+//@[7:19) Output k8sNamespace. Type: string. Declaration start char: 0, length: 49
 
 // END: Outputs
 

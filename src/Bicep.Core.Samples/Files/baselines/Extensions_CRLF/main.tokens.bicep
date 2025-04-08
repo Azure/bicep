@@ -1,467 +1,524 @@
 // BEGIN: Parameters
-//@[20:024) NewLine |\r\n\r\n|
+//@[020:024) NewLine |\r\n\r\n|
 
 param strParam1 string
-//@[00:005) Identifier |param|
-//@[06:015) Identifier |strParam1|
-//@[16:022) Identifier |string|
-//@[22:026) NewLine |\r\n\r\n|
+//@[000:005) Identifier |param|
+//@[006:015) Identifier |strParam1|
+//@[016:022) Identifier |string|
+//@[022:026) NewLine |\r\n\r\n|
 
 @secure()
-//@[00:001) At |@|
-//@[01:007) Identifier |secure|
-//@[07:008) LeftParen |(|
-//@[08:009) RightParen |)|
-//@[09:011) NewLine |\r\n|
+//@[000:001) At |@|
+//@[001:007) Identifier |secure|
+//@[007:008) LeftParen |(|
+//@[008:009) RightParen |)|
+//@[009:011) NewLine |\r\n|
 param secureStrParam1 string
-//@[00:005) Identifier |param|
-//@[06:021) Identifier |secureStrParam1|
-//@[22:028) Identifier |string|
-//@[28:032) NewLine |\r\n\r\n|
+//@[000:005) Identifier |param|
+//@[006:021) Identifier |secureStrParam1|
+//@[022:028) Identifier |string|
+//@[028:032) NewLine |\r\n\r\n|
 
 param boolParam1 bool
-//@[00:005) Identifier |param|
-//@[06:016) Identifier |boolParam1|
-//@[17:021) Identifier |bool|
-//@[21:025) NewLine |\r\n\r\n|
+//@[000:005) Identifier |param|
+//@[006:016) Identifier |boolParam1|
+//@[017:021) Identifier |bool|
+//@[021:025) NewLine |\r\n\r\n|
 
 // END: Parameters
-//@[18:022) NewLine |\r\n\r\n|
+//@[018:022) NewLine |\r\n\r\n|
 
 // BEGIN: Extension declarations
-//@[32:036) NewLine |\r\n\r\n|
+//@[032:036) NewLine |\r\n\r\n|
 
 extension kubernetes with {
-//@[00:009) Identifier |extension|
-//@[10:020) Identifier |kubernetes|
-//@[21:025) Identifier |with|
-//@[26:027) LeftBrace |{|
-//@[27:029) NewLine |\r\n|
+//@[000:009) Identifier |extension|
+//@[010:020) Identifier |kubernetes|
+//@[021:025) Identifier |with|
+//@[026:027) LeftBrace |{|
+//@[027:029) NewLine |\r\n|
   kubeConfig: 'DELETE'
-//@[02:012) Identifier |kubeConfig|
-//@[12:013) Colon |:|
-//@[14:022) StringComplete |'DELETE'|
-//@[22:024) NewLine |\r\n|
+//@[002:012) Identifier |kubeConfig|
+//@[012:013) Colon |:|
+//@[014:022) StringComplete |'DELETE'|
+//@[022:024) NewLine |\r\n|
   namespace: 'DELETE'
-//@[02:011) Identifier |namespace|
-//@[11:012) Colon |:|
-//@[13:021) StringComplete |'DELETE'|
-//@[21:023) NewLine |\r\n|
+//@[002:011) Identifier |namespace|
+//@[011:012) Colon |:|
+//@[013:021) StringComplete |'DELETE'|
+//@[021:023) NewLine |\r\n|
 } as k8s
-//@[00:001) RightBrace |}|
-//@[02:004) Identifier |as|
-//@[05:008) Identifier |k8s|
-//@[08:012) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[002:004) Identifier |as|
+//@[005:008) Identifier |k8s|
+//@[008:012) NewLine |\r\n\r\n|
 
 //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
-//@[84:088) NewLine |\r\n\r\n|
+//@[084:088) NewLine |\r\n\r\n|
 
 // END: Extension declarations
-//@[30:034) NewLine |\r\n\r\n|
+//@[030:034) NewLine |\r\n\r\n|
 
 // BEGIN: Key vaults
-//@[20:024) NewLine |\r\n\r\n|
+//@[020:024) NewLine |\r\n\r\n|
 
 resource kv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
-//@[00:008) Identifier |resource|
-//@[09:012) Identifier |kv1|
-//@[13:051) StringComplete |'Microsoft.KeyVault/vaults@2019-09-01'|
-//@[52:060) Identifier |existing|
-//@[61:062) Assignment |=|
-//@[63:064) LeftBrace |{|
-//@[64:066) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |kv1|
+//@[013:051) StringComplete |'Microsoft.KeyVault/vaults@2019-09-01'|
+//@[052:060) Identifier |existing|
+//@[061:062) Assignment |=|
+//@[063:064) LeftBrace |{|
+//@[064:066) NewLine |\r\n|
   name: 'kv1'
-//@[02:006) Identifier |name|
-//@[06:007) Colon |:|
-//@[08:013) StringComplete |'kv1'|
-//@[13:015) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:013) StringComplete |'kv1'|
+//@[013:015) NewLine |\r\n|
 }
-//@[00:001) RightBrace |}|
-//@[01:005) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
-//@[00:008) Identifier |resource|
-//@[09:018) Identifier |scopedKv1|
-//@[19:057) StringComplete |'Microsoft.KeyVault/vaults@2019-09-01'|
-//@[58:066) Identifier |existing|
-//@[67:068) Assignment |=|
-//@[69:070) LeftBrace |{|
-//@[70:072) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:018) Identifier |scopedKv1|
+//@[019:057) StringComplete |'Microsoft.KeyVault/vaults@2019-09-01'|
+//@[058:066) Identifier |existing|
+//@[067:068) Assignment |=|
+//@[069:070) LeftBrace |{|
+//@[070:072) NewLine |\r\n|
   name: 'scopedKv1'
-//@[02:006) Identifier |name|
-//@[06:007) Colon |:|
-//@[08:019) StringComplete |'scopedKv1'|
-//@[19:021) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:019) StringComplete |'scopedKv1'|
+//@[019:021) NewLine |\r\n|
   scope: resourceGroup('otherGroup')
-//@[02:007) Identifier |scope|
-//@[07:008) Colon |:|
-//@[09:022) Identifier |resourceGroup|
-//@[22:023) LeftParen |(|
-//@[23:035) StringComplete |'otherGroup'|
-//@[35:036) RightParen |)|
-//@[36:038) NewLine |\r\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:022) Identifier |resourceGroup|
+//@[022:023) LeftParen |(|
+//@[023:035) StringComplete |'otherGroup'|
+//@[035:036) RightParen |)|
+//@[036:038) NewLine |\r\n|
 }
-//@[00:001) RightBrace |}|
-//@[01:005) NewLine |\r\n\r\n|
-
-resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
-//@[00:008) Identifier |resource|
-//@[09:022) Identifier |testResource1|
-//@[23:053) StringComplete |'az:My.Rp/TestType@2020-01-01'|
-//@[54:055) Assignment |=|
-//@[56:057) LeftBrace |{|
-//@[57:059) NewLine |\r\n|
-  name: k8s.config.namespace
-//@[02:006) Identifier |name|
-//@[06:007) Colon |:|
-//@[08:011) Identifier |k8s|
-//@[11:012) Dot |.|
-//@[12:018) Identifier |config|
-//@[18:019) Dot |.|
-//@[19:028) Identifier |namespace|
-//@[28:030) NewLine |\r\n|
-  properties: {
-//@[02:012) Identifier |properties|
-//@[12:013) Colon |:|
-//@[14:015) LeftBrace |{|
-//@[15:017) NewLine |\r\n|
-    secret: k8s.config.kubeConfig
-//@[04:010) Identifier |secret|
-//@[10:011) Colon |:|
-//@[12:015) Identifier |k8s|
-//@[15:016) Dot |.|
-//@[16:022) Identifier |config|
-//@[22:023) Dot |.|
-//@[23:033) Identifier |kubeConfig|
-//@[33:035) NewLine |\r\n|
-  }
-//@[02:003) RightBrace |}|
-//@[03:005) NewLine |\r\n|
-}
-//@[00:001) RightBrace |}|
-//@[01:005) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // END: Key vaults
-//@[18:022) NewLine |\r\n\r\n|
+//@[018:022) NewLine |\r\n\r\n|
 
 // BEGIN: Extension configs for modules
-//@[39:043) NewLine |\r\n\r\n|
+//@[039:043) NewLine |\r\n\r\n|
 
 module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[00:006) Identifier |module|
-//@[07:032) Identifier |moduleWithExtsWithAliases|
-//@[33:081) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
-//@[82:083) Assignment |=|
-//@[84:085) LeftBrace |{|
-//@[85:087) NewLine |\r\n|
+//@[000:006) Identifier |module|
+//@[007:032) Identifier |moduleWithExtsWithAliases|
+//@[033:081) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[082:083) Assignment |=|
+//@[084:085) LeftBrace |{|
+//@[085:087) NewLine |\r\n|
   name: 'moduleWithExtsWithAliases'
-//@[02:006) Identifier |name|
-//@[06:007) Colon |:|
-//@[08:035) StringComplete |'moduleWithExtsWithAliases'|
-//@[35:037) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:035) StringComplete |'moduleWithExtsWithAliases'|
+//@[035:037) NewLine |\r\n|
   extensionConfigs: {
-//@[02:018) Identifier |extensionConfigs|
-//@[18:019) Colon |:|
-//@[20:021) LeftBrace |{|
-//@[21:023) NewLine |\r\n|
+//@[002:018) Identifier |extensionConfigs|
+//@[018:019) Colon |:|
+//@[020:021) LeftBrace |{|
+//@[021:023) NewLine |\r\n|
     k8s: {
-//@[04:007) Identifier |k8s|
-//@[07:008) Colon |:|
-//@[09:010) LeftBrace |{|
-//@[10:012) NewLine |\r\n|
+//@[004:007) Identifier |k8s|
+//@[007:008) Colon |:|
+//@[009:010) LeftBrace |{|
+//@[010:012) NewLine |\r\n|
       kubeConfig: 'kubeConfig2FromModule'
-//@[06:016) Identifier |kubeConfig|
-//@[16:017) Colon |:|
-//@[18:041) StringComplete |'kubeConfig2FromModule'|
-//@[41:043) NewLine |\r\n|
+//@[006:016) Identifier |kubeConfig|
+//@[016:017) Colon |:|
+//@[018:041) StringComplete |'kubeConfig2FromModule'|
+//@[041:043) NewLine |\r\n|
       namespace: 'ns2FromModule'
-//@[06:015) Identifier |namespace|
-//@[15:016) Colon |:|
-//@[17:032) StringComplete |'ns2FromModule'|
-//@[32:034) NewLine |\r\n|
+//@[006:015) Identifier |namespace|
+//@[015:016) Colon |:|
+//@[017:032) StringComplete |'ns2FromModule'|
+//@[032:034) NewLine |\r\n|
     }
-//@[04:005) RightBrace |}|
-//@[05:007) NewLine |\r\n|
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
   }
-//@[02:003) RightBrace |}|
-//@[03:005) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[00:001) RightBrace |}|
-//@[01:005) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias.bicep' = {
-//@[00:006) Identifier |module|
-//@[07:035) Identifier |moduleWithExtsWithoutAliases|
-//@[36:087) StringComplete |'child/hasConfigurableExtensionsWithoutAlias.bicep'|
-//@[88:089) Assignment |=|
-//@[90:091) LeftBrace |{|
-//@[91:093) NewLine |\r\n|
+//@[000:006) Identifier |module|
+//@[007:035) Identifier |moduleWithExtsWithoutAliases|
+//@[036:087) StringComplete |'child/hasConfigurableExtensionsWithoutAlias.bicep'|
+//@[088:089) Assignment |=|
+//@[090:091) LeftBrace |{|
+//@[091:093) NewLine |\r\n|
   name: 'moduleWithExtsWithoutAliases'
-//@[02:006) Identifier |name|
-//@[06:007) Colon |:|
-//@[08:038) StringComplete |'moduleWithExtsWithoutAliases'|
-//@[38:040) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:038) StringComplete |'moduleWithExtsWithoutAliases'|
+//@[038:040) NewLine |\r\n|
   extensionConfigs: {
-//@[02:018) Identifier |extensionConfigs|
-//@[18:019) Colon |:|
-//@[20:021) LeftBrace |{|
-//@[21:023) NewLine |\r\n|
+//@[002:018) Identifier |extensionConfigs|
+//@[018:019) Colon |:|
+//@[020:021) LeftBrace |{|
+//@[021:023) NewLine |\r\n|
     kubernetes: {
-//@[04:014) Identifier |kubernetes|
-//@[14:015) Colon |:|
-//@[16:017) LeftBrace |{|
-//@[17:019) NewLine |\r\n|
+//@[004:014) Identifier |kubernetes|
+//@[014:015) Colon |:|
+//@[016:017) LeftBrace |{|
+//@[017:019) NewLine |\r\n|
       kubeConfig: 'kubeConfig2FromModule'
-//@[06:016) Identifier |kubeConfig|
-//@[16:017) Colon |:|
-//@[18:041) StringComplete |'kubeConfig2FromModule'|
-//@[41:043) NewLine |\r\n|
+//@[006:016) Identifier |kubeConfig|
+//@[016:017) Colon |:|
+//@[018:041) StringComplete |'kubeConfig2FromModule'|
+//@[041:043) NewLine |\r\n|
       namespace: 'ns2FromModule'
-//@[06:015) Identifier |namespace|
-//@[15:016) Colon |:|
-//@[17:032) StringComplete |'ns2FromModule'|
-//@[32:034) NewLine |\r\n|
+//@[006:015) Identifier |namespace|
+//@[015:016) Colon |:|
+//@[017:032) StringComplete |'ns2FromModule'|
+//@[032:034) NewLine |\r\n|
     }
-//@[04:005) RightBrace |}|
-//@[05:007) NewLine |\r\n|
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
   }
-//@[02:003) RightBrace |}|
-//@[03:005) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[00:001) RightBrace |}|
-//@[01:005) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[00:006) Identifier |module|
-//@[07:033) Identifier |moduleExtConfigsFromParams|
-//@[34:082) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
-//@[83:084) Assignment |=|
-//@[85:086) LeftBrace |{|
-//@[86:088) NewLine |\r\n|
+//@[000:006) Identifier |module|
+//@[007:033) Identifier |moduleExtConfigsFromParams|
+//@[034:082) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[083:084) Assignment |=|
+//@[085:086) LeftBrace |{|
+//@[086:088) NewLine |\r\n|
   name: 'moduleExtConfigsFromParams'
-//@[02:006) Identifier |name|
-//@[06:007) Colon |:|
-//@[08:036) StringComplete |'moduleExtConfigsFromParams'|
-//@[36:038) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:036) StringComplete |'moduleExtConfigsFromParams'|
+//@[036:038) NewLine |\r\n|
   extensionConfigs: {
-//@[02:018) Identifier |extensionConfigs|
-//@[18:019) Colon |:|
-//@[20:021) LeftBrace |{|
-//@[21:023) NewLine |\r\n|
+//@[002:018) Identifier |extensionConfigs|
+//@[018:019) Colon |:|
+//@[020:021) LeftBrace |{|
+//@[021:023) NewLine |\r\n|
     k8s: {
-//@[04:007) Identifier |k8s|
-//@[07:008) Colon |:|
-//@[09:010) LeftBrace |{|
-//@[10:012) NewLine |\r\n|
+//@[004:007) Identifier |k8s|
+//@[007:008) Colon |:|
+//@[009:010) LeftBrace |{|
+//@[010:012) NewLine |\r\n|
       kubeConfig: boolParam1 ? secureStrParam1 : strParam1
-//@[06:016) Identifier |kubeConfig|
-//@[16:017) Colon |:|
-//@[18:028) Identifier |boolParam1|
-//@[29:030) Question |?|
-//@[31:046) Identifier |secureStrParam1|
-//@[47:048) Colon |:|
-//@[49:058) Identifier |strParam1|
-//@[58:060) NewLine |\r\n|
+//@[006:016) Identifier |kubeConfig|
+//@[016:017) Colon |:|
+//@[018:028) Identifier |boolParam1|
+//@[029:030) Question |?|
+//@[031:046) Identifier |secureStrParam1|
+//@[047:048) Colon |:|
+//@[049:058) Identifier |strParam1|
+//@[058:060) NewLine |\r\n|
       namespace: boolParam1 ? strParam1 : 'falseCond'
-//@[06:015) Identifier |namespace|
-//@[15:016) Colon |:|
-//@[17:027) Identifier |boolParam1|
-//@[28:029) Question |?|
-//@[30:039) Identifier |strParam1|
-//@[40:041) Colon |:|
-//@[42:053) StringComplete |'falseCond'|
-//@[53:055) NewLine |\r\n|
+//@[006:015) Identifier |namespace|
+//@[015:016) Colon |:|
+//@[017:027) Identifier |boolParam1|
+//@[028:029) Question |?|
+//@[030:039) Identifier |strParam1|
+//@[040:041) Colon |:|
+//@[042:053) StringComplete |'falseCond'|
+//@[053:055) NewLine |\r\n|
     }
-//@[04:005) RightBrace |}|
-//@[05:007) NewLine |\r\n|
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
   }
-//@[02:003) RightBrace |}|
-//@[03:005) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[00:001) RightBrace |}|
-//@[01:005) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[00:006) Identifier |module|
-//@[07:043) Identifier |moduleExtConfigFromKeyVaultReference|
-//@[44:092) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
-//@[93:094) Assignment |=|
-//@[95:096) LeftBrace |{|
-//@[96:098) NewLine |\r\n|
+//@[000:006) Identifier |module|
+//@[007:043) Identifier |moduleExtConfigFromKeyVaultReference|
+//@[044:092) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[093:094) Assignment |=|
+//@[095:096) LeftBrace |{|
+//@[096:098) NewLine |\r\n|
   name: 'moduleExtConfigKeyVaultReference'
-//@[02:006) Identifier |name|
-//@[06:007) Colon |:|
-//@[08:042) StringComplete |'moduleExtConfigKeyVaultReference'|
-//@[42:044) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:042) StringComplete |'moduleExtConfigKeyVaultReference'|
+//@[042:044) NewLine |\r\n|
   extensionConfigs: {
-//@[02:018) Identifier |extensionConfigs|
-//@[18:019) Colon |:|
-//@[20:021) LeftBrace |{|
-//@[21:023) NewLine |\r\n|
+//@[002:018) Identifier |extensionConfigs|
+//@[018:019) Colon |:|
+//@[020:021) LeftBrace |{|
+//@[021:023) NewLine |\r\n|
     k8s: {
-//@[04:007) Identifier |k8s|
-//@[07:008) Colon |:|
-//@[09:010) LeftBrace |{|
-//@[10:012) NewLine |\r\n|
+//@[004:007) Identifier |k8s|
+//@[007:008) Colon |:|
+//@[009:010) LeftBrace |{|
+//@[010:012) NewLine |\r\n|
       kubeConfig: kv1.getSecret('myKubeConfig')
-//@[06:016) Identifier |kubeConfig|
-//@[16:017) Colon |:|
-//@[18:021) Identifier |kv1|
-//@[21:022) Dot |.|
-//@[22:031) Identifier |getSecret|
-//@[31:032) LeftParen |(|
-//@[32:046) StringComplete |'myKubeConfig'|
-//@[46:047) RightParen |)|
-//@[47:049) NewLine |\r\n|
+//@[006:016) Identifier |kubeConfig|
+//@[016:017) Colon |:|
+//@[018:021) Identifier |kv1|
+//@[021:022) Dot |.|
+//@[022:031) Identifier |getSecret|
+//@[031:032) LeftParen |(|
+//@[032:046) StringComplete |'myKubeConfig'|
+//@[046:047) RightParen |)|
+//@[047:049) NewLine |\r\n|
       namespace: 'default'
-//@[06:015) Identifier |namespace|
-//@[15:016) Colon |:|
-//@[17:026) StringComplete |'default'|
-//@[26:028) NewLine |\r\n|
+//@[006:015) Identifier |namespace|
+//@[015:016) Colon |:|
+//@[017:026) StringComplete |'default'|
+//@[026:028) NewLine |\r\n|
     }
-//@[04:005) RightBrace |}|
-//@[05:007) NewLine |\r\n|
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
   }
-//@[02:003) RightBrace |}|
-//@[03:005) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[00:001) RightBrace |}|
-//@[01:005) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[00:006) Identifier |module|
-//@[07:041) Identifier |moduleWithExtsUsingFullInheritance|
-//@[42:090) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
-//@[91:092) Assignment |=|
-//@[93:094) LeftBrace |{|
-//@[94:096) NewLine |\r\n|
+//@[000:006) Identifier |module|
+//@[007:041) Identifier |moduleWithExtsUsingFullInheritance|
+//@[042:090) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[091:092) Assignment |=|
+//@[093:094) LeftBrace |{|
+//@[094:096) NewLine |\r\n|
   name: 'moduleWithExtsFullInheritance'
-//@[02:006) Identifier |name|
-//@[06:007) Colon |:|
-//@[08:039) StringComplete |'moduleWithExtsFullInheritance'|
-//@[39:041) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:039) StringComplete |'moduleWithExtsFullInheritance'|
+//@[039:041) NewLine |\r\n|
   extensionConfigs: {
-//@[02:018) Identifier |extensionConfigs|
-//@[18:019) Colon |:|
-//@[20:021) LeftBrace |{|
-//@[21:023) NewLine |\r\n|
+//@[002:018) Identifier |extensionConfigs|
+//@[018:019) Colon |:|
+//@[020:021) LeftBrace |{|
+//@[021:023) NewLine |\r\n|
     k8s: k8s.config
-//@[04:007) Identifier |k8s|
-//@[07:008) Colon |:|
-//@[09:012) Identifier |k8s|
-//@[12:013) Dot |.|
-//@[13:019) Identifier |config|
-//@[19:021) NewLine |\r\n|
+//@[004:007) Identifier |k8s|
+//@[007:008) Colon |:|
+//@[009:012) Identifier |k8s|
+//@[012:013) Dot |.|
+//@[013:019) Identifier |config|
+//@[019:021) NewLine |\r\n|
   }
-//@[02:003) RightBrace |}|
-//@[03:005) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[00:001) RightBrace |}|
-//@[01:005) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[00:006) Identifier |module|
-//@[07:046) Identifier |moduleWithExtsUsingPiecemealInheritance|
-//@[47:095) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
-//@[96:097) Assignment |=|
-//@[98:099) LeftBrace |{|
-//@[99:101) NewLine |\r\n|
+//@[000:006) Identifier |module|
+//@[007:046) Identifier |moduleWithExtsUsingPiecemealInheritance|
+//@[047:095) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[096:097) Assignment |=|
+//@[098:099) LeftBrace |{|
+//@[099:101) NewLine |\r\n|
   name: 'moduleWithExtsPiecemealInheritance'
-//@[02:006) Identifier |name|
-//@[06:007) Colon |:|
-//@[08:044) StringComplete |'moduleWithExtsPiecemealInheritance'|
-//@[44:046) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:044) StringComplete |'moduleWithExtsPiecemealInheritance'|
+//@[044:046) NewLine |\r\n|
   extensionConfigs: {
-//@[02:018) Identifier |extensionConfigs|
-//@[18:019) Colon |:|
-//@[20:021) LeftBrace |{|
-//@[21:023) NewLine |\r\n|
+//@[002:018) Identifier |extensionConfigs|
+//@[018:019) Colon |:|
+//@[020:021) LeftBrace |{|
+//@[021:023) NewLine |\r\n|
     k8s: {
-//@[04:007) Identifier |k8s|
-//@[07:008) Colon |:|
-//@[09:010) LeftBrace |{|
-//@[10:012) NewLine |\r\n|
+//@[004:007) Identifier |k8s|
+//@[007:008) Colon |:|
+//@[009:010) LeftBrace |{|
+//@[010:012) NewLine |\r\n|
       kubeConfig: k8s.config.kubeConfig
-//@[06:016) Identifier |kubeConfig|
-//@[16:017) Colon |:|
-//@[18:021) Identifier |k8s|
-//@[21:022) Dot |.|
-//@[22:028) Identifier |config|
-//@[28:029) Dot |.|
-//@[29:039) Identifier |kubeConfig|
-//@[39:041) NewLine |\r\n|
+//@[006:016) Identifier |kubeConfig|
+//@[016:017) Colon |:|
+//@[018:021) Identifier |k8s|
+//@[021:022) Dot |.|
+//@[022:028) Identifier |config|
+//@[028:029) Dot |.|
+//@[029:039) Identifier |kubeConfig|
+//@[039:041) NewLine |\r\n|
       namespace: k8s.config.namespace
-//@[06:015) Identifier |namespace|
-//@[15:016) Colon |:|
-//@[17:020) Identifier |k8s|
-//@[20:021) Dot |.|
-//@[21:027) Identifier |config|
-//@[27:028) Dot |.|
-//@[28:037) Identifier |namespace|
-//@[37:039) NewLine |\r\n|
+//@[006:015) Identifier |namespace|
+//@[015:016) Colon |:|
+//@[017:020) Identifier |k8s|
+//@[020:021) Dot |.|
+//@[021:027) Identifier |config|
+//@[027:028) Dot |.|
+//@[028:037) Identifier |namespace|
+//@[037:039) NewLine |\r\n|
     }
-//@[04:005) RightBrace |}|
-//@[05:007) NewLine |\r\n|
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
   }
-//@[02:003) RightBrace |}|
-//@[03:005) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[00:001) RightBrace |}|
-//@[01:005) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
+module moduleWithExtsUsingPiecemealInheritanceLooped 'child/hasConfigurableExtensionsWithAlias.bicep' = [for i in range(0, 4): {
+//@[000:006) Identifier |module|
+//@[007:052) Identifier |moduleWithExtsUsingPiecemealInheritanceLooped|
+//@[053:101) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[102:103) Assignment |=|
+//@[104:105) LeftSquare |[|
+//@[105:108) Identifier |for|
+//@[109:110) Identifier |i|
+//@[111:113) Identifier |in|
+//@[114:119) Identifier |range|
+//@[119:120) LeftParen |(|
+//@[120:121) Integer |0|
+//@[121:122) Comma |,|
+//@[123:124) Integer |4|
+//@[124:125) RightParen |)|
+//@[125:126) Colon |:|
+//@[127:128) LeftBrace |{|
+//@[128:130) NewLine |\r\n|
+  name: 'moduleWithExtsPiecemealInheritanceLooped${i}'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:051) StringLeftPiece |'moduleWithExtsPiecemealInheritanceLooped${|
+//@[051:052) Identifier |i|
+//@[052:054) StringRightPiece |}'|
+//@[054:056) NewLine |\r\n|
+  extensionConfigs: {
+//@[002:018) Identifier |extensionConfigs|
+//@[018:019) Colon |:|
+//@[020:021) LeftBrace |{|
+//@[021:023) NewLine |\r\n|
+    k8s: {
+//@[004:007) Identifier |k8s|
+//@[007:008) Colon |:|
+//@[009:010) LeftBrace |{|
+//@[010:012) NewLine |\r\n|
+      kubeConfig: k8s.config.kubeConfig
+//@[006:016) Identifier |kubeConfig|
+//@[016:017) Colon |:|
+//@[018:021) Identifier |k8s|
+//@[021:022) Dot |.|
+//@[022:028) Identifier |config|
+//@[028:029) Dot |.|
+//@[029:039) Identifier |kubeConfig|
+//@[039:041) NewLine |\r\n|
+      namespace: k8s.config.namespace
+//@[006:015) Identifier |namespace|
+//@[015:016) Colon |:|
+//@[017:020) Identifier |k8s|
+//@[020:021) Dot |.|
+//@[021:027) Identifier |config|
+//@[027:028) Dot |.|
+//@[028:037) Identifier |namespace|
+//@[037:039) NewLine |\r\n|
+    }
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
+}]
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
+
+module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:006) Identifier |module|
+//@[007:039) Identifier |moduleExtConfigsConditionalMixed|
+//@[040:088) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[089:090) Assignment |=|
+//@[091:092) LeftBrace |{|
+//@[092:094) NewLine |\r\n|
+  name: 'moduleExtConfigsConditionalMixedValueAndInheritance'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:061) StringComplete |'moduleExtConfigsConditionalMixedValueAndInheritance'|
+//@[061:063) NewLine |\r\n|
+  extensionConfigs: {
+//@[002:018) Identifier |extensionConfigs|
+//@[018:019) Colon |:|
+//@[020:021) LeftBrace |{|
+//@[021:023) NewLine |\r\n|
+    k8s: {
+//@[004:007) Identifier |k8s|
+//@[007:008) Colon |:|
+//@[009:010) LeftBrace |{|
+//@[010:012) NewLine |\r\n|
+      kubeConfig: boolParam1 ? secureStrParam1 : k8s.config.kubeConfig
+//@[006:016) Identifier |kubeConfig|
+//@[016:017) Colon |:|
+//@[018:028) Identifier |boolParam1|
+//@[029:030) Question |?|
+//@[031:046) Identifier |secureStrParam1|
+//@[047:048) Colon |:|
+//@[049:052) Identifier |k8s|
+//@[052:053) Dot |.|
+//@[053:059) Identifier |config|
+//@[059:060) Dot |.|
+//@[060:070) Identifier |kubeConfig|
+//@[070:072) NewLine |\r\n|
+      namespace: boolParam1 ? strParam1 : k8s.config.namespace
+//@[006:015) Identifier |namespace|
+//@[015:016) Colon |:|
+//@[017:027) Identifier |boolParam1|
+//@[028:029) Question |?|
+//@[030:039) Identifier |strParam1|
+//@[040:041) Colon |:|
+//@[042:045) Identifier |k8s|
+//@[045:046) Dot |.|
+//@[046:052) Identifier |config|
+//@[052:053) Dot |.|
+//@[053:062) Identifier |namespace|
+//@[062:064) NewLine |\r\n|
+    }
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // TODO(kylealbert): Figure out if this is allowable
-//@[52:054) NewLine |\r\n|
+//@[052:054) NewLine |\r\n|
 // var k8sConfigDeployTime = {
-//@[30:032) NewLine |\r\n|
+//@[030:032) NewLine |\r\n|
 //   kubeConfig: k8s.config.kubeConfig
-//@[38:040) NewLine |\r\n|
+//@[038:040) NewLine |\r\n|
 //   namespace: strParam1
-//@[25:027) NewLine |\r\n|
+//@[025:027) NewLine |\r\n|
 // }
-//@[04:008) NewLine |\r\n\r\n|
+//@[004:008) NewLine |\r\n\r\n|
 
 // module moduleWithExtsUsingVar 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[85:087) NewLine |\r\n|
+//@[085:087) NewLine |\r\n|
 //   name: 'moduleWithExtsUsingVar'
-//@[35:037) NewLine |\r\n|
+//@[035:037) NewLine |\r\n|
 //   extensionConfigs: {
-//@[24:026) NewLine |\r\n|
+//@[024:026) NewLine |\r\n|
 //     k8s: k8sConfigDeployTime
-//@[31:033) NewLine |\r\n|
+//@[031:033) NewLine |\r\n|
 //   }
-//@[06:008) NewLine |\r\n|
+//@[006:008) NewLine |\r\n|
 // }
-//@[04:008) NewLine |\r\n\r\n|
+//@[004:008) NewLine |\r\n\r\n|
 
 // END: Extension configs for modules
-//@[37:041) NewLine |\r\n\r\n|
+//@[037:039) NewLine |\r\n|
 
-// BEGIN: Outputs
-//@[17:021) NewLine |\r\n\r\n|
-
-output k8sConfig object = k8s.config
-//@[00:006) Identifier |output|
-//@[07:016) Identifier |k8sConfig|
-//@[17:023) Identifier |object|
-//@[24:025) Assignment |=|
-//@[26:029) Identifier |k8s|
-//@[29:030) Dot |.|
-//@[30:036) Identifier |config|
-//@[36:040) NewLine |\r\n\r\n|
-
-output k8sNamespace string = k8s.config.namespace
-//@[00:006) Identifier |output|
-//@[07:019) Identifier |k8sNamespace|
-//@[20:026) Identifier |string|
-//@[27:028) Assignment |=|
-//@[29:032) Identifier |k8s|
-//@[32:033) Dot |.|
-//@[33:039) Identifier |config|
-//@[39:040) Dot |.|
-//@[40:049) Identifier |namespace|
-//@[49:053) NewLine |\r\n\r\n|
-
-// END: Outputs
-//@[15:017) NewLine |\r\n|
-
-//@[00:000) EndOfFile ||
+//@[000:000) EndOfFile ||

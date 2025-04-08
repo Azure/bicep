@@ -31,13 +31,6 @@ resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
   scope: resourceGroup('otherGroup')
 }
 
-resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
-  name: k8s.config.namespace
-  properties: {
-    secret: k8s.config.kubeConfig
-  }
-}
-
 // END: Key vaults
 
 // BEGIN: Extension configs for modules
@@ -99,6 +92,28 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
   }
 }
 
+module moduleWithExtsUsingPiecemealInheritanceLooped 'child/hasConfigurableExtensionsWithAlias.bicep' = [
+  for i in range(0, 4): {
+    name: 'moduleWithExtsPiecemealInheritanceLooped${i}'
+    extensionConfigs: {
+      k8s: {
+        kubeConfig: k8s.config.kubeConfig
+        namespace: k8s.config.namespace
+      }
+    }
+  }
+]
+
+module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  name: 'moduleExtConfigsConditionalMixedValueAndInheritance'
+  extensionConfigs: {
+    k8s: {
+      kubeConfig: boolParam1 ? secureStrParam1 : k8s.config.kubeConfig
+      namespace: boolParam1 ? strParam1 : k8s.config.namespace
+    }
+  }
+}
+
 // TODO(kylealbert): Figure out if this is allowable
 // var k8sConfigDeployTime = {
 //   kubeConfig: k8s.config.kubeConfig
@@ -113,11 +128,3 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 // }
 
 // END: Extension configs for modules
-
-// BEGIN: Outputs
-
-output k8sConfig object = k8s.config
-
-output k8sNamespace string = k8s.config.namespace
-
-// END: Outputs

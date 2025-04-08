@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:1673) ProgramSyntax
+//@[000:2383) ProgramSyntax
 //@[020:0024) ├─Token(NewLine) |\r\n\r\n|
 
 param boolParam1 bool
@@ -125,6 +125,105 @@ resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 
 // END: Key Vaults
 //@[018:0022) ├─Token(NewLine) |\r\n\r\n|
+
+// BEGIN: Resources
+//@[019:0023) ├─Token(NewLine) |\r\n\r\n|
+
+var configProp = 'config'
+//@[000:0025) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0014) | ├─IdentifierSyntax
+//@[004:0014) | | └─Token(Identifier) |configProp|
+//@[015:0016) | ├─Token(Assignment) |=|
+//@[017:0025) | └─StringSyntax
+//@[017:0025) |   └─Token(StringComplete) |'config'|
+//@[025:0029) ├─Token(NewLine) |\r\n\r\n|
+
+// Extension symbols are blocked in resources because each config property returns an object { value, keyVaultReference } and "value" is available when a reference is provided.
+//@[176:0178) ├─Token(NewLine) |\r\n|
+// Users should use deployment parameters for this scenario.
+//@[060:0062) ├─Token(NewLine) |\r\n|
+resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
+//@[000:0182) ├─ResourceDeclarationSyntax
+//@[000:0008) | ├─Token(Identifier) |resource|
+//@[009:0022) | ├─IdentifierSyntax
+//@[009:0022) | | └─Token(Identifier) |testResource1|
+//@[023:0053) | ├─StringSyntax
+//@[023:0053) | | └─Token(StringComplete) |'az:My.Rp/TestType@2020-01-01'|
+//@[054:0055) | ├─Token(Assignment) |=|
+//@[056:0182) | └─ObjectSyntax
+//@[056:0057) |   ├─Token(LeftBrace) |{|
+//@[057:0059) |   ├─Token(NewLine) |\r\n|
+  name: k8s.config.namespace
+//@[002:0028) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0028) |   | └─PropertyAccessSyntax
+//@[008:0018) |   |   ├─PropertyAccessSyntax
+//@[008:0011) |   |   | ├─VariableAccessSyntax
+//@[008:0011) |   |   | | └─IdentifierSyntax
+//@[008:0011) |   |   | |   └─Token(Identifier) |k8s|
+//@[011:0012) |   |   | ├─Token(Dot) |.|
+//@[012:0018) |   |   | └─IdentifierSyntax
+//@[012:0018) |   |   |   └─Token(Identifier) |config|
+//@[018:0019) |   |   ├─Token(Dot) |.|
+//@[019:0028) |   |   └─IdentifierSyntax
+//@[019:0028) |   |     └─Token(Identifier) |namespace|
+//@[028:0030) |   ├─Token(NewLine) |\r\n|
+  properties: {
+//@[002:0090) |   ├─ObjectPropertySyntax
+//@[002:0012) |   | ├─IdentifierSyntax
+//@[002:0012) |   | | └─Token(Identifier) |properties|
+//@[012:0013) |   | ├─Token(Colon) |:|
+//@[014:0090) |   | └─ObjectSyntax
+//@[014:0015) |   |   ├─Token(LeftBrace) |{|
+//@[015:0017) |   |   ├─Token(NewLine) |\r\n|
+    secret: k8s.config.kubeConfig
+//@[004:0033) |   |   ├─ObjectPropertySyntax
+//@[004:0010) |   |   | ├─IdentifierSyntax
+//@[004:0010) |   |   | | └─Token(Identifier) |secret|
+//@[010:0011) |   |   | ├─Token(Colon) |:|
+//@[012:0033) |   |   | └─PropertyAccessSyntax
+//@[012:0022) |   |   |   ├─PropertyAccessSyntax
+//@[012:0015) |   |   |   | ├─VariableAccessSyntax
+//@[012:0015) |   |   |   | | └─IdentifierSyntax
+//@[012:0015) |   |   |   | |   └─Token(Identifier) |k8s|
+//@[015:0016) |   |   |   | ├─Token(Dot) |.|
+//@[016:0022) |   |   |   | └─IdentifierSyntax
+//@[016:0022) |   |   |   |   └─Token(Identifier) |config|
+//@[022:0023) |   |   |   ├─Token(Dot) |.|
+//@[023:0033) |   |   |   └─IdentifierSyntax
+//@[023:0033) |   |   |     └─Token(Identifier) |kubeConfig|
+//@[033:0035) |   |   ├─Token(NewLine) |\r\n|
+    ns: k8s[configProp].namespace
+//@[004:0033) |   |   ├─ObjectPropertySyntax
+//@[004:0006) |   |   | ├─IdentifierSyntax
+//@[004:0006) |   |   | | └─Token(Identifier) |ns|
+//@[006:0007) |   |   | ├─Token(Colon) |:|
+//@[008:0033) |   |   | └─PropertyAccessSyntax
+//@[008:0023) |   |   |   ├─ArrayAccessSyntax
+//@[008:0011) |   |   |   | ├─VariableAccessSyntax
+//@[008:0011) |   |   |   | | └─IdentifierSyntax
+//@[008:0011) |   |   |   | |   └─Token(Identifier) |k8s|
+//@[011:0012) |   |   |   | ├─Token(LeftSquare) |[|
+//@[012:0022) |   |   |   | ├─VariableAccessSyntax
+//@[012:0022) |   |   |   | | └─IdentifierSyntax
+//@[012:0022) |   |   |   | |   └─Token(Identifier) |configProp|
+//@[022:0023) |   |   |   | └─Token(RightSquare) |]|
+//@[023:0024) |   |   |   ├─Token(Dot) |.|
+//@[024:0033) |   |   |   └─IdentifierSyntax
+//@[024:0033) |   |   |     └─Token(Identifier) |namespace|
+//@[033:0035) |   |   ├─Token(NewLine) |\r\n|
+  }
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
+
+// END: Resources
+//@[017:0021) ├─Token(NewLine) |\r\n\r\n|
 
 // BEGIN: Extension configs for modules
 //@[039:0043) ├─Token(NewLine) |\r\n\r\n|
@@ -382,19 +481,62 @@ module moduleComplexKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.
 // BEGIN: Outputs
 //@[017:0021) ├─Token(NewLine) |\r\n\r\n|
 
-output k8sNamespace object = k8s // This is a namespace type
-//@[000:0032) ├─OutputDeclarationSyntax
+// Extension symbols are blocked for outputs for now. Users should use deployment parameters for this scenario.
+//@[111:0115) ├─Token(NewLine) |\r\n\r\n|
+
+output k8sTheNamespace object = k8s // This is a namespace type
+//@[000:0035) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0022) | ├─IdentifierSyntax
+//@[007:0022) | | └─Token(Identifier) |k8sTheNamespace|
+//@[023:0029) | ├─TypeVariableAccessSyntax
+//@[023:0029) | | └─IdentifierSyntax
+//@[023:0029) | |   └─Token(Identifier) |object|
+//@[030:0031) | ├─Token(Assignment) |=|
+//@[032:0035) | └─VariableAccessSyntax
+//@[032:0035) |   └─IdentifierSyntax
+//@[032:0035) |     └─Token(Identifier) |k8s|
+//@[063:0067) ├─Token(NewLine) |\r\n\r\n|
+
+output k8sConfig object = k8s.config
+//@[000:0036) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0016) | ├─IdentifierSyntax
+//@[007:0016) | | └─Token(Identifier) |k8sConfig|
+//@[017:0023) | ├─TypeVariableAccessSyntax
+//@[017:0023) | | └─IdentifierSyntax
+//@[017:0023) | |   └─Token(Identifier) |object|
+//@[024:0025) | ├─Token(Assignment) |=|
+//@[026:0036) | └─PropertyAccessSyntax
+//@[026:0029) |   ├─VariableAccessSyntax
+//@[026:0029) |   | └─IdentifierSyntax
+//@[026:0029) |   |   └─Token(Identifier) |k8s|
+//@[029:0030) |   ├─Token(Dot) |.|
+//@[030:0036) |   └─IdentifierSyntax
+//@[030:0036) |     └─Token(Identifier) |config|
+//@[036:0040) ├─Token(NewLine) |\r\n\r\n|
+
+output k8sNamespace string = k8s.config.namespace
+//@[000:0049) ├─OutputDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0019) | ├─IdentifierSyntax
 //@[007:0019) | | └─Token(Identifier) |k8sNamespace|
 //@[020:0026) | ├─TypeVariableAccessSyntax
 //@[020:0026) | | └─IdentifierSyntax
-//@[020:0026) | |   └─Token(Identifier) |object|
+//@[020:0026) | |   └─Token(Identifier) |string|
 //@[027:0028) | ├─Token(Assignment) |=|
-//@[029:0032) | └─VariableAccessSyntax
-//@[029:0032) |   └─IdentifierSyntax
-//@[029:0032) |     └─Token(Identifier) |k8s|
-//@[060:0064) ├─Token(NewLine) |\r\n\r\n|
+//@[029:0049) | └─PropertyAccessSyntax
+//@[029:0039) |   ├─PropertyAccessSyntax
+//@[029:0032) |   | ├─VariableAccessSyntax
+//@[029:0032) |   | | └─IdentifierSyntax
+//@[029:0032) |   | |   └─Token(Identifier) |k8s|
+//@[032:0033) |   | ├─Token(Dot) |.|
+//@[033:0039) |   | └─IdentifierSyntax
+//@[033:0039) |   |   └─Token(Identifier) |config|
+//@[039:0040) |   ├─Token(Dot) |.|
+//@[040:0049) |   └─IdentifierSyntax
+//@[040:0049) |     └─Token(Identifier) |namespace|
+//@[049:0053) ├─Token(NewLine) |\r\n\r\n|
 
 // END: Outputs
 //@[015:0017) ├─Token(NewLine) |\r\n|
