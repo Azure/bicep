@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2337670687143365993"
+      "templateHash": "4008548470292567255"
     }
   },
   "parameters": {
@@ -65,7 +65,7 @@
         "azCliVersion": "2.0.80",
         "storageAccountSettings": {
           "storageAccountName": "[format('dscript{0}', uniqueString(resourceGroup().id))]",
-          "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', format('dscript{0}', uniqueString(resourceGroup().id))), '2019-06-01').keys[0].value]"
+          "storageAccountKey": "[listKeys('stg', '2019-06-01').keys[0].value]"
         },
         "scriptContent": "[parameters('scriptToExecute')]",
         "cleanupPreference": "OnSuccess",
