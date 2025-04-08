@@ -48,11 +48,10 @@ namespace Bicep.LanguageServer.Handlers
         {
             var compiledFilePath = PathHelper.ResolveParametersFileOutputPath(bicepParamsFilePath, OutputFormatOption.Json);
             var compiledFile = Path.GetFileName(compiledFilePath);
-            var extension = Path.GetExtension(compiledFilePath).ToLowerInvariant();
 
             // If the template exists and has a .json extension and contains the Bicep metadata, fail the build params.
             // If not, continue to update the file.
-            if (extension == LanguageConstants.JsonFileExtension && File.Exists(compiledFilePath) && !TemplateIsParametersFile(File.ReadAllText(compiledFilePath)))
+            if (PathHelper.HasArmTemplateLikeExtension(new Uri(compiledFilePath)) && File.Exists(compiledFilePath) && !TemplateIsParametersFile(File.ReadAllText(compiledFilePath)))
             {
                 return "Building parameters file failed. The file \"" + compiledFile + "\" already exists. If overwriting the file is intended, delete it manually and retry the Build Parameters command.";
             }
