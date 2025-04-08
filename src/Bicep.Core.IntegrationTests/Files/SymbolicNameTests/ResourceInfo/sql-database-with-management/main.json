@@ -10,7 +10,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12257213075107815581"
+      "templateHash": "2218153118927665716"
     }
   },
   "parameters": {
@@ -67,7 +67,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15472057974476185533"
+              "templateHash": "11760589400102001951"
             }
           },
           "parameters": {
@@ -184,7 +184,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "8317946402947078880"
+                      "templateHash": "9783543878755843654"
                     }
                   },
                   "parameters": {
@@ -326,7 +326,7 @@
                           "emails": "[parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.emails]"
                         },
                         "storageContainerPath": "[if(not(empty(parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.name)), format('{0}{1}', reference('storageAccountVulnerabilityAssessments').primaryEndpoints.blob, parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.containerName), '')]",
-                        "storageAccountAccessKey": "[if(not(empty(parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.name)), listKeys(resourceInfo('storageAccountVulnerabilityAssessments').id, '2021-04-01').keys[0].value, '')]"
+                        "storageAccountAccessKey": "[if(not(empty(parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.name)), listKeys('storageAccountVulnerabilityAssessments', '2021-04-01').keys[0].value, '')]"
                       },
                       "dependsOn": [
                         "azureDefender",
@@ -548,7 +548,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "8745376269234083579"
+                              "templateHash": "15987064923562259504"
                             }
                           },
                           "parameters": {
@@ -638,7 +638,7 @@
                                   "emails": "[parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.emails]"
                                 },
                                 "storageContainerPath": "[if(not(empty(parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.name)), format('{0}{1}', reference('storageAccountVulnerabilityAssessments').primaryEndpoints.blob, parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.containerName), '')]",
-                                "storageAccountAccessKey": "[if(not(empty(parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.name)), listKeys(resourceInfo('storageAccountVulnerabilityAssessments').id, '2021-04-01').keys[0].value, '')]"
+                                "storageAccountAccessKey": "[if(not(empty(parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.name)), listKeys('storageAccountVulnerabilityAssessments', '2021-04-01').keys[0].value, '')]"
                               },
                               "dependsOn": [
                                 "azureDefender",

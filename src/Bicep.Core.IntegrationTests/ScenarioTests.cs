@@ -2402,8 +2402,8 @@ output deployedTopics array = [for (topicName, i) in topics: {
         result.Template!.Should().HaveValueAtPath("$.outputs.deployedTopics.copy.input", new JObject
         {
             ["name"] = "[variables('topics')[copyIndex()]]",
-            ["accessKey1"] = "[listKeys(resourceId('Microsoft.EventGrid/topics', 'myExistingEventGridTopic'), '2021-06-01-preview').key1]",
-            ["accessKey2"] = "[listKeys(resourceId('Microsoft.EventGrid/topics', format('{0}-ZZZ', variables('topics')[copyIndex()])), '2021-06-01-preview').key1]"
+            ["accessKey1"] = "[listKeys('testR', '2021-06-01-preview').key1]",
+            ["accessKey2"] = "[listKeys(format('eventGridTopics[{0}]', copyIndex()), '2021-06-01-preview').key1]"
         });
     }
 
@@ -2954,7 +2954,7 @@ output badResult object = {
 
         result.Template.Should().HaveValueAtPath("$.outputs['badResult'].value", new JObject
         {
-            ["value"] = "[listAnything(resourceId('Microsoft.Storage/storageAccounts', parameters('storageName')), '2021-04-01').keys[0].value]",
+            ["value"] = "[listAnything('stg', '2021-04-01').keys[0].value]",
         });
     }
 
@@ -7187,5 +7187,26 @@ var subnetId = vNet::subnets[0].id
             ("BCP327", DiagnosticLevel.Error, "The provided value (which will always be greater than or equal to 2) is too large to assign to a target for which the maximum allowable value is 1."),
             ("BCP327", DiagnosticLevel.Error, "The provided value (which will always be greater than or equal to 2) is too large to assign to a target for which the maximum allowable value is 1."),
         });
+    }
+
+    [TestMethod]
+    public void List_functions_should_use_symbolic_name()
+    {
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(SymbolicNameCodegenEnabled: true)), """
+            resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+              name: 'acct'
+              location: resourceGroup().location
+              kind: 'StorageV2'
+              sku: {
+                name: 'Standard_LRS'
+              }
+            }
+
+            output secret string = storageaccount.listKeys().keys[0].value
+            """);
+
+        result.Template.Should().HaveValueAtPath("$.outputs['secret'].value", "[listKeys('storageaccount', '2021-02-01').keys[0].value]", "the listKeys() function call should use a symbolic name value");
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 }

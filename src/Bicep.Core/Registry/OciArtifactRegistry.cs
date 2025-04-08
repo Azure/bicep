@@ -532,20 +532,6 @@ namespace Bicep.Core.Registry
             return this.GetArtifactDirectory(reference).GetFile(fileName);
         }
 
-        public override ResultWithException<SourceArchive> TryGetSource(OciArtifactReference reference)
-        {
-            var sourceFile = GetArtifactFile(reference, ArtifactFileType.Source);
-            if (sourceFile.Exists())
-            {
-                using var sourceStream = sourceFile.OpenRead();
-
-                return SourceArchive.UnpackFromStream(sourceStream);
-            }
-
-            // No sources available (presumably they weren't published)
-            return new(new SourceNotAvailableException());
-        }
-
         public override Uri? TryGetExtensionBinary(OciArtifactReference reference)
             => GetArtifactFile(reference, ArtifactFileType.ExtensionBinary).Uri.ToUri();
 
