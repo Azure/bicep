@@ -851,7 +851,8 @@ param bar = {
 param baz = {
   bar: 'hello'
   baz: 42
-}".ReplaceLineEndings());
+}
+".ReplaceLineEndings());
             }
         }
     }
