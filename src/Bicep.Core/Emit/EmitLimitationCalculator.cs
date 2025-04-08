@@ -18,7 +18,6 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
@@ -38,6 +37,7 @@ namespace Bicep.Core.Emit
             ForSyntaxValidatorVisitor.Validate(model, diagnostics);
             FunctionPlacementValidatorVisitor.Validate(model, diagnostics);
             IntegerValidatorVisitor.Validate(model, diagnostics);
+            ExtensionReferenceValidatorVisitor.Validate(model, diagnostics);
 
             DetectDuplicateNames(model, diagnostics, resourceScopeData, moduleScopeData);
             DetectIncorrectlyFormattedNames(model, diagnostics);

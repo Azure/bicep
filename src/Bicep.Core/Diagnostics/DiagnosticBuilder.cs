@@ -15,7 +15,6 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Providers;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Diagnostics
@@ -1896,6 +1895,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic SpreadOperatorCannotBeUsedWithForLoop(SpreadExpressionSyntax spread) => CoreError(
                 "BCP417",
                 $"The spread operator \"{spread.Ellipsis.Text}\" cannot be used inside objects with property for-expressions.");
+
+            public Diagnostic ExtensionCannotBeReferenced() => CoreError(
+                "BCP418",
+                "Extensions cannot be referenced here. Extensions can only be referenced by module extension configurations.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
