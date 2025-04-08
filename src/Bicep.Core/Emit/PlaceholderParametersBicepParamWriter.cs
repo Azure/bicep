@@ -79,26 +79,39 @@ namespace Bicep.Core.Emit
                 return defaultValue;
             }
 
+            if (syntax.Type is ObjectTypeSyntax objectTypeSyntax)
+            {
+                var value = objectTypeSyntax.Properties.Select(e =>
+                {
+                    var identifierName = (e.Key as IdentifierSyntax)?.IdentifierName ?? "";
+
+                    return ((e.Value as TypeVariableAccessSyntax)?.Name.IdentifierName) switch
+                    {
+                        "int" => SyntaxFactory.CreateObjectProperty(identifierName, SyntaxFactory.CreateIntegerLiteral(0)),
+                        "bool" => SyntaxFactory.CreateObjectProperty(identifierName, SyntaxFactory.CreateBooleanLiteral(false)),
+                        "array" => SyntaxFactory.CreateObjectProperty(identifierName, SyntaxFactory.CreateArray([])),
+                        "object" => SyntaxFactory.CreateObjectProperty(identifierName, SyntaxFactory.CreateObject([])),
+                        _ => SyntaxFactory.CreateObjectProperty(identifierName, SyntaxFactory.CreateStringLiteral(string.Empty)),
+                    };
+                });
+
+                return SyntaxFactory.CreateObject(value);
+            }
+
             if (syntax.Type is TypeVariableAccessSyntax variableAccessSyntax)
             {
                 var allowedDecorator = syntax.Decorators.Where(e => e.Expression is FunctionCallSyntax functionCallSyntax && functionCallSyntax.Name.IdentifierName == "allowed").Select(e => e.Arguments).FirstOrDefault();
 
                 var allowedDecoratorFirstItem = (allowedDecorator?.First().Expression as ArraySyntax)?.Items.First().Value;
 
-                switch (variableAccessSyntax.Name.IdentifierName)
+                return variableAccessSyntax.Name.IdentifierName switch
                 {
-                    case "int":
-                        return SyntaxFactory.CreateIntegerLiteral((allowedDecoratorFirstItem as IntegerLiteralSyntax)?.Value ?? 0);
-                    case "bool":
-                        return SyntaxFactory.CreateBooleanLiteral(false);
-                    case "array":
-                        return SyntaxFactory.CreateArray([]);
-                    case "object":
-                        return SyntaxFactory.CreateObject([]);
-                    case "string":
-                    default:
-                        return SyntaxFactory.CreateStringLiteral((allowedDecoratorFirstItem as StringSyntax)?.SegmentValues.First() ?? "");
-                }
+                    "int" => SyntaxFactory.CreateIntegerLiteral((allowedDecoratorFirstItem as IntegerLiteralSyntax)?.Value ?? 0),
+                    "bool" => SyntaxFactory.CreateBooleanLiteral(false),
+                    "array" => SyntaxFactory.CreateArray([]),
+                    "object" => SyntaxFactory.CreateObject([]),
+                    _ => SyntaxFactory.CreateStringLiteral((allowedDecoratorFirstItem as StringSyntax)?.SegmentValues.First() ?? ""),
+                };
             }
 
             return SyntaxFactory.NewlineToken;
