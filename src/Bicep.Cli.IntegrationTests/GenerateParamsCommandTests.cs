@@ -838,7 +838,7 @@ param enabled = []
             {
                 result.Should().Be(0);
 
-                content.Should().Be(@"using './main.bicep'
+                content.Should().Be(@"using './built.bicep'
 
 param foo = {
   bar: 'hello'
