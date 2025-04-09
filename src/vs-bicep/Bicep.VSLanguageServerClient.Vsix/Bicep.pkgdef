@@ -2,7 +2,7 @@
 "DefaultIconMoniker"="8c3d631c-7c5b-469d-ac8a-4838177d7c50:0"
 
 [$RootKey$\ShellFileAssociations\.bicepparam]
-"DefaultIconMoniker"="8c3d631c-7c5b-469d-ac8a-4838177d7c50:0"
+"DefaultIconMoniker"="8c3d631c-7c5b-469d-ac8a-4838177d7c50:1"
 
 // Registers the bicep grammar file with Visual Studio
 [$RootKey$\TextMate\Repositories]
