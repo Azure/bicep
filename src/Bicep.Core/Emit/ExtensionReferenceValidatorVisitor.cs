@@ -15,6 +15,7 @@ namespace Bicep.Core.Emit
         private bool VisitingTopExtensionReference { get; set; }
         private bool InsideModuleDeclaration { get; set; }
         private bool InsideModuleExtensionConfigs { get; set; }
+        private InstanceFunctionCallSyntax? LastInstanceFunctionCallSyntax { get; set; }
 
         public static void Validate(SemanticModel model, IDiagnosticWriter diagnosticWriter)
         {
@@ -36,7 +37,8 @@ namespace Bicep.Core.Emit
             {
                 VisitingTopExtensionReference = true;
 
-                if (!InsideModuleExtensionConfigs || model.Features is not { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true })
+                if ((!InsideModuleExtensionConfigs || model.Features is not { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true }) // Must be in extension configs declaration site
+                    && (LastInstanceFunctionCallSyntax is null || !object.ReferenceEquals(syntax, LastInstanceFunctionCallSyntax.BaseExpression))) // except if it's extension reference with an instance function call (ex: az.resourceGroup())
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).ExtensionCannotBeReferenced());
                 }
@@ -50,12 +52,16 @@ namespace Bicep.Core.Emit
             }
         }
 
+        public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
+        {
+            LastInstanceFunctionCallSyntax = syntax;
+            base.VisitInstanceFunctionCallSyntax(syntax);
+        }
+
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
         {
             InsideModuleDeclaration = true;
-
             base.VisitModuleDeclarationSyntax(syntax);
-
             InsideModuleDeclaration = false;
         }
 
