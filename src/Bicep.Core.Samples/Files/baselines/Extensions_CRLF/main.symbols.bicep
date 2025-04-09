@@ -14,6 +14,8 @@ param boolParam1 bool
 
 // BEGIN: Extension declarations
 
+extension az
+//@[010:012) ImportedNamespace az. Type: az. Declaration start char: 0, length: 12
 extension kubernetes with {
   kubeConfig: 'DELETE'
   namespace: 'DELETE'
@@ -32,12 +34,28 @@ resource kv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 }
 
 resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
-//@[009:018) Resource scopedKv1. Type: Microsoft.KeyVault/vaults@2019-09-01. Declaration start char: 0, length: 132
+//@[009:018) Resource scopedKv1. Type: Microsoft.KeyVault/vaults@2019-09-01. Declaration start char: 0, length: 135
   name: 'scopedKv1'
-  scope: resourceGroup('otherGroup')
+  scope: az.resourceGroup('otherGroup')
 }
 
 // END: Key vaults
+
+// BEGIN: Test resources
+
+resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
+//@[009:022) Resource testResource1. Type: My.Rp/TestType@2020-01-01. Declaration start char: 0, length: 103
+  name: 'testResource1'
+  properties: {}
+}
+
+resource aks 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
+//@[009:012) Resource aks. Type: Microsoft.ContainerService/managedClusters@2024-02-01. Declaration start char: 0, length: 138
+  name: 'aksCluster'
+  location: az.resourceGroup().location
+}
+
+// END: Test resources
 
 // BEGIN: Extension configs for modules
 
@@ -85,6 +103,17 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
   }
 }
 
+module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[007:036) Module moduleExtConfigFromReferences. Type: module. Declaration start char: 0, length: 306
+  name: 'moduleExtConfigFromReferences'
+  extensionConfigs: {
+    k8s: {
+      kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
+      namespace: testResource1.properties.namespace
+    }
+  }
+}
+
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@[007:041) Module moduleWithExtsUsingFullInheritance. Type: module. Declaration start char: 0, length: 187
   name: 'moduleWithExtsFullInheritance'
@@ -117,12 +146,12 @@ module moduleWithExtsUsingPiecemealInheritanceLooped 'child/hasConfigurableExten
 }]
 
 module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[007:039) Module moduleExtConfigsConditionalMixed. Type: module. Declaration start char: 0, length: 341
+//@[007:039) Module moduleExtConfigsConditionalMixed. Type: module. Declaration start char: 0, length: 359
   name: 'moduleExtConfigsConditionalMixedValueAndInheritance'
   extensionConfigs: {
     k8s: {
       kubeConfig: boolParam1 ? secureStrParam1 : k8s.config.kubeConfig
-      namespace: boolParam1 ? strParam1 : k8s.config.namespace
+      namespace: boolParam1 ? az.resourceGroup().location : k8s.config.namespace
     }
   }
 }

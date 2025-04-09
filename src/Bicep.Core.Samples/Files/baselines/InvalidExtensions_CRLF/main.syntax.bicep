@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:2759) ProgramSyntax
+//@[000:2822) ProgramSyntax
 //@[020:0024) ├─Token(NewLine) |\r\n\r\n|
 
 param boolParam1 bool
@@ -18,6 +18,14 @@ param boolParam1 bool
 // BEGIN: Valid Extension declarations
 //@[038:0042) ├─Token(NewLine) |\r\n\r\n|
 
+extension az
+//@[000:0012) ├─ExtensionDeclarationSyntax
+//@[000:0009) | ├─Token(Identifier) |extension|
+//@[010:0012) | ├─IdentifierSyntax
+//@[010:0012) | | └─Token(Identifier) |az|
+//@[012:0012) | ├─SkippedTriviaSyntax
+//@[012:0012) | └─SkippedTriviaSyntax
+//@[012:0014) ├─Token(NewLine) |\r\n|
 extension kubernetes with {
 //@[000:0084) ├─ExtensionDeclarationSyntax
 //@[000:0009) | ├─Token(Identifier) |extension|
@@ -144,14 +152,14 @@ var configProp = 'config'
 // Users should use deployment parameters for this scenario.
 //@[060:0062) ├─Token(NewLine) |\r\n|
 resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
-//@[000:0182) ├─ResourceDeclarationSyntax
+//@[000:0231) ├─ResourceDeclarationSyntax
 //@[000:0008) | ├─Token(Identifier) |resource|
 //@[009:0022) | ├─IdentifierSyntax
 //@[009:0022) | | └─Token(Identifier) |testResource1|
 //@[023:0053) | ├─StringSyntax
 //@[023:0053) | | └─Token(StringComplete) |'az:My.Rp/TestType@2020-01-01'|
 //@[054:0055) | ├─Token(Assignment) |=|
-//@[056:0182) | └─ObjectSyntax
+//@[056:0231) | └─ObjectSyntax
 //@[056:0057) |   ├─Token(LeftBrace) |{|
 //@[057:0059) |   ├─Token(NewLine) |\r\n|
   name: k8s.config.namespace
@@ -172,11 +180,11 @@ resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
 //@[019:0028) |   |     └─Token(Identifier) |namespace|
 //@[028:0030) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[002:0090) |   ├─ObjectPropertySyntax
+//@[002:0139) |   ├─ObjectPropertySyntax
 //@[002:0012) |   | ├─IdentifierSyntax
 //@[002:0012) |   | | └─Token(Identifier) |properties|
 //@[012:0013) |   | ├─Token(Colon) |:|
-//@[014:0090) |   | └─ObjectSyntax
+//@[014:0139) |   | └─ObjectSyntax
 //@[014:0015) |   |   ├─Token(LeftBrace) |{|
 //@[015:0017) |   |   ├─Token(NewLine) |\r\n|
     secret: k8s.config.kubeConfig
@@ -215,6 +223,37 @@ resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
 //@[024:0033) |   |   |   └─IdentifierSyntax
 //@[024:0033) |   |   |     └─Token(Identifier) |namespace|
 //@[033:0035) |   |   ├─Token(NewLine) |\r\n|
+    ref: k8s[kv1.properties.sku.name].namespace
+//@[004:0047) |   |   ├─ObjectPropertySyntax
+//@[004:0007) |   |   | ├─IdentifierSyntax
+//@[004:0007) |   |   | | └─Token(Identifier) |ref|
+//@[007:0008) |   |   | ├─Token(Colon) |:|
+//@[009:0047) |   |   | └─PropertyAccessSyntax
+//@[009:0037) |   |   |   ├─ArrayAccessSyntax
+//@[009:0012) |   |   |   | ├─VariableAccessSyntax
+//@[009:0012) |   |   |   | | └─IdentifierSyntax
+//@[009:0012) |   |   |   | |   └─Token(Identifier) |k8s|
+//@[012:0013) |   |   |   | ├─Token(LeftSquare) |[|
+//@[013:0036) |   |   |   | ├─PropertyAccessSyntax
+//@[013:0031) |   |   |   | | ├─PropertyAccessSyntax
+//@[013:0027) |   |   |   | | | ├─PropertyAccessSyntax
+//@[013:0016) |   |   |   | | | | ├─VariableAccessSyntax
+//@[013:0016) |   |   |   | | | | | └─IdentifierSyntax
+//@[013:0016) |   |   |   | | | | |   └─Token(Identifier) |kv1|
+//@[016:0017) |   |   |   | | | | ├─Token(Dot) |.|
+//@[017:0027) |   |   |   | | | | └─IdentifierSyntax
+//@[017:0027) |   |   |   | | | |   └─Token(Identifier) |properties|
+//@[027:0028) |   |   |   | | | ├─Token(Dot) |.|
+//@[028:0031) |   |   |   | | | └─IdentifierSyntax
+//@[028:0031) |   |   |   | | |   └─Token(Identifier) |sku|
+//@[031:0032) |   |   |   | | ├─Token(Dot) |.|
+//@[032:0036) |   |   |   | | └─IdentifierSyntax
+//@[032:0036) |   |   |   | |   └─Token(Identifier) |name|
+//@[036:0037) |   |   |   | └─Token(RightSquare) |]|
+//@[037:0038) |   |   |   ├─Token(Dot) |.|
+//@[038:0047) |   |   |   └─IdentifierSyntax
+//@[038:0047) |   |   |     └─Token(Identifier) |namespace|
+//@[047:0049) |   |   ├─Token(NewLine) |\r\n|
   }
 //@[002:0003) |   |   └─Token(RightBrace) |}|
 //@[003:0005) |   ├─Token(NewLine) |\r\n|

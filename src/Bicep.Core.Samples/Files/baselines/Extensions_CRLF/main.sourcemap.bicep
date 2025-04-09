@@ -20,6 +20,11 @@ param boolParam1 bool
 
 // BEGIN: Extension declarations
 
+extension az
+//@    "az": {
+//@      "name": "AzureResourceManager",
+//@      "version": "0.2.756"
+//@    },
 extension kubernetes with {
 //@    "k8s": {
 //@      "name": "Kubernetes",
@@ -48,6 +53,7 @@ extension kubernetes with {
 resource kv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 //@    "kv1": {
 //@      "existing": true,
+//@      "extension": "az",
 //@      "type": "Microsoft.KeyVault/vaults",
 //@      "apiVersion": "2019-09-01",
 //@      "name": "kv1"
@@ -58,16 +64,45 @@ resource kv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 //@    "scopedKv1": {
 //@      "existing": true,
+//@      "extension": "az",
 //@      "type": "Microsoft.KeyVault/vaults",
 //@      "apiVersion": "2019-09-01",
 //@      "resourceGroup": "otherGroup",
 //@      "name": "scopedKv1"
 //@    },
   name: 'scopedKv1'
-  scope: resourceGroup('otherGroup')
+  scope: az.resourceGroup('otherGroup')
 }
 
 // END: Key vaults
+
+// BEGIN: Test resources
+
+resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
+//@    "testResource1": {
+//@      "extension": "az",
+//@      "type": "My.Rp/TestType",
+//@      "apiVersion": "2020-01-01",
+//@      "name": "testResource1",
+//@    },
+  name: 'testResource1'
+  properties: {}
+//@      "properties": {}
+}
+
+resource aks 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
+//@    "aks": {
+//@      "extension": "az",
+//@      "type": "Microsoft.ContainerService/managedClusters",
+//@      "apiVersion": "2024-02-01",
+//@      "name": "aksCluster",
+//@    },
+  name: 'aksCluster'
+  location: az.resourceGroup().location
+//@      "location": "[resourceGroup().location]"
+}
+
+// END: Test resources
 
 // BEGIN: Extension configs for modules
 
@@ -332,6 +367,75 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
   }
 }
 
+module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@    "moduleExtConfigFromReferences": {
+//@      "type": "Microsoft.Resources/deployments",
+//@      "apiVersion": "2025-03-01",
+//@      "properties": {
+//@        "expressionEvaluationOptions": {
+//@          "scope": "inner"
+//@        },
+//@        "mode": "Incremental",
+//@        "template": {
+//@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.2-experimental",
+//@          "contentVersion": "1.0.0.0",
+//@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Extensibility",
+//@              "Enable defining extension configs for modules"
+//@            ],
+//@            "_generator": {
+//@              "name": "bicep",
+//@              "version": "dev",
+//@              "templateHash": "13022283377733806646"
+//@            }
+//@          },
+//@          "extensions": {
+//@            "k8s": {
+//@              "name": "Kubernetes",
+//@              "version": "1.0.0",
+//@              "config": {
+//@                "kubeConfig": {
+//@                  "type": "secureString",
+//@                  "defaultValue": "DELETE"
+//@                },
+//@                "namespace": {
+//@                  "type": "string",
+//@                  "defaultValue": "DELETE"
+//@                }
+//@              }
+//@            }
+//@          },
+//@          "resources": {}
+//@        }
+//@      },
+//@      "dependsOn": [
+//@        "aks",
+//@        "testResource1"
+//@      ]
+//@    },
+  name: 'moduleExtConfigFromReferences'
+//@      "name": "moduleExtConfigFromReferences",
+  extensionConfigs: {
+//@        "extensionConfigs": {
+//@        },
+    k8s: {
+//@          "k8s": {
+//@          }
+      kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
+//@            "kubeConfig": {
+//@              "value": "[listClusterAdminCredential('aks', '2024-02-01').kubeconfigs[0].value]"
+//@            },
+      namespace: testResource1.properties.namespace
+//@            "namespace": {
+//@              "value": "[reference('testResource1').namespace]"
+//@            }
+    }
+  }
+}
+
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@    "moduleWithExtsUsingFullInheritance": {
 //@      "type": "Microsoft.Resources/deployments",
@@ -568,8 +672,8 @@ module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlia
 //@          }
       kubeConfig: boolParam1 ? secureStrParam1 : k8s.config.kubeConfig
 //@            "kubeConfig": "[if(parameters('boolParam1'), createObject('value', parameters('secureStrParam1')), extensions('k8s').config.kubeConfig)]",
-      namespace: boolParam1 ? strParam1 : k8s.config.namespace
-//@            "namespace": "[if(parameters('boolParam1'), createObject('value', parameters('strParam1')), extensions('k8s').config.namespace)]"
+      namespace: boolParam1 ? az.resourceGroup().location : k8s.config.namespace
+//@            "namespace": "[if(parameters('boolParam1'), createObject('value', resourceGroup().location), extensions('k8s').config.namespace)]"
     }
   }
 }

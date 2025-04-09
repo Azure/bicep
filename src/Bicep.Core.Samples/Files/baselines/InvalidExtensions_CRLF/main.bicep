@@ -6,6 +6,7 @@ param boolParam1 bool
 
 // BEGIN: Valid Extension declarations
 
+extension az
 extension kubernetes with {
   kubeConfig: 'DELETE'
   namespace: 'DELETE'
@@ -39,6 +40,7 @@ resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
   properties: {
     secret: k8s.config.kubeConfig
     ns: k8s[configProp].namespace
+    ref: k8s[kv1.properties.sku.name].namespace
   }
 }
 

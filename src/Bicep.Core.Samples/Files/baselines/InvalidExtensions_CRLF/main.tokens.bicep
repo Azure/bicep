@@ -13,6 +13,10 @@ param boolParam1 bool
 // BEGIN: Valid Extension declarations
 //@[038:042) NewLine |\r\n\r\n|
 
+extension az
+//@[000:009) Identifier |extension|
+//@[010:012) Identifier |az|
+//@[012:014) NewLine |\r\n|
 extension kubernetes with {
 //@[000:009) Identifier |extension|
 //@[010:020) Identifier |kubernetes|
@@ -143,6 +147,22 @@ resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
 //@[023:024) Dot |.|
 //@[024:033) Identifier |namespace|
 //@[033:035) NewLine |\r\n|
+    ref: k8s[kv1.properties.sku.name].namespace
+//@[004:007) Identifier |ref|
+//@[007:008) Colon |:|
+//@[009:012) Identifier |k8s|
+//@[012:013) LeftSquare |[|
+//@[013:016) Identifier |kv1|
+//@[016:017) Dot |.|
+//@[017:027) Identifier |properties|
+//@[027:028) Dot |.|
+//@[028:031) Identifier |sku|
+//@[031:032) Dot |.|
+//@[032:036) Identifier |name|
+//@[036:037) RightSquare |]|
+//@[037:038) Dot |.|
+//@[038:047) Identifier |namespace|
+//@[047:049) NewLine |\r\n|
   }
 //@[002:003) RightBrace |}|
 //@[003:005) NewLine |\r\n|

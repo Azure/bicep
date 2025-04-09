@@ -11,6 +11,7 @@ param boolParam1 bool
 
 // BEGIN: Extension declarations
 
+extension az
 extension kubernetes with {
   kubeConfig: 'DELETE'
   namespace: 'DELETE'
@@ -28,10 +29,24 @@ resource kv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 
 resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
   name: 'scopedKv1'
-  scope: resourceGroup('otherGroup')
+  scope: az.resourceGroup('otherGroup')
 }
 
 // END: Key vaults
+
+// BEGIN: Test resources
+
+resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
+  name: 'testResource1'
+  properties: {}
+}
+
+resource aks 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
+  name: 'aksCluster'
+  location: az.resourceGroup().location
+}
+
+// END: Test resources
 
 // BEGIN: Extension configs for modules
 
@@ -75,6 +90,16 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
   }
 }
 
+module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  name: 'moduleExtConfigFromReferences'
+  extensionConfigs: {
+    k8s: {
+      kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
+      namespace: testResource1.properties.namespace
+    }
+  }
+}
+
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
   name: 'moduleWithExtsFullInheritance'
   extensionConfigs: {
@@ -107,7 +132,7 @@ module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlia
   extensionConfigs: {
     k8s: {
       kubeConfig: boolParam1 ? secureStrParam1 : k8s.config.kubeConfig
-      namespace: boolParam1 ? strParam1 : k8s.config.namespace
+      namespace: boolParam1 ? az.resourceGroup().location : k8s.config.namespace
     }
   }
 }

@@ -6,6 +6,7 @@ param boolParam1 bool
 
 // BEGIN: Valid Extension declarations
 
+extension az
 extension kubernetes with {
   kubeConfig: 'DELETE'
   namespace: 'DELETE'
@@ -43,6 +44,8 @@ resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
 //@[12:15) [BCP418 (Error)] Extensions cannot be referenced here. Extensions can only be referenced by module extension configurations. (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |k8s|
     ns: k8s[configProp].namespace
 //@[08:11) [BCP418 (Error)] Extensions cannot be referenced here. Extensions can only be referenced by module extension configurations. (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |k8s|
+    ref: k8s[kv1.properties.sku.name].namespace
+//@[09:12) [BCP418 (Error)] Extensions cannot be referenced here. Extensions can only be referenced by module extension configurations. (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |k8s|
   }
 }
 

@@ -31,6 +31,10 @@ param boolParam1 bool
 // BEGIN: Extension declarations
 //@[032:036) NewLine |\r\n\r\n|
 
+extension az
+//@[000:009) Identifier |extension|
+//@[010:012) Identifier |az|
+//@[012:014) NewLine |\r\n|
 extension kubernetes with {
 //@[000:009) Identifier |extension|
 //@[010:020) Identifier |kubernetes|
@@ -92,20 +96,77 @@ resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 //@[006:007) Colon |:|
 //@[008:019) StringComplete |'scopedKv1'|
 //@[019:021) NewLine |\r\n|
-  scope: resourceGroup('otherGroup')
+  scope: az.resourceGroup('otherGroup')
 //@[002:007) Identifier |scope|
 //@[007:008) Colon |:|
-//@[009:022) Identifier |resourceGroup|
-//@[022:023) LeftParen |(|
-//@[023:035) StringComplete |'otherGroup'|
-//@[035:036) RightParen |)|
-//@[036:038) NewLine |\r\n|
+//@[009:011) Identifier |az|
+//@[011:012) Dot |.|
+//@[012:025) Identifier |resourceGroup|
+//@[025:026) LeftParen |(|
+//@[026:038) StringComplete |'otherGroup'|
+//@[038:039) RightParen |)|
+//@[039:041) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
 //@[001:005) NewLine |\r\n\r\n|
 
 // END: Key vaults
 //@[018:022) NewLine |\r\n\r\n|
+
+// BEGIN: Test resources
+//@[024:028) NewLine |\r\n\r\n|
+
+resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
+//@[000:008) Identifier |resource|
+//@[009:022) Identifier |testResource1|
+//@[023:053) StringComplete |'az:My.Rp/TestType@2020-01-01'|
+//@[054:055) Assignment |=|
+//@[056:057) LeftBrace |{|
+//@[057:059) NewLine |\r\n|
+  name: 'testResource1'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:023) StringComplete |'testResource1'|
+//@[023:025) NewLine |\r\n|
+  properties: {}
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:016) RightBrace |}|
+//@[016:018) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
+resource aks 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |aks|
+//@[013:068) StringComplete |'Microsoft.ContainerService/managedClusters@2024-02-01'|
+//@[069:070) Assignment |=|
+//@[071:072) LeftBrace |{|
+//@[072:074) NewLine |\r\n|
+  name: 'aksCluster'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:020) StringComplete |'aksCluster'|
+//@[020:022) NewLine |\r\n|
+  location: az.resourceGroup().location
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:014) Identifier |az|
+//@[014:015) Dot |.|
+//@[015:028) Identifier |resourceGroup|
+//@[028:029) LeftParen |(|
+//@[029:030) RightParen |)|
+//@[030:031) Dot |.|
+//@[031:039) Identifier |location|
+//@[039:041) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
+// END: Test resources
+//@[022:026) NewLine |\r\n\r\n|
 
 // BEGIN: Extension configs for modules
 //@[039:043) NewLine |\r\n\r\n|
@@ -281,6 +342,63 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
 //@[015:016) Colon |:|
 //@[017:026) StringComplete |'default'|
 //@[026:028) NewLine |\r\n|
+    }
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
+module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:006) Identifier |module|
+//@[007:036) Identifier |moduleExtConfigFromReferences|
+//@[037:085) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[086:087) Assignment |=|
+//@[088:089) LeftBrace |{|
+//@[089:091) NewLine |\r\n|
+  name: 'moduleExtConfigFromReferences'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:039) StringComplete |'moduleExtConfigFromReferences'|
+//@[039:041) NewLine |\r\n|
+  extensionConfigs: {
+//@[002:018) Identifier |extensionConfigs|
+//@[018:019) Colon |:|
+//@[020:021) LeftBrace |{|
+//@[021:023) NewLine |\r\n|
+    k8s: {
+//@[004:007) Identifier |k8s|
+//@[007:008) Colon |:|
+//@[009:010) LeftBrace |{|
+//@[010:012) NewLine |\r\n|
+      kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
+//@[006:016) Identifier |kubeConfig|
+//@[016:017) Colon |:|
+//@[018:021) Identifier |aks|
+//@[021:022) Dot |.|
+//@[022:048) Identifier |listClusterAdminCredential|
+//@[048:049) LeftParen |(|
+//@[049:050) RightParen |)|
+//@[050:051) Dot |.|
+//@[051:062) Identifier |kubeconfigs|
+//@[062:063) LeftSquare |[|
+//@[063:064) Integer |0|
+//@[064:065) RightSquare |]|
+//@[065:066) Dot |.|
+//@[066:071) Identifier |value|
+//@[071:073) NewLine |\r\n|
+      namespace: testResource1.properties.namespace
+//@[006:015) Identifier |namespace|
+//@[015:016) Colon |:|
+//@[017:030) Identifier |testResource1|
+//@[030:031) Dot |.|
+//@[031:041) Identifier |properties|
+//@[041:042) Dot |.|
+//@[042:051) Identifier |namespace|
+//@[051:053) NewLine |\r\n|
     }
 //@[004:005) RightBrace |}|
 //@[005:007) NewLine |\r\n|
@@ -471,19 +589,25 @@ module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlia
 //@[059:060) Dot |.|
 //@[060:070) Identifier |kubeConfig|
 //@[070:072) NewLine |\r\n|
-      namespace: boolParam1 ? strParam1 : k8s.config.namespace
+      namespace: boolParam1 ? az.resourceGroup().location : k8s.config.namespace
 //@[006:015) Identifier |namespace|
 //@[015:016) Colon |:|
 //@[017:027) Identifier |boolParam1|
 //@[028:029) Question |?|
-//@[030:039) Identifier |strParam1|
-//@[040:041) Colon |:|
-//@[042:045) Identifier |k8s|
-//@[045:046) Dot |.|
-//@[046:052) Identifier |config|
-//@[052:053) Dot |.|
-//@[053:062) Identifier |namespace|
-//@[062:064) NewLine |\r\n|
+//@[030:032) Identifier |az|
+//@[032:033) Dot |.|
+//@[033:046) Identifier |resourceGroup|
+//@[046:047) LeftParen |(|
+//@[047:048) RightParen |)|
+//@[048:049) Dot |.|
+//@[049:057) Identifier |location|
+//@[058:059) Colon |:|
+//@[060:063) Identifier |k8s|
+//@[063:064) Dot |.|
+//@[064:070) Identifier |config|
+//@[070:071) Dot |.|
+//@[071:080) Identifier |namespace|
+//@[080:082) NewLine |\r\n|
     }
 //@[004:005) RightBrace |}|
 //@[005:007) NewLine |\r\n|
