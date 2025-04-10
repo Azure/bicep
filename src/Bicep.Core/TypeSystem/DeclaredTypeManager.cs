@@ -1815,7 +1815,6 @@ namespace Bicep.Core.TypeSystem
                     if (extensionAssignment.Reference.Type is NamespaceType namespaceType)
                     {
                         // This case is extension declarations in bicep files.
-                        // TODO(kylealbert): Remove this when `with` clause is removed from extension declaration syntax.
                         configType = namespaceType.ConfigurationType;
                     }
                     else if (parent is ExtensionConfigAssignmentSyntax && extensionAssignment.Reference.Type is ObjectType configTypeFromAssignment)
