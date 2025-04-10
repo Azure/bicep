@@ -203,15 +203,24 @@ namespace Bicep.Core.Registry
 
         public override async Task OnRestoreArtifacts(bool forceRestore)
         {
-            // We don't want linter tests to download anything during analysis.  So we are downloading
-            //   metadata here to avoid downloading during analysis, and tests can use cached data if it
-            //   exists (e.g. IRegistryModuleMetadataProvider.GetCached* methods).
-            // If --no-restore has been specified on the command ine, we don't want to download anything at all.
+            // We don't want linter tests to download anything during analysis.  So we download
+            //   metadata during module restore to avoid downloading during analysis. Linter rules can use cached data if it
+            //   exists (e.g. IRegistryModuleMetadataProvider.GetCached* methods) but shouldn't initiate a download.
+            // If --no-restore has been specified on the command line, we don't want to download anything at all.
             // Therefore we do the cache download here so that lint rules can have access to the cached metadata.
             // CONSIDER: Revisit if it's okay to download metadata during analysis?  This will be more of a problem
             //   when we extend the linter rules to include private registry modules.
 
+            Trace.TraceInformation("Attempting to restore module metadata...");
             await publicModuleMetadataProvider.TryAwaitCache(forceRestore);
+            if (publicModuleMetadataProvider.DownloadError is not null)
+            {
+                Trace.TraceError($"Module metadata download failed: {publicModuleMetadataProvider.DownloadError}");
+            }
+            else
+            {
+                Trace.TraceInformation("Module metadata download succeeded.");
+            }
         }
 
         public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<OciArtifactReference> references)
@@ -223,6 +232,7 @@ namespace Bicep.Core.Registry
             // CONSIDER: Run these in parallel
             foreach (var reference in referencesEvaluated)
             {
+                Trace.WriteLine($"Restoring artifact {reference.FullyQualifiedReference}");
                 using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectory(reference)}");
                 var (result, errorMessage) = await this.TryRestoreArtifactAsync(reference.ReferencingFile.Configuration, reference);
 

@@ -83,6 +83,7 @@ namespace Bicep.Core.Registry
             {
                 if (reference.ArtifactType == ArtifactType.Extension)
                 {
+                    Trace.WriteLine($"Restoring local module {reference.FullyQualifiedReference}");
                     if (TryReadContent(reference) is not { } binaryData)
                     {
                         statuses.Add(reference, x => x.ArtifactRestoreFailedWithMessage(reference.FullyQualifiedReference, $"Failed to find {reference.FullyQualifiedReference}"));

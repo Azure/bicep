@@ -20,21 +20,23 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Bicep.Core.Registry
 {
-    public class ModuleDispatcher : IModuleDispatcher
+    //asdfg
+
+    public interface IFeedbackLogger
+    {
+        void Log(LogLevel logLevel, string message);
+    }
+
+
+    public class ModuleDispatcher(IArtifactRegistryProvider registryProvider) : IModuleDispatcher
     {
         private static readonly TimeSpan FailureExpirationInterval = TimeSpan.FromMinutes(30);
 
         private readonly ConcurrentDictionary<RestoreFailureKey, RestoreFailureInfo> restoreFailures = new();
-
-        private readonly IArtifactRegistryProvider registryProvider;
-
-        public ModuleDispatcher(IArtifactRegistryProvider registryProvider)
-        {
-            this.registryProvider = registryProvider;
-        }
 
         public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string reference)
         {
@@ -43,12 +45,12 @@ namespace Bicep.Core.Registry
             {
                 case 1:
                     // local path reference
-                    if (this.registryProvider.TryGetRegistry(ArtifactReferenceSchemes.Local) is { } localRegistry)
+                    if (registryProvider.TryGetRegistry(ArtifactReferenceSchemes.Local) is { } localRegistry)
                     {
                         return localRegistry.TryParseArtifactReference(referencingFile, artifactType, null, parts[0]);
                     }
 
-                    return new(x => x.UnknownModuleReferenceScheme(ArtifactReferenceSchemes.Local, this.registryProvider.SupportedSchemes));
+                    return new(x => x.UnknownModuleReferenceScheme(ArtifactReferenceSchemes.Local, registryProvider.SupportedSchemes));
 
                 case 2:
                     string scheme = parts[0];
@@ -62,7 +64,7 @@ namespace Bicep.Core.Registry
                         aliasName = schemeParts[1];
                     }
 
-                    if (!string.IsNullOrEmpty(scheme) && this.registryProvider.TryGetRegistry(scheme) is { } registry)
+                    if (!string.IsNullOrEmpty(scheme) && registryProvider.TryGetRegistry(scheme) is { } registry)
                     {
                         // the scheme is recognized
                         var rawValue = parts[1];
@@ -71,7 +73,7 @@ namespace Bicep.Core.Registry
                     }
 
                     // unknown scheme
-                    return new(x => x.UnknownModuleReferenceScheme(scheme, this.registryProvider.SupportedSchemes));
+                    return new(x => x.UnknownModuleReferenceScheme(scheme, registryProvider.SupportedSchemes));
 
                 default:
                     // empty string
@@ -203,11 +205,12 @@ namespace Bicep.Core.Registry
             // many module declarations can point to the same module
             var uniqueReferences = references.Distinct().ToArray();
 
-            // Call OnRestoreArtifacts on each registry provider. Can (currently at least) be done in parallel to restore.
+            // Notice listeners of the OnRestoreArtifacts event.
+            // Can (currently at least) be done at the same time as the actual restore.
             var onRestoreArtifactsTasks = new List<Task>();
-            foreach (var scheme in this.registryProvider.SupportedSchemes)
+            foreach (var scheme in registryProvider.SupportedSchemes)
             {
-                var registry = this.registryProvider.GetRegistry(scheme);
+                var registry = registryProvider.GetRegistry(scheme);
 
                 try
                 {
@@ -227,7 +230,7 @@ namespace Bicep.Core.Registry
             }
 
             // split modules refs by registry
-            var referencesByRegistry = uniqueReferences.ToLookup(@ref => this.registryProvider.GetRegistry(@ref.Scheme));
+            var referencesByRegistry = uniqueReferences.ToLookup(@ref => registryProvider.GetRegistry(@ref.Scheme));
 
             // send each set of refs to its own registry
             foreach (var registry in referencesByRegistry.Select(byRegistry => byRegistry.Key))
@@ -251,15 +254,15 @@ namespace Bicep.Core.Registry
                 {
                     this.SetRestoreFailure(failedReference, failedReference.ReferencingFile.Configuration, failureBuilder);
                 }
+            }
 
-                try
-                {
-                    await Task.WhenAll(onRestoreArtifactsTasks);
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine($"{nameof(IArtifactRegistry.OnRestoreArtifacts)} failed: {ex.Message}");
-                }
+            try
+            {
+                await Task.WhenAll(onRestoreArtifactsTasks);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"{nameof(IArtifactRegistry.OnRestoreArtifacts)} failed: {ex.Message}");
             }
 
             return true;
@@ -307,7 +310,7 @@ namespace Bicep.Core.Registry
             }
         }
 
-        private IArtifactRegistry GetRegistry(ArtifactReference reference) => this.registryProvider.GetRegistry(reference.Scheme);
+        private IArtifactRegistry GetRegistry(ArtifactReference reference) => registryProvider.GetRegistry(reference.Scheme);
 
         public Uri? TryGetExtensionBinary(ArtifactReference reference)
         {

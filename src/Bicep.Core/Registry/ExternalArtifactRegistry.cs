@@ -160,6 +160,7 @@ namespace Bicep.Core.Registry
 
             foreach (var reference in references)
             {
+                Trace.TraceInformation($"Deleting artifact {reference.FullyQualifiedReference} from cache");
                 using var timer = new ExecutionTimer($"Delete artifact {reference.FullyQualifiedReference} from cache");
                 try
                 {
