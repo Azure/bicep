@@ -15,6 +15,7 @@ public static class EmitConstants
     public const string NestedDeploymentResourceApiVersionWithModuleConfigsEnabled = "2025-03-01";
 
     public static string GetNestedDeploymentResourceApiVersion(IFeatureProvider features) =>
+        // TODO: Remove this function and set NestedDeploymentResourceApiVersion to 2025-03-01 once the API version rolls out everywhere.
         features is { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true }
             ? NestedDeploymentResourceApiVersionWithModuleConfigsEnabled
             : NestedDeploymentResourceApiVersion;
