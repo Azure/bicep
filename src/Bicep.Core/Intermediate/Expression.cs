@@ -403,8 +403,7 @@ public record ExtensionExpression(
 
 public record ExtensionReferenceExpression(
     SyntaxBase? SourceSyntax,
-    ExtensionNamespaceSymbol ExtensionNamespace,
-    Expression? PropertyAccessExpression = null)
+    ExtensionNamespaceSymbol ExtensionNamespace)
     : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
