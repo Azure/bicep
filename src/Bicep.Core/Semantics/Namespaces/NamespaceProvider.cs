@@ -2,14 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Net.Http.Headers;
-using System.Security.Cryptography;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
-using Bicep.Core.Features;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
@@ -17,7 +10,6 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Providers.MicrosoftGraph;
-using Bicep.Core.TypeSystem.Providers.ThirdParty;
 using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Semantics.Namespaces;
@@ -170,7 +162,7 @@ public class NamespaceProvider : INamespaceProvider
 
         if (LanguageConstants.IdentifierComparer.Equals(extensionName, K8sNamespaceType.BuiltInName))
         {
-            return K8sNamespaceType.Create(aliasName);
+            return K8sNamespaceType.Create(aliasName, sourceFile.Features);
         }
 
         // microsoftGraph built-in extension is no longer supported.
@@ -204,6 +196,6 @@ public class NamespaceProvider : INamespaceProvider
             return new(MicrosoftGraphNamespaceType.Create(aliasName, typeProvider, artifact.Reference));
         }
 
-        return new(ThirdPartyNamespaceType.Create(aliasName, typeProvider, artifact.Reference));
+        return new(ThirdPartyNamespaceType.Create(aliasName, typeProvider, artifact.Reference, sourceFile.Features));
     }
 }

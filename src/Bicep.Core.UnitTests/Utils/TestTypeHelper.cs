@@ -2,13 +2,11 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using System.Diagnostics;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;

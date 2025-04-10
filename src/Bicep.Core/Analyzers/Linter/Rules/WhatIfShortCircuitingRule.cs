@@ -1,15 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Azure.Deployments.Core.Constants;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Expression.Intermediate;
@@ -89,7 +81,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             subscriptionId: new UnevaluableExpression(null, null, null),
                             resourceGroupName: new UnevaluableExpression(null, null, null),
                             template: template,
-                            apiVersion: new StringExpression(EmitConstants.NestedDeploymentResourceApiVersion, null, null, null),
+                            apiVersion: new StringExpression(EmitConstants.GetNestedDeploymentResourceApiVersion(model.Features), null, null, null),
                             suppliedParameterValues: moduleParamsInput,
                             parameterValuesPositionalMetadata: null,
                             metadata: metadata,
