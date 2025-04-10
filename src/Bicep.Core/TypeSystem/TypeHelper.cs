@@ -687,7 +687,7 @@ namespace Bicep.Core.TypeSystem
                 input.Name,
                 input.ValidationFlags,
                 input.Properties.Values.Select(transformFunc),
-                input.AdditionalProperties is not null ? input.AdditionalProperties with { } : null,
+                input.AdditionalProperties,
                 input.MethodResolver.functionOverloads);
         }
 
