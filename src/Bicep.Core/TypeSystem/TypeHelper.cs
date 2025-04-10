@@ -697,9 +697,6 @@ namespace Bicep.Core.TypeSystem
         public static TypeSymbol RemovePropertyFlagsRecursively(TypeSymbol type, TypePropertyFlags flagsToRemove)
             => ModifyPropertyFlagsRecursively(type, f => f & ~flagsToRemove, new());
 
-        public static ObjectType DeepCloneAndModifyPropertyFlagsRecursively(ObjectType type, Func<TypePropertyFlags, TypePropertyFlags> transformFlags) =>
-            ModifyPropertyFlagsRecursively(type, transformFlags, new());
-
         private static TType ModifyPropertyFlagsRecursively<TType>(
             TType type,
             Func<TypePropertyFlags, TypePropertyFlags> transformFlags,

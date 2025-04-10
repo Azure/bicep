@@ -3,7 +3,6 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Features;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Semantics.Namespaces
@@ -17,12 +16,10 @@ namespace Bicep.Core.Semantics.Namespaces
                 return [];
             }
 
-            var namespaceProperties = ImmutableArray.CreateBuilder<NamedTypeProperty>();
-
-            var namespaceConfigType = TypeHelper.DeepCloneAndModifyPropertyFlagsRecursively(namespaceSettings.ConfigurationType, f => f | TypePropertyFlags.ReadOnly);
-            namespaceProperties.Add(new NamedTypeProperty(LanguageConstants.ExtensionConfigPropertyName, namespaceConfigType, TypePropertyFlags.ReadOnly, "The extension configuration."));
-
-            return namespaceProperties.ToImmutable();
+            return
+            [
+                new NamedTypeProperty(LanguageConstants.ExtensionConfigPropertyName, namespaceSettings.ConfigurationType, TypePropertyFlags.ReadOnly, "The extension configuration."),
+            ];
         }
     }
 }
