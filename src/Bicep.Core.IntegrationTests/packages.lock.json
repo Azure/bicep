@@ -2,6 +2,23 @@
   "version": 1,
   "dependencies": {
     "net8.0": {
+      "Azure.Deployments.ClientTools": {
+        "type": "Direct",
+        "requested": "[1.319.0, )",
+        "resolved": "1.319.0",
+        "contentHash": "bbca1mSVol8KqE5jtaRyhNXPxP7FFbIY56G9x94r5Nh2Z+t3DvdXAjlFi1l0L1y2RZ+sGwQSwj1A/VRYS6kBTw==",
+        "dependencies": {
+          "Azure.Deployments.Core": "1.319.0",
+          "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
+          "Microsoft.PowerPlatform.ResourceStack": "7.0.0.2070",
+          "Newtonsoft.Json": "13.0.3",
+          "System.Collections.Immutable": "8.0.0",
+          "System.Diagnostics.DiagnosticSource": "8.0.1",
+          "System.IO.Packaging": "8.0.1",
+          "System.Memory": "4.5.5",
+          "System.Reflection.Emit.Lightweight": "4.7.0"
+        }
+      },
       "FluentAssertions": {
         "type": "Direct",
         "requested": "[7.0.0, )",
