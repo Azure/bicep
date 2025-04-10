@@ -129,19 +129,13 @@ public class TemplateEmitter
             _ => [],
         };
 
-        var features = model switch
-        {
-            SemanticModel x => x.Features,
-            _ => null,
-        };
-
         if (diagnostics.Any(d => d.IsError()))
         {
-            return new EmitResult(EmitStatus.Failed, diagnostics, features);
+            return new EmitResult(EmitStatus.Failed, diagnostics, model.Features);
         }
 
         var sourceMap = write();
 
-        return new EmitResult(EmitStatus.Succeeded, diagnostics, features, sourceMap);
+        return new EmitResult(EmitStatus.Succeeded, diagnostics, model.Features, sourceMap);
     }
 }
