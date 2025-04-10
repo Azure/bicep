@@ -4,8 +4,10 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using Azure.Deployments.Core;
 using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Definitions;
+using Azure.Deployments.Core.Definitions.Extensibility;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Diagnostics;
 using Azure.Deployments.Core.ErrorResponses;
@@ -242,6 +244,7 @@ namespace Bicep.Core.Utils
             {
                 var template = TemplateEngine.ParseTemplate(templateJtoken.ToString());
                 var parameters = ConvertParameters(parametersJToken);
+                var extensionConfigs = ConvertExtensionConfigs(parametersJToken);
 
                 var expectedApiVersion = features is not null ? EmitConstants.GetNestedDeploymentResourceApiVersion(features) : EmitConstants.NestedDeploymentResourceApiVersion;
 
@@ -255,7 +258,7 @@ namespace Bicep.Core.Utils
                     apiVersion: expectedApiVersion,
                     inputParameters: new(parameters),
                     metadata: metadata,
-                    extensionConfigs: [], // TODO: check this with Kyle
+                    extensionConfigs: extensionConfigs,
                     metricsRecorder: new TemplateMetricsRecorder());
 
                 ProcessTemplateLanguageExpressions(template, config, deploymentScope);
@@ -285,14 +288,14 @@ namespace Bicep.Core.Utils
 
             var externalInputsObject = parametersJToken["externalInputs"] as JObject;
             var externalInputs = externalInputsObject?.Properties().ToImmutableDictionary(
-                x => x.Name, 
+                x => x.Name,
                 x => new DeploymentExternalInput { Value = x.Value["value"] }) ?? ImmutableDictionary<string, DeploymentExternalInput>.Empty;
 
             var helper = new ParameterExpressionEvaluationHelper(
                 metricsRecorder: new TemplateMetricsRecorder(),
                 externalInputs: externalInputs);
 
-            
+
             return parametersObject!.Properties().ToImmutableDictionary(x => x.Name, x => {
                 if (x.Value["expression"] is { } expression)
                 {
@@ -302,6 +305,13 @@ namespace Bicep.Core.Utils
                 return x.Value["value"]!;
             });
         }
+
+        private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, DeploymentExtensionConfigItem>> ConvertExtensionConfigs(JToken? parametersJToken) =>
+            parametersJToken?["extensionConfigs"] is JObject extensionConfigs
+                ? extensionConfigs
+                    .FromDeploymentsJToken<OrdinalDictionary<OrdinalDictionary<DeploymentExtensionConfigItem>>>()
+                    .ToOrdinalDictionary(kvp => kvp.Key, IReadOnlyDictionary<string, DeploymentExtensionConfigItem> (kvp) => kvp.Value)
+                : [];
 
         private static TemplateDeploymentScope GetDeploymentScope(string templateSchema)
         {
