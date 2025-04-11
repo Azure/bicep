@@ -8,7 +8,6 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.TypeSystem.Providers.ThirdParty
 {
-    // Renamed from K8sResourceTypeFactory to ExtensibilityResourceTypeFactory
     public class ExtensibilityResourceTypeFactory
     {
         private readonly ConcurrentDictionary<Azure.Bicep.Types.Concrete.TypeBase, TypeSymbol> typeCache;
@@ -158,7 +157,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                         var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties) : null;
                         var properties = objectType.Properties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value));
 
-                        return new ObjectType(objectType.Name, GetValidationFlags(isResourceBodyType, isSensitive: false), properties, additionalProperties is not null ? new(additionalProperties) : null);
+                        return new ObjectType(objectType.Name, GetValidationFlags(isResourceBodyType, isSensitive: objectType.Sensitive ?? false), properties, additionalProperties is not null ? new(additionalProperties) : null);
                     }
                 case Azure.Bicep.Types.Concrete.ArrayType arrayType:
                     {
@@ -196,7 +195,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                 extendedProperties[property.Key] = property.Value;
             }
 
-            return new ObjectType(name, GetValidationFlags(isResourceBodyType, isSensitive: false), extendedProperties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value)), additionalProperties is not null ? new(additionalProperties) : null);
+            return new ObjectType(name, GetValidationFlags(isResourceBodyType, isSensitive: objectType.Sensitive ?? false), extendedProperties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value)), additionalProperties is not null ? new(additionalProperties) : null);
         }
 
         private static TypeSymbolValidationFlags GetValidationFlags(bool isResourceBodyType, bool isSensitive)

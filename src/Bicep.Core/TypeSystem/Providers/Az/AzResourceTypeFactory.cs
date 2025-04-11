@@ -146,7 +146,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                             isResourceBodyTopLevelPropertyType: isResourceBodyType));
 
                         return new ObjectType(objectType.Name,
-                            GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType, isSensitive: false),
+                            GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType, isSensitive: objectType.Sensitive ?? false),
                             properties,
                             additionalProperties is not null ? new(additionalProperties) : null);
                     }
@@ -173,7 +173,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                             isResourceBodyTopLevelPropertyType)));
 
                         return new DiscriminatedObjectType(discriminatedObjectType.Name,
-                            GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType, isSensitive: false),
+                            GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType, isSensitive: objectType.Sensitive ?? false),
                             discriminatedObjectType.Discriminator,
                             elementReferences);
                     }
