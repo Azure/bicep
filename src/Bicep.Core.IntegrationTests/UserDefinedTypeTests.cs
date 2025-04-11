@@ -1730,6 +1730,7 @@ param myParam string
                   properties: siteProperties
                 }
 
+                @secure()
                 output siteProperties resourceOutput<'Microsoft.Web/sites@2022-09-01'>.properties = appService.properties
                 """);
 

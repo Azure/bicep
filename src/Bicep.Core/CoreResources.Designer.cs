@@ -1123,7 +1123,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Property path &quot;{0}&quot; for resources of type &quot;{1}&quot; should be assigned a secure value..
+        ///   Looks up a localized string similar to Property &quot;{0}&quot; expects a secure value, but the value provided may not be secure..
         /// </summary>
         internal static string UseSecureValueForSecureInputsRule_MessageFormat {
             get {

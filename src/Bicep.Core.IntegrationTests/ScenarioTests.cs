@@ -4562,6 +4562,7 @@ resource action 'Microsoft.SecurityInsights/alertRules/actions@2021-09-01-previe
   name: 'action1'
   properties: {
     logicAppResourceId: logicApp.id
+    #disable-next-line use-secure-value-for-secure-inputs
     triggerUri: logicApp.listCallbackUrl().value
   }
 }
@@ -4624,6 +4625,7 @@ resource action 'Microsoft.SecurityInsights/alertRules/actions@2021-09-01-previe
   name: 'action1'
   properties: {
     logicAppResourceId: logicApp.id
+    #disable-next-line use-secure-value-for-secure-inputs
     triggerUri: logicApp.listCallbackUrl().value
   }
 }
