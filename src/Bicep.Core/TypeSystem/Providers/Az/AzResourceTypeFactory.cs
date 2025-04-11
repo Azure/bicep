@@ -146,7 +146,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                             isResourceBodyTopLevelPropertyType: isResourceBodyType));
 
                         return new ObjectType(objectType.Name,
-                            GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType, isSensitive: false),
+                            GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType, isSensitive: objectType.Sensitive ?? false),
                             properties,
                             additionalProperties is not null ? new(additionalProperties) : null);
                     }
@@ -205,7 +205,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             }
 
             return new ObjectType(name,
-                GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType, isSensitive: false),
+                GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType, isSensitive: objectType.Sensitive ?? false),
                 extendedProperties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value, isResourceBodyType)),
                 additionalProperties is not null ? new(additionalProperties) : null);
         }
