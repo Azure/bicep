@@ -52,14 +52,16 @@ namespace Bicep.Core.FileSystem
             return Path.GetFullPath(resolvedPath);
         }
 
-        public static string ResolveDefaultOutputPath(string inputPath, string? outputDir, string? outputFile, Func<string, string> defaultOutputPath, IFileSystem? fileSystem = null)
+        public static string ResolveOutputPath(string inputPath, string? outputDir, string? outputFile, Func<string, string> defaultOutputPath, IFileSystem? fileSystem = null, string? inputDir = null)
         {
             fileSystem ??= new LocalFileSystem();
 
             if (outputDir is not null)
             {
                 var dir = ResolvePath(outputDir, fileSystem: fileSystem);
-                var file = fileSystem.Path.GetFileName(inputPath);
+                var file = inputDir == null
+                    ? fileSystem.Path.GetFileName(inputPath)
+                    : fileSystem.Path.GetRelativePath(inputDir, inputPath);
                 var path = fileSystem.Path.Combine(dir, file);
 
                 return defaultOutputPath(path);

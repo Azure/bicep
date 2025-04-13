@@ -71,7 +71,7 @@ namespace Bicep.LanguageServer.Handlers
             if (paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess())
             {
                 static string DefaultOutputPath(string path) => PathHelper.GetDefaultBuildOutputPath(path);
-                var paramsOutputPath = PathHelper.ResolveDefaultOutputPath(bicepParamsFilePath, null, compiledFilePath, DefaultOutputPath);
+                var paramsOutputPath = PathHelper.ResolveOutputPath(bicepParamsFilePath, null, compiledFilePath, DefaultOutputPath);
 
                 var model = compilation.GetEntrypointSemanticModel();
                 var emitter = new TemplateEmitter(model);

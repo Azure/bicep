@@ -53,9 +53,9 @@ public static class CommandHelper
         }
     }
 
-    public static Uri GetJsonOutputUri(Uri inputUri, string? outputDir, string? outputFile)
+    public static Uri GetJsonOutputUri(Uri inputUri, string? outputDir, string? outputFile, string? inputDir)
     {
-        var outputPath = PathHelper.ResolveDefaultOutputPath(inputUri.LocalPath, outputDir, outputFile, PathHelper.GetDefaultBuildOutputPath);
+        var outputPath = PathHelper.ResolveOutputPath(inputUri.LocalPath, outputDir, outputFile, PathHelper.GetDefaultBuildOutputPath, null, inputDir);
         return PathHelper.FilePathToFileUrl(outputPath);
     }
 
