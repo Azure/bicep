@@ -52,7 +52,7 @@ public static class IServiceCollectionExtensions
         services.AddSingleton<IPreflightEngineHost, PreflightEngineHost>();
         services.AddSingleton<IDependencyProcessor, DependencyProcessor>();
         services.AddSingleton<ITemplateExceptionHandler, TemplateExceptionHandler>();
-        
+
         services.AddSingleton<AzureDeploymentValidation>();
         services.AddSingleton<IExtensionConfigSchemaDirectoryFactory, FactBasedExtensionConfigSchemaDirectoryFactory>();
         services.AddSingleton<IAzureDeploymentConfiguration, LocalDeploymentConfiguration>();

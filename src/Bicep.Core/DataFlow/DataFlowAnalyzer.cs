@@ -19,7 +19,7 @@ public class DataFlowAnalyzer
     {
         var symbolDependencies = LocalSymbolDependencyVisitor.GetLocalSymbolDependencies(this.semanticModel, syntax);
 
-        return [ ..symbolDependencies.Where(symbol => !IsLocalAccessibleAfterMove(symbol, oldParent: syntax, newParent: newParent)) ];
+        return [.. symbolDependencies.Where(symbol => !IsLocalAccessibleAfterMove(symbol, oldParent: syntax, newParent: newParent))];
     }
 
     private bool IsLocalAccessibleAfterMove(LocalVariableSymbol symbol, SyntaxBase oldParent, SyntaxBase newParent)

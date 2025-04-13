@@ -287,15 +287,16 @@ namespace Bicep.Core.Utils
 
             var externalInputsObject = parametersJToken["externalInputs"] as JObject;
             var externalInputs = externalInputsObject?.Properties().ToImmutableDictionary(
-                x => x.Name, 
+                x => x.Name,
                 x => new DeploymentExternalInput { Value = x.Value["value"] }) ?? ImmutableDictionary<string, DeploymentExternalInput>.Empty;
 
             var helper = new ParameterExpressionEvaluationHelper(
                 metricsRecorder: new TemplateMetricsRecorder(),
                 externalInputs: externalInputs);
 
-            
-            return parametersObject!.Properties().ToImmutableDictionary(x => x.Name, x => {
+
+            return parametersObject!.Properties().ToImmutableDictionary(x => x.Name, x =>
+            {
                 if (x.Value["expression"] is { } expression)
                 {
                     return ExpressionsEngine.ParseLanguageExpression(expression.ToString()).EvaluateExpression(helper.EvaluationContext);

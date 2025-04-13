@@ -6,11 +6,11 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
+using Bicep.Core.Utils;
 using Bicep.LanguageServer.Extensions;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
-using Bicep.Core.Utils;
 
 namespace Bicep.LanguageServer.Handlers
 {
