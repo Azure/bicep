@@ -123,14 +123,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         continue;
                     }
 
-                    Exclusion[] exclusionsMatchingResourceType = [ ..allowedResourcesAndProperties.Where(allowed => allowed.ResourceType is null || allowed.ResourceType.IsMatch(resourceType)) ];
+                    Exclusion[] exclusionsMatchingResourceType = [.. allowedResourcesAndProperties.Where(allowed => allowed.ResourceType is null || allowed.ResourceType.IsMatch(resourceType))];
                     if (exclusionsMatchingResourceType.Any(excl => excl.propertyName is null))
                     {
                         // All properties on this resource type are excluded
                         continue;
                     }
 
-                    string[] excludedPropertiesForThisResource = [ ..exclusionsMatchingResourceType.Select(excl => excl.propertyName!) ]; // propertyName can't be null in this list
+                    string[] excludedPropertiesForThisResource = [.. exclusionsMatchingResourceType.Select(excl => excl.propertyName!)]; // propertyName can't be null in this list
                     var visitor = new IdPropertyVisitor(model, [.. excludedPropertiesForThisResource]);
                     properties.Accept(visitor);
 

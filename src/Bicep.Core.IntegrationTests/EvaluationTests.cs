@@ -1291,7 +1291,7 @@ output groupByWithValMapTest object = groupBy([
         }
     }
 
-        [TestMethod]
+    [TestMethod]
     public async Task ExternalInput_functions_are_evaluated_correctly()
     {
         var bicepFile = @"

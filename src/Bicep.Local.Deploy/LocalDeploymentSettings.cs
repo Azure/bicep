@@ -271,7 +271,7 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
     public int ExportTemplateMaximumExportedResourcesCount => int.MaxValue;
 
     public bool EnforceAntiSSRF => false;
-    
+
     public int ApiReferenceRetryCount { get; } = 3;
 
     public TimeSpan ApiReferenceRetryInterval { get; } = TimeSpan.FromSeconds(1);
