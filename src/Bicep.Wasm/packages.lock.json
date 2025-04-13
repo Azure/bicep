@@ -4,15 +4,15 @@
     "net8.0": {
       "Microsoft.AspNetCore.Components.WebAssembly": {
         "type": "Direct",
-        "requested": "[8.0.14, )",
-        "resolved": "8.0.14",
-        "contentHash": "POAXlhcinb1pB9CALXPWZU9Aw9PqLqYghdGzl3CLYWUdFwyM3gRnR3iadwxmkk1cWdMZJ9ipTcvo/hONx+cQ6g==",
+        "requested": "[8.0.15, )",
+        "resolved": "8.0.15",
+        "contentHash": "KFugRNQGBQINzcMcoaTzZr8t30kGuamOtHCmn38Bygx2/FdDJ3UuHvEm0ALMttUNoD5ewQyJPqBsi3olH/LXoQ==",
         "dependencies": {
-          "Microsoft.AspNetCore.Components.Web": "8.0.14",
+          "Microsoft.AspNetCore.Components.Web": "8.0.15",
           "Microsoft.Extensions.Configuration.Binder": "8.0.2",
           "Microsoft.Extensions.Configuration.Json": "8.0.1",
           "Microsoft.Extensions.Logging": "8.0.1",
-          "Microsoft.JSInterop.WebAssembly": "8.0.14"
+          "Microsoft.JSInterop.WebAssembly": "8.0.15"
         }
       },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
@@ -240,53 +240,53 @@
       },
       "Microsoft.AspNetCore.Authorization": {
         "type": "Transitive",
-        "resolved": "8.0.14",
-        "contentHash": "lcKWEvzaJz+ahDj5J0zz05NGyv4vqEa2vLalBuBf69vL0qrWqqB/rwI4/zdyloun+fLTq1bCnsAwiplbFgQtAA==",
+        "resolved": "8.0.15",
+        "contentHash": "AIpppyCOYv0hJjmYqytMSVohAV8THV6sTk7VoM6rHo1Jq0D1fOfkRi9lnmEz20nfKt50wX2OlciEQop3JlMC6A==",
         "dependencies": {
-          "Microsoft.AspNetCore.Metadata": "8.0.14",
+          "Microsoft.AspNetCore.Metadata": "8.0.15",
           "Microsoft.Extensions.Logging.Abstractions": "8.0.3",
           "Microsoft.Extensions.Options": "8.0.2"
         }
       },
       "Microsoft.AspNetCore.Components": {
         "type": "Transitive",
-        "resolved": "8.0.14",
-        "contentHash": "b/6dwE/ESturk5VHHzq/GP15qkcxb196T+qxFs4wzUkeZtCx2OuK+1rPIHSgsOjthnHNOAhCY7/9n5uLqyenKA==",
+        "resolved": "8.0.15",
+        "contentHash": "eQIgPU1oTkqR8hWvDjyZFGBBtgPY4bYl4a/WN7g0txmoww+fbE1nZ4D+5MeSbZu1kfHWX/Ruog/pMF9zUX6D7g==",
         "dependencies": {
-          "Microsoft.AspNetCore.Authorization": "8.0.14",
-          "Microsoft.AspNetCore.Components.Analyzers": "8.0.14"
+          "Microsoft.AspNetCore.Authorization": "8.0.15",
+          "Microsoft.AspNetCore.Components.Analyzers": "8.0.15"
         }
       },
       "Microsoft.AspNetCore.Components.Analyzers": {
         "type": "Transitive",
-        "resolved": "8.0.14",
-        "contentHash": "pHPb1bqV2ECTfOw2QcGQzO1/fdpo8mwekY8Jbycm2UZ6yvqLtZRRPd+RVzL74oXR/HTakvqSh2Un1W1rIFTnoQ=="
+        "resolved": "8.0.15",
+        "contentHash": "Uqc/wecFqwfpC9bUK9DH3W3nrriRM6ZBL8OozV6GHNNgrqvzdnqsPKo3NcmjhokvMo2/XHTrreRC2yA2aTLS/A=="
       },
       "Microsoft.AspNetCore.Components.Forms": {
         "type": "Transitive",
-        "resolved": "8.0.14",
-        "contentHash": "U83TX0obbdIh1DeIGCix62RILHRa4HC7h0fgEYrV9Gl8tz0wzv6AoYkU4PvnxXAqpYA2wPTMgNOuqt1X2XxCoQ==",
+        "resolved": "8.0.15",
+        "contentHash": "579O5c3u0FXnOAjk6JNzcy+/+qazMbedAeOy1vT1B6CBYovG8iGJhyUukqCbHcNQq3/lqxBTyB9rFzlH5zOttA==",
         "dependencies": {
-          "Microsoft.AspNetCore.Components": "8.0.14"
+          "Microsoft.AspNetCore.Components": "8.0.15"
         }
       },
       "Microsoft.AspNetCore.Components.Web": {
         "type": "Transitive",
-        "resolved": "8.0.14",
-        "contentHash": "h/XSCAHmBywDF6San0FGPyXxK6PZh1g/xz4Ln9yeJNgSmKq5F1ehgVStDkJr4d6pWGr2RRkNxgGYMLRnULMnKw==",
+        "resolved": "8.0.15",
+        "contentHash": "ttRxlR+yM0sNi+Ecw0ze26l2IcBIF2L+YNQGs4v159v+Ge51yn8bwehnlzs9MY5y3Xamvek4l71uZfk1oouYSA==",
         "dependencies": {
-          "Microsoft.AspNetCore.Components": "8.0.14",
-          "Microsoft.AspNetCore.Components.Forms": "8.0.14",
+          "Microsoft.AspNetCore.Components": "8.0.15",
+          "Microsoft.AspNetCore.Components.Forms": "8.0.15",
           "Microsoft.Extensions.DependencyInjection": "8.0.1",
           "Microsoft.Extensions.Primitives": "8.0.0",
-          "Microsoft.JSInterop": "8.0.14",
+          "Microsoft.JSInterop": "8.0.15",
           "System.IO.Pipelines": "8.0.0"
         }
       },
       "Microsoft.AspNetCore.Metadata": {
         "type": "Transitive",
-        "resolved": "8.0.14",
-        "contentHash": "4dkb/7GoyaFtEggCEHStc/t05nKgnEr1QUJIP8QaDvxdZTXk9SebVeMMPBSR4zbj6dK2tUwBAOdHLA215lmOWg=="
+        "resolved": "8.0.15",
+        "contentHash": "eKlqQasjNZD0B3thB+nX7kkpG/RiZlXObmjX+JurWycnssGp1q9iZjKn2SqKA45Pouw+529aQUYYP2/QCE5xIQ=="
       },
       "Microsoft.Automata.SRM": {
         "type": "Transitive",
@@ -499,15 +499,15 @@
       },
       "Microsoft.JSInterop": {
         "type": "Transitive",
-        "resolved": "8.0.14",
-        "contentHash": "eg5HYSshwlO1oOzOg4WdT2ZSPKOu3hv556zPkfNpKEi5qoLuQt49mE1tegsL4H7ENl1dL0vBLRv4+YAuLKt/nA=="
+        "resolved": "8.0.15",
+        "contentHash": "JQjYabj1o3M5rUp/GM8uVlLpgc9tgxZea+89IkvGl8AcY7Tfwn0Q5qltVa9rfm3mzCsr2ecVCKzWMSMYiXS0Kg=="
       },
       "Microsoft.JSInterop.WebAssembly": {
         "type": "Transitive",
-        "resolved": "8.0.14",
-        "contentHash": "hgnUKcZNOuAuzR/bf0tuPC7a9bteZuH6RzT/DG8UBRlW3mcuHdnLr+kJ7P5MZWhug2xL3G6SBbteuxtRw7D3Vg==",
+        "resolved": "8.0.15",
+        "contentHash": "L7Rnicz9pvb3d3vSLHOHTM8SKv248aFWH9RhH/RB6+siUygIKRah+r+6hJX98is01ygfuoKocdU6uYOQ954rAg==",
         "dependencies": {
-          "Microsoft.JSInterop": "8.0.14"
+          "Microsoft.JSInterop": "8.0.15"
         }
       },
       "Microsoft.NETCore.Platforms": {
