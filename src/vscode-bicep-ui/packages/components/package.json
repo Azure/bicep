@@ -33,7 +33,7 @@
     "@storybook/addon-themes": "^8.6.12",
     "@storybook/blocks": "^8.5.0",
     "@storybook/react": "^8.6.11",
-    "@storybook/react-vite": "^8.4.7",
+    "@storybook/react-vite": "^8.6.12",
     "@storybook/test": "^8.6.12",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
