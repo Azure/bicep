@@ -12,10 +12,9 @@ using Azure.Deployments.Core.EventSources;
 using Azure.Deployments.Core.Exceptions;
 using Azure.Deployments.Core.FeatureEnablement;
 using Azure.Deployments.Core.Telemetry;
-using Azure.Deployments.Engine.Host.Azure.Interfaces;
-using Azure.Deployments.Engine.Host.Azure.Workers.Metadata;
-using Azure.Deployments.Engine.Host.External;
 using Azure.Deployments.Engine.Interfaces;
+using Azure.Deployments.Engine.Workers.Metadata;
+using Azure.Deployments.Engine.External;
 using Azure.Deployments.ResourceMetadata.Contracts;
 using Bicep.Local.Deploy.Extensibility;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
@@ -70,14 +69,6 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         string auxToken)
         => throw new NotImplementedException();
 
-    public override Task<ResourceTypeRegistrationInfo[]> FindRegistrationsForSubscription(
-        string subscriptionId,
-        CancellationToken cancellationToken,
-        string oboToken,
-        string oboCorrelationId,
-        string auxToken)
-        => throw new NotImplementedException();
-
     public override Task<HttpResponseMessage> CallFrontdoorService(
         HttpMethod requestMethod,
         Uri requestUri,
@@ -120,9 +111,6 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
 
     protected override Task<JToken> GetEnvironmentKey()
         => Task.FromResult<JToken>(new JObject());
-
-    public override Task ValidateDeploymentLocationAcceptable(IDeploymentRequestContext deploymentContext, string deploymentLocation, string oboToken, string oboCorrelationId, string auxToken)
-        => Task.CompletedTask;
 
     public override void AddAsyncNotificationUri(HttpRequestHeaders httpHeaders, BackgroundJob backgroundJob, DeploymentResourceJobMetadata deploymentJobMetadata, JobLogger jobLogger)
         => throw new NotImplementedException();
