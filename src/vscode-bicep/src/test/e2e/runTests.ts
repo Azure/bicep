@@ -38,7 +38,7 @@ async function go() {
       const extensionInstallArguments = [
         ...cliArguments,
         "--install-extension",
-        "ms-dotnettools.vscode-dotnet-runtime",
+        "ms-dotnettools.vscode-dotnet-runtime@2.3.1",
         ...userDataArguments,
       ];
       const extensionListArguments = [...cliArguments, "--list-extensions", ...userDataArguments];
