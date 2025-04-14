@@ -17,7 +17,6 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
         private readonly SemanticModel semanticModel;
         private readonly List<PossibleSecret> possibleSecrets = new();
-        private readonly HashSet<TypeSymbol> currentlyProcessing = new();
         private uint trailingAccessExpressions = 0;
 
         /// <summary>
@@ -71,7 +70,8 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
         private static string PossibleSecretMessage(string possibleSecretName) => string.Format(CoreResources.PossibleSecretMessageSecureParam, possibleSecretName);
 
-        private IEnumerable<string> FindPathsToSecureTypeComponents(TypeSymbol type) => type.FindPathsToSecureTypeComponents(currentlyProcessing, trailingAccessExpressions == 0, "");
+        private IEnumerable<string> FindPathsToSecureTypeComponents(TypeSymbol type)
+            => TypeHelper.FindPathsToSecureTypeComponents(type, trailingAccessExpressions > 0);
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
