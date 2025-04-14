@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
@@ -27,12 +27,12 @@ namespace Bicep.Core.Semantics
             this.Context = context;
             this.Syntax = sourceFile.ProgramSyntax;
             this.NamespaceResolver = namespaceResolver;
-            this.FileUri = sourceFile.Uri;
             this.FileKind = sourceFile.FileKind;
             this.LocalScopes = fileScope.ChildScopes;
 
             var declarationsBySyntax = ImmutableDictionary.CreateBuilder<SyntaxBase, DeclaredSymbol>();
             var extensionDeclarations = ImmutableArray.CreateBuilder<ExtensionNamespaceSymbol>();
+            var extensionConfigAssignments = ImmutableArray.CreateBuilder<ExtensionConfigAssignmentSymbol>();
             var metadataDeclarations = ImmutableArray.CreateBuilder<MetadataSymbol>();
             var parameterDeclarations = ImmutableArray.CreateBuilder<ParameterSymbol>();
             var typeDeclarations = ImmutableArray.CreateBuilder<TypeAliasSymbol>();
@@ -58,6 +58,11 @@ namespace Bicep.Core.Semantics
                 {
                     case ExtensionNamespaceSymbol extensionNamespace:
                         extensionDeclarations.Add(extensionNamespace);
+
+                        break;
+                    case ExtensionConfigAssignmentSymbol extensionConfigAssignment:
+                        extensionConfigAssignments.Add(extensionConfigAssignment);
+
                         break;
                     case MetadataSymbol metadata:
                         metadataDeclarations.Add(metadata);
@@ -112,6 +117,7 @@ namespace Bicep.Core.Semantics
 
             DeclarationsBySyntax = declarationsBySyntax.ToImmutable();
             ExtensionDeclarations = extensionDeclarations.ToImmutable();
+            ExtensionConfigAssignments = extensionConfigAssignments.ToImmutable();
             MetadataDeclarations = metadataDeclarations.ToImmutable();
             ParameterDeclarations = parameterDeclarations.ToImmutable();
             TypeDeclarations = typeDeclarations.ToImmutable();
@@ -137,6 +143,7 @@ namespace Bicep.Core.Semantics
         public override IEnumerable<Symbol> Descendants =>
             this.NamespaceResolver.ImplicitNamespaces.Values
             .Concat<Symbol>(this.ExtensionDeclarations)
+            .Concat(this.ExtensionConfigAssignments)
             .Concat(this.LocalScopes)
             .Concat(this.MetadataDeclarations)
             .Concat(this.ParameterDeclarations)
@@ -197,6 +204,8 @@ namespace Bicep.Core.Semantics
 
         public ImmutableArray<ParameterAssignmentSymbol> ParameterAssignments { get; }
 
+        public ImmutableArray<ExtensionConfigAssignmentSymbol> ExtensionConfigAssignments { get; }
+
         public ImmutableArray<ImportedTypeSymbol> ImportedTypes { get; }
 
         public ImmutableArray<ImportedVariableSymbol> ImportedVariables { get; }
@@ -212,8 +221,6 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<WildcardImportSymbol> WildcardImports { get; }
 
         public UsingDeclarationSyntax? UsingDeclarationSyntax => this.usingDeclarationLazy.Value;
-
-        public Uri FileUri { get; }
 
         /// <summary>
         /// Returns all the top-level declaration symbols.

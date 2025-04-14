@@ -1622,7 +1622,7 @@ public class CompileTimeImportTests
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
         var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
-        parameters["intParam"].Should().DeepEqual(9);
+        parameters["intParam"].Value.Should().DeepEqual(9);
     }
 
     [TestMethod]
@@ -1651,7 +1651,7 @@ public class CompileTimeImportTests
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
         var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
-        parameters["intParam"].Should().DeepEqual(9);
+        parameters["intParam"].Value.Should().DeepEqual(9);
     }
 
     [TestMethod]

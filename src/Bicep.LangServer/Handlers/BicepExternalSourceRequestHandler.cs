@@ -7,13 +7,14 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.SourceCode;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceLink;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Telemetry;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using static Bicep.LanguageServer.Telemetry.BicepTelemetryEvent;
+using Bicep.Core.Extensions;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -34,18 +35,15 @@ namespace Bicep.LanguageServer.Handlers
         public const string BicepExternalSourceLspMethodName = "textDocument/bicepExternalSource";
 
         private readonly IModuleDispatcher moduleDispatcher;
-        private readonly IFileResolver fileResolver;
         private readonly ITelemetryProvider telemetryProvider;
         private readonly ISourceFileFactory sourceFileFactory;
 
         public BicepExternalSourceRequestHandler(
             IModuleDispatcher moduleDispatcher,
-            IFileResolver fileResolver,
             ITelemetryProvider telemetryProvider,
             ISourceFileFactory sourceFileFactory)
         {
             this.moduleDispatcher = moduleDispatcher;
-            this.fileResolver = fileResolver;
             this.telemetryProvider = telemetryProvider;
             this.sourceFileFactory = sourceFileFactory;
         }
@@ -63,28 +61,28 @@ namespace Bicep.LanguageServer.Handlers
                     $"The client specified an invalid module reference '{request.Target}'."));
             }
 
-            if (!moduleReference.IsExternal)
+            if (moduleReference is not OciArtifactReference ociModuleReference)
             {
                 telemetryProvider.PostEvent(ExternalSourceRequestFailure("localNotSupported"));
                 return Task.FromResult(new BicepExternalSourceResponse(null,
                     $"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepExternalSourceLspMethodName} requests."));
             }
 
-            if (!moduleDispatcher.TryGetLocalArtifactEntryPointUri(moduleReference).IsSuccess(out var compiledJsonUri))
+            if (!moduleDispatcher.TryGetLocalArtifactEntryPointUri(moduleReference).IsSuccess())
             {
                 telemetryProvider.PostEvent(ExternalSourceRequestFailure(nameof(moduleDispatcher.TryGetLocalArtifactEntryPointUri)));
                 return Task.FromResult(new BicepExternalSourceResponse(null,
                     $"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'."));
             }
 
-            var success = moduleDispatcher.TryGetModuleSources(moduleReference).IsSuccess(out var sourceArchive, out var ex);
+            var success = ociModuleReference.TryLoadSourceArchive().IsSuccess(out var sourceArchive, out var ex);
 
             if (request.requestedSourceFile is { })
             {
                 if (success)
                 {
                     Debug.Assert(sourceArchive is { });
-                    var requestedFile = sourceArchive.FindExpectedSourceFile(request.requestedSourceFile);
+                    var requestedFile = sourceArchive.FindSourceFile(request.requestedSourceFile);
                     telemetryProvider.PostEvent(CreateSuccessTelemetry(sourceArchive, request.requestedSourceFile));
                     return Task.FromResult(new BicepExternalSourceResponse(requestedFile.Contents));
                 }
@@ -102,10 +100,10 @@ namespace Bicep.LanguageServer.Handlers
 
             // No sources available, or specifically requesting the compiled main.json (requestedSourceFile=null).
             // Return the compiled JSON (main.json).
-            if (!this.fileResolver.TryRead(compiledJsonUri).IsSuccess(out var contents, out var failureBuilder))
+            if (!ociModuleReference.ModuleEntryPointFile.TryReadAllText().IsSuccess(out var contents, out var failureBuilder))
             {
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
-                return Task.FromResult(new BicepExternalSourceResponse(null, $"Unable to read file '{compiledJsonUri}'. {message}"));
+                return Task.FromResult(new BicepExternalSourceResponse(null, $"Unable to read file '{ociModuleReference.ModuleEntryPointFile.Uri}'. {message}"));
             }
 
             telemetryProvider.PostEvent(CreateSuccessTelemetry(sourceArchive, request.requestedSourceFile));
@@ -138,7 +136,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             return ExternalSourceRequestSuccess(
                 hasSource: sourceArchive is not null,
-                archiveFilesCount: sourceArchive?.SourceFiles.Length ?? 0,
+                archiveFilesCount: sourceArchive?.SourceFileCount ?? 0,
                 fileExtension: Path.GetExtension(requestedSourceFile) ?? (requestedSourceFile is null ? ".json" : string.Empty),
                 requestType: requestedSourceFile switch
                 {

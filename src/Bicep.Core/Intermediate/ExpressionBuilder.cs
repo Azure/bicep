@@ -10,11 +10,11 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.Workspaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using static Bicep.Core.Emit.ScopeHelper;
 
@@ -36,6 +36,7 @@ public class ExpressionBuilder
     private static readonly ImmutableHashSet<string> ModulePropertiesToOmit = [
         AzResourceTypeProvider.ResourceNamePropertyName,
         LanguageConstants.ModuleParamsPropertyName,
+        LanguageConstants.ModuleExtensionConfigsPropertyName,
         LanguageConstants.ResourceScopePropertyName,
         LanguageConstants.ResourceDependsOnPropertyName,
     ];
@@ -567,7 +568,9 @@ public class ExpressionBuilder
             .Select(ConvertObjectProperty)
             .Append(CreateModuleNameExpression(symbol, objectBody));
         Expression bodyExpression = new ObjectExpression(body, properties.ToImmutableArray());
+
         var parameters = objectBody.TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName);
+        var extensionConfigs = objectBody.TryGetPropertyByName(LanguageConstants.ModuleExtensionConfigsPropertyName);
 
         if (condition is not null)
         {
@@ -591,6 +594,7 @@ public class ExpressionBuilder
             body,
             bodyExpression,
             parameters is not null ? ConvertWithoutLowering(parameters.Value) : null,
+            extensionConfigs is not null ? ConvertWithoutLowering(extensionConfigs.Value) : null,
             BuildDependencyExpressions(symbol, body));
     }
 
@@ -601,7 +605,7 @@ public class ExpressionBuilder
             .SelectMany(g => g.FirstOrDefault(t => t.Target.IndexExpression is null) is { } dependencyOnCollection
                 ? dependencyOnCollection.AsEnumerable()
                 : g.Distinct(t => t.Target))
-            .OrderBy(t => t.Target.Resource.Name)  // order to generate a deterministic template
+            .OrderBy(t => t.TargetKey)  // order to generate a deterministic template
             .Select(t => t.Expression)
             .ToImmutableArray();
 
@@ -709,7 +713,8 @@ public class ExpressionBuilder
             Context.ResourceScopeData[resource],
             body,
             bodyExpression,
-            BuildDependencyExpressions(resource.Symbol, body));
+            BuildDependencyExpressions(resource.Symbol, body),
+            ImmutableDictionary<string, ArrayExpression>.Empty);
     }
 
     private Expression ConvertArray(ArraySyntax array)
@@ -1063,8 +1068,6 @@ public class ExpressionBuilder
 
     private Expression ConvertVariableAccess(VariableAccessSyntax variableAccessSyntax)
     {
-        var name = variableAccessSyntax.Name.IdentifierName;
-
         var symbol = Context.SemanticModel.GetSymbolInfo(variableAccessSyntax);
 
         switch (symbol)
@@ -1076,12 +1079,22 @@ public class ExpressionBuilder
                 return new ParametersReferenceExpression(variableAccessSyntax, parameterSymbol);
 
             case ParameterAssignmentSymbol parameterSymbol:
+                if (Context.ExternalInputReferences.ParametersReferences.Contains(parameterSymbol))
+                {
+                    // we're evaluating a parameter that has an external input function reference, so inline it
+                    return ConvertWithoutLowering(parameterSymbol.DeclaringParameterAssignment.Value);
+                }
                 return new ParametersAssignmentReferenceExpression(variableAccessSyntax, parameterSymbol);
 
+            case ExtensionConfigAssignmentSymbol extensionConfigAssignmentSymbol:
+                return new ExtensionConfigAssignmentReferenceExpression(variableAccessSyntax, extensionConfigAssignmentSymbol);
+
             case VariableSymbol variableSymbol:
-                if (Context.VariablesToInline.Contains(variableSymbol))
+                if (Context.VariablesToInline.Contains(variableSymbol) ||
+                    Context.ExternalInputReferences.VariablesReferences.Contains(variableSymbol))
                 {
-                    // we've got a runtime dependency, so we have to inline the variable usage
+                    // we've got a runtime dependency, or we're evaluating a variable that has an external input function reference,
+                    // so we have to inline the variable usage
                     return ConvertWithoutLowering(variableSymbol.DeclaringVariable.Value);
                 }
 
@@ -1275,6 +1288,7 @@ public class ExpressionBuilder
     }
 
     private record DependencyExpression(
+        string TargetKey, // Used for sorting.
         ResourceDependency Target,
         ResourceDependencyExpression Expression);
 
@@ -1287,6 +1301,7 @@ public class ExpressionBuilder
         {
             Expression reference;
             ResourceDependency target;
+            string targetKey;
             var localReplacements = this.localReplacements;
             var allNodesInPathAccessCopyIndex = true;
 
@@ -1294,6 +1309,7 @@ public class ExpressionBuilder
             do
             {
                 target = path[i];
+                targetKey = target.Resource.Name;
                 var targetContext = i == 0 ? newContext : path[i - 1].Resource.DeclaringSyntax;
                 IndexReplacementContext? indexContext = null;
 
@@ -1304,6 +1320,7 @@ public class ExpressionBuilder
                             var metadata = Context.SemanticModel.ResourceMetadata.TryLookup(resource.DeclaringSyntax) as DeclaredResourceMetadata
                                 ?? throw new InvalidOperationException("Failed to find resource in cache");
 
+                            targetKey = ExpressionConverter.GetSymbolicName(Context.SemanticModel.ResourceAncestors, metadata);
                             indexContext = (resource.IsCollection && target.IndexExpression is null)
                                 ? null
                                 : new ExpressionBuilder(Context, localReplacements)
@@ -1352,7 +1369,7 @@ public class ExpressionBuilder
                 allNodesInPathAccessCopyIndex = allNodesInPathAccessCopyIndex && copyIndexAccesses.Length > 0;
             } while (++i < path.Length);
 
-            yield return new(target, new(null, reference));
+            yield return new(targetKey, target, new(null, reference));
         }
     }
 
@@ -1617,6 +1634,11 @@ public class ExpressionBuilder
                     var indexContext = TryGetReplacementContext(scopeData.ResourceGroupProperty, scopeData.IndexExpression, newContext);
                     expressionEmitter.EmitProperty("resourceGroup", () => expressionEmitter.EmitExpression(scopeData.ResourceGroupProperty, indexContext));
                 }
+                return;
+            case ResourceScope.DesiredStateConfiguration:
+            case ResourceScope.Local:
+                // These scopes just changes the schema so there are no properties to emit.
+                // We don't ever need to throw here because the feature is checked during scope validation.
                 return;
             default:
                 throw new InvalidOperationException($"Cannot format resourceId for scope {scopeData.RequestedScope}");

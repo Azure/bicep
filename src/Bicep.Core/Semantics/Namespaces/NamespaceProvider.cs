@@ -10,6 +10,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
@@ -18,7 +19,6 @@ using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Providers.MicrosoftGraph;
 using Bicep.Core.TypeSystem.Providers.ThirdParty;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics.Namespaces;
 
@@ -159,7 +159,13 @@ public class NamespaceProvider : INamespaceProvider
 
         if (LanguageConstants.IdentifierComparer.Equals(extensionName, AzNamespaceType.BuiltInName))
         {
-            return AzNamespaceType.Create(aliasName, targetScope, resourceTypeProviderFactory.GetBuiltInAzResourceTypesProvider(), sourceFile.FileKind);
+            var typeProvider = targetScope switch
+            {
+                ResourceScope.Local => new EmptyResourceTypeProvider(),
+                _ => resourceTypeProviderFactory.GetBuiltInAzResourceTypesProvider(),
+            };
+
+            return AzNamespaceType.Create(aliasName, targetScope, typeProvider, sourceFile.FileKind);
         }
 
         if (LanguageConstants.IdentifierComparer.Equals(extensionName, K8sNamespaceType.BuiltInName))

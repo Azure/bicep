@@ -187,6 +187,24 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to External input function.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_ExternalInputFunction {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_ExternalInputFunction", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enable OnlyIfNotExists feature.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_OnlyIfNotExists {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_OnlyIfNotExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Resource-derived types.
         /// </summary>
         internal static string ExperimentalFeatureNames_ResourceDerivedTypes {
@@ -210,15 +228,6 @@ namespace Bicep.Core {
         internal static string ExperimentalFeatureNames_ResourceTypedParamsAndOutputs {
             get {
                 return ResourceManager.GetString("ExperimentalFeatureNames_ResourceTypedParamsAndOutputs", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Secure outputs.
-        /// </summary>
-        internal static string ExperimentalFeatureNames_SecureOutputs {
-            get {
-                return ResourceManager.GetString("ExperimentalFeatureNames_SecureOutputs", resourceCulture);
             }
         }
         

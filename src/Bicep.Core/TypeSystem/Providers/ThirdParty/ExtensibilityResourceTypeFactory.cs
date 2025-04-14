@@ -135,7 +135,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                     return TypeFactory.CreateStringType(
                         @string.MinLength,
                         @string.MaxLength,
-                        @string.Pattern);
+                        TypeHelper.AsOptionalValidFiniteRegexPattern(@string.Pattern));
                 case Azure.Bicep.Types.Concrete.BuiltInType builtInType:
                     return builtInType.Kind switch
                     {
@@ -224,7 +224,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
         {
             if (input == Azure.Bicep.Types.Concrete.ScopeType.Unknown)
             {
-                return ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource;
+                return ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource | ResourceScope.Local;
             }
 
             var output = ResourceScope.None;

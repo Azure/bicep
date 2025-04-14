@@ -12,8 +12,8 @@ using Bicep.Core.Exceptions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
-using Bicep.Core.SourceCode;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceLink;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
@@ -78,19 +78,16 @@ namespace Bicep.Cli.Commands
             }
 
             // Handle publishing source
-            Stream? sourcesStream = null;
+            SourceArchive? sourceArchive = null;
             if (publishSource)
             {
-                sourcesStream = SourceArchive.PackSourcesIntoStream(moduleDispatcher, compilation.SourceFileGrouping, compilation.GetEntrypointSemanticModel().Features.CacheRootDirectory);
+                sourceArchive = SourceArchive.CreateFor(compilation.SourceFileGrouping);
                 Trace.WriteLine("Publishing Bicep module with source");
             }
 
-            using (sourcesStream)
-            {
-                Trace.WriteLine(sourcesStream is { } ? "Publishing Bicep module with source" : "Publishing Bicep module without source");
-                var sourcesPayload = sourcesStream is { } ? BinaryData.FromStream(sourcesStream) : null;
-                await this.PublishModuleAsync(moduleReference, BinaryData.FromString(compiledArmTemplate), sourcesPayload, documentationUri, overwriteIfExists);
-            }
+            Trace.WriteLine(sourceArchive is { } ? "Publishing Bicep module with source" : "Publishing Bicep module without source");
+            var sourcesPayload = sourceArchive is { } ? sourceArchive.PackIntoBinaryData() : null;
+            await this.PublishModuleAsync(moduleReference, BinaryData.FromString(compiledArmTemplate), sourcesPayload, documentationUri, overwriteIfExists);
 
             return 0;
         }

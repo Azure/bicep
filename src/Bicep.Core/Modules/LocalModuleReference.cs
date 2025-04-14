@@ -6,7 +6,6 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Modules
@@ -30,7 +29,7 @@ namespace Bicep.Core.Modules
         /// <summary>
         /// Gets the relative path to the module.
         /// </summary>
-        public string Path { get; }
+        public RelativePath Path { get; }
 
         public override bool Equals(object? obj)
         {

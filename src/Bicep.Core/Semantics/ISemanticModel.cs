@@ -13,6 +13,8 @@ namespace Bicep.Core.Semantics
 
         ImmutableSortedDictionary<string, ParameterMetadata> Parameters { get; }
 
+        ImmutableSortedDictionary<string, ExtensionMetadata> Extensions { get; }
+
         ImmutableSortedDictionary<string, ExportMetadata> Exports { get; }
 
         ImmutableArray<OutputMetadata> Outputs { get; }

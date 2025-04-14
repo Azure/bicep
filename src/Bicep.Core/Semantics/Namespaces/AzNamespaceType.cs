@@ -8,12 +8,12 @@ using Azure.Deployments.Core.Definitions.Identifiers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics.Namespaces
 {
@@ -284,7 +284,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithDescription("Returns a named subscription scope.")
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
                     .Build(),
-                ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
+                ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Local);
 
             const string resourceGroupGenericDescription = "Returns a resource group scope.";
             yield return (
@@ -310,7 +310,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
                     .Build(),
-                ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
+                ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Local);
 
             yield return (
                 new FunctionOverloadBuilder("deployment")
@@ -524,12 +524,12 @@ namespace Bicep.Core.Semantics.Namespaces
 
             foreach (var overload in GetBicepFilePermittedOverloads())
             {
-                yield return new(overload, (_, sfk) => sfk == BicepSourceFileKind.BicepFile);
+                yield return new(overload, (targetScope, sfk) => sfk == BicepSourceFileKind.BicepFile && targetScope != ResourceScope.Local);
             }
 
             foreach (var overload in GetParamsFilePermittedOverloads())
             {
-                yield return new(overload, (_, sfk) => sfk == BicepSourceFileKind.ParamsFile);
+                yield return new(overload, (targetScope, sfk) => sfk == BicepSourceFileKind.ParamsFile && targetScope != ResourceScope.Local);
             }
 
             foreach (var (overload, allowedScopes) in GetScopeFunctions())

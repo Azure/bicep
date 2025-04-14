@@ -7,12 +7,14 @@ using System.Reactive.Linq;
 using System.Reflection;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceLink;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Handlers;
 using FluentAssertions;
@@ -49,15 +51,31 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         // If entrypointSource is not null, then a source archive will be created with the given entrypointSource, otherwise no source archive will be created.
-        private SharedLanguageHelperManager CreateServer(Uri? bicepModuleEntrypoint, string? entrypointSource, ResultWithException<SourceArchive>? sourceArchiveResult = null)
+        private SharedLanguageHelperManager CreateServer(Uri? bicepModuleEntrypoint, string? entrypointSource, string? sourceArchiveError = null)
         {
-            var moduleRegistry = StrictMock.Of<IArtifactRegistry>();
+            var sourceTgzFileMock = StrictMock.Of<IFileHandle>();
+            sourceTgzFileMock.Setup(x => x.Exists()).Returns(false);
+
             if (bicepModuleEntrypoint is not null && entrypointSource is not null)
             {
-                sourceArchiveResult ??= new(new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).WithBicepFile(bicepModuleEntrypoint, entrypointSource).Build());
+                var sourceArchive = new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).WithBicepFile(bicepModuleEntrypoint, entrypointSource).Build();
+                sourceTgzFileMock.Setup(x => x.Exists()).Returns(true);
+
+                if (sourceArchiveError is not null)
+                {
+                    sourceTgzFileMock.Setup(x => x.OpenRead()).Throws(new Exception(sourceArchiveError));
+                }
+                else
+                {
+                    sourceTgzFileMock.Setup(x => x.OpenRead()).Returns(sourceArchive.PackIntoBinaryData().ToStream());
+                }
             }
-            sourceArchiveResult ??= new(new SourceNotAvailableException());
-            moduleRegistry.Setup(m => m.TryGetSource(It.IsAny<ArtifactReference>())).Returns(sourceArchiveResult);
+
+            var cacheDirectoryMock = StrictMock.Of<IDirectoryHandle>();
+            cacheDirectoryMock.Setup(x => x.GetFile("source.tgz")).Returns(sourceTgzFileMock.Object);
+
+            var cacheRootDirectoryMock = StrictMock.Of<IDirectoryHandle>();
+            cacheRootDirectoryMock.Setup(x => x.GetDirectory(It.IsAny<string>())).Returns(cacheDirectoryMock.Object);
 
             var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
             moduleDispatcher.Setup(x => x.RestoreArtifacts(It.IsAny<ImmutableArray<ArtifactReference>>(), It.IsAny<bool>())).
@@ -67,18 +85,13 @@ namespace Bicep.LangServer.IntegrationTests
             MockRepository repository = new(MockBehavior.Strict);
             var provider = repository.Create<IArtifactRegistryProvider>();
 
-            var artifactRegistries = moduleRegistry.Object.AsArray();
-
-            moduleDispatcher.Setup(m => m.TryGetModuleSources(It.IsAny<ArtifactReference>())).Returns((ArtifactReference reference) =>
-                artifactRegistries.Select(r => r.TryGetSource(reference)).FirstOrDefault(s => s is not null) ?? new(new SourceNotAvailableException()));
-
             var defaultServer = new SharedLanguageHelperManager();
             defaultServer.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     TestContext,
                     services => services
                         .WithModuleDispatcher(moduleDispatcher.Object)
-                        .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true))));
+                        .WithFeatureOverrides(new(cacheRootDirectoryMock.Object, ExtensibilityEnabled: true))));
             return defaultServer;
         }
 
@@ -239,8 +252,7 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From($"{ROOT}{this.TestContext.TestName}");
             var moduleEntrypointUri = DocumentUri.From($"{ROOT}module entrypoint.bicep");
 
-            var sourceArchiveResult = new ResultWithException<SourceArchive>(new Exception("Source archive is incompatible with this version of Bicep."));
-            await using var server = CreateServer(moduleEntrypointUri.ToUriEncoded(), "// module entrypoint", sourceArchiveResult);
+            await using var server = CreateServer(moduleEntrypointUri.ToUriEncoded(), "// module entrypoint", sourceArchiveError: "Source archive is incompatible with this version of Bicep.");
             var helper = await server.GetAsync();
             await helper.OpenFileOnceAsync(this.TestContext, string.Empty, uri);
 

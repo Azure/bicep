@@ -1,8 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Reflection;
+using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax.Comparers;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Syntax;
@@ -76,5 +80,21 @@ public static class SyntaxExtensions
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Checks recursively for secure values/secrets in output. If so, the output is marked as secure.
+    /// </summary>
+    public static bool IsSecureOutput(this OutputDeclarationSyntax syntax, SemanticModel model)
+    {
+        return FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(model, syntax).Any();
+    }
+
+    /// <summary>
+    /// Checks for secure decorator in output decleration.
+    /// </summary>
+    public static bool HasSecureDecorator(this DecorableSyntax syntax, IBinder binder, ITypeManager typeManager)
+    {
+        return SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSecurePropertyName) is not null;
     }
 }

@@ -6,9 +6,12 @@ using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Local.Deploy;
 using Bicep.Local.Deploy.Extensibility;
@@ -21,6 +24,8 @@ namespace Bicep.Cli.Commands;
 public class LocalDeployCommand : ICommand
 {
     private readonly IModuleDispatcher moduleDispatcher;
+    private readonly IConfigurationManager configurationManager;
+    private readonly ITokenCredentialFactory credentialFactory;
     private readonly IOContext io;
     private readonly ILogger logger;
     private readonly DiagnosticLogger diagnosticLogger;
@@ -28,12 +33,16 @@ public class LocalDeployCommand : ICommand
 
     public LocalDeployCommand(
         IModuleDispatcher moduleDispatcher,
+        IConfigurationManager configurationManager,
+        ITokenCredentialFactory credentialFactory,
         IOContext io,
         ILogger logger,
         DiagnosticLogger diagnosticLogger,
         BicepCompiler compiler)
     {
         this.moduleDispatcher = moduleDispatcher;
+        this.configurationManager = configurationManager;
+        this.credentialFactory = credentialFactory;
         this.io = io;
         this.logger = logger;
         this.diagnosticLogger = diagnosticLogger;
@@ -65,16 +74,22 @@ public class LocalDeployCommand : ICommand
             return 1;
         }
 
-        await using LocalExtensibilityHostManager extensibilityHandler = new(moduleDispatcher, GrpcBuiltInLocalExtension.Start);
-        await extensibilityHandler.InitializeExtensions(compilation);
+        if (compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var usingModel) &&
+            usingModel.TargetScope is not ResourceScope.Local)
+        {
+            logger.LogError($"The referenced .bicep file must have targetScope set to 'local'.");
+            return 1;
+        }
 
-        var result = await LocalDeployment.Deploy(extensibilityHandler, templateString, parametersString, cancellationToken);
+        await using LocalExtensibilityHostManager extensibilityHandler = new(moduleDispatcher, configurationManager, credentialFactory, GrpcBuiltInLocalExtension.Start);
+        await extensibilityHandler.InitializeExtensions(compilation);
+        var result = await extensibilityHandler.Deploy(templateString, parametersString, cancellationToken);
 
         await WriteSummary(result);
         return 0;
     }
 
-    private async Task WriteSummary(LocalDeployment.Result result)
+    private async Task WriteSummary(LocalDeploymentResult result)
     {
         if (result.Deployment.Properties.Outputs is { } outputs)
         {

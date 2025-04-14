@@ -3,8 +3,8 @@
 
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics.Namespaces;
 

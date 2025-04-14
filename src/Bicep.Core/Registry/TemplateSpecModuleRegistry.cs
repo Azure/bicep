@@ -9,10 +9,10 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Semantics;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceLink;
 using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Registry
@@ -127,11 +127,6 @@ namespace Bicep.Core.Registry
             }
 
             return Task.FromResult<string?>(null);
-        }
-
-        public override ResultWithException<SourceArchive> TryGetSource(TemplateSpecModuleReference reference)
-        {
-            return new(new SourceNotAvailableException());
         }
 
         public override Uri? TryGetExtensionBinary(TemplateSpecModuleReference reference)

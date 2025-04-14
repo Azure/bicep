@@ -74,7 +74,6 @@ namespace Bicep.Core.UnitTests.Configuration
               "no-hardcoded-env-urls": {
                 "level": "warning",
                 "disallowedhosts": [
-                  "api.loganalytics.io",
                   "azuredatalakeanalytics.net",
                   "azuredatalakestore.net",
                   "batch.core.windows.net",
@@ -86,8 +85,6 @@ namespace Bicep.Core.UnitTests.Configuration
                   "login.microsoftonline.com",
                   "management.azure.com",
                   "management.core.windows.net",
-                  "region.asazure.windows.net",
-                  "trafficmanager.net",
                   "vault.azure.net"
                 ],
                 "excludedhosts": [
@@ -109,9 +106,11 @@ namespace Bicep.Core.UnitTests.Configuration
           "assertions": false,
           "waitAndRetry": false,
           "localDeploy": false,
-          "secureOutputs": false,
           "resourceInfoCodegen": false,
-          "typedVariables": false
+          "typedVariables": false,
+          "desiredStateConfiguration": false,
+          "externalInputFunction": false,
+          "onlyIfNotExists": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -190,10 +189,12 @@ namespace Bicep.Core.UnitTests.Configuration
           "assertions": false,
           "waitAndRetry": false,
           "localDeploy": false,
-          "secureOutputs": false,
           "resourceInfoCodegen": false,
           "typedVariables": false,
-          "moduleExtensionConfigs": false
+          "moduleExtensionConfigs": false,
+          "desiredStateConfiguration": false,
+          "externalInputFunction": false,
+          "onlyIfNotExists": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -260,7 +261,6 @@ namespace Bicep.Core.UnitTests.Configuration
               "no-hardcoded-env-urls": {
                 "level": "off",
                 "disallowedhosts": [
-                  "api.loganalytics.io",
                   "azuredatalakeanalytics.net",
                   "azuredatalakestore.net",
                   "batch.core.windows.net",
@@ -272,8 +272,6 @@ namespace Bicep.Core.UnitTests.Configuration
                   "login.microsoftonline.com",
                   "management.azure.com",
                   "management.core.windows.net",
-                  "region.asazure.windows.net",
-                  "trafficmanager.net",
                   "vault.azure.net"
                 ],
                 "excludedhosts": [
@@ -297,10 +295,12 @@ namespace Bicep.Core.UnitTests.Configuration
           "assertions": false,
           "waitAndRetry": false,
           "localDeploy": false,
-          "secureOutputs": false,
           "resourceInfoCodegen": false,
           "typedVariables": false,
-          "moduleExtensionConfigs": false
+          "moduleExtensionConfigs": false,
+          "desiredStateConfiguration": false,
+          "externalInputFunction": false,
+          "onlyIfNotExists": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -390,10 +390,12 @@ namespace Bicep.Core.UnitTests.Configuration
                 Assertions: false,
                 WaitAndRetry: false,
                 LocalDeploy: false,
-                SecureOutputs: false,
                 ResourceInfoCodegen: false,
                 TypedVariables: false,
-                ModuleExtensionConfigs: false);
+                ModuleExtensionConfigs: false,
+                DesiredStateConfiguration: false,
+                ExternalInputFunction: false,
+                OnlyIfNotExists: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -442,7 +444,6 @@ namespace Bicep.Core.UnitTests.Configuration
                     "no-hardcoded-env-urls": {
                     "level": "warning",
                     "disallowedhosts": [
-                        "api.loganalytics.io",
                         "azuredatalakeanalytics.net",
                         "azuredatalakestore.net",
                         "batch.core.windows.net",
@@ -454,8 +455,6 @@ namespace Bicep.Core.UnitTests.Configuration
                         "login.microsoftonline.com",
                         "management.azure.com",
                         "management.core.windows.net",
-                        "region.asazure.windows.net",
-                        "trafficmanager.net",
                         "vault.azure.net"
                     ],
                     "excludedhosts": [
@@ -476,10 +475,12 @@ namespace Bicep.Core.UnitTests.Configuration
                 "assertions": false,
                 "waitAndRetry": false,
                 "localDeploy": false,
-                "secureOutputs": false,
                 "resourceInfoCodegen": false,
                 "typedVariables": false,
-                "moduleExtensionConfigs": false
+                "moduleExtensionConfigs": false,
+                "desiredStateConfiguration": false,
+                "externalInputFunction": false,
+                "onlyIfNotExists": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -721,9 +722,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 "azuredatalakestore.net",
                 "azuredatalakeanalytics.net",
                 "vault.azure.net",
-                "api.loganalytics.io",
                 "asazure.windows.net",
-                "region.asazure.windows.net",
                 "batch.core.windows.net"
                 ]
             }
@@ -824,9 +823,7 @@ namespace Bicep.Core.UnitTests.Configuration
                   "azuredatalakestore.net",
                   "azuredatalakeanalytics.net",
                   "vault.azure.net",
-                  "api.loganalytics.io",
                   "asazure.windows.net",
-                  "region.asazure.windows.net",
                   "batch.core.windows.net"
                 ],
                 "excludedhosts": [
@@ -848,10 +845,12 @@ namespace Bicep.Core.UnitTests.Configuration
           "assertions": false,
           "waitAndRetry": false,
           "localDeploy": false,
-          "secureOutputs": false,
           "resourceInfoCodegen": false,
           "typedVariables": false,
-          "moduleExtensionConfigs": false
+          "moduleExtensionConfigs": false,
+          "desiredStateConfiguration": false,
+          "externalInputFunction": false,
+          "onlyIfNotExists": false
         },
         "formatting": {
           "indentKind": "Space",

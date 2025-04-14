@@ -14,12 +14,12 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Extensions;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceLink;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Registry;
-using Bicep.Core.Workspaces;
 using Bicep.IO.FileSystem;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -148,8 +148,7 @@ public static class RegistryHelper
             throw new InvalidOperationException($"Module {module.ModuleName} failed to produce a template.");
         }
 
-        var features = featureProviderFactory.GetFeatureProvider(result.BicepFile.Uri);
-        BinaryData? sourcesStream = module.WithSource ? BinaryData.FromStream(SourceArchive.PackSourcesIntoStream(dispatcher, result.Compilation.SourceFileGrouping, features.CacheRootDirectory)) : null;
+        BinaryData? sourcesStream = module.WithSource ? SourceArchive.CreateFor(result.Compilation.SourceFileGrouping).PackIntoBinaryData() : null;
         await dispatcher.PublishModule(targetReference, BinaryData.FromString(result.Template.ToString()), sourcesStream, module.DocumentationUri);
     }
 

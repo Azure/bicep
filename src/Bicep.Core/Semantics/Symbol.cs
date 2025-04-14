@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 using System.Diagnostics;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Semantics
 {

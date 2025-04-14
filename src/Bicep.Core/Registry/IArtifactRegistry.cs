@@ -3,9 +3,9 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceLink;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Registry
 {
@@ -96,13 +96,6 @@ namespace Bicep.Core.Registry
         /// Returns description for a module.
         /// </summary>
         Task<string?> TryGetModuleDescription(ModuleSymbol module, ArtifactReference reference);
-
-        /// <summary>
-        /// Returns the source code for the module, if available.
-        /// </summary>
-        /// <param name="reference">The module reference</param>
-        /// <returns>A source archive</returns>
-        ResultWithException<SourceArchive> TryGetSource(ArtifactReference reference);
 
         Uri? TryGetExtensionBinary(ArtifactReference reference);
     }

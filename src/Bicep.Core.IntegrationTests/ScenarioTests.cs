@@ -2402,8 +2402,8 @@ output deployedTopics array = [for (topicName, i) in topics: {
         result.Template!.Should().HaveValueAtPath("$.outputs.deployedTopics.copy.input", new JObject
         {
             ["name"] = "[variables('topics')[copyIndex()]]",
-            ["accessKey1"] = "[listKeys(resourceId('Microsoft.EventGrid/topics', 'myExistingEventGridTopic'), '2021-06-01-preview').key1]",
-            ["accessKey2"] = "[listKeys(resourceId('Microsoft.EventGrid/topics', format('{0}-ZZZ', variables('topics')[copyIndex()])), '2021-06-01-preview').key1]"
+            ["accessKey1"] = "[listKeys('testR', '2021-06-01-preview').key1]",
+            ["accessKey2"] = "[listKeys(format('eventGridTopics[{0}]', copyIndex()), '2021-06-01-preview').key1]"
         });
     }
 
@@ -2954,7 +2954,7 @@ output badResult object = {
 
         result.Template.Should().HaveValueAtPath("$.outputs['badResult'].value", new JObject
         {
-            ["value"] = "[listAnything(resourceId('Microsoft.Storage/storageAccounts', parameters('storageName')), '2021-04-01').keys[0].value]",
+            ["value"] = "[listAnything('stg', '2021-04-01').keys[0].value]",
         });
     }
 
@@ -6321,14 +6321,11 @@ param p invalidRecursiveObjectType = {}
         ]);
     }
 
-    [DataTestMethod]
-    [DataRow(true)]
-    [DataRow(false)]
+    [TestMethod]
     // https://github.com/azure/bicep/issues/13596
-    public void Test_Issue13596(bool enableSymbolicNameCodegen)
+    public void Test_Issue13596()
     {
         var result = CompilationHelper.Compile(
-            new ServiceBuilder().WithFeatureOverrides(new(SymbolicNameCodegenEnabled: enableSymbolicNameCodegen)),
             ("main.bicep", """
                 module mod 'empty.bicep' = {
                   name: 'mod'
@@ -6352,15 +6349,7 @@ param p invalidRecursiveObjectType = {}
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         result.Template.Should().NotBeNull();
-
-        if (enableSymbolicNameCodegen)
-        {
-            result.Template.Should().HaveJsonAtPath("$.resources.secret.dependsOn", """["mod"]""");
-        }
-        else
-        {
-            result.Template.Should().HaveJsonAtPath("$.resources[?(@.name=='vault/secret')].dependsOn", """["[resourceId('Microsoft.Resources/deployments', 'mod')]"]""");
-        }
+        result.Template.Should().HaveJsonAtPath("$.resources.secret.dependsOn", """["mod"]""");
     }
 
     [TestMethod]
@@ -7004,5 +6993,220 @@ var subnetId = vNet::subnets[0].id
             """);
 
         result.Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/azure/bicep/issues/16332
+    [TestMethod]
+    public void DependsOn_order_is_deterministic_for_hierarchical_resource_symbolic_names()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(SymbolicNameCodegenEnabled: true)), """
+                resource keyVaultOne 'Microsoft.KeyVault/vaults@2019-09-01' = {
+                  name: 'vault1'
+                  location: 'westus'
+                  properties: {
+                    sku: {
+                      name: 'standard'
+                      family: 'A'
+                    }
+                    tenantId: '00000000-0000-0000-0000-000000000000'
+                  }
+                  
+                  resource secret 'secrets' = {
+                    name: 'secret'
+                    properties: {}
+                  }
+                }
+
+                resource keyVaultTwo 'Microsoft.KeyVault/vaults@2019-09-01' = {
+                  name: 'vault2'
+                  location: 'westus'
+                  properties: {
+                    sku: {
+                      name: 'standard'
+                      family: 'A'
+                    }
+                    tenantId: '00000000-0000-0000-0000-000000000000'
+                  }
+                  
+                  resource secret 'secrets' = {
+                    name: 'secret'
+                    properties: {}
+                  }
+                }
+
+                resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' = {
+                    name: 'storage'
+                    location: 'westus'
+                    sku: {
+                        name: 'Premium_LRS'
+                    }
+                    kind: 'StorageV2'
+                    tags: {
+                        key1: keyVaultTwo::secret.name
+                        key2: keyVaultOne::secret.name
+                    }
+                }
+                """);
+
+            result.Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.resources.sa.dependsOn[0]", "keyVaultOne::secret");
+            result.Template.Should().HaveValueAtPath("$.resources.sa.dependsOn[1]", "keyVaultTwo::secret");
+        }
+    }
+
+    // https://github.com/azure/bicep/issues/16664
+    [TestMethod]
+    public void DependsOn_on_existing_resource_triggers_languageVersion_2()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                module empty 'empty.bicep' = {
+                  name: 'foo'
+                }
+                
+                resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
+                  name: 'storage'
+                  dependsOn: [
+                    empty
+                  ]
+                }
+                """),
+            ("empty.bicep", string.Empty));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("$.languageVersion", "2.0");
+        result.Template.Should().HaveJsonAtPath("$.resources.sa.dependsOn", """["empty"]""");
+    }
+
+    [TestMethod]
+    public void Non_spec_compliant_provider_sourced_regexes_degrade_gracefully()
+    {
+        var result = CompilationHelper.Compile("""
+            param name string
+            param location string = resourceGroup().location
+            param sku object
+            param administratorLogin string
+            @secure()
+            param administratorLoginPassword string
+            param version string
+
+            resource mysqlServer 'Microsoft.DBforMySQL/flexibleServers@2023-06-30' = {
+              name: name
+              location: location
+              sku: sku
+              properties: {
+                version: version
+                administratorLogin: administratorLogin
+                administratorLoginPassword: administratorLoginPassword
+              }
+
+              resource firewall_all 'firewallRules' = {
+                name: 'allow-all-IPs'
+                properties: {
+                  startIpAddress: '0.0.0.0'
+                  endIpAddress: '255.255.255.255'
+                }
+              }
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Wrong_parameter_structure_to_buildUri_function_should_emit_diagnostics()
+    {
+        var result = CompilationHelper.Compile("""
+            var components = {
+              scheme: 'https'
+              host2: 'example.com'
+            }
+
+            var uri = buildUri(components)
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+            [
+                ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"host\"."),
+                ("BCP089", DiagnosticLevel.Error, "The property \"host2\" is not allowed on objects of type \"parseUri\". Did you mean \"host\"?")
+            ]);
+    }
+
+    [TestMethod]
+    public void Correct_parameter_structure_to_buildUri_function_should_not_emit_diagnostics()
+    {
+        var result = CompilationHelper.Compile("""
+        var components = {
+          scheme: 'https'
+          host: 'example.com'
+        }
+
+        var uri = buildUri(components)
+        """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/azure/bicep/issues/16816
+    [TestMethod]
+    public void Test_Issue16816()
+    {
+        var result = CompilationHelper.Compile(
+            ("empty.bicep", string.Empty),
+            ("main.bicep", """
+                @minLength(1)
+                @maxLength(63)
+                param parameter string
+
+                var moduleName = '${parameter}-${uniqueString(deployment().name)}'
+
+                module MyModule 'empty.bicep' = {
+                  name: substring(moduleName, 0, min(length(moduleName), 64))
+                }
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Substring_raises_diagnostic_on_out_of_bounds_parameters()
+    {
+        var result = CompilationHelper.Compile("""
+            @minValue(2)
+            param x int
+
+            output foo1 string = substring('foo', 2, x)
+            output foo2 string = substring('f', x)
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP327", DiagnosticLevel.Error, "The provided value (which will always be greater than or equal to 2) is too large to assign to a target for which the maximum allowable value is 1."),
+            ("BCP327", DiagnosticLevel.Error, "The provided value (which will always be greater than or equal to 2) is too large to assign to a target for which the maximum allowable value is 1."),
+        });
+    }
+
+    [TestMethod]
+    public void List_functions_should_use_symbolic_name()
+    {
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(SymbolicNameCodegenEnabled: true)), """
+            resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+              name: 'acct'
+              location: resourceGroup().location
+              kind: 'StorageV2'
+              sku: {
+                name: 'Standard_LRS'
+              }
+            }
+
+            output secret string = storageaccount.listKeys().keys[0].value
+            """);
+
+        result.Template.Should().HaveValueAtPath("$.outputs['secret'].value", "[listKeys('storageaccount', '2021-02-01').keys[0].value]", "the listKeys() function call should use a symbolic name value");
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 }

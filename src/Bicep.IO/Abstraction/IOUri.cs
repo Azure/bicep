@@ -41,7 +41,7 @@ namespace Bicep.IO.Abstraction
             public static StringComparison LocalFilePathComparison => LocalFilePathCaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
         }
 
-        public IOUri(IOUriScheme scheme, string? authority, string path, string? query = null, string? fragment = null)
+        public IOUri(IOUriScheme scheme, string? authority, string path, string query = "", string fragment = "")
         {
             this.Scheme = scheme;
             this.Authority = NormalizeAuthority(scheme, authority);
@@ -56,9 +56,9 @@ namespace Bicep.IO.Abstraction
 
         public string Path { get; }
 
-        public string? Query { get; }
+        public string Query { get; }
 
-        public string? Fragment { get; }
+        public string Fragment { get; }
 
         public string[] PathSegments => this.Path.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
@@ -150,9 +150,9 @@ namespace Bicep.IO.Abstraction
         public bool Equals(IOUri other) =>
             this.SchemeEquals(other) &&
             this.AuthorityEquals(other) &&
+            this.PathEquals(other) &&
             this.QueryEquals(other) &&
-            this.FragmentEquals(other) &&
-            this.PathEquals(other);
+            this.FragmentEquals(other);
 
         public bool IsBaseOf(IOUri other)
         {

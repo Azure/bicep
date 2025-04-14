@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Analyzers.Linter.Common;
+using Bicep.Core.Semantics;
 
 namespace Bicep.Core.Intermediate;
 
@@ -64,4 +66,7 @@ public static class ExpressionExtensions
                 ? mergedObject.MergeProperty(propertyName, property.Value)
                 : mergedObject);
     }
+
+    public static bool IsReferencingSecureOutputs(this PropertyAccessExpression expression, SemanticModel model) => (expression.SourceSyntax is null ||
+                        (FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(model, expression.SourceSyntax).Any()));
 }

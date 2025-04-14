@@ -16,10 +16,10 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceLink;
 using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -530,20 +530,6 @@ namespace Bicep.Core.Registry
             };
 
             return this.GetArtifactDirectory(reference).GetFile(fileName);
-        }
-
-        public override ResultWithException<SourceArchive> TryGetSource(OciArtifactReference reference)
-        {
-            var sourceFile = GetArtifactFile(reference, ArtifactFileType.Source);
-            if (sourceFile.Exists())
-            {
-                using var sourceStream = sourceFile.OpenRead();
-
-                return SourceArchive.UnpackFromStream(sourceStream);
-            }
-
-            // No sources available (presumably they weren't published)
-            return new(new SourceNotAvailableException());
         }
 
         public override Uri? TryGetExtensionBinary(OciArtifactReference reference)

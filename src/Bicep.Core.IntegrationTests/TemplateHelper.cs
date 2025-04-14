@@ -20,11 +20,12 @@ namespace Bicep.Core.IntegrationTests
 {
     public class TemplateHelper
     {
-        public static ImmutableDictionary<string, JToken> ConvertAndAssertParameters(JToken? parametersJToken)
+        public record ParameterProperties(JToken? Value, JToken? Expression);
+        public static ImmutableDictionary<string, ParameterProperties> ConvertAndAssertParameters(JToken? parametersJToken)
         {
             if (parametersJToken is null)
             {
-                return ImmutableDictionary<string, JToken>.Empty;
+                return ImmutableDictionary<string, ParameterProperties>.Empty;
             }
 
             parametersJToken.Should().HaveValueAtPath("$schema", "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#");
@@ -32,7 +33,20 @@ namespace Bicep.Core.IntegrationTests
             var parametersObject = parametersJToken["parameters"] as JObject;
             parametersObject.Should().NotBeNull();
 
-            return parametersObject!.Properties().ToImmutableDictionary(x => x.Name, x => x.Value["value"]!);
+            return parametersObject!.Properties().ToImmutableDictionary(x => x.Name, x => new ParameterProperties(x.Value["value"], x.Value["expression"]));
+        }
+
+        public static JObject ConvertAndAssertExternalInputs(JToken? parametersJToken)
+        {
+            if (parametersJToken is null)
+            {
+                return [];
+            }
+
+            var externalInputsObject = parametersJToken["externalInputDefinitions"] as JObject;
+            externalInputsObject.Should().NotBeNull();
+
+            return externalInputsObject!;
         }
     }
 }

@@ -114,6 +114,25 @@
     ]
   },
   {
+    "name": "buildUri",
+    "description": "Constructs a URI from specified components and returns an object with these components.",
+    "fixedParameters": [
+      {
+        "name": "components",
+        "description": "An object containing URI components such as scheme, host, port, path, and query.",
+        "type": "parseUri",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(components: parseUri): string",
+    "parameterTypeSignatures": [
+      "components: parseUri"
+    ]
+  },
+  {
     "name": "cidrHost",
     "description": "Calculates the usable IP address of the host with the specified index on the specified IP address range in CIDR notation.",
     "fixedParameters": [
@@ -1245,6 +1264,25 @@
     "typeSignature": "(network: string): parseCidr",
     "parameterTypeSignatures": [
       "network: string"
+    ]
+  },
+  {
+    "name": "parseUri",
+    "description": "Parses a URI string into its components (scheme, host, port, path, query).",
+    "fixedParameters": [
+      {
+        "name": "baseUrl",
+        "description": "The complete URI to parse.",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(baseUrl: string): parseUri",
+    "parameterTypeSignatures": [
+      "baseUrl: string"
     ]
   },
   {

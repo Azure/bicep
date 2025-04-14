@@ -3,7 +3,9 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.UnitTests.Extensions;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 
 namespace Bicep.Core.UnitTests.Assertions
@@ -48,6 +50,24 @@ namespace Bicep.Core.UnitTests.Assertions
         public AndConstraint<CompilationAssertions> NotHaveAnyDiagnostics(string because = "", params object[] becauseArgs)
         {
             Subject.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty(because, becauseArgs);
+
+            return new AndConstraint<CompilationAssertions>(this);
+        }
+
+        public AndConstraint<CompilationAssertions> NotHaveAnyDiagnostics_WithAssertionScoping(Func<IDiagnostic, bool>? diagnosticFilter = null, string because = "", params object[] becauseArgs)
+        {
+            var (success, diagnosticsByFile) = Subject.GetSuccessAndDiagnosticsByBicepFile();
+
+            using (new AssertionScope())
+            {
+                foreach (var (fileUri, diagnostics) in diagnosticsByFile)
+                {
+                    using var fileDiagScope = new AssertionScope(fileUri.ToString());
+                    diagnostics.Where(diagnosticFilter ?? (_ => true)).Should().BeEmpty(because, becauseArgs);
+                }
+
+                success.Should().BeTrue();
+            }
 
             return new AndConstraint<CompilationAssertions>(this);
         }

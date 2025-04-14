@@ -8,9 +8,9 @@ using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -166,7 +166,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             if (model.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax).IsSuccess(out var sourceFile) && sourceFile is BicepFile bicepFile)
             {
-                return bicepFile.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().ToImmutableArray();
+                return [ ..bicepFile.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>() ];
             }
 
             return [];

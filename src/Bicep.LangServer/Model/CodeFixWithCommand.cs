@@ -5,6 +5,7 @@ using System;
 using System.Collections.Immutable;
 using System.Security.Policy;
 using Bicep.Core.CodeAction;
+using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Telemetry;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -20,7 +21,7 @@ public class CodeFixWithCommand : CodeFix
         this.Command = Command;
     }
 
-    public static CodeFixWithCommand CreateWithPostExtractionCommand(string title, bool isPreferred, CodeFixKind kind, IEnumerable<CodeReplacement> replacements, Uri uri, Position renamePosition, BicepTelemetryEvent telemetryEvent)
+    public static CodeFixWithCommand CreateWithPostExtractionCommand(string title, bool isPreferred, CodeFixKind kind, IEnumerable<CodeReplacement> replacements, IOUri uri, Position renamePosition, BicepTelemetryEvent telemetryEvent)
     {
         var renameCommand = renamePosition == null ? null :
             new Command()
@@ -29,7 +30,7 @@ public class CodeFixWithCommand : CodeFix
                 Title = "Post-extraction operations"
             }
             .WithArguments(
-                uri.ToString(),
+                uri.ToUriString(),
                 new
                 {
                     line = renamePosition.Line,

@@ -183,7 +183,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             string expectedConfig = @"{
   // See https://aka.ms/bicep/config for more information on Bicep configuration options
-  // Press CTRL+SPACE/CMD+SPACE at any location to see Intellisense suggestions
+  // Press CTRL+SPACE at any location to see Intellisense suggestions
   ""analyzers"": {
     ""core"": {
       ""rules"": {
@@ -383,7 +383,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             string expectedConfig = @"{
   // See https://aka.ms/bicep/config for more information on Bicep configuration options
-  // Press CTRL+SPACE/CMD+SPACE at any location to see Intellisense suggestions
+  // Press CTRL+SPACE at any location to see Intellisense suggestions
   ""analyzers"": {
     ""core"": {
       ""rules"": {

@@ -17,14 +17,11 @@ namespace Bicep.Core.Extensions
 {
     public static class IFileHandleExtensions
     {
-        public static bool IsArmTemplateLikeFile(this IFileHandle fileHandle) =>
-                fileHandle.Uri.HasExtension(LanguageConstants.JsonFileExtension) ||
-                fileHandle.Uri.HasExtension(LanguageConstants.JsoncFileExtension) ||
-                fileHandle.Uri.HasExtension(LanguageConstants.ArmTemplateFileExtension);
+        public static bool IsArmTemplateLikeFile(this IFileHandle fileHandle) => fileHandle.Uri.HasArmTemplateLikeExtension();
 
-        public static bool IsBicepFile(this IFileHandle fileHandle) => fileHandle.Uri.HasExtension(LanguageConstants.LanguageFileExtension);
+        public static bool IsBicepFile(this IFileHandle fileHandle) => fileHandle.Uri.HasBicepExtension();
 
-        public static bool IsBicepParamFile(this IFileHandle fileHandle) => fileHandle.Uri.HasExtension(LanguageConstants.ParamsFileExtension);
+        public static bool IsBicepParamFile(this IFileHandle fileHandle) => fileHandle.Uri.HasBicepParamExtension();
 
         public static ResultWithDiagnosticBuilder<IFileHandle> TryGetRelativeFile(this IFileHandle fileHandle, RelativePath path)
         {

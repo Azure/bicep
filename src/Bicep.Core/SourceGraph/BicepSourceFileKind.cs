@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Bicep.Core.Workspaces
+namespace Bicep.Core.SourceGraph
 {
     // TODO: Move to a more common namespace
     public enum BicepSourceFileKind

@@ -24,25 +24,6 @@ namespace Bicep.Core.FileSystem
                 return new(reader.ReadToEnd());
             });
 
-        public ResultWithDiagnosticBuilder<BinaryData> TryReadAsBinaryData(Uri fileUri, int? maxFileSize)
-            => TryReadInternal<BinaryData>(fileUri, maxFileSize ?? 0, stream => new(BinaryData.FromStream(stream)));
-
-        public ResultWithDiagnosticBuilder<string> TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n)
-            => TryReadInternal<string>(fileUri, 0, stream =>
-            {
-                if (n <= 0)
-                {
-                    throw new InvalidOperationException($"Cannot read {n} characters");
-                }
-
-                using var sr = new StreamReader(stream, fileEncoding, true);
-
-                var buffer = new char[n];
-                n = sr.ReadBlock(buffer, 0, n);
-
-                return new(new string(buffer.Take(n).ToArray()));
-            });
-
         private ResultWithDiagnosticBuilder<T> TryReadInternal<T>(Uri fileUri, int maxFileSize, Func<Stream, ResultWithDiagnosticBuilder<T>> readFunc)
         {
             if (!fileUri.IsFile)
@@ -80,24 +61,8 @@ namespace Bicep.Core.FileSystem
             }
         }
 
-        public void Write(Uri fileUri, Stream contents)
-        {
-            RequireFileUri(fileUri);
-
-            using var fileStream = fileSystem.File.Open(fileUri.LocalPath, FileMode.Create);
-            contents.CopyTo(fileStream);
-        }
-
         public Uri? TryResolveFilePath(Uri parentFileUri, string childFilePath)
             => PathHelper.TryResolveFilePath(parentFileUri, childFilePath);
-
-        private static void RequireFileUri(Uri uri)
-        {
-            if (!uri.IsFile)
-            {
-                throw new ArgumentException($"Non-file URI is not supported by this file resolver.");
-            }
-        }
 
         private static void ApplyWindowsConFileWorkaround(string localPath)
         {

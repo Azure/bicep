@@ -8,12 +8,11 @@ using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.Workspaces;
 using Newtonsoft.Json.Serialization;
 using StreamJsonRpc;
 
@@ -80,7 +79,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
 
         return new(
             paramsResult.Success,
-            GetDiagnostics(compilation).ToImmutableArray(),
+            [ ..GetDiagnostics(compilation) ],
             paramsResult.Parameters,
             paramsResult.Template?.Template,
             paramsResult.TemplateSpecId);

@@ -7,13 +7,14 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceLink;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -672,7 +673,8 @@ namespace Bicep.Core.UnitTests.Registry
                 var sourceFileFactory = new SourceFileFactory(BicepTestConstants.ConfigurationManager, featureProviderFactoryMock.Object, BicepTestConstants.AuxiliaryFileCache, BicepTestConstants.FileExplorer);
                 sources = new SourceArchiveBuilder(sourceFileFactory)
                     .WithBicepFile(uri, "// contents")
-                    .BuildBinaryData();
+                    .Build()
+                    .PackIntoBinaryData();
             }
 
             await ociRegistry.PublishModule(moduleReference, template, sources, "http://documentation", "description");
@@ -696,11 +698,11 @@ namespace Bicep.Core.UnitTests.Registry
                 modules.Should().AllSatisfy(m => m.HasSourceLayer.Should().Be(publishSource));
             }
 
-            var actualSourceResult = ociRegistry.TryGetSource(moduleReference);
+            var actualSourceResult = moduleReference.TryLoadSourceArchive();
 
             if (sources is { })
             {
-                actualSourceResult.UnwrapOrThrow().Should().BeEquivalentTo(SourceArchive.UnpackFromStream(sources.ToStream()).UnwrapOrThrow());
+                actualSourceResult.UnwrapOrThrow().Should().HaveData(sources);
             }
             else
             {
@@ -717,7 +719,7 @@ namespace Bicep.Core.UnitTests.Registry
             var (_, failureBuilder) = (await ociRegistry.RestoreArtifacts(new[] { reference })).SingleOrDefault();
             if (failureBuilder is { })
             {
-                var builder = new DiagnosticBuilderInternal(new Core.Parsing.TextSpan());
+                var builder = new DiagnosticBuilderInternal(new TextSpan());
                 var diagnostic = failureBuilder(builder);
                 if (diagnostic is { })
                 {

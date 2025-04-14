@@ -8,74 +8,42 @@ using System.IO.Abstractions.TestingHelpers;
 using System.Text.RegularExpressions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceLink;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Handlers;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using FluentAssertions.Execution;
 
 namespace Bicep.Core.IntegrationTests
 {
     [TestClass]
     public class SourceArchiveTests : TestBase
     {
-        private Dictionary<string, MockFileData> MockFiles = new();
-        [NotNull]
-        private MockFileSystem? MockFileSystem { get; set; }
+        private readonly MockFileSystem mockFileSystem = new();
 
         #region Helpers
-
-        [NotNull]
-        private IDirectoryHandle? CacheRoot { get; set; }
-
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            CacheRoot = FileHelper.GetCacheRootDirectory(TestContext);
-            MockFileSystem = new(MockFiles);
-        }
 
         private ServiceBuilder GetServices(IContainerRegistryClientFactory clientFactory)
         {
             var services = new ServiceBuilder()
-                .WithFeatureOverrides(new(CacheRootDirectory: CacheRoot))
+                .WithFileSystem(mockFileSystem)
                 .WithContainerRegistryClientFactory(clientFactory);
 
             return services;
         }
 
-        private IModuleDispatcher CreateModuleDispatcher(IContainerRegistryClientFactory clientFactory)
+        private SourceArchive CreateSourceArchive(CompilationHelper.CompilationResult result)
         {
-            var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(CacheRootDirectory: CacheRoot));
-            var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
-                .AddSingleton(clientFactory)
-                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
-                .AddSingleton(featureProviderFactory)
-                ).Construct<IModuleDispatcher>();
-            return dispatcher;
-        }
-
-        private SourceArchive CreateSourceArchive(IModuleDispatcher moduleDispatcher, CompilationHelper.CompilationResult result)
-        {
-            return CreateSourceArchive(moduleDispatcher, result.Compilation.SourceFileGrouping);
-        }
-
-        private SourceArchive CreateSourceArchive(IModuleDispatcher moduleDispatcher, SourceFileGrouping sourceFileGrouping)
-        {
-            return SourceArchive.UnpackFromStream(
-                SourceArchive.PackSourcesIntoStream(
-                    moduleDispatcher,
-                    sourceFileGrouping,
-                    CacheRoot))
-                .UnwrapOrThrow();
+            return SourceArchive.CreateFor(result.Compilation.SourceFileGrouping);
         }
 
         #endregion
@@ -83,8 +51,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task SourceArtifactId_ForLocalModules_ShouldBeNull()
         {
-            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(MockFileSystem, []);
-            var moduleDispatcher = CreateModuleDispatcher(clientFactory);
+            var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(mockFileSystem, []);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
                 ("main.bicep", """
@@ -108,21 +75,20 @@ namespace Bicep.Core.IntegrationTests
             result.Should().NotHaveAnyDiagnostics();
 
             // act
-            var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
+            var sourceArchive = CreateSourceArchive(result);
 
-            sourceArchive.FindExpectedSourceFile("local.bicep").SourceArtifact.Should().BeNull();
-            sourceArchive.FindExpectedSourceFile("modules/local.bicep").SourceArtifact.Should().BeNull();
+            sourceArchive.FindSourceFile("local.bicep").Metadata.ArtifactAddress.Should().BeNull();
+            sourceArchive.FindSourceFile("modules/local.bicep").Metadata.ArtifactAddress.Should().BeNull();
         }
 
         [TestMethod]
         public async Task SourceArtifactId_ForExternalModulesWithoutSource_ShouldBeNull()
         {
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
-                MockFileSystem,
+                mockFileSystem,
                 [
                     new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: false),
                 ]);
-            var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
                 ("main.bicep", """
@@ -135,22 +101,21 @@ namespace Bicep.Core.IntegrationTests
             result.Should().NotHaveAnyDiagnostics();
 
             // act
-            var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
+            var sourceArchive = CreateSourceArchive(result);
 
-            var file = sourceArchive.FindExpectedSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json");
-            file.SourceArtifact.Should().BeNull();
-            file.Kind.Should().Be("armTemplate");
+            var file = sourceArchive.FindSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json");
+            file.Metadata.ArtifactAddress.Should().BeNull();
+            file.Metadata.Kind.Should().Be(LinkedSourceFileKind.ArmTemplate);
         }
 
         [TestMethod]
         public async Task SourceArtifactId_ForExternalModulesWithSource_ShouldBeTheArtifactId()
         {
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
-                MockFileSystem,
+                mockFileSystem,
                 [
                     new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
                 ]);
-            var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
                 ("main.bicep", """
@@ -163,11 +128,11 @@ namespace Bicep.Core.IntegrationTests
             result.Should().NotHaveAnyDiagnostics();
 
             // act
-            var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
+            var sourceArchive = CreateSourceArchive(result);
 
-            var file = sourceArchive.FindExpectedSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json");
-            file.SourceArtifact!.ArtifactId.Should().Be("mockregistry.io/test/module1:v1");
-            file.Kind.Should().Be("armTemplate");
+            var file = sourceArchive.FindSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json");
+            file.Metadata.ArtifactAddress?.ArtifactId.Should().Be("mockregistry.io/test/module1:v1");
+            file.Metadata.Kind.Should().Be(LinkedSourceFileKind.ArmTemplate);
 
         }
 
@@ -175,13 +140,12 @@ namespace Bicep.Core.IntegrationTests
         public async Task SourceArtifactId_ShouldHandleMultipleRefsToSameModule()
         {
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
-                MockFileSystem,
+                mockFileSystem,
                 [
                     new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
                     new("br:mockregistry.io/test/module2:v1", "param p2 string", WithSource: true),
                     new("br:mockregistry.io/test/module1:v2", "param p12 string", WithSource: true),
                 ]);
-            var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
                 ("main.bicep", """
@@ -237,27 +201,26 @@ namespace Bicep.Core.IntegrationTests
             result.Should().NotHaveAnyDiagnostics();
 
             // act
-            var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
+            var sourceArchive = CreateSourceArchive(result);
 
-            sourceArchive.SourceFiles.Select(sf => (sf.Path, sf.SourceArtifact?.ArtifactId))
-                .Should().BeEquivalentTo(new[] {
-                    ("main.bicep", null),
-                    ("<cache>/br/mockregistry.io/test$module1/v1$/main.json", "mockregistry.io/test/module1:v1"),
-                    ("<cache>/br/mockregistry.io/test$module1/v2$/main.json", "mockregistry.io/test/module1:v2"),
-                    ("<cache>/br/mockregistry.io/test$module2/v1$/main.json", "mockregistry.io/test/module2:v1"),
-                    ("local.bicep", null)
-            });
+            using (new AssertionScope())
+            {
+                sourceArchive.FindSourceFile("main.bicep").Metadata.ArtifactAddress.Should().BeNull();
+                sourceArchive.FindSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json").Metadata.ArtifactAddress?.ArtifactId.Should().Be("mockregistry.io/test/module1:v1");
+                sourceArchive.FindSourceFile("<cache>/br/mockregistry.io/test$module1/v2$/main.json").Metadata.ArtifactAddress?.ArtifactId.Should().Be("mockregistry.io/test/module1:v2");
+                sourceArchive.FindSourceFile("<cache>/br/mockregistry.io/test$module2/v1$/main.json").Metadata.ArtifactAddress?.ArtifactId.Should().Be("mockregistry.io/test/module2:v1");
+                sourceArchive.FindSourceFile("local.bicep").Metadata.ArtifactAddress.Should().BeNull();
+            }
         }
 
         [TestMethod]
         public async Task SourceArtifactId_ShouldIgnoreModuleRefsWithErrors()
         {
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
-                MockFileSystem,
+                mockFileSystem,
                 [
                     new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
                 ]);
-            var moduleDispatcher = CreateModuleDispatcher(clientFactory);
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
                 ("main.bicep", """
@@ -276,13 +239,13 @@ namespace Bicep.Core.IntegrationTests
             result.Should().OnlyContainDiagnostic("BCP192", Diagnostics.DiagnosticLevel.Error, "Unable to restore the artifact with reference \"br:mockregistry.io/test/module2:v1\"*");
 
             // act
-            var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
+            var sourceArchive = CreateSourceArchive(result);
 
-            sourceArchive.SourceFiles.Select(sf => (sf.Path, sf.SourceArtifact?.ArtifactId))
-                .Should().BeEquivalentTo(new[] {
-                    ("main.bicep", null),
-                    ("<cache>/br/mockregistry.io/test$module1/v1$/main.json", "mockregistry.io/test/module1:v1"),
-            });
+            using (new AssertionScope())
+            {
+                sourceArchive.FindSourceFile("main.bicep").Metadata.ArtifactAddress.Should().BeNull();
+                sourceArchive.FindSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json").Metadata.ArtifactAddress?.ArtifactId.Should().Be("mockregistry.io/test/module1:v1");
+            }
         }
     }
 }

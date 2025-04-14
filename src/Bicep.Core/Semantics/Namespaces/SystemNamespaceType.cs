@@ -26,7 +26,6 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 using Bicep.IO.Abstraction;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
@@ -40,7 +39,6 @@ namespace Bicep.Core.Semantics.Namespaces
 
         public const string BuiltInName = "sys";
         public const long UniqueStringHashLength = 13;
-
         private const string ConcatDescription = "Combines multiple arrays and returns the concatenated array, or combines multiple string values and returns the concatenated string.";
         private const string TakeDescription = "Returns an array or string. An array has the specified number of elements from the start of the array. A string has the specified number of characters from the start of the string.";
         private const string SkipDescription = "Returns a string with all the characters after the specified number of characters, or an array with all the elements after the specified number of elements.";
@@ -64,11 +62,9 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private record NamespaceValue<T>(T Value, VisibilityDelegate IsVisible);
 
-        private static readonly ImmutableArray<NamespaceValue<FunctionOverload>> Overloads = [.. GetSystemOverloads()];
-
         private static readonly ImmutableArray<NamespaceValue<NamedTypeProperty>> AmbientSymbols = [.. GetSystemAmbientSymbols()];
 
-        private static IEnumerable<NamespaceValue<FunctionOverload>> GetSystemOverloads()
+        private static IEnumerable<NamespaceValue<FunctionOverload>> GetSystemOverloads(IFeatureProvider featureProvider)
         {
             static IEnumerable<FunctionOverload> GetAlwaysPermittedOverloads()
             {
@@ -154,6 +150,18 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithReturnType(GetParseCidrReturnType())
                     .WithGenericDescription("Parses an IP address range in CIDR notation to get various properties of the address range.")
                     .WithRequiredParameter("network", LanguageConstants.String, "String in CIDR notation containing an IP address range to be converted.")
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("buildUri")
+                    .WithReturnType(LanguageConstants.String)
+                    .WithGenericDescription("Constructs a URI from specified components and returns an object with these components.")
+                    .WithRequiredParameter("components", GetParseOrBuildUriReturnType(), "An object containing URI components such as scheme, host, port, path, and query.")
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("parseUri")
+                    .WithReturnType(GetParseOrBuildUriReturnType())
+                    .WithGenericDescription("Parses a URI string into its components (scheme, host, port, path, query).")
+                    .WithRequiredParameter("baseUrl", LanguageConstants.String, "The complete URI to parse.")
                     .Build();
 
                 yield return new FunctionOverloadBuilder("concat")
@@ -369,53 +377,95 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithReturnResultBuilder(
                         TryDeriveLiteralReturnType("substring", (_, _, _, argumentTypes) =>
                         {
-                            var originalString = argumentTypes[0] as StringType;
-                            var literalStartIndex = argumentTypes[1] as IntegerLiteralType;
-                            var literalLength = argumentTypes.Skip(2).FirstOrDefault() as IntegerLiteralType;
-
-                            if (literalLength is null)
+                            switch (argumentTypes.Skip(2).FirstOrDefault())
                             {
-                                long? minLength = literalStartIndex is null ? null : ((originalString?.MinLength ?? 0) - literalStartIndex.Value) switch
-                                {
-                                    <= 0 => null,
-                                    long otherwise => otherwise,
-                                };
-                                long? maxLength = literalStartIndex is null ? originalString?.MaxLength : originalString?.MaxLength.HasValue == true
-                                    ? Math.Max(0, originalString.MaxLength.Value - literalStartIndex.Value)
-                                    : null;
-
-                                return new(TypeFactory.CreateStringType(minLength, maxLength, validationFlags: argumentTypes[0].ValidationFlags));
+                                case IntegerLiteralType intLiteral:
+                                    return new(TypeFactory.CreateStringType(
+                                        intLiteral.Value,
+                                        intLiteral.Value,
+                                        validationFlags: argumentTypes[0].ValidationFlags));
+                                case IntegerType @int:
+                                    return new(TypeFactory.CreateStringType(
+                                        @int.MinValue,
+                                        @int.MaxValue,
+                                        validationFlags: argumentTypes[0].ValidationFlags));
                             }
 
-                            if (literalStartIndex is null || originalString is null)
+                            (long? minLength, long? maxLength) = argumentTypes[0] switch
                             {
-                                return new(TypeFactory.CreateStringType(minLength: null,
-                                    maxLength: originalString?.MaxLength.HasValue == true
-                                        ? Math.Min(literalLength.Value, originalString.MaxLength.Value)
-                                        : literalLength.Value,
-                                    validationFlags: argumentTypes[0].ValidationFlags));
-                            }
-
-                            long derivedMaxLength = originalString.MaxLength.HasValue
-                                ? Math.Min(Math.Max(0, originalString.MaxLength.Value - literalStartIndex.Value), literalLength.Value)
-                                : literalLength.Value;
-                            long? derivedMinLength = ((originalString.MinLength ?? 0) - literalStartIndex.Value) switch
-                            {
-                                <= 0 => null,
-                                long otherwise => otherwise,
+                                StringLiteralType literal => (literal.RawStringValue.Length, literal.RawStringValue.Length),
+                                StringType @string => (@string.MinLength, @string.MaxLength),
+                                _ => (null, null),
                             };
-                            if (derivedMinLength.HasValue && derivedMinLength.Value > derivedMaxLength)
+
+                            switch (argumentTypes[1])
                             {
-                                derivedMinLength = derivedMaxLength;
+                                case IntegerLiteralType intLiteral:
+                                    minLength = minLength.HasValue && minLength.Value >= intLiteral.Value
+                                        ? minLength.Value - intLiteral.Value
+                                        : null;
+                                    maxLength = maxLength.HasValue && maxLength.Value >= intLiteral.Value
+                                        ? maxLength.Value - intLiteral.Value
+                                        : maxLength;
+                                    break;
+                                case IntegerType @int:
+                                    minLength = minLength.HasValue && @int.MaxValue.HasValue
+                                        ? Math.Max(0, minLength.Value - @int.MaxValue.Value)
+                                        : null;
+                                    maxLength = maxLength.HasValue && @int.MinValue.HasValue
+                                        ? Math.Max(0, maxLength.Value - @int.MinValue.Value)
+                                        : maxLength;
+                                    break;
+                                default:
+                                    minLength = null;
+                                    break;
                             }
 
-                            return new(TypeFactory.CreateStringType(derivedMinLength, derivedMaxLength, validationFlags: originalString.ValidationFlags));
+                            return new(TypeFactory.CreateStringType(minLength, maxLength, validationFlags: argumentTypes[0].ValidationFlags));
                         }),
                         LanguageConstants.String)
                     .WithGenericDescription("Returns a substring that starts at the specified character position and contains the specified number of characters.")
-                    .WithRequiredParameter("stringToParse", LanguageConstants.String, "The original string from which the substring is extracted.")
-                    .WithRequiredParameter("startIndex", LanguageConstants.Int, "The zero-based starting character position for the substring.")
-                    .WithOptionalParameter("length", LanguageConstants.Int, "The number of characters for the substring. Must refer to a location within the string. Must be zero or greater.")
+                    .WithRequiredParameter(
+                        "stringToParse",
+                        LanguageConstants.String,
+                        "The original string from which the substring is extracted.")
+                    .WithRequiredParameter(
+                        "startIndex",
+                        TypeFactory.CreateIntegerType(minValue: 0),
+                        "The zero-based starting character position for the substring.",
+                        getArgumentType => TypeFactory.CreateIntegerType(
+                            minValue: 0,
+                            maxValue: getArgumentType(0) switch
+                            {
+                                StringLiteralType stringLiteral => stringLiteral.RawStringValue.Length,
+                                StringType @string => @string.MaxLength,
+                                _ => null
+                            }))
+                    .WithOptionalParameter(
+                        "length",
+                        TypeFactory.CreateIntegerType(minValue: 0),
+                        "The number of characters for the substring. Must refer to a location within the string. Must be zero or greater.",
+                        getArgumentType =>
+                        {
+                            var maxInputLength = getArgumentType(0) switch
+                            {
+                                StringLiteralType stringLiteral => stringLiteral.RawStringValue.Length,
+                                StringType @string => @string.MaxLength,
+                                _ => null
+                            };
+                            return TypeFactory.CreateIntegerType(
+                                minValue: 0,
+                                maxValue: maxInputLength is long derivedMax
+                                    ? getArgumentType(1) switch
+                                    {
+                                        IntegerLiteralType intLiteral when derivedMax >= intLiteral.Value
+                                            => derivedMax - intLiteral.Value,
+                                        IntegerType { MinValue: long minStart } when derivedMax >= minStart
+                                            => derivedMax - minStart,
+                                        _ => derivedMax,
+                                    }
+                                    : null);
+                        })
                     .Build();
 
                 yield return new FunctionOverloadBuilder("take")
@@ -734,10 +784,79 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
                     .Build();
 
+                static long? MinOf(TypeSymbol type) => type switch
+                {
+                    IntegerType @int => @int.MinValue,
+                    IntegerLiteralType intLiteral => intLiteral.Value,
+                    _ => null,
+                };
+                static long? MaxOf(TypeSymbol type) => type switch
+                {
+                    IntegerType @int => @int.MaxValue,
+                    IntegerLiteralType intLiteral => intLiteral.Value,
+                    _ => null,
+                };
+
+                static FunctionResult CalculateMin(
+                    SemanticModel model,
+                    IDiagnosticWriter diagnostics,
+                    FunctionCallSyntaxBase syntax,
+                    ImmutableArray<TypeSymbol> argumentTypes)
+                {
+                    long? min = MinOf(argumentTypes[0]);
+                    long? max = MaxOf(argumentTypes[0]);
+
+                    for (int i = 1; i < argumentTypes.Length; i++)
+                    {
+                        if (min.HasValue)
+                        {
+                            min = MinOf(argumentTypes[i]) is { } minAtIdx
+                                ? Math.Min(min.Value, minAtIdx)
+                                : null;
+                        }
+
+                        if (MaxOf(argumentTypes[i]) is { } maxAtIdx)
+                        {
+                            max = max.HasValue
+                                ? Math.Min(max.Value, maxAtIdx)
+                                : maxAtIdx;
+                        }
+                    }
+
+                    return new(TypeFactory.CreateIntegerType(min, max));
+                }
+
+                static FunctionResult CalculateMax(
+                    SemanticModel model,
+                    IDiagnosticWriter diagnostics,
+                    FunctionCallSyntaxBase syntax,
+                    ImmutableArray<TypeSymbol> argumentTypes)
+                {
+                    long? min = MinOf(argumentTypes[0]);
+                    long? max = MaxOf(argumentTypes[0]);
+
+                    for (int i = 1; i < argumentTypes.Length; i++)
+                    {
+                        if (MinOf(argumentTypes[i]) is { } minAtIdx)
+                        {
+                            min = min.HasValue ? Math.Max(min.Value, minAtIdx) : minAtIdx;
+                        }
+
+                        if (max.HasValue)
+                        {
+                            max = MaxOf(argumentTypes[i]) is { } maxAtIdx
+                                ? Math.Max(max.Value, maxAtIdx)
+                                : null;
+                        }
+                    }
+
+                    return new(TypeFactory.CreateIntegerType(min, max));
+                }
+
                 // TODO: Needs to support number type as well
                 // TODO: Docs need updates
                 yield return new FunctionOverloadBuilder("min")
-                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("min", LanguageConstants.Int), LanguageConstants.Int)
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("min", CalculateMin), LanguageConstants.Int)
                     .WithGenericDescription(MinDescription)
                     .WithDescription("Returns the minimum value from the specified integers.")
                     .WithVariableParameter("int", LanguageConstants.Int, minimumCount: 1, "One of the integers used to calculate the minimum value")
@@ -745,7 +864,13 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 // TODO: Docs need updates
                 yield return new FunctionOverloadBuilder("min")
-                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("min", LanguageConstants.Int), LanguageConstants.Int)
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("min", (model, diagnostics, syntax, argumentTypes) => argumentTypes[0] switch
+                    {
+                        TupleType tuple => CalculateMin(model, diagnostics, syntax, [..tuple.Items.Select(t => t.Type)]),
+                        TypedArrayType typedArray when typedArray.Item.Type is IntegerType or IntegerLiteralType
+                            => new(typedArray.Item.Type),
+                        _ => new(LanguageConstants.Int),
+                    }), LanguageConstants.Int)
                     .WithGenericDescription(MinDescription)
                     .WithDescription("Returns the minimum value from an array of integers.")
                     .WithRequiredParameter("intArray", new TypedArrayType(LanguageConstants.Int, TypeSymbolValidationFlags.Default), "The array of integers.")
@@ -754,7 +879,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 // TODO: Needs to support number type as well
                 // TODO: Docs need updates
                 yield return new FunctionOverloadBuilder("max")
-                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("max", LanguageConstants.Int), LanguageConstants.Int)
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("max", CalculateMax), LanguageConstants.Int)
                     .WithGenericDescription(MaxDescription)
                     .WithDescription("Returns the maximum value from the specified integers.")
                     .WithVariableParameter("int", LanguageConstants.Int, minimumCount: 1, "One of the integers used to calculate the maximum value")
@@ -762,7 +887,13 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 // TODO: Docs need updates
                 yield return new FunctionOverloadBuilder("max")
-                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("max", LanguageConstants.Int), LanguageConstants.Int)
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("max", (model, diagnostics, syntax, argumentTypes) => argumentTypes[0] switch
+                    {
+                        TupleType tuple => CalculateMax(model, diagnostics, syntax, [.. tuple.Items.Select(t => t.Type)]),
+                        TypedArrayType typedArray when typedArray.Item.Type is IntegerType or IntegerLiteralType
+                            => new(typedArray.Item.Type),
+                        _ => new(LanguageConstants.Int),
+                    }), LanguageConstants.Int)
                     .WithGenericDescription(MaxDescription)
                     .WithDescription("Returns the maximum value from an array of integers.")
                     .WithRequiredParameter("intArray", new TypedArrayType(LanguageConstants.Int, TypeSymbolValidationFlags.Default), "The array of integers.")
@@ -1098,7 +1229,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
             }
 
-            static IEnumerable<FunctionOverload> GetParamsFilePermittedOverloads()
+            static IEnumerable<FunctionOverload> GetParamsFilePermittedOverloads(IFeatureProvider featureProvider)
             {
                 yield return new FunctionOverloadBuilder("readEnvironmentVariable")
                     .WithGenericDescription($"Reads the specified Environment variable as bicep string. Variable loading occurs during compilation, not at runtime.")
@@ -1107,6 +1238,26 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
                     .WithOptionalParameter("default", LanguageConstants.String, "Default value to return if environment variable is not found.")
                     .Build();
+
+                if (featureProvider.ExternalInputFunctionEnabled)
+                {
+                    yield return new FunctionOverloadBuilder(LanguageConstants.ExternalInputBicepFunctionName)
+                        .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
+                        .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.")
+                        .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.")
+                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, exp.Parameters))
+                        .WithReturnResultBuilder((model, diagnostics, functionCall, argumentTypes) =>
+                        {
+                            var visitor = new CompileTimeConstantVisitor(diagnostics);
+                            foreach (var arg in functionCall.Arguments)
+                            {
+                                arg.Accept(visitor);
+                            }
+
+                            return new(LanguageConstants.Any);
+                        }, LanguageConstants.Any)
+                        .Build();
+                }
             }
 
             foreach (var overload in GetAlwaysPermittedOverloads())
@@ -1114,7 +1265,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 yield return new(overload, (_, _) => true);
             }
 
-            foreach (var overload in GetParamsFilePermittedOverloads())
+            foreach (var overload in GetParamsFilePermittedOverloads(featureProvider))
             {
                 yield return new(overload, (_, sfk) => sfk == BicepSourceFileKind.ParamsFile);
             }
@@ -1131,6 +1282,18 @@ namespace Bicep.Core.Semantics.Namespaces
                 new NamedTypeProperty("lastUsable", LanguageConstants.String),
                 new NamedTypeProperty("cidr", TypeFactory.CreateIntegerType(0, 255)),
             }, null);
+        }
+
+        private static ObjectType GetParseOrBuildUriReturnType()
+        {
+            return new ObjectType("parseUri", TypeSymbolValidationFlags.Default, new[]
+            {
+                new NamedTypeProperty("scheme", LanguageConstants.String, TypePropertyFlags.Required),
+                new NamedTypeProperty("host", LanguageConstants.String, TypePropertyFlags.Required),
+                new NamedTypeProperty("port", LanguageConstants.Int, TypePropertyFlags.None),
+                new NamedTypeProperty("path", LanguageConstants.String, TypePropertyFlags.None),
+                new NamedTypeProperty("query", LanguageConstants.String, TypePropertyFlags.None),
+             }, null);
         }
 
         private static FunctionOverload.ResultBuilderDelegate TryDeriveLiteralReturnType(string armFunctionName, TypeSymbol nonLiteralReturnType) =>
@@ -1615,7 +1778,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSecurePropertyName)
                     .WithDescription("Makes the parameter a secure parameter.")
-                    .WithFlags(featureProvider.SecureOutputsEnabled ? FunctionFlags.ParameterOutputOrTypeDecorator : FunctionFlags.ParameterOrTypeDecorator)
+                    .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                     .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
                     .WithValidator(ValidateNotTargetingAlias)
                     .WithEvaluator((functionCall, decorated) =>
@@ -1794,7 +1957,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("predicate", OneParamLambda(LanguageConstants.Object, LanguageConstants.Bool), "The predicate applied to the resource.")
                     .WithRequiredParameter("maxWaitTime", LanguageConstants.String, "Maximum time used to wait until the predicate is true. Please be cautious as max wait time adds to total deployment time. It cannot be a negative value. Use [ISO 8601 duration format](https://en.wikipedia.org/wiki/ISO_8601#Durations).")
                     .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
-                    .WithEvaluator(WaitUntilEvaluator)
+                    .WithEvaluator(AddDecoratorConfigToResource)
                     .Build();
 
                     yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
@@ -1802,7 +1965,16 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("exceptionCodes", LanguageConstants.StringArray, "List of exceptions.")
                     .WithOptionalParameter("retryCount", TypeFactory.CreateIntegerType(minValue: 1), "Maximum number if retries on the exception.")
                     .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
-                    .WithEvaluator(RetryOnEvaluator)
+                    .WithEvaluator(AddDecoratorConfigToResource)
+                    .Build();
+                }
+
+                if (featureProvider.OnlyIfNotExistsEnabled)
+                {
+                    yield return new DecoratorBuilder(LanguageConstants.OnlyIfNotExistsPropertyName)
+                    .WithDescription("Causes the resource deployment to be skipped if the resource already exists")
+                    .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
+                    .WithEvaluator(AddDecoratorConfigToResource)
                     .Build();
                 }
 
@@ -2026,41 +2198,20 @@ namespace Bicep.Core.Semantics.Namespaces
                 aliasName,
                 Settings,
                 AmbientSymbols.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
-                Overloads.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
+                GetSystemOverloads(featureProvider).Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 BannedFunctions,
                 GetSystemDecorators(featureProvider).Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 new EmptyResourceTypeProvider());
         }
 
-        private static Expression WaitUntilEvaluator(FunctionCallExpression functionCall, Expression decorated)
+        private static Expression AddDecoratorConfigToResource(FunctionCallExpression functionCall, Expression decorated)
         {
             if (decorated is DeclaredResourceExpression declaredResourceExpression)
             {
-                var waitUntilParameters = ImmutableArray.Create<Expression>(
-                                functionCall.Parameters[0],
-                                functionCall.Parameters[1]
-                        );
-                return declaredResourceExpression with { WaitUntil = new ArrayExpression(null, waitUntilParameters)};
-            }
-
-            return decorated;
-        }
-
-        private static Expression RetryOnEvaluator(FunctionCallExpression functionCall, Expression decorated)
-        {
-            if (decorated is DeclaredResourceExpression declaredResourceExpression)
-            {
-                var retryOnParameters = new List<Expression>
-                        {
-                                functionCall.Parameters[0]
-                        };
-                if (functionCall.Parameters.Length > 1)
+                return declaredResourceExpression with
                 {
-                    retryOnParameters.Add(
-                            functionCall.Parameters[1]
-                    );
-                }
-                return declaredResourceExpression with { RetryOn = new ArrayExpression(null, [.. retryOnParameters]) };
+                    DecoratorConfig = declaredResourceExpression.DecoratorConfig.Add(functionCall.Name, new ArrayExpression(functionCall.SourceSyntax, functionCall.Parameters))
+                };
             }
             return decorated;
         }

@@ -20,13 +20,15 @@ public record FeatureProviderOverrides(
     bool? AssertsEnabled = default,
     bool? WaitAndRetryEnabled = default,
     bool? LocalDeployEnabled = default,
-    bool? SecureOutputsEnabled = default,
     bool? ResourceInfoCodegenEnabled = default,
     bool? ExtendableParamFilesEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
     bool? ExtensibilityV2EmittingEnabled = default,
     bool? TypedVariablesEnabled = default,
-    bool? ModuleExtensionConfigsEnabled = default)
+    bool? ModuleExtensionConfigsEnabled = default,
+    bool? DesiredStateConfigurationEnabled = default,
+    bool? ExternalInputFunctionEnabled = default,
+    bool? OnlyIfNotExistsEnabled = default)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
@@ -41,13 +43,15 @@ public record FeatureProviderOverrides(
         bool? AssertsEnabled = default,
         bool? WaitAndRetryEnabled = default,
         bool? LocalDeployEnabled = default,
-        bool? SecureOutputsEnabled = default,
         bool? ResourceInfoCodegenEnabled = default,
         bool? ExtendableParamFilesEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
         bool? ExtensibilityV2EmittingEnabled = default,
         bool? TypedVariablesEnabled = default,
-        bool? ModuleExtensionConfigsEnabled = default
+        bool? ModuleExtensionConfigsEnabled = default,
+        bool? DesiredStateConfigurationEnabled = default,
+        bool? ExternalInputFunctionEnabled = default,
+        bool? OnlyIfNotExistsEnabled = default
     ) : this(
         FileHelper.GetCacheRootDirectory(testContext),
         RegistryEnabled,
@@ -61,12 +65,14 @@ public record FeatureProviderOverrides(
         AssertsEnabled,
         WaitAndRetryEnabled,
         LocalDeployEnabled,
-        SecureOutputsEnabled,
         ResourceInfoCodegenEnabled,
         ExtendableParamFilesEnabled,
         AssemblyVersion,
         ExtensibilityV2EmittingEnabled,
         TypedVariablesEnabled,
-        ModuleExtensionConfigsEnabled)
+        ModuleExtensionConfigsEnabled,
+        DesiredStateConfigurationEnabled,
+        ExternalInputFunctionEnabled,
+        OnlyIfNotExistsEnabled)
     { }
 }
