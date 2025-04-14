@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
 using System.IO.Abstractions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -71,6 +72,7 @@ namespace Bicep.Core.Registry
 
             foreach (var reference in references)
             {
+                Trace.WriteLine($"Restoring template spec module {reference.FullyQualifiedReference}");
                 using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectory(reference)}");
                 try
                 {

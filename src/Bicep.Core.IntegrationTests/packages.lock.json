@@ -96,11 +96,10 @@
       },
       "Azure.Containers.ContainerRegistry": {
         "type": "Transitive",
-        "resolved": "1.1.1",
-        "contentHash": "yFly4PvdtRjLMyuGiLw3zGVy4yYt2ipWRkLz1cVQBio3Ic6ahwYQEqE72wHRChQ4olLZPyV9xPmtCL+tIfOiog==",
+        "resolved": "1.2.0",
+        "contentHash": "fKA6ws+zFyO1gsE4mjYoafw9QgVeUTjUoMp6CPzXQ1uqjZ659CUeCiPl88GSTARO7rUpOilPTsLzUrYqr/Xh1A==",
         "dependencies": {
-          "Azure.Core": "1.36.0",
-          "System.Text.Json": "4.7.2"
+          "Azure.Core": "1.44.1"
         }
       },
       "Azure.Core": {
@@ -289,13 +288,13 @@
       },
       "Azure.ResourceManager.Resources": {
         "type": "Transitive",
-        "resolved": "1.9.0",
-        "contentHash": "AaGmoPM6UxEYtmf5ADkl26DRy1Ms9CIL9yqgUnoU6YhXYA8r/F52p16JQ9xEHSCzXhr+OO4x2ztujHtj1Eb+qw==",
+        "resolved": "1.9.1",
+        "contentHash": "6wg2dEf5gYzX9qGUlFPI05OdW4HEUCe8m/5e3lda1a/vRnxU1uqf2wbg+9r7iwLroka4GzPluA11Bz6rJvQQzw==",
         "dependencies": {
-          "Azure.Core": "1.43.0",
+          "Azure.Core": "1.44.1",
           "Azure.ResourceManager": "1.13.0",
-          "System.ClientModel": "1.1.0",
-          "System.Text.Json": "6.0.9"
+          "System.ClientModel": "1.2.1",
+          "System.Text.Json": "6.0.11"
         }
       },
       "Castle.Core": {
@@ -1102,11 +1101,11 @@
       },
       "System.ClientModel": {
         "type": "Transitive",
-        "resolved": "1.1.0",
-        "contentHash": "UocOlCkxLZrG2CKMAAImPcldJTxeesHnHGHwhJ0pNlZEvEXcWKuQvVOER2/NiOkJGRJk978SNdw3j6/7O9H1lg==",
+        "resolved": "1.2.1",
+        "contentHash": "s9+M5El+DXdCRRLzxak8uGBKWT8H/eIssGpFtpaMKdJULrQbBDPH/zFbVyHX+NDczhS5EvjHFbBH9/L+0UhmcA==",
         "dependencies": {
-          "System.Memory.Data": "1.0.2",
-          "System.Text.Json": "6.0.9"
+          "System.Memory.Data": "6.0.0",
+          "System.Text.Json": "6.0.10"
         }
       },
       "System.CodeDom": {
@@ -1646,10 +1645,10 @@
           "Azure.Bicep.Types": "[0.5.110, )",
           "Azure.Bicep.Types.Az": "[0.2.756, )",
           "Azure.Bicep.Types.K8s": "[0.1.644, )",
-          "Azure.Containers.ContainerRegistry": "[1.1.1, )",
+          "Azure.Containers.ContainerRegistry": "[1.2.0, )",
           "Azure.Deployments.Templates": "[1.316.0, )",
           "Azure.Identity": "[1.13.2, )",
-          "Azure.ResourceManager.Resources": "[1.9.0, )",
+          "Azure.ResourceManager.Resources": "[1.9.1, )",
           "JsonPatch.Net": "[3.3.0, )",
           "JsonPath.Net": "[2.1.1, )",
           "Microsoft.Extensions.Configuration": "[9.0.2, )",

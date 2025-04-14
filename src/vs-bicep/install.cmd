@@ -18,7 +18,7 @@ set BicepVsixPath=%ExtensionsRoot%Bicep.VSLanguageServerClient.Vsix\bin\%CONFIGU
 echo Bicep vsix location: %BicepVsixPath%
 
 echo.
-choice /M "Install? (Y/N)"
+choice /M "Close current devenv.exe instances and install extension? (Y/N)"
 if errorlevel 2 goto end
 
 echo.

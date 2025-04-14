@@ -49,8 +49,9 @@ namespace Bicep.Core.Registry.Auth
                 CredentialType.Environment => new EnvironmentCredential(new() { AuthorityHost = authorityUri }),
                 CredentialType.VisualStudio => new VisualStudioCredential(new() { AuthorityHost = authorityUri }),
                 CredentialType.VisualStudioCode => new VisualStudioCodeCredential(new() { AuthorityHost = authorityUri }),
-                // AzureCLICredential does not accept options. Azure CLI has built-in cloud profiles so AuthorityHost is not needed.
-                CredentialType.AzureCLI => new AzureCliCredential(),
+                // Azure CLI has built-in cloud profiles so AuthorityHost is not needed.
+                // In some cases (esp in Visual Studio), the authorization step can take a long time (done by shelling out to az cli)
+                CredentialType.AzureCLI => new AzureCliCredential(new AzureCliCredentialOptions() { ProcessTimeout = TimeSpan.FromMinutes(5) }),
                 CredentialType.AzurePowerShell => new AzurePowerShellCredential(new() { AuthorityHost = authorityUri }),
 
                 _ => throw new NotImplementedException($"Unexpected credential type '{credentialType}'.")
