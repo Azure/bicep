@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Definitions;
+using Azure.Deployments.Core.Definitions.Extensibility;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Diagnostics;
 using Azure.Deployments.Core.ErrorResponses;
@@ -257,7 +258,7 @@ namespace Bicep.Core.Utils
                     apiVersion: EmitConstants.NestedDeploymentResourceApiVersion,
                     inputParameters: new(parameters),
                     metadata: metadata,
-                    extensionConfigs: [], // TODO: check this with Kyle
+                    extensionConfigs: new Dictionary<string, IReadOnlyDictionary<string, DeploymentExtensionConfigItem>>(), // TODO: check this with Kyle
                     metricsRecorder: new TemplateMetricsRecorder());
 
                 ProcessTemplateLanguageExpressions(template, config, deploymentScope);
