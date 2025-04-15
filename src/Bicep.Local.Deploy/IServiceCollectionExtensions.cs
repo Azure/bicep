@@ -10,22 +10,18 @@ using Azure.Deployments.Core.Interfaces;
 using Azure.Deployments.Core.Telemetry;
 using Azure.Deployments.Engine;
 using Azure.Deployments.Engine.Dependencies;
-using Azure.Deployments.Engine.Host.Azure;
-using Azure.Deployments.Engine.Host.Azure.Definitions;
-using Azure.Deployments.Engine.Host.Azure.DeploymentExpander;
-using Azure.Deployments.Engine.Host.Azure.Interfaces;
-using Azure.Deployments.Engine.Host.Azure.Providers;
-using Azure.Deployments.Engine.Host.Azure.Validation;
-using Azure.Deployments.Engine.Host.Azure.Workers;
-using Azure.Deployments.Engine.Host.External;
+using Azure.Deployments.Engine.Definitions;
+using Azure.Deployments.Engine.DeploymentExpander;
 using Azure.Deployments.Engine.Interfaces;
+using Azure.Deployments.Engine.Providers;
+using Azure.Deployments.Engine.Validation;
+using Azure.Deployments.Engine.Workers;
+using Azure.Deployments.Engine.External;
 using Azure.Deployments.Engine.Storage.Volatile;
 using Azure.Deployments.Extensibility.Contract;
 using Azure.Deployments.Templates.Contracts;
 using Azure.Deployments.Templates.Export;
 using Bicep.Local.Deploy.Extensibility;
-using Microsoft.Azure.Deployments.Service.Shared.Jobs;
-using Microsoft.Azure.Deployments.Shared.Host;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
@@ -60,6 +56,7 @@ public static class IServiceCollectionExtensions
         services.AddSingleton<IDeploymentEntityFactory, VolatileDeploymentEntityFactory>();
         services.AddSingleton<IDeploymentJobsDataProvider, VolatileDeploymentJobDataProvider>();
         services.AddSingleton<IDataProviderHolder, VolatileDataProviderHolder>();
+        services.AddSingleton<IResourceTypeRegistrationProvider, ResourceTypeRegistrationProvider>();
 
         var jobConfiguration = new JobConfigurationBase
         {
