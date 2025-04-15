@@ -35,7 +35,7 @@ export class ForceModulesRestoreCommand implements Command {
 
     try {
       this.outputChannelManager.appendToOutputChannel(
-        `Force restoring modules in ${documentUri.fsPath ?? documentUri.toString()}...`,
+        `Force restoring modules used by ${documentUri.fsPath ?? documentUri.toString()}...`,
       );
 
       const forceModulesRestoreOutput: string = await this.client.sendRequest("workspace/executeCommand", {
