@@ -364,9 +364,8 @@
     <value>Use parent property</value>
   </data>
   <data name="UseSecureValueForSecureInputsRule_MessageFormat" xml:space="preserve">
-    <value>Property path "{0}" for resources of type "{1}" should be assigned a secure value.</value>
-    <comment>{0} property path
-{1} resource type name</comment>
+    <value>Property '{0}' expects a secure value, but the value provided may not be secure.</value>
+    <comment>{0} property name</comment>
   </data>
   <data name="UseSecureValueForSecureInputsRule_Description" xml:space="preserve">
     <value>Resource properties expecting secure input should be assigned secure values.</value>

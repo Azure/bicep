@@ -5,7 +5,7 @@ using System.IO.Abstractions;
 using System.Text;
 using System.Text.Json.Nodes;
 using Azure.Deployments.Core.Definitions;
-using Azure.Deployments.Engine.Host.Azure.ExtensibilityV2.Contract.Models;
+using Azure.Deployments.Engine.ExtensibilityV2.Contract.Models;
 using Azure.Deployments.Extensibility.Core.V2.Models;
 using Azure.Deployments.Extensibility.Messages;
 using Bicep.Core.Configuration;
