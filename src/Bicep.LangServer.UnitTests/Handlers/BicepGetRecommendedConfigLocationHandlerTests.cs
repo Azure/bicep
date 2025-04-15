@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.LangServer.UnitTests.Handlers
 {
     [TestClass]
-    public class BicepGetRecommendedConfigLocationTests
+    public class BicepGetRecommendedConfigLocationTests //asdfg
     {
         [NotNull]
         public TestContext? TestContext { get; set; }

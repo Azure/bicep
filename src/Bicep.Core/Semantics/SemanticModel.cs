@@ -186,7 +186,7 @@ namespace Bicep.Core.Semantics
 
             if (configuration.ConfigFileUri is { } configFileUri)
             {
-                sb.Append($"Using bicepConfig from {configFileUri}.");
+                sb.Append($"Using bicepConfig from {configFileUri}."); //asdfg
             }
             else
             {

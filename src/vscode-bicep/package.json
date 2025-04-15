@@ -239,6 +239,13 @@
         "icon": "$(output)"
       },
       {
+        "command": "bicep.getConfiguration",
+        "title": "Display configuration for this file",
+        "asdfg": "rename?",
+        "category": "Bicep",
+        "icon": "$(output)"
+      },
+      {
         "command": "bicep.deploy",
         "title": "Deploy Bicep File...",
         "category": "Bicep",
@@ -388,6 +395,11 @@
           "group": "2_bicep_1_edit"
         },
         {
+          "command": "bicep.getConfiguration",
+          "when": "resourceLangId == bicep || resourceFilename == 'bicepconfig.json'",
+          "group": "2_bicep_1_edit"
+        },
+        {
           "command": "bicep.insertResource",
           "when": "resourceLangId == bicep",
           "group": "2_bicep_1_edit"
@@ -455,6 +467,11 @@
           "group": "2_bicep_1_edit"
         },
         {
+          "command": "bicep.getConfiguration",
+          "when": "resourceLangId == bicep || resourceFilename == 'bicepconfig.json'",
+          "group": "2_bicep_1_edit"
+        },
+        {
           "command": "bicep.insertResource",
           "when": "resourceLangId == bicep",
           "group": "2_bicep_1_edit"
@@ -517,6 +534,11 @@
           "group": "2_bicep_1_edit"
         },
         {
+          "command": "bicep.getConfiguration",
+          "when": "resourceLangId == bicep || resourceFilename == 'bicepconfig.json'",
+          "group": "2_bicep_1_edit"
+        },
+        {
           "command": "bicep.insertResource",
           "when": "resourceLangId == bicep",
           "group": "2_bicep_1_edit"
@@ -575,6 +597,11 @@
         {
           "command": "bicep.generateParams",
           "group": "0_bicep"
+        },
+        {
+          "command": "bicep.getConfiguration",
+          "when": "resourceLangId == bicep || resourceFilename == 'bicepconfig.json'",
+          "group": "2_bicep_1_edit"
         },
         {
           "command": "bicep.deploy",

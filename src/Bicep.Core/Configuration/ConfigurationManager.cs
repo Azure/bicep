@@ -116,7 +116,7 @@ namespace Bicep.Core.Configuration
             }
         }
 
-        private ResultWithDiagnostic<IFileHandle?> LookupConfigurationFile(IDirectoryHandle? directoryToLookup)
+        private ResultWithDiagnostic<IFileHandle?> LookupConfigurationFile(IDirectoryHandle? directoryToLookup)//asdfg
         {
             try
             {

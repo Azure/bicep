@@ -23,7 +23,7 @@ namespace Bicep.LanguageServer.Handlers
     /// </summary>
     /// <remarks>
     /// Using ExecuteTypedCommandHandlerBase instead of IJsonRpcRequestHandler because IJsonRpcRequestHandler will throw "Content modified" if text changes are detected, and for this command
-    /// that is expected.
+    /// that is expected.asdfg
     /// </remarks>
     public class BicepEditLinterRuleCommandHandler : ExecuteTypedCommandHandlerBase<DocumentUri, string, string>
     {

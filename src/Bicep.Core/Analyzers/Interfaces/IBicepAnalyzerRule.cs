@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +27,7 @@ namespace Bicep.Core.Analyzers.Interfaces
         DiagnosticStyling DiagnosticStyling { get; }
         Uri? Uri { get; }
 
+        DiagnosticLevel GetDiagnosticLevel(AnalyzersConfiguration configuration);
         IEnumerable<IDiagnostic> Analyze(SemanticModel model, IServiceProvider serviceProvider);
     }
 }
