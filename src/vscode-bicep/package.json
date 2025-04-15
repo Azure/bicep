@@ -817,7 +817,7 @@
     "fs-extra": "^11.3.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-icons": "^5.4.0",
+    "react-icons": "^5.5.0",
     "styled-components": "^6.1.17",
     "stylis": "^4.3.6",
     "triple-beam": "^1.4.1",
