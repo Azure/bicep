@@ -2173,7 +2173,12 @@ namespace Bicep.Core.Semantics.Namespaces
 
             }
 
-            foreach (var typeProp in GetArmPrimitiveTypes().Concat(GetResourceDerivedTypesTypeProperties()))
+            foreach (var typeProp in GetArmPrimitiveTypes())
+            {
+                yield return new(typeProp, (features, sfk) => true);
+            }
+
+            foreach (var typeProp in GetResourceDerivedTypesTypeProperties())
             {
                 yield return new(typeProp, (features, sfk) => sfk == BicepSourceFileKind.BicepFile);
             }

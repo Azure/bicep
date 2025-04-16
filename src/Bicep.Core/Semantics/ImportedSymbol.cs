@@ -65,6 +65,7 @@ public abstract class ImportedSymbol<T> : ImportedSymbol where T : ExportMetadat
         {
             ExportMetadataKind.Variable or
             ExportMetadataKind.Function => true,
+            ExportMetadataKind.Type when Context.SourceFile.Features.TypedVariablesEnabled => true,
             _ => false,
         },
         _ => false,

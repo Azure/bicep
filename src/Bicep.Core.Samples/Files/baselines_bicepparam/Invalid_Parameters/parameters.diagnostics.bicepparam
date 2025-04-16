@@ -7,10 +7,10 @@ param para1 = 'value
 //@[14:20) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (bicep https://aka.ms/bicep/core-diagnostics#BCP004) |'value|
 
 para
-//@[00:04) [BCP337 (Error)] This declaration type is not valid for a Bicep Parameters file. Specify a "using", "extends", "param" or "var" declaration. (bicep https://aka.ms/bicep/core-diagnostics#BCP337) |para|
+//@[00:04) [BCP337 (Error)] This declaration type is not valid for a Bicep Parameters file. Supported declarations: "using", "extends", "param", "var", "type". (bicep https://aka.ms/bicep/core-diagnostics#BCP337) |para|
 
 para2
-//@[00:05) [BCP337 (Error)] This declaration type is not valid for a Bicep Parameters file. Specify a "using", "extends", "param" or "var" declaration. (bicep https://aka.ms/bicep/core-diagnostics#BCP337) |para2|
+//@[00:05) [BCP337 (Error)] This declaration type is not valid for a Bicep Parameters file. Supported declarations: "using", "extends", "param", "var", "type". (bicep https://aka.ms/bicep/core-diagnostics#BCP337) |para2|
 
 param expr = 1 + 2
 //@[00:18) [BCP259 (Error)] The parameter "expr" is assigned in the params file without being declared in the Bicep file. (bicep https://aka.ms/bicep/core-diagnostics#BCP259) |param expr = 1 + 2|
