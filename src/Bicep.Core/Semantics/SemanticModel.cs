@@ -92,7 +92,7 @@ namespace Bicep.Core.Semantics
             LinterAnalyzer = linterAnalyzer;
 
             this.allResourcesLazy = new(GetAllResourceMetadata);
-            this.declaredResourcesLazy = new(() => this.AllResources.OfType<DeclaredResourceMetadata>().ToImmutableArray());
+            this.declaredResourcesLazy = new(() => [.. this.AllResources.OfType<DeclaredResourceMetadata>()]);
 
             this.assignmentsByDeclaration = new(InitializeDeclarationToAssignmentDictionary);
             this.declarationsByAssignment = new(InitializeAssignmentToDeclarationDictionary);
@@ -169,7 +169,7 @@ namespace Bicep.Core.Semantics
         private IEnumerable<ExportMetadata> FindExportedFunctions() => Root.FunctionDeclarations
             .Where(f => f.IsExported(this))
             .Select(f => new ExportedFunctionMetadata(f.Name,
-                f.Overload.FixedParameters.Select(p => new ExportedFunctionParameterMetadata(p.Name, p.Type, p.Description)).ToImmutableArray(),
+                [.. f.Overload.FixedParameters.Select(p => new ExportedFunctionParameterMetadata(p.Name, p.Type, p.Description))],
                 new(f.Overload.TypeSignatureSymbol, null),
                 DescriptionHelper.TryGetFromDecorator(this, f.DeclaringFunction)));
 
