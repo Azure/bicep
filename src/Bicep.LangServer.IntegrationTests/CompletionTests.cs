@@ -4763,6 +4763,55 @@ param p validRecursiveObjectType = {
         }
 
         [TestMethod]
+        public async Task Import_completions_work_between_braces()
+        {
+            // https://github.com/Azure/bicep/issues/16934
+            var serverHelper = new ServerRequestHelper(TestContext, DefaultServer);
+            var folder = $"{Guid.NewGuid():D}";
+
+            await serverHelper.OpenFile($"/{folder}/mod.bicep", """
+@export()
+var bar = 'bar'
+""");
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+import { | } from 'mod.bicep'
+""");
+            var mainFile = await serverHelper.OpenFile($"/{folder}/main.bicep", text);
+
+            var newFile = await mainFile.RequestAndApplyCompletion(cursor, "bar");
+            newFile.Should().HaveSourceText("""
+import { bar| } from 'mod.bicep'
+""");
+        }
+
+        [TestMethod]
+        public async Task Import_completions_work_after_commas()
+        {
+            // https://github.com/Azure/bicep/issues/16934
+            var serverHelper = new ServerRequestHelper(TestContext, DefaultServer);
+            var folder = $"{Guid.NewGuid():D}";
+
+            await serverHelper.OpenFile($"/{folder}/mod.bicep", """
+@export()
+var foo = 'bar'
+
+@export()
+var bar = 'bar'
+""");
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+import { foo, | } from 'mod.bicep'
+""");
+            var mainFile = await serverHelper.OpenFile($"/{folder}/main.bicep", text);
+
+            var newFile = await mainFile.RequestAndApplyCompletion(cursor, "bar");
+            newFile.Should().HaveSourceText("""
+import { foo, bar| } from 'mod.bicep'
+""");
+        }
+
+        [TestMethod]
         public async Task Imported_symbol_list_item_completions_quote_and_escape_names_when_name_is_not_a_valid_identifier()
         {
             var jsonModContent = $$"""
