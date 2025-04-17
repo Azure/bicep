@@ -6,6 +6,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Emit.Options;
 using Bicep.Core.FileSystem;
+using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
@@ -19,7 +20,7 @@ namespace Bicep.LanguageServer.Handlers
 {
     // This handler is used to build compiled parameters.json file for given a bicep file path.
     // It returns build-params succeeded/failed message, which can be displayed appropriately in IDE output window
-    public class BicepBuildParamsCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
+    public class BicepBuildParamsCommandHandler : ExecuteTypedResponseCommandHandlerBase<DocumentUri, string>
     {
         private readonly ICompilationManager compilationManager;
         private readonly BicepCompiler bicepCompiler;
@@ -31,15 +32,10 @@ namespace Bicep.LanguageServer.Handlers
             this.bicepCompiler = bicepCompiler;
         }
 
-        public override async Task<string> Handle(string bicepParamsFilePath, CancellationToken cancellationToken)
+        public override async Task<string> Handle(DocumentUri documentUri, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(bicepParamsFilePath))
-            {
-                throw new ArgumentException("Invalid input file path");
-            }
-
-            DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepParamsFilePath);
-            string output = await GenerateCompiledParametersFileAndReturnOutputMessage(bicepParamsFilePath, documentUri);
+            var filePath = HandlerHelper.ValidateLocalFilePath(documentUri);
+            string output = await GenerateCompiledParametersFileAndReturnOutputMessage(filePath, documentUri);
 
             return output;
         }
