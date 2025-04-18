@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Azure.Deployments.Engine.Host.Azure.Definitions;
-using Azure.Deployments.Engine.Host.Azure.Interfaces;
+using Azure.Deployments.Engine.Definitions;
+using Azure.Deployments.Engine.Interfaces;
 
 namespace Bicep.Local.Deploy;
 

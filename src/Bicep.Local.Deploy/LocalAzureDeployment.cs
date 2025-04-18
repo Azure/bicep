@@ -17,7 +17,6 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Tracing;
 using Bicep.Local.Deploy.Extensibility;
-using Microsoft.Azure.Deployments.Service.Shared.Jobs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 

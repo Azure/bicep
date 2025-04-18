@@ -25,7 +25,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         [DataRow("foo.json")]
         public void GetBuildOutputPath_ShouldThrowOnJsonExtensions_Linux(string path)
         {
-            Action badExtension = () => PathHelper.GetDefaultBuildOutputPath(path);
+            Action badExtension = () => PathHelper.GetJsonOutputPath(path);
             badExtension.Should().Throw<ArgumentException>().WithMessage("The specified file already has the '.json' extension.");
         }
 
@@ -33,7 +33,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         [DataRow("foo.bicep")]
         public void GetDecompileOutputPath_ShouldThrowOnBicepExtensions_Linux(string path)
         {
-            Action badExtension = () => PathHelper.GetDefaultDecompileOutputPath(path);
+            Action badExtension = () => PathHelper.GetBicepOutputPath(path);
             badExtension.Should().Throw<ArgumentException>().WithMessage("The specified file already has the '.bicep' extension.");
         }
 #else

@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Azure.Deployments.Core.Definitions;
 using Bicep.Local.Deploy.Extensibility;
-using Microsoft.Azure.Deployments.Service.Shared.Jobs;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Local.Deploy;

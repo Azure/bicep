@@ -5,7 +5,7 @@ using Azure.Deployments.Core.Exceptions;
 using Azure.Deployments.Core.Interfaces;
 using Azure.Deployments.Engine;
 using Azure.Deployments.Engine.Dependencies;
-using Azure.Deployments.Engine.Host.Azure.Interfaces;
+using Azure.Deployments.Engine.Interfaces;
 
 namespace Bicep.Local.Deploy;
 
@@ -18,7 +18,8 @@ public class LocalDeploymentConfiguration : IAzureDeploymentConfiguration
         IDependencyProcessor dependency,
         ITemplateExceptionHandler exceptionHandler,
         IDataProviderHolder dataProviders,
-        IExtensionConfigSchemaDirectoryFactory extensionConfigSchemaDirectoryFactory)
+        IExtensionConfigSchemaDirectoryFactory extensionConfigSchemaDirectoryFactory,
+        IResourceTypeRegistrationProvider resourceTypeRegistrationProvider)
     {
         Settings = settings;
         Host = host;
@@ -27,6 +28,7 @@ public class LocalDeploymentConfiguration : IAzureDeploymentConfiguration
         TemplateExceptionHandler = exceptionHandler;
         DataProviders = dataProviders;
         ExtensionConfigSchemaDirectoryFactory = extensionConfigSchemaDirectoryFactory;
+        ResourceTypeRegistrationProvider = resourceTypeRegistrationProvider;
     }
 
     public IAzureDeploymentSettings Settings { get; }
@@ -44,4 +46,6 @@ public class LocalDeploymentConfiguration : IAzureDeploymentConfiguration
     public IDataProviderHolder DataProviders { get; }
 
     public IExtensionConfigSchemaDirectoryFactory ExtensionConfigSchemaDirectoryFactory { get; }
+
+    public IResourceTypeRegistrationProvider ResourceTypeRegistrationProvider { get; }
 }
