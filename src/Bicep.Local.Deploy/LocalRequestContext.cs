@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Azure.Deployments.Core.Helpers;
-using Azure.Deployments.Engine.Host.External;
+using Azure.Deployments.Engine.External;
 
 namespace Bicep.Local.Deploy;
 

@@ -333,6 +333,41 @@ output myOutput string = 'hello!'
         }
 
         [TestMethod]
+        public async Task Build_WithPatternAndOutDir_ShouldReplicateDirStructure()
+        {
+            var contents = """
+output myOutput string = 'hello!'
+""";
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var bicepInputPath = Path.Combine(testOutputPath, "input");
+            var bicepOutputPath = Path.Combine(testOutputPath, "output");
+            Directory.CreateDirectory(bicepOutputPath);
+            var fileResults = new[]
+            {
+                "foo.bicep",
+                "dir/bar.bicep",
+            };
+
+            // Create input structure
+            foreach (var f in fileResults)
+            {
+                FileHelper.SaveResultFile(TestContext, Path.Combine(bicepInputPath, f), contents, testOutputPath);
+            }
+
+            var (output, error, result) = await Bicep(["build", "--pattern", $"{bicepInputPath}/**/*.bicep", "--outdir", bicepOutputPath]);
+
+            error.Should().BeEmpty();
+            output.Should().BeEmpty();
+            result.Should().Be(0);
+
+            foreach (var f in fileResults)
+            {
+                var outputFile = Path.ChangeExtension(f, ".json");
+                File.Exists(Path.Combine(bicepOutputPath, outputFile)).Should().Be(true, f);
+            }
+        }
+
+        [TestMethod]
         public async Task Build_WithNonExistentOutDir_ShouldFail_WithExpectedErrorMessage()
         {
             var bicepPath = FileHelper.SaveResultFile(
@@ -426,7 +461,7 @@ output myOutput string = 'hello!'
         public async Task Build_LockedOutputFile_ShouldProduceExpectedError()
         {
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "Empty.bicep", DataSets.Empty.Bicep);
-            var outputFile = PathHelper.GetDefaultBuildOutputPath(inputFile);
+            var outputFile = PathHelper.GetJsonOutputPath(inputFile);
 
             // ReSharper disable once ConvertToUsingDeclaration
             using (new FileStream(outputFile, FileMode.Create, FileAccess.ReadWrite, FileShare.None))

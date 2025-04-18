@@ -219,7 +219,8 @@ namespace Bicep.Core.SourceLink
             return new SourceArchive(metadata, fileEntries.ToImmutableDictionary());
         }
 
-        public ImmutableArray<SourceCodeDocumentPathLink> FindDocumentLinks(string path) => this.metadata.DocumentLinks[path];
+        public ImmutableArray<SourceCodeDocumentPathLink> FindDocumentLinks(string path) =>
+            this.metadata.DocumentLinks.TryGetValue(path, out var documentLinks) ? documentLinks : [];
 
         public LinkedSourceFile FindSourceFile(string path)
         {

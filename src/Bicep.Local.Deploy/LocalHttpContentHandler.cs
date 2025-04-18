@@ -4,7 +4,7 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Azure.Deployments.Engine.Host.External;
+using Azure.Deployments.Engine.External;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
 namespace Bicep.Local.Deploy;

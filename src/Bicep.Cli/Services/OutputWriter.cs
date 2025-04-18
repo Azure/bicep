@@ -96,6 +96,7 @@ namespace Bicep.Cli.Services
         {
             try
             {
+                fileSystem.Directory.CreateDirectory(Path.GetDirectoryName(fileUri.LocalPath)!);
                 using var fileStream = fileSystem.FileStream.New(fileUri.LocalPath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
                 using var sw = new StreamWriter(fileStream, TemplateEmitter.UTF8EncodingWithoutBom, 4096, leaveOpen: true);
 

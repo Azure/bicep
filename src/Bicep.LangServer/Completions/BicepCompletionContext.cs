@@ -826,7 +826,8 @@ namespace Bicep.LanguageServer.Completions
 
         private static bool IsImportedSymbolListItemContext(List<SyntaxBase> matchingNodes, int offset) =>
             SyntaxMatcher.IsTailMatch<ImportedSymbolsListItemSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier) ||
-            SyntaxMatcher.IsTailMatch<ImportedSymbolsListSyntax, Token>(matchingNodes);
+            SyntaxMatcher.IsTailMatch<ImportedSymbolsListSyntax, Token>(matchingNodes) ||
+            SyntaxMatcher.IsTailMatch<ImportedSymbolsListSyntax>(matchingNodes, list => IsBetweenNodes(offset, list.OpenBrace, list.CloseBrace));
 
         private static bool ExpectingContextualAsKeyword(List<SyntaxBase> matchingNodes, int offset) =>
             // import {} | or import * |

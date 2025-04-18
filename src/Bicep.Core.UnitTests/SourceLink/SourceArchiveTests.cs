@@ -720,6 +720,81 @@ public class SourceArchiveTests
         ex!.Message.Should().StartWith("This source code was published with a newer, incompatible version of Bicep (0.whatever.0). You are using version ");
     }
 
+    [TestMethod]
+    public void FindDocumentLinks_DocumentLinksNotFound_ReturnsEmptyArray()
+    {
+        var result = CreateSourceArchiveResult(
+            (
+                "__metadata.json",
+                """
+                {
+                  "entryPoint": "child.bicep",
+                  "metadataVersion": 1,
+                  "bicepVersion": "0.34.1",
+                  "sourceFiles": [
+                    {
+                      "path": "child.bicep",
+                      "archivePath": "files/child.bicep",
+                      "kind": "bicep"
+                    }
+                  ],
+                  "documentLinks": {}
+                }
+                """
+            ),
+            (
+                "child.bicep",
+                "bicep contents"
+            )
+        ).UnwrapOrThrow();
+
+        var documentLinks = result.FindDocumentLinks("child.bicep");
+        
+        documentLinks.Should().BeEmpty();
+    }
+
+    [TestMethod]
+    public void FindDocumentLinks_DocumentLinksFound_ReturnsNonEmptyArray()
+    {
+        var result = CreateSourceArchiveResult(
+            (
+                "__metadata.json",
+                """
+                {
+                  "entryPoint": "child.bicep",
+                  "metadataVersion": 1,
+                  "bicepVersion": "0.34.1",
+                  "sourceFiles": [
+                    {
+                      "path": "child.bicep",
+                      "archivePath": "files/child.bicep",
+                      "kind": "bicep"
+                    }
+                  ],
+                  "documentLinks": {
+                    "dummy.bicep": [
+                      {
+                        "range": "[0:1]-[2:4]",
+                        "target": "foobar.bicep"
+                      }
+                    ]
+                  }
+                }
+                """
+            ),
+            (
+                "child.bicep",
+                "bicep contents"
+            )
+        ).UnwrapOrThrow();
+
+        var documentLinks = result.FindDocumentLinks("dummy.bicep");
+        
+        documentLinks.Should().HaveCount(1);
+        documentLinks[0].Range.ToString().Should().Be("[0:1]-[2:4]");
+        documentLinks[0].Target.Should().Be("foobar.bicep");
+    }
+
     private ResultWithException<SourceArchive> CreateSourceArchiveResult(params (string relativePath, string contents)[] files)
     {
         var stream = new MemoryStream();

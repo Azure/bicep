@@ -48,7 +48,7 @@ namespace Bicep.Cli.Commands
             logger.LogWarning(BicepDecompiler.DecompilerDisclaimerMessage);
 
             var inputUri = PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(args.InputFile));
-            var outputPath = PathHelper.ResolveDefaultOutputPath(inputUri.LocalPath, args.OutputDir, args.OutputFile, PathHelper.GetDefaultDecompileOutputPath);
+            var outputPath = PathHelper.ResolveOutputPath(inputUri.LocalPath, args.OutputDir, args.OutputFile, PathHelper.GetBicepOutputPath);
             var outputUri = PathHelper.FilePathToFileUrl(outputPath);
 
             try

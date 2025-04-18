@@ -56,8 +56,17 @@ resource ubuntuVM 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   }
 }
 """)]
+    [DataRow("""
+resource server 'Microsoft.DBforMySQL/flexibleServers@2023-12-30' = {
+  name: 'myServer'
+  location: 'westus'
+  properties: {
+    administratorLoginPassword: 'hardCodedValue'
+  }
+}
+""")]
     [TestMethod]
-    public void Linter_validation_should_warn_for_insecure_password_field(string text)
+    public void Linter_validation_should_warn_for_insecure_fields(string text)
         => CompileAndTest(text, 1);
 
     [DataRow("""
