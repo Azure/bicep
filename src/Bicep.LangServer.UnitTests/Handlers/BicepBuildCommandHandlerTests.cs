@@ -45,7 +45,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             Func<Task> sut = () => bicepBuildCommandHandler.Handle(path, CancellationToken.None);
 
-            await sut.Should().ThrowAsync<ArgumentException>().WithMessage("Invalid input file path");
+            await sut.Should().ThrowAsync<UriFormatException>();
         }
 
         [TestMethod]

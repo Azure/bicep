@@ -33,14 +33,19 @@ export class ForceModulesRestoreCommand implements Command {
       return;
     }
 
+    if (documentUri.scheme.toLowerCase() !== "file") {
+      this.client.error("Restore (force) failed. The active file must be saved to your local filesystem.", undefined, true);
+      return;
+    }
+
     try {
       this.outputChannelManager.appendToOutputChannel(
-        `Force restoring modules used by ${documentUri.fsPath ?? documentUri.toString()}...`,
+        `Force restoring modules used by ${documentUri}...`,
       );
 
       const forceModulesRestoreOutput: string = await this.client.sendRequest("workspace/executeCommand", {
         command: "forceModulesRestore",
-        arguments: [documentUri.fsPath],
+        arguments: [documentUri.toString()],
       });
       this.outputChannelManager.appendToOutputChannel(forceModulesRestoreOutput);
     } catch (err) {
