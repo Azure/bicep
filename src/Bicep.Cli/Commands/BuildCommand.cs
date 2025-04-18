@@ -34,7 +34,7 @@ public class BuildCommand(
         var inputUri = ArgumentHelper.GetFileUri(args.InputFile);
         ArgumentHelper.ValidateBicepFile(inputUri);
 
-        var outputUri = CommandHelper.GetJsonOutputUri(inputUri, args.OutputDir, args.OutputFile, null);
+        var outputUri = CommandHelper.GetJsonOutputUri(inputUri, args.OutputDir, args.OutputFile);
 
         var summary = await Compile(inputUri, outputUri, args.NoRestore, args.DiagnosticsFormat, args.OutputToStdOut);
         return CommandHelper.GetExitCode(summary);
@@ -66,13 +66,9 @@ public class BuildCommand(
     {
         var hasErrors = false;
 
-        var (inputDir, _) = CommandHelper.SplitFilePatternOnWildcard(args.FilePattern!, Path.DirectorySeparatorChar);
-
-        foreach (var inputUri in CommandHelper.GetFilesMatchingPattern(environment, args.FilePattern))
+        foreach (var (inputUri, outputUri) in CommandHelper.GetInputAndOutputFilesForPattern(environment, args.FilePattern, args.OutputDir, PathHelper.GetJsonOutputPath))
         {
             ArgumentHelper.ValidateBicepFile(inputUri);
-
-            var outputUri = CommandHelper.GetJsonOutputUri(inputUri, args.OutputDir, null, inputDir);
 
             var result = await Compile(inputUri, outputUri, args.NoRestore, args.DiagnosticsFormat, false);
             hasErrors |= result.HasErrors;

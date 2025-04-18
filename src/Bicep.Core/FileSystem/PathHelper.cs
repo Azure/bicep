@@ -10,7 +10,7 @@ namespace Bicep.Core.FileSystem
     {
         private static readonly bool IsFileSystemCaseSensitive = CheckIfFileSystemIsCaseSensitive();
 
-        private const string TemplateOutputExtension = ".json";
+        private const string JsonExtension = ".json";
 
         private const string BicepExtension = LanguageConstants.LanguageFileExtension;
 
@@ -52,16 +52,14 @@ namespace Bicep.Core.FileSystem
             return Path.GetFullPath(resolvedPath);
         }
 
-        public static string ResolveOutputPath(string inputPath, string? outputDir, string? outputFile, Func<string, string> defaultOutputPath, IFileSystem? fileSystem = null, string? inputDir = null)
+        public static string ResolveOutputPath(string inputPath, string? outputDir, string? outputFile, Func<string, string> defaultOutputPath, IFileSystem? fileSystem = null)
         {
             fileSystem ??= new LocalFileSystem();
 
             if (outputDir is not null)
             {
                 var dir = ResolvePath(outputDir, fileSystem: fileSystem);
-                var file = inputDir == null
-                    ? fileSystem.Path.GetFileName(inputPath)
-                    : fileSystem.Path.GetRelativePath(inputDir, inputPath);
+                var file = fileSystem.Path.GetFileName(inputPath);
                 var path = fileSystem.Path.Combine(dir, file);
 
                 return defaultOutputPath(path);
@@ -96,18 +94,18 @@ namespace Bicep.Core.FileSystem
             return outputPath;
         }
 
-        public static string GetDefaultBuildOutputPath(string path)
+        public static string GetJsonOutputPath(string path)
         {
-            if (string.Equals(Path.GetExtension(path), TemplateOutputExtension, PathComparison))
+            if (string.Equals(Path.GetExtension(path), JsonExtension, PathComparison))
             {
                 // throwing because this could lead to us destroying the input file if extensions get mixed up.
-                throw new ArgumentException($"The specified file already has the '{TemplateOutputExtension}' extension.");
+                throw new ArgumentException($"The specified file already has the '{JsonExtension}' extension.");
             }
 
-            return Path.ChangeExtension(path, TemplateOutputExtension);
+            return Path.ChangeExtension(path, JsonExtension);
         }
 
-        public static string GetDefaultDecompileOutputPath(string path)
+        public static string GetBicepOutputPath(string path)
         {
             if (string.Equals(Path.GetExtension(path), BicepExtension, PathComparison))
             {
@@ -118,7 +116,7 @@ namespace Bicep.Core.FileSystem
             return Path.ChangeExtension(path, BicepExtension);
         }
 
-        public static string GetDefaultDecompileparamOutputPath(string path)
+        public static string GetBicepparamOutputPath(string path)
         {
             if (string.Equals(Path.GetExtension(path), BicepParamsExtension, PathComparison))
             {

@@ -70,7 +70,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess())
             {
-                static string DefaultOutputPath(string path) => PathHelper.GetDefaultBuildOutputPath(path);
+                static string DefaultOutputPath(string path) => PathHelper.GetJsonOutputPath(path);
                 var paramsOutputPath = PathHelper.ResolveOutputPath(bicepParamsFilePath, null, compiledFilePath, DefaultOutputPath);
 
                 var model = compilation.GetEntrypointSemanticModel();

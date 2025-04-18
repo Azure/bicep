@@ -461,7 +461,7 @@ output myOutput string = 'hello!'
         public async Task Build_LockedOutputFile_ShouldProduceExpectedError()
         {
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "Empty.bicep", DataSets.Empty.Bicep);
-            var outputFile = PathHelper.GetDefaultBuildOutputPath(inputFile);
+            var outputFile = PathHelper.GetJsonOutputPath(inputFile);
 
             // ReSharper disable once ConvertToUsingDeclaration
             using (new FileStream(outputFile, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
