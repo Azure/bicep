@@ -132,12 +132,10 @@ namespace Bicep.Core.TypeSystem
                     return new DeclaredTypeAssignment(TypeFactory.CreateBooleanType(), assert);
 
                 case TargetScopeSyntax targetScope:
-                    // We add the DSC constant here so we can have it as a completion when the feature is enabled.
-                    // TODO: When no longer experimental, add directly to 'TargetScopeSyntax.GetDeclaredType()' instead.
+                    var supportedScopes = TargetScopeSyntax.GetDeclaredType(features);
+
                     return new DeclaredTypeAssignment(
-                        features.DesiredStateConfigurationEnabled
-                            ? TypeHelper.CreateTypeUnion(targetScope.GetDeclaredType(), TypeFactory.CreateStringLiteralType(LanguageConstants.TargetScopeTypeDesiredStateConfiguration))
-                            : targetScope.GetDeclaredType(),
+                        supportedScopes,
                         targetScope, DeclaredTypeFlags.Constant);
 
                 case IfConditionSyntax ifCondition:
@@ -717,7 +715,7 @@ namespace Bicep.Core.TypeSystem
         }
 
         private bool HasSecureDecorator(DecorableSyntax syntax)
-            => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSecurePropertyName) is not null;
+            => syntax.HasSecureDecorator(binder, typeManager);
 
         private DecoratorSyntax? TryGetSystemDecorator(DecorableSyntax syntax, string decoratorName)
             => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, decoratorName);

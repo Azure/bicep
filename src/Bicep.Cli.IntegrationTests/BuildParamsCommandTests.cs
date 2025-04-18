@@ -39,6 +39,16 @@ namespace Bicep.Cli.IntegrationTests
             };
 
         [TestMethod]
+        public async Task Build_Params_With_NonExisting_File_ShouldFail_WithExpectedErrorMessage()
+        {
+            var (output, error, result) = await Bicep(Settings, "build-params", "/tmp/nonexisting.bicepparam");
+
+            result.Should().Be(1);
+            output.Should().BeEmpty();
+            error.Should().Contain($"The specified file \"/tmp/nonexisting.bicepparam\" does not exist.");
+        }
+
+        [TestMethod]
         public async Task Build_Params_With_Incorrect_Bicep_File_Extension_ShouldFail_WithExpectedErrorMessage()
         {
             var bicepparamsPath = FileHelper.SaveResultFile(TestContext, "input.bicepparam", "using './main.bicep'");
@@ -412,7 +422,7 @@ output foo string = foo
 
             var result = await Bicep(settings, "build-params", mainBicepParamPath, "--stdout");
 
-            result.Should().Fail().And.HaveStderrMatch($"*Error BCP406: The \"extends\" keyword is not supported*");
+            result.Should().Fail().And.HaveStderrMatch($"*Error BCP406: Using \"extends\" keyword requires enabling EXPERIMENTAL feature \"ExtendableParamFiles\".*");
         }
 
         [TestMethod]
@@ -591,6 +601,43 @@ param intParam = 42
             {
                 var outputFile = Path.ChangeExtension(input, ".json");
                 File.Exists(Path.Combine(outputPath, outputFile)).Should().Be(expectOutput);
+            }
+        }
+
+        [TestMethod]
+        public async Task Build_WithPatternAndOutDir_ShouldReplicateDirStructure()
+        {
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var bicepInputPath = Path.Combine(testOutputPath, "input");
+            var bicepOutputPath = Path.Combine(testOutputPath, "output");
+            Directory.CreateDirectory(bicepOutputPath);
+            var fileResults = new[]
+            {
+                (Path: "foo.bicepparam", Contents: "using 'main.bicep'\n\nparam intParam = 42\n"),
+                (Path: "dir/bar.bicepparam", Contents: "using '../main.bicep'\n\nparam intParam = 42\n"),
+            };
+            FileHelper.SaveResultFile(TestContext, Path.Combine(bicepInputPath, "main.bicep"),
+                """
+                param intParam int
+                output intOutput int = intParam
+                """);
+
+            // Create input structure
+            foreach (var (f, contents) in fileResults)
+            {
+                FileHelper.SaveResultFile(TestContext, Path.Combine(bicepInputPath, f), contents, testOutputPath);
+            }
+
+            var (output, error, result) = await Bicep(["build-params", "--pattern", $"{bicepInputPath}/**/*.bicepparam", "--outdir", bicepOutputPath]);
+
+            error.Should().BeEmpty();
+            output.Should().BeEmpty();
+            result.Should().Be(0);
+
+            foreach (var (f, _) in fileResults)
+            {
+                var outputFile = Path.ChangeExtension(f, ".json");
+                File.Exists(Path.Combine(bicepOutputPath, outputFile)).Should().Be(true, f);
             }
         }
     }

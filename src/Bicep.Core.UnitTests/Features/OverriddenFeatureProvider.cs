@@ -37,9 +37,9 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool WaitAndRetryEnabled => overrides.WaitAndRetryEnabled ?? features.WaitAndRetryEnabled;
 
-    public bool LocalDeployEnabled => overrides.LocalDeployEnabled ?? features.LocalDeployEnabled;
+    public bool OnlyIfNotExistsEnabled => overrides.OnlyIfNotExistsEnabled ?? features.OnlyIfNotExistsEnabled;
 
-    public bool SecureOutputsEnabled => overrides.SecureOutputsEnabled ?? features.SecureOutputsEnabled;
+    public bool LocalDeployEnabled => overrides.LocalDeployEnabled ?? features.LocalDeployEnabled;
 
     public bool ResourceInfoCodegenEnabled => overrides.ResourceInfoCodegenEnabled ?? features.ResourceInfoCodegenEnabled;
 
@@ -52,4 +52,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool ModuleExtensionConfigsEnabled => overrides.ModuleExtensionConfigsEnabled ?? features.ModuleExtensionConfigsEnabled;
 
     public bool DesiredStateConfigurationEnabled => overrides.DesiredStateConfigurationEnabled ?? features.DesiredStateConfigurationEnabled;
+
+    public bool ExternalInputFunctionEnabled => overrides.ExternalInputFunctionEnabled ?? features.ExternalInputFunctionEnabled;
 }

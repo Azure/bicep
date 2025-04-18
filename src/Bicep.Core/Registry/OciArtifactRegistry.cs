@@ -223,7 +223,7 @@ namespace Bicep.Core.Registry
             // CONSIDER: Run these in parallel
             foreach (var reference in referencesEvaluated)
             {
-                using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectory(reference)}");
+                using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectory(reference).Uri.GetLocalFilePath()}");
                 var (result, errorMessage) = await this.TryRestoreArtifactAsync(reference.ReferencingFile.Configuration, reference);
 
                 if (result is null)
@@ -530,20 +530,6 @@ namespace Bicep.Core.Registry
             };
 
             return this.GetArtifactDirectory(reference).GetFile(fileName);
-        }
-
-        public override ResultWithException<SourceArchive> TryGetSource(OciArtifactReference reference)
-        {
-            var sourceFile = GetArtifactFile(reference, ArtifactFileType.Source);
-            if (sourceFile.Exists())
-            {
-                using var sourceStream = sourceFile.OpenRead();
-
-                return SourceArchive.UnpackFromStream(sourceStream);
-            }
-
-            // No sources available (presumably they weren't published)
-            return new(new SourceNotAvailableException());
         }
 
         public override Uri? TryGetExtensionBinary(OciArtifactReference reference)

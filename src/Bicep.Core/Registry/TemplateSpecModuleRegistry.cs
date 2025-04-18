@@ -71,7 +71,7 @@ namespace Bicep.Core.Registry
 
             foreach (var reference in references)
             {
-                using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectory(reference)}");
+                using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectory(reference).Uri.GetLocalFilePath()}");
                 try
                 {
                     var repository = this.repositoryFactory.CreateRepository(reference.ReferencingFile.Configuration, reference.SubscriptionId);
@@ -127,11 +127,6 @@ namespace Bicep.Core.Registry
             }
 
             return Task.FromResult<string?>(null);
-        }
-
-        public override ResultWithException<SourceArchive> TryGetSource(TemplateSpecModuleReference reference)
-        {
-            return new(new SourceNotAvailableException());
         }
 
         public override Uri? TryGetExtensionBinary(TemplateSpecModuleReference reference)

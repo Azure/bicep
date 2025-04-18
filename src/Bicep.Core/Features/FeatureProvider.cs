@@ -44,9 +44,9 @@ namespace Bicep.Core.Features
 
         public bool WaitAndRetryEnabled => configuration.ExperimentalFeaturesEnabled.WaitAndRetry;
 
-        public bool LocalDeployEnabled => configuration.ExperimentalFeaturesEnabled.LocalDeploy;
+        public bool OnlyIfNotExistsEnabled => configuration.ExperimentalFeaturesEnabled.OnlyIfNotExists;
 
-        public bool SecureOutputsEnabled => configuration.ExperimentalFeaturesEnabled.SecureOutputs;
+        public bool LocalDeployEnabled => configuration.ExperimentalFeaturesEnabled.LocalDeploy;
 
         public bool ResourceInfoCodegenEnabled => this.configuration.ExperimentalFeaturesEnabled.ResourceInfoCodegen;
 
@@ -57,6 +57,8 @@ namespace Bicep.Core.Features
         public bool ModuleExtensionConfigsEnabled => configuration.ExperimentalFeaturesEnabled.ModuleExtensionConfigs;
 
         public bool DesiredStateConfigurationEnabled => configuration.ExperimentalFeaturesEnabled.DesiredStateConfiguration;
+
+        public bool ExternalInputFunctionEnabled => configuration.ExperimentalFeaturesEnabled.ExternalInputFunction;
 
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
             => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;

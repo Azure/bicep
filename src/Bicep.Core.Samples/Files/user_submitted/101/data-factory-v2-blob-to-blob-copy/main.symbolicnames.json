@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1828620419650743269"
+      "templateHash": "15424787848331863337"
     }
   },
   "parameters": {
@@ -80,7 +80,7 @@
       "properties": {
         "type": "AzureBlobStorage",
         "typeProperties": {
-          "connectionString": "[format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}', parameters('storageAccountName'), listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2021-04-01').keys[0].value)]"
+          "connectionString": "[format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}', parameters('storageAccountName'), listKeys('storageAccount', '2021-04-01').keys[0].value)]"
         }
       },
       "dependsOn": [

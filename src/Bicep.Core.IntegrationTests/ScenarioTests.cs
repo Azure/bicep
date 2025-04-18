@@ -2402,8 +2402,8 @@ output deployedTopics array = [for (topicName, i) in topics: {
         result.Template!.Should().HaveValueAtPath("$.outputs.deployedTopics.copy.input", new JObject
         {
             ["name"] = "[variables('topics')[copyIndex()]]",
-            ["accessKey1"] = "[listKeys(resourceId('Microsoft.EventGrid/topics', 'myExistingEventGridTopic'), '2021-06-01-preview').key1]",
-            ["accessKey2"] = "[listKeys(resourceId('Microsoft.EventGrid/topics', format('{0}-ZZZ', variables('topics')[copyIndex()])), '2021-06-01-preview').key1]"
+            ["accessKey1"] = "[listKeys('testR', '2021-06-01-preview').key1]",
+            ["accessKey2"] = "[listKeys(format('eventGridTopics[{0}]', copyIndex()), '2021-06-01-preview').key1]"
         });
     }
 
@@ -2954,7 +2954,7 @@ output badResult object = {
 
         result.Template.Should().HaveValueAtPath("$.outputs['badResult'].value", new JObject
         {
-            ["value"] = "[listAnything(resourceId('Microsoft.Storage/storageAccounts', parameters('storageName')), '2021-04-01').keys[0].value]",
+            ["value"] = "[listAnything('stg', '2021-04-01').keys[0].value]",
         });
     }
 
@@ -4562,6 +4562,7 @@ resource action 'Microsoft.SecurityInsights/alertRules/actions@2021-09-01-previe
   name: 'action1'
   properties: {
     logicAppResourceId: logicApp.id
+    #disable-next-line use-secure-value-for-secure-inputs
     triggerUri: logicApp.listCallbackUrl().value
   }
 }
@@ -4624,6 +4625,7 @@ resource action 'Microsoft.SecurityInsights/alertRules/actions@2021-09-01-previe
   name: 'action1'
   properties: {
     logicAppResourceId: logicApp.id
+    #disable-next-line use-secure-value-for-secure-inputs
     triggerUri: logicApp.listCallbackUrl().value
   }
 }
@@ -7112,6 +7114,100 @@ var subnetId = vNet::subnets[0].id
               }
             }
             """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Wrong_parameter_structure_to_buildUri_function_should_emit_diagnostics()
+    {
+        var result = CompilationHelper.Compile("""
+            var components = {
+              scheme: 'https'
+              host2: 'example.com'
+            }
+
+            var uri = buildUri(components)
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+            [
+                ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"host\"."),
+                ("BCP089", DiagnosticLevel.Error, "The property \"host2\" is not allowed on objects of type \"parseUri\". Did you mean \"host\"?")
+            ]);
+    }
+
+    [TestMethod]
+    public void Correct_parameter_structure_to_buildUri_function_should_not_emit_diagnostics()
+    {
+        var result = CompilationHelper.Compile("""
+        var components = {
+          scheme: 'https'
+          host: 'example.com'
+        }
+
+        var uri = buildUri(components)
+        """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/azure/bicep/issues/16816
+    [TestMethod]
+    public void Test_Issue16816()
+    {
+        var result = CompilationHelper.Compile(
+            ("empty.bicep", string.Empty),
+            ("main.bicep", """
+                @minLength(1)
+                @maxLength(63)
+                param parameter string
+
+                var moduleName = '${parameter}-${uniqueString(deployment().name)}'
+
+                module MyModule 'empty.bicep' = {
+                  name: substring(moduleName, 0, min(length(moduleName), 64))
+                }
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Substring_raises_diagnostic_on_out_of_bounds_parameters()
+    {
+        var result = CompilationHelper.Compile("""
+            @minValue(2)
+            param x int
+
+            output foo1 string = substring('foo', 2, x)
+            output foo2 string = substring('f', x)
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP327", DiagnosticLevel.Error, "The provided value (which will always be greater than or equal to 2) is too large to assign to a target for which the maximum allowable value is 1."),
+            ("BCP327", DiagnosticLevel.Error, "The provided value (which will always be greater than or equal to 2) is too large to assign to a target for which the maximum allowable value is 1."),
+        });
+    }
+
+    [TestMethod]
+    public void List_functions_should_use_symbolic_name()
+    {
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(SymbolicNameCodegenEnabled: true)), """
+            resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+              name: 'acct'
+              location: resourceGroup().location
+              kind: 'StorageV2'
+              sku: {
+                name: 'Standard_LRS'
+              }
+            }
+
+            output secret string = storageaccount.listKeys().keys[0].value
+            """);
+
+        result.Template.Should().HaveValueAtPath("$.outputs['secret'].value", "[listKeys('storageaccount', '2021-02-01').keys[0].value]", "the listKeys() function call should use a symbolic name value");
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }

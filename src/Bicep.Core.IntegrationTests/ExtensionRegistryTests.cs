@@ -413,6 +413,8 @@ output joke string = dadJoke.joke
         var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration(), AllFeaturesEnabledForLocalDeploy);
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
+targetScope = 'local'
+
 extension 'br:example.azurecr.io/extensions/foo:1.2.3' with {
   namespace: 'ThirdPartyNamespace'
   config: 'Some path to config file'
@@ -449,6 +451,8 @@ output joke string = dadJoke.joke
         var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration(), AllFeaturesEnabledForLocalDeploy);
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
+targetScope = 'local'
+
 extension 'br:example.azurecr.io/extensions/foo:1.2.3' with { }
 
 resource dadJoke 'fooType@v1' = {
@@ -470,6 +474,8 @@ output joke string = dadJoke.joke
         var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetTestTypesTgz(), AllFeaturesEnabledForLocalDeploy);
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
+targetScope = 'local'
+
 extension 'br:example.azurecr.io/extensions/foo:1.2.3' with {
   namespace: 'ThirdPartyNamespace'
   config: 'Some path to config file'

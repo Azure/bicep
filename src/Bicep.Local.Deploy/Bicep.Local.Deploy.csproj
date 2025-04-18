@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Azure.Bicep.Local.Deploy</AssemblyName>
     <RootNamespace>Bicep.Local.Deploy</RootNamespace>
@@ -12,9 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Deployments.Engine" Version="1.241.0" />
+    <PackageReference Include="Azure.Deployments.Engine" Version="1.329.0" />
     <PackageReference Include="Azure.Deployments.Extensibility.Core" Version="0.1.55" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
+    <PackageReference Include="OpenTelemetry" Version="1.9.0" />
   </ItemGroup>
 
   <ItemGroup>

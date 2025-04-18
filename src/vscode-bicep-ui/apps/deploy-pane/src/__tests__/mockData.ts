@@ -54,7 +54,6 @@ export const scope: DeploymentScope & { scopeType: "resourceGroup" } = {
 
 export function getDeployResponse(): DeploymentExtended {
   return {
-    id: `/subscriptions/${scope.subscriptionId}/resourceGroups/${scope.resourceGroup}/providers/Microsoft.Resources/deployments/fooDeployment`,
     properties: {
       outputs: {
         foo: {
@@ -101,7 +100,6 @@ export function getWhatIfResponse(): WhatIfOperationResult {
 
 export async function* getDeploymentOperations(): AsyncIterable<DeploymentOperation> {
   yield {
-    id: `/subscriptions/${scope.subscriptionId}/resourceGroups/${scope.resourceGroup}/providers/Microsoft.Resources/deployments/fooDeployment/operations/1`,
     properties: {
       provisioningOperation: "Create",
       provisioningState: "Succeeded",

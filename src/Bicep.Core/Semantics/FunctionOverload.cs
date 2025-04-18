@@ -108,10 +108,19 @@ namespace Bicep.Core.Semantics
                 : FunctionMatchResult.Match;
         }
 
-        public TypeSymbol GetArgumentType(int index)
+        public TypeSymbol GetArgumentType(
+            int index,
+            FunctionOverloadBuilder.GetFunctionArgumentType? getFunctionArgumentType = null)
         {
             if (index < this.FixedParameters.Length)
             {
+                if (FixedParameters[index].Calculator is { } calculator &&
+                    getFunctionArgumentType is not null &&
+                    calculator(getFunctionArgumentType) is { } calculatedType)
+                {
+                    return calculatedType;
+                }
+
                 return this.FixedParameters[index].Type;
             }
             else

@@ -4,10 +4,10 @@ using System.Collections.Concurrent;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.TypeSystem.Providers.ThirdParty
 {
-    // Renamed from K8sResourceTypeFactory to ExtensibilityResourceTypeFactory
     public class ExtensibilityResourceTypeFactory
     {
         private readonly ConcurrentDictionary<Azure.Bicep.Types.Concrete.TypeBase, TypeSymbol> typeCache;
@@ -130,12 +130,13 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                 case Azure.Bicep.Types.Concrete.BooleanType:
                     return LanguageConstants.Bool;
                 case Azure.Bicep.Types.Concrete.IntegerType @int:
-                    return TypeFactory.CreateIntegerType(@int.MinValue, @int.MaxValue);
+                    return TypeFactory.CreateIntegerType(@int.MinValue, @int.MaxValue, GetValidationFlags(isResourceBodyType, isSensitive: false));
                 case Azure.Bicep.Types.Concrete.StringType @string:
                     return TypeFactory.CreateStringType(
                         @string.MinLength,
                         @string.MaxLength,
-                        TypeHelper.AsOptionalValidFiniteRegexPattern(@string.Pattern));
+                        TypeHelper.AsOptionalValidFiniteRegexPattern(@string.Pattern),
+                        GetValidationFlags(isResourceBodyType, isSensitive: @string.Sensitive ?? false));
                 case Azure.Bicep.Types.Concrete.BuiltInType builtInType:
                     return builtInType.Kind switch
                     {
@@ -156,11 +157,11 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                         var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties) : null;
                         var properties = objectType.Properties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value));
 
-                        return new ObjectType(objectType.Name, GetValidationFlags(isResourceBodyType), properties, additionalProperties is not null ? new(additionalProperties) : null);
+                        return new ObjectType(objectType.Name, GetValidationFlags(isResourceBodyType, isSensitive: objectType.Sensitive ?? false), properties, additionalProperties is not null ? new(additionalProperties) : null);
                     }
                 case Azure.Bicep.Types.Concrete.ArrayType arrayType:
                     {
-                        return new TypedArrayType(GetTypeReference(arrayType.ItemType), GetValidationFlags(isResourceBodyType));
+                        return new TypedArrayType(GetTypeReference(arrayType.ItemType), GetValidationFlags(isResourceBodyType, isSensitive: false));
                     }
                 case Azure.Bicep.Types.Concrete.UnionType unionType:
                     {
@@ -172,7 +173,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                     {
                         var elementReferences = discriminatedObjectType.Elements.Select(kvp => new DeferredTypeReference(() => ToCombinedType(discriminatedObjectType.BaseProperties, kvp.Key, kvp.Value, isResourceBodyType)));
 
-                        return new DiscriminatedObjectType(discriminatedObjectType.Name, GetValidationFlags(isResourceBodyType), discriminatedObjectType.Discriminator, elementReferences);
+                        return new DiscriminatedObjectType(discriminatedObjectType.Name, GetValidationFlags(isResourceBodyType, isSensitive: false), discriminatedObjectType.Discriminator, elementReferences);
                     }
                 default:
                     throw new ArgumentException();
@@ -194,15 +195,20 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                 extendedProperties[property.Key] = property.Value;
             }
 
-            return new ObjectType(name, GetValidationFlags(isResourceBodyType), extendedProperties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value)), additionalProperties is not null ? new(additionalProperties) : null);
+            return new ObjectType(name, GetValidationFlags(isResourceBodyType, isSensitive: objectType.Sensitive ?? false), extendedProperties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value)), additionalProperties is not null ? new(additionalProperties) : null);
         }
 
-        private static TypeSymbolValidationFlags GetValidationFlags(bool isResourceBodyType)
+        private static TypeSymbolValidationFlags GetValidationFlags(bool isResourceBodyType, bool isSensitive)
         {
             if (isResourceBodyType)
             {
                 // strict validation on top-level resource properties, as 'custom' top-level properties are not supported by the platform
                 return TypeSymbolValidationFlags.Default;
+            }
+
+            if (isSensitive)
+            {
+                return TypeSymbolValidationFlags.IsSecure;
             }
 
             // in all other places, we should allow some wiggle room so that we don't block compilation if there are any swagger inaccuracies
@@ -224,7 +230,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
         {
             if (input == Azure.Bicep.Types.Concrete.ScopeType.Unknown)
             {
-                return ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource;
+                return ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource | ResourceScope.Local;
             }
 
             var output = ResourceScope.None;

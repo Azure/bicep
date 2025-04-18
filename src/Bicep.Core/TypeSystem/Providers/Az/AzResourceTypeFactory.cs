@@ -107,16 +107,16 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 case Azure.Bicep.Types.Concrete.NullType:
                     return LanguageConstants.Null;
                 case Azure.Bicep.Types.Concrete.BooleanType:
-                    return TypeFactory.CreateBooleanType(GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType));
+                    return TypeFactory.CreateBooleanType(GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType, isSensitive: false));
                 case Azure.Bicep.Types.Concrete.IntegerType @int:
                     return TypeFactory.CreateIntegerType(@int.MinValue,
                         @int.MaxValue,
-                        GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType));
+                        GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType, isSensitive: false));
                 case Azure.Bicep.Types.Concrete.StringType @string:
                     return TypeFactory.CreateStringType(@string.MinLength,
                         @string.MaxLength,
                         TypeHelper.AsOptionalValidFiniteRegexPattern(@string.Pattern),
-                        GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType));
+                        GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType, isSensitive: @string.Sensitive ?? false));
                 case Azure.Bicep.Types.Concrete.BuiltInType builtInType:
                     return builtInType.Kind switch
                     {
@@ -146,14 +146,14 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                             isResourceBodyTopLevelPropertyType: isResourceBodyType));
 
                         return new ObjectType(objectType.Name,
-                            GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType),
+                            GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType, isSensitive: objectType.Sensitive ?? false),
                             properties,
                             additionalProperties is not null ? new(additionalProperties) : null);
                     }
                 case Azure.Bicep.Types.Concrete.ArrayType arrayType:
                     {
                         return new TypedArrayType(GetTypeReference(arrayType.ItemType, false, false),
-                            GetValidationFlags(isResourceBodyType: false, isResourceBodyTopLevelPropertyType: isResourceBodyType));
+                            GetValidationFlags(isResourceBodyType: false, isResourceBodyTopLevelPropertyType: isResourceBodyType, isSensitive: false));
                     }
                 case Azure.Bicep.Types.Concrete.UnionType unionType:
                     {
@@ -162,7 +162,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                     }
                 case Azure.Bicep.Types.Concrete.StringLiteralType stringLiteralType:
                     return TypeFactory.CreateStringLiteralType(stringLiteralType.Value,
-                        GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType));
+                        GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType, isSensitive: false));
                 case Azure.Bicep.Types.Concrete.DiscriminatedObjectType discriminatedObjectType:
                     {
                         var elementReferences = discriminatedObjectType.Elements.Select(kvp => new DeferredTypeReference(() => ToCombinedType(
@@ -173,7 +173,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                             isResourceBodyTopLevelPropertyType)));
 
                         return new DiscriminatedObjectType(discriminatedObjectType.Name,
-                            GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType),
+                            GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType, isSensitive: false),
                             discriminatedObjectType.Discriminator,
                             elementReferences);
                     }
@@ -205,12 +205,12 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             }
 
             return new ObjectType(name,
-                GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType),
+                GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType, isSensitive: objectType.Sensitive ?? false),
                 extendedProperties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value, isResourceBodyType)),
                 additionalProperties is not null ? new(additionalProperties) : null);
         }
 
-        private static TypeSymbolValidationFlags GetValidationFlags(bool isResourceBodyType, bool isResourceBodyTopLevelPropertyType)
+        private static TypeSymbolValidationFlags GetValidationFlags(bool isResourceBodyType, bool isResourceBodyTopLevelPropertyType, bool isSensitive)
         {
             var flags = TypeSymbolValidationFlags.Default;
 
@@ -224,6 +224,11 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             {
                 // in all other places, we should allow some wiggle room so that we don't block compilation if there are any swagger inaccuracies
                 flags |= TypeSymbolValidationFlags.WarnOnTypeMismatch;
+            }
+
+            if (isSensitive)
+            {
+                flags |= TypeSymbolValidationFlags.IsSecure;
             }
 
             return flags;

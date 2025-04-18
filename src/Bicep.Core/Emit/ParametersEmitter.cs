@@ -28,10 +28,9 @@ public class ParametersEmitter
 
         return Emit(sw);
     }
-
     public EmitResult Emit(TextWriter textWriter) => this.EmitOrFail(() =>
     {
-        using var writer = new JsonTextWriter(textWriter)
+        using var writer = new SourceAwareJsonTextWriter(textWriter)
         {
             // don't close the textWriter when writer is disposed
             CloseOutput = false,

@@ -14,16 +14,14 @@ using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Core.ErrorResponses;
 using Azure.Deployments.Core.Helpers;
-using Azure.Deployments.Engine.Host.Azure;
-using Azure.Deployments.Engine.Host.Azure.Constants;
-using Azure.Deployments.Engine.Host.Azure.Definitions;
-using Azure.Deployments.Engine.Host.Azure.Exceptions;
-using Azure.Deployments.Engine.Host.Azure.Helpers;
-using Azure.Deployments.Engine.Host.Azure.Interfaces;
+using Azure.Deployments.Engine;
+using Azure.Deployments.Engine.Constants;
+using Azure.Deployments.Engine.Definitions;
+using Azure.Deployments.Engine.Exceptions;
+using Azure.Deployments.Engine.Helpers;
 using Azure.Deployments.Engine.Interfaces;
 using Azure.Deployments.Templates.Engines;
 using Bicep.Local.Deploy.Extensibility;
-using Microsoft.Azure.Deployments.Shared.Host;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs.Exceptions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
 using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
@@ -31,7 +29,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
 namespace Bicep.Local.Deploy;
 
-internal class LocalDeploymentEngine
+public class LocalDeploymentEngine
 {
 
     public LocalDeploymentEngine(
@@ -40,24 +38,23 @@ internal class LocalDeploymentEngine
         AzureDeploymentEngine deploymentEngine,
         IDataProviderHolder dataProviderHolder,
         IDeploymentJobsDataProvider jobProvider,
-        IAzureDeploymentEngineHost host,
         IDeploymentEntityFactory deploymentEntityFactory)
     {
         this.requestContext = requestContext;
         this.settings = settings;
         this.deploymentEngine = deploymentEngine;
-        this.dataProviderHolder = dataProviderHolder;
+        this.deploymentDataProvider = dataProviderHolder.GetDeploymentDataProvider(requestContext.Location);
+        this.deploymentStatusDataProvider = dataProviderHolder.GetDeploymentStatusDataProvider(requestContext.Location);
         this.jobProvider = jobProvider;
-        this.host = host;
         this.deploymentEntityFactory = deploymentEntityFactory;
     }
 
     private readonly LocalRequestContext requestContext;
     private readonly IAzureDeploymentSettings settings;
     private readonly AzureDeploymentEngine deploymentEngine;
-    private readonly IDataProviderHolder dataProviderHolder;
+    private readonly IDeploymentDataProvider deploymentDataProvider;
+    private readonly IDeploymentStatusDataProvider deploymentStatusDataProvider;
     private readonly IDeploymentJobsDataProvider jobProvider;
-    private readonly IAzureDeploymentEngineHost host;
     private readonly IDeploymentEntityFactory deploymentEntityFactory;
 
     private static (Template template, Dictionary<string, DeploymentParameterDefinition> parameters) ParseTemplateAndParameters(string templateString, string parametersString)
@@ -69,7 +66,7 @@ internal class LocalDeploymentEngine
         return (template, parameters);
     }
 
-    public async Task<LocalDeployment.Result> Deploy(string templateString, string parametersString, CancellationToken cancellationToken)
+    public async Task StartDeployment(string name, string templateString, string parametersString, CancellationToken cancellationToken)
     {
         using (RequestCorrelationContext.NewCorrelationContextScope())
         {
@@ -82,12 +79,12 @@ internal class LocalDeploymentEngine
                 throw new NotImplementedException("Only resources with extensions are supported");
             }
 
-            var context = DeploymentContextWithScopeDefinition.CreateAtResourceGroup(
+            var context = DeploymentRequestContextWithScopeDefinition.CreateAtResourceGroup(
                 tenantId: Guid.Empty.ToString(),
                 subscriptionId: Guid.Empty.ToString(),
-                resourceGroupName: "mockRg",
+                resourceGroupName: "local",
                 resourceGroupLocation: requestContext.Location,
-                deploymentName: "main",
+                deploymentName: name,
                 subscriptionDefinition: null,
                 resourceGroupDefinition: null,
                 tenantDefinition: null);
@@ -119,29 +116,34 @@ internal class LocalDeploymentEngine
                 oboCorrelationId: oboCorrelationId);
 
             await StartDeployment(deploymentPlan);
-
-            var dataProvider = dataProviderHolder.GetDeploymentDataProvider(deploymentPlan.DeploymentLocation);
-            return await WaitForDeploymentToComplete(dataProvider, context, cancellationToken);
         }
     }
 
-    private async Task<LocalDeployment.Result> WaitForDeploymentToComplete(IDeploymentDataProvider dataProvider, DeploymentContext context, CancellationToken cancellationToken)
+    public async Task<LocalDeploymentResult> CheckDeployment(string name)
     {
-        var entity = await dataProvider.FindDeployment(context.SubscriptionId, context.ResourceGroupName, context.DeploymentName);
-        while (!entity.ProvisioningState.IsTerminal())
+        using (RequestCorrelationContext.NewCorrelationContextScope())
         {
-            await Task.Delay(20, cancellationToken);
+            RequestCorrelationContext.Current.Initialize(apiVersion: requestContext.ApiVersion);
 
-            entity = await dataProvider.FindDeployment(context.SubscriptionId, context.ResourceGroupName, context.DeploymentName);
+            var context = DeploymentRequestContextWithScopeDefinition.CreateAtResourceGroup(
+                tenantId: Guid.Empty.ToString(),
+                subscriptionId: Guid.Empty.ToString(),
+                resourceGroupName: "local",
+                resourceGroupLocation: requestContext.Location,
+                deploymentName: name,
+                subscriptionDefinition: null,
+                resourceGroupDefinition: null,
+                tenantDefinition: null);
+
+            var entity = await deploymentDataProvider.FindDeployment(context.SubscriptionId, context.ResourceGroupName, context.DeploymentName);
+            var operationEntities = await deploymentDataProvider.FindDeploymentOperations(context.SubscriptionId, context.ResourceGroupName, context.DeploymentName, entity.SequenceId, -1);
+
+            return new(
+                deploymentEngine.CreateDeploymentDefinition(entity, requestContext.ApiVersion),
+                [.. operationEntities
+                    .Where(operation => operation.TargetResource is not null)
+                    .Select(operation => deploymentEngine.CreateDeploymentOperationDefinition(entity, operation, requestContext.Location))]);
         }
-
-        var operationEntities = await dataProvider.FindDeploymentOperations(context.SubscriptionId, context.ResourceGroupName, context.DeploymentName, entity.SequenceId, -1);
-
-        return new(
-            deploymentEngine.CreateDeploymentDefinition(entity, requestContext.ApiVersion),
-            operationEntities
-                .Where(operation => operation.TargetResource is not null)
-                .Select(operation => deploymentEngine.CreateDeploymentOperationDefinition(entity, operation)).ToImmutableArray());
     }
 
     private async Task StartDeployment(DeploymentPlan deploymentPlan)
@@ -166,9 +168,6 @@ internal class LocalDeploymentEngine
 
     private async Task SaveDeployment(DeploymentPlan deploymentPlan)
     {
-        var deploymentDataProvider = dataProviderHolder.GetDeploymentDataProvider(deploymentPlan.DeploymentLocation);
-        var deploymentStatusDataProvider = dataProviderHolder.GetDeploymentStatusDataProvider(deploymentPlan.DeploymentLocation);
-
         if (deploymentPlan.OldDeployment != null)
         {
             await deploymentDataProvider.DeleteDeployment(

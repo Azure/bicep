@@ -1,6 +1,9 @@
 [$RootKey$\ShellFileAssociations\.bicep]
 "DefaultIconMoniker"="8c3d631c-7c5b-469d-ac8a-4838177d7c50:0"
 
+[$RootKey$\ShellFileAssociations\.bicepparam]
+"DefaultIconMoniker"="8c3d631c-7c5b-469d-ac8a-4838177d7c50:1"
+
 // Registers the bicep grammar file with Visual Studio
 [$RootKey$\TextMate\Repositories]
 "BicepTextmateRepository"="$PackageFolder$\TextMateSyntaxes"
@@ -12,6 +15,7 @@
 // Defines where the language configuration file for a given language name is (partial value of the content type name)
 [$RootKey$\TextMate\LanguageConfiguration\ContentTypeMapping]
 "bicep"="$PackageFolder$\TextMateSyntaxes\language-configuration.json"
+"bicep-params"="$PackageFolder$\TextMateSyntaxes\language-configuration.json"
 
 [$RootKey$\AutomationProperties\TextEditor\Bicep]
 @="Bicep Tools Options"

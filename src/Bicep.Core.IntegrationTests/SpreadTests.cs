@@ -189,6 +189,31 @@ resource foo 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     }
 
     [TestMethod]
+    public void Spread_is_blocked_adjacent_to_for_loop()
+    {
+        // https://github.com/Azure/bicep/issues/16660
+        var result = CompilationHelper.Compile("""
+var test1 = true
+var array1 =[]
+
+resource ex 'Microsoft.Network/expressRouteCircuits@2024-05-01' = {
+  name: 'test'
+  properties: {
+    ...test1 ? {
+      gatewayManagerEtag: '1'
+    } : {}
+    authorizations: [for item in array1: {
+      name: item
+    }]
+  }
+}
+""");
+
+        result.ExcludingLinterDiagnostics().Should().ContainDiagnostic(
+            "BCP417", Diagnostics.DiagnosticLevel.Error, """The spread operator "..." cannot be used inside objects with property for-expressions.""");
+    }
+
+    [TestMethod]
     public void Object_spread_edge_cases()
     {
         var result = CompilationHelper.Compile("""

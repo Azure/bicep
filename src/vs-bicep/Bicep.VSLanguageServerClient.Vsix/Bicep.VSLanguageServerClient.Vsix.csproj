@@ -97,6 +97,7 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Icons\BicepFileIcon.png" />
+    <Resource Include="Icons\BicepparamFileIcon.png" />
     <Content Include="Icons\bicep-logo-256.png">
       <IncludeInVSIX>true</IncludeInVSIX>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

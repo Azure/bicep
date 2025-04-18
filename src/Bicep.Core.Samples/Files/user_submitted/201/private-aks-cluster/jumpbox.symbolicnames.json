@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5882546700845036639"
+      "templateHash": "6693041172534413310"
     }
   },
   "parameters": {
@@ -279,7 +279,7 @@
           "stopOnMultipleConnections": false
         },
         "protectedSettings": {
-          "workspaceKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName')), '2020-10-01').primarySharedKey]"
+          "workspaceKey": "[listKeys('logAnalyticsWorkspace', '2020-10-01').primarySharedKey]"
         }
       },
       "dependsOn": [
