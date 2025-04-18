@@ -95,7 +95,7 @@ public class FormatCommand(
 
     public void FormatMultiple(FormatArguments args)
     {
-        foreach (var inputUri in CommandHelper.GetFilesMatchingPattern(environment, args.FilePattern))
+        foreach (var inputUri in CommandHelper.GetInputFilesForPattern(environment, args.FilePattern))
         {
             ArgumentHelper.ValidateBicepOrBicepParamFile(inputUri);
 
@@ -135,7 +135,7 @@ public class FormatCommand(
 
     private Uri GetOutputUri(Uri inputUri, string? outputDir, string? outputFile)
     {
-        var outputPath = PathHelper.ResolveDefaultOutputPath(inputUri.LocalPath, outputDir, outputFile, path => path, fileSystem);
+        var outputPath = PathHelper.ResolveOutputPath(inputUri.LocalPath, outputDir, outputFile, path => path, fileSystem);
         return PathHelper.FilePathToFileUrl(outputPath);
     }
 }

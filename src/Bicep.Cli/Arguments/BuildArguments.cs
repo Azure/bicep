@@ -78,11 +78,6 @@ public class BuildArguments : ArgumentsBase
                 throw new CommandLineException($"The --stdout parameter cannot be used with the {ArgumentConstants.FilePattern} parameter");
             }
 
-            if (OutputDir is not null)
-            {
-                throw new CommandLineException($"The {ArgumentConstants.OutDir} parameter cannot be used with the {ArgumentConstants.FilePattern} parameter");
-            }
-
             if (OutputFile is not null)
             {
                 throw new CommandLineException($"The {ArgumentConstants.OutFile} parameter cannot be used with the {ArgumentConstants.FilePattern} parameter");

@@ -41,7 +41,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private async Task<string> GenerateCompiledFileAndReturnBuildOutputMessageAsync(string bicepFilePath, DocumentUri documentUri)
         {
-            string compiledFilePath = PathHelper.GetDefaultBuildOutputPath(bicepFilePath);
+            string compiledFilePath = PathHelper.GetJsonOutputPath(bicepFilePath);
 
             // If the template exists and contains bicep generator metadata, we can go ahead and replace the file.
             // If not, we'll fail the build.
