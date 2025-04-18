@@ -64,6 +64,7 @@ namespace Bicep.Core.Emit
                         "int" => SyntaxFactory.CreateIntegerLiteral((decoratorSyntax as IntegerLiteralSyntax)?.Value ?? 0),
                         "bool" => SyntaxFactory.CreateBooleanLiteral(false),
                         "array" => SyntaxFactory.CreateArray([]),
+                        "object" => SyntaxFactory.CreateObject([]),
                         _ => SyntaxFactory.CreateStringLiteral((decoratorSyntax as StringSyntax)?.SegmentValues.FirstOrDefault() ?? "")
                     },
                     ObjectTypeSyntax objectTypeSyntax => SyntaxFactory.CreateObject(objectTypeSyntax.Properties.Select(p => GetObjectPropertySyntax(p.Key as IdentifierSyntax, p.Value))),
