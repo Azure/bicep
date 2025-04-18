@@ -27,12 +27,14 @@ namespace Bicep.LanguageServer.Handlers
     {
         private readonly ILogger<BicepCreateConfigFileHandler> logger;
         private readonly IClientCapabilitiesProvider clientCapabilitiesProvider;
+        private readonly IConfigurationManager configurationManager;
         private readonly ILanguageServerFacade server;
 
-        public BicepCreateConfigFileHandler(ILanguageServerFacade server, IClientCapabilitiesProvider clientCapabilitiesProvider, ILogger<BicepCreateConfigFileHandler> logger, ISerializer serializer)
-            : base(LangServerConstants.CreateConfigFile, serializer)
+        public BicepCreateConfigFileHandler(ILanguageServerFacade server, IClientCapabilitiesProvider clientCapabilitiesProvider, IConfigurationManager configurationManager, ILogger<BicepCreateConfigFileHandler> logger, ISerializer serializer)
+            : base(LangServerConstants.CreateConfigFileCommand, serializer)
         {
             this.clientCapabilitiesProvider = clientCapabilitiesProvider;
+            this.configurationManager = configurationManager;
             this.server = server;
             this.logger = logger;
         }
@@ -48,6 +50,7 @@ namespace Bicep.LanguageServer.Handlers
             this.logger.LogTrace($"Writing new configuration file to {destinationPath}");
             string defaultBicepConfig = DefaultBicepConfigHelper.GetDefaultBicepConfig();
             await File.WriteAllTextAsync(destinationPath, defaultBicepConfig);
+            this.configurationManager.PurgeCache();
 
             await BicepEditLinterRuleCommandHandler.AddAndSelectRuleLevel(server, clientCapabilitiesProvider, destinationPath, DefaultBicepConfigHelper.DefaultRuleCode);
             return true;

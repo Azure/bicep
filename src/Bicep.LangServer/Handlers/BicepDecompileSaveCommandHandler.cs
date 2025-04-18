@@ -107,7 +107,7 @@ namespace Bicep.LanguageServer.Handlers
                         output.ToString(),
                         null,
                         actualMainBicepPath,
-                        filesToSave.Select(f => f.path).ToArray()),
+                        [.. filesToSave.Select(f => f.path)]),
                     successTelemetry: BicepTelemetryEvent.DecompileSaveSuccess(decompileId)
                     );
             }
@@ -131,7 +131,7 @@ namespace Bicep.LanguageServer.Handlers
             if (overwrite)
             {
                 // Save to original paths
-                return outputFiles.Select(of => (of.absolutePath, of.bicepContents)).ToArray();
+                return [.. outputFiles.Select(of => (of.absolutePath, of.bicepContents))];
             }
 
             var singleFileDecompilation = outputFiles.Length == 1;
@@ -150,7 +150,7 @@ namespace Bicep.LanguageServer.Handlers
                 var newOutputFiles = new List<(string path, string contents)>();
                 foreach (var outputFile in outputFiles)
                 {
-                    var newPath = MakePathRelativeToFolder(outputFolder, Path.Combine(outputFolder, outputFile.clonableRelativePath), newOutputFiles.Select(f => f.path).ToArray());
+                    var newPath = MakePathRelativeToFolder(outputFolder, Path.Combine(outputFolder, outputFile.clonableRelativePath), [.. newOutputFiles.Select(f => f.path)]);
                     newOutputFiles.Add((newPath, outputFile.bicepContents));
                 }
 

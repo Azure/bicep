@@ -19,6 +19,8 @@ namespace Bicep.Core.Configuration
         /// <returns>The configuration for the source file.</returns>
         RootConfiguration GetConfiguration(Uri sourceFileUri);
 
+        void PurgeCache();
+
         /// <summary>
         /// Gets the built-in configuration.
         /// </summary>
@@ -55,6 +57,8 @@ namespace Bicep.Core.Configuration
             }
 
             public RootConfiguration GetConfiguration(Uri sourceFileUri) => configuration;
+
+            public void PurgeCache() { }
         }
     }
 }

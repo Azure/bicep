@@ -21,7 +21,7 @@
       }
     },
     {
-      "name": "Launch Extension: Prod",
+      "name": "Launch Extension (prod)",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",

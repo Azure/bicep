@@ -35,7 +35,7 @@ namespace Bicep.Core.Analyzers.Linter
 
         public LinterRuleCategory Category { get; }
 
-        public readonly string RuleConfigSection = $"{LinterAnalyzer.AnalyzerName}.rules";
+        public readonly string RuleConfigSection = $"{LinterAnalyzer.Name}.rules";
 
         public DiagnosticLevel DefaultDiagnosticLevel =>
             OverrideCategoryDefaultDiagnosticLevel.HasValue ? OverrideCategoryDefaultDiagnosticLevel.Value : GetDefaultDiagosticLevelForCategory(this.Category);
@@ -96,7 +96,7 @@ namespace Bicep.Core.Analyzers.Linter
 
         protected DiagnosticLevel GetDiagnosticLevel(SemanticModel model) => GetDiagnosticLevel(model.Configuration.Analyzers);
 
-        protected DiagnosticLevel GetDiagnosticLevel(AnalyzersConfiguration configuration)
+        public DiagnosticLevel GetDiagnosticLevel(AnalyzersConfiguration configuration)
         {
             if (GetConfigurationValue(configuration, "level", DefaultDiagnosticLevel.ToString()) is string configuredLevel && Enum.TryParse<DiagnosticLevel>(configuredLevel, true, out var parsed))
             {
