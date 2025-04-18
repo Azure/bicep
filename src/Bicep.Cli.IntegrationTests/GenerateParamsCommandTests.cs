@@ -528,6 +528,53 @@ param required string";
         }
 
         [TestMethod]
+        public async Task GenerateParams_UserDefinedTypeParameters_JsonFormat_Should_Succeed()
+        {
+            var bicep = $@"
+                param foo object = {{ bar: 'hello', baz: 42 }}
+                param bar {{ bar: string, baz: int }}
+                param baz {{ bar: string, baz: int }} = {{ bar: 'hello', baz: 42 }}
+            ";
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+
+            var (output, error, result) = await Bicep("generate-params", "--include-params", "all", "--output-format", "json", bicepFilePath);
+
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.parameters.json")).ReplaceLineEndings();
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+
+                content.Should().Be(@"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {
+    ""foo"": {
+      ""value"": {}
+    },
+    ""bar"": {
+      ""value"": {
+        ""bar"": """",
+        ""baz"": 0
+      }
+    },
+    ""baz"": {
+      ""value"": {
+        ""bar"": """",
+        ""baz"": 0
+      }
+    }
+  }
+}".ReplaceLineEndings());
+            }
+        }
+
+        [TestMethod]
         public async Task GenerateParams_ImplicitOutputFormatJson_ImplicitIncludeParamsRequiredOnly_file_should_be_overwritten_in_full()
         {
             // https://github.com/Azure/bicep/issues/7239
@@ -765,6 +812,136 @@ param enabled = {}
 param enabled = []
 
 ".ReplaceLineEndings());
+            }
+        }
+
+        [TestMethod]
+        public async Task GenerateParams_UserDefinedTypeParameters_BicepparamFormat_Should_Succeed()
+        {
+            var bicep = $@"
+                param foo object = {{ bar: 'hello', baz: 42 }}
+                param bar {{ bar: string, baz: int }}
+                param baz {{ bar: string, baz: int }} = {{ bar: 'hello', baz: 42 }}
+            ";
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+
+            var (output, error, result) = await Bicep("generate-params", "--include-params", "all", "--output-format", "bicepparam", bicepFilePath);
+
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.bicepparam")).ReplaceLineEndings().Trim();
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+
+                content.Should().Be(@"using './built.bicep'
+
+param foo = {
+  bar: 'hello'
+  baz: 42
+}
+param bar = {
+  bar: ''
+  baz: 0
+}
+param baz = {
+  bar: 'hello'
+  baz: 42
+}
+".ReplaceLineEndings().Trim());
+            }
+        }
+
+        [TestMethod]
+        public async Task GenerateParams_UserDefinedTypeParameters_ObjectInObject_BicepparamFormat_Should_Succeed()
+        {
+            var bicep = $@"
+                param bar {{ bar: string, baz: {{ foo: int }} }}
+                param baz {{ bar: string, baz: {{ foo: {{ bar: int }} }} }}
+                param bat {{ bar: string, baz: {{ foo: {{ bar: {{ baz: string }} }} }} }}
+                param bab {{ bar: string, baz: {{ foo: int }} }} = {{ bar: 'hello', baz: {{ foo: 42 }} }}
+            ";
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+
+            var (output, error, result) = await Bicep("generate-params", "--include-params", "all", "--output-format", "bicepparam", bicepFilePath);
+
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.bicepparam")).ReplaceLineEndings().Trim();
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+
+                content.Should().Be(@"using './built.bicep'
+
+param bar = {
+  bar: ''
+  baz: {
+    foo: 0
+  }
+}
+param baz = {
+  bar: ''
+  baz: {
+    foo: {
+      bar: 0
+    }
+  }
+}
+param bat = {
+  bar: ''
+  baz: {
+    foo: {
+      bar: {
+        baz: ''
+      }
+    }
+  }
+}
+param bab = {
+  bar: 'hello'
+  baz: {
+    foo: 42
+  }
+}
+".ReplaceLineEndings().Trim());
+            }
+        }
+
+        [TestMethod]
+        public async Task GenerateParams_WithDecorator_BicepparamFormat_Should_Succeed()
+        {
+            var bicep = $@"
+                @allowed([5, 10])
+                param foo int
+            ";
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+
+            var (output, error, result) = await Bicep("generate-params", "--include-params", "all", "--output-format", "bicepparam", bicepFilePath);
+
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.bicepparam")).ReplaceLineEndings().Trim();
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+
+                content.Should().Be(@"using './built.bicep'
+
+param foo = 5
+".ReplaceLineEndings().Trim());
             }
         }
     }
