@@ -63,7 +63,7 @@ public interface IExpressionVisitor
 
     void VisitExtensionExpression(ExtensionExpression expression);
 
-    void VisitExtensionConfigAssignmentReferenceExpression(ExtensionConfigAssignmentReferenceExpression expression);
+    void VisitExtensionReferenceExpression(ExtensionReferenceExpression expression);
 
     void VisitDeclaredParameterExpression(DeclaredParameterExpression expression);
 

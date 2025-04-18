@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Features;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem;
@@ -31,5 +32,7 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<OutputMetadata> Outputs => this.mainTemplateSemanticModel.Outputs;
 
         public bool HasErrors() => this.SourceFile.HasErrors() || this.mainTemplateSemanticModel.HasErrors();
+
+        public IFeatureProvider Features => this.mainTemplateSemanticModel.Features;
     }
 }

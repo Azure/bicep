@@ -5,9 +5,8 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
-using Bicep.Core.UnitTests.Utils;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 
 namespace Bicep.Core.UnitTests.Utils;
@@ -39,6 +38,23 @@ public static class ExtensionTestHelper
         var services = GetServiceBuilder(fileSystem, reference.Registry, reference.Repository, features);
 
         await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), reference.FullyQualifiedReference, tgzData);
+
+        return services;
+    }
+
+    public static async Task<ServiceBuilder> AddMockMsGraphExtension(ServiceBuilder services, TestContext testContext)
+    {
+        var indexJsonBeta = FileHelper.SaveResultFile(testContext, "types/index-beta.json", BicepTestConstants.GetMsGraphIndexJson(BicepTestConstants.MsGraphVersionBeta));
+        var indexJsonV10 = FileHelper.SaveResultFile(testContext, "types/index-v1.0.json", BicepTestConstants.GetMsGraphIndexJson(BicepTestConstants.MsGraphVersionV10));
+
+        var cacheRoot = FileHelper.GetCacheRootDirectory(testContext).EnsureExists();
+
+        services = services
+            .WithFeaturesOverridden(f => f with { CacheRootDirectory = cacheRoot })
+            .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForMsGraphExtension());
+
+        await RegistryHelper.PublishMsGraphExtension(services.Build(), indexJsonBeta, "beta", BicepTestConstants.MsGraphVersionBeta);
+        await RegistryHelper.PublishMsGraphExtension(services.Build(), indexJsonV10, "v1", BicepTestConstants.MsGraphVersionV10);
 
         return services;
     }

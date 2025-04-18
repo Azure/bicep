@@ -340,12 +340,12 @@ namespace Bicep.Core.Emit
         public static Expression ConvertModuleExtensionConfig(Expression extensionConfigValueExpr) =>
             extensionConfigValueExpr switch
             {
-                // TODO(kylealbert): "extensionConfigs" function handling.
                 ResourceFunctionCallExpression functionCall when LanguageConstants.IdentifierComparer.Equals(functionCall.Name, AzResourceTypeProvider.GetSecretFunctionName)
                     => ExpressionFactory.CreateObject(
                         [ExpressionFactory.CreateObjectProperty("keyVaultReference", ConvertToKeyVaultReference(functionCall))],
                         functionCall.SourceSyntax),
                 TernaryExpression ternary => new TernaryExpression(ternary.SourceSyntax, ternary.Condition, ConvertModuleExtensionConfig(ternary.True), ConvertModuleExtensionConfig(ternary.False)),
+                PropertyAccessExpression paExpr when IsExtensionConfigPropertyAccess(paExpr) => extensionConfigValueExpr,
                 _ => ExpressionFactory.CreateObject(
                     [ExpressionFactory.CreateObjectProperty("value", extensionConfigValueExpr)],
                     extensionConfigValueExpr.SourceSyntax)
@@ -372,6 +372,23 @@ namespace Bicep.Core.Emit
             }
 
             return ExpressionFactory.CreateObject(properties);
+        }
+
+        private static bool IsExtensionConfigPropertyAccess(PropertyAccessExpression propertyAccessExpr)
+        {
+            // NOTE(kylealbert): Extension config property access has an intermediate object of value and key vault reference. When this
+            // expression type is used, we must make sure the expression aligns with the schema where we're generating the language expression.
+
+            // check we're accessing the config property...
+            var parent = propertyAccessExpr.Base;
+
+            if (parent is not PropertyAccessExpression { PropertyName: LanguageConstants.ExtensionConfigPropertyName } parentPropertyAccessExpr)
+            {
+                return false;
+            }
+
+            // ... of an extension reference
+            return parentPropertyAccessExpr.Base is ExtensionReferenceExpression;
         }
 
         public void EmitProperty(ObjectPropertyExpression property)

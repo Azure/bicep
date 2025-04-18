@@ -1086,9 +1086,6 @@ public class ExpressionBuilder
                 }
                 return new ParametersAssignmentReferenceExpression(variableAccessSyntax, parameterSymbol);
 
-            case ExtensionConfigAssignmentSymbol extensionConfigAssignmentSymbol:
-                return new ExtensionConfigAssignmentReferenceExpression(variableAccessSyntax, extensionConfigAssignmentSymbol);
-
             case VariableSymbol variableSymbol:
                 if (Context.VariablesToInline.Contains(variableSymbol) ||
                     Context.ExternalInputReferences.VariablesReferences.Contains(variableSymbol))
@@ -1109,8 +1106,11 @@ public class ExpressionBuilder
             case ImportedVariableSymbol importedSymbol:
                 return new ImportedVariableReferenceExpression(variableAccessSyntax, importedSymbol);
 
+            case ExtensionNamespaceSymbol extensionNamespaceSymbol:
+                return new ExtensionReferenceExpression(variableAccessSyntax, extensionNamespaceSymbol);
+
             default:
-                throw new NotImplementedException($"Encountered an unexpected symbol kind '{symbol?.Kind}' when generating a variable access expression.");
+                throw new NotImplementedException($"Encountered an unexpected symbol kind '{symbol?.Kind}' and type '{symbol?.GetType().Name}' when generating a variable access expression.");
 
         }
     }

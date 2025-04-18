@@ -8,6 +8,9 @@ end_of_line = lf
 trim_trailing_whitespace = true
 insert_final_newline = true
 
+[src/Bicep.Core.Samples/Files/baselines/*_CRLF/**/*.bicep]
+end_of_line = crlf
+
 [*.md]
 trim_trailing_whitespace = false # Two spaces in markdown is the same as a <br>.
 
