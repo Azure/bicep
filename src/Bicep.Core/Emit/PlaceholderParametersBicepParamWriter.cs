@@ -50,71 +50,64 @@ namespace Bicep.Core.Emit
 
         private SyntaxBase GetValueForParameter(ParameterDeclarationSyntax syntax)
         {
-            var defaultValue = SyntaxHelper.TryGetDefaultValue(syntax);
-            if (defaultValue != null)
+            ObjectPropertySyntax GetObjectPropertySyntax(IdentifierSyntax? identifier, SyntaxBase type)
             {
-                if (defaultValue is FunctionCallSyntax defaultValueAsFunctionCall)
-                {
-                    return CreateCommentSyntaxForFunctionCallSyntax(defaultValueAsFunctionCall.Name.IdentifierName);
-                }
-                else if (defaultValue is ArraySyntax defaultValueAsArray)
-                {
-                    var value = defaultValueAsArray.Items.Select(e =>
-                    {
-                        if (e.Value is FunctionCallSyntax valueAsFunctionCall)
-                        {
-                            return SyntaxFactory.CreateArrayItem(CreateCommentSyntaxForFunctionCallSyntax(valueAsFunctionCall.Name.IdentifierName));
-                        }
-
-                        return e;
-                    }).ToList();
-
-                    return SyntaxFactory.CreateArray(value);
-                }
-                else if (defaultValue is ObjectSyntax defaultValueAsObject)
-                {
-                    return CheckFunctionCallsInObjectSyntax(defaultValueAsObject);
-                }
-
-                return defaultValue;
+                return SyntaxFactory.CreateObjectProperty(identifier?.IdentifierName ?? "", GetSyntaxForType(type, null));
             }
 
-            if (syntax.Type is ObjectTypeSyntax objectTypeSyntax)
+            ExpressionSyntax GetSyntaxForType(SyntaxBase type, SyntaxBase? decoratorSyntax)
             {
-                var value = objectTypeSyntax.Properties.Select(e =>
+                return type switch
                 {
-                    var identifierName = (e.Key as IdentifierSyntax)?.IdentifierName ?? "";
-
-                    return ((e.Value as TypeVariableAccessSyntax)?.Name.IdentifierName) switch
+                    TypeVariableAccessSyntax typeVariableAccessSyntax => typeVariableAccessSyntax.Name.IdentifierName switch
                     {
-                        "int" => SyntaxFactory.CreateObjectProperty(identifierName, SyntaxFactory.CreateIntegerLiteral(0)),
-                        "bool" => SyntaxFactory.CreateObjectProperty(identifierName, SyntaxFactory.CreateBooleanLiteral(false)),
-                        "array" => SyntaxFactory.CreateObjectProperty(identifierName, SyntaxFactory.CreateArray([])),
-                        "object" => SyntaxFactory.CreateObjectProperty(identifierName, SyntaxFactory.CreateObject([])),
-                        _ => SyntaxFactory.CreateObjectProperty(identifierName, SyntaxFactory.CreateStringLiteral(string.Empty)),
-                    };
-                });
-
-                return SyntaxFactory.CreateObject(value);
-            }
-
-            if (syntax.Type is TypeVariableAccessSyntax variableAccessSyntax)
-            {
-                var allowedDecorator = syntax.Decorators.Where(e => e.Expression is FunctionCallSyntax functionCallSyntax && functionCallSyntax.Name.IdentifierName == "allowed").Select(e => e.Arguments).FirstOrDefault();
-
-                var allowedDecoratorFirstItem = (allowedDecorator?.First().Expression as ArraySyntax)?.Items.First().Value;
-
-                return variableAccessSyntax.Name.IdentifierName switch
-                {
-                    "int" => SyntaxFactory.CreateIntegerLiteral((allowedDecoratorFirstItem as IntegerLiteralSyntax)?.Value ?? 0),
-                    "bool" => SyntaxFactory.CreateBooleanLiteral(false),
-                    "array" => SyntaxFactory.CreateArray([]),
-                    "object" => SyntaxFactory.CreateObject([]),
-                    _ => SyntaxFactory.CreateStringLiteral((allowedDecoratorFirstItem as StringSyntax)?.SegmentValues.First() ?? ""),
+                        "int" => SyntaxFactory.CreateIntegerLiteral((decoratorSyntax as IntegerLiteralSyntax)?.Value ?? 0),
+                        "bool" => SyntaxFactory.CreateBooleanLiteral(false),
+                        "array" => SyntaxFactory.CreateArray([]),
+                        _ => SyntaxFactory.CreateStringLiteral((decoratorSyntax as StringSyntax)?.SegmentValues.FirstOrDefault() ?? "")
+                    },
+                    ObjectTypeSyntax objectTypeSyntax => SyntaxFactory.CreateObject(objectTypeSyntax.Properties.Select(p => GetObjectPropertySyntax(p.Key as IdentifierSyntax, p.Value))),
+                    _ => SyntaxFactory.CreateInvalidSyntaxWithComment($"TODO: fix the value assigned to this parameter `{type}`")
                 };
             }
 
-            return SyntaxFactory.NewlineToken;
+            var defaultValue = SyntaxHelper.TryGetDefaultValue(syntax);
+            if (defaultValue != null)
+            {
+                switch (defaultValue)
+                {
+                    case FunctionCallSyntax defaultValueAsFunctionCall:
+                        return CreateCommentSyntaxForFunctionCallSyntax(defaultValueAsFunctionCall.Name.IdentifierName);
+
+                    case ArraySyntax defaultValueAsArray:
+                        var items = defaultValueAsArray.Items.Select(item =>
+                            item.Value is FunctionCallSyntax valueAsFunctionCall
+                                ? SyntaxFactory.CreateArrayItem(CreateCommentSyntaxForFunctionCallSyntax(valueAsFunctionCall.Name.IdentifierName))
+                                : item).ToList();
+                        return SyntaxFactory.CreateArray(items);
+
+                    case ObjectSyntax defaultValueAsObject:
+                        return CheckFunctionCallsInObjectSyntax(defaultValueAsObject);
+
+                    default:
+                        return defaultValue;
+                }
+            }
+
+            return syntax.Type switch
+            {
+                ObjectTypeSyntax objectType => SyntaxFactory.CreateObject(objectType.Properties.Select(e => GetObjectPropertySyntax(e.Key as IdentifierSyntax, e.Value))),
+                TypeVariableAccessSyntax typeVar =>
+                    GetSyntaxForType(
+                        typeVar,
+                        syntax.Decorators
+                            .Where(d => d.Expression is FunctionCallSyntax f && f.Name.IdentifierName == "allowed")
+                            .SelectMany(d => d.Arguments)
+                            .Select(arg => (arg.Expression as ArraySyntax)?.Items.FirstOrDefault()?.Value)
+                            .FirstOrDefault()
+                    ),
+                _ => SyntaxFactory.NewlineToken
+            };
         }
 
         private SyntaxBase CheckFunctionCallsInObjectSyntax(ObjectSyntax objectSyntax)
