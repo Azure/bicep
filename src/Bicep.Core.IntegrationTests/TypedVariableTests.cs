@@ -143,4 +143,88 @@ output test {
             ("BCP035", DiagnosticLevel.Error, """The specified "output" declaration is missing the following required properties: "foo"."""),
         ]);
     }
+
+    [TestMethod]
+    public void Typed_variables_can_be_used_in_bicepparam_files_with_imported_types()
+    {
+        var result = CompilationHelper.CompileParams(Services,
+            ("main.bicep", ""),
+            ("types.bicep", """
+@export()
+type FooType = {
+  foo: string
+}
+"""),
+            ("parameters.bicepparam", """
+import { FooType } from './types.bicep'
+
+using './main.bicep'
+
+var foo FooType = {
+  foo: 123
+}
+"""));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP036", DiagnosticLevel.Error, """The property "foo" expected a value of type "string" but the provided value is of type "123"."""),
+        ]);
+    }
+
+    [TestMethod]
+    public void Typed_variables_can_be_used_in_bicepparam_files_with_inline_types()
+    {
+        var result = CompilationHelper.CompileParams(Services,
+            ("main.bicep", ""),
+            ("parameters.bicepparam", """
+using './main.bicep'
+
+var foo { foo: string } = {
+  foo: 123
+}
+"""));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP036", DiagnosticLevel.Error, """The property "foo" expected a value of type "string" but the provided value is of type "123"."""),
+        ]);
+    }
+
+    [TestMethod]
+    public void Typed_variables_can_be_used_in_bicepparam_files_with_type_declarations()
+    {
+        var result = CompilationHelper.CompileParams(Services,
+            ("main.bicep", ""),
+            ("parameters.bicepparam", """
+using './main.bicep'
+
+type FooType = {
+  foo: string
+}
+
+var foo FooType = {
+  foo: 123
+}
+"""));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP036", DiagnosticLevel.Error, """The property "foo" expected a value of type "string" but the provided value is of type "123"."""),
+        ]);
+    }
+
+    [TestMethod]
+    public void Types_in_bicepparam_files_are_blocked_if_feature_disabled()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("main.bicep", ""),
+            ("parameters.bicepparam", """
+using './main.bicep'
+
+type FooType = {
+  foo: string
+}
+"""));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP337", DiagnosticLevel.Error, """This declaration type is not valid for a Bicep Parameters file. Supported declarations: "using", "extends", "param", "var"."""),
+        ]);
+    }
 }

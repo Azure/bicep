@@ -102,16 +102,6 @@ namespace Bicep.Core.Parsing
             return new MetadataDeclarationSyntax(leadingNodes, keyword, name, assignment, value);
         }
 
-        private SyntaxBase TypeDeclaration(IEnumerable<SyntaxBase> leadingNodes)
-        {
-            var keyword = ExpectKeyword(LanguageConstants.TypeKeyword);
-            var name = this.IdentifierWithRecovery(b => b.ExpectedTypeIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
-            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
-            var value = this.WithRecovery(() => Type(allowOptionalResourceType: false), GetSuppressionFlag(name), TokenType.Assignment, TokenType.LeftBrace, TokenType.NewLine);
-
-            return new TypeDeclarationSyntax(leadingNodes, keyword, name, assignment, value);
-        }
-
         private SyntaxBase ParameterDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.ParameterKeyword);
