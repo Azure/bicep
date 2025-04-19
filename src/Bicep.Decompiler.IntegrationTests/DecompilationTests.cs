@@ -3,6 +3,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Bicep.Core;
 using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -14,7 +15,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.IntegrationTests
+namespace Bicep.Decompiler.IntegrationTests
 {
     [TestClass]
     public class DecompilationTests
@@ -185,64 +186,6 @@ namespace Bicep.Core.IntegrationTests
             var (entryPointUri, filesToSave) = await decompiler.Decompile(PathHelper.ChangeToBicepExtension(fileUri), template);
 
             filesToSave[entryPointUri].Should().Contain($"output calculated {type} = {expectedValue}");
-        }
-
-        [TestMethod]
-        public async Task Decompiler_should_partially_handle_user_defined_functions_with_placeholders()
-        {
-            const string template = """
-                {
-                 "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                 "contentVersion": "1.0.0.0",
-                 "parameters": {
-                   "storageNamePrefix": {
-                     "type": "string",
-                     "maxLength": 11
-                   }
-                 },
-                 "functions": [
-                  {
-                    "namespace": "contoso",
-                    "members": {
-                      "uniqueName": {
-                        "parameters": [
-                          {
-                            "name": "namePrefix",
-                            "type": "string"
-                          }
-                        ],
-                        "output": {
-                          "type": "string",
-                          "value": "[concat(toLower(parameters('namePrefix')), uniqueString(resourceGroup().id))]"
-                        }
-                      }
-                    }
-                  }
-                ],
-                 "resources": [
-                   {
-                     "type": "Microsoft.Storage/storageAccounts",
-                     "apiVersion": "2019-04-01",
-                     "name": "[contoso.uniqueName(parameters('storageNamePrefix'))]",
-                     "location": "South Central US",
-                     "sku": {
-                       "name": "Standard_LRS"
-                     },
-                     "kind": "StorageV2",
-                     "properties": {
-                       "supportsHttpsTrafficOnly": true
-                     }
-                   }
-                 ]
-                }
-                """;
-
-            var fileUri = new Uri("file:///path/to/main.json");
-
-            var decompiler = CreateDecompiler();
-            var (entryPointUri, filesToSave) = await decompiler.Decompile(PathHelper.ChangeToBicepExtension(fileUri), template);
-
-            filesToSave[entryPointUri].Should().Contain($"? /* TODO: User defined functions are not supported and have not been decompiled */");
         }
 
         [TestMethod]

@@ -1,0 +1,217 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "functions": [
+    {
+      "namespace": "helpers",
+      "members": {
+        "buildUrl": {
+          "parameters": [
+            {
+              "type": "bool",
+              "name": "https"
+            },
+            {
+              "type": "string",
+              "name": "hostname"
+            },
+            {
+              "type": "string",
+              "name": "path"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[format('{0}://{1}{2}', if(parameters('https'), 'https', 'http'), parameters('hostname'), if(empty(parameters('path')), '', format('/{0}', parameters('path'))))]"
+          }
+        },
+        "sayHello": {
+          "parameters": [
+            {
+              "type": "string",
+              "name": "name"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[format('Hi {0}!', parameters('name'))]"
+          }
+        },
+        "objReturnType": {
+          "parameters": [
+            {
+              "type": "string",
+              "name": "name"
+            }
+          ],
+          "output": {
+            "type": "object",
+            "value": {
+              "hello": "[format('Hi {0}!', parameters('name'))]"
+            }
+          }
+        },
+        "arrayReturnType": {
+          "parameters": [
+            {
+              "type": "string",
+              "name": "name"
+            }
+          ],
+          "output": {
+            "type": "array",
+            "value": [
+              "[parameters('name')]"
+            ]
+          }
+        },
+        "asdf": {
+          "parameters": [
+            {
+              "type": "string",
+              "name": "name"
+            }
+          ],
+          "output": {
+            "type": "array",
+            "value": [
+              "asdf",
+              "[parameters('name')]"
+            ]
+          }
+        },
+        "typedArg": {
+          "parameters": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "name": "input"
+            }
+          ],
+          "output": {
+            "type": "int",
+            "value": "[length(parameters('input'))]"
+          }
+        },
+        "barTest": {
+          "parameters": [],
+          "output": {
+            "type": "array",
+            "value": [
+              "abc",
+              "def"
+            ]
+          }
+        },
+        "fooTest": {
+          "parameters": [],
+          "output": {
+            "type": "array",
+            "value": "[map(helpers.barTest(), lambda('a', format('Hello {0}!', lambdaVariables('a'))))]"
+          }
+        },
+        "test": {
+          "parameters": [],
+          "output": {
+            "type": "object",
+            "value": {}
+          }
+        },
+        "test2": {
+          "parameters": [],
+          "output": {
+            "type": "string",
+            "value": "{}"
+          }
+        },
+        "test3": {
+          "parameters": [],
+          "output": {
+            "type": "object",
+            "value": {}
+          }
+        },
+        "test4": {
+          "parameters": [],
+          "output": {
+            "type": "string",
+            "value": "e30="
+          }
+        },
+        "a": {
+          "parameters": [
+            {
+              "type": "string",
+              "name": "____________________________________________________________________________________________"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "a"
+          }
+        },
+        "b": {
+          "parameters": [
+            {
+              "type": "string",
+              "name": "longParameterName1"
+            },
+            {
+              "type": "string",
+              "name": "longParameterName2"
+            },
+            {
+              "type": "string",
+              "name": "longParameterName3"
+            },
+            {
+              "type": "string",
+              "name": "longParameterName4"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "b"
+          }
+        },
+        "buildUrlMultiLine": {
+          "parameters": [
+            {
+              "type": "bool",
+              "name": "https"
+            },
+            {
+              "type": "string",
+              "name": "hostname"
+            },
+            {
+              "type": "string",
+              "name": "path"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[format('{0}://{1}{2}', if(parameters('https'), 'https', 'http'), parameters('hostname'), if(empty(parameters('path')), '', format('/{0}', parameters('path'))))]"
+          }
+        }
+      }
+    }
+  ],
+  "resources": [],
+  "outputs": {
+    "foo": {
+      "type": "string",
+      "value": "[helpers.buildUrl(true(), 'google.com', 'search')]"
+    },
+    "hellos": {
+      "type": "array",
+      "value": "[map(createArray('Evie', 'Casper'), lambda('name', helpers.sayHello(lambdaVariables('name'))))]"
+    },
+    "fooValue": {
+      "type": "array",
+      "value": "[helpers.fooTest()]"
+    }
+  }
+}
