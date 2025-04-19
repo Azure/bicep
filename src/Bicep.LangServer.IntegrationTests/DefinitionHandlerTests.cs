@@ -32,7 +32,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
-    public class DefinitionTests
+    public class DefinitionHandlerTests
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
