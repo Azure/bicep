@@ -44,6 +44,8 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepCodeActionHandler>()
                     .WithHandler<BicepCodeLensHandler>()
                     .WithHandler<BicepCreateConfigFileHandler>()
+                    .WithHandler<BicepGetConfigInfoHandler>()
+                    .WithHandler<BicepOpenConfigFileCommandHandler>()
                     .WithHandler<BicepDidChangeWatchedFilesHandler>()
                     .WithHandler<BicepEditLinterRuleCommandHandler>()
                     .WithHandler<BicepGetRecommendedConfigLocationHandler>()

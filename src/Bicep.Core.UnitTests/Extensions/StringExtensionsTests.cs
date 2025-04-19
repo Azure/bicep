@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Bicep.Core.Extensions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -97,6 +98,22 @@ namespace Bicep.Core.UnitTests.Extensions
         {
             var ex = Assert.ThrowsException<Exception>(() => s.ExtractRegexGroups(regex));
             ex.Message.Should().Be(nameof(StringExtensions.ExtractRegexGroups) + ": " + expectedError);
+        }
+
+        [DataTestMethod]
+        [DataRow("line1\nline2", 4, ' ', "    line1\n    line2")]
+        [DataRow("line1\nline2", 4, ' ', "    line1\n    line2")]
+        [DataRow("line1\nline2", 2, '\t', "\t\tline1\n\t\tline2")]
+        [DataRow("", 4, '-', "----")]
+        [DataRow("single line", 3, '-', "---single line")]
+        [DataRow("  single line", 3, '-', "---  single line")]
+        [DataRow("a\nb", 2, '-', "--a\n--b")]
+        [DataRow("a\r\nb", 2, '-', "--a\r\n--b")]
+        [DataRow("a\r\n\nb", 2, '-', "--a\r\n--\n--b")]
+        public void IndentLines_ShouldIndentCorrectly(string input, int indent, char indentChar, string expected)
+        {
+            var result = input.IndentLines(indent, indentChar);
+            result.Should().Be(expected);
         }
     }
 }

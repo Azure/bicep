@@ -19,7 +19,9 @@ namespace Bicep.LanguageServer
         public const string GetDeploymentScopeCommand = "getDeploymentScope";
         public const string ForceModulesRestoreCommand = "forceModulesRestore";
         public const string ImportKubernetesManifestCommand = "importKubernetesManifest";
-        public const string CreateConfigFile = "createConfigFile";
+        public const string CreateConfigFileCommand = "createConfigFile";
+        public const string OpenConfigFileCommand = "openConfigFile";
+
         // An internal-only command used in code actions to edit a particular rule in the bicepconfig.json file
         public const string EditLinterRuleCommandName = "bicep.EditLinterRule";
 
