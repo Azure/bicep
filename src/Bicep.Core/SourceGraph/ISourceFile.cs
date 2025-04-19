@@ -7,6 +7,7 @@ namespace Bicep.Core.SourceGraph
 {
     public interface ISourceFile
     {
+        // CONSIDER: Uri Uri => this.FileHandle.Uri.ToUri();
         Uri Uri { get; }
 
         IFileHandle FileHandle { get; }

@@ -122,7 +122,7 @@ namespace Bicep.LanguageServer.Handlers
             return new ExternalSourceReference(reference, sourceArchive).ToUri();
         }
 
-        public static Uri GetTemplateSpeckSourceLinkUri(TemplateSpecModuleReference reference)
+        public static Uri GetTemplateSpecSourceLinkUri(TemplateSpecModuleReference reference)
         {
             var uriBuilder = new UriBuilder($"{LangServerConstants.ExternalSourceFileScheme}:{Uri.EscapeDataString(reference.FullyQualifiedReference)}")
             {

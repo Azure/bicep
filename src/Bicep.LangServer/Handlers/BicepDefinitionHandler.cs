@@ -200,7 +200,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (reference is TemplateSpecModuleReference templateSpecModuleReference)
             {
-                return BicepExternalSourceRequestHandler.GetTemplateSpeckSourceLinkUri(templateSpecModuleReference);
+                return BicepExternalSourceRequestHandler.GetTemplateSpecSourceLinkUri(templateSpecModuleReference);
             }
 
             throw new UnreachableException();
