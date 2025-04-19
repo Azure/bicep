@@ -18,7 +18,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             code: Code,
             description: CoreResources.UseResourceIdFunctionsRule_Description,
             LinterRuleCategory.BestPractice,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
+            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
+            // This defaults to off because it's got some false positives
+            overrideCategoryDefaultDiagnosticLevel: DiagnosticLevel.Off)
         { }
 
         private static readonly HashSet<string> allowedFunctions = new() {
