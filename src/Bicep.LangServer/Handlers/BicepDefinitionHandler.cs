@@ -456,6 +456,7 @@ namespace Bicep.LanguageServer.Handlers
             Uri? externalSourceUri = null;
             SemanticModel? bicepModel = sourceModel as SemanticModel; // if the source model is a local Bicep file
 
+            // CONSIDER using only the syntax tree, not the semantic model
             if (sourceModel is ArmTemplateSemanticModel &&
                 moduleDispatcher.TryGetArtifactReference(context.Compilation.SourceFileGrouping.EntryPoint, enclosingDeclaration).IsSuccess(out var artifactReference)
                 && artifactReference is OciArtifactReference ociArtifactReference
