@@ -13,7 +13,7 @@
     <PackageReference Include="MSTest" Version="$(MSTestVersion)" />
     <PackageReference Include="Newtonsoft.Json.Schema" Version="4.0.1" />
     <PackageReference Include="RichardSzalay.MockHttp" Version="7.0.0" />
-    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="21.3.1" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="22.0.13" />
   </ItemGroup>
 
   <ItemGroup>
