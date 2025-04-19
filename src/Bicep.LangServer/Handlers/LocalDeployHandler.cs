@@ -10,6 +10,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
+using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.Local.Deploy;
 using Bicep.Local.Deploy.Extensibility;
@@ -48,14 +49,16 @@ public record LocalDeployResponse(
 
 public class LocalDeployHandler : IJsonRpcRequestHandler<LocalDeployRequest, LocalDeployResponse>
 {
+    private readonly IFileExplorer fileExplorer;
     private readonly IModuleDispatcher moduleDispatcher;
     private readonly IConfigurationManager configurationManager;
     private readonly ITokenCredentialFactory credentialFactory;
     private readonly ICompilationManager compilationManager;
     private readonly ILanguageServerFacade server;
 
-    public LocalDeployHandler(IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, ITokenCredentialFactory credentialFactory, ICompilationManager compilationManager, ILanguageServerFacade server)
+    public LocalDeployHandler(IFileExplorer fileExplorer, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, ITokenCredentialFactory credentialFactory, ICompilationManager compilationManager, ILanguageServerFacade server)
     {
+        this.fileExplorer = fileExplorer;
         this.moduleDispatcher = moduleDispatcher;
         this.configurationManager = configurationManager;
         this.credentialFactory = credentialFactory;
@@ -87,7 +90,7 @@ public class LocalDeployHandler : IJsonRpcRequestHandler<LocalDeployRequest, Loc
                 throw new InvalidOperationException("Bicep file had errors.");
             }
 
-            await using LocalExtensibilityHostManager extensibilityHandler = new(moduleDispatcher, configurationManager, credentialFactory, GrpcBuiltInLocalExtension.Start);
+            await using LocalExtensibilityHostManager extensibilityHandler = new(fileExplorer, moduleDispatcher, configurationManager, credentialFactory, GrpcBuiltInLocalExtension.Start);
             await extensibilityHandler.InitializeExtensions(context.Compilation);
             var result = await extensibilityHandler.Deploy(templateString, parametersString, cancellationToken);
 

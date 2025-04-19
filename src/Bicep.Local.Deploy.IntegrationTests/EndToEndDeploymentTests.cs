@@ -156,6 +156,7 @@ param coords = {
 
         var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
         await using LocalExtensibilityHostManager extensibilityHandler = new(
+            BicepTestConstants.FileExplorer,
             dispatcher,
             StrictMock.Of<IConfigurationManager>().Object,
             StrictMock.Of<ITokenCredentialFactory>().Object,
@@ -269,6 +270,7 @@ param coords = {
 
         var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
         await using LocalExtensibilityHostManager extensibilityHandler = new(
+            BicepTestConstants.FileExplorer,
             dispatcher,
             StrictMock.Of<IConfigurationManager>().Object,
             StrictMock.Of<ITokenCredentialFactory>().Object,
@@ -375,6 +377,7 @@ param coords = {
 
         var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
         await using LocalExtensibilityHostManager extensibilityHandler = new(
+            BicepTestConstants.FileExplorer,
             dispatcher,
             StrictMock.Of<IConfigurationManager>().Object,
             StrictMock.Of<ITokenCredentialFactory>().Object,
@@ -472,6 +475,7 @@ param coords = {
 
         var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
         await using LocalExtensibilityHostManager extensibilityHandler = new(
+            BicepTestConstants.FileExplorer,
             dispatcher,
             StrictMock.Of<IConfigurationManager>().Object,
             StrictMock.Of<ITokenCredentialFactory>().Object,
