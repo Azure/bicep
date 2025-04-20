@@ -14,21 +14,21 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using Bicep.IO.InMemory;
+using Bicep.IO.Utils;
+using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using static Bicep.Core.UnitTests.Diagnostics.LinterRuleTests.UseRecentApiVersionRuleTests.GetAcceptableApiVersionsInvariantsTests;
-using Bicep.Core.UnitTests.Features;
-using Bicep.LanguageServer.Extensions;
-using Bicep.IO.Utils;
 
 namespace Bicep.LangServer.UnitTests.Handlers
 {

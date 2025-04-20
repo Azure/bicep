@@ -5,24 +5,24 @@ using System.Formats.Tar;
 using System.IO.Abstractions.TestingHelpers;
 using System.IO.Compression;
 using System.Text;
+using System.Text.Json;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
+using Bicep.IO.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using static Bicep.Core.SourceLink.SourceArchive;
-using FluentAssertions.Execution;
-using System.Text.Json;
-using Bicep.IO.Utils;
-using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.Utils;
 
 namespace Bicep.Core.UnitTests.SourceCode;
 
@@ -680,7 +680,7 @@ public class SourceArchiveTests
                 @"bicep contents"
             ));
 
-        var success= result.IsSuccess(out _, out var ex);
+        var success = result.IsSuccess(out _, out var ex);
 
         success.Should().BeFalse();
         ex.Should().NotBeNull();
@@ -714,7 +714,7 @@ public class SourceArchiveTests
         );
 
         var success = result.IsSuccess(out _, out var ex);
-        
+
         success.Should().BeFalse();
         ex.Should().NotBeNull();
         ex!.Message.Should().StartWith("This source code was published with a newer, incompatible version of Bicep (0.whatever.0). You are using version ");
@@ -749,7 +749,7 @@ public class SourceArchiveTests
         ).UnwrapOrThrow();
 
         var documentLinks = result.FindDocumentLinks("child.bicep");
-        
+
         documentLinks.Should().BeEmpty();
     }
 
@@ -789,7 +789,7 @@ public class SourceArchiveTests
         ).UnwrapOrThrow();
 
         var documentLinks = result.FindDocumentLinks("dummy.bicep");
-        
+
         documentLinks.Should().HaveCount(1);
         documentLinks[0].Range.ToString().Should().Be("[0:1]-[2:4]");
         documentLinks[0].Target.Should().Be("foobar.bicep");
