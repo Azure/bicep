@@ -81,7 +81,8 @@ public class ParametersJsonWriter
     {
         emitter.EmitObjectProperty("externalInputDefinitions", () =>
         {
-            foreach (var reference in externalInputIndexMap)
+            // Sort the external input references by name for deterministic ordering
+            foreach (var reference in externalInputIndexMap.OrderBy(x => x.Value))
             {
                 var expression = (FunctionCallExpression)ExpressionBuilder.Convert(reference.Key);
 
