@@ -866,7 +866,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 yield return new FunctionOverloadBuilder("min")
                     .WithReturnResultBuilder(TryDeriveLiteralReturnType("min", (model, diagnostics, syntax, argumentTypes) => argumentTypes[0] switch
                     {
-                        TupleType tuple => CalculateMin(model, diagnostics, syntax, [..tuple.Items.Select(t => t.Type)]),
+                        TupleType tuple => CalculateMin(model, diagnostics, syntax, [.. tuple.Items.Select(t => t.Type)]),
                         TypedArrayType typedArray when typedArray.Item.Type is IntegerType or IntegerLiteralType
                             => new(typedArray.Item.Type),
                         _ => new(LanguageConstants.Int),

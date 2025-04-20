@@ -22,7 +22,11 @@ export class BuildParamsCommand implements Command {
     );
 
     if (documentUri.scheme.toLowerCase() !== "file") {
-      this.client.error("Bicep Parameters build failed. The active file must be saved to your local filesystem.", undefined, true);
+      this.client.error(
+        "Bicep Parameters build failed. The active file must be saved to your local filesystem.",
+        undefined,
+        true,
+      );
       return;
     }
 

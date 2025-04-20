@@ -20,9 +20,9 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
+using Bicep.IO.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using static Bicep.Core.SourceLink.SourceArchiveConstants;
-using Bicep.IO.Utils;
 
 namespace Bicep.Core.SourceLink
 {

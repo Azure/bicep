@@ -25,7 +25,7 @@ namespace Bicep.Core.UnitTests.Assertions
         {
             public bool CanHandle(object value)
             {
-                
+
                 return value is Diagnostic;
             }
 

@@ -30,7 +30,7 @@ public sealed class UseSecureValueForSecureInputsRule : LinterRuleBase
 
     private static bool ExpectsSecureType(SemanticModel model, SyntaxBase syntax)
     {
-        if (model.GetDeclaredType(syntax) is not {} type)
+        if (model.GetDeclaredType(syntax) is not { } type)
         {
             return false;
         }
