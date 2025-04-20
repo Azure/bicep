@@ -10,6 +10,7 @@ using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Expression.Extensions;
 using Azure.Deployments.Templates.Expressions;
 using Bicep.Core;
+using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.SourceGraph;
@@ -121,7 +122,7 @@ namespace Bicep.Decompiler
 
             foreach (var (@namespace, name, function) in GetFunctions(functions))
             {
-                var functionName = $"{@namespace}.{name}";
+                var functionName = GetBicepFunctionName(@namespace, name);
                 if (nameResolver.TryRequestName(NameType.Function, functionName) == null)
                 {
                     throw new ConversionFailedException($"Unable to pick unique name for function {name}", function);
@@ -665,8 +666,9 @@ namespace Bicep.Decompiler
                 
                 var expressions = expression.Parameters.Select(ParseLanguageExpression).ToArray();
 
-                if (expression.Function.ContainsOrdinally('.') &&
-                    nameResolver.TryLookupName(NameType.Function, expression.Function) is { } resolvedUdfName)
+                if (expression.Function.Split('.') is {} funcNameArr &&
+                    funcNameArr.Length == 2 &&
+                    nameResolver.TryLookupName(NameType.Function, GetBicepFunctionName(funcNameArr[0], funcNameArr[1])) is { } resolvedUdfName)
                 {
                     // This is a reference to a user-defined function
                     return SyntaxFactory.CreateFunctionCall(resolvedUdfName, expressions);
@@ -1020,7 +1022,7 @@ namespace Bicep.Decompiler
                 [],
                 parameterData.Select(x => x.Name));
 
-            return SyntaxFactory.CreateFunctionDeclaration($"{@namespace}_{name}", parameterData, outputType, outputBody);
+            return SyntaxFactory.CreateFunctionDeclaration(GetBicepFunctionName(@namespace, name), parameterData, outputType, outputBody);
         }
 
         private VariableDeclarationSyntax ParseVariable(string name, JToken value, bool isCopyVariable)
@@ -1934,6 +1936,18 @@ namespace Bicep.Decompiler
             {
                 nameResolver = prevNameResolver;
             }
+        }
+
+        private static string GetBicepFunctionName(string @namespace, string name)
+        {
+            if (@namespace == EmitConstants.UserDefinedFunctionsNamespace)
+            {
+                // although we don't want to encourage decompilation of Bicep-generated templates, it doesn't
+                // hurt to special-case Bicep-emitted output, where we use the namespace '__bicep'.
+                return name;
+            }
+
+            return $"{@namespace}_{name}";
         }
     }
 }
