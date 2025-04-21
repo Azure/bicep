@@ -13,16 +13,19 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
 using Bicep.Local.Deploy;
 using Bicep.Local.Deploy.Extensibility;
 using Bicep.Local.Extension;
 using FluentAssertions;
 using Json.Pointer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Moq;
@@ -33,10 +36,21 @@ namespace Bicep.Local.Deploy.IntegrationTests;
 [TestClass]
 public class EndToEndDeploymentTests : TestBase
 {
+    private static ExtensionPackage GetMockLocalDeployPackage()
+    {
+        var tgzData = ThirdPartyTypeHelper.GetHttpExtensionTypesTgz();
+
+        var architecture = SupportedArchitectures.TryGetCurrent() ?? throw new InvalidOperationException("Failed to get current architecture");
+
+        // this doesn't need to contain a real binary, because this test emulates the local binary connection
+        ExtensionBinary binary = new(architecture, BinaryData.FromBytes([]));
+        return new ExtensionPackage(tgzData, true, [binary]);
+    }
+
     [TestMethod]
     public async Task End_to_end_deployment_basic()
     {
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetHttpExtensionTypesTgz(), new(ExtensibilityEnabled: true, LocalDeployEnabled: true));
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(ExtensibilityEnabled: true, LocalDeployEnabled: true));
 
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("bicepconfig.json", """
@@ -154,8 +168,10 @@ param coords = {
                 return Task.FromResult(new LocalExtensibilityOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), null));
             });
 
-        var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
+        var serviceProvider = services.Build().Construct<IServiceProvider>();
+        var dispatcher = BicepTestConstants.CreateModuleDispatcher(serviceProvider);
         await using LocalExtensibilityHostManager extensibilityHandler = new(
+            serviceProvider.GetRequiredService<IFileExplorer>(),
             dispatcher,
             StrictMock.Of<IConfigurationManager>().Object,
             StrictMock.Of<ITokenCredentialFactory>().Object,
@@ -183,7 +199,7 @@ param coords = {
     [TestMethod]
     public async Task Extension_returning_resource_and_error_data_should_fail()
     {
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetHttpExtensionTypesTgz(), new(ExtensibilityEnabled: true, LocalDeployEnabled: true));
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(ExtensibilityEnabled: true, LocalDeployEnabled: true));
 
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("bicepconfig.json", """
@@ -267,8 +283,10 @@ param coords = {
                 return Task.FromResult(new LocalExtensibilityOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), new ErrorData(new Error() { Code = "Code", Message = "Error message" })));
             });
 
-        var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
+        var serviceProvider = services.Build().Construct<IServiceProvider>();
+        var dispatcher = BicepTestConstants.CreateModuleDispatcher(serviceProvider);
         await using LocalExtensibilityHostManager extensibilityHandler = new(
+            serviceProvider.GetRequiredService<IFileExplorer>(),
             dispatcher,
             StrictMock.Of<IConfigurationManager>().Object,
             StrictMock.Of<ITokenCredentialFactory>().Object,
@@ -289,7 +307,7 @@ param coords = {
     [TestMethod]
     public async Task Extension_not_returning_resource_or_error_data_should_fail()
     {
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetHttpExtensionTypesTgz(), new(ExtensibilityEnabled: true, LocalDeployEnabled: true));
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(ExtensibilityEnabled: true, LocalDeployEnabled: true));
 
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("bicepconfig.json", """
@@ -373,8 +391,10 @@ param coords = {
                 return Task.FromResult(new LocalExtensibilityOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), new ErrorData(new Error() { Code = "Code", Message = "Error message" })));
             });
 
-        var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
+        var serviceProvider = services.Build().Construct<IServiceProvider>();
+        var dispatcher = BicepTestConstants.CreateModuleDispatcher(serviceProvider);
         await using LocalExtensibilityHostManager extensibilityHandler = new(
+            serviceProvider.GetRequiredService<IFileExplorer>(),
             dispatcher,
             StrictMock.Of<IConfigurationManager>().Object,
             StrictMock.Of<ITokenCredentialFactory>().Object,
@@ -395,7 +415,7 @@ param coords = {
     [TestMethod]
     public async Task Extension_returning_error_data_should_fail()
     {
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ThirdPartyTypeHelper.GetHttpExtensionTypesTgz(), new(ExtensibilityEnabled: true, LocalDeployEnabled: true));
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(ExtensibilityEnabled: true, LocalDeployEnabled: true));
 
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("bicepconfig.json", """
@@ -470,8 +490,10 @@ param coords = {
                 return Task.FromResult(new LocalExtensibilityOperationResponse(null, new ErrorData(new Error() { Code = "Code", Message = "Error message" })));
             });
 
-        var dispatcher = BicepTestConstants.CreateModuleDispatcher(services.Build().Construct<IServiceProvider>());
+        var serviceProvider = services.Build().Construct<IServiceProvider>();
+        var dispatcher = BicepTestConstants.CreateModuleDispatcher(serviceProvider);
         await using LocalExtensibilityHostManager extensibilityHandler = new(
+            serviceProvider.GetRequiredService<IFileExplorer>(),
             dispatcher,
             StrictMock.Of<IConfigurationManager>().Object,
             StrictMock.Of<ITokenCredentialFactory>().Object,
