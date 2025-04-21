@@ -56,32 +56,9 @@
       "kind": "custom.binding",
       "config": "__BINDING__"
     },
-    "sys_cli_1": {
-      "kind": "sys.cli",
-      "config": "foo"
-    },
-    "sys_cli_9": {
-      "kind": "sys.cli",
-      "config": "myParam"
-    },
-    "custom_tool_5": {
-      "kind": "custom.tool",
-      "config": {
-        "path": "/path/to/file",
-        "isSecure": true
-      }
-    },
-    "sys_cli_11": {
-      "kind": "sys.cli",
-      "config": "myVar"
-    },
-    "sys_envVar_3": {
-      "kind": "sys.envVar",
-      "config": "bar"
-    },
-    "sys_cli_12": {
-      "kind": "sys.cli",
-      "config": "a"
+    "custom_binding_7": {
+      "kind": "custom.binding",
+      "config": "__BINDING__"
     },
     "custom_binding_8": {
       "kind": "custom.binding",
@@ -90,24 +67,47 @@
         "isSecure": true
       }
     },
-    "sys_sons_cool_param_provider_10": {
-      "kind": "sys&sons.cool#param provider"
-    },
-    "sys_cli_6": {
-      "kind": "sys.cli",
-      "config": "a"
-    },
-    "custom_binding_7": {
-      "kind": "custom.binding",
-      "config": "__BINDING__"
+    "custom_tool_5": {
+      "kind": "custom.tool",
+      "config": {
+        "path": "/path/to/file",
+        "isSecure": true
+      }
     },
     "sys_cli_0": {
       "kind": "sys.cli",
       "config": "foo"
     },
+    "sys_cli_1": {
+      "kind": "sys.cli",
+      "config": "foo"
+    },
+    "sys_cli_11": {
+      "kind": "sys.cli",
+      "config": "myVar"
+    },
+    "sys_cli_12": {
+      "kind": "sys.cli",
+      "config": "a"
+    },
     "sys_cli_2": {
       "kind": "sys.cli",
       "config": "foo"
+    },
+    "sys_cli_6": {
+      "kind": "sys.cli",
+      "config": "a"
+    },
+    "sys_cli_9": {
+      "kind": "sys.cli",
+      "config": "myParam"
+    },
+    "sys_envVar_3": {
+      "kind": "sys.envVar",
+      "config": "bar"
+    },
+    "sys_sons_cool_param_provider_10": {
+      "kind": "sys&sons.cool#param provider"
     }
   }
 }
