@@ -20,6 +20,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
+using Bicep.IO.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using OpenTelemetry;
@@ -37,6 +38,7 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
 
     private Dictionary<ExtensionKey, LocalExtensibilityHost> RegisteredExtensions = new();
     private readonly IModuleDispatcher moduleDispatcher;
+    private readonly IFileExplorer fileExplorer;
     private readonly Func<Uri, Task<LocalExtensibilityHost>> extensionFactory;
     private readonly WorkerJobDispatcherClient jobDispatcher;
     private readonly LocalDeploymentEngine localDeploymentEngine;
@@ -46,7 +48,12 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
     /// </summary>
     private TracerProvider TraceProvider { get; set; }
 
-    public LocalExtensibilityHostManager(IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, ITokenCredentialFactory credentialFactory, Func<Uri, Task<LocalExtensibilityHost>> extensionFactory)
+    public LocalExtensibilityHostManager(
+        IFileExplorer fileExplorer,
+        IModuleDispatcher moduleDispatcher,
+        IConfigurationManager configurationManager,
+        ITokenCredentialFactory credentialFactory,
+        Func<Uri, Task<LocalExtensibilityHost>> extensionFactory)
     {
         this.TraceProvider = Sdk.CreateTracerProviderBuilder()
             .AddSource(OperationActivitySource.DefaultName)
@@ -57,6 +64,7 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
             .BuildServiceProvider();
 
         this.moduleDispatcher = moduleDispatcher;
+        this.fileExplorer = fileExplorer;
         this.extensionFactory = extensionFactory;
         this.localDeploymentEngine = services.GetRequiredService<LocalDeploymentEngine>();
         this.jobDispatcher = services.GetRequiredService<WorkerJobDispatcherClient>();
@@ -189,7 +197,10 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
         foreach (var namespaceType in namespaceTypes)
         {
             if (namespaceType.Artifact is { } artifact &&
-                moduleDispatcher.TryGetExtensionBinary(artifact) is { } binaryUri)
+                moduleDispatcher.TryGetExtensionBinary(artifact) is { } binaryUri &&
+                // check for existence to filter down to providers that support local deployment
+                // the module restoration process will ensure this has been created successfully
+                fileExplorer.GetFile(binaryUri.ToIOUri()).Exists())
             {
                 yield return (namespaceType, binaryUri);
             }

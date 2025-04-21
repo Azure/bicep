@@ -16,6 +16,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.IO.Abstraction;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Diagnostics
 {
@@ -1577,9 +1578,25 @@ namespace Bicep.Core.Diagnostics
                 "BCP335",
                 $"The provided value can have a length as large as {sourceMaxLength} and may be too long to assign to a target with a configured maximum length of {targetMaxLength}.");
 
-            public Diagnostic UnrecognizedParamsFileDeclaration() => CoreError(
-                "BCP337",
-                $@"This declaration type is not valid for a Bicep Parameters file. Specify a ""{LanguageConstants.UsingKeyword}"", ""{LanguageConstants.ExtendsKeyword}"", ""{LanguageConstants.ParameterKeyword}"" or ""{LanguageConstants.VariableKeyword}"" declaration.");
+            public Diagnostic UnrecognizedParamsFileDeclaration(bool supportsTypeDeclarations)
+            {
+                List<string> supportedDeclarations = [
+                    LanguageConstants.UsingKeyword,
+                    LanguageConstants.ExtendsKeyword,
+                    LanguageConstants.ParameterKeyword,
+                    LanguageConstants.VariableKeyword,
+                ];
+
+                // TODO make this unconditional when we release typed variables
+                if (supportsTypeDeclarations)
+                {
+                    supportedDeclarations.Add(LanguageConstants.TypeKeyword);
+                }
+
+                return CoreError(
+                    "BCP337",
+                    $@"This declaration type is not valid for a Bicep Parameters file. Supported declarations: {ToQuotedString(supportedDeclarations)}.");
+            }
 
             public Diagnostic FailedToEvaluateParameter(string parameterName, string message) => CoreError(
                 "BCP338",

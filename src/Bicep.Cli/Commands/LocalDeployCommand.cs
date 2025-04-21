@@ -13,6 +13,7 @@ using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
+using Bicep.IO.Abstraction;
 using Bicep.Local.Deploy;
 using Bicep.Local.Deploy.Extensibility;
 using Bicep.Local.Extension.Rpc;
@@ -23,6 +24,7 @@ namespace Bicep.Cli.Commands;
 
 public class LocalDeployCommand : ICommand
 {
+    private readonly IFileExplorer fileExplorer;
     private readonly IModuleDispatcher moduleDispatcher;
     private readonly IConfigurationManager configurationManager;
     private readonly ITokenCredentialFactory credentialFactory;
@@ -32,6 +34,7 @@ public class LocalDeployCommand : ICommand
     private readonly BicepCompiler compiler;
 
     public LocalDeployCommand(
+        IFileExplorer fileExplorer,
         IModuleDispatcher moduleDispatcher,
         IConfigurationManager configurationManager,
         ITokenCredentialFactory credentialFactory,
@@ -40,6 +43,7 @@ public class LocalDeployCommand : ICommand
         DiagnosticLogger diagnosticLogger,
         BicepCompiler compiler)
     {
+        this.fileExplorer = fileExplorer;
         this.moduleDispatcher = moduleDispatcher;
         this.configurationManager = configurationManager;
         this.credentialFactory = credentialFactory;
@@ -81,7 +85,7 @@ public class LocalDeployCommand : ICommand
             return 1;
         }
 
-        await using LocalExtensibilityHostManager extensibilityHandler = new(moduleDispatcher, configurationManager, credentialFactory, GrpcBuiltInLocalExtension.Start);
+        await using LocalExtensibilityHostManager extensibilityHandler = new(fileExplorer, moduleDispatcher, configurationManager, credentialFactory, GrpcBuiltInLocalExtension.Start);
         await extensibilityHandler.InitializeExtensions(compilation);
         var result = await extensibilityHandler.Deploy(templateString, parametersString, cancellationToken);
 

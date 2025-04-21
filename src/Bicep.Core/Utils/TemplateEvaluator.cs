@@ -296,7 +296,8 @@ namespace Bicep.Core.Utils
                 externalInputs: externalInputs);
 
 
-            return parametersObject!.Properties().ToImmutableDictionary(x => x.Name, x => {
+            return parametersObject!.Properties().ToImmutableDictionary(x => x.Name, x =>
+            {
                 if (x.Value["expression"] is { } expression)
                 {
                     return ExpressionsEngine.ParseLanguageExpression(expression.ToString()).EvaluateExpression(helper.EvaluationContext);

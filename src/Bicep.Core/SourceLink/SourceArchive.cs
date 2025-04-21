@@ -20,9 +20,9 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
+using Bicep.IO.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using static Bicep.Core.SourceLink.SourceArchiveConstants;
-using Bicep.IO.Utils;
 
 namespace Bicep.Core.SourceLink
 {
@@ -219,7 +219,8 @@ namespace Bicep.Core.SourceLink
             return new SourceArchive(metadata, fileEntries.ToImmutableDictionary());
         }
 
-        public ImmutableArray<SourceCodeDocumentPathLink> FindDocumentLinks(string path) => this.metadata.DocumentLinks[path];
+        public ImmutableArray<SourceCodeDocumentPathLink> FindDocumentLinks(string path) =>
+            this.metadata.DocumentLinks.TryGetValue(path, out var documentLinks) ? documentLinks : [];
 
         public LinkedSourceFile FindSourceFile(string path)
         {

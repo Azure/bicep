@@ -9,7 +9,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
 namespace Bicep.Local.Deploy;
 
-public class LocalHttpContentHandler: IHttpContentHandler
+public class LocalHttpContentHandler : IHttpContentHandler
 {
     public HttpResponseMessage GenerateResponseMessageFromException(HttpRequestMessage request, Exception exception)
     {

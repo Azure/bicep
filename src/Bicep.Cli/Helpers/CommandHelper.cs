@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.IO.Abstractions;
 using Bicep.Cli.Logging;
 using Bicep.Core.FileSystem;
@@ -34,28 +35,62 @@ public static class CommandHelper
         return (rootPath, remainingPath);
     }
 
-    public static IEnumerable<Uri> GetFilesMatchingPattern(IEnvironment environment, string? filePattern)
+    public static IEnumerable<(Uri inputUri, Uri outputUri)> GetInputAndOutputFilesForPattern(IEnvironment environment, string? filePattern, string? outputDir, Func<string, string> pathReplacementFunc)
     {
         if (filePattern is null)
         {
             yield break;
         }
 
+        var (inputBasePath, relativeInputPaths) = GetFilesMatchingPattern(environment, filePattern);
+        foreach (var relativeInputPath in relativeInputPaths)
+        {
+            var relativeOutputPath = pathReplacementFunc(relativeInputPath);
+            var inputUri = PathHelper.FilePathToFileUrl(Path.Combine(inputBasePath, relativeInputPath));
+            var outputUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDir ?? inputBasePath, relativeOutputPath));
+
+            yield return (inputUri, outputUri);
+        }
+    }
+
+    public static IEnumerable<Uri> GetInputFilesForPattern(IEnvironment environment, string? filePattern)
+    {
+        if (filePattern is null)
+        {
+            yield break;
+        }
+
+        var (inputBasePath, relativeInputPaths) = GetFilesMatchingPattern(environment, filePattern);
+        foreach (var relativeInputPath in relativeInputPaths)
+        {
+            var inputUri = PathHelper.FilePathToFileUrl(Path.Combine(inputBasePath, relativeInputPath));
+
+            yield return inputUri;
+        }
+    }
+
+    public static (string rootPath, ImmutableArray<string> relativePaths) GetFilesMatchingPattern(IEnvironment environment, string filePattern)
+    {
         var (rootPath, remainingPath) = SplitFilePatternOnWildcard(filePattern, Path.DirectorySeparatorChar);
         rootPath = PathHelper.ResolvePath(rootPath, baseDirectory: environment.CurrentDirectory);
+        var rootUri = PathHelper.FilePathToFileUrl(rootPath + Path.DirectorySeparatorChar);
 
         Matcher matcher = new();
         matcher.AddInclude(remainingPath);
 
+        var relativePaths = ImmutableArray.CreateBuilder<string>();
         foreach (var filePath in matcher.GetResultsInFullPath(rootPath))
         {
-            yield return ArgumentHelper.GetFileUri(filePath);
+            var relativePath = PathHelper.GetRelativePath(rootUri, ArgumentHelper.GetFileUri(filePath));
+            relativePaths.Add(relativePath);
         }
+
+        return (rootPath, relativePaths.ToImmutable());
     }
 
     public static Uri GetJsonOutputUri(Uri inputUri, string? outputDir, string? outputFile)
     {
-        var outputPath = PathHelper.ResolveDefaultOutputPath(inputUri.LocalPath, outputDir, outputFile, PathHelper.GetDefaultBuildOutputPath);
+        var outputPath = PathHelper.ResolveOutputPath(inputUri.LocalPath, outputDir, outputFile, PathHelper.GetJsonOutputPath, null);
         return PathHelper.FilePathToFileUrl(outputPath);
     }
 

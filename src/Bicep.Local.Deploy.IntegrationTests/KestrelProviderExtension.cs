@@ -12,7 +12,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Local.Deploy.IntegrationTests;
 
-[TestClass]
 public class KestrelProviderExtension : ProviderExtension
 {
     protected override async Task RunServer(ConnectionOptions connectionOptions, ResourceDispatcher dispatcher, CancellationToken cancellationToken)

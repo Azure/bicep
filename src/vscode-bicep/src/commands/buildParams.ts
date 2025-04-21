@@ -18,17 +18,26 @@ export class BuildParamsCommand implements Command {
     documentUri = await findOrCreateActiveBicepParamFile(
       context,
       documentUri,
-      "Choose which Bicep file to build into an ARM template",
+      "Choose which Bicep Parameters file to build into an ARM parameters file",
     );
+
+    if (documentUri.scheme.toLowerCase() !== "file") {
+      this.client.error(
+        "Bicep Parameters build failed. The active file must be saved to your local filesystem.",
+        undefined,
+        true,
+      );
+      return;
+    }
 
     try {
       const buildOutput: string = await this.client.sendRequest("workspace/executeCommand", {
         command: "buildParams",
-        arguments: [documentUri.fsPath],
+        arguments: [documentUri.toString()],
       });
       this.outputChannelManager.appendToOutputChannel(buildOutput);
     } catch (err) {
-      this.client.error("Bicep build failed", parseError(err).message, true);
+      this.client.error("Bicep Parameters build failed", parseError(err).message, true);
     }
   }
 }

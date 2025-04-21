@@ -740,31 +740,6 @@ namespace Bicep.Core.Emit
                 referenceExpression);
         }
 
-        private SyntaxBase GetEnclosingDeclaringSyntax(LocalVariableSymbol localVariable)
-        {
-            // we're following the symbol hierarchy rather than syntax hierarchy because
-            // this guarantees a single hop in all cases
-            var symbolParent = this.context.SemanticModel.GetSymbolParent(localVariable);
-            if (symbolParent is not LocalScope localScope)
-            {
-                throw new NotImplementedException($"{nameof(LocalVariableSymbol)} has un unexpected parent of type '{symbolParent?.GetType().Name}'.");
-            }
-
-            return localScope.DeclaringSyntax;
-        }
-
-        private ForSyntax GetEnclosingForExpression(LocalVariableSymbol localVariable)
-        {
-            var declaringSyntax = GetEnclosingDeclaringSyntax(localVariable);
-
-            if (declaringSyntax is ForSyntax @for)
-            {
-                return @for;
-            }
-
-            throw new NotImplementedException($"{nameof(LocalVariableSymbol)} was declared by an unexpected syntax type '{declaringSyntax?.GetType().Name}'.");
-        }
-
         private LanguageExpression ConvertString(InterpolatedStringExpression expression)
         {
             var formatArgs = new LanguageExpression[expression.Expressions.Length + 1];

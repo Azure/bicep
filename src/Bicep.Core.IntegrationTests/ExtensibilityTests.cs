@@ -803,7 +803,7 @@ Hello from Bicep!"));
         [DataRow(
             "ParamsFile",
             "BCP337",
-            $"""This declaration type is not valid for a Bicep Parameters file. Specify a "{LanguageConstants.UsingKeyword}", "{LanguageConstants.ExtendsKeyword}", "{LanguageConstants.ParameterKeyword}" or "{LanguageConstants.VariableKeyword}" declaration.""")]
+            $"""This declaration type is not valid for a Bicep Parameters file. Supported declarations: "using", "extends", "param", "var".""")]
         [DataRow(
             "MainFile",
             "BCP037",

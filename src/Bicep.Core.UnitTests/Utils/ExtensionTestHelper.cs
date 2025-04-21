@@ -28,16 +28,19 @@ public static class ExtensionTestHelper
     }
 
     public static Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(BinaryData tgzData, FeatureProviderOverrides features, IFileSystem? fileSystem = null)
-        => GetServiceBuilderWithPublishedExtension(tgzData, "example.azurecr.io/extensions/foo:1.2.3", features, fileSystem);
+        => GetServiceBuilderWithPublishedExtension(new ExtensionPackage(tgzData, false, []), "example.azurecr.io/extensions/foo:1.2.3", features, fileSystem);
 
-    public static async Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(BinaryData tgzData, string target, FeatureProviderOverrides features, IFileSystem? fileSystem = null)
+    public static Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(ExtensionPackage package, FeatureProviderOverrides features, IFileSystem? fileSystem = null)
+        => GetServiceBuilderWithPublishedExtension(package, "example.azurecr.io/extensions/foo:1.2.3", features, fileSystem);
+
+    public static async Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(ExtensionPackage package, string target, FeatureProviderOverrides features, IFileSystem? fileSystem = null)
     {
         var reference = OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile, ArtifactType.Module, null, target).Unwrap();
 
         fileSystem ??= new MockFileSystem();
         var services = GetServiceBuilder(fileSystem, reference.Registry, reference.Repository, features);
 
-        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), reference.FullyQualifiedReference, tgzData);
+        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), reference.FullyQualifiedReference, package);
 
         return services;
     }

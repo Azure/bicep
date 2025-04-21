@@ -230,7 +230,7 @@ namespace Bicep.Cli.IntegrationTests
             var jsonPath = FileHelper.SaveResultFile(context, inputFile ?? "param.json", template);
 
             var bicepparamPath = outputDir is null
-              ? PathHelper.GetDefaultDecompileparamOutputPath(jsonPath)
+              ? PathHelper.GetBicepparamOutputPath(jsonPath)
               : FileHelper.GetResultFilePath(context, outputDir);
 
             return (jsonPath, bicepparamPath);

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.Deployments.Core.Helpers;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
@@ -81,11 +82,9 @@ public class BuildParamsCommand(
     {
         var hasErrors = false;
 
-        foreach (var inputUri in CommandHelper.GetFilesMatchingPattern(environment, args.FilePattern))
+        foreach (var (inputUri, outputUri) in CommandHelper.GetInputAndOutputFilesForPattern(environment, args.FilePattern, args.OutputDir, PathHelper.GetJsonOutputPath))
         {
             ArgumentHelper.ValidateBicepParamFile(inputUri);
-
-            var outputUri = CommandHelper.GetJsonOutputUri(inputUri, null, null);
 
             var result = await Compile(null, inputUri, null, outputUri, args.NoRestore, args.DiagnosticsFormat, false);
             hasErrors |= result.HasErrors;
