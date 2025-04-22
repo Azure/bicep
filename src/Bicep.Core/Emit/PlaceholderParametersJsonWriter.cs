@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Emit.Options;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
@@ -97,25 +98,17 @@ namespace Bicep.Core.Emit
                 {
                     jsonWriter.WritePropertyName(parameterSymbol.Name);
 
+                    var value = PlaceholderParametersBicepParamWriter.GetValueForParameter(parameterSymbol.DeclaringParameter, true);
+
                     jsonWriter.WriteStartObject();
-                    switch (parameterSymbol.Type.Name)
+
+                    // Emit value property only if the value is not a newline token.
+                    // GetValueForParameter return TokenType.NewLine when syntax of assigning the value is not correct
+                    if (value is not Token { Type: TokenType.NewLine})
                     {
-                        case "string":
-                            emitter.EmitProperty("value", "");
-                            break;
-                        case "int":
-                            emitter.EmitProperty("value", () => jsonWriter.WriteValue(0));
-                            break;
-                        case "bool":
-                            emitter.EmitProperty("value", () => jsonWriter.WriteValue(false));
-                            break;
-                        case "object":
-                            emitter.EmitProperty("value", () => { jsonWriter.WriteStartObject(); jsonWriter.WriteEndObject(); });
-                            break;
-                        case "array":
-                            emitter.EmitProperty("value", () => { jsonWriter.WriteStartArray(); jsonWriter.WriteEndArray(); });
-                            break;
+                        emitter.EmitProperty("value", value);
                     }
+
                     jsonWriter.WriteEndObject();
                 }
 
