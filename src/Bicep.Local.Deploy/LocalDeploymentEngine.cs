@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Deployments.Core.Constants;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
@@ -31,6 +32,10 @@ namespace Bicep.Local.Deploy;
 
 public class LocalDeploymentEngine
 {
+    static LocalDeploymentEngine()
+    {
+        CoreConstants.ResourcesLimitOverrideForLocalDeploy = int.MaxValue;
+    }
 
     public LocalDeploymentEngine(
         LocalRequestContext requestContext,
