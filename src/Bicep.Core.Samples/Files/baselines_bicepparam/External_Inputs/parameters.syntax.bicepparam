@@ -1,5 +1,5 @@
 using none
-//@[00:1273) ProgramSyntax
+//@[00:1409) ProgramSyntax
 //@[00:0010) ├─UsingDeclarationSyntax
 //@[00:0005) | ├─Token(Identifier) |using|
 //@[06:0010) | └─NoneLiteralSyntax
@@ -404,6 +404,63 @@ param coolParam = externalInput('sys&sons.cool#param provider')
 //@[32:0062) |   | └─StringSyntax
 //@[32:0062) |   |   └─Token(StringComplete) |'sys&sons.cool#param provider'|
 //@[62:0063) |   └─Token(RightParen) |)|
-//@[63:0065) ├─Token(NewLine) |\r\n|
+//@[63:0067) ├─Token(NewLine) |\r\n\r\n|
+
+param objectBody = {
+//@[00:0132) ├─ParameterAssignmentSyntax
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0016) | ├─IdentifierSyntax
+//@[06:0016) | | └─Token(Identifier) |objectBody|
+//@[17:0018) | ├─Token(Assignment) |=|
+//@[19:0132) | └─ObjectSyntax
+//@[19:0020) |   ├─Token(LeftBrace) |{|
+//@[20:0022) |   ├─Token(NewLine) |\r\n|
+  foo: externalInput('custom.binding', 'foo')
+//@[02:0045) |   ├─ObjectPropertySyntax
+//@[02:0005) |   | ├─IdentifierSyntax
+//@[02:0005) |   | | └─Token(Identifier) |foo|
+//@[05:0006) |   | ├─Token(Colon) |:|
+//@[07:0045) |   | └─FunctionCallSyntax
+//@[07:0020) |   |   ├─IdentifierSyntax
+//@[07:0020) |   |   | └─Token(Identifier) |externalInput|
+//@[20:0021) |   |   ├─Token(LeftParen) |(|
+//@[21:0037) |   |   ├─FunctionArgumentSyntax
+//@[21:0037) |   |   | └─StringSyntax
+//@[21:0037) |   |   |   └─Token(StringComplete) |'custom.binding'|
+//@[37:0038) |   |   ├─Token(Comma) |,|
+//@[39:0044) |   |   ├─FunctionArgumentSyntax
+//@[39:0044) |   |   | └─StringSyntax
+//@[39:0044) |   |   |   └─Token(StringComplete) |'foo'|
+//@[44:0045) |   |   └─Token(RightParen) |)|
+//@[45:0047) |   ├─Token(NewLine) |\r\n|
+  bar: externalInput('custom.binding', 'bar')
+//@[02:0045) |   ├─ObjectPropertySyntax
+//@[02:0005) |   | ├─IdentifierSyntax
+//@[02:0005) |   | | └─Token(Identifier) |bar|
+//@[05:0006) |   | ├─Token(Colon) |:|
+//@[07:0045) |   | └─FunctionCallSyntax
+//@[07:0020) |   |   ├─IdentifierSyntax
+//@[07:0020) |   |   | └─Token(Identifier) |externalInput|
+//@[20:0021) |   |   ├─Token(LeftParen) |(|
+//@[21:0037) |   |   ├─FunctionArgumentSyntax
+//@[21:0037) |   |   | └─StringSyntax
+//@[21:0037) |   |   |   └─Token(StringComplete) |'custom.binding'|
+//@[37:0038) |   |   ├─Token(Comma) |,|
+//@[39:0044) |   |   ├─FunctionArgumentSyntax
+//@[39:0044) |   |   | └─StringSyntax
+//@[39:0044) |   |   |   └─Token(StringComplete) |'bar'|
+//@[44:0045) |   |   └─Token(RightParen) |)|
+//@[45:0047) |   ├─Token(NewLine) |\r\n|
+  baz: 'blah'
+//@[02:0013) |   ├─ObjectPropertySyntax
+//@[02:0005) |   | ├─IdentifierSyntax
+//@[02:0005) |   | | └─Token(Identifier) |baz|
+//@[05:0006) |   | ├─Token(Colon) |:|
+//@[07:0013) |   | └─StringSyntax
+//@[07:0013) |   |   └─Token(StringComplete) |'blah'|
+//@[13:0015) |   ├─Token(NewLine) |\r\n|
+}
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\r\n|
 
 //@[00:0000) └─Token(EndOfFile) ||
