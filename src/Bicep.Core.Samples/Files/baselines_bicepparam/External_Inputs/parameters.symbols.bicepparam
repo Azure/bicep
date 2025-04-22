@@ -64,3 +64,10 @@ param myParam = sys.externalInput('sys.cli', 'myParam')
 param coolParam = externalInput('sys&sons.cool#param provider')
 //@[6:15) ParameterAssignment coolParam. Type: any. Declaration start char: 0, length: 63
 
+param objectBody = {
+//@[6:16) ParameterAssignment objectBody. Type: object. Declaration start char: 0, length: 132
+  foo: externalInput('custom.binding', 'foo')
+  bar: externalInput('custom.binding', 'bar')
+  baz: 'blah'
+}
+

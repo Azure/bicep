@@ -1303,6 +1303,7 @@ param input5 bool
 param input6 int
 param myParam customType
 param input7 customType
+param nestedObj object
 
 output output int = input
 output output2 string = input2
@@ -1311,6 +1312,7 @@ output output4 object = input4
 output output5 bool = input5
 output output6 int = input6
 output output7 customType = input7
+output nestedObj object = nestedObj
 
 type customType = {
     foo: string
@@ -1339,6 +1341,9 @@ param input6 = foo
 
 param myParam = json(externalInput('custom.binding', 'input7'))
 param input7 = myParam
+param nestedObj = {
+  foo: externalInput('custom.binding', 'input')
+}
 "
 ;
 
@@ -1394,6 +1399,10 @@ param input7 = myParam
             {
                 ["foo"] = "bar",
                 ["bar"] = 123
+            });
+            evaluated.Should().HaveValueAtPath("$.outputs['nestedObj'].value", new JObject
+            {
+                ["foo"] = "123"
             });
         }
     }

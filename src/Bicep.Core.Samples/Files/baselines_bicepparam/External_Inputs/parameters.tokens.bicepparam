@@ -249,6 +249,41 @@ param coolParam = externalInput('sys&sons.cool#param provider')
 //@[31:32) LeftParen |(|
 //@[32:62) StringComplete |'sys&sons.cool#param provider'|
 //@[62:63) RightParen |)|
-//@[63:65) NewLine |\r\n|
+//@[63:67) NewLine |\r\n\r\n|
+
+param objectBody = {
+//@[00:05) Identifier |param|
+//@[06:16) Identifier |objectBody|
+//@[17:18) Assignment |=|
+//@[19:20) LeftBrace |{|
+//@[20:22) NewLine |\r\n|
+  foo: externalInput('custom.binding', 'foo')
+//@[02:05) Identifier |foo|
+//@[05:06) Colon |:|
+//@[07:20) Identifier |externalInput|
+//@[20:21) LeftParen |(|
+//@[21:37) StringComplete |'custom.binding'|
+//@[37:38) Comma |,|
+//@[39:44) StringComplete |'foo'|
+//@[44:45) RightParen |)|
+//@[45:47) NewLine |\r\n|
+  bar: externalInput('custom.binding', 'bar')
+//@[02:05) Identifier |bar|
+//@[05:06) Colon |:|
+//@[07:20) Identifier |externalInput|
+//@[20:21) LeftParen |(|
+//@[21:37) StringComplete |'custom.binding'|
+//@[37:38) Comma |,|
+//@[39:44) StringComplete |'bar'|
+//@[44:45) RightParen |)|
+//@[45:47) NewLine |\r\n|
+  baz: 'blah'
+//@[02:05) Identifier |baz|
+//@[05:06) Colon |:|
+//@[07:13) StringComplete |'blah'|
+//@[13:15) NewLine |\r\n|
+}
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\r\n|
 
 //@[00:00) EndOfFile ||
