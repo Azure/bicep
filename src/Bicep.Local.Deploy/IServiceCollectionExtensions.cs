@@ -69,7 +69,13 @@ public static class IServiceCollectionExtensions
         services.AddSingleton<VolatileMemoryStorage>();
         services.AddSingleton<IJobInstanceResolver, JobInstanceResolver>();
         services.AddSingleton<JobCallbackFactory, DeploymentJobCallbackFactory>();
-        services.AddSingleton<IJobsConfigurationProvider, JobsConfigurationProvider>();
+        services.AddSingleton<IJobsConfigurationProvider>(new JobsConfigurationProvider(
+            numWorkersPerInstanceCount: null,
+            numWorkersPerProcessorCount: 8,
+            numWorkersInJobDispatchingService: null,
+            numPartitionsInJobTriggersQueue: 4,
+            workerPulsationsThrottlingEnabledForPollRequests: false,
+            workerPulsationsThrottlingEnabledForPulseRequests: false));
         services.AddSingleton<WorkerJobDispatcherClient>();
 
         services.AddSingleton<IDeploymentsRequestContext, LocalRequestContext>();
