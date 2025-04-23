@@ -93,17 +93,17 @@ resource storageAccounts 'Microsoft.Storage/storageAccounts@2021-02-01' = [for i
 }]
 
 resource vnet 'Microsoft.Network/virtualNetworks@2022-07-01' existing = {
-  name: uniqueString(appPlan.properties.workerTierName)
+  name: uniqueString(appPlan!.properties.workerTierName)
 
   resource subnet0 'subnets' = {
-    name: uniqueString(appPlan.properties.workerTierName)
+    name: uniqueString(appPlan!.properties.workerTierName)
     properties: {
       addressPrefix: '10.0.2.0/24'
     }
   }
 
   resource subnet1 'subnets' existing = {
-    name: uniqueString(appPlan.properties.workerTierName)
+    name: uniqueString(appPlan!.properties.workerTierName)
   }
 }
 

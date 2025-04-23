@@ -118,9 +118,9 @@ resource aibdef 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' = i
 
 // Map AIB Runner Custom Role Assignment to Managed Identity
 resource aibrunnerassignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if (InvokeRunImageBuildThroughDeploymentScript) {
-  name: guid(resourceGroup().id, aibdef.id, managedidentity.id)
+  name: guid(resourceGroup().id, aibdef!.id, managedidentity.id)
   properties: {
-    roleDefinitionId: aibdef.id
+    roleDefinitionId: aibdef!.id
     principalId: managedidentity.properties.principalId
     principalType: 'ServicePrincipal'
   }

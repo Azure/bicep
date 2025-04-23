@@ -427,4 +427,5 @@ module filteredIndexedModules 'passthrough.bicep' = [for (account, i) in account
 }]
 
 output lastModuleOutput string = filteredIndexedModules[length(accounts) - 1].outputs.myOutput
+//@[77:085) [BCP318 (Warning)] The value of type "module | null" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail. (bicep https://aka.ms/bicep/core-diagnostics#BCP318) |.outputs|
 

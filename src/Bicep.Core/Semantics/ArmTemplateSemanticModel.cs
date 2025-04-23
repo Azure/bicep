@@ -101,14 +101,16 @@ namespace Bicep.Core.Semantics
                     return [];
                 }
 
-                return this.SourceFile.Template.Outputs
-                    .Select(outputProperty => new OutputMetadata(
+                return [.. this.SourceFile.Template.Outputs
+                    .Select(outputProperty =>
+                    {
+                        var type = GetType(outputProperty.Value);
+                        return new OutputMetadata(
                             outputProperty.Key,
-                            GetType(outputProperty.Value),
+                            type,
                             TryGetMetadataDescription(outputProperty.Value.Metadata),
-                            GetType(outputProperty.Value).Type.IsSecureType())
-                     )
-                    .ToImmutableArray();
+                            TypeHelper.IsOrContainsSecureType(type.Type));
+                    })];
             });
         }
 

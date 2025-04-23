@@ -609,11 +609,11 @@ public class ExpressionBuilder
             .Select(t => t.Expression)
             .ToImmutableArray();
 
-    private DeclaredResourceExpression ConvertResource(ResourceDeclarationSyntax syntax)
-    {
-        var resource = Context.SemanticModel.ResourceMetadata.TryLookup(syntax) as DeclaredResourceMetadata
-            ?? throw new InvalidOperationException("Failed to find resource in cache");
+    public Expression? GetResourceCondition(DeclaredResourceMetadata resourceMetadata)
+        => GetResourceBody(resourceMetadata).condition;
 
+    private (Expression? condition, LoopExpressionContext? loop, SyntaxBase body) GetResourceBody(DeclaredResourceMetadata resource)
+    {
         Expression? condition = null;
         LoopExpressionContext? loop = null;
 
@@ -685,6 +685,16 @@ public class ExpressionBuilder
             AddCondition(ConvertWithoutLowering(@if.ConditionExpression));
             body = @if.Body;
         }
+
+        return (condition, loop, body);
+    }
+
+    private DeclaredResourceExpression ConvertResource(ResourceDeclarationSyntax syntax)
+    {
+        var resource = Context.SemanticModel.ResourceMetadata.TryLookup(syntax) as DeclaredResourceMetadata
+            ?? throw new InvalidOperationException("Failed to find resource in cache");
+
+        var (condition, loop, body) = GetResourceBody(resource);
 
         var propertiesToOmit = resource.IsAzResource ? AzResourcePropertiesToOmit : NonAzResourcePropertiesToOmit;
         var properties = ((ObjectSyntax)body).Properties
@@ -813,7 +823,8 @@ public class ExpressionBuilder
                     function.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray());
 
             case InstanceFunctionCallSyntax method:
-                var (baseSyntax, indexExpression) = SyntaxHelper.UnwrapArrayAccessSyntax(method.BaseExpression);
+                var (baseSyntax, indexExpression) = SyntaxHelper.UnwrapArrayAccessSyntax(
+                    SyntaxHelper.UnwrapNonNullAssertion(method.BaseExpression));
                 var baseSymbol = Context.SemanticModel.GetSymbolInfo(baseSyntax);
 
                 if (baseSymbol is INamespaceSymbol namespaceSymbol)
