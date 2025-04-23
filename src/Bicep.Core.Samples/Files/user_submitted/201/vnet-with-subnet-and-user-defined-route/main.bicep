@@ -49,7 +49,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
         properties: {
           addressPrefix: subnetaddressPrefix
           routeTable: {
-            id: udr.id
+            id: udr!.id
           }
           networkSecurityGroup: {
             properties: {

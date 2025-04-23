@@ -183,6 +183,7 @@ namespace Bicep.Core.Emit
         private bool IsResourceInfoAccessBase(SyntaxBase syntax, ResourceSymbol resource)
             => model.Binder.GetParent(syntax) switch
             {
+                NonNullAssertionSyntax nonNullAssertion => IsResourceInfoAccessBase(nonNullAssertion, resource),
                 PropertyAccessSyntax propertyAccess
                     => IsResourceInfoAccessBase(resource, propertyAccess.PropertyName.IdentifierName),
                 ArrayAccessSyntax arrayAccess => model.GetTypeInfo(arrayAccess.IndexExpression) switch
@@ -204,6 +205,7 @@ namespace Bicep.Core.Emit
 
         private bool IsResourceFunctionCallBase(SyntaxBase syntax) => model.Binder.GetParent(syntax) switch
         {
+            NonNullAssertionSyntax nonNullAssertion => IsResourceFunctionCallBase(nonNullAssertion),
             InstanceFunctionCallSyntax => true,
             ArrayAccessSyntax arrayAccess when model.GetSymbolInfo(arrayAccess.BaseExpression) is ResourceSymbol r &&
                 r.IsCollection &&

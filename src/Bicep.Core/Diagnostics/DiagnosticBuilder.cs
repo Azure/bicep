@@ -1894,6 +1894,12 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic SpreadOperatorCannotBeUsedWithForLoop(SpreadExpressionSyntax spread) => CoreError(
                 "BCP417",
                 $"The spread operator \"{spread.Ellipsis.Text}\" cannot be used inside objects with property for-expressions.");
+
+            public Diagnostic InstanceFunctionCallOnPossiblyNullBase(TypeSymbol baseType, SyntaxBase expression) => CoreWarning(
+                "BCP418",
+                $"A resource of type \"{baseType}\" may or may not exist when this function is called, which could cause the deployment to fail.")
+                with
+            { Fixes = [AsNonNullable(expression)] };
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
