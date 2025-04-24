@@ -2027,7 +2027,10 @@ INVALID FILE
                 func b() string[] => ['c', 'd']
                 """));
 
-        result.Diagnostics.Should().BeEmpty();
+        result.Diagnostics.Should().HaveDiagnostics(new[]
+        {
+            ("no-unused-imports", DiagnosticLevel.Warning, """Import "a" is declared but never used.""")
+        });
         result.Template.Should().NotBeNull();
         result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
     }
