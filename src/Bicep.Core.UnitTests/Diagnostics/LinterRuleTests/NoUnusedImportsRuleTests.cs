@@ -112,6 +112,22 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
         func getString2() string => 'Not exported'
         ",
         "getString2")]
+    [DataRow(@"
+    import * as mod from './mod.bicep'
+    ",
+        "mod.bicep",
+        @"",
+        "mod")]
+    [DataRow(@"
+    import * as mod from './mod.bicep'
+
+    output outputString string = mod.getString()
+    ",
+        "mod.bicep",
+        @"
+        @export()
+        func getString() string => 'exported'
+        ")]
     [DataTestMethod]
     public void TestRule(string text, string importFileName, string importFileText, params string[] unusedImports)
     {
@@ -136,6 +152,7 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
         @"
             @export()
             var namePrefix = 'prefix'
+            @export()
             var location = 'eastus'
             ")]
     [DataRow(@"
@@ -206,11 +223,6 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
 
     [DataRow(@"import", "mod.bicep", "")] // Don't show as unused - no imported symbol or file name
     [DataRow(@"import {p2} from './mod.bicep'", "mod.bicep", "")] // Don't show as unused - imported symbol not existing
-    [DataRow(@"import * as mod from './mod.bicep'", "mod.bicep",
-        @"
-        @export()
-        var notdetected = 'undetected'
-        ")] // Don't show as unused - wildcard import
     [DataTestMethod]
     public void Errors(string text, string importFileName, string importFileText, params string[] unusedImports)
     {
