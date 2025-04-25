@@ -351,8 +351,8 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
     }
 
 
-    private void AssertCodeFix(string inputFile, string resultFile, string importNameToFix, CompilationHelper.InputFile[]? supportingFiles = null)
-        => AssertCodeFix(NoUnusedImportsRule.Code, $"Remove import {importNameToFix}", inputFile, resultFile, supportingFiles);
+    private static void AssertCodeFix(string inputFile, string resultFile, string importNameToFix, CompilationHelper.InputFile[]? supportingFiles = null)
+        => AssertCodeFix(NoUnusedImportsRule.Code, $"Remove unused import {importNameToFix}", inputFile, resultFile, supportingFiles);
 
     [DataRow(@"import", "mod.bicep", "")] // Don't show as unused - no imported symbol or file name
     [DataRow(@"import {p2} from './mod.bicep'", "mod.bicep", "")] // Don't show as unused - imported symbol not existing

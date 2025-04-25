@@ -77,7 +77,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override protected string GetCodeFixDescription(string name)
         {
-            return $"Remove import {name}";
+            return $"Remove unused import {name}";
         }
 
         private TextSpan GetSpanForImportedSymbolCodeFix(CompileTimeImportDeclarationSyntax importDeclarationSyntax, ImportedSymbol importedSymbol)
