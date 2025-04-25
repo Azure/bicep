@@ -83,28 +83,28 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private TextSpan GetSpanForImportedSymbolCodeFix(CompileTimeImportDeclarationSyntax importDeclarationSyntax, ImportedSymbol importedSymbol)
         {
             var importSpan = importedSymbol.NameSource.Span;
-            var importExpression = (ImportedSymbolsListSyntax) importDeclarationSyntax.ImportExpression;
-            var importExpressionCount = importExpression.Children.Length;
-            var indexOfImportedSymbol = importExpression.Children.IndexOf(importedSymbol.DeclaringSyntax);
+            var importSyntaxExpression = (ImportedSymbolsListSyntax) importDeclarationSyntax.ImportExpression;
+            var importSyntaxExpressionChildCount = importSyntaxExpression.Children.Length;
+            var indexOfImportedSymbol = importSyntaxExpression.Children.IndexOf(importedSymbol.DeclaringSyntax);
 
-            if (importExpressionCount < 2)
+            if (importSyntaxExpressionChildCount < 2)
             {
                 return importSpan;
             }
             if (indexOfImportedSymbol == 0)
             {
                 // remove right comma
-                importSpan = TextSpan.Between(importExpression.Children[0].Span, importExpression.Children[1].Span);
+                importSpan = TextSpan.Between(importSyntaxExpression.Children[0].Span, importSyntaxExpression.Children[1].Span);
             }
-            else if (indexOfImportedSymbol > 0 && indexOfImportedSymbol < importExpressionCount - 1)
+            else if (indexOfImportedSymbol > 0 && indexOfImportedSymbol < importSyntaxExpressionChildCount - 1)
             {
                 // remove left comma when surrounded
-                importSpan = TextSpan.Between(importExpression.Children[indexOfImportedSymbol - 1].Span, importExpression.Children[indexOfImportedSymbol].Span);
+                importSpan = TextSpan.Between(importSyntaxExpression.Children[indexOfImportedSymbol - 1].Span, importSyntaxExpression.Children[indexOfImportedSymbol].Span);
             }
             else
             {
                 // remove left comma when last
-                importSpan = TextSpan.Between(importExpression.Children[importExpressionCount - 2].Span, importExpression.Children[importExpressionCount - 1].Span);
+                importSpan = TextSpan.Between(importSyntaxExpression.Children[importSyntaxExpressionChildCount - 2].Span, importSyntaxExpression.Children[importSyntaxExpressionChildCount - 1].Span);
             }
 
             return importSpan;
