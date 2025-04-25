@@ -37,16 +37,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             foreach (var import in unreferencedImports)
             {
                 // Detect leading and following commas ro remove them along the symbol
-               var parent =  model.SourceFile.ProgramSyntax.Declarations
-                   .Where(decl => decl is CompileTimeImportDeclarationSyntax)
-                   .FirstOrDefault(decl => decl.Span == import.EnclosingDeclaration.Span) as CompileTimeImportDeclarationSyntax;
+               var parent =  import.EnclosingDeclaration;
 
                var codeFixSpan = import.NameSource.Span;
 
-               if (parent is not null)
-               {
-                   codeFixSpan = GetSpanForImportedSymbolCodeFix(parent, import);
-               }
+                codeFixSpan = GetSpanForImportedSymbolCodeFix(parent, import);
 
                yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, import.Name, import.NameSource.Span, codeFixSpan);
             }
@@ -61,15 +56,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             foreach (var import in unreferencedWildcardImports)
             {
                 //Remove the whole line
-                var parent =  model.SourceFile.ProgramSyntax.Declarations
-                    .Where(decl => decl is CompileTimeImportDeclarationSyntax)
-                    .FirstOrDefault(decl => decl.Span == import.EnclosingDeclaration.Span) as CompileTimeImportDeclarationSyntax;
+                var parent = import.EnclosingDeclaration;
 
                 var codeFixSpan = import.NameSource.Span;
-                if (parent is not null)
-                {
-                    codeFixSpan = parent.Span;
-                }
+
+                codeFixSpan = parent.Span;
 
                 yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, import.Name, import.NameSource.Span, codeFixSpan);
             }
