@@ -27,7 +27,7 @@ public abstract class NoUnusedRuleBase : LinterRuleBase
         return CreateFixableDiagnosticForSpan(diagnosticLevel, nameSpan, codeFix, name);
     }
 
-    protected Diagnostic CreateRemoveUnusedDiagnosticForSpan(DiagnosticLevel diagnosticLevel, string name, TextSpan nameSpan, TextSpan codeFixSpan, SyntaxBase declaringSyntax, ProgramSyntax programSyntax)
+    protected Diagnostic CreateRemoveUnusedDiagnosticForSpan(DiagnosticLevel diagnosticLevel, string name, TextSpan nameSpan, TextSpan codeFixSpan)
     {
         var codeFix = new CodeFix(GetCodeFixDescription(name), true, CodeFixKind.QuickFix, new CodeReplacement(codeFixSpan, String.Empty));
 

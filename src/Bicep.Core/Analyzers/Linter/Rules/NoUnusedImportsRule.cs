@@ -48,7 +48,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                    codeFixSpan = GetSpanForImportedSymbolCodeFix(parent, import);
                }
 
-               yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, import.Name, import.NameSource.Span, codeFixSpan, import.DeclaringSyntax, model.SourceFile.ProgramSyntax);
+               yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, import.Name, import.NameSource.Span, codeFixSpan);
             }
 
             //Handle wildcard alias
@@ -71,7 +71,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     codeFixSpan = parent.Span;
                 }
 
-                yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, import.Name, import.NameSource.Span, codeFixSpan, import.DeclaringSyntax, model.SourceFile.ProgramSyntax);
+                yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, import.Name, import.NameSource.Span, codeFixSpan);
             }
         }
 
