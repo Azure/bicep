@@ -18,7 +18,6 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
@@ -38,6 +37,7 @@ namespace Bicep.Core.Emit
             ForSyntaxValidatorVisitor.Validate(model, diagnostics);
             FunctionPlacementValidatorVisitor.Validate(model, diagnostics);
             IntegerValidatorVisitor.Validate(model, diagnostics);
+            ExtensionReferenceValidatorVisitor.Validate(model, diagnostics);
 
             DetectDuplicateNames(model, diagnostics, resourceScopeData, moduleScopeData);
             DetectIncorrectlyFormattedNames(model, diagnostics);
@@ -58,8 +58,9 @@ namespace Bicep.Core.Emit
             BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
 
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
+            var extConfigAssignments = CalculateExtensionConfigAssignments(model, diagnostics);
 
-            return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments);
+            return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments, extConfigAssignments);
         }
 
         private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
@@ -684,6 +685,116 @@ namespace Bicep.Core.Emit
                 {
                     generated[parameter] = new(result.Value, result.Expression, result.KeyVaultReference);
                 }
+            }
+
+            return generated.ToImmutableDictionary();
+        }
+
+        private static ImmutableDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>> CalculateExtensionConfigAssignments(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            if (model.Root.ExtensionConfigAssignments.IsEmpty ||
+                model.HasParsingErrors())
+            {
+                return ImmutableDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>>.Empty;
+            }
+
+            var referencesInValues = model.Binder.Bindings.Values.OfType<DeclaredSymbol>()
+                .Distinct()
+                .ToImmutableDictionary(p => p, p => SymbolicReferenceCollector.CollectSymbolsReferenced(model.Binder, p.DeclaringSyntax));
+
+            var generated = ImmutableDictionary.CreateBuilder<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>>();
+
+            var extendsDeclarations = model.SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>();
+
+            foreach (var extendsDeclaration in extendsDeclarations)
+            {
+                var result = extendsDeclaration.TryGetReferencedModel(model.SourceFileGrouping, model.ModelLookup, b => b.ExtendsPathHasNotBeenSpecified());
+
+                if (result.IsSuccess(out var extendedModel, out var failure))
+                {
+                    if (extendedModel is not SemanticModel extendedSemanticModel)
+                    {
+                        throw new UnreachableException("We have already verified this is a .bicepparam file");
+                    }
+
+                    generated.AddRange(extendedSemanticModel.EmitLimitationInfo.ExtensionConfigAssignments);
+                }
+                else
+                {
+                    diagnostics.Write(failure);
+                }
+            }
+
+            var evaluator = new ParameterAssignmentEvaluator(model);
+            HashSet<Symbol> erroredSymbols = new();
+
+            foreach (var symbol in GetTopologicallySortedSymbols(referencesInValues))
+            {
+                if (symbol.Type is ErrorType)
+                {
+                    // no point evaluating if we're already reporting an error
+                    erroredSymbols.Add(symbol);
+
+                    continue;
+                }
+
+                var referencedValueHasError = false;
+
+                foreach (var referenced in referencesInValues[symbol])
+                {
+                    if (erroredSymbols.Contains(referenced.Key))
+                    {
+                        referencedValueHasError = true;
+                    }
+                    else if (referenced.Key is ExtensionConfigAssignmentSymbol referencedExtConfigAsgmt)
+                    {
+                        foreach (var configPropertyName in generated[referencedExtConfigAsgmt].Keys)
+                        {
+                            var configValue = generated[referencedExtConfigAsgmt][configPropertyName];
+
+                            if (configValue.KeyVaultReferenceExpression is not null)
+                            {
+                                diagnostics.WriteMultiple(referenced.Value.Select(syntax => DiagnosticBuilder.ForPosition(syntax).ParameterReferencesKeyVaultSuppliedParameter(referencedExtConfigAsgmt.Name)));
+                                referencedValueHasError = true;
+                            }
+
+                            if (configValue.Value is JToken evaluated && evaluated.Type == JTokenType.Null)
+                            {
+                                diagnostics.WriteMultiple(referenced.Value.Select(syntax => DiagnosticBuilder.ForPosition(syntax).ParameterReferencesDefaultedParameter(referencedExtConfigAsgmt.Name)));
+                                referencedValueHasError = true;
+                            }
+                        }
+                    }
+                }
+
+                if (referencedValueHasError)
+                {
+                    erroredSymbols.Add(symbol);
+
+                    continue;
+                }
+
+                if (symbol is not ExtensionConfigAssignmentSymbol extConfigAssignment)
+                {
+                    continue;
+                }
+
+                var assignmentProperties = ImmutableDictionary.CreateBuilder<string, ExtensionConfigAssignmentValue>();
+
+                foreach (var (propertyName, result) in evaluator.EvaluateExtensionConfigAssignment(extConfigAssignment))
+                {
+                    if (result.Diagnostic is { })
+                    {
+                        diagnostics.Write(result.Diagnostic);
+                    }
+
+                    if (result.Value is not null || result.KeyVaultReference is not null)
+                    {
+                        assignmentProperties.Add(propertyName, new(result.Value, result.KeyVaultReference));
+                    }
+                }
+
+                generated[extConfigAssignment] = assignmentProperties.ToImmutableDictionary();
             }
 
             return generated.ToImmutableDictionary();

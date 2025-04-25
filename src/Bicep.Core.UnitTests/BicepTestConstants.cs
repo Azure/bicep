@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
 using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
@@ -27,8 +25,8 @@ using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using Bicep.IO.InMemory;
-using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Telemetry;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Moq;
 using OnDiskFileSystem = System.IO.Abstractions.FileSystem;
 
@@ -62,8 +60,6 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IResourceTypeProviderFactory ResourceTypeProviderFactory = new ResourceTypeProviderFactory(FileSystem);
 
-        public static readonly INamespaceProvider NamespaceProvider = new NamespaceProvider(ResourceTypeProviderFactory);
-
         public static readonly IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
 
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
@@ -82,6 +78,8 @@ namespace Bicep.Core.UnitTests
         public static readonly IConfigurationManager BuiltInOnlyConfigurationManager = IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration);
 
         public static readonly IFeatureProvider Features = new OverriddenFeatureProvider(new FeatureProvider(BuiltInConfiguration, FileExplorer), FeatureOverrides);
+
+        public static readonly INamespaceProvider NamespaceProvider = new NamespaceProvider(ResourceTypeProviderFactory);
 
         public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
 
@@ -200,5 +198,26 @@ namespace Bicep.Core.UnitTests
         }
 
         public readonly static string BuiltinAzExtensionVersion = AzNamespaceType.Settings.TemplateExtensionVersion;
+
+        public const string MsGraphVersionV10 = "1.2.3";
+        public const string MsGraphVersionBeta = "1.2.3-beta";
+
+        public static string GetMsGraphIndexJson(string version)
+        {
+            var isBeta = version.EndsWithInsensitively("-beta");
+
+            return
+                $$"""
+                  {
+                    "resources": {},
+                    "resourceFunctions": {},
+                    "settings": {
+                      "name": "MicrosoftGraph{{(isBeta ? "Beta" : "V1.0")}}",
+                      "version": "{{version}}",
+                      "isSingleton": false
+                    }
+                  }
+                  """;
+        }
     }
 }

@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
@@ -49,11 +50,11 @@ public class ParametersEmitter
 
         if (diagnostics.Any(d => d.IsError()))
         {
-            return new EmitResult(EmitStatus.Failed, diagnostics);
+            return new EmitResult(EmitStatus.Failed, diagnostics, model.Features);
         }
 
         write();
 
-        return new EmitResult(EmitStatus.Succeeded, diagnostics);
+        return new EmitResult(EmitStatus.Succeeded, diagnostics, model.Features);
     }
 }

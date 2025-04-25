@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Features;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem;
@@ -23,5 +24,7 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<OutputMetadata> Outputs => [];
 
         public bool HasErrors() => false;
+
+        public IFeatureProvider Features => throw new NotImplementedException();
     }
 }
