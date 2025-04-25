@@ -3,6 +3,7 @@
 
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -128,6 +129,15 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
         @export()
         func getString() string => 'exported'
         ")]
+    [DataRow(@"
+    import { getString as test } from './mod.bicep'
+    ",
+        "mod.bicep",
+        @"
+        @export()
+        func getString() string => 'exported'
+        ",
+        "test")]
     [DataTestMethod]
     public void TestRule(string text, string importFileName, string importFileText, params string[] unusedImports)
     {
@@ -193,8 +203,8 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
               location: location
             }
             ",
-            "mod.bicep",
-            @"
+        "mod.bicep",
+        @"
             @export()
             var location = 'eastus'
             ")]
@@ -206,8 +216,8 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
               location: location
             }
             ",
-            "mod.bicep",
-            @"
+        "mod.bicep",
+        @"
             @export()
             var location = 'eastus'
             @export()
@@ -220,6 +230,129 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
         var additionalFiles = new[] { (importFileName, importFileText) };
         CompileAndTest(text, additionalFiles, unusedImports);
     }
+
+    [DataRow(
+        @"
+        import { p1, p2, p|3 } from './mod.bicep'
+        var used1 = p1
+        var used2 = p2
+        ",
+        @"
+        @export()
+        var p1 = 'prefix'
+        @export()
+        var p2 = 'eastus'
+        @export()
+        var p3 = 'param'
+        ",
+        @"
+        import { p1, p2 } from './mod.bicep'
+        var used1 = p1
+        var used2 = p2
+        ",
+        "p3")]
+    [DataRow(
+        @"
+        import { p1, p2, p|3 } from './mod.bicep'
+        var used1 = p1
+        var used2 = p2
+        ",
+        @"
+        @export()
+        var p1 = 'prefix'
+        @export()
+        var p2 = 'eastus'
+        @export()
+        var p3 = 'param'
+        ",
+        @"
+        import { p1, p2 } from './mod.bicep'
+        var used1 = p1
+        var used2 = p2
+        ",
+        "p3")]
+    [DataRow(
+        @"
+        import { p1, p|2, p3 } from './mod.bicep'
+        var used1 = p1
+        var used2 = p3
+        ",
+        @"
+        @export()
+        var p1 = 'prefix'
+        @export()
+        var p2 = 'eastus'
+        @export()
+        var p3 = 'param'
+        ",
+        @"
+        import { p1, p3 } from './mod.bicep'
+        var used1 = p1
+        var used2 = p3
+        ",
+        "p2")]
+    [DataRow(
+        @"
+        import { p|1, p2, p3 } from './mod.bicep'
+        var used1 = p2
+        var used2 = p3
+        ",
+        @"
+        @export()
+        var p1 = 'prefix'
+        @export()
+        var p2 = 'eastus'
+        @export()
+        var p3 = 'param'
+        ",
+        @"
+        import {  p2, p3 } from './mod.bicep'
+        var used1 = p2
+        var used2 = p3
+        ",
+        "p1")]
+    [DataRow(
+        "import * as mo|d from './mod.bicep'",
+        @"
+        @export()
+        var p1 = 'prefix'
+        @export()
+        var p2 = 'eastus'
+        @export()
+        var p3 = 'param'
+        ",
+        "",
+        "mod")]
+    [DataRow(
+        "import { getStr|ing } from './mod.bicep'",
+        @"
+        @export()
+        func getString() string => 'exported'
+        ",
+        "import {  } from './mod.bicep'",
+        "getString")]
+    [DataRow(
+        "import { t| } from './mod.bicep'",
+        @"
+        @export()
+        type t = string
+        ",
+        "import {  } from './mod.bicep'",
+        "t")]
+    [DataTestMethod]
+    public void Codefix_recommends_remove_unused_imports(string text, string importFileText, string expectedResultText, string importToRemove)
+    {
+        CompilationHelper.InputFile[] additionalFiles =
+        [
+            new ("mod.bicep", importFileText)
+        ];
+
+        AssertCodeFix(text, expectedResultText, importToRemove, additionalFiles);
+    }
+
+
+    private void AssertCodeFix(string inputFile, string resultFile, string importNameToFix, CompilationHelper.InputFile[]? supportingFiles = null)
+        => AssertCodeFix(NoUnusedImportsRule.Code, $"Remove import {importNameToFix}", inputFile, resultFile, supportingFiles);
 
     [DataRow(@"import", "mod.bicep", "")] // Don't show as unused - no imported symbol or file name
     [DataRow(@"import {p2} from './mod.bicep'", "mod.bicep", "")] // Don't show as unused - imported symbol not existing

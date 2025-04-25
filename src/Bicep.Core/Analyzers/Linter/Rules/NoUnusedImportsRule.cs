@@ -3,6 +3,8 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -34,7 +36,19 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             foreach (var import in unreferencedImports)
             {
-                yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, import.Name, import.NameSource.Span, import.DeclaringSyntax, model.SourceFile.ProgramSyntax);
+                // Detect leading and following commas ro remove them along the symbol
+               var parent =  model.SourceFile.ProgramSyntax.Declarations
+                   .Where(decl => decl is CompileTimeImportDeclarationSyntax)
+                   .FirstOrDefault(decl => decl.Span == import.EnclosingDeclaration.Span) as CompileTimeImportDeclarationSyntax;
+
+               var codeFixSpan = import.NameSource.Span;
+
+               if (parent is not null)
+               {
+                   codeFixSpan = GetSpanForImportedSymbolCodeFix(parent, import);
+               }
+
+               yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, import.Name, import.NameSource.Span, codeFixSpan, import.DeclaringSyntax, model.SourceFile.ProgramSyntax);
             }
 
             //Handle wildcard alias
@@ -46,13 +60,54 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             foreach (var import in unreferencedWildcardImports)
             {
-                yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, import.Name, import.NameSource.Span, import.DeclaringSyntax, model.SourceFile.ProgramSyntax);
+                //Remove the whole line
+                var parent =  model.SourceFile.ProgramSyntax.Declarations
+                    .Where(decl => decl is CompileTimeImportDeclarationSyntax)
+                    .FirstOrDefault(decl => decl.Span == import.EnclosingDeclaration.Span) as CompileTimeImportDeclarationSyntax;
+
+                var codeFixSpan = import.NameSource.Span;
+                if (parent is not null)
+                {
+                    codeFixSpan = parent.Span;
+                }
+
+                yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, import.Name, import.NameSource.Span, codeFixSpan, import.DeclaringSyntax, model.SourceFile.ProgramSyntax);
             }
         }
 
         override protected string GetCodeFixDescription(string name)
         {
             return $"Remove import {name}";
+        }
+
+        private TextSpan GetSpanForImportedSymbolCodeFix(CompileTimeImportDeclarationSyntax importDeclarationSyntax, ImportedSymbol importedSymbol)
+        {
+            var importSpan = importedSymbol.NameSource.Span;
+            var importExpression = (ImportedSymbolsListSyntax) importDeclarationSyntax.ImportExpression;
+            var importExpressionCount = importExpression.Children.Length;
+            var indexOfImportedSymbol = importExpression.Children.IndexOf(importedSymbol.DeclaringSyntax);
+
+            if (importExpressionCount < 2)
+            {
+                return importSpan;
+            }
+            if (indexOfImportedSymbol == 0)
+            {
+                // remove right comma
+                importSpan = TextSpan.Between(importExpression.Children[0].Span, importExpression.Children[1].Span);
+            }
+            else if (indexOfImportedSymbol > 0 && indexOfImportedSymbol < importExpressionCount - 1)
+            {
+                // remove left comma when surrounded
+                importSpan = TextSpan.Between(importExpression.Children[indexOfImportedSymbol - 1].Span, importExpression.Children[indexOfImportedSymbol].Span);
+            }
+            else
+            {
+                // remove left comma when last
+                importSpan = TextSpan.Between(importExpression.Children[importExpressionCount - 2].Span, importExpression.Children[importExpressionCount - 1].Span);
+            }
+
+            return importSpan;
         }
     }
 }
