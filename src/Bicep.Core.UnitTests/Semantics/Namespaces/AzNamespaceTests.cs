@@ -32,12 +32,12 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
             var functions = namespaceType.MethodResolver.GetKnownFunctions()
                 .Where(f => f.Key == functionName)
                 .ToList();
-            
+
             functions.Should().HaveCount(1, $"Function '{functionName}' should exist exactly once in the 'az' namespace");
-            
+
             var function = functions.First().Value;
             function.Overloads.Should().HaveCount(1, $"Function '{functionName}' should have exactly one overload");
-            
+
             var overload = function.Overloads[0];
             overload.Flags.HasFlag(FunctionFlags.RequiresInlining).Should().BeTrue(
                 $"Function '{functionName}' should have the RequiresInlining flag set");

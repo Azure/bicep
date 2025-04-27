@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
-using System;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -30,7 +30,7 @@ namespace Bicep.Core.IntegrationTests
 
             var compilationResult = CompilationHelper.Compile(bicepFile);
             compilationResult.Diagnostics.Should().BeEmpty();
-            
+
             var armTemplate = compilationResult.Template;
             armTemplate.Should().NotBeNull();
             var outputs = armTemplate!["outputs"] as JObject;
@@ -61,9 +61,9 @@ namespace Bicep.Core.IntegrationTests
 
             var valueToken = output!["value"];
             valueToken.Should().NotBeNull($"Output '{outputName}' should have a value property");
-            
+
             var valueString = valueToken!.ToString();
-            valueString.Should().Contain(expectedFunction, 
+            valueString.Should().Contain(expectedFunction,
                 $"Output '{outputName}' should contain function '{expectedFunction}'");
         }
     }
