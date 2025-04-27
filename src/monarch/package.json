@@ -5,7 +5,7 @@
     "@babel/core": "^7.26.10",
     "@babel/plugin-transform-modules-commonjs": "^7.26.3",
     "@eslint/eslintrc": "^3.3.0",
-    "@eslint/js": "^9.24.0",
+    "@eslint/js": "^9.25.1",
     "@types/html-escaper": "^3.0.4",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.14.1",
