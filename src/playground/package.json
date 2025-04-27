@@ -22,7 +22,7 @@
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-jest": "^28.11.0",
     "eslint-plugin-notice": "^1.0.0",
-    "eslint-plugin-prettier": "^5.2.5",
+    "eslint-plugin-prettier": "^5.2.6",
     "nerdbank-gitversioning": "^3.7.115",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.28.0",
