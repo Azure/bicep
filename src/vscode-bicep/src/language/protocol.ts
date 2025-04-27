@@ -222,6 +222,23 @@ export const importKubernetesManifestRequestType = new ProtocolRequestType<
   void
 >("bicep/importKubernetesManifest");
 
+export interface LanguageModelToolInvokeRequest {
+  toolName: string;
+  inputJson: string;
+}
+
+export interface LanguageModelToolInvokeResponse {
+  content: string;
+}
+
+export const languageModelToolInvokeRequestType = new ProtocolRequestType<
+  LanguageModelToolInvokeRequest,
+  LanguageModelToolInvokeResponse,
+  never,
+  void,
+  void
+>("bicep/languageModelTool/invoke");
+
 export interface CreateBicepConfigParams {
   destinationPath: string;
 }
