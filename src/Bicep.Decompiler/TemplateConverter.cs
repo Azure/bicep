@@ -663,10 +663,10 @@ namespace Bicep.Decompiler
             {
                 // Try to correct the name - ARM JSON is case-insensitive, but Bicep is sensitive
                 var functionName = SyntaxHelpers.CorrectWellKnownFunctionCasing(expression.Function);
-                
+
                 var expressions = expression.Parameters.Select(ParseLanguageExpression).ToArray();
 
-                if (expression.Function.Split('.') is {} funcNameArr &&
+                if (expression.Function.Split('.') is { } funcNameArr &&
                     funcNameArr.Length == 2 &&
                     nameResolver.TryLookupName(NameType.Function, GetBicepFunctionName(funcNameArr[0], funcNameArr[1])) is { } resolvedUdfName)
                 {
@@ -1016,7 +1016,7 @@ namespace Bicep.Decompiler
                     TryParseType(parameterType) ?? throw new ConversionFailedException($"Unable to locate 'type' for parameter '{parameterName}'", parameterObj)));
             }
 
-            var outputType = TryParseType(TemplateHelpers.AssertRequiredProperty(outputObj, "type")) ?? throw new ConversionFailedException($"Unable to locate 'type' for function '{name}'", body);            
+            var outputType = TryParseType(TemplateHelpers.AssertRequiredProperty(outputObj, "type")) ?? throw new ConversionFailedException($"Unable to locate 'type' for function '{name}'", body);
             var outputBody = PerformScopedAction(
                 () => ParseJToken(TemplateHelpers.AssertRequiredProperty(outputObj, "value")),
                 [],
