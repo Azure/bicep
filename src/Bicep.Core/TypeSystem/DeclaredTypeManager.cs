@@ -1003,7 +1003,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
             }
 
-            return EnsureNonParameterizedType(propertyNameSyntax, GetTypePropertyType(baseExpressionType, propertyName, propertyNameSyntax));
+            return EnsureNonParameterizedType(propertyNameSyntax, typePropertyType);
         }
 
         private static TypeSymbol GetTypePropertyType(ITypeReference baseExpressionType, string propertyName, SyntaxBase propertyNameSyntax)
