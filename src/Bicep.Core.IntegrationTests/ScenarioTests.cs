@@ -7211,4 +7211,23 @@ var subnetId = vNet::subnets[0].id
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
+
+    [TestMethod]
+    public void Test_Issue16727()
+    {
+        var result = CompilationHelper.Compile("""
+            resource nsg 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
+              name: 'example'
+              location: 'location'
+              properties: {
+                securityRules: []
+              }
+              tags: {}
+            }
+
+            output properties resourceOutput<'Microsoft.Network/networkSecurityGroups@2024-05-01'>.properties = nsg.properties
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
 }
