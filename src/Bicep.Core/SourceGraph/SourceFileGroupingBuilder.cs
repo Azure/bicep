@@ -94,16 +94,16 @@ namespace Bicep.Core.SourceGraph
             }
 
             // Rebuild source files that contain external artifact references restored during the initial build.
-            var sourcefileExplorerbuild = sourceFilesRequiringRestore
+            var sourceFileExplorerBuild = sourceFilesRequiringRestore
                 .SelectMany(current.GetSourceFilesDependingOn)
                 .ToFrozenSet();
 
-            return builder.Build(current.EntryPoint.Uri, sourcefileExplorerbuild);
+            return builder.Build(current.EntryPoint.Uri, sourceFileExplorerBuild);
         }
 
-        private SourceFileGrouping Build(Uri entryFileUri, FrozenSet<ISourceFile>? sourcefileExplorerbuild = null)
+        private SourceFileGrouping Build(Uri entryFileUri, FrozenSet<ISourceFile>? sourceFileExplorerBuild = null)
         {
-            var fileResult = this.PopulateRecursive(entryFileUri, null, sourcefileExplorerbuild);
+            var fileResult = this.PopulateRecursive(entryFileUri, null, sourceFileExplorerBuild);
 
             if (!fileResult.IsSuccess(out var entryFile, out var errorBuilder))
             {
@@ -121,7 +121,7 @@ namespace Bicep.Core.SourceGraph
 
             return new(
                 bicepSourceFile,
-                fileResultByUri.Values.Select(x => x.TryUnwrap()).WhereNotNull().ToImmutableArray(),
+                [.. fileResultByUri.Values.Select(x => x.TryUnwrap()).WhereNotNull()],
                 sourceFileGraph.InvertLookup().ToImmutableDictionary(),
                 artifactLookup.ToImmutableDictionary(),
                 implicitExtensions.ToImmutableDictionary(x => x.Key, x => x.Value.ToImmutableHashSet()),
@@ -159,18 +159,18 @@ namespace Bicep.Core.SourceGraph
             return resolutionResult;
         }
 
-        private ResultWithDiagnosticBuilder<ISourceFile> PopulateRecursive(Uri fileUri, ArtifactReference? reference, FrozenSet<ISourceFile>? sourcefileExplorerbuild)
+        private ResultWithDiagnosticBuilder<ISourceFile> PopulateRecursive(Uri fileUri, ArtifactReference? reference, FrozenSet<ISourceFile>? sourceFileExplorerBuild)
         {
             var fileResult = GetFileResolutionResultWithCaching(fileUri, reference);
             if (fileResult.TryUnwrap() is BicepSourceFile bicepSource)
             {
-                PopulateRecursive(bicepSource, sourcefileExplorerbuild);
+                PopulateRecursive(bicepSource, sourceFileExplorerBuild);
             }
 
             return fileResult;
         }
 
-        private void PopulateRecursive(BicepSourceFile file, FrozenSet<ISourceFile>? sourcefileExplorerbuild)
+        private void PopulateRecursive(BicepSourceFile file, FrozenSet<ISourceFile>? sourceFileExplorerBuild)
         {
             var config = file.Configuration;
             implicitExtensions[file] = [];
@@ -220,10 +220,10 @@ namespace Bicep.Core.SourceGraph
 
                 // recurse into child modules, to ensure we have an exhaustive list of restorable artifacts for the full compilation
                 if (!fileResultByUri.TryGetValue(artifactUri, out var childResult) ||
-                    (childResult.IsSuccess(out var childFile) && sourcefileExplorerbuild is not null && sourcefileExplorerbuild.Contains(childFile)))
+                    (childResult.IsSuccess(out var childFile) && sourceFileExplorerBuild is not null && sourceFileExplorerBuild.Contains(childFile)))
                 {
                     // only recurse if we've not seen this file before - to avoid infinite loops
-                    childResult = PopulateRecursive(artifactUri, resolutionInfo.Reference, sourcefileExplorerbuild);
+                    childResult = PopulateRecursive(artifactUri, resolutionInfo.Reference, sourceFileExplorerBuild);
                 }
                 fileResultByUri[artifactUri] = childResult;
             }

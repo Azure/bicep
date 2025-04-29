@@ -409,7 +409,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 .Should()
                 .BeTrue();
 
-            var result = BicepExternalSourceRequestHandler.GetTemplateSpeckSourceLinkUri(reference!);
+            var result = BicepExternalSourceRequestHandler.GetTemplateSpecSourceLinkUri(reference!);
 
             result.Should().Be($"bicep-extsrc:ts%3A{subscriptionId}%2FmyRG%2FmyTemplateSpec%3Av1?ts%3A{subscriptionId}%2FmyRG%2FmyTemplateSpec%3Av1");
         }
