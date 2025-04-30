@@ -52,7 +52,8 @@ public static class ParamsFileHelper
                     paramSyntax.Keyword,
                     paramSyntax.Name,
                     paramSyntax.Assignment,
-                    replacementValue
+                    replacementValue,
+                    []
                 );
             }
 

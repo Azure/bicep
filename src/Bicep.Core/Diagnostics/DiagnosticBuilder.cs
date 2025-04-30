@@ -1894,6 +1894,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic SpreadOperatorCannotBeUsedWithForLoop(SpreadExpressionSyntax spread) => CoreError(
                 "BCP417",
                 $"The spread operator \"{spread.Ellipsis.Text}\" cannot be used inside objects with property for-expressions.");
+
+            public Diagnostic InlineMustNotHaveValueAssigned() => CoreError(
+                "BCP419",
+                $"A parameter marked with the \"@{LanguageConstants.ParameterInlinePropertyName}\" decorator shouldn't have a value assigned.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

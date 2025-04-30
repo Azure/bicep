@@ -2060,6 +2060,14 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
             }
 
+            static IEnumerable<Decorator> GetBicepParamFileDecorators()
+            {
+                yield return new DecoratorBuilder(LanguageConstants.ParameterInlinePropertyName)
+                    .WithDescription("Assign value to the parameter from inline parameter value.")
+                    .WithFlags(FunctionFlags.ParameterDecorator)
+                    .Build();
+            }
+
             foreach (var decorator in GetAlwaysPermittedDecorators())
             {
                 yield return new(decorator, (_, _) => true);
@@ -2068,6 +2076,11 @@ namespace Bicep.Core.Semantics.Namespaces
             foreach (var decorator in GetBicepTemplateDecorators(featureProvider))
             {
                 yield return new(decorator, (_, sfk) => sfk == BicepSourceFileKind.BicepFile);
+            }
+
+            foreach (var decorator in GetBicepParamFileDecorators())
+            {
+                yield return new(decorator, (_, sfk) => sfk == BicepSourceFileKind.ParamsFile);
             }
         }
 

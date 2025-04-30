@@ -142,6 +142,7 @@ namespace Bicep.Core
         }.ToImmutableDictionary();
 
         // Decorators
+        public const string ParameterInlinePropertyName = "inline";
         public const string ParameterAllowedPropertyName = "allowed";
         public const string ParameterSecurePropertyName = "secure";
         public const string ParameterMinValuePropertyName = "minValue";

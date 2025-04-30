@@ -122,6 +122,17 @@ namespace Bicep.Core.Semantics
             this.bindings.Add(syntax, referencedResource);
         }
 
+        public override void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
+        {
+            allowedFlags = FunctionFlags.ParameterDecorator;
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Assignment);
+            this.Visit(syntax.Value);
+            allowedFlags = FunctionFlags.Default;
+        }
+
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
             allowedFlags = FunctionFlags.ResourceDecorator;
