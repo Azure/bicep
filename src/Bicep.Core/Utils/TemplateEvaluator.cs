@@ -13,13 +13,18 @@ using Azure.Deployments.Core.Diagnostics;
 using Azure.Deployments.Core.ErrorResponses;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
+using Azure.Deployments.Expression.Intermediate;
+using Azure.Deployments.Expression.Intermediate.Extensions;
 using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Expressions;
+using Azure.Deployments.Templates.Expressions.PartialEvaluation;
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
+using IntermediateEvaluationContext = Azure.Deployments.Expression.Intermediate.ExpressionEvaluationContext;
+using FunctionExpression = Azure.Deployments.Expression.Expressions.FunctionExpression;
 
 namespace Bicep.Core.Utils
 {
@@ -291,16 +296,18 @@ namespace Bicep.Core.Utils
                 x => x.Name,
                 x => new DeploymentExternalInput { Value = x.Value["value"] }) ?? ImmutableDictionary<string, DeploymentExternalInput>.Empty;
 
-            var helper = new ParameterExpressionEvaluationHelper(
-                metricsRecorder: new TemplateMetricsRecorder(),
-                externalInputs: externalInputs);
-
+            IntermediateEvaluationContext context = new(
+                [
+                    ExpressionBuiltInFunctions.Functions,
+                    new ParametersScope(externalInputs)
+                ],
+                new TemplateMetricsRecorder());
 
             return parametersObject!.Properties().ToImmutableDictionary(x => x.Name, x =>
             {
                 if (x.Value["expression"] is { } expression)
                 {
-                    return ExpressionsEngine.ParseLanguageExpression(expression.ToString()).EvaluateExpression(helper.EvaluationContext);
+                    return ToJTokenExpressionSerializer.Serialize(context.EvaluateExpression(ExpressionParser.ParseLanguageExpression(expression)));
                 }
 
                 return x.Value["value"]!;

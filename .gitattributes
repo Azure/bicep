@@ -5,6 +5,4 @@
 *.sh text eol=lf
 /src/Bicep.Core.Samples/Files/**/Assets/**/*.txt -text
 /src/Bicep.Core.Samples/Files/baselines/*_LF/**/*.bicep eol=lf
-/src/Bicep.Core.Samples/Files/baselines/*_LF/**/*.json eol=lf
 /src/Bicep.Core.Samples/Files/baselines/*_CRLF/**/*.bicep eol=crlf
-/src/Bicep.Core.Samples/Files/baselines/*_CRLF/**/*.json eol=lf

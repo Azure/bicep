@@ -23,8 +23,6 @@ using Bicep.Core.TypeSystem.Types;
 using Bicep.IO.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
-using OpenTelemetry;
-using OpenTelemetry.Trace;
 using IAsyncDisposable = System.IAsyncDisposable;
 
 
@@ -43,11 +41,6 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
     private readonly WorkerJobDispatcherClient jobDispatcher;
     private readonly LocalDeploymentEngine localDeploymentEngine;
 
-    /// <summary>
-    /// Gets or sets the trace provider, required to enable producing non-null activities.
-    /// </summary>
-    private TracerProvider TraceProvider { get; set; }
-
     public LocalExtensibilityHostManager(
         IFileExplorer fileExplorer,
         IModuleDispatcher moduleDispatcher,
@@ -55,10 +48,6 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
         ITokenCredentialFactory credentialFactory,
         Func<Uri, Task<LocalExtensibilityHost>> extensionFactory)
     {
-        this.TraceProvider = Sdk.CreateTracerProviderBuilder()
-            .AddSource(OperationActivitySource.DefaultName)
-            .Build();
-
         var services = new ServiceCollection()
             .RegisterLocalDeployServices(this)
             .BuildServiceProvider();

@@ -92,12 +92,12 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         return stringToBeSanitized;
     }
 
-
     public override async Task<HttpResponseMessage> CallExtensibilityHostV2(
         HttpMethod requestMethod,
         Uri requestUri,
         HttpContent content,
         AuthenticationToken extensibilityHostToken,
+        string msiIdentityUrl,
         CancellationToken cancellationToken)
     {
         var extensionName = requestUri.Segments[^4].TrimEnd('/');
