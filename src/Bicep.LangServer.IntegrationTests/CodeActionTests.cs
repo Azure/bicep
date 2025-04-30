@@ -644,6 +644,43 @@ param foo2 string", "param foo2 string")]
             updatedFile.Should().HaveSourceText(expectedText);
         }
 
+        [DataRow(
+            "import |")]
+        [DataRow(
+            "import|")]
+        [DataRow(
+            "import {} from |")]
+        [DataRow(
+            "import {|} from ")]
+        [DataRow(
+            "import * as mod |")]
+        [DataRow(
+            "import * as mod from '|'")]
+        [DataTestMethod]
+        public async Task Unused_import_actions_are_not_suggested_for_invalid_import(string fileWithCursors)
+        {
+            var importFile = new LanguageClientFile("/mod.bicep", """
+                                                                   @export()
+                                                                  type t = string
+                                                                  """);
+
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            {
+                [InMemoryFileResolver.GetFileUri(importFile.Uri.Path)] = importFile.Text,
+            });
+
+            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
+                services => services.WithFileResolver(fileResolver)
+                    .WithFileExplorer(new FileSystemFileExplorer(fileResolver.MockFileSystem)));
+
+            await helper.OpenFileOnceAsync(TestContext, importFile);
+
+            (var codeActions, var bicepFile) = await GetCodeActionsForSyntaxTest(fileWithCursors, '|', server: helper);
+            codeActions.Should().NotContain(x => x.Title.StartsWith(RemoveUnusedImportTitle));
+        }
+
+
+
         [DataRow("var|")]
         [DataRow("var |")]
         [DataTestMethod]
@@ -652,8 +689,6 @@ param foo2 string", "param foo2 string")]
             var (codeActions, _) = await GetCodeActionsForSyntaxTest(fileWithCursors, '|');
             codeActions.Should().NotContain(x => x.Title.StartsWith(RemoveUnusedVariableTitle));
         }
-
-        [DataRow("")]
 
         [DataRow("param|")]
         [DataRow("param |")]
