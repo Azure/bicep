@@ -8,11 +8,11 @@ namespace Bicep.Core.Syntax
 {
     public class StringTypeLiteralSyntax(IEnumerable<Token> stringTokens, IEnumerable<SyntaxBase> expressions, IEnumerable<string> segmentValues) : TypeSyntax
     {
-        public ImmutableArray<Token> StringTokens { get; } = stringTokens.ToImmutableArray();
+        public ImmutableArray<Token> StringTokens { get; } = [.. stringTokens];
 
-        public ImmutableArray<SyntaxBase> Expressions { get; } = expressions.ToImmutableArray();
+        public ImmutableArray<SyntaxBase> Expressions { get; } = [.. expressions];
 
-        public ImmutableArray<string> SegmentValues { get; } = segmentValues.ToImmutableArray();
+        public ImmutableArray<string> SegmentValues { get; } = [.. segmentValues];
 
         public override void Accept(ISyntaxVisitor visitor)
             => visitor.VisitStringTypeLiteralSyntax(this);

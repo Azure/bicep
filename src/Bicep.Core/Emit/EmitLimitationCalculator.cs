@@ -151,17 +151,19 @@ namespace Bicep.Core.Emit
             }
 
             private ImmutableArray<IArmIdSegment> NameSegmentsFor(DeclaredResourceMetadata resource)
-                => model.ResourceAncestors.GetAncestors(resource)
-                    .Reverse()
-                    .SelectMany(r => r.IndexExpression switch
-                    {
-                        SyntaxBase idx when model.GetTypeInfo(idx) is IntegerLiteralType literalIndex
-                            => new[] { NameSegmentFor(r.Resource), new LiteralIdSegment(literalIndex.Value.ToString()) },
-                        SyntaxBase idx => new[] { NameSegmentFor(r.Resource), new NonLiteralIdSegment(idx) },
-                        _ => NameSegmentFor(r.Resource).AsEnumerable(),
-                    })
-                    .Append(NameSegmentFor(resource))
-                    .ToImmutableArray();
+                =>
+                [
+                    .. model.ResourceAncestors.GetAncestors(resource)
+                            .Reverse()
+                            .SelectMany(r => r.IndexExpression switch
+                            {
+                                SyntaxBase idx when model.GetTypeInfo(idx) is IntegerLiteralType literalIndex
+                                    => new[] { NameSegmentFor(r.Resource), new LiteralIdSegment(literalIndex.Value.ToString()) },
+                                SyntaxBase idx => new[] { NameSegmentFor(r.Resource), new NonLiteralIdSegment(idx) },
+                                _ => NameSegmentFor(r.Resource).AsEnumerable(),
+                            }),
+                    NameSegmentFor(resource),
+                ];
 
             private IArmIdSegment NameSegmentFor(DeclaredResourceMetadata resource)
                 => IArmIdSegment.For(resource.TryGetNameSyntax(), model) switch

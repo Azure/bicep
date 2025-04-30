@@ -16,8 +16,8 @@ namespace Bicep.Core.Semantics
             this.DeclaringSyntax = declaringSyntax;
             this.BindingSyntax = bindingSyntax;
             this.ScopeResolution = scopeResolution;
-            this.Locals = locals.ToImmutableArray();
-            this.ChildScopes = childScopes.ToImmutableArray();
+            this.Locals = [.. locals];
+            this.ChildScopes = [.. childScopes];
         }
 
         /// <summary>
