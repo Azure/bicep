@@ -493,6 +493,20 @@ namespace Bicep.Core.TypeSystem
             {
                 var errors = new List<IDiagnostic>();
 
+                var declaredType = typeManager.GetDeclaredType(syntax);
+
+                this.ValidateDecorators(syntax.Decorators, declaredType ?? LanguageConstants.Any, diagnostics);
+
+                foreach (var decorator in syntax.Decorators)
+                {
+                    if (decorator.Expression is FunctionCallSyntax functionCallSyntax &&
+                        functionCallSyntax.Name.IdentifierName == LanguageConstants.ParameterInlinePropertyName &&
+                        syntax.Value is not SkippedTriviaSyntax)
+                    {
+                        diagnostics.Write(DiagnosticBuilder.ForPosition(decorator).InlineMustNotHaveValueAssigned());
+                    }
+                }
+
                 var valueType = this.typeManager.GetTypeInfo(syntax.Value);
                 CollectErrors(errors, valueType);
 
