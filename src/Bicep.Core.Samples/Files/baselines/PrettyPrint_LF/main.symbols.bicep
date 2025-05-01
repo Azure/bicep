@@ -204,7 +204,7 @@ var forceBreak15 = true ? { foo: 0 } : {
     bar: 1}
 
 var forceBreak16 = union({ foo: 0 }, {
-//@[04:16) Variable forceBreak16. Type: { bar: 456, foo: 123 }. Declaration start char: 0, length: 79
+//@[04:16) Variable forceBreak16. Type: { foo: 123, bar: 456 }. Declaration start char: 0, length: 79
     foo: 123
     bar: 456
 } // comment
