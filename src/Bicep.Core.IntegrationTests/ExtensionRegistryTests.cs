@@ -431,15 +431,17 @@ output joke string = dadJoke.joke
 
         result.Template.Should().NotBeNull();
 
-        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyExtension']['name']", "ThirdPartyExtension");
-        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyExtension']['version']", "1.0.0");
-
-        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyExtension']['config']['namespace']['type']", "string");
-        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyExtension']['config']['namespace']['defaultValue']", "ThirdPartyNamespace");
-        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyExtension']['config']['config']['type']", "string");
-        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyExtension']['config']['config']['defaultValue']", "Some path to config file");
-        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyExtension']['config']['context']['type']", "string");
-        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyExtension']['config']['context']['defaultValue']", "Some ThirdParty context");
+        result.Template.Should().HaveValueAtPath("$.imports['ThirdPartyExtension']", JObject.Parse("""
+        {
+          "provider": "ThirdPartyExtension",
+          "version": "1.0.0",
+          "config": {
+            "namespace": "ThirdPartyNamespace",
+            "config": "Some path to config file",
+            "context": "Some ThirdParty context"
+          }
+        }
+        """));
 
         result.Should().NotHaveAnyDiagnostics();
     }

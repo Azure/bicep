@@ -114,8 +114,7 @@ namespace Bicep.Core.Emit
             if (Context.Settings.UseExperimentalTemplateLanguageVersion)
             {
                 // Note (tasmalligan): 2.2 epxerimental is being used for extensibility migration and local deploy
-                if (Context.SemanticModel.TargetScope == ResourceScope.Local ||
-                    Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
+                if (Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
                 {
                     emitter.EmitProperty(LanguageVersionPropertyName, "2.2-experimental");
                 }
@@ -1041,18 +1040,17 @@ namespace Bicep.Core.Emit
             }
 
             // TODO: Remove the EmitExtensions if conditions once ARM w37 is deployed to all regions.
-            if (Context.SemanticModel.TargetScope == ResourceScope.Local ||
-                Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
+            if (Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
             {
                 EmitExtensions(emitter, extensions);
             }
             else
             {
-                EmitProviders(emitter, extensions);
+                EmitImports(emitter, extensions);
             }
         }
 
-        private static void EmitProviders(ExpressionEmitter emitter, ImmutableArray<ExtensionExpression> extensions)
+        private static void EmitImports(ExpressionEmitter emitter, ImmutableArray<ExtensionExpression> extensions)
         {
             emitter.EmitObjectProperty("imports", () =>
             {
@@ -1254,8 +1252,7 @@ namespace Bicep.Core.Emit
                 var extensionSymbol = extensions.FirstOrDefault(i => metadata.Type.DeclaringNamespace.AliasNameEquals(i.Name));
                 if (extensionSymbol is not null)
                 {
-                    if (Context.SemanticModel.TargetScope == ResourceScope.Local ||
-                        this.Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
+                    if (this.Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
                     {
                         emitter.EmitProperty("extension", extensionSymbol.Name);
                     }
@@ -1284,7 +1281,6 @@ namespace Bicep.Core.Emit
                 }
 
                 if (metadata.IsAzResource ||
-                    Context.SemanticModel.TargetScope == ResourceScope.Local ||
                     this.Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
                 {
                     emitter.EmitProperty("type", metadata.TypeReference.FormatType());
