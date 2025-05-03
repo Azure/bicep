@@ -1655,7 +1655,7 @@ public class CompileTimeImportTests
     }
 
     [TestMethod]
-    public void Importing_types_is_blocked_in_bicepparam_files()
+    public void Importing_types_is_permitted_in_bicepparam_files()
     {
         var result = CompilationHelper.CompileParams(
             ("parameters.bicepparam", """
@@ -1669,10 +1669,7 @@ public class CompileTimeImportTests
                 type foo = string
                 """));
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
-            ("BCP376", DiagnosticLevel.Error, "The \"foo\" symbol cannot be imported because imports of kind Type are not supported in files of kind ParamsFile."),
-        });
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
     // https://github.com/Azure/bicep/issues/12042

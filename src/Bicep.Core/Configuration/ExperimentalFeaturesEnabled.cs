@@ -19,7 +19,6 @@ public record ExperimentalFeaturesEnabled(
     bool WaitAndRetry,
     bool LocalDeploy,
     bool ResourceInfoCodegen,
-    bool TypedVariables,
     bool ModuleExtensionConfigs,
     bool DesiredStateConfiguration,
     bool ExternalInputFunction,
