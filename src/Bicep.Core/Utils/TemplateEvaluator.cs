@@ -23,8 +23,8 @@ using Bicep.Core.Features;
 using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
-using IntermediateEvaluationContext = Azure.Deployments.Expression.Intermediate.ExpressionEvaluationContext;
 using FunctionExpression = Azure.Deployments.Expression.Expressions.FunctionExpression;
+using IntermediateEvaluationContext = Azure.Deployments.Expression.Intermediate.ExpressionEvaluationContext;
 
 namespace Bicep.Core.Utils
 {
