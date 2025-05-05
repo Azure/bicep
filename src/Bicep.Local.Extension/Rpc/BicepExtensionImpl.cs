@@ -127,7 +127,7 @@ public class BicepExtensionImpl : BicepExtension.BicepExtensionBase
             Target = response.Target,
         };
 
-    private LocalExtensibilityOperationResponse Convert(Protocol.LocalExtensibilityOperationResponse response)
+    private LocalExtensibilityOperationResponse Convert(Protocol.LocalExtensionOperationResponse response)
         => new()
         {
             ErrorData = Convert(response.ErrorData),

@@ -178,15 +178,6 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Extensibility.
-        /// </summary>
-        internal static string ExperimentalFeatureNames_Extensibility {
-            get {
-                return ResourceManager.GetString("ExperimentalFeatureNames_Extensibility", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to External input function.
         /// </summary>
         internal static string ExperimentalFeatureNames_ExternalInputFunction {

@@ -56,11 +56,11 @@ dotnet_diagnostic.IDE0301.severity = warning
 # Use collection expression for stackalloc
 dotnet_diagnostic.IDE0302.severity = warning
 # Use collection expression for `Create()
-dotnet_diagnostic.IDE0303.severity = warning
+dotnet_diagnostic.IDE0303.severity = suggestion
 # Use collection expression for builder
 dotnet_diagnostic.IDE0304.severity = warning
 # Use collection expression for fluent
-dotnet_diagnostic.IDE0305.severity = warning
+dotnet_diagnostic.IDE0305.severity = suggestion
 
 # Unused local variables
 dotnet_diagnostic.CA1804.severity = warning

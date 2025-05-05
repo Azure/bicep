@@ -1062,10 +1062,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP202",
                 "Expected an extension alias name at this location.");
 
-            public Diagnostic ExtensionsAreDisabled() => CoreError(
-                "BCP203",
-                $@"Using extension declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.Extensibility)}"".");
-
             public Diagnostic UnrecognizedExtension(string identifier) => CoreError(
                 "BCP204",
                 $"Extension \"{identifier}\" is not recognized.");
@@ -1161,7 +1157,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic UnsupportedResourceTypeParameterOrOutputType(string resourceType) => CoreError(
                 "BCP227",
-                $"The type \"{resourceType}\" cannot be used as a parameter or output type. Extensibility types are currently not supported as parameters or outputs.");
+                $"The type \"{resourceType}\" cannot be used as a parameter or output type. Resource types from extensions are currently not supported as parameters or outputs.");
 
             public Diagnostic InvalidResourceScopeCannotBeResourceTypeParameter(string parameterName) => CoreError(
                 "BCP229",
@@ -1916,6 +1912,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic ExtensionCannotBeReferenced() => CoreError(
                 "BCP418",
                 "Extensions cannot be referenced here. Extensions can only be referenced by module extension configurations.");
+
+            public Diagnostic InvalidReservedImplicitExtensionNamespace(string name) => CoreError(
+                "BCP419",
+                $"Namespace name \"{name}\", and cannot be used an extension name.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

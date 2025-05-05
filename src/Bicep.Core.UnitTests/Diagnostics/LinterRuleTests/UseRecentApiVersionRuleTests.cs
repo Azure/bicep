@@ -128,7 +128,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 original.CacheRootDirectory,
                 original.ExperimentalFeaturesEnabled with
                 {
-                    Extensibility = true,
+                    SymbolicNameCodegen = true,
                 },
                 original.Formatting,
                 null,

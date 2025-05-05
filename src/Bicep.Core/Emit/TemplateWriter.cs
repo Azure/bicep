@@ -114,7 +114,7 @@ namespace Bicep.Core.Emit
             if (Context.Settings.UseExperimentalTemplateLanguageVersion)
             {
                 // Note (tasmalligan): 2.2 epxerimental is being used for extensibility migration and local deploy
-                if (Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
+                if (Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
                 {
                     emitter.EmitProperty(LanguageVersionPropertyName, "2.2-experimental");
                 }
@@ -1040,12 +1040,13 @@ namespace Bicep.Core.Emit
             }
 
             // TODO: Remove the EmitExtensions if conditions once ARM w37 is deployed to all regions.
-            if (Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
+            if (Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
             {
                 EmitExtensions(emitter, extensions);
             }
             else
             {
+                // TODO(extensibility): Consider removing this
                 EmitImports(emitter, extensions);
             }
         }
@@ -1252,12 +1253,13 @@ namespace Bicep.Core.Emit
                 var extensionSymbol = extensions.FirstOrDefault(i => metadata.Type.DeclaringNamespace.AliasNameEquals(i.Name));
                 if (extensionSymbol is not null)
                 {
-                    if (this.Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
+                    if (this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
                     {
                         emitter.EmitProperty("extension", extensionSymbol.Name);
                     }
                     else
                     {
+                        // TODO(extensibility): Consider removing this
                         emitter.EmitProperty("import", extensionSymbol.Name);
                     }
                 }
@@ -1281,7 +1283,7 @@ namespace Bicep.Core.Emit
                 }
 
                 if (metadata.IsAzResource ||
-                    this.Context.SemanticModel.Features.ExtensibilityV2EmittingEnabled)
+                    this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
                 {
                     emitter.EmitProperty("type", metadata.TypeReference.FormatType());
                     if (metadata.TypeReference.ApiVersion is not null)
@@ -1497,7 +1499,7 @@ namespace Bicep.Core.Emit
 
                     EmitModuleParameters(emitter, module);
 
-                    if (this.Context.SemanticModel.Features is { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true })
+                    if (this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
                     {
                         EmitModuleExtensionConfigs(emitter, module);
                     }
@@ -1596,7 +1598,7 @@ namespace Bicep.Core.Emit
 
                     EmitModuleParameters(emitter, module);
 
-                    if (Context.SemanticModel.Features is { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true })
+                    if (Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
                     {
                         EmitModuleExtensionConfigs(emitter, module);
                     }

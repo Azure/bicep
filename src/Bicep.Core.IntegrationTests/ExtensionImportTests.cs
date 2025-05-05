@@ -26,7 +26,7 @@ using Moq;
 namespace Bicep.Core.IntegrationTests
 {
     [TestClass]
-    public class ProviderImportTests : TestBase
+    public class ExtensionImportTests : TestBase
     {
         private static readonly Lazy<IResourceTypeLoader> azTypeLoaderLazy = new(() => new AzResourceTypeLoader(new AzTypeLoader()));
 
@@ -38,7 +38,6 @@ namespace Bicep.Core.IntegrationTests
             };
 
             var services = new ServiceBuilder()
-                .WithFeatureOverrides(new(ExtensibilityEnabled: true))
                 .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForAzExtension())
                 .WithMockFileSystem(fileSystem)
                 .WithAzResourceTypeLoader(azTypeLoaderLazy.Value);
@@ -49,20 +48,7 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
-        public async Task Providers_are_disabled_unless_feature_is_enabled()
-        {
-            var services = new ServiceBuilder();
-            var result = await CompilationHelper.RestoreAndCompile(services, """
-            extension az
-            """);
-            result.Should().HaveDiagnostics(new[] {
-                ("BCP203", DiagnosticLevel.Error, """Using extension declaration requires enabling EXPERIMENTAL feature "Extensibility"."""),
-                ("BCP084", DiagnosticLevel.Error, """The symbolic name "az" is reserved. Please use a different symbolic name. Reserved namespaces are "az", "sys"."""),
-            });
-        }
-
-        [TestMethod]
-        public async Task Provider_Statement_Without_Specification_String_Should_Emit_Diagnostic()
+        public async Task Extension_Statement_Without_Specification_String_Should_Emit_Diagnostic()
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, @"
@@ -74,7 +60,7 @@ extension
         }
 
         [TestMethod]
-        public async Task Provider_Statement_With_Invalid_Keyword_Should_Emit_Diagnostic()
+        public async Task Extension_Statement_With_Invalid_Keyword_Should_Emit_Diagnostic()
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, """
@@ -284,7 +270,7 @@ extension madeUpNamespace
                 ImmutableArray<Decorator>.Empty,
                 new EmptyResourceTypeProvider());
 
-            var nsProvider = TestExtensibilityNamespaceProvider.Create((extensionName, aliasName) => extensionName switch
+            var nsProvider = TestExtensionsNamespaceProvider.Create((extensionName, aliasName) => extensionName switch
             {
                 "ns1" => ns1,
                 "ns2" => ns2,
@@ -351,7 +337,7 @@ extension madeUpNamespace
                 ImmutableArray<Decorator>.Empty,
                 new EmptyResourceTypeProvider());
 
-            var nsProvider = TestExtensibilityNamespaceProvider.Create((extensionName, aliasName) => extensionName switch
+            var nsProvider = TestExtensionsNamespaceProvider.Create((extensionName, aliasName) => extensionName switch
             {
                 "mockNs" => mockNs,
                 _ => null,

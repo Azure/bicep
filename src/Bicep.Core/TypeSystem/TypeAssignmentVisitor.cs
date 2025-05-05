@@ -939,7 +939,7 @@ namespace Bicep.Core.TypeSystem
             => AssignTypeWithDiagnostics(
                 syntax, diagnostics =>
                 {
-                    if (features is not { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true })
+                    if (!features.ModuleExtensionConfigsEnabled)
                     {
                         return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedParamsFileDeclaration(supportsTypeDeclarations: features.TypedVariablesEnabled));
                     }

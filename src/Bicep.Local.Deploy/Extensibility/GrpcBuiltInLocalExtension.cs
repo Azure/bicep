@@ -16,7 +16,7 @@ using Rpc = Bicep.Local.Extension.Rpc;
 
 namespace Bicep.Local.Deploy.Extensibility;
 
-public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
+public class GrpcBuiltInLocalExtension : LocalExtensionHost
 {
     private readonly BicepExtension.BicepExtensionClient client;
     private readonly Process process;
@@ -29,7 +29,7 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
         this.channel = channel;
     }
 
-    public static async Task<LocalExtensibilityHost> Start(Uri pathToBinary)
+    public static async Task<LocalExtensionHost> Start(Uri pathToBinary)
     {
         string processArgs;
         Func<GrpcChannel> channelBuilder;
@@ -97,16 +97,16 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
         }
     }
 
-    public override async Task<LocalExtensibilityOperationResponse> CreateOrUpdate(ExtensibilityV2.ResourceSpecification request, CancellationToken cancellationToken)
+    public override async Task<LocalExtensionOperationResponse> CreateOrUpdate(ExtensibilityV2.ResourceSpecification request, CancellationToken cancellationToken)
         => Convert(await client.CreateOrUpdateAsync(Convert(request), cancellationToken: cancellationToken));
 
-    public override async Task<LocalExtensibilityOperationResponse> Delete(ExtensibilityV2.ResourceReference request, CancellationToken cancellationToken)
+    public override async Task<LocalExtensionOperationResponse> Delete(ExtensibilityV2.ResourceReference request, CancellationToken cancellationToken)
         => Convert(await client.DeleteAsync(Convert(request), cancellationToken: cancellationToken));
 
-    public override async Task<LocalExtensibilityOperationResponse> Get(ExtensibilityV2.ResourceReference request, CancellationToken cancellationToken)
+    public override async Task<LocalExtensionOperationResponse> Get(ExtensibilityV2.ResourceReference request, CancellationToken cancellationToken)
         => Convert(await client.GetAsync(Convert(request), cancellationToken: cancellationToken));
 
-    public override async Task<LocalExtensibilityOperationResponse> Preview(ExtensibilityV2.ResourceSpecification request, CancellationToken cancellationToken)
+    public override async Task<LocalExtensionOperationResponse> Preview(ExtensibilityV2.ResourceSpecification request, CancellationToken cancellationToken)
         => Convert(await client.PreviewAsync(Convert(request), cancellationToken: cancellationToken));
 
     private static Rpc.ResourceReference Convert(ExtensibilityV2.ResourceReference request)
@@ -158,7 +158,7 @@ public class GrpcBuiltInLocalExtension : LocalExtensibilityHost
     private static ExtensibilityV2.ErrorDetail Convert(Rpc.ErrorDetail detail)
         => new(detail.Code, detail.Message, JsonPointer.Empty);
 
-    private static LocalExtensibilityOperationResponse Convert(Rpc.LocalExtensibilityOperationResponse response)
+    private static LocalExtensionOperationResponse Convert(Rpc.LocalExtensibilityOperationResponse response)
         => new(
             response.Resource is { } ? new(response.Resource.Type, response.Resource.ApiVersion, ToJsonObject(response.Resource.Identifiers, "Parsing response identifiers failed. Please ensure is non-null or empty and is a valid JSON object."), ToJsonObject(response.Resource.Properties, "Parsing response properties failed. Please ensure is non-null or empty and is ensure is a valid JSON object."), response.Resource.Status) : null,
             response.ErrorData is { } ? Convert(response.ErrorData) : null);

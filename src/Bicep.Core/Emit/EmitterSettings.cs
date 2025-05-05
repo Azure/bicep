@@ -20,6 +20,9 @@ namespace Bicep.Core.Emit
                 UseExperimentalTemplateLanguageVersion ||
                 // symbolic name codegen has been explicitly enabled
                 model.Features.SymbolicNameCodegenEnabled ||
+                // use of extensions or extensible resources
+                model.Root.ExtensionDeclarations.Any() ||
+                model.DeclaredResources.Any(x => !x.IsAzResource) ||
                 // resourceinfo codegen has been enabled
                 model.Features.ResourceInfoCodegenEnabled ||
                 model.Features.TypedVariablesEnabled ||

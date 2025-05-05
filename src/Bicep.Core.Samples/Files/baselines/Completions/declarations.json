@@ -1,5 +1,19 @@
 [
   {
+    "label": "extension",
+    "kind": "keyword",
+    "detail": "Extension keyword",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_extension",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "extension"
+    }
+  },
+  {
     "label": "func",
     "kind": "snippet",
     "detail": "Function declaration",
