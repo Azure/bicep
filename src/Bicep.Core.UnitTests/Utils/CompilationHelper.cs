@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
@@ -9,7 +10,6 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
-using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
@@ -91,6 +91,9 @@ namespace Bicep.Core.UnitTests.Utils
 
             return GetCompilationResult(compilation);
         }
+
+        public static Task<ParamsCompilationResult> RestoreAndCompileParams(ServiceBuilder services, string mainBicepFileContents, string bicepParamsFileContent)
+            => RestoreAndCompileParams(services, ("main.bicep", mainBicepFileContents), ("parameters.bicepparam", bicepParamsFileContent));
 
         public static async Task<ParamsCompilationResult> RestoreAndCompileParams(ServiceBuilder services, params (string fileName, string fileContents)[] files)
         {
