@@ -582,39 +582,43 @@ using 'main.bicep'
 
         var result = await CompilationHelper.RestoreAndCompileParams(
             services,
-            ("bicepconfig.json", """
-                                 {
-                                   "extensions": {
-                                     "foo": "br:example.azurecr.io/extensions/foo:1.2.3"
-                                   },
-                                   "experimentalFeaturesEnabled": {
-                                     "extensibility": true,
-                                     "moduleExtensionConfigs": true,
-                                     "localDeploy": true
-                                   }
-                                 }
-                                 """),
-            ("main.bicep", """
-                           targetScope = 'local'
+            ("bicepconfig.json",
+                // language=json
+                """
+                {
+                  "extensions": {
+                    "foo": "br:example.azurecr.io/extensions/foo:1.2.3"
+                  },
+                  "experimentalFeaturesEnabled": {
+                    "extensibility": true,
+                    "moduleExtensionConfigs": true,
+                    "localDeploy": true
+                  }
+                }
+                """),
+            ("main.bicep",
+                """
+                targetScope = 'local'
 
-                           extension foo
+                extension foo
 
-                           resource dadJoke 'fooType@v1' = {
-                             identifier: 'foo'
-                             joke: 'dad joke'
-                           }
+                resource dadJoke 'fooType@v1' = {
+                  identifier: 'foo'
+                  joke: 'dad joke'
+                }
 
-                           output joke string = dadJoke.joke
-                           """),
-            ("parameters.bicepparam", """
-                                      using 'main.bicep'
+                output joke string = dadJoke.joke
+                """),
+            ("parameters.bicepparam",
+                """
+                using 'main.bicep'
 
-                                      extension foo with {
-                                        namespace: 'paramsFileNs'
-                                        config: 'paramsFileConfig'
-                                        context: 'paramsFileContext'
-                                      }
-                                      """));
+                extension foo with {
+                  namespace: 'paramsFileNs'
+                  config: 'paramsFileConfig'
+                  context: 'paramsFileContext'
+                }
+                """));
 
         result.Should().NotHaveAnyDiagnostics();
 
@@ -634,7 +638,7 @@ using 'main.bicep'
                     .FromJson<JToken>()
                     .Should()
                     .DeepEqual(
-                        JToken.Parse(
+                        JObject.Parse(
                             """
                             {
                               "namespace": "paramsFileNs",
