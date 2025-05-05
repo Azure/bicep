@@ -122,7 +122,7 @@ public static class ThirdPartyTypeHelper
             ("types.json", StreamHelper.GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes()))));
     }
 
-    public static BinaryData GetTestTypesTgzWithFallbackAndConfiguration()
+    public static BinaryData GetTestTypesTgzWithFallbackAndConfiguration(bool allConfigPropertiesOptional = false)
     {
         var factory = new TypeFactory([]);
         var rootFactory = new TypeFactory([]);
@@ -170,8 +170,8 @@ public static class ThirdPartyTypeHelper
         //setup configuration
         var configurationType = rootFactory.Create(() => new ObjectType("config", new Dictionary<string, ObjectTypeProperty>
         {
-            ["namespace"] = new(rootFactory.GetReference(stringTypeRoot), ObjectTypePropertyFlags.Required, "The default ThirdParty namespace to deploy resources to."),
-            ["config"] = new(rootFactory.GetReference(stringTypeRoot), ObjectTypePropertyFlags.Required, "Path to some configuration file."),
+            ["namespace"] = new(rootFactory.GetReference(stringTypeRoot), allConfigPropertiesOptional ? ObjectTypePropertyFlags.None : ObjectTypePropertyFlags.Required, "The default ThirdParty namespace to deploy resources to."),
+            ["config"] = new(rootFactory.GetReference(stringTypeRoot), allConfigPropertiesOptional ? ObjectTypePropertyFlags.None : ObjectTypePropertyFlags.Required, "Path to some configuration file."),
             ["context"] = new(rootFactory.GetReference(stringTypeRoot), ObjectTypePropertyFlags.None, "Not required context property.")
         }, null));
 

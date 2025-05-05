@@ -1,32 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Linq;
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using Azure.Deployments.Core.Constants;
 using Azure.Deployments.Core.Definitions;
+using Azure.Deployments.Core.Definitions.Extensibility;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Core.ErrorResponses;
-using Azure.Deployments.Core.Helpers;
 using Azure.Deployments.Engine;
-using Azure.Deployments.Engine.Constants;
-using Azure.Deployments.Engine.Definitions;
 using Azure.Deployments.Engine.Exceptions;
-using Azure.Deployments.Engine.Helpers;
 using Azure.Deployments.Engine.Interfaces;
 using Azure.Deployments.Templates.Engines;
-using Bicep.Local.Deploy.Extensibility;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs.Exceptions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
 using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Local.Deploy;
 
@@ -62,13 +52,16 @@ public class LocalDeploymentEngine
     private readonly IDeploymentJobsDataProvider jobProvider;
     private readonly IDeploymentEntityFactory deploymentEntityFactory;
 
-    private static (Template template, Dictionary<string, DeploymentParameterDefinition> parameters) ParseTemplateAndParameters(string templateString, string parametersString)
+    private static (Template template, Dictionary<string, DeploymentParameterDefinition> parameters, OrdinalDictionary<OrdinalDictionary<DeploymentExtensionConfigItem>>? extensionConfigs) ParseTemplateAndParameters(string templateString, string parametersString)
     {
         var template = TemplateParsingEngine.ParseTemplate(templateString);
 
         var parameters = parametersString.FromJson<DeploymentParametersDefinition>().Parameters;
 
-        return (template, parameters);
+        // TODO(kylealbert): Update this when the parameters definition model is updated.
+        var extensionConfigs = JToken.Parse(parametersString).SelectToken("extensionConfigs")?.ToString().FromJson<OrdinalDictionary<OrdinalDictionary<DeploymentExtensionConfigItem>>>();
+
+        return (template, parameters, extensionConfigs);
     }
 
     public async Task StartDeployment(string name, string templateString, string parametersString, CancellationToken cancellationToken)
@@ -77,7 +70,7 @@ public class LocalDeploymentEngine
         {
             RequestCorrelationContext.Current.Initialize(apiVersion: requestContext.ApiVersion);
 
-            var (template, parameters) = ParseTemplateAndParameters(templateString, parametersString);
+            var (template, parameters, extensionConfigs) = ParseTemplateAndParameters(templateString, parametersString);
 
             if (template.Resources.Any(x => x.Extension is null && x.Import is null))
             {
@@ -100,6 +93,7 @@ public class LocalDeploymentEngine
                 {
                     Template = template,
                     Parameters = parameters,
+                    ExtensionConfigs = extensionConfigs,
                     Mode = DeploymentMode.Incremental,
                 },
             };
