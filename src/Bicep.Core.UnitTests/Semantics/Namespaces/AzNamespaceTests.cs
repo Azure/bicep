@@ -21,7 +21,7 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
         [DataRow("toLogicalZones")]
         [DataRow("toPhysicalZone")]
         [DataRow("toPhysicalZones")]
-        public void AzNamespace_ZoneFunctions_ShouldExistAndRequireInlining(string functionName)
+        public void ZoneFunctions_ShouldExistAndRequireInlining(string functionName)
         {
             VerifyFunctionProperties(functionName, function =>
             {
@@ -33,7 +33,7 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
         }
 
         [TestMethod]
-        public void AzNamespace_DeployerFunctionReturnType_ShouldHaveExpectedProperties()
+        public void DeployerFunctionReturnType_ShouldHaveExpectedProperties()
         {
             var functionName = "deployer";
             VerifyFunctionProperties(functionName, function =>
