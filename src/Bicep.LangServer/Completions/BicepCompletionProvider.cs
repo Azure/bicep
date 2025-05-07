@@ -314,8 +314,7 @@ namespace Bicep.LanguageServer.Completions
                 return GetTypeCompletions(model, context);
             }
 
-            if (context.Kind.HasFlag(BicepCompletionContextKind.VariableNameFollower) &&
-                model.Features.TypedVariablesEnabled)
+            if (context.Kind.HasFlag(BicepCompletionContextKind.VariableNameFollower))
             {
                 return GetTypeCompletions(model, context);
             }
