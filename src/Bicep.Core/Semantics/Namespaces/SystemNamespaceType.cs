@@ -1422,7 +1422,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
                     //error to fail the build-param with clear message of the missing env var name
                     var paramAssignmentDefinition = model.Root.ParameterAssignments.Where(
-                        p => p.DeclaringParameterAssignment.Value.Span.Position == functionCall.Span.Position
+                        p => (p.DeclaringParameterAssignment.Value ?? SyntaxFactory.CreateEmptySyntaxWithComment(string.Empty)).Span.Position == functionCall.Span.Position
                     ).FirstOrDefault();
                     var paramName = paramAssignmentDefinition?.Name ?? "";
                     return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).FailedToEvaluateParameter(paramName,

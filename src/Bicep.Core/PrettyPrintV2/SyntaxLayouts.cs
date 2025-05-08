@@ -264,8 +264,8 @@ namespace Bicep.Core.PrettyPrintV2
             this.Spread(
                 syntax.Keyword,
                 syntax.Name,
-                syntax.Assignment,
-                syntax.Value);
+                syntax?.Assignment ?? SyntaxFactory.CreateEmptySyntaxWithComment(string.Empty),
+                syntax?.Value ?? SyntaxFactory.CreateEmptySyntaxWithComment(string.Empty));
 
         private IEnumerable<Document> LayoutParameterDeclarationSyntax(ParameterDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
