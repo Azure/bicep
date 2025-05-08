@@ -48,8 +48,6 @@ namespace Bicep.Core.Features
 
         public bool ResourceInfoCodegenEnabled => this.configuration.ExperimentalFeaturesEnabled.ResourceInfoCodegen;
 
-        public bool TypedVariablesEnabled => configuration.ExperimentalFeaturesEnabled.TypedVariables;
-
         public bool ModuleExtensionConfigsEnabled => configuration.ExperimentalFeaturesEnabled.ModuleExtensionConfigs;
 
         public bool DesiredStateConfigurationEnabled => configuration.ExperimentalFeaturesEnabled.DesiredStateConfiguration;

@@ -13,21 +13,7 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class TypedVariableTests : TestBase
 {
-    private ServiceBuilder Services => new ServiceBuilder().WithFeatureOverrides(new(TestContext, TypedVariablesEnabled: true));
-
-    [TestMethod]
-    public void Experimental_feature_is_blocked_unless_enabled()
-    {
-        var result = CompilationHelper.Compile(new ServiceBuilder(),
-            ("main.bicep", """
-var foo string = 'foo'
-""")
-        );
-
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
-            ("BCP413", DiagnosticLevel.Error, """Using typed variables requires enabling EXPERIMENTAL feature "TypedVariables"."""),
-        ]);
-    }
+    private ServiceBuilder Services => new();
 
     [TestMethod]
     public void Simple_type_declarations_are_accepted()
@@ -207,24 +193,6 @@ var foo FooType = {
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
             ("BCP036", DiagnosticLevel.Error, """The property "foo" expected a value of type "string" but the provided value is of type "123"."""),
-        ]);
-    }
-
-    [TestMethod]
-    public void Types_in_bicepparam_files_are_blocked_if_feature_disabled()
-    {
-        var result = CompilationHelper.CompileParams(
-            ("main.bicep", ""),
-            ("parameters.bicepparam", """
-using './main.bicep'
-
-type FooType = {
-  foo: string
-}
-"""));
-
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
-            ("BCP337", DiagnosticLevel.Error, """This declaration type is not valid for a Bicep Parameters file. Supported declarations: "using", "extends", "param", "var"."""),
         ]);
     }
 }

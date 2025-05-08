@@ -644,7 +644,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
         [DataRow(
             "ParamsFile",
             "BCP337",
-            $"""This declaration type is not valid for a Bicep Parameters file. Supported declarations: "using", "extends", "param", "var".""")]
+            $"""This declaration type is not valid for a Bicep Parameters file. Supported declarations: "using", "extends", "param", "var", "type".""")]
         [DataRow(
             "MainFile",
             "BCP037",

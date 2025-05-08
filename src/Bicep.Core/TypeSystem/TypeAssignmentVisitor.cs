@@ -508,13 +508,6 @@ namespace Bicep.Core.TypeSystem
         public override void VisitTypeDeclarationSyntax(TypeDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                if (model.SourceFileKind == BicepSourceFileKind.ParamsFile &&
-                    features is not { TypedVariablesEnabled: true })
-                {
-                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax).UnrecognizedParamsFileDeclaration(supportsTypeDeclarations: false));
-                    return ErrorType.Empty();
-                }
-
                 var declaredType = typeManager.GetDeclaredType(syntax);
 
                 if (LanguageConstants.ReservedTypeNames.Contains(syntax.Name.IdentifierName))
@@ -941,7 +934,7 @@ namespace Bicep.Core.TypeSystem
                 {
                     if (!features.ModuleExtensionConfigsEnabled)
                     {
-                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedParamsFileDeclaration(supportsTypeDeclarations: features.TypedVariablesEnabled));
+                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedParamsFileDeclaration());
                     }
 
                     if (binder.GetSymbolInfo(syntax) is not ExtensionConfigAssignmentSymbol configAssignmentSymbol)
@@ -1076,11 +1069,6 @@ namespace Bicep.Core.TypeSystem
             {
                 if (syntax.Type is { })
                 {
-                    if (!model.Features.TypedVariablesEnabled)
-                    {
-                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).TypedVariablesUnsupported());
-                    }
-
                     var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnostics);
                     diagnostics.WriteMultiple(GetDeclarationAssignmentDiagnostics(declaredType, syntax.Value));
 

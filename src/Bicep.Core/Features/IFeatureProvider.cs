@@ -33,8 +33,6 @@ public interface IFeatureProvider
 
     bool ResourceInfoCodegenEnabled { get; }
 
-    bool TypedVariablesEnabled { get; }
-
     bool ModuleExtensionConfigsEnabled { get; }
 
     bool DesiredStateConfigurationEnabled { get; }
@@ -58,7 +56,6 @@ public interface IFeatureProvider
                 (WaitAndRetryEnabled, CoreResources.ExperimentalFeatureNames_WaitAndRetry, true, true),
                 (OnlyIfNotExistsEnabled, CoreResources.ExperimentalFeatureNames_OnlyIfNotExists, true, true),
                 (LocalDeployEnabled, "Enable local deploy", true, true),
-                (TypedVariablesEnabled, "Typed variables", true, false),
                 (ExtendableParamFilesEnabled, "Enable extendable parameters", true, false),
                 (ModuleExtensionConfigsEnabled, "Enable defining extension configs for modules", true, true),
                 (DesiredStateConfigurationEnabled, "Enable defining Desired State Configuration documents", true, false),

@@ -65,8 +65,6 @@ namespace Bicep.LangServer.IntegrationTests.Completions
 
         private static readonly SharedLanguageHelperManager ServerWithResourceTypedParamsEnabled = new();
 
-        private static readonly SharedLanguageHelperManager ServerWithTypedVariablesEnabled = new();
-
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -103,11 +101,6 @@ namespace Bicep.LangServer.IntegrationTests.Completions
                     testContext,
                     services => services.WithFeatureOverrides(new(testContext, ResourceTypedParamsAndOutputsEnabled: true))
                         .WithNamespaceProvider(BuiltInTestTypes.Create())));
-
-            ServerWithTypedVariablesEnabled.Initialize(
-                async () => await MultiFileLanguageServerHelper.StartLanguageServer(
-                    testContext,
-                    services => services.WithFeatureOverrides(new(testContext, TypedVariablesEnabled: true))));
         }
 
         [ClassCleanup]
@@ -5484,7 +5477,7 @@ func fooFunc() fooType => {
         [TestMethod]
         public async Task Typed_variable_post_name_completions_are_offered()
         {
-            var serverHelper = new ServerRequestHelper(TestContext, ServerWithTypedVariablesEnabled);
+            var serverHelper = new ServerRequestHelper(TestContext, ServerWithNamespaceProvider);
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
 type fooType = {
@@ -5508,7 +5501,7 @@ var foo fooType|
         [TestMethod]
         public async Task Typed_variable_value_completions_are_offered()
         {
-            var serverHelper = new ServerRequestHelper(TestContext, ServerWithTypedVariablesEnabled);
+            var serverHelper = new ServerRequestHelper(TestContext, ServerWithNamespaceProvider);
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
 type fooType = {
@@ -5534,7 +5527,7 @@ var foo fooType = {
         [TestMethod]
         public async Task Typed_variable_object_property_completions_are_offered()
         {
-            var serverHelper = new ServerRequestHelper(TestContext, ServerWithTypedVariablesEnabled);
+            var serverHelper = new ServerRequestHelper(TestContext, ServerWithNamespaceProvider);
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
 type fooType = {
@@ -5556,6 +5549,46 @@ type fooType = {
 var foo fooType = {
   bar:|
 }
+""");
+        }
+
+        [TestMethod]
+        public async Task Typed_variable_type_completions_are_offered()
+        {
+            var serverHelper = new ServerRequestHelper(TestContext, ServerWithNamespaceProvider);
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+var foo | = [
+  'bar'
+]
+""");
+            var mainFile = await serverHelper.OpenFile(text);
+
+            var newFile = await mainFile.RequestAndApplyCompletion(cursor, "array");
+            newFile.Should().HaveSourceText("""
+var foo array| = [
+  'bar'
+]
+""");
+        }
+
+        [TestMethod]
+        public async Task Typed_variable_type_completions_are_offered_2()
+        {
+            var serverHelper = new ServerRequestHelper(TestContext, ServerWithNamespaceProvider);
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+var foo a| = [
+  'bar'
+]
+""");
+            var mainFile = await serverHelper.OpenFile(text);
+
+            var newFile = await mainFile.RequestAndApplyCompletion(cursor, "array");
+            newFile.Should().HaveSourceText("""
+var foo array| = [
+  'bar'
+]
 """);
         }
 

@@ -51,18 +51,16 @@ var foo =
 // bad =
 var badEquals 2
 //@[04:13) [no-unused-vars (Warning)] Variable "badEquals" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |badEquals|
-//@[14:15) [BCP413 (Error)] Using typed variables requires enabling EXPERIMENTAL feature "TypedVariables". (bicep https://aka.ms/bicep/core-diagnostics#BCP413) |2|
 //@[15:15) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 var badEquals2 3 true
 //@[04:14) [no-unused-vars (Warning)] Variable "badEquals2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |badEquals2|
-//@[15:16) [BCP413 (Error)] Using typed variables requires enabling EXPERIMENTAL feature "TypedVariables". (bicep https://aka.ms/bicep/core-diagnostics#BCP413) |3|
 //@[17:21) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) |true|
 //@[21:21) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP009) ||
 
 // malformed identifier but type check should happen regardless
 var 2 = x
 //@[04:05) [BCP015 (Error)] Expected a variable identifier at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP015) |2|
-//@[08:09) [BCP413 (Error)] Using typed variables requires enabling EXPERIMENTAL feature "TypedVariables". (bicep https://aka.ms/bicep/core-diagnostics#BCP413) |x|
+//@[08:09) [BCP287 (Error)] 'x' refers to a value but is being used as a type here. (bicep https://aka.ms/bicep/core-diagnostics#BCP287) |x|
 //@[09:09) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
 // bad token value
@@ -296,7 +294,6 @@ var a☕ = true
 //@[04:05) [no-unused-vars (Warning)] Variable "a" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |a|
 //@[05:06) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) |☕|
 //@[05:06) [BCP001 (Error)] The following token is not recognized: "☕". (bicep https://aka.ms/bicep/core-diagnostics#BCP001) |☕|
-//@[05:06) [BCP413 (Error)] Using typed variables requires enabling EXPERIMENTAL feature "TypedVariables". (bicep https://aka.ms/bicep/core-diagnostics#BCP413) |☕|
 
 var missingArrayVariable = [for thing in stuff: 4]
 //@[04:24) [no-unused-vars (Warning)] Variable "missingArrayVariable" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |missingArrayVariable|

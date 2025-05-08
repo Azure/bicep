@@ -232,6 +232,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 new NamedTypeProperty("objectId", LanguageConstants.String),
                 new NamedTypeProperty("tenantId", LanguageConstants.String),
+                new NamedTypeProperty("userPrincipalName", LanguageConstants.String),
             };
 
             return new ObjectType("deployer", TypeSymbolValidationFlags.Default, properties, null);

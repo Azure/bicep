@@ -1574,20 +1574,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP335",
                 $"The provided value can have a length as large as {sourceMaxLength} and may be too long to assign to a target with a configured maximum length of {targetMaxLength}.");
 
-            public Diagnostic UnrecognizedParamsFileDeclaration(bool supportsTypeDeclarations)
+            public Diagnostic UnrecognizedParamsFileDeclaration()
             {
                 List<string> supportedDeclarations = [
                     LanguageConstants.UsingKeyword,
                     LanguageConstants.ExtendsKeyword,
                     LanguageConstants.ParameterKeyword,
                     LanguageConstants.VariableKeyword,
+                    LanguageConstants.TypeKeyword,
                 ];
-
-                // TODO make this unconditional when we release typed variables
-                if (supportsTypeDeclarations)
-                {
-                    supportedDeclarations.Add(LanguageConstants.TypeKeyword);
-                }
 
                 return CoreError(
                     "BCP337",
@@ -1886,10 +1881,6 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic InvalidVariableType(IEnumerable<string> validTypes) => CoreError(
                 "BCP412",
                 $"The variable type is not valid. Please specify one of the following types: {ToQuotedString(validTypes)}.");
-
-            public Diagnostic TypedVariablesUnsupported() => CoreError(
-                "BCP413",
-                $"""Using typed variables requires enabling EXPERIMENTAL feature "{nameof(ExperimentalFeaturesEnabled.TypedVariables)}".""");
 
             public Diagnostic FromEndArrayAccessNotSupportedOnBaseType(TypeSymbol baseType) => CoreError(
                 "BCP414",
