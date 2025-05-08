@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
@@ -14,7 +15,6 @@ using Bicep.LanguageServer.Telemetry;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using static Bicep.LanguageServer.Telemetry.BicepTelemetryEvent;
-using Bicep.Core.Extensions;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -122,7 +122,7 @@ namespace Bicep.LanguageServer.Handlers
             return new ExternalSourceReference(reference, sourceArchive).ToUri();
         }
 
-        public static Uri GetTemplateSpeckSourceLinkUri(TemplateSpecModuleReference reference)
+        public static Uri GetTemplateSpecSourceLinkUri(TemplateSpecModuleReference reference)
         {
             var uriBuilder = new UriBuilder($"{LangServerConstants.ExternalSourceFileScheme}:{Uri.EscapeDataString(reference.FullyQualifiedReference)}")
             {

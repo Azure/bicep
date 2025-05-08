@@ -12,9 +12,9 @@ using Azure.Deployments.Core.EventSources;
 using Azure.Deployments.Core.Exceptions;
 using Azure.Deployments.Core.FeatureEnablement;
 using Azure.Deployments.Core.Telemetry;
+using Azure.Deployments.Engine.External;
 using Azure.Deployments.Engine.Interfaces;
 using Azure.Deployments.Engine.Workers.Metadata;
-using Azure.Deployments.Engine.External;
 using Azure.Deployments.ResourceMetadata.Contracts;
 using Bicep.Local.Deploy.Extensibility;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
@@ -92,12 +92,12 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         return stringToBeSanitized;
     }
 
-
     public override async Task<HttpResponseMessage> CallExtensibilityHostV2(
         HttpMethod requestMethod,
         Uri requestUri,
         HttpContent content,
         AuthenticationToken extensibilityHostToken,
+        string msiIdentityUrl,
         CancellationToken cancellationToken)
     {
         var extensionName = requestUri.Segments[^4].TrimEnd('/');

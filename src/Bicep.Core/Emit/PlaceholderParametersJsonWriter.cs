@@ -5,6 +5,8 @@ using System.Collections.Immutable;
 using Bicep.Core.Emit.Options;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -77,16 +79,13 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteStartObject();
 
             emitter.EmitProperty("$schema", "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#");
-
             emitter.EmitProperty("contentVersion", contentVersion);
 
             var allParameterDeclarations = this.Context.SemanticModel.Root.ParameterDeclarations;
 
             var filteredParameterDeclarations = this.IncludeParams == IncludeParamsOption.All
                 ? allParameterDeclarations
-                : allParameterDeclarations
-                    .Where(e => e.DeclaringParameter.Modifier is not ParameterDefaultValueSyntax)
-                    .ToImmutableArray();
+                : [.. allParameterDeclarations.Where(e => e.DeclaringParameter.Modifier is not ParameterDefaultValueSyntax)];
 
             if (filteredParameterDeclarations.Length > 0)
             {
@@ -96,26 +95,10 @@ namespace Bicep.Core.Emit
                 foreach (var parameterSymbol in filteredParameterDeclarations)
                 {
                     jsonWriter.WritePropertyName(parameterSymbol.Name);
-
                     jsonWriter.WriteStartObject();
-                    switch (parameterSymbol.Type.Name)
-                    {
-                        case "string":
-                            emitter.EmitProperty("value", "");
-                            break;
-                        case "int":
-                            emitter.EmitProperty("value", () => jsonWriter.WriteValue(0));
-                            break;
-                        case "bool":
-                            emitter.EmitProperty("value", () => jsonWriter.WriteValue(false));
-                            break;
-                        case "object":
-                            emitter.EmitProperty("value", () => { jsonWriter.WriteStartObject(); jsonWriter.WriteEndObject(); });
-                            break;
-                        case "array":
-                            emitter.EmitProperty("value", () => { jsonWriter.WriteStartArray(); jsonWriter.WriteEndArray(); });
-                            break;
-                    }
+
+                    EmitValue(parameterSymbol.Type);
+
                     jsonWriter.WriteEndObject();
                 }
 
@@ -123,10 +106,79 @@ namespace Bicep.Core.Emit
             }
 
             jsonWriter.WriteEndObject();
-
             var content = stringWriter.ToString();
-
             return content.FromJson<JToken>();
+
+            void EmitValue(TypeSymbol type)
+            {
+                if (!TryEmitPrimitive(type.Name))
+                {
+                    if (type is ObjectType objType && objType.Properties.Count > 0)
+                    {
+                        emitter.EmitProperty("value", () =>
+                        {
+                            jsonWriter.WriteStartObject();
+                            foreach (var property in objType.Properties)
+                            {
+                                jsonWriter.WritePropertyName(property.Key);
+                                EmitPrimitiveValue(property.Value.TypeReference.Type.Name);
+                            }
+                            jsonWriter.WriteEndObject();
+                        });
+                    }
+                }
+            }
+
+            bool TryEmitPrimitive(string typeName)
+            {
+                switch (typeName)
+                {
+                    case "string":
+                        emitter.EmitProperty("value", () => EmitPrimitiveValue("string"));
+                        return true;
+                    case "int":
+                        emitter.EmitProperty("value", () => EmitPrimitiveValue("int"));
+                        return true;
+                    case "bool":
+                        emitter.EmitProperty("value", () => EmitPrimitiveValue("bool"));
+                        return true;
+                    case "object":
+                        emitter.EmitProperty("value", () => EmitPrimitiveValue("object"));
+                        return true;
+                    case "array":
+                        emitter.EmitProperty("value", () => EmitPrimitiveValue("array"));
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            void EmitPrimitiveValue(string typeName)
+            {
+                switch (typeName)
+                {
+                    case "string":
+                        jsonWriter.WriteValue(string.Empty);
+                        break;
+                    case "int":
+                        jsonWriter.WriteValue(0);
+                        break;
+                    case "bool":
+                        jsonWriter.WriteValue(false);
+                        break;
+                    case "object":
+                        jsonWriter.WriteStartObject();
+                        jsonWriter.WriteEndObject();
+                        break;
+                    case "array":
+                        jsonWriter.WriteStartArray();
+                        jsonWriter.WriteEndArray();
+                        break;
+                    default:
+                        jsonWriter.WriteValue(string.Empty);
+                        break;
+                }
+            }
         }
     }
 }

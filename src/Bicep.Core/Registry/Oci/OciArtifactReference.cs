@@ -4,13 +4,13 @@
 using System.Collections.Immutable;
 using System.Text;
 using System.Web;
+using Bicep.Core.ArtifactCache;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.IO.Abstraction;
-using Bicep.Core.ArtifactCache;
 using Bicep.IO.Utils;
 
 namespace Bicep.Core.Registry.Oci

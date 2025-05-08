@@ -48,7 +48,7 @@ public static class CommandHelper
             var relativeOutputPath = pathReplacementFunc(relativeInputPath);
             var inputUri = PathHelper.FilePathToFileUrl(Path.Combine(inputBasePath, relativeInputPath));
             var outputUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDir ?? inputBasePath, relativeOutputPath));
-            
+
             yield return (inputUri, outputUri);
         }
     }
@@ -64,7 +64,7 @@ public static class CommandHelper
         foreach (var relativeInputPath in relativeInputPaths)
         {
             var inputUri = PathHelper.FilePathToFileUrl(Path.Combine(inputBasePath, relativeInputPath));
-            
+
             yield return inputUri;
         }
     }

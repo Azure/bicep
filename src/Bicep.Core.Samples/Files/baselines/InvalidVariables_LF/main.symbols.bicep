@@ -38,9 +38,9 @@ var foo =
 
 // bad =
 var badEquals 2
-//@[04:13) Variable badEquals. Type: error. Declaration start char: 0, length: 15
+//@[04:13) Variable badEquals. Type: 2. Declaration start char: 0, length: 15
 var badEquals2 3 true
-//@[04:14) Variable badEquals2. Type: error. Declaration start char: 0, length: 21
+//@[04:14) Variable badEquals2. Type: 3. Declaration start char: 0, length: 21
 
 // malformed identifier but type check should happen regardless
 var 2 = x
@@ -220,7 +220,7 @@ var anotherThing = true
 var ☕ = true
 //@[04:12) Variable <error>. Type: error. Declaration start char: 0, length: 12
 var a☕ = true
-//@[04:05) Variable a. Type: error. Declaration start char: 0, length: 13
+//@[04:05) Variable a. Type: any. Declaration start char: 0, length: 13
 
 var missingArrayVariable = [for thing in stuff: 4]
 //@[32:37) Local thing. Type: any. Declaration start char: 32, length: 5

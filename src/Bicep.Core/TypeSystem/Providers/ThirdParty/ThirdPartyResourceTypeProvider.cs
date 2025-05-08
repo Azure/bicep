@@ -15,7 +15,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
         private readonly ResourceTypeCache generatedTypeCache;
 
         public ThirdPartyResourceTypeProvider(ThirdPartyResourceTypeLoader resourceTypeLoader)
-            : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
+            : base([.. resourceTypeLoader.GetAvailableTypes()])
         {
             this.resourceTypeLoader = resourceTypeLoader;
             definedTypeCache = new ResourceTypeCache();

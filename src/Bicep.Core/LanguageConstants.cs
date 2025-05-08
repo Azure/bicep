@@ -201,6 +201,9 @@ namespace Bicep.Core
             TypeNameResourceOutput,
         }.ToFrozenSet(IdentifierComparer);
 
+        // extension namespace properties
+        public const string ExtensionConfigPropertyName = "config";
+
         public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;
         public static readonly StringComparison IdentifierComparison = StringComparison.Ordinal;
 

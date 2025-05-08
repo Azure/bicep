@@ -53,15 +53,24 @@ namespace Bicep.Decompiler.ArmHelpers
             }
         }
 
-        public static JToken AssertRequiredProperty(JObject parent, string propertyName, string message)
+        public static JToken AssertRequiredProperty(JObject parent, string propertyName, string? message = null)
         {
             if (GetProperty(parent, propertyName) is not { } value)
             {
-                throw new ConversionFailedException(message, parent);
+                throw new ConversionFailedException(message ?? $"Object is missing a \"{propertyName}\" property", parent);
             }
 
             return value.Value;
         }
+
+        public static JObject AssertObject(JToken token, string? message = null)
+            => token is JObject obj ? obj : throw new ConversionFailedException(message ?? "Expected an object", token);
+
+        public static string AssertString(JToken token, string? message = null)
+            => token.Type == JTokenType.String ? token.Value<string>()! : throw new ConversionFailedException(message ?? "Expected a string", token);
+
+        public static JArray AssertArray(JToken token, string? message = null)
+            => token is JArray arr ? arr : throw new ConversionFailedException(message ?? "Expected an array", token);
 
         public static (string type, string name, string apiVersion) ParseResource(JObject resource)
         {

@@ -9,15 +9,15 @@ using Azure.Deployments.Core.FeatureEnablement;
 using Azure.Deployments.Core.Interfaces;
 using Azure.Deployments.Core.Telemetry;
 using Azure.Deployments.Engine;
-using Azure.Deployments.Engine.Dependencies;
 using Azure.Deployments.Engine.Definitions;
+using Azure.Deployments.Engine.Dependencies;
 using Azure.Deployments.Engine.DeploymentExpander;
+using Azure.Deployments.Engine.External;
 using Azure.Deployments.Engine.Interfaces;
 using Azure.Deployments.Engine.Providers;
+using Azure.Deployments.Engine.Storage.Volatile;
 using Azure.Deployments.Engine.Validation;
 using Azure.Deployments.Engine.Workers;
-using Azure.Deployments.Engine.External;
-using Azure.Deployments.Engine.Storage.Volatile;
 using Azure.Deployments.Extensibility.Contract;
 using Azure.Deployments.Templates.Contracts;
 using Azure.Deployments.Templates.Export;
@@ -48,7 +48,7 @@ public static class IServiceCollectionExtensions
         services.AddSingleton<IPreflightEngineHost, PreflightEngineHost>();
         services.AddSingleton<IDependencyProcessor, DependencyProcessor>();
         services.AddSingleton<ITemplateExceptionHandler, TemplateExceptionHandler>();
-        
+
         services.AddSingleton<AzureDeploymentValidation>();
         services.AddSingleton<IExtensionConfigSchemaDirectoryFactory, FactBasedExtensionConfigSchemaDirectoryFactory>();
         services.AddSingleton<IAzureDeploymentConfiguration, LocalDeploymentConfiguration>();
@@ -69,7 +69,13 @@ public static class IServiceCollectionExtensions
         services.AddSingleton<VolatileMemoryStorage>();
         services.AddSingleton<IJobInstanceResolver, JobInstanceResolver>();
         services.AddSingleton<JobCallbackFactory, DeploymentJobCallbackFactory>();
-        services.AddSingleton<IJobsConfigurationProvider, JobsConfigurationProvider>();
+        services.AddSingleton<IJobsConfigurationProvider>(new JobsConfigurationProvider(
+            numWorkersPerInstanceCount: null,
+            numWorkersPerProcessorCount: 8,
+            numWorkersInJobDispatchingService: null,
+            numPartitionsInJobTriggersQueue: 4,
+            workerPulsationsThrottlingEnabledForPollRequests: false,
+            workerPulsationsThrottlingEnabledForPulseRequests: false));
         services.AddSingleton<WorkerJobDispatcherClient>();
 
         services.AddSingleton<IDeploymentsRequestContext, LocalRequestContext>();

@@ -92,7 +92,7 @@ public class LinterRuleTestsBase
         }
 
         RunWithDiagnosticAnnotations(
-            [ ..files ],
+            [.. files],
             diag =>
                 diag.Code == ruleCode
                 || (IsCompilerDiagnostic(diag) && options.OnCompileErrors == OnCompileErrors.IncludeErrors && diag.IsError())

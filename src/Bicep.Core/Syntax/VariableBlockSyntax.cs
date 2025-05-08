@@ -14,9 +14,9 @@ namespace Bicep.Core.Syntax
             AssertTokenType(openParen, nameof(openParen), TokenType.LeftParen);
 
             this.OpenParen = openParen;
-            this.Children = children.ToImmutableArray();
+            this.Children = [.. children];
             this.CloseParen = closeParen;
-            this.Arguments = this.Children.OfType<LocalVariableSyntax>().ToImmutableArray();
+            this.Arguments = [.. this.Children.OfType<LocalVariableSyntax>()];
         }
 
         public Token OpenParen { get; }

@@ -15,8 +15,8 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Providers;
 using Bicep.IO.Abstraction;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Diagnostics
 {
@@ -937,9 +937,11 @@ namespace Bicep.Core.Diagnostics
                     ? $"Unique resource or deployment name is required when looping. The loop item variable \"{itemVariableName}\" must be referenced in at least one of the value expressions of the following properties: {ToQuotedString(expectedVariantProperties)}"
                     : $"Unique resource or deployment name is required when looping. The loop item variable \"{itemVariableName}\" or the index variable \"{indexVariableName}\" must be referenced in at least one of the value expressions of the following properties in the loop body: {ToQuotedString(expectedVariantProperties)}");
 
-            public Diagnostic FunctionOnlyValidInModuleSecureParameterAssignment(string functionName) => CoreError(
+            public Diagnostic FunctionOnlyValidInModuleSecureParameterAndExtensionConfigAssignment(string functionName, bool moduleExtensionConfigsEnabled) => CoreError(
                 "BCP180",
-                $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator.");
+                moduleExtensionConfigsEnabled
+                    ? $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator or a secure extension configuration property."
+                    : $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator.");
 
             public Diagnostic RuntimeValueNotAllowedInRunTimeFunctionArguments(string functionName, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
             {
@@ -1576,9 +1578,20 @@ namespace Bicep.Core.Diagnostics
                 "BCP335",
                 $"The provided value can have a length as large as {sourceMaxLength} and may be too long to assign to a target with a configured maximum length of {targetMaxLength}.");
 
-            public Diagnostic UnrecognizedParamsFileDeclaration() => CoreError(
-                "BCP337",
-                $@"This declaration type is not valid for a Bicep Parameters file. Specify a ""{LanguageConstants.UsingKeyword}"", ""{LanguageConstants.ExtendsKeyword}"", ""{LanguageConstants.ParameterKeyword}"" or ""{LanguageConstants.VariableKeyword}"" declaration.");
+            public Diagnostic UnrecognizedParamsFileDeclaration()
+            {
+                List<string> supportedDeclarations = [
+                    LanguageConstants.UsingKeyword,
+                    LanguageConstants.ExtendsKeyword,
+                    LanguageConstants.ParameterKeyword,
+                    LanguageConstants.VariableKeyword,
+                    LanguageConstants.TypeKeyword,
+                ];
+
+                return CoreError(
+                    "BCP337",
+                    $@"This declaration type is not valid for a Bicep Parameters file. Supported declarations: {ToQuotedString(supportedDeclarations)}.");
+            }
 
             public Diagnostic FailedToEvaluateParameter(string parameterName, string message) => CoreError(
                 "BCP338",
@@ -1873,10 +1886,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP412",
                 $"The variable type is not valid. Please specify one of the following types: {ToQuotedString(validTypes)}.");
 
-            public Diagnostic TypedVariablesUnsupported() => CoreError(
-                "BCP413",
-                $"""Using typed variables requires enabling EXPERIMENTAL feature "{nameof(ExperimentalFeaturesEnabled.TypedVariables)}".""");
-
             public Diagnostic FromEndArrayAccessNotSupportedOnBaseType(TypeSymbol baseType) => CoreError(
                 "BCP414",
                 $"The \"^\" indexing operator cannot be used on base expressions of type \"{baseType}\".");
@@ -1894,6 +1903,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic SpreadOperatorCannotBeUsedWithForLoop(SpreadExpressionSyntax spread) => CoreError(
                 "BCP417",
                 $"The spread operator \"{spread.Ellipsis.Text}\" cannot be used inside objects with property for-expressions.");
+
+            public Diagnostic ExtensionCannotBeReferenced() => CoreError(
+                "BCP418",
+                "Extensions cannot be referenced here. Extensions can only be referenced by module extension configurations.");
 
             public Diagnostic InlineMustNotHaveValueAssigned() => CoreError(
                 "BCP419",

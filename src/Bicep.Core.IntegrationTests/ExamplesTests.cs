@@ -33,8 +33,9 @@ namespace Bicep.Core.IntegrationTests
 
             var compiler = Services.WithFeatureOverrides(features).Build().GetCompiler();
             var compilation = await compiler.CreateCompilation(bicepFile.OutputFileUri);
+            var model = compilation.GetEntrypointSemanticModel();
 
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
+            var emitter = new TemplateEmitter(model);
 
             foreach (var (file, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
             {
@@ -61,7 +62,7 @@ namespace Bicep.Core.IntegrationTests
                     jsonFile.ShouldHaveExpectedJsonValue();
 
                     // validate that the template is parseable by the deployment engine
-                    UnitTests.Utils.TemplateHelper.TemplateShouldBeValid(stringWriter.ToString());
+                    UnitTests.Utils.TemplateHelper.TemplateShouldBeValid(stringWriter.ToString(), model.Features);
                 }
             }
         }

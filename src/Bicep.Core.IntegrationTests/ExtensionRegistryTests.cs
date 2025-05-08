@@ -8,13 +8,13 @@ using Bicep.Core.Registry.Extensions;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
+using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
-using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.IntegrationTests;
 
@@ -431,17 +431,105 @@ output joke string = dadJoke.joke
 
         result.Template.Should().NotBeNull();
 
-        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyExtension']['name']", "ThirdPartyExtension");
-        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyExtension']['version']", "1.0.0");
-
-        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyExtension']['config']['namespace']['type']", "string");
-        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyExtension']['config']['namespace']['defaultValue']", "ThirdPartyNamespace");
-        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyExtension']['config']['config']['type']", "string");
-        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyExtension']['config']['config']['defaultValue']", "Some path to config file");
-        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyExtension']['config']['context']['type']", "string");
-        result.Template.Should().HaveValueAtPath("$.extensions['ThirdPartyExtension']['config']['context']['defaultValue']", "Some ThirdParty context");
+        result.Template.Should().HaveValueAtPath("$.imports['ThirdPartyExtension']", JObject.Parse("""
+        {
+          "provider": "ThirdPartyExtension",
+          "version": "1.0.0",
+          "config": {
+            "namespace": "ThirdPartyNamespace",
+            "config": "Some path to config file",
+            "context": "Some ThirdParty context"
+          }
+        }
+        """));
 
         result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public async Task Correct_local_deploy_extension_configuration_result_in_successful_compilation_v2_api()
+    {
+        // tgzData provides configType with the properties namespace, config, and context
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(
+            ThirdPartyTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration(),
+            AllFeaturesEnabledForLocalDeploy with { ModuleExtensionConfigsEnabled = true });
+
+        var result = await CompilationHelper.RestoreAndCompileParams(
+            services,
+            mainBicepFileContents:
+            """
+            targetScope = 'local'
+
+            extension 'br:example.azurecr.io/extensions/foo:1.2.3' with {
+              namespace: 'ThirdPartyNamespace'
+              config: 'Some path to config file'
+            }
+
+            resource dadJoke 'fooType@v1' = {
+              identifier: 'foo'
+              joke: 'dad joke'
+            }
+
+            output joke string = dadJoke.joke
+            """,
+            bicepParamsFileContent:
+            """
+            using 'main.bicep'
+
+            extension ThirdPartyExtension with {
+              namespace: 'paramsFileNs'
+              config: 'paramsFileConfig'
+              context: 'paramsFileContext'
+            }
+            """);
+
+        // TODO(kylealbert): update bicep params file config when required property handling is implemented between template and params file.
+
+        result.Should().NotHaveAnyDiagnostics();
+
+        var template = JToken.Parse(result.GetTestTemplate());
+
+        template.Should().NotBeNull();
+
+        template.Should()
+            .HaveValueAtPath(
+                "$.extensions['ThirdPartyExtension']", JObject.Parse(
+                    """
+                    {
+                      "name": "ThirdPartyExtension",
+                      "version": "1.0.0",
+                      "config": {
+                        "namespace": {
+                          "type": "string",
+                          "defaultValue": "ThirdPartyNamespace"
+                        },
+                        "config": {
+                          "type": "string",
+                          "defaultValue": "Some path to config file"
+                        }
+                      }
+                    }
+                    """));
+
+        var parameters = JToken.Parse(result.GetTestParametersFile() ?? string.Empty);
+        parameters.Should().NotBeNull();
+
+        parameters.Should()
+            .HaveValueAtPath(
+                "$.extensionConfigs['ThirdPartyExtension']", JObject.Parse(
+                    """
+                    {
+                      "namespace": {
+                        "value": "paramsFileNs"
+                      },
+                      "config": {
+                        "value": "paramsFileConfig"
+                      },
+                      "context": {
+                        "value": "paramsFileContext"
+                      }
+                    }
+                    """));
     }
 
     [TestMethod]

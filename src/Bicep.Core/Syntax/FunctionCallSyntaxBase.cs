@@ -16,9 +16,9 @@ namespace Bicep.Core.Syntax
 
             this.Name = name;
             this.OpenParen = openParen;
-            this.Children = children.ToImmutableArray();
+            this.Children = [.. children];
             this.CloseParen = closeParen;
-            this.Arguments = this.Children.OfType<FunctionArgumentSyntax>().ToImmutableArray();
+            this.Arguments = [.. this.Children.OfType<FunctionArgumentSyntax>()];
         }
 
         public IdentifierSyntax Name { get; }

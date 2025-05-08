@@ -14,7 +14,7 @@ public class ImportedSymbolsListSyntax : SyntaxBase
         AssertTokenType(closeBrace, nameof(closeBrace), TokenType.RightBrace);
 
         this.OpenBrace = openBrace;
-        this.Children = children.ToImmutableArray();
+        this.Children = [.. children];
         this.CloseBrace = closeBrace;
     }
 

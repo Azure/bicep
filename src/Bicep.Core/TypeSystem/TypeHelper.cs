@@ -14,7 +14,6 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Types;
-using Json.Patch;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.TypeSystem
@@ -62,7 +61,7 @@ namespace Bicep.Core.TypeSystem
         public static TypeSymbol MakeNullable(ITypeReference typeReference) => CreateTypeUnion(typeReference, LanguageConstants.Null);
 
         public static LambdaType CreateLambdaType(IEnumerable<ITypeReference> argumentTypes, IEnumerable<ITypeReference> optionalArgumentTypes, TypeSymbol returnType)
-            => new(argumentTypes.ToImmutableArray(), optionalArgumentTypes.ToImmutableArray(), returnType);
+            => new([.. argumentTypes], [.. optionalArgumentTypes], returnType);
 
         /// <summary>
         /// Returns an ordered enumerable of type names.
@@ -696,29 +695,31 @@ namespace Bicep.Core.TypeSystem
             => TransformProperties(input, p => p with { Flags = p.Flags & ~TypePropertyFlags.Required });
 
         public static TypeSymbol RemovePropertyFlagsRecursively(TypeSymbol type, TypePropertyFlags flagsToRemove)
-            => RemovePropertyFlagsRecursively(type, flagsToRemove, new());
+            => ModifyPropertyFlagsRecursively(type, f => f & ~flagsToRemove, new());
 
-        private static TypeSymbol RemovePropertyFlagsRecursively(
-            TypeSymbol type,
-            TypePropertyFlags flagsToRemove,
-            ConcurrentDictionary<ObjectType, ObjectType> transformedObjectCache) => type switch
+        private static TType ModifyPropertyFlagsRecursively<TType>(
+            TType type,
+            Func<TypePropertyFlags, TypePropertyFlags> transformFlags,
+            ConcurrentDictionary<ObjectType, ObjectType> transformedObjectCache) where TType : TypeSymbol =>
+            type switch
             {
-                ObjectType @object => transformedObjectCache.GetOrAdd(
+                ObjectType @object => (transformedObjectCache.GetOrAdd(
                     @object,
-                    obj => RemovePropertyFlagsRecursively(obj, flagsToRemove, transformedObjectCache)),
+                    obj => ModifyPropertyFlagsRecursively(obj, transformFlags, transformedObjectCache)) as TType)!,
                 _ => type,
             };
 
-        private static ObjectType RemovePropertyFlagsRecursively(
+        private static ObjectType ModifyPropertyFlagsRecursively(
             ObjectType @object,
-            TypePropertyFlags flagsToRemove,
+            Func<TypePropertyFlags, TypePropertyFlags> transformFlags,
             ConcurrentDictionary<ObjectType, ObjectType> cache) => TransformProperties(@object, property => new(
                 property.Name,
-                new DeferredTypeReference(() => RemovePropertyFlagsRecursively(
+                new DeferredTypeReference(
+                    () => ModifyPropertyFlagsRecursively(
                     property.TypeReference.Type,
-                    flagsToRemove,
+                    transformFlags,
                     cache)),
-                property.Flags & ~flagsToRemove,
+                transformFlags(property.Flags),
                 property.Description));
 
         /// <summary>

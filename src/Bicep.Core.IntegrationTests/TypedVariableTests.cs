@@ -13,21 +13,7 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class TypedVariableTests : TestBase
 {
-    private ServiceBuilder Services => new ServiceBuilder().WithFeatureOverrides(new(TestContext, TypedVariablesEnabled: true));
-
-    [TestMethod]
-    public void Experimental_feature_is_blocked_unless_enabled()
-    {
-        var result = CompilationHelper.Compile(new ServiceBuilder(),
-            ("main.bicep", """
-var foo string = 'foo'
-""")
-        );
-
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
-            ("BCP413", DiagnosticLevel.Error, """Using typed variables requires enabling EXPERIMENTAL feature "TypedVariables"."""),
-        ]);
-    }
+    private ServiceBuilder Services => new();
 
     [TestMethod]
     public void Simple_type_declarations_are_accepted()
@@ -141,6 +127,72 @@ output test {
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
             ("BCP035", DiagnosticLevel.Error, """The specified "output" declaration is missing the following required properties: "foo"."""),
+        ]);
+    }
+
+    [TestMethod]
+    public void Typed_variables_can_be_used_in_bicepparam_files_with_imported_types()
+    {
+        var result = CompilationHelper.CompileParams(Services,
+            ("main.bicep", ""),
+            ("types.bicep", """
+@export()
+type FooType = {
+  foo: string
+}
+"""),
+            ("parameters.bicepparam", """
+import { FooType } from './types.bicep'
+
+using './main.bicep'
+
+var foo FooType = {
+  foo: 123
+}
+"""));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP036", DiagnosticLevel.Error, """The property "foo" expected a value of type "string" but the provided value is of type "123"."""),
+        ]);
+    }
+
+    [TestMethod]
+    public void Typed_variables_can_be_used_in_bicepparam_files_with_inline_types()
+    {
+        var result = CompilationHelper.CompileParams(Services,
+            ("main.bicep", ""),
+            ("parameters.bicepparam", """
+using './main.bicep'
+
+var foo { foo: string } = {
+  foo: 123
+}
+"""));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP036", DiagnosticLevel.Error, """The property "foo" expected a value of type "string" but the provided value is of type "123"."""),
+        ]);
+    }
+
+    [TestMethod]
+    public void Typed_variables_can_be_used_in_bicepparam_files_with_type_declarations()
+    {
+        var result = CompilationHelper.CompileParams(Services,
+            ("main.bicep", ""),
+            ("parameters.bicepparam", """
+using './main.bicep'
+
+type FooType = {
+  foo: string
+}
+
+var foo FooType = {
+  foo: 123
+}
+"""));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP036", DiagnosticLevel.Error, """The property "foo" expected a value of type "string" but the provided value is of type "123"."""),
         ]);
     }
 }

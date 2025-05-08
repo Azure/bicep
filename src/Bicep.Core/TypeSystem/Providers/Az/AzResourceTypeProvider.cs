@@ -188,7 +188,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         }
 
         public AzResourceTypeProvider(IResourceTypeLoader resourceTypeLoader)
-            : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
+            : base([.. resourceTypeLoader.GetAvailableTypes()])
         {
             this.resourceTypeLoader = resourceTypeLoader;
             definedTypeCache = new ResourceTypeCache();

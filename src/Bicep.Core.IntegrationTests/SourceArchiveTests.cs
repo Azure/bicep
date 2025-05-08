@@ -18,10 +18,10 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Handlers;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using FluentAssertions.Execution;
 
 namespace Bicep.Core.IntegrationTests
 {

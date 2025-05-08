@@ -166,7 +166,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             if (model.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax).IsSuccess(out var sourceFile) && sourceFile is BicepFile bicepFile)
             {
-                return [ ..bicepFile.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>() ];
+                return [.. bicepFile.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>()];
             }
 
             return [];

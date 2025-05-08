@@ -134,6 +134,7 @@ public class ParameterAssignmentEvaluator
     }
 
     private readonly ConcurrentDictionary<ParameterAssignmentSymbol, Result> results = new();
+    private readonly ConcurrentDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, Result>> extensionConfigAssignmentResults = new();
     private readonly ConcurrentDictionary<VariableSymbol, Result> varResults = new();
     private readonly ConcurrentDictionary<ImportedVariableSymbol, Result> importResults = new();
     private readonly ConcurrentDictionary<WildcardImportPropertyReference, Result> wildcardImportVariableResults = new();
@@ -211,6 +212,58 @@ public class ParameterAssignmentEvaluator
                     return Result.For(DiagnosticBuilder.ForPosition(declaringParam.Value)
                         .FailedToEvaluateParameter(parameter.Name, ex.Message));
                 }
+            });
+
+    public ImmutableDictionary<string, Result> EvaluateExtensionConfigAssignment(ExtensionConfigAssignmentSymbol inputExtConfigAssignment)
+        => extensionConfigAssignmentResults.GetOrAdd(
+            inputExtConfigAssignment,
+            extConfigAssignment =>
+            {
+                if (extConfigAssignment.DeclaringExtensionConfigAssignment.Config is null)
+                {
+                    return ImmutableDictionary<string, Result>.Empty;
+                }
+
+                var context = GetExpressionEvaluationContext();
+                var configAssignmentProperties = extConfigAssignment.DeclaringExtensionConfigAssignment.Config.Properties;
+
+                var resultBuilder = ImmutableDictionary.CreateBuilder<string, Result>();
+
+                foreach (var property in configAssignmentProperties)
+                {
+                    var propertyName = property.TryGetKeyText();
+
+                    if (propertyName is null)
+                    {
+                        continue;
+                    }
+
+                    var intermediate = converter.ConvertToIntermediateExpression(property.Value);
+
+                    Result propertyResult;
+
+                    if (intermediate is ParameterKeyVaultReferenceExpression keyVaultReferenceExpr)
+                    {
+                        propertyResult = Result.For(keyVaultReferenceExpr);
+                    }
+                    else
+                    {
+                        try
+                        {
+                            propertyResult = Result.For(converter.ConvertExpression(intermediate).EvaluateExpression(context));
+                        }
+                        catch (Exception ex)
+                        {
+                            propertyResult = Result.For(
+                                DiagnosticBuilder.ForPosition(property.Value)
+                                    .FailedToEvaluateParameter(extConfigAssignment.Name, ex.Message));
+                        }
+                    }
+
+                    resultBuilder.Add(propertyName, propertyResult);
+                }
+
+                return resultBuilder.ToImmutableDictionary();
             });
 
     private Result EvaluateVariable(VariableSymbol variable)
