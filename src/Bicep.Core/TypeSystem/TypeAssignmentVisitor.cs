@@ -2012,7 +2012,7 @@ namespace Bicep.Core.TypeSystem
                 var argumentTypes = syntax.GetLocalVariables().Select(x => typeManager.GetTypeInfo(x));
                 var returnType = this.GetTypeInfo(syntax.Body);
 
-                return new LambdaType(argumentTypes.ToImmutableArray<ITypeReference>(), [], returnType);
+                return new LambdaType([.. argumentTypes], [], returnType);
             });
 
         public override void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax)
@@ -2293,7 +2293,7 @@ namespace Bicep.Core.TypeSystem
             IDiagnosticWriter diagnosticWriter) => GetFunctionSymbolType(function,
                 syntax,
                 // Recover argument type errors so we can continue type checking for the parent function call.
-                GetRecoveredArgumentTypes(syntax.Arguments).ToImmutableArray(),
+                [.. GetRecoveredArgumentTypes(syntax.Arguments)],
                 diagnostics,
                 diagnosticWriter);
 
@@ -2324,7 +2324,7 @@ namespace Bicep.Core.TypeSystem
                             // a diagnostic. Only the last invocation will generate a return type.
                             var resultSansNullability = GetFunctionSymbolType(function,
                                 syntax,
-                                Enumerable.Range(0, argumentTypes.Length).Select(i => tm.ArgumentIndex == i ? nonNullableArgType : argumentTypes[i]).ToImmutableArray(),
+                                [.. Enumerable.Range(0, argumentTypes.Length).Select(i => tm.ArgumentIndex == i ? nonNullableArgType : argumentTypes[i])],
                                 diagnostics,
                                 diagnosticWriter);
 

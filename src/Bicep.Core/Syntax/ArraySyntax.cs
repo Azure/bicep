@@ -14,7 +14,7 @@ namespace Bicep.Core.Syntax
             AssertTokenType(closeBracket, nameof(closeBracket), TokenType.RightSquare);
 
             this.OpenBracket = openBracket;
-            this.Children = children.ToImmutableArray();
+            this.Children = [.. children];
             this.CloseBracket = closeBracket;
         }
 
