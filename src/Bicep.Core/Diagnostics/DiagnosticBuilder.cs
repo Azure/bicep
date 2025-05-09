@@ -1907,6 +1907,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic ExtensionCannotBeReferenced() => CoreError(
                 "BCP418",
                 "Extensions cannot be referenced here. Extensions can only be referenced by module extension configurations.");
+
+            public Diagnostic InlineMustNotHaveValueAssigned() => CoreError(
+                "BCP419",
+                $"A parameter marked with the \"@{LanguageConstants.ParameterInlinePropertyName}\" decorator shouldn't have a value assigned.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

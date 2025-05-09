@@ -413,7 +413,8 @@ namespace Bicep.Core.Syntax
                 ParameterKeywordToken,
                 CreateIdentifierWithTrailingSpace(name),
                 AssignmentToken,
-                value);
+                value,
+                []);
 
         public static BinaryOperationSyntax CreateBinaryOperationSyntax(SyntaxBase left, TokenType operatorType, SyntaxBase right)
             => new(

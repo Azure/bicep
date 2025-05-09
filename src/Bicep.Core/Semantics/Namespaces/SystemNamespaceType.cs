@@ -1422,7 +1422,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
                     //error to fail the build-param with clear message of the missing env var name
                     var paramAssignmentDefinition = model.Root.ParameterAssignments.Where(
-                        p => p.DeclaringParameterAssignment.Value.Span.Position == functionCall.Span.Position
+                        p => (p.DeclaringParameterAssignment.Value ?? SyntaxFactory.CreateEmptySyntaxWithComment(string.Empty)).Span.Position == functionCall.Span.Position
                     ).FirstOrDefault();
                     var paramName = paramAssignmentDefinition?.Name ?? "";
                     return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).FailedToEvaluateParameter(paramName,
@@ -2060,6 +2060,14 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
             }
 
+            static IEnumerable<Decorator> GetBicepParamFileDecorators()
+            {
+                yield return new DecoratorBuilder(LanguageConstants.ParameterInlinePropertyName)
+                    .WithDescription("Assign value to the parameter from inline parameter value.")
+                    .WithFlags(FunctionFlags.ParameterDecorator)
+                    .Build();
+            }
+
             foreach (var decorator in GetAlwaysPermittedDecorators())
             {
                 yield return new(decorator, (_, _) => true);
@@ -2068,6 +2076,11 @@ namespace Bicep.Core.Semantics.Namespaces
             foreach (var decorator in GetBicepTemplateDecorators(featureProvider))
             {
                 yield return new(decorator, (_, sfk) => sfk == BicepSourceFileKind.BicepFile);
+            }
+
+            foreach (var decorator in GetBicepParamFileDecorators())
+            {
+                yield return new(decorator, (_, sfk) => sfk == BicepSourceFileKind.ParamsFile);
             }
         }
 
