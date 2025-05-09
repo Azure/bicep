@@ -1,11 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="MSTest" Version="$(MSTestVersion)" />
-    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="21.3.1" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="22.0.14" />
   </ItemGroup>
 
   <ItemGroup>
