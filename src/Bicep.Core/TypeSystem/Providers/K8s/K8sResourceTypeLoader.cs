@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 using Azure.Bicep.Types;
 using Azure.Bicep.Types.K8s;
 using Bicep.Core.Resources;
-using Bicep.Core.TypeSystem.Providers.ThirdParty;
+using Bicep.Core.TypeSystem.Providers.Extensibility;
 using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem.Providers.K8s
@@ -12,13 +12,13 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
     public class K8sResourceTypeLoader : IResourceTypeLoader
     {
         private readonly ITypeLoader typeLoader;
-        private readonly ExtensibilityResourceTypeFactory resourceTypeFactory;
+        private readonly ExtensionResourceTypeFactory resourceTypeFactory;
         private readonly ImmutableDictionary<ResourceTypeReference, CrossFileTypeReference> availableTypes;
 
         public K8sResourceTypeLoader()
         {
             typeLoader = new K8sTypeLoader();
-            resourceTypeFactory = new ExtensibilityResourceTypeFactory();
+            resourceTypeFactory = new ExtensionResourceTypeFactory();
             var indexedTypes = typeLoader.LoadTypeIndex();
             availableTypes = indexedTypes.Resources.ToImmutableDictionary(
                 kvp => ResourceTypeReference.Parse(kvp.Key),

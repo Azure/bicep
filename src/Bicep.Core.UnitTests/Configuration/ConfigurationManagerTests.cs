@@ -97,7 +97,6 @@ namespace Bicep.Core.UnitTests.Configuration
         "experimentalFeaturesEnabled": {
           "extendableParamFiles": false,
           "symbolicNameCodegen": false,
-          "extensibility": false,
           "moduleExtensionConfigs": false,
           "resourceTypedParamsAndOutputs": false,
           "sourceMapping": false,
@@ -180,7 +179,6 @@ namespace Bicep.Core.UnitTests.Configuration
         "experimentalFeaturesEnabled": {
           "extendableParamFiles": false,
           "symbolicNameCodegen": false,
-          "extensibility": false,
           "resourceTypedParamsAndOutputs": false,
           "sourceMapping": false,
           "legacyFormatter": false,
@@ -285,7 +283,6 @@ namespace Bicep.Core.UnitTests.Configuration
         "experimentalFeaturesEnabled": {
           "extendableParamFiles": false,
           "symbolicNameCodegen": false,
-          "extensibility": false,
           "resourceTypedParamsAndOutputs": false,
           "sourceMapping": false,
           "legacyFormatter": false,
@@ -378,7 +375,6 @@ namespace Bicep.Core.UnitTests.Configuration
 
             ExperimentalFeaturesEnabled experimentalFeaturesEnabled = new(
                 SymbolicNameCodegen: false,
-                Extensibility: false,
                 ExtendableParamFiles: true,
                 ResourceTypedParamsAndOutputs: false,
                 SourceMapping: false,
@@ -462,7 +458,6 @@ namespace Bicep.Core.UnitTests.Configuration
             },
             "experimentalFeaturesEnabled": {
                 "symbolicNameCodegen": false,
-                "extensibility": false,
                 "extendableParamFiles": true,
                 "resourceTypedParamsAndOutputs": false,
                 "sourceMapping": false,
@@ -726,7 +721,6 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "cacheRootDirectory": "/home/username/.bicep/cache",
         "experimentalFeaturesEnabled": {
-        "extensibility": true
         },
         "formatting": {
         "indentKind": "Space",
@@ -832,7 +826,6 @@ namespace Bicep.Core.UnitTests.Configuration
         "experimentalFeaturesEnabled": {
           "extendableParamFiles": false,
           "symbolicNameCodegen": false,
-          "extensibility": true,
           "resourceTypedParamsAndOutputs": false,
           "sourceMapping": false,
           "legacyFormatter": false,

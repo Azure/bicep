@@ -11,7 +11,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Providers.MicrosoftGraph;
-using Bicep.Core.TypeSystem.Providers.ThirdParty;
+using Bicep.Core.TypeSystem.Providers.Extensibility;
 using JetBrains.Annotations;
 
 namespace Bicep.Core.TypeSystem.Providers
@@ -49,7 +49,7 @@ namespace Bicep.Core.TypeSystem.Providers
                         return new(new MicrosoftGraphResourceTypeProvider(new MicrosoftGraphResourceTypeLoader(typesLoader)));
                     }
 
-                    return new(new ThirdPartyResourceTypeProvider(new ThirdPartyResourceTypeLoader(typesLoader)));
+                    return new(new ExtensionResourceTypeProvider(new ExtensionResourceTypeLoader(typesLoader)));
                 }
                 catch (Exception ex)
                 {

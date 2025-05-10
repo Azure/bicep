@@ -483,9 +483,6 @@
   <data name="ExperimentalFeatureNames_Asserts" xml:space="preserve">
     <value>Asserts</value>
   </data>
-  <data name="ExperimentalFeatureNames_Extensibility" xml:space="preserve">
-    <value>Extensibility</value>
-  </data>
   <data name="ExperimentalFeatureNames_ResourceTypedParamsAndOutputs" xml:space="preserve">
     <value>Resource-typed parameters and outputs</value>
   </data>

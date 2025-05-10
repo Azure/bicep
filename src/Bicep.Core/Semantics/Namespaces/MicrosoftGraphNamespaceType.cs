@@ -12,7 +12,7 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.MicrosoftGraph;
 using Bicep.Core.TypeSystem.Types;
-using static Bicep.Core.TypeSystem.Providers.ThirdParty.ThirdPartyResourceTypeLoader;
+using static Bicep.Core.TypeSystem.Providers.Extensibility.ExtensionResourceTypeLoader;
 
 namespace Bicep.Core.Semantics.Namespaces
 {

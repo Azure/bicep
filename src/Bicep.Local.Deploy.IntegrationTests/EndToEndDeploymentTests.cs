@@ -28,7 +28,7 @@ public class EndToEndDeploymentTests : TestBase
 {
     private static ExtensionPackage GetMockLocalDeployPackage(BinaryData? tgzData = null)
     {
-        tgzData ??= ThirdPartyTypeHelper.GetHttpExtensionTypesTgz();
+        tgzData ??= ExtensionResourceTypeHelper.GetHttpExtensionTypesTgz();
 
         var architecture = SupportedArchitectures.TryGetCurrent() ?? throw new InvalidOperationException("Failed to get current architecture");
 
@@ -40,7 +40,7 @@ public class EndToEndDeploymentTests : TestBase
     [TestMethod]
     public async Task End_to_end_deployment_basic()
     {
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(ExtensibilityEnabled: true, LocalDeployEnabled: true));
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(LocalDeployEnabled: true));
 
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("bicepconfig.json", """
@@ -49,7 +49,6 @@ public class EndToEndDeploymentTests : TestBase
     "http": "br:example.azurecr.io/extensions/foo:1.2.3"
   },
   "experimentalFeaturesEnabled": {
-    "extensibility": true,
     "localDeploy": true
   }
 }
@@ -114,7 +113,7 @@ param coords = {
                     { "namespace", "someNamespace" }
                 };
 
-        var extensionMock = StrictMock.Of<LocalExtensibilityHost>();
+        var extensionMock = StrictMock.Of<LocalExtensionHost>();
         extensionMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
             .Returns<ResourceSpecification, CancellationToken>((req, _) =>
             {
@@ -129,7 +128,7 @@ param coords = {
   }
 }
 """;
-                return Task.FromResult(new LocalExtensibilityOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), null));
+                return Task.FromResult(new LocalExtensionOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), null));
             });
 
         extensionMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/gridpoints/SEW/131,68/forecast"), It.IsAny<CancellationToken>()))
@@ -155,20 +154,20 @@ param coords = {
   }
 }
 """;
-                return Task.FromResult(new LocalExtensibilityOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), null));
+                return Task.FromResult(new LocalExtensionOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), null));
             });
 
         var serviceProvider = services.Build().Construct<IServiceProvider>();
         var dispatcher = BicepTestConstants.CreateModuleDispatcher(serviceProvider);
-        await using LocalExtensibilityHostManager extensibilityHandler = new(
+        await using LocalExtensionHostManager extensionHostManager = new(
             serviceProvider.GetRequiredService<IFileExplorer>(),
             dispatcher,
             StrictMock.Of<IConfigurationManager>().Object,
             StrictMock.Of<ITokenCredentialFactory>().Object,
             uri => Task.FromResult(extensionMock.Object));
-        await extensibilityHandler.InitializeExtensions(result.Compilation);
+        await extensionHostManager.InitializeExtensions(result.Compilation);
 
-        var localDeployResult = await extensibilityHandler.Deploy(templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
+        var localDeployResult = await extensionHostManager.Deploy(templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
 
         localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Succeeded);
         localDeployResult.Deployment.Properties.Outputs["forecastString"].Value.Should().DeepEqual("Forecast: Name");
@@ -189,7 +188,7 @@ param coords = {
     [TestMethod]
     public async Task Extension_returning_resource_and_error_data_should_fail()
     {
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(ExtensibilityEnabled: true, LocalDeployEnabled: true));
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(LocalDeployEnabled: true));
 
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("bicepconfig.json", """
@@ -198,7 +197,6 @@ param coords = {
     "http": "br:example.azurecr.io/extensions/foo:1.2.3"
   },
   "experimentalFeaturesEnabled": {
-    "extensibility": true,
     "localDeploy": true
   }
 }
@@ -257,7 +255,7 @@ param coords = {
                     { "namespace", "someNamespace" }
                 };
 
-        var extensionMock = StrictMock.Of<LocalExtensibilityHost>();
+        var extensionMock = StrictMock.Of<LocalExtensionHost>();
         extensionMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
             .Returns<ResourceSpecification, CancellationToken>((req, _) =>
             {
@@ -270,20 +268,20 @@ param coords = {
   }
 }
 """;
-                return Task.FromResult(new LocalExtensibilityOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), new ErrorData(new Error() { Code = "Code", Message = "Error message" })));
+                return Task.FromResult(new LocalExtensionOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), new ErrorData(new Error() { Code = "Code", Message = "Error message" })));
             });
 
         var serviceProvider = services.Build().Construct<IServiceProvider>();
         var dispatcher = BicepTestConstants.CreateModuleDispatcher(serviceProvider);
-        await using LocalExtensibilityHostManager extensibilityHandler = new(
+        await using LocalExtensionHostManager extensionHostManager = new(
             serviceProvider.GetRequiredService<IFileExplorer>(),
             dispatcher,
             StrictMock.Of<IConfigurationManager>().Object,
             StrictMock.Of<ITokenCredentialFactory>().Object,
             uri => Task.FromResult(extensionMock.Object));
-        await extensibilityHandler.InitializeExtensions(result.Compilation);
+        await extensionHostManager.InitializeExtensions(result.Compilation);
 
-        var localDeployResult = await extensibilityHandler.Deploy(templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
+        var localDeployResult = await extensionHostManager.Deploy(templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
 
         localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Failed, because: $"Extension returned '{nameof(Resource)}' and '{nameof(ErrorData)}' as part of its response and it is not allowed. Extensions should return one or the other to indicate success or failure respectively.");
         localDeployResult.Deployment.Properties.Error.Should().NotBeNull();
@@ -297,7 +295,7 @@ param coords = {
     [TestMethod]
     public async Task Extension_not_returning_resource_or_error_data_should_fail()
     {
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(ExtensibilityEnabled: true, LocalDeployEnabled: true));
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(LocalDeployEnabled: true));
 
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("bicepconfig.json", """
@@ -306,7 +304,6 @@ param coords = {
     "http": "br:example.azurecr.io/extensions/foo:1.2.3"
   },
   "experimentalFeaturesEnabled": {
-    "extensibility": true,
     "localDeploy": true
   }
 }
@@ -365,7 +362,7 @@ param coords = {
                     { "namespace", "someNamespace" }
                 };
 
-        var extensionMock = StrictMock.Of<LocalExtensibilityHost>();
+        var extensionMock = StrictMock.Of<LocalExtensionHost>();
         extensionMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
             .Returns<ResourceSpecification, CancellationToken>((req, _) =>
             {
@@ -378,20 +375,20 @@ param coords = {
   }
 }
 """;
-                return Task.FromResult(new LocalExtensibilityOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), new ErrorData(new Error() { Code = "Code", Message = "Error message" })));
+                return Task.FromResult(new LocalExtensionOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), new ErrorData(new Error() { Code = "Code", Message = "Error message" })));
             });
 
         var serviceProvider = services.Build().Construct<IServiceProvider>();
         var dispatcher = BicepTestConstants.CreateModuleDispatcher(serviceProvider);
-        await using LocalExtensibilityHostManager extensibilityHandler = new(
+        await using LocalExtensionHostManager extensionHostManager = new(
             serviceProvider.GetRequiredService<IFileExplorer>(),
             dispatcher,
             StrictMock.Of<IConfigurationManager>().Object,
             StrictMock.Of<ITokenCredentialFactory>().Object,
             uri => Task.FromResult(extensionMock.Object));
-        await extensibilityHandler.InitializeExtensions(result.Compilation);
+        await extensionHostManager.InitializeExtensions(result.Compilation);
 
-        var localDeployResult = await extensibilityHandler.Deploy(templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
+        var localDeployResult = await extensionHostManager.Deploy(templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
 
         localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Failed, because: $"Extension did not return '{nameof(Resource)}' or '{nameof(ErrorData)}' as part of its response. Extensions should return one or the other to indicate success or failure respectively.");
         localDeployResult.Deployment.Properties.Error.Should().NotBeNull();
@@ -405,7 +402,7 @@ param coords = {
     [TestMethod]
     public async Task Extension_returning_error_data_should_fail()
     {
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(ExtensibilityEnabled: true, LocalDeployEnabled: true));
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(LocalDeployEnabled: true));
 
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("bicepconfig.json", """
@@ -414,7 +411,6 @@ param coords = {
     "http": "br:example.azurecr.io/extensions/foo:1.2.3"
   },
   "experimentalFeaturesEnabled": {
-    "extensibility": true,
     "localDeploy": true
   }
 }
@@ -467,24 +463,24 @@ param coords = {
         var parametersFile = result.Compilation.Emitter.Parameters().Parameters!;
         var templateFile = result.Compilation.Emitter.Parameters().Template!.Template!;
 
-        var extensionMock = StrictMock.Of<LocalExtensibilityHost>();
+        var extensionMock = StrictMock.Of<LocalExtensionHost>();
         extensionMock.Setup(x => x.CreateOrUpdate(It.Is<ResourceSpecification>(req => req.Properties["uri"]!.ToString() == "https://api.weather.gov/points/47.6363726,-122.1357068"), It.IsAny<CancellationToken>()))
             .Returns<ResourceSpecification, CancellationToken>((_, _) =>
             {
-                return Task.FromResult(new LocalExtensibilityOperationResponse(null, new ErrorData(new Error() { Code = "Code", Message = "Error message" })));
+                return Task.FromResult(new LocalExtensionOperationResponse(null, new ErrorData(new Error() { Code = "Code", Message = "Error message" })));
             });
 
         var serviceProvider = services.Build().Construct<IServiceProvider>();
         var dispatcher = BicepTestConstants.CreateModuleDispatcher(serviceProvider);
-        await using LocalExtensibilityHostManager extensibilityHandler = new(
+        await using LocalExtensionHostManager extensionHostManager = new(
             serviceProvider.GetRequiredService<IFileExplorer>(),
             dispatcher,
             StrictMock.Of<IConfigurationManager>().Object,
             StrictMock.Of<ITokenCredentialFactory>().Object,
             uri => Task.FromResult(extensionMock.Object));
-        await extensibilityHandler.InitializeExtensions(result.Compilation);
+        await extensionHostManager.InitializeExtensions(result.Compilation);
 
-        var localDeployResult = await extensibilityHandler.Deploy(templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
+        var localDeployResult = await extensionHostManager.Deploy(templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
 
         localDeployResult.Deployment.Properties.ProvisioningState.Should().Be(ProvisioningState.Failed, because: "Extension returned a failure when attempting to create a resource.");
         localDeployResult.Deployment.Properties.Error.Should().NotBeNull();
@@ -498,8 +494,8 @@ param coords = {
     [TestMethod]
     public async Task Extension_config_is_passed_via_extensibility_request()
     {
-        var package = GetMockLocalDeployPackage(ThirdPartyTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration());
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(package, new(ExtensibilityEnabled: true, LocalDeployEnabled: true));
+        var package = GetMockLocalDeployPackage(ExtensionResourceTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration());
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(package, new(LocalDeployEnabled: true));
 
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("bicepconfig.json", """
@@ -543,7 +539,7 @@ using 'main.bicep'
             ["identifier"] = "foo",
         };
 
-        var extensionMock = StrictMock.Of<LocalExtensibilityHost>();
+        var extensionMock = StrictMock.Of<LocalExtensionHost>();
         extensionMock.Setup(x => x.CreateOrUpdate(It.IsAny<ResourceSpecification>(), It.IsAny<CancellationToken>()))
             .Returns<ResourceSpecification, CancellationToken>((req, _) =>
             {
@@ -555,12 +551,12 @@ using 'main.bicep'
                     }
                     """));
 
-                return Task.FromResult(new LocalExtensibilityOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), null));
+                return Task.FromResult(new LocalExtensionOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), null));
             });
 
         var serviceProvider = services.Build().Construct<IServiceProvider>();
         var dispatcher = BicepTestConstants.CreateModuleDispatcher(serviceProvider);
-        await using LocalExtensibilityHostManager extensibilityHandler = new(
+        await using LocalExtensionHostManager extensibilityHandler = new(
             serviceProvider.GetRequiredService<IFileExplorer>(),
             dispatcher,
             StrictMock.Of<IConfigurationManager>().Object,
@@ -577,8 +573,8 @@ using 'main.bicep'
     public async Task Extension_config_is_passed_via_extensibility_request_v2()
     {
         // TODO(kylealbert): Update this test when required properties are handled properly between params file and bicep file.
-        var package = GetMockLocalDeployPackage(ThirdPartyTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration(allConfigPropertiesOptional: true));
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(package, new(ExtensibilityEnabled: true, LocalDeployEnabled: true, ModuleExtensionConfigsEnabled: true));
+        var package = GetMockLocalDeployPackage(ExtensionResourceTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration(allConfigPropertiesOptional: true));
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(package, new(LocalDeployEnabled: true, ModuleExtensionConfigsEnabled: true));
 
         var result = await CompilationHelper.RestoreAndCompileParams(
             services,
@@ -630,7 +626,7 @@ using 'main.bicep'
             ["identifier"] = "foo",
         };
 
-        var extensionMock = StrictMock.Of<LocalExtensibilityHost>();
+        var extensionMock = StrictMock.Of<LocalExtensionHost>();
         extensionMock.Setup(x => x.CreateOrUpdate(It.IsAny<ResourceSpecification>(), It.IsAny<CancellationToken>()))
             .Returns<ResourceSpecification, CancellationToken>((req, _) =>
             {
@@ -647,12 +643,12 @@ using 'main.bicep'
                             }
                             """));
 
-                return Task.FromResult(new LocalExtensibilityOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), null));
+                return Task.FromResult(new LocalExtensionOperationResponse(new Resource(req.Type, req.ApiVersion, identifiers, req.Properties, "Succeeded"), null));
             });
 
         var serviceProvider = services.Build().Construct<IServiceProvider>();
         var dispatcher = BicepTestConstants.CreateModuleDispatcher(serviceProvider);
-        await using LocalExtensibilityHostManager extensibilityHandler = new(
+        await using LocalExtensionHostManager extensibilityHandler = new(
             serviceProvider.GetRequiredService<IFileExplorer>(),
             dispatcher,
             StrictMock.Of<IConfigurationManager>().Object,

@@ -38,8 +38,7 @@ public class NamespaceProvider : INamespaceProvider
 
         if (implicitExtensions.TryGetValue(SystemNamespaceType.BuiltInName, out var sysProvider))
         {
-            // TODO proper diag here
-            var nsType = ErrorType.Create(DiagnosticBuilder.ForDocumentStart().ExtensionsAreDisabled());
+            var nsType = ErrorType.Create(DiagnosticBuilder.ForDocumentStart().InvalidReservedImplicitExtensionNamespace(sysProvider.Name));
             yield return new(sysProvider.Name, nsType, null);
         }
 
@@ -92,11 +91,6 @@ public class NamespaceProvider : INamespaceProvider
         ResourceScope targetScope,
         ExtensionDeclarationSyntax syntax)
     {
-        if (!sourceFile.Features.ExtensibilityEnabled)
-        {
-            return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ExtensionsAreDisabled());
-        }
-
         if (syntax.SpecificationString.IsSkipped)
         {
             // this will have raised a parsing diagnostic
@@ -196,6 +190,6 @@ public class NamespaceProvider : INamespaceProvider
             return new(MicrosoftGraphNamespaceType.Create(aliasName, typeProvider, artifact.Reference));
         }
 
-        return new(ThirdPartyNamespaceType.Create(aliasName, typeProvider, artifact.Reference, sourceFile.Features));
+        return new(ExtensionNamespaceType.Create(aliasName, typeProvider, artifact.Reference, sourceFile.Features));
     }
 }

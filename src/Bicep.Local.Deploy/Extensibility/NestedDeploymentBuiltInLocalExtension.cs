@@ -23,7 +23,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Local.Deploy.Extensibility;
 
-public class NestedDeploymentBuiltInLocalExtension : LocalExtensibilityHost
+public class NestedDeploymentBuiltInLocalExtension : LocalExtensionHost
 {
     private readonly LocalDeploymentEngine localDeploymentEngine;
     private readonly IConfigurationManager configurationManager;
@@ -75,11 +75,11 @@ public class NestedDeploymentBuiltInLocalExtension : LocalExtensibilityHost
         }
     }
 
-    private static LocalExtensibilityOperationResponse GetResponse(string type, string? apiVersion, DeploymentIdentifiers identifiers, LocalDeploymentResult result)
+    private static LocalExtensionOperationResponse GetResponse(string type, string? apiVersion, DeploymentIdentifiers identifiers, LocalDeploymentResult result)
     {
         if (result.Deployment.Properties.ProvisioningState == ProvisioningState.Failed)
         {
-            return new LocalExtensibilityOperationResponse(
+            return new LocalExtensionOperationResponse(
                 Resource: null,
                 ErrorData: new ErrorData(
                     error: new Error(
@@ -89,7 +89,7 @@ public class NestedDeploymentBuiltInLocalExtension : LocalExtensibilityHost
                     result.Deployment.Properties.Error.Details.SelectArray(x => new ErrorDetail(x.Code, x.Message, JsonPointer.Empty)))));
         }
 
-        return new LocalExtensibilityOperationResponse(
+        return new LocalExtensionOperationResponse(
             Resource: new Resource(
                 identifiers: FromIdentifiers(identifiers),
                 type: type,
@@ -99,7 +99,7 @@ public class NestedDeploymentBuiltInLocalExtension : LocalExtensibilityHost
             ErrorData: null);
     }
 
-    public override async Task<LocalExtensibilityOperationResponse> CreateOrUpdate(ResourceSpecification request, CancellationToken cancellationToken)
+    public override async Task<LocalExtensionOperationResponse> CreateOrUpdate(ResourceSpecification request, CancellationToken cancellationToken)
     {
         EnsureDeploymentType(request.Type);
 
@@ -128,7 +128,7 @@ public class NestedDeploymentBuiltInLocalExtension : LocalExtensibilityHost
             }
             catch (Exception ex)
             {
-                return new LocalExtensibilityOperationResponse(
+                return new LocalExtensionOperationResponse(
                     Resource: null,
                     ErrorData: new(new("InvalidDeployment", $"Failed to deploy to Azure. {ex}")));
             }
@@ -142,7 +142,7 @@ public class NestedDeploymentBuiltInLocalExtension : LocalExtensibilityHost
         }
     }
 
-    public override async Task<LocalExtensibilityOperationResponse> Get(ResourceReference request, CancellationToken cancellationToken)
+    public override async Task<LocalExtensionOperationResponse> Get(ResourceReference request, CancellationToken cancellationToken)
     {
         EnsureDeploymentType(request.Type);
 
@@ -162,7 +162,7 @@ public class NestedDeploymentBuiltInLocalExtension : LocalExtensibilityHost
             }
             catch (Exception ex)
             {
-                return new LocalExtensibilityOperationResponse(
+                return new LocalExtensionOperationResponse(
                     Resource: null,
                     ErrorData: new(new("InvalidDeployment", $"Failed to deploy to Azure. {ex}")));
             }
@@ -175,14 +175,14 @@ public class NestedDeploymentBuiltInLocalExtension : LocalExtensibilityHost
         }
     }
 
-    public override async Task<LocalExtensibilityOperationResponse> Preview(ResourceSpecification request, CancellationToken cancellationToken)
+    public override async Task<LocalExtensionOperationResponse> Preview(ResourceSpecification request, CancellationToken cancellationToken)
     {
         await Task.Yield();
         EnsureDeploymentType(request.Type);
 
         var identifiers = GetDeploymentIdentifiers(request.Properties);
 
-        return new LocalExtensibilityOperationResponse(
+        return new LocalExtensionOperationResponse(
             Resource: new Resource(
                 identifiers: FromIdentifiers(identifiers),
                 type: request.Type,
@@ -192,6 +192,6 @@ public class NestedDeploymentBuiltInLocalExtension : LocalExtensibilityHost
             ErrorData: null);
     }
 
-    public override Task<LocalExtensibilityOperationResponse> Delete(ResourceReference request, CancellationToken cancellationToken)
+    public override Task<LocalExtensionOperationResponse> Delete(ResourceReference request, CancellationToken cancellationToken)
         => throw new NotImplementedException();
 }

@@ -6,7 +6,7 @@
     },
     "resourceFunctions": {},
     "settings": {
-      "name": "thirdpartyextension",
+      "name": "http",
       "version": "1.2.3",
       "isSingleton": false
     }

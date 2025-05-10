@@ -28,12 +28,12 @@ namespace Bicep.Local.Deploy;
 
 public class LocalDeploymentEngineHost : DeploymentEngineHostBase
 {
-    private readonly LocalExtensibilityHostManager extensibilityHandler;
+    private readonly LocalExtensionHostManager extensionHostManager;
 
     public readonly record struct ExtensionInfo(string ExtensionName, string ExtensionVersion, string Method);
 
     public LocalDeploymentEngineHost(
-        LocalExtensibilityHostManager extensibilityHandler,
+        LocalExtensionHostManager extensionHostManager,
         IDeploymentsRequestContext requestContext,
         IDeploymentEventSource deploymentEventSource,
         IKeyVaultDataProvider keyVaultDataProvider,
@@ -45,7 +45,7 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         IDeploymentMetricsReporter metricsReporter)
         : base(settings, contentHandler, deploymentEventSource, metricsReporter, keyVaultDataProvider, requestContext, dataProviderHolder, exceptionHandler, enablementConfigProvider)
     {
-        this.extensibilityHandler = extensibilityHandler;
+        this.extensionHostManager = extensionHostManager;
     }
 
     public override Task<HttpResponseMessage> DownloadContent(Uri requestUri, CancellationToken cancellationToken)
@@ -106,7 +106,7 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
 
         var extensionInfo = new ExtensionInfo(extensionName, extensionVersion, method);
 
-        return await extensibilityHandler.CallExtensibilityHost(extensionInfo, content, cancellationToken);
+        return await extensionHostManager.CallExtensibilityHost(extensionInfo, content, cancellationToken);
     }
 
     protected override Task<JToken> GetEnvironmentKey()

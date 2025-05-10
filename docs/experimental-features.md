@@ -21,10 +21,6 @@ Allows you to author configuration documents for [Microsoft's Desired State Conf
 
 Enables the ability to extend bicepparam files from other bicepparam files. For more information, see [Extendable Bicep Params Files](./experimental/extendable-param-files.md).
 
-### `extensibility`
-
-Allows Bicep to use an extensibility model to deploy non-ARM resources. Currently, we support Kubernetes extension ([Bicep Kubernetes extension](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/bicep-kubernetes-extension)) and Microsoft Graph extension ([Bicep templates for Microsoft Graph](https://aka.ms/graphbicep)).
-
 ### `externalInputFunction`
 Enables the `externalInput` function to allow reading input that will be resolved later by external tooling. This is useful for tools that require the ability to inject values at deployment time. Note: This feature will not work until the backend service support has been deployed.
 

@@ -262,6 +262,7 @@ namespace Bicep.Core.Parsing
             // extensibility users without warning, the `import` keyword is shared between provider declarations and
             // compile-time imports. If the token following the keyword is a string, assume the statement is a provider
             // declaration.
+            // TODO(extensibility): Consider removing this
             return reader.Peek().Type switch
             {
                 TokenType.StringLeftPiece or

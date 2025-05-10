@@ -13,7 +13,7 @@ using Bicep.Core.UnitTests;
 
 namespace Bicep.Core.IntegrationTests.Extensibility;
 
-public class TestExtensibilityNamespaceProvider : NamespaceProvider
+public class TestExtensionsNamespaceProvider : NamespaceProvider
 {
     public delegate NamespaceType? NamespaceTypeCreator(string extensionName, string aliasName);
 
@@ -26,9 +26,9 @@ public class TestExtensibilityNamespaceProvider : NamespaceProvider
         });
 
     public static INamespaceProvider Create(NamespaceTypeCreator namespaceCreatorFunc)
-        => new TestExtensibilityNamespaceProvider(BicepTestConstants.ResourceTypeProviderFactory, namespaceCreatorFunc);
+        => new TestExtensionsNamespaceProvider(BicepTestConstants.ResourceTypeProviderFactory, namespaceCreatorFunc);
 
-    public TestExtensibilityNamespaceProvider(
+    public TestExtensionsNamespaceProvider(
         IResourceTypeProviderFactory resourceTypeProviderFactory,
         NamespaceTypeCreator namespaceCreatorFunc)
         : base(resourceTypeProviderFactory)

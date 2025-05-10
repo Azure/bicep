@@ -28,25 +28,25 @@ using IAsyncDisposable = System.IAsyncDisposable;
 
 namespace Bicep.Local.Deploy.Extensibility;
 
-public class LocalExtensibilityHostManager : IAsyncDisposable
+public class LocalExtensionHostManager : IAsyncDisposable
 {
     private record ExtensionKey(
         string Name,
         string Version);
 
-    private Dictionary<ExtensionKey, LocalExtensibilityHost> RegisteredExtensions = new();
+    private Dictionary<ExtensionKey, LocalExtensionHost> RegisteredExtensions = new();
     private readonly IModuleDispatcher moduleDispatcher;
     private readonly IFileExplorer fileExplorer;
-    private readonly Func<Uri, Task<LocalExtensibilityHost>> extensionFactory;
+    private readonly Func<Uri, Task<LocalExtensionHost>> extensionFactory;
     private readonly WorkerJobDispatcherClient jobDispatcher;
     private readonly LocalDeploymentEngine localDeploymentEngine;
 
-    public LocalExtensibilityHostManager(
+    public LocalExtensionHostManager(
         IFileExplorer fileExplorer,
         IModuleDispatcher moduleDispatcher,
         IConfigurationManager configurationManager,
         ITokenCredentialFactory credentialFactory,
-        Func<Uri, Task<LocalExtensibilityHost>> extensionFactory)
+        Func<Uri, Task<LocalExtensionHost>> extensionFactory)
     {
         var services = new ServiceCollection()
             .RegisterLocalDeployServices(this)
@@ -79,7 +79,7 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
 
     private async Task<HttpResponseMessage> CallExtension(
         string method,
-        LocalExtensibilityHost extensibilityHost,
+        LocalExtensionHost extensionHost,
         HttpContent content,
         CancellationToken cancellationToken)
     {
@@ -88,28 +88,28 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
             case "createOrUpdate":
                 {
                     var resourceSpecification = await GetResourceSpecificationAsync(await content.ReadAsStreamAsync(cancellationToken), cancellationToken);
-                    var extensionResponse = await extensibilityHost.CreateOrUpdate(resourceSpecification, cancellationToken);
+                    var extensionResponse = await extensionHost.CreateOrUpdate(resourceSpecification, cancellationToken);
 
                     return await GetHttpResponseMessageAsync(extensionResponse, cancellationToken);
                 }
             case "delete":
                 {
                     var resourceReference = await GetResourceReferenceAsync(await content.ReadAsStreamAsync(cancellationToken), cancellationToken);
-                    var extensionResponse = await extensibilityHost.Delete(resourceReference, cancellationToken);
+                    var extensionResponse = await extensionHost.Delete(resourceReference, cancellationToken);
 
                     return await GetHttpResponseMessageAsync(extensionResponse, cancellationToken);
                 }
             case "get":
                 {
                     var resourceReference = await GetResourceReferenceAsync(await content.ReadAsStreamAsync(cancellationToken), cancellationToken);
-                    var extensionResponse = await extensibilityHost.Get(resourceReference, cancellationToken);
+                    var extensionResponse = await extensionHost.Get(resourceReference, cancellationToken);
 
                     return await GetHttpResponseMessageAsync(extensionResponse, cancellationToken);
                 }
             case "preview":
                 {
                     var resourceSpecification = await GetResourceSpecificationAsync(await content.ReadAsStreamAsync(cancellationToken), cancellationToken);
-                    var extensionResponse = await extensibilityHost.Preview(resourceSpecification, cancellationToken);
+                    var extensionResponse = await extensionHost.Preview(resourceSpecification, cancellationToken);
 
                     return await GetHttpResponseMessageAsync(extensionResponse, cancellationToken);
                 }
@@ -135,16 +135,16 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
     private async Task<TEntity> DeserializeAsync<TEntity>(Stream stream, JsonTypeInfo<TEntity> typeInfo, string errorMessage, CancellationToken cancellationToken)
         => await JsonSerializer.DeserializeAsync(stream, typeInfo, cancellationToken) ?? throw new ArgumentNullException(errorMessage);
 
-    private async Task<HttpResponseMessage> GetHttpResponseMessageAsync(LocalExtensibilityOperationResponse extensionResponse, CancellationToken cancellationToken)
+    private async Task<HttpResponseMessage> GetHttpResponseMessageAsync(LocalExtensionOperationResponse extensionResponse, CancellationToken cancellationToken)
     {
         if (extensionResponse.Resource is { } && extensionResponse.ErrorData is { })
         {
-            throw new ArgumentException($"Setting '{nameof(LocalExtensibilityOperationResponse.ErrorData)}' and '{nameof(LocalExtensibilityOperationResponse.Resource)}' is not valid. Please make sure to set one of these properties.");
+            throw new ArgumentException($"Setting '{nameof(LocalExtensionOperationResponse.ErrorData)}' and '{nameof(LocalExtensionOperationResponse.Resource)}' is not valid. Please make sure to set one of these properties.");
         }
 
         if (extensionResponse.Resource is not { } && extensionResponse.ErrorData is not { })
         {
-            throw new ArgumentException($"'{nameof(LocalExtensibilityOperationResponse.ErrorData)}' and '{nameof(LocalExtensibilityOperationResponse.Resource)}' cannot be both empty. Please make sure to set one of these properties.");
+            throw new ArgumentException($"'{nameof(LocalExtensionOperationResponse.ErrorData)}' and '{nameof(LocalExtensionOperationResponse.Resource)}' cannot be both empty. Please make sure to set one of these properties.");
         }
 
         var memoryStream = new MemoryStream();
@@ -173,7 +173,7 @@ public class LocalExtensibilityHostManager : IAsyncDisposable
             };
         }
 
-        throw new UnreachableException($"Should not reach here, either '{nameof(LocalExtensibilityOperationResponse.ErrorData)}' or '{nameof(LocalExtensibilityOperationResponse.Resource)}' should have been set.");
+        throw new UnreachableException($"Should not reach here, either '{nameof(LocalExtensionOperationResponse.ErrorData)}' or '{nameof(LocalExtensionOperationResponse.Resource)}' should have been set.");
     }
 
     private IEnumerable<(NamespaceType namespaceType, Uri binaryUri)> GetBinaryExtensions(Compilation compilation)

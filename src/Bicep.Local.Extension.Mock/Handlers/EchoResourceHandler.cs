@@ -19,16 +19,16 @@ public class EchoResourceHandler : IResourceHandler
 {
     public string ResourceType => "echo";
 
-    public Task<LocalExtensibilityOperationResponse> Delete(ResourceReference request, CancellationToken cancellationToken)
+    public Task<LocalExtensionOperationResponse> Delete(ResourceReference request, CancellationToken cancellationToken)
         => throw new NotImplementedException();
 
-    public Task<LocalExtensibilityOperationResponse> Get(ResourceReference request, CancellationToken cancellationToken)
+    public Task<LocalExtensionOperationResponse> Get(ResourceReference request, CancellationToken cancellationToken)
         => throw new NotImplementedException();
 
-    public Task<LocalExtensibilityOperationResponse> Preview(ResourceSpecification request, CancellationToken cancellationToken)
+    public Task<LocalExtensionOperationResponse> Preview(ResourceSpecification request, CancellationToken cancellationToken)
         => throw new NotImplementedException();
 
-    public async Task<LocalExtensibilityOperationResponse> CreateOrUpdate(ResourceSpecification request, CancellationToken cancellationToken)
+    public async Task<LocalExtensionOperationResponse> CreateOrUpdate(ResourceSpecification request, CancellationToken cancellationToken)
     {
         await Task.Yield();
         var requestBody = JsonSerializer.Deserialize(request.Properties, SerializationContext.Default.EchoRequest)
@@ -41,7 +41,7 @@ public class EchoResourceHandler : IResourceHandler
                 };
 
         var responseBody = new EchoResponse(requestBody.Payload);
-        return new LocalExtensibilityOperationResponse(
+        return new LocalExtensionOperationResponse(
             Resource: new Resource(request.Type, request.ApiVersion, "Succeeded", identifiers, null, JsonNode.Parse(JsonSerializer.Serialize(responseBody, SerializationContext.Default.EchoResponse))!.AsObject()),
             ErrorData: null);
     }

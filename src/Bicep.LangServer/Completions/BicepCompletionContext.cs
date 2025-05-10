@@ -182,6 +182,7 @@ namespace Bicep.LanguageServer.Completions
                 return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.DisableNextLineDiagnosticsDirectiveStart, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
             }
 
+            var pattern = SyntaxPattern.Create(bicepFile.ProgramSyntax, offset);
             var topLevelDeclarationInfo = SyntaxMatcher.FindLastNodeOfType<ITopLevelDeclarationSyntax, SyntaxBase>(matchingNodes);
             var enclosingDecorable = SyntaxMatcher.FindLastNodeOfType<DecorableSyntax, DecorableSyntax>(matchingNodes);
             var objectInfo = SyntaxMatcher.FindLastNodeOfType<ObjectSyntax, ObjectSyntax>(matchingNodes);
@@ -237,17 +238,11 @@ namespace Bicep.LanguageServer.Completions
                 ConvertFlag(ExpectingContextualAsKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingExtensionAsKeyword) |
                 ConvertFlag(ExpectingContextualFromKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingImportFromKeyword) |
                 ConvertFlag(IsAfterSpreadTokenContext(matchingNodes, offset), BicepCompletionContextKind.Expression) |
-                ConvertFlag(IsVariableNameFollowerContext(matchingNodes, offset), BicepCompletionContextKind.VariableNameFollower);
-
-            if (bicepFile.Features.ExtensibilityEnabled)
-            {
-                var pattern = SyntaxPattern.Create(bicepFile.ProgramSyntax, offset);
-
-                kind |= ConvertFlag(ExpectingExtensionSpecification.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionSpecification) |
-                    ConvertFlag(ExpectingExtensionWithOrAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionWithOrAsKeyword) |
-                    ConvertFlag(ExpectingExtensionConfig.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionConfig) |
-                    ConvertFlag(ExpectingExtensionAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionAsKeyword);
-            }
+                ConvertFlag(IsVariableNameFollowerContext(matchingNodes, offset), BicepCompletionContextKind.VariableNameFollower) |
+                ConvertFlag(ExpectingExtensionSpecification.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionSpecification) |
+                ConvertFlag(ExpectingExtensionWithOrAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionWithOrAsKeyword) |
+                ConvertFlag(ExpectingExtensionConfig.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionConfig) |
+                ConvertFlag(ExpectingExtensionAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionAsKeyword);
 
             if (bicepFile.Features.AssertsEnabled)
             {

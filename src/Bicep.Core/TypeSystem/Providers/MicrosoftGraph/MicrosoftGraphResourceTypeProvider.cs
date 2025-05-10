@@ -3,7 +3,7 @@
 using System.Collections.Immutable;
 using System.Reflection;
 using Bicep.Core.Resources;
-using Bicep.Core.TypeSystem.Providers.ThirdParty;
+using Bicep.Core.TypeSystem.Providers.Extensibility;
 using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
@@ -181,7 +181,7 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableResourceTypes;
 
-        public ThirdPartyResourceTypeLoader.NamespaceConfiguration? GetNamespaceConfiguration()
+        public ExtensionResourceTypeLoader.NamespaceConfiguration? GetNamespaceConfiguration()
         {
             return resourceTypeLoader.LoadNamespaceConfiguration();
         }

@@ -257,7 +257,6 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
             var clientFactory = RegistryHelper.CreateMockRegistryClient([.. repositoryNames.Select(name => new RepoDescriptor(registry, $"{repositoryPath}/{name}", ["v1"]))]);
 
             var services = new ServiceBuilder()
-                .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true))
                 .WithContainerRegistryClientFactory(clientFactory);
 
             var fileExplorer = new FileSystemFileExplorer(fileSystem);
@@ -295,7 +294,6 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
                 repositoryNames.Select(name => new RepoDescriptor(registry, $"{repositoryPath}/{name}", ["v1", "v2", "v3"]))]);
 
             var services = new ServiceBuilder()
-                .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true))
                 .WithContainerRegistryClientFactory(clientFactory);
 
             var fileExplorer = new FileSystemFileExplorer(fileSystem);

@@ -43,25 +43,25 @@ public record ErrorDetail(
     string Target,
     string Message);
 
-public record LocalExtensibilityOperationResponse(
+public record LocalExtensionOperationResponse(
     Resource? Resource,
     ErrorData? ErrorData);
 
 public interface IGenericResourceHandler
 {
-    Task<LocalExtensibilityOperationResponse> CreateOrUpdate(
+    Task<LocalExtensionOperationResponse> CreateOrUpdate(
         ResourceSpecification request,
         CancellationToken cancellationToken);
 
-    Task<LocalExtensibilityOperationResponse> Preview(
+    Task<LocalExtensionOperationResponse> Preview(
         ResourceSpecification request,
         CancellationToken cancellationToken);
 
-    Task<LocalExtensibilityOperationResponse> Get(
+    Task<LocalExtensionOperationResponse> Get(
         ResourceReference request,
         CancellationToken cancellationToken);
 
-    Task<LocalExtensibilityOperationResponse> Delete(
+    Task<LocalExtensionOperationResponse> Delete(
         ResourceReference request,
         CancellationToken cancellationToken);
 }

@@ -5776,7 +5776,7 @@ param foo2 string[]
     {
         var result = CompilationHelper.Compile(
             Services
-                .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true))
+                .WithFeatureOverrides(new(TestContext))
                 .WithConfigurationPatch(x => x.WithAnalyzersConfiguration(x.Analyzers.SetValue("core.rules.use-recent-api-versions.level", "error"))),
             ("main.bicep", """
                 extension kubernetes with {
@@ -6380,7 +6380,7 @@ param p invalidRecursiveObjectType = {}
         var registry = "example.azurecr.io";
         var repository = "microsoftgraph/v1";
 
-        var services = ExtensionTestHelper.GetServiceBuilder(fileSystem, registry, repository, new(ExtensibilityEnabled: true));
+        var services = ExtensionTestHelper.GetServiceBuilder(fileSystem, registry, repository, new());
 
         await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), "/index.json", $"br:{registry}/{repository}:1.2.3");
 

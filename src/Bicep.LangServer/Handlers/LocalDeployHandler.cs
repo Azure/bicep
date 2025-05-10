@@ -90,7 +90,7 @@ public class LocalDeployHandler : IJsonRpcRequestHandler<LocalDeployRequest, Loc
                 throw new InvalidOperationException("Bicep file had errors.");
             }
 
-            await using LocalExtensibilityHostManager extensibilityHandler = new(fileExplorer, moduleDispatcher, configurationManager, credentialFactory, GrpcBuiltInLocalExtension.Start);
+            await using LocalExtensionHostManager extensibilityHandler = new(fileExplorer, moduleDispatcher, configurationManager, credentialFactory, GrpcBuiltInLocalExtension.Start);
             await extensibilityHandler.InitializeExtensions(context.Compilation);
             var result = await extensibilityHandler.Deploy(templateString, parametersString, cancellationToken);
 

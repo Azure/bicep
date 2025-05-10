@@ -25,8 +25,8 @@ namespace Bicep.Core.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private ServiceBuilder ServicesWithExtensibility => new ServiceBuilder()
-            .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true, ResourceTypedParamsAndOutputsEnabled: true))
+        private ServiceBuilder ServicesWithExtensions => new ServiceBuilder()
+            .WithFeatureOverrides(new(TestContext, ResourceTypedParamsAndOutputsEnabled: true))
             .WithConfigurationPatch(c => c.WithExtensions("""
             {
               "az": "builtin:",
@@ -35,7 +35,7 @@ namespace Bicep.Core.IntegrationTests
               "bar": "builtin:"
             }
             """))
-            .WithNamespaceProvider(TestExtensibilityNamespaceProvider.CreateWithDefaults());
+            .WithNamespaceProvider(TestExtensionsNamespaceProvider.CreateWithDefaults());
 
         [TestMethod]
         public void Parameter_can_have_resource_type()
@@ -175,9 +175,9 @@ output id string = p.id
         }
 
         [TestMethod]
-        public void Parameter_cannot_use_extensibility_resource_type()
+        public void Parameter_can_only_use_az_resource_type()
         {
-            var result = CompilationHelper.Compile(ServicesWithExtensibility, """
+            var result = CompilationHelper.Compile(ServicesWithExtensions, """
             extension bar with {
             connectionString: 'asdf'
             } as stg
@@ -187,7 +187,7 @@ output id string = p.id
             """);
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
-                ("BCP227", DiagnosticLevel.Error, "The type \"container\" cannot be used as a parameter or output type. Extensibility types are currently not supported as parameters or outputs."),
+                ("BCP227", DiagnosticLevel.Error, "The type \"container\" cannot be used as a parameter or output type. Resource types from extensions are currently not supported as parameters or outputs."),
                 ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"container\" is not valid."),
             });
         }
