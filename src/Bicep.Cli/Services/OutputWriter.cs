@@ -2,11 +2,16 @@
 // Licensed under the MIT License.
 
 using System.IO.Abstractions;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Azure.Deployments.Engine.Definitions;
 using Bicep.Cli.Models;
 using Bicep.Core.Emit;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Semantics;
 using Bicep.Decompiler;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 
 namespace Bicep.Cli.Services
@@ -92,7 +97,7 @@ namespace Bicep.Cli.Services
             io.Output.Write(contents);
         }
 
-        private void WriteToFile(Uri fileUri, string contents)
+        public void WriteToFile(Uri fileUri, string contents)
         {
             try
             {

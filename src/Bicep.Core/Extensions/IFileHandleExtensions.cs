@@ -92,6 +92,8 @@ namespace Bicep.Core.Extensions
             using var fileStream = fileHandle.OpenWrite();
             using var writer = new StreamWriter(fileStream);
             writer.Write(text);
+            // without this, we may leave old data behind if the new text is shorter than the old one
+            fileStream.SetLength(text.Length);
         }
 
         private static ResultWithDiagnosticBuilder<T> HandleFileReadError<T>(Func<T> readOperation) => HandleFileReadError(() => new ResultWithDiagnosticBuilder<T>(readOperation()));
