@@ -88,4 +88,32 @@ resource ubuntuVM 'Microsoft.Compute/virtualMachines@2020-12-01' = {
     [TestMethod]
     public void Linter_validation_should_not_warn_for_secure_password_field(string text)
         => CompileAndTest(text, 0);
+
+    [DataRow("""
+param sqlLogicalServer object
+
+resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
+  name: sqlLogicalServer.name
+  location: resourceGroup().location
+  properties: {
+    administratorLogin: null
+    administratorLoginPassword: null
+  }
+}
+""")]
+    [DataRow("""
+param sqlLogicalServer object
+
+resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
+  name: sqlLogicalServer.name
+  location: resourceGroup().location
+  properties: {
+    administratorLogin: null
+    administratorLoginPassword: ''
+  }
+}
+""")]
+    [TestMethod]
+    public void Linter_validation_should_not_warn_for_null_or_empty_string_assignment(string text)
+        => CompileAndTest(text, 0);
 }

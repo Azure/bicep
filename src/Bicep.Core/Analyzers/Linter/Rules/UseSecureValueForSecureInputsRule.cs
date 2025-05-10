@@ -63,6 +63,8 @@ public sealed class UseSecureValueForSecureInputsRule : LinterRuleBase
         {
             if (model.GetTypeInfo(property.Value) is { } type &&
                 type is not ErrorType &&
+                type is not NullType &&
+                type is not StringLiteralType { RawStringValue: "" } &&
                 !type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
             {
                 yield return CreateDiagnosticForSpan(
