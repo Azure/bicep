@@ -26,6 +26,19 @@ public class ArgumentHelper
         throw new ArgumentException($"Unrecognized diagnostics format {format}");
     }
 
+    public static TEnum GetEnumValueWithValidation<TEnum>(string argName, string[] args, int argPosition)
+        where TEnum : struct, Enum
+    {
+        var value = GetValueWithValidation(argName, args, argPosition);
+
+        if (Enum.TryParse<TEnum>(value, ignoreCase: true, out var result))
+        {
+            return result;
+        }
+
+        throw new CommandLineException($"Unrecognized value {value} for parameter {argName}");
+    }
+
     [return: NotNullIfNotNull(nameof(filePath))]
     public static Uri? GetFileUri(string? filePath, IFileSystem? fileSystem = null)
         => filePath is { } ? PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(filePath, fileSystem: fileSystem)) : null;
