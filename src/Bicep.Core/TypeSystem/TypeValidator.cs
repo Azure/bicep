@@ -620,9 +620,7 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 return new TupleType(validationFlags: targetTuple.ValidationFlags,
-                    items: Enumerable.Range(0, expressionTuple.Items.Length)
-                        .Select(idx => NarrowType(config, expression, expressionTuple.Items[idx].Type, targetTuple.Items[idx].Type))
-                        .ToImmutableArray<ITypeReference>());
+                    items: [.. Enumerable.Range(0, expressionTuple.Items.Length).Select(idx => NarrowType(config, expression, expressionTuple.Items[idx].Type, targetTuple.Items[idx].Type))]);
             }
 
             if (expressionType is ArrayType expressionArrayType)
@@ -1095,7 +1093,7 @@ namespace Bicep.Core.TypeSystem
                                 ShouldWarnForPropertyMismatch(targetType),
                             TryGetSourceDeclaration(config),
                             expression as ObjectSyntax,
-                            missingRequiredProperties.Select(p => p.Name).ToList(),
+                            [.. missingRequiredProperties.Select(p => p.Name)],
                             blockName,
                             config.IsResourceDeclaration && missingRequiredProperties.Any(p => !p.Flags.HasFlag(TypePropertyFlags.SystemProperty)),
                             parsingErrorLookup));

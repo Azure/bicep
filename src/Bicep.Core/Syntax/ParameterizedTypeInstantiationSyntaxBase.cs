@@ -17,9 +17,9 @@ public abstract class ParameterizedTypeInstantiationSyntaxBase : TypeSyntax, ISy
 
         this.Name = name;
         this.OpenChevron = openChevron;
-        this.Children = children.ToImmutableArray();
+        this.Children = [.. children];
         this.CloseChevron = closeChevron;
-        this.Arguments = this.Children.OfType<ParameterizedTypeArgumentSyntax>().ToImmutableArray();
+        this.Arguments = [.. this.Children.OfType<ParameterizedTypeArgumentSyntax>()];
     }
 
     public IdentifierSyntax Name { get; }

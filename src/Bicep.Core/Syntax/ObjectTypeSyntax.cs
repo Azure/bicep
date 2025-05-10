@@ -15,7 +15,7 @@ public class ObjectTypeSyntax : TypeSyntax
         AssertTokenType(closeBrace, nameof(closeBrace), TokenType.RightBrace);
 
         OpenBrace = openBrace;
-        Children = children.ToImmutableArray();
+        Children = [.. children];
         CloseBrace = closeBrace;
     }
 

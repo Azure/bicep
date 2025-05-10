@@ -11,7 +11,7 @@ namespace Bicep.Core.Syntax
     {
         public ProgramSyntax(IEnumerable<SyntaxBase> children, Token endOfFile)
         {
-            this.Children = children.ToImmutableArray();
+            this.Children = [.. children];
             this.EndOfFile = endOfFile;
         }
 

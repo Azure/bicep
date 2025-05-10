@@ -11,7 +11,7 @@ namespace Bicep.Core.Semantics
         public FunctionSymbol(ObjectType declaringObject, string name, IEnumerable<FunctionOverload> overloads)
             : base(name)
         {
-            Overloads = overloads.ToImmutableArray();
+            Overloads = [.. overloads];
             FunctionFlags = Overloads.First().Flags;
 
             if (Overloads.Skip(1).Any(fo => fo.Flags != FunctionFlags))

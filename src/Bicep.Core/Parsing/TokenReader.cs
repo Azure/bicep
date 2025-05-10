@@ -10,7 +10,7 @@ namespace Bicep.Core.Parsing
 
         public TokenReader(IEnumerable<Token> tokens)
         {
-            this.Tokens = tokens.ToArray();
+            this.Tokens = [.. tokens];
             this.Position = 0;
         }
 

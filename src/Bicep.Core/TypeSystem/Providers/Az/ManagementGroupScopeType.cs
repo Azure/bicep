@@ -11,7 +11,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         public ManagementGroupScopeType(IEnumerable<FunctionArgumentSyntax> arguments, IEnumerable<NamedTypeProperty> properties)
             : base("managementGroup", TypeSymbolValidationFlags.Default, properties, null)
         {
-            Arguments = arguments.ToImmutableArray();
+            Arguments = [.. arguments];
         }
 
         public ImmutableArray<FunctionArgumentSyntax> Arguments { get; }

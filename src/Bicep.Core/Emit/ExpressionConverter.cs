@@ -509,7 +509,7 @@ namespace Bicep.Core.Emit
         }
 
         public IEnumerable<LanguageExpression> GetResourceNameSegments(DeclaredResourceMetadata resource)
-            => GetResourceNameSegments(resource, expressionBuilder.GetResourceNameSyntaxSegments(resource).ToImmutableArray());
+            => GetResourceNameSegments(resource, [.. expressionBuilder.GetResourceNameSyntaxSegments(resource)]);
 
         public IEnumerable<LanguageExpression> GetResourceNameSegments(DeclaredResourceMetadata resource, ImmutableArray<SyntaxBase> nameSegments)
         {
@@ -956,7 +956,7 @@ namespace Bicep.Core.Emit
             => CreateFunction(name, parameters as IEnumerable<LanguageExpression>);
 
         private static FunctionExpression CreateFunction(string name, IEnumerable<LanguageExpression> parameters)
-            => new(name, parameters.ToArray(), []);
+            => new(name, [.. parameters], []);
 
         private static FunctionExpression AppendProperties(FunctionExpression function, params LanguageExpression[] properties)
             => AppendProperties(function, properties as IEnumerable<LanguageExpression>);

@@ -24,10 +24,13 @@ namespace Bicep.Core.Parsing
             {'$', '$'}
         }.ToImmutableSortedDictionary();
 
-        private static readonly ImmutableArray<string> CharacterEscapeSequences = SingleCharacterEscapes.Keys
-            .Select(c => $"\\{c}")
-            .Append("\\u{...}")
-            .ToImmutableArray();
+        private static readonly ImmutableArray<string> CharacterEscapeSequences =
+        [
+            .. SingleCharacterEscapes.Keys
+                        .Select(c => $"\\{c}")
+,
+            "\\u{...}",
+        ];
 
         private const int MultilineStringTerminatingQuoteCount = 3;
 

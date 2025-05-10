@@ -10,8 +10,7 @@ namespace Bicep.Core.Registry;
 public static class ArtifactHelper
 {
     public static ImmutableHashSet<ArtifactReference> GetValidArtifactReferences(IEnumerable<ArtifactResolutionInfo> artifacts)
-        => artifacts
+        => [.. artifacts
             .Select(t => t.Reference)
-            .WhereNotNull()
-            .ToImmutableHashSet();
+            .WhereNotNull()];
 }

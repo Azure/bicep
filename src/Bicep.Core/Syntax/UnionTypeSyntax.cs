@@ -9,7 +9,7 @@ public class UnionTypeSyntax : TypeSyntax
 {
     public UnionTypeSyntax(IEnumerable<SyntaxBase> children)
     {
-        Children = children.ToImmutableArray();
+        Children = [.. children];
         if (!Members.Any())
         {
             throw new ArgumentException("Union types must contain at least one member");

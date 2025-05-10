@@ -96,7 +96,7 @@ namespace Bicep.Core.Semantics
 
         public ImmutableHashSet<DeclaredSymbol> GetSymbolsReferencedInDeclarationOf(DeclaredSymbol symbol)
             => symbolsDirectlyReferencedInDeclarations.GetOrAdd(symbol,
-                s => SymbolicReferenceCollector.CollectSymbolsReferenced(this, s.DeclaringSyntax).Keys.ToImmutableHashSet());
+                s => [.. SymbolicReferenceCollector.CollectSymbolsReferenced(this, s.DeclaringSyntax).Keys]);
 
         public ImmutableHashSet<DeclaredSymbol> GetReferencedSymbolClosureFor(DeclaredSymbol symbol)
             => referencedSymbolClosures.GetOrAdd(symbol, CalculateReferencedSymbolClosure);
