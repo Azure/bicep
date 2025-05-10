@@ -39,7 +39,7 @@ namespace Bicep.Core.Semantics.Namespaces
         private delegate bool VisibilityDelegate(ResourceScope scope, BicepSourceFileKind sourceFileKind);
         private record NamespaceValue<T>(T Value, VisibilityDelegate IsVisible);
 
-        private static readonly ImmutableArray<NamespaceValue<FunctionOverload>> Overloads = GetAzOverloads().ToImmutableArray();
+        private static readonly ImmutableArray<NamespaceValue<FunctionOverload>> Overloads = [.. GetAzOverloads()];
 
         private static FunctionOverload.ResultBuilderDelegate AddDiagnosticsAndReturnResult(TypeSymbol returnType, DiagnosticBuilder.DiagnosticBuilderDelegate writeDiagnostic)
         {

@@ -102,14 +102,13 @@ namespace Bicep.Core.Semantics
                     return [];
                 }
 
-                return this.SourceFile.Template.Outputs
+                return [.. this.SourceFile.Template.Outputs
                     .Select(outputProperty => new OutputMetadata(
                             outputProperty.Key,
                             GetType(outputProperty.Value),
                             TryGetMetadataDescription(outputProperty.Value.Metadata),
                             GetType(outputProperty.Value).Type.IsSecureType())
-                     )
-                    .ToImmutableArray();
+                     )];
             });
         }
 
@@ -273,9 +272,7 @@ namespace Bicep.Core.Semantics
                     exports.AddRange(@namespace.Members.Where(kvp => IsExported(kvp.Value))
                         .Select(kvp => new ExportedFunctionMetadata(
                             Name: $"{namePrefix}{kvp.Key}",
-                            Parameters: kvp.Value.Parameters.CoalesceEnumerable()
-                                .Select(p => new ExportedFunctionParameterMetadata(p.Name?.Value ?? string.Empty, GetType(p), GetMostSpecificDescription(p)))
-                                .ToImmutableArray(),
+                            Parameters: [.. kvp.Value.Parameters.CoalesceEnumerable().Select(p => new ExportedFunctionParameterMetadata(p.Name?.Value ?? string.Empty, GetType(p), GetMostSpecificDescription(p)))],
                             Return: new(GetType(kvp.Value.Output), GetMostSpecificDescription(kvp.Value.Output)),
                             Description: kvp.Value.Metadata?.Value is JObject metadataObject ? GetDescriptionFromMetadata(metadataObject) : null)));
                 }
@@ -313,7 +310,7 @@ namespace Bicep.Core.Semantics
                 }
                 else
                 {
-                    exportsBuilder.Add(exportsByName.Key, new DuplicatedExportMetadata(exportsByName.Key, exportsByName.Select(e => e.Kind.ToString()).ToImmutableArray()));
+                    exportsBuilder.Add(exportsByName.Key, new DuplicatedExportMetadata(exportsByName.Key, [.. exportsByName.Select(e => e.Kind.ToString())]));
                 }
             }
 

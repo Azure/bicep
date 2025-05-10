@@ -77,7 +77,7 @@ public class ExpressionBuilder
                     return new InterpolatedStringExpression(
                         @string,
                         @string.SegmentValues,
-                        @string.Expressions.Select(ConvertWithoutLowering).ToImmutableArray());
+                        [.. @string.Expressions.Select(ConvertWithoutLowering)]);
                 }
             case IntegerLiteralSyntax @int:
                 {
@@ -134,8 +134,8 @@ public class ExpressionBuilder
 
                 return new LambdaExpression(
                     lambda,
-                    variables.Select(x => x.Name.IdentifierName).ToImmutableArray(),
-                    variables.Select<LocalVariableSyntax, TypeExpression?>(x => null).ToImmutableArray(),
+                    [.. variables.Select(x => x.Name.IdentifierName)],
+                    [.. variables.Select<LocalVariableSyntax, TypeExpression?>(x => null)],
                     ConvertWithoutLowering(lambda.Body),
                     null);
             case TypedLambdaSyntax lambda:
@@ -143,8 +143,8 @@ public class ExpressionBuilder
 
                 return new LambdaExpression(
                     lambda,
-                    typedVariables.Select(x => x.Name.IdentifierName).ToImmutableArray(),
-                    typedVariables.Select(x => ConvertTypeWithoutLowering(x.Type)).ToImmutableArray<TypeExpression?>(),
+                    [.. typedVariables.Select(x => x.Name.IdentifierName)],
+                    [.. typedVariables.Select(x => ConvertTypeWithoutLowering(x.Type))],
                     ConvertWithoutLowering(lambda.Body),
                     ConvertTypeWithoutLowering(lambda.ReturnType));
 
@@ -265,13 +265,13 @@ public class ExpressionBuilder
             ResourceTypeSyntax resource => new ResourceTypeExpression(resource, GetTypeInfo<ResourceType>(resource)),
             ObjectTypeSyntax objectTypeSyntax => new ObjectTypeExpression(syntax,
                 GetTypeInfo<ObjectType>(syntax),
-                objectTypeSyntax.Properties.Select(p => ConvertWithoutLowering<ObjectTypePropertyExpression>(p)).ToImmutableArray(),
+                [.. objectTypeSyntax.Properties.Select(p => ConvertWithoutLowering<ObjectTypePropertyExpression>(p))],
                 objectTypeSyntax.AdditionalProperties is SyntaxBase addlPropertiesSyntax
                     ? ConvertWithoutLowering<ObjectTypeAdditionalPropertiesExpression>(addlPropertiesSyntax)
                     : null),
             TupleTypeSyntax tupleTypeSyntax => new TupleTypeExpression(syntax,
                 GetTypeInfo<TupleType>(syntax),
-                tupleTypeSyntax.Items.Select(i => ConvertWithoutLowering<TupleTypeItemExpression>(i)).ToImmutableArray()),
+                [.. tupleTypeSyntax.Items.Select(i => ConvertWithoutLowering<TupleTypeItemExpression>(i))]),
             ArrayTypeSyntax arrayTypeSyntax => new ArrayTypeExpression(syntax,
                 GetTypeInfo<ArrayType>(syntax),
                 ConvertTypeWithoutLowering(arrayTypeSyntax.Item.Value)),
@@ -280,17 +280,17 @@ public class ExpressionBuilder
                 new DiscriminatedObjectTypeExpression(
                     syntax,
                     discriminatedObjectType,
-                    unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)).ToImmutableArray()),
+                    [.. unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value))]),
             UnionTypeSyntax unionTypeSyntax when Context.SemanticModel.GetTypeInfo(unionTypeSyntax) is UnionType unionType
-                => new UnionTypeExpression(syntax, unionType, unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)).ToImmutableArray()),
+                => new UnionTypeExpression(syntax, unionType, [.. unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value))]),
             UnionTypeSyntax unionTypeSyntax => Context.SemanticModel.GetTypeInfo(unionTypeSyntax) switch
             {
                 ErrorType errorType => throw new ArgumentException($"Failed to convert syntax of type {syntax.GetType()}"),
-                UnionType unionType => new UnionTypeExpression(syntax, unionType, ImmutableArray.CreateRange(unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)))),
+                UnionType unionType => new UnionTypeExpression(syntax, unionType, [.. unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value))]),
                 // If a union type expression's members all refer to the same literal value, the type of the expression will be a single literal rather than a union
                 TypeSymbol otherwise => new UnionTypeExpression(syntax,
                     new UnionType(string.Empty, [otherwise]),
-                    ImmutableArray.CreateRange(unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)))),
+                    [.. unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value))]),
             },
             ParenthesizedTypeSyntax parenthesizedExpression => ConvertTypeWithoutLowering(parenthesizedExpression.Expression),
             NonNullableTypeSyntax nonNullableTypeSyntax => new NonNullableTypeExpression(nonNullableTypeSyntax, ConvertTypeWithoutLowering(nonNullableTypeSyntax.Base)),
@@ -567,7 +567,7 @@ public class ExpressionBuilder
             .Where(x => x.TryGetKeyText() is not { } key || !ModulePropertiesToOmit.Contains(key))
             .Select(ConvertObjectProperty)
             .Append(CreateModuleNameExpression(symbol, objectBody));
-        Expression bodyExpression = new ObjectExpression(body, properties.ToImmutableArray());
+        Expression bodyExpression = new ObjectExpression(body, [.. properties]);
 
         var parameters = objectBody.TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName);
         var extensionConfigs = objectBody.TryGetPropertyByName(LanguageConstants.ModuleExtensionConfigsPropertyName);
@@ -599,15 +599,14 @@ public class ExpressionBuilder
     }
 
     private ImmutableArray<ResourceDependencyExpression> BuildDependencyExpressions(DeclaredSymbol dependent, SyntaxBase body)
-        => Context.ResourceDependencies[dependent]
+        => [.. Context.ResourceDependencies[dependent]
             .SelectMany(dd => ToDependencyExpressions(dd, body, Context.ResourceDependencies))
             .GroupBy(t => t.Target.Resource)
             .SelectMany(g => g.FirstOrDefault(t => t.Target.IndexExpression is null) is { } dependencyOnCollection
                 ? dependencyOnCollection.AsEnumerable()
                 : g.Distinct(t => t.Target))
             .OrderBy(t => t.TargetKey)  // order to generate a deterministic template
-            .Select(t => t.Expression)
-            .ToImmutableArray();
+            .Select(t => t.Expression)];
 
     private DeclaredResourceExpression ConvertResource(ResourceDeclarationSyntax syntax)
     {
@@ -690,7 +689,7 @@ public class ExpressionBuilder
         var properties = ((ObjectSyntax)body).Properties
             .Where(x => x.TryGetKeyText() is not { } key || !propertiesToOmit.Contains(key))
             .Select(ConvertObjectProperty);
-        Expression bodyExpression = new ObjectExpression(body, properties.ToImmutableArray());
+        Expression bodyExpression = new ObjectExpression(body, [.. properties]);
 
         if (condition is not null)
         {
@@ -810,7 +809,7 @@ public class ExpressionBuilder
                 return new FunctionCallExpression(
                     function,
                     function.Name.IdentifierName,
-                    function.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray());
+                    [.. function.Arguments.Select(a => ConvertWithoutLowering(a.Expression))]);
 
             case InstanceFunctionCallSyntax method:
                 var (baseSyntax, indexExpression) = SyntaxHelper.UnwrapArrayAccessSyntax(method.BaseExpression);
@@ -822,7 +821,7 @@ public class ExpressionBuilder
                     return new FunctionCallExpression(
                         method,
                         method.Name.IdentifierName,
-                        method.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray());
+                        [.. method.Arguments.Select(a => ConvertWithoutLowering(a.Expression))]);
                 }
 
                 var resource = Context.SemanticModel.ResourceMetadata.TryLookup(baseSyntax);
@@ -843,7 +842,7 @@ public class ExpressionBuilder
                             new StringLiteralExpression(method.Name, method.Name.IdentifierName),
                             new ArrayExpression(
                                 method,
-                                method.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray()),
+                                [.. method.Arguments.Select(a => ConvertWithoutLowering(a.Expression))]),
                         ]);
                 }
 
@@ -862,7 +861,7 @@ public class ExpressionBuilder
                         method,
                         new ResourceReferenceExpression(method.BaseExpression, resource, indexContext),
                         method.Name.IdentifierName,
-                        method.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray());
+                        [.. method.Arguments.Select(a => ConvertWithoutLowering(a.Expression))]);
                 }
 
                 throw new InvalidOperationException($"Unrecognized base expression {baseSymbol?.Kind}");
@@ -884,7 +883,7 @@ public class ExpressionBuilder
             return new UserDefinedFunctionCallExpression(
                 functionCall,
                 declaredFunction,
-                functionCall.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray());
+                [.. functionCall.Arguments.Select(a => ConvertWithoutLowering(a.Expression))]);
         }
 
         if (Context.SemanticModel.GetSymbolInfo(functionCall) is ImportedFunctionSymbol importedFunction)
@@ -892,7 +891,7 @@ public class ExpressionBuilder
             return new ImportedUserDefinedFunctionCallExpression(
                 functionCall,
                 importedFunction,
-                functionCall.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray());
+                [.. functionCall.Arguments.Select(a => ConvertWithoutLowering(a.Expression))]);
         }
 
         if (functionCall is InstanceFunctionCallSyntax instanceFunctionCall &&
@@ -902,7 +901,7 @@ public class ExpressionBuilder
                 functionCall,
                 wildcardImport,
                 instanceFunctionCall.Name.IdentifierName,
-                functionCall.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray());
+                [.. functionCall.Arguments.Select(a => ConvertWithoutLowering(a.Expression))]);
         }
 
         if (Context.SemanticModel.TypeManager.GetMatchedFunctionResultValue(functionCall) is { } functionValue)

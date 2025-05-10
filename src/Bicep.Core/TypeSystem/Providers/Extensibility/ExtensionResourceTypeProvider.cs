@@ -15,7 +15,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
         private readonly ResourceTypeCache generatedTypeCache;
 
         public ExtensionResourceTypeProvider(ExtensionResourceTypeLoader resourceTypeLoader)
-            : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
+            : base([.. resourceTypeLoader.GetAvailableTypes()])
         {
             this.resourceTypeLoader = resourceTypeLoader;
             definedTypeCache = new ResourceTypeCache();

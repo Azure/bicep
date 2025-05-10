@@ -36,7 +36,7 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
                 UniqueNamePropertyName);
 
         public MicrosoftGraphResourceTypeProvider(MicrosoftGraphResourceTypeLoader resourceTypeLoader)
-            : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
+            : base([.. resourceTypeLoader.GetAvailableTypes()])
         {
             this.resourceTypeLoader = resourceTypeLoader;
             definedTypeCache = new ResourceTypeCache();

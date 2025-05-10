@@ -53,10 +53,9 @@ namespace Bicep.Core.Emit
             var visitor = new InlineDependencyVisitor(model, null);
             visitor.Visit(model.Root.Syntax);
 
-            return visitor.shouldInlineCache
+            return [.. visitor.shouldInlineCache
                 .Where(kvp => kvp.Value == Decision.Inline)
-                .Select(kvp => kvp.Key)
-                .ToImmutableHashSet();
+                .Select(kvp => kvp.Key)];
         }
 
         /// <summary>

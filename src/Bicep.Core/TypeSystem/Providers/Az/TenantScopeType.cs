@@ -11,7 +11,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         public TenantScopeType(IEnumerable<FunctionArgumentSyntax> arguments, IEnumerable<NamedTypeProperty> properties)
             : base("tenant", TypeSymbolValidationFlags.Default, properties, null)
         {
-            Arguments = arguments.ToImmutableArray();
+            Arguments = [.. arguments];
         }
 
         public ImmutableArray<FunctionArgumentSyntax> Arguments { get; }

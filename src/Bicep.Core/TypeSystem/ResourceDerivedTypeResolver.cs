@@ -290,8 +290,8 @@ public class ResourceDerivedTypeResolver
 
         return hasChanges
             ? new(
-                resolvedParameterTypes.Take(unresolved.ArgumentTypes.Length).ToImmutableArray(),
-                resolvedParameterTypes.Skip(unresolved.ArgumentTypes.Length).ToImmutableArray(),
+                [.. resolvedParameterTypes.Take(unresolved.ArgumentTypes.Length)],
+                [.. resolvedParameterTypes.Skip(unresolved.ArgumentTypes.Length)],
                 resolvedReturnType)
             : unresolved;
     }
