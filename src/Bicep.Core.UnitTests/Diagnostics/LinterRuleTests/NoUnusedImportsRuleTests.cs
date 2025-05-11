@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter.Rules;
@@ -344,7 +344,7 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
     {
         CompilationHelper.InputFile[] additionalFiles =
         [
-            new ("mod.bicep", importFileText)
+            new("mod.bicep", importFileText)
         ];
 
         AssertCodeFix(text, expectedResultText, importToRemove, additionalFiles);

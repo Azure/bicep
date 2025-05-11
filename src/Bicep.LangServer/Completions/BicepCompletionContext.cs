@@ -451,11 +451,11 @@ namespace Bicep.LanguageServer.Completions
                 offset > variable.Name.GetEndPosition() &&
                 variable.Type is null &&
                 variable.Assignment is SkippedTriviaSyntax &&
-                offset <= variable.Assignment.Span.Position) || 
+                offset <= variable.Assignment.Span.Position) ||
             // var foo |
             // OR
             // var foo | = ...
-            SyntaxMatcher.IsTailMatch<VariableDeclarationSyntax>(matchingNodes, variable =>  offset > (variable.Type ?? variable.Name).GetEndPosition() && offset <= variable.Assignment.Span.Position) ||
+            SyntaxMatcher.IsTailMatch<VariableDeclarationSyntax>(matchingNodes, variable => offset > (variable.Type ?? variable.Name).GetEndPosition() && offset <= variable.Assignment.Span.Position) ||
             // var foo e|
             // OR
             // var foo e| = ...

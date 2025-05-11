@@ -538,7 +538,7 @@ param foo2 string", "param foo2 string")]
         var used1 = p1
         var used2 = p2
         ")]
-    [DataRow(
+        [DataRow(
         @"
         import { p1, p2, p|3 } from '../mod.bicep'
         var used1 = p1
@@ -557,7 +557,7 @@ param foo2 string", "param foo2 string")]
         var used1 = p1
         var used2 = p2
         ")]
-    [DataRow(
+        [DataRow(
         @"
         import { p1, p|2, p3 } from '../mod.bicep'
         var used1 = p1
@@ -576,7 +576,7 @@ param foo2 string", "param foo2 string")]
         var used1 = p1
         var used2 = p3
         ")]
-    [DataRow(
+        [DataRow(
         @"
         import { p|1, p2, p3 } from '../mod.bicep'
         var used1 = p2
@@ -595,7 +595,7 @@ param foo2 string", "param foo2 string")]
         var used1 = p2
         var used2 = p3
         ")]
-    [DataRow(
+        [DataRow(
         "import * as mo|d from '../mod.bicep'",
         @"
         @export()
@@ -606,14 +606,14 @@ param foo2 string", "param foo2 string")]
         var p3 = 'param'
         ",
         "")]
-    [DataRow(
+        [DataRow(
         "import { getStr|ing } from '../mod.bicep'",
         @"
         @export()
         func getString() string => 'exported'
         ",
         "import {  } from '../mod.bicep'")]
-    [DataRow(
+        [DataRow(
         "import { t| } from '../mod.bicep'",
         @"
         @export()
