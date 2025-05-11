@@ -23,7 +23,7 @@ namespace Bicep.Core.Emit
                 // resourceinfo codegen has been enabled
                 model.Features.ResourceInfoCodegenEnabled ||
                 // there are typed variables
-                model.Root.VariableDeclarations.Any(x => x.DeclaringVariable.Type is {}) ||
+                model.Root.VariableDeclarations.Any(x => x.DeclaringVariable.Type is { }) ||
                 // there are any user-defined type declarations
                 model.Root.TypeDeclarations.Any() ||
                 // there are any user-defined function declarations

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
@@ -37,13 +37,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             foreach (var import in unreferencedImports)
             {
                 // Detect leading and following commas ro remove them along the symbol
-               var parent =  import.EnclosingDeclaration;
+                var parent = import.EnclosingDeclaration;
 
-               var codeFixSpan = import.NameSource.Span;
+                var codeFixSpan = import.NameSource.Span;
 
                 codeFixSpan = GetSpanForImportedSymbolCodeFix(parent, import);
 
-               yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, import.Name, import.NameSource.Span, codeFixSpan);
+                yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, import.Name, import.NameSource.Span, codeFixSpan);
             }
 
             //Handle wildcard alias
@@ -74,7 +74,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private TextSpan GetSpanForImportedSymbolCodeFix(CompileTimeImportDeclarationSyntax importDeclarationSyntax, ImportedSymbol importedSymbol)
         {
             var importSpan = importedSymbol.NameSource.Span;
-            var importSyntaxExpression = (ImportedSymbolsListSyntax) importDeclarationSyntax.ImportExpression;
+            var importSyntaxExpression = (ImportedSymbolsListSyntax)importDeclarationSyntax.ImportExpression;
             var importSyntaxExpressionChildCount = importSyntaxExpression.Children.Length;
             var indexOfImportedSymbol = importSyntaxExpression.Children.IndexOf(importedSymbol.DeclaringSyntax);
 
