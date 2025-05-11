@@ -116,4 +116,28 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
     [TestMethod]
     public void Linter_validation_should_not_warn_for_null_or_empty_string_assignment(string text)
         => CompileAndTest(text, 0);
+
+    [DataRow("""
+resource storageAccount 'Microsoft.Storage/storageAccounts@2024-01-01' existing = {
+  name: 'mystorageaccount'
+}
+
+resource script 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
+  name: 'azcli-script'
+  location: 'westus'
+  kind: 'AzureCLI'
+  properties: {
+    azCliVersion: '2.0.81'
+    scriptContent: 'echo "Hello, World!"'
+    retentionInterval: 'PT1H'
+    storageAccountSettings: {
+      storageAccountName: storageAccount.name
+      storageAccountKey: storageAccount.listKeys().keys[0].value
+    }
+  }
+}
+""")]
+    [TestMethod]
+    public void Linter_validation_should_not_warn_for_chained_values(string text)
+        => CompileAndTest(text, 0);
 }
