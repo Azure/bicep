@@ -800,6 +800,84 @@ module {symbolicName} 'mod.bicep' = [for x in []: {{
             result.Template.Should().HaveValueAtPath("$.outputs.allModNames.copy.input", $"[format('{symbolicNamePrefix}-{{0}}-{{1}}', range(0, 10)[copyIndex()], uniqueString('{symbolicName}', deployment().name))]");
         }
 
+        [TestMethod]
+        public void Modules_can_be_compiled_with_identity_successfully()
+        {
+            var mainUri = new Uri("file:///main.bicep");
+            var moduleAUri = new Uri("file:///modulea.bicep");
+            var moduleBUri = new Uri("file:///moduleb.bicep");
+
+            var files = new Dictionary<Uri, string>
+            {
+                [mainUri] = @"
+param inputa string
+param inputb string
+param identityId string
+
+module modulea 'modulea.bicep' = {
+  name: 'modulea'
+  identities: [
+    identityId
+  ]
+  dependsOn: [
+    moduleb
+  ]
+  params: {
+    inputa: inputa
+    inputb: inputb
+  }
+}
+
+module moduleb 'moduleb.bicep' = {
+  name: 'moduleb'
+  identities: []
+  params: {
+    inputa: inputa
+    inputb: inputb
+  }
+}
+
+module modulec 'moduleb.bicep' = {
+  name: 'modulec'
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${identityId}': {}
+    }
+  }
+  params: {
+    inputa: inputa
+    inputb: inputb
+  }
+}
+
+output outputa string = modulea.outputs.outputa
+output outputb string = moduleb.outputs.outputb
+",
+                [moduleAUri] = @"
+param inputa string
+param inputb string
+
+output outputa string = '${inputa}-${inputb}'
+",
+                [moduleBUri] = @"
+param inputa string
+param inputb string
+
+output outputb string = '${inputa}-${inputb}'
+",
+            };
+
+            var compilation = Services.BuildCompilation(files, mainUri);
+
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
+            diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
+            success.Should().BeTrue();
+            compilation.GetTestTemplate().Should().NotBeEmpty();
+            var templateString = compilation.GetTestTemplate();
+            templateString.Should().NotBeNull();
+        }
+
         private static void ModuleTemplateHashValidator(Compilation compilation, string expectedTemplateHash)
         {
             var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
