@@ -5,9 +5,11 @@ using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
 using Bicep.LanguageServer.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -30,6 +32,19 @@ namespace Bicep.LanguageServer.Handlers
             cancellationToken.ThrowIfCancellationRequested();
 
             var lenses = ExternalSourceCodeLensProvider.GetCodeLenses(moduleDispatcher, sourceFileFactory, request, cancellationToken);
+
+            lenses = [
+                ..lenses,
+                new CodeLens() {
+                    Range = new Range(0, 0, 0, 0),
+                    Command = new Command()
+                    {
+                        Title = "Edit configuration for this file",
+                        Name = LangServerConstants.OpenConfigFileCommand,
+                        Arguments = new JArray(
+                             new JObject { ["BicepFilePath"] = request.TextDocument.Uri.GetFileSystemPath() } )
+                    }
+                }];
 
             return Task.FromResult<CodeLensContainer?>(new CodeLensContainer(lenses));
         }
