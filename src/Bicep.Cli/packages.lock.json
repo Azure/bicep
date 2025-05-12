@@ -1402,7 +1402,7 @@
       "Azure.Bicep.IO": {
         "type": "Project",
         "dependencies": {
-          "System.IO.Abstractions": "[21.3.1, )",
+          "System.IO.Abstractions": "[22.0.14, )",
           "System.Memory.Data": "[9.0.2, )"
         }
       },
