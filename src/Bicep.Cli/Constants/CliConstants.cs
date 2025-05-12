@@ -18,6 +18,7 @@ namespace Bicep.Cli.Constants
         public const string PublishExtension = "publish-extension";
         public const string Restore = "restore";
         public const string Lint = "lint";
+        public const string Snapshot = "snapshot";
         public const string Root = "";
     }
 
