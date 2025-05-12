@@ -41,7 +41,7 @@ import { createLogger, getLogger, resetLogger } from "./utils/logger";
 import { OutputChannelManager } from "./utils/OutputChannelManager";
 import { activateWithTelemetryAndErrorHandling } from "./utils/telemetry";
 import { BicepVisualizerViewManager } from "./visualizer";
-import { ViewConfigInfoCommand } from "./commands/viewConfigInfo";
+import { ViewConfigCommand } from "./commands/viewConfig";
 import { OpenConfigurationFileCommand } from "./commands/openConfigurationFile";
 
 let languageClient: lsp.LanguageClient | null = null;
@@ -136,7 +136,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
             new BuildParamsCommand(languageClient, outputChannelManager),
             new CreateBicepConfigurationFile(languageClient),
             new OpenConfigurationFileCommand(languageClient),
-            new ViewConfigInfoCommand(languageClient, outputChannelManager),
+            new ViewConfigCommand(languageClient, outputChannelManager),
             new DeployCommand(languageClient, outputChannelManager, azurePickers),
             new DecompileCommand(languageClient, outputChannelManager),
             new DecompileParamsCommand(languageClient, outputChannelManager),

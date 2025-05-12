@@ -10,7 +10,7 @@ import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 import { Command } from "./types";
 
-interface ViewConfigInfoParams {
+interface GetConfigInfoParams {
   bicepOrConfigPath: string;
 }
 
@@ -20,12 +20,12 @@ interface getConfigInfoResult {
   linterState: string; // The linter and rules state
 }
 
-const GetConfigInfoRequestType = new ProtocolRequestType<ViewConfigInfoParams, getConfigInfoResult, never, void, void>(
+const GetConfigInfoRequestType = new ProtocolRequestType<GetConfigInfoParams, getConfigInfoResult, never, void, void>(
   "bicep/getConfigInfo",
 );
 
-export class ViewConfigInfoCommand implements Command {
-  public readonly id = "bicep.viewConfigInfo";
+export class ViewConfigCommand implements Command {
+  public readonly id = "bicep.viewConfig";
 
   public constructor(
     private readonly client: LanguageClient,
@@ -51,8 +51,10 @@ export class ViewConfigInfoCommand implements Command {
 
     const output = `Configuration information for ${bicepFilePath}:
 Configuration file path: ${result.configPath ?? "None"}
-Merged with default configuration:
+
+Effective configuration after merging with default configuration:
 ${indentLines(result.effectiveConfig, 2)}
+
 Linter rules state (core):
 ${indentLines(result.linterState, 2)}
 

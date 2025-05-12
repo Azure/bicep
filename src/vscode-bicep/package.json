@@ -269,17 +269,17 @@
       },
       {
         "command": "bicep.createConfigFile",
-        "title": "Create Bicep configuration File",
+        "title": "Create Bicep Configuration File",
         "category": "Bicep"
       },
       {
         "command": "bicep.openConfigFile",
-        "title": "Edit configuration...",
+        "title": "Edit Configuration...",
         "category": "Bicep"
       },
       {
-        "command": "bicep.viewConfigInfo",
-        "title": "View merged configuration",
+        "command": "bicep.viewConfig",
+        "title": "View Effective Configuration (Debug)",
         "category": "Bicep",
         "icon": "$(output)"
       },
