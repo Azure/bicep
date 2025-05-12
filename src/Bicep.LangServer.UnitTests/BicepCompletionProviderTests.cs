@@ -79,6 +79,15 @@ namespace Bicep.LangServer.UnitTests
             keywordCompletions.Should().SatisfyRespectively(
                 c =>
                 {
+                    c.Label.Should().Be("extension");
+                    c.Kind.Should().Be(CompletionItemKind.Keyword);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().Be("Extension keyword");
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("extension");
+                },
+                c =>
+                {
                     c.Label.Should().Be("import");
                     c.Kind.Should().Be(CompletionItemKind.Keyword);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);

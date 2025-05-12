@@ -547,6 +547,16 @@
                     }
                   ]
                 },
+                "no-unused-imports": {
+                  "allOf": [
+                    {
+                      "description": "All imports must be used. Defaults to 'Warning'. See https://aka.ms/bicep/linter/no-unused-imports"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "no-unused-vars": {
                   "allOf": [
                     {

@@ -3,17 +3,17 @@
   "private": true,
   "devDependencies": {
     "@babel/core": "^7.27.1",
-    "@babel/plugin-transform-modules-commonjs": "^7.26.3",
+    "@babel/plugin-transform-modules-commonjs": "^7.27.1",
     "@eslint/eslintrc": "^3.3.0",
     "@eslint/js": "^9.26.0",
     "@types/html-escaper": "^3.0.4",
     "@types/jest": "^29.5.14",
-    "@types/node": "^22.14.1",
+    "@types/node": "^22.15.17",
     "@typescript-eslint/eslint-plugin": "^8.31.1",
-    "@typescript-eslint/parser": "^8.31.1",
+    "@typescript-eslint/parser": "^8.32.0",
     "babel-jest": "^29.6.4",
     "eslint": "^9.25.1",
-    "eslint-config-prettier": "^10.1.2",
+    "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-jest": "^28.11.0",
     "eslint-plugin-notice": "^1.0.0",
     "eslint-plugin-prettier": "^5.3.1",
@@ -25,7 +25,7 @@
     "ts-jest": "^29.3.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.31.0"
+    "typescript-eslint": "^8.32.0"
   },
   "engines": {
     "node": ">=14.0.0"
