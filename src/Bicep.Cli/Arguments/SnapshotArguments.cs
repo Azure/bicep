@@ -12,6 +12,7 @@ public class SnapshotArguments : ArgumentsBase
     private const string SubscriptionIdArgument = "--subscription-id";
     private const string LocationArgument = "--location";
     private const string ResourceGroupArgument = "--resource-group";
+    private const string DeploymentNameArgument = "--deployment-name";
 
     public enum SnapshotMode
     {
@@ -55,6 +56,12 @@ public class SnapshotArguments : ArgumentsBase
                     i++;
                     break;
 
+                case DeploymentNameArgument:
+                    ArgumentHelper.ValidateNotAlreadySet(DeploymentNameArgument, DeploymentName);
+                    DeploymentName = ArgumentHelper.GetValueWithValidation(DeploymentNameArgument, args, i);
+                    i++;
+                    break;
+
                 default:
                     if (args[i].StartsWith("--"))
                     {
@@ -86,4 +93,6 @@ public class SnapshotArguments : ArgumentsBase
     public string? Location { get; }
 
     public string? ResourceGroup { get; }
+
+    public string? DeploymentName { get; }
 }

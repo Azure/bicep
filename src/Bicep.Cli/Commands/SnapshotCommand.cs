@@ -3,36 +3,30 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.IO.Abstractions;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using Azure.Deployments.Core.Constants;
+using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
-using Azure.Deployments.Core.Helpers;
-using Azure.Deployments.Core.Interfaces;
-using Azure.Deployments.Engine.Definitions;
-using Azure.Deployments.Engine.DeploymentExpanderV2;
+using Azure.Deployments.Expression.Intermediate;
+using Azure.Deployments.Expression.Intermediate.Extensions;
 using Azure.Deployments.Templates.Engines;
+using Azure.Deployments.Templates.ParsedEntities;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Helpers.WhatIf;
 using Bicep.Cli.Logging;
-using Bicep.Cli.Services;
 using Bicep.Core;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
-using Bicep.Core.Utils;
+using Bicep.Core.TypeSystem;
 using Bicep.IO.Abstraction;
-using Google.Protobuf.WellKnownTypes;
 using Microsoft.Extensions.Logging;
-using Microsoft.WindowsAzure.ResourceStack.Common.EventSources;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Bicep.Cli.Commands;
@@ -57,14 +51,7 @@ public class SnapshotCommand(
         var inputUri = ArgumentHelper.GetFileUri(args.InputFile);
         ArgumentHelper.ValidateBicepParamFile(inputUri);
 
-        var deploymentContext = PopulateDeploymentContext(
-            tenantId: args.TenantId ?? "<tenant-id>",
-            subscriptionId: args.SubscriptionId ?? "<subscription-id>",
-            rgName: args.ResourceGroup ?? "<resource-group>",
-            location: args.Location ?? "<location>",
-            deploymentName: "main");
-
-        var newSnapshot = await GetSnapshot(deploymentContext, inputUri, noRestore: false, cancellationToken)
+        var newSnapshot = await GetSnapshot(args, inputUri, noRestore: false, cancellationToken)
             ?? throw new CommandLineException($"Failed to generate snapshot for file {inputUri.LocalPath}");
 
         if (newSnapshot.Diagnostics.Length > 0)
@@ -95,7 +82,7 @@ public class SnapshotCommand(
         }
     }
 
-    private async Task<Snapshot?> GetSnapshot(DeploymentRequestContextWithScopeDefinition deploymentContext, Uri inputUri, bool noRestore, CancellationToken cancellationToken)
+    private async Task<Snapshot?> GetSnapshot(SnapshotArguments arguments, Uri inputUri, bool noRestore, CancellationToken cancellationToken)
     {
         var compilation = await compiler.CreateCompilation(inputUri, skipRestore: noRestore);
         CommandHelper.LogExperimentalWarning(logger, compilation);
@@ -110,141 +97,181 @@ public class SnapshotCommand(
             return null;
         }
 
-        var expander = new NestedDeploymentExpander(
-            eventSource: new EmptyEventSource(),
-            contentLinkResolver: new EmptyContentLinkResolver(),
-            deploymentMetadataProvider: new SynthesizedDeploymentMetadataProvider(),
-            apiProfileResolver: new EmptyApiProfileResolver(),
-            preflightSettings: new(
-                nestedDeploymentExpansionLimit: 500,
-                resourceGroupLimit: 800,
-                nestedDeploymentExpansionTimeout: TimeSpan.MaxValue,
-                referenceFunctionPreflightEnabled: true,
-                optOutDoubleEvaluationFix: false));
-
-        var deploymentId = deploymentContext.GetDeploymentFullyQualifiedId();
-
         var parameters = parametersContent.FromJson<DeploymentParametersDefinition>();
         var template = TemplateEngine.ParseTemplate(templateContent);
-
-        DeploymentContent deploymentContent = new()
+        var scope = compilation.GetEntrypointSemanticModel().TargetScope switch
         {
-            Properties = new()
-            {
-                Mode = DeploymentMode.Incremental,
-                Parameters = parameters.Parameters,
-                Template = template,
-                TemplateHash = TemplateHelpers.ComputeTemplateHash(JToken.Parse(templateContent)),
-            },
+            ResourceScope.Tenant => TemplateDeploymentScope.Tenant,
+            ResourceScope.ManagementGroup => TemplateDeploymentScope.ManagementGroup,
+            ResourceScope.Subscription => TemplateDeploymentScope.Subscription,
+            ResourceScope.ResourceGroup => TemplateDeploymentScope.ResourceGroup,
+            var otherwise => throw new CommandLineException($"Cannot create snapshot of template with a target scope of {otherwise}"),
         };
 
-        var expansionResult = await expander.ExpandNestedDeployments(
-            deploymentContext.TenantId,
-            deploymentContext.DeploymentName,
-            validateOnly: true,
-            deploymentId,
-            CoreConstants.ApiVersion20240701,
-            deploymentContext,
-            deploymentContent,
-            metricsRecorder: null,
+        var expansionResult = await TemplateEngine.ExpandNestedDeployments(
+            EmitConstants.NestedDeploymentResourceApiVersion,
+            scope,
+            template,
+            parameters: ResolveParameters(parameters),
+            rootDeploymentMetadata: GetDeploymentMetadata(arguments, scope, template),
             cancellationToken: cancellationToken);
 
         return new(
             [
-                ..expansionResult.PreflightResources.Select(x => JsonElementFactory.CreateElement(JsonExtensions.ToJson(x))),
-                ..expansionResult.ExtensibleResources.Select(x => JsonElementFactory.CreateElement(JsonExtensions.ToJson(x))),
-                ..expansionResult.ResourcesWithUnevaluableIdsOrApiVersions.Select(x => JsonElementFactory.CreateElement(JsonExtensions.ToJson(x))),
+                ..expansionResult.preflightResources.Select(x => JsonElementFactory.CreateElement(JsonExtensions.ToJson(DeploymentPreflightResourceWithParsedExpressions.From(x)))),
+                ..expansionResult.extensibleResources.Select(x => JsonElementFactory.CreateElement(JsonExtensions.ToJson(x))),
             ],
             [
-                ..expansionResult.Diagnostics.Select(d => $"{d.Target} {d.Level} {d.Code}: {d.Message}")
+                ..expansionResult.diagnostics.Select(d => $"{d.Target} {d.Level} {d.Code}: {d.Message}")
             ]);
     }
 
-    public class EmptyContentLinkResolver : IContentLinkResolver
-    {
-        public Task<(Template template, string templateHash)> DownloadAndHashTemplateForLink(DeploymentTemplateContentLink templateLink, string deploymentId, CancellationToken cancellationToken)
-            => throw new InvalidOperationException();
+    private static Dictionary<string, ITemplateLanguageExpression>? ResolveParameters(DeploymentParametersDefinition? deploymentParameters)
+        => deploymentParameters?.Parameters?.ToDictionary(kvp => kvp.Key, kvp => ResolveParameter(kvp.Key, kvp.Value));
 
-        public Task<DeploymentParametersDefinition> DownloadAndValidateParameters(DeploymentContentLink parametersLink, CancellationToken cancellation)
-            => throw new InvalidOperationException();
+    private static ITemplateLanguageExpression ResolveParameter(
+        string parameterName,
+        DeploymentParameterDefinition parameter)
+    {
+        if (parameter.Value is not null)
+        {
+            return JTokenConverter.ConvertToLanguageExpression(parameter.Value);
+        }
+
+        if (parameter.Reference is not null)
+        {
+            return new FunctionExpression("parameters", [parameterName.AsExpression()], null, irreducible: true);
+        }
+
+        if (parameter.Expression is not null)
+        {
+            return RewriteVisitor.Instance.Rewrite(ExpressionParser.ParseLanguageExpression(parameter.Expression));
+        }
+
+        throw new InvalidOperationException(
+            $"Parameters compilation produced an invalid object for parameter '{parameterName}'.");
     }
 
-    private class EmptyApiProfileResolver : IApiProfileResolver
+    private class RewriteVisitor : ExpressionRewriteVisitor
     {
-        public Task<string?> GetApiVersionForRoutingResourceType(string? subscriptionId, string resourceId, string apiProfileId)
-            => throw new InvalidOperationException();
-    }
+        internal static readonly RewriteVisitor Instance = new();
 
-    private class EmptyEventSource : IGeneralEventSource
-    {
-        public void Critical(string subscriptionId, string correlationId, string principalOid, string principalPuid, string tenantId, string operationName, string message, string exception, string organizationId, string activityVector, string realPuid, string altSecId, string additionalProperties)
+        private RewriteVisitor() { }
+
+        protected override ITemplateLanguageExpression ReplaceFunctionExpression(FunctionExpression expression)
         {
-        }
-
-        public void Debug(string subscriptionId, string correlationId, string principalOid, string principalPuid, string tenantId, string operationName, string message, string exception, string organizationId, string activityVector, string realPuid, string altSecId, string additionalProperties)
-        {
-        }
-
-        public void Error(string subscriptionId, string correlationId, string principalOid, string principalPuid, string tenantId, string operationName, string message, string exception, string organizationId, string activityVector, string realPuid, string altSecId, string additionalProperties)
-        {
-        }
-
-        public void Warning(string subscriptionId, string correlationId, string principalOid, string principalPuid, string tenantId, string operationName, string message, string exception, string organizationId, string activityVector, string realPuid, string altSecId, string additionalProperties)
-        {
-        }
-    }
-
-    public static DeploymentRequestContextWithScopeDefinition PopulateDeploymentContext(
-        string tenantId,
-        string? subscriptionId,
-        string? rgName,
-        string? location,
-        string deploymentName)
-    {
-        var tenantDefinition = new JObject(new JProperty("tenantId", tenantId));
-
-        if (subscriptionId is not null)
-        {
-            var subscriptionDefinition = new JObject
+            if (expression.Name.Equals(LanguageConstants.ExternalInputsArmFunctionName, StringComparison.OrdinalIgnoreCase))
             {
-                { "subscriptionId", subscriptionId },
-                { "id", $"/subscriptions/{subscriptionId}" },
-                { "tenantId", tenantId },
-                { "displayName", "Azure deployment scenario test" },
-            };
-
-            if (rgName is not null)
-            {
-                var resourceGroupDefinition = new JObject
+                return expression with
                 {
-                    { "subscriptionId", subscriptionId },
-                    { "id", $"/subscriptions/{subscriptionId}/resourceGroups/{rgName}" },
-                    { "name", rgName },
-                    { "location", location },
-                    { "properties", new JObject { { "provisioningState", ProvisioningState.Ready.ToString() }, } },
+                    Arguments = [.. expression.Arguments.Select(Rewrite)],
+                    Properties = [.. expression.Properties.Select(Rewrite)],
+                    // we won't know the value of external inputs until the real deployment
+                    Irreducible = true,
                 };
-
-                return DeploymentRequestContextWithScopeDefinition.CreateAtResourceGroup(
-                    tenantId: tenantId,
-                    subscriptionId: subscriptionId,
-                    resourceGroupName: rgName,
-                    resourceGroupLocation: location,
-                    deploymentName: deploymentName,
-                    subscriptionDefinition: subscriptionDefinition,
-                    resourceGroupDefinition: resourceGroupDefinition,
-                    tenantDefinition: tenantDefinition);
             }
 
-            return DeploymentRequestContextWithScopeDefinition.CreateAtSubscription(
-                tenantId: tenantId,
-                subscriptionId: subscriptionId,
-                deploymentName: deploymentName,
-                subscriptionDefinition: subscriptionDefinition,
-                tenantDefinition: tenantDefinition);
+            return base.ReplaceFunctionExpression(expression);
+        }
+    }
+
+    private static Dictionary<string, ITemplateLanguageExpression> GetDeploymentMetadata(
+        SnapshotArguments arguments,
+        TemplateDeploymentScope scope,
+        Template template)
+    {
+        Dictionary<string, ITemplateLanguageExpression> metadata = new(StringComparer.OrdinalIgnoreCase);
+
+        if (arguments.TenantId is not null)
+        {
+            metadata[DeploymentMetadata.TenantKey] = new ObjectExpression(
+                [
+                    new("countryCode".AsExpression(), MetadataPlaceholder("tenant", "countryCode")),
+                    new("displayName".AsExpression(), MetadataPlaceholder("tenant", "displayName")),
+                    new("id".AsExpression(), $"/tenants/{arguments.TenantId}".AsExpression()),
+                    new("tenantId".AsExpression(), arguments.TenantId.AsExpression()),
+                ],
+                position: null);
         }
 
-        return DeploymentRequestContextWithScopeDefinition.CreateAtTenant(tenantId, deploymentName, tenantDefinition);
+        if (arguments.SubscriptionId is not null)
+        {
+            if (scope is not TemplateDeploymentScope.Subscription and not TemplateDeploymentScope.ResourceGroup)
+            {
+                throw new CommandLineException($"Subscription ID cannot be specified for a template of scope {scope}");
+            }
+
+            metadata[DeploymentMetadata.SubscriptionKey] = new ObjectExpression(
+                [
+                    new("id".AsExpression(), $"/subscriptions/{arguments.SubscriptionId}".AsExpression()),
+                    new("subscriptionId".AsExpression(), arguments.SubscriptionId.AsExpression()),
+                    new(
+                        "tenantId".AsExpression(),
+                        arguments.TenantId?.AsExpression() ?? MetadataPlaceholder("tenant", "tenantId")),
+                    new("displayName".AsExpression(), MetadataPlaceholder("subscription", "displayName")),
+                ],
+                position: null);
+        }
+
+        if (arguments.ResourceGroup is not null)
+        {
+            if (scope is not TemplateDeploymentScope.ResourceGroup)
+            {
+                throw new CommandLineException($"Resource group name cannot be specified for a template of scope {scope}");
+            }
+
+            metadata[DeploymentMetadata.ResourceGroupKey] = new ObjectExpression(
+                [
+                    new("id".AsExpression(), arguments.SubscriptionId is not null
+                        ? $"/subscriptions/{arguments.SubscriptionId}/resourceGroups/{arguments.ResourceGroup}".AsExpression()
+                        : MetadataPlaceholder("resourceGroup", "id")),
+                    new("name".AsExpression(), arguments.ResourceGroup.AsExpression()),
+                    new("type".AsExpression(), "Microsoft.Resources/resourceGroups".AsExpression()),
+                    new("location".AsExpression(), arguments.Location is not null
+                        ? arguments.Location.AsExpression()
+                        : MetadataPlaceholder("resourceGroup", "location")),
+                    new("tags".AsExpression(), MetadataPlaceholder("resourceGroup", "tags")),
+                    new("managedBy".AsExpression(), MetadataPlaceholder("resourceGroup", "managedBy")),
+                    new("properties".AsExpression(), MetadataPlaceholder("resourceGroup", "properties")),
+                ],
+                position: null);
+        }
+
+        if (arguments.DeploymentName is not null ||
+            (arguments.Location is not null && scope is not TemplateDeploymentScope.ResourceGroup))
+        {
+            Dictionary<ITemplateLanguageExpression, ITemplateLanguageExpression> properties = new()
+            {
+                {
+                    "name".AsExpression(),
+                    arguments.DeploymentName?.AsExpression() ?? MetadataPlaceholder("deployment", "name")
+                },
+                {
+                    "properties".AsExpression(),
+                    new ObjectExpression(
+                        [
+                            new("template".AsExpression(), new ObjectExpression(
+                                [new("contentVersion".AsExpression(), template.ContentVersion.Value.AsExpression())],
+                                position: null))
+                        ],
+                        position: null)
+                },
+            };
+
+            if (scope is not TemplateDeploymentScope.ResourceGroup)
+            {
+                properties["location".AsExpression()] = arguments.Location?.AsExpression()
+                    ?? MetadataPlaceholder("deployment", "location");
+            }
+
+            metadata[DeploymentMetadata.DeploymentKey] = new ObjectExpression(properties, position: null);
+        }
+
+        return metadata;
     }
+
+    private static ITemplateLanguageExpression MetadataPlaceholder(string name, params string[] properties)
+        => new FunctionExpression(name, [], [.. properties.Select(p => p.AsExpression())], null, irreducible: true);
 
     private Snapshot ReadSnapshot(IOUri uri)
     {
