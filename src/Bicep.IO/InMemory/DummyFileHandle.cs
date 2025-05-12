@@ -14,7 +14,7 @@ namespace Bicep.IO.InMemory
         {
         }
 
-        public IOUri Uri { get; } = new IOUri("dummy", "", "/DUMMY");
+        public IOUri Uri { get; } = new IOUri("unavailable", "", "/UNAVAILABLE");
 
         public void Delete() => throw new UnreachableException();
 
