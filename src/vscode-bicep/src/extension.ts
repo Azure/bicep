@@ -42,7 +42,7 @@ import { OutputChannelManager } from "./utils/OutputChannelManager";
 import { activateWithTelemetryAndErrorHandling } from "./utils/telemetry";
 import { BicepVisualizerViewManager } from "./visualizer";
 import { ViewConfigCommand } from "./commands/viewConfig";
-import { OpenConfigurationFileCommand } from "./commands/openConfigurationFile";
+import { EditConfigCommand } from "./commands/editConfig";
 
 let languageClient: lsp.LanguageClient | null = null;
 
@@ -135,7 +135,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
             new GenerateParamsCommand(languageClient, outputChannelManager),
             new BuildParamsCommand(languageClient, outputChannelManager),
             new CreateBicepConfigurationFile(languageClient),
-            new OpenConfigurationFileCommand(languageClient),
+            new EditConfigCommand(languageClient),
             new ViewConfigCommand(languageClient, outputChannelManager),
             new DeployCommand(languageClient, outputChannelManager, azurePickers),
             new DecompileCommand(languageClient, outputChannelManager),

@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { DialogResponses, IActionContext, UserCancelledError } from "@microsoft/vscode-azext-utils";
+import { DialogResponses, IActionContext } from "@microsoft/vscode-azext-utils";
 import { Uri } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { CreateBicepConfigurationFile } from "./createConfigurationFile";
 import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 import { Command } from "./types";
 
-export class OpenConfigurationFileCommand implements Command {
-  public readonly id = "bicep.openConfigFile";
+export class EditConfigCommand implements Command {
+  public readonly id = "bicep.editConfig";
 
   public constructor(private readonly client: LanguageClient) {}
 
@@ -26,17 +26,13 @@ export class OpenConfigurationFileCommand implements Command {
       "Choose which Bicep file to open the configuration file for",
     );
 
-    if (!documentUri) {
-      throw new UserCancelledError("No Bicep file selected");
-    }
-
-    interface BicepOpenConfigFileResult {
+    interface BicepEditConfigResult {
       found: boolean;
       error?: string;
     }
 
-    const result: BicepOpenConfigFileResult = await this.client.sendRequest("workspace/executeCommand", {
-      command: "openConfigFile",
+    const result: BicepEditConfigResult = await this.client.sendRequest("workspace/executeCommand", {
+      command: "editConfigFile",
       arguments: [
         {
           bicepFilePath: documentUri.fsPath,

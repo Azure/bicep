@@ -273,7 +273,7 @@
         "category": "Bicep"
       },
       {
-        "command": "bicep.openConfigFile",
+        "command": "bicep.editConfig",
         "title": "Edit Configuration...",
         "category": "Bicep"
       },
@@ -399,7 +399,7 @@
           "group": "2_bicep_1_edit"
         },
         {
-          "command": "bicep.openConfigFile",
+          "command": "bicep.editConfig",
           "when": "resourceLangId == bicep",
           "group": "2_bicep_1_edit"
         },
@@ -471,7 +471,7 @@
           "group": "2_bicep_1_edit"
         },
         {
-          "command": "bicep.openConfigFile",
+          "command": "bicep.editConfig",
           "when": "resourceLangId == bicep",
           "group": "2_bicep_1_edit"
         },
@@ -538,7 +538,7 @@
           "group": "2_bicep_1_edit"
         },
         {
-          "command": "bicep.openConfigFile",
+          "command": "bicep.editConfig",
           "when": "resourceLangId == bicep",
           "group": "2_bicep_1_edit"
         },
@@ -603,7 +603,7 @@
           "group": "0_bicep"
         },
         {
-          "command": "bicep.openConfigFile",
+          "command": "bicep.editConfig",
           "when": "resourceLangId == bicep",
           "group": "2_bicep_1_edit"
         },
