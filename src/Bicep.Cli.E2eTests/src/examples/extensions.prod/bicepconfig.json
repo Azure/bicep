@@ -2,8 +2,5 @@
   "cloud": {
     "currentProfile": "AzureCloud",
     "credentialPrecedence": ["AzureCLI"]
-  },
-  "experimentalFeaturesEnabled": {
-    "extensibility": true
   }
 }

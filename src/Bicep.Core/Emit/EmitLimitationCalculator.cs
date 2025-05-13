@@ -118,7 +118,7 @@ namespace Bicep.Core.Emit
                 }
 
                 return
-                    // extensibility resources do not have an ARM ID
+                    // extension resources do not have an ARM ID
                     x?.IsAzResource is true &&
                     y?.IsAzResource is true &&
                     // ARM resource ID uniqueness is only enforced on resources with a `true` condition

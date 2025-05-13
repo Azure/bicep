@@ -6,13 +6,13 @@ using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
-namespace Bicep.Core.TypeSystem.Providers.ThirdParty
+namespace Bicep.Core.TypeSystem.Providers.Extensibility
 {
-    public class ExtensibilityResourceTypeFactory
+    public class ExtensionResourceTypeFactory
     {
         private readonly ConcurrentDictionary<Azure.Bicep.Types.Concrete.TypeBase, TypeSymbol> typeCache;
 
-        public ExtensibilityResourceTypeFactory()
+        public ExtensionResourceTypeFactory()
         {
             typeCache = new();
         }

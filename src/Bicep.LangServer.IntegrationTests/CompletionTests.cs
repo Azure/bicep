@@ -61,8 +61,6 @@ namespace Bicep.LangServer.IntegrationTests.Completions
 
         private static readonly SharedLanguageHelperManager DefaultServer = new();
 
-        private static readonly SharedLanguageHelperManager ServerWithExtensibilityEnabled = new();
-
         private static readonly SharedLanguageHelperManager ServerWithBuiltInTypes = new();
 
         private static readonly SharedLanguageHelperManager ServerWithResourceTypedParamsEnabled = new();
@@ -93,11 +91,6 @@ namespace Bicep.LangServer.IntegrationTests.Completions
 
             DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
 
-            ServerWithExtensibilityEnabled.Initialize(
-                async () => await MultiFileLanguageServerHelper.StartLanguageServer(
-                    testContext,
-                    services => services.WithFeatureOverrides(new(testContext, ExtensibilityEnabled: true))));
-
             ServerWithBuiltInTypes.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     testContext,
@@ -116,7 +109,6 @@ namespace Bicep.LangServer.IntegrationTests.Completions
             await ServerWithNamespaceProvider.DisposeAsync();
             await ServerWithNamespaceAndTestResolver.DisposeAsync();
             await DefaultServer.DisposeAsync();
-            await ServerWithExtensibilityEnabled.DisposeAsync();
             await ServerWithBuiltInTypes.DisposeAsync();
             await ServerWithResourceTypedParamsEnabled.DisposeAsync();
         }
@@ -1880,7 +1872,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         }
 
         [TestMethod]
-        public async Task Extension_completions_work_if_feature_enabled()
+        public async Task Extension_completions_work()
         {
 
             var fileWithCursors = @"
@@ -1891,7 +1883,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
             extension |
             extension a|
             ";
-            await RunCompletionScenarioTest(this.TestContext, ServerWithExtensibilityEnabled, fileWithCursors,
+            await RunCompletionScenarioTest(this.TestContext, DefaultServer, fileWithCursors,
                 completions => completions.Should().SatisfyRespectively(
                     c => c!.Select(x => x.Label).Should().Contain("extension"),
                     c => c!.Select(x => x.Label).Should().Equal("with", "as"),
@@ -1901,21 +1893,10 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
                     c => c!.Select(x => x.Label).Should().Equal($"az", "kubernetes", "sys")
                 ),
                 '|');
-
-            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors,
-                completions => completions.Should().SatisfyRespectively(
-                    c => c!.Select(x => x.Label).Should().NotContain("extension"),
-                    c => c!.Select(x => x.Label).Should().BeEmpty(),
-                    c => c!.Select(x => x.Label).Should().BeEmpty(),
-                    c => c!.Select(x => x.Label).Should().BeEmpty(),
-                    c => c!.Select(x => x.Label).Should().BeEmpty(),
-                    c => c!.Select(x => x.Label).Should().BeEmpty()
-                ),
-                '|');
         }
 
         [TestMethod]
-        public async Task Provider_configuration_completions_work()
+        public async Task Extension_configuration_completions_work()
         {
             {
                 var fileWithCursors = @"
@@ -1923,7 +1904,7 @@ extension kubernetes with | as k8s
 ";
 
                 var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
-                var file = await new ServerRequestHelper(TestContext, ServerWithExtensibilityEnabled).OpenFile(text);
+                var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
 
                 var completions = await file.RequestAndResolveCompletions(cursor);
                 completions.Should().Contain(x => x.Label == "{}");
@@ -1946,7 +1927,7 @@ extension kubernetes with {
 ";
 
                 var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
-                var file = await new ServerRequestHelper(TestContext, ServerWithExtensibilityEnabled).OpenFile(text);
+                var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
 
                 var completions = await file.RequestAndResolveCompletions(cursor);
                 completions.Should().Contain(x => x.Label == "namespace");
@@ -5304,7 +5285,7 @@ param myAlert alertType = |>
 """;
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, "|>");
-            var file = await new ServerRequestHelper(TestContext, ServerWithExtensibilityEnabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
 
             var completions = await file.RequestAndResolveCompletions(cursor);
 
@@ -5352,7 +5333,7 @@ param test nestedType = |>
 """;
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, "|>");
-            var file = await new ServerRequestHelper(TestContext, ServerWithExtensibilityEnabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
 
             var completions = await file.RequestAndResolveCompletions(cursor);
 

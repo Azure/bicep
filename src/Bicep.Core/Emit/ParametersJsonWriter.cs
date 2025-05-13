@@ -69,7 +69,7 @@ public class ParametersJsonWriter
             WriteExternalInputDefinitions(emitter, this.Context.ExternalInputReferences.ExternalInputIndexMap);
         }
 
-        if (this.Context.SemanticModel.Features is { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true })
+        if (this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
         {
             WriteExtensionConfigs(emitter, jsonWriter);
         }

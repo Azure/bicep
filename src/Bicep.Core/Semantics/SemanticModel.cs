@@ -461,11 +461,6 @@ namespace Bicep.Core.Semantics
 
         private ImmutableSortedDictionary<string, ExtensionMetadata> FindExtensions()
         {
-            if (!SourceFile.Features.ExtensibilityEnabled)
-            {
-                return ImmutableSortedDictionary<string, ExtensionMetadata>.Empty;
-            }
-
             var extensions = ImmutableSortedDictionary.CreateBuilder<string, ExtensionMetadata>();
 
             foreach (var extDecl in this.Root.ExtensionDeclarations.DistinctBy(p => p.Name))

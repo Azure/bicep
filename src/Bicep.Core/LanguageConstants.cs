@@ -363,7 +363,7 @@ namespace Bicep.Core
                 new(ResourceDependsOnPropertyName, ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny)
             ];
 
-            if (features is { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true })
+            if (features.ModuleExtensionConfigsEnabled)
             {
                 extensionConfigsProperties ??= [];
                 var extensionConfigsType = new ObjectType(ModuleExtensionConfigsPropertyName, TypeSymbolValidationFlags.Default, extensionConfigsProperties);

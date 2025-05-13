@@ -37,7 +37,7 @@ namespace Bicep.Core.Emit
             {
                 VisitingTopExtensionReference = true;
 
-                if ((!InsideModuleExtensionConfigs || model.Features is not { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true }) // Must be in extension configs declaration site
+                if ((!InsideModuleExtensionConfigs || !model.Features.ModuleExtensionConfigsEnabled) // Must be in extension configs declaration site
                     && (LastInstanceFunctionCallSyntax is null || !object.ReferenceEquals(syntax, LastInstanceFunctionCallSyntax.BaseExpression))) // except if it's extension reference with an instance function call (ex: az.resourceGroup())
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).ExtensionCannotBeReferenced());

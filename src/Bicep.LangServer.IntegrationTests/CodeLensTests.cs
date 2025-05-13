@@ -91,7 +91,7 @@ namespace Bicep.LangServer.IntegrationTests
                     TestContext,
                     services => services
                         .WithModuleDispatcher(moduleDispatcher.Object)
-                        .WithFeatureOverrides(new(cacheRootDirectoryMock.Object, ExtensibilityEnabled: true))));
+                        .WithFeatureOverrides(new(cacheRootDirectoryMock.Object))));
             return defaultServer;
         }
 

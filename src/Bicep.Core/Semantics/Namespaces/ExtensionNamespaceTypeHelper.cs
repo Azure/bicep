@@ -11,7 +11,7 @@ namespace Bicep.Core.Semantics.Namespaces
     {
         public static ImmutableArray<NamedTypeProperty> GetExtensionNamespaceObjectProperties(NamespaceSettings namespaceSettings, IFeatureProvider features)
         {
-            if (features is not { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true } || namespaceSettings.ConfigurationType is null)
+            if (!features.ModuleExtensionConfigsEnabled || namespaceSettings.ConfigurationType is null)
             {
                 return [];
             }
