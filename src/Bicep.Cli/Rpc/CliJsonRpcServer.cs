@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using Bicep.Cli.Helpers;
+using Bicep.Cli.Helpers.Snapshot;
 using Bicep.Core;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
@@ -212,6 +213,33 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         return new(
             [.. nodesBySymbol.Values.OrderBy(x => x.Name)],
             [.. edges.OrderBy(x => x.Source).ThenBy(x => x.Target)]);
+    }
+
+    public async Task<GetSnapshotResponse> GetSnapshot(GetSnapshotRequest request, CancellationToken cancellationToken)
+    {
+        var compilation = await GetCompilation(compiler, request.Path);
+        if (compilation.Emitter.Parameters() is not { } result ||
+            result.Template?.Template is not { } templateContent ||
+            result.Parameters is not { } parametersContent)
+        {
+            throw new InvalidOperationException($"Compilation failed");
+        }
+
+        var externalInputs = request.ExternalInputs ?? [];
+
+        var snapshot = await SnapshotHelper.GetSnapshot(
+            targetScope: compilation.GetEntrypointSemanticModel().TargetScope,
+            templateContent: templateContent,
+            parametersContent: parametersContent,
+            tenantId: request.Metadata.TenantId,
+            subscriptionId: request.Metadata.SubscriptionId,
+            resourceGroup: request.Metadata.ResourceGroup,
+            location: request.Metadata.Location,
+            deploymentName: request.Metadata.DeploymentName,
+            externalInputs: [.. externalInputs.Select(x => new SnapshotHelper.ExternalInputValue(x.Kind, x.Config, x.Value))],
+            cancellationToken: cancellationToken);
+
+        return new(SnapshotHelper.Serialize(snapshot));
     }
 
     private static async Task<Compilation> GetCompilation(BicepCompiler compiler, string filePath)
