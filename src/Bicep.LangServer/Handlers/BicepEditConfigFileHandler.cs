@@ -24,31 +24,31 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public record BicepOpenConfigFileParams(
+    public record BicepEditConfigFileParams(
         string BicepFilePath
     );
 
-    public record BicepOpenConfigFileResult(
+    public record BicepEditConfigFileResult(
         bool Found,
         string? Error = null
     );
 
-    public class BicepOpenConfigFileCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepOpenConfigFileParams, BicepOpenConfigFileResult>
+    public class BicepEditConfigFileCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepEditConfigFileParams, BicepEditConfigFileResult>
     {
         private readonly IConfigurationManager configurationManager;
         private readonly ILanguageServerFacade server;
 
-        public BicepOpenConfigFileCommandHandler(
+        public BicepEditConfigFileCommandHandler(
             ISerializer serializer,
             IConfigurationManager configurationManager,
             ILanguageServerFacade server)
-        : base(LangServerConstants.OpenConfigFileCommand, serializer)
+        : base(LangServerConstants.EditConfigFileCommand, serializer)
         {
             this.configurationManager = configurationManager;
             this.server = server;
         }
 
-        public override async Task<BicepOpenConfigFileResult> Handle(BicepOpenConfigFileParams request, CancellationToken cancellationToken)
+        public override async Task<BicepEditConfigFileResult> Handle(BicepEditConfigFileParams request, CancellationToken cancellationToken)
         {
             var documentUri = new Uri(request.BicepFilePath);
             this.configurationManager.PurgeCache();
@@ -56,7 +56,7 @@ namespace Bicep.LanguageServer.Handlers
             IOUri? configFileUri = configuration.ConfigFileUri;
             if (configFileUri is null)
             {
-                return new BicepOpenConfigFileResult(Found: false);
+                return new BicepEditConfigFileResult(Found: false);
             }
             else
             {
@@ -66,7 +66,7 @@ namespace Bicep.LanguageServer.Handlers
                     Uri = DocumentUri.File(configFilePath),
                 });
 
-                return result.Success ? new BicepOpenConfigFileResult(true) : new BicepOpenConfigFileResult(true, $"Unable to open configuration file \"{configFilePath}\"");
+                return result.Success ? new BicepEditConfigFileResult(true) : new BicepEditConfigFileResult(true, $"Unable to open configuration file \"{configFilePath}\"");
             }
         }
     }
