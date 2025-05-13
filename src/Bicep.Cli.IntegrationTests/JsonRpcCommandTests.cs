@@ -234,6 +234,75 @@ resource baz 'My.Rp/foo@2020-01-01' = {
     }
 
     [TestMethod]
+    public async Task CompileParams_returns_a_compilation_result()
+    {
+        var fileSystem = new MockFileSystem(
+            new Dictionary<string, MockFileData>
+            {
+                ["/main.bicepparam"] = """
+                    using './main.bicep'
+
+                    param location = externalInput('custom.binding', '__MY_REGION__')
+                    param storageAccountType = externalInput('custom.binding', '__UNRESOLVED_BINDING__')
+                    """,
+                ["/main.bicep"] = """
+                    @description('Storage Account type')
+                    param storageAccountType string = 'Standard_LRS'
+                    
+                    @description('The storage account location.')
+                    param location string = resourceGroup().location
+                    
+                    @description('The name of the storage account')
+                    param storageAccountName string = 'store${uniqueString(resourceGroup().id)}'
+                    
+                    resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+                      name: storageAccountName
+                      location: location
+                      sku: {
+                        name: storageAccountType
+                      }
+                      kind: 'StorageV2'
+                      properties: {}
+                    }
+                    """,
+                ["/bicepconfig.json"] = """
+                    {
+                      "experimentalFeaturesEnabled": {
+                        "externalInputFunction": true
+                      }
+                    }
+                    """,
+            });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var response = await client.CompileParams(new("/main.bicepparam", []), token);
+                
+                response.Parameters.FromJson<JToken>().Should().HaveValueAtPath("$.parameters['location'].expression", "[externalInputs('custom_binding_0')]");
+                response.Parameters.FromJson<JToken>().Should().HaveValueAtPath("$.parameters['storageAccountType'].expression", "[externalInputs('custom_binding_1')]");
+
+                response.Parameters.FromJson<JToken>().Should().HaveJsonAtPath("$.externalInputDefinitions['custom_binding_0']", """
+                {
+                  "kind": "custom.binding",
+                  "config": "__MY_REGION__"
+                }
+                """);
+
+                response.Parameters.FromJson<JToken>().Should().HaveJsonAtPath("$.externalInputDefinitions['custom_binding_1']", """
+                {
+                  "kind": "custom.binding",
+                  "config": "__UNRESOLVED_BINDING__"
+                }
+                """);
+
+                response.Template.FromJson<JToken>().Should().HaveValueAtPath("$.parameters['location'].type", "string");
+                response.Template.FromJson<JToken>().Should().HaveValueAtPath("$.parameters['storageAccountType'].type", "string");
+            });
+    }
+
+    [TestMethod]
     public async Task GetSnapshot_returns_a_snapshot()
     {
         var fileSystem = new MockFileSystem(
@@ -247,21 +316,21 @@ resource baz 'My.Rp/foo@2020-01-01' = {
                 ["/main.bicep"] = """
                     @description('Storage Account type')
                     param storageAccountType string = 'Standard_LRS'
-
+                    
                     @description('The storage account location.')
                     param location string = resourceGroup().location
-
+                    
                     @description('The name of the storage account')
                     param storageAccountName string = 'store${uniqueString(resourceGroup().id)}'
-
+                    
                     resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-                    name: storageAccountName
-                    location: location
-                    sku: {
+                      name: storageAccountName
+                      location: location
+                      sku: {
                         name: storageAccountType
-                    }
-                    kind: 'StorageV2'
-                    properties: {}
+                      }
+                      kind: 'StorageV2'
+                      properties: {}
                     }
                     """,
             });
@@ -315,21 +384,21 @@ resource baz 'My.Rp/foo@2020-01-01' = {
                 ["/main.bicep"] = """
                     @description('Storage Account type')
                     param storageAccountType string = 'Standard_LRS'
-
+                    
                     @description('The storage account location.')
                     param location string = resourceGroup().location
-
+                    
                     @description('The name of the storage account')
                     param storageAccountName string = 'store${uniqueString(resourceGroup().id)}'
-
+                    
                     resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-                    name: storageAccountName
-                    location: location
-                    sku: {
+                      name: storageAccountName
+                      location: location
+                      sku: {
                         name: storageAccountType
-                    }
-                    kind: 'StorageV2'
-                    properties: {}
+                      }
+                      kind: 'StorageV2'
+                      properties: {}
                     }
                     """,
                 ["/bicepconfig.json"] = """

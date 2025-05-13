@@ -13,5 +13,9 @@ namespace Bicep.Core.UnitTests.Mock;
 
 public class MockPublicModuleIndexHttpClient : IPublicModuleIndexHttpClient
 {
+    public MockPublicModuleIndexHttpClient(HttpClient _)
+    {
+    }
+
     public Task<ImmutableArray<PublicModuleIndexEntry>> GetModuleIndexAsync() => Task.FromResult(ImmutableArray<PublicModuleIndexEntry>.Empty);
 }
