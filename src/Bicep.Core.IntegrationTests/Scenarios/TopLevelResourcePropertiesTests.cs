@@ -144,6 +144,12 @@ resource fallbackProperty 'Test.Rp/fallbackProperties@2020-01-01' = {
         public void FallbackProperty_ShouldShowError_WhenUsedOnModule(string property, string value)
         {
 
+            if (property == "identity")
+            {
+                // Skip this property for this test
+                return;
+            }
+
             var mainUri = new Uri("file:///main.bicep");
             var moduleAUri = new Uri("file:///modulea.bicep");
 
@@ -175,7 +181,7 @@ output outputa string = '${inputa}-${inputb}'
             var compilation = Services.WithAzResources(BuiltInTestTypes.Types).BuildCompilation(files, mainUri);
 
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP037", DiagnosticLevel.Error, $"The property \"{property}\" is not allowed on objects of type \"module\". Permissible properties include \"dependsOn\", \"scope\".")
+                ("BCP037", DiagnosticLevel.Error, $"The property \"{property}\" is not allowed on objects of type \"module\". Permissible properties include \"dependsOn\", \"identity\", \"scope\".")
             });
         }
 
@@ -268,6 +274,12 @@ output outputa string = '${inputa}-${inputb}'
         [DataTestMethod]
         public void FallbackProperty_ShouldShowError_WhenReadOnModule(string property, string value)
         {
+            if (property == "identity")
+            {
+                // Skip this property for this test
+                return;
+            }
+
             var mainUri = new Uri("file:///main.bicep");
             var moduleAUri = new Uri("file:///modulea.bicep");
 
@@ -298,7 +310,7 @@ output outputa string = '${inputa}-${inputb}'
             var compilation = Services.WithAzResources(BuiltInTestTypes.Types).BuildCompilation(files, mainUri);
 
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP053", DiagnosticLevel.Error, $"The type \"module\" does not contain property \"{property}\". Available properties include \"name\", \"outputs\".")
+                ("BCP053", DiagnosticLevel.Error, $"The type \"module\" does not contain property \"{property}\". Available properties include \"identity\", \"name\", \"outputs\".")
             });
         }
 
