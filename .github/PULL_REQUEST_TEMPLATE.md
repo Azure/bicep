@@ -11,4 +11,3 @@
 ## Checklist
 
 - [ ] I have read and adhere to the [contribution guide](https://github.com/Azure/bicep/blob/main/CONTRIBUTING.md).
-- [ ] This feature may require updates to [Public Bicep documentation](https://learn.microsoft.com/azure/azure-resource-manager/bicep).
