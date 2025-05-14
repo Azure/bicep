@@ -1582,7 +1582,7 @@ namespace Bicep.Core.TypeSystem
         {
             var parent = this.binder.GetParent(syntax);
             if (parent is not FunctionCallSyntaxBase parentFunction ||
-                SymbolHelper.TryGetSymbolInfo(this.binder, this.GetDeclaredType, parent) is not FunctionSymbol functionSymbol)
+                SymbolHelper.TryGetSymbolInfo(this.binder, this.GetDeclaredType, parent) is not IFunctionSymbol functionSymbol)
             {
                 return null;
             }

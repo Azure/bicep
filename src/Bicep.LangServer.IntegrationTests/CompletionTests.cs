@@ -2857,6 +2857,79 @@ var test = isTrue(|)
         }
 
         [TestMethod]
+        public async Task Func_usage_param_property_completions_are_offered()
+        {
+            var serverHelper = new ServerRequestHelper(TestContext, ServerWithNamespaceProvider);
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+type PathExtension = {
+  path: string
+}
+
+func getPath(input PathExtension) string => input.path
+
+var test = getPath({|})
+""");
+            var file = await serverHelper.OpenFile(text);
+
+            var completions = await file.RequestAndResolveCompletions(cursor);
+            completions.Should().Contain(c => c.Label == "path");
+
+            var newFile = file.ApplyCompletion(completions, "path");
+            newFile.Should().HaveSourceText("""
+type PathExtension = {
+  path: string
+}
+
+func getPath(input PathExtension) string => input.path
+
+var test = getPath({path:|})
+""");
+        }
+
+        [TestMethod]
+        public async Task Imported_func_usage_param_property_completions_are_offered()
+        {
+            var modContent = """              
+type PathExtension = {
+path: string
+}
+
+@export()
+func getPath(input PathExtension) string => input.path
+""";
+
+
+            var mainContent = """
+import * as mod from 'mod.bicep'
+import { getPath } from 'mod.bicep'
+var foo = getPath({|})
+var bar = mod.getPath({|})
+""";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
+            DocumentUri mainUri = "file:///main.bicep";
+            var files = new Dictionary<DocumentUri, string>
+            {
+                ["file:///mod.bicep"] = modContent,
+                [mainUri] = text
+            };
+
+            var bicepFile = new LanguageClientFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.Uri);
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+
+            var completions = await file.RequestAndResolveCompletions(cursors[0]);
+            completions.Should().Contain(c => c.Label == "path");
+            completions = await file.RequestAndResolveCompletions(cursors[1]);
+            completions.Should().Contain(c => c.Label == "path");
+        }
+
+        [TestMethod]
         public async Task VerifyCompletionrequestAfterPoundSignWithinComment_ShouldDoNothing()
         {
             var fileWithCursors = @"// This is a comment #|";
