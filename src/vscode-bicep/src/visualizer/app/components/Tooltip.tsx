@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { ReactNode, useRef, useState, VFC } from "react";
+import { ReactNode, useRef, useState, FC } from "react";
 import styled from "styled-components";
 
 interface TooltipHostProps {
@@ -25,7 +25,7 @@ const TooltipBox = styled.div<{ active: boolean }>`
   display: ${({ active }) => (active ? "block" : "none")};
 `;
 
-export const TooltipHost: VFC<TooltipHostProps> = ({ content, children }) => {
+export const TooltipHost: FC<TooltipHostProps> = ({ content, children }) => {
   const [active, setActive] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 

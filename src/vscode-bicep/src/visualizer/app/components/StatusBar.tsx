@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { memo, VFC } from "react";
+import { memo, FC } from "react";
 import styled from "styled-components";
 
 interface StatusBarProps {
@@ -29,7 +29,7 @@ const StatusCircle = styled.div<{ hasErrors: boolean }>`
   margin-right: 8px;
 `;
 
-const StatusBarComponent: VFC<StatusBarProps> = ({ errorCount, hasNodes }) => (
+const StatusBarComponent: FC<StatusBarProps> = ({ errorCount, hasNodes }) => (
   <StatusBarContainer>
     <StatusCircle hasErrors={errorCount > 0} />
     {errorCount > 0 && (

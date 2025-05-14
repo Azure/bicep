@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { Stylesheet } from "cytoscape";
+import { StylesheetJson } from "cytoscape";
 import { DefaultTheme } from "styled-components";
 import { importResourceIconInline } from "../../assets/icons/azure";
 import moduleIcon from "../../assets/icons/azure/general/10802-icon-service-Folder-Blank.svg";
@@ -92,7 +92,7 @@ export function createContainerNodeBackgroundUri(symbol: string, isCollection: b
   return createDataUri(backgroundSvg);
 }
 
-export function createStylesheet(theme: DefaultTheme): Stylesheet[] {
+export function createStylesheet(theme: DefaultTheme): StylesheetJson {
   const {
     common: { errorIndicatorColor },
     graph: { childlessNode, containerNode, edge },
@@ -124,7 +124,7 @@ export function createStylesheet(theme: DefaultTheme): Stylesheet[] {
         "border-color": (node) => (node.data("hasError") === true ? errorIndicatorColor : containerNode.borderColor),
         "border-opacity": containerNode.borderOpacity,
         "background-opacity": containerNode.backgroundOpacity,
-        "padding-top": "40px",
+        "padding": "40px 0 0 0",
       },
     },
     {

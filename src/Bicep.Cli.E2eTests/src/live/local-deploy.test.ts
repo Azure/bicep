@@ -9,6 +9,8 @@ import { copyToTempFile, pathToExampleFile, pathToTempFile } from "../utils/fs";
 import { getEnvironment } from "../utils/liveTestEnvironments";
 import { platformSupportsLocalDeploy, publishExtension } from "../utils/localdeploy";
 
+const TIMEOUT_5MINS = 300_000;
+
 describe("bicep local-deploy", () => {
   const environment = getEnvironment();
   const testArea = `local-deploy-live${environment.suffix}`;
@@ -39,5 +41,5 @@ describe("bicep local-deploy", () => {
           os.EOL,
         ),
       );
-  });
+  }, TIMEOUT_5MINS)
 });

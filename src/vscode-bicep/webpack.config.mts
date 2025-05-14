@@ -5,6 +5,10 @@ import CopyPlugin from "copy-webpack-plugin";
 import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
 import TerserPlugin from "terser-webpack-plugin";
 import webpack from "webpack";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const outputPath = path.resolve(__dirname, "out");
 
@@ -126,7 +130,7 @@ const visualizerConfig: webpack.Configuration = {
   ],
 };
 
-module.exports = (_env: unknown, argv: { mode: string }) => {
+export default (_env: unknown, argv: { mode: string }) => {
   if (argv.mode === "development") {
     // "cheap-module-source-map" is almost 2x faster than "source-map",
     // while it provides decent source map quality.

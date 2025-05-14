@@ -7,6 +7,8 @@ import { invokingBicepCommand } from "../utils/command";
 import { copyToTempFile, pathToExampleFile, pathToTempFile } from "../utils/fs";
 import { platformSupportsLocalDeploy, publishExtension } from "../utils/localdeploy";
 
+const TIMEOUT_5MINS = 300_000;
+
 describe("bicep local-deploy", () => {
   const testArea = "local-deploy";
 
@@ -37,6 +39,6 @@ describe("bicep local-deploy", () => {
             os.EOL,
           ),
         );
-    },
+    }, TIMEOUT_5MINS
   );
 });

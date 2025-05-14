@@ -5,6 +5,8 @@ import { describe, expect, it } from "vitest";
 import * as asserts from "./asserts";
 import { Example } from "./example";
 
+const TIMEOUT_2MINS = 120_000;
+
 function getOutputFiles(configuration: "Debug" | "Release", framework: string, publish: boolean): string[] {
   const publishPart = publish ? "publish/" : "";
   return [
@@ -57,7 +59,7 @@ describe("msbuild", () => {
 
     // publish dir should be populated with the same content
     getOutputFiles("Release", publishFramework, true).forEach((file) => example.expectTemplate(file));
-  });
+  }, TIMEOUT_2MINS);
 
   it("should fail if BicepOutputStyle is not set to a valid value", () => {
     const example = new Example("recursive-badmode");

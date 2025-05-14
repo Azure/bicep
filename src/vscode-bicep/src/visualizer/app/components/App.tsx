@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 // import cytoscape from "cytoscape";
 import { ElementDefinition } from "cytoscape";
-import { useEffect, useState, VFC } from "react";
+import { useEffect, useState, FC } from "react";
 import { DefaultTheme, ThemeProvider } from "styled-components";
 import { DeploymentGraph } from "../../../language";
 import { DeploymentGraphMessage, Message, READY_MESSAGE } from "../../messages";
@@ -51,7 +51,7 @@ async function mapToElements(
   return [...nodes, ...edges];
 }
 
-export const App: VFC = () => {
+export const App: FC = () => {
   const [elements, setElements] = useState<ElementDefinition[]>([]);
   const [graph, setGraph] = useState<DeploymentGraph | null>(null);
   const [theme, setTheme] = useState<DefaultTheme>(darkTheme);

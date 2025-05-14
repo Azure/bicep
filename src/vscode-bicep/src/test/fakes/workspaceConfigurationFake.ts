@@ -10,7 +10,7 @@ export class WorkspaceConfigurationFake implements WorkspaceConfiguration {
 
   public get<T>(section: string): T | undefined;
   public get<T>(section: string, defaultValue: T): T;
-  public get<T>(section: unknown, defaultValue?: unknown): T | T | undefined {
+  public get<T>(section: unknown, defaultValue?: T): T | T | undefined {
     if (typeof section === "string") {
       return this.has(section) ? this.dictionary.get(section) : defaultValue;
     }
