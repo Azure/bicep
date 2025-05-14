@@ -5,18 +5,18 @@ using System.Collections.Immutable;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.TypeSystem.Providers;
-using Bicep.Core.TypeSystem.Providers.ThirdParty;
+using Bicep.Core.TypeSystem.Providers.Extensibility;
 using Bicep.Core.TypeSystem.Types;
-using static Bicep.Core.TypeSystem.Providers.ThirdParty.ThirdPartyResourceTypeLoader;
+using static Bicep.Core.TypeSystem.Providers.Extensibility.ExtensionResourceTypeLoader;
 
 namespace Bicep.Core.Semantics.Namespaces
 {
-    public static class ThirdPartyNamespaceType
+    public static class ExtensionNamespaceType
     {
         public static NamespaceType Create(string? aliasName, IResourceTypeProvider resourceTypeProvider, ArtifactReference? artifact, IFeatureProvider features)
         {
-            if (resourceTypeProvider is ThirdPartyResourceTypeProvider thirdPartyProvider &&
-                thirdPartyProvider.GetNamespaceConfiguration() is NamespaceConfiguration namespaceConfig)
+            if (resourceTypeProvider is ExtensionResourceTypeProvider provider &&
+                provider.GetNamespaceConfiguration() is NamespaceConfiguration namespaceConfig)
             {
                 var namespaceSettings = new NamespaceSettings(
                     IsSingleton: namespaceConfig.IsSingleton,

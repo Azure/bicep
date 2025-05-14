@@ -24,7 +24,7 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
         ];
 
         public K8sResourceTypeProvider(K8sResourceTypeLoader resourceTypeLoader)
-            : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
+            : base([.. resourceTypeLoader.GetAvailableTypes()])
         {
             this.resourceTypeLoader = resourceTypeLoader;
             definedTypeCache = new ResourceTypeCache();

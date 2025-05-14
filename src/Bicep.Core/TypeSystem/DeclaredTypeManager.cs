@@ -546,17 +546,12 @@ namespace Bicep.Core.TypeSystem
             // The resource type of an output can be inferred.
             var type = syntax.Type == null && GetOutputValueType(syntax) is { } inferredType ? inferredType : GetDeclaredResourceType(syntax);
 
-            if (type is ResourceType resourceType && IsExtensibilityType(resourceType))
+            if (type is ResourceType resourceType && !resourceType.IsAzResource())
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnsupportedResourceTypeParameterOrOutputType(resourceType.Name));
             }
 
             return type;
-        }
-
-        private static bool IsExtensibilityType(ResourceType resourceType)
-        {
-            return resourceType.DeclaringNamespace.ExtensionName != AzNamespaceType.BuiltInName;
         }
 
         private TypeSymbol? GetOutputValueType(SyntaxBase syntax) => binder.GetParent(syntax) switch
@@ -1587,7 +1582,7 @@ namespace Bicep.Core.TypeSystem
         {
             var parent = this.binder.GetParent(syntax);
             if (parent is not FunctionCallSyntaxBase parentFunction ||
-                SymbolHelper.TryGetSymbolInfo(this.binder, this.GetDeclaredType, parent) is not FunctionSymbol functionSymbol)
+                SymbolHelper.TryGetSymbolInfo(this.binder, this.GetDeclaredType, parent) is not IFunctionSymbol functionSymbol)
             {
                 return null;
             }
@@ -2148,7 +2143,7 @@ namespace Bicep.Core.TypeSystem
 
             List<NamedTypeProperty>? extensionConfigs = null;
 
-            if (features is { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true })
+            if (features.ModuleExtensionConfigsEnabled)
             {
                 extensionConfigs = [];
 

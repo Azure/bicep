@@ -547,6 +547,16 @@
                     }
                   ]
                 },
+                "no-unused-imports": {
+                  "allOf": [
+                    {
+                      "description": "All imports must be used. Defaults to 'Warning'. See https://aka.ms/bicep/linter/no-unused-imports"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "no-unused-vars": {
                   "allOf": [
                     {
@@ -789,10 +799,6 @@
           "type": "boolean",
           "description": "Allows the ARM template layer to use a new schema to represent resources as an object dictionary rather than an array of objects. See https://aka.ms/bicep/experimental-features#symbolicnamecodegen"
         },
-        "extensibility": {
-          "type": "boolean",
-          "description": "Allows Bicep to use a provider model to deploy non-ARM resources. See https://aka.ms/bicep/experimental-features#extensibility"
-        },
         "moduleExtensionConfigs": {
           "type": "boolean",
           "description": "Moves defining extension configurations to the module level rather than from within a template. The feature also includes enhancements for Deployment stacks extensibility integration. This feature is not ready for use. See https://aka.ms/bicep/experimental-features#moduleextensionconfigs"
@@ -832,10 +838,6 @@
         "resourceInfoCodegen": {
             "type": "boolean",
             "description": "Enables the 'resourceInfo' function for simplified code generation. See https://aka.ms/bicep/experimental-features#resourceinfocodegen"
-        },
-        "typedVariables": {
-          "type": "boolean",
-          "description": "If enabled, you can optionally add a type to variable declarations. See https://aka.ms/bicep/experimental-features#typedvariables"
         },
         "desiredStateConfiguration": {
           "type": "boolean",

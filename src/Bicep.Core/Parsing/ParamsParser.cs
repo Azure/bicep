@@ -63,10 +63,10 @@ namespace Bicep.Core.Parsing
                             LanguageConstants.ImportKeyword => this.CompileTimeImportDeclaration(ExpectKeyword(LanguageConstants.ImportKeyword), leadingNodes),
                             LanguageConstants.ExtensionKeyword => this.ExtensionConfigAssignment(leadingNodes),
                             LanguageConstants.TypeKeyword => this.TypeDeclaration(leadingNodes),
-                            _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration(supportsTypeDeclarations: true)),
+                            _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration()),
                         },
                         TokenType.NewLine => this.NewLine(),
-                        _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration(supportsTypeDeclarations: true)),
+                        _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration()),
                     };
 
                     string? ValidateKeyword(string keyword) =>

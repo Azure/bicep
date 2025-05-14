@@ -5,7 +5,7 @@ using Azure.Bicep.Types;
 using Azure.Bicep.Types.Index;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
-using static Bicep.Core.TypeSystem.Providers.ThirdParty.ThirdPartyResourceTypeLoader;
+using static Bicep.Core.TypeSystem.Providers.Extensibility.ExtensionResourceTypeLoader;
 
 namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
 {

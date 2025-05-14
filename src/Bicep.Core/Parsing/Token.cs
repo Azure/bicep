@@ -14,8 +14,8 @@ namespace Bicep.Core.Parsing
         {
             Type = type;
             Span = span;
-            LeadingTrivia = leadingTrivia.ToImmutableArray();
-            TrailingTrivia = trailingTrivia.ToImmutableArray();
+            LeadingTrivia = [.. leadingTrivia];
+            TrailingTrivia = [.. trailingTrivia];
 
 #if DEBUG
             var leadingNonNil = LeadingTrivia.Where(x => x.Span != TextSpan.Nil).ToArray();

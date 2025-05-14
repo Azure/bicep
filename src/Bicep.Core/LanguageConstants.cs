@@ -378,7 +378,7 @@ namespace Bicep.Core
                 new(ModuleIdentityPropertyName, IdentityObject, TypePropertyFlags.None),
             ];
 
-            if (features is { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true })
+            if (features.ModuleExtensionConfigsEnabled)
             {
                 extensionConfigsProperties ??= [];
                 var extensionConfigsType = new ObjectType(ModuleExtensionConfigsPropertyName, TypeSymbolValidationFlags.Default, extensionConfigsProperties);

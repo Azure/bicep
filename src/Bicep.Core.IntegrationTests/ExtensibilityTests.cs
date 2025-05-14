@@ -463,176 +463,17 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
         }
 
         [TestMethod]
-        public void Bar_import_end_to_end_test()
-        {
-            var result = CompilationHelper.Compile(CreateServiceBuilder(),
-                ("main.bicep", @"
-param accountName string
-
-resource stgAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-  name: toLower(accountName)
-  location: resourceGroup().location
-  kind: 'Storage'
-  sku: {
-    name: 'Standard_LRS'
-  }
-}
-
-var connectionString = 'DefaultEndpointsProtocol=https;AccountName=${stgAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${stgAccount.listKeys().keys[0].value}'
-
-module website './website.bicep' = {
-  name: 'website'
-  params: {
-    connectionString: connectionString
-  }
-}
-"),
-                ("website.bicep", @"
-@secure()
-param connectionString string
-
-extension bar with {
-  connectionString: connectionString
-} as stg
-
-resource container 'container' = {
-  name: 'bicep'
-}
-
-resource blob 'blob' = {
-  name: 'blob.txt'
-  containerName: container.name
-  base64Content: base64(loadTextContent('blob.txt'))
-}
-"),
-                ("blob.txt", @"
-Hello from Bicep!"));
-
-            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-            result.Template.Should().DeepEqual(JToken.Parse("""
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "2.1-experimental",
-  "contentVersion": "1.0.0.0",
-  "metadata": {
-    "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
-    "_EXPERIMENTAL_FEATURES_ENABLED": [
-      "Extensibility"
-    ],
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "5753469770830927723"
-    }
-  },
-  "parameters": {
-    "accountName": {
-      "type": "string"
-    }
-  },
-  "resources": {
-    "stgAccount": {
-      "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2019-06-01",
-      "name": "[toLower(parameters('accountName'))]",
-      "location": "[resourceGroup().location]",
-      "kind": "Storage",
-      "sku": {
-        "name": "Standard_LRS"
-      }
-    },
-    "website": {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "website",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "connectionString": {
-            "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', toLower(parameters('accountName')), environment().suffixes.storage, listKeys('stgAccount', '2019-06-01').keys[0].value)]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "2.1-experimental",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
-            "_EXPERIMENTAL_FEATURES_ENABLED": [
-              "Extensibility"
-            ],
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "8473853033217630197"
-            }
-          },
-          "parameters": {
-            "connectionString": {
-              "type": "securestring"
-            }
-          },
-          "variables": {
-            "$fxv#0": "\nHello from Bicep!"
-          },
-          "imports": {
-            "stg": {
-              "provider": "Bar",
-              "version": "0.0.1",
-              "config": {
-                "connectionString": "[parameters('connectionString')]"
-              }
-            }
-          },
-          "resources": {
-            "container": {
-              "import": "stg",
-              "type": "container",
-              "properties": {
-                "name": "bicep"
-              }
-            },
-            "blob": {
-              "import": "stg",
-              "type": "blob",
-              "properties": {
-                "name": "blob.txt",
-                "containerName": "[reference('container').name]",
-                "base64Content": "[base64(variables('$fxv#0'))]"
-              },
-              "dependsOn": [
-                "container"
-              ]
-            }
-          }
-        }
-      },
-      "dependsOn": [
-        "stgAccount"
-      ]
-    }
-  }
-}
-"""));
-        }
-
-        [TestMethod]
         public void Extensibility_v2_emitting_produces_expected_template()
         {
             var services = new ServiceBuilder()
-                .WithFeatureOverrides(new(
-                    ExtensibilityEnabled: true,
-                    ExtensibilityV2EmittingEnabled: true))
+                .WithFeatureOverrides(new(ModuleExtensionConfigsEnabled: true))
                 .WithConfigurationPatch(c => c.WithExtensions("""
                     {
                       "az": "builtin:",
                       "foo": "builtin:"
                     }
                     """))
-                .WithNamespaceProvider(TestExtensibilityNamespaceProvider.CreateWithDefaults());
+                .WithNamespaceProvider(TestExtensionsNamespaceProvider.CreateWithDefaults());
 
             var result = CompilationHelper.Compile(services, """
                 extension foo as foo
@@ -803,7 +644,7 @@ Hello from Bicep!"));
         [DataRow(
             "ParamsFile",
             "BCP337",
-            $"""This declaration type is not valid for a Bicep Parameters file. Supported declarations: "using", "extends", "param", "var".""")]
+            $"""This declaration type is not valid for a Bicep Parameters file. Supported declarations: "using", "extends", "param", "var", "type".""")]
         [DataRow(
             "MainFile",
             "BCP037",
@@ -975,9 +816,9 @@ Hello from Bicep!"));
                           "bar": "builtin:"
                         }
                         """))
-                .WithNamespaceProvider(TestExtensibilityNamespaceProvider.CreateWithDefaults())
+                .WithNamespaceProvider(TestExtensionsNamespaceProvider.CreateWithDefaults())
                 .WithFeaturesOverridden(
-                    f => f with { ExtensibilityEnabled = true, ModuleExtensionConfigsEnabled = moduleExtensionConfigsEnabled });
+                    f => f with { ModuleExtensionConfigsEnabled = moduleExtensionConfigsEnabled });
 
         private async Task<ServiceBuilder> CreateServiceBuilderWithMockMsGraph(bool moduleExtensionConfigsEnabled = false)
         {

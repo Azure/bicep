@@ -12,7 +12,7 @@ using Azure.Bicep.Types.Serialization;
 
 namespace Bicep.Core.UnitTests.Utils;
 
-public static class ThirdPartyTypeHelper
+public static class ExtensionResourceTypeHelper
 {
     public static IReadOnlyDictionary<string, string> GetHttpExtensionTypes()
     {

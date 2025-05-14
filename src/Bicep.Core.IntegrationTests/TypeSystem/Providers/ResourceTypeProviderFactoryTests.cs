@@ -32,7 +32,6 @@ public class ResourceTypeProviderFactoryTests
         var clientFactory = RegistryHelper.CreateMockRegistryClient([.. repositoryNames.Select(name => new RepoDescriptor(registry, $"{repositoryPath}/{name}", ["v1"]))]);
 
         var services = new ServiceBuilder()
-            .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true))
             .WithContainerRegistryClientFactory(clientFactory);
 
         foreach (var repoName in repositoryNames)

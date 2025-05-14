@@ -4,18 +4,18 @@ using System.Collections.Immutable;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
 
-namespace Bicep.Core.TypeSystem.Providers.ThirdParty
+namespace Bicep.Core.TypeSystem.Providers.Extensibility
 {
-    public class ThirdPartyResourceTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
+    public class ExtensionResourceTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
     {
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, [], new TypeProperty(LanguageConstants.String));
 
-        private readonly ThirdPartyResourceTypeLoader resourceTypeLoader;
+        private readonly ExtensionResourceTypeLoader resourceTypeLoader;
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
 
-        public ThirdPartyResourceTypeProvider(ThirdPartyResourceTypeLoader resourceTypeLoader)
-            : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
+        public ExtensionResourceTypeProvider(ExtensionResourceTypeLoader resourceTypeLoader)
+            : base([.. resourceTypeLoader.GetAvailableTypes()])
         {
             this.resourceTypeLoader = resourceTypeLoader;
             definedTypeCache = new ResourceTypeCache();
@@ -167,7 +167,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
             return null;
         }
 
-        public ThirdPartyResourceTypeLoader.NamespaceConfiguration? GetNamespaceConfiguration()
+        public ExtensionResourceTypeLoader.NamespaceConfiguration? GetNamespaceConfiguration()
         {
             return resourceTypeLoader.LoadNamespaceConfiguration();
         }

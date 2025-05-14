@@ -21,10 +21,10 @@ public static class ExpressionFactory
             value);
 
     public static ObjectExpression CreateObject(IEnumerable<ObjectPropertyExpression> properties, SyntaxBase? sourceSyntax = null)
-        => new(sourceSyntax, properties.ToImmutableArray());
+        => new(sourceSyntax, [.. properties]);
 
     public static ArrayExpression CreateArray(IEnumerable<Expression> items, SyntaxBase? sourceSyntax = null)
-        => new(sourceSyntax, items.ToImmutableArray());
+        => new(sourceSyntax, [.. items]);
 
     public static StringLiteralExpression CreateStringLiteral(string value, SyntaxBase? sourceSyntax = null)
         => new(sourceSyntax, value);
@@ -49,7 +49,7 @@ public static class ExpressionFactory
         => CreateFunctionCall(functionName, parameters, sourceSyntax);
 
     public static FunctionCallExpression CreateFunctionCall(string functionName, IEnumerable<Expression> parameters, SyntaxBase? sourceSyntax = null)
-        => new(sourceSyntax, functionName, parameters.ToImmutableArray());
+        => new(sourceSyntax, functionName, [.. parameters]);
 
     public static FunctionCallExpression CreateGeneratedModuleName(ModuleSymbol moduleSymbol, Expression? indexExpression = null)
     {

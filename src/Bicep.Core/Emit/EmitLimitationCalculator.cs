@@ -118,7 +118,7 @@ namespace Bicep.Core.Emit
                 }
 
                 return
-                    // extensibility resources do not have an ARM ID
+                    // extension resources do not have an ARM ID
                     x?.IsAzResource is true &&
                     y?.IsAzResource is true &&
                     // ARM resource ID uniqueness is only enforced on resources with a `true` condition
@@ -151,17 +151,19 @@ namespace Bicep.Core.Emit
             }
 
             private ImmutableArray<IArmIdSegment> NameSegmentsFor(DeclaredResourceMetadata resource)
-                => model.ResourceAncestors.GetAncestors(resource)
-                    .Reverse()
-                    .SelectMany(r => r.IndexExpression switch
-                    {
-                        SyntaxBase idx when model.GetTypeInfo(idx) is IntegerLiteralType literalIndex
-                            => new[] { NameSegmentFor(r.Resource), new LiteralIdSegment(literalIndex.Value.ToString()) },
-                        SyntaxBase idx => new[] { NameSegmentFor(r.Resource), new NonLiteralIdSegment(idx) },
-                        _ => NameSegmentFor(r.Resource).AsEnumerable(),
-                    })
-                    .Append(NameSegmentFor(resource))
-                    .ToImmutableArray();
+                =>
+                [
+                    .. model.ResourceAncestors.GetAncestors(resource)
+                            .Reverse()
+                            .SelectMany(r => r.IndexExpression switch
+                            {
+                                SyntaxBase idx when model.GetTypeInfo(idx) is IntegerLiteralType literalIndex
+                                    => new[] { NameSegmentFor(r.Resource), new LiteralIdSegment(literalIndex.Value.ToString()) },
+                                SyntaxBase idx => new[] { NameSegmentFor(r.Resource), new NonLiteralIdSegment(idx) },
+                                _ => NameSegmentFor(r.Resource).AsEnumerable(),
+                            }),
+                    NameSegmentFor(resource),
+                ];
 
             private IArmIdSegment NameSegmentFor(DeclaredResourceMetadata resource)
                 => IArmIdSegment.For(resource.TryGetNameSyntax(), model) switch

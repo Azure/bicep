@@ -61,13 +61,9 @@ namespace Bicep.LangServer.IntegrationTests.Completions
 
         private static readonly SharedLanguageHelperManager DefaultServer = new();
 
-        private static readonly SharedLanguageHelperManager ServerWithExtensibilityEnabled = new();
-
         private static readonly SharedLanguageHelperManager ServerWithBuiltInTypes = new();
 
         private static readonly SharedLanguageHelperManager ServerWithResourceTypedParamsEnabled = new();
-
-        private static readonly SharedLanguageHelperManager ServerWithTypedVariablesEnabled = new();
 
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -95,11 +91,6 @@ namespace Bicep.LangServer.IntegrationTests.Completions
 
             DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
 
-            ServerWithExtensibilityEnabled.Initialize(
-                async () => await MultiFileLanguageServerHelper.StartLanguageServer(
-                    testContext,
-                    services => services.WithFeatureOverrides(new(testContext, ExtensibilityEnabled: true))));
-
             ServerWithBuiltInTypes.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     testContext,
@@ -110,11 +101,6 @@ namespace Bicep.LangServer.IntegrationTests.Completions
                     testContext,
                     services => services.WithFeatureOverrides(new(testContext, ResourceTypedParamsAndOutputsEnabled: true))
                         .WithNamespaceProvider(BuiltInTestTypes.Create())));
-
-            ServerWithTypedVariablesEnabled.Initialize(
-                async () => await MultiFileLanguageServerHelper.StartLanguageServer(
-                    testContext,
-                    services => services.WithFeatureOverrides(new(testContext, TypedVariablesEnabled: true))));
         }
 
         [ClassCleanup]
@@ -123,7 +109,6 @@ namespace Bicep.LangServer.IntegrationTests.Completions
             await ServerWithNamespaceProvider.DisposeAsync();
             await ServerWithNamespaceAndTestResolver.DisposeAsync();
             await DefaultServer.DisposeAsync();
-            await ServerWithExtensibilityEnabled.DisposeAsync();
             await ServerWithBuiltInTypes.DisposeAsync();
             await ServerWithResourceTypedParamsEnabled.DisposeAsync();
         }
@@ -1887,7 +1872,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         }
 
         [TestMethod]
-        public async Task Extension_completions_work_if_feature_enabled()
+        public async Task Extension_completions_work()
         {
 
             var fileWithCursors = @"
@@ -1898,7 +1883,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
             extension |
             extension a|
             ";
-            await RunCompletionScenarioTest(this.TestContext, ServerWithExtensibilityEnabled, fileWithCursors,
+            await RunCompletionScenarioTest(this.TestContext, DefaultServer, fileWithCursors,
                 completions => completions.Should().SatisfyRespectively(
                     c => c!.Select(x => x.Label).Should().Contain("extension"),
                     c => c!.Select(x => x.Label).Should().Equal("with", "as"),
@@ -1908,21 +1893,10 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
                     c => c!.Select(x => x.Label).Should().Equal($"az", "kubernetes", "sys")
                 ),
                 '|');
-
-            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors,
-                completions => completions.Should().SatisfyRespectively(
-                    c => c!.Select(x => x.Label).Should().NotContain("extension"),
-                    c => c!.Select(x => x.Label).Should().BeEmpty(),
-                    c => c!.Select(x => x.Label).Should().BeEmpty(),
-                    c => c!.Select(x => x.Label).Should().BeEmpty(),
-                    c => c!.Select(x => x.Label).Should().BeEmpty(),
-                    c => c!.Select(x => x.Label).Should().BeEmpty()
-                ),
-                '|');
         }
 
         [TestMethod]
-        public async Task Provider_configuration_completions_work()
+        public async Task Extension_configuration_completions_work()
         {
             {
                 var fileWithCursors = @"
@@ -1930,7 +1904,7 @@ extension kubernetes with | as k8s
 ";
 
                 var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
-                var file = await new ServerRequestHelper(TestContext, ServerWithExtensibilityEnabled).OpenFile(text);
+                var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
 
                 var completions = await file.RequestAndResolveCompletions(cursor);
                 completions.Should().Contain(x => x.Label == "{}");
@@ -1953,7 +1927,7 @@ extension kubernetes with {
 ";
 
                 var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
-                var file = await new ServerRequestHelper(TestContext, ServerWithExtensibilityEnabled).OpenFile(text);
+                var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
 
                 var completions = await file.RequestAndResolveCompletions(cursor);
                 completions.Should().Contain(x => x.Label == "namespace");
@@ -2880,6 +2854,79 @@ var test = isTrue(|)
 
             var completion = completions.Single(x => x.Label == "isTrue").Documentation!.MarkupContent!.Value
                 .Should().Contain("Checks whether the input is true in a roundabout way");
+        }
+
+        [TestMethod]
+        public async Task Func_usage_param_property_completions_are_offered()
+        {
+            var serverHelper = new ServerRequestHelper(TestContext, ServerWithNamespaceProvider);
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+type PathExtension = {
+  path: string
+}
+
+func getPath(input PathExtension) string => input.path
+
+var test = getPath({|})
+""");
+            var file = await serverHelper.OpenFile(text);
+
+            var completions = await file.RequestAndResolveCompletions(cursor);
+            completions.Should().Contain(c => c.Label == "path");
+
+            var newFile = file.ApplyCompletion(completions, "path");
+            newFile.Should().HaveSourceText("""
+type PathExtension = {
+  path: string
+}
+
+func getPath(input PathExtension) string => input.path
+
+var test = getPath({path:|})
+""");
+        }
+
+        [TestMethod]
+        public async Task Imported_func_usage_param_property_completions_are_offered()
+        {
+            var modContent = """              
+type PathExtension = {
+path: string
+}
+
+@export()
+func getPath(input PathExtension) string => input.path
+""";
+
+
+            var mainContent = """
+import * as mod from 'mod.bicep'
+import { getPath } from 'mod.bicep'
+var foo = getPath({|})
+var bar = mod.getPath({|})
+""";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
+            DocumentUri mainUri = "file:///main.bicep";
+            var files = new Dictionary<DocumentUri, string>
+            {
+                ["file:///mod.bicep"] = modContent,
+                [mainUri] = text
+            };
+
+            var bicepFile = new LanguageClientFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.Uri);
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+
+            var completions = await file.RequestAndResolveCompletions(cursors[0]);
+            completions.Should().Contain(c => c.Label == "path");
+            completions = await file.RequestAndResolveCompletions(cursors[1]);
+            completions.Should().Contain(c => c.Label == "path");
         }
 
         [TestMethod]
@@ -5311,7 +5358,7 @@ param myAlert alertType = |>
 """;
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, "|>");
-            var file = await new ServerRequestHelper(TestContext, ServerWithExtensibilityEnabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
 
             var completions = await file.RequestAndResolveCompletions(cursor);
 
@@ -5359,7 +5406,7 @@ param test nestedType = |>
 """;
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, "|>");
-            var file = await new ServerRequestHelper(TestContext, ServerWithExtensibilityEnabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
 
             var completions = await file.RequestAndResolveCompletions(cursor);
 
@@ -5503,7 +5550,7 @@ func fooFunc() fooType => {
         [TestMethod]
         public async Task Typed_variable_post_name_completions_are_offered()
         {
-            var serverHelper = new ServerRequestHelper(TestContext, ServerWithTypedVariablesEnabled);
+            var serverHelper = new ServerRequestHelper(TestContext, ServerWithNamespaceProvider);
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
 type fooType = {
@@ -5527,7 +5574,7 @@ var foo fooType|
         [TestMethod]
         public async Task Typed_variable_value_completions_are_offered()
         {
-            var serverHelper = new ServerRequestHelper(TestContext, ServerWithTypedVariablesEnabled);
+            var serverHelper = new ServerRequestHelper(TestContext, ServerWithNamespaceProvider);
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
 type fooType = {
@@ -5553,7 +5600,7 @@ var foo fooType = {
         [TestMethod]
         public async Task Typed_variable_object_property_completions_are_offered()
         {
-            var serverHelper = new ServerRequestHelper(TestContext, ServerWithTypedVariablesEnabled);
+            var serverHelper = new ServerRequestHelper(TestContext, ServerWithNamespaceProvider);
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
 type fooType = {
@@ -5575,6 +5622,46 @@ type fooType = {
 var foo fooType = {
   bar:|
 }
+""");
+        }
+
+        [TestMethod]
+        public async Task Typed_variable_type_completions_are_offered()
+        {
+            var serverHelper = new ServerRequestHelper(TestContext, ServerWithNamespaceProvider);
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+var foo | = [
+  'bar'
+]
+""");
+            var mainFile = await serverHelper.OpenFile(text);
+
+            var newFile = await mainFile.RequestAndApplyCompletion(cursor, "array");
+            newFile.Should().HaveSourceText("""
+var foo array| = [
+  'bar'
+]
+""");
+        }
+
+        [TestMethod]
+        public async Task Typed_variable_type_completions_are_offered_2()
+        {
+            var serverHelper = new ServerRequestHelper(TestContext, ServerWithNamespaceProvider);
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+var foo a| = [
+  'bar'
+]
+""");
+            var mainFile = await serverHelper.OpenFile(text);
+
+            var newFile = await mainFile.RequestAndApplyCompletion(cursor, "array");
+            newFile.Should().HaveSourceText("""
+var foo array| = [
+  'bar'
+]
 """);
         }
 

@@ -93,8 +93,8 @@ public class PublishExtensionCommandTests : TestBase
     {
         var fs = new MockFileSystem();
 
-        var typesTgz = ThirdPartyTypeHelper.GetTestTypesTgz();
-        ThirdPartyTypeHelper.WriteTypesTgzToFs(fs, "/source", typesTgz);
+        var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
+        ExtensionResourceTypeHelper.WriteTypesTgzToFs(fs, "/source", typesTgz);
         var indexPath = "/source/index.json";
 
         fs.Directory.CreateDirectory("/target");
@@ -103,7 +103,7 @@ public class PublishExtensionCommandTests : TestBase
         var publishResult = await Bicep(services => services.WithFileSystem(fs), ["publish-extension", indexPath, "--target", targetPath]);
         publishResult.Should().Succeed().And.NotHaveStdout();
 
-        var services = new ServiceBuilder().WithFileSystem(fs).WithFeatureOverrides(new(ExtensibilityEnabled: true));
+        var services = new ServiceBuilder().WithFileSystem(fs);
         var compileResult = await CompilationHelper.RestoreAndCompile(services, """
 extension '../../target/extension.tgz'
 

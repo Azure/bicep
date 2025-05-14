@@ -20,12 +20,7 @@ namespace Bicep.Core.IntegrationTests
     {
         private async Task<ServiceBuilder> GetServices()
         {
-            var services = new ServiceBuilder()
-                .WithFeaturesOverridden(f => f with { ExtensibilityEnabled = true });
-
-            services = await ExtensionTestHelper.AddMockMsGraphExtension(services, TestContext);
-
-            return services;
+            return await ExtensionTestHelper.AddMockMsGraphExtension(new(), TestContext);
         }
 
         private async Task<ServiceBuilder> ServicesWithTestExtensionArtifact(ArtifactRegistryAddress artifactRegistryAddress, BinaryData artifactPayload)
@@ -44,7 +39,7 @@ namespace Bicep.Core.IntegrationTests
             var cacheRoot = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
 
             return new ServiceBuilder()
-                .WithFeatureOverrides(new(ExtensibilityEnabled: true, CacheRootDirectory: cacheRoot))
+                .WithFeatureOverrides(new(CacheRootDirectory: cacheRoot))
                 .WithContainerRegistryClientFactory(clientFactory);
         }
 
@@ -98,7 +93,6 @@ namespace Bicep.Core.IntegrationTests
                 new RepoDescriptor(artifactRegistryAddress.RegistryAddress, artifactRegistryAddress.RepositoryPath, [artifactRegistryAddress.ExtensionVersion]), mockBlobClient.Object);
 
             var services = new ServiceBuilder()
-                .WithFeatureOverrides(new(ExtensibilityEnabled: true))
                 .WithContainerRegistryClientFactory(containerRegistryFactoryBuilder.Build());
 
             // ACT
@@ -156,7 +150,7 @@ namespace Bicep.Core.IntegrationTests
             // Scenario: Artifact layer payload is missing an "index.json"
             yield return new object[]
             {
-                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(
+                ExtensionResourceTypeHelper.GetTypesTgzBytesFromFiles(
                     ("unknown.json", "{}")),
                 "The path: index.json was not found in artifact contents"
             };
@@ -164,7 +158,7 @@ namespace Bicep.Core.IntegrationTests
             // Scenario: "index.json" is not valid JSON
             yield return new object[]
             {
-                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(
+                ExtensionResourceTypeHelper.GetTypesTgzBytesFromFiles(
                     ("index.json", """{"INVALID_JSON": 777""")),
                 "'7' is an invalid end of a number. Expected a delimiter. Path: $.INVALID_JSON | LineNumber: 0 | BytePositionInLine: 20."
             };
@@ -172,7 +166,7 @@ namespace Bicep.Core.IntegrationTests
             // Scenario: "index.json" with malformed or missing required data
             yield return new object[]
             {
-                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(
+                ExtensionResourceTypeHelper.GetTypesTgzBytesFromFiles(
                     ("index.json", """{ "UnexpectedMember": false}""")),
                 "Value cannot be null. (Parameter 'source')"
             };
@@ -242,7 +236,7 @@ namespace Bicep.Core.IntegrationTests
                 "1.0.0-fake");
             var services = await ServicesWithTestExtensionArtifact(
                 artifactRegistryAddress,
-                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(("index.json", BicepTestConstants.GetMsGraphIndexJson(BicepTestConstants.MsGraphVersionBeta))));
+                ExtensionResourceTypeHelper.GetTypesTgzBytesFromFiles(("index.json", BicepTestConstants.GetMsGraphIndexJson(BicepTestConstants.MsGraphVersionBeta))));
             services = services.WithConfigurationPatch(c => c.WithExtensions($$"""
             {
                 "az": "builtin:",
@@ -271,7 +265,7 @@ namespace Bicep.Core.IntegrationTests
             var registry = "example.azurecr.io";
             var repository = "microsoftgraph/v1";
 
-            var services = ExtensionTestHelper.GetServiceBuilder(fileSystem, registry, repository, new(ExtensibilityEnabled: true));
+            var services = ExtensionTestHelper.GetServiceBuilder(fileSystem, registry, repository, new());
 
             await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), "/index.json", $"br:{registry}/{repository}:1.2.3");
 

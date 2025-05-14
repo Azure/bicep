@@ -149,11 +149,7 @@ namespace Bicep.LanguageServer.Completions
                         yield return CreateKeywordCompletion(LanguageConstants.TargetScopeKeyword, "Target Scope keyword", context.ReplacementRange);
                         yield return CreateKeywordCompletion(LanguageConstants.TypeKeyword, "Type keyword", context.ReplacementRange);
                         yield return CreateKeywordCompletion(LanguageConstants.ImportKeyword, "Import keyword", context.ReplacementRange);
-
-                        if (model.Features.ExtensibilityEnabled)
-                        {
-                            yield return CreateKeywordCompletion(LanguageConstants.ExtensionKeyword, "Extension keyword", context.ReplacementRange);
-                        }
+                        yield return CreateKeywordCompletion(LanguageConstants.ExtensionKeyword, "Extension keyword", context.ReplacementRange);
 
                         if (model.Features.TestFrameworkEnabled)
                         {
@@ -314,8 +310,7 @@ namespace Bicep.LanguageServer.Completions
                 return GetTypeCompletions(model, context);
             }
 
-            if (context.Kind.HasFlag(BicepCompletionContextKind.VariableNameFollower) &&
-                model.Features.TypedVariablesEnabled)
+            if (context.Kind.HasFlag(BicepCompletionContextKind.VariableNameFollower))
             {
                 return GetTypeCompletions(model, context);
             }

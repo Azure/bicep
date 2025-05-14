@@ -1418,7 +1418,7 @@ namespace Bicep.Core.Parsing
             {
                 Synchronize(true, expectedTypes);
 
-                skippedTokens = reader.Slice(startReaderPosition, reader.Position - startReaderPosition).ToArray();
+                skippedTokens = [.. reader.Slice(startReaderPosition, reader.Position - startReaderPosition)];
                 skippedSpan = TextSpan.SafeBetween(skippedTokens, startToken.Span.Position);
             }
 

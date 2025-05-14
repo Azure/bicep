@@ -61,7 +61,7 @@ namespace Bicep.Core.TypeSystem
         public static TypeSymbol MakeNullable(ITypeReference typeReference) => CreateTypeUnion(typeReference, LanguageConstants.Null);
 
         public static LambdaType CreateLambdaType(IEnumerable<ITypeReference> argumentTypes, IEnumerable<ITypeReference> optionalArgumentTypes, TypeSymbol returnType)
-            => new(argumentTypes.ToImmutableArray(), optionalArgumentTypes.ToImmutableArray(), returnType);
+            => new([.. argumentTypes], [.. optionalArgumentTypes], returnType);
 
         /// <summary>
         /// Returns an ordered enumerable of type names.

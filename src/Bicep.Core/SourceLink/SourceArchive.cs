@@ -127,7 +127,7 @@ namespace Bicep.Core.SourceLink
                 sourceFileGrouping.SourceFiles.Select(x => new SourceFileWithArtifactReference(x, uriToArtifactReference.TryGetValue(x.Uri, out var reference) ? reference : null));
 
             var documentLinks = SourceCodeDocumentLinkHelper.GetAllModuleDocumentLinks(sourceFileGrouping);
-            return CreateFor(sourceFileGrouping.EntryPoint.Uri, sourceFileGrouping.EntryPoint.Features.CacheRootDirectory, documentLinks, sourceFilesWithArtifactReference.ToArray());
+            return CreateFor(sourceFileGrouping.EntryPoint.Uri, sourceFileGrouping.EntryPoint.Features.CacheRootDirectory, documentLinks, [.. sourceFilesWithArtifactReference]);
         }
 
         // TODO(shenglol): The method is only used by tests. It would be ideal to remove it.
@@ -135,7 +135,7 @@ namespace Bicep.Core.SourceLink
         public static SourceArchive CreateFor(Uri entrypointFileUri, IDirectoryHandle? cacheRoot, IReadOnlyDictionary<Uri, SourceCodeDocumentUriLink[]>? documentLinks, params SourceFileWithArtifactReference[] sourceFiles)
         {
             // Don't package template spec files - they don't appear in the compiled JSON so we shouldn't expose them
-            sourceFiles = sourceFiles.Where(sf => sf.SourceFile is not TemplateSpecFile).ToArray();
+            sourceFiles = [.. sourceFiles.Where(sf => sf.SourceFile is not TemplateSpecFile)];
 
             // Filter out any links where the source or target is not in our list of files to package
             var sourceFileUris = sourceFiles.Select(sf => sf.SourceFile.Uri).ToArray();
@@ -303,7 +303,7 @@ namespace Bicep.Core.SourceLink
             return uriBasedDocumentLinks?.Select(
                 x => new KeyValuePair<string, ImmutableArray<SourceCodeDocumentPathLink>>(
                     sourceUriToRelativePathMap[x.Key],
-                    x.Value.Select(link => DocumentPathLinkFromUriLink(sourceUriToRelativePathMap, link)).ToImmutableArray()
+                    [.. x.Value.Select(link => DocumentPathLinkFromUriLink(sourceUriToRelativePathMap, link))]
                 )).ToImmutableDictionary();
         }
 

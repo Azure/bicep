@@ -13,8 +13,6 @@ public interface IFeatureProvider
 
     bool SymbolicNameCodegenEnabled { get; }
 
-    bool ExtensibilityEnabled { get; }
-
     bool ResourceTypedParamsAndOutputsEnabled { get; }
 
     bool SourceMappingEnabled { get; }
@@ -35,10 +33,6 @@ public interface IFeatureProvider
 
     bool ResourceInfoCodegenEnabled { get; }
 
-    bool TypedVariablesEnabled { get; }
-
-    bool ExtensibilityV2EmittingEnabled { get; }
-
     bool ModuleExtensionConfigsEnabled { get; }
 
     bool DesiredStateConfigurationEnabled { get; }
@@ -55,7 +49,6 @@ public interface IFeatureProvider
             {
                 (SymbolicNameCodegenEnabled, CoreResources.ExperimentalFeatureNames_SymbolicNameCodegen, false, false), // Symbolic name codegen is listed as not impacting compilation because it is GA
                 (ResourceInfoCodegenEnabled, CoreResources.ExperimentalFeatureNames_ResourceInfoCodegen, true, true),
-                (ExtensibilityEnabled, CoreResources.ExperimentalFeatureNames_Extensibility, true, true),
                 (ResourceTypedParamsAndOutputsEnabled, CoreResources.ExperimentalFeatureNames_ResourceTypedParamsAndOutputs, true, false),
                 (SourceMappingEnabled, CoreResources.ExperimentalFeatureNames_SourceMapping, true, false),
                 (TestFrameworkEnabled, CoreResources.ExperimentalFeatureNames_TestFramework, false, false),
@@ -63,7 +56,6 @@ public interface IFeatureProvider
                 (WaitAndRetryEnabled, CoreResources.ExperimentalFeatureNames_WaitAndRetry, true, true),
                 (OnlyIfNotExistsEnabled, CoreResources.ExperimentalFeatureNames_OnlyIfNotExists, true, true),
                 (LocalDeployEnabled, "Enable local deploy", true, true),
-                (TypedVariablesEnabled, "Typed variables", true, false),
                 (ExtendableParamFilesEnabled, "Enable extendable parameters", true, false),
                 (ModuleExtensionConfigsEnabled, "Enable defining extension configs for modules", true, true),
                 (DesiredStateConfigurationEnabled, "Enable defining Desired State Configuration documents", true, false),

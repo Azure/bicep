@@ -33,7 +33,7 @@ namespace Bicep.Local.Deploy;
 
 public static class IServiceCollectionExtensions
 {
-    public static IServiceCollection RegisterLocalDeployServices(this IServiceCollection services, LocalExtensibilityHostManager extensibilityHandler)
+    public static IServiceCollection RegisterLocalDeployServices(this IServiceCollection services, LocalExtensionHostManager extensionHostManager)
     {
         var eventSource = new TraceEventSource();
         services.AddSingleton<IGeneralEventSource>(eventSource);
@@ -80,7 +80,7 @@ public static class IServiceCollectionExtensions
 
         services.AddSingleton<IDeploymentsRequestContext, LocalRequestContext>();
         services.AddSingleton<LocalRequestContext>();
-        services.AddSingleton(extensibilityHandler);
+        services.AddSingleton(extensionHostManager);
 
         services.AddSingleton<LocalDeploymentEngine>();
 

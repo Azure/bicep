@@ -15,6 +15,7 @@ using Bicep.Core.Text;
 using Bicep.LanguageServer.Completions.SyntaxPatterns;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Utils;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LanguageServer.Completions
@@ -181,6 +182,7 @@ namespace Bicep.LanguageServer.Completions
                 return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.DisableNextLineDiagnosticsDirectiveStart, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
             }
 
+            var pattern = SyntaxPattern.Create(bicepFile.ProgramSyntax, offset);
             var topLevelDeclarationInfo = SyntaxMatcher.FindLastNodeOfType<ITopLevelDeclarationSyntax, SyntaxBase>(matchingNodes);
             var enclosingDecorable = SyntaxMatcher.FindLastNodeOfType<DecorableSyntax, DecorableSyntax>(matchingNodes);
             var objectInfo = SyntaxMatcher.FindLastNodeOfType<ObjectSyntax, ObjectSyntax>(matchingNodes);
@@ -236,17 +238,11 @@ namespace Bicep.LanguageServer.Completions
                 ConvertFlag(ExpectingContextualAsKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingExtensionAsKeyword) |
                 ConvertFlag(ExpectingContextualFromKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingImportFromKeyword) |
                 ConvertFlag(IsAfterSpreadTokenContext(matchingNodes, offset), BicepCompletionContextKind.Expression) |
-                ConvertFlag(IsVariableNameFollowerContext(matchingNodes, offset), BicepCompletionContextKind.VariableNameFollower);
-
-            if (bicepFile.Features.ExtensibilityEnabled)
-            {
-                var pattern = SyntaxPattern.Create(bicepFile.ProgramSyntax, offset);
-
-                kind |= ConvertFlag(ExpectingExtensionSpecification.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionSpecification) |
-                    ConvertFlag(ExpectingExtensionWithOrAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionWithOrAsKeyword) |
-                    ConvertFlag(ExpectingExtensionConfig.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionConfig) |
-                    ConvertFlag(ExpectingExtensionAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionAsKeyword);
-            }
+                ConvertFlag(IsVariableNameFollowerContext(matchingNodes, offset), BicepCompletionContextKind.VariableNameFollower) |
+                ConvertFlag(ExpectingExtensionSpecification.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionSpecification) |
+                ConvertFlag(ExpectingExtensionWithOrAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionWithOrAsKeyword) |
+                ConvertFlag(ExpectingExtensionConfig.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionConfig) |
+                ConvertFlag(ExpectingExtensionAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionAsKeyword);
 
             if (bicepFile.Features.AssertsEnabled)
             {
@@ -442,7 +438,7 @@ namespace Bicep.LanguageServer.Completions
             // resource foo '...' e| = {
             SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (resource, skipped, token) => resource.Assignment == skipped && token.Type == TokenType.Identifier) ||
             // resource foo '...' |=
-            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, Token>(matchingNodes, (resource, token) => resource.Assignment == token && token.Type == TokenType.Assignment && offset == token.Span.Position);
+            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, Token>(matchingNodes, (resource, token) => IsAtTokenStart(resource.Assignment, token, offset) && token.Type == TokenType.Assignment);
 
         private static bool IsVariableNameFollowerContext(List<SyntaxBase> matchingNodes, int offset) =>
             // var foo |
@@ -450,7 +446,17 @@ namespace Bicep.LanguageServer.Completions
                 offset > variable.Name.GetEndPosition() &&
                 variable.Type is null &&
                 variable.Assignment is SkippedTriviaSyntax &&
-                offset <= variable.Assignment.Span.Position);
+                offset <= variable.Assignment.Span.Position) ||
+            // var foo |
+            // OR
+            // var foo | = ...
+            SyntaxMatcher.IsTailMatch<VariableDeclarationSyntax>(matchingNodes, variable => offset > (variable.Type ?? variable.Name).GetEndPosition() && offset <= variable.Assignment.Span.Position) ||
+            // var foo e|
+            // OR
+            // var foo e| = ...
+            SyntaxMatcher.IsTailMatch<VariableDeclarationSyntax, TypeVariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier) ||
+            // var foo |=
+            SyntaxMatcher.IsTailMatch<VariableDeclarationSyntax, Token>(matchingNodes, (resource, token) => IsAtTokenStart(resource.Assignment, token, offset) && token.Type == TokenType.Assignment);
 
         private static bool IsTargetScopeContext(List<SyntaxBase> matchingNodes, int offset) =>
             SyntaxMatcher.IsTailMatch<TargetScopeSyntax>(matchingNodes, targetScope =>
@@ -846,6 +852,12 @@ namespace Bicep.LanguageServer.Completions
         private static bool IsBetweenNodes(int offset, IPositionable first, IPositionable second)
             => first.Span.Length > 0 && first.IsBefore(offset) && second.IsOnOrAfter(offset);
 
+        private static bool IsAtTokenStart(SyntaxBase syntax, Token token, int offset) =>
+            syntax == token && offset == token.Span.Position;
+
+        private static bool IsAtTokenEnd(SyntaxBase syntax, Token token, int offset) =>
+            syntax == token && offset == token.Span.GetEndPosition();
+
         private static bool IsImportPathContext(List<SyntaxBase> matchingNodes, int offset) =>
             // import {} from |
             SyntaxMatcher.IsTailMatch<CompileTimeImportFromClauseSyntax>(matchingNodes, (fromClause) => IsBetweenNodes(offset, fromClause.Keyword, fromClause.Path)) ||
@@ -909,7 +921,7 @@ namespace Bicep.LanguageServer.Completions
             // [for x in y: | ];
             SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, ForSyntax>(matchingNodes, (resource, @for) => resource.Value == @for) ||
             // [for x in y:|]
-            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, ForSyntax, Token>(matchingNodes, (resource, @for, token) => resource.Value == @for && @for.Colon == token && token.Type == TokenType.Colon && offset == token.Span.GetEndPosition());
+            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, ForSyntax, Token>(matchingNodes, (resource, @for, token) => resource.Value == @for && IsAtTokenEnd(@for.Colon, token, offset) && token.Type == TokenType.Colon);
 
         private static bool IsModuleBodyContext(List<SyntaxBase> matchingNodes, int offset) =>
             // modules only allow {} as the body so we don't need to worry about
@@ -926,7 +938,7 @@ namespace Bicep.LanguageServer.Completions
             // [for x in y: | ];
             SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, ForSyntax>(matchingNodes, (module, @for) => module.Value == @for) ||
             // [for x in y:|]
-            SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, ForSyntax, Token>(matchingNodes, (module, @for, token) => module.Value == @for && @for.Colon == token && token.Type == TokenType.Colon && offset == token.Span.GetEndPosition());
+            SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, ForSyntax, Token>(matchingNodes, (module, @for, token) => module.Value == @for && IsAtTokenEnd(@for.Colon, token, offset) && token.Type == TokenType.Colon);
 
         private static bool IsTestBodyContext(List<SyntaxBase> matchingNodes, int offset) =>
             // tests only allow {} as the body so we don't need to worry about
