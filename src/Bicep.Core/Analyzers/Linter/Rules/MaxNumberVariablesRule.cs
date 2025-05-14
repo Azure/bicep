@@ -3,6 +3,8 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -28,12 +30,22 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             var variablesInCompiledTemplate = model.Root.VariableDeclarations.Count() +
                 model.ImportClosureInfo.ImportedVariablesInClosure.Count();
-            if (variablesInCompiledTemplate > MaxNumber)
+            if (variablesInCompiledTemplate <= MaxNumber)
             {
-                var firstItem = model.Root.VariableDeclarations.First();
-                return new IDiagnostic[] { CreateDiagnosticForSpan(diagnosticLevel, firstItem.NameSource.Span, MaxNumber) };
+                return [];
             }
-            return [];
+
+            var deploymentSyntaxExists = model.Root.DeclarationsBySyntax
+                .Any(kvp => kvp.Key is ModuleDeclarationSyntax or ResourceDeclarationSyntax or ParameterDeclarationSyntax or OutputDeclarationSyntax);
+            var exportedVariableExists = model.Root.DeclarationsBySyntax
+                .Any(kvp => kvp.Key is VariableDeclarationSyntax && kvp.Value.HasDecorator("export"));
+            if(!deploymentSyntaxExists && exportedVariableExists)
+            {
+                return [];
+            }
+
+            var firstItem = model.Root.VariableDeclarations.First();
+            return new IDiagnostic[] { CreateDiagnosticForSpan(diagnosticLevel, firstItem.NameSource.Span, MaxNumber) };
         }
     }
 }

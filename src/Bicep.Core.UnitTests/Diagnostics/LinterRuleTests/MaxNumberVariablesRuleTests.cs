@@ -35,6 +35,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             new string[] {
                 "Too many variables. Number of variables is limited to 512."
             })]
+        [DataRow(2, 514, @"
+        @export()
+        var v% = %
+        ", new string[] {})]
         [DataTestMethod]
         public void TooManyVariables(int i, int j, string pattern, string[] expectedMessages)
         {
