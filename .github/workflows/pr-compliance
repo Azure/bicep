@@ -1,0 +1,20 @@
+name: PR Compliance
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - labeled
+      - unlabeled
+
+jobs:
+  check-for-docs-label:
+    if: ${{ contains(github.event.pull_request.labels.*.name, '📘 Docs Needed') || contains(github.event.pull_request.labels.*.name, '📘 Docs Not Needed') || contains(github.event.pull_request.labels.*.name, 'dependencies') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Missing docs label
+        run: |
+          echo "Please either use the '📘 Docs Needed' or '📘 Docs Not Needed' label"
+          exit 1
