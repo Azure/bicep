@@ -35,6 +35,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             new string[] {
                 "Too many variables. Number of variables is limited to 512."
             })]
+        [DataRow(2, 514, @"
+        @export()
+        var v% = %
+        ", new string[] {})]
         [DataTestMethod]
         public void TooManyVariables(int i, int j, string pattern, string[] expectedMessages)
         {
@@ -64,6 +68,42 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 DiagnosticLevel.Error,
                 [$"Too many variables. Number of variables is limited to {MaxNumberVariablesRule.MaxNumber}."],
                 new(AdditionalFiles: [("imported.bicep", importTarget)]));
+        }
+
+        [DataRow("param p1 string = 'test'")]
+        [DataRow("output out string = ''")]
+        [DataRow(@"
+        resource r1 'Microsoft.Resources/deployments@2020-10-01' = {
+            name: 'test'
+            properties: {
+                mode: 'Incremental'
+                template: {
+                }
+            }
+        }")]
+        [DataRow(@"
+        module m1 'm1.bicep' = {
+            name: 'test'
+            params: {
+                p1: 'test'
+            }
+        }")]
+        [DataTestMethod]
+        public void TooManyVariablesWithDeploymentSyntax(string deployableSyntaxDeclaration)
+        {
+            var variablesWithExport = GenerateText(2, 514, """
+                                                 @export()
+                                                 var v% = %
+                                                 """);
+            variablesWithExport += $"""
+
+                                   {deployableSyntaxDeclaration}
+                                   """;
+            CompileAndTest(variablesWithExport,
+                MaxNumberVariablesRule.Code,
+                DiagnosticLevel.Error,
+                [$"Too many variables. Number of variables is limited to {MaxNumberVariablesRule.MaxNumber}."],
+                new(AdditionalFiles: [("m1.bicep", "param p1 string = 'test'")]));
         }
     }
 }
