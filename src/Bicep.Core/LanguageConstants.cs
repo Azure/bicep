@@ -287,13 +287,18 @@ namespace Bicep.Core
             yield return new NamedTypeProperty("description", String, TypePropertyFlags.Constant);
         }
 
+        private static readonly TypeSymbol identityTypeString =
+            TypeHelper.CreateTypeUnion(
+                TypeFactory.CreateStringLiteralType("None"),
+                TypeFactory.CreateStringLiteralType("UserAssigned"));
+
         private static readonly IEnumerable<NamedTypeProperty> identityProperties = new[]
         {
-                new NamedTypeProperty("type", String, TypePropertyFlags.Required),
+                new NamedTypeProperty("type", identityTypeString, TypePropertyFlags.Required),
                 new NamedTypeProperty("userAssignedIdentities", Object, TypePropertyFlags.None)
         };
 
-        public static readonly TypeSymbol IdentityObject = new ObjectType("identityObject", TypeSymbolValidationFlags.Default, identityProperties);
+        public static readonly TypeSymbol IdentityObject = new ObjectType("identity", TypeSymbolValidationFlags.Default, identityProperties);
 
         public static IEnumerable<string> GetResourceScopeDescriptions(ResourceScope resourceScope)
         {
