@@ -64,7 +64,7 @@ namespace Bicep.Cli.IntegrationTests
                 this.TemplateSpecRepositoryFactory = TemplateSpecRepositoryFactory ?? Repository.Create<ITemplateSpecRepositoryFactory>().Object;
                 this.Environment = Environment;
 
-                this.ModuleMetadataClient = ModuleMetadataClient ?? StrictMock.Of<IPublicModuleIndexHttpClient>().Object;
+                this.ModuleMetadataClient = ModuleMetadataClient ?? new MockPublicModuleIndexHttpClient(new());
             }
         }
 
