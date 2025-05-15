@@ -809,7 +809,7 @@ module {symbolicName} 'mod.bicep' = [for x in []: {{
 
             var files = new Dictionary<Uri, string>
             {
-                [mainUri] = @"
+                [mainUri] = """
 param inputa string
 param inputb string
 param identityId string
@@ -851,19 +851,19 @@ module modulec 'moduleb.bicep' = {
   }
 }
 
-",
-                [moduleAUri] = @"
+""",
+                [moduleAUri] = """
 param inputa string
 param inputb string
 
 output outputa string = '${inputa}-${inputb}'
-",
-                [moduleBUri] = @"
+""",
+                [moduleBUri] = """
 param inputa string
 param inputb string
 
 output outputb string = '${inputa}-${inputb}'
-",
+"""
             };
 
             var compilation = Services.BuildCompilation(files, mainUri);
@@ -898,7 +898,7 @@ output outputb string = '${inputa}-${inputb}'
         {
             var result = CompilationHelper.Compile(
                 ServicesWithResourceTyped,
-("main.bicep", @"
+("main.bicep", """
 module mod './module.bicep' = {
     identity: {
         type: 'UserAssigned'
@@ -913,13 +913,13 @@ module mod './module.bicep' = {
     }
 }
 
-"),
-("module.bicep", @"
+"""),
+("module.bicep", """
 param keyVaultUri string
 param identityId string
 
 output out string = '${keyVaultUri}-${identityId}'
-"));
+"""));
             result.Should().NotHaveAnyDiagnostics();
 
             result.Template.Should().HaveValueAtPath("$.resources[0].identity", new JObject()
@@ -937,7 +937,7 @@ output out string = '${keyVaultUri}-${identityId}'
         {
             var result = CompilationHelper.Compile(
                 ServicesWithResourceTyped,
-("main.bicep", @"
+("main.bicep", """
 param identity object
 module mod './module.bicep' = {
     identity: identity
@@ -948,13 +948,13 @@ module mod './module.bicep' = {
     }
 }
 
-"),
-("module.bicep", @"
+"""),
+("module.bicep", """
 param keyVaultUri string
 param identityId string
 
 output out string = '${keyVaultUri}-${identityId}'
-"));
+"""));
             result.Should().NotHaveAnyDiagnostics();
 
             result.Template.Should().HaveValueAtPath("$.resources[0].identity", new JValue("[parameters('identity')]"));
@@ -965,7 +965,7 @@ output out string = '${keyVaultUri}-${identityId}'
         {
             var result = CompilationHelper.Compile(
                 ServicesWithResourceTyped,
-("main.bicep", @"
+("main.bicep", """
 module mod './module.bicep' = {
     identity: {
         userAssignedIdentities: [
@@ -980,13 +980,13 @@ module mod './module.bicep' = {
     }
 }
 
-"),
-("module.bicep", @"
+"""),
+("module.bicep", """
 param keyVaultUri string
 param identityId string
 
 output out string = '${keyVaultUri}-${identityId}'
-"));
+"""));
             result.Should().HaveDiagnostics(new[]
             {
                 ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"type\"."),
@@ -1000,7 +1000,7 @@ output out string = '${keyVaultUri}-${identityId}'
         {
             var result = CompilationHelper.Compile(
                 ServicesWithResourceTyped,
-("main.bicep", @"
+("main.bicep", """
 module mod './module.bicep' = {
     identity: {
         type: 'SystemAssigned'
@@ -1012,13 +1012,13 @@ module mod './module.bicep' = {
     }
 }
 
-"),
-("module.bicep", @"
+"""),
+("module.bicep", """
 param keyVaultUri string
 param identityId string
 
 output out string = '${keyVaultUri}-${identityId}'
-"));
+"""));
             result.Should().HaveDiagnostics(new[]
             {
                 ("BCP088", DiagnosticLevel.Error, "The property \"type\" expected a value of type \"'None' | 'UserAssigned'\" but the provided value is of type \"'SystemAssigned'\". Did you mean \"'UserAssigned'\"?")
