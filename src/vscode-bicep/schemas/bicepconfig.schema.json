@@ -850,6 +850,10 @@
         "onlyIfNotExists": {
           "type": "boolean",
           "description": "If enabled, you can use the 'onlyIfNotExists' property on resources. See https://aka.ms/bicep/experimental-features#onlyifnotexists"
+        },
+        "moduleIdentity": {
+          "type": "boolean",
+          "description": "Allows you to add an identity property to a module. See https://aka.ms/bicep/experimental-features#moduleidentity"
         }
       },
       "additionalProperties": false
