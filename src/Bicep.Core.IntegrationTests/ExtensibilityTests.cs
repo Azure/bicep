@@ -648,7 +648,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
         [DataRow(
             "MainFile",
             "BCP037",
-            """The property "extensionConfigs" is not allowed on objects of type "module". Permissible properties include "dependsOn", "identity", "scope".""")]
+            """The property "extensionConfigs" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope".""")]
         public void Extension_config_assignments_raise_error_diagnostic_if_expr_feature_disabled(string scenario, string expectedDiagnosticCode, string expectedDiagnosticMessage)
         {
             var paramsUri = new Uri("file:///main.bicepparam");

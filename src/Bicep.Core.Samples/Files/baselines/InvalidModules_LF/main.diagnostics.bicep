@@ -196,12 +196,12 @@ module modAEmptyInputsWithCondition './modulea.bicep' = if (1 + 2 == 2) {
 // #completionTest(55) -> moduleATopLevelPropertyAccess
 var modulePropertyAccessCompletions = modAEmptyInputs.o
 //@[004:035) [no-unused-vars (Warning)] Variable "modulePropertyAccessCompletions" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |modulePropertyAccessCompletions|
-//@[054:055) [BCP053 (Error)] The type "module" does not contain property "o". Available properties include "identity", "name", "outputs". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |o|
+//@[054:055) [BCP053 (Error)] The type "module" does not contain property "o". Available properties include "name", "outputs". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |o|
 
 // #completionTest(81) -> moduleAWithConditionTopLevelPropertyAccess
 var moduleWithConditionPropertyAccessCompletions = modAEmptyInputsWithCondition.o
 //@[004:048) [no-unused-vars (Warning)] Variable "moduleWithConditionPropertyAccessCompletions" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |moduleWithConditionPropertyAccessCompletions|
-//@[080:081) [BCP053 (Error)] The type "module" does not contain property "o". Available properties include "identity", "name", "outputs". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |o|
+//@[080:081) [BCP053 (Error)] The type "module" does not contain property "o". Available properties include "name", "outputs". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |o|
 
 // #completionTest(56) -> moduleAOutputs
 var moduleOutputsCompletions = modAEmptyInputs.outputs.s
@@ -772,8 +772,8 @@ module issue3000 'empty.bicep' = {
   name: 'issue3000Module'
   params: {}
   identity: {
+//@[002:010) [BCP037 (Error)] The property "identity" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |identity|
     type: 'SystemAssigned'
-//@[010:026) [BCP088 (Error)] The property "type" expected a value of type "'None' | 'UserAssigned'" but the provided value is of type "'SystemAssigned'". Did you mean "'UserAssigned'"? (bicep https://aka.ms/bicep/core-diagnostics#BCP088) |'SystemAssigned'|
   }
   extendedLocation: {}
 //@[002:018) [BCP037 (Error)] The property "extendedLocation" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |extendedLocation|

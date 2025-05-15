@@ -30,6 +30,8 @@ namespace Bicep.Core.IntegrationTests
 
         private ServiceBuilder ServicesWithResourceTyped => new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceTypedParamsAndOutputsEnabled: true));
 
+        private ServiceBuilder ServicesWithModuleIdentity => new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, ModuleExtensionConfigsEnabled: true, ModuleIdentityEnabled: true));
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -866,7 +868,7 @@ output outputb string = '${inputa}-${inputb}'
 """
             };
 
-            var compilation = Services.BuildCompilation(files, mainUri);
+            var compilation = ServicesWithModuleIdentity.BuildCompilation(files, mainUri);
 
             var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
@@ -891,13 +893,14 @@ output outputb string = '${inputa}-${inputb}'
             {
                 ["type"] = new JValue("None"),
             });
+            template.Should().HaveValueAtPath("$.resources.modulec.apiVersion", new JValue("2025-04-01"));
         }
 
         [TestMethod]
         public void Module_can_be_compiled_with_identity_successfully()
         {
             var result = CompilationHelper.Compile(
-                ServicesWithResourceTyped,
+                ServicesWithModuleIdentity,
 ("main.bicep", """
 module mod './module.bicep' = {
     identity: {
@@ -922,7 +925,7 @@ output out string = '${keyVaultUri}-${identityId}'
 """));
             result.Should().NotHaveAnyDiagnostics();
 
-            result.Template.Should().HaveValueAtPath("$.resources[0].identity", new JObject()
+            result.Template.Should().HaveValueAtPath("$.resources.mod.identity", new JObject()
             {
                 ["type"] = new JValue("UserAssigned"),
                 ["userAssignedIdentities"] = new JObject()
@@ -930,13 +933,14 @@ output out string = '${keyVaultUri}-${identityId}'
                     ["identityId"] = new JObject(),
                 },
             });
+            result.Template.Should().HaveValueAtPath("$.resources.mod.apiVersion", new JValue("2025-04-01"));
         }
 
         [TestMethod]
         public void Module_can_be_compiled_with_identity_successfully_with_object_param()
         {
             var result = CompilationHelper.Compile(
-                ServicesWithResourceTyped,
+                ServicesWithModuleIdentity,
 ("main.bicep", """
 param identity object
 module mod './module.bicep' = {
@@ -957,14 +961,16 @@ output out string = '${keyVaultUri}-${identityId}'
 """));
             result.Should().NotHaveAnyDiagnostics();
 
-            result.Template.Should().HaveValueAtPath("$.resources[0].identity", new JValue("[parameters('identity')]"));
+            result.Template.Should().HaveValueAtPath("$.resources.mod.identity", new JValue("[parameters('identity')]"));
+
+            result.Template.Should().HaveValueAtPath("$.resources.mod.apiVersion", new JValue("2025-04-01"));
         }
 
         [TestMethod]
         public void Module_incorrect_identity_raises_diagnostics()
         {
             var result = CompilationHelper.Compile(
-                ServicesWithResourceTyped,
+                ServicesWithModuleIdentity,
 ("main.bicep", """
 module mod './module.bicep' = {
     identity: {
@@ -999,7 +1005,7 @@ output out string = '${keyVaultUri}-${identityId}'
         public void Module_invalid_identity_type_raises_diagnostics()
         {
             var result = CompilationHelper.Compile(
-                ServicesWithResourceTyped,
+                ServicesWithModuleIdentity,
 ("main.bicep", """
 module mod './module.bicep' = {
     identity: {
@@ -1022,6 +1028,36 @@ output out string = '${keyVaultUri}-${identityId}'
             result.Should().HaveDiagnostics(new[]
             {
                 ("BCP088", DiagnosticLevel.Error, "The property \"type\" expected a value of type \"'None' | 'UserAssigned'\" but the provided value is of type \"'SystemAssigned'\". Did you mean \"'UserAssigned'\"?")
+            });
+        }
+
+        [TestMethod]
+        public void Module_identity_not_enabled_raises_diagnostics()
+        {
+            var result = CompilationHelper.Compile(
+                Services,
+("main.bicep", """
+module mod './module.bicep' = {
+    identity: {
+        type: 'None'
+    }
+    name: 'test'
+    params: {
+        keyVaultUri: 'keyVaultUri'
+        identityId: 'identityId'
+    }
+}
+
+"""),
+("module.bicep", """
+param keyVaultUri string
+param identityId string
+
+output out string = '${keyVaultUri}-${identityId}'
+"""));
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP037", DiagnosticLevel.Error, "The property \"identity\" is not allowed on objects of type \"module\". Permissible properties include \"dependsOn\", \"scope\".")
             });
         }
 

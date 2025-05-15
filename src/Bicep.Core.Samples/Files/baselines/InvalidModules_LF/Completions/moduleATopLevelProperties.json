@@ -18,24 +18,6 @@
     }
   },
   {
-    "label": "identity",
-    "kind": "property",
-    "detail": "identity",
-    "documentation": {
-      "kind": "markdown",
-      "value": "Type: `identity`  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_identity",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "identity:"
-    }
-  },
-  {
     "label": "name",
     "kind": "property",
     "detail": "name",

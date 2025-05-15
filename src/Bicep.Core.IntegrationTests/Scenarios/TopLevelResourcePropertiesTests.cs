@@ -7,6 +7,7 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -17,6 +18,8 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     public class TopLevelResourcePropertiesTests
     {
         private static ServiceBuilder Services => new ServiceBuilder().WithAzResources(BuiltInTestTypes.Types).WithDisabledAnalyzersConfiguration();
+
+        private ServiceBuilder ServicesWithModuleIdentity => new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(ModuleIdentityEnabled: true)).WithAzResources(BuiltInTestTypes.Types).WithDisabledAnalyzersConfiguration();
 
         /// <summary>
         /// https://github.com/Azure/bicep/issues/3000
@@ -187,7 +190,7 @@ output outputa string = '${inputa}-${inputb}'
 ",
             };
 
-            var compilation = Services.WithAzResources(BuiltInTestTypes.Types).BuildCompilation(files, mainUri);
+            var compilation = ServicesWithModuleIdentity.WithAzResources(BuiltInTestTypes.Types).BuildCompilation(files, mainUri);
 
             compilation.Should().HaveDiagnostics(new[] {
                 ("BCP037", DiagnosticLevel.Error, $"The property \"{property}\" is not allowed on objects of type \"module\". Permissible properties include \"dependsOn\", \"identity\", \"scope\".")
@@ -310,7 +313,7 @@ output outputa string = '${inputa}-${inputb}'
 ",
             };
 
-            var compilation = Services.WithAzResources(BuiltInTestTypes.Types).BuildCompilation(files, mainUri);
+            var compilation = ServicesWithModuleIdentity.WithAzResources(BuiltInTestTypes.Types).BuildCompilation(files, mainUri);
 
             compilation.Should().HaveDiagnostics(new[] {
                 ("BCP053", DiagnosticLevel.Error, $"The type \"module\" does not contain property \"{property}\". Available properties include \"identity\", \"name\", \"outputs\".")
