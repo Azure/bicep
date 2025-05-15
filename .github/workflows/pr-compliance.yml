@@ -4,10 +4,7 @@ on:
   pull_request:
     branches:
       - main
-    types:
-      - opened
-      - labeled
-      - unlabeled
+    types: [opened, synchronize, reopened, labeled, unlabeled]
 
 jobs:
   check-for-docs-label:
