@@ -2278,7 +2278,8 @@ namespace Bicep.Core.Semantics.Namespaces
             }
 
             return new(auxiliaryFiles.ToDictionary(file => file.Uri.PathSegments[^1],
-                file => new LoadDirectoryFileInformationResult(file.Uri.ToString(), Path.GetExtension(file.Uri.PathSegments[^1]), Path.GetDirectoryName(file.Uri.ToString())!)));
+                file => new LoadDirectoryFileInformationResult(file.Uri.ToString().Replace('\\', '/')
+                    , Path.GetExtension(file.Uri.PathSegments[^1]), Path.GetDirectoryName(file.Uri.ToString())!.Replace('\\', '/'))));
         }
 
     }
