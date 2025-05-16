@@ -110,6 +110,37 @@ namespace Bicep.Core.SourceGraph
                 });
         }
 
+        public ResultWithDiagnosticBuilder<IEnumerable<AuxiliaryFile>> TryLoadAuxiliaryFiles(RelativePath relativePath, string searchPattern = "")
+        {
+            if (this.FileHandle is DummyFileHandle)
+            {
+                // This is only invoked when building SnippetCache. The error is swallowed.
+                return new(x => x.ErrorOccurredReadingFile("Cannot load auxiliary file from dummy file handle"));
+            }
+
+            var handles = this.FileHandle.GetParent().GetDirectory(relativePath).EnumerateFiles(searchPattern);
+            var auxiliaryFiles = new List<AuxiliaryFile>();
+            foreach (var handle in handles)
+            {
+                this.referencedAuxiliaryFileUris.Add(handle.Uri);
+                var result = this.auxiliaryFileCache.GetOrAdd(handle.Uri, () => handle
+                    .TryReadBinaryData()
+                    .Transform(data =>
+                        {
+                            var auxiliaryFile = new AuxiliaryFile(handle.Uri, data);
+                            auxiliaryFiles.Add(auxiliaryFile);
+                            return auxiliaryFile;
+                        }
+                        ));
+                if (!result.IsSuccess())
+                {
+                    return new(x => x.ErrorOccurredReadingFile($"Error reading auxiliary file {handle.Uri}"));
+                }
+            }
+
+            return new(auxiliaryFiles);
+        }
+
         public FrozenSet<IOUri> GetReferencedAuxiliaryFileUris() => this.referencedAuxiliaryFileUris.ToFrozenSet();
 
         public bool IsReferencingAuxiliaryFile(IOUri uri) => this.referencedAuxiliaryFileUris.Contains(uri);
