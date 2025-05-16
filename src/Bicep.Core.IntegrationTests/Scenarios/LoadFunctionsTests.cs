@@ -28,7 +28,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 ";
         private static readonly string B64_TEXT_CONTENT = Convert.ToBase64String(Encoding.UTF8.GetBytes(TEXT_CONTENT));
-        public enum FunctionCase { loadTextContent, loadFileAsBase64, loadJsonContent, loadYamlContent }
+        public enum FunctionCase { loadTextContent, loadFileAsBase64, loadJsonContent, loadYamlContent, loadDirectoryFileInformation }
         private static string ExpectedResult(FunctionCase function) => function switch
         {
             FunctionCase.loadTextContent => TEXT_CONTENT,
@@ -290,6 +290,13 @@ output out string = message
                 encoding: encoding
             }
         ]", "files[0].name", "'$'", "files[0].encoding", DisplayName = "loadYamlContent: encoding param as object property in array")]
+        [DataRow(FunctionCase.loadDirectoryFileInformation, @"param searchPattern string = '*')
+        var directories = [
+            {
+                path: './'
+                searchPattern: searchPattern
+            }
+        ]", "directories[0].path", "directories[0].searchPattern", DisplayName = "loadDirectoryFileInformation: searchPattern param as object property in array")]
         public void LoadFunction_RequiresCompileTimeConstantArguments_Invalid(FunctionCase function, string declaration, params string[] args)
         {
             //notice - here we will not test actual loading file with given encoding - just the fact that bicep function accepts all .NET available encodings
@@ -1021,6 +1028,166 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
             {
                 template!.Should().BeNull();
                 diags.ExcludingLinterDiagnostics().Should().ContainSingleDiagnostic("BCP070", Diagnostics.DiagnosticLevel.Error, $"Argument of type \"'{encoding}'\" is not assignable to parameter of type \"{LanguageConstants.LoadTextContentEncodings}\".");
+            }
+        }
+
+        private const string TEST_FILES_ARM = """
+                                              {
+                                                "main.bicep": {
+                                                  "fullname": "C:/path/to/main.bicep",
+                                                  "extension": ".bicep",
+                                                  "parentDirectoryName": "C:/path/to"
+                                                },
+                                                "file.json": {
+                                                  "fullname": "C:/path/to/file.json",
+                                                  "extension": ".json",
+                                                  "parentDirectoryName": "C:/path/to"
+                                                }
+                                              }
+                                              """;
+
+        // Users are likely to use "*" instead of "" as a wildcard so we test that "" and "*" behave similarly
+        [DataRow(true)]
+        [DataRow(false)]
+        [DataTestMethod]
+        public void LoadDirectoryFileInformationFunction(bool withWildCard)
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('./'{(withWildCard ? ", '*'" : "")})"),
+                ("file.json", ""));
+
+
+            using (new AssertionScope())
+            {
+                template!.Should().NotBeNull();
+                diags.ExcludingLinterDiagnostics().Should().BeEmpty();
+            }
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.variables.fileObjs").Should().DeepEqual("[variables('$fxv#0')]");
+                var expectedContent = TEST_FILES_ARM;
+                template!.SelectToken("$.variables['$fxv#0']").Should().DeepEqual(JToken.Parse(expectedContent));
+            }
+        }
+
+        [DataRow("*.json", "main.bicep")]
+        [DataRow("file*", "main.bicep")]
+        [DataRow("fi*.js*", "main.bicep")]
+        [DataRow("*e.js*", "main.bicep")]
+        [DataRow("file?json", "main.bicep")]
+        [DataRow("*.bicep", "file.json")]
+        [DataRow("main*", "file.json")]
+        [DataRow("ma*.bi*", "file.json")]
+        [DataRow("*n.bi*", "file.json")]
+        [DataRow("main?bicep", "file.json")]
+        [DataTestMethod]
+        public void LoadDirectoryFileInformationWithPattern(string searchPattern, string fileToExclude)
+        {
+            var fullContent = TEST_FILES_ARM;
+            var loadedContent = JToken.Parse(fullContent);
+            loadedContent.Should().NotBeNull();
+            var tokenToRemove = loadedContent!.SelectToken($"$.['{fileToExclude}']");
+            tokenToRemove.Should().NotBeNull();
+            tokenToRemove!.Parent.Should().NotBeNull();
+            tokenToRemove!.Parent!.Remove();
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('./', '{searchPattern}')"),
+                ("file.json", ""));
+
+            using (new AssertionScope())
+            {
+                template!.Should().NotBeNull();
+                diags.ExcludingLinterDiagnostics().Should().BeEmpty();
+            }
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.variables.fileObjs").Should().DeepEqual("[variables('$fxv#0')]");
+                template!.SelectToken("$.variables['$fxv#0']").Should().DeepEqual(loadedContent);
+            }
+        }
+
+        [TestMethod]
+        public void LoadDirectoryFileInformationShouldReturnNothingWhenDirIsEmpty()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('../../')"),
+                ("file.json", ""));
+
+            using (new AssertionScope())
+            {
+                template!.Should().NotBeNull();
+                diags.ExcludingLinterDiagnostics().Should().BeEmpty();
+            }
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.variables.fileObjs").Should().DeepEqual("[variables('$fxv#0')]");
+                template!.SelectToken("$.variables['$fxv#0']").Should().DeepEqual(JToken.Parse("{}"));
+            }
+        }
+
+
+        [TestMethod]
+        public void LoadDirectoryFileInformationErrorWhenFileDoesNotExist()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('./nonExistingDirectory')"),
+                ("file.json", ""));
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                //TODO: Clarify if a new BCP should be created for this => "An error occurred enumerating directory. Could not find a part of the path 'directory path'"
+                diags.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] { ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. Directory ./nonExistingDirectory does not exist") });
+            }
+        }
+
+        [DataRow("/")]
+        [DataRow("/helloWorld")]
+        [DataRow("/path/to")]
+        [DataTestMethod]
+        public void LoadDirectoryFileInformationErrorWhenRootedPath(string rootedPath)
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('{rootedPath}')"),
+                ("file.json", ""));
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] { ("BCP051", DiagnosticLevel.Error, "The specified path begins with \"/\". Files must be referenced using relative paths.") });
+            }
+        }
+
+        [DataRow("C:/")]
+        [DataRow("C:/helloworld")]
+        [DataRow("C:/path/to")]
+        [DataTestMethod]
+        public void LoadDirectoryFileInformationErrorWhenRootedPathWindows(string rootedPath)
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('{rootedPath}')"),
+                ("file.json", ""));
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] { ("BCP085", DiagnosticLevel.Error, "The specified file path contains one ore more invalid path characters. The following are not permitted: \"\"\", \"*\", \":\", \"<\", \">\", \"?\", \"\\\", \"|\".") });
+            }
+        }
+
+        [DataRow(" ")]
+        [DataRow(".")]
+        [DataTestMethod]
+        public void LoadDirectoryFileInformationErrorWhenPathIsDotOrEmpty(string path)
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('{path}')"),
+                ("file.json", ""));
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] { ("BCP086", DiagnosticLevel.Error, "The specified file path ends with an invalid character. The following are not permitted: \" \", \".\".") });
             }
         }
 
