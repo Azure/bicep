@@ -118,7 +118,12 @@ namespace Bicep.Core.SourceGraph
                 return new(x => x.ErrorOccurredReadingFile("Cannot load auxiliary file from dummy file handle"));
             }
 
-            var handles = this.FileHandle.GetParent().GetDirectory(relativePath).EnumerateFiles(searchPattern);
+            var directoryHandle = this.FileHandle.GetParent().GetDirectory(relativePath);
+            if (!directoryHandle.Exists())
+            {
+                return new (x => x.ErrorOccurredReadingFile($"Directory {relativePath} does not exist"));
+            }
+            var handles = directoryHandle.EnumerateFiles(searchPattern);
             var auxiliaryFiles = new List<AuxiliaryFile>();
             foreach (var handle in handles)
             {
