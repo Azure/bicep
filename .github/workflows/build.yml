@@ -114,8 +114,11 @@ jobs:
       - name: Check npm version
         run: npm -v
 
+      - name: Install pnpm
+        run: npm install -g pnpm@latest-10
+
       - name: npm ci (vscode-bicep-ui)
-        run: npm ci
+        run: pnpm ci
         working-directory: ./src/vscode-bicep-ui
 
       - name: Build vscode-bicep-ui
@@ -123,7 +126,7 @@ jobs:
         working-directory: ./src/vscode-bicep-ui
 
       - name: npm ci (vscode-bicep)
-        run: npm ci
+        run: pnpm ci
         working-directory: ./src/vscode-bicep
 
       - name: Generate VSIX notice
@@ -170,8 +173,11 @@ jobs:
       - name: Check npm version
         run: npm -v
 
+      - name: Install pnpm
+        run: npm install -g pnpm@latest-10
+
       - name: npm ci
-        run: npm ci
+        run: pnpm ci
         working-directory: ./src/vscode-bicep-ui
 
       - name: Run lint
