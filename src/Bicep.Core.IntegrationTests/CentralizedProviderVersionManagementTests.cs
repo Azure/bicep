@@ -13,7 +13,7 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class CentralizedExtensionVersionManagementTests : TestBase
     {
-        private ServiceBuilder Services => new ServiceBuilder();
+        private ServiceBuilder Services => new();
 
         [TestMethod]
         [DynamicData(nameof(ExtensionsConfig_SupportForConfigManagedExtensionDeclarationSyntax_When_ExtensionIsBuiltIn_TestCases))]

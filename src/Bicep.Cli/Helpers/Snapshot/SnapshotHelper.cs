@@ -76,11 +76,11 @@ public static class SnapshotHelper
 
         return new(
             [
-                ..expansionResult.preflightResources.Select(x => JsonElementFactory.CreateElement(JsonExtensions.ToJson(DeploymentPreflightResourceWithParsedExpressions.From(x)))),
-                ..expansionResult.extensibleResources.Select(x => JsonElementFactory.CreateElement(JsonExtensions.ToJson(x))),
+                .. expansionResult.preflightResources.Select(x => JsonElementFactory.CreateElement(JsonExtensions.ToJson(DeploymentPreflightResourceWithParsedExpressions.From(x)))),
+                .. expansionResult.extensibleResources.Select(x => JsonElementFactory.CreateElement(JsonExtensions.ToJson(x))),
             ],
             [
-                ..expansionResult.diagnostics.Select(d => $"{d.Target} {d.Level} {d.Code}: {d.Message}")
+                .. expansionResult.diagnostics.Select(d => $"{d.Target} {d.Level} {d.Code}: {d.Message}")
             ]);
     }
 
@@ -88,7 +88,7 @@ public static class SnapshotHelper
     {
         if (externalInputs.FirstOrDefault(
             x => x.Kind == externalInputDefinition.Kind &&
-            JToken.DeepEquals(x.Config, externalInputDefinition.Config)) is not {} externalInputValue)
+            JToken.DeepEquals(x.Config, externalInputDefinition.Config)) is not { } externalInputValue)
         {
             return null;
         }
@@ -100,7 +100,7 @@ public static class SnapshotHelper
     private static Dictionary<string, ITemplateLanguageExpression> ResolveParameters(DeploymentParametersDefinition parameters, ImmutableArray<ExternalInputValue> externalInputs)
     {
         ParametersRewriteVisitor rewriteVisitor = new(parameters, input => TryGetExternalInputValue(input, externalInputs));
-        
+
         return parameters.Parameters.ToDictionary(
             kvp => kvp.Key,
             kvp => ResolveParameter(kvp.Key, kvp.Value, rewriteVisitor));
@@ -153,7 +153,7 @@ public static class SnapshotHelper
                 }
 
                 var externalInput = parameters.ExternalInputDefinitions[stringLiteral.Value];
-                if (tryResolveExternalInput(externalInput) is {} value)
+                if (tryResolveExternalInput(externalInput) is { } value)
                 {
                     return ExpressionParser.ParseLanguageExpression(value);
                 }
