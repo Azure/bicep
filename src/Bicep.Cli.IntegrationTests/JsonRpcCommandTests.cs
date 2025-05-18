@@ -279,7 +279,7 @@ resource baz 'My.Rp/foo@2020-01-01' = {
             async (client, token) =>
             {
                 var response = await client.CompileParams(new("/main.bicepparam", []), token);
-                
+
                 response.Parameters.FromJson<JToken>().Should().HaveValueAtPath("$.parameters['location'].expression", "[externalInputs('custom_binding_0')]");
                 response.Parameters.FromJson<JToken>().Should().HaveValueAtPath("$.parameters['storageAccountType'].expression", "[externalInputs('custom_binding_1')]");
 
