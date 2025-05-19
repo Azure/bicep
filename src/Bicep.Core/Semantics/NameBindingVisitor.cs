@@ -129,8 +129,8 @@ namespace Bicep.Core.Semantics
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
             this.Visit(syntax.Assignment);
-            this.Visit(syntax.Value);
             allowedFlags = FunctionFlags.Default;
+            this.Visit(syntax.Value);
         }
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
