@@ -184,7 +184,7 @@ public class ParameterAssignmentEvaluator
 
                 var declaringParam = parameter.DeclaringParameterAssignment;
 
-                if (!parameter.HasDecorator("inline") && declaringParam.Value is null)
+                if (declaringParam.Value is null)
                 {
                     return Result.For(DiagnosticBuilder.ForPosition(declaringParam.Name).FailedToEvaluateParameter(parameter.Name, "Parameter value is null"));
                 }

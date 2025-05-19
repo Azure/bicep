@@ -310,6 +310,7 @@ namespace Bicep.Core.Semantics
                 .Concat(GetAdditionalParamsSemanticDiagnostics())
                 .Distinct()
                 .OrderBy(diag => diag.Span.Position);
+
             var filteredDiagnostics = new List<IDiagnostic>();
 
             var disabledDiagnosticsCache = SourceFile.DisabledDiagnosticsCache;
