@@ -1454,7 +1454,7 @@ namespace Bicep.LanguageServer.Completions
             }
 
             var dirItems = CreateDirectoryCompletionItems(context.ReplacementRange, fileCompletionInfo,
-                argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFolderPath) ? CompletionPriority.VeryHigh : CompletionPriority.Medium);
+                argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringDirectoryPath) ? CompletionPriority.VeryHigh : CompletionPriority.Medium);
 
             return fileItems.Concat(dirItems);
         }

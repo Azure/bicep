@@ -61,6 +61,6 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// Indicates that the string represents a folder path and we should offer completions for it.
         /// </summary>
-        IsStringFolderPath = 1 << 9,
+        IsStringDirectoryPath = 1 << 9,
     }
 }

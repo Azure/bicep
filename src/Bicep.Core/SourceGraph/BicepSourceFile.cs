@@ -121,12 +121,13 @@ namespace Bicep.Core.SourceGraph
             var directoryHandle = this.FileHandle.GetParent().GetDirectory(relativePath);
             if (!directoryHandle.Exists())
             {
-                return new (x => x.ErrorOccurredReadingFile($"Directory {relativePath} does not exist"));
+                return new (x => x.ErrorOccurredReadingFile($"Directory {relativePath} does not exist or additional permissions are necessary to access it"));
             }
             var handles = directoryHandle.EnumerateFiles(searchPattern);
             var auxiliaryFiles = new List<AuxiliaryFile>();
             foreach (var handle in handles)
             {
+                //TODO: Should it really be added to the referencedAuxiliaryFileUris since the data isn't read?
                 this.referencedAuxiliaryFileUris.Add(handle.Uri);
                 var result = new AuxiliaryFile(handle.Uri, BinaryData.Empty);
                 auxiliaryFiles.Add(result);

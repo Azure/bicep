@@ -1231,8 +1231,8 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 yield return new FunctionOverloadBuilder("loadDirectoryFileInformation")
                     .WithGenericDescription($"Loads basic information about a directory's files as bicep object. File loading occurs during compilation, not at runtime.")
-                    .WithRequiredParameter("directoryPath", LanguageConstants.StringFolderPath, "The path to the directory that will be loaded.")
-                    .WithOptionalParameter("filter", LanguageConstants.String, "The filter is a glob pattern to narrow down the loaded files. If not provided, all files are loaded.")
+                    .WithRequiredParameter("directoryPath", LanguageConstants.StringDirectoryPath, "The path to the directory that will be loaded.")
+                    .WithOptionalParameter("searchPattern", LanguageConstants.String, "The searchPattern is a glob pattern to narrow down the loaded files. If not provided, all files are loaded. Supports both any number of characters '*' and any single character '?' wildcards.")
                     .WithReturnResultBuilder(LoadDirectoryFileInformationResultBuilder, LanguageConstants.Any)
                     .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
                     .Build();

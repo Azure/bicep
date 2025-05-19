@@ -1137,7 +1137,7 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
             {
                 template!.Should().BeNull();
                 //TODO: Clarify if a new BCP should be created for this => "An error occurred enumerating directory. Could not find a part of the path 'directory path'"
-                diags.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] { ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. Directory ./nonExistingDirectory does not exist") });
+                diags.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] { ("BCP091", DiagnosticLevel.Error, $"An error occurred reading file. Directory ./nonExistingDirectory does not exist or additional permissions are necessary to access it") });
             }
         }
 
