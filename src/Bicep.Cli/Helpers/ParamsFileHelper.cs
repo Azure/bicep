@@ -51,7 +51,7 @@ public static class ParamsFileHelper
                 return new ParameterAssignmentSyntax(
                     paramSyntax.Keyword,
                     paramSyntax.Name,
-                    paramSyntax.Assignment,
+                    paramSyntax.Assignment ?? SyntaxFactory.AssignmentToken,
                     replacementValue,
                     []
                 );

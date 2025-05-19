@@ -107,8 +107,16 @@ namespace Bicep.Core.Parsing
         {
             var keyword = ExpectKeyword(LanguageConstants.ParameterKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedParameterIdentifier(), RecoveryFlags.None, TokenType.Identifier, TokenType.NewLine);
-            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
-            var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
+            var assignment = this.reader.Peek().Type switch
+            {
+                TokenType.NewLine => null,
+                _ => this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine),
+            };
+            var value = this.reader.Peek().Type switch
+            {
+                TokenType.NewLine => null,
+                _ => this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(name), TokenType.NewLine),
+            };
 
             return new ParameterAssignmentSyntax(keyword, name, assignment, value, leadingNodes);
         }

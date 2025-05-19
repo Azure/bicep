@@ -502,7 +502,7 @@ namespace Bicep.Core.TypeSystem
                 {
                     if (decorator.Expression is FunctionCallSyntax functionCallSyntax &&
                         functionCallSyntax.Name.IdentifierName == LanguageConstants.ParameterInlinePropertyName &&
-                        syntax.Value is not SkippedTriviaSyntax)
+                        syntax.Value is not null)
                     {
                         diagnostics.Write(DiagnosticBuilder.ForPosition(decorator).InlineMustNotHaveValueAssigned());
                     }
