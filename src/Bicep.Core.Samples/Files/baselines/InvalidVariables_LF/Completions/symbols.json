@@ -1281,7 +1281,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nloadDirectoryFileInformation(directoryPath: string, [filter: string]): any\n\n```  \nLoads basic information about a directory's files as bicep object. File loading occurs during compilation, not at runtime.  \n"
+      "value": "```bicep\nloadDirectoryFileInformation(directoryPath: string, [searchPattern: string]): any\n\n```  \nLoads basic information about a directory's files as bicep object. File loading occurs during compilation, not at runtime.  \n"
     },
     "deprecated": false,
     "preselect": false,

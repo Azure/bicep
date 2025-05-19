@@ -942,8 +942,8 @@
         "required": true
       },
       {
-        "name": "filter",
-        "description": "The filter is a glob pattern to narrow down the loaded files. If not provided, all files are loaded.",
+        "name": "searchPattern",
+        "description": "The searchPattern is a glob pattern to narrow down the loaded files. If not provided, all files are loaded. Supports both any number of characters '*' and any single character '?' wildcards.",
         "type": "string",
         "required": false
       }
@@ -951,10 +951,10 @@
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 2,
     "flags": "generateIntermediateVariableAlways",
-    "typeSignature": "(directoryPath: string, [filter: string]): any",
+    "typeSignature": "(directoryPath: string, [searchPattern: string]): any",
     "parameterTypeSignatures": [
       "directoryPath: string",
-      "[filter: string]"
+      "[searchPattern: string]"
     ]
   },
   {
