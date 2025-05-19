@@ -99,7 +99,7 @@ namespace Bicep.Core.Emit
                         || !(TypeHelper.TryRemoveNullability(propertySymbol.Type) ?? propertySymbol.Type).ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax)
-                            .FunctionOnlyValidInModuleSecureParameterAndExtensionConfigAssignment(functionSymbol.Name, semanticModel.Features is { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true }));
+                            .FunctionOnlyValidInModuleSecureParameterAndExtensionConfigAssignment(functionSymbol.Name, semanticModel.Features.ModuleExtensionConfigsEnabled));
                     }
                 }
 

@@ -225,7 +225,7 @@ namespace Bicep.Core.Semantics
 
         private ImmutableSortedDictionary<string, ExtensionMetadata> FindExtensions()
         {
-            if (this.SourceFile.FeatureProvider is not { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true } || this.SourceFile.Template?.Extensions is null)
+            if (this.SourceFile.FeatureProvider is not { ModuleExtensionConfigsEnabled: true } || this.SourceFile.Template?.Extensions is null)
             {
                 return ImmutableSortedDictionary<string, ExtensionMetadata>.Empty;
             }

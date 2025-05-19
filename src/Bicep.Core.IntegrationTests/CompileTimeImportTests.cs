@@ -1983,7 +1983,10 @@ public class CompileTimeImportTests
                 type str = string
                 """));
 
-        result.Diagnostics.Should().BeEmpty();
+        result.Diagnostics.Should().HaveDiagnostics(new[]
+        {
+            ("no-unused-imports", DiagnosticLevel.Warning, """Import "types" is declared but never used.""")
+        });
         result.Template.Should().NotBeNull();
         result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
     }
@@ -2024,7 +2027,10 @@ INVALID FILE
                 func b() string[] => ['c', 'd']
                 """));
 
-        result.Diagnostics.Should().BeEmpty();
+        result.Diagnostics.Should().HaveDiagnostics(new[]
+        {
+            ("no-unused-imports", DiagnosticLevel.Warning, """Import "a" is declared but never used.""")
+        });
         result.Template.Should().NotBeNull();
         result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
     }
@@ -2155,7 +2161,10 @@ INVALID FILE
                 var test = 'test'
                 """));
 
-        result.Diagnostics.Should().BeEmpty();
+        result.Diagnostics.Should().HaveDiagnostics(new[]
+        {
+            ("no-unused-imports", DiagnosticLevel.Warning, """Import "vars" is declared but never used.""")
+        });
         result.Template.Should().NotBeNull();
         result.Template.Should().HaveValueAtPath("variables.copy[?(@.name == '_1.domainControllerIPs')].input", "[cidrHost(variables('_1.identityPrefix'), add(3, range(0, 2)[copyIndex('_1.domainControllerIPs')]))]");
     }

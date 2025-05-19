@@ -78,7 +78,6 @@ Here's an example bicepconfig.json you can use to share your extension with othe
 ```json
 {
   "experimentalFeaturesEnabled": {
-    "extensibility": true,
     "localDeploy": true
   },
   "cloud": {

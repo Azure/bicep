@@ -647,10 +647,10 @@ public class DependencyInferenceTests
     }
 
     [TestMethod]
-    public void Extensibility_resources_always_generate_explicit_dependency()
+    public void Extension_resources_always_generate_explicit_dependency()
     {
         var result = CompilationHelper.Compile(
-            new UnitTests.ServiceBuilder().WithFeatureOverrides(new(ExtensibilityEnabled: true))
+            new UnitTests.ServiceBuilder()
                 .WithConfigurationPatch(c => c.WithExtensions("""
                     {
                       "az": "builtin:",
@@ -660,7 +660,7 @@ public class DependencyInferenceTests
                       "bar": "builtin:"
                     }
                     """))
-                .WithNamespaceProvider(TestExtensibilityNamespaceProvider.CreateWithDefaults()),
+                .WithNamespaceProvider(TestExtensionsNamespaceProvider.CreateWithDefaults()),
             """
             extension bar with {
               connectionString: 'connectionString'

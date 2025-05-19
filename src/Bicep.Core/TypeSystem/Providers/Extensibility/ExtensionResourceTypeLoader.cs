@@ -6,22 +6,22 @@ using Azure.Bicep.Types.Index;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
 
-namespace Bicep.Core.TypeSystem.Providers.ThirdParty
+namespace Bicep.Core.TypeSystem.Providers.Extensibility
 {
-    public class ThirdPartyResourceTypeLoader : IResourceTypeLoader
+    public class ExtensionResourceTypeLoader : IResourceTypeLoader
     {
         public record NamespaceConfiguration(string Name, string Version, bool IsSingleton, ObjectType? ConfigurationObject);
 
         private readonly ITypeLoader typeLoader;
-        private readonly ExtensibilityResourceTypeFactory resourceTypeFactory;
+        private readonly ExtensionResourceTypeFactory resourceTypeFactory;
         private readonly ImmutableDictionary<ResourceTypeReference, CrossFileTypeReference> availableTypes;
         private readonly TypeSettings? typeSettings;
         private readonly CrossFileTypeReference? fallbackResourceType;
 
-        public ThirdPartyResourceTypeLoader(ITypeLoader typeLoader, TypeIndex? typeIndex = null)
+        public ExtensionResourceTypeLoader(ITypeLoader typeLoader, TypeIndex? typeIndex = null)
         {
             this.typeLoader = typeLoader;
-            resourceTypeFactory = new ExtensibilityResourceTypeFactory();
+            resourceTypeFactory = new ExtensionResourceTypeFactory();
             var indexedTypes = typeIndex ?? typeLoader.LoadTypeIndex();
             availableTypes = indexedTypes.Resources.ToImmutableDictionary(
                 kvp => ResourceTypeReference.Parse(kvp.Key),

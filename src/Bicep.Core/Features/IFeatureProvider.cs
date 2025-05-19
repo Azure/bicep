@@ -13,8 +13,6 @@ public interface IFeatureProvider
 
     bool SymbolicNameCodegenEnabled { get; }
 
-    bool ExtensibilityEnabled { get; }
-
     bool ResourceTypedParamsAndOutputsEnabled { get; }
 
     bool SourceMappingEnabled { get; }
@@ -35,13 +33,13 @@ public interface IFeatureProvider
 
     bool ResourceInfoCodegenEnabled { get; }
 
-    bool ExtensibilityV2EmittingEnabled { get; }
-
     bool ModuleExtensionConfigsEnabled { get; }
 
     bool DesiredStateConfigurationEnabled { get; }
 
     bool ExternalInputFunctionEnabled { get; }
+
+    bool ModuleIdentityEnabled { get; }
 
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
@@ -53,7 +51,6 @@ public interface IFeatureProvider
             {
                 (SymbolicNameCodegenEnabled, CoreResources.ExperimentalFeatureNames_SymbolicNameCodegen, false, false), // Symbolic name codegen is listed as not impacting compilation because it is GA
                 (ResourceInfoCodegenEnabled, CoreResources.ExperimentalFeatureNames_ResourceInfoCodegen, true, true),
-                (ExtensibilityEnabled, CoreResources.ExperimentalFeatureNames_Extensibility, true, true),
                 (ResourceTypedParamsAndOutputsEnabled, CoreResources.ExperimentalFeatureNames_ResourceTypedParamsAndOutputs, true, false),
                 (SourceMappingEnabled, CoreResources.ExperimentalFeatureNames_SourceMapping, true, false),
                 (TestFrameworkEnabled, CoreResources.ExperimentalFeatureNames_TestFramework, false, false),
@@ -65,6 +62,7 @@ public interface IFeatureProvider
                 (ModuleExtensionConfigsEnabled, "Enable defining extension configs for modules", true, true),
                 (DesiredStateConfigurationEnabled, "Enable defining Desired State Configuration documents", true, false),
                 (ExternalInputFunctionEnabled, CoreResources.ExperimentalFeatureNames_ExternalInputFunction, true, false),
+                (ModuleIdentityEnabled, "Enable module identity support", true, true),
             })
             {
                 if (enabled)

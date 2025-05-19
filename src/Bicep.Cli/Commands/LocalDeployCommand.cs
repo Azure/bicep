@@ -85,9 +85,9 @@ public class LocalDeployCommand : ICommand
             return 1;
         }
 
-        await using LocalExtensibilityHostManager extensibilityHandler = new(fileExplorer, moduleDispatcher, configurationManager, credentialFactory, GrpcBuiltInLocalExtension.Start);
-        await extensibilityHandler.InitializeExtensions(compilation);
-        var result = await extensibilityHandler.Deploy(templateString, parametersString, cancellationToken);
+        await using LocalExtensionHostManager extensionHostManager = new(fileExplorer, moduleDispatcher, configurationManager, credentialFactory, GrpcBuiltInLocalExtension.Start);
+        await extensionHostManager.InitializeExtensions(compilation);
+        var result = await extensionHostManager.Deploy(templateString, parametersString, cancellationToken);
 
         await WriteSummary(result);
         return 0;

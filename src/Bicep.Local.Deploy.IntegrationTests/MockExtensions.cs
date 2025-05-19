@@ -9,7 +9,7 @@ namespace Bicep.Local.Deploy.IntegrationTests;
 
 public static class MockExtensions
 {
-    public static void SetupCreateOrUpdate<THandler>(this Mock<THandler> handlerMock, Func<Protocol.ResourceSpecification, Protocol.LocalExtensibilityOperationResponse> responseFunc)
+    public static void SetupCreateOrUpdate<THandler>(this Mock<THandler> handlerMock, Func<Protocol.ResourceSpecification, Protocol.LocalExtensionOperationResponse> responseFunc)
         where THandler : class, IGenericResourceHandler
         => handlerMock.Setup(x => x.CreateOrUpdate(It.IsAny<Protocol.ResourceSpecification>(), It.IsAny<CancellationToken>()))
             .Returns<Protocol.ResourceSpecification, CancellationToken>((req, _) =>
