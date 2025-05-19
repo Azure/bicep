@@ -110,7 +110,7 @@ namespace Bicep.Core.SourceGraph
                 });
         }
 
-        public ResultWithDiagnosticBuilder<IEnumerable<AuxiliaryFile>> TryLoadAuxiliaryFiles(RelativePath relativePath, string searchPattern = "")
+        public ResultWithDiagnosticBuilder<IEnumerable<AuxiliaryFile>> TryGetAuxiliaryFiles(RelativePath relativePath, string searchPattern = "")
         {
             if (this.FileHandle is DummyFileHandle)
             {
@@ -128,19 +128,8 @@ namespace Bicep.Core.SourceGraph
             foreach (var handle in handles)
             {
                 this.referencedAuxiliaryFileUris.Add(handle.Uri);
-                var result = this.auxiliaryFileCache.GetOrAdd(handle.Uri, () => handle
-                    .TryReadBinaryData()
-                    .Transform(data =>
-                        {
-                            var auxiliaryFile = new AuxiliaryFile(handle.Uri, data);
-                            auxiliaryFiles.Add(auxiliaryFile);
-                            return auxiliaryFile;
-                        }
-                        ));
-                if (!result.IsSuccess())
-                {
-                    return new(x => x.ErrorOccurredReadingFile($"Error reading auxiliary file {handle.Uri}"));
-                }
+                var result = new AuxiliaryFile(handle.Uri, BinaryData.Empty);
+                auxiliaryFiles.Add(result);
             }
 
             return new(auxiliaryFiles);

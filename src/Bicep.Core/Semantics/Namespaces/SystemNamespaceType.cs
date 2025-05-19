@@ -2270,16 +2270,20 @@ namespace Bicep.Core.Semantics.Namespaces
             }
 
 
-            var auxiliaryFileLoadResult = RelativePath.TryCreate(directoryPathType.RawStringValue).Transform(path => model.SourceFile.TryLoadAuxiliaryFiles(path, pathSearchPattern));
+            var auxiliaryFileLoadResult = RelativePath.TryCreate(directoryPathType.RawStringValue).Transform(path => model.SourceFile.TryGetAuxiliaryFiles(path, pathSearchPattern));
 
             if (!auxiliaryFileLoadResult.IsSuccess(out var auxiliaryFiles, out var errorBuilder))
             {
                 return new(errorBuilder(DiagnosticBuilder.ForPosition(directoryPathArgument.syntax)));
             }
 
-            return new(auxiliaryFiles.ToDictionary(file => file.Uri.PathSegments[^1],
-                file => new LoadDirectoryFileInformationResult(file.Uri.ToString().Replace('\\', '/')
-                    , Path.GetExtension(file.Uri.PathSegments[^1]), Path.GetDirectoryName(file.Uri.ToString())!.Replace('\\', '/'))));
+            return new(auxiliaryFiles.ToDictionary(file => file.Uri.PathSegments[^1], file =>
+            {
+                var fullname = file.Uri.ToString().Replace('\\', '/');
+                var extension = Path.GetExtension(file.Uri.PathSegments[^1]);
+                var parentDirectoryName = Path.GetDirectoryName(file.Uri.ToString())!.Replace('\\', '/');
+                return new LoadDirectoryFileInformationResult(fullname, extension, parentDirectoryName);
+            }));
         }
 
     }
