@@ -53,7 +53,7 @@ public class SnapshotCommand(
 
         if (newSnapshot.Diagnostics.Length > 0)
         {
-            logger.LogWarning("Diagnostics:");
+            logger.LogWarning("Snapshot generation diagnotics:");
             foreach (var diagnostic in newSnapshot.Diagnostics)
             {
                 logger.LogWarning($"  {diagnostic}");
@@ -71,6 +71,13 @@ public class SnapshotCommand(
                     var oldSnapshot = ReadSnapshot(outputUri);
 
                     var changes = SnapshotDiffer.CalculateChanges(oldSnapshot, newSnapshot);
+                    var hasFailures = changes.Any();
+
+                    if (hasFailures)
+                    {
+                        logger.LogWarning("Snapshot validation failed. Expected no changes, but found the following:");
+                    }
+
                     await io.Output.WriteAsync(WhatIfOperationResultFormatter.Format(changes));
                     return changes.Any() ? 1 : 0;
                 }

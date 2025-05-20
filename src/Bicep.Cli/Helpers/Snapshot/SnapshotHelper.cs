@@ -274,8 +274,8 @@ public static class SnapshotHelper
         => new FunctionExpression(name, [], [.. properties.Select(p => p.AsExpression())], null, irreducible: true);
 
     public static Snapshot Deserialize(string contents)
-        => JsonSerializer.Deserialize<Snapshot>(contents, SnapshotSerializationContext.Default.Snapshot) ?? throw new InvalidOperationException("Failed to deserialize snapshot");
+        => JsonSerializer.Deserialize<Snapshot>(contents, SnapshotSerializationContext.FileSerializer.Snapshot) ?? throw new InvalidOperationException("Failed to deserialize snapshot");
 
     public static string Serialize(Snapshot newSnapshot)
-        => JsonSerializer.Serialize(newSnapshot, SnapshotSerializationContext.Default.Snapshot);
+        => JsonSerializer.Serialize(newSnapshot, SnapshotSerializationContext.FileSerializer.Snapshot);
 }
