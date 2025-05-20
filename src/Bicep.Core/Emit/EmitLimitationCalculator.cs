@@ -11,6 +11,7 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
@@ -664,6 +665,15 @@ namespace Bicep.Core.Emit
                             referencedValueHasError = true;
                         }
                     }
+
+                }
+                var bicepFile = model.SourceFileGrouping.SourceFiles.First(sourceFile => sourceFile is BicepFile);
+                var paramDefinitionFromBicepFile = model.ModelLookup.GetSemanticModel(bicepFile).Parameters.First(e => e.Key == symbol.Name);
+
+                if (paramDefinitionFromBicepFile.Value.TypeReference.Type != symbol.Type)
+                {
+                    diagnostics.WriteMultiple(DiagnosticBuilder.ForPosition(symbol.NameSource).ParameterTypeMismatch(symbol.Name, paramDefinitionFromBicepFile.Value.TypeReference.Type, symbol.Type));
+                    referencedValueHasError = true;
                 }
 
                 if (referencedValueHasError)
