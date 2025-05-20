@@ -1081,7 +1081,7 @@ public class ExpressionBuilder
                 if (Context.ExternalInputReferences.ParametersReferences.Contains(parameterSymbol))
                 {
                     // we're evaluating a parameter that has an external input function reference, so inline it
-                    return ConvertWithoutLowering(parameterSymbol.DeclaringParameterAssignment.Value ?? SyntaxFactory.CreateEmptySyntaxWithComment(string.Empty));
+                    return ConvertWithoutLowering(parameterSymbol.DeclaringParameterAssignment.Value ?? SyntaxFactory.CreateNullLiteral());
                 }
                 return new ParametersAssignmentReferenceExpression(variableAccessSyntax, parameterSymbol);
 

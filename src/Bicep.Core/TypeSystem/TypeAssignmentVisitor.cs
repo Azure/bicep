@@ -508,7 +508,7 @@ namespace Bicep.Core.TypeSystem
                     }
                 }
 
-                var valueType = this.typeManager.GetTypeInfo(syntax.Value ?? SyntaxFactory.CreateEmptySyntaxWithComment(string.Empty));
+                var valueType = this.typeManager.GetTypeInfo(syntax.Value ?? SyntaxFactory.CreateNullLiteral());
                 CollectErrors(errors, valueType);
 
                 if (PropagateErrorType(errors, valueType))

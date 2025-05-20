@@ -1087,7 +1087,7 @@ namespace Bicep.LanguageServer.Completions
                 case ParameterAssignmentSyntax paramAssignment:
                     // is the cursor after the equals sign in the param assignment?
                     return !paramAssignment.Name.Span.ContainsInclusive(offset) &&
-                           (paramAssignment.Assignment ?? SyntaxFactory.CreateEmptySyntaxWithComment(string.Empty)).Span.ContainsInclusive(offset) &&
+                           (paramAssignment.Assignment ?? SyntaxFactory.CreateNullLiteral()).Span.ContainsInclusive(offset) &&
                            paramAssignment.Value is SkippedTriviaSyntax && offset == paramAssignment.Value.Span.Position;
 
                 case OutputDeclarationSyntax output:
@@ -1294,7 +1294,7 @@ namespace Bicep.LanguageServer.Completions
         private static bool IsParameterValueContext(List<SyntaxBase> matchingNodes, int offset) =>
             // | below indicates cursor position
             // param foo = |
-            SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax>(matchingNodes, variable => variable.Assignment is not SkippedTriviaSyntax && offset >= (variable.Assignment ?? SyntaxFactory.CreateEmptySyntaxWithComment(string.Empty)).GetEndPosition()) ||
+            SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax>(matchingNodes, variable => variable.Assignment is not SkippedTriviaSyntax && offset >= (variable.Assignment ?? SyntaxFactory.CreateNullLiteral()).GetEndPosition()) ||
             // param foo =|
             SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax, Token>(matchingNodes, (variable, token) => variable.Assignment == token && token.Type == TokenType.Assignment && offset == token.GetEndPosition()) ||
             // param foo = a|
