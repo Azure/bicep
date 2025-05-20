@@ -648,6 +648,9 @@ param intParam = 42
             FileHelper.SaveResultFile(TestContext, "main.bicep", @"
     param foo string
     param bar string
+
+    output foo string = foo
+    output bar string = bar
     ", outputPath);
             var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicepparam", @"
     using 'main.bicep'
@@ -665,9 +668,10 @@ param intParam = 42
             };
 
             var (output, error, result) = await Bicep(settings, ["build-params", inputFile]);
+
             File.Exists(expectedOutputFile).Should().BeTrue();
 
-            output.Should().NotBeEmpty();
+            output.Should().BeEmpty();
             error.Should().BeEmpty();
             result.Should().Be(0);
         }
