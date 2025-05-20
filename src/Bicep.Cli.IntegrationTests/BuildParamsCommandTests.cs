@@ -640,5 +640,38 @@ param intParam = 42
                 File.Exists(Path.Combine(bicepOutputPath, outputFile)).Should().Be(true, f);
             }
         }
+
+        [TestMethod]
+        public async Task Build_WithInlineParams_ShouldSucceed()
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var bicepFile = FileHelper.SaveResultFile(TestContext, "main.bicep", @"
+    param foo string
+    param bar string
+    ", outputPath);
+            var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicepparam", @"
+    using 'main.bicep'
+    @inline()
+    param foo
+    param bar = 'bar'
+    ", outputPath);
+
+            var expectedOutputFile = FileHelper.GetResultFilePath(TestContext, "main.json", outputPath);
+            File.Exists(expectedOutputFile).Should().BeFalse();
+
+            var settings = new InvocationSettings()
+            {
+                Environment = TestEnvironment.Default.WithVariables(
+                    ("foo", "foo")
+                )
+            };
+
+            var (output, error, result) = await Bicep(settings, ["build-params", inputFile]);
+            File.Exists(expectedOutputFile).Should().BeTrue();
+
+            output.Should().NotBeEmpty();
+            error.Should().BeEmpty();
+            result.Should().Be(0);
+        }
     }
 }
