@@ -5453,9 +5453,10 @@ param azureEnvironments AzureEnvironmentType
 "));
 
         result.Should().HaveDiagnostics(new[] {
-            ("BCP018", DiagnosticLevel.Error, "Expected the \"=\" character at this location."),
+            ("BCP258", DiagnosticLevel.Error, "The following parameters are declared in the Bicep file but are missing an assignment in the params file: \"azureEnvironments\"."),
+            ("BCP338", DiagnosticLevel.Error, "Failed to evaluate parameter \"azureEnvironments\": Parameter value is null"),
             ("BCP259", DiagnosticLevel.Error, "The parameter \"region\" is assigned in the params file without being declared in the Bicep file."),
-            ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"azureEnvironments\" is not valid."),
+            ("BCP055", DiagnosticLevel.Error, "Cannot access properties of type \"null\". An \"object\" type is required."),
         });
     }
 
@@ -7014,7 +7015,7 @@ var subnetId = vNet::subnets[0].id
                     }
                     tenantId: '00000000-0000-0000-0000-000000000000'
                   }
-                  
+
                   resource secret 'secrets' = {
                     name: 'secret'
                     properties: {}
@@ -7031,7 +7032,7 @@ var subnetId = vNet::subnets[0].id
                     }
                     tenantId: '00000000-0000-0000-0000-000000000000'
                   }
-                  
+
                   resource secret 'secrets' = {
                     name: 'secret'
                     properties: {}
@@ -7067,7 +7068,7 @@ var subnetId = vNet::subnets[0].id
                 module empty 'empty.bicep' = {
                   name: 'foo'
                 }
-                
+
                 resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
                   name: 'storage'
                   dependsOn: [
