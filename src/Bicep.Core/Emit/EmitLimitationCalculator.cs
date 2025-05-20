@@ -665,8 +665,8 @@ namespace Bicep.Core.Emit
                             referencedValueHasError = true;
                         }
                     }
-
                 }
+
                 var bicepFile = model.SourceFileGrouping.SourceFiles.First(sourceFile => sourceFile is BicepFile);
                 var paramDefinitionFromBicepFile = model.ModelLookup.GetSemanticModel(bicepFile).Parameters.First(e => e.Key == symbol.Name);
 

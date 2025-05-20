@@ -645,7 +645,9 @@ param intParam = 42
         public async Task BuildParams_Extends_InvalidType_ThrowsError()
         {
             var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-            FileHelper.SaveResultFile(TestContext, "main.bicep", "param tag string", outputPath);
+            FileHelper.SaveResultFile(TestContext, "main.bicep", @"
+            param tag string
+            ", outputPath);
             FileHelper.SaveResultFile(TestContext, "base.bicepparam", @"
             using none
             param tag = false
@@ -663,7 +665,41 @@ param intParam = 42
             File.Exists(expectedOutputFile).Should().BeFalse();
 
             output.Should().BeEmpty();
-            error.Should().Contain("Error BCP260: The parameter \"tag\" expects a value of type \"string\" but the provided value is of type \"false\".");
+            error.Should().Contain("Error BCP260: The parameter \"tag\" expects a value of type \"string\" but the provided value is of type \"bool\".");
+            result.Should().Be(1);
+        }
+
+        [TestMethod]
+        public async Task BuildParams_Extends_Multiple_InvalidType_ThrowsMultipleErrors()
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            FileHelper.SaveResultFile(TestContext, "main.bicep", @"
+            param myString string
+            param myInt int
+            param myBool bool
+            ", outputPath);
+            FileHelper.SaveResultFile(TestContext, "base.bicepparam", @"
+            using none
+            param myInt = '42'
+            param myString = {}
+            param myBool = 'true'
+            ", outputPath);
+            var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicepparam", @"
+            using './main.bicep'
+            extends 'base.bicepparam'
+            ", outputPath);
+
+            var expectedOutputFile = FileHelper.GetResultFilePath(TestContext, "main.json", outputPath);
+            File.Exists(expectedOutputFile).Should().BeFalse();
+
+            var (output, error, result) = await Bicep(["build-params", inputFile]);
+
+            File.Exists(expectedOutputFile).Should().BeFalse();
+
+            output.Should().BeEmpty();
+            error.Should().Contain("Error BCP260: The parameter \"myInt\" expects a value of type \"int\" but the provided value is of type \"string\".");
+            error.Should().Contain("Error BCP260: The parameter \"myString\" expects a value of type \"string\" but the provided value is of type \"'object'\".");
+            error.Should().Contain("Error BCP260: The parameter \"myBool\" expects a value of type \"bool\" but the provided value is of type \"string\".");
             result.Should().Be(1);
         }
     }
