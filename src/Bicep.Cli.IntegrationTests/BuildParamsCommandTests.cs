@@ -645,7 +645,7 @@ param intParam = 42
         public async Task Build_WithInlineParams_ShouldSucceed()
         {
             var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-            var bicepFile = FileHelper.SaveResultFile(TestContext, "main.bicep", @"
+            FileHelper.SaveResultFile(TestContext, "main.bicep", @"
     param foo string
     param bar string
     ", outputPath);
@@ -661,9 +661,7 @@ param intParam = 42
 
             var settings = new InvocationSettings()
             {
-                Environment = TestEnvironment.Default.WithVariables(
-                    ("foo", "foo")
-                )
+                Environment = TestEnvironment.Default.WithVariables(("BICEP_PARAMETERS_OVERRIDES", "{\"foo\" : \"foo\"}"))
             };
 
             var (output, error, result) = await Bicep(settings, ["build-params", inputFile]);
