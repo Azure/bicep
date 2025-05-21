@@ -199,6 +199,8 @@ namespace Bicep.LanguageServer.Completions
 
                         yield return CreateKeywordCompletion(LanguageConstants.ParameterKeyword, "Parameter assignment keyword", context.ReplacementRange);
 
+                        yield return CreateKeywordCompletion(LanguageConstants.ExtendsKeyword, "Extends keyword", context.ReplacementRange);
+
                         break;
 
                     default:
