@@ -374,6 +374,12 @@ using 'bar.bicep'
                     x.Label.Should().Be("param");
                     x.Detail.Should().Be("Parameter assignment keyword");
                     x.Kind.Should().Be(CompletionItemKind.Keyword);
+                },
+                x =>
+                {
+                    x.Label.Should().Be("extends");
+                    x.Detail.Should().Be("Extends keyword");
+                    x.Kind.Should().Be(CompletionItemKind.Keyword);
                 });
         }
 
