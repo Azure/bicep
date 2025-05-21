@@ -1,0 +1,29 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminUsername": {
+            "value": "tim"
+        },
+        "adminPassword": {
+            "reference": {
+                "keyVault": {
+                    "id": "/subscriptions/2fbf906e-1101-4bc0-b64f-adc44e462fff/resourceGroups/INSTRUCTOR/providers/Microsoft.KeyVault/vaults/TimKV"
+                },
+                "secretName": "vm-password",
+                "secretVersion": "1.0"
+            }
+        },
+        "adminPassword2": {
+            "reference": {
+                "keyVault": {
+                    "id": "/subscriptions/2fbf906e-1101-4bc0-b64f-adc44e462fff/resourceGroups/INSTRUCTOR/providers/Microsoft.KeyVault/vaults/TimKV"
+                },
+                "secretName": "vm-password"
+            }
+        },
+        "dnsLabelPrefix": {
+            "value": "newvm79347a"
+        }
+    }
+}
