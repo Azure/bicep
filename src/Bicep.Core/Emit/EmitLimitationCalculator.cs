@@ -667,10 +667,13 @@ namespace Bicep.Core.Emit
                     }
                 }
 
-                var bicepFile = model.SourceFileGrouping.SourceFiles.First(sourceFile => sourceFile is BicepFile);
-                var paramDefinitionFromBicepFile = model.ModelLookup.GetSemanticModel(bicepFile).Parameters.First(e => e.Key == symbol.Name);
+                var bicepFile = model.SourceFileGrouping.SourceFiles.FirstOrDefault(sourceFile => sourceFile is BicepFile);
+                if (bicepFile is not null)
+                {
+                    var paramDefinitionFromBicepFile = model.ModelLookup.GetSemanticModel(bicepFile).Parameters.First(e => e.Key == symbol.Name);
 
-                TypeValidator.NarrowTypeAndCollectDiagnostics(model.TypeManager, model.Binder, model.SourceFile.ParsingErrorLookup, diagnostics, symbol.DeclaringSyntax, paramDefinitionFromBicepFile.Value.TypeReference.Type);
+                    TypeValidator.NarrowTypeAndCollectDiagnostics(model.TypeManager, model.Binder, model.SourceFile.ParsingErrorLookup, diagnostics, symbol.DeclaringSyntax, paramDefinitionFromBicepFile.Value.TypeReference.Type);
+                }
 
                 if (referencedValueHasError)
                 {
