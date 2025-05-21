@@ -27,19 +27,3 @@ public static class LocalExtensionOperationResponseJsonDefaults
 
     public readonly static LocalExtensionOperationResponseContext SerializerContext = new(SerializerOptions);
 }
-
-public abstract class LocalExtensionHost : IAsyncDisposable
-{
-    public abstract Task<LocalExtensionOperationResponse> Delete(ResourceReference request, CancellationToken cancellationToken);
-
-    public abstract Task<LocalExtensionOperationResponse> Get(ResourceReference request, CancellationToken cancellationToken);
-
-    public abstract Task<LocalExtensionOperationResponse> Preview(ResourceSpecification request, CancellationToken cancellationToken);
-
-    public abstract Task<LocalExtensionOperationResponse> CreateOrUpdate(ResourceSpecification request, CancellationToken cancellationToken);
-
-    public virtual ValueTask DisposeAsync()
-    {
-        return ValueTask.CompletedTask;
-    }
-}

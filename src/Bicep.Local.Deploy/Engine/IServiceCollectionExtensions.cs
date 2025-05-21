@@ -29,11 +29,11 @@ using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs.Configuration;
 using Microsoft.WindowsAzure.ResourceStack.Common.EventSources;
 using Microsoft.WindowsAzure.ResourceStack.Common.Storage.Volatile;
 
-namespace Bicep.Local.Deploy;
+namespace Bicep.Local.Deploy.Engine;
 
 public static class IServiceCollectionExtensions
 {
-    public static IServiceCollection RegisterLocalDeployServices(this IServiceCollection services, LocalExtensionHostManager extensionHostManager)
+    public static IServiceCollection RegisterLocalDeployServices(this IServiceCollection services, LocalExtensionDispatcher extensionHostManager)
     {
         var eventSource = new TraceEventSource();
         services.AddSingleton<IGeneralEventSource>(eventSource);

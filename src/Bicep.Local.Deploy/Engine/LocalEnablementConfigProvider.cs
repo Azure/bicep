@@ -3,7 +3,7 @@
 
 using Azure.Deployments.Core.FeatureEnablement;
 
-namespace Bicep.Local.Deploy;
+namespace Bicep.Local.Deploy.Engine;
 
 public class LocalEnablementConfigProvider : IEnablementConfigProvider
 {

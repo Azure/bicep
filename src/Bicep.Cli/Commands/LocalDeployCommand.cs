@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Core.Json;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
@@ -17,42 +18,19 @@ using Bicep.IO.Abstraction;
 using Bicep.Local.Deploy;
 using Bicep.Local.Deploy.Extensibility;
 using Bicep.Local.Extension.Rpc;
+using Json.Patch;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Bicep.Cli.Commands;
 
-public class LocalDeployCommand : ICommand
+public class LocalDeployCommand(
+    IOContext io,
+    ILogger logger,
+    DiagnosticLogger diagnosticLogger,
+    BicepCompiler compiler,
+    LocalExtensionDispatcherFactory dispatcherFactory) : ICommand
 {
-    private readonly IFileExplorer fileExplorer;
-    private readonly IModuleDispatcher moduleDispatcher;
-    private readonly IConfigurationManager configurationManager;
-    private readonly ITokenCredentialFactory credentialFactory;
-    private readonly IOContext io;
-    private readonly ILogger logger;
-    private readonly DiagnosticLogger diagnosticLogger;
-    private readonly BicepCompiler compiler;
-
-    public LocalDeployCommand(
-        IFileExplorer fileExplorer,
-        IModuleDispatcher moduleDispatcher,
-        IConfigurationManager configurationManager,
-        ITokenCredentialFactory credentialFactory,
-        IOContext io,
-        ILogger logger,
-        DiagnosticLogger diagnosticLogger,
-        BicepCompiler compiler)
-    {
-        this.fileExplorer = fileExplorer;
-        this.moduleDispatcher = moduleDispatcher;
-        this.configurationManager = configurationManager;
-        this.credentialFactory = credentialFactory;
-        this.io = io;
-        this.logger = logger;
-        this.diagnosticLogger = diagnosticLogger;
-        this.compiler = compiler;
-    }
-
     public async Task<int> RunAsync(LocalDeployArguments args, CancellationToken cancellationToken)
     {
         var paramsFileUri = ArgumentHelper.GetFileUri(args.ParamsFile);
@@ -85,12 +63,12 @@ public class LocalDeployCommand : ICommand
             return 1;
         }
 
-        await using LocalExtensionHostManager extensionHostManager = new(fileExplorer, moduleDispatcher, configurationManager, credentialFactory, GrpcBuiltInLocalExtension.Start);
+        await using var extensionHostManager = dispatcherFactory.Create();
         await extensionHostManager.InitializeExtensions(compilation);
         var result = await extensionHostManager.Deploy(templateString, parametersString, cancellationToken);
 
         await WriteSummary(result);
-        return 0;
+        return result.Deployment.Properties.ProvisioningState == ProvisioningState.Succeeded ? 0 : 1;
     }
 
     private async Task WriteSummary(LocalDeploymentResult result)

@@ -14,6 +14,9 @@ using Azure.Deployments.Extensibility.Data;
 using Azure.Deployments.Extensibility.Messages;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Auth;
+using Bicep.Local.Deploy.Azure;
+using Bicep.Local.Deploy.Engine;
+using Google.Protobuf.WellKnownTypes;
 using Json.More;
 using Json.Pointer;
 using Microsoft.WindowsAzure.ResourceStack.Common.Algorithms;
@@ -23,19 +26,11 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Local.Deploy.Extensibility;
 
-public class NestedDeploymentBuiltInLocalExtension : LocalExtensionHost
+internal class NestedDeploymentExtension(
+    IArmDeploymentProvider armDeploymentProvider,
+    LocalDeploymentEngine localDeploymentEngine,
+    IConfigurationManager configurationManager) : ILocalExtension
 {
-    private readonly LocalDeploymentEngine localDeploymentEngine;
-    private readonly IConfigurationManager configurationManager;
-    private readonly ITokenCredentialFactory credentialFactory;
-
-    public NestedDeploymentBuiltInLocalExtension(LocalDeploymentEngine localDeploymentEngine, IConfigurationManager configurationManager, ITokenCredentialFactory credentialFactory)
-    {
-        this.localDeploymentEngine = localDeploymentEngine;
-        this.configurationManager = configurationManager;
-        this.credentialFactory = credentialFactory;
-    }
-
     private record DeploymentIdentifiers(
         string? SubscriptionId,
         string? ResourceGroup,
@@ -99,7 +94,7 @@ public class NestedDeploymentBuiltInLocalExtension : LocalExtensionHost
             ErrorData: null);
     }
 
-    public override async Task<LocalExtensionOperationResponse> CreateOrUpdate(ResourceSpecification request, CancellationToken cancellationToken)
+    public async Task<LocalExtensionOperationResponse> CreateOrUpdate(ResourceSpecification request, CancellationToken cancellationToken)
     {
         EnsureDeploymentType(request.Type);
 
@@ -121,8 +116,8 @@ public class NestedDeploymentBuiltInLocalExtension : LocalExtensionHost
                 var configuration = configurationManager.GetConfiguration(new Uri(identifiers.SourceUri));
                 DeploymentLocator locator = new("", null, identifiers.SubscriptionId, identifiers.ResourceGroup, identifiers.Name);
 
-                await LocalAzureDeployment.StartDeployment(configuration, credentialFactory, locator, template, parameters.ToJsonString(), cancellationToken);
-                var result = await LocalAzureDeployment.CheckDeployment(configuration, credentialFactory, locator, cancellationToken);
+                await armDeploymentProvider.StartDeployment(configuration, locator, template, parameters.ToJsonString(), cancellationToken);
+                var result = await armDeploymentProvider.CheckDeployment(configuration, locator, cancellationToken);
 
                 return GetResponse(request.Type, request.ApiVersion, identifiers, result);
             }
@@ -142,7 +137,7 @@ public class NestedDeploymentBuiltInLocalExtension : LocalExtensionHost
         }
     }
 
-    public override async Task<LocalExtensionOperationResponse> Get(ResourceReference request, CancellationToken cancellationToken)
+    public async Task<LocalExtensionOperationResponse> Get(ResourceReference request, CancellationToken cancellationToken)
     {
         EnsureDeploymentType(request.Type);
 
@@ -156,7 +151,7 @@ public class NestedDeploymentBuiltInLocalExtension : LocalExtensionHost
                 var configuration = configurationManager.GetConfiguration(new Uri(identifiers.SourceUri));
                 DeploymentLocator locator = new("", null, identifiers.SubscriptionId, identifiers.ResourceGroup, identifiers.Name);
 
-                var result = await LocalAzureDeployment.CheckDeployment(configuration, credentialFactory, locator, cancellationToken);
+                var result = await armDeploymentProvider.CheckDeployment(configuration, locator, cancellationToken);
 
                 return GetResponse(request.Type, request.ApiVersion, identifiers, result);
             }
@@ -175,7 +170,7 @@ public class NestedDeploymentBuiltInLocalExtension : LocalExtensionHost
         }
     }
 
-    public override async Task<LocalExtensionOperationResponse> Preview(ResourceSpecification request, CancellationToken cancellationToken)
+    public async Task<LocalExtensionOperationResponse> Preview(ResourceSpecification request, CancellationToken cancellationToken)
     {
         await Task.Yield();
         EnsureDeploymentType(request.Type);
@@ -192,6 +187,9 @@ public class NestedDeploymentBuiltInLocalExtension : LocalExtensionHost
             ErrorData: null);
     }
 
-    public override Task<LocalExtensionOperationResponse> Delete(ResourceReference request, CancellationToken cancellationToken)
+    public Task<LocalExtensionOperationResponse> Delete(ResourceReference request, CancellationToken cancellationToken)
         => throw new NotImplementedException();
+
+    public ValueTask DisposeAsync()
+        => ValueTask.CompletedTask;
 }
