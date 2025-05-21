@@ -7014,7 +7014,7 @@ var subnetId = vNet::subnets[0].id
                     }
                     tenantId: '00000000-0000-0000-0000-000000000000'
                   }
-                  
+
                   resource secret 'secrets' = {
                     name: 'secret'
                     properties: {}
@@ -7031,7 +7031,7 @@ var subnetId = vNet::subnets[0].id
                     }
                     tenantId: '00000000-0000-0000-0000-000000000000'
                   }
-                  
+
                   resource secret 'secrets' = {
                     name: 'secret'
                     properties: {}
@@ -7067,7 +7067,7 @@ var subnetId = vNet::subnets[0].id
                 module empty 'empty.bicep' = {
                   name: 'foo'
                 }
-                
+
                 resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
                   name: 'storage'
                   dependsOn: [

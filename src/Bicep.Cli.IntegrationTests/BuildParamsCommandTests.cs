@@ -665,7 +665,7 @@ param intParam = 42
             File.Exists(expectedOutputFile).Should().BeFalse();
 
             output.Should().BeEmpty();
-            error.Should().Contain("Error BCP260: The parameter \"tag\" expects a value of type \"string\" but the provided value is of type \"int\".");
+            error.Should().Contain("Error BCP033: Expected a value of type \"string\" but the provided value is of type \"42\".");
             result.Should().Be(1);
         }
 
@@ -682,7 +682,7 @@ param intParam = 42
             using none
             param myInt = '42'
             param myString = {}
-            param myBool = 42
+            param myBool = []
             ", outputPath);
             var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicepparam", @"
             using './main.bicep'
@@ -697,9 +697,9 @@ param intParam = 42
             File.Exists(expectedOutputFile).Should().BeFalse();
 
             output.Should().BeEmpty();
-            error.Should().Contain("Error BCP260: The parameter \"myInt\" expects a value of type \"int\" but the provided value is of type \"string\".");
-            error.Should().Contain("Error BCP260: The parameter \"myString\" expects a value of type \"string\" but the provided value is of type \"object\".");
-            error.Should().Contain("Error BCP260: The parameter \"myBool\" expects a value of type \"bool\" but the provided value is of type \"int\".");
+            error.Should().Contain("Error BCP033: Expected a value of type \"int\" but the provided value is of type \"'42'\".");
+            error.Should().Contain("Error BCP033: Expected a value of type \"string\" but the provided value is of type \"object\".");
+            error.Should().Contain("Error BCP033: Expected a value of type \"bool\" but the provided value is of type \"<empty array>\".");
             result.Should().Be(1);
         }
     }
