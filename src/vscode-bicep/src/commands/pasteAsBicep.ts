@@ -28,7 +28,7 @@ import { getLogger } from "../utils/logger";
 import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { callWithTelemetryAndErrorHandlingOnlyOnErrors } from "../utils/telemetry";
 import { withProgressAfterDelay } from "../utils/withProgressAfterDelay";
-import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
+import { FileTypes, findOrCreateActiveBicepFile, MustBeSaved } from "./findOrCreateActiveBicepFile";
 import { SuppressedWarningsManager } from "./SuppressedWarningsManager";
 import { Command } from "./types";
 
@@ -54,7 +54,8 @@ export class PasteAsBicepCommand implements Command {
         context,
         documentUri,
         "Choose which Bicep file to paste into",
-        true,
+        FileTypes.Bicep,
+        MustBeSaved.No
       );
 
       const document = await workspace.openTextDocument(documentUri);

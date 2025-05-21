@@ -17,4 +17,6 @@ public class PatchingConfigurationManager : IConfigurationManager
     }
 
     public RootConfiguration GetConfiguration(Uri sourceFileUri) => patchFunc(configurationManager.GetConfiguration(sourceFileUri));
+
+    public void PurgeCache() => configurationManager.PurgeCache();
 }

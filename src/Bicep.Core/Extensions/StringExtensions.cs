@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Text.RegularExpressions;
+
 namespace Bicep.Core.Extensions;
 
 public static class StringExtensions
@@ -48,4 +50,8 @@ public static class StringExtensions
         }
     }
 
+    public static string IndentLines(this string input, int indent, char indentChar = ' ')
+    {
+        return new Regex("(^)", RegexOptions.Multiline).Replace(input, "$1" + new string(indentChar, indent));
+    }
 }
