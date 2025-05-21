@@ -650,7 +650,7 @@ param intParam = 42
             ", outputPath);
             FileHelper.SaveResultFile(TestContext, "base.bicepparam", @"
             using none
-            param tag = false
+            param tag = 42
             ", outputPath);
             var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicepparam", @"
             using 'main.bicep'
@@ -665,7 +665,7 @@ param intParam = 42
             File.Exists(expectedOutputFile).Should().BeFalse();
 
             output.Should().BeEmpty();
-            error.Should().Contain("Error BCP260: The parameter \"tag\" expects a value of type \"string\" but the provided value is of type \"bool\".");
+            error.Should().Contain("Error BCP260: The parameter \"tag\" expects a value of type \"string\" but the provided value is of type \"int\".");
             result.Should().Be(1);
         }
 
@@ -682,7 +682,7 @@ param intParam = 42
             using none
             param myInt = '42'
             param myString = {}
-            param myBool = 'true'
+            param myBool = 42
             ", outputPath);
             var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicepparam", @"
             using './main.bicep'
@@ -698,8 +698,8 @@ param intParam = 42
 
             output.Should().BeEmpty();
             error.Should().Contain("Error BCP260: The parameter \"myInt\" expects a value of type \"int\" but the provided value is of type \"string\".");
-            error.Should().Contain("Error BCP260: The parameter \"myString\" expects a value of type \"string\" but the provided value is of type \"'object'\".");
-            error.Should().Contain("Error BCP260: The parameter \"myBool\" expects a value of type \"bool\" but the provided value is of type \"string\".");
+            error.Should().Contain("Error BCP260: The parameter \"myString\" expects a value of type \"string\" but the provided value is of type \"object\".");
+            error.Should().Contain("Error BCP260: The parameter \"myBool\" expects a value of type \"bool\" but the provided value is of type \"int\".");
             result.Should().Be(1);
         }
     }

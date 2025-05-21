@@ -670,9 +670,24 @@ namespace Bicep.Core.Emit
                 var bicepFile = model.SourceFileGrouping.SourceFiles.First(sourceFile => sourceFile is BicepFile);
                 var paramDefinitionFromBicepFile = model.ModelLookup.GetSemanticModel(bicepFile).Parameters.First(e => e.Key == symbol.Name);
 
-                if (paramDefinitionFromBicepFile.Value.TypeReference.Type != symbol.Type)
+                if (!TypeValidator.AreTypesAssignable(paramDefinitionFromBicepFile.Value.TypeReference.Type, symbol.Type))
                 {
-                    diagnostics.WriteMultiple(DiagnosticBuilder.ForPosition(symbol.NameSource).ParameterTypeMismatch(symbol.Name, paramDefinitionFromBicepFile.Value.TypeReference.Type, symbol.Type));
+                    var symbolType = symbol.Type switch
+                    {
+                        IntegerType or IntegerLiteralType => TypeFactory.CreateIntegerType(),
+                        StringType => TypeFactory.CreateStringType(),
+                        ObjectType => new ObjectType(LanguageConstants.ObjectType, TypeSymbolValidationFlags.Default, [], new TypeProperty(LanguageConstants.Any)),
+                        ArrayType => TypeFactory.CreateArrayType(),
+                        _ => symbol.Type.TypeKind switch
+                        {
+                            TypeKind.StringLiteral => TypeFactory.CreateStringType(),
+                            TypeKind.BooleanLiteral => TypeFactory.CreateBooleanType(),
+                            TypeKind.IntegerLiteral => TypeFactory.CreateIntegerType(),
+                            _ => symbol.Type
+                        },
+                    };
+
+                    diagnostics.WriteMultiple(DiagnosticBuilder.ForPosition(symbol.NameSource).ParameterTypeMismatch(symbol.Name, paramDefinitionFromBicepFile.Value.TypeReference.Type, symbolType));
                     referencedValueHasError = true;
                 }
 
