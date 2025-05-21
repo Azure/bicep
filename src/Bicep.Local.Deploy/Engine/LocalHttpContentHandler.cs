@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Azure.Deployments.Engine.External;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
-namespace Bicep.Local.Deploy;
+namespace Bicep.Local.Deploy.Engine;
 
 public class LocalHttpContentHandler : IHttpContentHandler
 {

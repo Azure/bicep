@@ -16,20 +16,20 @@ using Rpc = Bicep.Local.Extension.Rpc;
 
 namespace Bicep.Local.Deploy.Extensibility;
 
-public class GrpcBuiltInLocalExtension : LocalExtensionHost
+internal class GrpcLocalExtension : ILocalExtension
 {
     private readonly BicepExtension.BicepExtensionClient client;
     private readonly Process process;
     private readonly GrpcChannel channel;
 
-    private GrpcBuiltInLocalExtension(BicepExtension.BicepExtensionClient client, Process process, GrpcChannel channel)
+    private GrpcLocalExtension(BicepExtension.BicepExtensionClient client, Process process, GrpcChannel channel)
     {
         this.client = client;
         this.process = process;
         this.channel = channel;
     }
 
-    public static async Task<LocalExtensionHost> Start(Uri pathToBinary)
+    public static async Task<ILocalExtension> Start(Uri pathToBinary)
     {
         string processArgs;
         Func<GrpcChannel> channelBuilder;
@@ -88,7 +88,7 @@ public class GrpcBuiltInLocalExtension : LocalExtensionHost
 
             await GrpcChannelHelper.WaitForConnectionAsync(client, cts.Token);
 
-            return new GrpcBuiltInLocalExtension(client, process, channel);
+            return new GrpcLocalExtension(client, process, channel);
         }
         catch (Exception ex)
         {
@@ -97,16 +97,16 @@ public class GrpcBuiltInLocalExtension : LocalExtensionHost
         }
     }
 
-    public override async Task<LocalExtensionOperationResponse> CreateOrUpdate(ExtensibilityV2.ResourceSpecification request, CancellationToken cancellationToken)
+    public async Task<LocalExtensionOperationResponse> CreateOrUpdate(ExtensibilityV2.ResourceSpecification request, CancellationToken cancellationToken)
         => Convert(await client.CreateOrUpdateAsync(Convert(request), cancellationToken: cancellationToken));
 
-    public override async Task<LocalExtensionOperationResponse> Delete(ExtensibilityV2.ResourceReference request, CancellationToken cancellationToken)
+    public async Task<LocalExtensionOperationResponse> Delete(ExtensibilityV2.ResourceReference request, CancellationToken cancellationToken)
         => Convert(await client.DeleteAsync(Convert(request), cancellationToken: cancellationToken));
 
-    public override async Task<LocalExtensionOperationResponse> Get(ExtensibilityV2.ResourceReference request, CancellationToken cancellationToken)
+    public async Task<LocalExtensionOperationResponse> Get(ExtensibilityV2.ResourceReference request, CancellationToken cancellationToken)
         => Convert(await client.GetAsync(Convert(request), cancellationToken: cancellationToken));
 
-    public override async Task<LocalExtensionOperationResponse> Preview(ExtensibilityV2.ResourceSpecification request, CancellationToken cancellationToken)
+    public async Task<LocalExtensionOperationResponse> Preview(ExtensibilityV2.ResourceSpecification request, CancellationToken cancellationToken)
         => Convert(await client.PreviewAsync(Convert(request), cancellationToken: cancellationToken));
 
     private static Rpc.ResourceReference Convert(ExtensibilityV2.ResourceReference request)
@@ -169,7 +169,7 @@ public class GrpcBuiltInLocalExtension : LocalExtensionHost
     private static JsonObject ToJsonObject(string json, string errorMessage)
         => JsonNode.Parse(json)?.AsObject() ?? throw new ArgumentNullException(errorMessage);
 
-    public override async ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         await TerminateProcess(process, channel);
     }

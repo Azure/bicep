@@ -18,7 +18,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Bicep.Local.Deploy;
+namespace Bicep.Local.Deploy.Engine;
 
 public class LocalDeploymentEngine
 {

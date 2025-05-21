@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Engine.Interfaces;
 
-namespace Bicep.Local.Deploy;
+namespace Bicep.Local.Deploy.Engine;
 
 public class LocalKeyVaultDataProvider : IKeyVaultDataProvider
 {
