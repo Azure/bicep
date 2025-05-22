@@ -870,10 +870,11 @@ namespace Bicep.Core.Emit
             foreach (var (symbolTypePluralName, symbolsOfType) in new (string, IEnumerable<DeclaredSymbol>)[]
             {
                 ("parameters", model.Root.ParameterDeclarations),
-                ("variables", model.Root.VariableDeclarations),
+                ("variables", model.Root.VariableDeclarations.Concat<DeclaredSymbol>(model.Root.ImportedVariables)),
                 ("outputs", model.Root.OutputDeclarations),
-                ("types", model.Root.TypeDeclarations),
+                ("types", model.Root.TypeDeclarations.Concat<DeclaredSymbol>(model.Root.ImportedTypes)),
                 ("asserts", model.Root.AssertDeclarations),
+                ("functions", model.Root.FunctionDeclarations.Concat<DeclaredSymbol>(model.Root.ImportedFunctions))
             })
             {
                 BlockCaseInsensitiveNameClashes(symbolTypePluralName, symbolsOfType, s => s.Name, s => s.NameSource, diagnostics);

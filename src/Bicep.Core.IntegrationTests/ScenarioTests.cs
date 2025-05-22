@@ -5079,6 +5079,69 @@ output modDetails array = ([for (mod, index) in modOptions: {
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
+    // https://github.com/Azure/bicep/issues/17192
+    [TestMethod]
+    public void Test_Issue17192()
+    {
+        var result = CompilationHelper.Compile(
+          ("main.bicep",
+"""
+import { Location } from 'test.bicep'
+var location = 2
+output output_of_location int = location
+"""),
+          ("test.bicep",
+"""
+@export()
+var Location = 1
+""")
+        );
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The variables \"location\", \"Location\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The variables \"location\", \"Location\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+
+        result = CompilationHelper.Compile(
+        ("main.bicep",
+"""
+import { MyFunc } from 'test.bicep'
+func myFunc() string => 'bar'
+"""),
+        ("test.bicep",
+"""
+@export()
+func MyFunc() string => 'foo'
+""")
+        );
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The functions \"myFunc\", \"MyFunc\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The functions \"myFunc\", \"MyFunc\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+        
+        result = CompilationHelper.Compile(
+        ("main.bicep",
+"""
+import { MyType } from 'test.bicep'
+type myType = { foo: string }
+"""),
+        ("test.bicep",
+"""
+@export()
+type MyType = { foo: string }
+""")
+        );
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The types \"myType\", \"MyType\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The types \"myType\", \"MyType\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+    }
+    
     // https://github.com/Azure/bicep/issues/10343
     [TestMethod]
     public void Test_Issue10343()
