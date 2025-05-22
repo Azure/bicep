@@ -2277,12 +2277,15 @@ namespace Bicep.Core.Semantics.Namespaces
                 return new(errorBuilder(DiagnosticBuilder.ForPosition(directoryPathArgument.syntax)));
             }
 
+            var isWindows = OperatingSystem.IsWindows();
             return new(auxiliaryFiles.ToDictionary(file => file.Uri.PathSegments[^1], file =>
             {
-                var fullname = file.Uri.ToString().Replace('\\', '/');
+                var fullname = isWindows ? file.Uri.ToString().Replace('\\', '/') : file.Uri.ToString();
                 var extension = Path.GetExtension(file.Uri.PathSegments[^1]);
-                var parentDirectoryName = Path.GetDirectoryName(file.Uri.ToString())!.Replace('\\', '/');
-                return new LoadDirectoryFileInformationResult(fullname, extension, parentDirectoryName);
+                var parentDirectoryName =  Path.GetDirectoryName(fullname) ?? Path.GetPathRoot(fullname);
+                //Fullname should never be null or empty so we can enforce that parentDirectory is not null
+                parentDirectoryName = isWindows ? parentDirectoryName!.Replace('\\', '/') : parentDirectoryName;
+                return new LoadDirectoryFileInformationResult(fullname, extension, parentDirectoryName!);
             }));
         }
 
