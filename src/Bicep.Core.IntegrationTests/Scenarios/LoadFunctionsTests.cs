@@ -1031,7 +1031,7 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
             }
         }
 
-        private const string TEST_FILES_ARM = """
+        private const string TEST_FILES_ARM_WINDOWS = """
                                               {
                                                 "main.bicep": {
                                                   "fullname": "C:/path/to/main.bicep",
@@ -1045,6 +1045,24 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
                                                 }
                                               }
                                               """;
+
+        private const string TEST_FILES_ARM_LINUX = """
+                                                      {
+                                                        "main.bicep": {
+                                                          "fullname": "/path/to/main.bicep",
+                                                          "extension": ".bicep",
+                                                          "parentDirectoryName": "/path/to"
+                                                        },
+                                                        "file.json": {
+                                                          "fullname": "/path/to/file.json",
+                                                          "extension": ".json",
+                                                          "parentDirectoryName": "/path/to"
+                                                        }
+                                                      }
+                                                      """;
+
+        private readonly  string  TEST_FILES_ARM = OperatingSystem.IsWindows() ? TEST_FILES_ARM_WINDOWS : TEST_FILES_ARM_LINUX;
+
 
         // Users are likely to use "*" instead of "" as a wildcard so we test that "" and "*" behave similarly
         [DataRow(true)]
