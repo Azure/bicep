@@ -1067,9 +1067,9 @@ namespace Bicep.LanguageServer.Completions
                         break;
                     }
 
-                    if (scope.ScopeResolution == ScopeResolution.InheritFunctionsOnly)
+                    if (scope.ScopeResolution == ScopeResolution.InheritFunctionsAndVariablesOnly)
                     {
-                        symbolFilter = symbol => symbol is DeclaredFunctionSymbol;
+                        symbolFilter = symbol => symbol is VariableSymbol or ImportedVariableSymbol or DeclaredFunctionSymbol or ImportedFunctionSymbol or WildcardImportSymbol;
                     }
                 }
             }
