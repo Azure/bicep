@@ -43,7 +43,7 @@
     <PackageReference Include="Azure.Bicep.Types" Version="0.5.110" />
     <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.764" />
     <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.644" />
-    <PackageReference Include="System.IO.Abstractions" Version="21.3.1" />
+    <PackageReference Include="System.IO.Abstractions" Version="22.0.14" />
     <PackageReference Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.45" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2" />
     <!-- force an upgrade of this dependency as it seems to cause build flakiness for unknown reasons -->
