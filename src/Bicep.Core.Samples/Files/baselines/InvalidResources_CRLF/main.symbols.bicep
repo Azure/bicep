@@ -1342,13 +1342,13 @@ resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for
 //@[009:026) Resource wrongLoopBodyType. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 99
 resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (x ,i) in emptyArray:4]
 //@[083:084) Local x. Type: never. Declaration start char: 83, length: 1
-//@[086:087) Local i. Type: int. Declaration start char: 86, length: 1
+//@[086:087) Local i. Type: 0. Declaration start char: 86, length: 1
 //@[009:027) Resource wrongLoopBodyType2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 105
 
 // duplicate variable in the same scope
 resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (same, same) in emptyArray: {
 //@[080:084) Local same. Type: never. Declaration start char: 80, length: 4
-//@[086:090) Local same. Type: int. Declaration start char: 86, length: 4
+//@[086:090) Local same. Type: 0. Declaration start char: 86, length: 4
 //@[009:029) Resource itemAndIndexSameName. Type: Microsoft.AAD/domainServices@2020-01-01[]. Declaration start char: 0, length: 112
 }]
 
@@ -1383,7 +1383,7 @@ resource wrongFilterExpressionType 'Microsoft.Storage/storageAccounts@2019-06-01
 }]
 resource wrongFilterExpressionType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in emptyArray: if(concat('s')){
 //@[091:098) Local account. Type: never. Declaration start char: 91, length: 7
-//@[099:100) Local i. Type: int. Declaration start char: 99, length: 1
+//@[099:100) Local i. Type: 0. Declaration start char: 99, length: 1
 //@[009:035) Resource wrongFilterExpressionType2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 137
 }]
 
@@ -1394,7 +1394,7 @@ resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01
 }]
 resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,j) in []: {
 //@[091:098) Local account. Type: never. Declaration start char: 91, length: 7
-//@[099:100) Local j. Type: int. Declaration start char: 99, length: 1
+//@[099:100) Local j. Type: 0. Declaration start char: 99, length: 1
 //@[009:035) Resource missingRequiredProperties2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 114
 }]
 
@@ -1487,11 +1487,11 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
     networkAcls: {
       virtualNetworkRules: [for (rule,j) in []: {
 //@[033:037) Local rule. Type: never. Declaration start char: 33, length: 4
-//@[038:039) Local j. Type: int. Declaration start char: 38, length: 1
+//@[038:039) Local j. Type: 0. Declaration start char: 38, length: 1
         id: '${account.name}-${account.location}'
         state: [for (lol,k) in []: 4]
 //@[021:024) Local lol. Type: never. Declaration start char: 21, length: 3
-//@[025:026) Local k. Type: int. Declaration start char: 25, length: 1
+//@[025:026) Local k. Type: 0. Declaration start char: 25, length: 1
       }]
     }
   }
@@ -1630,19 +1630,19 @@ resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [f
 //@[009:035) Resource nonObjectResourceLoopBody2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 110
 resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: 'test']
 //@[084:089) Local thing. Type: never. Declaration start char: 84, length: 5
-//@[090:091) Local i. Type: int. Declaration start char: 90, length: 1
+//@[090:091) Local i. Type: 0. Declaration start char: 90, length: 1
 //@[009:035) Resource nonObjectResourceLoopBody3. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 107
 resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: environment()]
 //@[084:089) Local thing. Type: never. Declaration start char: 84, length: 5
-//@[090:091) Local i. Type: int. Declaration start char: 90, length: 1
+//@[090:091) Local i. Type: 0. Declaration start char: 90, length: 1
 //@[009:035) Resource nonObjectResourceLoopBody4. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 114
 resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: if(true) 'test']
 //@[084:089) Local thing. Type: never. Declaration start char: 84, length: 5
-//@[090:091) Local i. Type: int. Declaration start char: 90, length: 1
+//@[090:091) Local i. Type: 0. Declaration start char: 90, length: 1
 //@[009:035) Resource nonObjectResourceLoopBody3. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 116
 resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: if(true) environment()]
 //@[084:089) Local thing. Type: never. Declaration start char: 84, length: 5
-//@[090:091) Local i. Type: int. Declaration start char: 90, length: 1
+//@[090:091) Local i. Type: 0. Declaration start char: 90, length: 1
 //@[009:035) Resource nonObjectResourceLoopBody4. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 123
 
 // #completionTest(54,55) -> objectPlusFor

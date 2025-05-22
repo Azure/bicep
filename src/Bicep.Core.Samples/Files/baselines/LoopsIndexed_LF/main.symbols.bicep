@@ -328,7 +328,7 @@ output existingIndexedResourceAccessTier string = existingStorageAccounts[index%
 
 resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone,i) in []: {
 //@[073:077) Local zone. Type: never. Declaration start char: 73, length: 4
-//@[078:079) Local i. Type: int. Declaration start char: 78, length: 1
+//@[078:079) Local i. Type: 0. Declaration start char: 78, length: 1
 //@[009:024) Resource duplicatedNames. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 140
   name: 'no loop variable'
   location: 'eastus'
@@ -337,7 +337,7 @@ resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone,i)
 // reference to a resource collection whose name expression does not reference any loop variables
 resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone,i) in []: {
 //@[083:087) Local zone. Type: never. Declaration start char: 83, length: 4
-//@[088:089) Local i. Type: int. Declaration start char: 88, length: 1
+//@[088:089) Local i. Type: 0. Declaration start char: 88, length: 1
 //@[009:034) Resource referenceToDuplicateNames. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 198
   name: 'no loop variable 2'
   location: 'eastus'
