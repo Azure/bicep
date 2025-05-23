@@ -7293,4 +7293,19 @@ var subnetId = vNet::subnets[0].id
 
         result.Should().NotHaveAnyDiagnostics();
     }
+
+    [TestMethod]
+    public void Test_Issue17035()
+    {
+        var result = CompilationHelper.Compile(
+            ("empty.bicep", string.Empty),
+            ("main.bicep", """
+                var list = []
+                module example2 'empty.bicep' = [for (item, index) in list: {
+                  name: 'networkSecurityPerimeterProfileAssociations-${uniqueString('test1', 'test2', 'test2')}-${index}'
+                }]
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
 }
