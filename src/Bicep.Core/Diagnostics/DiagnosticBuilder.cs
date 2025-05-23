@@ -1907,6 +1907,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic InvalidReservedImplicitExtensionNamespace(string name) => CoreError(
                 "BCP419",
                 $"Namespace name \"{name}\", and cannot be used an extension name.");
+
+            public Diagnostic ScopeKindUnresolvableAtCompileTime() => CoreError(
+                "BCP420",
+                "The scope could not be resolved at compile time because the supplied expression is ambiguous or too complex. Scoping expressions must be reducible to a specific kind of scope without knowledge of parameter values.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
