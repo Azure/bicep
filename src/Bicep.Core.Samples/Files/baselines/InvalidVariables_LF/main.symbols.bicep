@@ -268,7 +268,7 @@ var indirection = keys
 
 var runtimeLoop = [for (item, index) in []: indirection]
 //@[24:28) Local item. Type: never. Declaration start char: 24, length: 4
-//@[30:35) Local index. Type: 0. Declaration start char: 30, length: 5
+//@[30:35) Local index. Type: int. Declaration start char: 30, length: 5
 //@[04:15) Variable runtimeLoop. Type: array. Declaration start char: 0, length: 56
 var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
 //@[25:29) Local item. Type: any. Declaration start char: 25, length: 4
@@ -279,7 +279,7 @@ var zoneInput = []
 //@[04:13) Variable zoneInput. Type: <empty array>. Declaration start char: 0, length: 18
 resource zones 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone, i) in zoneInput: {
 //@[63:67) Local zone. Type: never. Declaration start char: 63, length: 4
-//@[69:70) Local i. Type: 0. Declaration start char: 69, length: 1
+//@[69:70) Local i. Type: int. Declaration start char: 69, length: 1
 //@[09:14) Resource zones. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 143
   name: zone
   location: az.resourceGroup().location
@@ -289,7 +289,7 @@ var inlinedVariable = zones[0].properties.zoneType
 
 var runtimeLoop3 = [for (zone, i) in zoneInput: {
 //@[25:29) Local zone. Type: never. Declaration start char: 25, length: 4
-//@[31:32) Local i. Type: 0. Declaration start char: 31, length: 1
+//@[31:32) Local i. Type: int. Declaration start char: 31, length: 1
 //@[04:16) Variable runtimeLoop3. Type: object[]. Declaration start char: 0, length: 73
   a: inlinedVariable
 }]
@@ -314,7 +314,7 @@ var myRef = [
 ]
 var runtimeLoop5 = [for (item, index) in myRef: 's']
 //@[25:29) Local item. Type: string. Declaration start char: 25, length: 4
-//@[31:36) Local index. Type: int. Declaration start char: 31, length: 5
+//@[31:36) Local index. Type: 0. Declaration start char: 31, length: 5
 //@[04:16) Variable runtimeLoop5. Type: 's'[]. Declaration start char: 0, length: 52
 
 // cannot use loops in expressions

@@ -66,7 +66,7 @@ resource extendSingleResourceInCollection 'Microsoft.Authorization/locks@2016-09
 // collection of extensions
 resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for (i, i2) in range(0,1): {
 //@[080:081) Local i. Type: 0. Declaration start char: 80, length: 1
-//@[083:085) Local i2. Type: int. Declaration start char: 83, length: 2
+//@[083:085) Local i2. Type: 0. Declaration start char: 83, length: 2
 //@[009:028) Resource extensionCollection. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 235
   name: 'lock-${i}-${i2}'
   properties: {
@@ -79,7 +79,7 @@ resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for (
 @batchSize(1)
 resource lockTheLocks 'Microsoft.Authorization/locks@2016-09-01' = [for (i, i2) in range(0,1): {
 //@[073:074) Local i. Type: 0. Declaration start char: 73, length: 1
-//@[076:078) Local i2. Type: int. Declaration start char: 76, length: 2
+//@[076:078) Local i2. Type: 0. Declaration start char: 76, length: 2
 //@[009:021) Resource lockTheLocks. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 260
   name: 'lock-the-lock-${i}-${i2}'
   properties: {
@@ -328,7 +328,7 @@ output existingIndexedResourceAccessTier string = existingStorageAccounts[index%
 
 resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone,i) in []: {
 //@[073:077) Local zone. Type: never. Declaration start char: 73, length: 4
-//@[078:079) Local i. Type: 0. Declaration start char: 78, length: 1
+//@[078:079) Local i. Type: int. Declaration start char: 78, length: 1
 //@[009:024) Resource duplicatedNames. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 140
   name: 'no loop variable'
   location: 'eastus'
@@ -337,7 +337,7 @@ resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone,i)
 // reference to a resource collection whose name expression does not reference any loop variables
 resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone,i) in []: {
 //@[083:087) Local zone. Type: never. Declaration start char: 83, length: 4
-//@[088:089) Local i. Type: 0. Declaration start char: 88, length: 1
+//@[088:089) Local i. Type: int. Declaration start char: 88, length: 1
 //@[009:034) Resource referenceToDuplicateNames. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 198
   name: 'no loop variable 2'
   location: 'eastus'

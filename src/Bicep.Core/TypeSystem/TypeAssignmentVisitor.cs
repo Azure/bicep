@@ -166,8 +166,11 @@ namespace Bicep.Core.TypeSystem
                 ITypeReference GetItemType(ForSyntax @for)
                     => GetIterationTargetType(@for)?.Item ?? LanguageConstants.Any;
 
-                long GetEnumerationTargetLength(ForSyntax @for) => GetIterationTargetType(@for)?.MaxLength
-                    ?? LanguageConstants.MaxResourceCopyIndexValue;
+                long GetEnumerationTargetLength(ForSyntax @for) => GetIterationTargetType(@for)?.MaxLength switch
+                {
+                    0 or null => LanguageConstants.MaxResourceCopyIndexValue,
+                    long maxLength => maxLength - 1,
+                };
 
                 var symbol = this.binder.GetSymbolInfo(syntax);
                 if (symbol is not LocalVariableSymbol localVariableSymbol)

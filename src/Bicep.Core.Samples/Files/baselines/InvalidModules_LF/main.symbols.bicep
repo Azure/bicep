@@ -489,7 +489,7 @@ module wrongLoopBodyType 'modulea.bicep' = [for x in emptyArray:4]
 //@[07:24) Module wrongLoopBodyType. Type: module[]. Declaration start char: 0, length: 66
 module wrongLoopBodyType2 'modulea.bicep' = [for (x,i) in emptyArray:4]
 //@[50:51) Local x. Type: never. Declaration start char: 50, length: 1
-//@[52:53) Local i. Type: 0. Declaration start char: 52, length: 1
+//@[52:53) Local i. Type: int. Declaration start char: 52, length: 1
 //@[07:25) Module wrongLoopBodyType2. Type: module[]. Declaration start char: 0, length: 71
 
 // missing loop body properties
@@ -499,7 +499,7 @@ module missingLoopBodyProperties 'modulea.bicep' = [for x in emptyArray:{
 }]
 module missingLoopBodyProperties2 'modulea.bicep' = [for (x,i) in emptyArray:{
 //@[58:59) Local x. Type: never. Declaration start char: 58, length: 1
-//@[60:61) Local i. Type: 0. Declaration start char: 60, length: 1
+//@[60:61) Local i. Type: int. Declaration start char: 60, length: 1
 //@[07:33) Module missingLoopBodyProperties2. Type: module[]. Declaration start char: 0, length: 81
 }]
 
@@ -550,7 +550,7 @@ module wrongModuleParameterInFilteredLoop 'modulea.bicep' = [for x in emptyArray
 }]
 module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
 //@[59:60) Local x. Type: never. Declaration start char: 59, length: 1
-//@[61:62) Local i. Type: 0. Declaration start char: 61, length: 1
+//@[61:62) Local i. Type: int. Declaration start char: 61, length: 1
 //@[07:34) Module wrongModuleParameterInLoop2. Type: module[]. Declaration start char: 0, length: 240
   name: 'hello-${x}'
   params: {
@@ -566,7 +566,7 @@ module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
 
 module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x,i) in emptyArray: if(true) {
 //@[67:68) Local x. Type: never. Declaration start char: 67, length: 1
-//@[69:70) Local i. Type: 0. Declaration start char: 69, length: 1
+//@[69:70) Local i. Type: int. Declaration start char: 69, length: 1
 //@[07:42) Module paramNameCompletionsInFilteredLoops. Type: module[]. Declaration start char: 0, length: 187
   name: 'hello-${x}'
   params: {
@@ -655,11 +655,11 @@ module nonObjectModuleBody2 'modulea.bicep' = [for thing in []: concat()]
 //@[07:27) Module nonObjectModuleBody2. Type: module[]. Declaration start char: 0, length: 73
 module nonObjectModuleBody3 'modulea.bicep' = [for (thing,i) in []: 'hello']
 //@[52:57) Local thing. Type: never. Declaration start char: 52, length: 5
-//@[58:59) Local i. Type: 0. Declaration start char: 58, length: 1
+//@[58:59) Local i. Type: int. Declaration start char: 58, length: 1
 //@[07:27) Module nonObjectModuleBody3. Type: module[]. Declaration start char: 0, length: 76
 module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
 //@[52:57) Local thing. Type: never. Declaration start char: 52, length: 5
-//@[58:59) Local i. Type: 0. Declaration start char: 58, length: 1
+//@[58:59) Local i. Type: int. Declaration start char: 58, length: 1
 //@[07:27) Module nonObjectModuleBody4. Type: module[]. Declaration start char: 0, length: 77
 
 module anyTypeInScope 'empty.bicep' = {
