@@ -1907,6 +1907,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic InvalidReservedImplicitExtensionNamespace(string name) => CoreError(
                 "BCP419",
                 $"Namespace name \"{name}\", and cannot be used an extension name.");
+
+            public Diagnostic InlineMustNotHaveValueAssigned() => CoreError(
+                "BCP420",
+                $"A parameter marked with the \"@{LanguageConstants.ParameterInlinePropertyName}\" decorator shouldn't have a value assigned.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
