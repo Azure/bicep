@@ -3967,7 +3967,9 @@ var file = " + functionName + @"('|')
                         x => x.Label.Should().Be("moduleFolder3/"),
                         x => x.Label.Should().Be("moduleFolder4/"),
                         x => x.Label.Should().Be("moduleFolder5/"),
-                        x => x.Label.Should().Be("moduleFolder6/")
+                        x => x.Label.Should().Be("moduleFolder6/"),
+                        x => x.Label.Should().Be("az"),
+                        x => x.Label.Should().Be("sys")
                     );
             }
             else
