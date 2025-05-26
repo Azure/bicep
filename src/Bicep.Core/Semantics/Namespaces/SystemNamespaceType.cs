@@ -36,7 +36,7 @@ namespace Bicep.Core.Semantics.Namespaces
     public static class SystemNamespaceType
     {
         private readonly record struct LoadTextContentResult(IOUri FileUri, string Content);
-        private readonly record struct LoadDirectoryFileInformationResult(string Fullname, string Extension, string ParentDirectoryName);
+        public readonly record struct LoadDirectoryFileInformationResult(string BaseName, string FullName, string Extension, string ParentDirectoryName);
 
         public const string BuiltInName = "sys";
         public const long UniqueStringHashLength = 13;
@@ -2234,7 +2234,7 @@ namespace Bicep.Core.Semantics.Namespaces
             => LoadDirectoryFileInformationResultBuilder(new JsonObjectParser(), model, diagnostics, functionCall, argumentTypes);
         private static FunctionResult LoadDirectoryFileInformationResultBuilder(ObjectParser objectParser, SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
-            var arguments = functionCall.Arguments.ToImmutableArray();
+            var arguments = functionCall.Arguments;
             var pathSearchPattern = string.Empty;
             IPositionable[] positionables = arguments.Length > 1 ? [arguments[0], arguments[1]] : [arguments[0]];
             if (arguments.Length > 1)
@@ -2249,7 +2249,9 @@ namespace Bicep.Core.Semantics.Namespaces
             if (TryLoadFilesFromDirectoryPath(model, diagnostics, (arguments[0], argumentTypes[0]), pathSearchPattern)
                     .IsSuccess(out var result, out var errorDiagnostic))
             {
-                objectParser.TryExtractFromObject(result.ToJson(), null, positionables, out errorDiagnostic, out var token);
+                objectParser.TryExtractFromObject(
+                    result.ToJson(),
+                    null, positionables, out errorDiagnostic, out var token);
                 if (token is null)
                 {
                     return new FunctionResult(ErrorType.Create(errorDiagnostic!));
@@ -2261,8 +2263,7 @@ namespace Bicep.Core.Semantics.Namespaces
             return new FunctionResult(ErrorType.Create(errorDiagnostic));
         }
 
-
-         private static ResultWithDiagnostic<Dictionary<string, LoadDirectoryFileInformationResult>> TryLoadFilesFromDirectoryPath(SemanticModel model, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) directoryPathArgument, string pathSearchPattern)
+         private static ResultWithDiagnostic<IEnumerable<LoadDirectoryFileInformationResult>> TryLoadFilesFromDirectoryPath(SemanticModel model, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) directoryPathArgument, string pathSearchPattern)
         {
             if (directoryPathArgument.typeSymbol is not StringLiteralType directoryPathType)
             {
@@ -2278,16 +2279,17 @@ namespace Bicep.Core.Semantics.Namespaces
             }
 
             var isWindows = OperatingSystem.IsWindows();
-            return new(auxiliaryFiles.ToDictionary(file => file.Uri.PathSegments[^1], file =>
+
+            return new (auxiliaryFiles.Select(file =>
             {
+                var baseName = file.Uri.PathSegments[^1];
                 var fullname = isWindows ? file.Uri.ToString().Replace('\\', '/') : file.Uri.ToString();
-                var extension = Path.GetExtension(file.Uri.PathSegments[^1]);
-                var parentDirectoryName =  Path.GetDirectoryName(fullname) ?? Path.GetPathRoot(fullname);
+                var extension = Path.GetExtension(baseName);
+                var parentDirectoryName = Path.GetDirectoryName(fullname) ?? Path.GetPathRoot(fullname);
                 //Fullname should never be null or empty so we can enforce that parentDirectory is not null
                 parentDirectoryName = isWindows ? parentDirectoryName!.Replace('\\', '/') : parentDirectoryName;
-                return new LoadDirectoryFileInformationResult(fullname, extension, parentDirectoryName!);
+                return new LoadDirectoryFileInformationResult(baseName, fullname, extension, parentDirectoryName!);
             }));
         }
-
     }
 }

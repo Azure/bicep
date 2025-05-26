@@ -1032,33 +1032,37 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
         }
 
         private const string TEST_FILES_ARM_WINDOWS = """
-                                              {
-                                                "main.bicep": {
-                                                  "fullname": "C:/path/to/main.bicep",
+                                              [
+                                                {
+                                                  "baseName": "main.bicep",
+                                                  "fullName": "C:/path/to/main.bicep",
                                                   "extension": ".bicep",
                                                   "parentDirectoryName": "C:/path/to"
                                                 },
-                                                "file.json": {
-                                                  "fullname": "C:/path/to/file.json",
+                                                {
+                                                  "baseName": "File.json",
+                                                  "fullName": "C:/path/to/File.json",
                                                   "extension": ".json",
                                                   "parentDirectoryName": "C:/path/to"
                                                 }
-                                              }
+                                              ]
                                               """;
 
         private const string TEST_FILES_ARM_LINUX = """
-                                                      {
-                                                        "main.bicep": {
-                                                          "fullname": "/path/to/main.bicep",
+                                                      [
+                                                        {
+                                                          "baseName": "main.bicep",
+                                                          "fullName": "/path/to/main.bicep",
                                                           "extension": ".bicep",
                                                           "parentDirectoryName": "/path/to"
                                                         },
-                                                        "file.json": {
-                                                          "fullname": "/path/to/file.json",
+                                                        {
+                                                          "baseName": "File.json",
+                                                          "fullName": "/path/to/File.json",
                                                           "extension": ".json",
                                                           "parentDirectoryName": "/path/to"
                                                         }
-                                                      }
+                                                      ]
                                                       """;
 
         private readonly  string  TEST_FILES_ARM = OperatingSystem.IsWindows() ? TEST_FILES_ARM_WINDOWS : TEST_FILES_ARM_LINUX;
@@ -1072,7 +1076,7 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
         {
             var (template, diags, _) = CompilationHelper.Compile(
                 ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('./'{(withWildCard ? ", '*'" : "")})"),
-                ("file.json", ""));
+                ("File.json", ""));
 
 
             using (new AssertionScope())
@@ -1093,24 +1097,24 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
         [DataRow("fi*.js*", "main.bicep")]
         [DataRow("*e.js*", "main.bicep")]
         [DataRow("file?json", "main.bicep")]
-        [DataRow("*.bicep", "file.json")]
-        [DataRow("main*", "file.json")]
-        [DataRow("ma*.bi*", "file.json")]
-        [DataRow("*n.bi*", "file.json")]
-        [DataRow("main?bicep", "file.json")]
+        [DataRow("*.bicep", "File.json")]
+        [DataRow("main*", "File.json")]
+        [DataRow("ma*.bi*", "File.json")]
+        [DataRow("*n.bi*", "File.json")]
+        [DataRow("main?bicep", "File.json")]
         [DataTestMethod]
         public void LoadDirectoryFileInformationWithPattern(string searchPattern, string fileToExclude)
         {
             var fullContent = TEST_FILES_ARM;
             var loadedContent = JToken.Parse(fullContent);
             loadedContent.Should().NotBeNull();
-            var tokenToRemove = loadedContent!.SelectToken($"$.['{fileToExclude}']");
+            var tokenToRemove = loadedContent!.FirstOrDefault(t => t.Value<string>("baseName") == fileToExclude);
             tokenToRemove.Should().NotBeNull();
             tokenToRemove!.Parent.Should().NotBeNull();
-            tokenToRemove!.Parent!.Remove();
+            tokenToRemove!.Remove();
             var (template, diags, _) = CompilationHelper.Compile(
                 ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('./', '{searchPattern}')"),
-                ("file.json", ""));
+                ("File.json", ""));
 
             using (new AssertionScope())
             {
@@ -1129,7 +1133,7 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
         {
             var (template, diags, _) = CompilationHelper.Compile(
                 ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('../../')"),
-                ("file.json", ""));
+                ("File.json", ""));
 
             using (new AssertionScope())
             {
@@ -1139,7 +1143,7 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
             using (new AssertionScope())
             {
                 template!.SelectToken("$.variables.fileObjs").Should().DeepEqual("[variables('$fxv#0')]");
-                template!.SelectToken("$.variables['$fxv#0']").Should().DeepEqual(JToken.Parse("{}"));
+                template!.SelectToken("$.variables['$fxv#0']").Should().DeepEqual(JToken.Parse("[]"));
             }
         }
 
@@ -1149,7 +1153,7 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
         {
             var (template, diags, _) = CompilationHelper.Compile(
                 ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('./nonExistingDirectory')"),
-                ("file.json", ""));
+                ("File.json", ""));
 
             using (new AssertionScope())
             {
@@ -1167,7 +1171,7 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
         {
             var (template, diags, _) = CompilationHelper.Compile(
                 ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('{rootedPath}')"),
-                ("file.json", ""));
+                ("File.json", ""));
 
             using (new AssertionScope())
             {
@@ -1184,7 +1188,7 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
         {
             var (template, diags, _) = CompilationHelper.Compile(
                 ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('{rootedPath}')"),
-                ("file.json", ""));
+                ("File.json", ""));
 
             using (new AssertionScope())
             {
@@ -1200,7 +1204,7 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
         {
             var (template, diags, _) = CompilationHelper.Compile(
                 ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('{path}')"),
-                ("file.json", ""));
+                ("File.json", ""));
 
             using (new AssertionScope())
             {
