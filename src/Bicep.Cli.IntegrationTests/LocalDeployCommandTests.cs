@@ -194,7 +194,7 @@ Result: Succeeded
             .Returns<RootConfiguration, DeploymentLocator, CancellationToken>(async (config, locator, _) =>
             {
                 await Task.CompletedTask;
- 
+
                 return new(
                     new()
                     {

@@ -5121,7 +5121,7 @@ func MyFunc() string => 'foo'
             ("BCP353", DiagnosticLevel.Error, "The functions \"myFunc\", \"MyFunc\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
             ("BCP353", DiagnosticLevel.Error, "The functions \"myFunc\", \"MyFunc\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
         });
-        
+
         result = CompilationHelper.Compile(
         ("main.bicep",
 """
@@ -5141,7 +5141,7 @@ type MyType = { foo: string }
             ("BCP353", DiagnosticLevel.Error, "The types \"myType\", \"MyType\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
         });
     }
-    
+
     // https://github.com/Azure/bicep/issues/10343
     [TestMethod]
     public void Test_Issue10343()
@@ -7293,6 +7293,21 @@ var subnetId = vNet::subnets[0].id
 
             output properties resourceOutput<'Microsoft.Network/networkSecurityGroups@2024-05-01'>.properties = nsg.properties
             """);
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue17035()
+    {
+        var result = CompilationHelper.Compile(
+            ("empty.bicep", string.Empty),
+            ("main.bicep", """
+                var list = []
+                module example2 'empty.bicep' = [for (item, index) in list: {
+                  name: 'networkSecurityPerimeterProfileAssociations-${uniqueString('test1', 'test2', 'test2')}-${index}'
+                }]
+                """));
 
         result.Should().NotHaveAnyDiagnostics();
     }
