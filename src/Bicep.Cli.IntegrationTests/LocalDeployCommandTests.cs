@@ -125,7 +125,7 @@ public class LocalDeployCommandTests : TestBase
             TestContext.CancellationTokenSource.Token,
             ["local-deploy", baselineFolder.EntryFile.OutputFilePath]);
 
-        result.Should().Succeed();
+        result.Should().NotHaveStderr().And.Succeed();
         result.Stdout.Should().EqualIgnoringWhitespace("""
 Output forecast: [
   {
@@ -222,7 +222,7 @@ Result: Succeeded
             TestContext.CancellationTokenSource.Token,
             ["local-deploy", baselineFolder.EntryFile.OutputFilePath]);
 
-        result.Should().Succeed();
+        result.Should().NotHaveStderr().And.Succeed();
         result.Stdout.Should().EqualIgnoringWhitespace("""
 Output gridId: "SEW"
 Resource gridpointsReq (Create): Succeeded
