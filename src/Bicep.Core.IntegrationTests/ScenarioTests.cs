@@ -6430,7 +6430,10 @@ param p invalidRecursiveObjectType = {}
             }
             """);
 
-        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP420", DiagnosticLevel.Error, "The scope could not be resolved at compile time because the supplied expression is ambiguous or too complex. Scoping expressions must be reducible to a specific kind of scope without knowledge of parameter values."),
+        });
     }
 
     [TestMethod]
@@ -7307,5 +7310,48 @@ var subnetId = vNet::subnets[0].id
                 """));
 
         result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue17157()
+    {
+        var result = CompilationHelper.Compile("""
+            param resourceName string = 'example'
+            param serverFarmId string
+            param someIdentityObjectId string
+            param shouldDeploy bool
+
+            resource deployAppService 'Microsoft.Web/sites@2022-03-01' = if (shouldDeploy) {
+              name: resourceName
+              location: resourceGroup().location
+              properties: {
+                serverFarmId: serverFarmId
+              }
+            }
+
+            resource existingAppService 'Microsoft.Web/sites@2022-03-01' existing = {
+              name: resourceName
+            }
+
+            resource contributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
+              name: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
+            }
+
+            var appServiceId = shouldDeploy ? deployAppService.id : existingAppService.id
+            resource contributorRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if (shouldDeploy) {
+              name: guid(appServiceId, someIdentityObjectId, 'contributor')
+              scope: shouldDeploy ? deployAppService : existingAppService
+              properties: {
+                roleDefinitionId: contributorRoleDefinition.id
+                principalId: someIdentityObjectId
+                principalType: 'ServicePrincipal'
+              }
+            }
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP420", DiagnosticLevel.Error, "The scope could not be resolved at compile time because the supplied expression is ambiguous or too complex. Scoping expressions must be reducible to a specific kind of scope without knowledge of parameter values."),
+        });
     }
 }
