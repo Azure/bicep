@@ -189,32 +189,6 @@ public class SnippetsProvider : ISnippetsProvider
         return new Snippet(output, CompletionPriority.Medium, label, RequiredPropertiesDescription);
     }
 
-    private IEnumerable<Snippet> GetIdentitySnippets()
-    {
-        string userAssignedIdentityLabel = "user-assigned-identity";
-        string userAssignedIdentityDescription = "User assigned identity";
-        string noneIdentityLabel = "none-identity";
-        string noneIdentityDescription = "None identity";
-
-        yield return new Snippet("""
-            {
-                identity: {
-                    type: 'UserAssigned'
-                    userAssignedIdentities: {
-                        '${$0}': {}
-                    }
-                }
-            }
-            """, CompletionPriority.Medium, userAssignedIdentityLabel, userAssignedIdentityDescription);
-        yield return new Snippet("""
-            {
-                identity: {
-                    type: 'None'
-                }
-            }
-            """, CompletionPriority.Low, noneIdentityLabel, noneIdentityDescription);
-    }
-
     private Snippet GetEmptySnippet()
     {
         string label = "{}";
@@ -237,7 +211,7 @@ public class SnippetsProvider : ISnippetsProvider
 
             if (features.ModuleIdentityEnabled)
             {
-                IEnumerable<Snippet> identitySnippets = GetIdentitySnippets();
+                IEnumerable<Snippet> identitySnippets = GetModuleIdentitySnippets();
 
                 foreach (var identitySnippet in identitySnippets)
                 {
@@ -322,5 +296,43 @@ public class SnippetsProvider : ISnippetsProvider
                 }
             }
         }
+    }
+
+    private IEnumerable<Snippet> GetModuleIdentitySnippets()
+    {
+        string userAssignedIdentityLabel = "user-assigned-identity";
+        string userAssignedIdentityDescription = "User assigned identity";
+        string userAssignedIdentityArrayLabel = "user-assigned-identity-array";
+        string userAssignedIdentityArrayDescription = "User assigned identity array";
+        string noneIdentityLabel = "none-identity";
+        string noneIdentityDescription = "None identity";
+
+        yield return new Snippet("""
+            {
+              identity: {
+                type: 'UserAssigned'
+                userAssignedIdentities: {
+                  '${${0:identityId}}': {}
+                }
+              }
+            }
+            """, CompletionPriority.Low, userAssignedIdentityLabel, userAssignedIdentityDescription);
+
+        yield return new Snippet("""
+            {
+              identity: {
+                type: 'UserAssigned'
+                userAssignedIdentities: toObject(${0:identityIdArray}, x => x, x => {})
+              }
+            }
+            """, CompletionPriority.Low, userAssignedIdentityArrayLabel, userAssignedIdentityArrayDescription);
+
+        yield return new Snippet("""
+            {
+              identity: {
+                type: 'None'
+              }
+            }
+            """, CompletionPriority.Low, noneIdentityLabel, noneIdentityDescription);
     }
 }

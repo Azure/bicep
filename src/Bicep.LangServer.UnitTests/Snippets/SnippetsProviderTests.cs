@@ -540,39 +540,59 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
                     x.Prefix.Should().Be("required-properties");
                     x.Detail.Should().Be("Required properties");
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
-                    x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
+                    x.Text.Should().Be(
+"""
+{
 	name: $1
 	location: $2
-}$0");
+}$0
+""");
                 },
                 x =>
                 {
                     x.Prefix.Should().Be("user-assigned-identity");
                     x.Detail.Should().Be("User assigned identity");
-                    x.CompletionPriority.Should().Be(CompletionPriority.Medium);
-                    x.Text.Should().BeEquivalentToIgnoringNewlines("""
-                        {
-                            identity: {
-                                type: 'UserAssigned'
-                                userAssignedIdentities: {
-                                    '${$0}': {}
-                                }
-                            }
-                        }
-                        """);
+                    x.CompletionPriority.Should().Be(CompletionPriority.Low);
+                    x.Text.Should().Be(
+"""
+{
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${${0:identityId}}': {}
+    }
+  }
+}
+""");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("user-assigned-identity-array");
+                    x.Detail.Should().Be("User assigned identity array");
+                    x.CompletionPriority.Should().Be(CompletionPriority.Low);
+                    x.Text.Should().Be(
+"""
+{
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: toObject(${0:identityIdArray}, x => x, x => {})
+  }
+}
+""");
                 },
                 x =>
                 {
                     x.Prefix.Should().Be("none-identity");
                     x.Detail.Should().Be("None identity");
                     x.CompletionPriority.Should().Be(CompletionPriority.Low);
-                    x.Text.Should().BeEquivalentToIgnoringNewlines("""               
-                        {
-                            identity: {
-                                type: 'None'
-                            }
-                        }
-                        """);
+                    x.Text.Should().Be(
+"""               
+{
+  identity: {
+    type: 'None'
+  }
+}
+""");
                 });
         }
 
