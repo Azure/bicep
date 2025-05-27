@@ -475,11 +475,9 @@ output joke string = dadJoke.joke
                       "version": "1.0.0",
                       "config": {
                         "namespace": {
-                          "type": "string",
                           "defaultValue": "ThirdPartyNamespace"
                         },
                         "config": {
-                          "type": "string",
                           "defaultValue": "Some path to config file"
                         }
                       }

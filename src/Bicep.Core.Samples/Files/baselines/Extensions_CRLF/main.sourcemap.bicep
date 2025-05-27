@@ -31,10 +31,8 @@ extension kubernetes with {
 //@      "version": "1.0.0",
 //@      "config": {
 //@        "kubeConfig": {
-//@          "type": "secureString",
 //@        },
 //@        "namespace": {
-//@          "type": "string",
 //@        }
 //@      }
 //@    }
@@ -127,7 +125,7 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4478020682322669192"
+//@              "templateHash": "9956339962035221962"
 //@            }
 //@          },
 //@          "extensions": {
@@ -136,11 +134,9 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
 //@              "version": "1.0.0",
 //@              "config": {
 //@                "kubeConfig": {
-//@                  "type": "secureString",
 //@                  "defaultValue": "DELETE"
 //@                },
 //@                "namespace": {
-//@                  "type": "string",
 //@                  "defaultValue": "DELETE"
 //@                }
 //@              }
@@ -191,7 +187,7 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "8431330143219269152"
+//@              "templateHash": "14917334107033963301"
 //@            }
 //@          },
 //@          "extensions": {
@@ -200,11 +196,9 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
 //@              "version": "1.0.0",
 //@              "config": {
 //@                "kubeConfig": {
-//@                  "type": "secureString",
 //@                  "defaultValue": "DELETE"
 //@                },
 //@                "namespace": {
-//@                  "type": "string",
 //@                  "defaultValue": "DELETE"
 //@                }
 //@              }
@@ -255,7 +249,7 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4478020682322669192"
+//@              "templateHash": "9956339962035221962"
 //@            }
 //@          },
 //@          "extensions": {
@@ -264,11 +258,9 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
 //@              "version": "1.0.0",
 //@              "config": {
 //@                "kubeConfig": {
-//@                  "type": "secureString",
 //@                  "defaultValue": "DELETE"
 //@                },
 //@                "namespace": {
-//@                  "type": "string",
 //@                  "defaultValue": "DELETE"
 //@                }
 //@              }
@@ -315,7 +307,7 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4478020682322669192"
+//@              "templateHash": "9956339962035221962"
 //@            }
 //@          },
 //@          "extensions": {
@@ -324,11 +316,9 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
 //@              "version": "1.0.0",
 //@              "config": {
 //@                "kubeConfig": {
-//@                  "type": "secureString",
 //@                  "defaultValue": "DELETE"
 //@                },
 //@                "namespace": {
-//@                  "type": "string",
 //@                  "defaultValue": "DELETE"
 //@                }
 //@              }
@@ -384,7 +374,7 @@ module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.b
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4478020682322669192"
+//@              "templateHash": "9956339962035221962"
 //@            }
 //@          },
 //@          "extensions": {
@@ -393,11 +383,9 @@ module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.b
 //@              "version": "1.0.0",
 //@              "config": {
 //@                "kubeConfig": {
-//@                  "type": "secureString",
 //@                  "defaultValue": "DELETE"
 //@                },
 //@                "namespace": {
-//@                  "type": "string",
 //@                  "defaultValue": "DELETE"
 //@                }
 //@              }
@@ -452,7 +440,7 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4478020682322669192"
+//@              "templateHash": "9956339962035221962"
 //@            }
 //@          },
 //@          "extensions": {
@@ -461,11 +449,9 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 //@              "version": "1.0.0",
 //@              "config": {
 //@                "kubeConfig": {
-//@                  "type": "secureString",
 //@                  "defaultValue": "DELETE"
 //@                },
 //@                "namespace": {
-//@                  "type": "string",
 //@                  "defaultValue": "DELETE"
 //@                }
 //@              }
@@ -506,7 +492,7 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4478020682322669192"
+//@              "templateHash": "9956339962035221962"
 //@            }
 //@          },
 //@          "extensions": {
@@ -515,11 +501,9 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 //@              "version": "1.0.0",
 //@              "config": {
 //@                "kubeConfig": {
-//@                  "type": "secureString",
 //@                  "defaultValue": "DELETE"
 //@                },
 //@                "namespace": {
-//@                  "type": "string",
 //@                  "defaultValue": "DELETE"
 //@                }
 //@              }
@@ -570,7 +554,7 @@ module moduleWithExtsUsingPiecemealInheritanceLooped 'child/hasConfigurableExten
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4478020682322669192"
+//@              "templateHash": "9956339962035221962"
 //@            }
 //@          },
 //@          "extensions": {
@@ -579,11 +563,9 @@ module moduleWithExtsUsingPiecemealInheritanceLooped 'child/hasConfigurableExten
 //@              "version": "1.0.0",
 //@              "config": {
 //@                "kubeConfig": {
-//@                  "type": "secureString",
 //@                  "defaultValue": "DELETE"
 //@                },
 //@                "namespace": {
-//@                  "type": "string",
 //@                  "defaultValue": "DELETE"
 //@                }
 //@              }
@@ -630,7 +612,7 @@ module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlia
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4478020682322669192"
+//@              "templateHash": "9956339962035221962"
 //@            }
 //@          },
 //@          "extensions": {
@@ -639,11 +621,9 @@ module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlia
 //@              "version": "1.0.0",
 //@              "config": {
 //@                "kubeConfig": {
-//@                  "type": "secureString",
 //@                  "defaultValue": "DELETE"
 //@                },
 //@                "namespace": {
-//@                  "type": "string",
 //@                  "defaultValue": "DELETE"
 //@                }
 //@              }
