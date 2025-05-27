@@ -1911,6 +1911,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic InlineMustNotHaveValueAssigned() => CoreError(
                 "BCP420",
                 $"A parameter marked with the \"@{LanguageConstants.ParameterInlinePropertyName}\" decorator shouldn't have a value assigned.");
+
+            public Diagnostic MissingParameterValue(string identifier) => CoreError(
+                "BCP421",
+                $"Parameter {identifier} is declared but missing a value assignment.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

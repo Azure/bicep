@@ -118,6 +118,11 @@ namespace Bicep.Core.Parsing
                 _ => this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(name), TokenType.NewLine),
             };
 
+            if (assignment is not null && value is null)
+            {
+                throw new ExpectedTokenException(keyword, b => b.MissingParameterValue(name.IdentifierName));
+            }
+
             return new ParameterAssignmentSyntax(keyword, name, assignment, value, leadingNodes);
         }
 
