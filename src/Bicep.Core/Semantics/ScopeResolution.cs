@@ -11,9 +11,9 @@ public enum ScopeResolution
     InheritAll,
 
     /// <summary>
-    ///   Inherit only function symbols from the parent scope.
+    ///   Inherit only function and variable symbols from the parent scope.
     /// </summary>
-    InheritFunctionsOnly,
+    InheritFunctionsAndVariablesOnly,
 
     /// <summary>
     ///   Only symbols that have not been declared by a parent (or above) scope.

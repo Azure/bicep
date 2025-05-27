@@ -13,7 +13,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using Microsoft.WindowsAzure.ResourceStack.Common.EventSources;
 using Newtonsoft.Json.Linq;
 
-namespace Bicep.Local.Deploy;
+namespace Bicep.Local.Deploy.Engine;
 
 #nullable disable
 

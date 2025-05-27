@@ -144,8 +144,8 @@ namespace Bicep.Core.TypeSystem
         public override void VisitLocalVariableSyntax(LocalVariableSyntax syntax)
             => AssignType(syntax, () =>
             {
-                // local function
-                ITypeReference GetItemType(ForSyntax @for)
+                // local functions
+                ArrayType? GetIterationTargetType(ForSyntax @for)
                 {
                     // get type of the loop array expression
                     // (this shouldn't cause a stack overflow because it's a peer node of this one)
@@ -156,12 +156,21 @@ namespace Bicep.Core.TypeSystem
                         // the array is of "any" type or the loop array expression isn't actually an array
                         // in the former case, there isn't much we can do
                         // in the latter case, we will let the ForSyntax type check rules produce the error for it
-                        return LanguageConstants.Any;
+                        return null;
                     }
 
                     // the array expression is actually an array
-                    return arrayType.Item;
+                    return arrayType;
                 }
+
+                ITypeReference GetItemType(ForSyntax @for)
+                    => GetIterationTargetType(@for)?.Item ?? LanguageConstants.Any;
+
+                long GetEnumerationTargetLength(ForSyntax @for) => GetIterationTargetType(@for)?.MaxLength switch
+                {
+                    0 or null => LanguageConstants.MaxResourceCopyIndexValue,
+                    long maxLength => maxLength - 1,
+                };
 
                 var symbol = this.binder.GetSymbolInfo(syntax);
                 if (symbol is not LocalVariableSymbol localVariableSymbol)
@@ -169,34 +178,27 @@ namespace Bicep.Core.TypeSystem
                     throw new InvalidOperationException($"{syntax.GetType().Name} is bound to unexpected type '{symbol?.GetType().Name}'.");
                 }
 
-                var parent = this.binder.GetParent(syntax);
-
-
                 switch (localVariableSymbol.LocalKind)
                 {
                     case LocalKind.ForExpressionItemVariable:
                         // this local variable is a loop item variable
                         // we should return item type of the array (if feasible)
-                        var @for = parent switch
-                        {
-                            ForSyntax forParent => forParent,
-                            VariableBlockSyntax block when this.binder.GetParent(block) is ForSyntax forParent => forParent,
-                            _ => throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}")
-                        };
 
-                        return GetItemType(@for);
+                        return GetItemType(GetParentFor(syntax));
 
                     case LocalKind.ForExpressionIndexVariable:
                         // the local variable is an index variable
                         // index variables are always of type int
-                        return LanguageConstants.Int;
+                        return TypeFactory.CreateIntegerType(
+                            minValue: 0,
+                            maxValue: GetEnumerationTargetLength(GetParentFor(syntax)));
 
                     case LocalKind.LambdaItemVariable:
-                        var (lambda, argumentIndex) = parent switch
+                        var (lambda, argumentIndex) = binder.GetParent(syntax) switch
                         {
                             LambdaSyntax lambdaSyntax => (lambdaSyntax, 0),
                             VariableBlockSyntax block when this.binder.GetParent(block) is LambdaSyntax lambdaSyntax => (lambdaSyntax, block.Arguments.IndexOf(syntax)),
-                            _ => throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}"),
+                            var parent => throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}"),
                         };
 
                         if (binder.GetParent(lambda) is { } lambdaParent &&
@@ -212,6 +214,13 @@ namespace Bicep.Core.TypeSystem
                         throw new InvalidOperationException($"Unexpected local kind '{localVariableSymbol.LocalKind}'.");
                 }
             });
+
+        private ForSyntax GetParentFor(SyntaxBase syntax) => binder.GetParent(syntax) switch
+        {
+            ForSyntax forParent => forParent,
+            VariableBlockSyntax block when this.binder.GetParent(block) is ForSyntax forParent => forParent,
+            var parent => throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}"),
+        };
 
         public override void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>

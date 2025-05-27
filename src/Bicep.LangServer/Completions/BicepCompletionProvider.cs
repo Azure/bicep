@@ -199,6 +199,8 @@ namespace Bicep.LanguageServer.Completions
 
                         yield return CreateKeywordCompletion(LanguageConstants.ParameterKeyword, "Parameter assignment keyword", context.ReplacementRange);
 
+                        yield return CreateKeywordCompletion(LanguageConstants.ExtendsKeyword, "Extends keyword", context.ReplacementRange);
+
                         break;
 
                     default:
@@ -856,7 +858,7 @@ namespace Bicep.LanguageServer.Completions
         private IEnumerable<CompletionItem> CreateModuleBodyCompletions(SemanticModel model, BicepCompletionContext context, ModuleDeclarationSyntax moduleDeclarationSyntax)
         {
             TypeSymbol typeSymbol = model.GetTypeInfo(moduleDeclarationSyntax);
-            IEnumerable<Snippet> snippets = snippetsProvider.GetModuleBodyCompletionSnippets(typeSymbol.UnwrapArrayType());
+            IEnumerable<Snippet> snippets = snippetsProvider.GetModuleBodyCompletionSnippets(typeSymbol.UnwrapArrayType(), model.Features);
 
             foreach (Snippet snippet in snippets)
             {
@@ -1067,9 +1069,9 @@ namespace Bicep.LanguageServer.Completions
                         break;
                     }
 
-                    if (scope.ScopeResolution == ScopeResolution.InheritFunctionsOnly)
+                    if (scope.ScopeResolution == ScopeResolution.InheritFunctionsAndVariablesOnly)
                     {
-                        symbolFilter = symbol => symbol is DeclaredFunctionSymbol;
+                        symbolFilter = symbol => symbol is VariableSymbol or ImportedVariableSymbol or DeclaredFunctionSymbol or ImportedFunctionSymbol or WildcardImportSymbol;
                     }
                 }
             }

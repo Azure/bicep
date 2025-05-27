@@ -21,6 +21,8 @@ using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.IO.Abstraction;
+using Bicep.Local.Deploy.Azure;
+using Bicep.Local.Deploy.Engine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using IAsyncDisposable = System.IAsyncDisposable;
@@ -28,25 +30,25 @@ using IAsyncDisposable = System.IAsyncDisposable;
 
 namespace Bicep.Local.Deploy.Extensibility;
 
-public class LocalExtensionHostManager : IAsyncDisposable
+public class LocalExtensionDispatcher : IAsyncDisposable
 {
     private record ExtensionKey(
         string Name,
         string Version);
 
-    private Dictionary<ExtensionKey, LocalExtensionHost> RegisteredExtensions = new();
+    private Dictionary<ExtensionKey, ILocalExtension> RegisteredExtensions = new();
     private readonly IModuleDispatcher moduleDispatcher;
     private readonly IFileExplorer fileExplorer;
-    private readonly Func<Uri, Task<LocalExtensionHost>> extensionFactory;
+    private readonly ILocalExtensionFactory localExtensionFactory;
     private readonly WorkerJobDispatcherClient jobDispatcher;
     private readonly LocalDeploymentEngine localDeploymentEngine;
 
-    public LocalExtensionHostManager(
+    public LocalExtensionDispatcher(
         IFileExplorer fileExplorer,
         IModuleDispatcher moduleDispatcher,
         IConfigurationManager configurationManager,
-        ITokenCredentialFactory credentialFactory,
-        Func<Uri, Task<LocalExtensionHost>> extensionFactory)
+        ILocalExtensionFactory localExtensionFactory,
+        IArmDeploymentProvider armDeploymentProvider)
     {
         var services = new ServiceCollection()
             .RegisterLocalDeployServices(this)
@@ -54,11 +56,11 @@ public class LocalExtensionHostManager : IAsyncDisposable
 
         this.moduleDispatcher = moduleDispatcher;
         this.fileExplorer = fileExplorer;
-        this.extensionFactory = extensionFactory;
+        this.localExtensionFactory = localExtensionFactory;
         this.localDeploymentEngine = services.GetRequiredService<LocalDeploymentEngine>();
         this.jobDispatcher = services.GetRequiredService<WorkerJobDispatcherClient>();
         // Built in extension for handling nested deployments
-        RegisteredExtensions[new("LocalNested", "0.0.0")] = new NestedDeploymentBuiltInLocalExtension(localDeploymentEngine, configurationManager, credentialFactory);
+        RegisteredExtensions[new("LocalNested", "0.0.0")] = new NestedDeploymentExtension(armDeploymentProvider, localDeploymentEngine, configurationManager);
     }
 
     public async Task<HttpResponseMessage> CallExtensibilityHost(
@@ -79,7 +81,7 @@ public class LocalExtensionHostManager : IAsyncDisposable
 
     private async Task<HttpResponseMessage> CallExtension(
         string method,
-        LocalExtensionHost extensionHost,
+        ILocalExtension extensionHost,
         HttpContent content,
         CancellationToken cancellationToken)
     {
@@ -203,7 +205,7 @@ public class LocalExtensionHostManager : IAsyncDisposable
         foreach (var (namespaceType, binaryUri) in binaryExtensions)
         {
             ExtensionKey extensionKey = new(namespaceType.Settings.TemplateExtensionName, namespaceType.Settings.TemplateExtensionVersion);
-            RegisteredExtensions[extensionKey] = await extensionFactory(binaryUri);
+            RegisteredExtensions[extensionKey] = await localExtensionFactory.Start(binaryUri);
         }
     }
 

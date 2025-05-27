@@ -22,18 +22,18 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Microsoft.WindowsAzure.ResourceStack.Common.Services.ADAuthentication;
 using Newtonsoft.Json.Linq;
 
-namespace Bicep.Local.Deploy;
+namespace Bicep.Local.Deploy.Engine;
 
 #nullable disable
 
 public class LocalDeploymentEngineHost : DeploymentEngineHostBase
 {
-    private readonly LocalExtensionHostManager extensionHostManager;
+    private readonly LocalExtensionDispatcher extensionHostManager;
 
     public readonly record struct ExtensionInfo(string ExtensionName, string ExtensionVersion, string Method);
 
     public LocalDeploymentEngineHost(
-        LocalExtensionHostManager extensionHostManager,
+        LocalExtensionDispatcher extensionHostManager,
         IDeploymentsRequestContext requestContext,
         IDeploymentEventSource deploymentEventSource,
         IKeyVaultDataProvider keyVaultDataProvider,

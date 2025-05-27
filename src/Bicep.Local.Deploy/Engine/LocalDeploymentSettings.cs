@@ -7,7 +7,7 @@ using System.Collections.Immutable;
 using Azure.Deployments.Engine.Definitions;
 using Azure.Deployments.Engine.Interfaces;
 
-namespace Bicep.Local.Deploy;
+namespace Bicep.Local.Deploy.Engine;
 
 public class LocalDeploymentSettings : IAzureDeploymentSettings
 {

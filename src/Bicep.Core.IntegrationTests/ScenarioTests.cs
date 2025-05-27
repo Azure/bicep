@@ -5079,6 +5079,69 @@ output modDetails array = ([for (mod, index) in modOptions: {
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
+    // https://github.com/Azure/bicep/issues/17192
+    [TestMethod]
+    public void Test_Issue17192()
+    {
+        var result = CompilationHelper.Compile(
+          ("main.bicep",
+"""
+import { Location } from 'test.bicep'
+var location = 2
+output output_of_location int = location
+"""),
+          ("test.bicep",
+"""
+@export()
+var Location = 1
+""")
+        );
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The variables \"location\", \"Location\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The variables \"location\", \"Location\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+
+        result = CompilationHelper.Compile(
+        ("main.bicep",
+"""
+import { MyFunc } from 'test.bicep'
+func myFunc() string => 'bar'
+"""),
+        ("test.bicep",
+"""
+@export()
+func MyFunc() string => 'foo'
+""")
+        );
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The functions \"myFunc\", \"MyFunc\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The functions \"myFunc\", \"MyFunc\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+
+        result = CompilationHelper.Compile(
+        ("main.bicep",
+"""
+import { MyType } from 'test.bicep'
+type myType = { foo: string }
+"""),
+        ("test.bicep",
+"""
+@export()
+type MyType = { foo: string }
+""")
+        );
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The types \"myType\", \"MyType\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The types \"myType\", \"MyType\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+    }
+
     // https://github.com/Azure/bicep/issues/10343
     [TestMethod]
     public void Test_Issue10343()
@@ -6368,7 +6431,10 @@ param p invalidRecursiveObjectType = {}
             }
             """);
 
-        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP420", DiagnosticLevel.Error, "The scope could not be resolved at compile time because the supplied expression is ambiguous or too complex. Scoping expressions must be reducible to a specific kind of scope without knowledge of parameter values."),
+        });
     }
 
     [TestMethod]
@@ -7230,5 +7296,63 @@ var subnetId = vNet::subnets[0].id
             """);
 
         result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue17035()
+    {
+        var result = CompilationHelper.Compile(
+            ("empty.bicep", string.Empty),
+            ("main.bicep", """
+                var list = []
+                module example2 'empty.bicep' = [for (item, index) in list: {
+                  name: 'networkSecurityPerimeterProfileAssociations-${uniqueString('test1', 'test2', 'test2')}-${index}'
+                }]
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue17157()
+    {
+        var result = CompilationHelper.Compile("""
+            param resourceName string = 'example'
+            param serverFarmId string
+            param someIdentityObjectId string
+            param shouldDeploy bool
+
+            resource deployAppService 'Microsoft.Web/sites@2022-03-01' = if (shouldDeploy) {
+              name: resourceName
+              location: resourceGroup().location
+              properties: {
+                serverFarmId: serverFarmId
+              }
+            }
+
+            resource existingAppService 'Microsoft.Web/sites@2022-03-01' existing = {
+              name: resourceName
+            }
+
+            resource contributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
+              name: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
+            }
+
+            var appServiceId = shouldDeploy ? deployAppService.id : existingAppService.id
+            resource contributorRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if (shouldDeploy) {
+              name: guid(appServiceId, someIdentityObjectId, 'contributor')
+              scope: shouldDeploy ? deployAppService : existingAppService
+              properties: {
+                roleDefinitionId: contributorRoleDefinition.id
+                principalId: someIdentityObjectId
+                principalType: 'ServicePrincipal'
+              }
+            }
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP420", DiagnosticLevel.Error, "The scope could not be resolved at compile time because the supplied expression is ambiguous or too complex. Scoping expressions must be reducible to a specific kind of scope without knowledge of parameter values."),
+        });
     }
 }

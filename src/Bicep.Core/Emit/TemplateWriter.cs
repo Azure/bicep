@@ -1232,6 +1232,18 @@ namespace Bicep.Core.Emit
             }
         }
 
+        private void EmitResourceExtensionReference(ExpressionEmitter emitter, string extensionAlias)
+        {
+            if (this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
+            {
+                emitter.EmitProperty("extension", extensionAlias);
+            }
+            else
+            {
+                emitter.EmitProperty("import", extensionAlias);
+            }
+        }
+
         private void EmitResource(ExpressionEmitter emitter, ImmutableArray<ExtensionExpression> extensions, DeclaredResourceExpression resource)
         {
             var metadata = resource.ResourceMetadata;
@@ -1258,15 +1270,7 @@ namespace Bicep.Core.Emit
                 var extensionSymbol = extensions.FirstOrDefault(i => metadata.Type.DeclaringNamespace.AliasNameEquals(i.Name));
                 if (extensionSymbol is not null)
                 {
-                    if (this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
-                    {
-                        emitter.EmitProperty("extension", extensionSymbol.Name);
-                    }
-                    else
-                    {
-                        // TODO(extensibility): Consider removing this
-                        emitter.EmitProperty("import", extensionSymbol.Name);
-                    }
+                    EmitResourceExtensionReference(emitter, extensionSymbol.Name);
                 }
 
                 // Emit the options property if there are entries in the DecoratorConfig dictionary
@@ -1481,7 +1485,7 @@ namespace Bicep.Core.Emit
         {
             emitter.EmitObject(() =>
             {
-                emitter.EmitProperty("extension", "az0synthesized");
+                EmitResourceExtensionReference(emitter, "az0synthesized");
 
                 var body = module.Body;
                 if (body is ForLoopExpression forLoop)

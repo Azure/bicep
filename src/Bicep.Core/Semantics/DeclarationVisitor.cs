@@ -213,7 +213,7 @@ namespace Bicep.Core.Semantics
         public override void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax)
         {
             // create new scope without any descendants
-            var scope = new LocalScope(string.Empty, syntax, syntax.Body, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.InheritFunctionsOnly);
+            var scope = new LocalScope(string.Empty, syntax, syntax.Body, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.InheritFunctionsAndVariablesOnly);
             this.PushScope(scope);
 
             /*

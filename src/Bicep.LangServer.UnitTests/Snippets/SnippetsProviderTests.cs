@@ -2,13 +2,16 @@
 // Licensed under the MIT License.
 
 using Bicep.Core;
+using Bicep.Core.Features;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Snippets;
 using FluentAssertions;
@@ -464,7 +467,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
             }, null);
             TypeSymbol typeSymbol = new ModuleType("module", ResourceScope.Module, objectType);
 
-            IEnumerable<Snippet> snippets = CreateSnippetsProvider().GetModuleBodyCompletionSnippets(typeSymbol);
+            IEnumerable<Snippet> snippets = CreateSnippetsProvider().GetModuleBodyCompletionSnippets(typeSymbol, BicepTestConstants.Features);
 
             snippets.Should().SatisfyRespectively(
                 x =>
@@ -487,7 +490,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
             }, null);
             TypeSymbol typeSymbol = new ModuleType("module", ResourceScope.Module, objectType);
 
-            IEnumerable<Snippet> snippets = CreateSnippetsProvider().GetModuleBodyCompletionSnippets(typeSymbol);
+            IEnumerable<Snippet> snippets = CreateSnippetsProvider().GetModuleBodyCompletionSnippets(typeSymbol, BicepTestConstants.Features);
 
             snippets.Should().SatisfyRespectively(
                 x =>
@@ -506,6 +509,90 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
 	name: $1
 	location: $2
 }$0");
+                });
+        }
+
+        [TestMethod]
+        public void GetModuleBodyCompletionSnippets_WithRequiredProperties_WithIdentity_ShouldReturnEmptyAndRequiredPropertiesAndIdentitySnippets()
+        {
+            var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
+            {
+                new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
+                new NamedTypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
+                new NamedTypeProperty("id", LanguageConstants.String)
+            }, null);
+            TypeSymbol typeSymbol = new ModuleType("module", ResourceScope.Module, objectType);
+
+            var features = new OverriddenFeatureProvider(new FeatureProvider(BicepTestConstants.BuiltInConfiguration, BicepTestConstants.FileExplorer), new(ModuleIdentityEnabled: true));
+
+            IEnumerable<Snippet> snippets = CreateSnippetsProvider().GetModuleBodyCompletionSnippets(typeSymbol, features);
+
+            snippets.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Prefix.Should().Be("{}");
+                    x.Detail.Should().Be("{}");
+                    x.CompletionPriority.Should().Be(CompletionPriority.Medium);
+                    x.Text.Should().Be("{\n\t$0\n}");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("required-properties");
+                    x.Detail.Should().Be("Required properties");
+                    x.CompletionPriority.Should().Be(CompletionPriority.Medium);
+                    x.Text.Should().Be(
+"""
+{
+	name: $1
+	location: $2
+}$0
+""");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("user-assigned-identity");
+                    x.Detail.Should().Be("User assigned identity");
+                    x.CompletionPriority.Should().Be(CompletionPriority.Low);
+                    x.Text.Should().Be(
+"""
+{
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${${0:identityId}}': {}
+    }
+  }
+}
+""");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("user-assigned-identity-array");
+                    x.Detail.Should().Be("User assigned identity array");
+                    x.CompletionPriority.Should().Be(CompletionPriority.Low);
+                    x.Text.Should().Be(
+"""
+{
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: toObject(${0:identityIdArray}, x => x, x => {})
+  }
+}
+""");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("none-identity");
+                    x.Detail.Should().Be("None identity");
+                    x.CompletionPriority.Should().Be(CompletionPriority.Low);
+                    x.Text.Should().Be(
+"""               
+{
+  identity: {
+    type: 'None'
+  }
+}
+""");
                 });
         }
 
