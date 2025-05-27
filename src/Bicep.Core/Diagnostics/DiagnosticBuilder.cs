@@ -1909,11 +1909,11 @@ namespace Bicep.Core.Diagnostics
                 $"Namespace name \"{name}\", and cannot be used an extension name.");
 
             public Diagnostic InlineMustNotHaveValueAssigned() => CoreError(
-                "BCP420",
+                "BCP421",
                 $"A parameter marked with the \"@{LanguageConstants.ParameterInlinePropertyName}\" decorator shouldn't have a value assigned.");
 
             public Diagnostic MissingParameterValue(string identifier) => CoreError(
-                "BCP421",
+                "BCP422",
                 $"Parameter {identifier} is declared but missing a value assignment.");
         }
 
