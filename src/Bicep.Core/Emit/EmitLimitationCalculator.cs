@@ -55,6 +55,7 @@ namespace Bicep.Core.Emit
             BlockNamesDistinguishedOnlyByCase(model, diagnostics);
             BlockResourceDerivedTypesThatDoNotDereferenceProperties(model, diagnostics);
             BlockSpreadInUnsupportedLocations(model, diagnostics);
+            BlockSecureOutputsWithLocalDeploy(model, diagnostics);
             BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
 
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
@@ -971,6 +972,23 @@ namespace Bicep.Core.Emit
                 if (parentObject.Properties.Any(x => x.Value is ForSyntax))
                 {
                     diagnostics.Write(spread, x => x.SpreadOperatorCannotBeUsedWithForLoop(spread));
+                }
+            }
+        }
+
+        private static void BlockSecureOutputsWithLocalDeploy(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            if (model.TargetScope != ResourceScope.Local)
+            {
+                return;
+            }
+
+            foreach (var module in model.Root.ModuleDeclarations)
+            {
+                if (module.TryGetSemanticModel().TryUnwrap() is { }  moduleModel &&
+                    moduleModel.Outputs.Any(output => output.IsSecure))
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(module.NameSource).SecureOutputsNotSupportedWithLocalDeploy(module.Name));
                 }
             }
         }

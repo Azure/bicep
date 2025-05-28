@@ -63,9 +63,14 @@ public class LocalDeployCommand(
             return 1;
         }
 
-        await using var extensionHostManager = dispatcherFactory.Create();
-        await extensionHostManager.InitializeExtensions(compilation);
-        var result = await extensionHostManager.Deploy(templateString, parametersString, cancellationToken);
+
+        // this using block is intentional to ensure that the dispatcher completes running before we write the summary
+        LocalDeploymentResult result;
+        await using (var dispatcher = dispatcherFactory.Create())
+        {
+            await dispatcher.InitializeExtensions(compilation);
+            result = await dispatcher.Deploy(templateString, parametersString, cancellationToken);
+        }
 
         await WriteSummary(result);
         return result.Deployment.Properties.ProvisioningState == ProvisioningState.Succeeded ? 0 : 1;

@@ -95,9 +95,26 @@ Here's an example bicepconfig.json you can use to share your extension with othe
 
 * You will need to update `extensions.http`: the key (`http`) should be the name of your extension, and the value (`br:bicepextdemo.azurecr.io/extensions/http:0.1.1`) should be the OCI reference path (or relative local file system path if building locally).
 
+### Troubleshooting
+
+The following environment variables can be used to enable detailed logging for extension binary stdout, stderr and gRPC requests & responses. This can be useful for extension authors to troubleshoot problems invoking extensions.
+
+Note that this can include sensitive data, and should only be used for local debugging.
+
+1. (Mac/Linux) Run the following:
+   ```sh
+   export BICEP_TRACING_ENABLED=true
+   export BICEP_EXTENSION_TRACING_ENABLED=true
+   ```
+1. (Windows) Run the following in a PowerShell window:
+   ```powershell
+   $env:BICEP_TRACING_ENABLED = $true
+   $env:BICEP_EXTENSION_TRACING_ENABLED = $true
+   ```
 
 ## Limitations
 1. Code signing for the proof-of-concept extensions has not been implemented, meaning you may run into errors running the samples on a Mac.
+1. Secure outputs are not currently supported.
 
 ## Raising bugs or feature requests
 Please raise bug reports or feature requests under [Bicep Issues](https://github.com/Azure/bicep/issues) as usual.
