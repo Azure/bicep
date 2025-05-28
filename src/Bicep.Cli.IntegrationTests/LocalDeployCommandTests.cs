@@ -150,7 +150,9 @@ Result: Succeeded
     }
 
     [TestMethod]
-    public async Task Local_deploy_with_azure_should_succeed()
+    [DataRow(true)]
+    [DataRow(false)]
+    public async Task Local_deploy_with_azure_should_succeed(bool async)
     {
         var paramFile = new EmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/azure/main.bicepparam");
         var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
@@ -182,25 +184,22 @@ Result: Succeeded
         var deploymentProviderMock = StrictMock.Of<IArmDeploymentProvider>();
 
         deploymentProviderMock.Setup(x => x.StartDeployment(It.IsAny<RootConfiguration>(), It.IsAny<DeploymentLocator>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Returns<RootConfiguration, DeploymentLocator, string, string, CancellationToken>(async (config, locator, templateString, parametersString, _) =>
-            {
-                await Task.CompletedTask;
+            .Returns<RootConfiguration, DeploymentLocator, string, string, CancellationToken>((config, locator, templateString, parametersString, _) => Task.CompletedTask);
 
-                var template = JsonSerializer.Deserialize<JsonElement>(templateString);
-                var parameters = JsonSerializer.Deserialize<JsonElement>(parametersString);
-            });
-
+        var attempts = 0;
         deploymentProviderMock.Setup(x => x.CheckDeployment(It.IsAny<RootConfiguration>(), It.IsAny<DeploymentLocator>(), It.IsAny<CancellationToken>()))
             .Returns<RootConfiguration, DeploymentLocator, CancellationToken>(async (config, locator, _) =>
             {
                 await Task.CompletedTask;
+                var isInitialAttempt = Interlocked.Increment(ref attempts) == 1;
+                var provisioningState = (isInitialAttempt && async) ? ProvisioningState.Running : ProvisioningState.Succeeded; 
 
                 return new(
                     new()
                     {
                         Properties = new()
                         {
-                            ProvisioningState = ProvisioningState.Succeeded,
+                            ProvisioningState = provisioningState,
                             Outputs = new()
                             {
                                 ["gridId"] = new()

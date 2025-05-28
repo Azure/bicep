@@ -1912,12 +1912,16 @@ namespace Bicep.Core.Diagnostics
                 "BCP420",
                 "The scope could not be resolved at compile time because the supplied expression is ambiguous or too complex. Scoping expressions must be reducible to a specific kind of scope without knowledge of parameter values.");
 
-            public Diagnostic InlineMustNotHaveValueAssigned() => CoreError(
+            public Diagnostic SecureOutputsNotSupportedWithLocalDeploy(string moduleName) => CoreError(
                 "BCP421",
+                $"""Module "{moduleName}" contains one or more secure outputs, which are not supported with "{LanguageConstants.TargetScopeKeyword}" set to "{LanguageConstants.TargetScopeTypeLocal}".""");
+
+            public Diagnostic InlineMustNotHaveValueAssigned() => CoreError(
+                "BCP422",
                 $"A parameter marked with the \"@{LanguageConstants.ParameterInlinePropertyName}\" decorator shouldn't have a value assigned.");
 
             public Diagnostic MissingParameterValue(string identifier) => CoreError(
-                "BCP422",
+                "BCP423",
                 $"Parameter {identifier} is declared but missing a value assignment.");
         }
 
