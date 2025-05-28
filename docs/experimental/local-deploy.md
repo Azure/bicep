@@ -98,6 +98,7 @@ Here's an example bicepconfig.json you can use to share your extension with othe
 
 ## Limitations
 1. Code signing for the proof-of-concept extensions has not been implemented, meaning you may run into errors running the samples on a Mac.
+1. Secure outputs are not currently supported.
 
 ## Raising bugs or feature requests
 Please raise bug reports or feature requests under [Bicep Issues](https://github.com/Azure/bicep/issues) as usual.

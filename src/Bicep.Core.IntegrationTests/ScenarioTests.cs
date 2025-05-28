@@ -7354,4 +7354,29 @@ var subnetId = vNet::subnets[0].id
             ("BCP420", DiagnosticLevel.Error, "The scope could not be resolved at compile time because the supplied expression is ambiguous or too complex. Scoping expressions must be reducible to a specific kind of scope without knowledge of parameter values."),
         });
     }
+
+    [TestMethod]
+    public void Local_deploy_cannot_be_used_with_secure_outputs()
+    {
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(LocalDeployEnabled: true)), ("main.bicep", """
+targetScope = 'local'
+
+module mod 'mod.bicep' = {
+  scope: resourceGroup('00000000-0000-0000-0000-000000000000', 'foo')
+  params: {
+    secret: 'blah'
+  }
+}
+"""), ("mod.bicep", """
+@secure()
+param secret string
+
+@secure()
+output secret string = secret
+"""));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP421", DiagnosticLevel.Error, """Module "mod" contains one or more secure outputs, which are not supported with "targetScope" set to "local"."""),
+        ]);
+    }
 }
