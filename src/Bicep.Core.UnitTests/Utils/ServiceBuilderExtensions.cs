@@ -12,7 +12,6 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
-using Bicep.Core.TypeSystem.Providers.MicrosoftGraph;
 using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.UnitTests.Utils;
@@ -57,9 +56,6 @@ public static class ServiceBuilderExtensions
 
     public static ServiceBuilder WithEmptyAzResources(this ServiceBuilder serviceBuilder)
         => serviceBuilder.WithRegistration(x => x.WithEmptyAzResources());
-
-    public static ServiceBuilder WithMsGraphResourceTypeLoader(this ServiceBuilder serviceBuilder, MicrosoftGraphResourceTypeLoader typeLoader)
-        => serviceBuilder.WithRegistration(x => x.WithMsGraphResourceTypeLoaderFactory(typeLoader));
 
     public static ServiceBuilder WithEnvironmentVariables(this ServiceBuilder serviceBuilder, params (string key, string? value)[] variables)
         => serviceBuilder.WithRegistration(x => x.WithEnvironmentVariables(variables));

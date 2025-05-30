@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
@@ -8,8 +9,8 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
 {
     public class K8sResourceTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
     {
-        public const string NamePropertyName = "name";
         public const string MetadataPropertyName = "metadata";
+        public const string NamePropertyName = "name";
         public const string NamespaceProperty = "namespace";
 
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, [], new TypeProperty(LanguageConstants.String));
@@ -18,10 +19,10 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
 
-        public static readonly ImmutableHashSet<string> UniqueIdentifierProperties =
+        public static readonly FrozenSet<string> UniqueIdentifierProperties = FrozenSet.ToFrozenSet(
         [
-            NamePropertyName,
-        ];
+            MetadataPropertyName,
+        ]);
 
         public K8sResourceTypeProvider(K8sResourceTypeLoader resourceTypeLoader)
             : base([.. resourceTypeLoader.GetAvailableTypes()])
@@ -38,23 +39,6 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
             switch (bodyType)
             {
                 case ObjectType bodyObjectType:
-                    if (bodyObjectType.Properties.TryGetValue(NamePropertyName, out var nameProperty) &&
-                        nameProperty.TypeReference.Type is not StringType)
-                    {
-                        // The 'name' property doesn't support fixed value names (e.g. we're in a top-level child resource declaration).
-                        // Best we can do is return a regular 'string' field for it as we have no good way to reliably evaluate complex expressions (e.g. to check whether it terminates with '/<constantType>').
-                        // Keep it simple for now - we eventually plan to phase out the 'top-level child' syntax.
-                        bodyObjectType = new ObjectType(
-                            bodyObjectType.Name,
-                            bodyObjectType.ValidationFlags,
-                            bodyObjectType.Properties.SetItem(NamePropertyName, new NamedTypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags)).Values,
-                            bodyObjectType.AdditionalProperties,
-                            bodyObjectType.MethodResolver.CopyToObject);
-
-                        bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, flags);
-                        break;
-                    }
-
                     bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, flags);
                     break;
                 default:
@@ -75,20 +59,17 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
             var properties = objectType.Properties;
             var isExistingResource = flags.HasFlag(ResourceTypeGenerationFlags.ExistingResource);
 
-            if (isExistingResource)
-            {
-            }
-            else
+            if (!isExistingResource)
             {
                 // TODO: remove 'dependsOn' from the type library
                 properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new NamedTypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny));
             }
 
             // add the loop variant flag to the name property (if it exists)
-            if (properties.TryGetValue(NamePropertyName, out var nameProperty))
+            if (properties.TryGetValue(MetadataPropertyName, out var metadataProperty))
             {
                 // TODO apply this to all unique properties
-                properties = properties.SetItem(NamePropertyName, UpdateFlags(nameProperty, nameProperty.Flags | TypePropertyFlags.LoopVariant));
+                properties = properties.SetItem(MetadataPropertyName, UpdateFlags(metadataProperty, metadataProperty.Flags | TypePropertyFlags.LoopVariant));
             }
 
             return new ObjectType(

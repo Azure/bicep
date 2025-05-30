@@ -1800,7 +1800,7 @@ namespace Bicep.Core.TypeSystem
                         throw new InvalidOperationException("Expected ImportWithClauseSyntax to have a parent.");
                     }
 
-                    ObjectType? configType = null;
+                    ObjectLikeType? configType = null;
 
                     if (GetDeclaredTypeAssignment(parent) is not { } extensionAssignment)
                     {
@@ -2147,12 +2147,18 @@ namespace Bicep.Core.TypeSystem
             {
                 extensionConfigs = [];
 
-                foreach (var ext in moduleSemanticModel.Extensions.Values.Where(ext => ext.NamespaceType?.ConfigurationType is not null))
+                foreach (var extension in moduleSemanticModel.Extensions.Values)
                 {
+                    if (extension.NamespaceType is not { } namespaceType ||
+                        namespaceType.ConfigurationType is not { } configurationType)
+                    {
+                        continue;
+                    }
+
                     var extAliasProperty = new NamedTypeProperty(
-                        ext.Alias,
-                        ext.NamespaceType!.ConfigurationType!,
-                        ext.NamespaceType.IsConfigurationRequired ? TypePropertyFlags.Required | TypePropertyFlags.WriteOnly : TypePropertyFlags.WriteOnly);
+                        extension.Alias,
+                        configurationType,
+                        namespaceType.IsConfigurationRequired ? TypePropertyFlags.Required | TypePropertyFlags.WriteOnly : TypePropertyFlags.WriteOnly);
 
                     extensionConfigs.Add(extAliasProperty);
                 }
