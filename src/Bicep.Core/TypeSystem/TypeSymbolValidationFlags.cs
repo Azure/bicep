@@ -57,5 +57,10 @@ namespace Bicep.Core.TypeSystem
         /// Display warning diagnostics instead of errors if an unknown property is accessed or supplied, a required property is not provided, a read-only property is supplied, or a write-only property is accessed.
         /// </summary>
         WarnOnPropertyTypeMismatch = 1 << 8,
+
+        /// <summary>
+        /// Indicates that the string represents a folder path and we should offer completions for it.
+        /// </summary>
+        IsStringDirectoryPath = 1 << 9,
     }
 }
