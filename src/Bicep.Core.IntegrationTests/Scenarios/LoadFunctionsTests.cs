@@ -1093,10 +1093,10 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
         }
 
         [DataRow("*.json", "main.bicep")]
-        [DataRow("file*", "main.bicep")]
-        [DataRow("fi*.js*", "main.bicep")]
+        [DataRow("File*", "main.bicep")]
+        [DataRow("Fi*.js*", "main.bicep")]
         [DataRow("*e.js*", "main.bicep")]
-        [DataRow("file?json", "main.bicep")]
+        [DataRow("File?json", "main.bicep")]
         [DataRow("*.bicep", "File.json")]
         [DataRow("main*", "File.json")]
         [DataRow("ma*.bi*", "File.json")]
