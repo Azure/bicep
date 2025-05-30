@@ -858,7 +858,7 @@ namespace Bicep.LanguageServer.Completions
         private IEnumerable<CompletionItem> CreateModuleBodyCompletions(SemanticModel model, BicepCompletionContext context, ModuleDeclarationSyntax moduleDeclarationSyntax)
         {
             TypeSymbol typeSymbol = model.GetTypeInfo(moduleDeclarationSyntax);
-            IEnumerable<Snippet> snippets = snippetsProvider.GetModuleBodyCompletionSnippets(typeSymbol.UnwrapArrayType());
+            IEnumerable<Snippet> snippets = snippetsProvider.GetModuleBodyCompletionSnippets(typeSymbol.UnwrapArrayType(), model.Features);
 
             foreach (Snippet snippet in snippets)
             {
