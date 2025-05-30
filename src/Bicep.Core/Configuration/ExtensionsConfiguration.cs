@@ -7,6 +7,7 @@ using System.Text.Json;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.TypeSystem.Providers.Extensibility;
 
 namespace Bicep.Core.Configuration;
 
@@ -40,7 +41,7 @@ public partial class ExtensionsConfiguration : ConfigurationSection<ImmutableDic
     {
         if (!this.Data.TryGetValue(extensionName, out var extensionConfigEntry))
         {
-            if (extensionName == MicrosoftGraphNamespaceType.BuiltInName)
+            if (LanguageConstants.IdentifierComparer.Equals(extensionName, MicrosoftGraphExtensionFacts.builtInExtensionName))
             {
                 return new(x => x.MicrosoftGraphBuiltinRetired(null));
             }

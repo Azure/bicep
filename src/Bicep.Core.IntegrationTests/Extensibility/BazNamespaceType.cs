@@ -5,32 +5,42 @@ using System.Collections.Immutable;
 using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.IntegrationTests.Extensibility;
 
-public static class BarNamespaceType
+public static class BazNamespaceType
 {
-    public const string BuiltInName = "bar";
+    public const string BuiltInName = "baz";
 
     public static NamespaceSettings Settings { get; } = new(
-        IsSingleton: false,
+        IsSingleton: true,
         BicepExtensionName: BuiltInName,
         ConfigurationType: GetConfigurationType(),
-        TemplateExtensionName: "Bar",
+        TemplateExtensionName: "Baz",
         TemplateExtensionVersion: "0.0.1");
 
-    private static ObjectType GetConfigurationType()
+    private static DiscriminatedObjectType GetConfigurationType()
     {
-        return new ObjectType("configuration", TypeSymbolValidationFlags.Default, new[]
+        return new DiscriminatedObjectType("BazConfiguration", TypeSymbolValidationFlags.Default, "kind", new ObjectType[]
         {
-            new NamedTypeProperty("connectionString", LanguageConstants.String, TypePropertyFlags.Required),
-        }, null);
+            new("BazConfigurationKindOne", TypeSymbolValidationFlags.Default, new[]
+            {
+                new NamedTypeProperty("kind", TypeFactory.CreateStringLiteralType("One"), TypePropertyFlags.Required),
+                new NamedTypeProperty("connectionStringOne", LanguageConstants.SecureString, TypePropertyFlags.Required),
+            }),
+            new("BazConfigurationKindTwo", TypeSymbolValidationFlags.Default, new[]
+            {
+                new NamedTypeProperty("kind", TypeFactory.CreateStringLiteralType("Two"), TypePropertyFlags.Required),
+                new NamedTypeProperty("connectionStringTwo", LanguageConstants.SecureString, TypePropertyFlags.Required),
+            }),
+        });
     }
 
-    private class BarTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
+    private class BazTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
     {
         private static readonly ImmutableDictionary<ResourceTypeReference, ResourceTypeComponents> ResourceTypes = new[] {
             new ResourceTypeComponents(
@@ -66,7 +76,7 @@ public static class BarNamespaceType
                 }, null)),
         }.ToImmutableDictionary(x => x.TypeReference);
 
-        public BarTypeProvider()
+        public BazTypeProvider()
             : base(ResourceTypes.Keys.ToImmutableHashSet())
         {
         }
@@ -109,6 +119,6 @@ public static class BarNamespaceType
             ImmutableArray<FunctionOverload>.Empty,
             ImmutableArray<BannedFunction>.Empty,
             ImmutableArray<Decorator>.Empty,
-            new BarTypeProvider());
+            new BazTypeProvider());
     }
 }
