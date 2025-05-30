@@ -2713,7 +2713,7 @@ var foo = sort([123], (foo, bar) => |)
         }
 
         [TestMethod]
-        public async Task Func_definition_lambda_completions_do_not_suggest_outer_variables()
+        public async Task Func_definition_lambda_completions_suggest_outer_variables()
         {
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
 var outerVar = 'asdf'
@@ -2724,12 +2724,51 @@ func foo(innerVar string) string => '${|}'
             var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
 
             var completions = await file.RequestAndResolveCompletions(cursor);
-            completions.Should().NotContain(x => x.Label == "outerVar");
-            var updatedFile = file.ApplyCompletion(completions, "innerVar");
+            completions.Should().Contain(x => x.Label == "innerVar");
+            completions.Should().Contain(x => x.Label == "outerVar");
+            var updatedFile = file.ApplyCompletion(completions, "outerVar");
             updatedFile.Should().HaveSourceText("""
 var outerVar = 'asdf'
 
-func foo(innerVar string) string => '${innerVar|}'
+func foo(innerVar string) string => '${outerVar|}'
+""");
+        }
+
+        [TestMethod]
+        public async Task Func_definition_lambda_completions_suggest_imported_variables()
+        {
+            var exportContent = """              
+@export()
+var whatsup = 'Whatsup?'
+""";
+            var mainContent = """
+import { whatsup } from './exports.bicep'
+func greet(name string) string => '${|}'
+""";
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(mainContent, '|');
+            DocumentUri mainUri = "file:///main.bicep";
+            var files = new Dictionary<DocumentUri, string>
+            {
+                ["file:///exports.bicep"] = exportContent,
+                [mainUri] = text
+            };
+
+            var bicepFile = new LanguageClientFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.Uri);
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+
+            var completions = await file.RequestAndResolveCompletions(cursor);
+            completions.Should().Contain(c => c.Label == "whatsup");
+
+            var updatedFile = file.ApplyCompletion(completions, "whatsup");
+            updatedFile.Should().HaveSourceText("""
+import { whatsup } from './exports.bicep'
+func greet(name string) string => '${whatsup|}'
 """);
         }
 

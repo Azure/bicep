@@ -39,7 +39,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 .Any(kvp => kvp.Key is ModuleDeclarationSyntax or ResourceDeclarationSyntax or ParameterDeclarationSyntax or OutputDeclarationSyntax);
             var exportedVariableExists = model.Root.DeclarationsBySyntax
                 .Any(kvp => kvp.Key is VariableDeclarationSyntax && kvp.Value.HasDecorator("export"));
-            if(!deploymentSyntaxExists && exportedVariableExists)
+            if (!deploymentSyntaxExists && exportedVariableExists)
             {
                 return [];
             }

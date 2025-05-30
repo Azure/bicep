@@ -1908,10 +1908,20 @@ namespace Bicep.Core.Diagnostics
                 "BCP419",
                 $"Namespace name \"{name}\", and cannot be used an extension name.");
 
-            public Diagnostic ErrorOccuredBrowsingDirectory(string failureMessage) => CoreError(
+
+            public Diagnostic ScopeKindUnresolvableAtCompileTime() => CoreError(
                 "BCP420",
+                "The scope could not be resolved at compile time because the supplied expression is ambiguous or too complex. Scoping expressions must be reducible to a specific kind of scope without knowledge of parameter values.");
+
+            public Diagnostic SecureOutputsNotSupportedWithLocalDeploy(string moduleName) => CoreError(
+                "BCP421",
+                $"""Module "{moduleName}" contains one or more secure outputs, which are not supported with "{LanguageConstants.TargetScopeKeyword}" set to "{LanguageConstants.TargetScopeTypeLocal}".""");
+
+            public Diagnostic ErrorOccuredBrowsingDirectory(string failureMessage) => CoreError(
+                "BCP422",
                 $"An error occured browsing directory. {failureMessage}"
             );
+
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

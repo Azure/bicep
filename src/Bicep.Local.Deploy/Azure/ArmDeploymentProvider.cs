@@ -16,15 +16,17 @@ using Azure.ResourceManager.Resources.Models;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Tracing;
+using Bicep.Local.Deploy.Engine;
 using Bicep.Local.Deploy.Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
-namespace Bicep.Local.Deploy;
+namespace Bicep.Local.Deploy.Azure;
 
-public static class LocalAzureDeployment
+public class ArmDeploymentProvider(
+    ITokenCredentialFactory credentialFactory) : IArmDeploymentProvider
 {
-    private static ArmDeploymentCollection GetDeploymentsClient(RootConfiguration configuration, ITokenCredentialFactory credentialFactory, DeploymentLocator deploymentLocator)
+    private ArmDeploymentCollection GetDeploymentsClient(RootConfiguration configuration, DeploymentLocator deploymentLocator)
     {
         var options = new ArmClientOptions();
         options.Diagnostics.ApplySharedResourceManagerSettings();
@@ -46,9 +48,9 @@ public static class LocalAzureDeployment
         };
     }
 
-    public static async Task StartDeployment(RootConfiguration configuration, ITokenCredentialFactory credentialFactory, DeploymentLocator deploymentLocator, string templateString, string parametersString, CancellationToken cancellationToken)
+    public async Task StartDeployment(RootConfiguration configuration, DeploymentLocator deploymentLocator, string templateString, string parametersString, CancellationToken cancellationToken)
     {
-        var deploymentsClient = GetDeploymentsClient(configuration, credentialFactory, deploymentLocator);
+        var deploymentsClient = GetDeploymentsClient(configuration, deploymentLocator);
 
         var paramsDefinition = parametersString.FromJson<DeploymentParametersDefinition>();
         var deploymentProperties = new ArmDeploymentProperties(ArmDeploymentMode.Incremental)
@@ -67,9 +69,9 @@ public static class LocalAzureDeployment
         await deploymentsClient.CreateOrUpdateAsync(WaitUntil.Started, deploymentLocator.DeploymentName, armDeploymentContent, cancellationToken);
     }
 
-    public static async Task<LocalDeploymentResult> CheckDeployment(RootConfiguration configuration, ITokenCredentialFactory credentialFactory, DeploymentLocator deploymentLocator, CancellationToken cancellationToken)
+    public async Task<LocalDeploymentResult> CheckDeployment(RootConfiguration configuration, DeploymentLocator deploymentLocator, CancellationToken cancellationToken)
     {
-        var deploymentsClient = GetDeploymentsClient(configuration, credentialFactory, deploymentLocator);
+        var deploymentsClient = GetDeploymentsClient(configuration, deploymentLocator);
 
         var response = await deploymentsClient.GetAsync(deploymentLocator.DeploymentName, cancellationToken);
         var content = response.GetRawResponse().Content.ToString().FromDeploymentsJson<DeploymentContent>();

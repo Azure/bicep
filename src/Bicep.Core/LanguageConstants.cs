@@ -172,6 +172,7 @@ namespace Bicep.Core
         public const string ModuleExtensionConfigsPropertyName = "extensionConfigs";
         public const string ModuleOutputsPropertyName = "outputs";
         public const string ModuleNamePropertyName = "name";
+        public const string ModuleIdentityPropertyName = "identity";
 
         // test properties
         public const string TestParamsPropertyName = "params";
@@ -287,6 +288,19 @@ namespace Bicep.Core
             yield return new NamedTypeProperty("description", String, TypePropertyFlags.Constant);
         }
 
+        private static readonly TypeSymbol identityTypeString =
+            TypeHelper.CreateTypeUnion(
+                TypeFactory.CreateStringLiteralType("None"),
+                TypeFactory.CreateStringLiteralType("UserAssigned"));
+
+        private static readonly IEnumerable<NamedTypeProperty> identityProperties = new[]
+        {
+                new NamedTypeProperty("type", identityTypeString, TypePropertyFlags.Required),
+                new NamedTypeProperty("userAssignedIdentities", Object, TypePropertyFlags.None)
+        };
+
+        public static readonly TypeSymbol IdentityObject = new ObjectType("identity", TypeSymbolValidationFlags.Default, identityProperties);
+
         public static IEnumerable<string> GetResourceScopeDescriptions(ResourceScope resourceScope)
         {
             if (resourceScope == ResourceScope.None)
@@ -361,8 +375,13 @@ namespace Bicep.Core
                 new(ResourceScopePropertyName, CreateResourceScopeReference(moduleScope), scopePropertyFlags),
                 new(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                 new(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
-                new(ResourceDependsOnPropertyName, ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny)
+                new(ResourceDependsOnPropertyName, ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny),
             ];
+
+            if (features.ModuleIdentityEnabled)
+            {
+                moduleProperties.Add(new(ModuleIdentityPropertyName, IdentityObject, TypePropertyFlags.None));
+            }
 
             if (features.ModuleExtensionConfigsEnabled)
             {

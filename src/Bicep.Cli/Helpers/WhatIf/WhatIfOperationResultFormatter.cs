@@ -1,15 +1,15 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
-using Newtonsoft.Json.Linq;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Core.Entities;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
-using System.Collections.Immutable;
+using Newtonsoft.Json.Linq;
 
 #nullable disable
 namespace Bicep.Cli.Helpers.WhatIf;

@@ -20,10 +20,11 @@ using JsonDiffPatchDotNet;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Bicep.Cli.Helpers;
+namespace Bicep.Cli.Helpers.Snapshot;
+
 public class SnapshotDiffer
 {
-    public static IReadOnlyList<DeploymentWhatIfResourceChangeDefinition> CalculateChanges(SnapshotCommand.Snapshot source, SnapshotCommand.Snapshot target)
+    public static IReadOnlyList<DeploymentWhatIfResourceChangeDefinition> CalculateChanges(Snapshot source, Snapshot target)
     {
         var changes = new List<DeploymentWhatIfResourceChangeDefinition>();
         var differ = new LinearDiffer<DeploymentWhatIfResource>(

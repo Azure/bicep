@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Features;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
@@ -13,7 +14,7 @@ namespace Bicep.LanguageServer.Snippets
 
         IEnumerable<Snippet> GetTopLevelNamedDeclarationSnippets();
 
-        IEnumerable<Snippet> GetModuleBodyCompletionSnippets(TypeSymbol typeSymbol);
+        IEnumerable<Snippet> GetModuleBodyCompletionSnippets(TypeSymbol typeSymbol, IFeatureProvider featureProvider);
 
         IEnumerable<Snippet> GetTestBodyCompletionSnippets(TypeSymbol typeSymbol);
 

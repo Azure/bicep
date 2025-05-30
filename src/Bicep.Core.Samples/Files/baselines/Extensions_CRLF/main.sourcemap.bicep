@@ -23,7 +23,7 @@ param boolParam1 bool
 extension az
 //@    "az": {
 //@      "name": "AzureResourceManager",
-//@      "version": "0.2.764"
+//@      "version": "0.2.771"
 //@    },
 extension kubernetes with {
 //@    "k8s": {

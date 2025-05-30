@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Azure;
 using Azure.Containers.ContainerRegistry;
@@ -117,6 +118,23 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
 [Purple][Reset]
 """);
         }
+    }
+
+    [TestMethod]
+    [EmbeddedFilesTestData(@"Files/SnapshotCommandTests/.*/main\.bicepparam")]
+    [TestCategory(BaselineHelper.BaselineTestCategory)]
+    public async Task Snapshot_generates_correct_format(EmbeddedFile paramFile)
+    {
+        var subscriptionId = new Guid().ToString();
+        var resourceGroupName = "myRg";
+
+        var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
+        var snapshotFile = baselineFolder.GetFileOrEnsureCheckedIn("main.snapshot.json");
+
+        var result = await Bicep("snapshot", baselineFolder.EntryFile.OutputFilePath, "--mode", "overwrite", "--subscription-id", subscriptionId, "--resource-group", resourceGroupName);
+        result.Should().Succeed();
+
+        snapshotFile.ShouldHaveExpectedJsonValue();
     }
 
     private static string ReplaceColorCodes(string input)

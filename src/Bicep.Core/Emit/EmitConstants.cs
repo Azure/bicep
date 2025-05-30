@@ -14,9 +14,16 @@ public static class EmitConstants
 
     public const string NestedDeploymentResourceApiVersionWithModuleConfigsEnabled = "2025-03-01";
 
-    public static string GetNestedDeploymentResourceApiVersion(IFeatureProvider features) =>
+    public const string NestedDeploymentResourceApiVersionWithIdentityInModulesSupport = "2025-04-01";
+
+    public static string GetNestedDeploymentResourceApiVersion(IFeatureProvider features)
+    {
         // TODO: Remove this function and set NestedDeploymentResourceApiVersion to 2025-03-01 once the API version rolls out everywhere.
-        features.ModuleExtensionConfigsEnabled
-            ? NestedDeploymentResourceApiVersionWithModuleConfigsEnabled
-            : NestedDeploymentResourceApiVersion;
+        return features switch
+        {
+            { ModuleIdentityEnabled: true } => NestedDeploymentResourceApiVersionWithIdentityInModulesSupport,
+            { ModuleExtensionConfigsEnabled: true } => NestedDeploymentResourceApiVersionWithModuleConfigsEnabled,
+            _ => NestedDeploymentResourceApiVersion,
+        };
+    }
 }

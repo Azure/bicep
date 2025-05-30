@@ -156,7 +156,8 @@ namespace Bicep.Decompiler.IntegrationTests
                         "keyVault": {
                           "id": "/subscriptions/2fbf906e-1101-4bc0-b64f-adc44e462fff/resourceGroups/INSTRUCTOR/providers/Microsoft.KeyVault/vaults/TimKV"
                         },
-                        "secretName": "vm-password"
+                        "secretName": "vm-password",
+                        "secretVersion": "1.0"
                       }
                     },
 
@@ -172,7 +173,7 @@ namespace Bicep.Decompiler.IntegrationTests
 
                 param adminUsername = 'tim'
 
-                param adminPassword = ? /*KeyVault references are not supported in Bicep Parameters files*/
+                param adminPassword = az.getSecret('2fbf906e-1101-4bc0-b64f-adc44e462fff', 'INSTRUCTOR', 'TimKV', 'vm-password', '1.0')
 
                 param dnsLabelPrefix = 'newvm79347a'
 
@@ -194,7 +195,6 @@ namespace Bicep.Decompiler.IntegrationTests
 
             filesToSave[entryPointUri].Should().Be(expectedBicepparamFile);
         }
-
 
         [TestMethod]
         public void Decompiler_Decompiles_ParametersContainingMetadata()

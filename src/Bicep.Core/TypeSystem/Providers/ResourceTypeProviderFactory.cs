@@ -10,8 +10,8 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers.Az;
-using Bicep.Core.TypeSystem.Providers.MicrosoftGraph;
 using Bicep.Core.TypeSystem.Providers.Extensibility;
+using Bicep.Core.TypeSystem.Providers.MicrosoftGraph;
 using JetBrains.Annotations;
 
 namespace Bicep.Core.TypeSystem.Providers

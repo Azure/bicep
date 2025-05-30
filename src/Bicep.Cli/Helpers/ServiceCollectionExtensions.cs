@@ -19,6 +19,8 @@ using Bicep.Core.Utils;
 using Bicep.Decompiler;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
+using Bicep.Local.Deploy.Azure;
+using Bicep.Local.Deploy.Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 using Environment = Bicep.Core.Utils.Environment;
 using LocalFileSystem = System.IO.Abstractions.FileSystem;
@@ -84,4 +86,9 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddBicepDecompiler(this IServiceCollection services) => services
         .AddSingleton<BicepDecompiler>();
+
+    public static IServiceCollection AddLocalDeploy(this IServiceCollection services) => services
+        .AddSingleton<LocalExtensionDispatcherFactory>()
+        .AddSingleton<IArmDeploymentProvider, ArmDeploymentProvider>()
+        .AddSingleton<ILocalExtensionFactory, GrpcLocalExtensionFactory>();
 }
