@@ -121,7 +121,7 @@ namespace Bicep.Core.SourceGraph
             var directoryHandle = this.FileHandle.GetParent().GetDirectory(relativePath);
             if (!directoryHandle.Exists())
             {
-                return new (x => x.ErrorOccurredReadingFile($"Directory {relativePath} does not exist or additional permissions are necessary to access it"));
+                return new (x => x.ErrorOccuredBrowsingDirectory($"Directory {relativePath} does not exist or additional permissions are necessary to access it"));
             }
             var handles = directoryHandle.EnumerateFiles(searchPattern);
             var auxiliaryFiles = new List<AuxiliaryFile>();

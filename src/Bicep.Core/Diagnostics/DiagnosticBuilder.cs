@@ -1907,6 +1907,11 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic InvalidReservedImplicitExtensionNamespace(string name) => CoreError(
                 "BCP419",
                 $"Namespace name \"{name}\", and cannot be used an extension name.");
+
+            public Diagnostic ErrorOccuredBrowsingDirectory(string failureMessage) => CoreError(
+                "BCP420",
+                $"An error occured browsing directory. {failureMessage}"
+            );
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
