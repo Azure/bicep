@@ -192,7 +192,7 @@ Result: Succeeded
             {
                 await Task.CompletedTask;
                 var isInitialAttempt = Interlocked.Increment(ref attempts) == 1;
-                var provisioningState = (isInitialAttempt && async) ? ProvisioningState.Running : ProvisioningState.Succeeded; 
+                var provisioningState = (isInitialAttempt && async) ? ProvisioningState.Running : ProvisioningState.Succeeded;
 
                 return new(
                     new()

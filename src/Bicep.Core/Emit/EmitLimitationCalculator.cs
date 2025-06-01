@@ -985,7 +985,7 @@ namespace Bicep.Core.Emit
 
             foreach (var module in model.Root.ModuleDeclarations)
             {
-                if (module.TryGetSemanticModel().TryUnwrap() is { }  moduleModel &&
+                if (module.TryGetSemanticModel().TryUnwrap() is { } moduleModel &&
                     moduleModel.Outputs.Any(output => output.IsSecure))
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(module.NameSource).SecureOutputsNotSupportedWithLocalDeploy(module.Name));
