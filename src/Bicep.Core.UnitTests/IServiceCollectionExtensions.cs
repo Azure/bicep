@@ -13,7 +13,6 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
-using Bicep.Core.TypeSystem.Providers.MicrosoftGraph;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Features;
@@ -141,12 +140,6 @@ public static class IServiceCollectionExtensions
 
     public static IServiceCollection WithAzResourceProvider(this IServiceCollection services, IAzResourceProvider azResourceProvider)
         => Register(services, azResourceProvider);
-
-    public static IServiceCollection WithMsGraphResourceTypeLoaderFactory(this IServiceCollection services, MicrosoftGraphResourceTypeLoader loader)
-    {
-        var provider = new MicrosoftGraphResourceTypeProvider(loader);
-        return Register(services, TestTypeHelper.CreateResourceTypeLoaderFactory(provider));
-    }
 
     public static IServiceCollection WithArmClientProvider(this IServiceCollection services, IArmClientProvider armClientProvider)
         => Register(services, armClientProvider);
