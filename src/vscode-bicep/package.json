@@ -798,7 +798,7 @@
     "@azure/arm-managementgroups": "2.0.2",
     "@azure/arm-resources": "^6.0.0",
     "@azure/arm-subscriptions": "^5.1.0",
-    "@azure/identity": "^4.8.0",
+    "@azure/identity": "^4.10.0",
     "@microsoft/vscode-azext-azureauth": "^4.1.1",
     "@microsoft/vscode-azext-azureutils": "^3.1.3",
     "@microsoft/vscode-azext-utils": "^2.6.6",
