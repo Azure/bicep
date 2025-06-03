@@ -210,7 +210,7 @@ resource fooRes 'fooType@v1' existing = {
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP035", DiagnosticLevel.Warning, """The specified "resource" declaration is missing the following required properties: "identifier". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
+            ("BCP035", DiagnosticLevel.Error, """The specified "resource" declaration is missing the following required properties: "identifier"."""),
         });
 
         result = await CompilationHelper.RestoreAndCompile(services, """
@@ -475,11 +475,9 @@ output joke string = dadJoke.joke
                       "version": "1.0.0",
                       "config": {
                         "namespace": {
-                          "type": "string",
                           "defaultValue": "ThirdPartyNamespace"
                         },
                         "config": {
-                          "type": "string",
                           "defaultValue": "Some path to config file"
                         }
                       }

@@ -926,9 +926,7 @@ namespace Bicep.Core.TypeSystem
                 }
                 else
                 {
-                    if (syntax.WithClause.IsSkipped &&
-                        namespaceType.ConfigurationType is not null &&
-                        namespaceType.ConfigurationType.Properties.Values.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required)))
+                    if (syntax.WithClause.IsSkipped && namespaceType.IsConfigurationRequired)
                     {
                         diagnostics.Write(syntax, x => x.ExtensionRequiresConfiguration(namespaceType.ExtensionName));
                     }
