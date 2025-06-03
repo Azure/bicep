@@ -15,7 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Bicep.Core" Version="0.36.1" />
     <PackageReference Include="Azure.Bicep.Types" Version="0.5.110" />
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.67.0" />
@@ -26,6 +25,10 @@
     <PackageReference Include="Grpc.Net.Client" Version="2.70.0" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
