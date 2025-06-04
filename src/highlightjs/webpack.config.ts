@@ -3,14 +3,14 @@
 import path from 'path';
 import { Configuration } from 'webpack';
 
-const config: Configuration = {
+const configIife: Configuration = {
   entry: {
     "usage": './src/usage.ts',
   },
   output: {
     path: path.resolve(__dirname, 'out'),
     globalObject: 'self',
-    filename: '[name].min.js',
+    filename: 'bicep.min.js',
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js"],
@@ -30,4 +30,34 @@ const config: Configuration = {
   },
 };
 
-module.exports = config;
+const configEsm: Configuration = {
+  entry: {
+    "bicep": './src/bicep.ts',
+  },
+  output: {
+    path: path.resolve(__dirname, 'out'),
+    globalObject: 'self',
+    filename: 'bicep.es.min.js',
+    library: {
+      type: 'module',
+    }
+  },
+  resolve: {
+    extensions: [".ts", ".tsx", ".js"],
+  },
+  module: {
+    rules: [{
+      test: /\.tsx?$/,
+      use: 'ts-loader',
+      exclude: /node_modules/,
+    }],
+  },
+  optimization: {
+    minimize: true,
+  },
+  experiments: {
+    outputModule: true,
+  }
+};
+
+module.exports = [configIife, configEsm];
