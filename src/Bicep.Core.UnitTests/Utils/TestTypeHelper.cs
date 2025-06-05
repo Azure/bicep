@@ -12,6 +12,7 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.IO.Abstraction;
 using Moq;
 
 namespace Bicep.Core.UnitTests.Utils
@@ -46,7 +47,7 @@ namespace Bicep.Core.UnitTests.Utils
         public static IResourceTypeProviderFactory CreateResourceTypeLoaderFactory(IResourceTypeProvider provider)
         {
             var factory = StrictMock.Of<IResourceTypeProviderFactory>();
-            factory.Setup(m => m.GetResourceTypeProvider(It.IsAny<ArtifactReference?>(), It.IsAny<Uri>())).Returns(new ResultWithDiagnosticBuilder<IResourceTypeProvider>(provider));
+            factory.Setup(m => m.GetResourceTypeProvider(It.IsAny<IFileHandle>())).Returns(new ResultWithDiagnosticBuilder<IResourceTypeProvider>(provider));
             factory.Setup(m => m.GetBuiltInAzResourceTypesProvider()).Returns(provider);
             return factory.Object;
         }

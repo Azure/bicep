@@ -3,12 +3,13 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.TypeSystem.Providers
 {
     public interface IResourceTypeProviderFactory
     {
-        ResultWithDiagnosticBuilder<IResourceTypeProvider> GetResourceTypeProvider(ArtifactReference? artifactReference, Uri typesTgzUri);
+        ResultWithDiagnosticBuilder<IResourceTypeProvider> GetResourceTypeProvider(IFileHandle typesTgzFileHandle);
 
         IResourceTypeProvider GetBuiltInAzResourceTypesProvider();
     }

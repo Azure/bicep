@@ -37,5 +37,7 @@ namespace Bicep.IO.Utils
 
             return entries.ToFrozenDictionary();
         }
+
+        public IFileHandle AsFileHandle() => this.fileHandle;
     }
 }

@@ -77,10 +77,7 @@ namespace Bicep.Core.UnitTests.Utils
                 .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
                 .Returns(blobClient);
 
-            var registry = new OciArtifactRegistry(
-                BicepTestConstants.FileResolver,
-                clientFactory.Object,
-                StrictMock.Of<IPublicModuleMetadataProvider>().Object);
+            var registry = new OciArtifactRegistry(clientFactory.Object, StrictMock.Of<IPublicModuleMetadataProvider>().Object);
 
             return (registry, blobClient);
         }

@@ -19,6 +19,7 @@ using Bicep.Core.SourceLink;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry
@@ -183,7 +184,7 @@ namespace Bicep.Core.Registry
             return ArtifactRestoreStatus.Succeeded;
         }
 
-        public ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference artifactReference)
+        public ResultWithDiagnosticBuilder<IFileHandle> TryGetLocalArtifactEntryPointFileHandle(ArtifactReference artifactReference)
         {
             var configuration = artifactReference.ReferencingFile.Configuration;
             // has restore already failed for this artifact?
@@ -192,8 +193,7 @@ namespace Bicep.Core.Registry
                 return new(restoreFailureBuilder);
             }
 
-            var registry = this.GetRegistry(artifactReference);
-            return registry.TryGetLocalArtifactEntryPointUri(artifactReference);
+            return artifactReference.TryGetEntryPointFileHandle();
         }
 
         public async Task<bool> RestoreArtifacts(IEnumerable<ArtifactReference> references, bool forceRestore)

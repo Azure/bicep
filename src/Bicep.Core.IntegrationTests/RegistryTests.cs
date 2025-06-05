@@ -236,11 +236,9 @@ namespace Bicep.Core.IntegrationTests
                 dispatcher.GetArtifactRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
             }
 
-            dispatcher.TryGetLocalArtifactEntryPointUri(moduleReferences[0]).IsSuccess(out var moduleFileUri).Should().BeTrue();
-            moduleFileUri.Should().NotBeNull();
+            dispatcher.TryGetLocalArtifactEntryPointFileHandle(moduleReferences[0]).IsSuccess(out var moduleFile).Should().BeTrue();
 
-            var moduleFile = BicepTestConstants.FileExplorer.GetFile(IOUri.FromLocalFilePath(moduleFileUri!.LocalPath));
-            var moduleDirectory = moduleFile.GetParent().EnsureExists();
+            var moduleDirectory = moduleFile!.GetParent().EnsureExists();
             var lockFile = moduleDirectory.GetFile("lock");
 
             var @lock = lockFile.TryLock();
@@ -303,11 +301,9 @@ namespace Bicep.Core.IntegrationTests
                 dispatcher.GetArtifactRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
             }
 
-            dispatcher.TryGetLocalArtifactEntryPointUri(moduleReferences[0]).IsSuccess(out var moduleFileUri).Should().BeTrue();
-            moduleFileUri.Should().NotBeNull();
+            dispatcher.TryGetLocalArtifactEntryPointFileHandle(moduleReferences[0]).IsSuccess(out var moduleFile).Should().BeTrue();
 
-            var moduleFile = BicepTestConstants.FileExplorer.GetFile(IOUri.FromLocalFilePath(moduleFileUri!.LocalPath));
-            var moduleDirectory = moduleFile.GetParent().EnsureExists();
+            var moduleDirectory = moduleFile!.GetParent().EnsureExists();
             var lockFile = moduleDirectory.GetFile("lock");
 
             var @lock = lockFile.TryLock();
@@ -377,12 +373,9 @@ namespace Bicep.Core.IntegrationTests
                 dispatcher.GetArtifactRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
             }
 
-            dispatcher.TryGetLocalArtifactEntryPointUri(moduleReferences[0]).IsSuccess(out var moduleFileUri).Should().BeTrue();
-            moduleFileUri.Should().NotBeNull();
+            dispatcher.TryGetLocalArtifactEntryPointFileHandle(moduleReferences[0]).IsSuccess(out var moduleFile).Should().BeTrue();
 
-            var moduleFilePath = moduleFileUri!.LocalPath;
-            var moduleDirectory = Path.GetDirectoryName(moduleFilePath)!;
-            Directory.CreateDirectory(moduleDirectory);
+            moduleFile!.GetParent().EnsureExists();
 
             (await dispatcher.RestoreArtifacts(moduleReferences, forceRestore: true)).Should().BeTrue();
 

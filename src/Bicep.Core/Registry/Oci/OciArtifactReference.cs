@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Text;
 using System.Web;
 using Bicep.Core.ArtifactCache;
@@ -18,6 +19,7 @@ namespace Bicep.Core.Registry.Oci
     public class OciArtifactReference : ArtifactReference, IOciArtifactReference
     {
         private readonly Lazy<OciModuleCacheAccessor> lazyModuleCacheAccessor;
+        private readonly Lazy<OciExtensionCacheAccessor> lazyExtensionCacheAccessor;
 
         public OciArtifactReference(BicepSourceFile referencingFile, ArtifactType type, IOciArtifactAddressComponents artifactIdParts) :
             base(referencingFile, OciArtifactReferenceFacts.Scheme)
@@ -25,6 +27,7 @@ namespace Bicep.Core.Registry.Oci
             Type = type;
             AddressComponents = artifactIdParts;
             lazyModuleCacheAccessor = new(() => new OciModuleCacheAccessor(this.AddressComponents, this.ReferencingFile.Features.CacheRootDirectory));
+            lazyExtensionCacheAccessor = new(() => new OciExtensionCacheAccessor(this.AddressComponents, this.ReferencingFile.Features.CacheRootDirectory));
         }
 
         public OciArtifactReference(BicepSourceFile referencingFile, ArtifactType type, string registry, string repository, string? tag, string? digest) :
@@ -41,6 +44,7 @@ namespace Bicep.Core.Registry.Oci
             Type = type;
             AddressComponents = new OciArtifactAddressComponents(registry, repository, tag, digest);
             lazyModuleCacheAccessor = new(() => new OciModuleCacheAccessor(this.AddressComponents, this.ReferencingFile.Features.CacheRootDirectory));
+            lazyExtensionCacheAccessor = new(() => new OciExtensionCacheAccessor(this.AddressComponents, this.ReferencingFile.Features.CacheRootDirectory));
         }
 
         public IOciArtifactAddressComponents AddressComponents { get; }
@@ -79,9 +83,18 @@ namespace Bicep.Core.Registry.Oci
 
         public override bool IsExternal => true;
 
-        public IFileHandle ModuleEntryPointFile => this.lazyModuleCacheAccessor.Value.EntryPointFile;
+        public IFileHandle ModuleMainTemplateFile => this.lazyModuleCacheAccessor.Value.MainTemplateFile;
 
         public TgzFileHandle ModuleSourceTgzFile => this.lazyModuleCacheAccessor.Value.SourceTgzFile;
+
+        public TgzFileHandle ExtensionTypesTgzFile => this.lazyExtensionCacheAccessor.Value.TypesTgzFile;
+
+        public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle() => this.Type switch
+        {
+            ArtifactType.Module => new(this.ModuleMainTemplateFile),
+            ArtifactType.Extension => new(this.ExtensionTypesTgzFile.AsFileHandle()),
+            _ => throw new UnreachableException(),
+        };
 
         // unqualifiedReference is the reference without a scheme or alias, e.g. "example.azurecr.invalid/foo/bar:v3"
         // The referencingFile is needed to resolve aliases and experimental features

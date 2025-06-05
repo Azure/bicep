@@ -9,6 +9,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
+using Bicep.Core.Utils;
 using Bicep.LanguageServer.CompilationManager;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -79,11 +80,11 @@ namespace Bicep.LanguageServer.Handlers
             foreach (var module in artifactReferencesToRestore)
             {
                 var restoreStatus = this.moduleDispatcher.GetArtifactRestoreStatus(module, out _);
-                sbRestoreSummary.Append($"{Environment.NewLine}  * {module.FullyQualifiedReference}: {restoreStatus}");
+                sbRestoreSummary.Append($"{System.Environment.NewLine}  * {module.FullyQualifiedReference}: {restoreStatus}");
             }
 
             // refresh all compilations with a reference to this file or cached artifacts
-            var artifactUris = artifactsToRestore.Select(x => x.Result.TryUnwrap()).WhereNotNull();
+            var artifactUris = artifactsToRestore.Select(x => x.Result.Transform(x => x.Uri.ToUri()).TryUnwrap()).WhereNotNull();
             compilationManager.RefreshChangedFiles(artifactUris.Concat(documentUri.ToUriEncoded()));
             return $"Restore (force) summary: {sbRestoreSummary}";
         }
