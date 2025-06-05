@@ -19,22 +19,24 @@ public class ResourceRequestDispatcher
 
     public ResourceRequestDispatcher(IResourceHandlerFactory resourceHandlerFactory, ILogger<ResourceRequestDispatcher> logger)
     {
-        this.logger = logger;
         this.resourceHandlerFactory = resourceHandlerFactory ?? throw new ArgumentNullException(nameof(resourceHandlerFactory));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public override Task<LocalExtensibilityOperationResponse> CreateOrUpdate(ResourceSpecification request, ServerCallContext context)
-    {
-        var handlerRequest = GenerateHandlerRequest(request);
-        return WrapExceptions(async () => ToLocalOperationResponse(await resourceHandlerFactory.GetResourceHandler(request.Type).Handler.CreateOrUpdate(handlerRequest, context.CancellationToken)));
-    }
+        => WrapExceptions(async () =>
+           {
+               var requestAndHandlers = GetHandlerRequestAndHandler(request);
+               return ToLocalOperationResponse(await requestAndHandlers.Handler.CreateOrUpdate(requestAndHandlers.Request, context.CancellationToken));
+           });
+
 
     public override Task<LocalExtensibilityOperationResponse> Preview(ResourceSpecification request, ServerCallContext context)
-    {
-        var handlerRequest = GenerateHandlerRequest(request);
-        return WrapExceptions(async () => ToLocalOperationResponse(await resourceHandlerFactory.GetResourceHandler(request.Type).Handler.CreateOrUpdate(handlerRequest, context.CancellationToken)));
-    }
-
+        => WrapExceptions(async () =>
+           {
+               var requestAndHandlers = GetHandlerRequestAndHandler(request);
+               return ToLocalOperationResponse(await requestAndHandlers.Handler.Preview(requestAndHandlers.Request, context.CancellationToken));
+           });
 
     public override Task<LocalExtensibilityOperationResponse> Get(ResourceReference request, ServerCallContext context)
         => WrapExceptions(async () => ToLocalOperationResponse(await resourceHandlerFactory.GetResourceHandler(request.Type).Handler.Get(ToHandlerRequest(request), context.CancellationToken)));
@@ -45,7 +47,7 @@ public class ResourceRequestDispatcher
     public override Task<Empty> Ping(Empty request, ServerCallContext context)
         => Task.FromResult(new Empty());
 
-    protected virtual HandlerRequest GenerateHandlerRequest(ResourceSpecification request)
+    private (HandlerRequest Request, IResourceHandler Handler) GetHandlerRequestAndHandler(ResourceSpecification request)
     {
         var handlerMap = resourceHandlerFactory.GetResourceHandler(request.Type);
 
@@ -59,7 +61,8 @@ public class ResourceRequestDispatcher
 
         if (handlerMap.Type == typeof(EmptyGeneric))
         {
-            return new HandlerRequest(request.Type, request.ApiVersion, extensionSettings, resourceJson);
+            return (new HandlerRequest(request.Type, request.ApiVersion, extensionSettings, resourceJson),
+                   handlerMap.Handler);
         }
 
         var resource = DeserializeJson(request.Type, resourceJson, handlerMap);
@@ -72,9 +75,8 @@ public class ResourceRequestDispatcher
 
         var handlerRequest = Activator.CreateInstance(resourceType, resource, request.ApiVersion, extensionSettings, resourceJson) as HandlerRequest;
 
-        return handlerRequest
-            ?? throw new InvalidOperationException($"Failed to process strongly typed request for {request.Type}");
-
+        return (handlerRequest ?? throw new InvalidOperationException($"Failed to process strongly typed request for {request.Type}")
+              , handlerMap.Handler);
     }
 
     protected virtual HandlerRequest ToHandlerRequest(ResourceReference resourceReference)
@@ -85,17 +87,18 @@ public class ResourceRequestDispatcher
     }
 
     protected virtual LocalExtensibilityOperationResponse ToLocalOperationResponse(HandlerResponse? handlerResponse)
-        => handlerResponse is not null ? new LocalExtensibilityOperationResponse()
+        => handlerResponse is not null ?
+        new LocalExtensibilityOperationResponse()
         {
-            ErrorData = handlerResponse.Status == HandlerResponseStatus.Error && handlerResponse.Error is not null ?
+            ErrorData = handlerResponse.Status == HandlerResponseStatus.Error ?
                             new ErrorData
                             {
                                 Error = new Error()
                                 {
-                                    Code = handlerResponse.Error.Code,
-                                    Message = handlerResponse.Message,
-                                    InnerError = handlerResponse.Error.Message,
-                                    Target = handlerResponse.Error.Target,
+                                    Code = handlerResponse.Error?.Code ?? $"HandlerException",
+                                    Message = $"Handler request failed: {handlerResponse.Message}",
+                                    InnerError = handlerResponse.Error?.Message ?? string.Empty,
+                                    Target = handlerResponse.Error?.Target ?? string.Empty,
                                 }
                             } : null,
             Resource = handlerResponse.Status != HandlerResponseStatus.Error ?
@@ -103,11 +106,12 @@ public class ResourceRequestDispatcher
                             {
                                 Status = handlerResponse.Status.ToString(),
                                 Type = handlerResponse.Type,
-                                ApiVersion = handlerResponse.Version,
-                                Properties = handlerResponse.Properties?.ToJsonString(),
+                                ApiVersion = handlerResponse.ApiVersion ?? string.Empty,
+                                Properties = handlerResponse.Properties?.ToJsonString() ?? string.Empty,
                                 Identifiers = string.Empty
                             } : null
-        } : throw new ArgumentNullException("Failed to process handler response. No response was provided.");
+        }
+        : throw new ArgumentNullException("Failed to process handler response. No response was provided.");
 
     protected virtual JsonObject? GetExtensionConfig(string extensionConfig)
     {
@@ -138,12 +142,8 @@ public class ResourceRequestDispatcher
                 }
         };
 
-        var resource = JsonSerializer.Deserialize(resourceJson.ToJsonString(), handlerMap.Type, options: jsonSerializerSettings);
-
-        if (resource is null)
-        {
-            throw new ArgumentNullException($"No type mapping exists for resource `{bicepType}`");
-        }
+        var resource = JsonSerializer.Deserialize(resourceJson.ToJsonString(), handlerMap.Type, options: jsonSerializerSettings)
+            ?? throw new ArgumentNullException($"No type mapping exists for resource `{bicepType}`");
 
         return resource;
     }
@@ -165,7 +165,7 @@ public class ResourceRequestDispatcher
                     {
                         Message = $"Rpc request failed: {ex}",
                         Code = "RpcException",
-                        Target = ""
+                        Target = string.Empty
                     }
                 }
             };

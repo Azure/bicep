@@ -10,11 +10,13 @@ using System.Threading.Tasks;
 using Azure.Core;
 using Bicep.Local.Extension.Host.Extensions;
 namespace Bicep.Local.Extension.Host.Handlers;
-internal record EmptyGeneric();
+
+public record EmptyGeneric();
+
 public class ResourceHandlerFactory
     : IResourceHandlerFactory
-{
-    public IImmutableDictionary<string, TypeResourceHandler>? TypedResourceHandlers { get; }
+{    
+    public IImmutableDictionary<string, TypeResourceHandler> TypedResourceHandlers { get; }
     public TypeResourceHandler? GenericResourceHandler { get; }
 
     public ResourceHandlerFactory(IEnumerable<IResourceHandler> resourceHandlers)
@@ -24,7 +26,7 @@ public class ResourceHandlerFactory
             throw new InvalidOperationException("No resource handlers were provided.");
         }
 
-        var resourceHandlerMaps = BuildResourceHandlerMap(resourceHandlers);
+        var resourceHandlerMaps = BuildResourceHandlerTypeMap(resourceHandlers);
 
         TypedResourceHandlers = resourceHandlerMaps.Typed;
         GenericResourceHandler = resourceHandlerMaps.Generic;
@@ -36,7 +38,7 @@ public class ResourceHandlerFactory
 
     public TypeResourceHandler GetResourceHandler(string resourceType)
     {
-        if (TypedResourceHandlers?.TryGetValue(resourceType, out var handlerMap) == true)
+        if (TypedResourceHandlers.TryGetValue(resourceType, out var handlerMap))
         {
             return handlerMap;
         }
@@ -49,7 +51,7 @@ public class ResourceHandlerFactory
 
     }
 
-    private static (TypeResourceHandler? Generic, ImmutableDictionary<string, TypeResourceHandler> Typed) BuildResourceHandlerMap(IEnumerable<IResourceHandler> resourceHandlers)
+    private static (TypeResourceHandler? Generic, ImmutableDictionary<string, TypeResourceHandler> Typed) BuildResourceHandlerTypeMap(IEnumerable<IResourceHandler> resourceHandlers)
     {
         var handlerDictionary = new Dictionary<string, TypeResourceHandler>();
         TypeResourceHandler? genericHandler = null;
