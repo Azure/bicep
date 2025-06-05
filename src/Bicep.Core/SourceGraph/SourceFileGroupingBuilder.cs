@@ -81,7 +81,7 @@ namespace Bicep.Core.SourceGraph
             foreach (var (syntax, artifact) in current.ArtifactLookup.Where(x => SourceFileGrouping.ShouldRestore(x.Value)))
             {
                 builder.artifactLookup.Remove(syntax);
-                sourceFilesRequiringRestore.Add(artifact.Origin);
+                sourceFilesRequiringRestore.Add(artifact.ReferencingFile);
             }
 
             foreach (var (file, extensions) in current.ImplicitExtensions)

@@ -72,7 +72,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var hasShownDownloadWarning = false;
 
             foreach (var (syntax, artifactResolutionInfo) in model.SourceFileGrouping.ArtifactLookup
-                .Where(entry => entry.Value.Origin == model.SourceFile
+                .Where(entry => entry.Value.ReferencingFile == model.SourceFile
                     && entry.Value.Syntax is ModuleDeclarationSyntax moduleSyntax))
             {
                 if (syntax is ModuleDeclarationSyntax moduleSyntax)

@@ -19,7 +19,7 @@ public record ImplicitExtension(
     ArtifactResolutionInfo? Artifact);
 
 public record ArtifactResolutionInfo(
-    BicepSourceFile Origin,
+    BicepSourceFile ReferencingFile,
     IArtifactReferenceSyntax? Syntax,
     ArtifactReference? Reference,
     ResultWithDiagnosticBuilder<Uri> Result,

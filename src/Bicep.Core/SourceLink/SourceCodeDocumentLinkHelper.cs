@@ -31,7 +31,7 @@ public static class SourceCodeDocumentLinkHelper
     {
         var dictionary = new Dictionary<Uri, SourceCodeDocumentUriLink[]>();
 
-        foreach (var grouping in sourceFileGrouping.ArtifactLookup.Values.GroupBy(x => x.Origin))
+        foreach (var grouping in sourceFileGrouping.ArtifactLookup.Values.GroupBy(x => x.ReferencingFile))
         {
             var referencingFile = grouping.Key;
             var referencingFileLineStarts = referencingFile.LineStarts;
