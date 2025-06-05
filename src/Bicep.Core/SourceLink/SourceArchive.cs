@@ -115,11 +115,11 @@ namespace Bicep.Core.SourceLink
             {
                 if (artifact.Syntax is ModuleDeclarationSyntax &&
                     artifact.Reference is OciArtifactReference artifactReference &&
-                    artifact.Result.IsSuccess(out var uri) &&
+                    artifact.Result.IsSuccess(out var fileHandle) &&
                     // Only those that were published with source
                     artifactReference.TryLoadSourceArchive().IsSuccess())
                 {
-                    uriToArtifactReference[uri] = artifactReference;
+                    uriToArtifactReference[fileHandle.Uri.ToUri()] = artifactReference;
                 }
             }
 

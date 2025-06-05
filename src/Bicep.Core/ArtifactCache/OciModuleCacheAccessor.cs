@@ -14,7 +14,7 @@ namespace Bicep.Core.ArtifactCache
         {
         }
 
-        public IFileHandle EntryPointFile => this.GetFile("main.json");
+        public IFileHandle MainTemplateFile => this.GetFile("main.json");
 
         public TgzFileHandle SourceTgzFile => new(this.GetFile("source.tgz"));
     }

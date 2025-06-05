@@ -169,9 +169,9 @@ resource fooRes 'fooType@v1' = {
 extension './non_existent.tgz'
 """)));
 
-        var sourceUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
+        var sourceUri = InMemoryFileResolver.GetFileUri("/path/to/non_existent.tgz");
         result.Should().HaveDiagnostics([
-            ("BCP093", DiagnosticLevel.Error, $"File path \"./non_existent.tgz\" could not be resolved relative to \"{sourceUri.LocalPath}\"."),
+            ("BCP093", DiagnosticLevel.Error, $"An error occurred reading file. Could not find file '{sourceUri}'."),
         ]);
     }
 

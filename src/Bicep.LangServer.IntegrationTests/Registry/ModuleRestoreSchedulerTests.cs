@@ -16,6 +16,8 @@ using Bicep.Core.SourceLink;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
+using Bicep.IO.InMemory;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Registry;
 using FluentAssertions;
@@ -216,6 +218,8 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             public override string UnqualifiedReference => this.Value;
 
             public override bool IsExternal => true;
+
+            public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle() => new(DummyFileHandle.Instance);
         }
 
         private class MockArtifactRegistryProvider(IEnumerable<IArtifactRegistry> registries) : ArtifactRegistryProvider(registries)

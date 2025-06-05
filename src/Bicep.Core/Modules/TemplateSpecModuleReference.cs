@@ -3,15 +3,19 @@
 
 using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Uri;
+using Bicep.Core.ArtifactCache;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Modules
 {
     public class TemplateSpecModuleReference : ArtifactReference
     {
+        private readonly Lazy<TemplateSpecModuleCacheAccessor> templateSpecModuleCacheAccessor;
+
         private const int ResourceNameMaximumLength = 90;
 
         private static readonly UriTemplate TemplateSpecUriTemplate = new("{subscriptionId}/{resourceGroupName}/{templateSpecName}:{version}");
@@ -27,6 +31,7 @@ namespace Bicep.Core.Modules
             this.ResourceGroupName = resourceGroupName;
             this.TemplateSpecName = templateSpecName;
             this.Version = version;
+            this.templateSpecModuleCacheAccessor = new(() => new(subscriptionId, resourceGroupName, templateSpecName, version, referencingFile.Features.CacheRootDirectory));
         }
 
         public override string UnqualifiedReference => $"{this.SubscriptionId}/{this.ResourceGroupName}/{this.TemplateSpecName}:{this.Version}";
@@ -42,6 +47,8 @@ namespace Bicep.Core.Modules
         public string TemplateSpecResourceId => $"/subscriptions/{this.SubscriptionId}/resourceGroups/{this.ResourceGroupName}/providers/Microsoft.Resources/templateSpecs/{this.TemplateSpecName}/versions/{this.Version}";
 
         public override bool IsExternal => true;
+
+        public IFileHandle MainTemplateSpecFile => this.templateSpecModuleCacheAccessor.Value.MainTemplateSpecFile;
 
         public override bool Equals(object? obj) =>
             obj is TemplateSpecModuleReference other &&
@@ -127,6 +134,9 @@ namespace Bicep.Core.Modules
 
             return new(new TemplateSpecModuleReference(referencingFile, subscriptionId, resourceGroupName, templateSpecName, version));
         }
+
+        public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle() => new(this.MainTemplateSpecFile);
+
         private static string FullyQualify(string referenceValue) => $"{ArtifactReferenceSchemes.TemplateSpecs}:{referenceValue}";
 
         private static string GetBoundVariable(UriTemplateMatch match, string variableName) =>
