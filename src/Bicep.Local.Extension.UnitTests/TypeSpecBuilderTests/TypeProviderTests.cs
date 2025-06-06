@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -10,6 +11,7 @@ using Bicep.Local.Extension.Host.Attributes;
 using Bicep.Local.Extension.Host.Handlers;
 using Bicep.Local.Extension.Host.TypeSpecBuilder;
 using Bicep.Local.Extension.Rpc;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -41,7 +43,8 @@ public class TypeProviderTests
     [TestMethod]
     public void Constructor_Throws_On_Null_ResourceHandlerFactory()
     {
-        Assert.ThrowsException<ArgumentNullException>(() => new TypeProvider(null!));
+        Action act = () => new TypeProvider(null!);
+        act.Should().Throw<ArgumentNullException>();
     }
 
     [TestMethod]
@@ -51,7 +54,7 @@ public class TypeProviderTests
         var handlerMap = new Dictionary<string, TypeResourceHandler>
         {
             { handlerType.Name, new TypeResourceHandler(handlerType, Mock.Of<IResourceHandler>()) }
-        }.ToImmutableDictionary();
+        }.ToFrozenDictionary();
 
         resourceHandlerFactoryMock.Setup(f => f.TypedResourceHandlers).Returns(handlerMap);
 
@@ -59,7 +62,7 @@ public class TypeProviderTests
 
         var types = provider.GetResourceTypes();
 
-        Assert.IsTrue(types.Contains(handlerType));
+        types.Should().Contain(handlerType);
     }
 
     [TestMethod]
@@ -68,7 +71,7 @@ public class TypeProviderTests
         // Ensure the type is loaded in the current AppDomain
         var _ = typeof(ActiveBicepType);
 
-        var handlerMap = ImmutableDictionary<string, TypeResourceHandler>.Empty;
+        var handlerMap = FrozenDictionary<string, TypeResourceHandler>.Empty;
 
         resourceHandlerFactoryMock.Setup(f => f.TypedResourceHandlers).Returns(handlerMap);
 
@@ -76,8 +79,8 @@ public class TypeProviderTests
 
         var types = provider.GetResourceTypes();
 
-        Assert.IsTrue(types.Any(t => t == typeof(ActiveBicepType)));
-        Assert.IsFalse(types.Any(t => t == typeof(InactiveBicepType)));
+        types.Should().Contain(typeof(ActiveBicepType));
+        types.Should().NotContain(typeof(InactiveBicepType));
     }
 
     [TestMethod]
@@ -88,7 +91,7 @@ public class TypeProviderTests
         var handlerMap = new Dictionary<string, TypeResourceHandler>
         {
             { handlerType.Name, new TypeResourceHandler(handlerType, Mock.Of<IResourceHandler>()) }
-        }.ToImmutableDictionary();
+        }.ToFrozenDictionary();
 
         resourceHandlerFactoryMock.Setup(f => f.TypedResourceHandlers).Returns(handlerMap);
 
@@ -96,14 +99,13 @@ public class TypeProviderTests
 
         var types = provider.GetResourceTypes();
 
-        // Should only contain one type with the name "DummyResource"
-        Assert.AreEqual(1, types.Count(t => t.Name == "DummyResource"));
+        types.Count(t => t.Name == "DummyResource").Should().Be(1);
     }
 
     [TestMethod]
     public void GetResourceTypes_Returns_Empty_If_No_Handlers_And_No_ActiveTypes()
     {
-        var handlerMap = ImmutableDictionary<string, TypeResourceHandler>.Empty;
+        var handlerMap = FrozenDictionary<string, TypeResourceHandler>.Empty;
 
         resourceHandlerFactoryMock.Setup(f => f.TypedResourceHandlers).Returns(handlerMap);
 
@@ -114,7 +116,6 @@ public class TypeProviderTests
         var types = provider.GetResourceTypes();
 
         // At least should not throw and should return an array
-        Assert.IsNotNull(types);
+        types.Should().NotBeNull();
     }
 }
-

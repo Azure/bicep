@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace Bicep.Local.Extension.Host.TypeSpecBuilder;
 public class TypeProvider
     : ITypeProvider
 {
-    private readonly IImmutableDictionary<string, TypeResourceHandler> resourceHandlers;
+    private readonly FrozenDictionary<string, TypeResourceHandler> resourceHandlers;
 
 
     public TypeProvider(IResourceHandlerFactory resourceHandlerFactory)

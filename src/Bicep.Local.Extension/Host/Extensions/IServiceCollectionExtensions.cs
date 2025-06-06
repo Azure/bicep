@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text.Json;
@@ -21,7 +22,7 @@ namespace Bicep.Local.Extension.Host.Extensions;
 public static class IServiceCollectionExtensions
 
 {
-    private static Dictionary<string, string> ArgumentMappings => new()
+    private static IDictionary<string, string> ArgumentMappings = new Dictionary<string, string>()
     {
         { "-d", "describe" },
         { "--describe", "describe" },
@@ -64,9 +65,9 @@ public static class IServiceCollectionExtensions
         services.AddSingleton(settings)
             .AddSingleton(typeFactory)
             .AddSingleton<IResourceHandlerFactory, ResourceHandlerFactory>()
-            .AddSingleton<ITypeSpecGenerator, TypeSpecGenerator>()
+            .AddSingleton<ITypeSpecGenerator, TypeDefinitionGenerator>()
             .AddSingleton<ITypeProvider, TypeProvider>()    
-            .AddSingleton(sp => new Dictionary<Type, Func<TypeBase>>
+            .AddSingleton<IDictionary<Type, Func<TypeBase>>>(sp => new Dictionary<Type, Func<TypeBase>>
                 {
                     { typeof(string), () => new StringType() },
                     { typeof(bool), () => new BooleanType() },

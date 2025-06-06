@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-
 using Bicep.Local.Extension.Host.Handlers;
+using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Local.Extension.UnitTests.HandlerTests;
@@ -11,9 +11,8 @@ namespace Bicep.Local.Extension.UnitTests.HandlerTests;
 public class ResourceHandlerFactoryTests
 {
     // Minimal test resource types
-    private class TestResourceA { }
-    private class TestResourceB { }
-
+    private record TestResourceA { }
+    private record TestResourceB { }
 
     private class TestResourceHandler<T> : IResourceHandler<T> where T : class
     {
@@ -34,23 +33,22 @@ public class ResourceHandlerFactoryTests
         public Task<HandlerResponse> Get(HandlerRequest request, CancellationToken cancellationToken) => throw new NotImplementedException();
     }
 
-
     [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException))]
     public void Constructor_Throws_When_No_Handlers_Provided()
     {
         // Scenario 1: No handlers provided
-        _ = new ResourceHandlerFactory(Array.Empty<IResourceHandler>());
+        Action act = () => new ResourceHandlerFactory(Array.Empty<IResourceHandler>());
+        act.Should().Throw<InvalidOperationException>();
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
     public void Constructor_Throws_When_Duplicate_Type_Handlers_Provided()
     {
         // Scenario 2: Two handlers for the same type
         var handler1 = new TestResourceHandler<TestResourceA>();
         var handler2 = new TestResourceHandler<TestResourceA>();
-        _ = new ResourceHandlerFactory(new IResourceHandler[] { handler1, handler2 });
+        Action act = () => new ResourceHandlerFactory(new IResourceHandler[] { handler1, handler2 });
+        act.Should().Throw<ArgumentException>();
     }
 
     [TestMethod]
@@ -60,9 +58,9 @@ public class ResourceHandlerFactoryTests
         var handler = new TestResourceHandler<TestResourceA>();
         var factory = new ResourceHandlerFactory(new IResourceHandler[] { handler });
 
-        Assert.IsNotNull(factory.TypedResourceHandlers);
-        Assert.IsNull(factory.GenericResourceHandler);
-        Assert.IsTrue(factory.TypedResourceHandlers.ContainsKey(nameof(TestResourceA)));
+        factory.TypedResourceHandlers.Should().NotBeNull();
+        factory.GenericResourceHandler.Should().BeNull();
+        factory.TypedResourceHandlers.Should().ContainKey(nameof(TestResourceA));
     }
 
     [TestMethod]
@@ -72,8 +70,8 @@ public class ResourceHandlerFactoryTests
         var genericHandler = new GenericResourceHandler();
         var factory = new ResourceHandlerFactory(new IResourceHandler[] { genericHandler });
 
-        Assert.IsTrue(factory.TypedResourceHandlers.Count == 0);
-        Assert.IsNotNull(factory.GenericResourceHandler);
+        factory.TypedResourceHandlers.Count.Should().Be(0);
+        factory.GenericResourceHandler.Should().NotBeNull();
     }
 
     [TestMethod]
@@ -83,8 +81,8 @@ public class ResourceHandlerFactoryTests
         var factory = new ResourceHandlerFactory(new IResourceHandler[] { handler });
 
         var result = factory.GetResourceHandler(typeof(TestResourceA));
-        Assert.IsNotNull(result);
-        Assert.AreEqual(typeof(TestResourceA), result.Type);
+        result.Should().NotBeNull();
+        result.Type.Should().Be(typeof(TestResourceA));
     }
 
     [TestMethod]
@@ -94,27 +92,27 @@ public class ResourceHandlerFactoryTests
         var factory = new ResourceHandlerFactory(new IResourceHandler[] { genericHandler });
 
         var result = factory.GetResourceHandler("NonExistentType");
-        Assert.IsNotNull(result);
-        Assert.AreEqual(typeof(EmptyGeneric), result.Type);
+        result.Should().NotBeNull();
+        result.Type.Should().Be(typeof(EmptyGeneric));
     }
 
     [TestMethod]
-    [ExpectedException(typeof(InvalidOperationException))]
     public void GetResourceHandler_Throws_When_No_Handler_Found()
     {
         var handler = new TestResourceHandler<TestResourceA>();
         var factory = new ResourceHandlerFactory(new IResourceHandler[] { handler });
 
         // No generic handler, and type not registered
-        _ = factory.GetResourceHandler("NonExistentType");
+        Action act = () => factory.GetResourceHandler("NonExistentType");
+        act.Should().Throw<InvalidOperationException>();
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
     public void Constructor_Throws_When_Multiple_Generic_Handlers_Provided()
     {
         var genericHandler1 = new GenericResourceHandler();
         var genericHandler2 = new GenericResourceHandler();
-        _ = new ResourceHandlerFactory(new IResourceHandler[] { genericHandler1, genericHandler2 });
+        Action act = () => new ResourceHandlerFactory(new IResourceHandler[] { genericHandler1, genericHandler2 });
+        act.Should().Throw<ArgumentException>();
     }
 }

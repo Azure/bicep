@@ -6,9 +6,11 @@ using System.Collections.Immutable;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Local.Extension.Host;
 using Bicep.Local.Extension.Host.Handlers;
 using Bicep.Local.Extension.Rpc;
+using FluentAssertions;
 using Grpc.Core;
 using Grpc.Core.Testing;
 using Microsoft.Extensions.Logging;
@@ -20,12 +22,11 @@ namespace Bicep.Local.Extension.UnitTests;
 [TestClass]
 public class ResourceRequestDispatcherTests
 {
-    private MockRepository mockRepository = null!;
-    private Mock<IResourceHandlerFactory> resourceHandlerFactoryMock = null!;
-    private Mock<ILogger<ResourceRequestDispatcher>> loggerMock = null!;
-    private ResourceRequestDispatcher dispatcher = null!;
+    private Mock<IResourceHandlerFactory> resourceHandlerFactoryMock = StrictMock.Of<IResourceHandlerFactory>();
+    private Mock<ILogger<ResourceRequestDispatcher>> loggerMock = StrictMock.Of<ILogger<ResourceRequestDispatcher>>();
+    private Mock<IResourceHandler> handlerMock = StrictMock.Of<IResourceHandler>();
 
-    private Mock<IResourceHandler> handlerMock = null!;
+    private ResourceRequestDispatcher dispatcher = null!;    
     private TypeResourceHandler typeResourceHandler = null!;
 
     private static ServerCallContext DummyContext(string method = "TestMethod") =>
@@ -43,17 +44,10 @@ public class ResourceRequestDispatcherTests
         writeOptionsSetter: _ => { }
     );
 
-
     [TestInitialize]
     public void Setup()
     {
-        mockRepository = new MockRepository(MockBehavior.Strict);
-        resourceHandlerFactoryMock = mockRepository.Create<IResourceHandlerFactory>();
-        loggerMock = mockRepository.Create<ILogger<ResourceRequestDispatcher>>();
-        handlerMock = mockRepository.Create<IResourceHandler>();
-
         typeResourceHandler = new TypeResourceHandler(typeof(object), handlerMock.Object);
-
         dispatcher = new ResourceRequestDispatcher(resourceHandlerFactoryMock.Object, loggerMock.Object);
     }
 
@@ -74,8 +68,6 @@ public class ResourceRequestDispatcherTests
             Config = config ?? "{}"
         };
 
-
-
     [TestMethod]
     public async Task CreateOrUpdate_Delegates_To_Handler_And_Returns_Response()
     {
@@ -88,11 +80,11 @@ public class ResourceRequestDispatcherTests
 
         var result = await dispatcher.CreateOrUpdate(spec, DummyContext("CreateOrUpdate"));
 
-        Assert.IsNotNull(result);
-        Assert.IsNotNull(result.Resource);
-        Assert.AreEqual("MyType", result.Resource.Type);
-        Assert.AreEqual("2025-01-01", result.Resource.ApiVersion);
-        Assert.AreEqual("Success", result.Resource.Status);
+        result.Should().NotBeNull();
+        result.Resource.Should().NotBeNull();
+        result.Resource.Type.Should().Be("MyType");
+        result.Resource.ApiVersion.Should().Be("2025-01-01");
+        result.Resource.Status.Should().Be("Success");
     }
 
     [TestMethod]
@@ -107,9 +99,9 @@ public class ResourceRequestDispatcherTests
 
         var result = await dispatcher.Preview(spec, DummyContext("Preview"));
 
-        Assert.IsNotNull(result);
-        Assert.IsNotNull(result.Resource);
-        Assert.AreEqual("MyType", result.Resource.Type);
+        result.Should().NotBeNull();
+        result.Resource.Should().NotBeNull();
+        result.Resource.Type.Should().Be("MyType");
     }
 
     [TestMethod]
@@ -124,9 +116,9 @@ public class ResourceRequestDispatcherTests
 
         var result = await dispatcher.Get(reference, DummyContext("Get"));
 
-        Assert.IsNotNull(result);
-        Assert.IsNotNull(result.Resource);
-        Assert.AreEqual("MyType", result.Resource.Type);
+        result.Should().NotBeNull();
+        result.Resource.Should().NotBeNull();
+        result.Resource.Type.Should().Be("MyType");
     }
 
     [TestMethod]
@@ -141,17 +133,17 @@ public class ResourceRequestDispatcherTests
 
         var result = await dispatcher.Delete(reference, DummyContext("Delete"));
 
-        Assert.IsNotNull(result);
-        Assert.IsNotNull(result.Resource);
-        Assert.AreEqual("MyType", result.Resource.Type);
+        result.Should().NotBeNull();
+        result.Resource.Should().NotBeNull();
+        result.Resource.Type.Should().Be("MyType");
     }
 
     [TestMethod]
     public async Task Ping_Returns_Empty()
     {
         var result = await dispatcher.Ping(new Empty(), DummyContext("Ping"));
-        Assert.IsNotNull(result);
-        Assert.IsInstanceOfType(result, typeof(Empty));
+        result.Should().NotBeNull();
+        result.Should().BeOfType<Empty>();
     }
 
     [TestMethod]
@@ -163,11 +155,11 @@ public class ResourceRequestDispatcherTests
 
         var result = await dispatcher.CreateOrUpdate(spec, DummyContext("CreateOrUpdate"));
 
-        Assert.IsNotNull(result);
-        Assert.IsNull(result.Resource);
-        Assert.IsNotNull(result.ErrorData);
-        Assert.AreEqual("RpcException", result.ErrorData.Error.Code);
-        StringAssert.Contains(result.ErrorData.Error.Message, "fail");
+        result.Should().NotBeNull();
+        result.Resource.Should().BeNull();
+        result.ErrorData.Should().NotBeNull();
+        result.ErrorData.Error.Code.Should().Be("RpcException");
+        result.ErrorData.Error.Message.Should().Contain("fail");
     }
 
     [TestMethod]
@@ -178,11 +170,11 @@ public class ResourceRequestDispatcherTests
 
         var result = await dispatcher.Preview(spec, DummyContext("Preview"));
 
-        Assert.IsNotNull(result);
-        Assert.IsNull(result.Resource);
-        Assert.IsNotNull(result.ErrorData);
-        Assert.AreEqual("RpcException", result.ErrorData.Error.Code);
-        StringAssert.Contains(result.ErrorData.Error.Message, "fail");
+        result.Should().NotBeNull();
+        result.Resource.Should().BeNull();
+        result.ErrorData.Should().NotBeNull();
+        result.ErrorData.Error.Code.Should().Be("RpcException");
+        result.ErrorData.Error.Message.Should().Contain("fail");
     }
 
     [TestMethod]
@@ -193,11 +185,11 @@ public class ResourceRequestDispatcherTests
 
         var result = await dispatcher.Get(reference, DummyContext("Get"));
 
-        Assert.IsNotNull(result);
-        Assert.IsNull(result.Resource);
-        Assert.IsNotNull(result.ErrorData);
-        Assert.AreEqual("RpcException", result.ErrorData.Error.Code);
-        StringAssert.Contains(result.ErrorData.Error.Message, "fail");
+        result.Should().NotBeNull();
+        result.Resource.Should().BeNull();
+        result.ErrorData.Should().NotBeNull();
+        result.ErrorData.Error.Code.Should().Be("RpcException");
+        result.ErrorData.Error.Message.Should().Contain("fail");
     }
 
     [TestMethod]
@@ -208,18 +200,21 @@ public class ResourceRequestDispatcherTests
 
         var result = await dispatcher.Delete(reference, DummyContext("Delete"));
 
-        Assert.IsNotNull(result);
-        Assert.IsNull(result.Resource);
-        Assert.IsNotNull(result.ErrorData);
-        Assert.AreEqual("RpcException", result.ErrorData.Error.Code);
-        StringAssert.Contains(result.ErrorData.Error.Message, "fail");
+        result.Should().NotBeNull();
+        result.Resource.Should().BeNull();
+        result.ErrorData.Should().NotBeNull();
+        result.ErrorData.Error.Code.Should().Be("RpcException");
+        result.ErrorData.Error.Message.Should().Contain("fail");
     }
 
     [TestMethod]
     public void Constructor_Throws_On_Null_Arguments()
     {
-        Assert.ThrowsException<ArgumentNullException>(() => new ResourceRequestDispatcher(null!, loggerMock.Object));
-        Assert.ThrowsException<ArgumentNullException>(() => new ResourceRequestDispatcher(resourceHandlerFactoryMock.Object, null!));
+        Action act1 = () => new ResourceRequestDispatcher(null!, loggerMock.Object);
+        Action act2 = () => new ResourceRequestDispatcher(resourceHandlerFactoryMock.Object, null!);
+
+        act1.Should().Throw<ArgumentNullException>();
+        act2.Should().Throw<ArgumentNullException>();
     }
 
     [TestMethod]
@@ -232,12 +227,11 @@ public class ResourceRequestDispatcherTests
 
         var result = await dispatcher.CreateOrUpdate(spec, DummyContext("CreateOrUpdate"));
 
-        Assert.IsNotNull(result);
-        Assert.IsNull(result.Resource);
-        Assert.IsNotNull(result.ErrorData);
-        Assert.AreEqual("RpcException", result.ErrorData.Error.Code);
+        result.Should().NotBeNull();
+        result.Resource.Should().BeNull();
+        result.ErrorData.Should().NotBeNull();
+        result.ErrorData.Error.Code.Should().Be("RpcException");
     }
-
 
     [TestMethod]
     public async Task CreateOrUpdate_Returns_Error_When_HandlerResponse_Status_Is_Error_And_Error_Is_Null()
@@ -251,10 +245,8 @@ public class ResourceRequestDispatcherTests
 
         var result = await dispatcher.CreateOrUpdate(spec, DummyContext("CreateOrUpdate"));
 
-        Assert.IsNotNull(result);
-        Assert.IsNull(result.Resource);
-        Assert.IsNotNull(result.ErrorData);
+        result.Should().NotBeNull();
+        result.Resource.Should().BeNull();
+        result.ErrorData.Should().NotBeNull();
     }
-
-
 }

@@ -16,22 +16,22 @@ using Azure.Bicep.Types;
 using Bicep.Local.Extension.Host.Attributes;
 
 namespace Bicep.Local.Extension.Host.TypeSpecBuilder;
-public class TypeSpecGenerator
+public class TypeDefinitionGenerator
      : ITypeSpecGenerator
 {
     private readonly HashSet<Type> visited;
     private readonly ITypeProvider typeProvider;
-    private readonly ImmutableDictionary<Type, Func<TypeBase>> typeToTypeBaseMap;
+    private readonly IDictionary<Type, Func<TypeBase>> typeToTypeBaseMap;
 
     protected readonly ConcurrentDictionary<Type, TypeBase> typeCache;
     protected readonly TypeFactory factory;
 
     public TypeSettings Settings { get; }
 
-    public TypeSpecGenerator(TypeSettings typeSettings
+    public TypeDefinitionGenerator(TypeSettings typeSettings
                             , TypeFactory factory
                             , ITypeProvider typeProvider
-                            , ImmutableDictionary<Type, Func<TypeBase>> typeToTypeBaseMap)
+                            , IDictionary<Type, Func<TypeBase>> typeToTypeBaseMap)
     {
         Settings = typeSettings ?? throw new ArgumentNullException(nameof(typeSettings));
 
@@ -60,6 +60,15 @@ public class TypeSpecGenerator
         return new(GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes())),
                    GetString(stream => TypeSerializer.SerializeIndex(stream, index)));
     }
+
+    protected virtual ResourceType GenerateResource(TypeFactory typeFactory, ConcurrentDictionary<Type, TypeBase> typeCache, Type type)
+    => typeFactory.Create(() => new ResourceType(
+        name: $"{type.Name}",
+        scopeType: ScopeType.Unknown,
+        readOnlyScopes: null,
+        body: typeFactory.GetReference(typeFactory.Create(() => GenerateForRecord(typeFactory, typeCache, type))),
+        flags: ResourceFlags.None,
+        functions: null));
 
     protected virtual TypeBase GenerateForRecord(TypeFactory factory, ConcurrentDictionary<Type, TypeBase> typeCache, Type type)
     {
@@ -119,14 +128,6 @@ public class TypeSpecGenerator
             null);
     }
 
-    protected virtual ResourceType GenerateResource(TypeFactory typeFactory, ConcurrentDictionary<Type, TypeBase> typeCache, Type type)
-        => typeFactory.Create(() => new ResourceType(
-            name: $"{type.Name}",
-            scopeType: ScopeType.Unknown,
-            readOnlyScopes: null,
-            body: typeFactory.GetReference(typeFactory.Create(() => GenerateForRecord(typeFactory, typeCache, type))),
-            flags: ResourceFlags.None,
-            functions: null));
 
     protected virtual string GetString(Action<Stream> streamWriteFunc)
     {

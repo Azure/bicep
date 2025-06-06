@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Bicep.Local.Extension.Host.Handlers;
+using FluentAssertions;
 using Json.Path;
 
 namespace Bicep.Local.Extension.UnitTests.HandlerTests;
@@ -22,31 +23,34 @@ public class HandlerResponseTests
         var status = HandlerResponseStatus.Success;
         var response = new HandlerResponse(type, "2024-01-01", status, new());
 
-        Assert.AreEqual(type, response.Type);
-        Assert.AreEqual(status, response.Status);
+        response.Type.Should().Be(type);
+        response.Status.Should().Be(status);
     }
 
     [TestMethod]
     public void Constructor_Throws_When_Type_Is_Null_Or_Whitespace()
     {
-        Assert.ThrowsException<ArgumentNullException>(() => new HandlerResponse(null!, "2024-01-01", HandlerResponseStatus.Success, new()));
-        Assert.ThrowsException<ArgumentNullException>(() => new HandlerResponse("", "2024-01-01", HandlerResponseStatus.Success, new()));
-        Assert.ThrowsException<ArgumentNullException>(() => new HandlerResponse("   ", "2024-01-01", HandlerResponseStatus.Success, new()));
+        Action act1 = () => new HandlerResponse(null!, "2024-01-01", HandlerResponseStatus.Success, new());
+        Action act2 = () => new HandlerResponse("", "2024-01-01", HandlerResponseStatus.Success, new());
+        Action act3 = () => new HandlerResponse("   ", "2024-01-01", HandlerResponseStatus.Success, new());
+
+        act1.Should().Throw<ArgumentNullException>();
+        act2.Should().Throw<ArgumentNullException>();
+        act3.Should().Throw<ArgumentNullException>();
     }
 
     [TestMethod]
     public void Properties_Defaults_To_New_Instance_And_Is_Mutable()
     {
         var response = new HandlerResponse("MyType", "2024-01-01", HandlerResponseStatus.Success, null);
-        Assert.IsNotNull(response.Properties);
+        response.Properties.Should().NotBeNull();
 
         // Test mutability
         response.Properties["newProp"] = 123;
         response.Properties.TryGetPropertyValue("newProp", out var prop);
-        Assert.IsNotNull(prop);
-        Assert.AreEqual(123, prop?.GetValue<int>());
+        prop.Should().NotBeNull();
+        prop?.GetValue<int>().Should().Be(123);
     }
-
 
     [TestMethod]
     public void Constructor_Assigns_Optional_Fields()
@@ -60,10 +64,10 @@ public class HandlerResponseTests
 
         var response = new HandlerResponse(type, apiVersion, status, properties, error, message);
 
-        Assert.AreEqual(apiVersion, response.ApiVersion);
-        Assert.AreEqual(properties, response.Properties);
-        Assert.AreEqual(error, response.Error);
-        Assert.AreEqual(message, response.Message);
+        response.ApiVersion.Should().Be(apiVersion);
+        response.Properties.Should().BeSameAs(properties);
+        response.Error.Should().BeSameAs(error);
+        response.Message.Should().Be(message);
     }
 
     [TestMethod]
@@ -73,10 +77,10 @@ public class HandlerResponseTests
         var status = HandlerResponseStatus.Success;
         var response = new HandlerResponse(type, null, status, null);
 
-        Assert.IsNull(response.ApiVersion);
-        Assert.IsNotNull(response.Properties);
-        Assert.IsNull(response.Error);
-        Assert.IsNull(response.Message);
+        response.ApiVersion.Should().BeNull();
+        response.Properties.Should().NotBeNull();
+        response.Error.Should().BeNull();
+        response.Message.Should().BeNull();
     }
 
     [TestMethod]
@@ -89,12 +93,12 @@ public class HandlerResponseTests
 
         var response = HandlerResponse.Success(type, apiVersion, properties, message);
 
-        Assert.AreEqual(type, response.Type);
-        Assert.AreEqual(apiVersion, response.ApiVersion);
-        Assert.AreEqual(HandlerResponseStatus.Success, response.Status);
-        Assert.AreEqual(properties, response.Properties);
-        Assert.IsNull(response.Error);
-        Assert.AreEqual(message, response.Message);
+        response.Type.Should().Be(type);
+        response.ApiVersion.Should().Be(apiVersion);
+        response.Status.Should().Be(HandlerResponseStatus.Success);
+        response.Properties.Should().BeSameAs(properties);
+        response.Error.Should().BeNull();
+        response.Message.Should().Be(message);
     }
 
     [TestMethod]
@@ -108,12 +112,12 @@ public class HandlerResponseTests
 
         var response = HandlerResponse.Failed(type, apiVersion, properties, error, message);
 
-        Assert.AreEqual(type, response.Type);
-        Assert.AreEqual(apiVersion, response.ApiVersion);
-        Assert.AreEqual(HandlerResponseStatus.Error, response.Status);
-        Assert.AreEqual(properties, response.Properties);
-        Assert.AreEqual(error, response.Error);
-        Assert.AreEqual(message, response.Message);
+        response.Type.Should().Be(type);
+        response.ApiVersion.Should().Be(apiVersion);
+        response.Status.Should().Be(HandlerResponseStatus.Error);
+        response.Properties.Should().BeSameAs(properties);
+        response.Error.Should().BeSameAs(error);
+        response.Message.Should().Be(message);
     }
 
     [TestMethod]
@@ -126,12 +130,12 @@ public class HandlerResponseTests
 
         var response = HandlerResponse.Canceled(type, apiVersion, properties, message);
 
-        Assert.AreEqual(type, response.Type);
-        Assert.AreEqual(apiVersion, response.ApiVersion);
-        Assert.AreEqual(HandlerResponseStatus.Canceled, response.Status);
-        Assert.AreEqual(properties, response.Properties);
-        Assert.IsNull(response.Error);
-        Assert.AreEqual(message, response.Message);
+        response.Type.Should().Be(type);
+        response.ApiVersion.Should().Be(apiVersion);
+        response.Status.Should().Be(HandlerResponseStatus.Canceled);
+        response.Properties.Should().BeSameAs(properties);
+        response.Error.Should().BeNull();
+        response.Message.Should().Be(message);
     }
 
     [TestMethod]
@@ -144,12 +148,12 @@ public class HandlerResponseTests
 
         var response = HandlerResponse.TimedOut(type, apiVersion, properties, message);
 
-        Assert.AreEqual(type, response.Type);
-        Assert.AreEqual(apiVersion, response.ApiVersion);
-        Assert.AreEqual(HandlerResponseStatus.TimedOut, response.Status);
-        Assert.AreEqual(properties, response.Properties);
-        Assert.IsNull(response.Error);
-        Assert.AreEqual(message, response.Message);
+        response.Type.Should().Be(type);
+        response.ApiVersion.Should().Be(apiVersion);
+        response.Status.Should().Be(HandlerResponseStatus.TimedOut);
+        response.Properties.Should().BeSameAs(properties);
+        response.Error.Should().BeNull();
+        response.Message.Should().Be(message);
     }
 
     [TestMethod]
@@ -158,22 +162,29 @@ public class HandlerResponseTests
         var error = new Error("E001", "targetField", "Something went wrong");
         var response = new HandlerResponse("MyType", "2024-01-01", HandlerResponseStatus.Error, new JsonObject(), error);
 
-        Assert.IsNotNull(response.Error);
-        Assert.AreEqual("E001", response.Error.Code);
-        Assert.AreEqual("targetField", response.Error.Target);
-        Assert.AreEqual("Something went wrong", response.Error.Message);
+        response.Error.Should().NotBeNull();
+        response.Error!.Code.Should().Be("E001");
+        response.Error.Target.Should().Be("targetField");
+        response.Error.Message.Should().Be("Something went wrong");
     }
 
     [TestMethod]
     public void Static_Methods_Throw_When_Type_Is_Null_Or_Whitespace()
     {
-        Assert.ThrowsException<ArgumentNullException>(() => HandlerResponse.Success(null!, "v", null));
-        Assert.ThrowsException<ArgumentNullException>(() => HandlerResponse.Success("", "v", null));
-        Assert.ThrowsException<ArgumentNullException>(() => HandlerResponse.Success("   ", "v", null));
+        Action act1 = () => HandlerResponse.Success(null!, "v", null);
+        Action act2 = () => HandlerResponse.Success("", "v", null);
+        Action act3 = () => HandlerResponse.Success("   ", "v", null);
 
-        Assert.ThrowsException<ArgumentNullException>(() => HandlerResponse.Failed(null!, "v", null));
-        Assert.ThrowsException<ArgumentNullException>(() => HandlerResponse.Canceled(null!, "v", null));
-        Assert.ThrowsException<ArgumentNullException>(() => HandlerResponse.TimedOut(null!, "v", null));
+        Action act4 = () => HandlerResponse.Failed(null!, "v", null);
+        Action act5 = () => HandlerResponse.Canceled(null!, "v", null);
+        Action act6 = () => HandlerResponse.TimedOut(null!, "v", null);
+
+        act1.Should().Throw<ArgumentNullException>();
+        act2.Should().Throw<ArgumentNullException>();
+        act3.Should().Throw<ArgumentNullException>();
+        act4.Should().Throw<ArgumentNullException>();
+        act5.Should().Throw<ArgumentNullException>();
+        act6.Should().Throw<ArgumentNullException>();
     }
 
     [TestMethod]
@@ -183,14 +194,13 @@ public class HandlerResponseTests
         var r2 = new HandlerResponse("MyType", "v", HandlerResponseStatus.Success, null);
 
         r1.Properties["foo"] = 1;
-        Assert.IsFalse(r2.Properties.ContainsKey("foo"));
+        r2.Properties.ContainsKey("foo").Should().BeFalse();
     }
 
     [TestMethod]
     public void ExtensionSettings_Is_Always_Null()
     {
         var response = new HandlerResponse("MyType", "v", HandlerResponseStatus.Success, null);
-        Assert.IsNull(response.ExtensionSettings);
+        response.ExtensionSettings.Should().BeNull();
     }
-
 }

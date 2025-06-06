@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -16,7 +17,7 @@ public record EmptyGeneric();
 public class ResourceHandlerFactory
     : IResourceHandlerFactory
 {    
-    public IImmutableDictionary<string, TypeResourceHandler> TypedResourceHandlers { get; }
+    public FrozenDictionary<string, TypeResourceHandler> TypedResourceHandlers { get; }
     public TypeResourceHandler? GenericResourceHandler { get; }
 
     public ResourceHandlerFactory(IEnumerable<IResourceHandler> resourceHandlers)
@@ -51,12 +52,11 @@ public class ResourceHandlerFactory
 
     }
 
-    private static (TypeResourceHandler? Generic, ImmutableDictionary<string, TypeResourceHandler> Typed) BuildResourceHandlerTypeMap(IEnumerable<IResourceHandler> resourceHandlers)
+    private static (TypeResourceHandler? Generic, FrozenDictionary<string, TypeResourceHandler> Typed) BuildResourceHandlerTypeMap(IEnumerable<IResourceHandler> resourceHandlers)
     {
         var handlerDictionary = new Dictionary<string, TypeResourceHandler>();
         TypeResourceHandler? genericHandler = null;
-        // if the resource handler is generic extract the type and add it to the type decleration dictionary
-        // as well as the resource handler map
+
         foreach (var resourceHandler in resourceHandlers)
         {
             var resourceHandlerType = resourceHandler.GetType();
@@ -90,7 +90,7 @@ public class ResourceHandlerFactory
             }
         }
 
-        return (genericHandler, handlerDictionary.ToImmutableDictionary());
+        return (genericHandler, handlerDictionary.ToFrozenDictionary());
     }
 }
 

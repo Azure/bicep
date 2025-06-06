@@ -6,23 +6,25 @@ using System.Collections.Immutable;
 using System.Linq;
 using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Local.Extension.Host.Attributes;
 using Bicep.Local.Extension.Host.TypeSpecBuilder;
+using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
 namespace Bicep.Local.Extension.UnitTests.TypeSpecBuilderTests;
 
 [TestClass]
-public class TypeSpecGeneratorTests
+public class TypeDefinitionGeneratorTests
 {
     // Test classes for property type mapping
-    private class TestStringProperty { public string Name { get; set; } = ""; }
-    private class TestBoolProperty { public bool Flag { get; set; } }
-    private class TestIntProperty { public int Count { get; set; } }
-    private class TestUnsupportedProperty { public DateTime When { get; set; } }
-    private class NestedClassProperty { public TestStringProperty Nested { get; set; } = new(); }
-    private class MultipleStringProperties
+    private record TestStringProperty { public string Name { get; set; } = ""; }
+    private record TestBoolProperty { public bool Flag { get; set; } }
+    private record TestIntProperty { public int Count { get; set; } }
+    private record TestUnsupportedProperty { public DateTime When { get; set; } }
+    private record NestedClassProperty { public TestStringProperty Nested { get; set; } = new(); }
+    private record MultipleStringProperties
     {
         public string Name { get; set; } = "";
         public string Description { get; set; } = "";
@@ -33,21 +35,14 @@ public class TypeSpecGeneratorTests
         version: "2025-01-01",
         isSingleton: true,
         configurationType: new Azure.Bicep.Types.CrossFileTypeReference("index.json", 0));
+
     private TypeFactory typeFactory = new([]);
-    private MockRepository mockRepository = null!;
-    private Mock<ITypeProvider> typeProviderMock = null!;
+    private Mock<ITypeProvider> typeProviderMock = StrictMock.Of<ITypeProvider>();
 
-    [TestInitialize]
-    public void Setup()
-    {
-        mockRepository = new MockRepository(MockBehavior.Strict);
-        typeProviderMock = mockRepository.Create<ITypeProvider>();
-    }
-
-    private TypeSpecGenerator CreateGenerator(ImmutableDictionary<Type, Func<TypeBase>> map, Type[] resourceTypes)
+    private TypeDefinitionGenerator CreateGenerator(ImmutableDictionary<Type, Func<TypeBase>> map, Type[] resourceTypes)
     {
         typeProviderMock.Setup(p => p.GetResourceTypes()).Returns(resourceTypes);
-        return new TypeSpecGenerator(typeSettings, typeFactory, typeProviderMock.Object, map);
+        return new TypeDefinitionGenerator(typeSettings, typeFactory, typeProviderMock.Object, map);
     }
 
     [TestMethod]
@@ -57,8 +52,8 @@ public class TypeSpecGeneratorTests
         var typeProvider = new Mock<ITypeProvider>(MockBehavior.Strict).Object;
         var map = ImmutableDictionary<Type, Func<TypeBase>>.Empty.Add(typeof(string), () => new StringType());
 
-        Assert.ThrowsException<ArgumentNullException>(() =>
-            new TypeSpecGenerator(null!, factory, typeProvider, map));
+        Action act = () => new TypeDefinitionGenerator(null!, factory, typeProvider, map);
+        act.Should().Throw<ArgumentNullException>();
     }
 
     [TestMethod]
@@ -68,8 +63,8 @@ public class TypeSpecGeneratorTests
         var typeProvider = new Mock<ITypeProvider>(MockBehavior.Strict).Object;
         var map = ImmutableDictionary<Type, Func<TypeBase>>.Empty.Add(typeof(string), () => new StringType());
 
-        Assert.ThrowsException<ArgumentNullException>(() =>
-            new TypeSpecGenerator(typeSettings, null!, typeProvider, map));
+        Action act = () => new TypeDefinitionGenerator(typeSettings, null!, typeProvider, map);
+        act.Should().Throw<ArgumentNullException>();
     }
 
     [TestMethod]
@@ -79,8 +74,8 @@ public class TypeSpecGeneratorTests
         var factory = new TypeFactory([]);
         var map = ImmutableDictionary<Type, Func<TypeBase>>.Empty.Add(typeof(string), () => new StringType());
 
-        Assert.ThrowsException<ArgumentNullException>(() =>
-            new TypeSpecGenerator(typeSettings, factory, null!, map));
+        Action act = () => new TypeDefinitionGenerator(typeSettings, factory, null!, map);
+        act.Should().Throw<ArgumentNullException>();
     }
 
     [TestMethod]
@@ -90,8 +85,8 @@ public class TypeSpecGeneratorTests
         var factory = new TypeFactory([]);
         var typeProvider = new Mock<ITypeProvider>(MockBehavior.Strict).Object;
 
-        Assert.ThrowsException<ArgumentNullException>(() =>
-            new TypeSpecGenerator(typeSettings, factory, typeProvider, null!));
+        Action act = () => new TypeDefinitionGenerator(typeSettings, factory, typeProvider, null!);
+        act.Should().Throw<ArgumentNullException>();
     }
 
     [TestMethod]
@@ -102,8 +97,8 @@ public class TypeSpecGeneratorTests
         var typeProvider = new Mock<ITypeProvider>(MockBehavior.Strict).Object;
         var emptyMap = ImmutableDictionary<Type, Func<TypeBase>>.Empty;
 
-        Assert.ThrowsException<ArgumentNullException>(() =>
-            new TypeSpecGenerator(typeSettings, factory, typeProvider, emptyMap));
+        Action act = () => new TypeDefinitionGenerator(typeSettings, factory, typeProvider, emptyMap);
+        act.Should().Throw<ArgumentNullException>();
     }
 
     [TestMethod]
@@ -114,12 +109,10 @@ public class TypeSpecGeneratorTests
         var typeProvider = new Mock<ITypeProvider>(MockBehavior.Strict).Object;
         var map = ImmutableDictionary<Type, Func<TypeBase>>.Empty.Add(typeof(string), () => new StringType());
 
-        var generator = new TypeSpecGenerator(typeSettings, factory, typeProvider, map);
+        var generator = new TypeDefinitionGenerator(typeSettings, factory, typeProvider, map);
 
-        Assert.IsNotNull(generator);
+        generator.Should().NotBeNull();
     }
-
-
 
     [TestMethod]
     public void GenerateBicepResourceTypes_Throws_On_Unsupported_Property_Type()
@@ -132,8 +125,8 @@ public class TypeSpecGeneratorTests
         var resourceTypes = new[] { typeof(TestUnsupportedProperty) };
         var generator = CreateGenerator(map, resourceTypes);
 
-        Assert.ThrowsException<NotImplementedException>(() =>
-            generator.GenerateBicepResourceTypes());
+        Action act = () => generator.GenerateBicepResourceTypes();
+        act.Should().Throw<NotImplementedException>();
     }
 
     [TestMethod]
@@ -149,7 +142,7 @@ public class TypeSpecGeneratorTests
 
         var typeSpec = generator.GenerateBicepResourceTypes();
 
-        Assert.IsTrue(typeSpec.TypesJson.Contains("Name", StringComparison.OrdinalIgnoreCase));
+        typeSpec.TypesJson.Should().Contain("name");
     }
 
     [TestMethod]
@@ -165,7 +158,7 @@ public class TypeSpecGeneratorTests
 
         var typeSpec = generator.GenerateBicepResourceTypes();
 
-        Assert.IsTrue(typeSpec.TypesJson.Contains("Flag", StringComparison.OrdinalIgnoreCase));
+        typeSpec.TypesJson.Should().Contain("flag");
     }
 
     [TestMethod]
@@ -181,7 +174,7 @@ public class TypeSpecGeneratorTests
 
         var typeSpec = generator.GenerateBicepResourceTypes();
 
-        Assert.IsTrue(typeSpec.TypesJson.Contains("Count", StringComparison.OrdinalIgnoreCase));
+        typeSpec.TypesJson.Should().Contain("count");
     }
 
     [TestMethod]
@@ -197,8 +190,8 @@ public class TypeSpecGeneratorTests
 
         var typeSpec = generator.GenerateBicepResourceTypes();
 
-        Assert.IsTrue(typeSpec.TypesJson.Contains("Nested", StringComparison.OrdinalIgnoreCase));
-        Assert.IsTrue(typeSpec.TypesJson.Contains("Name", StringComparison.OrdinalIgnoreCase));
+        typeSpec.TypesJson.Should().Contain("nested");
+        typeSpec.TypesJson.Should().Contain("name");
     }
 
     [TestMethod]
@@ -214,9 +207,7 @@ public class TypeSpecGeneratorTests
 
         var typeSpec = generator.GenerateBicepResourceTypes();
 
-        Assert.IsTrue(typeSpec.TypesJson.Contains("Name", StringComparison.OrdinalIgnoreCase));
-        Assert.IsTrue(typeSpec.TypesJson.Contains("Description", StringComparison.OrdinalIgnoreCase));
+        typeSpec.TypesJson.Should().Contain("name");
+        typeSpec.TypesJson.Should().Contain("description");
     }
-
-
 }

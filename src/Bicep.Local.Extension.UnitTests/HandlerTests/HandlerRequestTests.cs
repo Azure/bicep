@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Bicep.Local.Extension.Host.Handlers;
+using FluentAssertions;
 
 namespace Bicep.Local.Extension.UnitTests.HandlerTests;
 [TestClass]
@@ -25,10 +26,10 @@ public class HandlerRequestTests
 
         var request = new HandlerRequest(type, apiVersion, extensionSettings, resourceJson);
 
-        Assert.AreEqual(type, request.Type);
-        Assert.AreEqual(apiVersion, request.ApiVersion);
-        Assert.AreEqual(extensionSettings, request.ExtensionSettings);
-        Assert.AreEqual(resourceJson, request.ResourceJson);
+        request.Type.Should().Be(type);
+        request.ApiVersion.Should().Be(apiVersion);
+        request.ExtensionSettings.Should().BeSameAs(extensionSettings);
+        request.ResourceJson.Should().BeSameAs(resourceJson);
     }
 
     [TestMethod]
@@ -41,10 +42,10 @@ public class HandlerRequestTests
 
         var request = new HandlerRequest(type, apiVersion, extensionSettings, resourceJson);
 
-        Assert.AreEqual(type, request.Type);
-        Assert.IsNull(request.ApiVersion);
-        Assert.AreEqual(extensionSettings, request.ExtensionSettings);
-        Assert.AreEqual(resourceJson, request.ResourceJson);
+        request.Type.Should().Be(type);
+        request.ApiVersion.Should().BeNull();
+        request.ExtensionSettings.Should().BeSameAs(extensionSettings);
+        request.ResourceJson.Should().BeSameAs(resourceJson);
     }
 
     [TestMethod]
@@ -55,12 +56,12 @@ public class HandlerRequestTests
 
         var request = new HandlerRequest(type, apiVersion);
 
-        Assert.AreEqual(type, request.Type);
-        Assert.AreEqual(apiVersion, request.ApiVersion);
-        Assert.IsNotNull(request.ExtensionSettings);
-        Assert.IsNotNull(request.ResourceJson);
-        Assert.AreEqual(0, request.ExtensionSettings.Count);
-        Assert.AreEqual(0, request.ResourceJson.Count);
+        request.Type.Should().Be(type);
+        request.ApiVersion.Should().Be(apiVersion);
+        request.ExtensionSettings.Should().NotBeNull();
+        request.ResourceJson.Should().NotBeNull();
+        request.ExtensionSettings?.Count.Should().Be(0);
+        request.ResourceJson?.Count.Should().Be(0);
     }
 
     [TestMethod]
@@ -73,19 +74,23 @@ public class HandlerRequestTests
 
         var request = new HandlerRequest<TestResource>(resource, apiVersion, extensionSettings, resourceJson);
 
-        Assert.AreEqual(typeof(TestResource).Name, request.Type);
-        Assert.AreEqual(apiVersion, request.ApiVersion);
-        Assert.AreEqual(extensionSettings, request.ExtensionSettings);
-        Assert.AreEqual(resourceJson, request.ResourceJson);
-        Assert.AreEqual(resource, request.Resource);
+        request.Type.Should().Be(typeof(TestResource).Name);
+        request.ApiVersion.Should().Be(apiVersion);
+        request.ExtensionSettings.Should().BeSameAs(extensionSettings);
+        request.ResourceJson.Should().BeSameAs(resourceJson);
+        request.Resource.Should().BeSameAs(resource);
     }
 
     [TestMethod]
     public void Constructor_Throws_When_Type_Is_Null_Or_Whitespace()
     {
-        Assert.ThrowsException<ArgumentNullException>(() => new HandlerRequest(null!, "2024-01-01"));
-        Assert.ThrowsException<ArgumentNullException>(() => new HandlerRequest("", "2024-01-01"));
-        Assert.ThrowsException<ArgumentNullException>(() => new HandlerRequest("   ", "2024-01-01"));
+        Action act1 = () => new HandlerRequest(null!, "2024-01-01");
+        Action act2 = () => new HandlerRequest("", "2024-01-01");
+        Action act3 = () => new HandlerRequest("   ", "2024-01-01");
+
+        act1.Should().Throw<ArgumentNullException>();
+        act2.Should().Throw<ArgumentNullException>();
+        act3.Should().Throw<ArgumentNullException>();
     }
 
     [TestMethod]
@@ -93,8 +98,8 @@ public class HandlerRequestTests
     {
         var extensionSettings = new JsonObject();
         var resourceJson = new JsonObject();
-        Assert.ThrowsException<ArgumentNullException>(() =>
-            new HandlerRequest<TestResource>(null!, "2024-01-01", extensionSettings, resourceJson));
-    }
+        Action act = () => new HandlerRequest<TestResource>(null!, "2024-01-01", extensionSettings, resourceJson);
 
+        act.Should().Throw<ArgumentNullException>();
+    }
 }
