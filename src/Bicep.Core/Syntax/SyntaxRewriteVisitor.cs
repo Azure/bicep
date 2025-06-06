@@ -178,7 +178,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ParameterAssignmentSyntax(keyword, name, assignment, value);
+            return new ParameterAssignmentSyntax(keyword, name, assignment, value, []);
         }
         void ISyntaxVisitor.VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax) => ReplaceCurrent(syntax, VisitParameterAssignmentSyntax);
 
