@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Local.Extension.Host;
 using Bicep.Local.Extension.Host.Handlers;
 using Bicep.Local.Extension.Rpc;
 using Grpc.Core;

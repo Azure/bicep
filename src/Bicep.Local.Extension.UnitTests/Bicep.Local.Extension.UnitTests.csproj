@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Grpc.Core.Testing" Version="2.46.6" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.14.8" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="MSTest" Version="3.6.4" />

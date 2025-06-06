@@ -5,7 +5,7 @@
 using Bicep.Local.Extension.Host.Handlers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Local.Extension.UnitTests;
+namespace Bicep.Local.Extension.UnitTests.HandlerTests;
 
 [TestClass]
 public class ResourceHandlerFactoryTests

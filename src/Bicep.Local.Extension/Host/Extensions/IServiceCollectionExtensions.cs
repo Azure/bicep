@@ -23,18 +23,18 @@ public static class IServiceCollectionExtensions
 {
     private static Dictionary<string, string> ArgumentMappings => new()
     {
-                { "-d", "describe" },
-                { "--describe", "describe" },
+        { "-d", "describe" },
+        { "--describe", "describe" },
 
-                { "-s", "socket" },
-                { "--socket", "socket" },
+        { "-s", "socket" },
+        { "--socket", "socket" },
 
-                { "-t", "http" },
-                { "--http", "http" },
+        { "-t", "http" },
+        { "--http", "http" },
 
-                { "-p", "pipe" },
-                { "--pipe", "pipe" }
-            };
+        { "-p", "pipe" },
+        { "--pipe", "pipe" }
+    };
 
 
     private static bool IsTracingEnabled
@@ -147,8 +147,7 @@ public static class IServiceCollectionExtensions
     {
         app.MapGrpcService<TDispatcher>();
 
-        var env = app.Environment;
-        if (env.IsDevelopment())
+        if (app.Environment.IsDevelopment())
         {
             app.MapGrpcReflectionService();
         }

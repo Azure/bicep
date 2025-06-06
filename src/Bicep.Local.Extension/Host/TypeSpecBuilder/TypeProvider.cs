@@ -5,16 +5,21 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Azure.Deployments.Core.Extensions;
 using Bicep.Local.Extension.Host.Attributes;
 using Bicep.Local.Extension.Host.Handlers;
+using Grpc.Core.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Bicep.Local.Extension.Host.TypeSpecBuilder;
 public class TypeProvider
     : ITypeProvider
 {
     private readonly IImmutableDictionary<string, TypeResourceHandler> resourceHandlers;
+
 
     public TypeProvider(IResourceHandlerFactory resourceHandlerFactory)
     {
@@ -37,7 +42,20 @@ public class TypeProvider
         AppDomain
             .CurrentDomain
             .GetAssemblies()
-            .SelectMany(assembly => assembly.GetTypes())
+            .SelectMany(assembly =>
+            {
+                Type[] assemblyTypes;
+                try
+                {
+                    assemblyTypes = assembly.GetTypes();
+                }
+                catch
+                {
+                    // if the asssembly is unloadable return an empty list
+                    assemblyTypes = [];
+                }
+                return assemblyTypes;
+            })
             .Where(type =>
             {
                 var bicepType = type.GetCustomAttributes(typeof(BicepTypeAttribute), true).FirstOrDefault();

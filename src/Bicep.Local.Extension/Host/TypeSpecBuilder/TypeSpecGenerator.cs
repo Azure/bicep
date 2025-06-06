@@ -33,23 +33,17 @@ public class TypeSpecGenerator
                             , ITypeProvider typeProvider
                             , ImmutableDictionary<Type, Func<TypeBase>> typeToTypeBaseMap)
     {
-        if (typeSettings is null)
-        {
-            throw new ArgumentNullException(nameof(typeSettings));
-        }
+        Settings = typeSettings ?? throw new ArgumentNullException(nameof(typeSettings));
 
+        this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
+        this.typeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
+        
         this.typeToTypeBaseMap = typeToTypeBaseMap is null || typeToTypeBaseMap.Count < 1
                 ? throw new ArgumentNullException(nameof(typeToTypeBaseMap))
                 : typeToTypeBaseMap;
-
-        this.visited = new HashSet<Type>();
-        this.typeProvider = typeProvider;
-
-        this.typeCache = new ConcurrentDictionary<Type, TypeBase>();
-        this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
-
-        Settings = typeSettings;
-        this.typeToTypeBaseMap = typeToTypeBaseMap;
+        
+        this.visited = new HashSet<Type>();        
+        this.typeCache = new ConcurrentDictionary<Type, TypeBase>();                        
     }
 
     public virtual TypeSpec GenerateBicepResourceTypes()
@@ -74,6 +68,7 @@ public class TypeSpecGenerator
         {
             if (visited.Contains(property.PropertyType))
             {
+                // infinite recursion prevention
                 continue;
             }
 

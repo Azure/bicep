@@ -3,13 +3,15 @@
 
 using Azure.Core;
 using Bicep.Local.Extension.Host.Handlers;
+using Bicep.Local.Extension.Rpc;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using Error = Bicep.Local.Extension.Rpc.Error;
 
-namespace Bicep.Local.Extension.Rpc;
+namespace Bicep.Local.Extension.Host;
 
 public class ResourceRequestDispatcher
     : BicepExtension.BicepExtensionBase

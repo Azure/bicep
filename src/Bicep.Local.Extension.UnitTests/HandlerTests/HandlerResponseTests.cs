@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Bicep.Local.Extension.Host.Handlers;
 using Json.Path;
 
-namespace Bicep.Local.Extension.UnitTests;
+namespace Bicep.Local.Extension.UnitTests.HandlerTests;
 
 [TestClass]
 public class HandlerResponseTests

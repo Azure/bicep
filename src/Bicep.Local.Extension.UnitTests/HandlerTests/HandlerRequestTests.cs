@@ -9,7 +9,7 @@ using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Bicep.Local.Extension.Host.Handlers;
 
-namespace Bicep.Local.Extension.UnitTests;
+namespace Bicep.Local.Extension.UnitTests.HandlerTests;
 [TestClass]
 public class HandlerRequestTests
 {
