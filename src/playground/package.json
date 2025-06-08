@@ -16,7 +16,7 @@
     "@types/node": "^22.15.29",
     "@types/pako": "^2.0.3",
     "@types/react": "^19.1.6",
-    "@types/react-dom": "^19.1.5",
+    "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.4.1",
     "eslint": "^9.28.0",
     "eslint-config-prettier": "^10.1.5",
