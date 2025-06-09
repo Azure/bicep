@@ -71,5 +71,8 @@
   <ItemGroup>
     <PackageReference Update="Nerdbank.GitVersioning" Version="3.7.112" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="SourceGraph\ArtifactReferences\" />
+  </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties configuration_4bicepconfig_1json__JsonSchema="https://appsemble.app/api.json" /></VisualStudio></ProjectExtensions>
 </Project>

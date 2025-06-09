@@ -5,11 +5,11 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text;
 using System.Web;
-using Bicep.Core.ArtifactCache;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceGraph.Artifacts;
 using Bicep.Core.Syntax;
 using Bicep.IO.Abstraction;
 using Bicep.IO.Utils;
@@ -18,16 +18,16 @@ namespace Bicep.Core.Registry.Oci
 {
     public class OciArtifactReference : ArtifactReference, IOciArtifactReference
     {
-        private readonly Lazy<OciModuleCacheAccessor> lazyModuleCacheAccessor;
-        private readonly Lazy<OciExtensionCacheAccessor> lazyExtensionCacheAccessor;
+        private readonly Lazy<BicepRegistryModuleArtifact> lazyBicepRegistryModuleArtifact;
+        private readonly Lazy<BicepRegistryExtensionArtifact> lazyBicepRegistryExtensionArtifact;
 
         public OciArtifactReference(BicepSourceFile referencingFile, ArtifactType type, IOciArtifactAddressComponents artifactIdParts) :
             base(referencingFile, OciArtifactReferenceFacts.Scheme)
         {
             Type = type;
             AddressComponents = artifactIdParts;
-            lazyModuleCacheAccessor = new(() => new OciModuleCacheAccessor(this.AddressComponents, this.ReferencingFile.Features.CacheRootDirectory));
-            lazyExtensionCacheAccessor = new(() => new OciExtensionCacheAccessor(this.AddressComponents, this.ReferencingFile.Features.CacheRootDirectory));
+            lazyBicepRegistryModuleArtifact = new(() => new(this.AddressComponents, this.ReferencingFile.Features.CacheRootDirectory));
+            lazyBicepRegistryExtensionArtifact = new(() => new(this.AddressComponents, this.ReferencingFile.Features.CacheRootDirectory));
         }
 
         public OciArtifactReference(BicepSourceFile referencingFile, ArtifactType type, string registry, string repository, string? tag, string? digest) :
@@ -43,8 +43,8 @@ namespace Bicep.Core.Registry.Oci
 
             Type = type;
             AddressComponents = new OciArtifactAddressComponents(registry, repository, tag, digest);
-            lazyModuleCacheAccessor = new(() => new OciModuleCacheAccessor(this.AddressComponents, this.ReferencingFile.Features.CacheRootDirectory));
-            lazyExtensionCacheAccessor = new(() => new OciExtensionCacheAccessor(this.AddressComponents, this.ReferencingFile.Features.CacheRootDirectory));
+            lazyBicepRegistryModuleArtifact = new(() => new(this.AddressComponents, this.ReferencingFile.Features.CacheRootDirectory));
+            lazyBicepRegistryExtensionArtifact = new(() => new(this.AddressComponents, this.ReferencingFile.Features.CacheRootDirectory));
         }
 
         public IOciArtifactAddressComponents AddressComponents { get; }
@@ -83,11 +83,11 @@ namespace Bicep.Core.Registry.Oci
 
         public override bool IsExternal => true;
 
-        public IFileHandle ModuleMainTemplateFile => this.lazyModuleCacheAccessor.Value.MainTemplateFile;
+        public IFileHandle ModuleMainTemplateFile => this.lazyBicepRegistryModuleArtifact.Value.MainTemplateFile;
 
-        public TgzFileHandle ModuleSourceTgzFile => this.lazyModuleCacheAccessor.Value.SourceTgzFile;
+        public TgzFileHandle ModuleSourceTgzFile => this.lazyBicepRegistryModuleArtifact.Value.SourceTgzFile;
 
-        public TgzFileHandle ExtensionTypesTgzFile => this.lazyExtensionCacheAccessor.Value.TypesTgzFile;
+        public TgzFileHandle ExtensionTypesTgzFile => this.lazyBicepRegistryExtensionArtifact.Value.TypesTgzFile;
 
         public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle() => this.Type switch
         {

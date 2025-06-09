@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using Bicep.Core.ArtifactCache;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceGraph.Artifacts;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 
@@ -21,7 +21,7 @@ namespace Bicep.Core.Modules
 
         private readonly Lazy<ResultWithDiagnosticBuilder<IFileHandle>> lazyTargetFileResult;
         private readonly Lazy<ResultWithDiagnosticBuilder<BinaryData>> lazyExtensionBinaryDataResult;
-        private readonly Lazy<LocalExtensionCacheAccessor> lazyLocalExtensionCacheAccessor;
+        private readonly Lazy<LocalExtensionArtifact> lazyLocalExtensionAssets;
 
         private LocalModuleReference(BicepSourceFile referencingFile, ArtifactType artifactType, RelativePath path)
             : base(referencingFile, ArtifactReferenceSchemes.Local)
@@ -30,7 +30,7 @@ namespace Bicep.Core.Modules
             this.Path = path;
             this.lazyTargetFileResult = new(() => this.ReferencingFile.FileHandle.TryGetRelativeFile(this.Path));
             this.lazyExtensionBinaryDataResult = new(() => this.lazyTargetFileResult.Value.Transform(x => x.TryReadBinaryData()));
-            this.lazyLocalExtensionCacheAccessor = new(() => new(this.lazyExtensionBinaryDataResult.Value.Unwrap(), referencingFile.Features.CacheRootDirectory));
+            this.lazyLocalExtensionAssets = new(() => new(this.lazyExtensionBinaryDataResult.Value.Unwrap(), referencingFile.Features.CacheRootDirectory));
         }
 
         public ArtifactType ArtifactType { get; }
@@ -76,7 +76,7 @@ namespace Bicep.Core.Modules
 
             // For local extension, the "entry point" is the types.tgz file in the Bicep cache folder.
             // TODO(shenglol): This is counterintuitive. Will refactor the whole "artifact" concept in the future.
-            return new(this.lazyLocalExtensionCacheAccessor.Value.TypesTgzFile);
+            return new(this.lazyLocalExtensionAssets.Value.TypesTgzFile);
         }
     }
 }

@@ -3,18 +3,18 @@
 
 using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Uri;
-using Bicep.Core.ArtifactCache;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceGraph.Artifacts;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Modules
 {
     public class TemplateSpecModuleReference : ArtifactReference
     {
-        private readonly Lazy<TemplateSpecModuleCacheAccessor> templateSpecModuleCacheAccessor;
+        private readonly Lazy<TemplateSpecModuleArtifact> templateSpecModuleArtifact;
 
         private const int ResourceNameMaximumLength = 90;
 
@@ -31,7 +31,7 @@ namespace Bicep.Core.Modules
             this.ResourceGroupName = resourceGroupName;
             this.TemplateSpecName = templateSpecName;
             this.Version = version;
-            this.templateSpecModuleCacheAccessor = new(() => new(subscriptionId, resourceGroupName, templateSpecName, version, referencingFile.Features.CacheRootDirectory));
+            this.templateSpecModuleArtifact = new(() => new(subscriptionId, resourceGroupName, templateSpecName, version, referencingFile.Features.CacheRootDirectory));
         }
 
         public override string UnqualifiedReference => $"{this.SubscriptionId}/{this.ResourceGroupName}/{this.TemplateSpecName}:{this.Version}";
@@ -48,7 +48,7 @@ namespace Bicep.Core.Modules
 
         public override bool IsExternal => true;
 
-        public IFileHandle MainTemplateSpecFile => this.templateSpecModuleCacheAccessor.Value.MainTemplateSpecFile;
+        public IFileHandle MainTemplateSpecFile => this.templateSpecModuleArtifact.Value.MainTemplateSpecFile;
 
         public override bool Equals(object? obj) =>
             obj is TemplateSpecModuleReference other &&

@@ -5,11 +5,11 @@ using Bicep.Core.Registry.Oci;
 using Bicep.IO.Abstraction;
 using Bicep.IO.Utils;
 
-namespace Bicep.Core.ArtifactCache
+namespace Bicep.Core.SourceGraph.Artifacts
 {
-    public sealed class OciModuleCacheAccessor : OciArtifactCacheAccessor
+    public sealed class BicepRegistryModuleArtifact : BicepRegistryArtifact
     {
-        public OciModuleCacheAccessor(IOciArtifactAddressComponents address, IDirectoryHandle rootCacheDirectory)
+        public BicepRegistryModuleArtifact(IOciArtifactAddressComponents address, IDirectoryHandle rootCacheDirectory)
             : base(address, rootCacheDirectory)
         {
         }

@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 using Bicep.Core.Registry.Oci;
 using Bicep.IO.Abstraction;
 
-namespace Bicep.Core.ArtifactCache
+namespace Bicep.Core.SourceGraph.Artifacts
 {
-    public abstract class OciArtifactCacheAccessor
+    public abstract class BicepRegistryArtifact
     {
         private readonly IDirectoryHandle cacheDirectory;
 
-        public OciArtifactCacheAccessor(IOciArtifactAddressComponents address, IDirectoryHandle rootCacheDirectory)
+        public BicepRegistryArtifact(IOciArtifactAddressComponents address, IDirectoryHandle rootCacheDirectory)
         {
             this.cacheDirectory = ResolveCacheDirectory(address, rootCacheDirectory);
         }
@@ -55,5 +55,6 @@ namespace Bicep.Core.ArtifactCache
 
             return rootCacheDirectory.GetDirectory($"{OciArtifactReferenceFacts.Scheme}/{registry}/{repository}/{tagOrDigest}");
         }
+
     }
 }

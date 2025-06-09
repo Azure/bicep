@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 using Bicep.Core.Registry.Oci;
 using Bicep.IO.Abstraction;
 
-namespace Bicep.Core.ArtifactCache
+namespace Bicep.Core.SourceGraph.Artifacts
 {
-    public class LocalExtensionCacheAccessor
+    internal class LocalExtensionArtifact
     {
         private readonly IDirectoryHandle cacheDirectory;
 
-        public LocalExtensionCacheAccessor(BinaryData extensionBinaryData, IDirectoryHandle rootCacheDirectory)
+        public LocalExtensionArtifact(BinaryData extensionBinaryData, IDirectoryHandle rootCacheDirectory)
         {
             this.cacheDirectory = ResolveCacheDirectory(extensionBinaryData, rootCacheDirectory);
         }

@@ -4,13 +4,13 @@
 using Bicep.Core.Modules;
 using Bicep.IO.Abstraction;
 
-namespace Bicep.Core.ArtifactCache
+namespace Bicep.Core.SourceGraph.Artifacts
 {
-    public class TemplateSpecModuleCacheAccessor
+    public class TemplateSpecModuleArtifact
     {
         private readonly IDirectoryHandle cacheDirectory;
 
-        public TemplateSpecModuleCacheAccessor(string subscriptionId, string resourceGroupName, string templateSpecName, string version, IDirectoryHandle rootCacheDirectory)
+        public TemplateSpecModuleArtifact(string subscriptionId, string resourceGroupName, string templateSpecName, string version, IDirectoryHandle rootCacheDirectory)
         {
             this.cacheDirectory = rootCacheDirectory.GetDirectory($"{ArtifactReferenceSchemes.TemplateSpecs}/{subscriptionId}/{resourceGroupName}/{templateSpecName}/{version}".ToLowerInvariant());
         }
