@@ -26,8 +26,6 @@ namespace Bicep.TextFixtures.Utils
 {
     public class TestServices : ServiceCollection
     {
-        public readonly static TestServices Default = new();
-
         public TestServices()
         {
             // Don't register the file IO types. We are abusing the real file system for tests which
@@ -54,7 +52,7 @@ namespace Bicep.TextFixtures.Utils
         }
 
         // TODO(file-io-abstraction): Remove this method when the migration to the file IO abstraction is complete.
-        public TestServices WithFileSystem(IFileSystem fileSystem)
+        public TestServices AddFileSystem(IFileSystem fileSystem)
         {
             this.AddSingleton<IFileSystem>(fileSystem);
             this.AddSingleton<IFileResolver, FileResolver>();
@@ -62,7 +60,7 @@ namespace Bicep.TextFixtures.Utils
             return this;
         }
 
-        public TestServices WithFileExplorer(IFileExplorer fileExplorer)
+        public TestServices AddFileExplorer(IFileExplorer fileExplorer)
         {
             this.AddSingleton<IFileExplorer>(fileExplorer);
 

@@ -63,7 +63,6 @@ namespace Bicep.Core.Modules
 
         public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle()
         {
-            //var artifactFileHandle =  FileResolver.TryResolveFilePath(reference.ReferencingFile.Uri, reference.Path);
             if (this.ArtifactType == ArtifactType.Module)
             {
                 return this.lazyTargetFileResult.Value;

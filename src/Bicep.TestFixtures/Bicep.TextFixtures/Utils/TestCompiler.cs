@@ -15,7 +15,7 @@ namespace Bicep.TextFixtures.Utils
             this.services = services;
         }
 
-        public static TestCompiler WithDefaultServices() => new(TestServices.Default);
+        public static TestCompiler WithDefaultServices() => new(new TestServices());
 
         public static TestCompiler WithServices(TestServices services) => new(services);
 
@@ -31,8 +31,8 @@ namespace Bicep.TextFixtures.Utils
 
         private async Task<TestCompilationResult> RestoreAndCompile(MockFileSystemTestFileSet fileSet)
         {
-            services.WithFileSystem(fileSet.FileSystem);
-            services.WithFileExplorer(fileSet.FileExplorer);
+            services.AddFileSystem(fileSet.FileSystem);
+            services.AddFileExplorer(fileSet.FileExplorer);
 
             var compiler = services.Get<BicepCompiler>();
             var compilation = await compiler.CreateCompilation(fileSet.GetEntryPointUri().ToUri());

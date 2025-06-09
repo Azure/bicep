@@ -64,7 +64,7 @@ namespace Bicep.IO.FileSystem
         {
             if (uri.Path.EndsWith('/'))
             {
-                throw new ArgumentException("File path must not end with a slash.", nameof(uri));
+                throw new IOException($"File path '{uri}' must not end with a slash.");
             }
 
             return uri;
