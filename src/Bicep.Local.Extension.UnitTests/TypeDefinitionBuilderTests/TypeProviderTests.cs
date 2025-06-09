@@ -9,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 using Bicep.Local.Extension.Host.Attributes;
 using Bicep.Local.Extension.Host.Handlers;
-using Bicep.Local.Extension.Host.TypeSpecBuilder;
+using Bicep.Local.Extension.Host.TypeDefinitionBuilder;
 using Bicep.Local.Extension.Rpc;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;

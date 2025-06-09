@@ -15,7 +15,7 @@ using Bicep.Local.Extension.Host.Handlers;
 using Grpc.Core.Logging;
 using Microsoft.Extensions.Logging;
 
-namespace Bicep.Local.Extension.Host.TypeSpecBuilder;
+namespace Bicep.Local.Extension.Host.TypeDefinitionBuilder;
 public class TypeProvider
     : ITypeProvider
 {

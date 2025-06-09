@@ -3,7 +3,7 @@
 
 using Azure.Bicep.Types.Index;
 
-namespace Bicep.Local.Extension.Host.TypeSpecBuilder;
+namespace Bicep.Local.Extension.Host.TypeDefinitionBuilder;
 public record TypeSpec(string TypesJson, string IndexJson);
 
 public interface ITypeSpecGenerator

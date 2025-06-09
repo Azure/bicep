@@ -15,7 +15,7 @@ using Azure.Bicep.Types.Serialization;
 using Azure.Bicep.Types;
 using Bicep.Local.Extension.Host.Attributes;
 
-namespace Bicep.Local.Extension.Host.TypeSpecBuilder;
+namespace Bicep.Local.Extension.Host.TypeDefinitionBuilder;
 public class TypeDefinitionGenerator
      : ITypeSpecGenerator
 {

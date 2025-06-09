@@ -8,7 +8,7 @@ using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Local.Extension.Host.Attributes;
-using Bicep.Local.Extension.Host.TypeSpecBuilder;
+using Bicep.Local.Extension.Host.TypeDefinitionBuilder;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
