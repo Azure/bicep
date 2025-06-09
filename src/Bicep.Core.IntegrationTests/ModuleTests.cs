@@ -358,7 +358,6 @@ module modulea 'modulea.bicep' = {
             var mockFileResolver = Repository.Create<IFileResolver>();
             SetupFileReaderMock(mockFileResolver, mainUri, mainFileContents, null);
             SetupFileReaderMock(mockFileResolver, moduleAUri, null, x => x.ErrorOccurredReadingFile("Mock read failure!"));
-            mockFileResolver.Setup(x => x.TryResolveFilePath(mainUri, "modulea.bicep")).Returns(moduleAUri);
 
             var compiler = ServiceBuilder.Create(s => s.WithFileResolver(mockFileResolver.Object).WithDisabledAnalyzersConfiguration()).GetCompiler();
             var compilation = await compiler.CreateCompilation(mainUri);
