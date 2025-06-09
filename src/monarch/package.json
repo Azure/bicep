@@ -14,7 +14,7 @@
     "babel-jest": "^29.6.4",
     "eslint": "^9.28.0",
     "eslint-config-prettier": "^10.1.5",
-    "eslint-plugin-jest": "^28.11.0",
+    "eslint-plugin-jest": "^28.13.0",
     "eslint-plugin-notice": "^1.0.0",
     "eslint-plugin-prettier": "^5.4.1",
     "globals": "^16.2.0",
