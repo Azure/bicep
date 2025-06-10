@@ -185,11 +185,6 @@ namespace Bicep.LangServer.IntegrationTests.Registry
                 return Task.FromResult<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>>(new Dictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>());
             }
 
-            public ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference _)
-            {
-                throw new NotImplementedException();
-            }
-
             public string? GetDocumentationUri(ArtifactReference _) => null;
 
             public Task<string?> TryGetModuleDescription(ModuleSymbol module, ArtifactReference _) => Task.FromResult<string?>(null);
