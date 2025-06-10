@@ -50,7 +50,7 @@ namespace Bicep.TextFixtures.Utils.IO
             return this;
         }
 
-        public TestFileSet AddFiles(params IEnumerable<(string, TestFileData)> files)
+        public TestFileSet AddFiles(params (string, TestFileData)[] files)
         {
             foreach (var (path, data) in files)
             {

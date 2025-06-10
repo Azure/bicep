@@ -13,7 +13,7 @@ namespace Bicep.TextFixtures.Utils.IO
         {
         }
 
-        public static TestFileSet Create(params IEnumerable<(string, TestFileData)> files) => new InMemoryTestFileSet().AddFiles(files);
+        public static TestFileSet Create(params (string, TestFileData)[] files) => new InMemoryTestFileSet().AddFiles(files);
 
         public override IOUri GetUri(string path) => TestFileUri.FromInMemoryPath(path);
     }

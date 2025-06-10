@@ -22,7 +22,7 @@ namespace Bicep.TextFixtures.Utils.IO
 
         public MockFileSystem FileSystem { get; }
 
-        public static MockFileSystemTestFileSet Create(params IEnumerable<(string, TestFileData)> files)
+        public static MockFileSystemTestFileSet Create(params (string, TestFileData)[] files)
         {
             var testFileSet = new MockFileSystemTestFileSet();
 
