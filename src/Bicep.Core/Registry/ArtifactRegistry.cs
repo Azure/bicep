@@ -62,10 +62,6 @@ namespace Bicep.Core.Registry
         public async Task<string?> TryGetModuleDescription(ModuleSymbol module, ArtifactReference reference) =>
             await this.TryGetModuleDescription(module, ConvertReference(reference));
 
-        public abstract Uri? TryGetExtensionBinary(T reference);
-
-        public Uri? TryGetExtensionBinary(ArtifactReference reference) => this.TryGetExtensionBinary(ConvertReference(reference));
-
         public abstract RegistryCapabilities GetCapabilities(ArtifactType artifactType, T reference);
 
         private static T ConvertReference(ArtifactReference reference) => reference switch

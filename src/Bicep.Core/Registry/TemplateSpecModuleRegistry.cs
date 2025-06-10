@@ -113,8 +113,5 @@ namespace Bicep.Core.Registry
 
             return Task.FromResult<string?>(null);
         }
-
-        public override Uri? TryGetExtensionBinary(TemplateSpecModuleReference reference)
-            => null;
     }
 }

@@ -19,6 +19,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
 using Bicep.Local.Deploy;
 using Bicep.Local.Deploy.Azure;
 using Bicep.Local.Deploy.Extensibility;
@@ -55,7 +56,7 @@ public class LocalDeployCommandTests : TestBase
         armDeploymentProvider ??= StrictMock.Of<IArmDeploymentProvider>().Object;
 
         var mockExtensionFactory = StrictMock.Of<ILocalExtensionFactory>();
-        mockExtensionFactory.Setup(x => x.Start(It.IsAny<Uri>())).ReturnsAsync(localExtension);
+        mockExtensionFactory.Setup(x => x.Start(It.IsAny<IOUri>())).ReturnsAsync(localExtension);
 
         services
             .AddSingleton(mockExtensionFactory.Object)

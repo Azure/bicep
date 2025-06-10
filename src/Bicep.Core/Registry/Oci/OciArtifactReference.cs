@@ -9,6 +9,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceGraph.ArtifactReferences;
 using Bicep.Core.SourceGraph.Artifacts;
 using Bicep.Core.Syntax;
 using Bicep.IO.Abstraction;
@@ -16,7 +17,7 @@ using Bicep.IO.Utils;
 
 namespace Bicep.Core.Registry.Oci
 {
-    public class OciArtifactReference : ArtifactReference, IOciArtifactReference
+    public class OciArtifactReference : ArtifactReference, IOciArtifactReference, IExtensionArtifactReference
     {
         private readonly Lazy<BicepRegistryModuleArtifact> lazyBicepRegistryModuleArtifact;
         private readonly Lazy<BicepRegistryExtensionArtifact> lazyBicepRegistryExtensionArtifact;
@@ -92,7 +93,7 @@ namespace Bicep.Core.Registry.Oci
         public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle() => this.Type switch
         {
             ArtifactType.Module => new(this.ModuleMainTemplateFile),
-            ArtifactType.Extension => new(this.ExtensionTypesTgzFile.AsFileHandle()),
+            ArtifactType.Extension => new(this.ExtensionTypesTgzFile.FileHandle),
             _ => throw new UnreachableException(),
         };
 
@@ -109,6 +110,11 @@ namespace Bicep.Core.Registry.Oci
                 return new(errorBuilder);
             }
         }
+
+        public IExtensionArtifact ResolveExtensionArtifact() =>
+            this.Type == ArtifactType.Extension
+                ? this.lazyBicepRegistryExtensionArtifact.Value
+                : throw new InvalidOperationException($"Cannot resolve extension artifact for type {this.Type}.");
 
         private static ResultWithDiagnosticBuilder<OciArtifactAddressComponents> TryParseComponents(BicepSourceFile referencingFile, ArtifactType type, string? aliasName, string unqualifiedReference)
         {

@@ -89,7 +89,5 @@ namespace Bicep.Core.Registry
         /// Returns description for a module.
         /// </summary>
         Task<string?> TryGetModuleDescription(ModuleSymbol module, ArtifactReference reference);
-
-        Uri? TryGetExtensionBinary(ArtifactReference reference);
     }
 }

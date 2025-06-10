@@ -10,24 +10,24 @@ namespace Bicep.IO.Utils
 {
     public class TgzFileHandle
     {
-        private readonly IFileHandle fileHandle;
-
         public TgzFileHandle(IFileHandle fileHandle)
         {
-            this.fileHandle = fileHandle;
+            this.FileHandle = fileHandle;
         }
 
-        public bool Exists() => this.fileHandle.Exists();
+        public IFileHandle FileHandle { get; }
+
+        public bool Exists() => this.FileHandle.Exists();
 
         public FrozenDictionary<string, string> Extract()
         {
             if (!this.Exists())
             {
-                throw new InvalidOperationException($"The file {this.fileHandle.Uri} does not exist.");
+                throw new InvalidOperationException($"The file {this.FileHandle.Uri} does not exist.");
             }
 
             var entries = new Dictionary<string, string>();
-            using var stream = this.fileHandle.OpenRead();
+            using var stream = this.FileHandle.OpenRead();
             using var tgzReader = new TgzReader(stream);
 
             while (tgzReader.GetNextEntry() is { } entry)
@@ -37,7 +37,5 @@ namespace Bicep.IO.Utils
 
             return entries.ToFrozenDictionary();
         }
-
-        public IFileHandle AsFileHandle() => this.fileHandle;
     }
 }

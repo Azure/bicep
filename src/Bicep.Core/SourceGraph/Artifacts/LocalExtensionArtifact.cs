@@ -8,21 +8,22 @@ using System.Text;
 using System.Threading.Tasks;
 using Bicep.Core.Registry.Oci;
 using Bicep.IO.Abstraction;
+using Bicep.IO.Utils;
 
 namespace Bicep.Core.SourceGraph.Artifacts
 {
-    internal class LocalExtensionArtifact
+    internal class LocalExtensionArtifact : CacheableArtifact, IExtensionArtifact
     {
-        private readonly IDirectoryHandle cacheDirectory;
-
         public LocalExtensionArtifact(BinaryData extensionBinaryData, IDirectoryHandle rootCacheDirectory)
+            : base(ResolveCacheDirectory(extensionBinaryData, rootCacheDirectory))
         {
-            this.cacheDirectory = ResolveCacheDirectory(extensionBinaryData, rootCacheDirectory);
         }
 
-        public IFileHandle TypesTgzFile => this.cacheDirectory.GetFile("types.tgz");
+        public TgzFileHandle TypesTgzFile => new(this.GetFile("types.tgz"));
 
-        public static IDirectoryHandle ResolveCacheDirectory(BinaryData extensionBinaryData, IDirectoryHandle rootCacheDirectory)
+        public IFileHandle BinaryFile => this.GetFile("extension.bin");
+
+        private static IDirectoryHandle ResolveCacheDirectory(BinaryData extensionBinaryData, IDirectoryHandle rootCacheDirectory)
         {
             // The cache directory is structured as "local/{extensionDigest}"
             // where extensionDigest is a unique identifier for the extension.

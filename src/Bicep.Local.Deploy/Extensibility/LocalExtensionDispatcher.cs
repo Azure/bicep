@@ -19,6 +19,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph.ArtifactReferences;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.IO.Abstraction;
 using Bicep.Local.Deploy.Azure;
@@ -37,15 +38,11 @@ public class LocalExtensionDispatcher : IAsyncDisposable
         string Version);
 
     private Dictionary<ExtensionKey, ILocalExtension> RegisteredExtensions = new();
-    private readonly IModuleDispatcher moduleDispatcher;
-    private readonly IFileExplorer fileExplorer;
     private readonly ILocalExtensionFactory localExtensionFactory;
     private readonly WorkerJobDispatcherClient jobDispatcher;
     private readonly LocalDeploymentEngine localDeploymentEngine;
 
     public LocalExtensionDispatcher(
-        IFileExplorer fileExplorer,
-        IModuleDispatcher moduleDispatcher,
         IConfigurationManager configurationManager,
         ILocalExtensionFactory localExtensionFactory,
         IArmDeploymentProvider armDeploymentProvider)
@@ -54,8 +51,6 @@ public class LocalExtensionDispatcher : IAsyncDisposable
             .RegisterLocalDeployServices(this)
             .BuildServiceProvider();
 
-        this.moduleDispatcher = moduleDispatcher;
-        this.fileExplorer = fileExplorer;
         this.localExtensionFactory = localExtensionFactory;
         this.localDeploymentEngine = services.GetRequiredService<LocalDeploymentEngine>();
         this.jobDispatcher = services.GetRequiredService<WorkerJobDispatcherClient>();
@@ -178,7 +173,7 @@ public class LocalExtensionDispatcher : IAsyncDisposable
         throw new UnreachableException($"Should not reach here, either '{nameof(LocalExtensionOperationResponse.ErrorData)}' or '{nameof(LocalExtensionOperationResponse.Resource)}' should have been set.");
     }
 
-    private IEnumerable<(NamespaceType namespaceType, Uri binaryUri)> GetBinaryExtensions(Compilation compilation)
+    private IEnumerable<(NamespaceType namespaceType, IOUri binaryUri)> GetBinaryExtensions(Compilation compilation)
     {
         var namespaceTypes = compilation.GetAllBicepModels()
             .Select(x => x.Root.NamespaceResolver)
@@ -187,13 +182,15 @@ public class LocalExtensionDispatcher : IAsyncDisposable
 
         foreach (var namespaceType in namespaceTypes)
         {
-            if (namespaceType.Artifact is { } artifact &&
-                moduleDispatcher.TryGetExtensionBinary(artifact) is { } binaryUri &&
-                // check for existence to filter down to providers that support local deployment
-                // the module restoration process will ensure this has been created successfully
-                fileExplorer.GetFile(binaryUri.ToIOUri()).Exists())
+            if (namespaceType.ExtensionArtifactReference is IExtensionArtifactReference extensionArtifactReference)
             {
-                yield return (namespaceType, binaryUri);
+                var extensionArtifact = extensionArtifactReference.ResolveExtensionArtifact();
+
+                if (extensionArtifact.BinaryFile.Exists())
+                {
+                    yield return (namespaceType, extensionArtifact.BinaryFile.Uri);
+                }
+
             }
         }
     }

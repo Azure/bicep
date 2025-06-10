@@ -517,9 +517,6 @@ namespace Bicep.Core.Registry
             return this.GetArtifactDirectory(reference).GetFile(fileName);
         }
 
-        public override Uri? TryGetExtensionBinary(OciArtifactReference reference)
-            => GetArtifactFile(reference, ArtifactFileType.ExtensionBinary).Uri.ToUri();
-
         private enum ArtifactFileType
         {
             ModuleMain,

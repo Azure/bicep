@@ -107,8 +107,6 @@ namespace Bicep.Core.Registry
             return Task.FromResult<string?>(null);
         }
 
-        public override Uri? TryGetExtensionBinary(LocalModuleReference reference) => GetExtensionBinaryFile(reference).Uri.ToUri();
-
         protected override void WriteArtifactContentToCache(LocalModuleReference reference, LocalModuleEntity entity)
         {
             if (entity.Package.LocalDeployEnabled)

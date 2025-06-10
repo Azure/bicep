@@ -38,7 +38,5 @@ namespace Bicep.Core.Registry
         Task PublishExtension(ArtifactReference reference, ExtensionPackage package);
 
         void PruneRestoreStatuses();
-
-        Uri? TryGetExtensionBinary(ArtifactReference reference);
     }
 }

@@ -6,15 +6,13 @@ using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.SourceGraph.Artifacts
 {
-    public class TemplateSpecModuleArtifact
+    public class TemplateSpecModuleArtifact : CacheableArtifact
     {
-        private readonly IDirectoryHandle cacheDirectory;
-
         public TemplateSpecModuleArtifact(string subscriptionId, string resourceGroupName, string templateSpecName, string version, IDirectoryHandle rootCacheDirectory)
+            : base(rootCacheDirectory.GetDirectory($"{ArtifactReferenceSchemes.TemplateSpecs}/{subscriptionId}/{resourceGroupName}/{templateSpecName}/{version}".ToLowerInvariant()))
         {
-            this.cacheDirectory = rootCacheDirectory.GetDirectory($"{ArtifactReferenceSchemes.TemplateSpecs}/{subscriptionId}/{resourceGroupName}/{templateSpecName}/{version}".ToLowerInvariant());
         }
 
-        public IFileHandle MainTemplateSpecFile => this.cacheDirectory.GetFile("main.json");
+        public IFileHandle MainTemplateSpecFile => this.GetFile("main.json");
     }
 }

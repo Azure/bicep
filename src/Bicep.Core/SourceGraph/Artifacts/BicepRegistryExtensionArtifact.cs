@@ -12,7 +12,7 @@ using Bicep.IO.Utils;
 
 namespace Bicep.Core.SourceGraph.Artifacts
 {
-    public sealed class BicepRegistryExtensionArtifact : BicepRegistryArtifact
+    public sealed class BicepRegistryExtensionArtifact : BicepRegistryArtifact, IExtensionArtifact
     {
         public BicepRegistryExtensionArtifact(IOciArtifactAddressComponents address, IDirectoryHandle rootCacheDirectory)
             : base(address, rootCacheDirectory)
@@ -20,5 +20,7 @@ namespace Bicep.Core.SourceGraph.Artifacts
         }
 
         public TgzFileHandle TypesTgzFile => new(this.GetFile("types.tgz"));
+
+        public IFileHandle BinaryFile => this.GetFile("extension.bin");
     }
 }

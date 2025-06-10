@@ -6,6 +6,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceGraph.ArtifactReferences;
 using Bicep.Core.SourceGraph.Artifacts;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
@@ -15,13 +16,15 @@ namespace Bicep.Core.Modules
     /// <summary>
     /// Represents a reference to a local module (by relative path).
     /// </summary>
-    public class LocalModuleReference : ArtifactReference
+    public class LocalModuleReference : ArtifactReference, IExtensionArtifactReference
     {
+        // TODO(file-io-abstraction): Create a dedicated type for local extension reference.
+
         private static readonly StringComparer PathComparer = StringComparer.Ordinal;
 
         private readonly Lazy<ResultWithDiagnosticBuilder<IFileHandle>> lazyTargetFileResult;
         private readonly Lazy<ResultWithDiagnosticBuilder<BinaryData>> lazyExtensionBinaryDataResult;
-        private readonly Lazy<LocalExtensionArtifact> lazyLocalExtensionAssets;
+        private readonly Lazy<LocalExtensionArtifact> lazyLocalExtensionArtifact;
 
         private LocalModuleReference(BicepSourceFile referencingFile, ArtifactType artifactType, RelativePath path)
             : base(referencingFile, ArtifactReferenceSchemes.Local)
@@ -30,7 +33,7 @@ namespace Bicep.Core.Modules
             this.Path = path;
             this.lazyTargetFileResult = new(() => this.ReferencingFile.FileHandle.TryGetRelativeFile(this.Path));
             this.lazyExtensionBinaryDataResult = new(() => this.lazyTargetFileResult.Value.Transform(x => x.TryReadBinaryData()));
-            this.lazyLocalExtensionAssets = new(() => new(this.lazyExtensionBinaryDataResult.Value.Unwrap(), referencingFile.Features.CacheRootDirectory));
+            this.lazyLocalExtensionArtifact = new(() => new(this.lazyExtensionBinaryDataResult.Value.Unwrap(), referencingFile.Features.CacheRootDirectory));
         }
 
         public ArtifactType ArtifactType { get; }
@@ -69,14 +72,18 @@ namespace Bicep.Core.Modules
             }
 
             // Handle local extension reference.
-            if (!this.lazyExtensionBinaryDataResult.Value.IsSuccess(out _, out var error))
+            if (!this.lazyExtensionBinaryDataResult.Value.IsSuccess(out _, out var error)) 
             {
                 return new(error);
             }
 
             // For local extension, the "entry point" is the types.tgz file in the Bicep cache folder.
             // TODO(shenglol): This is counterintuitive. Will refactor the whole "artifact" concept in the future.
-            return new(this.lazyLocalExtensionAssets.Value.TypesTgzFile);
+            return new(this.lazyLocalExtensionArtifact.Value.TypesTgzFile.FileHandle);
         }
+
+        public IExtensionArtifact ResolveExtensionArtifact() => this.ArtifactType == ArtifactType.Extension
+            ? this.lazyLocalExtensionArtifact.Value
+            : throw new InvalidOperationException("Cannot resolve extension artifact for local module reference.");
     }
 }
