@@ -167,7 +167,7 @@ resource fooRes 'fooType@v1' = {
     public async Task Missing_extension_file_raises_a_diagnostic()
     {
         // See https://github.com/Azure/bicep/issues/14770 for context
-        var result = await TestCompiler.WithDefaultServices().RestoreAndCompileInMockFileSystem(
+        var result = await new TestCompiler().RestoreAndCompileMockFileSystemFiles(
             ("main.bicep", new("""
                 extension './non_existent.tgz'
                 """)));
@@ -181,7 +181,7 @@ resource fooRes 'fooType@v1' = {
     public async Task Missing_extension_file_raises_a_diagnostic_bicepconfig()
     {
         // See https://github.com/Azure/bicep/issues/14770 for context
-        var result = await TestCompiler.WithDefaultServices().RestoreAndCompileInMockFileSystem(
+        var result = await new TestCompiler().RestoreAndCompileMockFileSystemFiles(
             ("main.bicep", """
                   extension nonExistent
                   """),

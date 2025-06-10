@@ -10,23 +10,31 @@ namespace Bicep.TextFixtures.Utils
     {
         private readonly TestServices services;
 
-        private TestCompiler(TestServices services)
+        public TestCompiler()
+        {
+            this.services = new();
+        }
+
+        public TestCompiler(TestServices services)
         {
             this.services = services;
         }
 
-        public static TestCompiler WithDefaultServices() => new(new TestServices());
+        public TestCompiler ConfigureServices(Action<TestServices> configure)
+        {
+            configure(this.services);
 
-        public static TestCompiler WithServices(TestServices services) => new(services);
+            return this;
+        }
 
         // TODO(file-io-abstraction): Enable and migrate tests once IFileResolver is removed.
-        //public TestCompilationResult RestoreAndCompileInMemory(params (string FilePath, TestFileData FileData)[] files) =>
+        //public TestCompilationResult RestoreAndCompileInMemoryFiles(params (string FilePath, TestFileData FileData)[] files) =>
         //        this.RestoreAndCompile(InMemoryTestFileSet.Create(files));
 
-        public Task<TestCompilationResult> RestoreAndCompileInMockFileSystem(string mainBicepFileText) =>
-            this.RestoreAndCompileInMockFileSystem(("main.bicep", mainBicepFileText));
+        public Task<TestCompilationResult> RestoreAndCompileMockFileSystemFiles(string mainBicepFileText) =>
+            this.RestoreAndCompileMockFileSystemFiles(("main.bicep", mainBicepFileText));
 
-        public Task<TestCompilationResult> RestoreAndCompileInMockFileSystem(params (string FilePath, TestFileData FileData)[] files) =>
+        public Task<TestCompilationResult> RestoreAndCompileMockFileSystemFiles(params (string FilePath, TestFileData FileData)[] files) =>
             this.RestoreAndCompile(MockFileSystemTestFileSet.Create(files));
 
         private async Task<TestCompilationResult> RestoreAndCompile(MockFileSystemTestFileSet fileSet)
