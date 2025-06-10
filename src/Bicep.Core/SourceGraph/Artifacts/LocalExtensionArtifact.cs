@@ -19,7 +19,7 @@ namespace Bicep.Core.SourceGraph.Artifacts
         {
         }
 
-        public TgzFileHandle TypesTgzFile => new(this.GetFile("types.tgz"));
+        public IFileHandle TypesTgzFile => this.GetFile("types.tgz");
 
         public IFileHandle BinaryFile => this.GetFile("extension.bin");
 

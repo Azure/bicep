@@ -86,14 +86,14 @@ namespace Bicep.Core.Registry.Oci
 
         public IFileHandle ModuleMainTemplateFile => this.lazyBicepRegistryModuleArtifact.Value.MainTemplateFile;
 
-        public TgzFileHandle ModuleSourceTgzFile => this.lazyBicepRegistryModuleArtifact.Value.SourceTgzFile;
+        public IFileHandle ModuleSourceTgzFile => this.lazyBicepRegistryModuleArtifact.Value.SourceTgzFile;
 
-        public TgzFileHandle ExtensionTypesTgzFile => this.lazyBicepRegistryExtensionArtifact.Value.TypesTgzFile;
+        public IFileHandle ExtensionTypesTgzFile => this.lazyBicepRegistryExtensionArtifact.Value.TypesTgzFile;
 
         public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle() => this.Type switch
         {
             ArtifactType.Module => new(this.ModuleMainTemplateFile),
-            ArtifactType.Extension => new(this.ExtensionTypesTgzFile.FileHandle),
+            ArtifactType.Extension => new(this.ExtensionTypesTgzFile),
             _ => throw new UnreachableException(),
         };
 

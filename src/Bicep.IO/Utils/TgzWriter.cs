@@ -28,6 +28,16 @@ namespace Bicep.IO.Utils
             this.tarWriter.WriteEntry(entry);
         }
 
+        public async Task WriteEntryAsync(string name, string contents)
+        {
+            var entry = new PaxTarEntry(TarEntryType.RegularFile, name)
+            {
+                DataStream = new MemoryStream(Encoding.UTF8.GetBytes(contents))
+            };
+
+            await this.tarWriter.WriteEntryAsync(entry);
+        }
+
         public void Dispose()
         {
             this.tarWriter.Dispose();

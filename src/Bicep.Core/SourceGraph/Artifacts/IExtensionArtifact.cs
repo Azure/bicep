@@ -8,7 +8,7 @@ namespace Bicep.Core.SourceGraph.Artifacts
 {
     public interface IExtensionArtifact
     {
-        TgzFileHandle TypesTgzFile { get; }
+        IFileHandle TypesTgzFile { get; }
 
         IFileHandle BinaryFile { get; }
     }

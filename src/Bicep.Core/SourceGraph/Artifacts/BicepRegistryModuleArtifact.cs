@@ -16,6 +16,6 @@ namespace Bicep.Core.SourceGraph.Artifacts
 
         public IFileHandle MainTemplateFile => this.GetFile("main.json");
 
-        public TgzFileHandle SourceTgzFile => new(this.GetFile("source.tgz"));
+        public IFileHandle SourceTgzFile => this.GetFile("source.tgz");
     }
 }

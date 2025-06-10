@@ -27,18 +27,16 @@ namespace Bicep.Core.TypeSystem.Providers
             {
                 try
                 {
-                    using var fileStream = typesTgzFileHandle.OpenRead();
-                    var typesLoader = OciTypeLoader.FromStream(fileStream);
-
-                    var typeIndex = typesLoader.LoadTypeIndex();
+                    var typeLoader = ArchivedTypeLoader.FromFileHandle(typesTgzFileHandle);
+                    var typeIndex = typeLoader.LoadTypeIndex();
                     var useAzLoader = typeIndex.Settings?.Name == AzNamespaceType.Settings.TemplateExtensionName;
 
                     if (useAzLoader)
                     {
-                        return new(new AzResourceTypeProvider(new AzResourceTypeLoader(typesLoader, typeIndex)));
+                        return new(new AzResourceTypeProvider(new AzResourceTypeLoader(typeLoader, typeIndex)));
                     }
 
-                    return new(new ExtensionResourceTypeProvider(new ExtensionResourceTypeLoader(typesLoader)));
+                    return new(new ExtensionResourceTypeProvider(new ExtensionResourceTypeLoader(typeLoader)));
                 }
                 catch (Exception ex)
                 {

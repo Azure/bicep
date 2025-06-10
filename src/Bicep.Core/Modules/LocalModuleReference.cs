@@ -79,7 +79,7 @@ namespace Bicep.Core.Modules
 
             // For local extension, the "entry point" is the types.tgz file in the Bicep cache folder.
             // TODO(shenglol): This is counterintuitive. Will refactor the whole "artifact" concept in the future.
-            return new(this.lazyLocalExtensionArtifact.Value.TypesTgzFile.FileHandle);
+            return new(this.lazyLocalExtensionArtifact.Value.TypesTgzFile);
         }
 
         public IExtensionArtifact ResolveExtensionArtifact() => this.ArtifactType == ArtifactType.Extension
