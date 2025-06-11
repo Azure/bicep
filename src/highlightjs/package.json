@@ -9,6 +9,8 @@
     "@types/plist": "^3.0.5",
     "@typescript-eslint/eslint-plugin": "^8.33.1",
     "@typescript-eslint/parser": "^8.33.1",
+    "cross-env": "^7.0.3",
+    "esbuild": "^0.25.5",
     "eslint": "^9.28.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-jest": "^28.13.0",
@@ -21,17 +23,15 @@
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.33.0",
-    "webpack": "^5.99.9",
-    "webpack-cli": "^6.0.1"
+    "typescript-eslint": "^8.33.0"
   },
   "engines": {
     "node": ">=14.0.0"
   },
   "scripts": {
-    "build": "webpack",
+    "build": "tsc",
     "test": "jest",
-    "test:fix": "BASELINE_RECORD=true jest",
+    "test:fix": "cross-env BASELINE_RECORD=true jest",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix"
   }
