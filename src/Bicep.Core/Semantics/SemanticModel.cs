@@ -421,7 +421,12 @@ namespace Bicep.Core.Semantics
         /// </summary>
         public FileSymbol Root => this.Binder.FileSymbol;
 
-        public ResourceScope TargetScope => this.Binder.TargetScope;
+        public ResourceScope TargetScope => SourceFileKind switch
+        {
+            BicepSourceFileKind.ParamsFile when TryGetSemanticModelForParamsFile() is { } templateModel
+                => templateModel.TargetScope,
+            _ => this.Binder.TargetScope,
+        };
 
         public ParameterMetadata? TryGetParameterMetadata(ParameterAssignmentSymbol parameterAssignmentSymbol) =>
             this.declarationsByAssignment.Value.TryGetValue(parameterAssignmentSymbol, out var parameterMetadata) ? parameterMetadata : null;

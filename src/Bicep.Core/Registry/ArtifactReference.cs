@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Diagnostics;
 using Bicep.Core.SourceGraph;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Registry
 {
@@ -37,6 +39,8 @@ namespace Bicep.Core.Registry
         /// Gets a value indicating whether this reference points to an external artifact.
         /// </summary>
         public abstract bool IsExternal { get; }
+
+        public abstract ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle();
 
         public override string ToString() => FullyQualifiedReference;
     }

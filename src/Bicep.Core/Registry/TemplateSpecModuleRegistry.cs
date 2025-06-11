@@ -1,18 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO.Abstractions;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
-using Bicep.Core.SourceLink;
 using Bicep.Core.Tracing;
-using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Registry
@@ -23,8 +17,7 @@ namespace Bicep.Core.Registry
     {
         private readonly ITemplateSpecRepositoryFactory repositoryFactory;
 
-        public TemplateSpecModuleRegistry(IFileResolver fileResolver, ITemplateSpecRepositoryFactory repositoryFactory)
-            : base(fileResolver)
+        public TemplateSpecModuleRegistry(ITemplateSpecRepositoryFactory repositoryFactory)
         {
             this.repositoryFactory = repositoryFactory;
         }
@@ -47,8 +40,7 @@ namespace Bicep.Core.Registry
             return new(@ref);
         }
 
-        public override bool IsArtifactRestoreRequired(TemplateSpecModuleReference reference) =>
-            !this.GetModuleEntryPointFile(reference).Exists();
+        public override bool IsArtifactRestoreRequired(TemplateSpecModuleReference reference) => !reference.MainTemplateSpecFile.Exists();
 
         public override Task PublishModule(TemplateSpecModuleReference reference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description)
             => throw new NotSupportedException("Template Spec modules cannot be published.");
@@ -58,12 +50,6 @@ namespace Bicep.Core.Registry
 
         public override Task<bool> CheckArtifactExists(ArtifactType artifactType, TemplateSpecModuleReference reference)
             => throw new NotSupportedException("Template Spec modules cannot be published.");
-
-        public override ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(TemplateSpecModuleReference reference)
-        {
-            var localUri = this.GetModuleEntryPointFile(reference).Uri.ToUri();
-            return new(localUri);
-        }
 
         public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<TemplateSpecModuleReference> references)
         {
@@ -102,15 +88,14 @@ namespace Bicep.Core.Registry
             return statuses;
         }
 
-        protected override void WriteArtifactContentToCache(TemplateSpecModuleReference reference, TemplateSpecEntity entity) =>
-            this.GetModuleEntryPointFile(reference).Write(entity.Content);
+        protected override void WriteArtifactContentToCache(TemplateSpecModuleReference reference, TemplateSpecEntity entity) => reference.MainTemplateSpecFile.Write(entity.Content);
 
         protected override IDirectoryHandle GetArtifactDirectory(TemplateSpecModuleReference reference) => reference.ReferencingFile.Features.CacheRootDirectory.GetDirectory(
             $"{this.Scheme}/{reference.SubscriptionId}/{reference.ResourceGroupName}/{reference.TemplateSpecName}/{reference.Version}".ToLowerInvariant());
 
         protected override IFileHandle GetArtifactLockFile(TemplateSpecModuleReference reference) => this.GetArtifactDirectory(reference).GetFile("lock");
 
-        private IFileHandle GetModuleEntryPointFile(TemplateSpecModuleReference reference) => this.GetArtifactDirectory(reference).GetFile("main.json");
+        //private IFileHandle GetModuleEntryPointFile(TemplateSpecModuleReference reference) => this.GetArtifactDirectory(reference).GetFile("main.json");
 
         public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<TemplateSpecModuleReference> references)
         {
@@ -128,8 +113,5 @@ namespace Bicep.Core.Registry
 
             return Task.FromResult<string?>(null);
         }
-
-        public override Uri? TryGetExtensionBinary(TemplateSpecModuleReference reference)
-            => null;
     }
 }

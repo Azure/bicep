@@ -33,13 +33,13 @@ namespace Bicep.Core.SourceLink
     {
         private readonly SourceArchiveMetadata metadata;
 
-        private readonly ImmutableDictionary<string, string> fileEntries;
+        private readonly FrozenDictionary<string, string> fileEntries;
 
         public record SourceFileWithArtifactReference(
             ISourceFile SourceFile,
             ArtifactReference? SourceArtifact);
 
-        private SourceArchive(SourceArchiveMetadata metadata, ImmutableDictionary<string, string> fileEntries)
+        private SourceArchive(SourceArchiveMetadata metadata, FrozenDictionary<string, string> fileEntries)
         {
             this.metadata = metadata;
             this.fileEntries = fileEntries;
@@ -49,7 +49,7 @@ namespace Bicep.Core.SourceLink
 
         public int SourceFileCount => metadata.SourceFiles.Length;
 
-        public static ResultWithException<SourceArchive> TryUnpackFromFile(TgzFileHandle sourceTgzFile)
+        public static ResultWithException<SourceArchive> TryUnpackFromFile(IFileHandle sourceTgzFile)
         {
             if (!sourceTgzFile.Exists())
             {
@@ -58,7 +58,7 @@ namespace Bicep.Core.SourceLink
 
             try
             {
-                var fileEntries = sourceTgzFile.Extract();
+                var fileEntries = TgzFileExtractor.ExtractFromFileHandle(sourceTgzFile).ToFrozenDictionary(x => x.Key, x => x.Value.ToString());
                 var metadataJson = fileEntries.TryGetValue(MetadataFileName)
                     ?? throw new InvalidOperationException($"Incorrectly formatted source file: No {MetadataFileName} entry");
                 var metadata = JsonSerializer.Deserialize(metadataJson, SourceArchiveMetadataSerializationContext.Default.SourceArchiveMetadata)
@@ -74,7 +74,7 @@ namespace Bicep.Core.SourceLink
                     throw new InvalidOperationException($"This source code was published with a newer, incompatible version of Bicep ({metadata.BicepVersion}). You are using version {ThisAssembly.AssemblyVersion}. You need a newer version in order to view the module source.");
                 }
 
-                return new(new SourceArchive(metadata, fileEntries.ToImmutableDictionary()));
+                return new(new SourceArchive(metadata, fileEntries));
             }
             catch (Exception exception)
             {
@@ -115,11 +115,11 @@ namespace Bicep.Core.SourceLink
             {
                 if (artifact.Syntax is ModuleDeclarationSyntax &&
                     artifact.Reference is OciArtifactReference artifactReference &&
-                    artifact.Result.IsSuccess(out var uri) &&
+                    artifact.Result.IsSuccess(out var fileHandle) &&
                     // Only those that were published with source
                     artifactReference.TryLoadSourceArchive().IsSuccess())
                 {
-                    uriToArtifactReference[uri] = artifactReference;
+                    uriToArtifactReference[fileHandle.Uri.ToUri()] = artifactReference;
                 }
             }
 
@@ -216,7 +216,7 @@ namespace Bicep.Core.SourceLink
             // Create and add the metadata file
             var metadata = new SourceArchiveMetadata(CurrentMetadataVersion, CurrentBicepVersion, entryPointPath, [.. filesMetadata], pathBasedLinks);
 
-            return new SourceArchive(metadata, fileEntries.ToImmutableDictionary());
+            return new SourceArchive(metadata, fileEntries.ToFrozenDictionary());
         }
 
         public ImmutableArray<SourceCodeDocumentPathLink> FindDocumentLinks(string path) =>

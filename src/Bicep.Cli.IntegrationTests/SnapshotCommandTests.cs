@@ -137,6 +137,60 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
         snapshotFile.ShouldHaveExpectedJsonValue();
     }
 
+    [TestMethod]
+    public async Task Snapshot_command_injects_appropriate_metadata_for_scope()
+    {
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var bicepparamPath = FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicepparam",
+            """
+                using './main.bicep'
+
+                param rgName = 'myRg'
+                """,
+            testOutputPath: outputPath);
+
+        FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicep",
+            """
+                targetScope = 'subscription'
+
+                param rgName string
+
+                resource rg 'Microsoft.Resources/resourceGroups@2024-11-01' = {
+                  name: rgName
+                  location: deployment().location
+                }
+                """,
+            testOutputPath: outputPath);
+
+        var outputFilePath = FileHelper.GetResultFilePath(TestContext, "main.snapshot.json", testOutputPath: outputPath);
+
+        var subscriptionId = new Guid().ToString();
+
+        var result = await Bicep("snapshot", bicepparamPath, "--mode", "overwrite", "--subscription-id", subscriptionId, "--location", "westeurope");
+
+        result.Should().Succeed();
+
+        var snapshotContents = File.ReadAllText(outputFilePath).FromJson<JToken>();
+        snapshotContents.Should().DeepEqual(JObject.Parse("""
+            {
+              "predictedResources": [
+                {
+                  "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg",
+                  "type": "Microsoft.Resources/resourceGroups",
+                  "name": "myRg",
+                  "apiVersion": "2024-11-01",
+                  "location": "westeurope"
+                }
+              ],
+              "diagnostics": []
+            }
+            """));
+    }
+
     private static string ReplaceColorCodes(string input)
     {
         var namesByColor = new Dictionary<Color, string>

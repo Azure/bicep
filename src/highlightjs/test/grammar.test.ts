@@ -5,6 +5,7 @@ import { existsSync } from "fs";
 import { readFile, rm } from "fs/promises";
 import { spawnSync } from "child_process";
 import { expectFileContents } from "./utils";
+import { build } from 'esbuild';
 
 const root = `${__dirname}/..`;
 
@@ -12,20 +13,30 @@ const iifePath = `${root}/dist/bicep.min.js`;
 const esPath = `${root}/dist/bicep.es.min.js`;
 
 async function generateGrammar() {
-  spawnSync(`webpack`, {
-    cwd: root,
-    stdio: 'inherit',
-    encoding: 'utf8'
+  const iifeTempPath = `${__dirname}/out/bicep.min.js`;
+  const iifeHeader = '// https://github.com/Azure/bicep/blob/main/src/highlightjs/dist/bicep.min.js'
+  await build({
+    entryPoints: [`${root}/src/usage.ts`],
+    outfile: iifeTempPath,
+    minify: true,
+    bundle: true,
+    external: ['highlight.js'],
+  });
+
+  const esTempPath = `${__dirname}/out/bicep.es.min.js`;
+  const esHeader = '// https://github.com/Azure/bicep/blob/main/src/highlightjs/dist/bicep.es.min.js'
+  await build({
+    entryPoints: [`${root}/src/bicep.ts`],
+    outfile: esTempPath,
+    minify: true,
+    bundle: false,
   });
 
   return {
-    'bicep.min.js': await readFile(`${root}/out/bicep.min.js`, { encoding: 'utf8' }),
-    'bicep.es.min.js': await readFile(`${root}/out/bicep.es.min.js`, { encoding: 'utf8' }),
+    'bicep.min.js': `${iifeHeader}\n${await readFile(iifeTempPath, { encoding: 'utf8' })}`,
+    'bicep.es.min.js': `${esHeader}\n${await readFile(esTempPath, { encoding: 'utf8' })}`,
   };
 }
-
-// Invoking webpack can take some time
-const webpackTestTimeout = 60000
 
 describe('grammar tests', () => {
   it('should exist', () => {
@@ -34,9 +45,10 @@ describe('grammar tests', () => {
   });
 
   it('should be up-to-date', async () => {
-    const generatedGrammar = await generateGrammar();
 
-    await expectFileContents(iifePath, generatedGrammar['bicep.min.js']);
-    await expectFileContents(esPath, generatedGrammar['bicep.es.min.js']);
-  }, webpackTestTimeout);
+    const files = await generateGrammar();
+
+    await expectFileContents(iifePath, files['bicep.min.js']);
+    await expectFileContents(esPath, files['bicep.es.min.js']);
+  });
 });

@@ -13,6 +13,10 @@ using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.InMemory;
+using Bicep.TextFixtures.Assertions;
+using Bicep.TextFixtures.Utils;
+using Bicep.TextFixtures.Utils.IO;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -216,17 +220,10 @@ module modulea 'modulea.bicep' = {
   }
 }
 ";
+            var result = await new TestCompiler().RestoreAndCompileMockFileSystemFiles(mainFileContents);
 
-            var mockFileResolver = Repository.Create<IFileResolver>();
-            SetupFileReaderMock(mockFileResolver, mainFileUri, mainFileContents, null);
-            mockFileResolver.Setup(x => x.TryResolveFilePath(mainFileUri, "modulea.bicep")).Returns((Uri?)null);
-
-            var compiler = ServiceBuilder.Create(s => s.WithFileResolver(mockFileResolver.Object).WithDisabledAnalyzersConfiguration()).GetCompiler();
-            var compilation = await compiler.CreateCompilation(mainFileUri);
-
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
-            diagnosticsByFile[mainFileUri].Should().HaveDiagnostics(new[] {
-                ("BCP093", DiagnosticLevel.Error, "File path \"modulea.bicep\" could not be resolved relative to \"/path/to/main.bicep\"."),
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP091", DiagnosticLevel.Error, $"An error occurred reading file. Could not find file '{TestFileUri.FromMockFileSystemPath("modulea.bicep")}'."),
             });
         }
 
@@ -361,7 +358,6 @@ module modulea 'modulea.bicep' = {
             var mockFileResolver = Repository.Create<IFileResolver>();
             SetupFileReaderMock(mockFileResolver, mainUri, mainFileContents, null);
             SetupFileReaderMock(mockFileResolver, moduleAUri, null, x => x.ErrorOccurredReadingFile("Mock read failure!"));
-            mockFileResolver.Setup(x => x.TryResolveFilePath(mainUri, "modulea.bicep")).Returns(moduleAUri);
 
             var compiler = ServiceBuilder.Create(s => s.WithFileResolver(mockFileResolver.Object).WithDisabledAnalyzersConfiguration()).GetCompiler();
             var compilation = await compiler.CreateCompilation(mainUri);
