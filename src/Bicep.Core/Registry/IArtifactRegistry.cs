@@ -40,13 +40,6 @@ namespace Bicep.Core.Registry
         bool IsArtifactRestoreRequired(ArtifactReference reference);
 
         /// <summary>
-        /// Returns a URI to the entry point module.
-        /// </summary>
-        /// <param name="reference">The module reference</param>
-        /// <returns></returns>
-        ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference);
-
-        /// <summary>
         /// Returns true if the specified module exists in the registry.
         /// </summary>
         /// <param name="reference">The reference to the module.</param>
@@ -96,7 +89,5 @@ namespace Bicep.Core.Registry
         /// Returns description for a module.
         /// </summary>
         Task<string?> TryGetModuleDescription(ModuleSymbol module, ArtifactReference reference);
-
-        Uri? TryGetExtensionBinary(ArtifactReference reference);
     }
 }
