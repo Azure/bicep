@@ -1915,6 +1915,14 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic SecureOutputsNotSupportedWithLocalDeploy(string moduleName) => CoreError(
                 "BCP421",
                 $"""Module "{moduleName}" contains one or more secure outputs, which are not supported with "{LanguageConstants.TargetScopeKeyword}" set to "{LanguageConstants.TargetScopeTypeLocal}".""");
+
+            public Diagnostic InlineMustNotHaveValueAssigned() => CoreError(
+                "BCP422",
+                $"A parameter marked with the \"@{LanguageConstants.ParameterInlinePropertyName}\" decorator shouldn't have a value assigned.");
+
+            public Diagnostic MissingParameterValue(string identifier) => CoreError(
+                "BCP423",
+                $"Parameter {identifier} is declared but missing a value assignment.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
