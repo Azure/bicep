@@ -11,7 +11,7 @@ using Azure.Bicep.Types.Index;
 using Azure.Bicep.Types.Serialization;
 using Bicep.Local.Extension.Host.Attributes;
 
-namespace Bicep.Local.Extension.Host.TypeDefinition;
+namespace Bicep.Local.Extension.Host.TypeDefinitionBuilder;
 internal class TypeDefinitionBuilder
     : ITypeDefinitionBuilder
 {

@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Bicep.Local.Extension.Host.Attributes;
 
-namespace Bicep.Local.Extension.Host.TypeDefinition;
+namespace Bicep.Local.Extension.Host.TypeDefinitionBuilder;
 public class TypeProvider
     : ITypeProvider
 {
@@ -40,7 +40,7 @@ public class TypeProvider
             {
                 var bicepType = type.GetCustomAttributes(typeof(BicepTypeAttribute), true).FirstOrDefault();
 
-                if (bicepType is not null)
+                if (bicepType is not null && (type.IsPublic || type.IsNestedPublic))
                 {
                     return ((BicepTypeAttribute)bicepType).IsActive;
                 }
