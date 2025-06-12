@@ -34,6 +34,12 @@ public static class SourceCodeDocumentLinkHelper
         foreach (var grouping in sourceFileGrouping.ArtifactLookup.Values.GroupBy(x => x.ReferencingFile))
         {
             var referencingFile = grouping.Key;
+
+            if (referencingFile is not BicepFile)
+            {
+                continue;
+            }
+
             var referencingFileLineStarts = referencingFile.LineStarts;
             var linksForReferencingFile = new List<SourceCodeDocumentUriLink>();
 
@@ -41,7 +47,9 @@ public static class SourceCodeDocumentLinkHelper
             {
                 if (artifact.Syntax is { } syntax &&
                     syntax.Path is { } &&
-                    artifact.Result.IsSuccess(out var fileHandle))
+                    artifact.Result.IsSuccess(out var fileHandle) &&
+                    sourceFileGrouping.SourceFileLookup[fileHandle.Uri.ToUri()].IsSuccess(out var referencedFile) &&
+                    referencedFile is not TemplateSpecFile)
                 {
                     var start = new TextPosition(TextCoordinateConverter.GetPosition(referencingFileLineStarts, syntax.Path.Span.Position));
                     var end = new TextPosition(TextCoordinateConverter.GetPosition(referencingFileLineStarts, syntax.Path.Span.Position + syntax.Path.Span.Length));

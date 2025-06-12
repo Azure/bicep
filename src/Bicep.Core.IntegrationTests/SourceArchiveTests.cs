@@ -105,7 +105,7 @@ namespace Bicep.Core.IntegrationTests
 
             var file = sourceArchive.FindSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json");
             file.Metadata.ArtifactAddress.Should().BeNull();
-            file.Metadata.Kind.Should().Be(LinkedSourceFileKind.ArmTemplate);
+            file.Metadata.Kind.Should().Be(ArchivedSourceFileKind.ArmTemplate);
         }
 
         [TestMethod]
@@ -132,7 +132,7 @@ namespace Bicep.Core.IntegrationTests
 
             var file = sourceArchive.FindSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json");
             file.Metadata.ArtifactAddress?.ArtifactId.Should().Be("mockregistry.io/test/module1:v1");
-            file.Metadata.Kind.Should().Be(LinkedSourceFileKind.ArmTemplate);
+            file.Metadata.Kind.Should().Be(ArchivedSourceFileKind.ArmTemplate);
 
         }
 
