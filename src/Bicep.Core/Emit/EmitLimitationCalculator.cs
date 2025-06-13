@@ -18,7 +18,6 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
@@ -38,6 +37,7 @@ namespace Bicep.Core.Emit
             ForSyntaxValidatorVisitor.Validate(model, diagnostics);
             FunctionPlacementValidatorVisitor.Validate(model, diagnostics);
             IntegerValidatorVisitor.Validate(model, diagnostics);
+            ExtensionReferenceValidatorVisitor.Validate(model, diagnostics);
 
             DetectDuplicateNames(model, diagnostics, resourceScopeData, moduleScopeData);
             DetectIncorrectlyFormattedNames(model, diagnostics);
@@ -55,11 +55,13 @@ namespace Bicep.Core.Emit
             BlockNamesDistinguishedOnlyByCase(model, diagnostics);
             BlockResourceDerivedTypesThatDoNotDereferenceProperties(model, diagnostics);
             BlockSpreadInUnsupportedLocations(model, diagnostics);
+            BlockSecureOutputsWithLocalDeploy(model, diagnostics);
             BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
 
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
+            var extConfigAssignments = CalculateExtensionConfigAssignments(model, diagnostics);
 
-            return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments);
+            return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments, extConfigAssignments);
         }
 
         private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
@@ -117,7 +119,7 @@ namespace Bicep.Core.Emit
                 }
 
                 return
-                    // extensibility resources do not have an ARM ID
+                    // extension resources do not have an ARM ID
                     x?.IsAzResource is true &&
                     y?.IsAzResource is true &&
                     // ARM resource ID uniqueness is only enforced on resources with a `true` condition
@@ -150,17 +152,19 @@ namespace Bicep.Core.Emit
             }
 
             private ImmutableArray<IArmIdSegment> NameSegmentsFor(DeclaredResourceMetadata resource)
-                => model.ResourceAncestors.GetAncestors(resource)
-                    .Reverse()
-                    .SelectMany(r => r.IndexExpression switch
-                    {
-                        SyntaxBase idx when model.GetTypeInfo(idx) is IntegerLiteralType literalIndex
-                            => new[] { NameSegmentFor(r.Resource), new LiteralIdSegment(literalIndex.Value.ToString()) },
-                        SyntaxBase idx => new[] { NameSegmentFor(r.Resource), new NonLiteralIdSegment(idx) },
-                        _ => NameSegmentFor(r.Resource).AsEnumerable(),
-                    })
-                    .Append(NameSegmentFor(resource))
-                    .ToImmutableArray();
+                =>
+                [
+                    .. model.ResourceAncestors.GetAncestors(resource)
+                            .Reverse()
+                            .SelectMany(r => r.IndexExpression switch
+                            {
+                                SyntaxBase idx when model.GetTypeInfo(idx) is IntegerLiteralType literalIndex
+                                    => new[] { NameSegmentFor(r.Resource), new LiteralIdSegment(literalIndex.Value.ToString()) },
+                                SyntaxBase idx => new[] { NameSegmentFor(r.Resource), new NonLiteralIdSegment(idx) },
+                                _ => NameSegmentFor(r.Resource).AsEnumerable(),
+                            }),
+                    NameSegmentFor(resource),
+                ];
 
             private IArmIdSegment NameSegmentFor(DeclaredResourceMetadata resource)
                 => IArmIdSegment.For(resource.TryGetNameSyntax(), model) switch
@@ -689,6 +693,116 @@ namespace Bicep.Core.Emit
             return generated.ToImmutableDictionary();
         }
 
+        private static ImmutableDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>> CalculateExtensionConfigAssignments(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            if (model.Root.ExtensionConfigAssignments.IsEmpty ||
+                model.HasParsingErrors())
+            {
+                return ImmutableDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>>.Empty;
+            }
+
+            var referencesInValues = model.Binder.Bindings.Values.OfType<DeclaredSymbol>()
+                .Distinct()
+                .ToImmutableDictionary(p => p, p => SymbolicReferenceCollector.CollectSymbolsReferenced(model.Binder, p.DeclaringSyntax));
+
+            var generated = ImmutableDictionary.CreateBuilder<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>>();
+
+            var extendsDeclarations = model.SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>();
+
+            foreach (var extendsDeclaration in extendsDeclarations)
+            {
+                var result = extendsDeclaration.TryGetReferencedModel(model.SourceFileGrouping, model.ModelLookup, b => b.ExtendsPathHasNotBeenSpecified());
+
+                if (result.IsSuccess(out var extendedModel, out var failure))
+                {
+                    if (extendedModel is not SemanticModel extendedSemanticModel)
+                    {
+                        throw new UnreachableException("We have already verified this is a .bicepparam file");
+                    }
+
+                    generated.AddRange(extendedSemanticModel.EmitLimitationInfo.ExtensionConfigAssignments);
+                }
+                else
+                {
+                    diagnostics.Write(failure);
+                }
+            }
+
+            var evaluator = new ParameterAssignmentEvaluator(model);
+            HashSet<Symbol> erroredSymbols = new();
+
+            foreach (var symbol in GetTopologicallySortedSymbols(referencesInValues))
+            {
+                if (symbol.Type is ErrorType)
+                {
+                    // no point evaluating if we're already reporting an error
+                    erroredSymbols.Add(symbol);
+
+                    continue;
+                }
+
+                var referencedValueHasError = false;
+
+                foreach (var referenced in referencesInValues[symbol])
+                {
+                    if (erroredSymbols.Contains(referenced.Key))
+                    {
+                        referencedValueHasError = true;
+                    }
+                    else if (referenced.Key is ExtensionConfigAssignmentSymbol referencedExtConfigAsgmt)
+                    {
+                        foreach (var configPropertyName in generated[referencedExtConfigAsgmt].Keys)
+                        {
+                            var configValue = generated[referencedExtConfigAsgmt][configPropertyName];
+
+                            if (configValue.KeyVaultReferenceExpression is not null)
+                            {
+                                diagnostics.WriteMultiple(referenced.Value.Select(syntax => DiagnosticBuilder.ForPosition(syntax).ParameterReferencesKeyVaultSuppliedParameter(referencedExtConfigAsgmt.Name)));
+                                referencedValueHasError = true;
+                            }
+
+                            if (configValue.Value is JToken evaluated && evaluated.Type == JTokenType.Null)
+                            {
+                                diagnostics.WriteMultiple(referenced.Value.Select(syntax => DiagnosticBuilder.ForPosition(syntax).ParameterReferencesDefaultedParameter(referencedExtConfigAsgmt.Name)));
+                                referencedValueHasError = true;
+                            }
+                        }
+                    }
+                }
+
+                if (referencedValueHasError)
+                {
+                    erroredSymbols.Add(symbol);
+
+                    continue;
+                }
+
+                if (symbol is not ExtensionConfigAssignmentSymbol extConfigAssignment)
+                {
+                    continue;
+                }
+
+                var assignmentProperties = ImmutableDictionary.CreateBuilder<string, ExtensionConfigAssignmentValue>();
+
+                foreach (var (propertyName, result) in evaluator.EvaluateExtensionConfigAssignment(extConfigAssignment))
+                {
+                    if (result.Diagnostic is { })
+                    {
+                        diagnostics.Write(result.Diagnostic);
+                    }
+
+                    if (result.Value is not null || result.KeyVaultReference is not null)
+                    {
+                        assignmentProperties.Add(propertyName, new(result.Value, result.KeyVaultReference));
+                    }
+                }
+
+                generated[extConfigAssignment] = assignmentProperties.ToImmutableDictionary();
+            }
+
+            return generated.ToImmutableDictionary();
+        }
+
         private static IEnumerable<DeclaredSymbol> GetTopologicallySortedSymbols(ImmutableDictionary<DeclaredSymbol, ImmutableDictionary<DeclaredSymbol, ImmutableSortedSet<SyntaxBase>>> referencesInValues)
         {
             HashSet<DeclaredSymbol> processed = new();
@@ -757,10 +871,11 @@ namespace Bicep.Core.Emit
             foreach (var (symbolTypePluralName, symbolsOfType) in new (string, IEnumerable<DeclaredSymbol>)[]
             {
                 ("parameters", model.Root.ParameterDeclarations),
-                ("variables", model.Root.VariableDeclarations),
+                ("variables", model.Root.VariableDeclarations.Concat<DeclaredSymbol>(model.Root.ImportedVariables)),
                 ("outputs", model.Root.OutputDeclarations),
-                ("types", model.Root.TypeDeclarations),
+                ("types", model.Root.TypeDeclarations.Concat<DeclaredSymbol>(model.Root.ImportedTypes)),
                 ("asserts", model.Root.AssertDeclarations),
+                ("functions", model.Root.FunctionDeclarations.Concat<DeclaredSymbol>(model.Root.ImportedFunctions))
             })
             {
                 BlockCaseInsensitiveNameClashes(symbolTypePluralName, symbolsOfType, s => s.Name, s => s.NameSource, diagnostics);
@@ -857,6 +972,23 @@ namespace Bicep.Core.Emit
                 if (parentObject.Properties.Any(x => x.Value is ForSyntax))
                 {
                     diagnostics.Write(spread, x => x.SpreadOperatorCannotBeUsedWithForLoop(spread));
+                }
+            }
+        }
+
+        private static void BlockSecureOutputsWithLocalDeploy(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            if (model.TargetScope != ResourceScope.Local)
+            {
+                return;
+            }
+
+            foreach (var module in model.Root.ModuleDeclarations)
+            {
+                if (module.TryGetSemanticModel().TryUnwrap() is { } moduleModel &&
+                    moduleModel.Outputs.Any(output => output.IsSecure))
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(module.NameSource).SecureOutputsNotSupportedWithLocalDeploy(module.Name));
                 }
             }
         }

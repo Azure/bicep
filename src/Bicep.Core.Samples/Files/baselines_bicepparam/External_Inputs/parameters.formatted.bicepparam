@@ -44,3 +44,9 @@ param myParam = sys.externalInput('sys.cli', 'myParam')
 
 // check sanitized externaInputDefinition
 param coolParam = externalInput('sys&sons.cool#param provider')
+
+param objectBody = {
+  foo: externalInput('custom.binding', 'foo')
+  bar: externalInput('custom.binding', 'bar')
+  baz: 'blah'
+}

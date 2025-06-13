@@ -439,7 +439,7 @@ namespace Bicep.Core.UnitTests.Configuration
             var defaultLevelInSchema = GetRuleDefaultLevel(ruleSchema);
 
             defaultLevelInSchema.Should().Be(defaultLevelInRuleDefinition,
-                $"the default diagnostic level of a rule's config schema should match that defined in the rule's class definition (make sure rule {id} #/definitions/rule-def-level-xxx reference is correct)");
+                $"the default diagnostic level of a rule's config schema should match that defined in the rule's class definition (make sure rule {id}'s #/definitions/rule-def-level-xxx reference is correct)");
         }
 
         [TestMethod]

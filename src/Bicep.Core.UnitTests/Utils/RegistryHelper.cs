@@ -22,6 +22,7 @@ using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.IO.FileSystem;
 using FluentAssertions;
+using Google.Protobuf;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using static Bicep.Core.UnitTests.Registry.FakeContainerRegistryClient;
@@ -201,9 +202,16 @@ public static class RegistryHelper
     }
 
     public static async Task PublishExtensionToRegistryAsync(IDependencyHelper services, string target, BinaryData tgzData, Uri? bicepFileUri = null)
-    {
-        var dispatcher = services.Construct<IModuleDispatcher>();
+        => await PublishExtensionToRegistryAsync(services, target, new ExtensionPackage(tgzData, false, []), bicepFileUri);
 
+    public static Task PublishExtensionToRegistryAsync(IDependencyHelper services, string target, ExtensionPackage package, Uri? bicepFileUri = null)
+        => PublishExtensionToRegistryAsync(services.Construct<IModuleDispatcher>(), services.Construct<ISourceFileFactory>(), target, package, bicepFileUri);
+
+    public static Task PublishExtensionToRegistryAsync(IServiceProvider services, string target, ExtensionPackage package, Uri? bicepFileUri = null)
+        => PublishExtensionToRegistryAsync(services.GetRequiredService<IModuleDispatcher>(), services.GetRequiredService<ISourceFileFactory>(), target, package, bicepFileUri);
+
+    private static async Task PublishExtensionToRegistryAsync(IModuleDispatcher dispatcher, ISourceFileFactory sourceFileFactory, string target, ExtensionPackage package, Uri? bicepFileUri = null)
+    {
         if (!target.StartsWith("br:"))
         {
             // convert to a relative path, as this is the only format supported for the local filesystem
@@ -211,7 +219,6 @@ public static class RegistryHelper
             target = Path.GetFileName(targetUri.LocalPath);
         }
 
-        var sourceFileFactory = services.Construct<ISourceFileFactory>();
         var bicepFile = bicepFileUri is not null ? sourceFileFactory.CreateBicepFile(bicepFileUri, "") : BicepTestConstants.DummyBicepFile;
 
         if (!dispatcher.TryGetArtifactReference(bicepFile, ArtifactType.Extension, target).IsSuccess(out var targetReference, out var errorBuilder))
@@ -219,7 +226,7 @@ public static class RegistryHelper
             throw new InvalidOperationException($"Failed to get reference '{errorBuilder(DiagnosticBuilder.ForDocumentStart()).Message}'.");
         }
 
-        await dispatcher.PublishExtension(targetReference, new(tgzData, false, []));
+        await dispatcher.PublishExtension(targetReference, package);
     }
 
     private static List<RepoTagDescriptor> ToTagDescriptors(IEnumerable<string> tags)

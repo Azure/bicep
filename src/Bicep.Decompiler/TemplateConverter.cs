@@ -10,6 +10,7 @@ using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Expression.Extensions;
 using Azure.Deployments.Templates.Expressions;
 using Bicep.Core;
+using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.SourceGraph;
@@ -88,7 +89,7 @@ namespace Bicep.Decompiler
             return instance.ParseJToken(jToken);
         }
 
-        private void RegisterNames(IEnumerable<JProperty> parameters, IEnumerable<JToken> resources, IEnumerable<JProperty> variables, IEnumerable<JProperty> outputs)
+        private void RegisterNames(IEnumerable<JProperty> parameters, IEnumerable<JToken> resources, IEnumerable<JProperty> variables, IEnumerable<JProperty> outputs, IEnumerable<JToken> functions)
         {
             // Register names in order: parameters, outputs, resources, variables to deal with naming clashes.
             // This avoids renaming 'external' template symbolic names (params & outputs) where possible,
@@ -116,6 +117,15 @@ namespace Bicep.Decompiler
                 if (nameResolver.TryRequestResourceName(typeString, ExpressionHelpers.ParseExpression(nameString)) == null)
                 {
                     throw new ConversionFailedException($"Unable to pick unique name for resource {typeString} {nameString}", resource);
+                }
+            }
+
+            foreach (var (@namespace, name, function) in GetFunctions(functions))
+            {
+                var functionName = GetBicepFunctionName(@namespace, name);
+                if (nameResolver.TryRequestName(NameType.Function, functionName) == null)
+                {
+                    throw new ConversionFailedException($"Unable to pick unique name for function {name}", function);
                 }
             }
 
@@ -156,7 +166,7 @@ namespace Bicep.Decompiler
 
             return new FunctionExpression(
                 functionExpression.Function,
-                inlinedParameters.ToArray(),
+                [.. inlinedParameters],
                 functionExpression.Properties);
         }
 
@@ -656,6 +666,14 @@ namespace Bicep.Decompiler
 
                 var expressions = expression.Parameters.Select(ParseLanguageExpression).ToArray();
 
+                if (expression.Function.Split('.') is { } funcNameArr &&
+                    funcNameArr.Length == 2 &&
+                    nameResolver.TryLookupName(NameType.Function, GetBicepFunctionName(funcNameArr[0], funcNameArr[1])) is { } resolvedUdfName)
+                {
+                    // This is a reference to a user-defined function
+                    return SyntaxFactory.CreateFunctionCall(resolvedUdfName, expressions);
+                }
+
                 baseSyntax = SyntaxFactory.CreateFunctionCall(functionName, expressions);
             }
 
@@ -978,6 +996,35 @@ namespace Bicep.Decompiler
                 modifier);
         }
 
+        private FunctionDeclarationSyntax ParseFunctionDeclaration(string @namespace, string name, JObject body)
+        {
+            var parameters = TemplateHelpers.AssertRequiredProperty(body, "parameters");
+            var output = TemplateHelpers.AssertRequiredProperty(body, "output");
+
+            var parametersArray = TemplateHelpers.AssertArray(parameters);
+            var outputObj = TemplateHelpers.AssertObject(output);
+
+            var parameterData = new List<(string Name, SyntaxBase Type)>();
+            foreach (var parameter in parametersArray)
+            {
+                var parameterObj = TemplateHelpers.AssertObject(parameter);
+                var parameterName = TemplateHelpers.AssertRequiredProperty(parameterObj, "name");
+                var parameterType = TemplateHelpers.AssertRequiredProperty(parameterObj, "type");
+
+                parameterData.Add((
+                    TemplateHelpers.AssertString(parameterName),
+                    TryParseType(parameterType) ?? throw new ConversionFailedException($"Unable to locate 'type' for parameter '{parameterName}'", parameterObj)));
+            }
+
+            var outputType = TryParseType(TemplateHelpers.AssertRequiredProperty(outputObj, "type")) ?? throw new ConversionFailedException($"Unable to locate 'type' for function '{name}'", body);
+            var outputBody = PerformScopedAction(
+                () => ParseJToken(TemplateHelpers.AssertRequiredProperty(outputObj, "value")),
+                [],
+                parameterData.Select(x => x.Name));
+
+            return SyntaxFactory.CreateFunctionDeclaration(GetBicepFunctionName(@namespace, name), parameterData, outputType, outputBody);
+        }
+
         private VariableDeclarationSyntax ParseVariable(string name, JToken value, bool isCopyVariable)
         {
             var identifier = nameResolver.TryLookupName(NameType.Variable, name) ?? throw new ConversionFailedException($"Unable to find variable {name}", value);
@@ -1124,7 +1171,7 @@ namespace Bicep.Decompiler
                 });
 
                 return SyntaxFactory.CreateRangedForSyntax(indexIdentifier, ParseJToken(count), getSyntaxForInputFunc(input));
-            }, new[] { indexIdentifier });
+            }, new[] { indexIdentifier }, Array.Empty<string>());
         }
 
         private (SyntaxBase body, IEnumerable<SyntaxBase> decorators) ProcessResourceCopy(JObject resource, Func<JObject, SyntaxBase> resourceBodyFunc)
@@ -1792,16 +1839,29 @@ namespace Bicep.Decompiler
             }
         }
 
+        public static IEnumerable<(string @namespace, string name, JObject declaration)> GetFunctions(IEnumerable<JToken> functionsBlock)
+        {
+            foreach (var ns in functionsBlock)
+            {
+                var nsObject = TemplateHelpers.AssertObject(ns);
+                var nsName = TemplateHelpers.AssertString(TemplateHelpers.AssertRequiredProperty(nsObject, "namespace"));
+                var members = TemplateHelpers.AssertRequiredProperty(nsObject, "members");
+
+                var membersObject = TemplateHelpers.AssertObject(members);
+
+                foreach (var property in membersObject.Properties())
+                {
+                    var functionName = property.Name;
+                    var functionObject = TemplateHelpers.AssertObject(property.Value);
+
+                    yield return (nsName, functionName, functionObject);
+                }
+            }
+        }
+
         private ProgramSyntax Parse()
         {
             var statements = new List<SyntaxBase>();
-
-            var functions = TemplateHelpers.GetProperty(template, "functions")?.Value as JArray;
-            if (functions?.Any() == true)
-            {
-                var fixupToken = SyntaxHelpers.CreatePlaceholderToken(TokenType.Unrecognized, "TODO: User defined functions are not supported and have not been decompiled");
-                statements.Add(fixupToken);
-            }
 
             var targetScope = ParseTargetScope(template);
             if (targetScope != null)
@@ -1819,11 +1879,12 @@ namespace Bicep.Decompiler
             var resources = TemplateHelpers.GetProperty(template, "resources")?.Value as JArray ?? new JArray();
             var variables = (TemplateHelpers.GetProperty(template, "variables")?.Value as JObject ?? new JObject()).Properties();
             var outputs = (TemplateHelpers.GetProperty(template, "outputs")?.Value as JObject ?? new JObject()).Properties();
+            var functions = TemplateHelpers.GetProperty(template, "functions")?.Value as JArray ?? new JArray();
 
             // FlattenAndNormalizeResource has side effects, so use .ToArray() to force single enumeration
             var flattenedResources = resources.SelectMany(TemplateHelpers.FlattenAndNormalizeResource).ToArray();
 
-            RegisterNames(parameters, flattenedResources, variables, outputs);
+            RegisterNames(parameters, flattenedResources, variables, outputs, functions);
 
             var copyResourceLookup = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             foreach (var resource in resources.OfType<JObject>())
@@ -1850,6 +1911,7 @@ namespace Bicep.Decompiler
 
             // We are ignoring _generator metadata since it is generated by bicep build
             AddSyntaxBlock(statements, metadata.Where(x => !x.Name.StartsWith('_')).Select(ParseMetadata), false);
+            AddSyntaxBlock(statements, GetFunctions(functions).Select(x => ParseFunctionDeclaration(x.@namespace, x.name, x.declaration)), true);
             AddSyntaxBlock(statements, parameters.Select(ParseParam), false);
             AddSyntaxBlock(statements, GetVariables(variables).Select(x => ParseVariable(x.name, x.value, x.isCopyVariable)), false);
             AddSyntaxBlock(statements, flattenedResources.Select(resource => ParseResource(evalContext, copyResourceLookup, resource)), true);
@@ -1860,13 +1922,13 @@ namespace Bicep.Decompiler
                 SyntaxFactory.EndOfFileToken);
         }
 
-        private T PerformScopedAction<T>(Func<T> action, IEnumerable<string> scopeVariables)
+        private T PerformScopedAction<T>(Func<T> action, IEnumerable<string> scopeVariables, IEnumerable<string> scopeParameters)
         {
             var prevNameResolver = nameResolver;
 
             try
             {
-                nameResolver = new ScopedNamingResolver(prevNameResolver, scopeVariables);
+                nameResolver = new ScopedNamingResolver(prevNameResolver, scopeVariables, scopeParameters);
 
                 return action();
             }
@@ -1874,6 +1936,18 @@ namespace Bicep.Decompiler
             {
                 nameResolver = prevNameResolver;
             }
+        }
+
+        private static string GetBicepFunctionName(string @namespace, string name)
+        {
+            if (@namespace == EmitConstants.UserDefinedFunctionsNamespace)
+            {
+                // although we don't want to encourage decompilation of Bicep-generated templates, it doesn't
+                // hurt to special-case Bicep-emitted output, where we use the namespace '__bicep'.
+                return name;
+            }
+
+            return $"{@namespace}_{name}";
         }
     }
 }

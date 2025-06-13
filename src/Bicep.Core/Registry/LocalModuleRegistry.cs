@@ -23,11 +23,6 @@ namespace Bicep.Core.Registry
 
     public class LocalModuleRegistry : ExternalArtifactRegistry<LocalModuleReference, LocalModuleEntity>
     {
-        public LocalModuleRegistry(IFileResolver fileResolver)
-            : base(fileResolver)
-        {
-        }
-
         public override string Scheme => ArtifactReferenceSchemes.Local;
 
         public override RegistryCapabilities GetCapabilities(ArtifactType artifactType, LocalModuleReference reference)
@@ -53,27 +48,6 @@ namespace Bicep.Core.Registry
             return new(@ref);
         }
 
-
-        public override ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(LocalModuleReference reference)
-        {
-            var localUri = FileResolver.TryResolveFilePath(reference.ReferencingFile.Uri, reference.Path);
-            if (localUri is null)
-            {
-                return new(x => x.FilePathCouldNotBeResolved(reference.Path, reference.ReferencingFile.FileHandle.Uri));
-            }
-
-            if (reference.ArtifactType == ArtifactType.Extension)
-            {
-                if (this.TryGetTypesTgzFile(reference) is not { } tgzFile)
-                {
-                    return new(x => x.FilePathCouldNotBeResolved(reference.Path, reference.ReferencingFile.FileHandle.Uri));
-                }
-
-                return new(tgzFile.Uri.ToUri());
-            }
-
-            return new(localUri);
-        }
 
         public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<LocalModuleReference> references)
         {
@@ -133,8 +107,6 @@ namespace Bicep.Core.Registry
             return Task.FromResult<string?>(null);
         }
 
-        public override Uri? TryGetExtensionBinary(LocalModuleReference reference) => GetExtensionBinaryFile(reference).Uri.ToUri();
-
         protected override void WriteArtifactContentToCache(LocalModuleReference reference, LocalModuleEntity entity)
         {
             if (entity.Package.LocalDeployEnabled)
@@ -190,8 +162,6 @@ namespace Bicep.Core.Registry
         }
 
         private IFileHandle GetTypesTgzFile(LocalModuleReference reference) => this.GetFile(reference, "types.tgz");
-
-        private IFileHandle? TryGetTypesTgzFile(LocalModuleReference reference) => this.TryGetFile(reference, "types.tgz");
 
         private IFileHandle GetExtensionBinaryFile(LocalModuleReference reference) => this.GetFile(reference, "extension.bin");
 

@@ -9,6 +9,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
+using Bicep.Core.Utils;
 using Bicep.LanguageServer.CompilationManager;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -18,12 +19,11 @@ namespace Bicep.LanguageServer.Handlers
 {
     // This handler is used to force the modules restore for given a bicep file.
     // It returns Restore (force) succeeded/failed message, which can be displayed appropriately in IDE output window
-    public class BicepForceModulesRestoreCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
+    public class BicepForceModulesRestoreCommandHandler : ExecuteTypedResponseCommandHandlerBase<DocumentUri, string>
     {
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly ICompilationManager compilationManager;
-        private readonly IConfigurationManager configurationManager;
         private readonly IWorkspace workspace;
         private readonly ISourceFileFactory sourceFileFactory;
 
@@ -31,7 +31,6 @@ namespace Bicep.LanguageServer.Handlers
             ISerializer serializer,
             IFileResolver fileResolver,
             IModuleDispatcher moduleDispatcher,
-            IConfigurationManager configurationManager,
             ICompilationManager compilationManager,
             IWorkspace workspace,
             ISourceFileFactory sourceFileFactory)
@@ -39,23 +38,14 @@ namespace Bicep.LanguageServer.Handlers
         {
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
-            this.configurationManager = configurationManager;
             this.compilationManager = compilationManager;
             this.workspace = workspace;
             this.sourceFileFactory = sourceFileFactory;
         }
 
-        public override Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
+        public override Task<string> Handle(DocumentUri documentUri, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(bicepFilePath))
-            {
-                throw new ArgumentException("Invalid input file path");
-            }
-
-            DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            Task<string> restoreOutput = ForceModulesRestoreAndGenerateOutputMessage(documentUri);
-
-            return restoreOutput;
+            return ForceModulesRestoreAndGenerateOutputMessage(documentUri);
         }
 
         private async Task<string> ForceModulesRestoreAndGenerateOutputMessage(DocumentUri documentUri)
@@ -90,11 +80,11 @@ namespace Bicep.LanguageServer.Handlers
             foreach (var module in artifactReferencesToRestore)
             {
                 var restoreStatus = this.moduleDispatcher.GetArtifactRestoreStatus(module, out _);
-                sbRestoreSummary.Append($"{Environment.NewLine}  * {module.FullyQualifiedReference}: {restoreStatus}");
+                sbRestoreSummary.Append($"{System.Environment.NewLine}  * {module.FullyQualifiedReference}: {restoreStatus}");
             }
 
             // refresh all compilations with a reference to this file or cached artifacts
-            var artifactUris = artifactsToRestore.Select(x => x.Result.TryUnwrap()).WhereNotNull();
+            var artifactUris = artifactsToRestore.Select(x => x.Result.Transform(x => x.Uri.ToUri()).TryUnwrap()).WhereNotNull();
             compilationManager.RefreshChangedFiles(artifactUris.Concat(documentUri.ToUriEncoded()));
             return $"Restore (force) summary: {sbRestoreSummary}";
         }

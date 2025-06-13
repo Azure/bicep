@@ -1655,7 +1655,7 @@ public class CompileTimeImportTests
     }
 
     [TestMethod]
-    public void Importing_types_is_blocked_in_bicepparam_files()
+    public void Importing_types_is_permitted_in_bicepparam_files()
     {
         var result = CompilationHelper.CompileParams(
             ("parameters.bicepparam", """
@@ -1669,10 +1669,7 @@ public class CompileTimeImportTests
                 type foo = string
                 """));
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
-            ("BCP376", DiagnosticLevel.Error, "The \"foo\" symbol cannot be imported because imports of kind Type are not supported in files of kind ParamsFile."),
-        });
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
     // https://github.com/Azure/bicep/issues/12042
@@ -1986,7 +1983,10 @@ public class CompileTimeImportTests
                 type str = string
                 """));
 
-        result.Diagnostics.Should().BeEmpty();
+        result.Diagnostics.Should().HaveDiagnostics(new[]
+        {
+            ("no-unused-imports", DiagnosticLevel.Warning, """Import "types" is declared but never used.""")
+        });
         result.Template.Should().NotBeNull();
         result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
     }
@@ -2027,7 +2027,10 @@ INVALID FILE
                 func b() string[] => ['c', 'd']
                 """));
 
-        result.Diagnostics.Should().BeEmpty();
+        result.Diagnostics.Should().HaveDiagnostics(new[]
+        {
+            ("no-unused-imports", DiagnosticLevel.Warning, """Import "a" is declared but never used.""")
+        });
         result.Template.Should().NotBeNull();
         result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
     }
@@ -2158,7 +2161,10 @@ INVALID FILE
                 var test = 'test'
                 """));
 
-        result.Diagnostics.Should().BeEmpty();
+        result.Diagnostics.Should().HaveDiagnostics(new[]
+        {
+            ("no-unused-imports", DiagnosticLevel.Warning, """Import "vars" is declared but never used.""")
+        });
         result.Template.Should().NotBeNull();
         result.Template.Should().HaveValueAtPath("variables.copy[?(@.name == '_1.domainControllerIPs')].input", "[cidrHost(variables('_1.identityPrefix'), add(3, range(0, 2)[copyIndex('_1.domainControllerIPs')]))]");
     }

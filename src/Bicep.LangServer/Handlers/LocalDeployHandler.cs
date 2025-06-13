@@ -10,6 +10,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
+using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.Local.Deploy;
 using Bicep.Local.Deploy.Extensibility;
@@ -46,28 +47,16 @@ public record LocalDeployResponse(
     LocalDeploymentContent Deployment,
     ImmutableArray<LocalDeploymentOperationContent> Operations);
 
-public class LocalDeployHandler : IJsonRpcRequestHandler<LocalDeployRequest, LocalDeployResponse>
+public class LocalDeployHandler(
+    ICompilationManager compilationManager,
+    LocalExtensionDispatcherFactory dispatcherFactory,
+    ILanguageServerFacade server) : IJsonRpcRequestHandler<LocalDeployRequest, LocalDeployResponse>
 {
-    private readonly IModuleDispatcher moduleDispatcher;
-    private readonly IConfigurationManager configurationManager;
-    private readonly ITokenCredentialFactory credentialFactory;
-    private readonly ICompilationManager compilationManager;
-    private readonly ILanguageServerFacade server;
-
-    public LocalDeployHandler(IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, ITokenCredentialFactory credentialFactory, ICompilationManager compilationManager, ILanguageServerFacade server)
-    {
-        this.moduleDispatcher = moduleDispatcher;
-        this.configurationManager = configurationManager;
-        this.credentialFactory = credentialFactory;
-        this.compilationManager = compilationManager;
-        this.server = server;
-    }
-
     public async Task<LocalDeployResponse> Handle(LocalDeployRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            if (this.compilationManager.GetCompilation(request.TextDocument.Uri) is not { } context)
+            if (compilationManager.GetCompilation(request.TextDocument.Uri) is not { } context)
             {
                 throw new InvalidOperationException("Failed to find active compilation.");
             }
@@ -87,7 +76,7 @@ public class LocalDeployHandler : IJsonRpcRequestHandler<LocalDeployRequest, Loc
                 throw new InvalidOperationException("Bicep file had errors.");
             }
 
-            await using LocalExtensibilityHostManager extensibilityHandler = new(moduleDispatcher, configurationManager, credentialFactory, GrpcBuiltInLocalExtension.Start);
+            await using var extensibilityHandler = dispatcherFactory.Create();
             await extensibilityHandler.InitializeExtensions(context.Compilation);
             var result = await extensibilityHandler.Deploy(templateString, parametersString, cancellationToken);
 

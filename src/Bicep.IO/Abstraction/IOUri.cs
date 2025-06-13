@@ -124,7 +124,7 @@ namespace Bicep.IO.Abstraction
             return this.Authority is null ? $"{Scheme}:{escapedPath}" : $"{Scheme}://{Authority}{escapedPath}";
         }
 
-        // TODO: Remove after file abstractio migration is complete.
+        // TODO: Remove after file abstraction migration is complete.
         public Uri ToUri() => new UriBuilder { Scheme = this.Scheme, Host = "", Path = Path.Replace("%", "%25") }.Uri;
 
         public static bool operator ==(IOUri left, IOUri right) => left.Equals(right);
@@ -135,7 +135,7 @@ namespace Bicep.IO.Abstraction
         {
             var hash = new HashCode();
 
-            // Scheme and Authority are case-insenstive.
+            // Scheme and Authority are case-insensitive.
             hash.Add(this.Scheme);
             hash.Add(this.Authority, StringComparer.OrdinalIgnoreCase);
             hash.Add(this.Path, this.PathComparer);

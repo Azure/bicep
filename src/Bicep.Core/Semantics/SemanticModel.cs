@@ -92,7 +92,7 @@ namespace Bicep.Core.Semantics
             LinterAnalyzer = linterAnalyzer;
 
             this.allResourcesLazy = new(GetAllResourceMetadata);
-            this.declaredResourcesLazy = new(() => this.AllResources.OfType<DeclaredResourceMetadata>().ToImmutableArray());
+            this.declaredResourcesLazy = new(() => [.. this.AllResources.OfType<DeclaredResourceMetadata>()]);
 
             this.assignmentsByDeclaration = new(InitializeDeclarationToAssignmentDictionary);
             this.declarationsByAssignment = new(InitializeAssignmentToDeclarationDictionary);
@@ -169,7 +169,7 @@ namespace Bicep.Core.Semantics
         private IEnumerable<ExportMetadata> FindExportedFunctions() => Root.FunctionDeclarations
             .Where(f => f.IsExported(this))
             .Select(f => new ExportedFunctionMetadata(f.Name,
-                f.Overload.FixedParameters.Select(p => new ExportedFunctionParameterMetadata(p.Name, p.Type, p.Description)).ToImmutableArray(),
+                [.. f.Overload.FixedParameters.Select(p => new ExportedFunctionParameterMetadata(p.Name, p.Type, p.Description))],
                 new(f.Overload.TypeSignatureSymbol, null),
                 DescriptionHelper.TryGetFromDecorator(this, f.DeclaringFunction)));
 
@@ -421,7 +421,12 @@ namespace Bicep.Core.Semantics
         /// </summary>
         public FileSymbol Root => this.Binder.FileSymbol;
 
-        public ResourceScope TargetScope => this.Binder.TargetScope;
+        public ResourceScope TargetScope => SourceFileKind switch
+        {
+            BicepSourceFileKind.ParamsFile when TryGetSemanticModelForParamsFile() is { } templateModel
+                => templateModel.TargetScope,
+            _ => this.Binder.TargetScope,
+        };
 
         public ParameterMetadata? TryGetParameterMetadata(ParameterAssignmentSymbol parameterAssignmentSymbol) =>
             this.declarationsByAssignment.Value.TryGetValue(parameterAssignmentSymbol, out var parameterMetadata) ? parameterMetadata : null;
@@ -461,11 +466,6 @@ namespace Bicep.Core.Semantics
 
         private ImmutableSortedDictionary<string, ExtensionMetadata> FindExtensions()
         {
-            if (!SourceFile.Features.ExtensibilityEnabled)
-            {
-                return ImmutableSortedDictionary<string, ExtensionMetadata>.Empty;
-            }
-
             var extensions = ImmutableSortedDictionary.CreateBuilder<string, ExtensionMetadata>();
 
             foreach (var extDecl in this.Root.ExtensionDeclarations.DistinctBy(p => p.Name))

@@ -1,20 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO.Abstractions.TestingHelpers;
 using Azure;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Registry;
-using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
-using FluentAssertions;
-using FluentAssertions.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
@@ -24,46 +18,9 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class MsGraphTypesViaRegistryTests : TestBase
     {
-        private const string versionV10 = "1.2.3";
-        private const string versionBeta = "1.2.3-beta";
-        private static readonly string EmptyIndexJsonBeta = $$"""
-{
-  "resources": {},
-  "resourceFunctions": {},
-  "settings": {
-    "name": "MicrosoftGraphBeta",
-    "version": "{{versionBeta}}",
-    "isSingleton": false
-  }
-}
-""";
-        private static readonly string EmptyIndexJsonV10 = $$"""
-{
-  "resources": {},
-  "resourceFunctions": {},
-  "settings": {
-    "name": "MicrosoftGraphV1.0",
-    "version": "{{versionV10}}",
-    "isSingleton": false
-  }
-}
-""";
-
-
         private async Task<ServiceBuilder> GetServices()
         {
-            var indexJsonBeta = FileHelper.SaveResultFile(TestContext, "types/index-beta.json", EmptyIndexJsonBeta);
-            var indexJsonV10 = FileHelper.SaveResultFile(TestContext, "types/index-v1.0.json", EmptyIndexJsonV10);
-
-            var cacheRoot = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
-            var services = new ServiceBuilder()
-                .WithFeatureOverrides(new(ExtensibilityEnabled: true, CacheRootDirectory: cacheRoot))
-                .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForMsGraphExtension());
-
-            await RegistryHelper.PublishMsGraphExtension(services.Build(), indexJsonBeta, "beta", versionBeta);
-            await RegistryHelper.PublishMsGraphExtension(services.Build(), indexJsonV10, "v1", versionV10);
-
-            return services;
+            return await ExtensionTestHelper.AddMockMsGraphExtension(new(), TestContext);
         }
 
         private async Task<ServiceBuilder> ServicesWithTestExtensionArtifact(ArtifactRegistryAddress artifactRegistryAddress, BinaryData artifactPayload)
@@ -82,7 +39,7 @@ namespace Bicep.Core.IntegrationTests
             var cacheRoot = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
 
             return new ServiceBuilder()
-                .WithFeatureOverrides(new(ExtensibilityEnabled: true, CacheRootDirectory: cacheRoot))
+                .WithFeatureOverrides(new(CacheRootDirectory: cacheRoot))
                 .WithContainerRegistryClientFactory(clientFactory);
         }
 
@@ -136,7 +93,6 @@ namespace Bicep.Core.IntegrationTests
                 new RepoDescriptor(artifactRegistryAddress.RegistryAddress, artifactRegistryAddress.RepositoryPath, [artifactRegistryAddress.ExtensionVersion]), mockBlobClient.Object);
 
             var services = new ServiceBuilder()
-                .WithFeatureOverrides(new(ExtensibilityEnabled: true))
                 .WithContainerRegistryClientFactory(containerRegistryFactoryBuilder.Build());
 
             // ACT
@@ -194,7 +150,7 @@ namespace Bicep.Core.IntegrationTests
             // Scenario: Artifact layer payload is missing an "index.json"
             yield return new object[]
             {
-                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(
+                ExtensionResourceTypeHelper.GetTypesTgzBytesFromFiles(
                     ("unknown.json", "{}")),
                 "The path: index.json was not found in artifact contents"
             };
@@ -202,7 +158,7 @@ namespace Bicep.Core.IntegrationTests
             // Scenario: "index.json" is not valid JSON
             yield return new object[]
             {
-                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(
+                ExtensionResourceTypeHelper.GetTypesTgzBytesFromFiles(
                     ("index.json", """{"INVALID_JSON": 777""")),
                 "'7' is an invalid end of a number. Expected a delimiter. Path: $.INVALID_JSON | LineNumber: 0 | BytePositionInLine: 20."
             };
@@ -210,7 +166,7 @@ namespace Bicep.Core.IntegrationTests
             // Scenario: "index.json" with malformed or missing required data
             yield return new object[]
             {
-                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(
+                ExtensionResourceTypeHelper.GetTypesTgzBytesFromFiles(
                     ("index.json", """{ "UnexpectedMember": false}""")),
                 "Value cannot be null. (Parameter 'source')"
             };
@@ -224,8 +180,8 @@ namespace Bicep.Core.IntegrationTests
             services = services.WithConfigurationPatch(c => c.WithExtensions($$"""
             {
                 "az": "builtin:",
-                "msGraphBeta": "br:{{LanguageConstants.BicepPublicMcrRegistry}}/bicep/extensions/microsoftgraph/beta:{{versionBeta}}",
-                "msGraphV1": "br:{{LanguageConstants.BicepPublicMcrRegistry}}/bicep/extensions/microsoftgraph/v1:{{versionV10}}"
+                "msGraphBeta": "br:{{LanguageConstants.BicepPublicMcrRegistry}}/bicep/extensions/microsoftgraph/beta:{{BicepTestConstants.MsGraphVersionBeta}}",
+                "msGraphV1": "br:{{LanguageConstants.BicepPublicMcrRegistry}}/bicep/extensions/microsoftgraph/v1:{{BicepTestConstants.MsGraphVersionV10}}"
             }
             """));
 
@@ -245,7 +201,7 @@ namespace Bicep.Core.IntegrationTests
             services = services.WithConfigurationPatch(c => c.WithExtensions($$"""
             {
                 "az": "builtin:",
-                "microsoftGraph": "br:{{LanguageConstants.BicepPublicMcrRegistry}}/bicep/extensions/microsoftgraph/beta:{{versionBeta}}"
+                "microsoftGraph": "br:{{LanguageConstants.BicepPublicMcrRegistry}}/bicep/extensions/microsoftgraph/beta:{{BicepTestConstants.MsGraphVersionBeta}}"
             }
             """));
 
@@ -280,7 +236,7 @@ namespace Bicep.Core.IntegrationTests
                 "1.0.0-fake");
             var services = await ServicesWithTestExtensionArtifact(
                 artifactRegistryAddress,
-                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(("index.json", EmptyIndexJsonBeta)));
+                ExtensionResourceTypeHelper.GetTypesTgzBytesFromFiles(("index.json", BicepTestConstants.GetMsGraphIndexJson(BicepTestConstants.MsGraphVersionBeta))));
             services = services.WithConfigurationPatch(c => c.WithExtensions($$"""
             {
                 "az": "builtin:",
@@ -296,7 +252,7 @@ namespace Bicep.Core.IntegrationTests
             //ASSERT
             result.Should().GenerateATemplate();
             result.Template.Should().NotBeNull();
-            result.Template.Should().HaveValueAtPath("$.imports.msGraphBeta.version", versionBeta);
+            result.Template.Should().HaveValueAtPath("$.imports.msGraphBeta.version", BicepTestConstants.MsGraphVersionBeta);
         }
 
         [TestMethod]
@@ -309,7 +265,7 @@ namespace Bicep.Core.IntegrationTests
             var registry = "example.azurecr.io";
             var repository = "microsoftgraph/v1";
 
-            var services = ExtensionTestHelper.GetServiceBuilder(fileSystem, registry, repository, new(ExtensibilityEnabled: true));
+            var services = ExtensionTestHelper.GetServiceBuilder(fileSystem, registry, repository, new());
 
             await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), "/index.json", $"br:{registry}/{repository}:1.2.3");
 

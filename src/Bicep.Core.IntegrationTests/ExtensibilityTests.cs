@@ -6,6 +6,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -15,24 +16,13 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class ExtensibilityTests : TestBase
     {
-        private static ServiceBuilder Services => new ServiceBuilder()
-            .WithFeatureOverrides(new(ExtensibilityEnabled: true))
-            .WithConfigurationPatch(c => c.WithExtensions("""
-            {
-              "az": "builtin:",
-              "kubernetes": "builtin:",
-              "foo": "builtin:",
-              "bar": "builtin:"
-            }
-            """))
-            .WithNamespaceProvider(TestExtensibilityNamespaceProvider.CreateWithDefaults());
-
-        private static ServiceBuilder ServicesWithModuleExtensionConfigs => Services.WithFeatureOverrides(new(ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true));
+        private const string MockSubscriptionId = "00000000-0000-0000-0000-000000000001";
+        private const string MockResourceGroupName = "mock-rg";
 
         [TestMethod]
         public void Bar_import_bad_config_is_blocked()
         {
-            var result = CompilationHelper.Compile(Services, @"
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), @"
 extension bar with {
   madeUpProperty: 'asdf'
 } as stg
@@ -46,7 +36,7 @@ extension bar with {
         [TestMethod]
         public void Bar_import_can_be_duplicated()
         {
-            var result = CompilationHelper.Compile(Services, """
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
             extension bar with {
                 connectionString: 'connectionString1'
             } as stg
@@ -61,7 +51,7 @@ extension bar with {
         [TestMethod]
         public void Bar_import_basic_test()
         {
-            var result = CompilationHelper.Compile(Services, """
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
             extension bar with {
                connectionString: 'asdf'
             } as stg
@@ -80,9 +70,35 @@ extension bar with {
         }
 
         [TestMethod]
+        public void Baz_import_bad_config_is_blocked()
+        {
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), @"
+extension baz with {
+  kind: 'Three'
+}
+");
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP036", DiagnosticLevel.Error, @"The property ""kind"" expected a value of type ""'One' | 'Two'"" but the provided value is of type ""'Three'"".")
+            });
+        }
+
+        [TestMethod]
+        public void Baz_import_valid_config_succeeds()
+        {
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), @"
+extension baz with {
+  kind: 'One'
+  connectionStringOne: '******'
+}
+");
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
         public void Ambiguous_type_references_return_errors()
         {
-            var result = CompilationHelper.Compile(Services, """
+            var services = CreateServiceBuilder();
+            var result = CompilationHelper.Compile(services, """
             extension bar with {
             connectionString: 'asdf'
             } as stg
@@ -99,7 +115,7 @@ extension bar with {
                 ("BCP264", DiagnosticLevel.Error, "Resource type \"container\" is declared in multiple imported namespaces (\"stg\", \"stg2\"), and must be fully-qualified."),
             });
 
-            result = CompilationHelper.Compile(Services, """
+            result = CompilationHelper.Compile(services, """
             extension bar with {
             connectionString: 'asdf'
             } as stg
@@ -118,7 +134,7 @@ extension bar with {
         [TestMethod]
         public void Bar_import_basic_test_loops_and_referencing()
         {
-            var result = CompilationHelper.Compile(Services, """
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
             extension bar with {
                 connectionString: 'asdf'
             } as stg
@@ -158,7 +174,7 @@ extension bar with {
         [TestMethod]
         public void Foo_import_basic_test_loops_and_referencing()
         {
-            var result = CompilationHelper.Compile(Services, """
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
             extension foo as foo
             param numApps int
 
@@ -187,8 +203,9 @@ extension bar with {
         [TestMethod]
         public void Foo_import_existing_requires_uniqueName()
         {
+            var services = CreateServiceBuilder();
             // we've accidentally used 'name' even though this resource type doesn't support it
-            var result = CompilationHelper.Compile(Services, """
+            var result = CompilationHelper.Compile(services, """
             extension foo
 
             resource myApp 'application' existing = {
@@ -204,7 +221,7 @@ extension bar with {
             });
 
             // oops! let's change it to 'uniqueName'
-            result = CompilationHelper.Compile(Services, """
+            result = CompilationHelper.Compile(services, """
             extension foo as foo
 
             resource myApp 'application' existing = {
@@ -221,7 +238,7 @@ extension bar with {
         [TestMethod]
         public void Kubernetes_import_existing_warns_with_readonly_fields()
         {
-            var result = CompilationHelper.Compile(Services, """
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
             extension kubernetes with {
             namespace: 'default'
             kubeConfig: ''
@@ -251,7 +268,7 @@ extension bar with {
         [TestMethod]
         public void Kubernetes_competing_imports_are_blocked()
         {
-            var result = CompilationHelper.Compile(Services, @"
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), @"
 extension kubernetes with {
   namespace: 'default'
   kubeConfig: ''
@@ -275,7 +292,7 @@ extension kubernetes with {
         [TestMethod]
         public void Kubernetes_import_existing_resources()
         {
-            var result = CompilationHelper.Compile(Services, @"
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), @"
 extension kubernetes with {
   namespace: 'default'
   kubeConfig: ''
@@ -311,7 +328,7 @@ resource configmap 'core/ConfigMap@v1' existing = {
         [TestMethod]
         public void Kubernetes_import_existing_connectionstring_test()
         {
-            var result = CompilationHelper.Compile(Services, @"
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), @"
 extension kubernetes with {
   namespace: 'default'
   kubeConfig: ''
@@ -349,7 +366,7 @@ resource secret 'core/Secret@v1' = {
         [TestMethod]
         public void Kubernetes_CustomResourceType_EmitWarning()
         {
-            var result = CompilationHelper.Compile(Services, """
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
                 extension kubernetes with {
                   namespace: 'default'
                   kubeConfig: ''
@@ -370,7 +387,7 @@ resource secret 'core/Secret@v1' = {
         [TestMethod]
         public void Kubernetes_AmbiguousFallbackType_MustFullyQualify()
         {
-            var result = CompilationHelper.Compile(Services, """
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
                 extension kubernetes with {
                   namespace: 'default'
                   kubeConfig: ''
@@ -404,7 +421,7 @@ resource secret 'core/Secret@v1' = {
         [TestMethod]
         public void Bar_import_basic_test_with_qualified_type()
         {
-            var result = CompilationHelper.Compile(Services, """
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
             extension bar with {
             connectionString: 'asdf'
             } as stg
@@ -425,7 +442,7 @@ resource secret 'core/Secret@v1' = {
         [TestMethod]
         public void Invalid_namespace_qualifier_returns_error()
         {
-            var result = CompilationHelper.Compile(Services, """
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), """
             extension bar with {
             connectionString: 'asdf'
             } as stg
@@ -450,7 +467,7 @@ resource secret 'core/Secret@v1' = {
         [TestMethod]
         public void Child_resource_with_parent_namespace_mismatch_returns_error()
         {
-            var result = CompilationHelper.Compile(Services, @"
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), @"
 extension bar with {
   connectionString: 'asdf'
 } as stg
@@ -471,176 +488,17 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
         }
 
         [TestMethod]
-        public void Bar_import_end_to_end_test()
-        {
-            var result = CompilationHelper.Compile(Services,
-                ("main.bicep", @"
-param accountName string
-
-resource stgAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-  name: toLower(accountName)
-  location: resourceGroup().location
-  kind: 'Storage'
-  sku: {
-    name: 'Standard_LRS'
-  }
-}
-
-var connectionString = 'DefaultEndpointsProtocol=https;AccountName=${stgAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${stgAccount.listKeys().keys[0].value}'
-
-module website './website.bicep' = {
-  name: 'website'
-  params: {
-    connectionString: connectionString
-  }
-}
-"),
-                ("website.bicep", @"
-@secure()
-param connectionString string
-
-extension bar with {
-  connectionString: connectionString
-} as stg
-
-resource container 'container' = {
-  name: 'bicep'
-}
-
-resource blob 'blob' = {
-  name: 'blob.txt'
-  containerName: container.name
-  base64Content: base64(loadTextContent('blob.txt'))
-}
-"),
-                ("blob.txt", @"
-Hello from Bicep!"));
-
-            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-            result.Template.Should().DeepEqual(JToken.Parse("""
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "2.1-experimental",
-  "contentVersion": "1.0.0.0",
-  "metadata": {
-    "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
-    "_EXPERIMENTAL_FEATURES_ENABLED": [
-      "Extensibility"
-    ],
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "5753469770830927723"
-    }
-  },
-  "parameters": {
-    "accountName": {
-      "type": "string"
-    }
-  },
-  "resources": {
-    "stgAccount": {
-      "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2019-06-01",
-      "name": "[toLower(parameters('accountName'))]",
-      "location": "[resourceGroup().location]",
-      "kind": "Storage",
-      "sku": {
-        "name": "Standard_LRS"
-      }
-    },
-    "website": {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "website",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "connectionString": {
-            "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', toLower(parameters('accountName')), environment().suffixes.storage, listKeys('stgAccount', '2019-06-01').keys[0].value)]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "2.1-experimental",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
-            "_EXPERIMENTAL_FEATURES_ENABLED": [
-              "Extensibility"
-            ],
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "8473853033217630197"
-            }
-          },
-          "parameters": {
-            "connectionString": {
-              "type": "securestring"
-            }
-          },
-          "variables": {
-            "$fxv#0": "\nHello from Bicep!"
-          },
-          "imports": {
-            "stg": {
-              "provider": "Bar",
-              "version": "0.0.1",
-              "config": {
-                "connectionString": "[parameters('connectionString')]"
-              }
-            }
-          },
-          "resources": {
-            "container": {
-              "import": "stg",
-              "type": "container",
-              "properties": {
-                "name": "bicep"
-              }
-            },
-            "blob": {
-              "import": "stg",
-              "type": "blob",
-              "properties": {
-                "name": "blob.txt",
-                "containerName": "[reference('container').name]",
-                "base64Content": "[base64(variables('$fxv#0'))]"
-              },
-              "dependsOn": [
-                "container"
-              ]
-            }
-          }
-        }
-      },
-      "dependsOn": [
-        "stgAccount"
-      ]
-    }
-  }
-}
-"""));
-        }
-
-        [TestMethod]
         public void Extensibility_v2_emitting_produces_expected_template()
         {
             var services = new ServiceBuilder()
-                .WithFeatureOverrides(new(
-                    ExtensibilityEnabled: true,
-                    ExtensibilityV2EmittingEnabled: true))
+                .WithFeatureOverrides(new(ModuleExtensionConfigsEnabled: true))
                 .WithConfigurationPatch(c => c.WithExtensions("""
                     {
                       "az": "builtin:",
                       "foo": "builtin:"
                     }
                     """))
-                .WithNamespaceProvider(TestExtensibilityNamespaceProvider.CreateWithDefaults());
+                .WithNamespaceProvider(TestExtensionsNamespaceProvider.CreateWithDefaults());
 
             var result = CompilationHelper.Compile(services, """
                 extension foo as foo
@@ -657,54 +515,57 @@ Hello from Bicep!"));
             result.Template.Should().HaveValueAtPath("$.resources.myApp.extension", "foo");
         }
 
-        [TestMethod]
-        public void Module_with_required_extension_config_can_be_compiled_successfully()
+        [DataTestMethod]
+        [DataRow(
+            "InlineValues", "{ kubeConfig: 'fromModule', namespace: 'other' }", null)]
+        [DataRow(
+            "KeyVaultReference",
+            "{ kubeConfig: kv.getSecret('myKubeConfig'), namespace: 'other' }",
+            $$"""{ kubeConfig: az.getSecret('{{MockSubscriptionId}}', '{{MockResourceGroupName}}', 'kv', 'myKubeConfig'), namespace: 'other' }""")]
+        public async Task Module_with_required_extension_config_can_be_compiled_successfully(string scenario, string moduleKubeExtConfig, string? paramsKubeExtConfig)
         {
             var paramsUri = new Uri("file:///main.bicepparam");
             var mainUri = new Uri("file:///main.bicep");
             var moduleAUri = new Uri("file:///modulea.bicep");
 
             // TODO(kylealbert): Remove 'with' clause in template when that's removed
-            // TODO(kylealbert): Uncomment graph when I figure out how to deal with the registry.
             var files = new Dictionary<Uri, string>
             {
                 [paramsUri] =
-                    """
-                    using 'main.bicep'
+                    $$"""
+                      using 'main.bicep'
 
-                    param inputa = 'abc'
+                      param inputa = 'abc'
 
-                    extension k8s with {
-                      kubeConfig: 'abc'
-                      namespace: 'other'
-                    }
-                    """,
+                      extension k8s with {{paramsKubeExtConfig ?? moduleKubeExtConfig}}
+                      """,
                 [mainUri] =
-                    """
-                    param inputa string
+                    $$"""
+                      param inputa string
 
-                    extension kubernetes with {
-                      kubeConfig: 'DELETE'
-                      namespace: 'DELETE'
-                    } as k8s
+                      extension kubernetes with {
+                        kubeConfig: 'DELETE'
+                        namespace: 'DELETE'
+                      } as k8s
 
-                    //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview'
+                      extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3'
 
-                    module modulea 'modulea.bicep' = {
-                      name: 'modulea'
-                      params: {
-                        inputa: inputa
+                      resource kv 'Microsoft.KeyVault/vaults@2021-06-01-preview' existing = {
+                        name: 'kv'
                       }
-                      extensionConfigs: {
-                        kubernetes: {
-                          kubeConfig: 'fromModule'
-                          namespace: 'other'
+
+                      module modulea 'modulea.bicep' = {
+                        name: 'modulea'
+                        params: {
+                          inputa: inputa
+                        }
+                        extensionConfigs: {
+                          kubernetes: {{moduleKubeExtConfig}}
                         }
                       }
-                    }
 
-                    output outputa string = modulea.outputs.outputa
-                    """,
+                      output outputa string = modulea.outputs.outputa
+                      """,
                 [moduleAUri] =
                     """
                     param inputa string
@@ -714,13 +575,14 @@ Hello from Bicep!"));
                       namespace: 'DELETE'
                     }
 
-                    //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
+                    extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
 
                     output outputa string = inputa
                     """
             };
 
-            var compilation = ServicesWithModuleExtensionConfigs.BuildCompilation(files, paramsUri);
+            var services = await CreateServiceBuilderWithMockMsGraph(moduleExtensionConfigsEnabled: true);
+            var compilation = await services.BuildCompilationWithRestore(files, paramsUri);
 
             compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
         }
@@ -751,7 +613,12 @@ Hello from Bicep!"));
             "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other' }, graph: { } }",
             "BCP037",
             """The property "graph" is not allowed on objects of type "extensionConfigs". No other properties are allowed.""")]
-        public void Module_with_invalid_extension_config_produces_diagnostic(
+        [DataRow(
+            "ConfigProvidedForNonExistentExtension",
+            "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other' }, nonExistent: { } }",
+            "BCP037",
+            """The property "nonExistent" is not allowed on objects of type "extensionConfigs". No other properties are allowed.""")]
+        public async Task Module_with_invalid_extension_config_produces_diagnostic(
             string scenarioName,
             string moduleExtensionConfigsStr,
             string expectedDiagnosticCode,
@@ -761,7 +628,6 @@ Hello from Bicep!"));
             var moduleAUri = new Uri("file:///modulea.bicep");
 
             // TODO(kylealbert): Remove 'with' clause in template when that's removed
-            // TODO(kylealbert): Uncomment graph when I figure out how to deal with the registry.
             var files = new Dictionary<Uri, string>
             {
                 [mainUri] =
@@ -787,13 +653,14 @@ Hello from Bicep!"));
                       namespace: 'default'
                     }
 
-                    //extension microsoftGraph as graph
+                    extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
 
                     output outputa string = inputa
                     """
             };
 
-            var compilation = ServicesWithModuleExtensionConfigs.BuildCompilation(files, mainUri);
+            var services = await CreateServiceBuilderWithMockMsGraph(moduleExtensionConfigsEnabled: true);
+            var compilation = await services.BuildCompilationWithRestore(files, mainUri);
 
             compilation.Should().ContainSingleDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
         }
@@ -802,7 +669,7 @@ Hello from Bicep!"));
         [DataRow(
             "ParamsFile",
             "BCP337",
-            $"""This declaration type is not valid for a Bicep Parameters file. Specify a "{LanguageConstants.UsingKeyword}", "{LanguageConstants.ExtendsKeyword}", "{LanguageConstants.ParameterKeyword}" or "{LanguageConstants.VariableKeyword}" declaration.""")]
+            $"""This declaration type is not valid for a Bicep Parameters file. Supported declarations: "using", "extends", "param", "var", "type".""")]
         [DataRow(
             "MainFile",
             "BCP037",
@@ -814,7 +681,6 @@ Hello from Bicep!"));
             var moduleAUri = new Uri("file:///modulea.bicep");
 
             // TODO(kylealbert): Remove 'with' clause in template when that's removed
-            // TODO(kylealbert): Uncomment graph when I figure out how to deal with the registry.
             var files = new Dictionary<Uri, string>
             {
                 [paramsUri] =
@@ -837,8 +703,6 @@ Hello from Bicep!"));
                       namespace: 'DELETE'
                     } as k8s
 
-                    //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview'
-
                     module modulea 'modulea.bicep' = {
                       name: 'modulea'
                       params: {
@@ -853,6 +717,7 @@ Hello from Bicep!"));
                     }
 
                     output outputa string = modulea.outputs.outputa
+                    output extOutput object = k8s.config
                     """,
                 [moduleAUri] =
                     """
@@ -862,8 +727,6 @@ Hello from Bicep!"));
                       kubeConfig: 'DELETE'
                       namespace: 'DELETE'
                     }
-
-                    //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
 
                     output outputa string = inputa
                     """
@@ -875,12 +738,120 @@ Hello from Bicep!"));
                 files.Remove(moduleAUri);
             }
 
-            var compilation = Services.BuildCompilation(files, paramsUri);
+            var compilation = CreateServiceBuilder().BuildCompilation(files, paramsUri);
 
             var diagByFile = compilation.GetAllDiagnosticsByBicepFileUri();
 
             var fileUriWithDiag = scenario is "ParamsFile" ? paramsUri : mainUri;
-            diagByFile[fileUriWithDiag].Should().ContainSingleDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
+
+            diagByFile[fileUriWithDiag].Should().ContainDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
+
+            if (scenario is "MainFile")
+            {
+                diagByFile[mainUri].Should().ContainDiagnostic("BCP052", DiagnosticLevel.Error, """The type "k8s" does not contain property "config".""");
+            }
+        }
+
+        [DataTestMethod]
+        [DataRow(
+            "FullInheritance",
+            "extensionConfigs: { kubernetes: k8s.config }",
+            """{ "kubernetes": "[extensions('k8s').config]" }""")]
+        [DataRow(
+            "PiecemealInheritance",
+            "extensionConfigs: { kubernetes: { kubeConfig: k8s.config.kubeConfig, namespace: k8s.config.namespace } }",
+            """{ "kubernetes": { kubeConfig: "[extensions('k8s').config.kubeConfig]", namespace: "[extensions('k8s').config.namespace]" } }""")]
+        [DataRow(
+            "Ternary",
+            "extensionConfigs: { kubernetes: { kubeConfig: inputa == 'a' ? k8s.config.kubeConfig : 'b', namespace: inputa == 'a' ? k8s.config.namespace : 'c' } }",
+            """{ "kubernetes": { "kubeConfig": "[if(equals(parameters('inputa'), 'a'), extensions('k8s').config.kubeConfig, createObject('value', 'b'))]", "namespace": "[if(equals(parameters('inputa'), 'a'), extensions('k8s').config.namespace, createObject('value', 'c'))]" } }""")]
+        public async Task Modules_can_inherit_parent_module_extension_configs(string scenario, string moduleExtensionConfigsStr, string expectedExtConfigJson)
+        {
+            var paramsUri = new Uri("file:///main.bicepparam");
+            var mainUri = new Uri("file:///main.bicep");
+            var moduleAUri = new Uri("file:///modulea.bicep");
+
+            // TODO(kylealbert): Remove 'with' clause in template when that's removed
+            var files = new Dictionary<Uri, string>
+            {
+                [paramsUri] =
+                    """
+                    using 'main.bicep'
+
+                    param inputa = 'abc'
+
+                    extension k8s with {
+                      kubeConfig: 'abc'
+                      namespace: 'other'
+                    }
+                    """,
+                [mainUri] =
+                    $$"""
+                      param inputa string
+
+                      extension kubernetes with {
+                        kubeConfig: 'DELETE'
+                        namespace: 'DELETE'
+                      } as k8s
+
+                      module modulea 'modulea.bicep' = {
+                        name: 'modulea'
+                        params: {
+                          inputa: inputa
+                        }
+                        {{moduleExtensionConfigsStr}}
+                      }
+
+                      output outputa string = modulea.outputs.outputa
+                      """,
+                [moduleAUri] =
+                    """
+                    param inputa string
+
+                    extension kubernetes with {
+                      kubeConfig: 'DELETE'
+                      namespace: 'DELETE'
+                    }
+
+                    output outputa string = inputa
+                    """
+            };
+
+            var services = await CreateServiceBuilderWithMockMsGraph(moduleExtensionConfigsEnabled: true);
+            var compilation = services.BuildCompilation(files, paramsUri);
+
+            compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
+
+            var templateToken = JToken.Parse(compilation.GetTestTemplate(mainUri));
+
+            templateToken.SelectToken("resources.modulea.properties.extensionConfigs")
+                .Should()
+                .DeepEqual(JToken.Parse(expectedExtConfigJson));
+        }
+
+        private ServiceBuilder CreateServiceBuilder(bool moduleExtensionConfigsEnabled = false) =>
+            new ServiceBuilder()
+                .WithConfigurationPatch(
+                    c => c.WithExtensions(
+                        """
+                        {
+                          "az": "builtin:",
+                          "kubernetes": "builtin:",
+                          "foo": "builtin:",
+                          "bar": "builtin:",
+                          "baz": "builtin:"
+                        }
+                        """))
+                .WithNamespaceProvider(TestExtensionsNamespaceProvider.CreateWithDefaults())
+                .WithFeaturesOverridden(
+                    f => f with { ModuleExtensionConfigsEnabled = moduleExtensionConfigsEnabled });
+
+        private async Task<ServiceBuilder> CreateServiceBuilderWithMockMsGraph(bool moduleExtensionConfigsEnabled = false)
+        {
+            var services = CreateServiceBuilder(moduleExtensionConfigsEnabled);
+            services = await ExtensionTestHelper.AddMockMsGraphExtension(services, TestContext);
+
+            return services;
         }
     }
 }

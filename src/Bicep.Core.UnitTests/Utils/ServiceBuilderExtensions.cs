@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Analyzers.Interfaces;
@@ -11,9 +12,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
-using Bicep.Core.TypeSystem.Providers.MicrosoftGraph;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.UnitTests.Features;
 
 namespace Bicep.Core.UnitTests.Utils;
 
@@ -24,9 +23,6 @@ public static class ServiceBuilderExtensions
 
     public static ServiceBuilder WithWorkspace(this ServiceBuilder serviceBuilder, IWorkspace workspace)
         => serviceBuilder.WithRegistration(x => x.WithWorkspace(workspace));
-
-    public static ServiceBuilder WithFeatureOverrides(this ServiceBuilder serviceBuilder, FeatureProviderOverrides overrides)
-        => serviceBuilder.WithRegistration(x => x.WithFeatureOverrides(overrides));
 
     public static ServiceBuilder WithContainerRegistryClientFactory(this ServiceBuilder serviceBuilder, IContainerRegistryClientFactory containerRegistryClientFactory)
         => serviceBuilder.WithRegistration(x => x.WithContainerRegistryClientFactory(containerRegistryClientFactory));
@@ -61,9 +57,6 @@ public static class ServiceBuilderExtensions
     public static ServiceBuilder WithEmptyAzResources(this ServiceBuilder serviceBuilder)
         => serviceBuilder.WithRegistration(x => x.WithEmptyAzResources());
 
-    public static ServiceBuilder WithMsGraphResourceTypeLoader(this ServiceBuilder serviceBuilder, MicrosoftGraphResourceTypeLoader typeLoader)
-        => serviceBuilder.WithRegistration(x => x.WithMsGraphResourceTypeLoaderFactory(typeLoader));
-
     public static ServiceBuilder WithEnvironmentVariables(this ServiceBuilder serviceBuilder, params (string key, string? value)[] variables)
         => serviceBuilder.WithRegistration(x => x.WithEnvironmentVariables(variables));
 
@@ -90,6 +83,14 @@ public static class ServiceBuilderExtensions
         var workspace = CompilationHelper.CreateWorkspace(compiler.SourceFileFactory, fileContentsByUri);
 
         return compiler.CreateCompilationWithoutRestore(entryFileUri, workspace);
+    }
+
+    public static async Task<Compilation> BuildCompilationWithRestore(this ServiceBuilder services, IReadOnlyDictionary<Uri, string> fileContentsByUri, Uri entryFileUri)
+    {
+        var compiler = services.Build().GetCompiler();
+        var workspace = CompilationHelper.CreateWorkspace(compiler.SourceFileFactory, fileContentsByUri);
+
+        return await compiler.CreateCompilation(entryFileUri, workspace);
     }
 
     public static Compilation BuildCompilation(this ServiceBuilder services, string text)

@@ -5,6 +5,7 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit;
@@ -43,7 +44,7 @@ public class ParametersJsonWriter
 
                     if (parameter.KeyVaultReferenceExpression is { } keyVaultReference)
                     {
-                        WriteKeyVaultReference(emitter, keyVaultReference);
+                        WriteKeyVaultReference(emitter, keyVaultReference, "reference");
                     }
                     else if (parameter.Value is { } value)
                     {
@@ -51,7 +52,9 @@ public class ParametersJsonWriter
                     }
                     else if (parameter.Expression is { } expression)
                     {
-                        emitter.EmitProperty("expression", expression);
+                        // The backend is always expecting an expression string, so we must always ensure we emit
+                        // a top-level expression, even if we could simplify by emitting a top-level object.
+                        emitter.EmitProperty("expression", () => emitter.EmitLanguageExpression(expression));
                     }
                     else
                     {
@@ -66,9 +69,9 @@ public class ParametersJsonWriter
             WriteExternalInputDefinitions(emitter, this.Context.ExternalInputReferences.ExternalInputIndexMap);
         }
 
-        if (this.Context.SemanticModel.Features is { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true })
+        if (this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
         {
-            WriteExtensionConfigs(emitter, this.Context.SemanticModel.Root.ExtensionConfigAssignments);
+            WriteExtensionConfigs(emitter, jsonWriter);
         }
 
         jsonWriter.WriteEndObject();
@@ -81,7 +84,8 @@ public class ParametersJsonWriter
     {
         emitter.EmitObjectProperty("externalInputDefinitions", () =>
         {
-            foreach (var reference in externalInputIndexMap)
+            // Sort the external input references by name for deterministic ordering
+            foreach (var reference in externalInputIndexMap.OrderBy(x => x.Value))
             {
                 var expression = (FunctionCallExpression)ExpressionBuilder.Convert(reference.Key);
 
@@ -97,35 +101,55 @@ public class ParametersJsonWriter
         });
     }
 
-    private static void WriteKeyVaultReference(ExpressionEmitter emitter, ParameterKeyVaultReferenceExpression keyVaultReference)
+    private void WriteExtensionConfigs(ExpressionEmitter emitter, PositionTrackingJsonTextWriter jsonWriter)
     {
-        emitter.EmitObjectProperty("reference", () =>
-        {
-            emitter.EmitObjectProperty("keyVault", () =>
+        emitter.EmitObjectProperty(
+            "extensionConfigs", () =>
             {
-                emitter.EmitProperty("id", keyVaultReference.KeyVaultId);
+                foreach (var extension in this.Context.SemanticModel.Root.ExtensionConfigAssignments)
+                {
+                    emitter.EmitObjectProperty(
+                        extension.Name, () =>
+                        {
+                            var configProperties = this.Context.SemanticModel.EmitLimitationInfo.ExtensionConfigAssignments[extension];
+
+                            foreach (var configProperty in configProperties)
+                            {
+                                emitter.EmitObjectProperty(
+                                    configProperty.Key, () =>
+                                    {
+                                        if (configProperty.Value.KeyVaultReferenceExpression is { } keyVaultReference)
+                                        {
+                                            WriteKeyVaultReference(emitter, keyVaultReference, "keyVaultReference");
+                                        }
+                                        else if (configProperty.Value.Value is { } value)
+                                        {
+                                            emitter.EmitProperty("value", () => value.WriteTo(jsonWriter));
+                                        }
+                                        else
+                                        {
+                                            throw new InvalidOperationException($"The '{configProperty.Key}' property of the '{extension.Name}' extension config assignment defined neither a concrete value nor a key vault reference");
+                                        }
+                                    });
+                            }
+                        });
+                }
             });
-
-            emitter.EmitProperty("secretName", keyVaultReference.SecretName);
-
-            if (keyVaultReference.SecretVersion is { } secretVersion)
-            {
-                emitter.EmitProperty("secretVersion", secretVersion);
-            }
-        });
     }
 
-    private static void WriteExtensionConfigs(ExpressionEmitter emitter, IEnumerable<ExtensionConfigAssignmentSymbol> extensionConfigAssignments)
+    private static void WriteKeyVaultReference(ExpressionEmitter emitter, ParameterKeyVaultReferenceExpression keyVaultReference, string referencePropertyName)
     {
-        emitter.EmitObjectProperty("extensionConfigs", () =>
-        {
-            foreach (var extension in extensionConfigAssignments)
+        emitter.EmitObjectProperty(
+            referencePropertyName, () =>
             {
-                emitter.EmitObjectProperty(extension.Name, () =>
+                emitter.EmitObjectProperty("keyVault", () => emitter.EmitProperty("id", keyVaultReference.KeyVaultId));
+
+                emitter.EmitProperty("secretName", keyVaultReference.SecretName);
+
+                if (keyVaultReference.SecretVersion is { } secretVersion)
                 {
-                    // TODO(kylealbert): write config properties
-                });
-            }
-        });
+                    emitter.EmitProperty("secretVersion", secretVersion);
+                }
+            });
     }
 }

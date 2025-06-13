@@ -11,7 +11,6 @@ public record FeatureProviderOverrides(
     IDirectoryHandle? CacheRootDirectory = null,
     bool? RegistryEnabled = default,
     bool? SymbolicNameCodegenEnabled = default,
-    bool? ExtensibilityEnabled = default,
     bool? AdvancedListComprehensionEnabled = default,
     bool? ResourceTypedParamsAndOutputsEnabled = default,
     bool? SourceMappingEnabled = default,
@@ -23,18 +22,16 @@ public record FeatureProviderOverrides(
     bool? ResourceInfoCodegenEnabled = default,
     bool? ExtendableParamFilesEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
-    bool? ExtensibilityV2EmittingEnabled = default,
-    bool? TypedVariablesEnabled = default,
     bool? ModuleExtensionConfigsEnabled = default,
     bool? DesiredStateConfigurationEnabled = default,
     bool? ExternalInputFunctionEnabled = default,
-    bool? OnlyIfNotExistsEnabled = default)
+    bool? OnlyIfNotExistsEnabled = default,
+    bool? ModuleIdentityEnabled = default)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
         bool? RegistryEnabled = default,
         bool? SymbolicNameCodegenEnabled = default,
-        bool? ExtensibilityEnabled = default,
         bool? AdvancedListComprehensionEnabled = default,
         bool? ResourceTypedParamsAndOutputsEnabled = default,
         bool? SourceMappingEnabled = default,
@@ -46,17 +43,15 @@ public record FeatureProviderOverrides(
         bool? ResourceInfoCodegenEnabled = default,
         bool? ExtendableParamFilesEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
-        bool? ExtensibilityV2EmittingEnabled = default,
-        bool? TypedVariablesEnabled = default,
         bool? ModuleExtensionConfigsEnabled = default,
         bool? DesiredStateConfigurationEnabled = default,
         bool? ExternalInputFunctionEnabled = default,
-        bool? OnlyIfNotExistsEnabled = default
+        bool? OnlyIfNotExistsEnabled = default,
+        bool? ModuleIdentityEnabled = default
     ) : this(
         FileHelper.GetCacheRootDirectory(testContext),
         RegistryEnabled,
         SymbolicNameCodegenEnabled,
-        ExtensibilityEnabled,
         AdvancedListComprehensionEnabled,
         ResourceTypedParamsAndOutputsEnabled,
         SourceMappingEnabled,
@@ -68,11 +63,10 @@ public record FeatureProviderOverrides(
         ResourceInfoCodegenEnabled,
         ExtendableParamFilesEnabled,
         AssemblyVersion,
-        ExtensibilityV2EmittingEnabled,
-        TypedVariablesEnabled,
         ModuleExtensionConfigsEnabled,
         DesiredStateConfigurationEnabled,
         ExternalInputFunctionEnabled,
-        OnlyIfNotExistsEnabled)
+        OnlyIfNotExistsEnabled,
+        ModuleIdentityEnabled)
     { }
 }

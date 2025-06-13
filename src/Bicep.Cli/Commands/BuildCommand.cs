@@ -66,11 +66,9 @@ public class BuildCommand(
     {
         var hasErrors = false;
 
-        foreach (var inputUri in CommandHelper.GetFilesMatchingPattern(environment, args.FilePattern))
+        foreach (var (inputUri, outputUri) in CommandHelper.GetInputAndOutputFilesForPattern(environment, args.FilePattern, args.OutputDir, PathHelper.GetJsonOutputPath))
         {
             ArgumentHelper.ValidateBicepFile(inputUri);
-
-            var outputUri = CommandHelper.GetJsonOutputUri(inputUri, null, null);
 
             var result = await Compile(inputUri, outputUri, args.NoRestore, args.DiagnosticsFormat, false);
             hasErrors |= result.HasErrors;

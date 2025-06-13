@@ -12,8 +12,10 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.PrettyPrintV2;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.FileSystem;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Extensions;
@@ -42,6 +44,7 @@ namespace Bicep.LangServer.IntegrationTests
         private const string RemoveUnusedExistingResourceTitle = "Remove unused existing resource";
         private const string RemoveUnusedParameterTitle = "Remove unused parameter";
         private const string RemoveUnusedVariableTitle = "Remove unused variable";
+        private const string RemoveUnusedImportTitle = "Remove unused import";
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
@@ -515,6 +518,168 @@ param foo2 string", "param foo2 string")]
             var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith(RemoveUnusedParameterTitle)));
             updatedFile.Should().HaveSourceText(expectedText);
         }
+
+        [DataRow(
+        @"
+        import { p1, p2, p|3 } from '../mod.bicep'
+        var used1 = p1
+        var used2 = p2
+        ",
+        @"
+        @export()
+        var p1 = 'prefix'
+        @export()
+        var p2 = 'eastus'
+        @export()
+        var p3 = 'param'
+        ",
+        @"
+        import { p1, p2 } from '../mod.bicep'
+        var used1 = p1
+        var used2 = p2
+        ")]
+        [DataRow(
+        @"
+        import { p1, p2, p|3 } from '../mod.bicep'
+        var used1 = p1
+        var used2 = p2
+        ",
+        @"
+        @export()
+        var p1 = 'prefix'
+        @export()
+        var p2 = 'eastus'
+        @export()
+        var p3 = 'param'
+        ",
+        @"
+        import { p1, p2 } from '../mod.bicep'
+        var used1 = p1
+        var used2 = p2
+        ")]
+        [DataRow(
+        @"
+        import { p1, p|2, p3 } from '../mod.bicep'
+        var used1 = p1
+        var used2 = p3
+        ",
+        @"
+        @export()
+        var p1 = 'prefix'
+        @export()
+        var p2 = 'eastus'
+        @export()
+        var p3 = 'param'
+        ",
+        @"
+        import { p1, p3 } from '../mod.bicep'
+        var used1 = p1
+        var used2 = p3
+        ")]
+        [DataRow(
+        @"
+        import { p|1, p2, p3 } from '../mod.bicep'
+        var used1 = p2
+        var used2 = p3
+        ",
+        @"
+        @export()
+        var p1 = 'prefix'
+        @export()
+        var p2 = 'eastus'
+        @export()
+        var p3 = 'param'
+        ",
+        @"
+        import {  p2, p3 } from '../mod.bicep'
+        var used1 = p2
+        var used2 = p3
+        ")]
+        [DataRow(
+        "import * as mo|d from '../mod.bicep'",
+        @"
+        @export()
+        var p1 = 'prefix'
+        @export()
+        var p2 = 'eastus'
+        @export()
+        var p3 = 'param'
+        ",
+        "")]
+        [DataRow(
+        "import { getStr|ing } from '../mod.bicep'",
+        @"
+        @export()
+        func getString() string => 'exported'
+        ",
+        "import {  } from '../mod.bicep'")]
+        [DataRow(
+        "import { t| } from '../mod.bicep'",
+        @"
+        @export()
+        type t = string
+        ",
+        "import {  } from '../mod.bicep'")]
+        [DataTestMethod]
+        public async Task Unused_import_actions_are_suggested(string fileWithCursors, string importFileText, string expectedText)
+        {
+            var importFile = new LanguageClientFile("/mod.bicep", importFileText);
+
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            {
+                [InMemoryFileResolver.GetFileUri(importFile.Uri.Path)] = importFile.Text,
+            });
+
+            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
+                services => services.WithFileResolver(fileResolver)
+                                                                    .WithFileExplorer(new FileSystemFileExplorer(fileResolver.MockFileSystem)));
+
+            await helper.OpenFileOnceAsync(TestContext, importFile);
+
+            (var codeActions, var bicepFile) = await GetCodeActionsForSyntaxTest(fileWithCursors, '|', server: helper);
+            codeActions.Should().Contain(x => x.Title.StartsWith(RemoveUnusedImportTitle));
+            codeActions.First(x => x.Title.StartsWith(RemoveUnusedImportTitle)).Kind.Should().Be(CodeActionKind.QuickFix);
+
+            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith(RemoveUnusedImportTitle)));
+            updatedFile.Should().HaveSourceText(expectedText);
+        }
+
+        [DataRow(
+            "import |")]
+        [DataRow(
+            "import|")]
+        [DataRow(
+            "import {} from |")]
+        [DataRow(
+            "import {|} from ")]
+        [DataRow(
+            "import * as mod |")]
+        [DataRow(
+            "import * as mod from '|'")]
+        [DataTestMethod]
+        public async Task Unused_import_actions_are_not_suggested_for_invalid_import(string fileWithCursors)
+        {
+            var importFile = new LanguageClientFile("/mod.bicep", """
+                                                                   @export()
+                                                                  type t = string
+                                                                  """);
+
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            {
+                [InMemoryFileResolver.GetFileUri(importFile.Uri.Path)] = importFile.Text,
+            });
+
+            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
+                services => services.WithFileResolver(fileResolver)
+                    .WithFileExplorer(new FileSystemFileExplorer(fileResolver.MockFileSystem)));
+
+            await helper.OpenFileOnceAsync(TestContext, importFile);
+
+            (var codeActions, var bicepFile) = await GetCodeActionsForSyntaxTest(fileWithCursors, '|', server: helper);
+            codeActions.Should().NotContain(x => x.Title.StartsWith(RemoveUnusedImportTitle));
+        }
+
+
 
         [DataRow("var|")]
         [DataRow("var |")]

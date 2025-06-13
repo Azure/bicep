@@ -16,8 +16,8 @@ namespace Bicep.Core.Syntax
         public SkippedTriviaSyntax(TextSpan span, IEnumerable<SyntaxBase> elements, IEnumerable<Diagnostic> diagnostics)
         {
             this.Span = span;
-            this.Elements = elements.ToImmutableArray();
-            this.Diagnostics = diagnostics.ToImmutableArray();
+            this.Elements = [.. elements];
+            this.Diagnostics = [.. diagnostics];
         }
 
         public override bool IsSkipped => true;

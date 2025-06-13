@@ -5,24 +5,24 @@ using System.Formats.Tar;
 using System.IO.Abstractions.TestingHelpers;
 using System.IO.Compression;
 using System.Text;
+using System.Text.Json;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
+using Bicep.IO.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using static Bicep.Core.SourceLink.SourceArchive;
-using FluentAssertions.Execution;
-using System.Text.Json;
-using Bicep.IO.Utils;
-using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.Utils;
 
 namespace Bicep.Core.UnitTests.SourceCode;
 
@@ -459,11 +459,11 @@ public class SourceArchiveTests
         {
             if (entry.Name == SourceArchiveConstants.MetadataFileName)
             {
-                metadata = JsonSerializer.Deserialize(entry.Contents, SourceArchiveMetadataSerializationContext.Default.SourceArchiveMetadata);
+                metadata = JsonSerializer.Deserialize(entry.Data.ToString(), SourceArchiveMetadataSerializationContext.Default.SourceArchiveMetadata);
             }
             else
             {
-                filesByPath[entry.Name] = entry.Contents;
+                filesByPath[entry.Name] = entry.Data.ToString();
             }
         }
 
@@ -680,7 +680,7 @@ public class SourceArchiveTests
                 @"bicep contents"
             ));
 
-        var success= result.IsSuccess(out _, out var ex);
+        var success = result.IsSuccess(out _, out var ex);
 
         success.Should().BeFalse();
         ex.Should().NotBeNull();
@@ -714,10 +714,85 @@ public class SourceArchiveTests
         );
 
         var success = result.IsSuccess(out _, out var ex);
-        
+
         success.Should().BeFalse();
         ex.Should().NotBeNull();
         ex!.Message.Should().StartWith("This source code was published with a newer, incompatible version of Bicep (0.whatever.0). You are using version ");
+    }
+
+    [TestMethod]
+    public void FindDocumentLinks_DocumentLinksNotFound_ReturnsEmptyArray()
+    {
+        var result = CreateSourceArchiveResult(
+            (
+                "__metadata.json",
+                """
+                {
+                  "entryPoint": "child.bicep",
+                  "metadataVersion": 1,
+                  "bicepVersion": "0.34.1",
+                  "sourceFiles": [
+                    {
+                      "path": "child.bicep",
+                      "archivePath": "files/child.bicep",
+                      "kind": "bicep"
+                    }
+                  ],
+                  "documentLinks": {}
+                }
+                """
+            ),
+            (
+                "child.bicep",
+                "bicep contents"
+            )
+        ).UnwrapOrThrow();
+
+        var documentLinks = result.FindDocumentLinks("child.bicep");
+
+        documentLinks.Should().BeEmpty();
+    }
+
+    [TestMethod]
+    public void FindDocumentLinks_DocumentLinksFound_ReturnsNonEmptyArray()
+    {
+        var result = CreateSourceArchiveResult(
+            (
+                "__metadata.json",
+                """
+                {
+                  "entryPoint": "child.bicep",
+                  "metadataVersion": 1,
+                  "bicepVersion": "0.34.1",
+                  "sourceFiles": [
+                    {
+                      "path": "child.bicep",
+                      "archivePath": "files/child.bicep",
+                      "kind": "bicep"
+                    }
+                  ],
+                  "documentLinks": {
+                    "dummy.bicep": [
+                      {
+                        "range": "[0:1]-[2:4]",
+                        "target": "foobar.bicep"
+                      }
+                    ]
+                  }
+                }
+                """
+            ),
+            (
+                "child.bicep",
+                "bicep contents"
+            )
+        ).UnwrapOrThrow();
+
+        var documentLinks = result.FindDocumentLinks("dummy.bicep");
+
+        documentLinks.Should().HaveCount(1);
+        documentLinks[0].Range.ToString().Should().Be("[0:1]-[2:4]");
+        documentLinks[0].Target.Should().Be("foobar.bicep");
     }
 
     private ResultWithException<SourceArchive> CreateSourceArchiveResult(params (string relativePath, string contents)[] files)
@@ -737,6 +812,6 @@ public class SourceArchiveTests
         tgzFileHandleMock.Setup(x => x.Exists()).Returns(true);
         tgzFileHandleMock.Setup(x => x.OpenRead()).Returns(stream);
 
-        return SourceArchive.TryUnpackFromFile(new(tgzFileHandleMock.Object));
+        return SourceArchive.TryUnpackFromFile(tgzFileHandleMock.Object);
     }
 }

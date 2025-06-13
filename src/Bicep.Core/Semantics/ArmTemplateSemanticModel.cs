@@ -11,6 +11,7 @@ using Azure.Deployments.Templates.Exceptions;
 using Bicep.Core.ArmHelpers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.Features;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
@@ -128,6 +129,8 @@ namespace Bicep.Core.Semantics
 
         public ImmutableArray<OutputMetadata> Outputs => this.outputsLazy.Value;
 
+        public IFeatureProvider Features => this.SourceFile.FeatureProvider;
+
         public bool HasErrors()
         {
             if (this.SourceFile.HasErrors())
@@ -225,7 +228,7 @@ namespace Bicep.Core.Semantics
 
         private ImmutableSortedDictionary<string, ExtensionMetadata> FindExtensions()
         {
-            if (this.SourceFile.FeatureProvider is not { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true } || this.SourceFile.Template?.Extensions is null)
+            if (this.SourceFile.FeatureProvider is not { ModuleExtensionConfigsEnabled: true } || this.SourceFile.Template?.Extensions is null)
             {
                 return ImmutableSortedDictionary<string, ExtensionMetadata>.Empty;
             }
@@ -272,9 +275,7 @@ namespace Bicep.Core.Semantics
                     exports.AddRange(@namespace.Members.Where(kvp => IsExported(kvp.Value))
                         .Select(kvp => new ExportedFunctionMetadata(
                             Name: $"{namePrefix}{kvp.Key}",
-                            Parameters: kvp.Value.Parameters.CoalesceEnumerable()
-                                .Select(p => new ExportedFunctionParameterMetadata(p.Name?.Value ?? string.Empty, GetType(p), GetMostSpecificDescription(p)))
-                                .ToImmutableArray(),
+                            Parameters: [.. kvp.Value.Parameters.CoalesceEnumerable().Select(p => new ExportedFunctionParameterMetadata(p.Name?.Value ?? string.Empty, GetType(p), GetMostSpecificDescription(p)))],
                             Return: new(GetType(kvp.Value.Output), GetMostSpecificDescription(kvp.Value.Output)),
                             Description: kvp.Value.Metadata?.Value is JObject metadataObject ? GetDescriptionFromMetadata(metadataObject) : null)));
                 }
@@ -312,7 +313,7 @@ namespace Bicep.Core.Semantics
                 }
                 else
                 {
-                    exportsBuilder.Add(exportsByName.Key, new DuplicatedExportMetadata(exportsByName.Key, exportsByName.Select(e => e.Kind.ToString()).ToImmutableArray()));
+                    exportsBuilder.Add(exportsByName.Key, new DuplicatedExportMetadata(exportsByName.Key, [.. exportsByName.Select(e => e.Kind.ToString())]));
                 }
             }
 

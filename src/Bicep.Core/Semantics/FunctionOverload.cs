@@ -28,7 +28,7 @@ namespace Bicep.Core.Semantics
             Description = description;
             ResultBuilder = resultBuilder;
             Evaluator = evaluator;
-            FixedParameters = fixedParameters.ToImmutableArray();
+            FixedParameters = [.. fixedParameters];
             VariableParameter = variableParameter;
             Flags = flags;
 

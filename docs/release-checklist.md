@@ -8,7 +8,7 @@
     1. Submit a Bicep PR to use the new Bicep.Types.Az NuGet package version.
         1. Update the version [here](https://github.com/Azure/bicep/blob/main/src/Bicep.Core/Bicep.Core.csproj) and run `dotnet restore` to update packages.lock.json files.
         1. Submit a PR. If CI tests fail, you may need to update baselines (run `./scripts/UpdateBaselines.ps1` in the Bicep repo) and push the changes.
-1. Verify the latest build on the `main` branch is green: [![Build](https://github.com/Azure/bicep/actions/workflows/build.yml/badge.svg)](https://github.com/Azure/bicep/actions/workflows/build.yml).
+1. Verify the latest build on the `main` branch is green: [![Build](https://github.com/Azure/bicep/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/Azure/bicep/actions/workflows/build.yml?query=branch%3Amain).
 1. (**end-of-month releases only**) Submit a PR to increment the minor version number in [this file](https://github.com/Azure/bicep/blob/main/version.json) (example [here](https://github.com/Azure/bicep/pull/9698))
 1. Run the Official Build for BicepMirror (see [this README](https://msazure.visualstudio.com/One/_git/BicepMirror) for instructions).
 1. Push the version tag for the commit used to generate the official build.
@@ -22,6 +22,7 @@
 1. Send a link to the draft release to the PM team, and ask them to clean up the release notes and update the draft release.
 1. Run `./scripts/UploadSignedReleaseArtifacts.ps1` in the BicepMirror repo to add official artifacts to the release.
     - `-WorkingDir` can be any empty temporary directory that you create
+    - `-TagName` the tag for the new release you're publishing in the format `v<new_release_number>` e.g. `v0.15.31`
     - `-BuildId` is only needed if the latest official build is NOT the official build you are trying to release
 1. Validate VSCode extension and Bicep CLI manually on Windows, Mac & Linux:
     1. Download `vscode-bicep.vsix` from the draft release, and [Install it from VSIX](https://code.visualstudio.com/docs/editor/extension-marketplace#_install-from-a-vsix). Verify that you can open a Bicep file, that text is correctly colorized, and that error messages show up as expected.

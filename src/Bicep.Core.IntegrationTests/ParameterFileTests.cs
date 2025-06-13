@@ -408,4 +408,28 @@ param foo = externalInput('sys.cli', myVar)
             ("BCP032", DiagnosticLevel.Error, "The value must be a compile-time constant."),
         });
     }
+
+    [TestMethod]
+    public void ExternalInput_emits_top_level_expression()
+    {
+        var result = CompilationHelper.CompileParams(
+            ServicesWithExternalInputFunctionEnabled,
+("parameters.bicepparam", @"
+using none
+param foo = {
+  bar: externalInput('my.param.provider')
+}
+"));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["foo"].Value.Should().BeNull();
+        parameters["foo"].Expression.Should().DeepEqual("""[createObject('bar', externalInputs('my_param_provider_0'))]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["my_param_provider_0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "my.param.provider",
+        });
+    }
 }

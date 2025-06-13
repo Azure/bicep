@@ -9,7 +9,6 @@ namespace Bicep.Core.Configuration;
 
 public record ExperimentalFeaturesEnabled(
     bool SymbolicNameCodegen,
-    bool Extensibility,
     bool ExtendableParamFiles,
     bool ResourceTypedParamsAndOutputs,
     bool SourceMapping,
@@ -19,11 +18,11 @@ public record ExperimentalFeaturesEnabled(
     bool WaitAndRetry,
     bool LocalDeploy,
     bool ResourceInfoCodegen,
-    bool TypedVariables,
     bool ModuleExtensionConfigs,
     bool DesiredStateConfiguration,
     bool ExternalInputFunction,
-    bool OnlyIfNotExists)
+    bool OnlyIfNotExists,
+    bool ModuleIdentity)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();

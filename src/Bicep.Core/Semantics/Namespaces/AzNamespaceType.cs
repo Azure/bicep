@@ -39,7 +39,7 @@ namespace Bicep.Core.Semantics.Namespaces
         private delegate bool VisibilityDelegate(ResourceScope scope, BicepSourceFileKind sourceFileKind);
         private record NamespaceValue<T>(T Value, VisibilityDelegate IsVisible);
 
-        private static readonly ImmutableArray<NamespaceValue<FunctionOverload>> Overloads = GetAzOverloads().ToImmutableArray();
+        private static readonly ImmutableArray<NamespaceValue<FunctionOverload>> Overloads = [.. GetAzOverloads()];
 
         private static FunctionOverload.ResultBuilderDelegate AddDiagnosticsAndReturnResult(TypeSymbol returnType, DiagnosticBuilder.DiagnosticBuilderDelegate writeDiagnostic)
         {
@@ -232,6 +232,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 new NamedTypeProperty("objectId", LanguageConstants.String),
                 new NamedTypeProperty("tenantId", LanguageConstants.String),
+                new NamedTypeProperty("userPrincipalName", LanguageConstants.String),
             };
 
             return new ObjectType("deployer", TypeSymbolValidationFlags.Default, properties, null);
@@ -487,6 +488,42 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription(providersDescription)
                     .WithRequiredParameter("providerNamespace", LanguageConstants.String, "the namespace of the provider")
                     .WithRequiredParameter("resourceType", LanguageConstants.String, "The type of resource within the specified namespace")
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("toLogicalZone")
+                    .WithReturnType(LanguageConstants.String)
+                    .WithGenericDescription("Returns the logical zone corresponding to the given physical zone.")
+                    .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID of the deployed availability zones")
+                    .WithRequiredParameter("location", LanguageConstants.String, "The location of the availability zone mappings")
+                    .WithRequiredParameter("physicalZone", LanguageConstants.String, "The physical zone to convert")
+                    .WithFlags(FunctionFlags.RequiresInlining)
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("toLogicalZones")
+                    .WithReturnType(new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default))
+                    .WithGenericDescription("Returns the logical zone array corresponding to the given array of physical zones.")
+                    .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID of the deployed availability zones")
+                    .WithRequiredParameter("location", LanguageConstants.String, "The location of the availability zone mappings")
+                    .WithRequiredParameter("physicalZones", LanguageConstants.Array, "An array of physical zones to convert")
+                    .WithFlags(FunctionFlags.RequiresInlining)
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("toPhysicalZone")
+                    .WithReturnType(LanguageConstants.String)
+                    .WithGenericDescription("Returns the physical zone corresponding to the given logical zone.")
+                    .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID of the deployed availability zones")
+                    .WithRequiredParameter("location", LanguageConstants.String, "The location of the availability zone mappings")
+                    .WithRequiredParameter("logicalZone", LanguageConstants.String, "The logical zone to convert")
+                    .WithFlags(FunctionFlags.RequiresInlining)
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("toPhysicalZones")
+                    .WithReturnType(new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default))
+                    .WithGenericDescription("Returns the physical zone array corresponding to the given array of logical zones.")
+                    .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID of the deployed availability zones")
+                    .WithRequiredParameter("location", LanguageConstants.String, "The location of the availability zone mappings")
+                    .WithRequiredParameter("logicalZones", LanguageConstants.Array, "An array of logical zones to convert")
+                    .WithFlags(FunctionFlags.RequiresInlining)
                     .Build();
 
                 // TODO: return type is string[]

@@ -105,6 +105,7 @@ namespace Bicep.Core.Syntax
         public static Token MetadataKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.MetadataKeyword);
         public static Token ParameterKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.ParameterKeyword);
         public static Token VariableKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.VariableKeyword);
+        public static Token FunctionKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.FunctionKeyword);
         public static Token ResourceKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.ResourceKeyword);
         public static Token ModuleKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.ModuleKeyword);
         public static Token OutputKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.OutputKeyword);
@@ -357,23 +358,32 @@ namespace Bicep.Core.Syntax
         public static Token CreateNewLineWithIndent(string indent) => GetNewlineToken(
             trailingTrivia: new SyntaxTrivia(SyntaxTriviaType.Whitespace, TextSpan.Nil, indent).AsEnumerable());
 
-        public static LambdaSyntax CreateLambdaSyntax(IReadOnlyList<string> parameterNames, SyntaxBase functionExpression)
+        public static LambdaSyntax CreateLambdaSyntax(IReadOnlyList<string> parameterNames, SyntaxBase body)
         {
             SyntaxBase variableBlock = parameterNames.Count switch
             {
-                1 => new LocalVariableSyntax(SyntaxFactory.CreateIdentifier(parameterNames[0])),
+                1 => new LocalVariableSyntax(CreateIdentifier(parameterNames[0])),
                 _ => new VariableBlockSyntax(
-                    SyntaxFactory.LeftParenToken,
-                    SyntaxFactory.Interleave(parameterNames
-                        .Select(name => new LocalVariableSyntax(SyntaxFactory.CreateIdentifier(name))), () => SyntaxFactory.CommaToken),
-                    SyntaxFactory.RightParenToken),
+                    LeftParenToken,
+                    Interleave(
+                        parameterNames.Select(name => new LocalVariableSyntax(CreateIdentifier(name))),
+                        () => CommaToken),
+                    RightParenToken),
             };
 
-            return new LambdaSyntax(
-                variableBlock,
-                SyntaxFactory.ArrowToken,
-                [],
-                functionExpression);
+            return new(variableBlock, ArrowToken, [], body);
+        }
+
+        public static TypedLambdaSyntax CreateTypedLambdaSyntax(IEnumerable<(string name, SyntaxBase type)> parameters, SyntaxBase returnType, SyntaxBase body)
+        {
+            TypedVariableBlockSyntax variableBlock = new(
+                LeftParenToken,
+                Interleave(
+                    parameters.Select(parameter => new TypedLocalVariableSyntax(CreateIdentifierWithTrailingSpace(parameter.name), parameter.type)),
+                    () => CommaToken),
+                RightParenToken);
+
+            return new(variableBlock, returnType, ArrowToken, [], body);
         }
 
         public static NonNullAssertionSyntax AsNonNullable(SyntaxBase @base) => @base switch
@@ -422,6 +432,13 @@ namespace Bicep.Core.Syntax
                 type,
                 AssignmentToken,
                 value);
+
+        public static FunctionDeclarationSyntax CreateFunctionDeclaration(string name, IEnumerable<(string name, SyntaxBase type)> parameters, SyntaxBase outputType, SyntaxBase body, IEnumerable<SyntaxBase>? leadingNodes = null)
+            => new(
+                leadingNodes ?? [],
+                FunctionKeywordToken,
+                CreateIdentifierWithTrailingSpace(name),
+                CreateTypedLambdaSyntax(parameters, outputType, body));
 
         public static ParameterDeclarationSyntax CreateParameterDeclaration(string name, SyntaxBase type, SyntaxBase? defaultValue = null, IEnumerable<SyntaxBase>? leadingNodes = null)
             => new(

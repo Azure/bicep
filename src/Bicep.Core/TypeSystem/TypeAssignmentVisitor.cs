@@ -11,6 +11,7 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
@@ -143,8 +144,8 @@ namespace Bicep.Core.TypeSystem
         public override void VisitLocalVariableSyntax(LocalVariableSyntax syntax)
             => AssignType(syntax, () =>
             {
-                // local function
-                ITypeReference GetItemType(ForSyntax @for)
+                // local functions
+                ArrayType? GetIterationTargetType(ForSyntax @for)
                 {
                     // get type of the loop array expression
                     // (this shouldn't cause a stack overflow because it's a peer node of this one)
@@ -155,12 +156,21 @@ namespace Bicep.Core.TypeSystem
                         // the array is of "any" type or the loop array expression isn't actually an array
                         // in the former case, there isn't much we can do
                         // in the latter case, we will let the ForSyntax type check rules produce the error for it
-                        return LanguageConstants.Any;
+                        return null;
                     }
 
                     // the array expression is actually an array
-                    return arrayType.Item;
+                    return arrayType;
                 }
+
+                ITypeReference GetItemType(ForSyntax @for)
+                    => GetIterationTargetType(@for)?.Item ?? LanguageConstants.Any;
+
+                long GetEnumerationTargetLength(ForSyntax @for) => GetIterationTargetType(@for)?.MaxLength switch
+                {
+                    0 or null => LanguageConstants.MaxResourceCopyIndexValue,
+                    long maxLength => maxLength - 1,
+                };
 
                 var symbol = this.binder.GetSymbolInfo(syntax);
                 if (symbol is not LocalVariableSymbol localVariableSymbol)
@@ -168,34 +178,27 @@ namespace Bicep.Core.TypeSystem
                     throw new InvalidOperationException($"{syntax.GetType().Name} is bound to unexpected type '{symbol?.GetType().Name}'.");
                 }
 
-                var parent = this.binder.GetParent(syntax);
-
-
                 switch (localVariableSymbol.LocalKind)
                 {
                     case LocalKind.ForExpressionItemVariable:
                         // this local variable is a loop item variable
                         // we should return item type of the array (if feasible)
-                        var @for = parent switch
-                        {
-                            ForSyntax forParent => forParent,
-                            VariableBlockSyntax block when this.binder.GetParent(block) is ForSyntax forParent => forParent,
-                            _ => throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}")
-                        };
 
-                        return GetItemType(@for);
+                        return GetItemType(GetParentFor(syntax));
 
                     case LocalKind.ForExpressionIndexVariable:
                         // the local variable is an index variable
                         // index variables are always of type int
-                        return LanguageConstants.Int;
+                        return TypeFactory.CreateIntegerType(
+                            minValue: 0,
+                            maxValue: GetEnumerationTargetLength(GetParentFor(syntax)));
 
                     case LocalKind.LambdaItemVariable:
-                        var (lambda, argumentIndex) = parent switch
+                        var (lambda, argumentIndex) = binder.GetParent(syntax) switch
                         {
                             LambdaSyntax lambdaSyntax => (lambdaSyntax, 0),
                             VariableBlockSyntax block when this.binder.GetParent(block) is LambdaSyntax lambdaSyntax => (lambdaSyntax, block.Arguments.IndexOf(syntax)),
-                            _ => throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}"),
+                            var parent => throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}"),
                         };
 
                         if (binder.GetParent(lambda) is { } lambdaParent &&
@@ -211,6 +214,13 @@ namespace Bicep.Core.TypeSystem
                         throw new InvalidOperationException($"Unexpected local kind '{localVariableSymbol.LocalKind}'.");
                 }
             });
+
+        private ForSyntax GetParentFor(SyntaxBase syntax) => binder.GetParent(syntax) switch
+        {
+            ForSyntax forParent => forParent,
+            VariableBlockSyntax block when this.binder.GetParent(block) is ForSyntax forParent => forParent,
+            var parent => throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}"),
+        };
 
         public override void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
@@ -916,9 +926,7 @@ namespace Bicep.Core.TypeSystem
                 }
                 else
                 {
-                    if (syntax.WithClause.IsSkipped &&
-                        namespaceType.ConfigurationType is not null &&
-                        namespaceType.ConfigurationType.Properties.Values.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required)))
+                    if (syntax.WithClause.IsSkipped && namespaceType.IsConfigurationRequired)
                     {
                         diagnostics.Write(syntax, x => x.ExtensionRequiresConfiguration(namespaceType.ExtensionName));
                     }
@@ -931,7 +939,7 @@ namespace Bicep.Core.TypeSystem
             => AssignTypeWithDiagnostics(
                 syntax, diagnostics =>
                 {
-                    if (features is not { ExtensibilityEnabled: true, ModuleExtensionConfigsEnabled: true })
+                    if (!features.ModuleExtensionConfigsEnabled)
                     {
                         return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedParamsFileDeclaration());
                     }
@@ -1068,11 +1076,6 @@ namespace Bicep.Core.TypeSystem
             {
                 if (syntax.Type is { })
                 {
-                    if (!model.Features.TypedVariablesEnabled)
-                    {
-                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).TypedVariablesUnsupported());
-                    }
-
                     var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnostics);
                     diagnostics.WriteMultiple(GetDeclarationAssignmentDiagnostics(declaredType, syntax.Value));
 
@@ -2116,7 +2119,7 @@ namespace Bicep.Core.TypeSystem
                 var argumentTypes = syntax.GetLocalVariables().Select(x => typeManager.GetTypeInfo(x));
                 var returnType = this.GetTypeInfo(syntax.Body);
 
-                return new LambdaType(argumentTypes.ToImmutableArray<ITypeReference>(), [], returnType);
+                return new LambdaType([.. argumentTypes], [], returnType);
             });
 
         public override void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax)
@@ -2405,7 +2408,7 @@ namespace Bicep.Core.TypeSystem
             IDiagnosticWriter diagnosticWriter) => GetFunctionSymbolType(function,
                 syntax,
                 // Recover argument type errors so we can continue type checking for the parent function call.
-                GetRecoveredArgumentTypes(syntax.Arguments).ToImmutableArray(),
+                [.. GetRecoveredArgumentTypes(syntax.Arguments)],
                 diagnostics,
                 diagnosticWriter);
 
@@ -2436,7 +2439,7 @@ namespace Bicep.Core.TypeSystem
                             // a diagnostic. Only the last invocation will generate a return type.
                             var resultSansNullability = GetFunctionSymbolType(function,
                                 syntax,
-                                Enumerable.Range(0, argumentTypes.Length).Select(i => tm.ArgumentIndex == i ? nonNullableArgType : argumentTypes[i]).ToImmutableArray(),
+                                [.. Enumerable.Range(0, argumentTypes.Length).Select(i => tm.ArgumentIndex == i ? nonNullableArgType : argumentTypes[i])],
                                 diagnostics,
                                 diagnosticWriter);
 

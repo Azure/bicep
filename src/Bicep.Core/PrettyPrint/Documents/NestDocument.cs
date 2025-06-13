@@ -32,7 +32,7 @@ namespace Bicep.Core.PrettyPrint.Documents
         {
             RuntimeHelpers.EnsureSufficientExecutionStack();
 
-            return new NestDocument(this.level + 1, this.successors.Select(s => s.Nest()).ToImmutableArray());
+            return new NestDocument(this.level + 1, [.. this.successors.Select(s => s.Nest())]);
         }
 
         public void Layout(StringBuilder sb, string indent, string newline)

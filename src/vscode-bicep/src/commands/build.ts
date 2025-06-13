@@ -21,10 +21,15 @@ export class BuildCommand implements Command {
       "Choose which Bicep file to build into an ARM template",
     );
 
+    if (documentUri.scheme.toLowerCase() !== "file") {
+      this.client.error("Bicep build failed. The active file must be saved to your local filesystem.", undefined, true);
+      return;
+    }
+
     try {
       const buildOutput: string = await this.client.sendRequest("workspace/executeCommand", {
         command: "build",
-        arguments: [documentUri.fsPath],
+        arguments: [documentUri.toString()],
       });
       this.outputChannelManager.appendToOutputChannel(buildOutput);
     } catch (err) {

@@ -42,7 +42,7 @@ namespace Bicep.Core.IntegrationTests
 
             var cacheRoot = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
             var services = new ServiceBuilder()
-                .WithFeatureOverrides(new(ExtensibilityEnabled: true, CacheRootDirectory: cacheRoot))
+                .WithFeatureOverrides(new(CacheRootDirectory: cacheRoot))
                 .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForAzExtension());
 
             await RegistryHelper.PublishAzExtension(services.Build(), indexJson);
@@ -63,7 +63,7 @@ namespace Bicep.Core.IntegrationTests
             var cacheRoot = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
 
             return new ServiceBuilder()
-                .WithFeatureOverrides(new(ExtensibilityEnabled: true, CacheRootDirectory: cacheRoot))
+                .WithFeatureOverrides(new(CacheRootDirectory: cacheRoot))
                 .WithContainerRegistryClientFactory(clientFactory);
         }
 
@@ -76,7 +76,6 @@ namespace Bicep.Core.IntegrationTests
             var clientFactory = RegistryHelper.CreateMockRegistryClient(new RepoDescriptor(testArtifact.RegistryAddress, testArtifact.RepositoryPath, ["v1"]));
             var services = new ServiceBuilder()
                 .WithFileSystem(fsMock)
-                .WithFeatureOverrides(new(ExtensibilityEnabled: true))
                 .WithContainerRegistryClientFactory(clientFactory);
 
             await RegistryHelper.PublishModuleToRegistryAsync(
@@ -150,7 +149,6 @@ namespace Bicep.Core.IntegrationTests
                 mockBlobClient.Object);
 
             var services = new ServiceBuilder()
-                .WithFeatureOverrides(new(ExtensibilityEnabled: true))
                 .WithContainerRegistryClientFactory(containerRegistryFactoryBuilder.Build());
 
             // ACT
@@ -208,7 +206,7 @@ namespace Bicep.Core.IntegrationTests
             // Scenario: Artifact layer payload is missing an "index.json"
             yield return new object[]
             {
-                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(
+                ExtensionResourceTypeHelper.GetTypesTgzBytesFromFiles(
                     ("unknown.json", "{}")),
                 "The path: index.json was not found in artifact contents"
             };
@@ -216,7 +214,7 @@ namespace Bicep.Core.IntegrationTests
             // Scenario: "index.json" is not valid JSON
             yield return new object[]
             {
-                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(
+                ExtensionResourceTypeHelper.GetTypesTgzBytesFromFiles(
                     ("index.json", """{"INVALID_JSON": 777""")),
                 "'7' is an invalid end of a number. Expected a delimiter. Path: $.INVALID_JSON | LineNumber: 0 | BytePositionInLine: 20."
             };
@@ -224,7 +222,7 @@ namespace Bicep.Core.IntegrationTests
             // Scenario: "index.json" with malformed or missing required data
             yield return new object[]
             {
-                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(
+                ExtensionResourceTypeHelper.GetTypesTgzBytesFromFiles(
                     ("index.json", """{ "UnexpectedMember": false}""")),
                 "Value cannot be null. (Parameter 'source')"
             };
@@ -278,7 +276,7 @@ namespace Bicep.Core.IntegrationTests
                 "1.0.0-fake");
             var services = await ServicesWithTestExtensionArtifact(
                 artifactRegistryAddress,
-                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(("index.json", EmptyIndexJson)));
+                ExtensionResourceTypeHelper.GetTypesTgzBytesFromFiles(("index.json", EmptyIndexJson)));
             services = services.WithConfigurationPatch(c => c.WithExtensions($$"""
             {
                 "az": "{{artifactRegistryAddress.ToSpecificationString(':')}}"

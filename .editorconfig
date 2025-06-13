@@ -8,6 +8,9 @@ end_of_line = lf
 trim_trailing_whitespace = true
 insert_final_newline = true
 
+[src/Bicep.Core.Samples/Files/baselines/*_CRLF/**/*.bicep]
+end_of_line = crlf
+
 [*.md]
 trim_trailing_whitespace = false # Two spaces in markdown is the same as a <br>.
 
@@ -53,11 +56,11 @@ dotnet_diagnostic.IDE0301.severity = warning
 # Use collection expression for stackalloc
 dotnet_diagnostic.IDE0302.severity = warning
 # Use collection expression for `Create()
-dotnet_diagnostic.IDE0303.severity = warning
+dotnet_diagnostic.IDE0303.severity = suggestion
 # Use collection expression for builder
 dotnet_diagnostic.IDE0304.severity = warning
 # Use collection expression for fluent
-dotnet_diagnostic.IDE0305.severity = warning
+dotnet_diagnostic.IDE0305.severity = suggestion
 
 # Unused local variables
 dotnet_diagnostic.CA1804.severity = warning

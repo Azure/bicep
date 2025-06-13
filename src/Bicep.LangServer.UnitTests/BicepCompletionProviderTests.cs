@@ -79,6 +79,15 @@ namespace Bicep.LangServer.UnitTests
             keywordCompletions.Should().SatisfyRespectively(
                 c =>
                 {
+                    c.Label.Should().Be("extension");
+                    c.Kind.Should().Be(CompletionItemKind.Keyword);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().Be("Extension keyword");
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("extension");
+                },
+                c =>
+                {
                     c.Label.Should().Be("import");
                     c.Kind.Should().Be(CompletionItemKind.Keyword);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
@@ -423,8 +432,7 @@ output length int =
             var (contents, cursor) = ParserHelper.GetFileWithSingleCursor("extension m| as graph");
 
             var completionProvider = CreateProvider();
-            var featureOverrides = new FeatureProviderOverrides(ExtensibilityEnabled: true);
-            var serviceWithGraph = new ServiceBuilder().WithFeatureOverrides(featureOverrides);
+            var serviceWithGraph = new ServiceBuilder();
 
             var compilationWithMSGraph = serviceWithGraph.BuildCompilation(contents);
             var completionsWithMSGraph = await completionProvider.GetFilteredCompletions(compilationWithMSGraph, BicepCompletionContext.Create(compilationWithMSGraph, cursor), CancellationToken.None);

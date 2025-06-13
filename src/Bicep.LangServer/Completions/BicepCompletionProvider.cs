@@ -149,11 +149,7 @@ namespace Bicep.LanguageServer.Completions
                         yield return CreateKeywordCompletion(LanguageConstants.TargetScopeKeyword, "Target Scope keyword", context.ReplacementRange);
                         yield return CreateKeywordCompletion(LanguageConstants.TypeKeyword, "Type keyword", context.ReplacementRange);
                         yield return CreateKeywordCompletion(LanguageConstants.ImportKeyword, "Import keyword", context.ReplacementRange);
-
-                        if (model.Features.ExtensibilityEnabled)
-                        {
-                            yield return CreateKeywordCompletion(LanguageConstants.ExtensionKeyword, "Extension keyword", context.ReplacementRange);
-                        }
+                        yield return CreateKeywordCompletion(LanguageConstants.ExtensionKeyword, "Extension keyword", context.ReplacementRange);
 
                         if (model.Features.TestFrameworkEnabled)
                         {
@@ -202,6 +198,8 @@ namespace Bicep.LanguageServer.Completions
                         }
 
                         yield return CreateKeywordCompletion(LanguageConstants.ParameterKeyword, "Parameter assignment keyword", context.ReplacementRange);
+
+                        yield return CreateKeywordCompletion(LanguageConstants.ExtendsKeyword, "Extends keyword", context.ReplacementRange);
 
                         break;
 
@@ -314,8 +312,7 @@ namespace Bicep.LanguageServer.Completions
                 return GetTypeCompletions(model, context);
             }
 
-            if (context.Kind.HasFlag(BicepCompletionContextKind.VariableNameFollower) &&
-                model.Features.TypedVariablesEnabled)
+            if (context.Kind.HasFlag(BicepCompletionContextKind.VariableNameFollower))
             {
                 return GetTypeCompletions(model, context);
             }
@@ -1072,9 +1069,9 @@ namespace Bicep.LanguageServer.Completions
                         break;
                     }
 
-                    if (scope.ScopeResolution == ScopeResolution.InheritFunctionsOnly)
+                    if (scope.ScopeResolution == ScopeResolution.InheritFunctionsAndVariablesOnly)
                     {
-                        symbolFilter = symbol => symbol is DeclaredFunctionSymbol;
+                        symbolFilter = symbol => symbol is VariableSymbol or ImportedVariableSymbol or DeclaredFunctionSymbol or ImportedFunctionSymbol or WildcardImportSymbol;
                     }
                 }
             }
@@ -1352,8 +1349,26 @@ namespace Bicep.LanguageServer.Completions
                 return [];
             }
 
+            // Check if the property name is "identity" and the parent is a resource or module
+            // Use a single identity snippet provider for both resources and modules
+            IEnumerable<CompletionItem> snippetCompletions = [];
+            if (context.Property is { } propertySyntax &&
+                propertySyntax.TryGetKeyText() is "identity" &&
+                (context.EnclosingDeclaration is ResourceDeclarationSyntax ||
+                 (context.EnclosingDeclaration is ModuleDeclarationSyntax && model.Features.ModuleIdentityEnabled)))
+            {
+                snippetCompletions = snippetsProvider.GetIdentitySnippets(context.EnclosingDeclaration is ResourceDeclarationSyntax)
+                    .Select(snippet => CreateContextualSnippetCompletion(
+                        snippet.Prefix,
+                        snippet.Detail,
+                        snippet.Text,
+                        context.ReplacementRange,
+                        snippet.CompletionPriority,
+                        preselect: true));
+            }
+
             var loopsAllowed = context.Property is not null && ForSyntaxValidatorVisitor.IsAddingPropertyLoopAllowed(model, context.Property);
-            return GetValueCompletionsForType(model, context, declaredTypeAssignment.Reference.Type, context.Property?.Value, loopsAllowed);
+            return GetValueCompletionsForType(model, context, declaredTypeAssignment.Reference.Type, context.Property?.Value, loopsAllowed).Concat(snippetCompletions);
         }
 
         private IEnumerable<CompletionItem> GetArrayItemCompletions(SemanticModel model, BicepCompletionContext context)

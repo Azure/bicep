@@ -1,6 +1,5 @@
 {
   "experimentalFeaturesEnabled": {
-    "extensibility": true,
     "localDeploy": true
   },
   "extensions": {

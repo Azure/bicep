@@ -749,7 +749,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        environment: [prod, ff]
+        environment: [prod] # [prod, ff] - re-add ff once the environment has been re-enabled
         runtime:
           # should be the list of RIDs that correspond to OSs supported by GitHub hosted runners
           - os: windows-latest
@@ -817,7 +817,7 @@ jobs:
     name: Test CLI (live) (linux-musl-x64) (${{ matrix.environment }})
     strategy:
       matrix:
-        environment: [prod, ff]
+        environment: [prod] # [prod, ff] - re-add ff once the environment has been re-enabled
     runs-on: ubuntu-latest
     container:
       # The azure-cli image is based on Alpine linux which uses musl libc.

@@ -95,11 +95,6 @@
           "description": "When completing 'br:' module references, query Azure for all container registries accessible to the user (may be slow). If this option is off, only registries configured under moduleAliases in bicepconfig.json will be listed.",
           "default": false
         },
-        "bicep.experimental.disableDeploymentPane": {
-          "type": "boolean",
-          "description": "Disable the experimental Bicep Deployment Pane.",
-          "default": false
-        },
         "bicep.trace.server": {
           "type": "string",
           "enum": [
@@ -182,14 +177,12 @@
     "commands": [
       {
         "command": "bicep.showDeployPane",
-        "when": "!config.bicep.experimental.disableDeploymentPane",
         "title": "Show Deployment Pane",
         "category": "Bicep",
         "icon": "$(cloud-upload)"
       },
       {
         "command": "bicep.showDeployPaneToSide",
-        "when": "!config.bicep.experimental.disableDeploymentPane",
         "title": "Show Deployment Pane to the Side",
         "category": "Bicep",
         "icon": "$(cloud-upload)"
@@ -345,7 +338,7 @@
       "editor/title": [
         {
           "command": "bicep.showDeployPaneToSide",
-          "when": "!config.bicep.experimental.disableDeploymentPane && (editorLangId == bicep || editorLangId == bicep-params)",
+          "when": "editorLangId == bicep || editorLangId == bicep-params",
           "alt": "bicep.showDeployPane",
           "group": "navigation"
         },
@@ -404,12 +397,12 @@
         },
         {
           "command": "bicep.showDeployPane",
-          "when": "!config.bicep.experimental.disableDeploymentPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
+          "when": "resourceLangId == bicep || resourceLangId == bicep-params",
           "group": "2_bicep_2_deploy"
         },
         {
           "command": "bicep.showDeployPaneToSide",
-          "when": "!config.bicep.experimental.disableDeploymentPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
+          "when": "resourceLangId == bicep || resourceLangId == bicep-params",
           "group": "2_bicep_2_deploy"
         },
         {
@@ -466,12 +459,12 @@
         },
         {
           "command": "bicep.showDeployPane",
-          "when": "!config.bicep.experimental.disableDeploymentPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
+          "when": "resourceLangId == bicep || resourceLangId == bicep-params",
           "group": "2_bicep_2_deploy"
         },
         {
           "command": "bicep.showDeployPaneToSide",
-          "when": "!config.bicep.experimental.disableDeploymentPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
+          "when": "resourceLangId == bicep || resourceLangId == bicep-params",
           "group": "2_bicep_2_deploy"
         },
         {
@@ -533,12 +526,12 @@
         },
         {
           "command": "bicep.showDeployPane",
-          "when": "!config.bicep.experimental.disableDeploymentPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
+          "when": "resourceLangId == bicep || resourceLangId == bicep-params",
           "group": "2_bicep_2_deploy"
         },
         {
           "command": "bicep.showDeployPaneToSide",
-          "when": "!config.bicep.experimental.disableDeploymentPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
+          "when": "resourceLangId == bicep || resourceLangId == bicep-params",
           "group": "2_bicep_2_deploy"
         },
         {
@@ -590,12 +583,10 @@
         },
         {
           "command": "bicep.showDeployPane",
-          "when": "!config.bicep.experimental.disableDeploymentPane",
           "group": "0_bicep"
         },
         {
           "command": "bicep.showDeployPaneToSide",
-          "when": "!config.bicep.experimental.disableDeploymentPane",
           "group": "0_bicep"
         },
         {
@@ -764,7 +755,7 @@
     "@types/fs-extra": "^11.0.4",
     "@types/jest": "^29.5.13",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^22.13.0",
+    "@types/node": "^22.15.2",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.0",
     "@types/react-test-renderer": "^18.3.0",
@@ -773,8 +764,8 @@
     "@types/vscode": "^1.90.0",
     "@types/webpack": "^5.28.5",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
-    "@typescript-eslint/parser": "^8.26.1",
-    "@vscode/test-electron": "^2.4.1",
+    "@typescript-eslint/parser": "^8.30.1",
+    "@vscode/test-electron": "^2.5.2",
     "@vscode/vsce": "^3.2.1",
     "copy-webpack-plugin": "^13.0.0",
     "css-loader": "^7.1.2",
@@ -797,7 +788,7 @@
     "style-loader": "^4.0.0",
     "svg-inline-loader": "^0.8.2",
     "terser-webpack-plugin": "5.3.14",
-    "ts-jest": "^29.2.6",
+    "ts-jest": "^29.3.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
     "webpack": "^5.98.0",
@@ -807,7 +798,7 @@
     "@azure/arm-managementgroups": "2.0.2",
     "@azure/arm-resources": "^6.0.0",
     "@azure/arm-subscriptions": "^5.1.0",
-    "@azure/identity": "^4.8.0",
+    "@azure/identity": "^4.10.0",
     "@microsoft/vscode-azext-azureauth": "^4.1.1",
     "@microsoft/vscode-azext-azureutils": "^3.1.3",
     "@microsoft/vscode-azext-utils": "^2.6.6",
@@ -818,7 +809,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.5.0",
-    "styled-components": "^6.1.17",
+    "styled-components": "^6.1.18",
     "stylis": "^4.3.6",
     "triple-beam": "^1.4.1",
     "vscode-languageclient": "^9.0.1",
