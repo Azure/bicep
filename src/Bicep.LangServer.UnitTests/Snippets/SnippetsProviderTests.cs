@@ -457,6 +457,62 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         }
 
         [TestMethod]
+        public void GetModuleBodyCompletionSnippets_WithNoRequiredProperties_ShouldReturnEmptySnippet()
+        {
+            var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
+            {
+                new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.ReadOnly),
+                new NamedTypeProperty("location", LanguageConstants.String, TypePropertyFlags.WriteOnly),
+                new NamedTypeProperty("id", LanguageConstants.String)
+            }, null);
+            TypeSymbol typeSymbol = new ModuleType("module", ResourceScope.Module, objectType);
+
+            IEnumerable<Snippet> snippets = CreateSnippetsProvider().GetModuleBodyCompletionSnippets(typeSymbol);
+
+            snippets.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Prefix.Should().Be("{}");
+                    x.Detail.Should().Be("{}");
+                    x.CompletionPriority.Should().Be(CompletionPriority.Medium);
+                    x.Text.Should().Be("{\n\t$0\n}");
+                });
+        }
+
+        [TestMethod]
+        public void GetModuleBodyCompletionSnippets_WithRequiredProperties_ShouldReturnEmptyAndRequiredPropertiesSnippets()
+        {
+            var objectType = new ObjectType("objA", TypeSymbolValidationFlags.Default, new[]
+            {
+                new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
+                new NamedTypeProperty("location", LanguageConstants.String, TypePropertyFlags.Required),
+                new NamedTypeProperty("id", LanguageConstants.String)
+            }, null);
+            TypeSymbol typeSymbol = new ModuleType("module", ResourceScope.Module, objectType);
+
+            IEnumerable<Snippet> snippets = CreateSnippetsProvider().GetModuleBodyCompletionSnippets(typeSymbol);
+
+            snippets.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Prefix.Should().Be("{}");
+                    x.Detail.Should().Be("{}");
+                    x.CompletionPriority.Should().Be(CompletionPriority.Medium);
+                    x.Text.Should().Be("{\n\t$0\n}");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("required-properties");
+                    x.Detail.Should().Be("Required properties");
+                    x.CompletionPriority.Should().Be(CompletionPriority.Medium);
+                    x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
+	name: $1
+	location: $2
+}$0");
+                });
+        }
+
+        [TestMethod]
         public void GetIdentitySnippets_ForModule_ShouldReturnAllModuleIdentitySnippets()
         {
             var provider = CreateSnippetsProvider();

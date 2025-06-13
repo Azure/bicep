@@ -14,7 +14,7 @@ namespace Bicep.LanguageServer.Snippets
 
         IEnumerable<Snippet> GetTopLevelNamedDeclarationSnippets();
 
-        IEnumerable<Snippet> GetModuleBodyCompletionSnippets(TypeSymbol typeSymbol, IFeatureProvider featureProvider);
+        IEnumerable<Snippet> GetModuleBodyCompletionSnippets(TypeSymbol typeSymbol);
 
         IEnumerable<Snippet> GetTestBodyCompletionSnippets(TypeSymbol typeSymbol);
 

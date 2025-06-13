@@ -196,7 +196,7 @@ public class SnippetsProvider : ISnippetsProvider
         return new Snippet("{\n\t$0\n}", CompletionPriority.Medium, label, label);
     }
 
-    public IEnumerable<Snippet> GetModuleBodyCompletionSnippets(TypeSymbol typeSymbol, IFeatureProvider features)
+    public IEnumerable<Snippet> GetModuleBodyCompletionSnippets(TypeSymbol typeSymbol)
     {
         yield return GetEmptySnippet();
 
