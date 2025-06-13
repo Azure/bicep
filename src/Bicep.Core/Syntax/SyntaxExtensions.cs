@@ -83,14 +83,6 @@ public static class SyntaxExtensions
     }
 
     /// <summary>
-    /// Checks recursively for secure values/secrets in output. If so, the output is marked as secure.
-    /// </summary>
-    public static bool IsSecureOutput(this OutputDeclarationSyntax syntax, SemanticModel model)
-    {
-        return FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(model, syntax).Any();
-    }
-
-    /// <summary>
     /// Checks for secure decorator in output decleration.
     /// </summary>
     public static bool HasSecureDecorator(this DecorableSyntax syntax, IBinder binder, ITypeManager typeManager)

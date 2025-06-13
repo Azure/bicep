@@ -240,7 +240,7 @@ namespace Bicep.Core.Emit
                 return false;
             }
 
-            switch (this.TryResolveSymbol(syntax.BaseExpression))
+            switch (this.TryResolveSymbol(SyntaxHelper.UnwrapNonNullAssertion(syntax.BaseExpression)))
             {
                 // Note - there's a limitation here that we're using the 'declared' type and not the 'assigned' type.
                 // This means that we may encounter a DiscriminatedObjectType. For now we should accept this limitation,

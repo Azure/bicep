@@ -112,7 +112,7 @@ resource bastionHost 'Microsoft.Network/bastionHosts@2020-05-01' = {
         name: 'IpConf'
         properties: {
           subnet: {
-            id: subnet.id
+            id: subnet!.id
           }
           publicIPAddress: {
             id: publicIp.id

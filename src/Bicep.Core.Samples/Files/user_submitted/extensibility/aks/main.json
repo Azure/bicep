@@ -1,12 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-  "languageVersion": "2.0",
   "contentVersion": "1.0.0.0",
   "metadata": {
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8249032573643516654"
+      "templateHash": "10654511320101374646"
     }
   },
   "parameters": {
@@ -23,14 +22,14 @@
       "type": "string"
     }
   },
-  "resources": {
-    "rg": {
+  "resources": [
+    {
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2021-04-01",
       "name": "[parameters('baseName')]",
       "location": "[deployment().location]"
     },
-    "aks": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "aks-deploy",
@@ -56,13 +55,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "2.0",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12778213541556099783"
+              "templateHash": "5761518994322008170"
             }
           },
           "parameters": {
@@ -88,8 +86,8 @@
             "agentCount": 3,
             "agentVMSize": "standard_f2s_v2"
           },
-          "resources": {
-            "aks": {
+          "resources": [
+            {
               "type": "Microsoft.ContainerService/managedClusters",
               "apiVersion": "2020-09-01",
               "name": "[parameters('baseName')]",
@@ -121,24 +119,24 @@
                 "type": "SystemAssigned"
               }
             }
-          },
+          ],
           "outputs": {
             "fqdn": {
               "type": "string",
-              "value": "[reference('aks').fqdn]"
+              "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('baseName')), '2020-09-01').fqdn]"
             },
             "kubeConfig": {
               "type": "string",
-              "value": "[listClusterAdminCredential('aks', '2020-09-01').kubeconfigs[0].value]"
+              "value": "[listClusterAdminCredential(resourceId('Microsoft.ContainerService/managedClusters', parameters('baseName')), '2020-09-01').kubeconfigs[0].value]"
             }
           }
         }
       },
       "dependsOn": [
-        "rg"
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('baseName'))]"
       ]
     },
-    "kubernetes": {
+    {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "kubernetes-deploy",
@@ -150,7 +148,7 @@
         "mode": "Incremental",
         "parameters": {
           "kubeConfig": {
-            "value": "[reference('aks').outputs.kubeConfig.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('baseName')), 'Microsoft.Resources/deployments', 'aks-deploy'), '2022-09-01').outputs.kubeConfig.value]"
           }
         },
         "template": {
@@ -351,9 +349,9 @@
         }
       },
       "dependsOn": [
-        "aks",
-        "rg"
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('baseName')), 'Microsoft.Resources/deployments', 'aks-deploy')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', parameters('baseName'))]"
       ]
     }
-  }
+  ]
 }
