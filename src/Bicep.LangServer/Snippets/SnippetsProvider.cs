@@ -196,7 +196,7 @@ public class SnippetsProvider : ISnippetsProvider
         return new Snippet("{\n\t$0\n}", CompletionPriority.Medium, label, label);
     }
 
-    public IEnumerable<Snippet> GetModuleBodyCompletionSnippets(TypeSymbol typeSymbol, IFeatureProvider features)
+    public IEnumerable<Snippet> GetModuleBodyCompletionSnippets(TypeSymbol typeSymbol)
     {
         yield return GetEmptySnippet();
 
@@ -207,16 +207,6 @@ public class SnippetsProvider : ISnippetsProvider
             if (snippet is not null)
             {
                 yield return snippet;
-            }
-
-            if (features.ModuleIdentityEnabled)
-            {
-                IEnumerable<Snippet> identitySnippets = GetModuleIdentitySnippets();
-
-                foreach (var identitySnippet in identitySnippets)
-                {
-                    yield return identitySnippet;
-                }
             }
         }
     }
@@ -298,7 +288,7 @@ public class SnippetsProvider : ISnippetsProvider
         }
     }
 
-    private IEnumerable<Snippet> GetModuleIdentitySnippets()
+    public IEnumerable<Snippet> GetIdentitySnippets(bool isResource)
     {
         string userAssignedIdentityLabel = "user-assigned-identity";
         string userAssignedIdentityDescription = "User assigned identity";
@@ -307,32 +297,49 @@ public class SnippetsProvider : ISnippetsProvider
         string noneIdentityLabel = "none-identity";
         string noneIdentityDescription = "None identity";
 
-        yield return new Snippet("""
-            {
-              identity: {
-                type: 'UserAssigned'
-                userAssignedIdentities: {
-                  '${${0:identityId}}': {}
-                }
-              }
-            }
-            """, CompletionPriority.Low, userAssignedIdentityLabel, userAssignedIdentityDescription);
+        string systemAssignedIdentityLabel = "system-assigned-identity";
+        string systemAssignedIdentityDescription = "System assigned identity";
+        string userAndSystemAssignedIdentityLabel = "user-and-system-assigned-identity";
+        string userAndSystemAssignedIdentityDescription = "User and system assigned identity";
 
         yield return new Snippet("""
             {
-              identity: {
-                type: 'UserAssigned'
-                userAssignedIdentities: toObject(${0:identityIdArray}, x => x, x => {})
+              type: 'UserAssigned'
+              userAssignedIdentities: {
+                '${${0:identityId}}': {}
               }
             }
-            """, CompletionPriority.Low, userAssignedIdentityArrayLabel, userAssignedIdentityArrayDescription);
+            """, CompletionPriority.High, userAssignedIdentityLabel, userAssignedIdentityDescription);
 
         yield return new Snippet("""
             {
-              identity: {
-                type: 'None'
+              type: 'UserAssigned'
+              userAssignedIdentities: toObject(${0:identityIdArray}, x => x, x => {})
+            }
+            """, CompletionPriority.High, userAssignedIdentityArrayLabel, userAssignedIdentityArrayDescription);
+
+        yield return new Snippet("""
+            {
+              type: 'None'
+            }
+            """, CompletionPriority.High, noneIdentityLabel, noneIdentityDescription);
+
+        if (isResource)
+        {
+            yield return new Snippet("""
+            {
+              type: 'SystemAssigned'
+            }
+            """, CompletionPriority.High, systemAssignedIdentityLabel, systemAssignedIdentityDescription);
+
+            yield return new Snippet("""
+            {
+              type: 'SystemAssigned,UserAssigned'
+              userAssignedIdentities: {
+                '${${0:identityId}}': {}
               }
             }
-            """, CompletionPriority.Low, noneIdentityLabel, noneIdentityDescription);
+            """, CompletionPriority.High, userAndSystemAssignedIdentityLabel, userAndSystemAssignedIdentityDescription);
+        }
     }
 }
