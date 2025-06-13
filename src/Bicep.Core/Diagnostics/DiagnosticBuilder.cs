@@ -1917,7 +1917,7 @@ namespace Bicep.Core.Diagnostics
                 $"""Module "{moduleName}" contains one or more secure outputs, which are not supported with "{LanguageConstants.TargetScopeKeyword}" set to "{LanguageConstants.TargetScopeTypeLocal}".""");
 
             public Diagnostic InstanceFunctionCallOnPossiblyNullBase(TypeSymbol baseType, SyntaxBase expression) => CoreWarning(
-                "BCP418",
+                "BCP422",
                 $"A resource of type \"{baseType}\" may or may not exist when this function is called, which could cause the deployment to fail.")
                 with
             { Fixes = [AsNonNullable(expression)] };

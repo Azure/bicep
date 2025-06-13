@@ -7337,7 +7337,7 @@ var subnetId = vNet::subnets[0].id
               name: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
             }
 
-            var appServiceId = shouldDeploy ? deployAppService.id : existingAppService.id
+            var appServiceId = shouldDeploy ? deployAppService!.id : existingAppService.id
             resource contributorRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if (shouldDeploy) {
               name: guid(appServiceId, someIdentityObjectId, 'contributor')
               scope: shouldDeploy ? deployAppService : existingAppService
@@ -7395,7 +7395,7 @@ output secret string = secret
 
         result.Should().HaveDiagnostics(new[]
         {
-            ("BCP418", DiagnosticLevel.Warning, "A resource of type \"Microsoft.Storage/storageAccounts | null\" may or may not exist when this function is called, which could cause the deployment to fail."),
+            ("BCP422", DiagnosticLevel.Warning, "A resource of type \"Microsoft.Storage/storageAccounts | null\" may or may not exist when this function is called, which could cause the deployment to fail."),
         });
     }
 }
