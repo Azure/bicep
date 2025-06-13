@@ -1364,7 +1364,7 @@ namespace Bicep.LanguageServer.Completions
                         snippet.Text,
                         context.ReplacementRange,
                         snippet.CompletionPriority,
-                        preselect: false));
+                        preselect: true));
             }
 
             var loopsAllowed = context.Property is not null && ForSyntaxValidatorVisitor.IsAddingPropertyLoopAllowed(model, context.Property);
