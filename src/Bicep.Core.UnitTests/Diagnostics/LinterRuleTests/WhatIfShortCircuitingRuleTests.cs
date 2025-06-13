@@ -68,7 +68,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         }
                      """)]);
 
-            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'condition' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precision predictions in What-If.");
+            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'condition' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If.");
         }
 
         [TestMethod]
@@ -123,7 +123,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         }
                     """)]);
 
-            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'test' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precision predictions in What-If.");
+            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'test' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If.");
         }
 
         [TestMethod]
@@ -152,7 +152,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         }
                     """)]);
 
-            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'test' is used as a resource identifier, API version, or condition in the module 'createSA'. Providing a runtime value for this parameter will lead to short-circuiting or less precision predictions in What-If.");
+            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'test' is used as a resource identifier, API version, or condition in the module 'createSA'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If.");
         }
 
         [TestMethod]
@@ -206,7 +206,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         }
                     """)]);
 
-            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'test' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precision predictions in What-If.");
+            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'test' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If.");
         }
 
         [TestMethod]
@@ -261,8 +261,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             result.Should().HaveDiagnostics(new[]
             {
-                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'condition' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precision predictions in What-If."),
-                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'name' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precision predictions in What-If."),
+                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'condition' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
+                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'name' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
             });
         }
 
@@ -347,12 +347,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             result.Should().HaveDiagnostics(new[]
             {
-                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'condition' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precision predictions in What-If."),
-                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'nestedCondition' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precision predictions in What-If."),
-                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'name' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precision predictions in What-If."),
-                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'nestedName' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precision predictions in What-If."),
-                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'apiVersion' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precision predictions in What-If."),
-                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'nestedApiVersion' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precision predictions in What-If."),
+                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'condition' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
+                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'nestedCondition' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
+                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'name' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
+                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'nestedName' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
+                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'apiVersion' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
+                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'nestedApiVersion' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
             });
         }
 
@@ -384,7 +384,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             result.Should().HaveDiagnostics(new[]
             {
-                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'condition' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precision predictions in What-If."),
+                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'condition' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
             });
         }
     }

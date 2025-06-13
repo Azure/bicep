@@ -1195,7 +1195,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Parameter &apos;{0}&apos; is used as a resource identifier, API version, or condition in the module &apos;{1}&apos;. Providing a runtime value for this parameter will lead to short-circuiting or less precision predictions in What-If..
+        ///   Looks up a localized string similar to Parameter &apos;{0}&apos; is used as a resource identifier, API version, or condition in the module &apos;{1}&apos;. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If..
         /// </summary>
         internal static string WhatIfShortCircuitingRuleMessageFormat {
             get {
