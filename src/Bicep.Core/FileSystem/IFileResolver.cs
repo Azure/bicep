@@ -12,11 +12,4 @@ public interface IFileResolver
     /// </summary>
     /// <param name="fileUri">The file URI to read.</param>
     ResultWithDiagnosticBuilder<string> TryRead(Uri fileUri);
-
-    /// <summary>
-    /// Tries to resolve a child file path relative to a parent module file path.
-    /// </summary>
-    /// <param name="parentFileUri">The file URI of the parent.</param>
-    /// <param name="childFilePath">The file path of the child.</param>
-    Uri? TryResolveFilePath(Uri parentFileUri, string childFilePath);
 }

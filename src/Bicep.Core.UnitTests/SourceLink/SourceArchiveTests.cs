@@ -459,11 +459,11 @@ public class SourceArchiveTests
         {
             if (entry.Name == SourceArchiveConstants.MetadataFileName)
             {
-                metadata = JsonSerializer.Deserialize(entry.Contents, SourceArchiveMetadataSerializationContext.Default.SourceArchiveMetadata);
+                metadata = JsonSerializer.Deserialize(entry.Data.ToString(), SourceArchiveMetadataSerializationContext.Default.SourceArchiveMetadata);
             }
             else
             {
-                filesByPath[entry.Name] = entry.Contents;
+                filesByPath[entry.Name] = entry.Data.ToString();
             }
         }
 
@@ -812,6 +812,6 @@ public class SourceArchiveTests
         tgzFileHandleMock.Setup(x => x.Exists()).Returns(true);
         tgzFileHandleMock.Setup(x => x.OpenRead()).Returns(stream);
 
-        return SourceArchive.TryUnpackFromFile(new(tgzFileHandleMock.Object));
+        return SourceArchive.TryUnpackFromFile(tgzFileHandleMock.Object);
     }
 }
