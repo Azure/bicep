@@ -5826,7 +5826,7 @@ module myMod './mod.bicep' = {
             {
                 [DocumentUri.From("file:///mod.bicep")] = """
 param foo string = 'bar'
-""", 
+""",
                 [mainUri] = text
             };
 
