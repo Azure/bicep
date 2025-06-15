@@ -20,7 +20,7 @@
     "globals": "^16.2.0",
     "html-escaper": "^3.0.3",
     "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
+    "jest-environment-jsdom": "^30.0.0",
     "monaco-editor-core": "^0.52.2",
     "ts-jest": "^29.3.4",
     "ts-node": "^10.9.2",
