@@ -1453,6 +1453,11 @@ namespace Bicep.LanguageServer.Completions
                 return [];
             }
 
+            if (argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringDirectoryPath))
+            {
+                return CreateDirectoryCompletionItems(context.ReplacementRange, fileCompletionInfo,CompletionPriority.VeryHigh);
+            }
+
             IEnumerable<CompletionItem> fileItems;
             if (argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringJsonFilePath))
             {
@@ -1473,7 +1478,7 @@ namespace Bicep.LanguageServer.Completions
                 fileItems = CreateFileCompletionItems(model.SourceFile.FileHandle, context.ReplacementRange, fileCompletionInfo, (_) => true, CompletionPriority.High);
             }
 
-            var dirItems = CreateDirectoryCompletionItems(context.ReplacementRange, fileCompletionInfo, CompletionPriority.Medium);
+            var dirItems = CreateDirectoryCompletionItems(context.ReplacementRange, fileCompletionInfo,CompletionPriority.Medium);
 
             return fileItems.Concat(dirItems);
         }
