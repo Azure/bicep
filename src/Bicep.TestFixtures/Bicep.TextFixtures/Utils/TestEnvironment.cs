@@ -13,7 +13,7 @@ namespace Bicep.TextFixtures.Utils
 {
     public record TestEnvironment(ImmutableDictionary<string, string?> Variables, string CurrentDirectory) : IEnvironment
     {
-        public readonly static TestEnvironment Default = new([], System.Environment.CurrentDirectory); 
+        public readonly static TestEnvironment Default = new([], System.Environment.CurrentDirectory);
 
         public TestEnvironment(Dictionary<string, string?> variables, string currentDirectory)
             : this(variables.ToImmutableDictionary(), currentDirectory)
