@@ -154,20 +154,20 @@
       },
       "Azure.Deployments.DiffEngine": {
         "type": "Transitive",
-        "resolved": "1.384.0",
-        "contentHash": "CzFIHeHkaqnUPaO1gxTgePKSnhUUAklVh30O1W8IzjvGJQxh9DWyzKoXpix8XPz9RNYLdyHChbxaX7OHkTwa4w=="
+        "resolved": "1.393.0",
+        "contentHash": "8cfeZnoLd7ImE3OdMbidcZjQsMFPXDpZKOYusNkgh7zsDmSJQElkFgRdzJiW/JjQ+mAWqFjTb4UIfjK+vlTqow=="
       },
       "Azure.Deployments.Engine": {
         "type": "Transitive",
-        "resolved": "1.384.0",
-        "contentHash": "U75nP+Ed+PttUjQXJGqjCbQ7pLBkKLUuv5LR2m+5SdnPg6yN8RNSJ5MUU09UxBlFCLTbajfWiYCEb/H7d/UK7Q==",
+        "resolved": "1.393.0",
+        "contentHash": "0fYpgNZlp53bCgyHzVAOxkUL626aVjWmAUDi3bOu+sXDthQTNSV+nYRd9STe+unVQvd9vXeq7MvwUVjdgGaNdQ==",
         "dependencies": {
           "Azure.Bicep.Types": "0.5.110",
-          "Azure.Deployments.Core": "1.384.0",
-          "Azure.Deployments.DiffEngine": "1.384.0",
-          "Azure.Deployments.Extensibility": "1.384.0",
+          "Azure.Deployments.Core": "1.393.0",
+          "Azure.Deployments.DiffEngine": "1.393.0",
+          "Azure.Deployments.Extensibility": "1.393.0",
           "Azure.Deployments.ResourceMetadata": "1.71.0",
-          "Azure.Deployments.Templates": "1.384.0",
+          "Azure.Deployments.Templates": "1.393.0",
           "IPNetwork2": "2.6.598",
           "JsonDiffPatch.Net": "2.3.0",
           "Microsoft.AspNet.WebApi.Client": "6.0.0",
@@ -203,10 +203,10 @@
       },
       "Azure.Deployments.Extensibility": {
         "type": "Transitive",
-        "resolved": "1.384.0",
-        "contentHash": "CvE+M/Ri7NnlgxItZm9Ioa2WI8b7XqLo7F7Hh9oWrk3M3akrnBZcud1wUDoJQZqVr/4+z0KhxFAL/FHEY35ZeA==",
+        "resolved": "1.393.0",
+        "contentHash": "omXL9qrtnqeAoirw2etVHLkQ8ZtQlxLDB+mHh8Tw02RDDc0+7CrinfsIy7FJcgbHSpgE8EIn08ZZ3TFTnM662Q==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.384.0",
+          "Azure.Deployments.Core": "1.393.0",
           "Microsoft.AspNet.WebApi.Client": "6.0.0",
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
           "Microsoft.PowerPlatform.ResourceStack": "7.0.0.2070",
@@ -1636,7 +1636,7 @@
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )",
           "Azure.Bicep.Local.Extension": "[1.0.0, )",
-          "Azure.Deployments.Engine": "[1.384.0, )",
+          "Azure.Deployments.Engine": "[1.393.0, )",
           "Azure.Deployments.Extensibility.Core": "[0.1.67, )",
           "Microsoft.AspNet.WebApi.Client": "[6.0.0, )"
         }
