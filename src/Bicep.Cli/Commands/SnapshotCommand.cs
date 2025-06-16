@@ -12,6 +12,7 @@ using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Expression.Intermediate;
 using Azure.Deployments.Expression.Intermediate.Extensions;
 using Azure.Deployments.Templates.Engines;
+using Azure.Deployments.Templates.Exceptions;
 using Azure.Deployments.Templates.ParsedEntities;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
@@ -101,18 +102,27 @@ public class SnapshotCommand(
             return null;
         }
 
-        return await SnapshotHelper.GetSnapshot(
-            targetScope: compilation.GetEntrypointSemanticModel().TargetScope,
-            templateContent: templateContent,
-            parametersContent: parametersContent,
-            tenantId: arguments.TenantId,
-            subscriptionId: arguments.SubscriptionId,
-            resourceGroup: arguments.ResourceGroup,
-            location: arguments.Location,
-            deploymentName: arguments.DeploymentName,
-            cancellationToken: cancellationToken,
-            // TODO: Add support for external input values
-            externalInputs: []);
+        try
+        {
+            return await SnapshotHelper.GetSnapshot(
+                targetScope: compilation.GetEntrypointSemanticModel().TargetScope,
+                templateContent: templateContent,
+                parametersContent: parametersContent,
+                tenantId: arguments.TenantId,
+                subscriptionId: arguments.SubscriptionId,
+                resourceGroup: arguments.ResourceGroup,
+                location: arguments.Location,
+                deploymentName: arguments.DeploymentName,
+                cancellationToken: cancellationToken,
+                // TODO: Add support for external input values
+                externalInputs: []);
+        }
+        catch (TemplateValidationException e)
+        {
+            throw new CommandLineException(
+                $"Template snapshotting could not be completed for the following reason: '{e.Message}'.",
+                e);
+        }
     }
 
     private Snapshot ReadSnapshot(IOUri uri)
