@@ -61,13 +61,13 @@ param publicIPDns string = 'linux-vm-${uniqueString(resourceGroup().id)}'
 param publicIPResourceGroupName string = resourceGroup().name
 
 var storageAccountId = createNewStorageAccount
-  ? storageAccount!.id
+  ? storageAccount.id
   : resourceId(storageAccountResourceGroupName, 'Microsoft.Storage/storageAccounts/', storageAccountName)
 var subnetId = createNewVnet
-  ? subnet!.id
+  ? subnet.id
   : resourceId(vnetResourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', vnetName, subnetName)
 var publicIPId = createNewPublicIP
-  ? publicIP!.id
+  ? publicIP.id
   : resourceId(publicIPResourceGroupName, 'Microsoft.Network/publicIPAddresses', publicIPName)
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2017-06-01' = if (createNewStorageAccount) {
@@ -123,11 +123,11 @@ resource vnet 'Microsoft.Network/virtualNetworks@2017-09-01' = if (createNewVnet
 }
 
 resource subnet 'Microsoft.Network/virtualNetworks/subnets@2017-09-01' = if (createNewVnet) {
-  name: '${vnet!.name}/${subnetName}'
+  name: '${vnet.name}/${subnetName}'
   properties: {
     addressPrefix: subnetPrefix
     networkSecurityGroup: {
-      id: nsg!.id
+      id: nsg.id
     }
   }
 }

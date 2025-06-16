@@ -1949,7 +1949,7 @@ namespace Bicep.Core.TypeSystem
                 TypeSymbol original when TypeHelper.TryRemoveNullability(original) is TypeSymbol nonNullable
                     => EmitNullablePropertyAccessDiagnosticAndEraseNullability(syntax, original, nonNullable, diagnostics),
 
-                TypeSymbol original when IsPotentiallyDisabledResourceOrModule(baseSymbol)
+                TypeSymbol original when IsPotentiallyDisabledResourceOrModule(baseSymbol) && !IsResourceInfoProperty(baseSymbol, syntax.PropertyName.IdentifierName)
                     => EmitNullablePropertyAccessDiagnosticAndEraseNullability(syntax, TypeHelper.CreateTypeUnion(original, LanguageConstants.Null), original, diagnostics),
 
                 // the property is not valid
@@ -2026,6 +2026,14 @@ namespace Bicep.Core.TypeSystem
             ResourceDeclarationSyntax rds => binder.GetSymbolInfo(rds) as ResourceSymbol,
             SyntaxBase otherwise => TryGetEnclosingResource(otherwise),
             _ => null,
+        };
+
+        private bool IsResourceInfoProperty(Symbol? symbol, string propertyName) => symbol switch
+        {
+            ResourceSymbol resource when resource.TryGetResourceType()?.IsAzResource() is true
+                => EmitConstants.ResourceInfoProperties.Contains(propertyName),
+            ModuleSymbol => propertyName == LanguageConstants.ModuleNamePropertyName,
+            _ => false,
         };
 
         public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)

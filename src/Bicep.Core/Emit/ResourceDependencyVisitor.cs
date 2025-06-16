@@ -1,13 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
@@ -16,8 +14,6 @@ namespace Bicep.Core.Emit
 {
     public class ResourceDependencyVisitor : AstVisitor
     {
-        private static readonly FrozenSet<string> ResourceInfoProperties
-            = new[] { "id", "name", "type", "apiVersion" }.ToFrozenSet();
         private readonly SemanticModel model;
         private Options? options;
         private readonly IDictionary<DeclaredSymbol, HashSet<ResourceDependency>> resourceDependencies;
@@ -201,7 +197,7 @@ namespace Bicep.Core.Emit
         private static bool IsResourceInfoAccessBase(ResourceSymbol resource, string propertyName)
             // if specific top-level properties of an ARM resource are accessed, the compiler will migrate syntax from
             // the resource declaration or emit a `resourceInfo()` function
-            => ResourceInfoProperties.Contains(propertyName);
+            => EmitConstants.ResourceInfoProperties.Contains(propertyName);
 
         private bool IsResourceFunctionCallBase(SyntaxBase syntax) => model.Binder.GetParent(syntax) switch
         {

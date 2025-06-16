@@ -120,7 +120,7 @@ resource auditDiagnosticSettings 'microsoft.insights/diagnosticSettings@2017-05-
   scope: sqlDb
   name: 'SQLSecurityAuditEvents_3d229c42-c7e7-4c97-9a99-ec0d0d8b86c1'
   properties: {
-    workspaceId: logAnalyticsWorkspace!.id
+    workspaceId: logAnalyticsWorkspace.id
     logs: [
       {
         category: 'SQLSecurityAuditEvents'
@@ -136,7 +136,7 @@ resource diagnosticSettings 'microsoft.insights/diagnosticSettings@2017-05-01-pr
   scope: sqlDb
   name: 'sendLogsAndMetrics'
   properties: {
-    workspaceId: logAnalyticsWorkspace!.id
+    workspaceId: logAnalyticsWorkspace.id
     logs: [
       for log in sqlDatabase.diagnosticLogsAndMetrics.logs: {
         category: log
