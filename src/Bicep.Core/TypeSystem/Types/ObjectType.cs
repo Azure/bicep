@@ -45,5 +45,12 @@ namespace Bicep.Core.TypeSystem.Types
                 properties ?? Properties.Values,
                 additionalProperties ?? AdditionalProperties,
                 methodResolverBuilder ?? MethodResolver.CopyToObject);
+
+        public ObjectType WithTopLevelPropertiesOptional() => new(
+            Name,
+            ValidationFlags,
+            Properties.Values.Select(p => p with { Flags = p.Flags & ~TypePropertyFlags.Required }),
+            AdditionalProperties,
+            MethodResolver.functionOverloads);
     }
 }

@@ -11,7 +11,6 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
@@ -920,13 +919,27 @@ namespace Bicep.Core.TypeSystem
                     }
                     else
                     {
+                        var configurationType = namespaceType.ConfigurationType;
+
+                        if (features.ModuleExtensionConfigsEnabled)
+                        {
+                            // When module extension configs are used, exclude required property checks because those properties can be provided on the deployment properties and on the backend, will be merged in and validated.
+                            configurationType = configurationType switch
+                            {
+                                DiscriminatedObjectType discriminatedObjectType => discriminatedObjectType.WithTopLevelPropertiesOptional(),
+                                ObjectType objectType => objectType.WithTopLevelPropertiesOptional(),
+                                _ => configurationType
+                            };
+                        }
+
                         // Collect diagnostics for the configuration type assignment.
-                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Config, namespaceType.ConfigurationType.Type, false);
+                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Config, configurationType.Type, false);
                     }
                 }
                 else
                 {
-                    if (syntax.WithClause.IsSkipped && namespaceType.IsConfigurationRequired)
+                    // When module extension configs are used, exclude required property checks because those properties can be provided on the deployment properties and on the backend, will be merged in and validated.
+                    if (!features.ModuleExtensionConfigsEnabled && syntax.WithClause.IsSkipped && namespaceType.IsConfigurationRequired)
                     {
                         diagnostics.Write(syntax, x => x.ExtensionRequiresConfiguration(namespaceType.ExtensionName));
                     }

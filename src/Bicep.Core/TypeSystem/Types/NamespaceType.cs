@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph.ArtifactReferences;
 using Bicep.Core.TypeSystem.Providers;
@@ -49,6 +48,14 @@ namespace Bicep.Core.TypeSystem.Types
         public string ExtensionVersion => Settings.TemplateExtensionVersion;
 
         public ObjectLikeType? ConfigurationType => Settings.ConfigurationType;
+
+        public ObjectLikeType? ConfigurationTypeWithTopLevelPropertiesOptional => ConfigurationType switch
+        {
+            ObjectType objectType => objectType.WithTopLevelPropertiesOptional(),
+            DiscriminatedObjectType discriminatedObjectType => discriminatedObjectType.WithTopLevelPropertiesOptional(),
+            null => null,
+            _ => throw new InvalidOperationException($"Invalid ConfigurationType: {ConfigurationType.Name}")
+        };
 
         public bool IsConfigurationRequired => this.ConfigurationType switch
         {

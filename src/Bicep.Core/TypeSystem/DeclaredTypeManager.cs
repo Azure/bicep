@@ -1863,7 +1863,7 @@ namespace Bicep.Core.TypeSystem
 
                 case SpreadExpressionSyntax when GetClosestMaybeTypedAncestor(parent) is { } grandParent &&
                     GetDeclaredTypeAssignment(grandParent)?.Reference is ObjectType enclosingObjectType:
-                    var type = TypeHelper.MakeRequiredPropertiesOptional(enclosingObjectType);
+                    var type = enclosingObjectType.WithTopLevelPropertiesOptional();
 
                     return TryCreateAssignment(type, syntax);
 
