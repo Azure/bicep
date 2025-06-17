@@ -154,12 +154,12 @@ public class SourceArchiveTests
         }
         """;
 
-    private SourceFileWithArtifactReference CreateSourceFile(MockFileSystem fs, string path, LinkedSourceFileKind sourceKind, string content, string? artifactReference = null)
+    private SourceFileWithArtifactReference CreateSourceFile(MockFileSystem fs, string path, ArchivedSourceFileKind sourceKind, string content, string? artifactReference = null)
     {
         return CreateSourceFile(fs, null, path, sourceKind, content, artifactReference);
     }
 
-    private SourceFileWithArtifactReference CreateSourceFile(MockFileSystem fs, Uri? projectFolderUri, string relativePath, LinkedSourceFileKind sourceKind, string content, string? artifactReferenceId = null)
+    private SourceFileWithArtifactReference CreateSourceFile(MockFileSystem fs, Uri? projectFolderUri, string relativePath, ArchivedSourceFileKind sourceKind, string content, string? artifactReferenceId = null)
     {
         var artifactReference = artifactReferenceId is null ? null : OciRegistryHelper.ParseModuleReference(artifactReferenceId);
         projectFolderUri?.AbsolutePath.Should().EndWith("/");
@@ -170,9 +170,9 @@ public class SourceArchiveTests
         return new SourceFileWithArtifactReference(
             sourceKind switch
             {
-                LinkedSourceFileKind.ArmTemplate => BicepTestConstants.SourceFileFactory.CreateArmTemplateFile(uri, actualContents),
-                LinkedSourceFileKind.Bicep => BicepTestConstants.SourceFileFactory.CreateBicepFile(uri, actualContents),
-                LinkedSourceFileKind.TemplateSpec => BicepTestConstants.SourceFileFactory.CreateTemplateSpecFile(uri, actualContents),
+                ArchivedSourceFileKind.ArmTemplate => BicepTestConstants.SourceFileFactory.CreateArmTemplateFile(uri, actualContents),
+                ArchivedSourceFileKind.Bicep => BicepTestConstants.SourceFileFactory.CreateBicepFile(uri, actualContents),
+                ArchivedSourceFileKind.TemplateSpec => BicepTestConstants.SourceFileFactory.CreateTemplateSpecFile(uri, actualContents),
                 _ => throw new Exception($"Unrecognized source kind: {sourceKind}")
             },
             artifactReference);
@@ -185,14 +185,14 @@ public class SourceArchiveTests
         var fs = new MockFileSystem();
         fs.AddDirectory(projectFolder.LocalPath);
 
-        var mainBicep = CreateSourceFile(fs, projectFolder, "main.bicep", LinkedSourceFileKind.Bicep, MainDotBicepSource);
-        var mainJson = CreateSourceFile(fs, projectFolder, "main.json", LinkedSourceFileKind.ArmTemplate, MainDotJsonSource);
-        var standaloneJson = CreateSourceFile(fs, projectFolder, "standalone.json", LinkedSourceFileKind.ArmTemplate, StandaloneJsonSource);
-        var templateSpecMainJson = CreateSourceFile(fs, projectFolder, "Template spec 1.json", LinkedSourceFileKind.TemplateSpec, TemplateSpecJsonSource);
-        var localModuleJson = CreateSourceFile(fs, projectFolder, "localModule.json", LinkedSourceFileKind.ArmTemplate, LocalModuleDotJsonSource);
-        var templateSpecMainJson2 = CreateSourceFile(fs, projectFolder, "folder/template spec 2.json", LinkedSourceFileKind.TemplateSpec, TemplateSpecJsonSource);
+        var mainBicep = CreateSourceFile(fs, projectFolder, "main.bicep", ArchivedSourceFileKind.Bicep, MainDotBicepSource);
+        var mainJson = CreateSourceFile(fs, projectFolder, "main.json", ArchivedSourceFileKind.ArmTemplate, MainDotJsonSource);
+        var standaloneJson = CreateSourceFile(fs, projectFolder, "standalone.json", ArchivedSourceFileKind.ArmTemplate, StandaloneJsonSource);
+        var templateSpecMainJson = CreateSourceFile(fs, projectFolder, "Template spec 1.json", ArchivedSourceFileKind.TemplateSpec, TemplateSpecJsonSource);
+        var localModuleJson = CreateSourceFile(fs, projectFolder, "localModule.json", ArchivedSourceFileKind.ArmTemplate, LocalModuleDotJsonSource);
+        var templateSpecMainJson2 = CreateSourceFile(fs, projectFolder, "folder/template spec 2.json", ArchivedSourceFileKind.TemplateSpec, TemplateSpecJsonSource);
         var externalModuleJson = CreateSourceFile(fs, $"{CacheRootUri}/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json",
-                LinkedSourceFileKind.ArmTemplate /* the actual source archived is the compiled JSON */, ExternalModuleDotJsonSource, "mcr.microsoft.com/bicep/storage/storage-account:1.0.1");
+                ArchivedSourceFileKind.ArmTemplate /* the actual source archived is the compiled JSON */, ExternalModuleDotJsonSource, "mcr.microsoft.com/bicep/storage/storage-account:1.0.1");
 
 
         var fileExplorer = new FileSystemFileExplorer(fs);
@@ -203,17 +203,17 @@ public class SourceArchiveTests
             documentLinks: null, mainBicep, mainJson, standaloneJson, templateSpecMainJson, localModuleJson, templateSpecMainJson2, externalModuleJson);
 
         sourceArchive.EntrypointRelativePath.Should().Be("main.bicep");
-        sourceArchive.Should().HaveSourceFiles(new LinkedSourceFile[]
+        sourceArchive.Should().HaveSourceFiles(new ArchivedSourceFile[]
         {
             // Note: the template spec files will be filtered out
-            new(new("main.bicep", "files/main.bicep", LinkedSourceFileKind.Bicep, null), MainDotBicepSource),
-            new(new("main.json", "files/main.json", LinkedSourceFileKind.ArmTemplate, null), MainDotJsonSource),
-            new(new("standalone.json", "files/standalone.json", LinkedSourceFileKind.ArmTemplate, null), StandaloneJsonSource),
-            new(new("localModule.json", "files/localModule.json", LinkedSourceFileKind.ArmTemplate, null),  LocalModuleDotJsonSource),
+            new(new("main.bicep", "files/main.bicep", ArchivedSourceFileKind.Bicep, null), MainDotBicepSource),
+            new(new("main.json", "files/main.json", ArchivedSourceFileKind.ArmTemplate, null), MainDotJsonSource),
+            new(new("standalone.json", "files/standalone.json", ArchivedSourceFileKind.ArmTemplate, null), StandaloneJsonSource),
+            new(new("localModule.json", "files/localModule.json", ArchivedSourceFileKind.ArmTemplate, null),  LocalModuleDotJsonSource),
             new(new(
                 "<cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json",
                 "files/_cache_/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json",
-                LinkedSourceFileKind.ArmTemplate,
+                ArchivedSourceFileKind.ArmTemplate,
                 "br:mcr.microsoft.com/bicep/storage/storage-account:1.0.1"), ExternalModuleDotJsonSource),
         });
     }
@@ -224,14 +224,13 @@ public class SourceArchiveTests
         Uri projectFolder = PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/");
         var fs = new MockFileSystem();
         fs.AddDirectory(projectFolder.LocalPath);
-        var mainBicep = CreateSourceFile(fs, projectFolder, "main&.bicep", LinkedSourceFileKind.Bicep, MainDotBicepSource);
-        var mainJson = CreateSourceFile(fs, projectFolder, "main.json", LinkedSourceFileKind.ArmTemplate, MainDotJsonSource);
-        var standaloneJson = CreateSourceFile(fs, projectFolder, "standalone.json", LinkedSourceFileKind.ArmTemplate, StandaloneJsonSource);
-        var templateSpecMainJson = CreateSourceFile(fs, projectFolder, "cache/wherever/template spec 1.json", LinkedSourceFileKind.TemplateSpec, TemplateSpecJsonSource);
-        var localModuleJson = CreateSourceFile(fs, projectFolder, "modules/localJsonModule.json", LinkedSourceFileKind.ArmTemplate, LocalModuleDotJsonSource);
-        var localModuleBicep = CreateSourceFile(fs, projectFolder, "modules/localBicepModule.bicep", LinkedSourceFileKind.ArmTemplate, LocalModuleDotJsonSource);
+        var mainBicep = CreateSourceFile(fs, projectFolder, "main&.bicep", ArchivedSourceFileKind.Bicep, MainDotBicepSource);
+        var mainJson = CreateSourceFile(fs, projectFolder, "main.json", ArchivedSourceFileKind.ArmTemplate, MainDotJsonSource);
+        var standaloneJson = CreateSourceFile(fs, projectFolder, "standalone.json", ArchivedSourceFileKind.ArmTemplate, StandaloneJsonSource);
+        var localModuleJson = CreateSourceFile(fs, projectFolder, "modules/localJsonModule.json", ArchivedSourceFileKind.ArmTemplate, LocalModuleDotJsonSource);
+        var localModuleBicep = CreateSourceFile(fs, projectFolder, "modules/localBicepModule.bicep", ArchivedSourceFileKind.ArmTemplate, LocalModuleDotJsonSource);
         var externalModuleJson = CreateSourceFile(fs, $"{CacheRootUri}/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json",
-            LinkedSourceFileKind.ArmTemplate, ExternalModuleDotJsonSource, "mcr.microsoft.com/bicep/storage/storage-account:1.0.1");
+            ArchivedSourceFileKind.ArmTemplate, ExternalModuleDotJsonSource, "mcr.microsoft.com/bicep/storage/storage-account:1.0.1");
 
         var linksInput = new Dictionary<Uri, SourceCodeDocumentUriLink[]>()
         {
@@ -251,23 +250,7 @@ public class SourceArchiveTests
                     new(new TextRange(123, 124, 234, 235), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main&.bicep")),
                     new(new TextRange(234, 235, 345, 346), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main.json")),
                     new(new TextRange(123, 456, 234, 567), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main&.bicep")),
-                    new(new TextRange(1234, 4567, 2345, 5678), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/wherever/template spec 1.json")),
                     new(new TextRange(345, 2, 345, 3), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/modules/localJsonModule.json")),
-                    new(new TextRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/wherever/template spec 1.json")),
-                    new(new TextRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{CacheRootUri}/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json")),
-                }
-            },
-            {
-                // Shouldn't be possible to have a template spec file as the source, but still test that it's filtered out
-                PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/wherever/template spec 1.json"),
-                new SourceCodeDocumentUriLink[]
-                {
-                    new(new TextRange(123, 124, 234, 235), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main&.bicep")),
-                    new(new TextRange(234, 235, 345, 346), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main.json")),
-                    new(new TextRange(123, 456, 234, 567), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main&.bicep")),
-                    new(new TextRange(1234, 4567, 2345, 5678), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/cache/wherever/template spec 1.json")),
-                    new(new TextRange(345, 2, 345, 3), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/modules/localJsonModule.json")),
-                    new(new TextRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/cache/wherever/template spec 1.json")),
                     new(new TextRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{CacheRootUri}/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json")),
                 }
             },
@@ -275,7 +258,7 @@ public class SourceArchiveTests
 
         var fileExplorer = new FileSystemFileExplorer(fs);
         var cacheRootDirectory = fileExplorer.GetDirectory(CacheRootUri);
-        var sourceArchive = SourceArchive.CreateFor(mainBicep.SourceFile.Uri, cacheRootDirectory, linksInput, mainBicep, mainJson, standaloneJson, templateSpecMainJson, localModuleJson, localModuleBicep, externalModuleJson);
+        var sourceArchive = SourceArchive.CreateFor(mainBicep.SourceFile.Uri, cacheRootDirectory, linksInput, mainBicep, mainJson, standaloneJson, localModuleJson, localModuleBicep, externalModuleJson);
 
         var mainLinks = sourceArchive.FindDocumentLinks("main&.bicep");
         var moduleLinks = sourceArchive.FindDocumentLinks("modules/localBicepModule.bicep");
@@ -283,14 +266,14 @@ public class SourceArchiveTests
         // Note: the template spec files will be filtered out
         using (new AssertionScope())
         {
-            mainLinks.Should().BeEquivalentTo(new SourceCodeDocumentPathLink[]
+            mainLinks.Should().BeEquivalentTo(new ArchivedSourceFileLink[]
             {
                 new(new TextRange(1, 2, 1, 3), "modules/localJsonModule.json"),
                 new(new TextRange(11, 2, 11, 3), "modules/localBicepModule.bicep"),
                 new(new TextRange(12, 45, 23, 56), "<cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json"),
             });
 
-            moduleLinks.Should().BeEquivalentTo(new SourceCodeDocumentPathLink[]
+            moduleLinks.Should().BeEquivalentTo(new ArchivedSourceFileLink[]
             {
                 new(new TextRange(123, 124, 234, 235), "main&.bicep"),
                 new(new TextRange(234, 235, 345, 346), "main.json"),
@@ -444,7 +427,7 @@ public class SourceArchiveTests
         {
             entrypointFolder += Path.DirectorySeparatorChar;
         }
-        var files = inputPaths.Select(path => CreateSourceFile(fs, path, LinkedSourceFileKind.Bicep, $"// {path}")).ToArray();
+        var files = inputPaths.Select(path => CreateSourceFile(fs, path, ArchivedSourceFileKind.Bicep, $"// {path}")).ToArray();
 
         var fileExplorer = new FileSystemFileExplorer(fs);
         var cacheRootDirectory = fileExplorer.GetDirectory(CacheRootUri);
@@ -523,10 +506,10 @@ public class SourceArchiveTests
         var rootBicepFolder = new Uri(ROOT);
         fs.AddDirectory(rootBicepFolder.LocalPath);
 
-        var entrypointFile = CreateSourceFile(fs, rootBicepFolder, entrypointPath, LinkedSourceFileKind.Bicep, MainDotBicepSource);
-        var sutFile1 = CreateSourceFile(fs, rootBicepFolder, inputBicepPath1, LinkedSourceFileKind.Bicep, SecondaryDotBicepSource);
-        var sutFile2 = CreateSourceFile(fs, rootBicepFolder, inputBicepPath2, LinkedSourceFileKind.Bicep, SecondaryDotBicepSource);
-        var sutFile3 = inputBicepPath3 is null ? null : CreateSourceFile(fs, rootBicepFolder, inputBicepPath3, LinkedSourceFileKind.Bicep, SecondaryDotBicepSource);
+        var entrypointFile = CreateSourceFile(fs, rootBicepFolder, entrypointPath, ArchivedSourceFileKind.Bicep, MainDotBicepSource);
+        var sutFile1 = CreateSourceFile(fs, rootBicepFolder, inputBicepPath1, ArchivedSourceFileKind.Bicep, SecondaryDotBicepSource);
+        var sutFile2 = CreateSourceFile(fs, rootBicepFolder, inputBicepPath2, ArchivedSourceFileKind.Bicep, SecondaryDotBicepSource);
+        var sutFile3 = inputBicepPath3 is null ? null : CreateSourceFile(fs, rootBicepFolder, inputBicepPath3, ArchivedSourceFileKind.Bicep, SecondaryDotBicepSource);
 
         var fileExplorer = new FileSystemFileExplorer(fs);
         var cacheRootDirectory = fileExplorer.GetDirectory(CacheRootUri);
@@ -609,7 +592,7 @@ public class SourceArchiveTests
 
         var file = sut.FindSourceFile("main.bicep");
 
-        file.Metadata.Kind.Should().Be(LinkedSourceFileKind.Bicep);
+        file.Metadata.Kind.Should().Be(ArchivedSourceFileKind.Bicep);
         file.Contents.Should().Be("bicep contents");
     }
 
@@ -651,7 +634,7 @@ public class SourceArchiveTests
 
         var file = sut.FindSourceFile("main.bicep");
 
-        file.Metadata.Kind.Should().Be(LinkedSourceFileKind.Bicep);
+        file.Metadata.Kind.Should().Be(ArchivedSourceFileKind.Bicep);
         file.Contents.Should().Be("bicep contents");
     }
 
@@ -813,5 +796,139 @@ public class SourceArchiveTests
         tgzFileHandleMock.Setup(x => x.OpenRead()).Returns(stream);
 
         return SourceArchive.TryUnpackFromFile(tgzFileHandleMock.Object);
+    }
+    private static IOUri CreateFileUri(string path)
+    {
+        return IOUri.FromLocalFilePath(path);
+    }
+
+    [TestMethod]
+    public void ObfuscatePaths_MultipleRepositoryStructure_ReturnsExpectedMapping()
+    {
+        // Arrange
+        var mainFileUri = CreateFileUri("/repo/src/main.bicep");
+        var fileUris = new[]
+        {
+            CreateFileUri("/repo/src/module.bicep"),
+            CreateFileUri("/anotherRepo/src/main.bicep"),
+            CreateFileUri("/anotherRepo/src/module.bicep"),
+            CreateFileUri("/anotherRepo/test/test.bicep")
+        };
+
+        // Act
+        var result = ObfuscatePaths(mainFileUri, fileUris);
+
+        // Assert
+        Assert.AreEqual(5, result.Count);
+        
+        // Main file and files in same directory
+        Assert.AreEqual("main.bicep", result[mainFileUri]);
+        Assert.AreEqual("module.bicep", result[fileUris[0]]);
+        
+        // Files in another repository
+        Assert.AreEqual("<root1>/main.bicep", result[fileUris[1]]);
+        Assert.AreEqual("<root1>/module.bicep", result[fileUris[2]]);
+        
+        // File in different directory of another repository
+        Assert.AreEqual("<root2>/test.bicep", result[fileUris[3]]);
+        
+        // Check grouping - ensure all files from same directory have same root prefix
+        var anotherRepoSrcFiles = new[] { fileUris[1], fileUris[2] }
+            .Select(uri => result[uri])
+            .ToArray();
+            
+        Assert.IsTrue(anotherRepoSrcFiles.All(path => path.StartsWith("<root1>/")));
+        Assert.AreEqual("<root2>/test.bicep", result[fileUris[3]]);
+    }
+
+    private static IDictionary<IOUri, string> ObfuscatePaths(IOUri mainFileUri, IEnumerable<IOUri> fileUris)
+    {
+        var result = new Dictionary<IOUri, string>();
+        
+        // Process the main file
+        string mainFileName = mainFileUri.Path.Split('/').Last();
+        result[mainFileUri] = mainFileName;
+        
+        // Get main file parent directory by removing the file name from the path
+        string mainDirPath = mainFileUri.Path.Substring(0, mainFileUri.Path.Length - mainFileName.Length);
+        if (mainDirPath.Length > 0 && mainDirPath[mainDirPath.Length - 1] != '/')
+        {
+            mainDirPath += '/';
+        }
+        
+        var mainDirUri = new IOUri(
+            mainFileUri.Scheme,
+            mainFileUri.Authority,
+            mainDirPath);
+        
+        // Process files in the same directory as main
+        var sameRootUris = new List<IOUri>();
+        var otherUris = new List<IOUri>();
+        
+        foreach (var fileUri in fileUris)
+        {
+            if (mainDirUri.IsBaseOf(fileUri))
+            {
+                sameRootUris.Add(fileUri);
+            }
+            else
+            {
+                otherUris.Add(fileUri);
+            }
+        }
+        
+        // Process files under the same directory as main
+        foreach (var fileUri in sameRootUris)
+        {
+            var relativePath = fileUri.GetPathRelativeTo(mainDirUri);
+            result[fileUri] = relativePath;
+        }
+        
+        // Process remaining files by grouping them into distinct roots
+        if (otherUris.Any())
+        {
+            // Group files by their roots (scheme+authority+first segment)
+            var rootGroups = new Dictionary<string, List<IOUri>>(StringComparer.OrdinalIgnoreCase);
+            
+            foreach (var fileUri in otherUris)
+            {
+                var segments = fileUri.PathSegments;
+                string rootKey;
+                
+                if (segments.Length > 0)
+                {
+                    rootKey = $"{fileUri.Scheme}://{fileUri.Authority ?? string.Empty}/{segments[0]}";
+                }
+                else
+                {
+                    rootKey = $"{fileUri.Scheme}://{fileUri.Authority ?? string.Empty}/";
+                }
+                
+                if (!rootGroups.TryGetValue(rootKey, out var group))
+                {
+                    group = new List<IOUri>();
+                    rootGroups[rootKey] = group;
+                }
+                
+                group.Add(fileUri);
+            }
+            
+            // Assign obfuscated paths for files outside main directory
+            int rootCounter = 1;
+            foreach (var rootGroup in rootGroups.Values)
+            {
+                var rootPrefix = $"<root{rootCounter}>";
+                
+                foreach (var fileUri in rootGroup)
+                {
+                    var fileName = fileUri.Path.Split('/').Last();
+                    result[fileUri] = $"{rootPrefix}/{fileName}";
+                }
+                
+                rootCounter++;
+            }
+        }
+        
+        return result;
     }
 }

@@ -27,9 +27,9 @@ public record SourceCodeDocumentUriLink : SourceCodeDocumentLink<Uri>
 }
 
 // Refers to the target via the relative path used inside a source.tgz file
-public record SourceCodeDocumentPathLink : SourceCodeDocumentLink<string>
+public record ArchivedSourceFileLink : SourceCodeDocumentLink<string>
 {
-    public SourceCodeDocumentPathLink(
+    public ArchivedSourceFileLink(
         TextRange Range,
         string Target)
     : base(Range, Target)

@@ -38,5 +38,17 @@ namespace Bicep.TextFixtures.Assertions
             {
                 diags.Should().HaveDiagnostics(expectedDiagnostics, because, becauseArgs);
             });
+
+        public AndConstraint<TestCompilationResultAssertions> NotHaveAnyDiagnostics(string because = "", params object[] becauseArgs) =>
+            DoWithDiagnosticAnnotations(diags =>
+            {
+                diags.Should().NotHaveAnyDiagnostics(because, becauseArgs);
+            });
+
+        public AndConstraint<TestCompilationResultAssertions> HaveSingleDiagnostic(string code, DiagnosticLevel level, string message, string because = "", params object[] becauseArgs) =>
+            DoWithDiagnosticAnnotations(diags =>
+            {
+                diags.Should().ContainSingleDiagnostic(code, level, message, because, becauseArgs);
+            });
     }
 }

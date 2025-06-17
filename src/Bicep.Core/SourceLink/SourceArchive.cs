@@ -4,20 +4,15 @@
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Drawing;
-using System.Formats.Tar;
-using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using Bicep.Core.Exceptions;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.Utils;
@@ -102,6 +97,63 @@ namespace Bicep.Core.SourceLink
             return BinaryData.FromStream(stream);
         }
 
+        public static SourceArchive CreateFor2(SourceFileGrouping sourceFileGrouping)
+        {
+            if (sourceFileGrouping.EntryPoint is not BicepFile)
+            {
+                throw new InvalidOperationException("The entry point must be a Bicep file.");
+            }
+
+            var metadataBySourceFile = CreateMetadataBySourceFile(sourceFileGrouping);
+            var sourceDocumentLink = CreateSourceFileLinks(sourceFileGrouping, metadataBySourceFile);
+            var entryPointPath = metadataBySourceFile[sourceFileGrouping.EntryPoint].Path;
+            var metadata = new SourceArchiveMetadata(CurrentMetadataVersion, CurrentBicepVersion, entryPointPath, [.. metadataBySourceFile.Values], sourceDocumentLink);
+            var fileEntries = metadataBySourceFile.ToFrozenDictionary(x => x.Value.ArchivePath, x => x.Key.Text);
+
+            return new SourceArchive(metadata, fileEntries);
+        }
+
+        private static bool ShouldArchiveSourceFile(ISourceFile sourceFile) => sourceFile is BicepFile or ArmTemplateFile;
+
+        private static ImmutableDictionary<string, ImmutableArray<ArchivedSourceFileLink>> CreateSourceFileLinks(SourceFileGrouping sourceFileGrouping, Dictionary<ISourceFile, ArchivedSourceFileMetadata> metadataBySourceFile)
+        {
+            var sourceFileLinks = new Dictionary<string, List<ArchivedSourceFileLink>>();
+
+            foreach (var grouping in sourceFileGrouping.ArtifactLookup.Values.GroupBy(x => x.ReferencingFile))
+            {
+                if (grouping.Key is not BicepFile referencingFile)
+                {
+                    continue;
+                }
+
+                foreach (var artifactResolutionInfo in grouping)
+                {
+                    if (artifactResolutionInfo.Syntax is { Path: { } path } &&
+                        artifactResolutionInfo.Result.TryUnwrap() is { } fileHandle &&
+                        sourceFileGrouping.SourceFileLookup[fileHandle.Uri.ToUri()].IsSuccess(out var referencedFile) &&
+                        ShouldArchiveSourceFile(referencedFile))
+                    {
+                        var start = new TextPosition(TextCoordinateConverter.GetPosition(referencingFile.LineStarts, path.Span.Position));
+                        var end = new TextPosition(TextCoordinateConverter.GetPosition(referencingFile.LineStarts, path.Span.Position + path.Span.Length));
+                        var textRange = new TextRange(start, end);
+
+                        var sourcePath = metadataBySourceFile[referencingFile].Path;
+                        var targetPath = metadataBySourceFile[referencedFile].Path;
+
+                        if (!sourceFileLinks.TryGetValue(sourcePath, out var links))
+                        {
+                            links = [];
+                            sourceFileLinks[sourcePath] = links;
+                        }
+
+                        links.Add(new ArchivedSourceFileLink(textRange, targetPath));
+                    }
+                }
+            }
+
+            return sourceFileLinks.ToImmutableDictionary(x => x.Key, x => x.Value.ToImmutableArray());
+        }
+
         /// <summary>
         /// Bundles all the sources from a compilation group (thus source for a bicep file and all its dependencies
         /// in JSON form) into an archive.
@@ -123,10 +175,12 @@ namespace Bicep.Core.SourceLink
                 }
             }
 
-            var sourceFilesWithArtifactReference =
-                sourceFileGrouping.SourceFiles.Select(x => new SourceFileWithArtifactReference(x, uriToArtifactReference.TryGetValue(x.Uri, out var reference) ? reference : null));
+            var sourceFilesWithArtifactReference = sourceFileGrouping.SourceFiles
+                .Where(x => x is not TemplateSpecFile)
+                .Select(x => new SourceFileWithArtifactReference(x, uriToArtifactReference.TryGetValue(x.Uri, out var reference) ? reference : null));
 
             var documentLinks = SourceCodeDocumentLinkHelper.GetAllModuleDocumentLinks(sourceFileGrouping);
+
             return CreateFor(sourceFileGrouping.EntryPoint.Uri, sourceFileGrouping.EntryPoint.Features.CacheRootDirectory, documentLinks, [.. sourceFilesWithArtifactReference]);
         }
 
@@ -134,18 +188,8 @@ namespace Bicep.Core.SourceLink
         // TODO(shenglol): Replace Uri with IOUri / IFileHandle.
         public static SourceArchive CreateFor(Uri entrypointFileUri, IDirectoryHandle? cacheRoot, IReadOnlyDictionary<Uri, SourceCodeDocumentUriLink[]>? documentLinks, params SourceFileWithArtifactReference[] sourceFiles)
         {
-            // Don't package template spec files - they don't appear in the compiled JSON so we shouldn't expose them
-            sourceFiles = [.. sourceFiles.Where(sf => sf.SourceFile is not TemplateSpecFile)];
-
-            // Filter out any links where the source or target is not in our list of files to package
-            var sourceFileUris = sourceFiles.Select(sf => sf.SourceFile.Uri).ToArray();
-            documentLinks = documentLinks?
-                .Where(kvp => sourceFileUris.Contains(kvp.Key))
-                .Select(uriAndLink => (uriAndLink.Key, uriAndLink.Value.Where(link => sourceFileUris.Contains(link.Target)).ToArray()))
-                .ToDictionary();
-
             var fileEntries = new Dictionary<string, string>();
-            var filesMetadata = new List<LinkedSourceFileMetadata>();
+            var filesMetadata = new List<ArchivedSourceFileMetadata>();
             string? entryPointPath = null;
 
             var paths = sourceFiles.Select(f => GetPath(f.SourceFile.Uri)).ToArray();
@@ -158,11 +202,11 @@ namespace Bicep.Core.SourceLink
             foreach (var (file, artifactReference) in sourceFiles)
             {
                 string source = file.Text;
-                LinkedSourceFileKind kind = file switch
+                ArchivedSourceFileKind kind = file switch
                 {
-                    BicepFile bicepFile => LinkedSourceFileKind.Bicep,
-                    ArmTemplateFile armTemplateFile => LinkedSourceFileKind.ArmTemplate,
-                    TemplateSpecFile => LinkedSourceFileKind.TemplateSpec,
+                    BicepFile bicepFile => ArchivedSourceFileKind.Bicep,
+                    ArmTemplateFile armTemplateFile => ArchivedSourceFileKind.ArmTemplate,
+                    TemplateSpecFile => ArchivedSourceFileKind.TemplateSpec,
                     _ => throw new ArgumentException($"Unexpected input source file type {file.GetType().Name}"),
                 };
 
@@ -186,7 +230,7 @@ namespace Bicep.Core.SourceLink
 
                 fileEntries.Add(archivePath, source);
                 filesMetadata.Add(
-                    new LinkedSourceFileMetadata(
+                    new ArchivedSourceFileMetadata(
                         relativePath,
                         archivePath,
                         kind,
@@ -219,10 +263,10 @@ namespace Bicep.Core.SourceLink
             return new SourceArchive(metadata, fileEntries.ToFrozenDictionary());
         }
 
-        public ImmutableArray<SourceCodeDocumentPathLink> FindDocumentLinks(string path) =>
+        public ImmutableArray<ArchivedSourceFileLink> FindDocumentLinks(string path) =>
             this.metadata.DocumentLinks.TryGetValue(path, out var documentLinks) ? documentLinks : [];
 
-        public LinkedSourceFile FindSourceFile(string path)
+        public ArchivedSourceFile FindSourceFile(string path)
         {
             // TODO(shenglol): Binary search.
             var metadata = this.metadata.SourceFiles.Single(x => x.Path.Equals(path, StringComparison.Ordinal));
@@ -256,7 +300,7 @@ namespace Bicep.Core.SourceLink
             return SourceCodePathHelper.NormalizeSlashes(uri.LocalPath);
         }
 
-        private static string UniquifyArchivePath(IList<LinkedSourceFileMetadata> filesMetadata, string archivePath)
+        private static string UniquifyArchivePath(IList<ArchivedSourceFileMetadata> filesMetadata, string archivePath)
         {
             int suffix = 1;
             string tryPath = archivePath;
@@ -295,23 +339,23 @@ namespace Bicep.Core.SourceLink
             return rootNamesMap;
         }
 
-        private static ImmutableDictionary<string, ImmutableArray<SourceCodeDocumentPathLink>>? UriDocumentLinksToPathBasedLinks(
+        private static ImmutableDictionary<string, ImmutableArray<ArchivedSourceFileLink>>? UriDocumentLinksToPathBasedLinks(
             IReadOnlyDictionary<Uri, string> sourceUriToRelativePathMap,
             IReadOnlyDictionary<Uri, SourceCodeDocumentUriLink[]>? uriBasedDocumentLinks
         )
         {
             return uriBasedDocumentLinks?.Select(
-                x => new KeyValuePair<string, ImmutableArray<SourceCodeDocumentPathLink>>(
+                x => new KeyValuePair<string, ImmutableArray<ArchivedSourceFileLink>>(
                     sourceUriToRelativePathMap[x.Key],
                     [.. x.Value.Select(link => DocumentPathLinkFromUriLink(sourceUriToRelativePathMap, link))]
                 )).ToImmutableDictionary();
         }
 
-        private static SourceCodeDocumentPathLink DocumentPathLinkFromUriLink(
+        private static ArchivedSourceFileLink DocumentPathLinkFromUriLink(
             IReadOnlyDictionary<Uri, string> sourceUriToRelativePathMap,
             SourceCodeDocumentUriLink uriBasedLink)
         {
-            return new SourceCodeDocumentPathLink(
+            return new ArchivedSourceFileLink(
                 uriBasedLink.Range,
                 sourceUriToRelativePathMap[uriBasedLink.Target]);
         }
@@ -331,6 +375,115 @@ namespace Bicep.Core.SourceLink
             }
 
             tgzWriter.WriteEntry(archivePath, contents);
+        }
+
+        private static Dictionary<ISourceFile, ArchivedSourceFileMetadata> CreateMetadataBySourceFile(SourceFileGrouping sourceFileGrouping)
+        {
+            var result = new Dictionary<ISourceFile, ArchivedSourceFileMetadata>()
+            {
+                [sourceFileGrouping.EntryPoint] = CreateSourceFileMetadata(sourceFileGrouping.EntryPoint.GetFileName(), sourceFileGrouping.EntryPoint),
+            };
+
+            var sourceArtifactIdBySourceFileUri = sourceFileGrouping.ArtifactLookup.Values
+                .Where(x => x.Result.IsSuccess() && x.Reference is OciArtifactReference { Type: ArtifactType.Module })
+                .DistinctBy(x => x.Result.Unwrap().Uri)
+                .ToDictionary(x => x.Result.Unwrap().Uri, x =>
+                {
+                    // Only include sourceArtifactId for those that were published with source.
+                    if (x.Reference is OciArtifactReference moduleArtifactReference &&
+                        moduleArtifactReference.TryLoadSourceArchive().IsSuccess())
+                    {
+                        return moduleArtifactReference.FullyQualifiedReference;
+                    }
+
+                    return null;
+                });
+
+            var entryPointDirectoryUri = sourceFileGrouping.EntryPoint.FileHandle.Uri.Resolve(".");
+            var cacheRootDirectoryUri = sourceFileGrouping.EntryPoint.Features.CacheRootDirectory.Uri;
+            var otherDirectoryFiles = new List<ISourceFile>();
+
+            foreach (var file in sourceFileGrouping.SourceFiles.Where(x => x != sourceFileGrouping.EntryPoint && ShouldArchiveSourceFile(x)))
+            {
+                var sourceFileUri = file.FileHandle.Uri;
+
+                if (entryPointDirectoryUri.IsBaseOf(sourceFileUri))
+                {
+                    var path = sourceFileUri.GetPathRelativeTo(entryPointDirectoryUri);
+                    result[file] = CreateSourceFileMetadata(path, file);
+                }
+                else if (cacheRootDirectoryUri.IsBaseOf(sourceFileUri) && sourceArtifactIdBySourceFileUri.TryGetValue(sourceFileUri, out var sourceArtifactId))
+                {
+                    var path = $"<cache>/{sourceFileUri.GetPathRelativeTo(cacheRootDirectoryUri)}";
+                    result[file] = CreateSourceFileMetadata(path, file, sourceArtifactId);
+                }
+                else
+                {
+                    // The source file is not under the same directory as the entrypoint file,
+                    // and is not a restored module source file.
+                    otherDirectoryFiles.Add(file);
+                }
+            }
+
+            if (otherDirectoryFiles.Count > 0)
+            {
+                var rootCounter = 1;
+                var distinctRootUris = FindDistinctRootUris(otherDirectoryFiles);
+
+                foreach (var rootUri in distinctRootUris)
+                {
+                    var rootName = $"<root{rootCounter}>";
+
+                    foreach (var file in otherDirectoryFiles.Where(x => rootUri.IsBaseOf(x.FileHandle.Uri)))
+                    {
+                        var relativePath = file.FileHandle.Uri.GetPathRelativeTo(rootUri);
+                        var path = $"{rootName}/{relativePath}";
+                        result[file] = CreateSourceFileMetadata(path, file);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private static ArchivedSourceFileMetadata CreateSourceFileMetadata(string path, ISourceFile sourceFile, string? sourceArtifactId = null) =>
+            new(path, GetArchivedPath(path), sourceFile is BicepFile ? ArchivedSourceFileKind.Bicep : ArchivedSourceFileKind.ArmTemplate, sourceArtifactId);
+
+        private static List<IOUri> FindDistinctRootUris(List<ISourceFile> sourceFiles)
+        {
+            var distinctRootUris = new List<IOUri>();
+            var sortedDirectoryUris = sourceFiles
+                .Select(x => x.FileHandle.Uri.Resolve("."))
+                .OrderBy(x => x.ToString(), sourceFiles[0].FileHandle.Uri.PathComparer) // Sort by source file directory URI.
+                .ToList();
+
+            foreach (var directoryUri in sortedDirectoryUris)
+            {
+                if (distinctRootUris.Count == 0 || !distinctRootUris[^1].IsBaseOf(directoryUri))
+                {
+                    distinctRootUris.Add(directoryUri);
+                }
+            }
+
+            return distinctRootUris;
+        }
+
+        private static string GetArchivedPath(string path) 
+        {
+            path = $"files/{ReplaceForbiddenPathCharacters(path)}";
+
+            if (path.Length <= MaxArchivePathLength)
+            {
+                return path;
+            }
+
+            var extension = path.LastIndexOf('.') is var lastDotIndex && lastDotIndex > 0 ? path[lastDotIndex..] : "";
+            var tail = string.Concat("__path_too_long__", extension.AsSpan(0, Math.Min(10, extension.Length)));
+            var shortPath = string.Concat(path.AsSpan(0, MaxArchivePathLength - tail.Length), tail);
+
+            Debug.Assert(shortPath.Length == MaxArchivePathLength);
+
+            return shortPath;
         }
 
         private static string ReplaceForbiddenPathCharacters(string path)

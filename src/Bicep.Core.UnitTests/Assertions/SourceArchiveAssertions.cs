@@ -38,7 +38,7 @@ namespace Bicep.Core.UnitTests.Assertions
             return new(this);
         }
 
-        public AndConstraint<SourceArchiveAssertions> HaveSourceFiles(IEnumerable<LinkedSourceFile> sourceFiles)
+        public AndConstraint<SourceArchiveAssertions> HaveSourceFiles(IEnumerable<ArchivedSourceFile> sourceFiles)
         {
             using (new AssertionScope())
             {

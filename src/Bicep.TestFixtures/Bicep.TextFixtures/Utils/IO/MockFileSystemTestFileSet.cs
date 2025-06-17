@@ -14,7 +14,7 @@ namespace Bicep.TextFixtures.Utils.IO
         {
         }
 
-        private MockFileSystemTestFileSet(MockFileSystem fileSystem)
+        public MockFileSystemTestFileSet(MockFileSystem fileSystem)
             : base(new FileSystemFileExplorer(fileSystem))
         {
             this.FileSystem = fileSystem;
