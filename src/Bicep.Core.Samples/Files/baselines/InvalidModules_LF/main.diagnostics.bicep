@@ -628,14 +628,11 @@ module nonexistentArrays 'modulea.bicep' = [for evenMoreDuplicates in alsoDoesNo
 
 output directRefToCollectionViaOutput array = nonexistentArrays
 //@[038:043) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|
-//@[046:063) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |nonexistentArrays|
 
 module directRefToCollectionViaSingleBody 'modulea.bicep' = {
   name: 'hello'
   params: {
     arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
-//@[023:049) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |wrongModuleParameterInLoop|
-//@[051:068) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |nonexistentArrays|
     objParam: {}
     stringParamB: ''
   }
@@ -645,8 +642,6 @@ module directRefToCollectionViaSingleConditionalBody 'modulea.bicep' = if(true) 
   name: 'hello2'
   params: {
     arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
-//@[023:049) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |wrongModuleParameterInLoop|
-//@[051:068) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |nonexistentArrays|
     objParam: {}
     stringParamB: ''
   }

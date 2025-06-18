@@ -670,6 +670,7 @@ namespace Bicep.Core.Emit
 
         public FunctionExpression GetReferenceExpression(ResourceMetadata resource, IndexReplacementContext? indexContext, bool full)
         {
+            var isCollectionAccess = resource is DeclaredResourceMetadata { Symbol.IsCollection: true } && indexContext == null;
             var referenceExpression = resource switch
             {
                 ParameterResourceMetadata parameter => new FunctionExpression(
@@ -697,11 +698,11 @@ namespace Bicep.Core.Emit
                 // For an extensible resource, always generate a 'reference' statement.
                 // User-defined properties appear inside "properties", so use a non-full reference.
                 return CreateFunction(
-                    "reference",
+                    isCollectionAccess ? "references" : "reference",
                     referenceExpression);
             }
 
-            if (resource is DeclaredResourceMetadata { Symbol.IsCollection: true } && indexContext == null)
+            if (isCollectionAccess)
             {
                 return full
                     ? CreateFunction(
