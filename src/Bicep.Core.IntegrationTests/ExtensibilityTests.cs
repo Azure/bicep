@@ -853,7 +853,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             """
             extension kubernetes as k8s
             """)]
-        public async Task ExtensionConfigTypesAreCrossModuleAware(
+        public async Task Extension_config_assignment_type_checks_are_cross_module_aware(
             string scenarioName,
             string paramsFileExtensionConfigAssignment,
             string bicepFileExtensionDeclaration)
