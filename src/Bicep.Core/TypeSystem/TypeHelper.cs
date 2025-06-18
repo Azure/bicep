@@ -681,19 +681,6 @@ namespace Bicep.Core.TypeSystem
             return new(ResourceTypeReference.Combine(parentResourceType.TypeReference, typeReference));
         }
 
-        private static ObjectType TransformProperties(ObjectType input, Func<NamedTypeProperty, NamedTypeProperty> transformFunc)
-        {
-            return new ObjectType(
-                input.Name,
-                input.ValidationFlags,
-                input.Properties.Values.Select(transformFunc),
-                input.AdditionalProperties,
-                input.MethodResolver.functionOverloads);
-        }
-
-        public static ObjectType MakeRequiredPropertiesOptional(ObjectType input)
-            => TransformProperties(input, p => p with { Flags = p.Flags & ~TypePropertyFlags.Required });
-
         public static TypeSymbol RemovePropertyFlagsRecursively(TypeSymbol type, TypePropertyFlags flagsToRemove)
             => ModifyPropertyFlagsRecursively(type, f => f & ~flagsToRemove, new());
 
@@ -712,7 +699,7 @@ namespace Bicep.Core.TypeSystem
         private static ObjectType ModifyPropertyFlagsRecursively(
             ObjectType @object,
             Func<TypePropertyFlags, TypePropertyFlags> transformFlags,
-            ConcurrentDictionary<ObjectType, ObjectType> cache) => TransformProperties(@object, property => new(
+            ConcurrentDictionary<ObjectType, ObjectType> cache) => @object.WithModifiedProperties(property => new(
                 property.Name,
                 new DeferredTypeReference(
                     () => ModifyPropertyFlagsRecursively(

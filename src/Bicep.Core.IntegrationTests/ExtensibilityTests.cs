@@ -829,6 +829,63 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                 .DeepEqual(JToken.Parse(expectedExtConfigJson));
         }
 
+        [DataTestMethod]
+        [DataRow(
+            "PartiallyRequired",
+            """
+            extension k8s with {
+              kubeConfig: 'paramsKubeConfig'
+            }
+            """,
+            """
+            extension kubernetes with {
+              namespace: 'templateNs'
+            } as k8s
+            """)]
+        [DataRow(
+            "AllRequired",
+            """
+            extension k8s with {
+              kubeConfig: 'paramsKubeConfig'
+              namespace: 'paramsNs'
+            }
+            """,
+            """
+            extension kubernetes as k8s
+            """)]
+        public async Task ExtensionConfigTypesAreCrossModuleAware(
+            string scenarioName,
+            string paramsFileExtensionConfigAssignment,
+            string bicepFileExtensionDeclaration)
+        {
+            var paramsUri = new Uri("file:///main.bicepparam");
+            var mainUri = new Uri("file:///main.bicep");
+
+            var files = new Dictionary<Uri, string>
+            {
+                [paramsUri] =
+                    $$"""
+                      using 'main.bicep'
+
+                      param inputa = 'abc'
+
+                      {{paramsFileExtensionConfigAssignment}}
+                      """,
+                [mainUri] =
+                    $$"""
+                      param inputa string
+
+                      {{bicepFileExtensionDeclaration}}
+                      """
+            };
+
+            var services = await CreateServiceBuilderWithMockMsGraph(moduleExtensionConfigsEnabled: true);
+            var compilation = await services.BuildCompilationWithRestore(files, paramsUri);
+
+            compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
+            ;
+        }
+
         private ServiceBuilder CreateServiceBuilder(bool moduleExtensionConfigsEnabled = false) =>
             new ServiceBuilder()
                 .WithConfigurationPatch(

@@ -49,14 +49,6 @@ namespace Bicep.Core.TypeSystem.Types
 
         public ObjectLikeType? ConfigurationType => Settings.ConfigurationType;
 
-        public ObjectLikeType? ConfigurationTypeWithTopLevelPropertiesOptional => ConfigurationType switch
-        {
-            ObjectType objectType => objectType.WithTopLevelPropertiesOptional(),
-            DiscriminatedObjectType discriminatedObjectType => discriminatedObjectType.WithTopLevelPropertiesOptional(),
-            null => null,
-            _ => throw new InvalidOperationException($"Invalid ConfigurationType: {ConfigurationType.Name}")
-        };
-
         public bool IsConfigurationRequired => this.ConfigurationType switch
         {
             ObjectType objectType => objectType.Properties.Values.Any(p => p.Flags.HasFlag(TypePropertyFlags.Required)),

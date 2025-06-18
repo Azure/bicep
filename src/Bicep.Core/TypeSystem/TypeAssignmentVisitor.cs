@@ -919,21 +919,23 @@ namespace Bicep.Core.TypeSystem
                     }
                     else
                     {
-                        var configurationType = namespaceType.ConfigurationType;
+                        // When module extension configs are used, exclude required property checks because those properties can be provided on the deployment properties and on the backend, will be merged in and validated.
+                        var assignmentTargetType = namespaceType.ConfigurationType;
 
                         if (features.ModuleExtensionConfigsEnabled)
                         {
-                            // When module extension configs are used, exclude required property checks because those properties can be provided on the deployment properties and on the backend, will be merged in and validated.
-                            configurationType = configurationType switch
+                            assignmentTargetType = assignmentTargetType switch
                             {
-                                DiscriminatedObjectType discriminatedObjectType => discriminatedObjectType.WithTopLevelPropertiesOptional(),
-                                ObjectType objectType => objectType.WithTopLevelPropertiesOptional(),
-                                _ => configurationType
+                                ObjectType asObjType => asObjType
+                                    .WithModifiedProperties(p => p.WithoutFlags(TypePropertyFlags.Required)),
+                                // TODO(kylealbert): discriminator object: the discriminator property must be declared to declare any other properties.
+                                DiscriminatedObjectType asDiscrimObjType => asDiscrimObjType,
+                                _ => assignmentTargetType,
                             };
                         }
 
                         // Collect diagnostics for the configuration type assignment.
-                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Config, configurationType.Type, false);
+                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Config, assignmentTargetType.Type, false);
                     }
                 }
                 else
@@ -945,7 +947,7 @@ namespace Bicep.Core.TypeSystem
                     }
                 }
 
-                return namespaceType;
+                return namespaceType; // Return the namespace type as this represents the extension as a whole.
             });
 
         public override void VisitExtensionConfigAssignmentSyntax(ExtensionConfigAssignmentSyntax syntax)
@@ -963,20 +965,18 @@ namespace Bicep.Core.TypeSystem
                         return ErrorType.Empty();
                     }
 
-                    var declaredType = typeManager.GetDeclaredType(syntax); // this is the config type
-
-                    if (declaredType is ErrorType)
-                    {
-                        return declaredType;
-                    }
-                    else if (declaredType is not null && declaredType.GetType() != typeof(ObjectType))
-                    {
-                        return ErrorType.Empty();
-                    }
-
                     base.VisitExtensionConfigAssignmentSyntax(syntax);
 
-                    var configType = (ObjectType?)declaredType;
+                    var extensionMetadata = model.TryGetExtensionMetadata(configAssignmentSymbol);
+                    var configType = extensionMetadata?.ConfigType;
+
+                    if (extensionMetadata is null)
+                    {
+                        // TODO(kylealbert): handle this?
+                        diagnostics.Write(syntax.SpecificationString, x => x.InvalidExpression());
+
+                        return ErrorType.Empty();
+                    }
 
                     if (configType is null) // Ext does not support configuration
                     {
@@ -985,13 +985,35 @@ namespace Bicep.Core.TypeSystem
                         return ErrorType.Empty();
                     }
 
+                    // This is the type of what user assigned to the config in the template via the declaration syntax, use this to validate the type assignment here
+                    var defaultConfigType = extensionMetadata.UserAssignedDefaultConfigType;
+                    var assignedDefaultConfigPropertyNames = defaultConfigType?.Properties.Select(p => p.Key).ToImmutableHashSet();
+                    var extConfigAssignmentTargetType = configType;
+
+                    if (assignedDefaultConfigPropertyNames?.Count is > 0)
+                    {
+                        extConfigAssignmentTargetType = configType switch
+                        {
+                            ObjectType asObjType => asObjType
+                                .WithModifiedProperties(p =>
+                                    assignedDefaultConfigPropertyNames.Contains(p.Name) ? p.WithoutFlags(TypePropertyFlags.Required) : p),
+                            // TODO(kylealbert): discrim object handling
+                            DiscriminatedObjectType asDiscrimObjType => asDiscrimObjType,
+                            _ => configType
+                        };
+                    }
+
                     if (syntax.Config is not null)
                     {
-                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Config, configType, false);
+                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Config, extConfigAssignmentTargetType, false);
                     }
-                    else if (syntax.WithClause.IsSkipped && configType.Properties.Any(p => p.Value.Flags.HasFlag(TypePropertyFlags.Required)))
+                    else if (syntax.WithClause.IsSkipped)
                     {
-                        diagnostics.Write(syntax, x => x.ExtensionRequiresConfiguration(configAssignmentSymbol.Name));
+                        // TODO(kylealbert): handle discrim object type
+                        if (extConfigAssignmentTargetType is ObjectType targetObjType && targetObjType.Properties.Any(p => p.Value.Flags.HasFlag(TypePropertyFlags.Required)))
+                        {
+                            diagnostics.Write(syntax, x => x.ExtensionRequiresConfiguration(configAssignmentSymbol.Name));
+                        }
                     }
 
                     return configType;
