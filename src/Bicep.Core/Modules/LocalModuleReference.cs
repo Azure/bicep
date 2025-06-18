@@ -72,7 +72,7 @@ namespace Bicep.Core.Modules
             }
 
             // Handle local extension reference.
-            if (!this.lazyExtensionBinaryDataResult.Value.IsSuccess(out _, out var error)) 
+            if (!this.lazyExtensionBinaryDataResult.Value.IsSuccess(out _, out var error))
             {
                 return new(error);
             }

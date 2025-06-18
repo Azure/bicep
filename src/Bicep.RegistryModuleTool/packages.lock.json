@@ -198,8 +198,8 @@
       },
       "Azure.Deployments.Core": {
         "type": "Transitive",
-        "resolved": "1.384.0",
-        "contentHash": "1FzDftXc8oYnWXvqBAg0TCpt1TvAjJyHNNzwq6TPDNaCeWAztgnT5P0usTthdp3qySzQI2bRsKRE+xVKr6ry3g==",
+        "resolved": "1.393.0",
+        "contentHash": "BAh6CTnYGT8lldtbQvfKgCljBkFLhemqDhhRwpp7tmDwMR/7PoHkyhYPmaME/CjOBxvYaMLyadMYM+ahv/1z2Q==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
           "Microsoft.PowerPlatform.ResourceStack": "7.0.0.2070",
@@ -213,10 +213,10 @@
       },
       "Azure.Deployments.Expression": {
         "type": "Transitive",
-        "resolved": "1.384.0",
-        "contentHash": "xN+Acb2n+O7RvEkP1ysJ4fXnVzbzA3Q0wosW68Di2RvTqTsDhJWsZVcVYGIK+d9Dgoiqihl8RaxXtHbejR70hg==",
+        "resolved": "1.393.0",
+        "contentHash": "lwunHYEV/figvEf0g9ZcTQ+6atWEq8KY8tTbJQif0PWc40LuNxjxTqKFbdoqS/TIVTGmrju7qW0Q+olQ8z5YLg==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.384.0",
+          "Azure.Deployments.Core": "1.393.0",
           "IPNetwork2": "2.6.598",
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
           "Microsoft.PowerPlatform.ResourceStack": "7.0.0.2070",
@@ -230,12 +230,12 @@
       },
       "Azure.Deployments.Templates": {
         "type": "Transitive",
-        "resolved": "1.384.0",
-        "contentHash": "F3fKy84fFB5VP//5y9qOpJ3Vtu2OCXj2wSKlsEpSBzkqVrdIXd8/Dfbn6ENgbaTVpV6s2+G2VKs4pOIo/nT1PA==",
+        "resolved": "1.393.0",
+        "contentHash": "CD544eMbLvJAbToMjQrl3P4RoMEdX17luYmQb2UxUWSt9xhs1TqlEZO44r3x5x5Gbo3z89pzonVRYuIhT7zy7Q==",
         "dependencies": {
           "Azure.Bicep.Types": "0.5.110",
-          "Azure.Deployments.Core": "1.384.0",
-          "Azure.Deployments.Expression": "1.384.0",
+          "Azure.Deployments.Core": "1.393.0",
+          "Azure.Deployments.Expression": "1.393.0",
           "IPNetwork2": "2.6.598",
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
           "Microsoft.PowerPlatform.ResourceStack": "7.0.0.2070",
@@ -1202,7 +1202,7 @@
           "Azure.Bicep.Types.Az": "[0.2.771, )",
           "Azure.Bicep.Types.K8s": "[0.1.644, )",
           "Azure.Containers.ContainerRegistry": "[1.1.1, )",
-          "Azure.Deployments.Templates": "[1.384.0, )",
+          "Azure.Deployments.Templates": "[1.393.0, )",
           "Azure.Identity": "[1.13.2, )",
           "Azure.ResourceManager.Resources": "[1.9.0, )",
           "JsonPatch.Net": "[3.3.0, )",

@@ -67,6 +67,6 @@ namespace Bicep.TextFixtures.Utils
             return this;
         }
 
-        public T Get<T>() where T: notnull => this.BuildServiceProvider().GetRequiredService<T>();
+        public T Get<T>() where T : notnull => this.BuildServiceProvider().GetRequiredService<T>();
     }
 }
