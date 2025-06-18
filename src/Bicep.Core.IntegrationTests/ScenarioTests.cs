@@ -7379,4 +7379,34 @@ output secret string = secret
             ("BCP421", DiagnosticLevel.Error, """Module "mod" contains one or more secure outputs, which are not supported with "targetScope" set to "local"."""),
         ]);
     }
+
+    [TestMethod]
+    public async Task Test_Issue16748()
+    {
+        // https://github.com/Azure/bicep/issues/16748
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ExtensionResourceTypeHelper.GetTestTypesTgz(), new());
+
+        var result = await CompilationHelper.RestoreAndCompile(
+            services,
+"""
+extension 'br:example.azurecr.io/extensions/foo:1.2.3'
+
+param uniqueNames string[]
+
+resource groups 'fooType@v1' existing = [for uniqueName in uniqueNames: {
+  identifier: uniqueName
+}]
+
+resource databases 'Microsoft.DocumentDb/databaseAccounts@2023-04-15' existing = [for uniqueName in uniqueNames: {
+  name: uniqueName
+}]
+
+output memberIds array = flatten(map(groups, group => [group.properties.readonly]))
+output locations array = flatten(map(databases, database => database.properties.locations))
+""");
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("$.outputs['memberIds'].value", "[flatten(map(references('groups'), lambda('group', createArray(lambdaVariables('group').properties.readonly))))]");
+        result.Template.Should().HaveValueAtPath("$.outputs['locations'].value", "[flatten(map(references('databases', 'full'), lambda('database', lambdaVariables('database').properties.locations)))]");
+    }
 }
