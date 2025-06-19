@@ -11,7 +11,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.SourceCode;
 
 [TestClass]
-public class SourceCodeDocumentPathLinkTests
+public class ArchivedSourceFileLinkTests
 {
     [TestMethod]
     public void SerializesAndDeserializes()

@@ -768,7 +768,7 @@ namespace Bicep.Core.IntegrationTests
                     "_generator": {
                       "name": "bicep",
                       "version": "{{SourceArchiveConstants.CurrentBicepVersion}}",
-                      "templateHash": "10579191716995051607"
+                      "templateHash": "11105288584978107937"
                     }
                   },
                   "parameters": {
