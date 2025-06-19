@@ -11,7 +11,7 @@ using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.SourceGraph.Artifacts
 {
-    public abstract class BicepRegistryArtifact : CacheableArtifact
+    public abstract class BicepRegistryArtifact : ExternalArtifact
     {
 
         public BicepRegistryArtifact(IOciArtifactAddressComponents address, IDirectoryHandle rootCacheDirectory)
