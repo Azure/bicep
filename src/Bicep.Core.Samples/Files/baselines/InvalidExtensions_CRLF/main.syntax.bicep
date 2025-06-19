@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:2822) ProgramSyntax
+//@[000:2765) ProgramSyntax
 //@[020:0024) ├─Token(NewLine) |\r\n\r\n|
 
 param boolParam1 bool
@@ -26,39 +26,17 @@ extension az
 //@[012:0012) | ├─SkippedTriviaSyntax
 //@[012:0012) | └─SkippedTriviaSyntax
 //@[012:0014) ├─Token(NewLine) |\r\n|
-extension kubernetes with {
-//@[000:0084) ├─ExtensionDeclarationSyntax
+extension kubernetes as k8s
+//@[000:0027) ├─ExtensionDeclarationSyntax
 //@[000:0009) | ├─Token(Identifier) |extension|
 //@[010:0020) | ├─IdentifierSyntax
 //@[010:0020) | | └─Token(Identifier) |kubernetes|
-//@[021:0077) | ├─ExtensionWithClauseSyntax
-//@[021:0025) | | ├─Token(Identifier) |with|
-//@[026:0077) | | └─ObjectSyntax
-//@[026:0027) | |   ├─Token(LeftBrace) |{|
-//@[027:0029) | |   ├─Token(NewLine) |\r\n|
-  kubeConfig: 'DELETE'
-//@[002:0022) | |   ├─ObjectPropertySyntax
-//@[002:0012) | |   | ├─IdentifierSyntax
-//@[002:0012) | |   | | └─Token(Identifier) |kubeConfig|
-//@[012:0013) | |   | ├─Token(Colon) |:|
-//@[014:0022) | |   | └─StringSyntax
-//@[014:0022) | |   |   └─Token(StringComplete) |'DELETE'|
-//@[022:0024) | |   ├─Token(NewLine) |\r\n|
-  namespace: 'DELETE'
-//@[002:0021) | |   ├─ObjectPropertySyntax
-//@[002:0011) | |   | ├─IdentifierSyntax
-//@[002:0011) | |   | | └─Token(Identifier) |namespace|
-//@[011:0012) | |   | ├─Token(Colon) |:|
-//@[013:0021) | |   | └─StringSyntax
-//@[013:0021) | |   |   └─Token(StringComplete) |'DELETE'|
-//@[021:0023) | |   ├─Token(NewLine) |\r\n|
-} as k8s
-//@[000:0001) | |   └─Token(RightBrace) |}|
-//@[002:0008) | └─AliasAsClauseSyntax
-//@[002:0004) |   ├─Token(Identifier) |as|
-//@[005:0008) |   └─IdentifierSyntax
-//@[005:0008) |     └─Token(Identifier) |k8s|
-//@[008:0012) ├─Token(NewLine) |\r\n\r\n|
+//@[021:0021) | ├─SkippedTriviaSyntax
+//@[021:0027) | └─AliasAsClauseSyntax
+//@[021:0023) |   ├─Token(Identifier) |as|
+//@[024:0027) |   └─IdentifierSyntax
+//@[024:0027) |     └─Token(Identifier) |k8s|
+//@[027:0031) ├─Token(NewLine) |\r\n\r\n|
 
 //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
 //@[094:0098) ├─Token(NewLine) |\r\n\r\n|

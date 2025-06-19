@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:3604) ProgramSyntax
+//@[000:3483) ProgramSyntax
 //@[020:0024) ├─Token(NewLine) |\r\n\r\n|
 
 param strParam1 string
@@ -55,39 +55,17 @@ extension az
 //@[012:0012) | ├─SkippedTriviaSyntax
 //@[012:0012) | └─SkippedTriviaSyntax
 //@[012:0014) ├─Token(NewLine) |\r\n|
-extension kubernetes with {
-//@[000:0084) ├─ExtensionDeclarationSyntax
+extension kubernetes as k8s
+//@[000:0027) ├─ExtensionDeclarationSyntax
 //@[000:0009) | ├─Token(Identifier) |extension|
 //@[010:0020) | ├─IdentifierSyntax
 //@[010:0020) | | └─Token(Identifier) |kubernetes|
-//@[021:0077) | ├─ExtensionWithClauseSyntax
-//@[021:0025) | | ├─Token(Identifier) |with|
-//@[026:0077) | | └─ObjectSyntax
-//@[026:0027) | |   ├─Token(LeftBrace) |{|
-//@[027:0029) | |   ├─Token(NewLine) |\r\n|
-  kubeConfig: 'DELETE'
-//@[002:0022) | |   ├─ObjectPropertySyntax
-//@[002:0012) | |   | ├─IdentifierSyntax
-//@[002:0012) | |   | | └─Token(Identifier) |kubeConfig|
-//@[012:0013) | |   | ├─Token(Colon) |:|
-//@[014:0022) | |   | └─StringSyntax
-//@[014:0022) | |   |   └─Token(StringComplete) |'DELETE'|
-//@[022:0024) | |   ├─Token(NewLine) |\r\n|
-  namespace: 'DELETE'
-//@[002:0021) | |   ├─ObjectPropertySyntax
-//@[002:0011) | |   | ├─IdentifierSyntax
-//@[002:0011) | |   | | └─Token(Identifier) |namespace|
-//@[011:0012) | |   | ├─Token(Colon) |:|
-//@[013:0021) | |   | └─StringSyntax
-//@[013:0021) | |   |   └─Token(StringComplete) |'DELETE'|
-//@[021:0023) | |   ├─Token(NewLine) |\r\n|
-} as k8s
-//@[000:0001) | |   └─Token(RightBrace) |}|
-//@[002:0008) | └─AliasAsClauseSyntax
-//@[002:0004) |   ├─Token(Identifier) |as|
-//@[005:0008) |   └─IdentifierSyntax
-//@[005:0008) |     └─Token(Identifier) |k8s|
-//@[008:0012) ├─Token(NewLine) |\r\n\r\n|
+//@[021:0021) | ├─SkippedTriviaSyntax
+//@[021:0027) | └─AliasAsClauseSyntax
+//@[021:0023) |   ├─Token(Identifier) |as|
+//@[024:0027) |   └─IdentifierSyntax
+//@[024:0027) |     └─Token(Identifier) |k8s|
+//@[027:0031) ├─Token(NewLine) |\r\n\r\n|
 
 //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
 //@[084:0088) ├─Token(NewLine) |\r\n\r\n|
@@ -251,14 +229,14 @@ resource aks 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
 //@[039:0043) ├─Token(NewLine) |\r\n\r\n|
 
 module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[000:0249) ├─ModuleDeclarationSyntax
+//@[000:0229) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
 //@[007:0032) | ├─IdentifierSyntax
 //@[007:0032) | | └─Token(Identifier) |moduleWithExtsWithAliases|
 //@[033:0081) | ├─StringSyntax
 //@[033:0081) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
 //@[082:0083) | ├─Token(Assignment) |=|
-//@[084:0249) | └─ObjectSyntax
+//@[084:0229) | └─ObjectSyntax
 //@[084:0085) |   ├─Token(LeftBrace) |{|
 //@[085:0087) |   ├─Token(NewLine) |\r\n|
   name: 'moduleWithExtsWithAliases'
@@ -270,37 +248,37 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
 //@[008:0035) |   |   └─Token(StringComplete) |'moduleWithExtsWithAliases'|
 //@[035:0037) |   ├─Token(NewLine) |\r\n|
   extensionConfigs: {
-//@[002:0122) |   ├─ObjectPropertySyntax
+//@[002:0102) |   ├─ObjectPropertySyntax
 //@[002:0018) |   | ├─IdentifierSyntax
 //@[002:0018) |   | | └─Token(Identifier) |extensionConfigs|
 //@[018:0019) |   | ├─Token(Colon) |:|
-//@[020:0122) |   | └─ObjectSyntax
+//@[020:0102) |   | └─ObjectSyntax
 //@[020:0021) |   |   ├─Token(LeftBrace) |{|
 //@[021:0023) |   |   ├─Token(NewLine) |\r\n|
     k8s: {
-//@[004:0094) |   |   ├─ObjectPropertySyntax
+//@[004:0074) |   |   ├─ObjectPropertySyntax
 //@[004:0007) |   |   | ├─IdentifierSyntax
 //@[004:0007) |   |   | | └─Token(Identifier) |k8s|
 //@[007:0008) |   |   | ├─Token(Colon) |:|
-//@[009:0094) |   |   | └─ObjectSyntax
+//@[009:0074) |   |   | └─ObjectSyntax
 //@[009:0010) |   |   |   ├─Token(LeftBrace) |{|
 //@[010:0012) |   |   |   ├─Token(NewLine) |\r\n|
-      kubeConfig: 'kubeConfig2FromModule'
-//@[006:0041) |   |   |   ├─ObjectPropertySyntax
+      kubeConfig: 'kubeConfig2'
+//@[006:0031) |   |   |   ├─ObjectPropertySyntax
 //@[006:0016) |   |   |   | ├─IdentifierSyntax
 //@[006:0016) |   |   |   | | └─Token(Identifier) |kubeConfig|
 //@[016:0017) |   |   |   | ├─Token(Colon) |:|
-//@[018:0041) |   |   |   | └─StringSyntax
-//@[018:0041) |   |   |   |   └─Token(StringComplete) |'kubeConfig2FromModule'|
-//@[041:0043) |   |   |   ├─Token(NewLine) |\r\n|
-      namespace: 'ns2FromModule'
-//@[006:0032) |   |   |   ├─ObjectPropertySyntax
+//@[018:0031) |   |   |   | └─StringSyntax
+//@[018:0031) |   |   |   |   └─Token(StringComplete) |'kubeConfig2'|
+//@[031:0033) |   |   |   ├─Token(NewLine) |\r\n|
+      namespace: 'ns2'
+//@[006:0022) |   |   |   ├─ObjectPropertySyntax
 //@[006:0015) |   |   |   | ├─IdentifierSyntax
 //@[006:0015) |   |   |   | | └─Token(Identifier) |namespace|
 //@[015:0016) |   |   |   | ├─Token(Colon) |:|
-//@[017:0032) |   |   |   | └─StringSyntax
-//@[017:0032) |   |   |   |   └─Token(StringComplete) |'ns2FromModule'|
-//@[032:0034) |   |   |   ├─Token(NewLine) |\r\n|
+//@[017:0022) |   |   |   | └─StringSyntax
+//@[017:0022) |   |   |   |   └─Token(StringComplete) |'ns2'|
+//@[022:0024) |   |   |   ├─Token(NewLine) |\r\n|
     }
 //@[004:0005) |   |   |   └─Token(RightBrace) |}|
 //@[005:0007) |   |   ├─Token(NewLine) |\r\n|
@@ -312,14 +290,14 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
 //@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias.bicep' = {
-//@[000:0265) ├─ModuleDeclarationSyntax
+//@[000:0221) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
 //@[007:0035) | ├─IdentifierSyntax
 //@[007:0035) | | └─Token(Identifier) |moduleWithExtsWithoutAliases|
 //@[036:0087) | ├─StringSyntax
 //@[036:0087) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithoutAlias.bicep'|
 //@[088:0089) | ├─Token(Assignment) |=|
-//@[090:0265) | └─ObjectSyntax
+//@[090:0221) | └─ObjectSyntax
 //@[090:0091) |   ├─Token(LeftBrace) |{|
 //@[091:0093) |   ├─Token(NewLine) |\r\n|
   name: 'moduleWithExtsWithoutAliases'
@@ -331,37 +309,29 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
 //@[008:0038) |   |   └─Token(StringComplete) |'moduleWithExtsWithoutAliases'|
 //@[038:0040) |   ├─Token(NewLine) |\r\n|
   extensionConfigs: {
-//@[002:0129) |   ├─ObjectPropertySyntax
+//@[002:0085) |   ├─ObjectPropertySyntax
 //@[002:0018) |   | ├─IdentifierSyntax
 //@[002:0018) |   | | └─Token(Identifier) |extensionConfigs|
 //@[018:0019) |   | ├─Token(Colon) |:|
-//@[020:0129) |   | └─ObjectSyntax
+//@[020:0085) |   | └─ObjectSyntax
 //@[020:0021) |   |   ├─Token(LeftBrace) |{|
 //@[021:0023) |   |   ├─Token(NewLine) |\r\n|
     kubernetes: {
-//@[004:0101) |   |   ├─ObjectPropertySyntax
+//@[004:0057) |   |   ├─ObjectPropertySyntax
 //@[004:0014) |   |   | ├─IdentifierSyntax
 //@[004:0014) |   |   | | └─Token(Identifier) |kubernetes|
 //@[014:0015) |   |   | ├─Token(Colon) |:|
-//@[016:0101) |   |   | └─ObjectSyntax
+//@[016:0057) |   |   | └─ObjectSyntax
 //@[016:0017) |   |   |   ├─Token(LeftBrace) |{|
 //@[017:0019) |   |   |   ├─Token(NewLine) |\r\n|
-      kubeConfig: 'kubeConfig2FromModule'
-//@[006:0041) |   |   |   ├─ObjectPropertySyntax
+      kubeConfig: 'kubeConfig2'
+//@[006:0031) |   |   |   ├─ObjectPropertySyntax
 //@[006:0016) |   |   |   | ├─IdentifierSyntax
 //@[006:0016) |   |   |   | | └─Token(Identifier) |kubeConfig|
 //@[016:0017) |   |   |   | ├─Token(Colon) |:|
-//@[018:0041) |   |   |   | └─StringSyntax
-//@[018:0041) |   |   |   |   └─Token(StringComplete) |'kubeConfig2FromModule'|
-//@[041:0043) |   |   |   ├─Token(NewLine) |\r\n|
-      namespace: 'ns2FromModule'
-//@[006:0032) |   |   |   ├─ObjectPropertySyntax
-//@[006:0015) |   |   |   | ├─IdentifierSyntax
-//@[006:0015) |   |   |   | | └─Token(Identifier) |namespace|
-//@[015:0016) |   |   |   | ├─Token(Colon) |:|
-//@[017:0032) |   |   |   | └─StringSyntax
-//@[017:0032) |   |   |   |   └─Token(StringComplete) |'ns2FromModule'|
-//@[032:0034) |   |   |   ├─Token(NewLine) |\r\n|
+//@[018:0031) |   |   |   | └─StringSyntax
+//@[018:0031) |   |   |   |   └─Token(StringComplete) |'kubeConfig2'|
+//@[031:0033) |   |   |   ├─Token(NewLine) |\r\n|
     }
 //@[004:0005) |   |   |   └─Token(RightBrace) |}|
 //@[005:0007) |   |   ├─Token(NewLine) |\r\n|
