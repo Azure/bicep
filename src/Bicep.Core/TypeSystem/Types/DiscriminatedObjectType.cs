@@ -83,7 +83,7 @@ namespace Bicep.Core.TypeSystem.Types
             return null;
         }
 
-        public DiscriminatedObjectType WithModifiedProperties(Func<NamedTypeProperty, string /* Union Key */, NamedTypeProperty> propertyModifier) =>
-            new(this, UnionMembersByKey.ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Value.WithModifiedProperties(p => propertyModifier(p, kvp.Key))));
+        public DiscriminatedObjectType WithModifiedMembers(Func<ObjectType, ObjectType> modifyMemberFn) =>
+            new(this, UnionMembersByKey.ToImmutableDictionary(kvp => kvp.Key, kvp => modifyMemberFn(kvp.Value)));
     }
 }

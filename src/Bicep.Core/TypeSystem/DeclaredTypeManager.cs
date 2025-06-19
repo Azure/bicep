@@ -1211,17 +1211,14 @@ namespace Bicep.Core.TypeSystem
             }
 
             // TODO(kylealbert): this needs some thought with spec strings, ext names, and aliases
-            if (syntax.TryGetSymbolName() is not { } symbolName)
+            if (syntax.TryGetSymbolName() is not { } symbolName
+                || !semanticModel.Extensions.TryGetValue(symbolName, out var extensionMetadata)
+                || extensionMetadata.ConfigType is null)
             {
                 return null;
             }
 
-            if (semanticModel.Extensions.TryGetValue(symbolName, out var extensionMetadata))
-            {
-                return extensionMetadata.NamespaceType?.ConfigurationType;
-            }
-
-            return null;
+            return TypeHelper.CreateExtensionConfigAssignmentType(extensionMetadata.ConfigType, extensionMetadata.UserAssignedDefaultConfigType);
         }
 
         private DeclaredTypeAssignment? GetExtensionConfigAssignmentType(ExtensionConfigAssignmentSyntax extConfigAssignment)
@@ -2149,16 +2146,24 @@ namespace Bicep.Core.TypeSystem
 
                 foreach (var extension in moduleSemanticModel.Extensions.Values)
                 {
-                    if (extension.NamespaceType is not { } namespaceType ||
-                        namespaceType.ConfigurationType is not { } configurationType)
+                    if (extension.NamespaceType is not { ConfigurationType: { } extConfigType } extNamespaceType)
                     {
                         continue;
                     }
 
+                    var extConfigAssignmentTargetType = TypeHelper.CreateExtensionConfigAssignmentType(extConfigType, extension.UserAssignedDefaultConfigType);
+
+                    var extConfigPropertyTypeFlags = extConfigAssignmentTargetType switch
+                    {
+                        ObjectType extConfigObjectType => TypePropertyFlags.WriteOnly | (extConfigObjectType.Properties.Values.Any(p => p.Flags.HasFlag(TypePropertyFlags.Required)) ? TypePropertyFlags.Required : TypePropertyFlags.None),
+                        DiscriminatedObjectType extConfigDiscrimObjType => TypePropertyFlags.WriteOnly,
+                        _ => TypePropertyFlags.WriteOnly
+                    };
+
                     var extAliasProperty = new NamedTypeProperty(
                         extension.Alias,
-                        configurationType,
-                        namespaceType.IsConfigurationRequired ? TypePropertyFlags.Required | TypePropertyFlags.WriteOnly : TypePropertyFlags.WriteOnly);
+                        extConfigAssignmentTargetType,
+                        extConfigPropertyTypeFlags);
 
                     extensionConfigs.Add(extAliasProperty);
                 }

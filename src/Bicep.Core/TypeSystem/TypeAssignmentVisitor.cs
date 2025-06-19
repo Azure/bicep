@@ -926,11 +926,15 @@ namespace Bicep.Core.TypeSystem
                         {
                             assignmentTargetType = assignmentTargetType switch
                             {
-                                ObjectType asObjType => asObjType
+                                ObjectType assignmentTargetObjType => assignmentTargetObjType
                                     .WithModifiedProperties(p => p.WithoutFlags(TypePropertyFlags.Required)),
-                                // TODO(kylealbert): discriminator object: the discriminator property must be declared to declare any other properties.
-                                DiscriminatedObjectType asDiscrimObjType => asDiscrimObjType,
-                                _ => assignmentTargetType,
+                                DiscriminatedObjectType assignmentTargetDiscrimObjType => assignmentTargetDiscrimObjType
+                                    .WithModifiedMembers(memberType =>
+                                        memberType.WithModifiedProperties(p =>
+                                            LanguageConstants.IdentifierComparer.Equals(p.Name, assignmentTargetDiscrimObjType.DiscriminatorKey)
+                                                ? p
+                                                : p.WithoutFlags(TypePropertyFlags.Required))),
+                                _ => assignmentTargetType
                             };
                         }
 
@@ -941,9 +945,18 @@ namespace Bicep.Core.TypeSystem
                 else
                 {
                     // When module extension configs are used, exclude required property checks because those properties can be provided on the deployment properties and on the backend, will be merged in and validated.
-                    if (!features.ModuleExtensionConfigsEnabled && syntax.WithClause.IsSkipped && namespaceType.IsConfigurationRequired)
+                    if (!features.ModuleExtensionConfigsEnabled && syntax.WithClause.IsSkipped && namespaceType.ConfigurationType is not null)
                     {
-                        diagnostics.Write(syntax, x => x.ExtensionRequiresConfiguration(namespaceType.ExtensionName));
+                        var isConfigurationRequired = namespaceType.ConfigurationType switch
+                        {
+                            ObjectType extConfigObjType => extConfigObjType.Properties.Values.Any(p => p.Flags.HasFlag(TypePropertyFlags.Required)),
+                            _ => true
+                        };
+
+                        if (isConfigurationRequired)
+                        {
+                            diagnostics.Write(syntax, x => x.ExtensionRequiresConfiguration(namespaceType.ExtensionName));
+                        }
                     }
                 }
 
@@ -965,58 +978,39 @@ namespace Bicep.Core.TypeSystem
                         return ErrorType.Empty();
                     }
 
+                    // The declared type is the module-aware configuration type when moduleConfigsEnabled is true (defaulted config properties in the template are considered optional from this perspective).
+                    var moduleAwareExtConfigType = typeManager.GetDeclaredType(syntax);
+
                     base.VisitExtensionConfigAssignmentSyntax(syntax);
 
-                    var extensionMetadata = model.TryGetExtensionMetadata(configAssignmentSymbol);
-                    var configType = extensionMetadata?.ConfigType;
-
-                    if (extensionMetadata is null)
-                    {
-                        // TODO(kylealbert): handle this?
-                        diagnostics.Write(syntax.SpecificationString, x => x.InvalidExpression());
-
-                        return ErrorType.Empty();
-                    }
-
-                    if (configType is null) // Ext does not support configuration
+                    if (moduleAwareExtConfigType is null or ErrorType) // Ext does not support configuration
                     {
                         diagnostics.Write(syntax.SpecificationString, x => x.ExtensionDoesNotSupportConfiguration(configAssignmentSymbol.Name));
 
                         return ErrorType.Empty();
                     }
 
-                    // This is the type of what user assigned to the config in the template via the declaration syntax, use this to validate the type assignment here
-                    var defaultConfigType = extensionMetadata.UserAssignedDefaultConfigType;
-                    var assignedDefaultConfigPropertyNames = defaultConfigType?.Properties.Select(p => p.Key).ToImmutableHashSet();
-                    var extConfigAssignmentTargetType = configType;
-
-                    if (assignedDefaultConfigPropertyNames?.Count is > 0)
-                    {
-                        extConfigAssignmentTargetType = configType switch
-                        {
-                            ObjectType asObjType => asObjType
-                                .WithModifiedProperties(p =>
-                                    assignedDefaultConfigPropertyNames.Contains(p.Name) ? p.WithoutFlags(TypePropertyFlags.Required) : p),
-                            // TODO(kylealbert): discrim object handling
-                            DiscriminatedObjectType asDiscrimObjType => asDiscrimObjType,
-                            _ => configType
-                        };
-                    }
-
                     if (syntax.Config is not null)
                     {
-                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Config, extConfigAssignmentTargetType, false);
+                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Config, moduleAwareExtConfigType, false);
                     }
                     else if (syntax.WithClause.IsSkipped)
                     {
-                        // TODO(kylealbert): handle discrim object type
-                        if (extConfigAssignmentTargetType is ObjectType targetObjType && targetObjType.Properties.Any(p => p.Value.Flags.HasFlag(TypePropertyFlags.Required)))
+                        var isConfigurationRequired = moduleAwareExtConfigType switch
+                        {
+                            ObjectType moduleAwareExtConfigObjType => moduleAwareExtConfigObjType.Properties.Values.Any(p => p.Flags.HasFlag(TypePropertyFlags.Required)),
+                            // TODO(kylealbert): handle discrim object type
+                            DiscriminatedObjectType => true,
+                            _ => true
+                        };
+
+                        if (isConfigurationRequired)
                         {
                             diagnostics.Write(syntax, x => x.ExtensionRequiresConfiguration(configAssignmentSymbol.Name));
                         }
                     }
 
-                    return configType;
+                    return moduleAwareExtConfigType;
                 });
 
         private void ValidateDecorators(IEnumerable<DecoratorSyntax> decoratorSyntaxes, TypeSymbol targetType, IDiagnosticWriter diagnostics)

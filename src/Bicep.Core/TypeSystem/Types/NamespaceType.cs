@@ -48,13 +48,5 @@ namespace Bicep.Core.TypeSystem.Types
         public string ExtensionVersion => Settings.TemplateExtensionVersion;
 
         public ObjectLikeType? ConfigurationType => Settings.ConfigurationType;
-
-        public bool IsConfigurationRequired => this.ConfigurationType switch
-        {
-            ObjectType objectType => objectType.Properties.Values.Any(p => p.Flags.HasFlag(TypePropertyFlags.Required)),
-            DiscriminatedObjectType => true,
-            null => false,
-            _ => throw new InvalidOperationException($"Invalid ConfigurationType: {this.ConfigurationType.Name}"),
-        };
     }
 }

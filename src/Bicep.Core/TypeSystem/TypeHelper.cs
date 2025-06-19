@@ -746,5 +746,37 @@ namespace Bicep.Core.TypeSystem
 
         public static bool MatchesPattern(string pattern, string value)
             => Regex.IsMatch(value, pattern, RegexOptions.NonBacktracking);
+
+        public static ObjectLikeType CreateExtensionConfigAssignmentType(ObjectLikeType configType, ObjectType? userAssignedDefaultConfigType)
+        {
+            var defaultConfigAssignedPropertyNames = userAssignedDefaultConfigType?.Properties.Select(p => p.Key).ToImmutableHashSet();
+
+            if (defaultConfigAssignedPropertyNames?.Count is not > 0)
+            {
+                return configType;
+            }
+
+            if (configType is DiscriminatedObjectType discrimObjType)
+            {
+                if (!userAssignedDefaultConfigType!.Properties.TryGetValue(discrimObjType.DiscriminatorKey, out var userAssignedDiscrimProperty)
+                    || userAssignedDiscrimProperty.TypeReference.Type is not StringLiteralType { RawStringValue: { } userAssignedDiscrimValue })
+                {
+                    return configType;
+                }
+
+                // return the selected member type modified based on the user assigned type and with the discriminator property removed.
+                return discrimObjType.UnionMembersByKey[userAssignedDiscrimValue]
+                    .WithProperties(props => props
+                        .Where(p => !LanguageConstants.IdentifierComparer.Equals(p.Name, discrimObjType.DiscriminatorKey))
+                        .Select(p => defaultConfigAssignedPropertyNames.Contains(p.Name) ? p.WithoutFlags(TypePropertyFlags.Required) : p));
+            }
+
+            return configType switch
+            {
+                ObjectType asObjType => asObjType
+                    .WithModifiedProperties(p => defaultConfigAssignedPropertyNames.Contains(p.Name) ? p.WithoutFlags(TypePropertyFlags.Required) : p),
+                _ => configType
+            };
+        }
     }
 }
