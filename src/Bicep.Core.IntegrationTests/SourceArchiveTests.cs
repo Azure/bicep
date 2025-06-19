@@ -122,6 +122,9 @@ namespace Bicep.Core.IntegrationTests
             var sourceArchive = SourceArchive.CreateFrom(sourceFileGrouping);
 
             // Assert.
+            var bicepRegistryModule1Template = (await this.compiler.RestoreAndCompileMockFileSystemFile(SampleData.BicepRegistryModule1Text)).Template!;
+            var bicepRegistryModule2Template = (await this.compiler.RestoreAndCompileMockFileSystemFile(SampleData.BicepRegistryModule2Text)).Template!;
+
             sourceArchive.Should().HaveMetadataAndFiles($$"""
                 {
                   "metadataVersion": 1,
@@ -207,8 +210,8 @@ namespace Bicep.Core.IntegrationTests
                 ("files/nested-local.bicep", SampleData.BicepNestedLocalModuleText),
                 ("files/modules/local2.bicep", SampleData.BicepLocalModule2Text),
                 ("files/modules/arm-templates/arm-template.json", SampleData.ArmTemplateModuleText),
-                ("files/_cache_/br/mockregistry.io/test$module1/v1$/main.json", SampleData.BicepRegistryModule1CompiledText),
-                ("files/_cache_/br/mockregistry.io/test$module2/v2$/main.json", SampleData.BicepRegistryModule2CompiledText)); 
+                ("files/_cache_/br/mockregistry.io/test$module1/v1$/main.json", bicepRegistryModule1Template.ToString(Newtonsoft.Json.Formatting.Indented)),
+                ("files/_cache_/br/mockregistry.io/test$module2/v2$/main.json", bicepRegistryModule2Template.ToString(Newtonsoft.Json.Formatting.Indented))); 
         }
 
         [TestMethod]
@@ -337,6 +340,9 @@ namespace Bicep.Core.IntegrationTests
         public async Task CreateFrom_WithNotResolvedModules_IgnoresThoseModules()
         {
             // Arrange.
+            var moduleText = "param p1 bool";
+            var moduleTemplate = (await this.compiler.RestoreAndCompileMockFileSystemFile(moduleText)).Template!;
+            var moduleTemplateText = moduleTemplate.ToString(Newtonsoft.Json.Formatting.Indented);
             await this.artifactManager.PublishRegistryModule("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true);
 
             var mainBicepText = """
@@ -390,25 +396,7 @@ namespace Bicep.Core.IntegrationTests
                 }
                 """,
                 ("files/main.bicep", mainBicepText),
-                ("files/_cache_/br/mockregistry.io/test$module1/v1$/main.json", $$"""
-                    {
-                      "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                      "contentVersion": "1.0.0.0",
-                      "metadata": {
-                        "_generator": {
-                          "name": "bicep",
-                          "version": "{{SourceArchiveConstants.CurrentBicepVersion}}",
-                          "templateHash": "15847871259541043130"
-                        }
-                      },
-                      "parameters": {
-                        "p1": {
-                          "type": "bool"
-                        }
-                      },
-                      "resources": []
-                    }
-                    """));
+                ("files/_cache_/br/mockregistry.io/test$module1/v1$/main.json", moduleTemplateText));
         }
 
         [DataTestMethod]
@@ -736,48 +724,10 @@ namespace Bicep.Core.IntegrationTests
             public const string BicepRegistryModule1Text = """
                 param brm1 string
                 """;
-            public readonly static string BicepRegistryModule1CompiledText = $$"""
-                {
-                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "{{SourceArchiveConstants.CurrentBicepVersion}}",
-                      "templateHash": "7254182553640871095"
-                    }
-                  },
-                  "parameters": {
-                    "brm1": {
-                      "type": "string"
-                    }
-                  },
-                  "resources": []
-                }
-                """;
 
             public const string BicepRegistryModule2ArtifactId = "br:mockregistry.io/test/module2:v2";
             public const string BicepRegistryModule2Text = """
                 param brm2 string
-                """;
-            public readonly static string BicepRegistryModule2CompiledText = $$"""
-                {
-                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                  "contentVersion": "1.0.0.0",
-                  "metadata": {
-                    "_generator": {
-                      "name": "bicep",
-                      "version": "{{SourceArchiveConstants.CurrentBicepVersion}}",
-                      "templateHash": "11105288584978107937"
-                    }
-                  },
-                  "parameters": {
-                    "brm2": {
-                      "type": "string"
-                    }
-                  },
-                  "resources": []
-                }
                 """;
 
             public const string TemplateSpecId = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Microsoft.Resources/templateSpecs/test-ts/versions/v1";
