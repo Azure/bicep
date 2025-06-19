@@ -71,14 +71,28 @@ namespace Bicep.TextFixtures.Utils
 
         public TestServices AddFileExplorer(IFileExplorer fileExplorer)
         {
-            this.services.AddSingleton<IFileExplorer>(fileExplorer);
+            this.services.AddSingleton(fileExplorer);
 
             return this;
         }
 
         public TestServices AddContainerRegistryClientFactory(IContainerRegistryClientFactory containerRegistryClientFactory)
         {
-            this.services.AddSingleton<IContainerRegistryClientFactory>(containerRegistryClientFactory);
+            this.services.AddSingleton(containerRegistryClientFactory);
+
+            return this;
+        }
+
+        public TestServices AddTemplateSpecRepositoryFactory(ITemplateSpecRepositoryFactory templateSpecRepositoryFactory)
+        {
+            this.services.AddSingleton(templateSpecRepositoryFactory);
+
+            return this;
+        }
+
+        public TestServices AddExternalArtifactManager(TestExternalArtifactManager artifactManager)
+        {
+            artifactManager.Register(this);
 
             return this;
         }

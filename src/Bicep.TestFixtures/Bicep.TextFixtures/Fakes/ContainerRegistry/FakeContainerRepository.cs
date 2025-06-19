@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Containers.ContainerRegistry;
-using Bicep.Core.UnitTests.Mock;
 
 namespace Bicep.TextFixtures.Fakes.ContainerRegistry
 {

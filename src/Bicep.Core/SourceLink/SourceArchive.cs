@@ -97,7 +97,7 @@ namespace Bicep.Core.SourceLink
             return BinaryData.FromStream(stream);
         }
 
-        public static SourceArchive CreateFor2(SourceFileGrouping sourceFileGrouping)
+        public static SourceArchive CreateFrom(SourceFileGrouping sourceFileGrouping)
         {
             if (sourceFileGrouping.EntryPoint is not BicepFile)
             {
@@ -107,7 +107,8 @@ namespace Bicep.Core.SourceLink
             var metadataBySourceFile = CreateMetadataBySourceFile(sourceFileGrouping);
             var sourceDocumentLink = CreateSourceFileLinks(sourceFileGrouping, metadataBySourceFile);
             var entryPointPath = metadataBySourceFile[sourceFileGrouping.EntryPoint].Path;
-            var metadata = new SourceArchiveMetadata(CurrentMetadataVersion, CurrentBicepVersion, entryPointPath, [.. metadataBySourceFile.Values], sourceDocumentLink);
+            var bicepVersion = sourceFileGrouping.EntryPoint.Features.AssemblyVersion;
+            var metadata = new SourceArchiveMetadata(CurrentMetadataVersion, bicepVersion, entryPointPath, [.. metadataBySourceFile.Values], sourceDocumentLink);
             var fileEntries = metadataBySourceFile.ToFrozenDictionary(x => x.Value.ArchivePath, x => x.Key.Text);
 
             return new SourceArchive(metadata, fileEntries);
@@ -300,6 +301,36 @@ namespace Bicep.Core.SourceLink
             return SourceCodePathHelper.NormalizeSlashes(uri.LocalPath);
         }
 
+        private static void UniquifyArchivePaths(Dictionary<ISourceFile, ArchivedSourceFileMetadata> metadataBySourceFile)
+        {
+            var pathComparer = metadataBySourceFile.Keys.First().FileHandle.Uri.PathComparer;
+            var uniqueArchivePaths = new HashSet<string>(pathComparer);
+            var uniqueArchivePathSuffix = 0;
+
+            foreach (var (sourceFile, metadata) in metadataBySourceFile)
+            {
+                var uniqueArchivePath = metadata.ArchivePath;
+                var uniquified = false;
+
+                while (uniqueArchivePaths.Contains(uniqueArchivePath))
+                {
+                    uniqueArchivePathSuffix++;
+                    uniqueArchivePath = $"{metadata.ArchivePath}({uniqueArchivePathSuffix})";
+                    uniquified = true;
+                }
+
+                uniqueArchivePaths.Add(uniqueArchivePath);
+
+                if (uniquified)
+                {
+                    metadataBySourceFile[sourceFile] = metadata with
+                    {
+                        ArchivePath = uniqueArchivePath,
+                    };
+                }
+            }
+        }
+
         private static string UniquifyArchivePath(IList<ArchivedSourceFileMetadata> filesMetadata, string archivePath)
         {
             int suffix = 1;
@@ -432,7 +463,7 @@ namespace Bicep.Core.SourceLink
 
                 foreach (var rootUri in distinctRootUris)
                 {
-                    var rootName = $"<root{rootCounter}>";
+                    var rootName = $"<root{rootCounter++}>";
 
                     foreach (var file in otherDirectoryFiles.Where(x => rootUri.IsBaseOf(x.FileHandle.Uri)))
                     {
@@ -443,6 +474,8 @@ namespace Bicep.Core.SourceLink
                 }
             }
 
+            UniquifyArchivePaths(result);
+
             return result;
         }
 
@@ -451,10 +484,12 @@ namespace Bicep.Core.SourceLink
 
         private static List<IOUri> FindDistinctRootUris(List<ISourceFile> sourceFiles)
         {
+            var pathComparer = sourceFiles[0].FileHandle.Uri.PathComparer;
             var distinctRootUris = new List<IOUri>();
             var sortedDirectoryUris = sourceFiles
                 .Select(x => x.FileHandle.Uri.Resolve("."))
-                .OrderBy(x => x.ToString(), sourceFiles[0].FileHandle.Uri.PathComparer) // Sort by source file directory URI.
+                .DistinctBy(x => x.ToString(), pathComparer)
+                .OrderBy(x => x.ToString(), pathComparer) // Sort by source file directory URI.
                 .ToList();
 
             foreach (var directoryUri in sortedDirectoryUris)

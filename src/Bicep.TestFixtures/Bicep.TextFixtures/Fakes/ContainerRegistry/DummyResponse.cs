@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Azure;
-using Bicep.Core.UnitTests.Mock;
+using Bicep.TextFixtures.Mocks;
 
 namespace Bicep.TextFixtures.Fakes.ContainerRegistry
 {

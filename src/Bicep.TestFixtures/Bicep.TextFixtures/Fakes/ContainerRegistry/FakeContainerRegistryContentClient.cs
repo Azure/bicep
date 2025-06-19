@@ -4,7 +4,6 @@
 using System.Collections.Concurrent;
 using Azure;
 using Azure.Containers.ContainerRegistry;
-using Bicep.Core.UnitTests.Mock;
 using static Azure.Containers.ContainerRegistry.ContainerRegistryModelFactory;
 
 namespace Bicep.TextFixtures.Fakes.ContainerRegistry

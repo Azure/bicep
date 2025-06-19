@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
-using Bicep.Core.UnitTests.Assertions;
 using Bicep.TextFixtures.Utils;
 using FluentAssertions;
 using FluentAssertions.Primitives;
@@ -34,21 +33,21 @@ namespace Bicep.TextFixtures.Assertions
         }
 
         public AndConstraint<TestCompilationResultAssertions> HaveDiagnostics(IEnumerable<(string code, DiagnosticLevel level, string message)> expectedDiagnostics, string because = "", params object[] becauseArgs) =>
-            DoWithDiagnosticAnnotations(diags =>
+            DoWithDiagnosticAnnotations(diag =>
             {
-                diags.Should().HaveDiagnostics(expectedDiagnostics, because, becauseArgs);
+                diag.Should2().MatchExactly(expectedDiagnostics, because, becauseArgs);
             });
 
         public AndConstraint<TestCompilationResultAssertions> NotHaveAnyDiagnostics(string because = "", params object[] becauseArgs) =>
             DoWithDiagnosticAnnotations(diags =>
             {
-                diags.Should().NotHaveAnyDiagnostics(because, becauseArgs);
+                diags.Should2().BeEmpty(because, becauseArgs);
             });
 
         public AndConstraint<TestCompilationResultAssertions> HaveSingleDiagnostic(string code, DiagnosticLevel level, string message, string because = "", params object[] becauseArgs) =>
             DoWithDiagnosticAnnotations(diags =>
             {
-                diags.Should().ContainSingleDiagnostic(code, level, message, because, becauseArgs);
+                diags.Should2().ContainSingleDiagnosticWith(code, level, message, because, becauseArgs);
             });
     }
 }

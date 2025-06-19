@@ -16,6 +16,7 @@ using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
+using Bicep.TextFixtures.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -23,6 +24,7 @@ using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.Core.UnitTests.Registry
 {
+    // TODO: These should be integration tests.
     [TestClass]
     public class OciArtifactRegistryTests
     {
