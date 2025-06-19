@@ -18,7 +18,7 @@ namespace Bicep.IO.Utils
             return ExtractFromStream(tgzFileHandle.OpenRead());
         }
 
-         public static FrozenDictionary<string, BinaryData> ExtractFromStream(Stream tgzStream)
+        public static FrozenDictionary<string, BinaryData> ExtractFromStream(Stream tgzStream)
         {
             var entries = new Dictionary<string, BinaryData>();
             using var tgzReader = new TgzReader(tgzStream);

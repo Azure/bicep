@@ -191,6 +191,41 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
             """));
     }
 
+    [TestMethod]
+    public async Task Snapshot_surfaces_validation_errors_as_message()
+    {
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var bicepparamPath = FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicepparam",
+            """
+                using './main.bicep'
+
+                param condition = true
+                """,
+            testOutputPath: outputPath);
+
+        FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicep",
+            """
+                param condition bool
+
+                var foo = condition ? fail('condition must be false') : 'foo'
+                """,
+            testOutputPath: outputPath);
+
+        var outputFilePath = FileHelper.GetResultFilePath(TestContext, "main.snapshot.json", testOutputPath: outputPath);
+
+        var subscriptionId = new Guid().ToString();
+
+        var result = await Bicep("snapshot", bicepparamPath, "--mode", "overwrite");
+
+        result.Should().Fail();
+        result.Stderr.Should().Contain("""Template snapshotting could not be completed for the following reason: 'The template variable 'foo' is not valid: condition must be false.""");
+        result.Stderr.Should().NotContain("Unhandled exception");
+    }
+
     private static string ReplaceColorCodes(string input)
     {
         var namesByColor = new Dictionary<Color, string>
