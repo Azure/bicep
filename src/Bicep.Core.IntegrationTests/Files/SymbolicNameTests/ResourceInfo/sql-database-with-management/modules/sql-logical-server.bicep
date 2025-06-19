@@ -121,10 +121,10 @@ resource vulnerabilityAssessments 'Microsoft.Sql/servers/vulnerabilityAssessment
       emails: sqlLogicalServer.azureDefender.vulnerabilityAssessments.emails
     }
     storageContainerPath: !empty(sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.name)
-      ? '${storageAccountVulnerabilityAssessments.properties.primaryEndpoints.blob}${sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.containerName}'
+      ? '${storageAccountVulnerabilityAssessments!.properties.primaryEndpoints.blob}${sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.containerName}'
       : ''
     storageAccountAccessKey: !empty(sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.name)
-      ? storageAccountVulnerabilityAssessments.listKeys().keys[0].value
+      ? storageAccountVulnerabilityAssessments!.listKeys().keys[0].value
       : ''
   }
 }

@@ -284,6 +284,7 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
   properties: {
     res1: vmWithCondition.id
     res1runtime: vmWithCondition.properties.something
+//@[32:43) [BCP318 (Warning)] The value of type "Microsoft.Compute/virtualMachines | null" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail. (bicep https://aka.ms/bicep/core-diagnostics#BCP318) |.properties|
 //@[44:53) [BCP053 (Warning)] The type "VirtualMachineProperties" does not contain property "something". Available properties include "additionalCapabilities", "availabilitySet", "billingProfile", "diagnosticsProfile", "evictionPolicy", "extensionsTimeBudget", "hardwareProfile", "host", "hostGroup", "instanceView", "licenseType", "networkProfile", "osProfile", "priority", "provisioningState", "proximityPlacementGroup", "securityProfile", "storageProfile", "virtualMachineScaleSet", "vmId". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |something|
     res2: extension1.id
     res2runtime: extension1.properties.something

@@ -132,7 +132,7 @@ namespace Bicep.Core.Semantics
 
             this.outputsLazy = new(() =>
             {
-                var outputs = new List<OutputMetadata>();
+                var outputs = ImmutableArray.CreateBuilder<OutputMetadata>();
 
                 foreach (var output in this.Root.OutputDeclarations.DistinctBy(o => o.Name))
                 {
@@ -142,15 +142,15 @@ namespace Bicep.Core.Semantics
                         // Resource type parameters are a special case, we need to convert to a dedicated
                         // type so we can compare differently for assignment and code generation.
                         var type = new UnresolvedResourceType(resourceType.TypeReference);
-                        outputs.Add(new OutputMetadata(output.Name, type, description, output.DeclaringOutput.IsSecureOutput(this)));
+                        outputs.Add(new OutputMetadata(output.Name, type, description, IsSecure: false));
                     }
                     else
                     {
-                        outputs.Add(new OutputMetadata(output.Name, output.Type, description, output.DeclaringOutput.IsSecureOutput(this)));
+                        outputs.Add(new OutputMetadata(output.Name, output.Type, description, TypeHelper.IsOrContainsSecureType(output.Type)));
                     }
                 }
 
-                return [.. outputs];
+                return outputs.ToImmutable();
             });
         }
 

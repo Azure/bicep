@@ -696,9 +696,11 @@ resource discriminatorKeyValueMissing_if 'Microsoft.Resources/deploymentScripts@
 // #completionTest(82) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions_if = discriminatorKeyValueMissing_if.p
 //@[004:046) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions_if" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |discriminatorKeyValueMissingCompletions_if|
+//@[080:082) [BCP318 (Warning)] The value of type "Microsoft.Resources/deploymentScripts | null" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail. (bicep https://aka.ms/bicep/core-diagnostics#BCP318) |.p|
 // #completionTest(82) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions2_if = discriminatorKeyValueMissing_if.
 //@[004:047) [no-unused-vars (Warning)] Variable "discriminatorKeyValueMissingCompletions2_if" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |discriminatorKeyValueMissingCompletions2_if|
+//@[081:082) [BCP318 (Warning)] The value of type "Microsoft.Resources/deploymentScripts | null" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail. (bicep https://aka.ms/bicep/core-diagnostics#BCP318) |.|
 //@[082:082) [BCP020 (Error)] Expected a function or property name at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP020) ||
 
 // #completionTest(82) -> missingDiscriminatorPropertyIndexPlusSymbols_if
@@ -807,15 +809,18 @@ resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-1
 // #completionTest(81) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions_if = discriminatorKeySetOne_if.properties.a
 //@[004:040) [no-unused-vars (Warning)] Variable "discriminatorKeySetOneCompletions_if" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |discriminatorKeySetOneCompletions_if|
+//@[068:079) [BCP318 (Warning)] The value of type "AzureCLI | null" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail. (bicep https://aka.ms/bicep/core-diagnostics#BCP318) |.properties|
 //@[080:081) [BCP053 (Warning)] The type "AzureCliScriptProperties" does not contain property "a". Available properties include "arguments", "azCliVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |a|
 // #completionTest(81) -> cliPropertyAccess
 var discriminatorKeySetOneCompletions2_if = discriminatorKeySetOne_if.properties.
 //@[004:041) [no-unused-vars (Warning)] Variable "discriminatorKeySetOneCompletions2_if" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |discriminatorKeySetOneCompletions2_if|
+//@[069:080) [BCP318 (Warning)] The value of type "AzureCLI | null" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail. (bicep https://aka.ms/bicep/core-diagnostics#BCP318) |.properties|
 //@[081:081) [BCP020 (Error)] Expected a function or property name at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP020) ||
 
 // #completionTest(81) -> cliPropertyAccessIndexesPlusSymbols_if
 var discriminatorKeySetOneCompletions3_if = discriminatorKeySetOne_if.properties[]
 //@[004:041) [no-unused-vars (Warning)] Variable "discriminatorKeySetOneCompletions3_if" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |discriminatorKeySetOneCompletions3_if|
+//@[069:080) [BCP318 (Warning)] The value of type "AzureCLI | null" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail. (bicep https://aka.ms/bicep/core-diagnostics#BCP318) |.properties|
 //@[081:081) [BCP117 (Error)] An empty indexer is not allowed. Specify a valid expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP117) ||
 
 /*
@@ -1130,15 +1135,18 @@ resource nestedDiscriminatorMissingKey_if 'Microsoft.DocumentDB/databaseAccounts
 // #completionTest(96) -> createMode
 var nestedDiscriminatorMissingKeyCompletions_if = nestedDiscriminatorMissingKey_if.properties.cr
 //@[004:047) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyCompletions_if" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |nestedDiscriminatorMissingKeyCompletions_if|
+//@[082:093) [BCP318 (Warning)] The value of type "Microsoft.DocumentDB/databaseAccounts | null" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail. (bicep https://aka.ms/bicep/core-diagnostics#BCP318) |.properties|
 // #completionTest(98) -> createMode
 var nestedDiscriminatorMissingKeyCompletions2_if = nestedDiscriminatorMissingKey_if['properties'].
 //@[004:048) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyCompletions2_if" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |nestedDiscriminatorMissingKeyCompletions2_if|
 //@[083:097) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter/prefer-unquoted-property-names) |['properties']|
+//@[083:097) [BCP318 (Warning)] The value of type "Microsoft.DocumentDB/databaseAccounts | null" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail. (bicep https://aka.ms/bicep/core-diagnostics#BCP318) |['properties']|
 //@[098:098) [BCP020 (Error)] Expected a function or property name at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP020) ||
 
 // #completionTest(100) -> createModeIndexPlusSymbols_if
 var nestedDiscriminatorMissingKeyIndexCompletions_if = nestedDiscriminatorMissingKey_if.properties['']
 //@[004:052) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyIndexCompletions_if" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |nestedDiscriminatorMissingKeyIndexCompletions_if|
+//@[087:098) [BCP318 (Warning)] The value of type "Microsoft.DocumentDB/databaseAccounts | null" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail. (bicep https://aka.ms/bicep/core-diagnostics#BCP318) |.properties|
 
 /* 
 Nested discriminator missing key (loop)
