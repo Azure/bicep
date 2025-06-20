@@ -96,11 +96,11 @@ var cosmosDbRef = reference(cosmosDbResourceId).documentEndpoint
 // this variable is not accessed anywhere in this template and depends on a run-time reference
 // it should not be present at all in the template output as there is nowhere logical to put it
 var cosmosDbEndpoint = cosmosDbRef.documentEndpoint
-//@[04:20) [no-unused-vars (Warning)] Variable "cosmosDbEndpoint" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |cosmosDbEndpoint|
+//@[04:20) [no-unused-vars (Warning)] Variable "cosmosDbEndpoint" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |cosmosDbEndpoint|
 
 param webSiteName string
 param cosmosDb object
-//@[15:21) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
+//@[15:21) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |object|
 resource site 'Microsoft.Web/sites@2019-08-01' = {
   name: webSiteName
   location: location
@@ -130,15 +130,15 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 }
 
 var _siteApiVersion = site.apiVersion
-//@[04:19) [no-unused-vars (Warning)] Variable "_siteApiVersion" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |_siteApiVersion|
+//@[04:19) [no-unused-vars (Warning)] Variable "_siteApiVersion" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |_siteApiVersion|
 var _siteType = site.type
-//@[04:13) [no-unused-vars (Warning)] Variable "_siteType" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |_siteType|
+//@[04:13) [no-unused-vars (Warning)] Variable "_siteType" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |_siteType|
 
 output siteApiVersion string = site.apiVersion
 output siteType string = site.type
 
 resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
-//@[16:60) [no-deployments-resources (Warning)] Resource 'nested' of type 'Microsoft.Resources/deployments@2019-10-01' should instead be declared as a Bicep module. (bicep core linter https://aka.ms/bicep/linter/no-deployments-resources) |'Microsoft.Resources/deployments@2019-10-01'|
+//@[16:60) [no-deployments-resources (Warning)] Resource 'nested' of type 'Microsoft.Resources/deployments@2019-10-01' should instead be declared as a Bicep module. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-deployments-resources) |'Microsoft.Resources/deployments@2019-10-01'|
   name: 'nestedTemplate1'
   properties: {
     mode: 'Incremental'
@@ -174,13 +174,13 @@ resource resourceA 'My.Rp/typeA@2020-01-01' = {
 resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[19:49) [BCP081 (Warning)] Resource type "My.Rp/typeA/typeB@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'My.Rp/typeA/typeB@2020-01-01'|
   name: '${resourceA.name}/resourceB'
-//@[08:37) [use-parent-property (Warning)] Resource "resourceB" has its name formatted as a child of resource "resourceA". The syntax can be simplified by using the parent property. (bicep core linter https://aka.ms/bicep/linter/use-parent-property) |'${resourceA.name}/resourceB'|
+//@[08:37) [use-parent-property (Warning)] Resource "resourceB" has its name formatted as a child of resource "resourceA". The syntax can be simplified by using the parent property. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-parent-property) |'${resourceA.name}/resourceB'|
 }
 
 resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[19:49) [BCP081 (Warning)] Resource type "My.Rp/typeA/typeB@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'My.Rp/typeA/typeB@2020-01-01'|
   name: '${resourceA.name}/resourceC'
-//@[08:37) [use-parent-property (Warning)] Resource "resourceC" has its name formatted as a child of resource "resourceA". The syntax can be simplified by using the parent property. (bicep core linter https://aka.ms/bicep/linter/use-parent-property) |'${resourceA.name}/resourceC'|
+//@[08:37) [use-parent-property (Warning)] Resource "resourceC" has its name formatted as a child of resource "resourceA". The syntax can be simplified by using the parent property. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-parent-property) |'${resourceA.name}/resourceC'|
   properties: {
     aId: resourceA.id
     aType: resourceA.type
@@ -300,7 +300,7 @@ resource existing1 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
 }
 
 resource existing2 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
-//@[09:18) [no-unused-existing-resources (Warning)] Existing resource "existing2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-existing-resources) |existing2|
+//@[09:18) [no-unused-existing-resources (Warning)] Existing resource "existing2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-existing-resources) |existing2|
 //@[19:65) [BCP081 (Warning)] Resource type "Mock.Rp/existingExtensionResource@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'Mock.Rp/existingExtensionResource@2020-01-01'|
   name: 'existing2'
   scope: existing1
@@ -374,7 +374,7 @@ resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-
 
 // duplicate identifiers in global and single loop scope are allowed (inner variable hides the outer)
 var canHaveDuplicatesAcrossScopes = 'hello'
-//@[04:33) [no-unused-vars (Warning)] Variable "canHaveDuplicatesAcrossScopes" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |canHaveDuplicatesAcrossScopes|
+//@[04:33) [no-unused-vars (Warning)] Variable "canHaveDuplicatesAcrossScopes" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |canHaveDuplicatesAcrossScopes|
 resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for canHaveDuplicatesAcrossScopes in range(0, 3): {
   name: 'vnet-${canHaveDuplicatesAcrossScopes}'
   properties: {
@@ -386,7 +386,7 @@ resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-
 
 // duplicate in global and multiple loop scopes are allowed (inner hides the outer)
 var duplicatesEverywhere = 'hello'
-//@[04:24) [no-unused-vars (Warning)] Variable "duplicatesEverywhere" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |duplicatesEverywhere|
+//@[04:24) [no-unused-vars (Warning)] Variable "duplicatesEverywhere" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |duplicatesEverywhere|
 resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for duplicatesEverywhere in range(0, 3): {
   name: 'vnet-${duplicatesEverywhere}'
   properties: {
