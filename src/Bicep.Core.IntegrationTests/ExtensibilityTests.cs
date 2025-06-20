@@ -527,8 +527,6 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             var paramsUri = new Uri("file:///main.bicepparam");
             var mainUri = new Uri("file:///main.bicep");
             var moduleAUri = new Uri("file:///modulea.bicep");
-
-            // TODO(kylealbert): Remove 'with' clause in template when that's removed
             var files = new Dictionary<Uri, string>
             {
                 [paramsUri] =
@@ -537,16 +535,13 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 
                       param inputa = 'abc'
 
-                      extension k8s with {{paramsKubeExtConfig ?? moduleKubeExtConfig}}
+                      extensionConfig k8s with {{paramsKubeExtConfig ?? moduleKubeExtConfig}}
                       """,
                 [mainUri] =
                     $$"""
                       param inputa string
 
-                      extension kubernetes with {
-                        kubeConfig: 'DELETE'
-                        namespace: 'DELETE'
-                      } as k8s
+                      extension kubernetes as k8s
 
                       extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3'
 
@@ -570,10 +565,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                     """
                     param inputa string
 
-                    extension kubernetes with {
-                      kubeConfig: 'DELETE'
-                      namespace: 'DELETE'
-                    }
+                    extension kubernetes
 
                     extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
 
@@ -589,37 +581,50 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 
         [DataTestMethod]
         [DataRow(
-            "MissingExtensionConfigsDeclaration",
+            "MissingExtensionConfigs",
+            "extension kubernetes",
             "",
             "BCP035",
             """The specified "module" declaration is missing the following required properties: "extensionConfigs".""")]
         [DataRow(
             "MissingRequiredExtensionConfig",
+            "extension kubernetes",
             "extensionConfigs: {}",
             "BCP035",
             """The specified "object" declaration is missing the following required properties: "kubernetes".""")]
         [DataRow(
             "MissingRequiredConfigProperty",
+            "extension kubernetes",
             "extensionConfigs: { kubernetes: { namespace: 'other' } }",
             "BCP035",
             """The specified "object" declaration is missing the following required properties: "kubeConfig".""")]
         [DataRow(
+            "MissingRequiredConfigProperties",
+            "extension kubernetes",
+            "extensionConfigs: { kubernetes: { } }",
+            "BCP035",
+            """The specified "object" declaration is missing the following required properties: "kubeConfig", "namespace".""")]
+        [DataRow(
             "PropertyIsNotDefinedInSchema",
+            "extension kubernetes",
             "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other', extra: 'extra' } }",
             "BCP037",
             """The property "extra" is not allowed on objects of type "configuration". Permissible properties include "context".""")]
         [DataRow(
             "ConfigProvidedForExtensionThatDoesNotAcceptConfig",
+            "extension kubernetes",
             "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other' }, graph: { } }",
             "BCP037",
             """The property "graph" is not allowed on objects of type "extensionConfigs". No other properties are allowed.""")]
         [DataRow(
             "ConfigProvidedForNonExistentExtension",
+            "extension kubernetes",
             "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other' }, nonExistent: { } }",
             "BCP037",
             """The property "nonExistent" is not allowed on objects of type "extensionConfigs". No other properties are allowed.""")]
         public async Task Module_with_invalid_extension_config_produces_diagnostic(
             string scenarioName,
+            string extensionDeclStr,
             string moduleExtensionConfigsStr,
             string expectedDiagnosticCode,
             string expectedDiagnosticMessage)
@@ -627,7 +632,6 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             var mainUri = new Uri("file:///main.bicep");
             var moduleAUri = new Uri("file:///modulea.bicep");
 
-            // TODO(kylealbert): Remove 'with' clause in template when that's removed
             var files = new Dictionary<Uri, string>
             {
                 [mainUri] =
@@ -645,18 +649,15 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                       output outputa string = modulea.outputs.outputa
                       """,
                 [moduleAUri] =
-                    """
-                    param inputa string
+                    $$"""
+                      param inputa string
 
-                    extension kubernetes with {
-                      kubeConfig: ''
-                      namespace: 'default'
-                    }
+                      {{extensionDeclStr}}
 
-                    extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
+                      extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
 
-                    output outputa string = inputa
-                    """
+                      output outputa string = inputa
+                      """
             };
 
             var services = await CreateServiceBuilderWithMockMsGraph(moduleExtensionConfigsEnabled: true);
@@ -669,7 +670,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
         [DataRow(
             "ParamsFile",
             "BCP337",
-            $"""This declaration type is not valid for a Bicep Parameters file. Supported declarations: "using", "extends", "param", "var", "type".""")]
+            """This declaration type is not valid for a Bicep Parameters file. Supported declarations: "using", "extends", "param", "var", "type".""")]
         [DataRow(
             "MainFile",
             "BCP037",
@@ -680,7 +681,6 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             var mainUri = new Uri("file:///main.bicep");
             var moduleAUri = new Uri("file:///modulea.bicep");
 
-            // TODO(kylealbert): Remove 'with' clause in template when that's removed
             var files = new Dictionary<Uri, string>
             {
                 [paramsUri] =
@@ -689,7 +689,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 
                     param inputa = 'abc'
 
-                    extension k8s with {
+                    extensionConfig k8s with {
                       kubeConfig: 'abc'
                       namespace: 'other'
                     }
@@ -698,10 +698,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                     """
                     param inputa string
 
-                    extension kubernetes with {
-                      kubeConfig: 'DELETE'
-                      namespace: 'DELETE'
-                    } as k8s
+                    extension kubernetes as k8s
 
                     module modulea 'modulea.bicep' = {
                       name: 'modulea'
@@ -723,10 +720,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                     """
                     param inputa string
 
-                    extension kubernetes with {
-                      kubeConfig: 'DELETE'
-                      namespace: 'DELETE'
-                    }
+                    extension kubernetes
 
                     output outputa string = inputa
                     """
@@ -771,7 +765,6 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             var mainUri = new Uri("file:///main.bicep");
             var moduleAUri = new Uri("file:///modulea.bicep");
 
-            // TODO(kylealbert): Remove 'with' clause in template when that's removed
             var files = new Dictionary<Uri, string>
             {
                 [paramsUri] =
@@ -780,7 +773,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 
                     param inputa = 'abc'
 
-                    extension k8s with {
+                    extensionConfig k8s with {
                       kubeConfig: 'abc'
                       namespace: 'other'
                     }
@@ -789,10 +782,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                     $$"""
                       param inputa string
 
-                      extension kubernetes with {
-                        kubeConfig: 'DELETE'
-                        namespace: 'DELETE'
-                      } as k8s
+                      extension kubernetes as k8s
 
                       module modulea 'modulea.bicep' = {
                         name: 'modulea'
@@ -808,10 +798,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                     """
                     param inputa string
 
-                    extension kubernetes with {
-                      kubeConfig: 'DELETE'
-                      namespace: 'DELETE'
-                    }
+                    extension kubernetes
 
                     output outputa string = inputa
                     """
@@ -827,6 +814,61 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             templateToken.SelectToken("resources.modulea.properties.extensionConfigs")
                 .Should()
                 .DeepEqual(JToken.Parse(expectedExtConfigJson));
+        }
+
+        [DataTestMethod]
+        [DataRow(
+            "NoneRequired",
+            "",
+            """
+            extension kubernetes with { kubeConfig: 'templateKubeConfig', namespace: 'templateNs' } as k8s
+            """)]
+        [DataRow(
+            "PartiallyRequired",
+            """
+            extensionConfig k8s with { kubeConfig: 'paramsKubeConfig' }
+            """,
+            """
+            extension kubernetes with { namespace: 'templateNs' } as k8s
+            """)]
+        [DataRow(
+            "AllRequired",
+            """
+            extensionConfig k8s with { kubeConfig: 'paramsKubeConfig', namespace: 'paramsNs'}
+            """,
+            """
+            extension kubernetes as k8s
+            """)]
+        public async Task Extension_config_assignment_type_checks_are_cross_module_aware(
+            string scenarioName,
+            string paramsFileExtensionConfigAssignment,
+            string bicepFileExtensionDeclaration)
+        {
+            var paramsUri = new Uri("file:///main.bicepparam");
+            var mainUri = new Uri("file:///main.bicep");
+
+            var files = new Dictionary<Uri, string>
+            {
+                [paramsUri] =
+                    $$"""
+                      using 'main.bicep'
+
+                      param inputa = 'abc'
+
+                      {{paramsFileExtensionConfigAssignment}}
+                      """,
+                [mainUri] =
+                    $$"""
+                      param inputa string
+
+                      {{bicepFileExtensionDeclaration}}
+                      """
+            };
+
+            var services = await CreateServiceBuilderWithMockMsGraph(moduleExtensionConfigsEnabled: true);
+            var compilation = await services.BuildCompilationWithRestore(files, paramsUri);
+
+            compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
         }
 
         private ServiceBuilder CreateServiceBuilder(bool moduleExtensionConfigsEnabled = false) =>

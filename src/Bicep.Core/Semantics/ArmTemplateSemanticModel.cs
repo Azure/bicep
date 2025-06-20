@@ -239,7 +239,7 @@ namespace Bicep.Core.Semantics
                     ext =>
                     {
                         // TODO(kylealbert): Get namespace type.
-                        return new ExtensionMetadata(ext.Key, ext.Value.Name.Value, ext.Value.Version.Value, null);
+                        return new ExtensionMetadata(ext.Key, ext.Value.Name.Value, ext.Value.Version.Value, null, null);
                     });
         }
 

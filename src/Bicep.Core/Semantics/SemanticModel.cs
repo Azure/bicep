@@ -43,6 +43,8 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableDictionary<ParameterAssignmentSymbol, ParameterMetadata?>> declarationsByAssignment;
         private readonly Lazy<ImmutableDictionary<ParameterMetadata, ParameterAssignmentSymbol?>> assignmentsByDeclaration;
 
+        private readonly Lazy<ImmutableDictionary<ExtensionConfigAssignmentSymbol, ExtensionMetadata?>> extensionDeclarationsByAssignment;
+
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnostics;
@@ -125,6 +127,7 @@ namespace Bicep.Core.Semantics
             });
 
             this.extensionsLazy = new(FindExtensions);
+            this.extensionDeclarationsByAssignment = new(InitializeExtensionDeclarationToAssignmentDictionary);
 
             this.exportsLazy = new(() => FindExportedTypes().Concat(FindExportedVariables()).Concat(FindExportedFunctions())
                 .DistinctBy(export => export.Name, LanguageConstants.IdentifierComparer)
@@ -434,6 +437,9 @@ namespace Bicep.Core.Semantics
         public ParameterAssignmentSymbol? TryGetParameterAssignment(ParameterMetadata parameterMetadata) =>
             this.assignmentsByDeclaration.Value.TryGetValue(parameterMetadata, out var parameterAssignment) ? parameterAssignment : null;
 
+        public ExtensionMetadata? TryGetExtensionMetadata(ExtensionConfigAssignmentSymbol assignmentSymbol) =>
+            this.extensionDeclarationsByAssignment.Value.GetValueOrDefault(assignmentSymbol);
+
         private ImmutableDictionary<ParameterMetadata, ParameterAssignmentSymbol?> InitializeDeclarationToAssignmentDictionary()
         {
             if (this.TryGetSemanticModelForParamsFile() is not { } usingModel)
@@ -472,11 +478,36 @@ namespace Bicep.Core.Semantics
             {
                 if (extDecl.TryGetNamespaceType() is { } extType)
                 {
-                    extensions.Add(extType.Name, new ExtensionMetadata(extType.Name, extType.ExtensionName, extType.ExtensionVersion, extType));
+                    extensions.Add(
+                        extType.Name,
+                        new ExtensionMetadata(
+                            extType.Name,
+                            extType.ExtensionName,
+                            extType.ExtensionVersion,
+                            extType,
+                            // Get the user assigned config type in the template to assist with params file/module configs type assignment.
+                            extDecl.DeclaringExtension.Config is not null
+                                ? TypeManager.GetTypeInfo(extDecl.DeclaringExtension.Config) as ObjectType
+                                : null));
                 }
             }
 
             return extensions.ToImmutable();
+        }
+
+        private ImmutableDictionary<ExtensionConfigAssignmentSymbol, ExtensionMetadata?> InitializeExtensionDeclarationToAssignmentDictionary()
+        {
+            if (this.TryGetSemanticModelForParamsFile() is not { } usingModel)
+            {
+                // not a param file or we can't resolve the semantic model via "using"
+                return ImmutableDictionary<ExtensionConfigAssignmentSymbol, ExtensionMetadata?>.Empty;
+            }
+
+            var extensionDeclarations = usingModel.Extensions.ToLookup(x => x.Key, x => x.Value, LanguageConstants.IdentifierComparer);
+
+            return Root.ExtensionConfigAssignments.ToImmutableDictionary(
+                decl => decl,
+                decl => extensionDeclarations[decl.Name].FirstOrDefault());
         }
 
         private ISemanticModel? TryGetSemanticModelForParamsFile()

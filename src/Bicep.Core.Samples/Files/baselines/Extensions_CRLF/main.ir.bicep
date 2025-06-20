@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:3604) ProgramExpression
+//@[000:3483) ProgramExpression
 //@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
 //@[000:0000) | | └─ResourceReferenceExpression [UNPARENTED]
 //@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
@@ -25,18 +25,8 @@ param boolParam1 bool
 
 extension az
 //@[000:0012) ├─ExtensionExpression { Name = az }
-extension kubernetes with {
-//@[000:0084) ├─ExtensionExpression { Name = k8s }
-//@[026:0077) | └─ObjectExpression
-  kubeConfig: 'DELETE'
-//@[002:0022) |   ├─ObjectPropertyExpression
-//@[002:0012) |   | ├─StringLiteralExpression { Value = kubeConfig }
-//@[014:0022) |   | └─StringLiteralExpression { Value = DELETE }
-  namespace: 'DELETE'
-//@[002:0021) |   └─ObjectPropertyExpression
-//@[002:0011) |     ├─StringLiteralExpression { Value = namespace }
-//@[013:0021) |     └─StringLiteralExpression { Value = DELETE }
-} as k8s
+extension kubernetes as k8s
+//@[000:0027) ├─ExtensionExpression { Name = k8s }
 
 //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
 
@@ -87,51 +77,47 @@ resource aks 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
 // BEGIN: Extension configs for modules
 
 module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[000:0249) ├─DeclaredModuleExpression
-//@[084:0249) | ├─ObjectExpression
+//@[000:0229) ├─DeclaredModuleExpression
+//@[084:0229) | ├─ObjectExpression
   name: 'moduleWithExtsWithAliases'
 //@[002:0035) | | └─ObjectPropertyExpression
 //@[002:0006) | |   ├─StringLiteralExpression { Value = name }
 //@[008:0035) | |   └─StringLiteralExpression { Value = moduleWithExtsWithAliases }
   extensionConfigs: {
-//@[020:0122) | └─ObjectExpression
+//@[020:0102) | └─ObjectExpression
     k8s: {
-//@[004:0094) |   └─ObjectPropertyExpression
+//@[004:0074) |   └─ObjectPropertyExpression
 //@[004:0007) |     ├─StringLiteralExpression { Value = k8s }
-//@[009:0094) |     └─ObjectExpression
-      kubeConfig: 'kubeConfig2FromModule'
-//@[006:0041) |       ├─ObjectPropertyExpression
+//@[009:0074) |     └─ObjectExpression
+      kubeConfig: 'kubeConfig2'
+//@[006:0031) |       ├─ObjectPropertyExpression
 //@[006:0016) |       | ├─StringLiteralExpression { Value = kubeConfig }
-//@[018:0041) |       | └─StringLiteralExpression { Value = kubeConfig2FromModule }
-      namespace: 'ns2FromModule'
-//@[006:0032) |       └─ObjectPropertyExpression
+//@[018:0031) |       | └─StringLiteralExpression { Value = kubeConfig2 }
+      namespace: 'ns2'
+//@[006:0022) |       └─ObjectPropertyExpression
 //@[006:0015) |         ├─StringLiteralExpression { Value = namespace }
-//@[017:0032) |         └─StringLiteralExpression { Value = ns2FromModule }
+//@[017:0022) |         └─StringLiteralExpression { Value = ns2 }
     }
   }
 }
 
 module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias.bicep' = {
-//@[000:0265) ├─DeclaredModuleExpression
-//@[090:0265) | ├─ObjectExpression
+//@[000:0221) ├─DeclaredModuleExpression
+//@[090:0221) | ├─ObjectExpression
   name: 'moduleWithExtsWithoutAliases'
 //@[002:0038) | | └─ObjectPropertyExpression
 //@[002:0006) | |   ├─StringLiteralExpression { Value = name }
 //@[008:0038) | |   └─StringLiteralExpression { Value = moduleWithExtsWithoutAliases }
   extensionConfigs: {
-//@[020:0129) | └─ObjectExpression
+//@[020:0085) | └─ObjectExpression
     kubernetes: {
-//@[004:0101) |   └─ObjectPropertyExpression
+//@[004:0057) |   └─ObjectPropertyExpression
 //@[004:0014) |     ├─StringLiteralExpression { Value = kubernetes }
-//@[016:0101) |     └─ObjectExpression
-      kubeConfig: 'kubeConfig2FromModule'
-//@[006:0041) |       ├─ObjectPropertyExpression
-//@[006:0016) |       | ├─StringLiteralExpression { Value = kubeConfig }
-//@[018:0041) |       | └─StringLiteralExpression { Value = kubeConfig2FromModule }
-      namespace: 'ns2FromModule'
-//@[006:0032) |       └─ObjectPropertyExpression
-//@[006:0015) |         ├─StringLiteralExpression { Value = namespace }
-//@[017:0032) |         └─StringLiteralExpression { Value = ns2FromModule }
+//@[016:0057) |     └─ObjectExpression
+      kubeConfig: 'kubeConfig2'
+//@[006:0031) |       └─ObjectPropertyExpression
+//@[006:0016) |         ├─StringLiteralExpression { Value = kubeConfig }
+//@[018:0031) |         └─StringLiteralExpression { Value = kubeConfig2 }
     }
   }
 }

@@ -10,5 +10,9 @@ namespace Bicep.Core.Semantics.Metadata
         string Name,
         string Version,
         // TODO(kylealbert): this should be non-nullable
-        NamespaceType? NamespaceType);
+        NamespaceType? NamespaceType,
+        ObjectType? UserAssignedDefaultConfigType)
+    {
+        public ObjectLikeType? ConfigType => NamespaceType?.ConfigurationType;
+    }
 }

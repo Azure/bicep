@@ -61,7 +61,7 @@ namespace Bicep.Core.Parsing
                             LanguageConstants.ParameterKeyword => this.ParameterAssignment(),
                             LanguageConstants.VariableKeyword => this.VariableDeclaration(leadingNodes),
                             LanguageConstants.ImportKeyword => this.CompileTimeImportDeclaration(ExpectKeyword(LanguageConstants.ImportKeyword), leadingNodes),
-                            LanguageConstants.ExtensionKeyword => this.ExtensionConfigAssignment(leadingNodes),
+                            LanguageConstants.ExtensionConfigKeyword => this.ExtensionConfigAssignment(leadingNodes),
                             LanguageConstants.TypeKeyword => this.TypeDeclaration(leadingNodes),
                             _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration()),
                         },
@@ -112,7 +112,7 @@ namespace Bicep.Core.Parsing
 
         private ExtensionConfigAssignmentSyntax ExtensionConfigAssignment(IEnumerable<SyntaxBase> leadingNodes)
         {
-            var extKeyword = ExpectKeyword(LanguageConstants.ExtensionKeyword);
+            var extKeyword = ExpectKeyword(LanguageConstants.ExtensionConfigKeyword);
 
             var specificationSyntax = reader.Peek().Type switch
             {
