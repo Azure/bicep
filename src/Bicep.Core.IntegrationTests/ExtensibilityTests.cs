@@ -535,7 +535,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 
                       param inputa = 'abc'
 
-                      extension k8s with {{paramsKubeExtConfig ?? moduleKubeExtConfig}}
+                      extensionConfig k8s with {{paramsKubeExtConfig ?? moduleKubeExtConfig}}
                       """,
                 [mainUri] =
                     $$"""
@@ -689,7 +689,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 
                     param inputa = 'abc'
 
-                    extension k8s with {
+                    extensionConfig k8s with {
                       kubeConfig: 'abc'
                       namespace: 'other'
                     }
@@ -765,7 +765,6 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             var mainUri = new Uri("file:///main.bicep");
             var moduleAUri = new Uri("file:///modulea.bicep");
 
-            // TODO(kylealbert): Remove 'with' clause in template when that's removed
             var files = new Dictionary<Uri, string>
             {
                 [paramsUri] =
@@ -774,7 +773,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 
                     param inputa = 'abc'
 
-                    extension k8s with {
+                    extensionConfig k8s with {
                       kubeConfig: 'abc'
                       namespace: 'other'
                     }
@@ -827,7 +826,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
         [DataRow(
             "PartiallyRequired",
             """
-            extension k8s with { kubeConfig: 'paramsKubeConfig' }
+            extensionConfig k8s with { kubeConfig: 'paramsKubeConfig' }
             """,
             """
             extension kubernetes with { namespace: 'templateNs' } as k8s
@@ -835,7 +834,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
         [DataRow(
             "AllRequired",
             """
-            extension k8s with { kubeConfig: 'paramsKubeConfig', namespace: 'paramsNs'}
+            extensionConfig k8s with { kubeConfig: 'paramsKubeConfig', namespace: 'paramsNs'}
             """,
             """
             extension kubernetes as k8s

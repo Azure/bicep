@@ -1857,6 +1857,13 @@ namespace Bicep.Core.TypeSystem
 
                     return TryCreateAssignment(parameterAssignmentTypeAssignment.Reference.Type, syntax);
 
+                case ExtensionConfigAssignmentSyntax:
+                    if (GetDeclaredTypeAssignment(parent) is not { } extConfigAssignment)
+                    {
+                        return null;
+                    }
+
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(extConfigAssignment.Reference.Type, syntax), syntax);
 
                 case SpreadExpressionSyntax when GetClosestMaybeTypedAncestor(parent) is { } grandParent &&
                     GetDeclaredTypeAssignment(grandParent)?.Reference is ObjectType enclosingObjectType:

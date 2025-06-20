@@ -75,6 +75,7 @@ namespace Bicep.Core
         public const string ExistingKeyword = "existing";
         public const string ImportKeyword = "import";
         public const string ExtensionKeyword = "extension";
+        public const string ExtensionConfigKeyword = "extensionConfig";
         public const string AssertKeyword = "assert";
         public const string WithKeyword = "with";
         public const string AsKeyword = "as";
