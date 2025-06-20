@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core;
-using Bicep.TextFixtures.Utils.IO;
+using Bicep.TextFixtures.IO;
 
 namespace Bicep.TextFixtures.Utils
 {

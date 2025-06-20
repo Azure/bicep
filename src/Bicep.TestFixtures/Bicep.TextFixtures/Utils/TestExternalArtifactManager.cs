@@ -8,7 +8,7 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.TextFixtures.Fakes.ContainerRegistry;
 using Bicep.TextFixtures.Fakes.TemplateSpec;
-using Bicep.TextFixtures.Utils.IO;
+using Bicep.TextFixtures.IO;
 
 namespace Bicep.TextFixtures.Utils
 {

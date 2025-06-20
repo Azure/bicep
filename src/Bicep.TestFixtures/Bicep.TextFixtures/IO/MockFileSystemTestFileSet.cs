@@ -5,7 +5,7 @@ using System.IO.Abstractions.TestingHelpers;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 
-namespace Bicep.TextFixtures.Utils.IO
+namespace Bicep.TextFixtures.IO
 {
     public class MockFileSystemTestFileSet : TestFileSet
     {

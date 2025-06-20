@@ -7,7 +7,7 @@ using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using Bicep.IO.InMemory;
 
-namespace Bicep.TextFixtures.Utils.IO
+namespace Bicep.TextFixtures.IO
 {
     public abstract class TestFileSet
     {

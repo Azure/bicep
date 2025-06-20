@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Bicep.TextFixtures.Utils.IO
+namespace Bicep.TextFixtures.IO
 {
     public readonly record struct TestFileData
     {
