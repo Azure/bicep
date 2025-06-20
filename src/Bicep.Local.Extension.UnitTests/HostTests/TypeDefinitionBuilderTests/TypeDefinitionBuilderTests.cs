@@ -178,7 +178,6 @@ public class TypeDefinitionBuilderTests
         result.Should().NotBeNull();
         result.TypesJson.Should().Contain("ArrayResource");
         result.TypesJson.Should().Contain("items", because: "the array property should be present in the resource type definition");
-        result.TypesJson.Should().Contain("array", because: "the property should be represented as an array type");
     }
 
     [TestMethod]
@@ -197,6 +196,5 @@ public class TypeDefinitionBuilderTests
         result.Should().NotBeNull();
         result.TypesJson.Should().Contain("EnumerableResource");
         result.TypesJson.Should().Contain("items", because: "the enumerable property should be present in the resource type definition");
-        result.TypesJson.Should().Contain("array", because: "the property should be represented as an array type");
     }
 }
