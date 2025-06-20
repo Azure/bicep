@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
     <ProjectReference Include="..\Bicep.LangServer\Bicep.LangServer.csproj" />
+    <ProjectReference Include="..\Bicep.TestFixtures\Bicep.TextFixtures\Bicep.TextFixtures.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -2402,8 +2402,8 @@ output deployedTopics array = [for (topicName, i) in topics: {
         result.Template!.Should().HaveValueAtPath("$.outputs.deployedTopics.copy.input", new JObject
         {
             ["name"] = "[variables('topics')[copyIndex()]]",
-            ["accessKey1"] = "[listKeys('testR', '2021-06-01-preview').key1]",
-            ["accessKey2"] = "[listKeys(format('eventGridTopics[{0}]', copyIndex()), '2021-06-01-preview').key1]"
+            ["accessKey1"] = "[listKeys(resourceId('Microsoft.EventGrid/topics', 'myExistingEventGridTopic'), '2021-06-01-preview').key1]",
+            ["accessKey2"] = "[listKeys(resourceId('Microsoft.EventGrid/topics', format('{0}-ZZZ', variables('topics')[copyIndex()])), '2021-06-01-preview').key1]"
         });
     }
 
@@ -2954,7 +2954,7 @@ output badResult object = {
 
         result.Template.Should().HaveValueAtPath("$.outputs['badResult'].value", new JObject
         {
-            ["value"] = "[listAnything('stg', '2021-04-01').keys[0].value]",
+            ["value"] = "[listAnything(resourceId('Microsoft.Storage/storageAccounts', parameters('storageName')), '2021-04-01').keys[0].value]",
         });
     }
 
@@ -6498,7 +6498,7 @@ param p invalidRecursiveObjectType = {}
 
             resource memberServicePrincipals 'Microsoft.Graph/servicePrincipals@v1.0' existing = [
               for (member, i) in entraGroup.members: if (member.type =~ 'Application') {
-                appId: memberApplications[i].appId
+                appId: memberApplications[i]!.appId
               }
             ]
 
@@ -6533,7 +6533,7 @@ param p invalidRecursiveObjectType = {}
 
             resource ownerServicePrincipals 'Microsoft.Graph/servicePrincipals@v1.0' existing = [
               for (owner, i) in entraGroup.owners: if (owner.type =~ 'Application') {
-                appId: ownerApplications[i].appId
+                appId: ownerApplications[i]!.appId
               }
             ]
 
@@ -6552,19 +6552,19 @@ param p invalidRecursiveObjectType = {}
               securityEnabled: true
               members: [
                 for (member, i) in entraGroup.members: member.type =~ 'UserAssignedManagedIdentity'
-                  ? memberManagedIdentities[i].properties.principalId
+                  ? memberManagedIdentities[i]!.properties.principalId
                   : member.type =~ 'Application'
-                      ? memberServicePrincipals[i].id
+                      ? memberServicePrincipals[i]!.id
                       : member.type =~ 'ServicePrincipal'
-                          ? memberServicePrincipalsStandalone[i].id
-                          : member.type =~ 'Group' ? memberGroups[i].id : member.type =~ 'PrincipalId' ? member.principalId : ''
+                          ? memberServicePrincipalsStandalone[i]!.id
+                          : member.type =~ 'Group' ? memberGroups[i]!.id : member.type =~ 'PrincipalId' ? member.principalId : ''
               ]
               owners: [
                 for (owner, i) in entraGroup.owners: owner.type =~ 'UserAssignedManagedIdentity'
-                  ? ownerManagedIdentities[i].properties.principalId
+                  ? ownerManagedIdentities[i]!.properties.principalId
                   : owner.type =~ 'Application'
-                      ? ownerServicePrincipals[i].id
-                      : owner.type =~ 'ServicePrincipal' ? ownerServicePrincipalsStandalone[i].id : owner.type =~ 'PrincipalId' ? owner.principalId : ''
+                      ? ownerServicePrincipals[i]!.id
+                      : owner.type =~ 'ServicePrincipal' ? ownerServicePrincipalsStandalone[i]!.id : owner.type =~ 'PrincipalId' ? owner.principalId : ''
               ]
             }
             """);
@@ -7080,7 +7080,7 @@ var subnetId = vNet::subnets[0].id
                     }
                     tenantId: '00000000-0000-0000-0000-000000000000'
                   }
-                  
+
                   resource secret 'secrets' = {
                     name: 'secret'
                     properties: {}
@@ -7097,7 +7097,7 @@ var subnetId = vNet::subnets[0].id
                     }
                     tenantId: '00000000-0000-0000-0000-000000000000'
                   }
-                  
+
                   resource secret 'secrets' = {
                     name: 'secret'
                     properties: {}
@@ -7133,7 +7133,7 @@ var subnetId = vNet::subnets[0].id
                 module empty 'empty.bicep' = {
                   name: 'foo'
                 }
-                
+
                 resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
                   name: 'storage'
                   dependsOn: [
@@ -7378,5 +7378,54 @@ output secret string = secret
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
             ("BCP421", DiagnosticLevel.Error, """Module "mod" contains one or more secure outputs, which are not supported with "targetScope" set to "local"."""),
         ]);
+    }
+
+    [TestMethod]
+    public async Task Test_Issue16748()
+    {
+        // https://github.com/Azure/bicep/issues/16748
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ExtensionResourceTypeHelper.GetTestTypesTgz(), new());
+
+        var result = await CompilationHelper.RestoreAndCompile(
+            services,
+"""
+extension 'br:example.azurecr.io/extensions/foo:1.2.3'
+
+param uniqueNames string[]
+
+resource groups 'fooType@v1' existing = [for uniqueName in uniqueNames: {
+  identifier: uniqueName
+}]
+
+resource databases 'Microsoft.DocumentDb/databaseAccounts@2023-04-15' existing = [for uniqueName in uniqueNames: {
+  name: uniqueName
+}]
+
+output memberIds array = flatten(map(groups, group => [group.properties.readonly]))
+output locations array = flatten(map(databases, database => database.properties.locations))
+""");
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("$.outputs['memberIds'].value", "[flatten(map(references('groups'), lambda('group', createArray(lambdaVariables('group').properties.readonly))))]");
+        result.Template.Should().HaveValueAtPath("$.outputs['locations'].value", "[flatten(map(references('databases', 'full'), lambda('database', lambdaVariables('database').properties.locations)))]");
+    }
+
+    [TestMethod]
+    public void Diagnostic_should_be_raised_when_instance_method_is_called_on_conditional_resource()
+    {
+        var result = CompilationHelper.Compile("""
+            param condition bool
+            resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = if (condition) {
+              name: 'storage'
+            }
+
+            @secure()
+            output out object = sa.listKeys()
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP422", DiagnosticLevel.Warning, "A resource of type \"Microsoft.Storage/storageAccounts | null\" may or may not exist when this function is called, which could cause the deployment to fail."),
+        });
     }
 }

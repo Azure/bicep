@@ -201,6 +201,7 @@ var modulePropertyAccessCompletions = modAEmptyInputs.o
 // #completionTest(81) -> moduleAWithConditionTopLevelPropertyAccess
 var moduleWithConditionPropertyAccessCompletions = modAEmptyInputsWithCondition.o
 //@[004:048) [no-unused-vars (Warning)] Variable "moduleWithConditionPropertyAccessCompletions" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |moduleWithConditionPropertyAccessCompletions|
+//@[079:081) [BCP318 (Warning)] The value of type "module | null" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail. (bicep https://aka.ms/bicep/core-diagnostics#BCP318) |.o|
 //@[080:081) [BCP053 (Error)] The type "module" does not contain property "o". Available properties include "name", "outputs". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |o|
 
 // #completionTest(56) -> moduleAOutputs
@@ -211,6 +212,7 @@ var moduleOutputsCompletions = modAEmptyInputs.outputs.s
 // #completionTest(82) -> moduleAWithConditionOutputs
 var moduleWithConditionOutputsCompletions = modAEmptyInputsWithCondition.outputs.s
 //@[004:041) [no-unused-vars (Warning)] Variable "moduleWithConditionOutputsCompletions" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |moduleWithConditionOutputsCompletions|
+//@[072:080) [BCP318 (Warning)] The value of type "module | null" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail. (bicep https://aka.ms/bicep/core-diagnostics#BCP318) |.outputs|
 //@[081:082) [BCP053 (Error)] The type "outputs" does not contain property "s". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |s|
 
 module modAUnspecifiedInputs './modulea.bicep' = {
@@ -628,14 +630,11 @@ module nonexistentArrays 'modulea.bicep' = [for evenMoreDuplicates in alsoDoesNo
 
 output directRefToCollectionViaOutput array = nonexistentArrays
 //@[038:043) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|
-//@[046:063) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |nonexistentArrays|
 
 module directRefToCollectionViaSingleBody 'modulea.bicep' = {
   name: 'hello'
   params: {
     arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
-//@[023:049) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |wrongModuleParameterInLoop|
-//@[051:068) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |nonexistentArrays|
     objParam: {}
     stringParamB: ''
   }
@@ -645,8 +644,6 @@ module directRefToCollectionViaSingleConditionalBody 'modulea.bicep' = if(true) 
   name: 'hello2'
   params: {
     arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
-//@[023:049) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |wrongModuleParameterInLoop|
-//@[051:068) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |nonexistentArrays|
     objParam: {}
     stringParamB: ''
   }

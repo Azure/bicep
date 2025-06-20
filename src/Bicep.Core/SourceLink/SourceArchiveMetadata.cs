@@ -53,13 +53,13 @@ namespace Bicep.Core.SourceLink
         int MetadataVersion,
         string? BicepVersion,
         string EntryPoint,
-        ImmutableArray<LinkedSourceFileMetadata> SourceFiles,
-        ImmutableDictionary<string, ImmutableArray<SourceCodeDocumentPathLink>>? DocumentLinks)
+        ImmutableArray<ArchivedSourceFileMetadata> SourceFiles,
+        ImmutableDictionary<string, ImmutableArray<ArchivedSourceFileLink>>? DocumentLinks)
     {
         public string BicepVersion { get; } = BicepVersion ?? "unknown";
 
-        public ImmutableArray<LinkedSourceFileMetadata> SourceFiles { get; } = [.. SourceFiles.OrderBy(x => x.Path).ThenBy(x => x.ArchivePath)];
+        public ImmutableArray<ArchivedSourceFileMetadata> SourceFiles { get; } = [.. SourceFiles.OrderBy(x => x.Path).ThenBy(x => x.ArchivePath)];
 
-        public ImmutableDictionary<string, ImmutableArray<SourceCodeDocumentPathLink>> DocumentLinks { get; } = DocumentLinks ?? ImmutableDictionary<string, ImmutableArray<SourceCodeDocumentPathLink>>.Empty;
+        public ImmutableDictionary<string, ImmutableArray<ArchivedSourceFileLink>> DocumentLinks { get; } = DocumentLinks ?? ImmutableDictionary<string, ImmutableArray<ArchivedSourceFileLink>>.Empty;
     }
 }

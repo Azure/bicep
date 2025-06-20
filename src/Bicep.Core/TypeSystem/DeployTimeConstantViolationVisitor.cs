@@ -65,6 +65,13 @@ namespace Bicep.Core.TypeSystem
             this.DiagnosticWriter.Write(diagnostic);
         }
 
+        protected (SyntaxBase? parent, SyntaxBase immediateChild) GetParentAndChildIgnoringNonNullAssertions(SyntaxBase syntax)
+            => SemanticModel.Binder.GetParent(syntax) switch
+            {
+                NonNullAssertionSyntax nonNullAssertion => GetParentAndChildIgnoringNonNullAssertions(nonNullAssertion),
+                var parent => (parent, syntax),
+            };
+
         private string? ErrorSyntaxInForBodyOfVariable(ForSyntax forSyntax, SyntaxBase errorSyntax) =>
             this.SemanticModel.Binder.GetParent(forSyntax) is VariableDeclarationSyntax variableDeclarationSyntax &&
             TextSpan.AreOverlapping(errorSyntax, forSyntax.Body)

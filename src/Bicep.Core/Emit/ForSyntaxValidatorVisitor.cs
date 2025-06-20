@@ -314,7 +314,7 @@ namespace Bicep.Core.Emit
                     //  1. Allowed in a variable declaration value
                     //  1. Allowed in an output value
                     var isValidResourceCollectionDirectAccessLocation =
-                        (this.semanticModel.Features.SymbolicNameCodegenEnabled
+                        (this.semanticModel.EmitterSettings.EnableSymbolicNames
                          && this.loopLevel == 0
                          && (this.insideProperties
                              || this.currentOutputDeclarationSyntax != null

@@ -1,12 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "2.0",
   "contentVersion": "1.0.0.0",
   "metadata": {
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12778213541556099783"
+      "templateHash": "5761518994322008170"
     }
   },
   "parameters": {
@@ -32,8 +31,8 @@
     "agentCount": 3,
     "agentVMSize": "standard_f2s_v2"
   },
-  "resources": {
-    "aks": {
+  "resources": [
+    {
       "type": "Microsoft.ContainerService/managedClusters",
       "apiVersion": "2020-09-01",
       "name": "[parameters('baseName')]",
@@ -65,15 +64,15 @@
         "type": "SystemAssigned"
       }
     }
-  },
+  ],
   "outputs": {
     "fqdn": {
       "type": "string",
-      "value": "[reference('aks').fqdn]"
+      "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('baseName')), '2020-09-01').fqdn]"
     },
     "kubeConfig": {
       "type": "string",
-      "value": "[listClusterAdminCredential('aks', '2020-09-01').kubeconfigs[0].value]"
+      "value": "[listClusterAdminCredential(resourceId('Microsoft.ContainerService/managedClusters', parameters('baseName')), '2020-09-01').kubeconfigs[0].value]"
     }
   }
 }

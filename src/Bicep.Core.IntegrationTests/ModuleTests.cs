@@ -220,7 +220,7 @@ module modulea 'modulea.bicep' = {
   }
 }
 ";
-            var result = await new TestCompiler().RestoreAndCompileMockFileSystemFiles(mainFileContents);
+            var result = await new TestCompiler().RestoreAndCompileMockFileSystemFile(mainFileContents);
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP091", DiagnosticLevel.Error, $"An error occurred reading file. Could not find file '{TestFileUri.FromMockFileSystemPath("modulea.bicep")}'."),
@@ -1054,6 +1054,46 @@ output out string = '${keyVaultUri}-${identityId}'
             result.Should().HaveDiagnostics(new[]
             {
                 ("BCP037", DiagnosticLevel.Error, "The property \"identity\" is not allowed on objects of type \"module\". Permissible properties include \"dependsOn\", \"scope\".")
+            });
+        }
+
+        [TestMethod]
+        public void Module_with_identity_runtime_value_raises_diagnostic()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithModuleIdentity,
+("main.bicep", """
+module outputModule './modoutput.bicep' = {
+    name: 'modWithOutput'
+}
+
+module mod './module.bicep' = {
+    identity: {
+        type: 'UserAssigned'
+        userAssignedIdentities: {
+            '${outputModule.outputs.runtimevalue}': {}
+        }
+    }
+    name: 'test'
+    params: {
+        keyVaultUri: 'keyVaultUri'
+        identityId: 'identityId'
+    }
+}
+
+"""),
+("module.bicep", """
+param keyVaultUri string
+param identityId string
+
+output out string = '${keyVaultUri}-${identityId}'
+"""),
+("modoutput.bicep", """
+output runtimevalue string = 'runtime'
+"""));
+            result.Should().HaveDiagnostics(new[]
+           {
+                ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"identity\" property of the \"module\" type, which requires a value that can be calculated at the start of the deployment. Properties of outputModule which can be calculated at the start include \"name\".")
             });
         }
 
