@@ -177,7 +177,7 @@ resource myvm 'Microsoft.Compute/virtualMachines@2020-06-01' = [
         adminUsername: adminUsername
         adminPassword: adminPasswordOrKey
         linuxConfiguration: ((authenticationType == 'password') ? json('null') : linuxConfiguration)
-//@[66:78) [simplify-json-null (Warning)] Simplify json('null') to null (bicep core linter https://aka.ms/bicep/linter/simplify-json-null) |json('null')|
+//@[66:78) [simplify-json-null (Warning)] Simplify json('null') to null (bicep core linter https://aka.ms/bicep/linter-diagnostics#simplify-json-null) |json('null')|
       }
       storageProfile: {
         imageReference: imageReference[OS]

@@ -131,7 +131,7 @@ param accountName string = 'testAccount'
                 /input.bicep(12,15) : Error BCP033: Expected a value of type "'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'" but the provided value is of type "object". [https://aka.ms/bicep/core-diagnostics#BCP033]
                 /input.bicep(14,1) : Error BCP112: The "targetScope" cannot be declared multiple times in one file. [https://aka.ms/bicep/core-diagnostics#BCP112]
                 /input.bicep(14,15) : Error BCP033: Expected a value of type "'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'" but the provided value is of type "true". [https://aka.ms/bicep/core-diagnostics#BCP033]
-                /input.bicep(15,7) : Warning no-unused-params: Parameter "accountName" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]
+                /input.bicep(15,7) : Warning no-unused-params: Parameter "accountName" is declared but never used. [https://aka.ms/bicep/linter-diagnostics#no-unused-params]
 
                 """);
         }

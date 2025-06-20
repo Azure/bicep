@@ -52,5 +52,5 @@ metadata myEmptyArray = [ ]
 
 // param with same name as metadata is permitted
 param foo string
-//@[6:9) [no-unused-params (Warning)] Parameter "foo" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |foo|
+//@[6:9) [no-unused-params (Warning)] Parameter "foo" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |foo|
 

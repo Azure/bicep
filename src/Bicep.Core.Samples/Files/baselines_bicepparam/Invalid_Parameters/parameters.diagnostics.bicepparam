@@ -27,7 +27,7 @@ param objWithExpressions = {
   foo: 1 + 2
   bar: {
     baz: concat('abc', 'def')
-//@[09:29) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter/prefer-interpolation) |concat('abc', 'def')|
+//@[09:29) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-interpolation) |concat('abc', 'def')|
   }
 }
 

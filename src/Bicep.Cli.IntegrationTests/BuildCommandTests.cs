@@ -553,7 +553,7 @@ output myOutput string = 'hello!'
             File.Exists(expectedOutputFile).Should().BeTrue();
             result.Should().Be(0);
             output.Should().BeEmpty();
-            error.Should().Contain(@"main.bicep(1,7) : Warning no-unused-params: Parameter ""storageAccountName"" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]");
+            error.Should().Contain(@"main.bicep(1,7) : Warning no-unused-params: Parameter ""storageAccountName"" is declared but never used. [https://aka.ms/bicep/linter-diagnostics#no-unused-params]");
         }
 
         [TestMethod]
@@ -606,7 +606,7 @@ output myOutput string = 'hello!'
             {
                "ruleId":"no-unused-params",
                "message":{
-                  "text":"Parameter \"storageAccountName\" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]"
+                  "text":"Parameter \"storageAccountName\" is declared but never used. [https://aka.ms/bicep/linter-diagnostics#no-unused-params]"
                },
                "locations":[
                   {

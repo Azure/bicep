@@ -25,7 +25,7 @@ type test2 = resourceInput<
 >.name
 
 param bar resourceInput<'Microsoft.Resources/tags@2022-09-01'>.properties = {
-//@[6:9) [no-unused-params (Warning)] Parameter "bar" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |bar|
+//@[6:9) [no-unused-params (Warning)] Parameter "bar" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |bar|
   tags: {
     fizz: 'buzz'
     snap: 'crackle'

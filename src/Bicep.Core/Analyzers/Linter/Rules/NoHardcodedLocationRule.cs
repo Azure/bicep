@@ -21,8 +21,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public NoHardcodedLocationRule() : base(
             code: Code,
-            description: CoreResources.NoHardcodedLocationRuleDescription,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
+            description: CoreResources.NoHardcodedLocationRuleDescription)
         {
         }
 

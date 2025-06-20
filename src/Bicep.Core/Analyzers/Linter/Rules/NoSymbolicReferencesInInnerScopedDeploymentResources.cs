@@ -16,8 +16,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public NoSymbolicReferencesInInnerScopedDeploymentResources() : base(
             code: Code,
             description: CoreResources.NoSymbolicReferencesInInnerScopedDeploymentResourcesDescription,
-            LinterRuleCategory.DeploymentError,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
+            LinterRuleCategory.DeploymentError)
         {
         }
 

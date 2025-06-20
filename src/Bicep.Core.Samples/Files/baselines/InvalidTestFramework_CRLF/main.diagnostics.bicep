@@ -60,7 +60,7 @@ test testInexitentParam 'samples/main.bicep' ={
 }
 
 var tryToAssign = testInexitentParam
-//@[04:15) [no-unused-vars (Warning)] Variable "tryToAssign" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |tryToAssign|
+//@[04:15) [no-unused-vars (Warning)] Variable "tryToAssign" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |tryToAssign|
 //@[18:36) [BCP062 (Error)] The referenced declaration with name "testInexitentParam" is not valid. (bicep https://aka.ms/bicep/core-diagnostics#BCP062) |testInexitentParam|
 
 test testEmptyBody 'samples/main.bicep' = {}

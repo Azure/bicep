@@ -36,8 +36,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public SecretsInParamsMustBeSecureRule() : base(
             code: Code,
             description: CoreResources.SecretsInParamsRule_Description,
-            LinterRuleCategory.Security,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
+            LinterRuleCategory.Security)
         { }
 
         public override string FormatMessage(params object[] values)

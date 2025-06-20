@@ -28,18 +28,18 @@ func noLambda3 = string 'asdf'
 //@[15:16) [BCP018 (Error)] Expected the "(" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) |=|
 
 func argLengthMismatch(a string, b string, c string) array => ([a, b, c])
-//@[53:58) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|
+//@[53:58) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |array|
 var sdf = argLengthMismatch('asdf')
-//@[04:07) [no-unused-vars (Warning)] Variable "sdf" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |sdf|
+//@[04:07) [no-unused-vars (Warning)] Variable "sdf" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |sdf|
 //@[27:35) [BCP071 (Error)] Expected 3 arguments, but got 1. (bicep https://aka.ms/bicep/core-diagnostics#BCP071) |('asdf')|
 
 var asdfwdf = noLambda('asd')
-//@[04:11) [no-unused-vars (Warning)] Variable "asdfwdf" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |asdfwdf|
+//@[04:11) [no-unused-vars (Warning)] Variable "asdfwdf" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |asdfwdf|
 //@[23:28) [BCP070 (Error)] Argument of type "'asd'" is not assignable to parameter of type "'foo'". (bicep https://aka.ms/bicep/core-diagnostics#BCP070) |'asd'|
 
 func sayHello(name string) string => 'Hi ${name}!'
 output hellos array = map(['Evie', 'Casper'], sayHello) // this syntax not supported currently, but should it be?
-//@[14:19) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|
+//@[14:19) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |array|
 //@[46:54) [BCP063 (Error)] The name "sayHello" is not a parameter, variable, resource or module. (bicep https://aka.ms/bicep/core-diagnostics#BCP063) |sayHello|
 
 func sayHelloBadNewlines(

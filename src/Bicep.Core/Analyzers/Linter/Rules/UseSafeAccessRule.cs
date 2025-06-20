@@ -21,8 +21,7 @@ public sealed class UseSafeAccessRule : LinterRuleBase
     public UseSafeAccessRule() : base(
         code: Code,
         description: CoreResources.UseSafeAccessRule_Description,
-        LinterRuleCategory.BestPractice,
-        docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
+        LinterRuleCategory.BestPractice)
     { }
 
     public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)

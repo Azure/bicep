@@ -1,6 +1,6 @@
 param name string
 param accounts array
-//@[15:020) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|
+//@[15:020) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |array|
 param index int
 
 // single resource
@@ -82,11 +82,11 @@ output indexedCollectionVersion string = storageAccounts[index].apiVersion
 
 // general case property access
 output indexedCollectionIdentity object = storageAccounts[index].identity
-//@[33:039) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
+//@[33:039) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |object|
 
 // indexed access of two properties
 output indexedEndpointPair object = {
-//@[27:033) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
+//@[27:033) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |object|
   primary: storageAccounts[index].properties.primaryEndpoints.blob
   secondary: storageAccounts[index + 1].properties.secondaryEndpoints.blob
 }
@@ -235,7 +235,7 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
   name: 'hello'
   params: {
     myInput: concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)
-//@[13:137) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter/prefer-interpolation) |concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)|
+//@[13:137) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-interpolation) |concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)|
   }
   dependsOn: [
     storageAccounts2[index - 10]
@@ -417,7 +417,7 @@ resource filteredIndexedZones 'Microsoft.Network/dnsZones@2018-05-01' = [for (ac
 }]
 
 output lastNameServers array = filteredIndexedZones[length(accounts) - 1].properties.nameServers
-//@[23:028) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |array|
+//@[23:028) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |array|
 
 module filteredIndexedModules 'passthrough.bicep' = [for (account, i) in accounts: if(account.enabled) {
   name: 'stuff-${i}'

@@ -25,10 +25,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public LocationRuleBase(
             string code,
             string description,
-            Uri docUri,
             DiagnosticStyling diagnosticStyling = DiagnosticStyling.Default
             )
-        : base(code, description, LinterRuleCategory.ResourceLocationRules, docUri, diagnosticStyling) { }
+        : base(code, description, LinterRuleCategory.ResourceLocationRules, diagnosticStyling) { }
 
         /// <summary>
         /// Retrieves the literal text value of a syntax node if that node is either a string literal or a reference (possibly indirectly)

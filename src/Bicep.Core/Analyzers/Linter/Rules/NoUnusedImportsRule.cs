@@ -16,7 +16,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public NoUnusedImportsRule() : base(
             code: Code,
             description: CoreResources.ImportMustBeUsedRuleDescription,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
             diagnosticStyling: DiagnosticStyling.ShowCodeAsUnused)
         { }
 

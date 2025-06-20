@@ -210,7 +210,7 @@ param notUsedParam int = 3
 
         result.Should().Be(0);
         output.Should().BeEmpty();
-        error.Should().StartWith($"{inputFile}(4,7) : Warning no-unused-params: Parameter \"notUsedParam\" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]");
+        error.Should().StartWith($"{inputFile}(4,7) : Warning no-unused-params: Parameter \"notUsedParam\" is declared but never used. [https://aka.ms/bicep/linter-diagnostics#no-unused-params]");
     }
 
     [TestMethod]
@@ -231,7 +231,7 @@ param notUsedParam = 3
 
         result.Should().Be(0);
         output.Should().BeEmpty();
-        error.Should().StartWith($"{bicepFile}(4,7) : Warning no-unused-params: Parameter \"notUsedParam\" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]");
+        error.Should().StartWith($"{bicepFile}(4,7) : Warning no-unused-params: Parameter \"notUsedParam\" is declared but never used. [https://aka.ms/bicep/linter-diagnostics#no-unused-params]");
     }
 
     [TestMethod]
@@ -252,7 +252,7 @@ param notUsedParm = 'string'
 
         result.Should().Be(1);
         output.Should().BeEmpty();
-        error.Should().Contain($"{bicepFile}(4,7) : Warning no-unused-params: Parameter \"notUsedParam\" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]");
+        error.Should().Contain($"{bicepFile}(4,7) : Warning no-unused-params: Parameter \"notUsedParam\" is declared but never used. [https://aka.ms/bicep/linter-diagnostics#no-unused-params]");
         error.Should().Contain($"{inputFile}(2,7) : Error BCP258: The following parameters are declared in the Bicep file but are missing an assignment in the params file: \"notUsedParam\".");
         error.Should().Contain($"{inputFile}(3,1) : Error BCP259: The parameter \"notUsedParm\" is assigned in the params file without being declared in the Bicep file.");
     }

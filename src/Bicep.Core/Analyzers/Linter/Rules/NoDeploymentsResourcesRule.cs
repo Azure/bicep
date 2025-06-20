@@ -14,8 +14,7 @@ public sealed class NoDeploymentsResourcesRule : LinterRuleBase
     public NoDeploymentsResourcesRule() : base(
         code: Code,
         description: CoreResources.NoDeploymentsResourcesRuleDescription,
-        LinterRuleCategory.BestPractice,
-        docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
+        LinterRuleCategory.BestPractice)
     {
     }
 

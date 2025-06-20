@@ -48,7 +48,7 @@ type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!tr
 type bool = string
 
 param inlineObjectParam {
-//@[06:23) [no-unused-params (Warning)] Parameter "inlineObjectParam" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |inlineObjectParam|
+//@[06:23) [no-unused-params (Warning)] Parameter "inlineObjectParam" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |inlineObjectParam|
   foo: string
   bar: 100|200|300|400|500
   baz: sys.bool
@@ -59,7 +59,7 @@ param inlineObjectParam {
 }
 
 param unionParam {property: 'ping'}|{property: 'pong'} = {property: 'pong'}
-//@[06:16) [no-unused-params (Warning)] Parameter "unionParam" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |unionParam|
+//@[06:16) [no-unused-params (Warning)] Parameter "unionParam" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |unionParam|
 
 param paramUsingType mixedArray
 
@@ -94,8 +94,8 @@ output nonNull string = nonNull
 var maybeNull = mightIncludeNull[0].?key
 
 var maybeNull2 = mightIncludeNull[0][?'key']
-//@[04:14) [no-unused-vars (Warning)] Variable "maybeNull2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |maybeNull2|
-//@[36:44) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter/prefer-unquoted-property-names) |[?'key']|
+//@[04:14) [no-unused-vars (Warning)] Variable "maybeNull2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |maybeNull2|
+//@[36:44) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-unquoted-property-names) |[?'key']|
 
 output maybeNull string? = maybeNull
 
@@ -122,7 +122,7 @@ type typeC = {
 type typeD = {
   type: 'd'
   value: object
-//@[09:15) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
+//@[09:15) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |object|
 }
 
 type typeE = {
@@ -223,26 +223,26 @@ type discriminatedUnionTuple1 = [
 type discriminatedUnionInlineTuple1 = [
   @discriminator('type')
   typeA | typeB | { type: 'c', value: object }
-//@[38:44) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
+//@[38:44) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |object|
   string
 ]
 
 param paramDiscriminatedUnionTypeAlias1 discriminatedUnion1
-//@[06:39) [no-unused-params (Warning)] Parameter "paramDiscriminatedUnionTypeAlias1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |paramDiscriminatedUnionTypeAlias1|
+//@[06:39) [no-unused-params (Warning)] Parameter "paramDiscriminatedUnionTypeAlias1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |paramDiscriminatedUnionTypeAlias1|
 param paramDiscriminatedUnionTypeAlias2 discriminatedUnion5
-//@[06:39) [no-unused-params (Warning)] Parameter "paramDiscriminatedUnionTypeAlias2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |paramDiscriminatedUnionTypeAlias2|
+//@[06:39) [no-unused-params (Warning)] Parameter "paramDiscriminatedUnionTypeAlias2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |paramDiscriminatedUnionTypeAlias2|
 
 @discriminator('type')
 param paramInlineDiscriminatedUnion1 typeA | typeB
-//@[06:36) [no-unused-params (Warning)] Parameter "paramInlineDiscriminatedUnion1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |paramInlineDiscriminatedUnion1|
+//@[06:36) [no-unused-params (Warning)] Parameter "paramInlineDiscriminatedUnion1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |paramInlineDiscriminatedUnion1|
 
 @discriminator('type')
 param paramInlineDiscriminatedUnion2 (typeA | typeB) = { type: 'b', value: 0 }
-//@[06:36) [no-unused-params (Warning)] Parameter "paramInlineDiscriminatedUnion2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |paramInlineDiscriminatedUnion2|
+//@[06:36) [no-unused-params (Warning)] Parameter "paramInlineDiscriminatedUnion2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |paramInlineDiscriminatedUnion2|
 
 @discriminator('type')
 param paramInlineDiscriminatedUnion3 (typeA | typeB)?
-//@[06:36) [no-unused-params (Warning)] Parameter "paramInlineDiscriminatedUnion3" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |paramInlineDiscriminatedUnion3|
+//@[06:36) [no-unused-params (Warning)] Parameter "paramInlineDiscriminatedUnion3" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |paramInlineDiscriminatedUnion3|
 
 output outputDiscriminatedUnionTypeAlias1 discriminatedUnion1 = { type: 'a', value: 'str' }
 @discriminator('type')

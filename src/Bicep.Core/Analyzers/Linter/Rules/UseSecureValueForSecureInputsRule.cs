@@ -21,8 +21,7 @@ public sealed class UseSecureValueForSecureInputsRule : LinterRuleBase
     public UseSecureValueForSecureInputsRule() : base(
         code: Code,
         description: CoreResources.UseSecureValueForSecureInputsRule_Description,
-        LinterRuleCategory.Security,
-        docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
+        LinterRuleCategory.Security)
     {
     }
 

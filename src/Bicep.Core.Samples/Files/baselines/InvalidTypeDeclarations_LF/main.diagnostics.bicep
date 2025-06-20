@@ -97,14 +97,14 @@ type arrayWithInvalidMember = objectWithInvalidRecursion[]
 @sealed()
 //@[00:009) [BCP124 (Error)] The decorator "sealed" can only be attached to targets of type "object", but the target has type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP124) |@sealed()|
 param sealedStringParam string
-//@[06:023) [no-unused-params (Warning)] Parameter "sealedStringParam" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |sealedStringParam|
+//@[06:023) [no-unused-params (Warning)] Parameter "sealedStringParam" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |sealedStringParam|
 
 param disallowedUnionParam 'foo'|-99
-//@[06:026) [no-unused-params (Warning)] Parameter "disallowedUnionParam" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |disallowedUnionParam|
+//@[06:026) [no-unused-params (Warning)] Parameter "disallowedUnionParam" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |disallowedUnionParam|
 //@[27:036) [BCP294 (Error)] Type unions must be reducible to a single ARM type (such as 'string', 'int', or 'bool'). (bicep https://aka.ms/bicep/core-diagnostics#BCP294) |'foo'|-99|
 
 param objectWithInvalidRecursionParam objectWithInvalidRecursion
-//@[06:037) [no-unused-params (Warning)] Parameter "objectWithInvalidRecursionParam" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |objectWithInvalidRecursionParam|
+//@[06:037) [no-unused-params (Warning)] Parameter "objectWithInvalidRecursionParam" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |objectWithInvalidRecursionParam|
 //@[38:064) [BCP062 (Error)] The referenced declaration with name "objectWithInvalidRecursion" is not valid. (bicep https://aka.ms/bicep/core-diagnostics#BCP062) |objectWithInvalidRecursion|
 
 type typeA = {
@@ -129,7 +129,7 @@ type typeC = {
 type typeD = {
   type: 'd'
   value: object
-//@[09:015) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
+//@[09:015) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |object|
 }
 
 type typeE = {
@@ -194,7 +194,7 @@ type discriminatorDuplicatedMember1 = typeA | typeA
 @discriminator('type')
 type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
 //@[46:075) [BCP365 (Error)] The value "'a'" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP365) |{ type: 'a', config: object }|
-//@[67:073) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
+//@[67:073) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |object|
 
 @discriminator('type')
 type discriminatorOnlyOneNonNullMember1 = typeA | null
@@ -293,11 +293,11 @@ type discriminatedUnionCaseSensitiveDiscriminator = { type: 'a', value: string }
 @discriminator('type')
 //@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP363) |@discriminator('type')|
 param discriminatorParamBadType1 typeA
-//@[06:032) [no-unused-params (Warning)] Parameter "discriminatorParamBadType1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |discriminatorParamBadType1|
+//@[06:032) [no-unused-params (Warning)] Parameter "discriminatorParamBadType1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |discriminatorParamBadType1|
 
 @discriminator('type')
 param discriminatorParamBadType2 'a' | 'b'
-//@[06:032) [no-unused-params (Warning)] Parameter "discriminatorParamBadType2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |discriminatorParamBadType2|
+//@[06:032) [no-unused-params (Warning)] Parameter "discriminatorParamBadType2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |discriminatorParamBadType2|
 //@[33:036) [BCP286 (Error)] This union member is invalid because it cannot be assigned to the 'object' type. (bicep https://aka.ms/bicep/core-diagnostics#BCP286) |'a'|
 //@[39:042) [BCP286 (Error)] This union member is invalid because it cannot be assigned to the 'object' type. (bicep https://aka.ms/bicep/core-diagnostics#BCP286) |'b'|
 
@@ -308,7 +308,7 @@ output discriminatorOutputBadType1 typeA = { type: 'a', value: 'a' }
 @discriminator('type')
 //@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP363) |@discriminator('type')|
 output discriminatorOutputBadType2 object = { prop: 'value' }
-//@[35:041) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter/use-user-defined-types) |object|
+//@[35:041) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |object|
 
 type strings = string[]
 
