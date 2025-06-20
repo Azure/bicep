@@ -10,13 +10,13 @@ using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
 using Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Local.Extension.Host.TypeDefinitionBuilder;
+using Bicep.Local.Extension.Types;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using static Microsoft.WindowsAzure.ResourceStack.Common.Utilities.FastActivator;
 
-namespace Bicep.Local.Extension.UnitTests.HostTests.TypeDefinitionBuilderTests;
+namespace Bicep.Local.Extension.UnitTests.TypesTests;
 
 [TestClass]
 public class TypeDefinitionBuilderTests

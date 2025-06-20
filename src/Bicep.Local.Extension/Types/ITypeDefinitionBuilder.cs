@@ -3,7 +3,7 @@
 
 using Azure.Bicep.Types.Index;
 
-namespace Bicep.Local.Extension.Host.TypeDefinitionBuilder;
+namespace Bicep.Local.Extension.Types;
 
 public record TypeDefinition(string TypesJson, string IndexJson);
 

@@ -7,9 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Bicep.Local.Extension.Host.Attributes;
+using Bicep.Local.Extension.Types.Attributes;
 
-namespace Bicep.Local.Extension.Host.TypeDefinitionBuilder;
+namespace Bicep.Local.Extension.Types;
 public class TypeProvider
     : ITypeProvider
 {

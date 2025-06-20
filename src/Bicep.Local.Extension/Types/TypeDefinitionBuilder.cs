@@ -11,10 +11,10 @@ using Azure.Bicep.Types;
 using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
 using Azure.Bicep.Types.Serialization;
-using Bicep.Local.Extension.Host.Attributes;
+using Bicep.Local.Extension.Types.Attributes;
 using static Google.Protobuf.Reflection.GeneratedCodeInfo.Types;
 
-namespace Bicep.Local.Extension.Host.TypeDefinitionBuilder;
+namespace Bicep.Local.Extension.Types;
 public class TypeDefinitionBuilder
     : ITypeDefinitionBuilder
 {
@@ -41,8 +41,8 @@ public class TypeDefinitionBuilder
                 ? throw new ArgumentNullException(nameof(typeToTypeBaseMap))
                 : typeToTypeBaseMap;
 
-        this.visited = new HashSet<Type>();
-        this.typeCache = new ConcurrentDictionary<Type, TypeBase>();
+        visited = new HashSet<Type>();
+        typeCache = new ConcurrentDictionary<Type, TypeBase>();
     }
 
     public virtual TypeDefinition GenerateBicepResourceTypes()

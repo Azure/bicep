@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 using Azure.Bicep.Types.Concrete;
 
-namespace Bicep.Local.Extension.Host.Attributes;
+namespace Bicep.Local.Extension.Types.Attributes;
 [AttributeUsage(AttributeTargets.Property)]
 public class TypeAnnotationAttribute : Attribute
 {
