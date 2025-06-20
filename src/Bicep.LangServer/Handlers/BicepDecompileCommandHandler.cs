@@ -134,7 +134,7 @@ namespace Bicep.LanguageServer.Handlers
             Trace.TraceInformation($"Decompilation main output: {bicepUri.LocalPath}");
             Trace.TraceInformation($"Decompilation all files to save: {string.Join(", ", filesToSave.Select(kvp => kvp.Key.LocalPath))}");
 
-            (string path, string content)[] pathsToSave = filesToSave.Select(kvp => (kvp.Key.LocalPath, kvp.Value)).ToArray();
+            (string path, string content)[] pathsToSave = [.. filesToSave.Select(kvp => (kvp.Key.LocalPath, kvp.Value))];
 
             // Put main bicep file first in the array
             pathsToSave = [.. pathsToSave.OrderByAscending(f => f.path == bicepUri.LocalPath ? "" : f.path)];
@@ -142,13 +142,12 @@ namespace Bicep.LanguageServer.Handlers
             Debug.Assert(pathsToSave.Length >= 1, "No files to save?");
 
             // Conflicts with any existing files?
-            string[] conflictingPaths = pathsToSave.Where(f => File.Exists(f.path)).Select(f => f.path).ToArray();
+            string[] conflictingPaths = [.. pathsToSave.Where(f => File.Exists(f.path)).Select(f => f.path)];
 
             string? outputFolder = Path.GetDirectoryName(bicepUri.LocalPath);
             Debug.Assert(outputFolder is not null, "outputFolder should not be null");
             DecompiledFile[] outputFiles =
-                pathsToSave.Select(pts => DetermineDecompiledPaths(outputFolder, pts.path, pts.content))
-                .ToArray();
+                [.. pathsToSave.Select(pts => DetermineDecompiledPaths(outputFolder, pts.path, pts.content))];
 
 
             // Show disclaimer and completion
