@@ -41,6 +41,7 @@ import { createLogger, getLogger, resetLogger } from "./utils/logger";
 import { OutputChannelManager } from "./utils/OutputChannelManager";
 import { activateWithTelemetryAndErrorHandling } from "./utils/telemetry";
 import { BicepVisualizerViewManager } from "./visualizer";
+import { registerLanguageModelTools } from "./commands/languageModelTools";
 
 let languageClient: lsp.LanguageClient | null = null;
 
@@ -184,6 +185,8 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
 
         await languageClient.start();
         getLogger().info("Bicep language service started.");
+
+        registerLanguageModelTools(languageClient);
 
         // Set initial UI context
         await updateUiContext(window.activeTextEditor?.document);
