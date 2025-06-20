@@ -3,12 +3,12 @@ using 'main.bicep'
 //@[06:018) StringComplete |'main.bicep'|
 //@[18:020) NewLine |\n\n|
 
-extension k8s with {
-//@[00:009) Identifier |extension|
-//@[10:013) Identifier |k8s|
-//@[14:018) Identifier |with|
-//@[19:020) LeftBrace |{|
-//@[20:021) NewLine |\n|
+extensionConfig k8s with {
+//@[00:015) Identifier |extensionConfig|
+//@[16:019) Identifier |k8s|
+//@[20:024) Identifier |with|
+//@[25:026) LeftBrace |{|
+//@[26:027) NewLine |\n|
   kubeConfig: az.getSecret('00000000-0000-0000-0000-000000000001', 'mock-rg', 'kv', 'myKubeConfig')
 //@[02:012) Identifier |kubeConfig|
 //@[12:013) Colon |:|

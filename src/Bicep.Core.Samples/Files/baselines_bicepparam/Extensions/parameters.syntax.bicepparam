@@ -1,21 +1,21 @@
 using 'main.bicep'
-//@[00:174) ProgramSyntax
+//@[00:180) ProgramSyntax
 //@[00:018) ├─UsingDeclarationSyntax
 //@[00:005) | ├─Token(Identifier) |using|
 //@[06:018) | └─StringSyntax
 //@[06:018) |   └─Token(StringComplete) |'main.bicep'|
 //@[18:020) ├─Token(NewLine) |\n\n|
 
-extension k8s with {
-//@[00:153) ├─ExtensionConfigAssignmentSyntax
-//@[00:009) | ├─Token(Identifier) |extension|
-//@[10:013) | ├─IdentifierSyntax
-//@[10:013) | | └─Token(Identifier) |k8s|
-//@[14:153) | └─ExtensionWithClauseSyntax
-//@[14:018) |   ├─Token(Identifier) |with|
-//@[19:153) |   └─ObjectSyntax
-//@[19:020) |     ├─Token(LeftBrace) |{|
-//@[20:021) |     ├─Token(NewLine) |\n|
+extensionConfig k8s with {
+//@[00:159) ├─ExtensionConfigAssignmentSyntax
+//@[00:015) | ├─Token(Identifier) |extensionConfig|
+//@[16:019) | ├─IdentifierSyntax
+//@[16:019) | | └─Token(Identifier) |k8s|
+//@[20:159) | └─ExtensionWithClauseSyntax
+//@[20:024) |   ├─Token(Identifier) |with|
+//@[25:159) |   └─ObjectSyntax
+//@[25:026) |     ├─Token(LeftBrace) |{|
+//@[26:027) |     ├─Token(NewLine) |\n|
   kubeConfig: az.getSecret('00000000-0000-0000-0000-000000000001', 'mock-rg', 'kv', 'myKubeConfig')
 //@[02:099) |     ├─ObjectPropertySyntax
 //@[02:012) |     | ├─IdentifierSyntax
