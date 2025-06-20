@@ -18,27 +18,24 @@ namespace Bicep.TextFixtures.Utils
 
         private readonly FakeContainerRegistryClientFactory containerRegistryClientFactory;
         private readonly FakeTemplateSpecRepository templateSpecRepository;
-        private readonly TestServices services;
-        private readonly TestCompiler testCompiler;
+        private readonly TestCompiler compiler;
 
         public TestExternalArtifactManager()
         {
             this.containerRegistryClientFactory = new();
             this.templateSpecRepository = new();
-            this.services = new();
-            this.testCompiler = new TestCompiler(services).ConfigureServices(services => services
-                .AddExternalArtifactManager(this)
-                .AddMockFileSystem()
-                .Build());
+            this.compiler = TestCompiler
+                .ForMockFileSystemCompilation()
+                .ConfigureServices(services => services.AddExternalArtifactManager(this));
         }
 
         public async Task PublishRegistryModule(string moduleArtifactId, string moduleContent, bool withSource = false, string? documentationUri = null)
         {
-            var dispatcher = this.services.Get<IModuleDispatcher>();
-            var sourceFileFactory = services.Get<ISourceFileFactory>();
+            var dispatcher = this.compiler.GetService<IModuleDispatcher>();
+            var sourceFileFactory = compiler.GetService<ISourceFileFactory>();
             var dummyFile = sourceFileFactory.CreateBicepFile(TestFileUri.FromMockFileSystemPath("dummy.bicep").ToUri(), "");
             var targetReference = dispatcher.TryGetArtifactReference(dummyFile, ArtifactType.Module, moduleArtifactId).Unwrap();
-            var compilationResult = await testCompiler.RestoreAndCompileMockFileSystemFile(moduleContent);
+            var compilationResult = await compiler.CompileInline(moduleContent);
 
             if (compilationResult.Template is null)
             {

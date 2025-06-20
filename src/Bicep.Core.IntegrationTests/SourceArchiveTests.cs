@@ -41,8 +41,9 @@ namespace Bicep.Core.IntegrationTests
         public SourceArchiveTests()
         {
             this.artifactManager = new TestExternalArtifactManager();
-            this.compiler = new TestCompiler().ConfigureServices(services =>
-                services.AddExternalArtifactManager(this.artifactManager));
+            this.compiler = TestCompiler
+                .ForMockFileSystemCompilation()
+                .ConfigureServices(services => services.AddExternalArtifactManager(this.artifactManager));
         }
 
         [TestMethod]
@@ -122,8 +123,8 @@ namespace Bicep.Core.IntegrationTests
             var sourceArchive = SourceArchive.CreateFrom(sourceFileGrouping);
 
             // Assert.
-            var bicepRegistryModule1Template = (await this.compiler.RestoreAndCompileMockFileSystemFile(SampleData.BicepRegistryModule1Text)).Template!;
-            var bicepRegistryModule2Template = (await this.compiler.RestoreAndCompileMockFileSystemFile(SampleData.BicepRegistryModule2Text)).Template!;
+            var bicepRegistryModule1Template = (await this.compiler.CompileInline(SampleData.BicepRegistryModule1Text)).Template!;
+            var bicepRegistryModule2Template = (await this.compiler.CompileInline(SampleData.BicepRegistryModule2Text)).Template!;
 
             sourceArchive.Should().HaveMetadataAndFiles($$"""
                 {
@@ -341,7 +342,7 @@ namespace Bicep.Core.IntegrationTests
         {
             // Arrange.
             var moduleText = "param p1 bool";
-            var moduleTemplate = (await this.compiler.RestoreAndCompileMockFileSystemFile(moduleText)).Template!;
+            var moduleTemplate = (await this.compiler.CompileInline(moduleText)).Template!;
             var moduleTemplateText = moduleTemplate.ToString(Newtonsoft.Json.Formatting.Indented);
             await this.artifactManager.PublishRegistryModule("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true);
 
@@ -626,7 +627,7 @@ namespace Bicep.Core.IntegrationTests
 
         private async Task<SourceFileGrouping> CreateSourceFileGrouping(params (string FilePath, TestFileData FileData)[] files)
         {
-            var compilationResult = await this.compiler.RestoreAndCompileMockFileSystemFiles(files);
+            var compilationResult = await this.compiler.Compile(files);
 
             return compilationResult.Compilation.SourceFileGrouping;
         }

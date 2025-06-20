@@ -1,35 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Extensions;
 using Bicep.IO.Abstraction;
-using Bicep.IO.FileSystem;
-using Bicep.IO.InMemory;
 
 namespace Bicep.TextFixtures.IO
 {
     public abstract class TestFileSet
     {
+        private readonly HashSet<IOUri> fileUris;
+
         protected TestFileSet(IFileExplorer fileExplorer)
         {
+            this.fileUris = [];
             this.FileExplorer = fileExplorer;
             this.FileExplorer.GetDirectory(this.GetUri("")).EnsureExists();
         }
 
         public IFileExplorer FileExplorer { get; }
-
-        public IOUri GetEntryPointUri()
-        {
-            var entryPoint = this.FileExplorer.GetFile(this.GetUri("main.bicep"));
-
-            if (!entryPoint.Exists())
-            {
-                throw new InvalidOperationException("TestFileSet does not contain an entry point file 'main.bicep'.");
-            }
-
-            return entryPoint.Uri;
-        }
 
         public TestFileSet AddDirectory(string path)
         {
@@ -45,7 +33,10 @@ namespace Bicep.TextFixtures.IO
                 return this.AddDirectory(path);
             }
 
-            this.FileExplorer.GetFile(this.GetUri(path)).EnsureExists().Write(data.Text);
+            var uri = this.GetUri(path);
+
+            this.FileExplorer.GetFile(uri).EnsureExists().Write(data.AsBinaryData());
+            this.fileUris.Add(uri);
 
             return this;
         }
@@ -56,6 +47,40 @@ namespace Bicep.TextFixtures.IO
             {
                 this.AddFile(path, data);
             }
+
+            return this;
+        }
+
+        public TestFileSet RemoveFile(string path)
+        {
+            var uri = this.GetUri(path);
+
+            if (this.fileUris.Contains(uri))
+            {
+                this.FileExplorer.GetFile(uri).Delete();
+            }
+
+            return this;
+        }
+
+        public TestFileSet RemoveFiles(params string[] paths)
+        {
+            foreach (var path in paths)
+            {
+                this.RemoveFile(path);
+            }
+
+            return this;
+        }
+
+        public TestFileSet Clear()
+        {
+            foreach (var uri in this.fileUris)
+            {
+                this.FileExplorer.GetFile(uri).Delete();
+            }
+
+            this.fileUris.Clear();
 
             return this;
         }

@@ -1,23 +1,25 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core;
+using Bicep.Core.FileSystem;
+using Bicep.IO.FileSystem;
 using Bicep.TextFixtures.IO;
+using FluentAssertions.Common;
 
 namespace Bicep.TextFixtures.Utils
 {
     public class TestCompiler
     {
+        private const string DefaultEntryPointPath = "main.bicep";
+
         private readonly TestServices services;
 
-        public TestCompiler()
+        private TestCompiler(TestFileSet fileSet)
         {
             this.services = new();
-        }
-
-        public TestCompiler(TestServices services)
-        {
-            this.services = services;
+            this.FileSet = fileSet;
         }
 
         public TestCompiler ConfigureServices(Action<TestServices> configure)
@@ -27,25 +29,78 @@ namespace Bicep.TextFixtures.Utils
             return this;
         }
 
-        // TODO(file-io-abstraction): Enable and migrate tests once IFileResolver is removed.
-        //public TestCompilationResult RestoreAndCompileInMemoryFiles(params (string FilePath, TestFileData FileData)[] files) =>
-        //        this.RestoreAndCompile(InMemoryTestFileSet.Create(files));
+        public TestFileSet FileSet { get; }
 
-        public Task<TestCompilationResult> RestoreAndCompileMockFileSystemFile(string mainBicepFileText) =>
-            this.RestoreAndCompileMockFileSystemFiles(("main.bicep", mainBicepFileText));
-
-        public Task<TestCompilationResult> RestoreAndCompileMockFileSystemFiles(params (string FilePath, TestFileData FileData)[] files) =>
-            this.RestoreAndCompile(MockFileSystemTestFileSet.Create(files));
-
-        private async Task<TestCompilationResult> RestoreAndCompile(MockFileSystemTestFileSet fileSet)
+        public static TestCompiler ForMockFileSystemCompilation()
         {
-            services.AddFileSystem(fileSet.FileSystem);
-            services.AddFileExplorer(fileSet.FileExplorer);
+            var fileSystem = new MockFileSystem();
+            var fileExplorer = new FileSystemFileExplorer(fileSystem);
+            var fileSet = new MockFileSystemTestFileSet(fileSystem);
 
-            var compiler = services.Build().Get<BicepCompiler>();
-            var compilation = await compiler.CreateCompilation(fileSet.GetEntryPointUri().ToUri());
+            return new TestCompiler(fileSet).ConfigureServices(services => services
+                .AddFileSystem(fileSystem)
+                .AddSingleton<IFileResolver>(new FileResolver(fileSystem))
+                .AddFileExplorer(fileExplorer));
+        }
+
+        public T GetService<T>() where T : notnull => this.services.Get<T>();
+
+        public async Task<TestCompilationResult> CompileInline(string sourceText, bool skipRestore = false)
+        {
+            using (this.CreateFileSetScope((DefaultEntryPointPath, sourceText)))
+            {
+                return await this.Compile(skipRestore: skipRestore);
+            }
+        }
+
+        public Task<TestCompilationResult> Compile(params (string FilePath, TestFileData FileData)[] files) => this.Compile(DefaultEntryPointPath, files);
+
+        public async Task<TestCompilationResult> Compile(string entryPointPath, params (string FilePath, TestFileData FileData)[] files)
+        {
+            using (this.CreateFileSetScope(files))
+            {
+                return await this.Compile(entryPointPath, skipRestore: false);
+            }
+        }
+
+        public Task<TestCompilationResult> CompileWithoutRestore(params (string FilePath, TestFileData FileData)[] files) => this.CompileWithoutRestore(DefaultEntryPointPath, files);
+
+        public async Task<TestCompilationResult> CompileWithoutRestore(string entryPointPath, params (string FilePath, TestFileData FileData)[] files)
+        {
+            using (this.CreateFileSetScope(files))
+            {
+                return await this.Compile(entryPointPath, skipRestore: true);
+            }
+        }
+
+        public async Task<TestCompilationResult> Compile(string entryPointPath = DefaultEntryPointPath, bool skipRestore = false)
+        {
+            var compiler = this.services.Get<BicepCompiler>();
+            var compilation = await compiler.CreateCompilation(this.FileSet.GetUri(entryPointPath).ToUri(), skipRestore: skipRestore);
 
             return TestCompilationResult.FromCompilation(compilation);
         }
+
+        private TestFileSetScope CreateFileSetScope(params (string FilePath, TestFileData FileData)[] files)
+        {
+            return new TestFileSetScope(this, files);
+        }
+
+        private class TestFileSetScope : IDisposable
+        {
+            private readonly TestCompiler compiler;
+
+            public TestFileSetScope(TestCompiler compiler, params (string FilePath, TestFileData FileData)[] files)
+            {
+                this.compiler = compiler;
+                this.compiler.FileSet.Clear().AddFiles(files);
+            }
+
+            public void Dispose()
+            {
+                this.compiler.FileSet.Clear();
+            }
+        }
+
     }
 }

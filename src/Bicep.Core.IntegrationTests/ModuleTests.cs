@@ -28,6 +28,8 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class ModuleTests
     {
+        private readonly TestCompiler compiler = TestCompiler.ForMockFileSystemCompilation();
+
         private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
 
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
@@ -208,7 +210,7 @@ module main 'main.bicep' = {
         public async Task Module_should_include_diagnostic_if_module_file_cannot_be_resolved()
         {
             var mainFileUri = new Uri("file:///path/to/main.bicep");
-            var mainFileContents = @"
+            var mainFileText = @"
 param inputa string
 param inputb string
 
@@ -220,7 +222,7 @@ module modulea 'modulea.bicep' = {
   }
 }
 ";
-            var result = await new TestCompiler().RestoreAndCompileMockFileSystemFile(mainFileContents);
+            var result = await this.compiler.CompileInline(mainFileText);
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP091", DiagnosticLevel.Error, $"An error occurred reading file. Could not find file '{TestFileUri.FromMockFileSystemPath("modulea.bicep")}'."),
