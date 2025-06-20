@@ -118,10 +118,8 @@ var textLoadWrongEncoding29 = loadTextContent('Assets/encoding-utf8-bom.txt', 'u
 
 var textOversize = loadTextContent('Assets/oversizeText.txt')
 //@[04:16) [no-unused-vars (Warning)] Variable "textOversize" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |textOversize|
-//@[35:60) [BCP184 (Error)] File '${TEST_OUTPUT_DIR}/Assets/oversizeText.txt' exceeded maximum size of 131072 characters. (bicep https://aka.ms/bicep/core-diagnostics#BCP184) |'Assets/oversizeText.txt'|
 var binaryOversize = loadFileAsBase64('Assets/oversizeBinary')
 //@[04:18) [no-unused-vars (Warning)] Variable "binaryOversize" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |binaryOversize|
-//@[38:61) [BCP184 (Error)] File '${TEST_OUTPUT_DIR}/Assets/oversizeBinary' exceeded maximum size of 98304 bytes. (bicep https://aka.ms/bicep/core-diagnostics#BCP184) |'Assets/oversizeBinary'|
 
 var binaryAsText = loadTextContent('Assets/binary')
 //@[04:16) [no-unused-vars (Warning)] Variable "binaryAsText" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |binaryAsText|

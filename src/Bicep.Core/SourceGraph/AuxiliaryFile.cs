@@ -51,11 +51,11 @@ namespace Bicep.Core.SourceGraph
             return new(new string(buffer, 0, charactersRead));
         }
 
-        public ResultWithDiagnosticBuilder<ReadOnlyMemory<byte>> TryReadBytes(int bytesLimit)
+        public ResultWithDiagnosticBuilder<ReadOnlyMemory<byte>> TryReadBytes(int? bytesLimit = null)
         {
-            if (this.data.Length > bytesLimit)
+            if (bytesLimit.HasValue && this.data.Length > bytesLimit.Value)
             {
-                return new(x => x.FileExceedsMaximumSize(this.Uri, bytesLimit, "bytes"));
+                return new(x => x.FileExceedsMaximumSize(this.Uri, bytesLimit.Value, "bytes"));
             }
 
             return new(this.data);
