@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
 using Azure.Bicep.Types;
@@ -10,9 +12,10 @@ using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
 using Azure.Bicep.Types.Serialization;
 using Bicep.Local.Extension.Host.Attributes;
+using static Google.Protobuf.Reflection.GeneratedCodeInfo.Types;
 
 namespace Bicep.Local.Extension.Host.TypeDefinitionBuilder;
-internal class TypeDefinitionBuilder
+public class TypeDefinitionBuilder
     : ITypeDefinitionBuilder
 {
     private readonly HashSet<Type> visited;
@@ -58,17 +61,20 @@ internal class TypeDefinitionBuilder
     }
 
     protected virtual ResourceType GenerateResource(TypeFactory typeFactory, ConcurrentDictionary<Type, TypeBase> typeCache, Type type)
-    => typeFactory.Create(() => new ResourceType(
-        name: $"{type.Name}",
-        scopeType: ScopeType.Unknown,
-        readOnlyScopes: null,
-        body: typeFactory.GetReference(typeFactory.Create(() => GenerateForRecord(typeFactory, typeCache, type))),
-        flags: ResourceFlags.None,
-        functions: null));
+        => typeFactory.Create(() => new ResourceType(
+            name: $"{type.Name}",
+            scopeType: ScopeType.Unknown,
+            readOnlyScopes: null,
+            body: typeFactory.GetReference(typeFactory.Create(() => GenerateForRecord(typeFactory, typeCache, type))),
+            flags: ResourceFlags.None,
+            functions: null));
 
     protected virtual TypeBase GenerateForRecord(TypeFactory factory, ConcurrentDictionary<Type, TypeBase> typeCache, Type type)
     {
         var typeProperties = new Dictionary<string, ObjectTypeProperty>();
+
+
+
         foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
             if (visited.Contains(property.PropertyType))
@@ -79,15 +85,39 @@ internal class TypeDefinitionBuilder
 
             var annotation = property.GetCustomAttributes<TypeAnnotationAttribute>(true).FirstOrDefault();
             var propertyType = property.PropertyType;
-            TypeBase typeReference;
 
-            if (propertyType == typeof(string) && annotation?.IsSecure == true)
+            TypeBase? typeReference = null;
+
+            if (TryResolveTypeReference(propertyType, annotation, out typeReference)) { }
+            else if (propertyType != typeof(string) && typeof(IEnumerable).IsAssignableFrom(propertyType))// propertyType.IsAssignableTo(typeof(IEnumerable)))
             {
-                typeReference = factory.Create(() => new StringType(sensitive: true));
-            }
-            else if (typeToTypeBaseMap.TryGetValue(propertyType, out var typeFunc))
-            {
-                typeReference = typeCache.GetOrAdd(propertyType, _ => factory.Create(typeFunc));
+                // protect against infinite recursion
+                visited.Add(property.PropertyType);
+
+                Type? elementType = null;
+                if (propertyType.IsArray)
+                {
+                    elementType = propertyType.GetElementType();
+                }
+                else if (propertyType.IsGenericType &&
+                         propertyType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                {
+                    elementType = propertyType.GetGenericArguments()[0];
+                }
+
+                if (elementType is null)
+                {
+                    throw new NotImplementedException($"Unsupported collection type {elementType}");
+                }
+
+                if (TryResolveTypeReference(elementType, annotation, out typeReference)) { }
+                else
+                {
+                    typeReference = factory.Create(()
+                         => new ArrayType(factory.GetReference(
+                                                 typeCache.GetOrAdd(elementType
+                                                , _ => factory.Create(() => GenerateForRecord(factory, typeCache, elementType))))));
+                }
             }
             else if (propertyType.IsClass)
             {
@@ -112,16 +142,34 @@ internal class TypeDefinitionBuilder
                 throw new NotImplementedException($"Unsupported property type {propertyType}");
             }
 
-            typeProperties[CamelCase(property.Name)] = new ObjectTypeProperty(
+            if(typeReference is not null)
+            {
+                typeProperties[CamelCase(property.Name)] = new ObjectTypeProperty(
                 factory.GetReference(typeReference),
                 annotation?.Flags ?? ObjectTypePropertyFlags.None,
                 annotation?.Description);
+            }            
         }
 
         return new ObjectType(
             $"{type.Name}",
             typeProperties,
             null);
+    }
+
+    private bool TryResolveTypeReference(Type type, TypeAnnotationAttribute? annotation, [NotNullWhen(true)] out TypeBase? typeReference)
+    {
+        typeReference = null;
+        if (type == typeof(string) && annotation?.IsSecure == true)
+        {
+            typeReference = factory.Create(() => new StringType(sensitive: true));
+        }
+        else if (typeToTypeBaseMap.TryGetValue(type, out var typeFunc))
+        {
+            typeReference = typeCache.GetOrAdd(type, _ => factory.Create(typeFunc));
+        }
+
+        return typeReference is not null;
     }
 
 

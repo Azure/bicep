@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Bicep.Core.UnitTests\Bicep.Core.UnitTests.csproj" />
     <ProjectReference Include="..\Bicep.Local.Extension\Bicep.Local.Extension.csproj" />
   </ItemGroup>
 
