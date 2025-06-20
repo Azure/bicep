@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Bicep.Core.SourceLink
 {
-    public record LinkedSourceFile(LinkedSourceFileMetadata Metadata, string Contents)
+    public record ArchivedSourceFile(ArchivedSourceFileMetadata Metadata, string Contents)
     {
     }
 }

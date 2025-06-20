@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
@@ -12,23 +10,18 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
-using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests;
-using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
-using Bicep.IO.FileSystem;
 using Bicep.IO.InMemory;
-using Bicep.IO.Utils;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Telemetry;
+using Bicep.TextFixtures.Dummies;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using static Bicep.Core.UnitTests.Diagnostics.LinterRuleTests.UseRecentApiVersionRuleTests.GetAcceptableApiVersionsInvariantsTests;
 
 namespace Bicep.LangServer.UnitTests.Handlers
 {
@@ -208,7 +201,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             const string ModuleRefStr = "br:example.azurecr.invalid/foo/bar:v3";
 
             var bicepSource = "metadata hi = 'This is the bicep source file'";
-            var sourceArchive = new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).WithBicepFile("main.bicep", bicepSource).Build();
+            var sourceArchive = DummySourceArchive.Create("main.bicep", bicepSource);
 
             var (moduleReference, sourceFileFactory) = CreateMockModuleReferenceAndSourceFactory(ModuleRefStr, sourceArchive, compiledJsonContents);
 
@@ -246,7 +239,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             const string ModuleRefStr = "br:example.azurecr.invalid/foo/bar:v3";
 
             var bicepSource = "metadata hi = 'This is the bicep source file'";
-            var sourceArchive = new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).WithBicepFile("main.bicep", bicepSource).Build();
+            var sourceArchive = DummySourceArchive.Create("main.bicep", bicepSource);
 
             var (moduleReference, sourceFileFactory) = CreateMockModuleReferenceAndSourceFactory(ModuleRefStr, sourceArchive, compiledJsonContents);
 
@@ -322,7 +315,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             var components = OciArtifactAddressComponents.TryParse("myregistry.azurecr.io/myrepo/bicep/module1:v1")
                 .Unwrap();
-            var ext = new ExternalSourceReference(components, new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).Build())
+            var ext = new ExternalSourceReference(components, null)
                 .WithRequestForSourceFile("<cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json");
 
             ext.GetShortTitle().Should().Be("module1:v1 -> storage-account:1.0.1 -> main.json");
@@ -334,7 +327,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             var components = OciArtifactAddressComponents.TryParse("myregistry.azurecr.io/myrepo/bicep/module1:v1")
                 .Unwrap();
-            var ext = new ExternalSourceReference(components, new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).Build())
+            var ext = new ExternalSourceReference(components, null)
                 .WithRequestForSourceFile("subfolder1/subfolder 2/my file.bicep");
 
             ext.GetShortTitle().Should().Be("module1:v1 -> subfolder1>subfolder 2>my file.bicep");
@@ -425,8 +418,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 testData.TagOrDigest[0] == ':' ? testData.TagOrDigest[1..] : null,
                 testData.TagOrDigest[0] == '@' ? testData.TagOrDigest[1..] : null);
 
-            SourceArchive? sourceArchive = entrypointUri is { } ?
-                new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).WithBicepFile(entrypointUri, "metadata description = 'bicep module'").Build()
+            SourceArchive? sourceArchive = entrypointUri is not null
+                ? DummySourceArchive.Create(Path.GetFileName(testData.RelativeEntrypoint!))
                 : null;
 
             return BicepExternalSourceRequestHandler.GetRegistryModuleSourceLinkUri(reference, sourceArchive);

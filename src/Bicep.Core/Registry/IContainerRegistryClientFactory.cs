@@ -13,9 +13,11 @@ namespace Bicep.Core.Registry
     public interface IContainerRegistryClientFactory
     {
         ContainerRegistryContentClient CreateAuthenticatedBlobClient(CloudConfiguration cloud, Uri registryUri, string repository);
+
         ContainerRegistryContentClient CreateAnonymousBlobClient(CloudConfiguration cloud, Uri registryUri, string repository);
 
-        public ContainerRegistryClient CreateAuthenticatedContainerClient(CloudConfiguration cloud, Uri registryUri);
-        public ContainerRegistryClient CreateAnonymousContainerClient(CloudConfiguration cloud, Uri registryUri);
+        ContainerRegistryClient CreateAuthenticatedContainerClient(CloudConfiguration cloud, Uri registryUri);
+
+        ContainerRegistryClient CreateAnonymousContainerClient(CloudConfiguration cloud, Uri registryUri);
     }
 }
