@@ -27,6 +27,22 @@ public class TypeDefinitionBuilder
 
     public TypeSettings Settings { get; }
 
+
+    /// <summary>
+    /// Provides functionality to generate Bicep resource type definitions from .NET types.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The <see cref="TypeDefinitionBuilder"/> inspects resource types provided by an <see cref="ITypeProvider"/>,
+    /// analyzes their public properties and associated <see cref="TypePropertyAttribute"/> metadata,
+    /// and produces a <see cref="TypeDefinition"/> containing serialized type and index metadata
+    /// suitable for Bicep extension consumption.
+    /// </para>
+    /// <para>
+    /// The builder supports primitive types (string, int, bool), arrays, nullable enums, and nested complex types.
+    /// If a property type cannot be mapped to a supported Bicep type, a <see cref="NotImplementedException"/> is thrown.
+    /// </para>
+    /// </remarks>
     public TypeDefinitionBuilder(TypeSettings typeSettings
                             , TypeFactory factory
                             , ITypeProvider typeProvider
@@ -45,6 +61,18 @@ public class TypeDefinitionBuilder
         typeCache = new ConcurrentDictionary<Type, TypeBase>();
     }
 
+    /// <summary>
+    /// Generates Bicep resource type definitions based on the types provided by the <see cref="ITypeProvider"/>.
+    /// This method inspects the resource types, their properties, and associated attributes to produce
+    /// a <see cref="TypeDefinition"/> containing the serialized type and index metadata for use in Bicep extensions.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="TypeDefinition"/> object containing the JSON representations of the resource types and their index.
+    /// </returns>
+    /// <remarks>
+    /// This method will throw a <see cref="NotImplementedException"/> if a property type is encountered that cannot be mapped
+    /// to a supported Bicep type (e.g., unsupported primitives or collections).
+    /// </remarks>
     public virtual TypeDefinition GenerateBicepResourceTypes()
     {
         var resourceTypes = typeProvider.GetResourceTypes()
@@ -79,76 +107,72 @@ public class TypeDefinitionBuilder
         {
             if (visited.Contains(property.PropertyType))
             {
-                // infinite recursion prevention
                 continue;
             }
 
-            var annotation = property.GetCustomAttributes<TypeAnnotationAttribute>(true).FirstOrDefault();
+            var annotation = property.GetCustomAttributes<TypePropertyAttribute>(true).FirstOrDefault();
             var propertyType = property.PropertyType;
 
             TypeBase? typeReference = null;
 
-            if (TryResolveTypeReference(propertyType, annotation, out typeReference)) { }
-            else if (propertyType != typeof(string) && typeof(IEnumerable).IsAssignableFrom(propertyType))// propertyType.IsAssignableTo(typeof(IEnumerable)))
+            if (!TryResolveTypeReference(propertyType, annotation, out typeReference))
             {
-                // protect against infinite recursion
-                visited.Add(property.PropertyType);
-
-                Type? elementType = null;
-                if (propertyType.IsArray)
+                if (propertyType != typeof(string) && typeof(IEnumerable).IsAssignableFrom(propertyType))
                 {
-                    elementType = propertyType.GetElementType();
+                    // protect against infinite recursion
+                    visited.Add(property.PropertyType);
+
+                    Type? elementType = null;
+                    if (propertyType.IsArray)
+                    {
+                        elementType = propertyType.GetElementType();
+                    }
+                    else if (propertyType.IsGenericType &&
+                             propertyType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                    {
+                        elementType = propertyType.GetGenericArguments()[0];
+                    }
+
+                    if (elementType is null)
+                    {
+                        throw new NotImplementedException($"Unsupported collection type {elementType}");
+                    }
+
+                    if (!TryResolveTypeReference(elementType, annotation, out typeReference))
+                    {
+                        typeReference = factory.Create(()
+                             => new ArrayType(factory.GetReference(
+                                                     typeCache.GetOrAdd(elementType
+                                                    , _ => factory.Create(() => GenerateForRecord(factory, typeCache, elementType))))));
+                    }
+                }
+                else if (propertyType.IsClass)
+                {
+                    visited.Add(property.PropertyType);
+
+                    typeReference = typeCache.GetOrAdd(propertyType, _ => factory.Create(() => GenerateForRecord(factory, typeCache, propertyType)));
                 }
                 else if (propertyType.IsGenericType &&
-                         propertyType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                    propertyType.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+                    propertyType.GetGenericArguments()[0] is { IsEnum: true } enumType)
                 {
-                    elementType = propertyType.GetGenericArguments()[0];
-                }
+                    var enumMembers = enumType.GetEnumNames()
+                        .Select(x => factory.Create(() => new StringLiteralType(x)))
+                        .Select(x => factory.GetReference(x))
+                        .ToImmutableArray();
 
-                if (elementType is null)
-                {
-                    throw new NotImplementedException($"Unsupported collection type {elementType}");
+                    typeReference = typeCache.GetOrAdd(propertyType, _ => factory.Create(() => new UnionType(enumMembers)));
                 }
-
-                if (TryResolveTypeReference(elementType, annotation, out typeReference)) { }
                 else
                 {
-                    typeReference = factory.Create(()
-                         => new ArrayType(factory.GetReference(
-                                                 typeCache.GetOrAdd(elementType
-                                                , _ => factory.Create(() => GenerateForRecord(factory, typeCache, elementType))))));
+                    throw new NotImplementedException($"Unsupported property type {propertyType}");
                 }
             }
-            else if (propertyType.IsClass)
-            {
-                // protect against infinite recursion
-                visited.Add(property.PropertyType);
 
-                typeReference = typeCache.GetOrAdd(propertyType, _ => factory.Create(() => GenerateForRecord(factory, typeCache, propertyType)));
-            }
-            else if (propertyType.IsGenericType &&
-                propertyType.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                propertyType.GetGenericArguments()[0] is { IsEnum: true } enumType)
-            {
-                var enumMembers = enumType.GetEnumNames()
-                    .Select(x => factory.Create(() => new StringLiteralType(x)))
-                    .Select(x => factory.GetReference(x))
-                    .ToImmutableArray();
-
-                typeReference = typeCache.GetOrAdd(propertyType, _ => factory.Create(() => new UnionType(enumMembers)));
-            }
-            else
-            {
-                throw new NotImplementedException($"Unsupported property type {propertyType}");
-            }
-
-            if(typeReference is not null)
-            {
-                typeProperties[CamelCase(property.Name)] = new ObjectTypeProperty(
-                factory.GetReference(typeReference),
-                annotation?.Flags ?? ObjectTypePropertyFlags.None,
-                annotation?.Description);
-            }            
+            typeProperties[CamelCase(property.Name)] = new ObjectTypeProperty(
+            factory.GetReference(typeReference),
+            annotation?.Flags ?? ObjectTypePropertyFlags.None,
+            annotation?.Description);
         }
 
         return new ObjectType(
@@ -157,12 +181,12 @@ public class TypeDefinitionBuilder
             null);
     }
 
-    private bool TryResolveTypeReference(Type type, TypeAnnotationAttribute? annotation, [NotNullWhen(true)] out TypeBase? typeReference)
+    private bool TryResolveTypeReference(Type type, TypePropertyAttribute? annotation, [NotNullWhen(true)] out TypeBase? typeReference)
     {
         typeReference = null;
         if (type == typeof(string) && annotation?.IsSecure == true)
         {
-            typeReference = factory.Create(() => new StringType(sensitive: true));
+            typeReference = typeCache.GetOrAdd(type, _ => factory.Create(() => new StringType(sensitive: true)));
         }
         else if (typeToTypeBaseMap.TryGetValue(type, out var typeFunc))
         {

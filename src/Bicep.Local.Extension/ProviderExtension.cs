@@ -23,9 +23,6 @@ public abstract class ProviderExtension
 
         [Option("wait-for-debugger", Required = false, HelpText = "If set, wait for a dotnet debugger to be attached before starting the server")]
         public bool WaitForDebugger { get; set; }
-
-        [Option("describe", Required = false, HelpText = "Get the type definition meta data for the extension. Does not run the extension. This option supersedes others")]
-        public bool Describe { get; set; }
     }
 
     public static async Task Run(ProviderExtension extension, Action<ResourceDispatcherBuilder> registerHandlers, string[] args)
