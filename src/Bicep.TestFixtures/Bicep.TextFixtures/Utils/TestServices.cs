@@ -104,6 +104,6 @@ namespace Bicep.TextFixtures.Utils
             return this;
         }
 
-        public T Get<T>() where T: notnull => (this.serviceProvider ?? throw new InvalidOperationException("Service provider is not built. Call Build() first.")).GetRequiredService<T>();
+        public T Get<T>() where T : notnull => (this.serviceProvider ?? throw new InvalidOperationException("Service provider is not built. Call Build() first.")).GetRequiredService<T>();
     }
 }

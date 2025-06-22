@@ -211,7 +211,7 @@ namespace Bicep.Core.IntegrationTests
                 ("files/modules/local2.bicep", SampleData.BicepLocalModule2Text),
                 ("files/modules/arm-templates/arm-template.json", SampleData.ArmTemplateModuleText),
                 ("files/_cache_/br/mockregistry.io/test$module1/v1$/main.json", bicepRegistryModule1Template.ToString(Newtonsoft.Json.Formatting.Indented)),
-                ("files/_cache_/br/mockregistry.io/test$module2/v2$/main.json", bicepRegistryModule2Template.ToString(Newtonsoft.Json.Formatting.Indented))); 
+                ("files/_cache_/br/mockregistry.io/test$module2/v2$/main.json", bicepRegistryModule2Template.ToString(Newtonsoft.Json.Formatting.Indented)));
         }
 
         [TestMethod]
