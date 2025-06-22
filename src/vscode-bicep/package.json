@@ -750,7 +750,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.22.0",
-    "@ianvs/prettier-plugin-sort-imports": "^4.4.1",
+    "@ianvs/prettier-plugin-sort-imports": "^4.4.2",
     "@types/cytoscape": "^3.21.7",
     "@types/fs-extra": "^11.0.4",
     "@types/jest": "^29.5.13",
