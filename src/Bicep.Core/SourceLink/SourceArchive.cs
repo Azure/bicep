@@ -290,7 +290,7 @@ namespace Bicep.Core.SourceLink
             return distinctRootUris;
         }
 
-        private static string GetArchivedPath(string path) 
+        private static string GetArchivedPath(string path)
         {
             path = $"files/{ReplaceForbiddenPathCharacters(path)}";
 
