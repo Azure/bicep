@@ -4,7 +4,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.29.0",
-    "@types/jest": "^29.5.14",
+    "@types/jest": "^30.0.0",
     "@types/node": "^22.15.30",
     "@types/plist": "^3.0.5",
     "@typescript-eslint/eslint-plugin": "^8.33.1",
@@ -18,7 +18,7 @@
     "eslint-plugin-prettier": "^5.5.0",
     "globals": "^16.2.0",
     "highlight.js": "^11.11.1",
-    "jest": "^29.7.0",
+    "jest": "^30.0.2",
     "ts-jest": "^29.4.0",
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
