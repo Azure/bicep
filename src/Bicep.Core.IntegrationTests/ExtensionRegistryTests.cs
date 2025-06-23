@@ -10,7 +10,6 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
-using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.TextFixtures.Assertions;
 using Bicep.TextFixtures.Utils;
@@ -440,8 +439,7 @@ output joke string = dadJoke.joke
 
             extension 'br:example.azurecr.io/extensions/foo:1.2.3' with {
               namespace: 'ThirdPartyNamespace'
-              config: 'Some path to config file'
-            }
+            } as fooExt
 
             resource dadJoke 'fooType@v1' = {
               identifier: 'foo'
@@ -454,14 +452,11 @@ output joke string = dadJoke.joke
             """
             using 'main.bicep'
 
-            extension ThirdPartyExtension with {
-              namespace: 'paramsFileNs'
+            extensionConfig fooExt with {
               config: 'paramsFileConfig'
               context: 'paramsFileContext'
             }
             """);
-
-        // TODO(kylealbert): update bicep params file config when required property handling is implemented between template and params file.
 
         result.Should().NotHaveAnyDiagnostics();
 
@@ -471,7 +466,7 @@ output joke string = dadJoke.joke
 
         template.Should()
             .HaveValueAtPath(
-                "$.extensions['ThirdPartyExtension']", JObject.Parse(
+                "$.extensions['fooExt']", JObject.Parse(
                     """
                     {
                       "name": "ThirdPartyExtension",
@@ -479,9 +474,6 @@ output joke string = dadJoke.joke
                       "config": {
                         "namespace": {
                           "defaultValue": "ThirdPartyNamespace"
-                        },
-                        "config": {
-                          "defaultValue": "Some path to config file"
                         }
                       }
                     }
@@ -492,12 +484,9 @@ output joke string = dadJoke.joke
 
         parameters.Should()
             .HaveValueAtPath(
-                "$.extensionConfigs['ThirdPartyExtension']", JObject.Parse(
+                "$.extensionConfigs['fooExt']", JObject.Parse(
                     """
                     {
-                      "namespace": {
-                        "value": "paramsFileNs"
-                      },
                       "config": {
                         "value": "paramsFileConfig"
                       },
