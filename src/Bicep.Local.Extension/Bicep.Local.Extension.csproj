@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Azure.Bicep.Local.Extension</AssemblyName>
     <RootNamespace>Bicep.Local.Extension</RootNamespace>
@@ -27,9 +27,5 @@
 
   <ItemGroup>
     <PackageReference Update="Nerdbank.GitVersioning" Version="3.7.112" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Host\" />
   </ItemGroup>
 </Project>
