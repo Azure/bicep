@@ -2,13 +2,14 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Features;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parsing
 {
     public class ParamsParser : BaseParser
     {
-        public ParamsParser(string text) : base(text)
+        public ParamsParser(string text, IFeatureProvider featureProvider) : base(text, featureProvider)
         {
         }
 
@@ -63,10 +64,10 @@ namespace Bicep.Core.Parsing
                             LanguageConstants.ImportKeyword => this.CompileTimeImportDeclaration(ExpectKeyword(LanguageConstants.ImportKeyword), leadingNodes),
                             LanguageConstants.ExtensionConfigKeyword => this.ExtensionConfigAssignment(leadingNodes),
                             LanguageConstants.TypeKeyword => this.TypeDeclaration(leadingNodes),
-                            _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration()),
+                            _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration(featureProvider.ModuleExtensionConfigsEnabled)),
                         },
                         TokenType.NewLine => this.NewLine(),
-                        _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration()),
+                        _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration(featureProvider.ModuleExtensionConfigsEnabled)),
                     };
 
                     string? ValidateKeyword(string keyword) =>

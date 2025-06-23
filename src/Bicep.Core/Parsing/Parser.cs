@@ -1,12 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Immutable;
+using Bicep.Core.Features;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parsing
 {
-    public class Parser(string text) : BaseParser(text)
+    public class Parser(string text, IFeatureProvider featureProvider) : BaseParser(text, featureProvider)
     {
         public override ProgramSyntax Program()
         {

@@ -974,7 +974,7 @@ namespace Bicep.Core.TypeSystem
                 {
                     if (!features.ModuleExtensionConfigsEnabled)
                     {
-                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedParamsFileDeclaration());
+                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedParamsFileDeclaration(false));
                     }
 
                     if (binder.GetSymbolInfo(syntax) is not ExtensionConfigAssignmentSymbol configAssignmentSymbol)

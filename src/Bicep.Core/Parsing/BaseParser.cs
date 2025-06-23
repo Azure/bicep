@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Globalization;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 
@@ -15,7 +16,9 @@ namespace Bicep.Core.Parsing
     {
         protected readonly TokenReader reader;
 
-        protected BaseParser(string text)
+        protected readonly IFeatureProvider featureProvider;
+
+        protected BaseParser(string text, IFeatureProvider featureProvider)
         {
             // treating the lexer as an implementation detail of the parser
             var lexingErrorTree = new DiagnosticTree();
@@ -26,6 +29,8 @@ namespace Bicep.Core.Parsing
 
             this.ParsingErrorTree = new DiagnosticTree();
             this.LexingErrorLookup = lexingErrorTree;
+
+            this.featureProvider = featureProvider;
         }
 
         protected DiagnosticTree ParsingErrorTree { get; }

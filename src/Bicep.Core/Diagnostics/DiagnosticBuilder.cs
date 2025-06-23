@@ -1573,7 +1573,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP335",
                 $"The provided value can have a length as large as {sourceMaxLength} and may be too long to assign to a target with a configured maximum length of {targetMaxLength}.");
 
-            public Diagnostic UnrecognizedParamsFileDeclaration()
+            public Diagnostic UnrecognizedParamsFileDeclaration(bool moduleExtensionConfigsEnabled)
             {
                 List<string> supportedDeclarations = [
                     LanguageConstants.UsingKeyword,
@@ -1582,6 +1582,11 @@ namespace Bicep.Core.Diagnostics
                     LanguageConstants.VariableKeyword,
                     LanguageConstants.TypeKeyword,
                 ];
+
+                if (moduleExtensionConfigsEnabled)
+                {
+                    supportedDeclarations.Add(LanguageConstants.ExtensionConfigKeyword);
+                }
 
                 return CoreError(
                     "BCP337",
