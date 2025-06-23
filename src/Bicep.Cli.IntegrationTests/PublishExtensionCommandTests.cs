@@ -52,7 +52,7 @@ public class PublishExtensionCommandTests : TestBase
         // verify the extension was published
         fakeBlobClient.Should().HaveExtension(version, out var tgzStream);
 
-        var typeLoader = OciTypeLoader.FromStream(tgzStream);
+        var typeLoader = ArchivedTypeLoader.FromStream(tgzStream);
         var azTypeLoader = new AzResourceTypeLoader(typeLoader);
 
         // verify the index works
@@ -76,7 +76,7 @@ public class PublishExtensionCommandTests : TestBase
         // verify the extension was published
         fakeBlobClient.Should().HaveExtension(version, out var tgzStream2);
 
-        var typeLoader2 = OciTypeLoader.FromStream(tgzStream2);
+        var typeLoader2 = ArchivedTypeLoader.FromStream(tgzStream2);
         var azTypeLoader2 = new AzResourceTypeLoader(typeLoader2);
 
         // verify the index works

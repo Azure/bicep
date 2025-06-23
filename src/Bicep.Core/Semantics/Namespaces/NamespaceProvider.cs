@@ -170,12 +170,12 @@ public class NamespaceProvider : INamespaceProvider
 
     private ResultWithDiagnosticBuilder<NamespaceType> GetNamespaceTypeForArtifact(ArtifactResolutionInfo artifact, BicepSourceFile sourceFile, ResourceScope targetScope, string? aliasName)
     {
-        if (!artifact.Result.IsSuccess(out var typesTgzUri, out var errorBuilder))
+        if (!artifact.Result.IsSuccess(out var typesTgzFileHandle, out var errorBuilder))
         {
             return new(errorBuilder);
         }
 
-        if (!resourceTypeProviderFactory.GetResourceTypeProvider(artifact.Reference, typesTgzUri).IsSuccess(out var typeProvider, out errorBuilder))
+        if (!resourceTypeProviderFactory.GetResourceTypeProvider(typesTgzFileHandle).IsSuccess(out var typeProvider, out errorBuilder))
         {
             return new(errorBuilder);
         }

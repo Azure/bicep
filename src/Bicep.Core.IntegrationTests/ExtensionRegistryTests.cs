@@ -12,6 +12,9 @@ using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.TextFixtures.Assertions;
+using Bicep.TextFixtures.Utils;
+using Bicep.TextFixtures.Utils.IO;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -164,14 +167,13 @@ resource fooRes 'fooType@v1' = {
     public async Task Missing_extension_file_raises_a_diagnostic()
     {
         // See https://github.com/Azure/bicep/issues/14770 for context
-        var result = await CompilationHelper.RestoreAndCompile(
-          ("main.bicep", new("""
-extension './non_existent.tgz'
-""")));
+        var result = await new TestCompiler().RestoreAndCompileMockFileSystemFiles(
+            ("main.bicep", new("""
+                extension './non_existent.tgz'
+                """)));
 
-        var sourceUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
         result.Should().HaveDiagnostics([
-            ("BCP093", DiagnosticLevel.Error, $"File path \"./non_existent.tgz\" could not be resolved relative to \"{sourceUri.LocalPath}\"."),
+            ("BCP091", DiagnosticLevel.Error, $"An error occurred reading file. Could not find file '{TestFileUri.FromMockFileSystemPath("./non_existent.tgz")}'."),
         ]);
     }
 
@@ -179,20 +181,21 @@ extension './non_existent.tgz'
     public async Task Missing_extension_file_raises_a_diagnostic_bicepconfig()
     {
         // See https://github.com/Azure/bicep/issues/14770 for context
-        var result = await CompilationHelper.RestoreAndCompile(
-          ("main.bicep", new("""
-extension nonExistent
-""")), ("../bicepconfig.json", new("""
-{
-  "extensions": {
-    "nonExistent": "./non_existent.tgz"
-  }
-}
-""")));
+        var result = await new TestCompiler().RestoreAndCompileMockFileSystemFiles(
+            ("main.bicep", """
+                  extension nonExistent
+                  """),
+            ("../bicepconfig.json", """
+                  {
+                    "extensions": {
+                      "nonExistent": "./non_existent.tgz"
+                    }
+                  }
+                  """));
 
-        var sourceUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
+        //var sourceUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
         result.Should().HaveDiagnostics([
-            ("BCP093", DiagnosticLevel.Error, $"File path \"../non_existent.tgz\" could not be resolved relative to \"{sourceUri.LocalPath}\"."),
+            ("BCP091", DiagnosticLevel.Error, $"An error occurred reading file. Could not find file '{TestFileUri.FromMockFileSystemPath("../non_existent.tgz")}'."),
         ]);
     }
 

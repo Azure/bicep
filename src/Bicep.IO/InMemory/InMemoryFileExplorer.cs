@@ -15,11 +15,11 @@ namespace Bicep.IO.InMemory
     {
         private readonly FileStore fileStore = new();
 
-        public IDirectoryHandle GetDirectory(IOUri uri) => new InMemoryDirectoryHandle(this.fileStore, EnsureInLocalFileUri(uri));
+        public IDirectoryHandle GetDirectory(IOUri uri) => new InMemoryDirectoryHandle(this.fileStore, EnsureLocalFileUri(uri));
 
-        public IFileHandle GetFile(IOUri uri) => new InMemoryFileHandle(this.fileStore, EnsureInLocalFileUri(uri));
+        public IFileHandle GetFile(IOUri uri) => new InMemoryFileHandle(this.fileStore, EnsureLocalFileUri(uri));
 
-        private static IOUri EnsureInLocalFileUri(IOUri uri)
+        private static IOUri EnsureLocalFileUri(IOUri uri)
         {
             if (!uri.IsLocalFile)
             {

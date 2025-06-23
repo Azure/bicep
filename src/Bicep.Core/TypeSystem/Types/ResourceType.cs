@@ -20,7 +20,7 @@ namespace Bicep.Core.TypeSystem.Types
             var identifierProperties = this.Body switch
             {
                 ObjectType objectType => objectType.Properties.Values.Where(IsResourceIdentifier),
-                DiscriminatedObjectType discriminatedObjectType => 
+                DiscriminatedObjectType discriminatedObjectType =>
                     discriminatedObjectType.UnionMembersByKey.Values.SelectMany(x => x.Properties.Values.Where(IsResourceIdentifier)),
                 _ => [],
             };

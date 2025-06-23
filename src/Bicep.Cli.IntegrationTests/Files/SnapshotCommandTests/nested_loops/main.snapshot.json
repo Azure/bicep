@@ -1,0 +1,20 @@
+{
+  "predictedResources": [
+    {
+      "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg/providers/Microsoft.KeyVault/vaults/myVault",
+      "type": "Microsoft.KeyVault/vaults",
+      "name": "myVault",
+      "apiVersion": "2019-09-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "accessPolicies": [],
+        "sku": {
+          "family": "A",
+          "name": "standard"
+        },
+        "tenantId": "[tenant().tenantId]"
+      }
+    }
+  ],
+  "diagnostics": []
+}

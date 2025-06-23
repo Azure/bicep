@@ -12,6 +12,7 @@ using Azure.Bicep.Types.Serialization;
 using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
+using Bicep.IO.Utils;
 
 namespace Bicep.Core.Registry.Extensions;
 
@@ -20,13 +21,10 @@ public static class TypesV1Archive
     public static async Task<BinaryData> GenerateExtensionTarStream(IFileSystem fileSystem, string indexJsonPath)
     {
         using var stream = new MemoryStream();
-
-        using (var gzStream = new GZipStream(stream, CompressionMode.Compress, leaveOpen: true))
+        using (var tgzWriter = new TgzWriter(stream, leaveOpen: true))
         {
-            using var tarWriter = new TarWriter(gzStream, leaveOpen: true);
-
             var indexJson = await fileSystem.File.ReadAllTextAsync(indexJsonPath);
-            await AddFileToTar(tarWriter, "index.json", indexJson);
+            await tgzWriter.WriteEntryAsync("index.json", indexJson);
 
             var indexJsonParentPath = Path.GetDirectoryName(indexJsonPath);
             var uniqueTypePaths = GetAllUniqueTypePaths(indexJsonPath, fileSystem);
@@ -35,23 +33,13 @@ public static class TypesV1Archive
             {
                 var absolutePath = Path.Combine(indexJsonParentPath!, relativePath);
                 var typesJson = await fileSystem.File.ReadAllTextAsync(absolutePath);
-                await AddFileToTar(tarWriter, relativePath, typesJson);
+                await tgzWriter.WriteEntryAsync(relativePath, typesJson);
             }
         }
 
         stream.Seek(0, SeekOrigin.Begin);
 
         return BinaryData.FromStream(stream);
-    }
-
-    private static async Task AddFileToTar(TarWriter tarWriter, string archivePath, string contents)
-    {
-        var tarEntry = new PaxTarEntry(TarEntryType.RegularFile, archivePath)
-        {
-            DataStream = new MemoryStream(Encoding.UTF8.GetBytes(contents))
-        };
-
-        await tarWriter.WriteEntryAsync(tarEntry);
     }
 
     private static IEnumerable<string> GetAllUniqueTypePaths(string pathToIndex, IFileSystem fileSystem)

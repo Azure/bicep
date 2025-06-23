@@ -113,7 +113,7 @@ public class BicepCompiler
                 if (artifact.Syntax is not null and not ExtensionDeclarationSyntax &&
                     DiagnosticForModule(grouping, artifact.Syntax) is { } diagnostic)
                 {
-                    yield return (artifact.Origin, diagnostic);
+                    yield return (artifact.ReferencingFile, diagnostic);
                 }
             }
         }

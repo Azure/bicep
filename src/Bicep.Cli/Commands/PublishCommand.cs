@@ -81,7 +81,7 @@ namespace Bicep.Cli.Commands
             SourceArchive? sourceArchive = null;
             if (publishSource)
             {
-                sourceArchive = SourceArchive.CreateFor(compilation.SourceFileGrouping);
+                sourceArchive = SourceArchive.CreateFrom(compilation.SourceFileGrouping);
                 Trace.WriteLine("Publishing Bicep module with source");
             }
 

@@ -20,6 +20,6 @@ namespace Bicep.Core.SourceLink
 
         // NOTE: Only change this value if there is a breaking change such that old versions of Bicep should fail on reading new source archives
         public const int CurrentMetadataVersion = 1;
-        public static readonly string CurrentBicepVersion = ThisAssembly.AssemblyVersion;
+        public static readonly string CurrentBicepVersion = ThisAssembly.AssemblyFileVersion;
     }
 }

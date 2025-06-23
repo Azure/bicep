@@ -25,6 +25,8 @@ namespace Bicep.IO.FileSystem
 
         public IFileHandle EnsureExists()
         {
+            this.GetParent().EnsureExists();
+
             using (this.FileSystem.File.Open(this.FilePath, FileMode.Append, FileAccess.Write))
             {
             }
@@ -64,7 +66,7 @@ namespace Bicep.IO.FileSystem
         {
             if (uri.Path.EndsWith('/'))
             {
-                throw new ArgumentException("File path must not end with a slash.", nameof(uri));
+                throw new IOException($"File path '{uri}' must not end with a slash.");
             }
 
             return uri;

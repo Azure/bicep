@@ -16,6 +16,8 @@ using Bicep.Core.SourceLink;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
+using Bicep.IO.InMemory;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Registry;
 using FluentAssertions;
@@ -183,11 +185,6 @@ namespace Bicep.LangServer.IntegrationTests.Registry
                 return Task.FromResult<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>>(new Dictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>());
             }
 
-            public ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference _)
-            {
-                throw new NotImplementedException();
-            }
-
             public string? GetDocumentationUri(ArtifactReference _) => null;
 
             public Task<string?> TryGetModuleDescription(ModuleSymbol module, ArtifactReference _) => Task.FromResult<string?>(null);
@@ -197,9 +194,6 @@ namespace Bicep.LangServer.IntegrationTests.Registry
                 return new(new MockArtifactRef(referencingFile, reference));
             }
 
-            public ResultWithException<SourceArchive> TryGetSource(ArtifactReference artifactReference) => new(new SourceNotAvailableException());
-
-            public Uri? TryGetExtensionBinary(ArtifactReference reference) => null;
             public Task OnRestoreArtifacts(bool forceRestore) => Task.CompletedTask;
         }
 
@@ -216,6 +210,8 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             public override string UnqualifiedReference => this.Value;
 
             public override bool IsExternal => true;
+
+            public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle() => new(DummyFileHandle.Instance);
         }
 
         private class MockArtifactRegistryProvider(IEnumerable<IArtifactRegistry> registries) : ArtifactRegistryProvider(registries)

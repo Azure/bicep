@@ -15,6 +15,7 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.Core.SourceGraph
@@ -81,7 +82,7 @@ namespace Bicep.Core.SourceGraph
             foreach (var (syntax, artifact) in current.ArtifactLookup.Where(x => SourceFileGrouping.ShouldRestore(x.Value)))
             {
                 builder.artifactLookup.Remove(syntax);
-                sourceFilesRequiringRestore.Add(artifact.Origin);
+                sourceFilesRequiringRestore.Add(artifact.ReferencingFile);
             }
 
             foreach (var (file, extensions) in current.ImplicitExtensions)
@@ -212,11 +213,13 @@ namespace Bicep.Core.SourceGraph
 
                 var resolutionInfo = GetArtifactRestoreResult(file, restorable);
                 artifactLookup[restorable] = resolutionInfo;
-                if (!resolutionInfo.Result.IsSuccess(out var artifactUri))
+                if (!resolutionInfo.Result.IsSuccess(out var artifactFileHandle))
                 {
                     // recursion not possible
                     continue;
                 }
+
+                var artifactUri = artifactFileHandle.Uri.ToUri();
 
                 // recurse into child modules, to ensure we have an exhaustive list of restorable artifacts for the full compilation
                 if (!fileResultByUri.TryGetValue(artifactUri, out var childResult) ||
@@ -264,9 +267,9 @@ namespace Bicep.Core.SourceGraph
             return new(referencingFile, referenceSyntax, artifactReference, result, RequiresRestore: requiresRestore);
         }
 
-        private (ResultWithDiagnosticBuilder<Uri> result, bool requiresRestore) GetArtifactRestoreResult(ArtifactReference artifactReference)
+        private (ResultWithDiagnosticBuilder<IFileHandle> result, bool requiresRestore) GetArtifactRestoreResult(ArtifactReference artifactReference)
         {
-            if (!dispatcher.TryGetLocalArtifactEntryPointUri(artifactReference).IsSuccess(out var artifactFileUri, out var artifactGetPathFailureBuilder))
+            if (!dispatcher.TryGetLocalArtifactEntryPointFileHandle(artifactReference).IsSuccess(out var artifactFileHandle, out var artifactGetPathFailureBuilder))
             {
                 // invalid artifact reference - exit early to show the user the diagnostic
                 return (new(artifactGetPathFailureBuilder), requiresRestore: false);
@@ -293,7 +296,7 @@ namespace Bicep.Core.SourceGraph
                     break;
             }
 
-            return (new(artifactFileUri), requiresRestore: false);
+            return (new(artifactFileHandle), requiresRestore: false);
         }
 
         private ILookup<ISourceFile, ISourceFile> ReportFailuresForCycles()
@@ -304,7 +307,7 @@ namespace Bicep.Core.SourceGraph
                 .SelectMany(sourceFile => GetArtifactReferenceDeclarations(sourceFile)
                     .Select(x => this.artifactLookup.TryGetValue(x)?.Result.TryUnwrap())
                     .WhereNotNull()
-                    .Select(uri => this.fileResultByUri.TryGetValue(uri)?.TryUnwrap())
+                    .Select(fileHandle => this.fileResultByUri.TryGetValue(fileHandle.Uri.ToUri())?.TryUnwrap())
                     .WhereNotNull()
                     .Distinct()
                     .Select(referencedFile => (sourceFile, referencedFile)))
@@ -314,11 +317,11 @@ namespace Bicep.Core.SourceGraph
             foreach (var (statement, info) in artifactLookup)
             {
                 if (statement.GetArtifactType() == ArtifactType.Module &&
-                    info.Result.IsSuccess(out var fileUri) &&
-                    fileResultByUri[fileUri].IsSuccess(out var sourceFile) &&
+                    info.Result.IsSuccess(out var fileHandle) &&
+                    fileResultByUri[fileHandle.Uri.ToUri()].IsSuccess(out var sourceFile) &&
                     cycles.TryGetValue(sourceFile, out var cycle))
                 {
-                    ResultWithDiagnosticBuilder<Uri> result = cycle switch
+                    ResultWithDiagnosticBuilder<IFileHandle> result = cycle switch
                     {
                         { Length: 1 } when cycle[0] is BicepParamFile paramFile => new(x => x.CyclicParametersSelfReference()),
                         { Length: 1 } => new(x => x.CyclicModuleSelfReference()),

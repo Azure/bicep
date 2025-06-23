@@ -105,5 +105,11 @@ namespace Bicep.Core.Syntax
                 ArrayAccessSyntax arrayAccess => (arrayAccess.BaseExpression, arrayAccess.IndexExpression),
                 _ => (syntax, null),
             };
+
+        public static SyntaxBase UnwrapNonNullAssertion(SyntaxBase syntax) => syntax switch
+        {
+            NonNullAssertionSyntax nonNullAssertion => UnwrapNonNullAssertion(nonNullAssertion.BaseExpression),
+            _ => syntax,
+        };
     }
 }
