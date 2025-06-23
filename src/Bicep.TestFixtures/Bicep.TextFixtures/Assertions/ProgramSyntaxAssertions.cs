@@ -33,7 +33,7 @@ namespace Bicep.TextFixtures.Assertions
 
             syntaxErrors.Should().BeEmpty(because, becauseArgs);
 
-            return new(this); 
+            return new(this);
         }
     }
 }

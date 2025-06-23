@@ -18,8 +18,8 @@ namespace Bicep.TextFixtures.Fakes.ContainerRegistry
         public record ManifestEntry(string Digest, BinaryData Data);
 
         private readonly ConcurrentDictionary<string, BlobEntry> blobsByDigest = [];
-        private readonly ConcurrentDictionary<string, ManifestEntry> manifestsByDigest  = [];
-        private readonly ConcurrentDictionary<string, string> manifestDigestsByTag  = [];
+        private readonly ConcurrentDictionary<string, ManifestEntry> manifestsByDigest = [];
+        private readonly ConcurrentDictionary<string, string> manifestDigestsByTag = [];
 
         public FakeContainerRepository(FakeContainerRegistry registry, string name)
             : base()
