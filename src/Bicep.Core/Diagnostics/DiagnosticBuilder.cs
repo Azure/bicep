@@ -1929,6 +1929,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic ExtensionAliasMustBeDefinedForInlinedRegistryExtensionDeclaration() => CoreError(
                 "BCP423",
                 "An extension alias must be defined for an extension declaration with an inlined registry reference.");
+
+            public Diagnostic ExtensionConfigAssignmentMustNotBeEmpty() => CoreError(
+                "BCP424",
+                "An extension configuration assignment must not be empty.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

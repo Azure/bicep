@@ -871,6 +871,41 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
         }
 
+        [DataTestMethod]
+        [DataRow(
+            "RequiredAssignmentMissing",
+            "",
+            "extension kubernetes as k8s",
+            "TODO",
+            "TODO")]
+        [DataRow(
+            "AssignmentEmpty",
+            "extensionConfig k8s with {}",
+            "extension kubernetes with { kubeConfig: 'templateKubeConfig', namespace: 'templateNs' } as k8s",
+            "BCP424",
+            "An extension configuration assignment must not be empty.")]
+        public async Task Invalid_extension_config_assignments_should_raise_error_diagnostic(string scenario, string paramsFileExtensionConfigAssignment, string bicepFileExtensionDeclaration, string expectedDiagnosticCode, string expectedDiagnosticMessage)
+        {
+            var paramsUri = new Uri("file:///main.bicepparam");
+            var mainUri = new Uri("file:///main.bicep");
+
+            var files = new Dictionary<Uri, string>
+            {
+                [paramsUri] =
+                    $$"""
+                      using 'main.bicep'
+
+                      {{paramsFileExtensionConfigAssignment}}
+                      """,
+                [mainUri] = bicepFileExtensionDeclaration
+            };
+
+            var services = CreateServiceBuilder(moduleExtensionConfigsEnabled: true);
+            var compilation = await services.BuildCompilationWithRestore(files, paramsUri);
+
+            compilation.Should().ContainSingleDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
+        }
+
         private ServiceBuilder CreateServiceBuilder(bool moduleExtensionConfigsEnabled = false) =>
             new ServiceBuilder()
                 .WithConfigurationPatch(

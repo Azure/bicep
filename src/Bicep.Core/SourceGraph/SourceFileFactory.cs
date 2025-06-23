@@ -10,7 +10,6 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
-using Bicep.Core.SourceGraph;
 using Bicep.Core.Text;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
@@ -91,7 +90,7 @@ namespace Bicep.Core.SourceGraph
 
         public BicepParamFile CreateBicepParamFile(Uri fileUri, string fileContents)
         {
-            var parser = new ParamsParser(fileContents);
+            var parser = new ParamsParser(fileContents, this.featureProviderFactory.GetFeatureProvider(fileUri));
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
             var fileHandle = this.fileExplorer.GetFile(fileUri.ToIOUri());
 

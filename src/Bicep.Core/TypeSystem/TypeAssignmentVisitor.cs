@@ -997,7 +997,14 @@ namespace Bicep.Core.TypeSystem
 
                     if (syntax.Config is not null)
                     {
-                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Config, moduleAwareExtConfigType, false);
+                        if (!syntax.Config.Properties.Any())
+                        {
+                            diagnostics.Write(syntax.Config, x => x.ExtensionConfigAssignmentMustNotBeEmpty());
+                        }
+                        else
+                        {
+                            TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Config, moduleAwareExtConfigType, false);
+                        }
                     }
                     else if (syntax.WithClause.IsSkipped)
                     {

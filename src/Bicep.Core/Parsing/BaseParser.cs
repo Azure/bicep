@@ -16,9 +16,9 @@ namespace Bicep.Core.Parsing
     {
         protected readonly TokenReader reader;
 
-        protected readonly IFeatureProvider featureProvider;
+        protected readonly IFeatureProvider? featureProvider;
 
-        protected BaseParser(string text, IFeatureProvider featureProvider)
+        protected BaseParser(string text, IFeatureProvider? featureProvider)
         {
             // treating the lexer as an implementation detail of the parser
             var lexingErrorTree = new DiagnosticTree();

@@ -2,13 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using Bicep.Core.Features;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parsing
 {
-    public class Parser(string text, IFeatureProvider featureProvider) : BaseParser(text, featureProvider)
+    public class Parser(string text) : BaseParser(text, null)
     {
         public override ProgramSyntax Program()
         {
