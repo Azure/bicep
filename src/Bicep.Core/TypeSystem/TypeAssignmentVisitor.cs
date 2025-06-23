@@ -1004,8 +1004,6 @@ namespace Bicep.Core.TypeSystem
                         var isConfigurationRequired = moduleAwareExtConfigType switch
                         {
                             ObjectType moduleAwareExtConfigObjType => moduleAwareExtConfigObjType.Properties.Values.Any(p => p.Flags.HasFlag(TypePropertyFlags.Required)),
-                            // TODO(kylealbert): handle discrim object type
-                            DiscriminatedObjectType => true,
                             _ => true
                         };
 
