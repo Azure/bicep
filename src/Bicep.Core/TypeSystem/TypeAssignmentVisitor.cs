@@ -909,6 +909,11 @@ namespace Bicep.Core.TypeSystem
                     return namespaceSymbol.DeclaredType as ErrorType ?? ErrorType.Empty();
                 }
 
+                if (features.ModuleExtensionConfigsEnabled && syntax.Path is not null && syntax.TryGetAliasFromAsClause() is null)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ExtensionAliasMustBeDefinedForInlinedRegistryExtensionDeclaration());
+                }
+
                 this.ValidateDecorators(syntax.Decorators, namespaceType, diagnostics);
 
                 if (syntax.Config is not null)

@@ -16,7 +16,6 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.IO.Abstraction;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Diagnostics
 {
@@ -1921,6 +1920,10 @@ namespace Bicep.Core.Diagnostics
                 $"A resource of type \"{baseType}\" may or may not exist when this function is called, which could cause the deployment to fail.")
                 with
             { Fixes = [AsNonNullable(expression)] };
+
+            public Diagnostic ExtensionAliasMustBeDefinedForInlinedRegistryExtensionDeclaration() => CoreError(
+                "BCP423",
+                "An extension alias must be defined for an extension declaration with an inlined registry reference.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
