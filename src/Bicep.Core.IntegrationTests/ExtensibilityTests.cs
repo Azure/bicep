@@ -543,7 +543,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 
                       extension kubernetes as k8s
 
-                      extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3'
+                      extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
 
                       resource kv 'Microsoft.KeyVault/vaults@2021-06-01-preview' existing = {
                         name: 'kv'
