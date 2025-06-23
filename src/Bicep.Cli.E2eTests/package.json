@@ -16,7 +16,7 @@
     "prettier": "^3.5.3",
     "rimraf": "^6.0.1",
     "typescript": "~5.8.3",
-    "typescript-eslint": "^8.34.0",
+    "typescript-eslint": "^8.34.1",
     "uuid": "^11.1.0",
     "vitest": "^3.0.9",
     "vscode-jsonrpc": "^8.2.1"
