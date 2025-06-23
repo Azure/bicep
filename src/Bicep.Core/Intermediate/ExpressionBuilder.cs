@@ -1050,6 +1050,10 @@ public class ExpressionBuilder
                 propertyAccess,
                 ConvertWithoutLowering(propertyAccess.BaseExpression),
                 propertyAccess.PropertyName.IdentifierName,
+                IsSecureOutput: TypeHelper.SatisfiesCondition(
+                    Context.SemanticModel.GetTypeInfo(childPropertyAccess.BaseExpression),
+                    x => (x as ModuleType)?.TryGetOutputType(propertyAccess.PropertyName.IdentifierName) is { } outputType &&
+                        TypeHelper.IsOrContainsSecureType(outputType)),
                 flags);
         }
 
