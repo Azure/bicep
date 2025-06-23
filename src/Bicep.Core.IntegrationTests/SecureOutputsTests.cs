@@ -223,8 +223,8 @@ public class SecureOutputsTests
         // Verify referencing secure output will be translated to listOutputsWithSecureValues function
         result.Template.Should().HaveValueAtPath("$.outputs['outputSecureVal'].value", "[listOutputsWithSecureValues('secureOuputs', '2022-09-01').secureOutput]");
 
-        // Verify referencing normal value from a deployment which contains secure outputs will be translated to listOutputsWithSecureValues function
-        result.Template.Should().HaveValueAtPath("$.outputs['outputNormalVal'].value", "[listOutputsWithSecureValues('secureOuputs', '2022-09-01').normalOutput]");
+        // Verify referencing normal value from a deployment which contains secure outputs will be translated to reference function
+        result.Template.Should().HaveValueAtPath("$.outputs['outputNormalVal'].value", "[reference('secureOuputs').outputs.normalOutput.value]");
 
         // Verify referencing normal value from a deployment which does NOT contain any secure outputs will be translated to normal reference function
         result.Template.Should().HaveValueAtPath("$.outputs['outputNormalVal2'].value", "[reference('noSecureOutput').outputs.normalOutput.value]");
@@ -297,5 +297,51 @@ public class SecureOutputsTests
             ")
         );
         result.Template?.Root.ToString().Should().Contain("\"languageVersion\": \"2.0\"");
+    }
+
+    [TestMethod]
+    public void Non_sensitive_outputs_of_module_with_secure_outputs_should_use_reference_function()
+    {
+        var result = CompilationHelper.Compile(
+            ("mod.bicep", """
+                @secure()
+                output sensitive string = 'foo'
+
+                output notSensitive string = 'bar'
+                """),
+            ("main.bicep", """
+                module mod 'mod.bicep' = {}
+
+                @secure()
+                output sensitive string = mod.outputs.sensitive
+                output notSensitive string = mod.outputs.notSensitive
+                """));
+
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("$.outputs.sensitive.value", "[listOutputsWithSecureValues('mod', '2022-09-01').sensitive]");
+        result.Template.Should().HaveValueAtPath("$.outputs.notSensitive.value", "[reference('mod').outputs.notSensitive.value]");
+    }
+
+    [TestMethod]
+    public void Non_sensitive_outputs_of_collection_module_with_secure_outputs_should_use_reference_function()
+    {
+        var result = CompilationHelper.Compile(
+            ("mod.bicep", """
+                @secure()
+                output sensitive string = 'foo'
+
+                output notSensitive string = 'bar'
+                """),
+            ("main.bicep", """
+                module mod 'mod.bicep' = [for i in range(0, 1): {}]
+
+                @secure()
+                output sensitive string = mod[0].outputs.sensitive
+                output notSensitive string = mod[0].outputs.notSensitive
+                """));
+
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("$.outputs.sensitive.value", "[listOutputsWithSecureValues(format('mod[{0}]', 0), '2022-09-01').sensitive]");
+        result.Template.Should().HaveValueAtPath("$.outputs.notSensitive.value", "[reference(format('mod[{0}]', 0)).outputs.notSensitive.value]");
     }
 }
