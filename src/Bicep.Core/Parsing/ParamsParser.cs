@@ -113,19 +113,10 @@ namespace Bicep.Core.Parsing
         private ExtensionConfigAssignmentSyntax ExtensionConfigAssignment(IEnumerable<SyntaxBase> leadingNodes)
         {
             var extKeyword = ExpectKeyword(LanguageConstants.ExtensionConfigKeyword);
+            var aliasSyntax = this.IdentifierWithRecovery(b => b.ExpectedExtensionAliasName(), RecoveryFlags.None, TokenType.Identifier, TokenType.NewLine);
+            var withClause = this.WithRecovery(this.ExtensionWithClause, GetSuppressionFlag(aliasSyntax), TokenType.NewLine);
 
-            var specificationSyntax = reader.Peek().Type switch
-            {
-                TokenType.Identifier => new IdentifierSyntax(reader.Read()),
-                _ => this.WithRecovery(
-                    () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedExtensionSpecification()),
-                    RecoveryFlags.None,
-                    TokenType.NewLine)
-            };
-
-            var withClause = this.WithRecovery(this.ExtensionWithClause, GetSuppressionFlag(specificationSyntax), TokenType.NewLine);
-
-            return new(leadingNodes, extKeyword, specificationSyntax, withClause);
+            return new(leadingNodes, extKeyword, aliasSyntax, withClause);
         }
 
         private ExtensionWithClauseSyntax ExtensionWithClause()

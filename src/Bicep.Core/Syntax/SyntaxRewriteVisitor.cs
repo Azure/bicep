@@ -369,7 +369,7 @@ namespace Bicep.Core.Syntax
         {
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
             hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
-            hasChanges |= TryRewriteStrict(syntax.SpecificationString, out var specification);
+            hasChanges |= TryRewriteStrict(syntax.Alias, out var specification);
             hasChanges |= TryRewriteStrict(syntax.WithClause, out var withClause);
 
             if (!hasChanges)

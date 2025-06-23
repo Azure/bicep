@@ -1210,15 +1210,14 @@ namespace Bicep.Core.TypeSystem
                 return failureDiagnostic.IsError() ? ErrorType.Create(failureDiagnostic) : null;
             }
 
-            // TODO(kylealbert): this needs some thought with spec strings, ext names, and aliases
-            if (syntax.TryGetSymbolName() is not { } symbolName
-                || !semanticModel.Extensions.TryGetValue(symbolName, out var extensionMetadata)
-                || extensionMetadata.ConfigType is null)
+            if (syntax.TryGetAlias() is not { } extAlias
+                || !semanticModel.Extensions.TryGetValue(extAlias, out var extMetadata)
+                || extMetadata.ConfigType is null)
             {
                 return null;
             }
 
-            return TypeHelper.CreateExtensionConfigAssignmentType(extensionMetadata.ConfigType, extensionMetadata.UserAssignedDefaultConfigType);
+            return TypeHelper.CreateExtensionConfigAssignmentType(extMetadata.ConfigType, extMetadata.UserAssignedDefaultConfigType);
         }
 
         private DeclaredTypeAssignment? GetExtensionConfigAssignmentType(ExtensionConfigAssignmentSyntax extConfigAssignment)

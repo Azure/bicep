@@ -990,7 +990,7 @@ namespace Bicep.Core.TypeSystem
 
                     if (moduleAwareExtConfigType is null or ErrorType) // Ext does not support configuration
                     {
-                        diagnostics.Write(syntax.SpecificationString, x => x.ExtensionDoesNotSupportConfiguration(configAssignmentSymbol.Name));
+                        diagnostics.Write(syntax.Alias, x => x.ExtensionDoesNotSupportConfiguration(configAssignmentSymbol.Name));
 
                         return ErrorType.Empty();
                     }
