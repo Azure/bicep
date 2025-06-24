@@ -1621,6 +1621,7 @@
       "Azure.Bicep.Local.Extension": {
         "type": "Project",
         "dependencies": {
+          "Azure.Bicep.Types": "[0.5.110, )",
           "CommandLineParser": "[2.9.1, )",
           "Google.Protobuf": "[3.29.2, )",
           "Grpc.Net.Client": "[2.70.0, )"
