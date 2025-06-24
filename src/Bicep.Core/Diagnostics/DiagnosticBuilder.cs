@@ -1930,8 +1930,16 @@ namespace Bicep.Core.Diagnostics
                 "BCP423",
                 "An extension alias must be defined for an extension declaration with an inlined registry reference.");
 
-            public Diagnostic ExtensionConfigAssignmentMustNotBeEmpty() => CoreError(
+            public Diagnostic MissingExtensionConfigAssignments(IEnumerable<string> identifiers) => CoreError(
                 "BCP424",
+                $"The following extensions are declared in the Bicep file but are missing a configuration assignment in the params files: {ToQuotedString(identifiers)}.");
+
+            public Diagnostic ExtensionConfigAssignmentDoesNotMatchToExtension(string identifier) => CoreError(
+                "BCP425",
+                $"The extension configuration assignment for \"{identifier}\" does not match an extension in the Bicep file.");
+
+            public Diagnostic ExtensionConfigAssignmentMustNotBeEmpty() => CoreError(
+                "BCP426",
                 "An extension configuration assignment must not be empty.");
         }
 

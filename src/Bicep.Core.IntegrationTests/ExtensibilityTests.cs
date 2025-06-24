@@ -873,16 +873,28 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 
         [DataTestMethod]
         [DataRow(
+            "IncompleteSyntax_ToAlias",
+            "extensionConfig k8s",
+            "extension kubernetes as k8s",
+            "BCP206",
+            "Extension \"k8s\" requires configuration, but none was provided.")]
+        [DataRow(
             "RequiredAssignmentMissing",
             "",
             "extension kubernetes as k8s",
-            "TODO",
-            "TODO")]
+            "BCP424",
+            "The following extensions are declared in the Bicep file but are missing a configuration assignment in the params files: \"k8s\".")]
+        [DataRow(
+            "AssignmentDoesNotMatch",
+            "extensionConfig k8s with { kubeConfig: '' }",
+            "",
+            "BCP425",
+            "The extension configuration assignment for \"k8s\" does not match an extension in the Bicep file.")]
         [DataRow(
             "AssignmentEmpty",
             "extensionConfig k8s with {}",
             "extension kubernetes with { kubeConfig: 'templateKubeConfig', namespace: 'templateNs' } as k8s",
-            "BCP424",
+            "BCP426",
             "An extension configuration assignment must not be empty.")]
         public async Task Invalid_extension_config_assignments_should_raise_error_diagnostic(string scenario, string paramsFileExtensionConfigAssignment, string bicepFileExtensionDeclaration, string expectedDiagnosticCode, string expectedDiagnosticMessage)
         {
@@ -903,7 +915,13 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             var services = CreateServiceBuilder(moduleExtensionConfigsEnabled: true);
             var compilation = await services.BuildCompilationWithRestore(files, paramsUri);
 
-            compilation.Should().ContainSingleDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
+            var diagByFileUri = compilation.GetAllDiagnosticsByBicepFileUri();
+            diagByFileUri[mainUri].ExcludingLinterDiagnostics().Should().BeEmpty();
+
+            // compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
+            // Assert.Fail("TODO");
+
+            diagByFileUri[paramsUri].Should().ContainDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
         }
 
         private ServiceBuilder CreateServiceBuilder(bool moduleExtensionConfigsEnabled = false) =>

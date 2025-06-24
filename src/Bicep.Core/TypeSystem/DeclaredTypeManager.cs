@@ -1210,14 +1210,12 @@ namespace Bicep.Core.TypeSystem
                 return failureDiagnostic.IsError() ? ErrorType.Create(failureDiagnostic) : null;
             }
 
-            if (syntax.TryGetAlias() is not { } extAlias
-                || !semanticModel.Extensions.TryGetValue(extAlias, out var extMetadata)
-                || extMetadata.ConfigType is null)
+            if (syntax.TryGetAlias() is not { } extAlias || !semanticModel.Extensions.TryGetValue(extAlias, out var extMetadata))
             {
                 return null;
             }
 
-            return TypeHelper.CreateExtensionConfigAssignmentType(extMetadata.ConfigType, extMetadata.UserAssignedDefaultConfigType);
+            return extMetadata.ConfigAssignmentDeclaredType;
         }
 
         private DeclaredTypeAssignment? GetExtensionConfigAssignmentType(ExtensionConfigAssignmentSyntax extConfigAssignment)

@@ -43,7 +43,8 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableDictionary<ParameterAssignmentSymbol, ParameterMetadata?>> declarationsByAssignment;
         private readonly Lazy<ImmutableDictionary<ParameterMetadata, ParameterAssignmentSymbol?>> assignmentsByDeclaration;
 
-        private readonly Lazy<ImmutableDictionary<ExtensionConfigAssignmentSymbol, ExtensionMetadata?>> extensionDeclarationsByAssignment;
+        private readonly Lazy<ImmutableDictionary<ExtensionConfigAssignmentSymbol, ExtensionMetadata?>> extensionDeclarationsByExtensionConfigAssignment;
+        private readonly Lazy<ImmutableDictionary<ExtensionMetadata, ExtensionConfigAssignmentSymbol?>> extensionConfigAssignmentsByDeclaration;
 
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
@@ -127,7 +128,8 @@ namespace Bicep.Core.Semantics
             });
 
             this.extensionsLazy = new(FindExtensions);
-            this.extensionDeclarationsByAssignment = new(InitializeExtensionDeclarationToAssignmentDictionary);
+            this.extensionDeclarationsByExtensionConfigAssignment = new(InitializeExtensionDeclarationToAssignmentDictionary);
+            this.extensionConfigAssignmentsByDeclaration = new(InitializeExtensionConfigAssignmentToDeclarationDictionary);
 
             this.exportsLazy = new(() => FindExportedTypes().Concat(FindExportedVariables()).Concat(FindExportedFunctions())
                 .DistinctBy(export => export.Name, LanguageConstants.IdentifierComparer)
@@ -438,7 +440,10 @@ namespace Bicep.Core.Semantics
             this.assignmentsByDeclaration.Value.TryGetValue(parameterMetadata, out var parameterAssignment) ? parameterAssignment : null;
 
         public ExtensionMetadata? TryGetExtensionMetadata(ExtensionConfigAssignmentSymbol assignmentSymbol) =>
-            this.extensionDeclarationsByAssignment.Value.GetValueOrDefault(assignmentSymbol);
+            this.extensionDeclarationsByExtensionConfigAssignment.Value.GetValueOrDefault(assignmentSymbol);
+
+        public ExtensionConfigAssignmentSymbol? TryGetExtensionConfigAssignment(ExtensionMetadata extensionMetadata) =>
+            this.extensionConfigAssignmentsByDeclaration.Value.GetValueOrDefault(extensionMetadata);
 
         private ImmutableDictionary<ParameterMetadata, ParameterAssignmentSymbol?> InitializeDeclarationToAssignmentDictionary()
         {
@@ -510,6 +515,21 @@ namespace Bicep.Core.Semantics
                 decl => extensionDeclarations[decl.Name].FirstOrDefault());
         }
 
+        private ImmutableDictionary<ExtensionMetadata, ExtensionConfigAssignmentSymbol?> InitializeExtensionConfigAssignmentToDeclarationDictionary()
+        {
+            if (this.TryGetSemanticModelForParamsFile() is not { } usingModel)
+            {
+                // not a param file or we can't resolve the semantic model via "using"
+                return ImmutableDictionary<ExtensionMetadata, ExtensionConfigAssignmentSymbol?>.Empty;
+            }
+
+            var extensionConfigAssignments = Root.ExtensionConfigAssignments.ToLookup(x => x.Name, LanguageConstants.IdentifierComparer);
+
+            return usingModel.Extensions.ToImmutableDictionary(
+                decl => decl.Value,
+                decl => extensionConfigAssignments[decl.Key].FirstOrDefault());
+        }
+
         private ISemanticModel? TryGetSemanticModelForParamsFile()
         {
             if (this.SourceFile is BicepParamFile && this.Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var usingModel))
@@ -542,6 +562,7 @@ namespace Bicep.Core.Semantics
             return
                 // get diagnostics relating to missing parameter assignments or declarations
                 GatherParameterMismatchDiagnostics(semanticModel)
+                    .Concat(GatherMissingRequiredExtensionConfigAssignmentDiagnostics(semanticModel))
                 // get diagnostics relating to type mismatch of params between Bicep and params files
                 .Concat(GatherTypeMismatchDiagnostics())
                 // get diagnostics on whether the module referenced in the using statement is valid
@@ -607,6 +628,66 @@ namespace Bicep.Core.Semantics
             foreach (var assignedParam in missingAssignedParams)
             {
                 yield return DiagnosticBuilder.ForPosition(assignedParam.DeclaringSyntax).MissingParameterDeclaration(assignedParam.Name);
+            }
+        }
+
+        private IEnumerable<IDiagnostic> GatherMissingRequiredExtensionConfigAssignmentDiagnostics(ISemanticModel usingModel)
+        {
+            if (!usingModel.Features.ModuleExtensionConfigsEnabled)
+            {
+                yield break;
+            }
+
+            // emit diagnostic only if there is a using statement
+            var usingDeclarationSyntax = this.Root.UsingDeclarationSyntax;
+
+            if (usingDeclarationSyntax?.Path is NoneLiteralSyntax)
+            {
+                yield break;
+            }
+
+            // assignment symbols that do not match to an extension in the main file
+            var assignmentAliasesWithMissingExtension = Root.ExtensionConfigAssignments.Where(a => TryGetExtensionMetadata(a) is null);
+
+            // assignments that are missing
+            var missingRequiredAssignments = usingModel.Extensions
+                .Where(kvp => TryGetExtensionConfigAssignment(kvp.Value) is null)
+                .Where(kvp =>
+                {
+                    var (_, extMetadata) = kvp;
+
+                    if (TryGetExtensionConfigAssignment(extMetadata) is not null)
+                    {
+                        return false;
+                    }
+
+                    // The assignment is missing, see if the declared type has any required properties.
+                    var declaredAssignmentType = extMetadata.ConfigAssignmentDeclaredType;
+
+                    var isConfigurationRequired = declaredAssignmentType switch
+                    {
+                        null => false,
+                        ObjectType assignmentObjType => assignmentObjType.Properties.Any(p => p.Value.Flags.HasFlag(TypePropertyFlags.Required)),
+                        _ => true
+                    };
+
+                    return isConfigurationRequired;
+                })
+                .Select(kvp => (kvp.Key, kvp.Value.ConfigAssignmentDeclaredType!))
+                .OrderBy(kvp => kvp.Key)
+                .ToImmutableArray();
+
+            if (usingDeclarationSyntax is not null && missingRequiredAssignments.Any())
+            {
+                yield return DiagnosticBuilder.ForPosition(usingDeclarationSyntax.Path!)
+                    .MissingExtensionConfigAssignments(missingRequiredAssignments.Select(kvp => kvp.Key))
+                    .WithAppendedFixes(CodeFixHelper.GetCodeFixForMissingBicepExtensionConfigAssignments(Root.Syntax, missingRequiredAssignments));
+            }
+
+            foreach (var assignmentAlias in assignmentAliasesWithMissingExtension)
+            {
+                yield return DiagnosticBuilder.ForPosition(assignmentAlias.DeclaringSyntax)
+                    .ExtensionConfigAssignmentDoesNotMatchToExtension(assignmentAlias.Name);
             }
         }
 
