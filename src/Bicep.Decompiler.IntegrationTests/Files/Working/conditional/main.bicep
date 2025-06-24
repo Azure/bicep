@@ -37,9 +37,9 @@ param storageAccountType string = 'Standard_LRS'
 var foo = 'foo'
 var armBaseUrl = baseUrl
 var module1Url = '${armBaseUrl}/nested/module1.json'
-//@[04:14) [no-unused-vars (Warning)] Variable "module1Url" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |module1Url|
+//@[04:14) [no-unused-vars (Warning)] Variable "module1Url" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |module1Url|
 var module2Url = '${armBaseUrl}/nested/module2.json'
-//@[04:14) [no-unused-vars (Warning)] Variable "module2Url" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |module2Url|
+//@[04:14) [no-unused-vars (Warning)] Variable "module2Url" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |module2Url|
 var objectVar = {
   val1: 'a${location}b'
 }
@@ -48,7 +48,7 @@ var arrayVar = [
   location
 ]
 var storageAccountName_var = 'flowlogs${uniqueString(resourceGroup().id)}'
-//@[04:26) [decompiler-cleanup (Warning)] The name of variable 'storageAccountName_var' appears to have originated from a naming conflict during a decompilation from JSON. Consider renaming it and removing the suffix (using the editor's rename functionality). (bicep core linter https://aka.ms/bicep/linter/decompiler-cleanup) |storageAccountName_var|
+//@[04:26) [decompiler-cleanup (Warning)] The name of variable 'storageAccountName_var' appears to have originated from a naming conflict during a decompilation from JSON. Consider renaming it and removing the suffix (using the editor's rename functionality). (bicep core linter https://aka.ms/bicep/linter-diagnostics#decompiler-cleanup) |storageAccountName_var|
 
 resource foo_bar 'Foo.Rp/bar@2019-06-01' = if (false) {
 //@[17:40) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'Foo.Rp/bar@2019-06-01'|

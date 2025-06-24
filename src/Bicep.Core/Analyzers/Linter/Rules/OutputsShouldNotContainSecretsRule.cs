@@ -19,8 +19,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public OutputsShouldNotContainSecretsRule() : base(
             code: Code,
             description: CoreResources.OutputsShouldNotContainSecretsRuleDescription,
-            LinterRuleCategory.Security,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}")
+            LinterRuleCategory.Security
         )
         {
         }

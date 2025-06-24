@@ -22,7 +22,7 @@ var exportedTypeRef FooType = {
 }
 
 var unExported FooType = {
-//@[4:14) [no-unused-vars (Warning)] Variable "unExported" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |unExported|
+//@[4:14) [no-unused-vars (Warning)] Variable "unExported" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |unExported|
   foo: 'abc'
   bar: 123
 }
