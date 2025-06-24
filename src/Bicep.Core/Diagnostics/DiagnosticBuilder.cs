@@ -1921,6 +1921,10 @@ namespace Bicep.Core.Diagnostics
                 $"A resource of type \"{baseType}\" may or may not exist when this function is called, which could cause the deployment to fail.")
                 with
             { Fixes = [AsNonNullable(expression)] };
+
+            public Diagnostic SecureOutputsOnlyAllowedOnDirectModuleReference() => CoreError(
+                "BCP423",
+                "Secure outputs may only be accessed via a direct module reference. Only non-sensitive outputs are supported when dereferencing a module indirectly via a variable or lambda.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

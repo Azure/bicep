@@ -344,4 +344,56 @@ public class SecureOutputsTests
         result.Template.Should().HaveValueAtPath("$.outputs.sensitive.value", "[listOutputsWithSecureValues(format('mod[{0}]', 0), '2022-09-01').sensitive]");
         result.Template.Should().HaveValueAtPath("$.outputs.notSensitive.value", "[reference(format('mod[{0}]', 0)).outputs.notSensitive.value]");
     }
+
+    [TestMethod]
+    public void Secure_output_access_should_be_blocked_on_reference_via_inlined_variable()
+    {
+        var result = CompilationHelper.Compile(
+            ("mod.bicep", """
+                @secure()
+                output sensitive string = 'foo'
+
+                output notSensitive string = 'bar'
+                """),
+            ("main.bicep", """
+                param condition bool
+
+                module mod 'mod.bicep' = {}
+                module mod2 'mod.bicep' = {}
+
+                var modToUse = condition ? mod : mod2
+
+                @secure()
+                output sensitive string = modToUse.outputs.sensitive
+                output notSensitive string = modToUse.outputs.notSensitive
+                """));
+
+        result.Should().HaveDiagnostics(
+        [
+            ("BCP423", DiagnosticLevel.Error, "Secure outputs may only be accessed via a direct module reference. Only non-sensitive outputs are supported when dereferencing a module indirectly via a variable or lambda."),
+        ]);
+    }
+
+    [TestMethod]
+    public void Secure_output_access_should_be_blocked_on_reference_via_lambda_variable()
+    {
+        var result = CompilationHelper.Compile(
+            ("mod.bicep", """
+                @secure()
+                output sensitive string = 'foo'
+
+                output notSensitive string = 'bar'
+                """),
+            ("main.bicep", """
+                module mod 'mod.bicep' = [for i in range(0, 1): {}]
+
+                output out1 array = map(mod, m => m.outputs.sensitive)
+                output out2 array = map(mod, m => m.outputs.notSensitive)
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
+            ("BCP423", DiagnosticLevel.Error, "Secure outputs may only be accessed via a direct module reference. Only non-sensitive outputs are supported when dereferencing a module indirectly via a variable or lambda."),
+        ]);
+    }
 }

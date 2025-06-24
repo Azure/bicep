@@ -183,6 +183,15 @@ namespace Bicep.Core.TypeSystem
                     isSafeAccess,
                     shouldWarn,
                     diagnostics),
+                null when unionType.Members.All(t => t.Type is ModuleType) &&
+                 CreateTypeUnion(unionType.Members.Select(t => ((ModuleType)t.Type).Body)) is UnionType bodyUnion
+                    => GetNamedPropertyType(
+                        bodyUnion,
+                        propertyExpressionPositionable,
+                        propertyName,
+                        isSafeAccess,
+                        shouldWarn,
+                        diagnostics),
                 // TODO improve later here if necessary - we should be able to block stuff that is obviously wrong
                 _ => LanguageConstants.Any,
             };
