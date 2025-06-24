@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.SourceGraph;
@@ -25,6 +26,6 @@ namespace Bicep.Core.Semantics
 
         public bool HasErrors() => false;
 
-        public IFeatureProvider Features => throw new NotImplementedException();
+        public IFeatureProvider Features => ExperimentalFeaturesEnabled.AllDisabled;
     }
 }
