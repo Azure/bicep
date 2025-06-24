@@ -21,6 +21,8 @@ namespace Bicep.Core.IntegrationTests
         private const string MockSubscriptionId = "00000000-0000-0000-0000-000000000001";
         private const string MockResourceGroupName = "mock-rg";
 
+        #region Tests
+
         [TestMethod]
         public void Bar_import_bad_config_is_blocked()
         {
@@ -867,35 +869,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 
             var services = CreateServiceBuilder(moduleExtensionConfigsEnabled: true);
 
-            var mockExtension = ExtensionTestHelper.CreateMockExtensionMockData(
-                "mockext", "1.2.3", "v1", new CustomExtensionTypeFactoryDelegates
-                {
-                    CreateConfigurationType = (ctx, tf) => tf.Create(() => new DiscriminatedObjectType(
-                        "config",
-                        "discrim",
-                        new Dictionary<string, ObjectTypeProperty>
-                        {
-                            ["z1"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.None, null)
-                        },
-                        new Dictionary<string, ITypeReference>
-                        {
-                            ["a"] = ctx.CreateObjectType(
-                                "aType", new Dictionary<string, ObjectTypeProperty>
-                                {
-                                    ["discrim"] = new(ctx.CreateStringLiteralType("a"), ObjectTypePropertyFlags.Required, null),
-                                    ["a1"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.Required, null),
-                                    ["a2"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.None, null)
-                                }),
-                            ["b"] = ctx.CreateObjectType(
-                                "bType", new Dictionary<string, ObjectTypeProperty>
-                                {
-                                    ["discrim"] = new(ctx.CreateStringLiteralType("b"), ObjectTypePropertyFlags.Required, null),
-                                    ["b1"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.Required, null)
-                                })
-                        }))
-                });
-
-            await ExtensionTestHelper.AddMockExtensions(services, TestContext, mockExtension);
+            await ExtensionTestHelper.AddMockExtensions(services, TestContext, CreateMockExtWithDiscriminatedConfigType());
 
             var compilation = await services.BuildCompilationWithRestore(files, paramsUri);
 
@@ -927,6 +901,18 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             "extension kubernetes with { kubeConfig: 'templateKubeConfig', namespace: 'templateNs' } as k8s",
             "BCP426",
             "An extension configuration assignment must not be empty.")]
+        [DataRow(
+            "DiscriminatedType_AssignmentMissingProperties",
+            "extensionConfig mockExt with { a2: 'a1 not defined' }",
+            "extension 'br:mcr.microsoft.com/bicep/extensions/mockext/v1:1.2.3' with { discrim: 'a' } as mockExt",
+            "BCP035",
+            "The specified \"object\" declaration is missing the following required properties: \"a1\".")]
+        [DataRow(
+            "DiscriminatedType_DiscrimReassignment",
+            "extensionConfig mockExt with { discrim: 'a', b1: 'here to suppress diag because b type is selected' }",
+            "extension 'br:mcr.microsoft.com/bicep/extensions/mockext/v1:1.2.3' with { discrim: 'b' } as mockExt",
+            "BCP037",
+            "The property \"discrim\" is not allowed on objects of type \"b\". Permissible properties include \"z1\".")]
         public async Task Invalid_extension_config_assignments_should_raise_error_diagnostic(string scenario, string paramsFileExtensionConfigAssignment, string bicepFileExtensionDeclaration, string expectedDiagnosticCode, string expectedDiagnosticMessage)
         {
             var paramsUri = new Uri("file:///main.bicepparam");
@@ -944,6 +930,9 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             };
 
             var services = CreateServiceBuilder(moduleExtensionConfigsEnabled: true);
+
+            await ExtensionTestHelper.AddMockExtensions(services, TestContext, CreateMockExtWithDiscriminatedConfigType());
+
             var compilation = await services.BuildCompilationWithRestore(files, paramsUri);
 
             var diagByFileUri = compilation.GetAllDiagnosticsByBicepFileUri();
@@ -951,6 +940,10 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 
             diagByFileUri[paramsUri].Should().ContainDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
         }
+
+        #endregion
+
+        #region Helpers
 
         private ServiceBuilder CreateServiceBuilder(bool moduleExtensionConfigsEnabled = false) =>
             new ServiceBuilder()
@@ -976,5 +969,37 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 
             return services;
         }
+
+        private static RegistrySourcedExtensionMockData CreateMockExtWithDiscriminatedConfigType() =>
+            ExtensionTestHelper.CreateMockExtensionMockData(
+                "mockext", "1.2.3", "v1", new CustomExtensionTypeFactoryDelegates
+                {
+                    CreateConfigurationType = (ctx, tf) => tf.Create(() => new DiscriminatedObjectType(
+                        "config",
+                        "discrim",
+                        new Dictionary<string, ObjectTypeProperty>
+                        {
+                            ["z1"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.None, null)
+                        },
+                        new Dictionary<string, ITypeReference>
+                        {
+                            ["a"] = ctx.CreateObjectType(
+                                "aType", new Dictionary<string, ObjectTypeProperty>
+                                {
+                                    ["discrim"] = new(ctx.CreateStringLiteralType("a"), ObjectTypePropertyFlags.Required, null),
+                                    ["a1"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.Required, null),
+                                    ["a2"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.None, null)
+                                }),
+                            ["b"] = ctx.CreateObjectType(
+                                "bType", new Dictionary<string, ObjectTypeProperty>
+                                {
+                                    ["discrim"] = new(ctx.CreateStringLiteralType("b"), ObjectTypePropertyFlags.Required, null),
+                                    ["b1"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.Required, null)
+                                })
+                        }))
+                });
+
+        #endregion
+
     }
 }
