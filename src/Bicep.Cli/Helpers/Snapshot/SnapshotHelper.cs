@@ -20,6 +20,7 @@ using Bicep.Cli.Helpers;
 using Bicep.Cli.Helpers.WhatIf;
 using Bicep.Cli.Logging;
 using Bicep.Core;
+using Bicep.Core.ArmHelpers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
@@ -57,14 +58,8 @@ public static class SnapshotHelper
         var parameters = parametersContent.FromJson<DeploymentParametersDefinition>();
         var template = TemplateEngine.ParseTemplate(templateContent);
 
-        var scope = targetScope switch
-        {
-            ResourceScope.Tenant => TemplateDeploymentScope.Tenant,
-            ResourceScope.ManagementGroup => TemplateDeploymentScope.ManagementGroup,
-            ResourceScope.Subscription => TemplateDeploymentScope.Subscription,
-            ResourceScope.ResourceGroup => TemplateDeploymentScope.ResourceGroup,
-            var otherwise => throw new CommandLineException($"Cannot create snapshot of template with a target scope of {otherwise}"),
-        };
+        var scope = EnumConverter.ToTemplateDeploymentScope(targetScope)
+            ?? throw new CommandLineException($"Cannot create snapshot of template with a target scope of {targetScope}");
 
         var expansionResult = await TemplateEngine.ExpandNestedDeployments(
             EmitConstants.NestedDeploymentResourceApiVersion,
