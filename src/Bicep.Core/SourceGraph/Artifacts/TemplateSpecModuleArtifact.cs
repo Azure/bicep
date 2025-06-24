@@ -6,7 +6,7 @@ using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.SourceGraph.Artifacts
 {
-    public class TemplateSpecModuleArtifact : CacheableArtifact
+    public class TemplateSpecModuleArtifact : ExternalArtifact
     {
         public TemplateSpecModuleArtifact(string subscriptionId, string resourceGroupName, string templateSpecName, string version, IDirectoryHandle rootCacheDirectory)
             : base(rootCacheDirectory.GetDirectory($"{ArtifactReferenceSchemes.TemplateSpecs}/{subscriptionId}/{resourceGroupName}/{templateSpecName}/{version}".ToLowerInvariant()))

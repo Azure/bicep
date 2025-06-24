@@ -25,6 +25,8 @@ namespace Bicep.IO.FileSystem
 
         public IFileHandle EnsureExists()
         {
+            this.GetParent().EnsureExists();
+
             using (this.FileSystem.File.Open(this.FilePath, FileMode.Append, FileAccess.Write))
             {
             }

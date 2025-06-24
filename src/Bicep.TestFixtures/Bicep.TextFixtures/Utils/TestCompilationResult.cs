@@ -16,6 +16,7 @@ namespace Bicep.TextFixtures.Utils
 
         public static TestCompilationResult FromCompilation(Compilation compilation)
         {
+            var templateResult = compilation.Emitter.Template();
             var semanticModel = compilation.GetEntrypointSemanticModel();
             var emitter = new TemplateEmitter(semanticModel);
             var diagnostics = semanticModel.GetAllDiagnostics();

@@ -33,16 +33,22 @@ namespace Bicep.Core.TypeSystem.Types
             };
 
         public TypeSymbol? TryGetParameterType(string propertyName)
+            => TryGetNestedBodyPropertyType(LanguageConstants.ModuleParamsPropertyName, propertyName);
+
+        private TypeSymbol? TryGetNestedBodyPropertyType(string bodyPropertyName, string nestedPropertyName)
         {
             if (Body is ObjectType objectType &&
-                objectType.Properties.TryGetValue(LanguageConstants.ModuleParamsPropertyName, out var paramsProperty) &&
-                paramsProperty.TypeReference.Type is ObjectType paramsType &&
-                paramsType.Properties.TryGetValue(propertyName, out var property))
+                objectType.Properties.TryGetValue(bodyPropertyName, out var bodyProperty) &&
+                bodyProperty.TypeReference.Type is ObjectType bodyPropertyObject &&
+                bodyPropertyObject.Properties.TryGetValue(nestedPropertyName, out var property))
             {
                 return property.TypeReference.Type;
             }
 
             return null;
         }
+
+        public TypeSymbol? TryGetOutputType(string outputName)
+            => TryGetNestedBodyPropertyType(LanguageConstants.ModuleOutputsPropertyName, outputName);
     }
 }

@@ -172,6 +172,7 @@ module modLoop './empty.bicep' = [for item in range(0, 5): {
 
 var modLoopNames = map(modLoop, i => i.name)
 //@[04:16) [no-unused-vars (Warning)] Variable "modLoopNames" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |modLoopNames|
+//@[23:30) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |modLoop|
 output modOutputs array = map(range(0, 5), i => modLoop[i].outputs.foo)
 //@[18:23) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |array|
 //@[43:70) [BCP070 (Error)] Argument of type "int => error" is not assignable to parameter of type "(any[, int]) => any". (bicep https://aka.ms/bicep/core-diagnostics#BCP070) |i => modLoop[i].outputs.foo|

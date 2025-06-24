@@ -11,19 +11,19 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.SourceCode;
 
 [TestClass]
-public class SourceCodeDocumentPathLinkTests
+public class ArchivedSourceFileLinkTests
 {
     [TestMethod]
     public void SerializesAndDeserializes()
     {
-        var link = new SourceCodeDocumentPathLink(
+        var link = new ArchivedSourceFileLink(
             new TextRange(123, 456, 234, 567),
             "../modules/target.bicep");
         string serialized = JsonSerializer.Serialize(link);
 
         serialized.Should().Be("{\"Range\":\"[123:456]-[234:567]\",\"Target\":\"../modules/target.bicep\"}");
 
-        var deserialized = JsonSerializer.Deserialize<SourceCodeDocumentPathLink>(serialized);
+        var deserialized = JsonSerializer.Deserialize<ArchivedSourceFileLink>(serialized);
         deserialized.Should().Be(link);
     }
 }

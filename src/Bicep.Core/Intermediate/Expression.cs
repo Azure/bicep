@@ -233,6 +233,7 @@ public record ModuleOutputPropertyAccessExpression(
     SyntaxBase? SourceSyntax,
     Expression Base,
     string PropertyName,
+    bool IsSecureOutput,
     AccessExpressionFlags Flags
 ) : AccessExpression(SourceSyntax, Base, new StringLiteralExpression(null, PropertyName), Flags)
 {

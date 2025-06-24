@@ -13,13 +13,13 @@ namespace Bicep.Core.SourceLink
     /// <param name="ArchivePath">The path relative to root of where the file is stored in the archive.</param>
     /// <param name="Kind">Kind of linked source file.</param>
     /// <param name="SourceArtifactId">Points to an external artifact that contains the source for this module (e.g. "br:contoso.io/test/module1:v1"), appears in v0.26 and higher.</param>
-    public record LinkedSourceFileMetadata(
+    public record ArchivedSourceFileMetadata(
         // IF ADDING TO THIS: Remember both forwards and backwards compatibility.
         // E.g., previous versions must be able to deal with unrecognized source kinds.
         // (but see CurrentMetadataVersion for breaking changes)
         string Path,
         string ArchivePath,
-        LinkedSourceFileKind Kind,
+        ArchivedSourceFileKind Kind,
         string? SourceArtifactId)
     {
         [JsonIgnore]

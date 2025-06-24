@@ -12,7 +12,7 @@ using Bicep.IO.Utils;
 
 namespace Bicep.Core.SourceGraph.Artifacts
 {
-    internal class LocalExtensionArtifact : CacheableArtifact, IExtensionArtifact
+    internal class LocalExtensionArtifact : ExternalArtifact, IExtensionArtifact
     {
         public LocalExtensionArtifact(BinaryData extensionBinaryData, IDirectoryHandle rootCacheDirectory)
             : base(ResolveCacheDirectory(extensionBinaryData, rootCacheDirectory))

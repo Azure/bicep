@@ -6,6 +6,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
+using FluentAssertions.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.IntegrationTests;
@@ -22,13 +23,13 @@ public class DereferenceTests
     [TestMethod]
     public void Safe_dereference_is_not_permitted_on_instance_functions()
     {
-        var result = CompilationHelper.Compile(@"
-resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' existing = {
-  name: 'storageacct'
-}
+        var result = CompilationHelper.Compile("""
+            resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' existing = {
+              name: 'storageacct'
+            }
 
-output secret string = storageaccount.?listKeys().keys[0].value
-");
+            output secret string = storageaccount.?listKeys().keys[0].value
+            """);
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
@@ -39,15 +40,15 @@ output secret string = storageaccount.?listKeys().keys[0].value
     [TestMethod]
     public void Safe_dereference_is_not_permitted_on_resource_collections()
     {
-        var result = CompilationHelper.Compile(@"
-resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' existing = [for i in range(0, 10): {
-  name: 'name${i}'
-}]
+        var result = CompilationHelper.Compile("""
+            resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' existing = [for i in range(0, 10): {
+              name: 'name${i}'
+            }]
 
-output data object = {
-  vm3Name: vm[?3].name
-}
-");
+            output data object = {
+              vm3Name: vm[?3].name
+            }
+            """);
 
         result.Should().HaveDiagnostics(new[]
         {
@@ -59,20 +60,20 @@ output data object = {
     public void Safe_dereference_is_not_permitted_on_module_collections()
     {
         var result = CompilationHelper.Compile(
-("main.bicep", @"
-module mod './module.bicep' = [for (item, i) in []:  {
-    name: 'test-${i}'
-}]
+            ("main.bicep", """
+                module mod './module.bicep' = [for (item, i) in []:  {
+                    name: 'test-${i}'
+                }]
 
-output data object = {
-  foo: mod[?0].outputs.data.foo
-}
-"),
-("module.bicep", @"
-output data object = {
-  foo: 'bar'
-}
-"));
+                output data object = {
+                  foo: mod[?0].outputs.data.foo
+                }
+                """),
+            ("module.bicep", """
+                output data object = {
+                  foo: 'bar'
+                }
+                """));
 
         result.Should().HaveDiagnostics(new[]
         {
@@ -83,21 +84,21 @@ output data object = {
     [TestMethod]
     public void Safe_dereference_of_declared_resource_properties_converts_correctly()
     {
-        var result = CompilationHelper.Compile(@"
-resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
-  name: 'name'
-}
+        var result = CompilationHelper.Compile("""
+            resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
+              name: 'name'
+            }
 
-output outputData object = {
-  vmName: vm.?name
-  vmId: vm.?id
-  vmProperties: vm.?properties
-  vmIdentity: vm.?identity
-  vmPlanName: vm.?plan.name
-  vmEvictionPolicy: vm.properties.?evictionPolicy
-  vmMaxPrice: vm.properties.?billingProfile.maxPrice
-}
-");
+            output outputData object = {
+              vmName: vm.?name
+              vmId: vm.?id
+              vmProperties: vm.?properties
+              vmIdentity: vm.?identity
+              vmPlanName: vm.?plan.name
+              vmEvictionPolicy: vm.properties.?evictionPolicy
+              vmMaxPrice: vm.properties.?billingProfile.maxPrice
+            }
+            """);
         var compiledOutputData = result.Template?["outputs"]?["outputData"]?["value"];
         compiledOutputData.Should().NotBeNull();
 
@@ -113,20 +114,20 @@ output outputData object = {
     [TestMethod]
     public void Safe_dereference_of_parameter_resource_properties_converts_correctly()
     {
-        var result = CompilationHelper.Compile(ServicesWithResourceTypedParamsAndOutputsEnabled, @"
-param vm resource 'Microsoft.Compute/virtualMachines@2020-06-01'
+        var result = CompilationHelper.Compile(ServicesWithResourceTypedParamsAndOutputsEnabled, """
+            param vm resource 'Microsoft.Compute/virtualMachines@2020-06-01'
 
-output outputData object = {
-  vmName: vm.?name
-  vmId: vm.?id
-  vmProperties: vm.?properties
-  vmIdentity: vm.?identity
-  vmPlanName: vm.?plan.name
-  vmEvictionPolicy: vm.properties.?evictionPolicy
-  vmMaxPrice: vm.properties.?billingProfile.maxPrice
-  maybeVmMaxPrice: vm.?properties.billingProfile.?maxPrice
-}
-");
+            output outputData object = {
+              vmName: vm.?name
+              vmId: vm.?id
+              vmProperties: vm.?properties
+              vmIdentity: vm.?identity
+              vmPlanName: vm.?plan.name
+              vmEvictionPolicy: vm.properties.?evictionPolicy
+              vmMaxPrice: vm.properties.?billingProfile.maxPrice
+              maybeVmMaxPrice: vm.?properties.billingProfile.?maxPrice
+            }
+            """);
         var compiledOutputData = result.Template?["outputs"]?["outputData"]?["value"];
         compiledOutputData.Should().NotBeNull();
 
@@ -144,27 +145,27 @@ output outputData object = {
     public void Safe_dereference_of_module_output_resource_properties_converts_correctly()
     {
         var result = CompilationHelper.Compile(ServicesWithResourceTypedParamsAndOutputsEnabled,
-            ("mod.bicep", @"
-resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
-  name: 'name'
-}
+            ("mod.bicep", """
+                resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
+                  name: 'name'
+                }
 
-output vm resource = vm
-"),
-            ("main.bicep", @"
-module mod './mod.bicep' = {
-  name: 'mod'
-}
+                output vm resource = vm
+                """),
+            ("main.bicep", """
+                module mod './mod.bicep' = {
+                  name: 'mod'
+                }
 
-output outputData object = {
-  vmMaybeName: mod.outputs.vm.?name
-  maybeVmName: mod.outputs.?vm.name
-  maybeVmMaybeName: mod.outputs.?vm.?name
-  vmMaybeId: mod.outputs.vm.?id
-  maybeVmId: mod.outputs.?vm.id
-  maybeVmMaybeId: mod.outputs.?vm.?id
-}
-"));
+                output outputData object = {
+                  vmMaybeName: mod.outputs.vm.?name
+                  maybeVmName: mod.outputs.?vm.name
+                  maybeVmMaybeName: mod.outputs.?vm.?name
+                  vmMaybeId: mod.outputs.vm.?id
+                  maybeVmId: mod.outputs.?vm.id
+                  maybeVmMaybeId: mod.outputs.?vm.?id
+                }
+                """));
         var compiledOutputData = result.Template?["outputs"]?["outputData"]?["value"];
         compiledOutputData.Should().NotBeNull();
 
@@ -225,20 +226,20 @@ output outputData object = {
     [TestMethod]
     public void Access_chains_consider_safe_dereference_in_type_assignment()
     {
-        var result = CompilationHelper.Compile(@"
-@minLength(1)
-param foo (null
-  | {
-      nested: {
-        deeplyNested: 'value'
-      }
-    })[]
+        var result = CompilationHelper.Compile("""
+            @minLength(1)
+            param foo (null
+              | {
+                  nested: {
+                    deeplyNested: 'value'
+                  }
+                })[]
 
-output topLevel object = foo[0]
-output nested object = foo[0].?nested
-output nestedAlt object = foo[?0].nested
-output deeplyNested string = foo[0].?nested.deeplyNested
-");
+            output topLevel object = foo[0]
+            output nested object = foo[0].?nested
+            output nestedAlt object = foo[?0].nested
+            output deeplyNested string = foo[0].?nested.deeplyNested
+            """);
         result.Should().HaveDiagnostics(new[] {
             ("BCP321", DiagnosticLevel.Warning, "Expected a value of type \"object\" but the provided value is of type \"null | { nested: { deeplyNested: 'value' } }\"."),
             ("BCP321", DiagnosticLevel.Warning, "Expected a value of type \"object\" but the provided value is of type \"null | { deeplyNested: 'value' }\"."),
@@ -250,17 +251,17 @@ output deeplyNested string = foo[0].?nested.deeplyNested
     [TestMethod]
     public void Safe_dereference_of_unknown_property_should_be_warning_not_error()
     {
-        var result = CompilationHelper.Compile(@"
-var foo = {
-  bar: 'present'
-}
-var baz = 'baz'
+        var result = CompilationHelper.Compile("""
+            var foo = {
+              bar: 'present'
+            }
+            var baz = 'baz'
 
-output nulls object = {
-  propertyAccess: foo.?baz
-  arrayAccess: foo[?baz]
-}
-");
+            output nulls object = {
+              propertyAccess: foo.?baz
+              arrayAccess: foo[?baz]
+            }
+            """);
         result.Should().HaveDiagnostics(new[] {
             ("BCP083", DiagnosticLevel.Warning, @"The type ""object"" does not contain property ""baz"". Did you mean ""bar""?"),
             ("BCP083", DiagnosticLevel.Warning, @"The type ""object"" does not contain property ""baz"". Did you mean ""bar""?"),
@@ -295,5 +296,255 @@ output nulls object = {
         [
             ("BCP415", DiagnosticLevel.Error, @"The ""^"" indexing operator cannot be used with index expressions of type ""string""."),
         ]);
+    }
+
+    [TestMethod]
+    public void Safe_dereference_guards_against_dereferencing_properties_from_disabled_resources()
+    {
+        var result = CompilationHelper.Compile("""
+            param condition bool
+
+            resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' existing = if (condition) {
+              name: 'storageacct'
+            }
+
+            output id string? = storageAccount.?id
+            output name string? = storageAccount.?name
+            output type string? = storageAccount.?type
+            output apiVersion string? = storageAccount.?apiVersion
+            output properties object? = storageAccount.?properties
+            output accessTier string? = storageAccount.?properties.accessTier
+            output principalId string? = storageAccount.?identity.principalId
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("$.outputs.id.value", "[if(parameters('condition'), resourceId('Microsoft.Storage/storageAccounts', 'storageacct'), null())]");
+        result.Template.Should().HaveValueAtPath("$.outputs.name.value", "[if(parameters('condition'), 'storageacct', null())]");
+        result.Template.Should().HaveValueAtPath("$.outputs.type.value", "Microsoft.Storage/storageAccounts");
+        result.Template.Should().HaveValueAtPath("$.outputs.apiVersion.value", "2021-02-01");
+        result.Template.Should().HaveValueAtPath("$.outputs.properties.value", "[tryGet(if(parameters('condition'), reference('storageAccount', '2021-02-01', 'full'), null()), 'properties')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.accessTier.value", "[tryGet(if(parameters('condition'), reference('storageAccount', '2021-02-01', 'full'), null()), 'properties', 'accessTier')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.principalId.value", "[tryGet(if(parameters('condition'), reference('storageAccount', '2021-02-01', 'full'), null()), 'identity', 'principalId')]");
+    }
+
+    [TestMethod]
+    public void Safe_dereference_guards_against_dereferencing_properties_from_disabled_resources_with_resourceInfo()
+    {
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(ResourceInfoCodegenEnabled: true)), """
+            param condition bool
+
+            resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' existing = if (condition) {
+              name: 'storageacct'
+            }
+
+            output id string? = storageAccount.?id
+            output name string? = storageAccount.?name
+            output type string? = storageAccount.?type
+            output apiVersion string? = storageAccount.?apiVersion
+            output properties object? = storageAccount.?properties
+            output accessTier string? = storageAccount.?properties.accessTier
+            output principalId string? = storageAccount.?identity.principalId
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("$.outputs.id.value", "[tryGet(if(parameters('condition'), resourceInfo('storageAccount'), null()), 'id')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.name.value", "[tryGet(if(parameters('condition'), resourceInfo('storageAccount'), null()), 'name')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.type.value", "[tryGet(if(parameters('condition'), resourceInfo('storageAccount'), null()), 'type')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.apiVersion.value", "[tryGet(if(parameters('condition'), resourceInfo('storageAccount'), null()), 'apiVersion')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.properties.value", "[tryGet(if(parameters('condition'), reference('storageAccount', '2021-02-01', 'full'), null()), 'properties')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.accessTier.value", "[tryGet(if(parameters('condition'), reference('storageAccount', '2021-02-01', 'full'), null()), 'properties', 'accessTier')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.principalId.value", "[tryGet(if(parameters('condition'), reference('storageAccount', '2021-02-01', 'full'), null()), 'identity', 'principalId')]");
+    }
+
+    [TestMethod]
+    public void Safe_dereference_guards_against_dereferencing_properties_from_disabled_child_resources()
+    {
+        var result = CompilationHelper.Compile("""
+            param condition bool
+            param condition2 bool
+
+            resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' existing = if (condition) {
+              name: 'storageacct'
+
+              resource bs 'blobServices' = {
+                name: 'default'
+
+                resource container 'containers' = if (condition2) {
+                  name: 'container'
+                }
+              }
+            }
+
+            output id string? = storageAccount::bs::container.?id
+            output name string? = storageAccount::bs::container.?name
+            output type string? = storageAccount::bs::container.?type
+            output apiVersion string? = storageAccount::bs::container.?apiVersion
+            output properties object? = storageAccount::bs::container.?properties
+            output defaultEncryptionScope string? = storageAccount::bs::container.?properties.defaultEncryptionScope
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("$.outputs.id.value", "[if(and(parameters('condition'), parameters('condition2')), resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', 'storageacct', 'default', 'container'), null())]");
+        result.Template.Should().HaveValueAtPath("$.outputs.name.value", "[if(and(parameters('condition'), parameters('condition2')), 'container', null())]");
+        result.Template.Should().HaveValueAtPath("$.outputs.type.value", "Microsoft.Storage/storageAccounts/blobServices/containers");
+        result.Template.Should().HaveValueAtPath("$.outputs.apiVersion.value", "2021-02-01");
+        result.Template.Should().HaveValueAtPath("$.outputs.properties.value", "[tryGet(if(and(parameters('condition'), parameters('condition2')), reference('storageAccount::bs::container', '2021-02-01', 'full'), null()), 'properties')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.defaultEncryptionScope.value", "[tryGet(if(and(parameters('condition'), parameters('condition2')), reference('storageAccount::bs::container', '2021-02-01', 'full'), null()), 'properties', 'defaultEncryptionScope')]");
+    }
+
+    [TestMethod]
+    public void Safe_dereference_guards_against_dereferencing_properties_from_disabled_child_resources_with_resourceInfo()
+    {
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(ResourceInfoCodegenEnabled: true)), """
+            param condition bool
+            param condition2 bool
+            
+            resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' existing = if (condition) {
+              name: 'storageacct'
+            
+              resource bs 'blobServices' = {
+                name: 'default'
+            
+                resource container 'containers' = if (condition2) {
+                  name: 'container'
+                }
+              }
+            }
+            
+            output id string? = storageAccount::bs::container.?id
+            output name string? = storageAccount::bs::container.?name
+            output type string? = storageAccount::bs::container.?type
+            output apiVersion string? = storageAccount::bs::container.?apiVersion
+            output properties object? = storageAccount::bs::container.?properties
+            output defaultEncryptionScope string? = storageAccount::bs::container.?properties.defaultEncryptionScope
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("$.outputs.id.value", "[tryGet(if(and(parameters('condition'), parameters('condition2')), resourceInfo('storageAccount::bs::container'), null()), 'id')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.name.value", "[if(and(parameters('condition'), parameters('condition2')), last(split(resourceInfo('storageAccount::bs::container').name, '/')), null())]");
+        result.Template.Should().HaveValueAtPath("$.outputs.type.value", "[tryGet(if(and(parameters('condition'), parameters('condition2')), resourceInfo('storageAccount::bs::container'), null()), 'type')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.apiVersion.value", "[tryGet(if(and(parameters('condition'), parameters('condition2')), resourceInfo('storageAccount::bs::container'), null()), 'apiVersion')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.properties.value", "[tryGet(if(and(parameters('condition'), parameters('condition2')), reference('storageAccount::bs::container', '2021-02-01', 'full'), null()), 'properties')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.defaultEncryptionScope.value", "[tryGet(if(and(parameters('condition'), parameters('condition2')), reference('storageAccount::bs::container', '2021-02-01', 'full'), null()), 'properties', 'defaultEncryptionScope')]");
+    }
+
+    [TestMethod]
+    public void Safe_dereference_guards_against_dereferencing_properties_from_disabled_modules()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                param condition bool
+
+                module mod 'mod.bicep' = if (condition) {
+                  name: 'mod'
+                }
+
+                module mod2 'mod2.bicep' = if (!condition) {
+                  name: 'mod2'
+                }
+
+                output name string? = mod.?name
+                output outputs object? = mod.?outputs
+                output outputs2 object? = mod2.?outputs
+                output foo string? = mod.?outputs.foo
+                output foo2 string? = mod2.?outputs.foo
+                output nullableFoo string? = mod.?outputs.?foo
+                output nullableFoo2 string? = mod2.?outputs.?foo
+                output bar string? = mod.?outputs.bar
+                output nullableBar string? = mod.?outputs.?bar
+            
+                """),
+            ("mod.bicep", """
+                output foo string = 'foo'
+
+                @secure()
+                output bar string = 'bar'
+                """),
+            ("mod2.bicep", """
+                output foo string = 'foo'
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("$.outputs.name.value", "[if(parameters('condition'), 'mod', null())]");
+        result.Template.Should().HaveValueAtPath("$.outputs.outputs.value", "[if(parameters('condition'), listOutputsWithSecureValues('mod', '2022-09-01'), null())]");
+        result.Template.Should().HaveValueAtPath("$.outputs.outputs2.value", "[tryGet(if(not(parameters('condition')), reference('mod2'), null()), 'outputs')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.foo.value", "[tryGet(if(parameters('condition'), reference('mod'), null()), 'outputs', 'foo', 'value')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.foo2.value", "[tryGet(if(not(parameters('condition')), reference('mod2'), null()), 'outputs', 'foo', 'value')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.nullableFoo.value", "[tryGet(tryGet(tryGet(if(parameters('condition'), reference('mod'), null()), 'outputs'), 'foo'), 'value')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.nullableFoo2.value", "[tryGet(tryGet(tryGet(if(not(parameters('condition')), reference('mod2'), null()), 'outputs'), 'foo'), 'value')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.bar.value", "[tryGet(if(parameters('condition'), listOutputsWithSecureValues('mod', '2022-09-01'), null()), 'bar')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.nullableBar.value", "[tryGet(if(parameters('condition'), listOutputsWithSecureValues('mod', '2022-09-01'), null()), 'bar')]");
+    }
+
+    [TestMethod]
+    public void Possibly_disabled_resources_should_raise_no_diagnostics_when_used_as_parent_or_dependency()
+    {
+        var result = CompilationHelper.Compile(
+            ("empty.bicep", string.Empty),
+            ("main.bicep", """
+                param condition bool
+
+                resource acct 'Microsoft.Storage/storageAccounts@2021-02-01' = if (condition) {
+                  name: 'acct'
+                  location: resourceGroup().location
+                  kind: 'StorageV2'
+                  sku: {
+                    name: 'Standard_LRS'
+                  }
+                }
+
+                resource bs 'Microsoft.Storage/storageAccounts/blobServices@2023-05-01' = {
+                  parent: acct
+                  name: 'default'
+                }
+
+                module empty 'empty.bicep' = { 
+                  dependsOn: [
+                    acct
+                  ]
+                }
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void References_to_syntactic_ancestor_in_nested_resources_should_allow_regular_dereference_without_diagnostics()
+    {
+        var result = CompilationHelper.Compile("""
+            param createParent bool
+            param createChild bool
+            param createGrandchild bool
+
+            resource conditionParent 'Microsoft.Storage/storageAccounts@2021-02-01' = if (createParent) {
+              name: 'parent'
+              location: resourceGroup().location
+              kind: 'StorageV2'
+              sku: {
+                name: 'Standard_LRS'
+              }
+
+              resource conditionChild 'blobServices' = if (createChild) {
+                name: 'default'
+
+                resource conditionGrandchild 'containers' = if (createGrandchild) {
+                  name: 'container'
+                  properties: {
+                    publicAccess: conditionParent.properties.allowBlobPublicAccess ? 'Blob' : 'None'
+                    metadata: {
+                      versioned: conditionChild.properties.isVersioningEnabled ? 'On' : 'Off' 
+                    }
+                  }
+                }
+              }
+            }
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
     }
 }

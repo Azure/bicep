@@ -3,7 +3,7 @@
 
 namespace Bicep.Core.SourceLink
 {
-    public enum LinkedSourceFileKind
+    public enum ArchivedSourceFileKind
     {
         Bicep,
         ArmTemplate,

@@ -31,7 +31,7 @@ namespace Bicep.TextFixtures.Utils
         //public TestCompilationResult RestoreAndCompileInMemoryFiles(params (string FilePath, TestFileData FileData)[] files) =>
         //        this.RestoreAndCompile(InMemoryTestFileSet.Create(files));
 
-        public Task<TestCompilationResult> RestoreAndCompileMockFileSystemFiles(string mainBicepFileText) =>
+        public Task<TestCompilationResult> RestoreAndCompileMockFileSystemFile(string mainBicepFileText) =>
             this.RestoreAndCompileMockFileSystemFiles(("main.bicep", mainBicepFileText));
 
         public Task<TestCompilationResult> RestoreAndCompileMockFileSystemFiles(params (string FilePath, TestFileData FileData)[] files) =>
@@ -42,7 +42,7 @@ namespace Bicep.TextFixtures.Utils
             services.AddFileSystem(fileSet.FileSystem);
             services.AddFileExplorer(fileSet.FileExplorer);
 
-            var compiler = services.Get<BicepCompiler>();
+            var compiler = services.Build().Get<BicepCompiler>();
             var compilation = await compiler.CreateCompilation(fileSet.GetEntryPointUri().ToUri());
 
             return TestCompilationResult.FromCompilation(compilation);

@@ -759,5 +759,112 @@ namespace Bicep.Core.TypeSystem
 
         public static bool MatchesPattern(string pattern, string value)
             => Regex.IsMatch(value, pattern, RegexOptions.NonBacktracking);
+
+        public static bool IsOrContainsSecureType(TypeSymbol type)
+            => FindPathsToSecureTypeComponents(type, false).Any();
+
+        public static IEnumerable<string> FindPathsToSecureTypeComponents(TypeSymbol type, bool hasTrailingAccessExpressions = false)
+            => FindPathsToSecureTypeComponents(
+                type,
+                hasTrailingAccessExpressions,
+                path: "",
+                currentlyProcessing: new(ReferenceEqualityComparer.Instance));
+
+        private static IEnumerable<string> FindPathsToSecureTypeComponents(
+            TypeSymbol type,
+            bool hasTrailingAccessExpressions,
+            string path,
+            HashSet<TypeSymbol> currentlyProcessing)
+        {
+            // types can be recursive. cut out early if we've already seen this type
+            if (!currentlyProcessing.Add(type))
+            {
+                yield break;
+            }
+
+            if (type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
+            {
+                yield return path;
+            }
+
+            if (type is UnionType union)
+            {
+                foreach (var variantPath in union.Members.SelectMany(m => FindPathsToSecureTypeComponents(
+                    m.Type,
+                    hasTrailingAccessExpressions,
+                    path,
+                    currentlyProcessing)))
+                {
+                    yield return variantPath;
+                }
+            }
+
+            // if the expression being visited is dereferencing a specific property or index of this type, we shouldn't warn if the type under inspection
+            // *contains* properties or indices that are flagged as secure. We will have already warned if those have been accessed in the expression, and
+            // if they haven't, then the value dereferenced isn't sensitive
+            //
+            //    param p {
+            //      prop: {
+            //        @secure()
+            //        nestedSecret: string
+            //        nestedInnocuousProperty: string
+            //      }
+            //    }
+            //
+            //    output objectContainingSecrets object = p                     // <-- should be flagged
+            //    output propertyContainingSecrets object = p.prop              // <-- should be flagged
+            //    output nestedSecret string = p.prop.nestedSecret              // <-- should be flagged
+            //    output siblingOfSecret string = p.prop.nestedInnocuousData    // <-- should NOT be flagged
+            if (!hasTrailingAccessExpressions)
+            {
+                switch (type)
+                {
+                    case ObjectType obj:
+                        if (obj.AdditionalProperties?.TypeReference.Type is TypeSymbol addlPropsType)
+                        {
+                            foreach (var dictMemberPath in FindPathsToSecureTypeComponents(
+                                addlPropsType,
+                                hasTrailingAccessExpressions,
+                                $"{path}.*",
+                                currentlyProcessing))
+                            {
+                                yield return dictMemberPath;
+                            }
+                        }
+
+                        foreach (var propertyPath in obj.Properties.SelectMany(p => FindPathsToSecureTypeComponents(
+                            p.Value.TypeReference.Type,
+                            hasTrailingAccessExpressions,
+                            $"{path}.{p.Key}",
+                            currentlyProcessing)))
+                        {
+                            yield return propertyPath;
+                        }
+                        break;
+                    case TupleType tuple:
+                        foreach (var pathFromIndex in tuple.Items.SelectMany((t, i) => FindPathsToSecureTypeComponents(
+                            t.Type,
+                            hasTrailingAccessExpressions,
+                            $"{path}[{i}]",
+                            currentlyProcessing)))
+                        {
+                            yield return pathFromIndex;
+                        }
+                        break;
+                    case ArrayType array:
+                        foreach (var pathFromElement in FindPathsToSecureTypeComponents(
+                            array.Item.Type,
+                            hasTrailingAccessExpressions,
+                            $"{path}[*]",
+                            currentlyProcessing))
+                        {
+                            yield return pathFromElement;
+                        }
+                        break;
+                }
+            }
+
+            currentlyProcessing.Remove(type);
+        }
     }
 }

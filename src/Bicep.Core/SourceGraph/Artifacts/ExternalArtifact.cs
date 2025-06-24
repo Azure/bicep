@@ -10,11 +10,11 @@ using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.SourceGraph.Artifacts
 {
-    public abstract class CacheableArtifact
+    public abstract class ExternalArtifact
     {
         private IDirectoryHandle cacheDirectory;
 
-        protected CacheableArtifact(IDirectoryHandle cacheDirectory)
+        protected ExternalArtifact(IDirectoryHandle cacheDirectory)
         {
             this.cacheDirectory = cacheDirectory;
         }

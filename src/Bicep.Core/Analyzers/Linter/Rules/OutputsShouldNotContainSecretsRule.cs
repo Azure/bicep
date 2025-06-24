@@ -58,7 +58,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 // If the output has a secure decorator and contains secure values, don't emit a diagnostic.
                 // If the output contains secure values but doesn't have a secure decorator, emit a warning diagnostic.
-                if (syntax.IsSecureOutput(model) && syntax.HasSecureDecorator(model.Binder, model.TypeManager))
+                if (syntax.HasSecureDecorator(model.Binder, model.TypeManager))
                 {
                     return;
                 }

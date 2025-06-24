@@ -1689,6 +1689,7 @@
       "Azure.Bicep.Local.Extension": {
         "type": "Project",
         "dependencies": {
+          "Azure.Bicep.Types": "[0.5.110, )",
           "CommandLineParser": "[2.9.1, )",
           "Google.Protobuf": "[3.29.2, )",
           "Grpc.Net.Client": "[2.70.0, )"
@@ -1708,6 +1709,7 @@
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )",
           "Bicep.LangServer": "[1.0.0, )",
+          "Bicep.TextFixtures": "[1.0.0, )",
           "DiffPlex": "[1.7.2, )",
           "FluentAssertions": "[7.0.0, )",
           "JsonDiffPatch.Net": "[2.3.0, )",
@@ -1737,8 +1739,9 @@
           "Azure.Bicep.Core": "[1.0.0, )",
           "Azure.Bicep.Decompiler": "[1.0.0, )",
           "Azure.Bicep.IO": "[1.0.0, )",
-          "Bicep.Core.UnitTests": "[1.0.0, )",
           "FluentAssertions": "[7.0.0, )",
+          "JsonDiffPatch.Net": "[2.3.0, )",
+          "Moq": "[4.20.72, )",
           "System.IO.Abstractions.TestingHelpers": "[21.3.1, )"
         }
       }
