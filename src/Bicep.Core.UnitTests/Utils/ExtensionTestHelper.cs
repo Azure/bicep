@@ -17,7 +17,7 @@ public record RegistrySourcedExtensionMockData(
     string Name,
     string Version,
     string RepoVersion,
-    string TypesJson)
+    BinaryData TypesTgzData)
 {
     public string RegistryScheme => "br";
 
@@ -64,8 +64,22 @@ public static class ExtensionTestHelper
         return services;
     }
 
-    public static RegistrySourcedExtensionMockData CreateMockExtension(string extName, string extVersion, string repoVersion = "v1")
-        => new(extName, extVersion, repoVersion, ExtensionTestHelper.CreateTypesJson(extName, extVersion));
+    public static RegistrySourcedExtensionMockData CreateMockExtensionMockData(string name, string version, string repoVersion, CustomExtensionTypeFactoryDelegates typeFactoryDelegates)
+        => new(name, version, repoVersion, ExtensionResourceTypeHelper.CreateTypesTgzBytesForCustomExtension(name, version, typeFactoryDelegates));
+
+    public static async Task<ServiceBuilder> AddMockExtensions(ServiceBuilder services, TestContext testContext, params RegistrySourcedExtensionMockData[] extensionMocks)
+    {
+        var clientFactory = RegistryHelper.CreateMockRegistryClient(
+            extensionMocks.Select(ext => ext.ToRepoDescriptor()).ToArray());
+
+        services = services
+            .WithFeaturesOverridden(f => f with { CacheRootDirectory = ExtensionTestHelper.GetCacheRootDirectory(testContext) })
+            .WithContainerRegistryClientFactory(clientFactory);
+
+        await extensionMocks.ExecuteOperationsConcurrently(ext => ExtensionTestHelper.AddMockExtension(services, testContext, ext), 4);
+
+        return services;
+    }
 
     public static async Task<ServiceBuilder> AddMockMsGraphExtension(ServiceBuilder services, TestContext testContext)
     {
@@ -82,43 +96,12 @@ public static class ExtensionTestHelper
         return services;
     }
 
-    public static async Task<ServiceBuilder> AddMockExtensions(ServiceBuilder services, TestContext testContext, IEnumerable<RegistrySourcedExtensionMockData> extensionMocks)
-    {
-        var clientFactory = RegistryHelper.CreateMockRegistryClient(
-            extensionMocks.Select(ext => ext.ToRepoDescriptor()).ToArray());
-
-        services = services
-            .WithFeaturesOverridden(f => f with { CacheRootDirectory = ExtensionTestHelper.GetCacheRootDirectory(testContext) })
-            .WithContainerRegistryClientFactory(clientFactory);
-
-        await extensionMocks.ExecuteOperationsConcurrently(ext => ExtensionTestHelper.AddMockExtension(services, testContext, ext), 4);
-
-        return services;
-    }
-
-    public static async Task<ServiceBuilder> AddMockExtension(ServiceBuilder services, TestContext testContext, RegistrySourcedExtensionMockData registrySourcedExtensionMockData)
-    {
-        var indexJsonPath = FileHelper.SaveResultFile(testContext, $"types/index-{registrySourcedExtensionMockData.Version}.json", registrySourcedExtensionMockData.TypesJson);
-
-        await PublishExtensionToRegistryAsync(services.Build(), indexJsonPath, registrySourcedExtensionMockData.ExtensionRepoReference);
-
-        return services;
-    }
-
     public static IDirectoryHandle GetCacheRootDirectory(TestContext testContext) => FileHelper.GetCacheRootDirectory(testContext).EnsureExists();
 
-    // TODO(kylealbert): types
-    public static string CreateTypesJson(string extName, string extVersion) =>
-        // language=JSON
-        $$"""
-          {
-            "resources": {},
-            "resourceFunctions": {},
-            "settings": {
-              "name": "{{extName}}",
-              "version": "{{extVersion}}",
-              "isSingleton": false
-            }
-          }
-          """;
+    private static async Task<ServiceBuilder> AddMockExtension(ServiceBuilder services, TestContext testContext, RegistrySourcedExtensionMockData registrySourcedExtensionMockData)
+    {
+        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), registrySourcedExtensionMockData.ExtensionRepoReference, registrySourcedExtensionMockData.TypesTgzData);
+
+        return services;
+    }
 }

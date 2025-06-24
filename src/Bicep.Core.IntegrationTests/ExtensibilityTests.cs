@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.Bicep.Types.Concrete;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.IntegrationTests.Extensibility;
@@ -10,6 +11,7 @@ using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using ITypeReference = Azure.Bicep.Types.Concrete.ITypeReference;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -820,25 +822,23 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
         [DataRow(
             "NoneRequired",
             "",
-            """
-            extension kubernetes with { kubeConfig: 'templateKubeConfig', namespace: 'templateNs' } as k8s
-            """)]
+            "extension kubernetes with { kubeConfig: 'templateKubeConfig', namespace: 'templateNs' } as k8s")]
         [DataRow(
             "PartiallyRequired",
-            """
-            extensionConfig k8s with { kubeConfig: 'paramsKubeConfig' }
-            """,
-            """
-            extension kubernetes with { namespace: 'templateNs' } as k8s
-            """)]
+            "extensionConfig k8s with { kubeConfig: 'paramsKubeConfig' }",
+            "extension kubernetes with { namespace: 'templateNs' } as k8s")]
         [DataRow(
             "AllRequired",
-            """
-            extensionConfig k8s with { kubeConfig: 'paramsKubeConfig', namespace: 'paramsNs'}
-            """,
-            """
-            extension kubernetes as k8s
-            """)]
+            "extensionConfig k8s with { kubeConfig: 'paramsKubeConfig', namespace: 'paramsNs'}",
+            "extension kubernetes as k8s")]
+        [DataRow(
+            "DiscriminatedType_DeclHasDiscriminator",
+            "extensionConfig mockExt with { a1: 'foo' }",
+            "extension 'br:mcr.microsoft.com/bicep/extensions/mockext/v1:1.2.3' with { discrim: 'a' } as mockExt")]
+        [DataRow(
+            "DiscriminatedType_NoDefaults",
+            "extensionConfig mockExt with { discrim: 'b', b1: 'fooo' }",
+            "extension 'br:mcr.microsoft.com/bicep/extensions/mockext/v1:1.2.3' as mockExt")]
         public async Task Extension_config_assignment_type_checks_are_cross_module_aware(
             string scenarioName,
             string paramsFileExtensionConfigAssignment,
@@ -865,7 +865,38 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                       """
             };
 
-            var services = await CreateServiceBuilderWithMockMsGraph(moduleExtensionConfigsEnabled: true);
+            var services = CreateServiceBuilder(moduleExtensionConfigsEnabled: true);
+
+            var mockExtension = ExtensionTestHelper.CreateMockExtensionMockData(
+                "mockext", "1.2.3", "v1", new CustomExtensionTypeFactoryDelegates
+                {
+                    CreateConfigurationType = (ctx, tf) => tf.Create(() => new DiscriminatedObjectType(
+                        "config",
+                        "discrim",
+                        new Dictionary<string, ObjectTypeProperty>
+                        {
+                            ["z1"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.None, null)
+                        },
+                        new Dictionary<string, ITypeReference>
+                        {
+                            ["a"] = ctx.CreateObjectType(
+                                "aType", new Dictionary<string, ObjectTypeProperty>
+                                {
+                                    ["discrim"] = new(ctx.CreateStringLiteralType("a"), ObjectTypePropertyFlags.Required, null),
+                                    ["a1"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.Required, null),
+                                    ["a2"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.None, null)
+                                }),
+                            ["b"] = ctx.CreateObjectType(
+                                "bType", new Dictionary<string, ObjectTypeProperty>
+                                {
+                                    ["discrim"] = new(ctx.CreateStringLiteralType("b"), ObjectTypePropertyFlags.Required, null),
+                                    ["b1"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.Required, null)
+                                })
+                        }))
+                });
+
+            await ExtensionTestHelper.AddMockExtensions(services, TestContext, mockExtension);
+
             var compilation = await services.BuildCompilationWithRestore(files, paramsUri);
 
             compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
@@ -917,9 +948,6 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 
             var diagByFileUri = compilation.GetAllDiagnosticsByBicepFileUri();
             diagByFileUri[mainUri].ExcludingLinterDiagnostics().Should().BeEmpty();
-
-            // compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
-            // Assert.Fail("TODO");
 
             diagByFileUri[paramsUri].Should().ContainDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
         }

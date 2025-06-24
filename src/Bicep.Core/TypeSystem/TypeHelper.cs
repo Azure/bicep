@@ -866,13 +866,13 @@ namespace Bicep.Core.TypeSystem
             if (configType is DiscriminatedObjectType discrimObjType)
             {
                 if (!userAssignedDefaultConfigType!.Properties.TryGetValue(discrimObjType.DiscriminatorKey, out var userAssignedDiscrimProperty)
-                    || userAssignedDiscrimProperty.TypeReference.Type is not StringLiteralType { RawStringValue: { } userAssignedDiscrimValue })
+                    || userAssignedDiscrimProperty.TypeReference.Type is not StringLiteralType { Name: { } userAssignedDiscrimKey })
                 {
                     return configType;
                 }
 
                 // return the selected member type modified based on the user assigned type and with the discriminator property removed.
-                return discrimObjType.UnionMembersByKey[userAssignedDiscrimValue]
+                return discrimObjType.UnionMembersByKey[userAssignedDiscrimKey]
                     .WithProperties(props => props
                         .Where(p => !LanguageConstants.IdentifierComparer.Equals(p.Name, discrimObjType.DiscriminatorKey))
                         .Select(p => defaultConfigAssignedPropertyNames.Contains(p.Name) ? p.WithoutFlags(TypePropertyFlags.Required) : p));
