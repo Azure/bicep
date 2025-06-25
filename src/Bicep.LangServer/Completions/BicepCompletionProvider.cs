@@ -198,7 +198,10 @@ namespace Bicep.LanguageServer.Completions
 
                         yield return CreateKeywordCompletion(LanguageConstants.ParameterKeyword, "Parameter assignment keyword", context.ReplacementRange);
 
-                        yield return CreateKeywordCompletion(LanguageConstants.ExtensionConfigKeyword, "Extension config assignment keyword", context.ReplacementRange);
+                        if (model.Features.ModuleExtensionConfigsEnabled)
+                        {
+                            yield return CreateKeywordCompletion(LanguageConstants.ExtensionConfigKeyword, "Extension config assignment keyword", context.ReplacementRange);
+                        }
 
                         yield return CreateKeywordCompletion(LanguageConstants.ExtendsKeyword, "Extends keyword", context.ReplacementRange);
 
