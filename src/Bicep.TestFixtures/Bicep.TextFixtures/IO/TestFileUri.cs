@@ -4,7 +4,7 @@
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.IO.Abstraction;
 
-namespace Bicep.TextFixtures.Utils.IO
+namespace Bicep.TextFixtures.IO
 {
     public static class TestFileUri
     {
