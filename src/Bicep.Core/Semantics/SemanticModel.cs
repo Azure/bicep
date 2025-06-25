@@ -651,28 +651,7 @@ namespace Bicep.Core.Semantics
 
             // assignments that are missing
             var missingRequiredAssignments = usingModel.Extensions
-                .Where(kvp => TryGetExtensionConfigAssignment(kvp.Value) is null)
-                .Where(kvp =>
-                {
-                    var (_, extMetadata) = kvp;
-
-                    if (TryGetExtensionConfigAssignment(extMetadata) is not null)
-                    {
-                        return false;
-                    }
-
-                    // The assignment is missing, see if the declared type has any required properties.
-                    var declaredAssignmentType = extMetadata.ConfigAssignmentDeclaredType;
-
-                    var isConfigurationRequired = declaredAssignmentType switch
-                    {
-                        null => false,
-                        ObjectType assignmentObjType => assignmentObjType.Properties.Any(p => p.Value.Flags.HasFlag(TypePropertyFlags.Required)),
-                        _ => true
-                    };
-
-                    return isConfigurationRequired;
-                })
+                .Where(kvp => kvp.Value.RequiresConfigAssignment && TryGetExtensionConfigAssignment(kvp.Value) is null)
                 .Select(kvp => (kvp.Key, kvp.Value.ConfigAssignmentDeclaredType!))
                 .OrderBy(kvp => kvp.Key)
                 .ToImmutableArray();
