@@ -59,8 +59,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
             dispatcher.Setup(m => m.TryGetArtifactReference(It.IsAny<BicepSourceFile>(), ArtifactType.Module, ModuleRefStr)).Returns(ResultHelper.Create(null as ArtifactReference, x => x.ArtifactRestoreFailed("blah")));
             var telemetryProviderMock = new TelemetryProviderMock();
 
-            var resolver = StrictMock.Of<IFileResolver>();
-
             var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, telemetryProviderMock.Object, BicepTestConstants.SourceFileFactory);
 
             // act

@@ -13,11 +13,15 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.UnitTests.Utils;
 
 public static class ServiceBuilderExtensions
 {
+    public static ServiceBuilder WithFileExplorer(this ServiceBuilder serviceBuilder, IFileExplorer fileExplorer)
+        => serviceBuilder.WithRegistration(x => x.WithFileExplorer(fileExplorer));
+
     public static ServiceBuilder WithFileResolver(this ServiceBuilder serviceBuilder, IFileResolver fileResolver)
         => serviceBuilder.WithRegistration(x => x.WithFileResolver(fileResolver));
 

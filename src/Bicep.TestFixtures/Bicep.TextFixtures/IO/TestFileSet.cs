@@ -19,21 +19,21 @@ namespace Bicep.TextFixtures.IO
 
         public IFileExplorer FileExplorer { get; }
 
-        public TestFileSet AddDirectory(string path)
+        public TestFileSet AddDirectory(IOUri uri)
         {
-            this.FileExplorer.GetDirectory(this.GetUri(path)).EnsureExists();
+            this.FileExplorer.GetDirectory(uri).EnsureExists();
 
             return this;
         }
 
-        public TestFileSet AddFile(string path, TestFileData data)
+        public TestFileSet AddDirectory(string path) => this.AddDirectory(this.GetUri(path));
+
+        public TestFileSet AddFile(IOUri uri, TestFileData data)
         {
             if (data.IsDirectory)
             {
-                return this.AddDirectory(path);
+                return this.AddDirectory(uri);
             }
-
-            var uri = this.GetUri(path);
 
             this.FileExplorer.GetFile(uri).EnsureExists().Write(data.AsBinaryData());
             this.fileUris.Add(uri);
@@ -41,37 +41,52 @@ namespace Bicep.TextFixtures.IO
             return this;
         }
 
-        public TestFileSet AddFiles(params (string, TestFileData)[] files)
+        public TestFileSet AddFile(string path, TestFileData data) => this.AddFile(this.GetUri(path), data);
+
+        public TestFileSet AddFiles(params (IOUri, TestFileData)[] files)
         {
-            foreach (var (path, data) in files)
+            foreach (var (uri, data) in files)
             {
-                this.AddFile(path, data);
+                this.AddFile(uri, data);
             }
 
             return this;
         }
 
-        public TestFileSet RemoveFile(string path)
-        {
-            var uri = this.GetUri(path);
+        public TestFileSet AddFiles(params (string, TestFileData)[] files) => this.AddFiles(files.Select(x => (this.GetUri(x.Item1), x.Item2)).ToArray());
 
+        public TestFileSet RemoveFile(IOUri uri)
+        {
             if (this.fileUris.Contains(uri))
             {
                 this.FileExplorer.GetFile(uri).Delete();
+                this.fileUris.Remove(uri);
             }
 
             return this;
         }
 
-        public TestFileSet RemoveFiles(params string[] paths)
+        public TestFileSet RemoveFile(string path) => this.RemoveFile(this.GetUri(path));
+
+        public TestFileSet RemoveFiles(params IOUri[] uris)
         {
-            foreach (var path in paths)
+            foreach (var uri in uris)
             {
-                this.RemoveFile(path);
+                this.RemoveFile(uri);
             }
 
             return this;
         }
+
+        public TestFileSet RemoveFiles(params string[] paths) => this.RemoveFiles(paths.Select(this.GetUri).ToArray());
+
+        public BinaryData GetFileData(IOUri uri) => this.FileExplorer.GetFile(uri).TryReadBinaryData().Unwrap();
+
+        public BinaryData GetFileData(string path) => this.GetFileData(this.GetUri(path));
+
+        public string GetFileText(IOUri uri) => this.GetFileData(uri).ToString();
+
+        public string GetFileText(string path) => this.GetFileText(this.GetUri(path));
 
         public TestFileSet Clear()
         {

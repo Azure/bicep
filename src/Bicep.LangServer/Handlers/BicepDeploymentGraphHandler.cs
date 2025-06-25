@@ -9,11 +9,13 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
+using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
@@ -51,24 +53,24 @@ namespace Bicep.LanguageServer.Handlers
                 return Task.FromResult<BicepDeploymentGraph?>(null);
             }
 
-            var graph = CreateDeploymentGraph(context, Path.GetFullPath(request.TextDocument.Uri.GetFileSystemPath()));
+            var graph = CreateDeploymentGraph(context, request.TextDocument.Uri.ToIOUri());
 
             return Task.FromResult<BicepDeploymentGraph?>(graph);
         }
 
-        public static BicepDeploymentGraph CreateDeploymentGraph(CompilationContext context, string entryFilePath)
+        public static BicepDeploymentGraph CreateDeploymentGraph(CompilationContext context, IOUri entryFileUri)
         {
             var nodes = new List<BicepDeploymentGraphNode>();
             var edges = new List<BicepDeploymentGraphEdge>();
 
-            var queue = new Queue<(SemanticModel, string, string?)>();
+            var queue = new Queue<(SemanticModel, IOUri, string?)>();
             var entrySemanticModel = context.Compilation.GetEntrypointSemanticModel();
 
-            queue.Enqueue((entrySemanticModel, entryFilePath, null));
+            queue.Enqueue((entrySemanticModel, entryFileUri, null));
 
             while (queue.Count > 0)
             {
-                var (semanticModel, filePath, parentId) = queue.Dequeue();
+                var (semanticModel, fileUri, parentId) = queue.Dequeue();
                 var nodesBySymbol = new Dictionary<DeclaredSymbol, BicepDeploymentGraphNode>();
                 var dependenciesBySymbol = ResourceDependencyVisitor.GetResourceDependencies(semanticModel)
                     .Where(x => x.Key.Name != LanguageConstants.MissingName && x.Key.Name != LanguageConstants.ErrorName)
@@ -89,16 +91,16 @@ namespace Bicep.LanguageServer.Handlers
                         var range = resourceSpan.ToRange(semanticModel.SourceFile.LineStarts);
                         var resourceHasError = errors.Any(error => TextSpan.AreOverlapping(resourceSpan, error.Span));
 
-                        nodesBySymbol[symbol] = new BicepDeploymentGraphNode(id, resourceType, isCollection, range, false, resourceHasError, filePath);
+                        nodesBySymbol[symbol] = new BicepDeploymentGraphNode(id, resourceType, isCollection, range, false, resourceHasError, fileUri);
                     }
 
                     if (symbol is ModuleSymbol moduleSymbol)
                     {
-                        var directory = Path.GetDirectoryName(filePath);
+                        var directoryUri = fileUri.Resolve(".");
                         var moduleRelativePath = moduleSymbol.DeclaringModule.TryGetPath()?.TryGetLiteralValue();
-                        var moduleFilePath = directory is not null && moduleRelativePath is not null
-                            ? Path.GetFullPath(Path.Combine(directory, moduleRelativePath))
-                            : null;
+                        var moduleFileUri = moduleRelativePath is not null
+                            ? directoryUri.Resolve(moduleRelativePath)
+                            : (IOUri?)null;
 
                         var isCollection = moduleSymbol.IsCollection;
                         var moduleSpan = moduleSymbol.DeclaringModule.Span;
@@ -107,16 +109,16 @@ namespace Bicep.LanguageServer.Handlers
 
                         var hasChildren = false;
 
-                        if (moduleFilePath is not null &&
+                        if (moduleFileUri.HasValue &&
                             moduleSymbol.TryGetSemanticModel().IsSuccess(out var moduleSemanticModel, out var _) &&
                             moduleSemanticModel is SemanticModel bicepModel &&
                             (bicepModel.Root.ResourceDeclarations.Any() || bicepModel.Root.ModuleDeclarations.Any()))
                         {
                             hasChildren = true;
-                            queue.Enqueue((bicepModel, moduleFilePath, id));
+                            queue.Enqueue((bicepModel, moduleFileUri.Value, id));
                         }
 
-                        nodesBySymbol[symbol] = new BicepDeploymentGraphNode(id, "<module>", isCollection, range, hasChildren, moduleHasError, filePath);
+                        nodesBySymbol[symbol] = new BicepDeploymentGraphNode(id, "<module>", isCollection, range, hasChildren, moduleHasError, fileUri);
                     }
                 }
 
