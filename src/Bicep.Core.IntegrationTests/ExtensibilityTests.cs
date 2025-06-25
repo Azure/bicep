@@ -913,6 +913,12 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             "extension 'br:mcr.microsoft.com/bicep/extensions/mockext/v1:1.2.3' with { discrim: 'b' } as mockExt",
             "BCP037",
             "The property \"discrim\" is not allowed on objects of type \"b\". Permissible properties include \"z1\".")]
+        [DataRow(
+            "DiscriminatedType_BicepLimitationForSharedPropertiesWithoutDiscrim",
+            "extensionConfig mockExt with { discrim: 'b' }",
+            "extension 'br:mcr.microsoft.com/bicep/extensions/mockext/v1:1.2.3' with { z1: 'shared property' } as mockExt",
+            "BCP078",
+            "The property \"discrim\" requires a value of type \"'a' | 'b'\", but none was supplied.")]
         public async Task Invalid_extension_config_assignments_should_raise_error_diagnostic(string scenario, string paramsFileExtensionConfigAssignment, string bicepFileExtensionDeclaration, string expectedDiagnosticCode, string expectedDiagnosticMessage)
         {
             var paramsUri = new Uri("file:///main.bicepparam");
@@ -936,9 +942,17 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             var compilation = await services.BuildCompilationWithRestore(files, paramsUri);
 
             var diagByFileUri = compilation.GetAllDiagnosticsByBicepFileUri();
-            diagByFileUri[mainUri].ExcludingLinterDiagnostics().Should().BeEmpty();
 
-            diagByFileUri[paramsUri].Should().ContainDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
+            if (scenario is "DiscriminatedType_BicepLimitationForSharedPropertiesWithoutDiscrim")
+            {
+                diagByFileUri[mainUri].Should().ContainSingleDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
+                diagByFileUri[paramsUri].Should().ContainDiagnostic("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"b1\".");
+
+                return;
+            }
+
+            diagByFileUri[mainUri].ExcludingLinterDiagnostics().Should().BeEmpty();
+            diagByFileUri[paramsUri].Should().ContainSingleDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
         }
 
         #endregion
