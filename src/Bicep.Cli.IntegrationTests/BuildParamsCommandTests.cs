@@ -546,11 +546,11 @@ output foo string = foo
             {
                 var sarifLog = JsonConvert.DeserializeObject<SarifLog>(error)!;
                 sarifLog.Runs[0].Results[0].RuleId.Should().Be("no-unused-params");
-                sarifLog.Runs[0].Results[0].Message.Text.Should().Be("Parameter \"unusedParam\" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]");
+                sarifLog.Runs[0].Results[0].Message.Text.Should().Be("Parameter \"unusedParam\" is declared but never used. [https://aka.ms/bicep/linter-diagnostics#no-unused-params]");
             }
             else
             {
-                error.Should().Contain($"{bicepFile}(4,11) : Warning no-unused-params: Parameter \"unusedParam\" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]");
+                error.Should().Contain($"{bicepFile}(4,11) : Warning no-unused-params: Parameter \"unusedParam\" is declared but never used. [https://aka.ms/bicep/linter-diagnostics#no-unused-params]");
             }
 
             result.Should().Be(0);

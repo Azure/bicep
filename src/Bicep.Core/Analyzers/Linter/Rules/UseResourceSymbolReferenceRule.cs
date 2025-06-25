@@ -22,8 +22,7 @@ public sealed class UseResourceSymbolReferenceRule : LinterRuleBase
     public UseResourceSymbolReferenceRule() : base(
         code: Code,
         description: CoreResources.UseResourceSymbolReferenceRule_Description,
-        LinterRuleCategory.BestPractice,
-        docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
+        LinterRuleCategory.BestPractice)
     { }
 
     public override string FormatMessage(params object[] values)
