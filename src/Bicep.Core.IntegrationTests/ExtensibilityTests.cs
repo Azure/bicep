@@ -617,15 +617,27 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
         [DataRow(
             "ConfigProvidedForExtensionThatDoesNotAcceptConfig",
             "extension kubernetes",
-            "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other' }, graph: { } }",
+            "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other' }, noConfig: { } }",
             "BCP037",
-            """The property "graph" is not allowed on objects of type "extensionConfigs". No other properties are allowed.""")]
+            """The property "noConfig" is not allowed on objects of type "extensionConfigs". No other properties are allowed.""")]
         [DataRow(
             "ConfigProvidedForNonExistentExtension",
             "extension kubernetes",
             "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other' }, nonExistent: { } }",
             "BCP037",
             """The property "nonExistent" is not allowed on objects of type "extensionConfigs". No other properties are allowed.""")]
+        [DataRow(
+            "MissingRequiredConfigProperty",
+            "extension kubernetes with { namespace: 'default' }",
+            "extensionConfigs: { kubernetes: { } }",
+            "BCP035",
+            """The specified "object" declaration is missing the following required properties: "kubeConfig".""")]
+        [DataRow(
+            "DiscriminatedType_AssignmentMissingProperties",
+            "extension 'br:mcr.microsoft.com/bicep/extensions/mockext/v1:1.2.3' with { discrim: 'a' } as mockExt",
+            "extensionConfigs: { mockExt: { a2: 'a1 not defined' } }",
+            "BCP035",
+            "The specified \"object\" declaration is missing the following required properties: \"a1\".")]
         public async Task Module_with_invalid_extension_config_produces_diagnostic(
             string scenarioName,
             string extensionDeclStr,
@@ -658,13 +670,16 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 
                       {{extensionDeclStr}}
 
-                      extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
+                      extension 'br:mcr.microsoft.com/bicep/extensions/noconfig/v1:1.2.3' as noConfig
 
                       output outputa string = inputa
                       """
             };
 
-            var services = await CreateServiceBuilderWithMockMsGraph(moduleExtensionConfigsEnabled: true);
+            var services = CreateServiceBuilder(moduleExtensionConfigsEnabled: true);
+
+            await ExtensionTestHelper.AddMockExtensions(services, TestContext, CreateMockExtWithNoConfigType(), CreateMockExtWithDiscriminatedConfigType());
+
             var compilation = await services.BuildCompilationWithRestore(files, mainUri);
 
             compilation.Should().ContainSingleDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
@@ -984,9 +999,13 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             return services;
         }
 
-        private static RegistrySourcedExtensionMockData CreateMockExtWithDiscriminatedConfigType() =>
+        private static RegistrySourcedExtensionMockData CreateMockExtWithNoConfigType(string extName = "noconfig") =>
             ExtensionTestHelper.CreateMockExtensionMockData(
-                "mockext", "1.2.3", "v1", new CustomExtensionTypeFactoryDelegates
+                extName, "1.2.3", "v1", CustomExtensionTypeFactoryDelegates.NoTypes);
+
+        private static RegistrySourcedExtensionMockData CreateMockExtWithDiscriminatedConfigType(string extName = "mockext") =>
+            ExtensionTestHelper.CreateMockExtensionMockData(
+                extName, "1.2.3", "v1", new CustomExtensionTypeFactoryDelegates
                 {
                     CreateConfigurationType = (ctx, tf) => tf.Create(() => new DiscriminatedObjectType(
                         "config",

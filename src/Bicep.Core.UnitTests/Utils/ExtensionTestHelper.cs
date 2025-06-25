@@ -8,7 +8,6 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Features;
 using Bicep.IO.Abstraction;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 
 namespace Bicep.Core.UnitTests.Utils;
@@ -76,7 +75,10 @@ public static class ExtensionTestHelper
             .WithFeaturesOverridden(f => f with { CacheRootDirectory = ExtensionTestHelper.GetCacheRootDirectory(testContext) })
             .WithContainerRegistryClientFactory(clientFactory);
 
-        await extensionMocks.ExecuteOperationsConcurrently(ext => ExtensionTestHelper.AddMockExtension(services, testContext, ext), 4);
+        foreach (var ext in extensionMocks)
+        {
+            await ExtensionTestHelper.AddMockExtension(services, testContext, ext);
+        }
 
         return services;
     }

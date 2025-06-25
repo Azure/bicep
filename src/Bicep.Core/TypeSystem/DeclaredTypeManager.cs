@@ -2150,24 +2150,15 @@ namespace Bicep.Core.TypeSystem
 
                 foreach (var extension in moduleSemanticModel.Extensions.Values)
                 {
-                    if (extension.NamespaceType is not { ConfigurationType: { } extConfigType } extNamespaceType)
+                    if (extension.ConfigAssignmentDeclaredType is null)
                     {
                         continue;
                     }
 
-                    var extConfigAssignmentTargetType = TypeHelper.CreateExtensionConfigAssignmentType(extConfigType, extension.UserAssignedDefaultConfigType);
-
-                    var extConfigPropertyTypeFlags = extConfigAssignmentTargetType switch
-                    {
-                        ObjectType extConfigObjectType => TypePropertyFlags.WriteOnly | (extConfigObjectType.Properties.Values.Any(p => p.Flags.HasFlag(TypePropertyFlags.Required)) ? TypePropertyFlags.Required : TypePropertyFlags.None),
-                        DiscriminatedObjectType extConfigDiscrimObjType => TypePropertyFlags.WriteOnly,
-                        _ => TypePropertyFlags.WriteOnly
-                    };
-
                     var extAliasProperty = new NamedTypeProperty(
                         extension.Alias,
-                        extConfigAssignmentTargetType,
-                        extConfigPropertyTypeFlags);
+                        extension.ConfigAssignmentDeclaredType!.Type,
+                        TypePropertyFlags.WriteOnly | (extension.RequiresConfigAssignment ? TypePropertyFlags.Required : TypePropertyFlags.None));
 
                     extensionConfigs.Add(extAliasProperty);
                 }

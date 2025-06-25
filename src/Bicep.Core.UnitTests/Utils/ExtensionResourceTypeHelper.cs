@@ -356,7 +356,7 @@ public static class ExtensionResourceTypeHelper
                 : null!);
 
         // resource types
-        var resourceTypes = customExtensionTypeFactoryDelegates.CreateResourceTypes?.Invoke(typesJsonTypeContext) ?? [];
+        var resourceTypes = customExtensionTypeFactoryDelegates.CreateResourceTypes?.Invoke(typesJsonTypeContext, typesJsonTypeContext.TypeFactory) ?? [];
 
         var index = new TypeIndex(
             resourceTypes.ToDictionary(x => x.Name, x => new CrossFileTypeReference("types.json", typesJsonTypeContext.TypeFactory.GetIndex(x))),
@@ -402,13 +402,15 @@ public record CreateCustomExtensionTypeContext(TypeFactory TypeFactory)
 
 public record CustomExtensionTypeFactoryDelegates
 {
+    public static readonly CustomExtensionTypeFactoryDelegates NoTypes = new() { CreateCoreTypes = null };
+
     public Action<CreateCustomExtensionTypeContext, TypeFactory>? CreateCoreTypes { get; init; } = CreateDefaultCoreTypes;
 
     public Action<CreateCustomExtensionTypeContext, TypeFactory>? CreateSharedTypes { get; init; }
 
     public Func<CreateCustomExtensionTypeContext, TypeFactory, TypeBase>? CreateConfigurationType { get; init; }
 
-    public Func<CreateCustomExtensionTypeContext, IEnumerable<ResourceType>>? CreateResourceTypes { get; init; }
+    public Func<CreateCustomExtensionTypeContext, TypeFactory, IEnumerable<ResourceType>>? CreateResourceTypes { get; init; }
 
     public static void CreateDefaultCoreTypes(CreateCustomExtensionTypeContext ctx, TypeFactory tf)
     {
