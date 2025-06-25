@@ -26,6 +26,6 @@ namespace Bicep.Core.Semantics
 
         public bool HasErrors() => false;
 
-        public IFeatureProvider Features => ExperimentalFeaturesEnabled.AllDisabled;
+        public IFeatureProvider Features { get; } = ExperimentalFeaturesEnabled.AllDisabled.ToFeatureProvider();
     }
 }

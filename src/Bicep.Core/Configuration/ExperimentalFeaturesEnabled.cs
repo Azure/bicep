@@ -24,7 +24,7 @@ public record ExperimentalFeaturesEnabled(
     bool DesiredStateConfiguration,
     bool ExternalInputFunction,
     bool OnlyIfNotExists,
-    bool ModuleIdentity) : IFeatureProvider
+    bool ModuleIdentity)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();
@@ -48,21 +48,33 @@ public record ExperimentalFeaturesEnabled(
         OnlyIfNotExists: false,
         ModuleIdentity: false);
 
-    public string AssemblyVersion => throw new NotImplementedException();
-    public IDirectoryHandle CacheRootDirectory => throw new NotImplementedException();
-    public bool SymbolicNameCodegenEnabled { get; } = SymbolicNameCodegen;
-    public bool ResourceTypedParamsAndOutputsEnabled { get; } = ResourceTypedParamsAndOutputs;
-    public bool SourceMappingEnabled { get; } = SourceMapping;
-    public bool LegacyFormatterEnabled { get; } = LegacyFormatter;
-    public bool TestFrameworkEnabled { get; } = TestFramework;
-    public bool AssertsEnabled { get; } = Assertions;
-    public bool WaitAndRetryEnabled { get; } = WaitAndRetry;
-    public bool OnlyIfNotExistsEnabled { get; } = OnlyIfNotExists;
-    public bool LocalDeployEnabled { get; } = LocalDeploy;
-    public bool ExtendableParamFilesEnabled { get; } = ExtendableParamFiles;
-    public bool ResourceInfoCodegenEnabled { get; } = ResourceInfoCodegen;
-    public bool ModuleExtensionConfigsEnabled { get; } = ModuleExtensionConfigs;
-    public bool DesiredStateConfigurationEnabled { get; } = DesiredStateConfiguration;
-    public bool ExternalInputFunctionEnabled { get; } = ExternalInputFunction;
-    public bool ModuleIdentityEnabled { get; } = ModuleIdentity;
+    public IFeatureProvider ToFeatureProvider() => new FeatureProviderAdapter(this);
+
+    private class FeatureProviderAdapter : IFeatureProvider
+    {
+        private readonly ExperimentalFeaturesEnabled features;
+
+        public FeatureProviderAdapter(ExperimentalFeaturesEnabled features)
+        {
+            this.features = features;
+        }
+
+        public string AssemblyVersion => throw new NotImplementedException();
+        public IDirectoryHandle CacheRootDirectory => throw new NotImplementedException();
+        public bool SymbolicNameCodegenEnabled => features.SymbolicNameCodegen;
+        public bool ResourceTypedParamsAndOutputsEnabled => features.ResourceTypedParamsAndOutputs;
+        public bool SourceMappingEnabled => features.SourceMapping;
+        public bool LegacyFormatterEnabled => features.LegacyFormatter;
+        public bool TestFrameworkEnabled => features.TestFramework;
+        public bool AssertsEnabled => features.Assertions;
+        public bool WaitAndRetryEnabled => features.WaitAndRetry;
+        public bool OnlyIfNotExistsEnabled => features.OnlyIfNotExists;
+        public bool LocalDeployEnabled => features.LocalDeploy;
+        public bool ExtendableParamFilesEnabled => features.ExtendableParamFiles;
+        public bool ResourceInfoCodegenEnabled => features.ResourceInfoCodegen;
+        public bool ModuleExtensionConfigsEnabled => features.ModuleExtensionConfigs;
+        public bool DesiredStateConfigurationEnabled => features.DesiredStateConfiguration;
+        public bool ExternalInputFunctionEnabled => features.ExternalInputFunction;
+        public bool ModuleIdentityEnabled => features.ModuleIdentity;
+    }
 }
