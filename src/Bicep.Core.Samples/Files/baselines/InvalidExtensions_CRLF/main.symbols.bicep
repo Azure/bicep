@@ -9,11 +9,8 @@ param boolParam1 bool
 
 extension az
 //@[10:12) ImportedNamespace az. Type: az. Declaration start char: 0, length: 12
-extension kubernetes with {
-  kubeConfig: 'DELETE'
-  namespace: 'DELETE'
-} as k8s
-//@[05:08) ImportedNamespace k8s. Type: k8s. Declaration start char: 0, length: 84
+extension kubernetes as k8s
+//@[24:27) ImportedNamespace k8s. Type: k8s. Declaration start char: 0, length: 27
 
 //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
 

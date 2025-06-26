@@ -10,7 +10,6 @@ using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
@@ -198,6 +197,11 @@ namespace Bicep.LanguageServer.Completions
                         }
 
                         yield return CreateKeywordCompletion(LanguageConstants.ParameterKeyword, "Parameter assignment keyword", context.ReplacementRange);
+
+                        if (model.Features.ModuleExtensionConfigsEnabled)
+                        {
+                            yield return CreateKeywordCompletion(LanguageConstants.ExtensionConfigKeyword, "Extension config assignment keyword", context.ReplacementRange);
+                        }
 
                         yield return CreateKeywordCompletion(LanguageConstants.ExtendsKeyword, "Extends keyword", context.ReplacementRange);
 

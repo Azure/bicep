@@ -424,7 +424,7 @@ namespace Bicep.Core.Syntax
         {
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
-            this.Visit(syntax.SpecificationString);
+            this.Visit(syntax.Alias);
             this.Visit(syntax.WithClause);
         }
 

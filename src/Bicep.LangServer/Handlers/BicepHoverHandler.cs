@@ -1,19 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Text;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -154,7 +153,7 @@ namespace Bicep.LanguageServer.Handlers
                     return AsMarkdown(MarkdownHelper.CodeBlock($"{local.Name}: {local.Type}"));
 
                 case ParameterAssignmentSymbol parameterAssignment:
-                    if (GetDeclaredParameterMetadata(parameterAssignment) is not ParameterMetadata declaredParamMetadata)
+                    if (GetBicepFileSemanticModelOrDefault(parameterAssignment)?.Parameters.TryGetValue(parameterAssignment.Name, out var declaredParamMetadata) is not true)
                     {
                         return null;
                     }
@@ -162,6 +161,13 @@ namespace Bicep.LanguageServer.Handlers
                     return AsMarkdown(MarkdownHelper.CodeBlockWithDescription(
                         WithTypeModifiers($"param {parameterAssignment.Name}: {declaredParamMetadata.TypeReference.Type}", declaredParamMetadata.TypeReference.Type), declaredParamMetadata.Description));
 
+                case ExtensionConfigAssignmentSymbol extensionConfigAssignment:
+                    if (GetBicepFileSemanticModelOrDefault(extensionConfigAssignment)?.Extensions.TryGetValue(extensionConfigAssignment.Name, out var declaredExtMetadata) is not true || declaredExtMetadata.ConfigType is null)
+                    {
+                        return null;
+                    }
+
+                    return AsMarkdown(MarkdownHelper.CodeBlock(WithTypeModifiers($"{LanguageConstants.ExtensionConfigKeyword} {declaredExtMetadata.Alias}: {declaredExtMetadata.ConfigType}", declaredExtMetadata.ConfigType)));
                 case AssertSymbol assert:
                     return AsMarkdown(MarkdownHelper.CodeBlockWithDescription($"assert {assert.Name}: {assert.Type}", TryGetDescription(result, assert)));
 
@@ -216,22 +222,8 @@ namespace Bicep.LanguageServer.Handlers
             return AsMarkdown(MarkdownHelper.CodeBlockWithDescription($"module {module.Name} '{filePath}'", descriptions));
         }
 
-        private static ParameterMetadata? GetDeclaredParameterMetadata(ParameterAssignmentSymbol symbol)
-        {
-            if (!symbol.Context.Binder.FileSymbol.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var semanticModel))
-            {
-                // failed to resolve using
-                return null;
-            }
-
-            if (semanticModel.Parameters.TryGetValue(symbol.Name, out var parameterMetadata))
-            {
-                return parameterMetadata;
-            }
-
-            return null;
-        }
-
+        private static ISemanticModel? GetBicepFileSemanticModelOrDefault(DeclaredSymbol symbol)
+            => symbol.Context.Binder.FileSymbol.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var bicepFileModel) ? bicepFileModel : null;
 
         private static string WithTypeModifiers(string coreContent, TypeSymbol type)
         {
