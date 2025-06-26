@@ -379,7 +379,7 @@ namespace Bicep.Core
 
             if (features.ModuleIdentityEnabled)
             {
-                moduleProperties.Add(new(ModuleIdentityPropertyName, IdentityObject, TypePropertyFlags.None));
+                moduleProperties.Add(new(ModuleIdentityPropertyName, IdentityObject, TypePropertyFlags.DeployTimeConstant));
             }
 
             if (features.ModuleExtensionConfigsEnabled)

@@ -2044,13 +2044,12 @@ module secureModule1 'child/secureParams.bicep' = {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-//@          "languageVersion": "2.0",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "7780080016747983536"
+//@              "templateHash": "15522334618541518671"
 //@            }
 //@          },
 //@          "parameters": {
@@ -2062,7 +2061,7 @@ module secureModule1 'child/secureParams.bicep' = {
 //@              "defaultValue": ""
 //@            }
 //@          },
-//@          "resources": {},
+//@          "resources": [],
 //@          "outputs": {
 //@            "exposedSecureString": {
 //@              "type": "string",
@@ -2122,13 +2121,12 @@ module secureModule2 'child/secureParams.bicep' = {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-//@          "languageVersion": "2.0",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "7780080016747983536"
+//@              "templateHash": "15522334618541518671"
 //@            }
 //@          },
 //@          "parameters": {
@@ -2140,7 +2138,7 @@ module secureModule2 'child/secureParams.bicep' = {
 //@              "defaultValue": ""
 //@            }
 //@          },
-//@          "resources": {},
+//@          "resources": [],
 //@          "outputs": {
 //@            "exposedSecureString": {
 //@              "type": "string",
@@ -2255,13 +2253,12 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-//@          "languageVersion": "2.0",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "7780080016747983536"
+//@              "templateHash": "15522334618541518671"
 //@            }
 //@          },
 //@          "parameters": {
@@ -2273,7 +2270,7 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 //@              "defaultValue": ""
 //@            }
 //@          },
-//@          "resources": {},
+//@          "resources": [],
 //@          "outputs": {
 //@            "exposedSecureString": {
 //@              "type": "string",
@@ -2321,13 +2318,12 @@ module secureModuleCondition 'child/secureParams.bicep' = {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-//@          "languageVersion": "2.0",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "7780080016747983536"
+//@              "templateHash": "15522334618541518671"
 //@            }
 //@          },
 //@          "parameters": {
@@ -2339,7 +2335,7 @@ module secureModuleCondition 'child/secureParams.bicep' = {
 //@              "defaultValue": ""
 //@            }
 //@          },
-//@          "resources": {},
+//@          "resources": [],
 //@          "outputs": {
 //@            "exposedSecureString": {
 //@              "type": "string",

@@ -11,49 +11,36 @@ using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Providers.Extensibility;
-using Bicep.Core.TypeSystem.Providers.MicrosoftGraph;
+using Bicep.IO.Abstraction;
 using JetBrains.Annotations;
 
 namespace Bicep.Core.TypeSystem.Providers
 {
     public class ResourceTypeProviderFactory : IResourceTypeProviderFactory
     {
-        private readonly ConcurrentDictionary<Uri, ResultWithDiagnosticBuilder<IResourceTypeProvider>> cachedResourceTypeLoaders = new();
-        private readonly IFileSystem fileSystem;
+        private readonly ConcurrentDictionary<IFileHandle, ResultWithDiagnosticBuilder<IResourceTypeProvider>> cachedResourceTypeLoaders = new();
 
-        public ResourceTypeProviderFactory(IFileSystem fileSystem)
-        {
-            this.fileSystem = fileSystem;
-        }
-
-        public ResultWithDiagnosticBuilder<IResourceTypeProvider> GetResourceTypeProvider(ArtifactReference? artifactReference, Uri typesTgzUri)
+        public ResultWithDiagnosticBuilder<IResourceTypeProvider> GetResourceTypeProvider(IFileHandle typesTgzFileHandle)
         {
             // TODO invalidate this cache on module force restore
-            return cachedResourceTypeLoaders.GetOrAdd(typesTgzUri, _ =>
+            return cachedResourceTypeLoaders.GetOrAdd(typesTgzFileHandle, _ =>
             {
                 try
                 {
-                    using var fileStream = fileSystem.File.OpenRead(typesTgzUri.LocalPath);
-                    var typesLoader = OciTypeLoader.FromStream(fileStream);
-
-                    var typeIndex = typesLoader.LoadTypeIndex();
+                    var typeLoader = ArchivedTypeLoader.FromFileHandle(typesTgzFileHandle);
+                    var typeIndex = typeLoader.LoadTypeIndex();
                     var useAzLoader = typeIndex.Settings?.Name == AzNamespaceType.Settings.TemplateExtensionName;
-                    var useMsGraphLoader = MicrosoftGraphNamespaceType.ShouldUseLoader(typeIndex.Settings?.Name);
 
                     if (useAzLoader)
                     {
-                        return new(new AzResourceTypeProvider(new AzResourceTypeLoader(typesLoader, typeIndex)));
-                    }
-                    else if (useMsGraphLoader)
-                    {
-                        return new(new MicrosoftGraphResourceTypeProvider(new MicrosoftGraphResourceTypeLoader(typesLoader)));
+                        return new(new AzResourceTypeProvider(new AzResourceTypeLoader(typeLoader, typeIndex)));
                     }
 
-                    return new(new ExtensionResourceTypeProvider(new ExtensionResourceTypeLoader(typesLoader)));
+                    return new(new ExtensionResourceTypeProvider(new ExtensionResourceTypeLoader(typeLoader)));
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteLine($"Failed to deserialize provider package from {typesTgzUri}: {ex}");
+                    Trace.WriteLine($"Failed to deserialize provider package from {typesTgzFileHandle}: {ex}");
                     return new(x => x.InvalidTypesTgzPackage_DeserializationFailed());
                 }
             });

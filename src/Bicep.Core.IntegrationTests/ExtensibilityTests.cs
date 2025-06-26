@@ -70,6 +70,31 @@ extension bar with {
         }
 
         [TestMethod]
+        public void Baz_import_bad_config_is_blocked()
+        {
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), @"
+extension baz with {
+  kind: 'Three'
+}
+");
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP036", DiagnosticLevel.Error, @"The property ""kind"" expected a value of type ""'One' | 'Two'"" but the provided value is of type ""'Three'"".")
+            });
+        }
+
+        [TestMethod]
+        public void Baz_import_valid_config_succeeds()
+        {
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), @"
+extension baz with {
+  kind: 'One'
+  connectionStringOne: '******'
+}
+");
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
         public void Ambiguous_type_references_return_errors()
         {
             var services = CreateServiceBuilder();
@@ -813,7 +838,8 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                           "az": "builtin:",
                           "kubernetes": "builtin:",
                           "foo": "builtin:",
-                          "bar": "builtin:"
+                          "bar": "builtin:",
+                          "baz": "builtin:"
                         }
                         """))
                 .WithNamespaceProvider(TestExtensionsNamespaceProvider.CreateWithDefaults())

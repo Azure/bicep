@@ -1,12 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "2.0",
   "contentVersion": "1.0.0.0",
   "metadata": {
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10125636983786354172"
+      "templateHash": "16196292690847002686"
     }
   },
   "parameters": {
@@ -17,7 +16,7 @@
   "variables": {
     "varWithOverlappingOutput": "hello"
   },
-  "resources": {},
+  "resources": [],
   "outputs": {
     "myStr": {
       "type": "string",

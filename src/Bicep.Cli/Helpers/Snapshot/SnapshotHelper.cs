@@ -121,8 +121,7 @@ public static class SnapshotHelper
             return rewriteVisitor.Rewrite(ExpressionParser.ParseLanguageExpression(parameter.Expression));
         }
 
-        throw new InvalidOperationException(
-            $"Parameters compilation produced an invalid object for parameter '{parameterName}'.");
+        return new NullExpression(position: null);
     }
 
     private class ParametersRewriteVisitor : ExpressionRewriteVisitor

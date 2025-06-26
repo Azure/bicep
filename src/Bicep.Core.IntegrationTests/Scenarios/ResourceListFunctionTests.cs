@@ -38,9 +38,9 @@ output pkMethodPayload string = stg.listKeys(stg.apiVersion, {
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.outputs['pkStandard'].value", "[listKeys(resourceId('Microsoft.Storage/storageAccounts', 'testacc'), '2019-06-01').keys[0].value]");
-            result.Template.Should().HaveValueAtPath("$.outputs['pkMethod'].value", "[listKeys('stg', '2019-06-01').keys[0].value]");
-            result.Template.Should().HaveValueAtPath("$.outputs['pkMethodVersionOverride'].value", "[listKeys('stg', '2021-01-01').keys[0].value]");
-            result.Template.Should().HaveValueAtPath("$.outputs['pkMethodPayload'].value", "[listKeys('stg', '2019-06-01', createObject('key1', 'val1'))]");
+            result.Template.Should().HaveValueAtPath("$.outputs['pkMethod'].value", "[listKeys(resourceId('Microsoft.Storage/storageAccounts', 'testacc'), '2019-06-01').keys[0].value]");
+            result.Template.Should().HaveValueAtPath("$.outputs['pkMethodVersionOverride'].value", "[listKeys(resourceId('Microsoft.Storage/storageAccounts', 'testacc'), '2021-01-01').keys[0].value]");
+            result.Template.Should().HaveValueAtPath("$.outputs['pkMethodPayload'].value", "[listKeys(resourceId('Microsoft.Storage/storageAccounts', 'testacc'), '2019-06-01', createObject('key1', 'val1'))]");
         }
 
         [TestMethod]
@@ -66,9 +66,9 @@ output pkMethodPayload string = stg.listKeys(stg.apiVersion, {
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.outputs['pkStandard'].value", "[listKeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'other'), 'Microsoft.Storage/storageAccounts', 'testacc'), '2019-06-01').keys[0].value]");
-            result.Template.Should().HaveValueAtPath("$.outputs['pkMethod'].value", "[listKeys('stg', '2019-06-01').keys[0].value]");
-            result.Template.Should().HaveValueAtPath("$.outputs['pkMethodVersionOverride'].value", "[listKeys('stg', '2021-01-01').keys[0].value]");
-            result.Template.Should().HaveValueAtPath("$.outputs['pkMethodPayload'].value", "[listKeys('stg', '2019-06-01', createObject('key1', 'val1'))]");
+            result.Template.Should().HaveValueAtPath("$.outputs['pkMethod'].value", "[listKeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'other'), 'Microsoft.Storage/storageAccounts', 'testacc'), '2019-06-01').keys[0].value]");
+            result.Template.Should().HaveValueAtPath("$.outputs['pkMethodVersionOverride'].value", "[listKeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'other'), 'Microsoft.Storage/storageAccounts', 'testacc'), '2021-01-01').keys[0].value]");
+            result.Template.Should().HaveValueAtPath("$.outputs['pkMethodPayload'].value", "[listKeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'other'), 'Microsoft.Storage/storageAccounts', 'testacc'), '2019-06-01', createObject('key1', 'val1'))]");
         }
 
         [TestMethod]

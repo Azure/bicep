@@ -206,7 +206,7 @@ namespace Bicep.IO.UnitTests.InMemory
         private static InMemoryDirectoryHandle CreateInMemoryDirectoryHandle(string path)
         {
             var store = new InMemoryFileExplorer.FileStore();
-            var uri = new IOUri("inmemory", "", path);
+            var uri = new IOUri("file", "", path);
             var directoryHandle = new InMemoryDirectoryHandle(store, uri);
 
             return directoryHandle;

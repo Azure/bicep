@@ -33,7 +33,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             code: Code,
             description: CoreResources.WhatIfShortCircuitingRuleDescription,
             LinterRuleCategory.PotentialCodeIssues,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
             overrideCategoryDefaultDiagnosticLevel: DiagnosticLevel.Off) // Disabled by default while still experimental
         { }
 

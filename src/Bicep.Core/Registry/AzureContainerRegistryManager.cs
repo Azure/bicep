@@ -240,7 +240,7 @@ namespace Bicep.Core.Registry
 
         private static async Task<OciArtifactResult> DownloadManifestAndLayersAsync(IOciArtifactAddressComponents artifactReference, ContainerRegistryContentClient client)
         {
-            Response<GetManifestResult> manifestResponse;
+            GetManifestResult manifestResult;
             try
             {
                 // either Tag or Digest is null (enforced by reference parser)
@@ -248,7 +248,7 @@ namespace Bicep.Core.Registry
                     ?? artifactReference.Digest
                     ?? throw new ArgumentNullException($"The specified artifact reference '{artifactReference.ArtifactId}' has both {nameof(artifactReference.Tag)} and {nameof(artifactReference.Digest)} set to null.");
 
-                manifestResponse = await client.GetManifestAsync(tagOrDigest);
+                manifestResult = await client.GetManifestAsync(tagOrDigest);
             }
             catch (RequestFailedException exception) when (exception.Status == 404)
             {
@@ -257,19 +257,19 @@ namespace Bicep.Core.Registry
                 throw new OciArtifactRegistryException("The artifact does not exist in the registry.", exception);
             }
 
-            if (manifestResponse.Value.Manifest.ToArray().Length == 0)
+            if (manifestResult.Manifest.ToArray().Length == 0)
             {
                 throw new InvalidArtifactException("Invalid manifest");
             }
 
             // the Value is disposable, but we are not calling it because we need to pass the stream outside of this scope (and it will GC correctly)
-            using var stream = manifestResponse.Value.Manifest.ToStream();
+            using var stream = manifestResult.Manifest.ToStream();
 
             // BUG: The SDK internally consumed the stream for validation purposes and left position at the end
             stream.Position = 0;
-            ValidateManifestResponse(manifestResponse);
+            ValidateManifestResponse(manifestResult);
 
-            var deserializedManifest = OciManifest.FromBinaryData(manifestResponse.Value.Manifest) ?? throw new InvalidOperationException("the manifest is not a valid OCI manifest");
+            var deserializedManifest = OciManifest.FromBinaryData(manifestResult.Manifest) ?? throw new InvalidOperationException("the manifest is not a valid OCI manifest");
             var layerTasks = deserializedManifest.Layers.AsParallel().WithDegreeOfParallelism(5)
                 .Select(async layer => new OciArtifactLayer(layer.Digest, layer.MediaType, await PullLayerAsync(client, layer)));
             var layers = await Task.WhenAll(layerTasks);
@@ -280,15 +280,15 @@ namespace Bicep.Core.Registry
 
             return deserializedManifest.ArtifactType switch
             {
-                BicepMediaTypes.BicepModuleArtifactType or null => new OciModuleArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers),
-                BicepMediaTypes.BicepExtensionArtifactType => new OciExtensionArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers, config),
+                BicepMediaTypes.BicepModuleArtifactType or null => new OciModuleArtifactResult(manifestResult.Manifest, manifestResult.Digest, layers),
+                BicepMediaTypes.BicepExtensionArtifactType => new OciExtensionArtifactResult(manifestResult.Manifest, manifestResult.Digest, layers, config),
                 _ => throw new InvalidArtifactException($"artifacts of type: \'{deserializedManifest.ArtifactType}\' are not supported by this Bicep version. {OciModuleArtifactResult.NewerVersionMightBeRequired}")
             };
         }
 
         private static async Task<BinaryData> PullLayerAsync(ContainerRegistryContentClient client, OciDescriptor layer, CancellationToken cancellationToken = default)
         {
-            Response<DownloadRegistryBlobResult> blobResult;
+            DownloadRegistryBlobResult blobResult;
             try
             {
                 blobResult = await client.DownloadBlobContentAsync(layer.Digest, cancellationToken);
@@ -300,12 +300,12 @@ namespace Bicep.Core.Registry
 
             ValidateBlobResponse(blobResult, layer);
 
-            return blobResult.Value.Content;
+            return blobResult.Content;
         }
 
-        private static void ValidateBlobResponse(Response<DownloadRegistryBlobResult> blobResponse, OciDescriptor descriptor)
+        private static void ValidateBlobResponse(DownloadRegistryBlobResult blobResult, OciDescriptor descriptor)
         {
-            var data = blobResponse.Value.Content;
+            var data = blobResult.Content;
             var dataSize = data.ToArray().Length;
 
             if (descriptor.Size != dataSize)
@@ -320,10 +320,10 @@ namespace Bicep.Core.Registry
             }
         }
 
-        private static void ValidateManifestResponse(Response<GetManifestResult> manifestResponse)
+        private static void ValidateManifestResponse(GetManifestResult manifest)
         {
-            var digestFromRegistry = manifestResponse.Value.Digest;
-            string digestFromContent = OciDescriptor.ComputeDigest(DigestAlgorithmIdentifier, manifestResponse.Value.Manifest);
+            var digestFromRegistry = manifest.Digest;
+            string digestFromContent = OciDescriptor.ComputeDigest(DigestAlgorithmIdentifier, manifest.Manifest);
 
             if (!string.Equals(digestFromRegistry, digestFromContent, DigestComparison))
             {

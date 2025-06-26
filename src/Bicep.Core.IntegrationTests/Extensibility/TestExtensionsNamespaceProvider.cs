@@ -22,6 +22,7 @@ public class TestExtensionsNamespaceProvider : NamespaceProvider
         {
             FooNamespaceType.BuiltInName => FooNamespaceType.Create(aliasName),
             BarNamespaceType.BuiltInName => BarNamespaceType.Create(aliasName),
+            BazNamespaceType.BuiltInName => BazNamespaceType.Create(aliasName),
             _ => null,
         });
 

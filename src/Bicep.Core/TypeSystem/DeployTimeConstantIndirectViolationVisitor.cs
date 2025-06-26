@@ -40,7 +40,8 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
-            if (this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
+            if (this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(
+                SyntaxHelper.UnwrapNonNullAssertion(syntax.BaseExpression)) is ({ } accessedSymbol, { } accessedBodyType))
             {
                 var indexExprTypeInfo = SemanticModel.GetTypeInfo(syntax.IndexExpression);
                 if (indexExprTypeInfo is StringLiteralType { RawStringValue: var propertyName })
@@ -75,7 +76,8 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
-            if (this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
+            if (this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(
+                SyntaxHelper.UnwrapNonNullAssertion(syntax.BaseExpression)) is ({ } accessedSymbol, { } accessedBodyType))
             {
                 this.FlagIfPropertyNotReadableAtDeployTime(syntax.PropertyName.IdentifierName, accessedSymbol, accessedBodyType);
             }
@@ -144,13 +146,14 @@ namespace Bicep.Core.TypeSystem
 
         private void FlagIfAccessingEntireResourceOrModule(SyntaxBase syntax)
         {
-            switch (this.SemanticModel.Binder.GetParent(syntax))
+            var (parent, immediateChild) = GetParentAndChildIgnoringNonNullAssertions(syntax);
+            switch (parent)
             {
                 // var foo = [for x in [...]: {
                 //   bar: myVM <-- accessing an entire resource/module.
                 // }]
                 case not PropertyAccessSyntax and not ArrayAccessSyntax when
-                    this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax) is ({ } accessedSymbol, { } accessedBodyType):
+                    this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(immediateChild) is ({ } accessedSymbol, { } accessedBodyType):
                     {
                         this.FlagDeployTimeConstantViolationWithVariableDependencies(accessedSymbol, accessedBodyType);
                         break;
@@ -159,7 +162,7 @@ namespace Bicep.Core.TypeSystem
                 //   bar: myVNets[1] <-- accessing an entire resource/module via an array index.
                 // }]
                 case ArrayAccessSyntax arrayAccessSyntax when
-                    arrayAccessSyntax.BaseExpression == syntax &&
+                    arrayAccessSyntax.BaseExpression == immediateChild &&
                     this.SemanticModel.Binder.GetParent(arrayAccessSyntax) is not PropertyAccessSyntax and not ArrayAccessSyntax &&
                     this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(arrayAccessSyntax) is ({ } resourceSymbol, { } resourceType):
                     {
