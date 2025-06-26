@@ -40,9 +40,9 @@ resource fooName_blah2 'Foo.Rp/bar@2019-06-01' = {
     foobarLocation: reference('${fooName}bar', '2019-06-01', 'Full').location
     foobarResId: fooName_bar.properties.foo
     foobarResIdFull: reference(fooName_bar.id, '2019-06-01', 'Full').properties.foo
-//@[21:68) [use-resource-symbol-reference (Warning)] Use a resource reference instead of invoking function "reference". This simplifies the syntax and allows Bicep to better understand your deployment dependency graph. (bicep core linter https://aka.ms/bicep/linter/use-resource-symbol-reference) |reference(fooName_bar.id, '2019-06-01', 'Full')|
+//@[21:68) [use-resource-symbol-reference (Warning)] Use a resource reference instead of invoking function "reference". This simplifies the syntax and allows Bicep to better understand your deployment dependency graph. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-resource-symbol-reference) |reference(fooName_bar.id, '2019-06-01', 'Full')|
     foobarResIdLocation: reference(fooName_bar.id, '2019-06-01', 'Full').location
-//@[25:72) [use-resource-symbol-reference (Warning)] Use a resource reference instead of invoking function "reference". This simplifies the syntax and allows Bicep to better understand your deployment dependency graph. (bicep core linter https://aka.ms/bicep/linter/use-resource-symbol-reference) |reference(fooName_bar.id, '2019-06-01', 'Full')|
+//@[25:72) [use-resource-symbol-reference (Warning)] Use a resource reference instead of invoking function "reference". This simplifies the syntax and allows Bicep to better understand your deployment dependency graph. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-resource-symbol-reference) |reference(fooName_bar.id, '2019-06-01', 'Full')|
   }
   dependsOn: [
     'Foo.Rp/bar${fooName}bar'

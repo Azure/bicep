@@ -118,7 +118,7 @@ namespace Bicep.Cli.Commands
         {
             using var tempStream = extension.ToStream();
 
-            var typeLoader = OciTypeLoader.FromStream(tempStream);
+            var typeLoader = ArchivedTypeLoader.FromStream(tempStream);
             var index = typeLoader.LoadTypeIndex();
             foreach (var (_, typeLocation) in index.Resources)
             {

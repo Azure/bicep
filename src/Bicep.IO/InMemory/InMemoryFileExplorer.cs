@@ -15,11 +15,11 @@ namespace Bicep.IO.InMemory
     {
         private readonly FileStore fileStore = new();
 
-        public IDirectoryHandle GetDirectory(IOUri uri) => new InMemoryDirectoryHandle(this.fileStore, EnsureInLocalFileUri(uri));
+        public IDirectoryHandle GetDirectory(IOUri uri) => new InMemoryDirectoryHandle(this.fileStore, EnsureLocalFileUri(uri));
 
-        public IFileHandle GetFile(IOUri uri) => new InMemoryFileHandle(this.fileStore, EnsureInLocalFileUri(uri));
+        public IFileHandle GetFile(IOUri uri) => new InMemoryFileHandle(this.fileStore, EnsureLocalFileUri(uri));
 
-        private static IOUri EnsureInLocalFileUri(IOUri uri)
+        private static IOUri EnsureLocalFileUri(IOUri uri)
         {
             if (!uri.IsLocalFile)
             {
@@ -80,7 +80,7 @@ namespace Bicep.IO.InMemory
 
             public void WriteFile(InMemoryFileHandle file, string text) => this.fileEntries.AddOrUpdate(file, text, (_, _) => text);
 
-            public string ReadFile(InMemoryFileHandle file) => this.fileEntries.GetValueOrDefault(file) ?? throw new InvalidOperationException($"File '{file.Uri}' does not exist.");
+            public string ReadFile(InMemoryFileHandle file) => this.fileEntries.GetValueOrDefault(file) ?? throw new FileNotFoundException($"File '{file.Uri}' does not exist.");
         }
     }
 }

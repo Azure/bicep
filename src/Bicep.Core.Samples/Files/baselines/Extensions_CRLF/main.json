@@ -10,7 +10,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6101682224524996823"
+      "templateHash": "9917811382712767337"
     }
   },
   "parameters": {
@@ -27,18 +27,16 @@
   "extensions": {
     "az": {
       "name": "AzureResourceManager",
-      "version": "0.2.764"
+      "version": "0.2.771"
     },
     "k8s": {
       "name": "Kubernetes",
       "version": "1.0.0",
       "config": {
         "kubeConfig": {
-          "type": "secureString",
           "defaultValue": "DELETE"
         },
         "namespace": {
-          "type": "string",
           "defaultValue": "DELETE"
         }
       }
@@ -105,7 +103,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4478020682322669192"
+              "templateHash": "9956339962035221962"
             }
           },
           "extensions": {
@@ -114,11 +112,9 @@
               "version": "1.0.0",
               "config": {
                 "kubeConfig": {
-                  "type": "secureString",
                   "defaultValue": "DELETE"
                 },
                 "namespace": {
-                  "type": "string",
                   "defaultValue": "DELETE"
                 }
               }
@@ -159,7 +155,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8431330143219269152"
+              "templateHash": "14917334107033963301"
             }
           },
           "extensions": {
@@ -168,11 +164,9 @@
               "version": "1.0.0",
               "config": {
                 "kubeConfig": {
-                  "type": "secureString",
                   "defaultValue": "DELETE"
                 },
                 "namespace": {
-                  "type": "string",
                   "defaultValue": "DELETE"
                 }
               }
@@ -209,7 +203,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4478020682322669192"
+              "templateHash": "9956339962035221962"
             }
           },
           "extensions": {
@@ -218,11 +212,9 @@
               "version": "1.0.0",
               "config": {
                 "kubeConfig": {
-                  "type": "secureString",
                   "defaultValue": "DELETE"
                 },
                 "namespace": {
-                  "type": "string",
                   "defaultValue": "DELETE"
                 }
               }
@@ -268,7 +260,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4478020682322669192"
+              "templateHash": "9956339962035221962"
             }
           },
           "extensions": {
@@ -277,11 +269,9 @@
               "version": "1.0.0",
               "config": {
                 "kubeConfig": {
-                  "type": "secureString",
                   "defaultValue": "DELETE"
                 },
                 "namespace": {
-                  "type": "string",
                   "defaultValue": "DELETE"
                 }
               }
@@ -322,7 +312,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4478020682322669192"
+              "templateHash": "9956339962035221962"
             }
           },
           "extensions": {
@@ -331,11 +321,9 @@
               "version": "1.0.0",
               "config": {
                 "kubeConfig": {
-                  "type": "secureString",
                   "defaultValue": "DELETE"
                 },
                 "namespace": {
-                  "type": "string",
                   "defaultValue": "DELETE"
                 }
               }
@@ -373,7 +361,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4478020682322669192"
+              "templateHash": "9956339962035221962"
             }
           },
           "extensions": {
@@ -382,11 +370,9 @@
               "version": "1.0.0",
               "config": {
                 "kubeConfig": {
-                  "type": "secureString",
                   "defaultValue": "DELETE"
                 },
                 "namespace": {
-                  "type": "string",
                   "defaultValue": "DELETE"
                 }
               }
@@ -423,7 +409,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4478020682322669192"
+              "templateHash": "9956339962035221962"
             }
           },
           "extensions": {
@@ -432,11 +418,9 @@
               "version": "1.0.0",
               "config": {
                 "kubeConfig": {
-                  "type": "secureString",
                   "defaultValue": "DELETE"
                 },
                 "namespace": {
-                  "type": "string",
                   "defaultValue": "DELETE"
                 }
               }
@@ -477,7 +461,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4478020682322669192"
+              "templateHash": "9956339962035221962"
             }
           },
           "extensions": {
@@ -486,11 +470,9 @@
               "version": "1.0.0",
               "config": {
                 "kubeConfig": {
-                  "type": "secureString",
                   "defaultValue": "DELETE"
                 },
                 "namespace": {
-                  "type": "string",
                   "defaultValue": "DELETE"
                 }
               }
@@ -527,7 +509,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4478020682322669192"
+              "templateHash": "9956339962035221962"
             }
           },
           "extensions": {
@@ -536,11 +518,9 @@
               "version": "1.0.0",
               "config": {
                 "kubeConfig": {
-                  "type": "secureString",
                   "defaultValue": "DELETE"
                 },
                 "namespace": {
-                  "type": "string",
                   "defaultValue": "DELETE"
                 }
               }

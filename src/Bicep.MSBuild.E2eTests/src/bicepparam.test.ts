@@ -58,7 +58,7 @@ describe("msbuild", () => {
       'main.bicepparam(1,7): error BCP258: The following parameters are declared in the Bicep file but are missing an assignment in the params file: "extraneous"',
       "main.bicepparam(1,7): error BCP104: The referenced module has errors.",
       'main.bicepparam(3,1): error BCP259: The parameter "missing" is assigned in the params file without being declared in the Bicep file.',
-      'main.bicep(1,7): warning no-unused-params: Parameter "extraneous" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]',
+      'main.bicep(1,7): warning no-unused-params: Parameter "extraneous" is declared but never used. [https://aka.ms/bicep/linter-diagnostics#no-unused-params]',
       'main.bicep(3,27): error BCP033: Expected a value of type "object" but the provided value is of type "\'\'"',
     ]);
   });

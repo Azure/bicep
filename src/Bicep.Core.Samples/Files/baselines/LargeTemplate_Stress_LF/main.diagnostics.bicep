@@ -1,5 +1,5 @@
 var test = [
-//@[4:8) [no-unused-vars (Warning)] Variable "test" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |test|
+//@[4:8) [no-unused-vars (Warning)] Variable "test" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |test|
 		  {}
   {}
   {}

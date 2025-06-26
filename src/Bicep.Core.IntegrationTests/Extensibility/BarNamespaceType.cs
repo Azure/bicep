@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
@@ -13,11 +14,6 @@ namespace Bicep.Core.IntegrationTests.Extensibility;
 public static class BarNamespaceType
 {
     public const string BuiltInName = "bar";
-
-    public static readonly ImmutableHashSet<string> UniqueIdentifierProperties =
-    [
-        "name",
-    ];
 
     public static NamespaceSettings Settings { get; } = new(
         IsSingleton: false,
@@ -55,7 +51,7 @@ public static class BarNamespaceType
                 ResourceFlags.None,
                 new ObjectType("Container properties", TypeSymbolValidationFlags.Default, new[]
                 {
-                    new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
+                    new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.ResourceIdentifier),
                 }, null)),
             new ResourceTypeComponents(
                 ResourceTypeReference.Parse("blob"),
@@ -65,7 +61,7 @@ public static class BarNamespaceType
                 new ObjectType("Blob properties", TypeSymbolValidationFlags.Default, new[]
                 {
                     new NamedTypeProperty("containerName", LanguageConstants.String, TypePropertyFlags.Required),
-                    new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
+                    new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.ResourceIdentifier),
                     new NamedTypeProperty("base64Content", LanguageConstants.String, TypePropertyFlags.Required),
                 }, null)),
         }.ToImmutableDictionary(x => x.TypeReference);
@@ -92,7 +88,7 @@ public static class BarNamespaceType
                 resourceType.ReadOnlyScopes,
                 resourceType.Flags,
                 resourceType.Body,
-                UniqueIdentifierProperties);
+                resourceType.GetUniqueIdentifierPropertyNames());
         }
 
         public bool HasDefinedType(ResourceTypeReference typeReference)

@@ -18,8 +18,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public NoUnnecessaryDependsOnRule() : base(
             code: Code,
             description: CoreResources.NoUnnecessaryDependsOnRuleDescription,
-            LinterRuleCategory.BestPractice,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}")
+            LinterRuleCategory.BestPractice
         )
         {
         }

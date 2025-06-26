@@ -48,7 +48,7 @@ updates:
       # we're deliberately taking a dependency on an older version of vscode for back-compatibility
       - dependency-name: "@types/vscode"
         versions:
-        - ">1.90.0"
+          - ">1.90.0"
   - package-ecosystem: "npm"
     directory: "/src/vscode-bicep-ui"
     schedule:
@@ -88,3 +88,13 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
+  - package-ecosystem: dotnet-sdk
+    directory: /
+    schedule:
+      interval: weekly
+      day: wednesday
+    ignore:
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor

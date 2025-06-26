@@ -138,7 +138,7 @@ namespace Bicep.IO.UnitTests.InMemory
         private static (InMemoryFileHandle Handle, InMemoryFileExplorer.FileStore Store) CreateFileHandleWithStore(string filePath)
         {
             var store = new InMemoryFileExplorer.FileStore();
-            var uri = new IOUri("inmemory", string.Empty, filePath);
+            var uri = new IOUri("file", string.Empty, filePath);
             var fileHandle = new InMemoryFileHandle(store, uri);
 
             return (fileHandle, store);

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using System.Configuration;
 using Azure.Bicep.Types;
 using Azure.Bicep.Types.Index;
 using Bicep.Core.Resources;
@@ -10,7 +11,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
 {
     public class ExtensionResourceTypeLoader : IResourceTypeLoader
     {
-        public record NamespaceConfiguration(string Name, string Version, bool IsSingleton, ObjectType? ConfigurationObject);
+        public record NamespaceConfiguration(string Name, string Version, bool IsSingleton, ObjectLikeType? ConfigurationType);
 
         private readonly ITypeLoader typeLoader;
         private readonly ExtensionResourceTypeFactory resourceTypeFactory;
@@ -20,15 +21,12 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
 
         public ExtensionResourceTypeLoader(ITypeLoader typeLoader, TypeIndex? typeIndex = null)
         {
+            typeIndex ??= typeLoader.LoadTypeIndex();
             this.typeLoader = typeLoader;
-            resourceTypeFactory = new ExtensionResourceTypeFactory();
-            var indexedTypes = typeIndex ?? typeLoader.LoadTypeIndex();
-            availableTypes = indexedTypes.Resources.ToImmutableDictionary(
-                kvp => ResourceTypeReference.Parse(kvp.Key),
-                kvp => kvp.Value);
-
-            typeSettings = indexedTypes.Settings;
-            fallbackResourceType = indexedTypes.FallbackResourceType;
+            this.resourceTypeFactory = new ExtensionResourceTypeFactory(typeIndex.Settings);
+            this.availableTypes = typeIndex.Resources.ToImmutableDictionary(x => ResourceTypeReference.Parse(x.Key), x => x.Value);
+            this.typeSettings = typeIndex.Settings;
+            this.fallbackResourceType = typeIndex.FallbackResourceType;
         }
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
@@ -63,24 +61,27 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                 throw new ArgumentException($"Please provide the following Settings properties: Name, Version, & IsSingleton.");
             }
 
-            ObjectType? configurationType = null;
             if (typeSettings.ConfigurationType is { } reference)
             {
+                var serializedConfigurationType = typeLoader.LoadType(reference);
 
-                if (typeLoader.LoadType(reference) is not Azure.Bicep.Types.Concrete.ObjectType concreteObjectType ||
-                    resourceTypeFactory.GetObjectType(concreteObjectType) is not ObjectType objectType)
+                if (resourceTypeFactory.GetConfigurationType(serializedConfigurationType) is not ObjectLikeType configurationType)
                 {
-                    throw new ArgumentException($"Unable to locate resource object type at index {reference.Index} in \"{reference.RelativePath}\" resource");
+                    throw new InvalidOperationException($"Extension configuration type at index {reference.Index} in \"{reference.RelativePath}\" is not a valid ObjectLikeType.");
                 }
 
-                configurationType = objectType;
+                return new(
+                    typeSettings.Name,
+                    typeSettings.Version,
+                    typeSettings.IsSingleton,
+                    configurationType);
             }
 
             return new(
                 typeSettings.Name,
                 typeSettings.Version,
                 typeSettings.IsSingleton,
-                configurationType);
+                null);
         }
     }
 }

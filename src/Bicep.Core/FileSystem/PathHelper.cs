@@ -218,15 +218,5 @@ namespace Bicep.Core.FileSystem
 
             return source.MakeRelativeUri(target).OriginalString;
         }
-
-        public static Uri? TryResolveFilePath(Uri parentFileUri, string childFilePath)
-        {
-            if (!Uri.TryCreate(parentFileUri, childFilePath, out var relativeUri))
-            {
-                return null;
-            }
-
-            return relativeUri;
-        }
     }
 }
