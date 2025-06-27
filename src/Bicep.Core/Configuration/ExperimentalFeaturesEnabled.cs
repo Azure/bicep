@@ -20,7 +20,6 @@ public record ExperimentalFeaturesEnabled(
     bool ResourceInfoCodegen,
     bool ModuleExtensionConfigs,
     bool DesiredStateConfiguration,
-    bool ExternalInputFunction,
     bool OnlyIfNotExists,
     bool ModuleIdentity)
 {

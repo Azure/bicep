@@ -501,9 +501,6 @@
   <data name="ExperimentalFeatureNames_WaitAndRetry" xml:space="preserve">
     <value>Enable wait and retry feature</value>
   </data>
-  <data name="ExperimentalFeatureNames_ExternalInputFunction" xml:space="preserve">
-    <value>External input function</value>
-  </data>
   <data name="NoSymbolicReferencesInInnerScopedDeploymentResourcesDescription" xml:space="preserve">
     <value>Nested deployment resources cannot refer to top-level symbols from within the 'template' property when inner-scoped evaluation is used.</value>
   </data>

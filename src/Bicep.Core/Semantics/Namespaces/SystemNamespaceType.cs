@@ -1239,25 +1239,22 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithOptionalParameter("default", LanguageConstants.String, "Default value to return if environment variable is not found.")
                     .Build();
 
-                if (featureProvider.ExternalInputFunctionEnabled)
-                {
-                    yield return new FunctionOverloadBuilder(LanguageConstants.ExternalInputBicepFunctionName)
-                        .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
-                        .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.")
-                        .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.")
-                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, exp.Parameters))
-                        .WithReturnResultBuilder((model, diagnostics, functionCall, argumentTypes) =>
+                yield return new FunctionOverloadBuilder(LanguageConstants.ExternalInputBicepFunctionName)
+                    .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
+                    .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.")
+                    .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.")
+                    .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, exp.Parameters))
+                    .WithReturnResultBuilder((model, diagnostics, functionCall, argumentTypes) =>
+                    {
+                        var visitor = new CompileTimeConstantVisitor(diagnostics);
+                        foreach (var arg in functionCall.Arguments)
                         {
-                            var visitor = new CompileTimeConstantVisitor(diagnostics);
-                            foreach (var arg in functionCall.Arguments)
-                            {
-                                arg.Accept(visitor);
-                            }
+                            arg.Accept(visitor);
+                        }
 
-                            return new(LanguageConstants.Any);
-                        }, LanguageConstants.Any)
-                        .Build();
-                }
+                        return new(LanguageConstants.Any);
+                    }, LanguageConstants.Any)
+                    .Build();
             }
 
             foreach (var overload in GetAlwaysPermittedOverloads())
