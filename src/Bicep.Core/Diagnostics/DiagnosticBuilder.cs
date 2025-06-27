@@ -1923,11 +1923,11 @@ namespace Bicep.Core.Diagnostics
             { Fixes = [AsNonNullable(expression)] };
 
             public Diagnostic InlineMustNotHaveValueAssigned() => CoreError(
-                "BCP422",
+                "BCP423",
                 $"A parameter marked with the \"@{LanguageConstants.ParameterInlinePropertyName}\" decorator shouldn't have a value assigned.");
 
             public Diagnostic MissingParameterValue(string identifier) => CoreError(
-                "BCP423",
+                "BCP424",
                 $"Parameter {identifier} is declared but missing a value assignment.");
         }
 
