@@ -617,20 +617,76 @@ jobs:
           BICEP_CLI_DOTNET_RID: ${{ matrix.runtime.rid }}
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
 
-  test-dotnet:
-    name: 'Test Dotnet (${{ matrix.os }}) (${{matrix.config.name}})'
+  test-dotnet-unit:
+    name: 'Run .NET Unit Tests (${{ matrix.os }})'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-latest
+          - ubuntu-latest
+          - macos-latest
+        # OSX runner performance is slow (https://github.com/actions/runner-images/issues/1336).
+        # We can get away with skipping it for PRs, and instead triggering on merges to main.
+        skipOsx:
+          - ${{ github.event_name == 'pull_request' }}
+        exclude:
+          - skipOsx: true
+            os: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+
+      - name: Install dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run Unit Tests
+        run: |
+          projects=(
+            "src/Bicep.Core.UnitTests"
+            "src/Bicep.Core.Samples"
+            "src/Bicep.IO.UnitTests"
+            "src/Bicep.Cli.UnitTests"
+            "src/Bicep.LangServer.UnitTests"
+            "src/Bicep.Local.Extension.UnitTests"
+            "src/Bicep.RegistryModuleTool.UnitTests"
+          )
+          for project in "${projects[@]}"; do
+            echo "Running tests for $proj"
+            dotnet run --no-build --project "$project" --configuration Release --report-trx --results-directory ${{ github.workspace }}/TestResults
+          done
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: TestResults-UnitTests-${{ matrix.os }}
+          path: ./TestResults/*.trx
+          if-no-files-found: error
+
+  test-dotnet-integration:
+    name: 'Run .NET Integration Tests (${{ matrix.project }} | ${{ matrix.os }})'
     runs-on: ${{ matrix.os }}
     strategy:
       # let us get failures from other jobs even if one fails
       fail-fast: false
       matrix:
-        config:
-          - name: Core
-            filter: FullyQualifiedName~Bicep.Core.IntegrationTests
-          - name: LangServer
-            filter: FullyQualifiedName~Bicep.LangServer.IntegrationTests
-          - name: Others
-            filter: FullyQualifiedName!~Bicep.Core.IntegrationTests&FullyQualifiedName!~Bicep.LangServer.IntegrationTests
+        project:
+          - Bicep.Core.IntegrationTests
+          - Bicep.Cli.IntegrationTests
+          - Bicep.LangServer.IntegrationTests
+          - Bicep.Local.Deploy.IntegrationTests
+          - Bicep.RegistryModuleTool.IntegrationTests
         os:
           - windows-latest
           - ubuntu-latest
@@ -652,20 +708,22 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
 
-      - name: Run Tests
-        run: dotnet test --configuration release -- --filter '${{ matrix.config.filter }}' --report-trx --results-directory ${{ github.workspace }}/TestResults
+      - name: Run ${{ matrix.project }}
+        run: dotnet run --project "src/${{ matrix.project }}" --configuration Release --report-trx --results-directory ${{ github.workspace }}/TestResults
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: TestResults-${{ matrix.config.name }}-${{ matrix.os }}
+          name: TestResults-${{ matrix.project }}-${{ matrix.os }}
           path: ./TestResults/*.trx
           if-no-files-found: error
 
   comment-test-summary:
     name: "PR Comment: Dotnet Tests Summary"
-    needs: test-dotnet
+    needs:
+      - test-dotnet-unit
+      - test-dotnet-integration
     runs-on: ubuntu-latest
     permissions:
       checks: write
