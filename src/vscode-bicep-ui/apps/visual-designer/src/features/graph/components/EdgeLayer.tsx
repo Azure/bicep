@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { useAtomValue } from "jotai";
 import { styled } from "styled-components";
 import { edgesAtom } from "../atoms/edges";

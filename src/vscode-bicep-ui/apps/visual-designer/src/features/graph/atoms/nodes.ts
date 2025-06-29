@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { Atom, PrimitiveAtom } from "jotai";
 import type { Box, Point } from "../../../utils/math/geometry";
 

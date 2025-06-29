@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { DragEvent } from "react";
 
 import { AzureIcon, List } from "@vscode-bicep-ui/components";

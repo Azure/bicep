@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { D3DragEvent, SubjectPosition } from "d3-drag";
 import type { RefObject } from "react";
 

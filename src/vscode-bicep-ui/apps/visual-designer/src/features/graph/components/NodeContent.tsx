@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { Atom } from "jotai";
 import type { NodeKind } from "../atoms";
 

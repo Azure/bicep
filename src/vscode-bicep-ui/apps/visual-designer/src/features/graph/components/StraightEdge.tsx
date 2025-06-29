@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { EdgeAtomValue } from "../atoms/edges";
 
 import { atom, useStore } from "jotai";

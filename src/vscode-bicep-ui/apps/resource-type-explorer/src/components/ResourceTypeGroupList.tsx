@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { List } from "@vscode-bicep-ui/components";
 import { styled } from "styled-components";
 import { ResourceTypeGroupListItem } from "./ResourceTypeGroupListItem";

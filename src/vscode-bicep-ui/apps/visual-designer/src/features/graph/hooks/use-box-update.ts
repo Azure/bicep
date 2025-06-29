@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { Atom, createStore } from "jotai";
 import type { Box } from "../../../utils/math";
 

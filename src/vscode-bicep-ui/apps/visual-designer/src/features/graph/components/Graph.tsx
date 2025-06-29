@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { PanZoomTransformed } from "@vscode-bicep-ui/components";
 import { styled } from "styled-components";
 import { EdgeLayer } from "./EdgeLayer";

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { CompoundNodeState } from "../atoms/nodes";
 
 import { frame } from "framer-motion";

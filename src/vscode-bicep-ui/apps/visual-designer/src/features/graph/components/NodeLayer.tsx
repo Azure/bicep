@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { useAtomValue } from "jotai";
 import { nodesAtom } from "../atoms";
 import { CompoundNode } from "./CompoundNode";

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { ComponentType } from "react";
 
 import type { NodeState } from "./nodes";

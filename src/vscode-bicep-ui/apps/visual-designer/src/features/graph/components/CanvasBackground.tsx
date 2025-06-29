@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { usePanZoomTransformListener } from "@vscode-bicep-ui/components";
 import { useRef } from "react";
 import { styled } from "styled-components";
