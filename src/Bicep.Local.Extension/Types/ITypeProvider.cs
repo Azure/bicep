@@ -14,6 +14,6 @@ namespace Bicep.Local.Extension.Types;
 /// </remarks>
 public interface ITypeProvider
 {
-    
+
     Type[] GetResourceTypes();
 }
