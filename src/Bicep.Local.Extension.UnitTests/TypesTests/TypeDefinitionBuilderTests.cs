@@ -23,7 +23,7 @@ public class TypeDefinitionBuilderTests
 {
     private record TestUnsupportedProperty(DateTime When);
 
-    private record SimpleResource(string Name = "");  
+    private record SimpleResource(string Name = "");
 
     private static TypeSettings CreateTypeSettings() =>
         new("TestSettings", "2025-01-01", true, new Azure.Bicep.Types.CrossFileTypeReference("index.json", 0));
