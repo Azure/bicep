@@ -17,7 +17,7 @@
     "eslint-plugin-prettier": "^5.5.1",
     "globals": "^16.2.0",
     "html-escaper": "^3.0.3",
-    "jest": "^30.0.2",
+    "jest": "^30.0.3",
     "onigasm": "^2.2.5",
     "plist": "^3.1.0",
     "tmlanguage-generator": "^0.6.1",
