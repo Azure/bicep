@@ -265,13 +265,6 @@ resource baz 'My.Rp/foo@2020-01-01' = {
                       properties: {}
                     }
                     """,
-                ["/bicepconfig.json"] = """
-                    {
-                      "experimentalFeaturesEnabled": {
-                        "externalInputFunction": true
-                      }
-                    }
-                    """,
             });
 
         await RunServerTest(
@@ -399,13 +392,6 @@ resource baz 'My.Rp/foo@2020-01-01' = {
                       }
                       kind: 'StorageV2'
                       properties: {}
-                    }
-                    """,
-                ["/bicepconfig.json"] = """
-                    {
-                      "experimentalFeaturesEnabled": {
-                        "externalInputFunction": true
-                      }
                     }
                     """,
             });
