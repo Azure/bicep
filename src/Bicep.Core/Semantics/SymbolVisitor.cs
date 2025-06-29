@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
@@ -92,6 +93,11 @@ namespace Bicep.Core.Semantics
         }
 
         public virtual void VisitExtensionNamespaceSymbol(ExtensionNamespaceSymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+
+        public virtual void VisitExtensionConfigAssignmentSymbol(ExtensionConfigAssignmentSymbol symbol)
         {
             VisitDescendants(symbol);
         }

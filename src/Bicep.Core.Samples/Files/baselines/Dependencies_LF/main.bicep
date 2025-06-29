@@ -53,7 +53,7 @@ resource resD 'My.Rp/myResourceType/childType@2020-01-01' = {
 }
 
 resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {
-  name: 'resC/resD'
+  name: 'resC/resD_2'
   properties: {
     resDRef: resD.id
   }

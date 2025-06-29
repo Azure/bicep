@@ -4,7 +4,10 @@
 using System.Diagnostics;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceLink;
+using Bicep.Core.Utils;
+using Bicep.LanguageServer.Extensions;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
@@ -16,7 +19,7 @@ namespace Bicep.LanguageServer.Handlers
     {
         private static readonly Range DocumentStart = new(new Position(0, 0), new Position(0, 0));
 
-        public static IEnumerable<CodeLens> GetCodeLenses(IModuleDispatcher moduleDispatcher, CodeLensParams request, CancellationToken cancellationToken)
+        public static IEnumerable<CodeLens> GetCodeLenses(IModuleDispatcher moduleDispatcher, ISourceFileFactory sourceFileFactory, CodeLensParams request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -44,9 +47,9 @@ namespace Bicep.LanguageServer.Handlers
                     Debug.Assert(message is null);
 
                     var isDisplayingCompiledJson = externalReference.IsRequestingCompiledJson;
-                    if (externalReference.ToArtifactReference().IsSuccess(out var artifactReference, out message))
+                    if (externalReference.ToArtifactReference(sourceFileFactory.CreateDummyArtifactReferencingFile()).IsSuccess(out var artifactReference, out message))
                     {
-                        var sourceArchiveResult = moduleDispatcher.TryGetModuleSources(artifactReference);
+                        var sourceArchiveResult = artifactReference.TryLoadSourceArchive();
 
                         if (isDisplayingCompiledJson)
                         {
@@ -80,7 +83,7 @@ namespace Bicep.LanguageServer.Handlers
                                 var artifactId = externalReference.Components.ArtifactId;
                                 yield return CreateCodeLens(
                                     DocumentStart,
-                                    $"Show compiled JSON for module {moduleName} ({OciArtifactReferenceFacts.Scheme}:{artifactId})",
+                                    $"Show the compiled JSON for module \"{moduleName}\" ({OciArtifactReferenceFacts.Scheme}:{artifactId})",
                                     "bicep.internal.showModuleSourceFile",
                                     new ExternalSourceReference(request.TextDocument.Uri).WithRequestForCompiledJson().ToUri().ToString());
                             }

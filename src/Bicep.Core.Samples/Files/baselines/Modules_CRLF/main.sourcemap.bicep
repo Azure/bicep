@@ -12,7 +12,7 @@ param deployTimeSuffix string = newGuid()
 @sys.description('this module a')
 //@        "description": "this module a"
 module modATest './modulea.bicep' = {
-//@    {
+//@    "modATest": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2022-09-01",
 //@      "properties": {
@@ -123,7 +123,7 @@ module modATest './modulea.bicep' = {
 @sys.description('this module b')
 //@        "description": "this module b"
 module modB './child/moduleb.bicep' = {
-//@    {
+//@    "modB": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2022-09-01",
 //@      "properties": {
@@ -180,7 +180,7 @@ module modB './child/moduleb.bicep' = {
 @sys.description('this is just module b with a condition')
 //@        "description": "this is just module b with a condition"
 module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
-//@    {
+//@    "modBWithCondition": {
 //@      "condition": "[equals(add(1, 1), 2)]",
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2022-09-01",
@@ -236,7 +236,7 @@ module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
 }
 
 module modBWithCondition2 './child/moduleb.bicep' =
-//@    {
+//@    "modBWithCondition2": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2022-09-01",
 //@      "properties": {
@@ -292,7 +292,7 @@ if (1 + 1 == 2) {
 }
 
 module modC './child/modulec.json' = {
-//@    {
+//@    "modC": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2022-09-01",
 //@      "properties": {
@@ -339,7 +339,7 @@ module modC './child/modulec.json' = {
 }
 
 module modCWithCondition './child/modulec.json' = if (2 - 1 == 1) {
-//@    {
+//@    "modCWithCondition": {
 //@      "condition": "[equals(sub(2, 1), 1)]",
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2022-09-01",
@@ -387,7 +387,7 @@ module modCWithCondition './child/modulec.json' = if (2 - 1 == 1) {
 }
 
 module optionalWithNoParams1 './child/optionalParams.bicep'= {
-//@    {
+//@    "optionalWithNoParams1": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2022-09-01",
 //@      "properties": {
@@ -449,7 +449,7 @@ module optionalWithNoParams1 './child/optionalParams.bicep'= {
 }
 
 module optionalWithNoParams2 './child/optionalParams.bicep'= {
-//@    {
+//@    "optionalWithNoParams2": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2022-09-01",
 //@      "properties": {
@@ -514,7 +514,7 @@ module optionalWithNoParams2 './child/optionalParams.bicep'= {
 }
 
 module optionalWithAllParams './child/optionalParams.bicep'= {
-//@    {
+//@    "optionalWithAllParams": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2022-09-01",
 //@      "properties": {
@@ -596,14 +596,14 @@ module optionalWithAllParams './child/optionalParams.bicep'= {
 }
 
 resource resWithDependencies 'Mock.Rp/mockResource@2020-01-01' = {
-//@    {
+//@    "resWithDependencies": {
 //@      "type": "Mock.Rp/mockResource",
 //@      "apiVersion": "2020-01-01",
 //@      "name": "harry",
 //@      "dependsOn": [
-//@        "[resourceId('Microsoft.Resources/deployments', 'modATest')]",
-//@        "[resourceId('Microsoft.Resources/deployments', 'modB')]",
-//@        "[resourceId('Microsoft.Resources/deployments', 'modC')]"
+//@        "modATest",
+//@        "modB",
+//@        "modC"
 //@      ]
 //@    },
   name: 'harry'
@@ -611,16 +611,16 @@ resource resWithDependencies 'Mock.Rp/mockResource@2020-01-01' = {
 //@      "properties": {
 //@      },
     modADep: modATest.outputs.stringOutputA
-//@        "modADep": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2022-09-01').outputs.stringOutputA.value]",
+//@        "modADep": "[reference('modATest').outputs.stringOutputA.value]",
     modBDep: modB.outputs.myResourceId
-//@        "modBDep": "[reference(resourceId('Microsoft.Resources/deployments', 'modB'), '2022-09-01').outputs.myResourceId.value]",
+//@        "modBDep": "[reference('modB').outputs.myResourceId.value]",
     modCDep: modC.outputs.myResourceId
-//@        "modCDep": "[reference(resourceId('Microsoft.Resources/deployments', 'modC'), '2022-09-01').outputs.myResourceId.value]"
+//@        "modCDep": "[reference('modC').outputs.myResourceId.value]"
   }
 }
 
 module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep'= {
-//@    {
+//@    "optionalWithAllParamsAndManualDependency": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2022-09-01",
 //@      "properties": {
@@ -677,8 +677,8 @@ module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep'= 
 //@        }
 //@      },
 //@      "dependsOn": [
-//@        "[resourceId('Microsoft.Resources/deployments', 'optionalWithNoParams3')]",
-//@        "[resourceId('Mock.Rp/mockResource', 'harry')]"
+//@        "optionalWithAllParams",
+//@        "resWithDependencies"
 //@      ]
 //@    },
   name: 'optionalWithAllParamsAndManualDependency'
@@ -710,7 +710,7 @@ module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep'= 
 }
 
 module optionalWithImplicitDependency './child/optionalParams.bicep'= {
-//@    {
+//@    "optionalWithImplicitDependency": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2022-09-01",
 //@      "properties": {
@@ -767,8 +767,8 @@ module optionalWithImplicitDependency './child/optionalParams.bicep'= {
 //@        }
 //@      },
 //@      "dependsOn": [
-//@        "[resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency')]",
-//@        "[resourceId('Mock.Rp/mockResource', 'harry')]"
+//@        "optionalWithAllParamsAndManualDependency",
+//@        "resWithDependencies"
 //@      ]
 //@    },
   name: 'optionalWithImplicitDependency'
@@ -796,7 +796,7 @@ module optionalWithImplicitDependency './child/optionalParams.bicep'= {
 }
 
 module moduleWithCalculatedName './child/optionalParams.bicep'= {
-//@    {
+//@    "moduleWithCalculatedName": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2022-09-01",
 //@      "properties": {
@@ -853,8 +853,8 @@ module moduleWithCalculatedName './child/optionalParams.bicep'= {
 //@        }
 //@      },
 //@      "dependsOn": [
-//@        "[resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency')]",
-//@        "[resourceId('Mock.Rp/mockResource', 'harry')]"
+//@        "optionalWithAllParamsAndManualDependency",
+//@        "resWithDependencies"
 //@      ]
 //@    },
   name: '${optionalWithAllParamsAndManualDependency.name}${deployTimeSuffix}'
@@ -882,13 +882,13 @@ module moduleWithCalculatedName './child/optionalParams.bicep'= {
 }
 
 resource resWithCalculatedNameDependencies 'Mock.Rp/mockResource@2020-01-01' = {
-//@    {
+//@    "resWithCalculatedNameDependencies": {
 //@      "type": "Mock.Rp/mockResource",
 //@      "apiVersion": "2020-01-01",
 //@      "name": "[format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix'))]",
 //@      "dependsOn": [
-//@        "[resourceId('Microsoft.Resources/deployments', format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix')))]",
-//@        "[resourceId('Microsoft.Resources/deployments', 'optionalWithAllParamsAndManualDependency')]"
+//@        "moduleWithCalculatedName",
+//@        "optionalWithAllParamsAndManualDependency"
 //@      ]
 //@    },
   name: '${optionalWithAllParamsAndManualDependency.name}${deployTimeSuffix}'
@@ -896,35 +896,35 @@ resource resWithCalculatedNameDependencies 'Mock.Rp/mockResource@2020-01-01' = {
 //@      "properties": {
 //@      },
     modADep: moduleWithCalculatedName.outputs.outputObj
-//@        "modADep": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix'))), '2022-09-01').outputs.outputObj.value]"
+//@        "modADep": "[reference('moduleWithCalculatedName').outputs.outputObj.value]"
   }
 }
 
 output stringOutputA string = modATest.outputs.stringOutputA
 //@    "stringOutputA": {
 //@      "type": "string",
-//@      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2022-09-01').outputs.stringOutputA.value]"
+//@      "value": "[reference('modATest').outputs.stringOutputA.value]"
 //@    },
 output stringOutputB string = modATest.outputs.stringOutputB
 //@    "stringOutputB": {
 //@      "type": "string",
-//@      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2022-09-01').outputs.stringOutputB.value]"
+//@      "value": "[reference('modATest').outputs.stringOutputB.value]"
 //@    },
 output objOutput object = modATest.outputs.objOutput
 //@    "objOutput": {
 //@      "type": "object",
-//@      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2022-09-01').outputs.objOutput.value]"
+//@      "value": "[reference('modATest').outputs.objOutput.value]"
 //@    },
 output arrayOutput array = modATest.outputs.arrayOutput
 //@    "arrayOutput": {
 //@      "type": "array",
-//@      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2022-09-01').outputs.arrayOutput.value]"
+//@      "value": "[reference('modATest').outputs.arrayOutput.value]"
 //@    },
 output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputObj
 //@    "modCalculatedNameOutput": {
 //@      "type": "object",
-//@      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix'))), '2022-09-01').outputs.outputObj.value]"
-//@    }
+//@      "value": "[reference('moduleWithCalculatedName').outputs.outputObj.value]"
+//@    },
 
 /*
   valid loop cases
@@ -957,7 +957,7 @@ var emptyArray = []
 
 // simple module loop
 module storageResources 'modulea.bicep' = [for module in myModules: {
-//@    {
+//@    "storageResources": {
 //@      "copy": {
 //@        "name": "storageResources",
 //@        "count": "[length(variables('myModules'))]"
@@ -1054,7 +1054,7 @@ module storageResources 'modulea.bicep' = [for module in myModules: {
 
 // simple indexed module loop
 module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules: {
-//@    {
+//@    "storageResourcesWithIndex": {
 //@      "copy": {
 //@        "name": "storageResourcesWithIndex",
 //@        "count": "[length(variables('myModules'))]"
@@ -1159,7 +1159,7 @@ module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules
 
 // nested module loop
 module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
-//@    {
+//@    "nestedModuleLoop": {
 //@      "copy": {
 //@        "name": "nestedModuleLoop",
 //@        "count": "[length(variables('myModules'))]"
@@ -1262,7 +1262,7 @@ module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
 
 // duplicate identifiers across scopes are allowed (inner hides the outer)
 module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
-//@    {
+//@    "duplicateIdentifiersWithinLoop": {
 //@      "copy": {
 //@        "name": "duplicateIdentifiersWithinLoop",
 //@        "count": "[length(variables('emptyArray'))]"
@@ -1371,7 +1371,7 @@ module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
 var duplicateAcrossScopes = 'hello'
 //@    "duplicateAcrossScopes": "hello",
 module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes in []: {
-//@    {
+//@    "duplicateInGlobalAndOneLoop": {
 //@      "copy": {
 //@        "name": "duplicateInGlobalAndOneLoop",
 //@        "count": "[length(createArray())]"
@@ -1481,7 +1481,7 @@ var someDuplicate = true
 var otherDuplicate = false
 //@    "otherDuplicate": false,
 module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
-//@    {
+//@    "duplicatesEverywhere": {
 //@      "copy": {
 //@        "name": "duplicatesEverywhere",
 //@        "count": "[length(createArray())]"
@@ -1583,7 +1583,7 @@ module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
 }]
 
 module propertyLoopInsideParameterValue 'modulea.bicep' = {
-//@    {
+//@    "propertyLoopInsideParameterValue": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2022-09-01",
 //@      "properties": {
@@ -1727,7 +1727,7 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
 }
 
 module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
-//@    {
+//@    "propertyLoopInsideParameterValueWithIndexes": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2022-09-01",
 //@      "properties": {
@@ -1873,7 +1873,7 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 }
 
 module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for thing in range(0,1): {
-//@    {
+//@    "propertyLoopInsideParameterValueInsideModuleLoop": {
 //@      "copy": {
 //@        "name": "propertyLoopInsideParameterValueInsideModuleLoop",
 //@        "count": "[length(range(0, 1))]"
@@ -2009,11 +2009,11 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@                "copy": [
 //@                ]
 //@              }
-        e: [for j in range(7,7): j % thing]
+        e: [for j in range(7,7): j % (thing + 1)]
 //@                  {
 //@                    "name": "e",
 //@                    "count": "[length(range(7, 7))]",
-//@                    "input": "[mod(range(7, 7)[copyIndex('e')], range(0, 1)[copyIndex()])]"
+//@                    "input": "[mod(range(7, 7)[copyIndex('e')], add(range(0, 1)[copyIndex()], 1))]"
 //@                  }
       }
     ]
@@ -2024,11 +2024,17 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 // BEGIN: Key Vault Secret Reference
 
 resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+//@    "kv": {
+//@      "existing": true,
+//@      "type": "Microsoft.KeyVault/vaults",
+//@      "apiVersion": "2019-09-01",
+//@      "name": "testkeyvault"
+//@    },
   name: 'testkeyvault'
 }
 
 module secureModule1 'child/secureParams.bicep' = {
-//@    {
+//@    "secureModule1": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2022-09-01",
 //@      "properties": {
@@ -2093,12 +2099,19 @@ module secureModule1 'child/secureParams.bicep' = {
 }
 
 resource scopedKv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+//@    "scopedKv": {
+//@      "existing": true,
+//@      "type": "Microsoft.KeyVault/vaults",
+//@      "apiVersion": "2019-09-01",
+//@      "resourceGroup": "otherGroup",
+//@      "name": "testkeyvault"
+//@    },
   name: 'testkeyvault'
   scope: resourceGroup('otherGroup')
 }
 
 module secureModule2 'child/secureParams.bicep' = {
-//@    {
+//@    "secureModule2": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2022-09-01",
 //@      "properties": {
@@ -2189,7 +2202,7 @@ var vaults = [
 ]
 var secrets = [
 //@    "secrets": [
-//@    ]
+//@    ],
   {
 //@      {
 //@      },
@@ -2209,12 +2222,24 @@ var secrets = [
 ]
 
 resource loopedKv 'Microsoft.KeyVault/vaults@2019-09-01' existing = [for vault in vaults: {
+//@    "loopedKv": {
+//@      "copy": {
+//@        "name": "loopedKv",
+//@        "count": "[length(variables('vaults'))]"
+//@      },
+//@      "existing": true,
+//@      "type": "Microsoft.KeyVault/vaults",
+//@      "apiVersion": "2019-09-01",
+//@      "subscriptionId": "[variables('vaults')[copyIndex()].vaultSub]",
+//@      "resourceGroup": "[variables('vaults')[copyIndex()].vaultRG]",
+//@      "name": "[variables('vaults')[copyIndex()].vaultName]"
+//@    },
   name: vault.vaultName
   scope: resourceGroup(vault.vaultSub, vault.vaultRG)
 }]
 
 module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secrets: {
-//@    {
+//@    "secureModuleLooped": {
 //@      "copy": {
 //@        "name": "secureModuleLooped",
 //@        "count": "[length(variables('secrets'))]"
@@ -2283,7 +2308,7 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 }]
 
 module secureModuleCondition 'child/secureParams.bicep' = {
-//@    {
+//@    "secureModuleCondition": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2022-09-01",
 //@      "properties": {
@@ -2335,7 +2360,7 @@ module secureModuleCondition 'child/secureParams.bicep' = {
 // END: Key Vault Secret Reference
 
 module withSpace 'module with space.bicep' = {
-//@    {
+//@    "withSpace": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2022-09-01",
 //@      "properties": {
@@ -2374,7 +2399,7 @@ module withSpace 'module with space.bicep' = {
 }
 
 module folderWithSpace 'child/folder with space/child with space.bicep' = {
-//@    {
+//@    "folderWithSpace": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2022-09-01",
 //@      "properties": {
@@ -2407,8 +2432,207 @@ module folderWithSpace 'child/folder with space/child with space.bicep' = {
 //@          }
 //@        }
 //@      }
-//@    }
+//@    },
   name: 'childWithSpace'
 //@      "name": "childWithSpace",
 }
+
+// nameof
+
+var nameofModule = nameof(folderWithSpace)
+//@    "nameofModule": "folderWithSpace",
+var nameofModuleParam = nameof(secureModuleCondition.outputs.exposedSecureString)
+//@    "nameofModuleParam": "exposedSecureString"
+
+module moduleWithNameof 'modulea.bicep' = {
+//@    "moduleWithNameof": {
+//@      "type": "Microsoft.Resources/deployments",
+//@      "apiVersion": "2022-09-01",
+//@      "resourceGroup": "nameofModuleParam",
+//@      "properties": {
+//@        "expressionEvaluationOptions": {
+//@          "scope": "inner"
+//@        },
+//@        "mode": "Incremental",
+//@        "template": {
+//@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "contentVersion": "1.0.0.0",
+//@          "metadata": {
+//@            "_generator": {
+//@              "name": "bicep",
+//@              "version": "dev",
+//@              "templateHash": "8300391961099598421"
+//@            }
+//@          },
+//@          "parameters": {
+//@            "stringParamA": {
+//@              "type": "string",
+//@              "defaultValue": "test"
+//@            },
+//@            "stringParamB": {
+//@              "type": "string"
+//@            },
+//@            "objParam": {
+//@              "type": "object"
+//@            },
+//@            "arrayParam": {
+//@              "type": "array"
+//@            }
+//@          },
+//@          "resources": [
+//@            {
+//@              "type": "Mock.Rp/mockResource",
+//@              "apiVersion": "2020-01-01",
+//@              "name": "basicblobs",
+//@              "location": "[parameters('stringParamA')]"
+//@            },
+//@            {
+//@              "type": "Mock.Rp/mockResource",
+//@              "apiVersion": "2020-01-01",
+//@              "name": "myZone",
+//@              "location": "[parameters('stringParamB')]"
+//@            }
+//@          ],
+//@          "outputs": {
+//@            "stringOutputA": {
+//@              "type": "string",
+//@              "value": "[parameters('stringParamA')]"
+//@            },
+//@            "stringOutputB": {
+//@              "type": "string",
+//@              "value": "[parameters('stringParamB')]"
+//@            },
+//@            "objOutput": {
+//@              "type": "object",
+//@              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+//@            },
+//@            "arrayOutput": {
+//@              "type": "array",
+//@              "value": [
+//@                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+//@                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
+//@              ]
+//@            }
+//@          }
+//@        }
+//@      },
+//@      "dependsOn": [
+//@        "folderWithSpace",
+//@        "secureModuleCondition",
+//@        "withSpace"
+//@      ]
+//@    },
+  name: 'nameofModule'
+//@      "name": "nameofModule",
+  scope: resourceGroup(nameof(nameofModuleParam))
+  params:{
+//@        "parameters": {
+//@        },
+    stringParamA: nameof(withSpace)
+//@          "stringParamA": {
+//@            "value": "withSpace"
+//@          },
+    stringParamB: nameof(folderWithSpace)
+//@          "stringParamB": {
+//@            "value": "folderWithSpace"
+//@          },
+    objParam: {
+//@          "objParam": {
+//@            "value": {
+//@            }
+//@          },
+      a: nameof(secureModuleCondition.outputs.exposedSecureString)
+//@              "a": "exposedSecureString"
+    }
+    arrayParam: [
+//@          "arrayParam": {
+//@            "value": [
+//@            ]
+//@          }
+      nameof(vaults)
+//@              "vaults"
+    ]
+  }
+}
+
+module moduleWithNullableOutputs 'child/nullableOutputs.bicep' = {
+//@    "moduleWithNullableOutputs": {
+//@      "type": "Microsoft.Resources/deployments",
+//@      "apiVersion": "2022-09-01",
+//@      "properties": {
+//@        "expressionEvaluationOptions": {
+//@          "scope": "inner"
+//@        },
+//@        "mode": "Incremental",
+//@        "template": {
+//@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.0",
+//@          "contentVersion": "1.0.0.0",
+//@          "metadata": {
+//@            "_generator": {
+//@              "name": "bicep",
+//@              "version": "dev",
+//@              "templateHash": "9938797971770597442"
+//@            }
+//@          },
+//@          "resources": {},
+//@          "outputs": {
+//@            "nullableString": {
+//@              "type": "string",
+//@              "nullable": true,
+//@              "value": "foo"
+//@            },
+//@            "nullableObj": {
+//@              "type": "object",
+//@              "nullable": true,
+//@              "value": {
+//@                "deeply": {
+//@                  "nested": {
+//@                    "property": "value",
+//@                    "array": [
+//@                      "foo",
+//@                      "bar"
+//@                    ]
+//@                  }
+//@                }
+//@              }
+//@            }
+//@          }
+//@        }
+//@      }
+//@    }
+  name: 'nullableOutputs'
+//@      "name": "nullableOutputs",
+}
+
+output nullableString string? = moduleWithNullableOutputs.outputs.?nullableString
+//@    "nullableString": {
+//@      "type": "string",
+//@      "nullable": true,
+//@      "value": "[tryGet(tryGet(reference('moduleWithNullableOutputs').outputs, 'nullableString'), 'value')]"
+//@    },
+output deeplyNestedProperty string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.property
+//@    "deeplyNestedProperty": {
+//@      "type": "string",
+//@      "nullable": true,
+//@      "value": "[tryGet(tryGet(reference('moduleWithNullableOutputs').outputs, 'nullableObj'), 'value', 'deeply', 'nested', 'property')]"
+//@    },
+output deeplyNestedArrayItem string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[0]
+//@    "deeplyNestedArrayItem": {
+//@      "type": "string",
+//@      "nullable": true,
+//@      "value": "[tryGet(tryGet(reference('moduleWithNullableOutputs').outputs, 'nullableObj'), 'value', 'deeply', 'nested', 'array', 0)]"
+//@    },
+output deeplyNestedArrayItemFromEnd string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[^1]
+//@    "deeplyNestedArrayItemFromEnd": {
+//@      "type": "string",
+//@      "nullable": true,
+//@      "value": "[tryGet(tryGet(reference('moduleWithNullableOutputs').outputs, 'nullableObj'), 'value', 'deeply', 'nested', 'array', createObject('value', 1, 'fromEnd', true()))]"
+//@    },
+output deeplyNestedArrayItemFromEndAttempt string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[?^1]
+//@    "deeplyNestedArrayItemFromEndAttempt": {
+//@      "type": "string",
+//@      "nullable": true,
+//@      "value": "[tryIndexFromEnd(tryGet(tryGet(reference('moduleWithNullableOutputs').outputs, 'nullableObj'), 'value', 'deeply', 'nested', 'array'), 1)]"
+//@    }
 

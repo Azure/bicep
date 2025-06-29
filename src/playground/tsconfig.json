@@ -1,24 +1,7 @@
 {
-  "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "sourceMap": true,
-    "declarationMap": true,
-    "inlineSources": false,
-    "declaration": true,
-    "stripInternal": true,
-    "resolveJsonModule": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noImplicitAny": true,
-    "jsx": "react",
-    "lib": [
-      "es2016",
-      "dom"
-    ],
-    "outDir": "dist",
-  },
-  "include": ["src"]
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
 }

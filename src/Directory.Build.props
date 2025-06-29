@@ -21,6 +21,21 @@
     <RuntimeIdentifiers Condition=" $(UsingMicrosoftNETSdkBlazorWebAssembly) != 'true' ">win-x64;linux-x64;linux-musl-x64;osx-x64;win-arm64;linux-arm64;osx-arm64</RuntimeIdentifiers>
   </PropertyGroup>
 
+  <PropertyGroup Label="Testing">
+    <MSTestVersion>3.8.2</MSTestVersion>
+    <EnableMSTestRunner>true</EnableMSTestRunner>
+
+    <!-- More info about dotnet test integration https://learn.microsoft.com/dotnet/core/testing/unit-testing-platform-integration-dotnet-test -->
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+    <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
+
+    <!-- The way CI is setup is to run dotnet test multiple times with a filter. -->
+    <!-- Most projects will have zero tests from that filter, so we ignore the "zero tests ran" exit code -->
+    <!-- It seems that most filter usages is using FullyQualifiedName with the intent to run a specific assembly -->
+    <!-- The CI should be refactored to run dotnet test for the specific assembly directly rather than using a filter -->
+    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --ignore-exit-code 8</TestingPlatformCommandLineArguments>
+  </PropertyGroup>
+
   <!-- set default framework - each project can still override -->
   <PropertyGroup Condition=" '$(MSBuildProjectExtension)' == '.csproj' ">
     <TargetFramework>net8.0</TargetFramework>
@@ -28,7 +43,7 @@
 
   <PropertyGroup>
     <!-- different projects include the GenerateNotice package via different targets - this allows us to centrally manage the upgrades -->
-    <GenerateNoticePackageVersion>0.1.38</GenerateNoticePackageVersion>
+    <GenerateNoticePackageVersion>0.1.45</GenerateNoticePackageVersion>
     
     <!-- settings of the GenerateNotice tool -->
     <GenerateNoticeRetryCount>9</GenerateNoticeRetryCount>
@@ -48,9 +63,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.143" PrivateAssets="All" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.7.115" PrivateAssets="All" />
     <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4"  PrivateAssets="All" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.11.20" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.13.2" PrivateAssets="All"/>
   </ItemGroup>
 </Project>

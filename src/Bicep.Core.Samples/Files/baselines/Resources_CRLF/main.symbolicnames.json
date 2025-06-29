@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5796807527518784233"
+      "templateHash": "5552023285963513625"
     }
   },
   "parameters": {
@@ -38,7 +38,7 @@
     "_siteApiVersion": "2019-08-01",
     "_siteType": "Microsoft.Web/sites",
     "resourceCRef": {
-      "id": "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]"
+      "id": "[resourceId('My.Rp/typeA/typeB', split(format('{0}/resourceC', 'resourceA'), '/')[0], split(format('{0}/resourceC', 'resourceA'), '/')[1])]"
     },
     "setResourceCRef": true,
     "myInterpKey": "abc",
@@ -58,12 +58,25 @@
       "db1",
       "db2",
       "db3"
-    ]
+    ],
+    "sqlConfig": {
+      "westus": {},
+      "server-name": {}
+    }
   },
   "resources": {
+    "sqlServer::primaryDb::threatProtection": {
+      "existing": true,
+      "type": "Microsoft.Sql/servers/databases/advancedThreatProtectionSettings",
+      "apiVersion": "2021-11-01",
+      "name": "[format('{0}/{1}/{2}', 'sql-server-name', 'primary-db', 'default')]",
+      "dependsOn": [
+        "sqlServer::primaryDb"
+      ]
+    },
     "sqlServer::sqlDatabases": {
       "copy": {
-        "name": "sqlDatabases",
+        "name": "sqlServer::sqlDatabases",
         "count": "[length(variables('dbs'))]",
         "mode": "serial",
         "batchSize": 1
@@ -243,7 +256,7 @@
     "resourceB": {
       "type": "My.Rp/typeA/typeB",
       "apiVersion": "2020-01-01",
-      "name": "[format('{0}/myName', 'resourceA')]",
+      "name": "[format('{0}/resourceB', 'resourceA')]",
       "dependsOn": [
         "resourceA"
       ]
@@ -251,7 +264,7 @@
     "resourceC": {
       "type": "My.Rp/typeA/typeB",
       "apiVersion": "2020-01-01",
-      "name": "[format('{0}/myName', 'resourceA')]",
+      "name": "[format('{0}/resourceC', 'resourceA')]",
       "properties": {
         "aId": "[resourceId('My.Rp/typeA', 'resourceA')]",
         "aType": "My.Rp/typeA",
@@ -271,9 +284,9 @@
       "properties": {
         "runtime": [
           {
-            "bId": "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]",
+            "bId": "[resourceId('My.Rp/typeA/typeB', split(format('{0}/resourceB', 'resourceA'), '/')[0], split(format('{0}/resourceB', 'resourceA'), '/')[1])]",
             "bType": "My.Rp/typeA/typeB",
-            "bName": "[format('{0}/myName', 'resourceA')]",
+            "bName": "[format('{0}/resourceB', 'resourceA')]",
             "bApiVersion": "2020-01-01",
             "aKind": "[reference('resourceA', '2020-01-01', 'full').kind]"
           }
@@ -394,7 +407,7 @@
       "scope": "[extensionResourceId(extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'Mock.Rp/existingExtensionResource', 'existing1')]",
       "name": "existing2",
       "dependsOn": [
-        "existing1"
+        "extension1"
       ]
     },
     "extension3": {
@@ -403,7 +416,7 @@
       "scope": "[extensionResourceId(extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'Mock.Rp/existingExtensionResource', 'existing1')]",
       "name": "extension3",
       "dependsOn": [
-        "existing1"
+        "extension1"
       ]
     },
     "storageResources": {
@@ -615,12 +628,12 @@
     "p2_res1": {
       "type": "Microsoft.Rp1/resource1",
       "apiVersion": "2020-06-01",
-      "name": "res1"
+      "name": "p2res1"
     },
     "p2_res1child": {
       "type": "Microsoft.Rp1/resource1/child1",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/{1}', 'res1', 'child1')]",
+      "name": "[format('{0}/{1}', 'p2res1', 'child1')]",
       "dependsOn": [
         "p2_res1"
       ]
@@ -628,7 +641,7 @@
     "p2_res2": {
       "type": "Microsoft.Rp2/resource2",
       "apiVersion": "2020-06-01",
-      "scope": "[format('Microsoft.Rp1/resource1/{0}/child1/{1}', 'res1', 'child1')]",
+      "scope": "[format('Microsoft.Rp1/resource1/{0}/child1/{1}', 'p2res1', 'child1')]",
       "name": "res2",
       "dependsOn": [
         "p2_res1child"
@@ -637,7 +650,7 @@
     "p2_res2child": {
       "type": "Microsoft.Rp2/resource2/child2",
       "apiVersion": "2020-06-01",
-      "scope": "[format('Microsoft.Rp1/resource1/{0}/child1/{1}', 'res1', 'child1')]",
+      "scope": "[format('Microsoft.Rp1/resource1/{0}/child1/{1}', 'p2res1', 'child1')]",
       "name": "[format('{0}/{1}', 'res2', 'child2')]",
       "dependsOn": [
         "p2_res2"
@@ -647,38 +660,38 @@
       "existing": true,
       "type": "Microsoft.Rp1/resource1",
       "apiVersion": "2020-06-01",
-      "name": "res1"
+      "name": "p3res1"
     },
     "p3_child1": {
       "type": "Microsoft.Rp1/resource1/child1",
       "apiVersion": "2020-06-01",
-      "name": "[format('{0}/{1}', 'res1', 'child1')]",
-      "dependsOn": [
-        "p3_res1"
-      ]
+      "name": "[format('{0}/{1}', 'p3res1', 'child1')]"
     },
     "p4_res1": {
       "existing": true,
       "type": "Microsoft.Rp1/resource1",
       "apiVersion": "2020-06-01",
       "scope": "/",
-      "name": "res1"
+      "name": "p4res1"
     },
     "p4_child1": {
       "existing": true,
       "type": "Microsoft.Rp1/resource1/child1",
       "apiVersion": "2020-06-01",
       "scope": "/",
-      "name": "[format('{0}/{1}', 'res1', 'child1')]",
-      "dependsOn": [
-        "p4_res1"
-      ]
+      "name": "[format('{0}/{1}', 'p4res1', 'child1')]"
     },
     "sqlServer": {
       "type": "Microsoft.Sql/servers",
       "apiVersion": "2021-11-01",
       "name": "sql-server-name",
       "location": "polandcentral"
+    },
+    "sqlServerWithNameof": {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2021-11-01",
+      "name": "[format('sql-server-nameof-{0}', 'server-name')]",
+      "location": "westus"
     }
   },
   "outputs": {
@@ -720,7 +733,7 @@
     },
     "p2_res2childid": {
       "type": "string",
-      "value": "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), 'Microsoft.Rp2/resource2/child2', 'res2', 'child2')]"
+      "value": "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'p2res1', 'child1'), 'Microsoft.Rp2/resource2/child2', 'res2', 'child2')]"
     },
     "p3_res1childprop": {
       "type": "string",
@@ -736,7 +749,7 @@
     },
     "p3_res1childid": {
       "type": "string",
-      "value": "[resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')]"
+      "value": "[resourceId('Microsoft.Rp1/resource1/child1', 'p3res1', 'child1')]"
     },
     "p4_res1childprop": {
       "type": "string",
@@ -752,7 +765,27 @@
     },
     "p4_res1childid": {
       "type": "string",
-      "value": "[tenantResourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')]"
+      "value": "[tenantResourceId('Microsoft.Rp1/resource1/child1', 'p4res1', 'child1')]"
+    },
+    "nameof_sqlServer": {
+      "type": "string",
+      "value": "sqlServer"
+    },
+    "nameof_location": {
+      "type": "string",
+      "value": "location"
+    },
+    "nameof_minCapacity": {
+      "type": "string",
+      "value": "minCapacity"
+    },
+    "nameof_creationTime": {
+      "type": "string",
+      "value": "creationTime"
+    },
+    "nameof_id": {
+      "type": "string",
+      "value": "id"
     }
   }
 }

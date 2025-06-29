@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Immutable;
+using Bicep.Core.Features;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.K8s;
@@ -27,18 +29,18 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             return new ObjectType("configuration", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("namespace", LanguageConstants.String, TypePropertyFlags.Required, "The default Kubernetes namespace to deploy resources to."),
-                new TypeProperty("kubeConfig", LanguageConstants.String, TypePropertyFlags.Required, "The Kubernetes configuration file, base-64 encoded."),
-                new TypeProperty("context", LanguageConstants.String),
+                new NamedTypeProperty("namespace", LanguageConstants.String, TypePropertyFlags.Required, "The default Kubernetes namespace to deploy resources to."),
+                new NamedTypeProperty("kubeConfig", LanguageConstants.SecureString, TypePropertyFlags.Required, "The Kubernetes configuration file, base-64 encoded."),
+                new NamedTypeProperty("context", LanguageConstants.String),
             }, null);
         }
 
-        public static NamespaceType Create(string aliasName)
+        public static NamespaceType Create(string aliasName, IFeatureProvider features)
         {
             return new NamespaceType(
                 aliasName,
                 Settings,
-                ImmutableArray<TypeProperty>.Empty,
+                ExtensionNamespaceTypeHelper.GetExtensionNamespaceObjectProperties(Settings, features),
                 ImmutableArray<FunctionOverload>.Empty,
                 ImmutableArray<BannedFunction>.Empty,
                 ImmutableArray<Decorator>.Empty,

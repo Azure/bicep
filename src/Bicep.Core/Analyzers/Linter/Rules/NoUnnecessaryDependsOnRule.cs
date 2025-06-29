@@ -7,6 +7,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -17,8 +18,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public NoUnnecessaryDependsOnRule() : base(
             code: Code,
             description: CoreResources.NoUnnecessaryDependsOnRuleDescription,
-            LinterRuleCategory.BestPractice,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}")
+            LinterRuleCategory.BestPractice
         )
         {
         }
@@ -28,12 +28,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
-            Lazy<ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>> inferredDependenciesMap =
-                new(
-                    () => ResourceDependencyVisitor.GetResourceDependencies(
-                        model,
-                        new ResourceDependencyVisitor.Options { IgnoreExplicitDependsOn = true }));
-            var visitor = new ResourceVisitor(this, inferredDependenciesMap, model, diagnosticLevel);
+            var visitor = new ResourceVisitor(this, model, diagnosticLevel);
             visitor.Visit(model.SourceFile.ProgramSyntax);
             return visitor.diagnostics;
         }
@@ -47,10 +42,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             private readonly SemanticModel model;
             private readonly DiagnosticLevel diagnosticLevel;
 
-            public ResourceVisitor(NoUnnecessaryDependsOnRule parent, Lazy<ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>> inferredDependenciesMap, SemanticModel model, DiagnosticLevel diagnosticLevel)
+            public ResourceVisitor(NoUnnecessaryDependsOnRule parent, SemanticModel model, DiagnosticLevel diagnosticLevel)
             {
                 this.parent = parent;
-                this.inferredDependenciesMap = inferredDependenciesMap;
+                this.inferredDependenciesMap = new(BuildDependencyGraph);
                 this.model = model;
                 this.diagnosticLevel = diagnosticLevel;
             }
@@ -75,6 +70,49 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 base.VisitResourceDeclarationSyntax(syntax);
             }
 
+            private ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> BuildDependencyGraph()
+            {
+                var directDependencyGraph = ResourceDependencyVisitor.GetResourceDependencies(
+                    model,
+                    new() { IgnoreExplicitDependsOn = true });
+                var builder = ImmutableDictionary.CreateBuilder<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>();
+
+                foreach (var kvp in directDependencyGraph)
+                {
+                    if (kvp.Key is VariableSymbol)
+                    {
+                        continue;
+                    }
+
+                    var allDependencies = ImmutableHashSet.CreateBuilder<ResourceDependency>();
+                    Queue<ResourceDependency> dependenciesToWalk = new(kvp.Value);
+
+                    while (dependenciesToWalk.TryDequeue(out var dependency))
+                    {
+                        if (allDependencies.Contains(dependency))
+                        {
+                            continue;
+                        }
+
+                        if (directDependencyGraph.TryGetValue(dependency.Resource, out var transitiveDependencies))
+                        {
+                            dependenciesToWalk.EnqueueRange(transitiveDependencies);
+                        }
+
+                        if (!dependency.WeakReference ||
+                            dependency.Resource is not ResourceSymbol r ||
+                            !r.DeclaringResource.IsExistingResource())
+                        {
+                            allDependencies.Add(dependency with { WeakReference = false });
+                        }
+                    }
+
+                    builder[kvp.Key] = allDependencies.ToImmutable();
+                }
+
+                return builder.ToImmutable();
+            }
+
             private void VisitResourceOrModuleDeclaration(SyntaxBase declaringSyntax, ObjectSyntax body)
             {
                 var dependsOnProperty = body.TryGetPropertyByName(LanguageConstants.ResourceDependsOnPropertyName);
@@ -86,17 +124,21 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     return;
                 }
 
+                HashSet<Symbol> explicitDependencies = new();
+
                 foreach (ArrayItemSyntax declaredDependency in declaredDependencies.Items)
                 {
-                    if (model.GetSymbolInfo(declaredDependency.Value) is not ResourceSymbol referencedResource ||
+                    var symbolInfo = model.GetSymbolInfo(declaredDependency.Value);
+                    if (symbolInfo is not DeclaredSymbol referent ||
                         // Ignore dependsOn entries pointing to a resource collection - dependency analysis would
                         // be complex and user probably knows what they're doing.
-                        referencedResource.IsCollection)
+                        (symbolInfo as ResourceSymbol)?.IsCollection is true ||
+                        (symbolInfo as ModuleSymbol)?.IsCollection is true)
                     {
                         continue;
                     }
 
-                    if (!inferredDependencies.Any(d => d.Resource == referencedResource))
+                    if (!inferredDependencies.Any(d => d.Resource == referent) && explicitDependencies.Add(referent))
                     {
                         // There are no inferred dependencies - the dependsOn entry is valid
                         continue;
@@ -128,7 +170,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             parent.CreateDiagnosticForSpan(
                                 diagnosticLevel,
                                 declaredDependency.Span,
-                                referencedResource.Name));
+                                referent.Name));
                     }
                     else
                     {
@@ -137,7 +179,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                                 diagnosticLevel,
                                 declaredDependency.Span,
                                 new CodeFix(CoreResources.NoUnnecessaryDependsOnRuleCodeFix, isPreferred: true, CodeFixKind.QuickFix, codeReplacement),
-                                referencedResource.Name));
+                                referent.Name));
                     }
                 }
             }

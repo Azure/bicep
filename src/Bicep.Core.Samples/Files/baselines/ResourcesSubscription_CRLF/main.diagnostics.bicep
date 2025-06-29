@@ -3,7 +3,9 @@ targetScope = 'subscription'
 param ownerPrincipalId string
 
 param contributorPrincipals array
+//@[28:33) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |array|
 param readerPrincipals array
+//@[23:28) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |array|
 
 resource owner 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid('owner', ownerPrincipalId)

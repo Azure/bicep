@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { FunctionComponent, SVGProps } from "react";
 
 import { useEffect, useRef, useState } from "react";

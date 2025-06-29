@@ -6,6 +6,7 @@ using System.IO.Abstractions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Tracing;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Registry
 {
@@ -17,29 +18,20 @@ namespace Bicep.Core.Registry
 
         // interval at which we will retry acquiring the lock on the artifact directory in the cache
         private static readonly TimeSpan ArtifactDirectoryContentionRetryInterval = TimeSpan.FromMilliseconds(300);
-        public IFileSystem FileSystem { get; }
-
-        protected ExternalArtifactRegistry(IFileResolver fileResolver, IFileSystem fileSystem)
-        {
-            this.FileResolver = fileResolver;
-            this.FileSystem = fileSystem;
-        }
-
-        protected IFileResolver FileResolver { get; }
 
         protected abstract void WriteArtifactContentToCache(TArtifactReference reference, TArtifactEntity entity);
 
-        protected abstract string GetArtifactDirectoryPath(TArtifactReference reference);
+        protected abstract IDirectoryHandle GetArtifactDirectory(TArtifactReference reference);
 
-        protected abstract Uri GetArtifactLockFileUri(TArtifactReference reference);
+        protected abstract IFileHandle GetArtifactLockFile(TArtifactReference reference);
 
         protected async Task WriteArtifactContentToCacheAsync(TArtifactReference reference, TArtifactEntity entity)
         {
             // this has to be after downloading the artifact content so we don't create directories for non-existent artifacts
-            var artifactDirectoryPath = this.GetArtifactDirectoryPath(reference);
+            var artifactDirectory = this.GetArtifactDirectory(reference);
 
             // creating the directory doesn't require locking
-            CreateArtifactDirectory(artifactDirectoryPath);
+            CreateArtifactDirectory(artifactDirectory);
 
             /*
              * We have already downloaded the artifact content from the registry.
@@ -49,12 +41,12 @@ namespace Bicep.Core.Registry
              * We are not trying to prevent tampering with the artifact cache by the user.
              */
 
-            var lockFileUri = this.GetArtifactLockFileUri(reference);
+            var lockFile = this.GetArtifactLockFile(reference);
             var stopwatch = Stopwatch.StartNew();
 
             while (stopwatch.Elapsed < ArtifactDirectoryContentionTimeout)
             {
-                using (var @lock = this.FileResolver.TryAcquireFileLock(lockFileUri))
+                using (var @lock = lockFile.TryLock())
                 {
                     // the placement of "if" inside "using" guarantees that even an exception thrown by the condition results in the lock being released
                     // (current condition can't throw, but this potentially avoids future regression)
@@ -79,33 +71,32 @@ namespace Bicep.Core.Registry
             }
 
             // we have exceeded the timeout
-            throw new ExternalArtifactException($"Exceeded the timeout of \"{ArtifactDirectoryContentionTimeout}\" to acquire the lock on file \"{lockFileUri}\".");
+            throw new ExternalArtifactException($"Exceeded the timeout of \"{ArtifactDirectoryContentionTimeout}\" to acquire the lock on file \"{lockFile.Uri}\".");
         }
 
-        private void CreateArtifactDirectory(string artifactDirectoryPath)
+        private void CreateArtifactDirectory(IDirectoryHandle artifactDirectory)
         {
-            Debug.Assert(Path.IsPathFullyQualified(artifactDirectoryPath), $"Artifact directory must be fully qualified: \"{artifactDirectoryPath}\"");
             try
             {
                 // ensure that the directory exists
-                FileSystem.Directory.CreateDirectory(artifactDirectoryPath);
+                artifactDirectory.EnsureExists();
             }
             catch (Exception exception)
             {
-                throw new ExternalArtifactException($"Unable to create the local artifact directory \"{artifactDirectoryPath}\". {exception.Message}", exception);
+                throw new ExternalArtifactException($"Unable to create the local artifact directory \"{artifactDirectory.Uri}\". {exception.Message}", exception);
             }
         }
 
-        private void DeleteArtifactDirectory(string artifactDirectoryPath)
+        private void DeleteArtifactDirectory(IDirectoryHandle artifactDirectory)
         {
             try
             {
                 // recursively delete the directory
-                FileSystem.Directory.Delete(artifactDirectoryPath, true);
+                artifactDirectory.Delete();
             }
             catch (Exception exception)
             {
-                throw new ExternalArtifactException($"Unable to delete the local artifact directory \"{artifactDirectoryPath}\". {exception.Message}", exception);
+                throw new ExternalArtifactException($"Unable to delete the local artifact directory \"{artifactDirectory.Uri}\". {exception.Message}", exception);
             }
         }
 
@@ -118,18 +109,18 @@ namespace Bicep.Core.Registry
              * We are not trying to prevent tampering with the artifact cache by the user.
              */
 
-            var lockFileUri = this.GetArtifactLockFileUri(reference);
+            var lockFile = this.GetArtifactLockFile(reference);
             var stopwatch = Stopwatch.StartNew();
 
             while (stopwatch.Elapsed < ArtifactDirectoryContentionTimeout)
             {
-                if (!this.FileResolver.FileExists(lockFileUri))
+                if (!lockFile.Exists())
                 {
                     // no lock exists, proceed
-                    var artifactDirectoryPath = this.GetArtifactDirectoryPath(reference);
+                    var artifactDirectory = this.GetArtifactDirectory(reference);
 
                     // delete the directory and its contents on disk
-                    DeleteArtifactDirectory(artifactDirectoryPath);
+                    DeleteArtifactDirectory(artifactDirectory);
 
                     return;
                 }
@@ -141,7 +132,7 @@ namespace Bicep.Core.Registry
                         // saying there's a race condition on Linux with the DeleteOnClose flag on the FileStream.
                         // We will attempt to delete the file. If it throws, the lock is still open and will continue
                         // to wait until retry interval expires
-                        FileSystem.File.Delete(lockFileUri.LocalPath);
+                        lockFile.Delete();
                     }
                     catch (IOException) { break; }
                 }
@@ -152,7 +143,7 @@ namespace Bicep.Core.Registry
             }
 
             // we have exceeded the timeout
-            throw new ExternalArtifactException($"Exceeded the timeout of \"{ArtifactDirectoryContentionTimeout}\" for the lock on file \"{lockFileUri}\" to be released.");
+            throw new ExternalArtifactException($"Exceeded the timeout of \"{ArtifactDirectoryContentionTimeout}\" for the lock on file \"{lockFile.Uri}\" to be released.");
         }
 
         // base implementation for cache invalidation that should fit all external registries
@@ -165,7 +156,7 @@ namespace Bicep.Core.Registry
                 using var timer = new ExecutionTimer($"Delete artifact {reference.FullyQualifiedReference} from cache");
                 try
                 {
-                    if (FileSystem.Directory.Exists(GetArtifactDirectoryPath(reference)))
+                    if (GetArtifactDirectory(reference).Exists())
                     {
                         await this.TryDeleteArtifactDirectoryAsync(reference);
                     }

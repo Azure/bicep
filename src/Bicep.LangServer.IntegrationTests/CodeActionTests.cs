@@ -1,16 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.FileSystem;
+using Bicep.Core.UnitTests.PrettyPrintV2;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
+using Bicep.IO.FileSystem;
+using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Utils;
@@ -26,10 +32,8 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
-    public class CodeActionTests
+    public partial class CodeActionTests : CodeActionTestBase
     {
-        private static ServiceBuilder Services => new();
-
         private const string SecureTitle = "Add @secure";
         private const string DescriptionTitle = "Add @description";
         private const string AllowedTitle = "Add @allowed";
@@ -40,38 +44,7 @@ namespace Bicep.LangServer.IntegrationTests
         private const string RemoveUnusedExistingResourceTitle = "Remove unused existing resource";
         private const string RemoveUnusedParameterTitle = "Remove unused parameter";
         private const string RemoveUnusedVariableTitle = "Remove unused variable";
-
-        private static readonly SharedLanguageHelperManager DefaultServer = new();
-
-        private static readonly SharedLanguageHelperManager ServerWithFileResolver = new();
-
-        private static readonly SharedLanguageHelperManager ServerWithBuiltInTypes = new();
-
-        private static readonly SharedLanguageHelperManager ServerWithNamespaceProvider = new();
-
-        [NotNull]
-        public TestContext? TestContext { get; set; }
-
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext testContext)
-        {
-            DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
-
-            ServerWithFileResolver.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
-
-            ServerWithBuiltInTypes.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithNamespaceProvider(BuiltInTestTypes.Create())));
-
-            ServerWithNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithNamespaceProvider(BicepTestConstants.NamespaceProvider)));
-        }
-
-        [ClassCleanup]
-        public static async Task ClassCleanup()
-        {
-            await DefaultServer.DisposeAsync();
-            await ServerWithFileResolver.DisposeAsync();
-            await ServerWithBuiltInTypes.DisposeAsync();
-            await ServerWithNamespaceProvider.DisposeAsync();
-        }
+        private const string RemoveUnusedImportTitle = "Remove unused import";
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
@@ -106,7 +79,7 @@ namespace Bicep.LangServer.IntegrationTests
                         // Assert.
                         quickFixes.Should().NotBeNull();
 
-                        var spansOverlapOrAbut = (IFixable f) =>
+                        bool SpansOverlapOrAbut(IFixable f)
                         {
                             if (span.Position <= f.Span.Position)
                             {
@@ -114,9 +87,9 @@ namespace Bicep.LangServer.IntegrationTests
                             }
 
                             return f.Span.GetEndPosition() >= span.Position;
-                        };
+                        }
 
-                        var bicepFixes = allFixables.Where(spansOverlapOrAbut).SelectMany(f => f.Fixes).ToHashSet();
+                        var bicepFixes = allFixables.Where(SpansOverlapOrAbut).SelectMany(f => f.Fixes).ToHashSet();
                         var quickFixList = quickFixes!.Where(x => x.CodeAction?.Kind == CodeActionKind.QuickFix).ToList();
 
                         var bicepFixTitles = bicepFixes.Select(f => f.Title);
@@ -402,10 +375,12 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
             codeActions.First(x => x.Title == title).Kind.Should().Be(CodeActionKind.Refactor);
 
             var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title == title));
-            updatedFile.Should().HaveSourceText($@"
-{decorator}
-param foo {type}
-");
+            updatedFile.Should().HaveSourceText($"""
+
+                {decorator}
+                param foo {type}
+
+                """);
         }
 
         [DataRow("string", "@secure()", SecureTitle)]
@@ -482,7 +457,7 @@ resource ap|p2 'Microsoft.Web/sites@2021-03-01' existing = {
         [DataTestMethod]
         public async Task Unused_existing_resource_actions_are_suggested(string fileWithCursors, string expectedText)
         {
-            (var codeActions, var bicepFile) = await RunSyntaxTest(fileWithCursors, '|');
+            (var codeActions, var bicepFile) = await GetCodeActionsForSyntaxTest(fileWithCursors, '|');
             codeActions.Should().Contain(x => x.Title.StartsWith(RemoveUnusedExistingResourceTitle));
             codeActions.First(x => x.Title.StartsWith(RemoveUnusedExistingResourceTitle)).Kind.Should().Be(CodeActionKind.QuickFix);
 
@@ -517,7 +492,7 @@ var bar = 'asdf'", "var bar = 'asdf'")]
         [DataTestMethod]
         public async Task Unused_variable_actions_are_suggested(string fileWithCursors, string expectedText)
         {
-            (var codeActions, var bicepFile) = await RunSyntaxTest(fileWithCursors, '|');
+            (var codeActions, var bicepFile) = await GetCodeActionsForSyntaxTest(fileWithCursors, '|');
             codeActions.Should().Contain(x => x.Title.StartsWith(RemoveUnusedVariableTitle));
             codeActions.First(x => x.Title.StartsWith(RemoveUnusedVariableTitle)).Kind.Should().Be(CodeActionKind.QuickFix);
 
@@ -536,7 +511,7 @@ param foo2 string", "param foo2 string")]
         [DataTestMethod]
         public async Task Unused_parameter_actions_are_suggested(string fileWithCursors, string expectedText)
         {
-            (var codeActions, var bicepFile) = await RunSyntaxTest(fileWithCursors, '|');
+            (var codeActions, var bicepFile) = await GetCodeActionsForSyntaxTest(fileWithCursors, '|');
             codeActions.Should().Contain(x => x.Title.StartsWith(RemoveUnusedParameterTitle));
             codeActions.First(x => x.Title.StartsWith(RemoveUnusedParameterTitle)).Kind.Should().Be(CodeActionKind.QuickFix);
 
@@ -544,38 +519,174 @@ param foo2 string", "param foo2 string")]
             updatedFile.Should().HaveSourceText(expectedText);
         }
 
-        [TestMethod]
-        public async Task Provider_codefix_works()
+        [DataRow(
+        @"
+        import { p1, p2, p|3 } from '../mod.bicep'
+        var used1 = p1
+        var used2 = p2
+        ",
+        @"
+        @export()
+        var p1 = 'prefix'
+        @export()
+        var p2 = 'eastus'
+        @export()
+        var p3 = 'param'
+        ",
+        @"
+        import { p1, p2 } from '../mod.bicep'
+        var used1 = p1
+        var used2 = p2
+        ")]
+        [DataRow(
+        @"
+        import { p1, p2, p|3 } from '../mod.bicep'
+        var used1 = p1
+        var used2 = p2
+        ",
+        @"
+        @export()
+        var p1 = 'prefix'
+        @export()
+        var p2 = 'eastus'
+        @export()
+        var p3 = 'param'
+        ",
+        @"
+        import { p1, p2 } from '../mod.bicep'
+        var used1 = p1
+        var used2 = p2
+        ")]
+        [DataRow(
+        @"
+        import { p1, p|2, p3 } from '../mod.bicep'
+        var used1 = p1
+        var used2 = p3
+        ",
+        @"
+        @export()
+        var p1 = 'prefix'
+        @export()
+        var p2 = 'eastus'
+        @export()
+        var p3 = 'param'
+        ",
+        @"
+        import { p1, p3 } from '../mod.bicep'
+        var used1 = p1
+        var used2 = p3
+        ")]
+        [DataRow(
+        @"
+        import { p|1, p2, p3 } from '../mod.bicep'
+        var used1 = p2
+        var used2 = p3
+        ",
+        @"
+        @export()
+        var p1 = 'prefix'
+        @export()
+        var p2 = 'eastus'
+        @export()
+        var p3 = 'param'
+        ",
+        @"
+        import {  p2, p3 } from '../mod.bicep'
+        var used1 = p2
+        var used2 = p3
+        ")]
+        [DataRow(
+        "import * as mo|d from '../mod.bicep'",
+        @"
+        @export()
+        var p1 = 'prefix'
+        @export()
+        var p2 = 'eastus'
+        @export()
+        var p3 = 'param'
+        ",
+        "")]
+        [DataRow(
+        "import { getStr|ing } from '../mod.bicep'",
+        @"
+        @export()
+        func getString() string => 'exported'
+        ",
+        "import {  } from '../mod.bicep'")]
+        [DataRow(
+        "import { t| } from '../mod.bicep'",
+        @"
+        @export()
+        type t = string
+        ",
+        "import {  } from '../mod.bicep'")]
+        [DataTestMethod]
+        public async Task Unused_import_actions_are_suggested(string fileWithCursors, string importFileText, string expectedText)
         {
-            var server = await MultiFileLanguageServerHelper.StartLanguageServer(
-                TestContext,
-                services => services.WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true)));
+            var importFile = new LanguageClientFile("/mod.bicep", importFileText);
 
-            (var codeActions, var bicepFile) = await RunSyntaxTest(@"
-imp|ort 'br:example.azurecr.io/test/radius:1.0.0'
-", server: server);
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            {
+                [InMemoryFileResolver.GetFileUri(importFile.Uri.Path)] = importFile.Text,
+            });
 
-            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith("Replace the import keyword with the extension keyword")));
-            updatedFile.Should().HaveSourceText(@"
-extension 'br:example.azurecr.io/test/radius:1.0.0'
-");
+            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
+                services => services.WithFileResolver(fileResolver)
+                                                                    .WithFileExplorer(new FileSystemFileExplorer(fileResolver.MockFileSystem)));
 
-            (codeActions, bicepFile) = await RunSyntaxTest(@"
-pro|vider 'br:example.azurecr.io/test/radius:1.0.0'
-", server: server);
+            await helper.OpenFileOnceAsync(TestContext, importFile);
 
-            updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith("Replace the provider keyword with the extension keyword")));
-            updatedFile.Should().HaveSourceText(@"
-extension 'br:example.azurecr.io/test/radius:1.0.0'
-");
+            (var codeActions, var bicepFile) = await GetCodeActionsForSyntaxTest(fileWithCursors, '|', server: helper);
+            codeActions.Should().Contain(x => x.Title.StartsWith(RemoveUnusedImportTitle));
+            codeActions.First(x => x.Title.StartsWith(RemoveUnusedImportTitle)).Kind.Should().Be(CodeActionKind.QuickFix);
+
+            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith(RemoveUnusedImportTitle)));
+            updatedFile.Should().HaveSourceText(expectedText);
         }
+
+        [DataRow(
+            "import |")]
+        [DataRow(
+            "import|")]
+        [DataRow(
+            "import {} from |")]
+        [DataRow(
+            "import {|} from ")]
+        [DataRow(
+            "import * as mod |")]
+        [DataRow(
+            "import * as mod from '|'")]
+        [DataTestMethod]
+        public async Task Unused_import_actions_are_not_suggested_for_invalid_import(string fileWithCursors)
+        {
+            var importFile = new LanguageClientFile("/mod.bicep", """
+                                                                   @export()
+                                                                  type t = string
+                                                                  """);
+
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            {
+                [InMemoryFileResolver.GetFileUri(importFile.Uri.Path)] = importFile.Text,
+            });
+
+            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
+                services => services.WithFileResolver(fileResolver)
+                    .WithFileExplorer(new FileSystemFileExplorer(fileResolver.MockFileSystem)));
+
+            await helper.OpenFileOnceAsync(TestContext, importFile);
+
+            (var codeActions, var bicepFile) = await GetCodeActionsForSyntaxTest(fileWithCursors, '|', server: helper);
+            codeActions.Should().NotContain(x => x.Title.StartsWith(RemoveUnusedImportTitle));
+        }
+
+
 
         [DataRow("var|")]
         [DataRow("var |")]
         [DataTestMethod]
         public async Task Unused_variable_actions_are_not_suggested_for_invalid_variables(string fileWithCursors)
         {
-            var (codeActions, _) = await RunSyntaxTest(fileWithCursors, '|');
+            var (codeActions, _) = await GetCodeActionsForSyntaxTest(fileWithCursors, '|');
             codeActions.Should().NotContain(x => x.Title.StartsWith(RemoveUnusedVariableTitle));
         }
 
@@ -584,11 +695,11 @@ extension 'br:example.azurecr.io/test/radius:1.0.0'
         [DataTestMethod]
         public async Task Unused_parameter_actions_are_not_suggested_for_invalid_parameters(string fileWithCursors)
         {
-            var (codeActions, _) = await RunSyntaxTest(fileWithCursors, '|');
+            var (codeActions, _) = await GetCodeActionsForSyntaxTest(fileWithCursors, '|');
             codeActions.Should().NotContain(x => x.Title.StartsWith(RemoveUnusedParameterTitle));
         }
 
-        private async Task<(IEnumerable<CodeAction> codeActions, BicepFile bicepFile)> RunParameterSyntaxTest(string paramType, string? decorator = null)
+        private async Task<(IEnumerable<CodeAction> codeActions, LanguageClientFile bicepFile)> RunParameterSyntaxTest(string paramType, string? decorator = null)
         {
             string fileWithCursors = @$"
 param fo|o {paramType}
@@ -600,108 +711,14 @@ param fo|o {paramType}
 param fo|o {paramType}
 ";
             }
-            return await RunSyntaxTest(fileWithCursors, '|');
-        }
 
-        private async Task<(IEnumerable<CodeAction> codeActions, BicepFile bicepFile)> RunSyntaxTest(string fileWithCursors, char cursor = '|', MultiFileLanguageServerHelper? server = null)
-        {
-            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, cursor);
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file://{TestContext.TestName}_{Guid.NewGuid():D}/main.bicep"), file);
-
-            server ??= await DefaultServer.GetAsync();
-            await server.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
-
-            var codeActions = await RequestCodeActions(server.Client, bicepFile, cursors.Single());
-            return (codeActions, bicepFile);
-        }
-
-        private static IEnumerable<TextSpan> GetOverlappingSpans(TextSpan span)
-        {
-            // NOTE: These code assumes there are no errors in the code that are exactly adject to each other or that overlap
-
-            // Same span.
-            yield return span;
-
-            // Adjacent spans before.
-            int startOffset = Math.Max(0, span.Position - 1);
-            yield return new TextSpan(startOffset, 1);
-            yield return new TextSpan(span.Position, 0);
-
-            // Adjacent spans after.
-            yield return new TextSpan(span.GetEndPosition(), 1);
-            yield return new TextSpan(span.GetEndPosition(), 0);
-
-            // Overlapping spans.
-            yield return new TextSpan(startOffset, 2);
-            yield return new TextSpan(span.Position + 1, span.Length);
-            yield return new TextSpan(startOffset, span.Length + 1);
+            fileWithCursors.Should().NotBeNull("should contain an extract to variable action");
+            return await GetCodeActionsForSyntaxTest(fileWithCursors, '|');
         }
 
         private static IEnumerable<object[]> GetData()
         {
             return DataSets.NonStressDataSets.ToDynamicTestData();
-        }
-
-        private static async Task<IEnumerable<CodeAction>> RequestCodeActions(ILanguageClient client, BicepFile bicepFile, int cursor)
-        {
-            var startPosition = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor);
-            var endPosition = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor);
-
-            var result = await client.RequestCodeAction(new CodeActionParams
-            {
-                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
-                Range = new Range(startPosition, endPosition),
-            });
-
-            return result!.Select(x => x.CodeAction).WhereNotNull();
-        }
-
-        private static BicepFile ApplyCodeAction(BicepFile bicepFile, CodeAction codeAction, params string[] tabStops)
-        {
-            // only support a small subset of possible edits for now - can always expand this later on
-            codeAction.Edit!.Changes.Should().NotBeNull();
-            codeAction.Edit.Changes.Should().HaveCount(1);
-            codeAction.Edit.Changes.Should().ContainKey(bicepFile.FileUri);
-
-            var changes = codeAction.Edit.Changes![bicepFile.FileUri];
-            changes.Should().HaveCount(1);
-
-            var replacement = changes.Single();
-
-            var start = PositionHelper.GetOffset(bicepFile.LineStarts, replacement.Range.Start);
-            var end = PositionHelper.GetOffset(bicepFile.LineStarts, replacement.Range.End);
-            var textToInsert = replacement.NewText;
-
-            // the handler can contain tabs. convert to double space to simplify printing.
-            textToInsert = textToInsert.Replace("\t", "  ");
-
-            var originalFile = bicepFile.ProgramSyntax.ToString();
-            var replaced = originalFile.Substring(0, start) + textToInsert + originalFile.Substring(end);
-
-            return SourceFileFactory.CreateBicepFile(bicepFile.FileUri, replaced);
-        }
-
-        private static CodeAction GetSingleCodeAction(IEnumerable<CodeAction> codeActions, string codeActionName)
-        {
-            codeActions.Should().ContainSingle(x => x.Title == codeActionName);
-
-            return codeActions.Single(x => x.Title == codeActionName);
-        }
-
-        private static async Task<BicepFile> FormatDocument(ILanguageClient client, BicepFile bicepFile)
-        {
-            var textEditContainer = await client.TextDocument.RequestDocumentFormatting(new DocumentFormattingParams
-            {
-                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
-                Options = new FormattingOptions
-                {
-                    TabSize = 2,
-                    InsertSpaces = true,
-                    InsertFinalNewline = true,
-                },
-            });
-
-            return SourceFileFactory.CreateBicepFile(bicepFile.FileUri, textEditContainer!.Single().NewText);
         }
     }
 }

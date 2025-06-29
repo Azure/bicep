@@ -354,7 +354,7 @@ namespace Bicep.Cli.IntegrationTests
 
             if (outputDir is null)
             {
-                bicepPath = PathHelper.GetDefaultDecompileOutputPath(jsonPath);
+                bicepPath = PathHelper.GetBicepOutputPath(jsonPath);
             }
             else
             {

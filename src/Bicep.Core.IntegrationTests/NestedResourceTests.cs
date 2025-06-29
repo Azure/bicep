@@ -284,7 +284,7 @@ resource parent 'My.RP/parentType@invalid-version' = {
 
             var diagnostics = Services.BuildCompilation(program).GetEntrypointSemanticModel().GetAllDiagnostics();
             diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP029", DiagnosticLevel.Error, "The resource type is not valid. Specify a valid resource type of format \"<types>@<apiVersion>\"."),
+                ("BCP029", DiagnosticLevel.Error, "The resource type is not valid. Specify a valid resource type of format \"<type-name>@<apiVersion>\"."),
                 ("BCP157", DiagnosticLevel.Error, "The resource type cannot be determined due to an error in the containing resource."),
             });
         }
@@ -828,7 +828,7 @@ resource res1 'Microsoft.Rp1/resource1@2020-06-01' = {
   }
 
   resource res3 'child' = {
-    name: '${res1.name}/res2'
+    name: '${res1.name}/res3'
   }
 }
 ");

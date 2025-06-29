@@ -10,11 +10,14 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
 using Bicep.Decompiler;
+using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
 using BicepConfig = Bicep.Core.Configuration;
 using Environment = Bicep.Core.Utils.Environment;
 
@@ -31,11 +34,14 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IFileResolver, FileResolver>()
         .AddSingleton<IEnvironment, Environment>()
         .AddSingleton<IFileSystem, MockFileSystem>()
+        .AddSingleton<IFileExplorer, FileSystemFileExplorer>()
+        .AddSingleton<IAuxiliaryFileCache, AuxiliaryFileCache>()
         .AddSingleton<BicepConfig.IConfigurationManager, BicepConfig.ConfigurationManager>()
         .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
         .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
         .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
-        .AddPublicRegistryModuleMetadataProviderServices()
+        .AddSingleton<ISourceFileFactory, SourceFileFactory>()
+        .AddRegistryCatalogServices()
         .AddSingleton<BicepCompiler>();
 
     public static IServiceCollection AddBicepDecompiler(this IServiceCollection services) => services

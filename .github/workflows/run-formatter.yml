@@ -35,21 +35,33 @@ jobs:
         with:
           node-version: 20
 
-      - name: npm ci
-        run: npm ci
-        working-directory: ./src/vscode-bicep
-
       - name: Format .NET code
         run: |
           dotnet format
           dotnet format style --diagnostics IDE0005 --severity info
 
+      - name: Format Bicep.Cli.E2eTests
+        run: |
+          npm ci
+          npm run format
+        working-directory: ./src/Bicep.Cli.E2eTests
+
+      - name: Format Bicep.MSBuild.E2eTests
+        run: |
+          npm ci
+          npm run format
+        working-directory: ./src/Bicep.MSBuild.E2eTests
+
       - name: Format vscode-bicep-ui
-        run: npm run format
+        run: |
+          npm ci
+          npm run format
         working-directory: ./src/vscode-bicep-ui
 
       - name: Format vscode-bicep
-        run: npm run format
+        run: |
+          npm ci
+          npm run format
         working-directory: ./src/vscode-bicep
 
       - name: Commit and push formatting updates

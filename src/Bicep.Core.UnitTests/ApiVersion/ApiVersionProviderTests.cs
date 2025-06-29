@@ -81,8 +81,7 @@ namespace Bicep.Core.UnitTests.ApiVersions
 
         private ApiVersionProvider CreateDefaultApiVersionProvider(IEnumerable<ResourceTypeReference>? resourceTypeReferences = null)
             => new(
-                new FeatureProvider(
-                    IConfigurationManager.GetBuiltInConfiguration()),
-                    resourceTypeReferences ?? []);
+                new FeatureProvider(IConfigurationManager.GetBuiltInConfiguration(), BicepTestConstants.FileExplorer),
+                resourceTypeReferences ?? []);
     }
 }

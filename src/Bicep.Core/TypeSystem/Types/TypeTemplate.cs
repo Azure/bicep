@@ -4,9 +4,9 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Intermediate;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.Utils;
 
 namespace Bicep.Core.TypeSystem.Types;

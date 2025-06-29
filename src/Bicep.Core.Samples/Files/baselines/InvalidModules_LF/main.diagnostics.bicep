@@ -34,7 +34,7 @@ module modDTwo 'moduled.bicep' = {
   name: 'modDTwo'
   params: {
     input: modDOne.outputs.storageAccountName
-//@[011:045) [what-if-short-circuiting (Warning)] Runtime value 'modDOne.outputs.storageAccountName' will reduce the precision of what-if analysis for module 'modDTwo' (bicep core linter https://aka.ms/bicep/linter/what-if-short-circuiting) |modDOne.outputs.storageAccountName|
+//@[011:045) [what-if-short-circuiting (Warning)] Runtime value 'modDOne.outputs.storageAccountName' will reduce the precision of what-if analysis for module 'modDTwo' (bicep core linter https://aka.ms/bicep/linter-diagnostics#what-if-short-circuiting) |modDOne.outputs.storageAccountName|
   }
 }
 
@@ -126,13 +126,13 @@ module './main.bicep' = if ('true') {
 
 module modANoName './modulea.bicep' = {
 //@[007:017) [BCP028 (Error)] Identifier "modANoName" is declared multiple times. Remove or rename the duplicates. (bicep https://aka.ms/bicep/core-diagnostics#BCP028) |modANoName|
-//@[007:017) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |modANoName|
+//@[007:017) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |modANoName|
 // #completionTest(0) -> moduleATopLevelProperties
 
 }
 
 module modANoNameWithCondition './modulea.bicep' = if (true) {
-//@[007:030) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |modANoNameWithCondition|
+//@[007:030) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |modANoNameWithCondition|
 // #completionTest(0) -> moduleAWithConditionTopLevelProperties
 
 }
@@ -150,8 +150,8 @@ module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-
 
 module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 //@[007:017) [BCP028 (Error)] Identifier "modANoName" is declared multiple times. Remove or rename the duplicates. (bicep https://aka.ms/bicep/core-diagnostics#BCP028) |modANoName|
-//@[007:017) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |modANoName|
-//@[044:047) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter/prefer-unquoted-property-names) |'a'|
+//@[007:017) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |modANoName|
+//@[044:047) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-unquoted-property-names) |'a'|
 //@[049:050) [BCP057 (Error)] The name "b" does not exist in the current context. (bicep https://aka.ms/bicep/core-diagnostics#BCP057) |b|
 
 }
@@ -159,7 +159,7 @@ module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 module modANoInputs './modulea.bicep' = {
 //@[007:019) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |modANoInputs|
   name: 'modANoInputs'
-//@[008:022) [BCP122 (Error)] Modules: "modANoInputs", "modANoInputsWithCondition", "modAEmptyInputs", "modAEmptyInputsWithCondition" are defined with this same name and this same scope in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP122) |'modANoInputs'|
+//@[008:022) [BCP122 (Error)] Modules: "modANoInputs", "modANoInputsWithCondition", "modAEmptyInputs" are defined with this same name and this same scope in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP122) |'modANoInputs'|
   // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
   
 }
@@ -169,14 +169,14 @@ module modANoInputsWithCondition './modulea.bicep' = if (length([
   'foo'
 ]) == 1) {
   name: 'modANoInputs'
-//@[008:022) [BCP122 (Error)] Modules: "modANoInputs", "modANoInputsWithCondition", "modAEmptyInputs", "modAEmptyInputsWithCondition" are defined with this same name and this same scope in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP122) |'modANoInputs'|
+//@[008:022) [BCP122 (Error)] Modules: "modANoInputs", "modANoInputsWithCondition", "modAEmptyInputs" are defined with this same name and this same scope in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP122) |'modANoInputs'|
   // #completionTest(0,1,2) -> moduleAWithConditionTopLevelPropertiesMinusName
   
 }
 
 module modAEmptyInputs './modulea.bicep' = {
   name: 'modANoInputs'
-//@[008:022) [BCP122 (Error)] Modules: "modANoInputs", "modANoInputsWithCondition", "modAEmptyInputs", "modAEmptyInputsWithCondition" are defined with this same name and this same scope in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP122) |'modANoInputs'|
+//@[008:022) [BCP122 (Error)] Modules: "modANoInputs", "modANoInputsWithCondition", "modAEmptyInputs" are defined with this same name and this same scope in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP122) |'modANoInputs'|
   params: {
 //@[002:008) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "objParam", "stringParamB". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |params|
     // #completionTest(0,1,2,3,4) -> moduleAParams
@@ -186,7 +186,6 @@ module modAEmptyInputs './modulea.bicep' = {
 
 module modAEmptyInputsWithCondition './modulea.bicep' = if (1 + 2 == 2) {
   name: 'modANoInputs'
-//@[008:022) [BCP122 (Error)] Modules: "modANoInputs", "modANoInputsWithCondition", "modAEmptyInputs", "modAEmptyInputsWithCondition" are defined with this same name and this same scope in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP122) |'modANoInputs'|
   params: {
 //@[002:008) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "objParam", "stringParamB". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |params|
     // #completionTest(0,1,2,3,4) -> moduleAWithConditionParams
@@ -196,22 +195,24 @@ module modAEmptyInputsWithCondition './modulea.bicep' = if (1 + 2 == 2) {
 
 // #completionTest(55) -> moduleATopLevelPropertyAccess
 var modulePropertyAccessCompletions = modAEmptyInputs.o
-//@[004:035) [no-unused-vars (Warning)] Variable "modulePropertyAccessCompletions" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |modulePropertyAccessCompletions|
+//@[004:035) [no-unused-vars (Warning)] Variable "modulePropertyAccessCompletions" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |modulePropertyAccessCompletions|
 //@[054:055) [BCP053 (Error)] The type "module" does not contain property "o". Available properties include "name", "outputs". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |o|
 
 // #completionTest(81) -> moduleAWithConditionTopLevelPropertyAccess
 var moduleWithConditionPropertyAccessCompletions = modAEmptyInputsWithCondition.o
-//@[004:048) [no-unused-vars (Warning)] Variable "moduleWithConditionPropertyAccessCompletions" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |moduleWithConditionPropertyAccessCompletions|
+//@[004:048) [no-unused-vars (Warning)] Variable "moduleWithConditionPropertyAccessCompletions" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |moduleWithConditionPropertyAccessCompletions|
+//@[079:081) [BCP318 (Warning)] The value of type "module | null" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail. (bicep https://aka.ms/bicep/core-diagnostics#BCP318) |.o|
 //@[080:081) [BCP053 (Error)] The type "module" does not contain property "o". Available properties include "name", "outputs". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |o|
 
 // #completionTest(56) -> moduleAOutputs
 var moduleOutputsCompletions = modAEmptyInputs.outputs.s
-//@[004:028) [no-unused-vars (Warning)] Variable "moduleOutputsCompletions" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |moduleOutputsCompletions|
+//@[004:028) [no-unused-vars (Warning)] Variable "moduleOutputsCompletions" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |moduleOutputsCompletions|
 //@[055:056) [BCP053 (Error)] The type "outputs" does not contain property "s". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |s|
 
 // #completionTest(82) -> moduleAWithConditionOutputs
 var moduleWithConditionOutputsCompletions = modAEmptyInputsWithCondition.outputs.s
-//@[004:041) [no-unused-vars (Warning)] Variable "moduleWithConditionOutputsCompletions" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |moduleWithConditionOutputsCompletions|
+//@[004:041) [no-unused-vars (Warning)] Variable "moduleWithConditionOutputsCompletions" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |moduleWithConditionOutputsCompletions|
+//@[072:080) [BCP318 (Warning)] The value of type "module | null" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail. (bicep https://aka.ms/bicep/core-diagnostics#BCP318) |.outputs|
 //@[081:082) [BCP053 (Error)] The type "outputs" does not contain property "s". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |s|
 
 module modAUnspecifiedInputs './modulea.bicep' = {
@@ -228,7 +229,7 @@ module modAUnspecifiedInputs './modulea.bicep' = {
 }
 
 var unspecifiedOutput = modAUnspecifiedInputs.outputs.test
-//@[004:021) [no-unused-vars (Warning)] Variable "unspecifiedOutput" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |unspecifiedOutput|
+//@[004:021) [no-unused-vars (Warning)] Variable "unspecifiedOutput" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |unspecifiedOutput|
 //@[054:058) [BCP053 (Error)] The type "outputs" does not contain property "test". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |test|
 
 module modCycle './cycle.bicep' = {
@@ -307,43 +308,49 @@ resource runtimeValidRes1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 
 module runtimeValidModule1 'empty.bicep' = {
   name: concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)
-//@[008:089) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter/prefer-interpolation) |concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)|
-//@[015:065) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter/prefer-interpolation) |concat(runtimeValidRes1.id, runtimeValidRes1.name)|
+//@[008:089) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-interpolation) |concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)|
+//@[015:065) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-interpolation) |concat(runtimeValidRes1.id, runtimeValidRes1.name)|
 }
 
 module runtimeInvalidModule1 'empty.bicep' = {
   name: runtimeValidRes1.location
+//@[008:033) [BCP122 (Error)] Modules: "runtimeInvalidModule1", "runtimeInvalidModule2" are defined with this same name and this same scope in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP122) |runtimeValidRes1.location|
 //@[008:033) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (bicep https://aka.ms/bicep/core-diagnostics#BCP120) |runtimeValidRes1.location|
 }
 
 module runtimeInvalidModule2 'empty.bicep' = {
   name: runtimeValidRes1['location']
+//@[008:036) [BCP122 (Error)] Modules: "runtimeInvalidModule1", "runtimeInvalidModule2" are defined with this same name and this same scope in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP122) |runtimeValidRes1['location']|
 //@[008:036) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (bicep https://aka.ms/bicep/core-diagnostics#BCP120) |runtimeValidRes1['location']|
-//@[024:036) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter/prefer-unquoted-property-names) |['location']|
+//@[024:036) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-unquoted-property-names) |['location']|
 }
 
 module runtimeInvalidModule3 'empty.bicep' = {
   name: runtimeValidRes1.sku.name
 //@[008:028) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (bicep https://aka.ms/bicep/core-diagnostics#BCP120) |runtimeValidRes1.sku|
+//@[008:033) [BCP122 (Error)] Modules: "runtimeInvalidModule3", "runtimeInvalidModule4", "runtimeInvalidModule5", "runtimeInvalidModule6" are defined with this same name and this same scope in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP122) |runtimeValidRes1.sku.name|
 }
 
 module runtimeInvalidModule4 'empty.bicep' = {
   name: runtimeValidRes1.sku['name']
 //@[008:028) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (bicep https://aka.ms/bicep/core-diagnostics#BCP120) |runtimeValidRes1.sku|
-//@[028:036) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter/prefer-unquoted-property-names) |['name']|
+//@[008:036) [BCP122 (Error)] Modules: "runtimeInvalidModule3", "runtimeInvalidModule4", "runtimeInvalidModule5", "runtimeInvalidModule6" are defined with this same name and this same scope in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP122) |runtimeValidRes1.sku['name']|
+//@[028:036) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-unquoted-property-names) |['name']|
 }
 
 module runtimeInvalidModule5 'empty.bicep' = {
   name: runtimeValidRes1['sku']['name']
 //@[008:031) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (bicep https://aka.ms/bicep/core-diagnostics#BCP120) |runtimeValidRes1['sku']|
-//@[024:031) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter/prefer-unquoted-property-names) |['sku']|
-//@[031:039) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter/prefer-unquoted-property-names) |['name']|
+//@[008:039) [BCP122 (Error)] Modules: "runtimeInvalidModule3", "runtimeInvalidModule4", "runtimeInvalidModule5", "runtimeInvalidModule6" are defined with this same name and this same scope in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP122) |runtimeValidRes1['sku']['name']|
+//@[024:031) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-unquoted-property-names) |['sku']|
+//@[031:039) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-unquoted-property-names) |['name']|
 }
 
 module runtimeInvalidModule6 'empty.bicep' = {
   name: runtimeValidRes1['sku'].name
 //@[008:031) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (bicep https://aka.ms/bicep/core-diagnostics#BCP120) |runtimeValidRes1['sku']|
-//@[024:031) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter/prefer-unquoted-property-names) |['sku']|
+//@[008:036) [BCP122 (Error)] Modules: "runtimeInvalidModule3", "runtimeInvalidModule4", "runtimeInvalidModule5", "runtimeInvalidModule6" are defined with this same name and this same scope in a file. Rename them or split into different modules. (bicep https://aka.ms/bicep/core-diagnostics#BCP122) |runtimeValidRes1['sku'].name|
+//@[024:031) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-unquoted-property-names) |['sku']|
 }
 
 module singleModuleForRuntimeCheck 'modulea.bicep' = {
@@ -374,7 +381,7 @@ module moduleLoopForRuntimeCheck3 'modulea.bicep' = [for thing in []: {
 //@[007:033) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |moduleLoopForRuntimeCheck3|
 //@[007:033) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (bicep https://aka.ms/bicep/core-diagnostics#BCP179) |moduleLoopForRuntimeCheck3|
   name: concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA )
-//@[008:119) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter/prefer-interpolation) |concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA )|
+//@[008:119) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-interpolation) |concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA )|
 //@[015:051) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of moduleLoopForRuntimeCheck which can be calculated at the start include "name". (bicep https://aka.ms/bicep/core-diagnostics#BCP120) |moduleLoopForRuntimeCheck[1].outputs|
 //@[067:103) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of moduleLoopForRuntimeCheck which can be calculated at the start include "name". (bicep https://aka.ms/bicep/core-diagnostics#BCP120) |moduleLoopForRuntimeCheck[1].outputs|
 }]
@@ -530,10 +537,10 @@ module wrongLoopBodyType2 'modulea.bicep' = [for (x,i) in emptyArray:4]
 
 // missing loop body properties
 module missingLoopBodyProperties 'modulea.bicep' = [for x in emptyArray:{
-//@[007:032) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |missingLoopBodyProperties|
+//@[007:032) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |missingLoopBodyProperties|
 }]
 module missingLoopBodyProperties2 'modulea.bicep' = [for (x,i) in emptyArray:{
-//@[007:033) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name", "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |missingLoopBodyProperties2|
+//@[007:033) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |missingLoopBodyProperties2|
 }]
 
 // wrong array type
@@ -601,12 +608,12 @@ module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x,i) in empty
 
 // #completionTest(100) -> moduleAOutputs
 var propertyAccessCompletionsForFilteredModuleLoop = paramNameCompletionsInFilteredLoops[0].outputs.
-//@[004:050) [no-unused-vars (Warning)] Variable "propertyAccessCompletionsForFilteredModuleLoop" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |propertyAccessCompletionsForFilteredModuleLoop|
+//@[004:050) [no-unused-vars (Warning)] Variable "propertyAccessCompletionsForFilteredModuleLoop" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |propertyAccessCompletionsForFilteredModuleLoop|
 //@[100:100) [BCP020 (Error)] Expected a function or property name at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP020) ||
 
 // nonexistent arrays and loop variables
 var evenMoreDuplicates = 'there'
-//@[004:022) [no-unused-vars (Warning)] Variable "evenMoreDuplicates" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |evenMoreDuplicates|
+//@[004:022) [no-unused-vars (Warning)] Variable "evenMoreDuplicates" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |evenMoreDuplicates|
 module nonexistentArrays 'modulea.bicep' = [for evenMoreDuplicates in alsoDoesNotExist: {
 //@[007:024) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "evenMoreDuplicates" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (bicep https://aka.ms/bicep/core-diagnostics#BCP179) |nonexistentArrays|
 //@[070:086) [BCP057 (Error)] The name "alsoDoesNotExist" does not exist in the current context. (bicep https://aka.ms/bicep/core-diagnostics#BCP057) |alsoDoesNotExist|
@@ -622,14 +629,12 @@ module nonexistentArrays 'modulea.bicep' = [for evenMoreDuplicates in alsoDoesNo
 }]
 
 output directRefToCollectionViaOutput array = nonexistentArrays
-//@[046:063) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |nonexistentArrays|
+//@[038:043) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |array|
 
 module directRefToCollectionViaSingleBody 'modulea.bicep' = {
   name: 'hello'
   params: {
     arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
-//@[023:049) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |wrongModuleParameterInLoop|
-//@[051:068) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |nonexistentArrays|
     objParam: {}
     stringParamB: ''
   }
@@ -639,8 +644,6 @@ module directRefToCollectionViaSingleConditionalBody 'modulea.bicep' = if(true) 
   name: 'hello2'
   params: {
     arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
-//@[023:049) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |wrongModuleParameterInLoop|
-//@[051:068) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |nonexistentArrays|
     objParam: {}
     stringParamB: ''
   }
@@ -690,7 +693,6 @@ module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
 //@[068:074) [BCP167 (Error)] Expected the "{" character or the "if" keyword at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP167) |concat|
 
 module anyTypeInScope 'empty.bicep' = {
-//@[007:021) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |anyTypeInScope|
   dependsOn: [
     any('s')
 //@[004:012) [BCP176 (Error)] Values of the "any" type are not allowed here. (bicep https://aka.ms/bicep/core-diagnostics#BCP176) |any('s')|
@@ -701,7 +703,6 @@ module anyTypeInScope 'empty.bicep' = {
 }
 
 module anyTypeInScopeConditional 'empty.bicep' = if(false) {
-//@[007:032) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |anyTypeInScopeConditional|
   dependsOn: [
     any('s')
 //@[004:012) [BCP176 (Error)] Values of the "any" type are not allowed here. (bicep https://aka.ms/bicep/core-diagnostics#BCP176) |any('s')|
@@ -712,7 +713,6 @@ module anyTypeInScopeConditional 'empty.bicep' = if(false) {
 }
 
 module anyTypeInScopeLoop 'empty.bicep' = [for thing in []: {
-//@[007:025) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |anyTypeInScopeLoop|
   dependsOn: [
     any('s')
 //@[004:012) [BCP176 (Error)] Values of the "any" type are not allowed here. (bicep https://aka.ms/bicep/core-diagnostics#BCP176) |any('s')|
@@ -734,7 +734,7 @@ module secureModule1 'moduleb.bicep' = {
     stringParamA: kv.getSecret('mySecret')
 //@[018:042) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP180) |kv.getSecret('mySecret')|
     stringParamB: '${kv.getSecret('mySecret')}'
-//@[018:047) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (bicep core linter https://aka.ms/bicep/linter/simplify-interpolation) |'${kv.getSecret('mySecret')}'|
+//@[018:047) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#simplify-interpolation) |'${kv.getSecret('mySecret')}'|
 //@[021:045) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP180) |kv.getSecret('mySecret')|
     objParam: kv.getSecret('mySecret')
 //@[014:038) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP180) |kv.getSecret('mySecret')|
@@ -743,13 +743,13 @@ module secureModule1 'moduleb.bicep' = {
 //@[016:040) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP180) |kv.getSecret('mySecret')|
 //@[016:040) [BCP036 (Error)] The property "arrayParam" expected a value of type "array" but the provided value is of type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP036) |kv.getSecret('mySecret')|
     secureStringParam: '${kv.getSecret('mySecret')}'
-//@[023:052) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (bicep core linter https://aka.ms/bicep/linter/simplify-interpolation) |'${kv.getSecret('mySecret')}'|
+//@[023:052) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#simplify-interpolation) |'${kv.getSecret('mySecret')}'|
 //@[026:050) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP180) |kv.getSecret('mySecret')|
     secureObjectParam: kv.getSecret('mySecret')
 //@[023:047) [BCP036 (Error)] The property "secureObjectParam" expected a value of type "null | object" but the provided value is of type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP036) |kv.getSecret('mySecret')|
     secureStringParam2: '${kv.getSecret('mySecret')}'
 //@[004:022) [BCP037 (Error)] The property "secureStringParam2" is not allowed on objects of type "params". No other properties are allowed. (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |secureStringParam2|
-//@[024:053) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (bicep core linter https://aka.ms/bicep/linter/simplify-interpolation) |'${kv.getSecret('mySecret')}'|
+//@[024:053) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#simplify-interpolation) |'${kv.getSecret('mySecret')}'|
 //@[027:051) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP180) |kv.getSecret('mySecret')|
     secureObjectParam2: kv.getSecret('mySecret')
 //@[004:022) [BCP037 (Error)] The property "secureObjectParam2" is not allowed on objects of type "params". No other properties are allowed. (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |secureObjectParam2|
@@ -799,7 +799,6 @@ module issue3000 'empty.bicep' = {
 }
 
 module invalidJsonMod 'modulec.json' = {
-//@[007:021) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "name". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |invalidJsonMod|
 //@[022:036) [BCP188 (Error)] The referenced ARM template has errors. Please see https://aka.ms/arm-template for information on how to diagnose and fix the template. (bicep https://aka.ms/bicep/core-diagnostics#BCP188) |'modulec.json'|
 }
 

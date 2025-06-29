@@ -31,8 +31,7 @@
   },
   "extensions": {
     "az": "builtin:",
-    "kubernetes": "builtin:",
-    "microsoftGraph": "builtin:"
+    "kubernetes": "builtin:"
   },
   "implicitExtensions": ["az"],
   "analyzers": {
@@ -43,7 +42,6 @@
         "no-hardcoded-env-urls": {
           "level": "warning",
           "disallowedhosts": [
-            "api.loganalytics.io",
             "azuredatalakeanalytics.net",
             "azuredatalakestore.net",
             "batch.core.windows.net",
@@ -55,8 +53,6 @@
             "login.microsoftonline.com",
             "management.azure.com",
             "management.core.windows.net",
-            "region.asazure.windows.net",
-            "trafficmanager.net",
             "vault.azure.net"
           ],
           "excludedhosts": ["schema.management.azure.com"]

@@ -211,4 +211,37 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01'
   name: 'blah'
 }
 ");
+
+    [TestMethod] // https://github.com/Azure/bicep/issues/16455
+    public void Rule_ignores_grandparent_resources() => AssertNoDiagnostics(@"
+param storageAccountName string = toLower(take('stg${uniqueString(resourceGroup().id, deployment().name)}', 24))
+param blobContainerName string = 'blobcontainer${uniqueString(resourceGroup().id, deployment().name)}'
+
+param fileShareName string = 'fileshare${uniqueString(resourceGroup().id, deployment().name)}'
+
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: storageAccountName
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    accessTier: 'Hot'
+  }
+}
+
+resource blobContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
+  name: '${storageAccount.name}/defa|ult/${blobContainerName}'
+  properties: {
+    publicAccess: 'None'
+  }
+}
+
+resource fileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2022-09-01' = {
+  name: '${storageAccount.name}/default/${fileShareName}'
+  properties: {
+    shareQuota: 100
+  }
+}");
 }

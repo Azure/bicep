@@ -15,7 +15,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using RegistryUtils = Bicep.Core.UnitTests.Utils.ContainerRegistryClientFactoryExtensions;
+using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -40,11 +40,9 @@ namespace Bicep.Core.IntegrationTests
         {
             var indexJson = FileHelper.SaveResultFile(TestContext, "types/index.json", EmptyIndexJson);
 
-            var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
-            Directory.CreateDirectory(cacheRoot);
-
+            var cacheRoot = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
             var services = new ServiceBuilder()
-                .WithFeatureOverrides(new(ExtensibilityEnabled: true, CacheRootDirectory: cacheRoot))
+                .WithFeatureOverrides(new(CacheRootDirectory: cacheRoot))
                 .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForAzExtension());
 
             await RegistryHelper.PublishAzExtension(services.Build(), indexJson);
@@ -54,19 +52,18 @@ namespace Bicep.Core.IntegrationTests
 
         private async Task<ServiceBuilder> ServicesWithTestExtensionArtifact(ArtifactRegistryAddress artifactRegistryAddress, BinaryData artifactPayload)
         {
-            (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(artifactRegistryAddress.ClientDescriptor());
+            var clientFactory = RegistryHelper.CreateMockRegistryClient(artifactRegistryAddress.ClientDescriptor());
+            var blobClient = clientFactory.CreateAnonymousBlobClient(BicepTestConstants.BuiltInConfiguration.Cloud, artifactRegistryAddress.RegistryUri, artifactRegistryAddress.RepositoryPath);
 
-            (_, var client) = blobClients.First();
-            var configResult = await client.UploadBlobAsync(BinaryData.FromString("{}"));
-            var blobResult = await client.UploadBlobAsync(artifactPayload);
+            var configResult = await blobClient.UploadBlobAsync(BinaryData.FromString("{}"));
+            var blobResult = await blobClient.UploadBlobAsync(artifactPayload);
             var manifest = BicepTestConstants.GetBicepExtensionManifest(blobResult.Value, configResult.Value);
-            await client.SetManifestAsync(manifest, artifactRegistryAddress.ExtensionVersion);
+            await blobClient.SetManifestAsync(manifest, artifactRegistryAddress.ExtensionVersion);
 
-            var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
-            Directory.CreateDirectory(cacheRoot);
+            var cacheRoot = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
 
             return new ServiceBuilder()
-                .WithFeatureOverrides(new(ExtensibilityEnabled: true, CacheRootDirectory: cacheRoot))
+                .WithFeatureOverrides(new(CacheRootDirectory: cacheRoot))
                 .WithContainerRegistryClientFactory(clientFactory);
         }
 
@@ -76,20 +73,16 @@ namespace Bicep.Core.IntegrationTests
             // ARRANGE
             var fsMock = new MockFileSystem();
             var testArtifact = new ArtifactRegistryAddress(LanguageConstants.BicepPublicMcrRegistry, "bicep/extensions/az", "0.2.661");
-            var clientFactory = RegistryHelper.CreateMockRegistryClients((testArtifact.RegistryAddress, testArtifact.RepositoryPath)).factoryMock;
+            var clientFactory = RegistryHelper.CreateMockRegistryClient(new RepoDescriptor(testArtifact.RegistryAddress, testArtifact.RepositoryPath, ["v1"]));
             var services = new ServiceBuilder()
                 .WithFileSystem(fsMock)
-                .WithFeatureOverrides(new(ExtensibilityEnabled: true))
                 .WithContainerRegistryClientFactory(clientFactory);
 
             await RegistryHelper.PublishModuleToRegistryAsync(
+                new ServiceBuilder(),
                 clientFactory,
                 fsMock,
-                moduleName: "az",
-                target: testArtifact.ToSpecificationString(':'),
-                moduleSource: "",
-                publishSource: false,
-                documentationUri: "mydocs.org/abc");
+                new(testArtifact.ToSpecificationString(':'), BicepSource: "", WithSource: false, DocumentationUri: "mydocs.org/abc"));
 
             // ACT
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
@@ -131,7 +124,9 @@ namespace Bicep.Core.IntegrationTests
         {
             public string ToSpecificationString(char delim) => $"br:{RegistryAddress}/{RepositoryPath}{delim}{ExtensionVersion}";
 
-            public (string, string) ClientDescriptor() => (RegistryAddress, RepositoryPath);
+            public RepoDescriptor ClientDescriptor() => new(RegistryAddress, RepositoryPath, [ExtensionVersion]);
+
+            public Uri RegistryUri => new($"https://{RegistryAddress}");
         }
 
         [TestMethod]
@@ -143,19 +138,18 @@ namespace Bicep.Core.IntegrationTests
         {
             // ARRANGE
             // mock the blob client to throw the expected exception
-            var mockBlobClient = StrictMock.Of<MockRegistryBlobClient>();
+            var mockBlobClient = StrictMock.Of<FakeRegistryBlobClient>();
             mockBlobClient.Setup(m => m.GetManifestAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ThrowsAsync(exceptionToThrow);
 
             // mock the registry client to return the mock blob client
             var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
-            containerRegistryFactoryBuilder.RegisterMockRepositoryBlobClient(
-                artifactRegistryAddress.RegistryAddress,
-                artifactRegistryAddress.RepositoryPath,
+            containerRegistryFactoryBuilder.WithRepository(
+                new RepoDescriptor(
+                    artifactRegistryAddress.RegistryAddress, artifactRegistryAddress.RepositoryPath, ["tag"]),
                 mockBlobClient.Object);
 
             var services = new ServiceBuilder()
-                .WithFeatureOverrides(new(ExtensibilityEnabled: true))
-                .WithContainerRegistryClientFactory(containerRegistryFactoryBuilder.Build().clientFactory);
+                .WithContainerRegistryClientFactory(containerRegistryFactoryBuilder.Build());
 
             // ACT
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
@@ -212,7 +206,7 @@ namespace Bicep.Core.IntegrationTests
             // Scenario: Artifact layer payload is missing an "index.json"
             yield return new object[]
             {
-                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(
+                ExtensionResourceTypeHelper.GetTypesTgzBytesFromFiles(
                     ("unknown.json", "{}")),
                 "The path: index.json was not found in artifact contents"
             };
@@ -220,7 +214,7 @@ namespace Bicep.Core.IntegrationTests
             // Scenario: "index.json" is not valid JSON
             yield return new object[]
             {
-                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(
+                ExtensionResourceTypeHelper.GetTypesTgzBytesFromFiles(
                     ("index.json", """{"INVALID_JSON": 777""")),
                 "'7' is an invalid end of a number. Expected a delimiter. Path: $.INVALID_JSON | LineNumber: 0 | BytePositionInLine: 20."
             };
@@ -228,7 +222,7 @@ namespace Bicep.Core.IntegrationTests
             // Scenario: "index.json" with malformed or missing required data
             yield return new object[]
             {
-                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(
+                ExtensionResourceTypeHelper.GetTypesTgzBytesFromFiles(
                     ("index.json", """{ "UnexpectedMember": false}""")),
                 "Value cannot be null. (Parameter 'source')"
             };
@@ -282,7 +276,7 @@ namespace Bicep.Core.IntegrationTests
                 "1.0.0-fake");
             var services = await ServicesWithTestExtensionArtifact(
                 artifactRegistryAddress,
-                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(("index.json", EmptyIndexJson)));
+                ExtensionResourceTypeHelper.GetTypesTgzBytesFromFiles(("index.json", EmptyIndexJson)));
             services = services.WithConfigurationPatch(c => c.WithExtensions($$"""
             {
                 "az": "{{artifactRegistryAddress.ToSpecificationString(':')}}"

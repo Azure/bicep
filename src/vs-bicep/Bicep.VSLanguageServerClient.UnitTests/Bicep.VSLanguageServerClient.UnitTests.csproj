@@ -3,20 +3,21 @@
 	<PropertyGroup>
 		<TargetFramework>net472</TargetFramework>
 		<IsPackable>false</IsPackable>
+		<OutputType>Exe</OutputType>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="FluentAssertions" Version="6.12.0" />
+		<PackageReference Include="FluentAssertions" Version="8.0.1" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="4.11.0">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.11.0" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.IO.Redist" Version="6.1.0" />
+		<PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.12.0" PrivateAssets="all" />
 		<PackageReference Include="Microsoft.VisualStudio.LanguageServer.Protocol" Version="17.2.8" />
-		<PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.11.40262" />
-		<PackageReference Include="Moq" Version="4.20.70" />
-		<PackageReference Include="MSTest.TestAdapter" Version="3.5.2" />
-		<PackageReference Include="MSTest.TestFramework" Version="3.5.2" />
+		<PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.12.40391" />
+		<PackageReference Include="Moq" Version="4.20.72" />
+		<PackageReference Include="MSTest" Version="$(MSTestVersion)" />
 	</ItemGroup>
 
 	<ItemGroup>

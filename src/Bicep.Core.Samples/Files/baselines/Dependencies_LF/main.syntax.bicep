@@ -1,5 +1,5 @@
 param deployTimeParam string = 'steve'
-//@[00:1098) ProgramSyntax
+//@[00:1100) ProgramSyntax
 //@[00:0038) ├─ParameterDeclarationSyntax
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0021) | ├─IdentifierSyntax
@@ -392,24 +392,24 @@ resource resD 'My.Rp/myResourceType/childType@2020-01-01' = {
 //@[01:0003) ├─Token(NewLine) |\n\n|
 
 resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {
-//@[00:0124) ├─ResourceDeclarationSyntax
+//@[00:0126) ├─ResourceDeclarationSyntax
 //@[00:0008) | ├─Token(Identifier) |resource|
 //@[09:0013) | ├─IdentifierSyntax
 //@[09:0013) | | └─Token(Identifier) |resE|
 //@[14:0057) | ├─StringSyntax
 //@[14:0057) | | └─Token(StringComplete) |'My.Rp/myResourceType/childType@2020-01-01'|
 //@[58:0059) | ├─Token(Assignment) |=|
-//@[60:0124) | └─ObjectSyntax
+//@[60:0126) | └─ObjectSyntax
 //@[60:0061) |   ├─Token(LeftBrace) |{|
 //@[61:0062) |   ├─Token(NewLine) |\n|
-  name: 'resC/resD'
-//@[02:0019) |   ├─ObjectPropertySyntax
+  name: 'resC/resD_2'
+//@[02:0021) |   ├─ObjectPropertySyntax
 //@[02:0006) |   | ├─IdentifierSyntax
 //@[02:0006) |   | | └─Token(Identifier) |name|
 //@[06:0007) |   | ├─Token(Colon) |:|
-//@[08:0019) |   | └─StringSyntax
-//@[08:0019) |   |   └─Token(StringComplete) |'resC/resD'|
-//@[19:0020) |   ├─Token(NewLine) |\n|
+//@[08:0021) |   | └─StringSyntax
+//@[08:0021) |   |   └─Token(StringComplete) |'resC/resD_2'|
+//@[21:0022) |   ├─Token(NewLine) |\n|
   properties: {
 //@[02:0040) |   ├─ObjectPropertySyntax
 //@[02:0012) |   | ├─IdentifierSyntax

@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Extensions;
-using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 
@@ -27,7 +27,7 @@ namespace Bicep.Core.Semantics
         public ExtensionNamespaceSymbol(ISymbolContext context, ExtensionDeclarationSyntax declaringSyntax, TypeSymbol declaredType)
             : base(
                 context,
-                declaringSyntax.Alias?.IdentifierName ?? declaredType.Name,
+                declaringSyntax.TryGetSymbolName() ?? declaredType.Name,
                 declaringSyntax,
                 new ExtensionNameSource(declaringSyntax))
         {

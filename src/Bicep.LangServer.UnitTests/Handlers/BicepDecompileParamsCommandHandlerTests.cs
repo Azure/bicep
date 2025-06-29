@@ -82,7 +82,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
     }
   }
 }";
-            var expectedErrorMsg = "Decompilation failed. Please fix the following problems and try again: No value found parameter foo";
+            var expectedErrorMsg = "Decompilation failed. Please fix the following problems and try again: [5:10]: No value found parameter foo";
 
             var paramFilePath = FileHelper.SaveResultFile(TestContext, "param.json", paramFile);
 

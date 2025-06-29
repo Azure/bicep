@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using Bicep.Core.Diagnostics;
 using FluentAssertions;
 using FluentAssertions.Collections;
@@ -55,39 +56,56 @@ namespace Bicep.Core.UnitTests.Assertions
             return new AndConstraint<IDiagnosticCollectionAssertions>(this);
         }
 
-        public AndConstraint<IDiagnosticCollectionAssertions> HaveDiagnostics(IEnumerable<(string code, DiagnosticLevel level, string message)> diagnostics, string because = "", params object[] becauseArgs)
+        public AndConstraint<IDiagnosticCollectionAssertions> HaveDiagnostics(IEnumerable<(string code, DiagnosticLevel level, string message)> expectedDiagnostics, string because = "", params object[] becauseArgs)
         {
-            var actions = new List<Action<IDiagnostic>>();
-            foreach (var (code, level, message) in diagnostics)
+            var expectedArray = expectedDiagnostics.ToArray();
+            if (expectedArray.Any())
             {
-                actions.Add(x =>
+                AssertionExtensions.Should(Subject).HaveCount(expectedArray.Count(), $"{because} expected {expectedArray.Count()} diagnostics");
+                if (Subject.Count() == expectedArray.Count())
                 {
-                    x.Should().HaveCodeAndSeverity(code, level).And.HaveMessage(message);
-                });
+                    var actions = expectedArray.Select(diagnostic =>
+                        new Action<IDiagnostic>(x =>
+                        {
+                            x.Should().HaveCodeAndSeverity(diagnostic.code, diagnostic.level).And.HaveMessage(diagnostic.message);
+                        })).ToList();
+
+                    AssertionExtensions.Should(Subject).SatisfyRespectively(actions, because, becauseArgs);
+                }
             }
-
-
-            AssertionExtensions.Should(Subject).SatisfyRespectively(actions, because, becauseArgs);
+            else
+            {
+                Subject.Should().NotHaveAnyDiagnostics(because, becauseArgs);
+            }
 
             return new AndConstraint<IDiagnosticCollectionAssertions>(this);
         }
 
-        public AndConstraint<IDiagnosticCollectionAssertions> HaveFixableDiagnostics(IEnumerable<(string code, DiagnosticLevel level, string message, string fixDescription, string fixReplacementText)> diagnostics, string because = "", params object[] becauseArgs)
+        public AndConstraint<IDiagnosticCollectionAssertions> HaveFixableDiagnostics(IEnumerable<(string code, DiagnosticLevel level, string message, string fixDescription, string fixReplacementText)> expectedDiagnostics, string because = "", params object[] becauseArgs)
         {
-            var actions = new List<Action<IDiagnostic>>();
-            foreach (var (code, level, message, fixDescription, fixReplacementText) in diagnostics)
+            var expectedArray = expectedDiagnostics.ToArray();
+            if (expectedArray.Any())
             {
-                actions.Add(x =>
+                AssertionExtensions.Should(Subject).HaveCount(expectedArray.Count(), $"{because} expected {expectedArray.Count()} fixable diagnostics");
+
+                var actions = new List<Action<IDiagnostic>>();
+                foreach (var (code, level, message, fixDescription, fixReplacementText) in expectedDiagnostics)
                 {
-                    x.Should()
-                    .HaveCodeAndSeverity(code, level)
-                    .And.HaveMessage(message)
-                    .And.HaveCodeFix(fixDescription, fixReplacementText);
-                });
+                    actions.Add(x =>
+                    {
+                        x.Should()
+                        .HaveCodeAndSeverity(code, level)
+                        .And.HaveMessage(message)
+                        .And.HaveCodeFix(fixDescription, fixReplacementText);
+                    });
+                }
+
+                AssertionExtensions.Should(Subject).SatisfyRespectively(actions, because, becauseArgs);
             }
-
-
-            AssertionExtensions.Should(Subject).SatisfyRespectively(actions, because, becauseArgs);
+            else
+            {
+                Subject.Should().NotHaveAnyDiagnostics(because, becauseArgs);
+            }
 
             return new AndConstraint<IDiagnosticCollectionAssertions>(this);
         }

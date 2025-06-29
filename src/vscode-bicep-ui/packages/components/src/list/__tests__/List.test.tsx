@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { List } from "..";

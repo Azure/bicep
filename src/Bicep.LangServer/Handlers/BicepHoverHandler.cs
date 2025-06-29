@@ -183,15 +183,10 @@ namespace Bicep.LanguageServer.Handlers
                 TryGetDescription(result, module)
             };
 
-            var uri = request.TextDocument.Uri.ToUriEncoded();
-            var registries = moduleRegistryProvider.Registries(uri);
-
-            if (registries != null &&
-                registries.Any() &&
-                moduleDispatcher.TryGetArtifactReference(module.DeclaringModule, uri).IsSuccess(out var moduleReference) &&
+            if (moduleDispatcher.TryGetArtifactReference(module.Context.SourceFile, module.DeclaringModule).IsSuccess(out var moduleReference) &&
                 moduleReference is not null)
             {
-                var registry = registries.FirstOrDefault(r => r.Scheme == moduleReference.Scheme);
+                var registry = moduleRegistryProvider.TryGetRegistry(moduleReference.Scheme);
                 if (registry is not null)
                 {
                     try
@@ -223,7 +218,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private static ParameterMetadata? GetDeclaredParameterMetadata(ParameterAssignmentSymbol symbol)
         {
-            if (!symbol.Context.Compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var semanticModel))
+            if (!symbol.Context.Binder.FileSymbol.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var semanticModel))
             {
                 // failed to resolve using
                 return null;

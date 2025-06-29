@@ -45,7 +45,7 @@ public class ResourceDerivedTypeDiagnosticReporter
             TupleType tuple => tuple.Items.SelectMany(ReportResourceDerivedTypeDiagnostics),
             ArrayType array => ReportResourceDerivedTypeDiagnostics(array.Item),
             DiscriminatedObjectType taggedUnion => taggedUnion.UnionMembersByKey.Values.SelectMany(ReportResourceDerivedTypeDiagnostics),
-            ObjectType @object => @object.Properties.Values.Select(property => property.TypeReference).Append(@object.AdditionalPropertiesType)
+            ObjectType @object => @object.Properties.Values.Select(property => property.TypeReference).Append(@object.AdditionalProperties?.TypeReference)
                 .WhereNotNull()
                 .SelectMany(ReportResourceDerivedTypeDiagnostics),
             UnionType union => union.Members.SelectMany(ReportResourceDerivedTypeDiagnostics),
@@ -62,11 +62,6 @@ public class ResourceDerivedTypeDiagnosticReporter
 
     private IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate> ReportResourceDerivedTypeDiagnostics(IUnresolvedResourceDerivedType unbound)
     {
-        if (!features.ResourceDerivedTypesEnabled)
-        {
-            yield return x => x.ResourceDerivedTypesUnsupported();
-        }
-
         // TODO support types derived from resources other than the `az` extension. This will require some refactoring of how extension artifacts are restored
         var bound = binder.NamespaceResolver.GetMatchingResourceTypes(unbound.TypeReference, ResourceTypeGenerationFlags.None)
             .Where(resourceType => LanguageConstants.IdentifierComparer.Equals(resourceType.DeclaringNamespace.ExtensionName, AzNamespaceType.BuiltInName))
@@ -100,13 +95,13 @@ public class ResourceDerivedTypeDiagnosticReporter
                 }
                 else if (PointerSegmentComparer.Equals("additionalProperties", unbound.PointerSegments[i]))
                 {
-                    if (current is not ObjectType @object || @object.AdditionalPropertiesType is null)
+                    if (current is not ObjectType @object || @object.AdditionalProperties is null)
                     {
                         yield return x => x.ExplicitAdditionalPropertiesTypeRequiredForAccessThereto(current).WithMaximumDiagnosticLevel(DiagnosticLevel.Warning);
                         break;
                     }
 
-                    current = @object.AdditionalPropertiesType.Type;
+                    current = @object.AdditionalProperties.TypeReference.Type;
                     continue;
                 }
                 else if (PointerSegmentComparer.Equals("prefixItems", unbound.PointerSegments[i]))
@@ -167,11 +162,6 @@ public class ResourceDerivedTypeDiagnosticReporter
 
     private IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate> ReportResourceDerivedTypeDiagnostics(UnparsableResourceDerivedType unloadable)
     {
-        if (!features.ResourceDerivedTypesEnabled)
-        {
-            yield return x => x.ResourceDerivedTypesUnsupported();
-        }
-
         yield return x => x.InvalidResourceTypeIdentifier(unloadable.TypeReferenceString);
     }
 }

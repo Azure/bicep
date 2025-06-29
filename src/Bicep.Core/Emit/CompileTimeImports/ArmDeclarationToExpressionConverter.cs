@@ -66,6 +66,7 @@ internal class ArmDeclarationToExpressionConverter
     internal DeclaredVariableExpression CreateDeclaredVariableExpressionFor(string originalName)
         => new(sourceSyntax,
             armIdentifierToSymbolNameMapping[new(ArmSymbolType.Variable, originalName)],
+            Type: null,
             ConvertToVariableValue(originalName),
             // Variables cannot have descriptions in an ARM template -- this is only supported in Bicep
             Description: null,
@@ -268,8 +269,7 @@ internal class ArmDeclarationToExpressionConverter
         return new(sourceSyntax,
             new ObjectType(string.Empty,
                 TypeSymbolValidationFlags.Default,
-                propertyExpressions.Select(p => new TypeProperty(p.PropertyName, p.Value.ExpressedType)),
-                additionalPropertiesType: null),
+                propertyExpressions.Select(p => new NamedTypeProperty(p.PropertyName, p.Value.ExpressedType))),
             propertyExpressions,
             AdditionalPropertiesExpression: null);
     }
@@ -280,7 +280,7 @@ internal class ArmDeclarationToExpressionConverter
             .ToImmutableArray();
 
         return new(sourceSyntax,
-            new(itemExpressions.Select(i => i.Value.ExpressedType).ToImmutableArray<ITypeReference>(), TypeSymbolValidationFlags.Default),
+            new([.. itemExpressions.Select(i => i.Value.ExpressedType)], TypeSymbolValidationFlags.Default),
             itemExpressions);
     }
 
@@ -304,7 +304,7 @@ internal class ArmDeclarationToExpressionConverter
             }));
 
             return new TupleTypeExpression(sourceSyntax,
-                new(ImmutableArray.CreateRange<ITypeReference>(itemExpressions.Select(i => i.Value.ExpressedType)),
+                new([.. itemExpressions.Select(i => i.Value.ExpressedType)],
                     TypeSymbolValidationFlags.Default),
                 itemExpressions);
         }
@@ -380,8 +380,11 @@ internal class ArmDeclarationToExpressionConverter
         return new ObjectTypeExpression(sourceSyntax,
             new(string.Empty,
                 TypeSymbolValidationFlags.Default,
-                properties.Select(pe => new TypeProperty(pe.PropertyName, pe.Value.ExpressedType)),
-                addlProperties?.Value.ExpressedType),
+                properties.Select(pe => new NamedTypeProperty(pe.PropertyName, pe.Value.ExpressedType)),
+                addlProperties is not null
+                    ? new TypeProperty(addlProperties.Value.ExpressedType, Description: addlProperties.Description is StringLiteralExpression stringLiteral ? stringLiteral.Value : null)
+                    : null
+            ),
             properties,
             addlProperties);
     }
@@ -484,7 +487,7 @@ internal class ArmDeclarationToExpressionConverter
         {
             var baseExpression = ConvertToExpression(new FunctionExpression(func.Function,
                 func.Parameters,
-                func.Properties.Take(func.Properties.Length - 1).ToArray()));
+                [.. func.Properties.Take(func.Properties.Length - 1)]));
 
             return ConvertToExpression(outermostPropertyAccess) switch
             {
@@ -504,7 +507,7 @@ internal class ArmDeclarationToExpressionConverter
             return new SynthesizedUserDefinedFunctionCallExpression(sourceSyntax,
                 namespaceName,
                 functionName,
-                func.Parameters.Select(ConvertToExpression).ToImmutableArray());
+                [.. func.Parameters.Select(ConvertToExpression)]);
         }
 
         return func.Function.ToLowerInvariant() switch
@@ -527,7 +530,7 @@ internal class ArmDeclarationToExpressionConverter
                 },
             // this is less robust than decompilation analysis (e.g., the "add" function will not be transformed to a binary expression), but since this expression is produced only to be lightly manipulated and recompiled to ARM JSON, it's fine to be lax here
             // this choice should be revisited if this converter is used outside of the Bicep.Core.Emit namespace
-            _ => new FunctionCallExpression(sourceSyntax, func.Function, func.Parameters.Select(ConvertToExpression).ToImmutableArray()),
+            _ => new FunctionCallExpression(sourceSyntax, func.Function, [.. func.Parameters.Select(ConvertToExpression)]),
         };
     }
     #endregion variableConversion

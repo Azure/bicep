@@ -18,7 +18,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             code: Code,
             description: CoreResources.UseResourceIdFunctionsRule_Description,
             LinterRuleCategory.BestPractice,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
+            // This defaults to off because it's got some false positives
+            overrideCategoryDefaultDiagnosticLevel: DiagnosticLevel.Off)
         { }
 
         private static readonly HashSet<string> allowedFunctions = new() {
@@ -123,14 +124,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         continue;
                     }
 
-                    Exclusion[] exclusionsMatchingResourceType = allowedResourcesAndProperties.Where(allowed => allowed.ResourceType is null || allowed.ResourceType.IsMatch(resourceType)).ToArray();
+                    Exclusion[] exclusionsMatchingResourceType = [.. allowedResourcesAndProperties.Where(allowed => allowed.ResourceType is null || allowed.ResourceType.IsMatch(resourceType))];
                     if (exclusionsMatchingResourceType.Any(excl => excl.propertyName is null))
                     {
                         // All properties on this resource type are excluded
                         continue;
                     }
 
-                    string[] excludedPropertiesForThisResource = exclusionsMatchingResourceType.Select(excl => excl.propertyName!).ToArray(); // propertyName can't be null in this list
+                    string[] excludedPropertiesForThisResource = [.. exclusionsMatchingResourceType.Select(excl => excl.propertyName!)]; // propertyName can't be null in this list
                     var visitor = new IdPropertyVisitor(model, [.. excludedPropertiesForThisResource]);
                     properties.Accept(visitor);
 

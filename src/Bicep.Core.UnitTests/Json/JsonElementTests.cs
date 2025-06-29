@@ -60,7 +60,6 @@ public class JsonElementTests
         ""no-hardcoded-env-urls"": {
           ""level"": ""warning"",
           ""disallowedhosts"": [
-            ""api.loganalytics.io"",
             ""azuredatalakeanalytics.net"",
             ""azuredatalakestore.net"",
             ""batch.core.windows.net"",
@@ -72,8 +71,6 @@ public class JsonElementTests
             ""login.microsoftonline.com"",
             ""management.azure.com"",
             ""management.core.windows.net"",
-            ""region.asazure.windows.net"",
-            ""trafficmanager.net"",
             ""vault.azure.net""
           ],
           ""excludedhosts"": [
@@ -144,7 +141,6 @@ public class JsonElementTests
         ""no-hardcoded-env-urls"": {
           ""level"": ""warning"",
           ""disallowedhosts"": [
-            ""api.loganalytics.io"",
             ""azuredatalakeanalytics.net"",
             ""azuredatalakestore.net"",
             ""batch.core.windows.net"",
@@ -156,8 +152,6 @@ public class JsonElementTests
             ""login.microsoftonline.com"",
             ""management.azure.com"",
             ""management.core.windows.net"",
-            ""region.asazure.windows.net"",
-            ""trafficmanager.net"",
             ""vault.azure.net""
           ],
           ""excludedhosts"": [

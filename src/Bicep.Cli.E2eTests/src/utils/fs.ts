@@ -1,17 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import path from "path";
 import fs from "fs";
-import { rimraf } from "rimraf";
 import { homedir } from "os";
+import path from "path";
+import { rimraf } from "rimraf";
+import { expect } from "vitest";
 
 export const bicepCli = path.resolve(
   __dirname,
-  process.env.BICEP_CLI_EXECUTABLE ||
-    "../../../Bicep.Cli/bin/Debug/net8.0/bicep"
+  process.env.BICEP_CLI_EXECUTABLE || "../../../Bicep.Cli/bin/Debug/net8.0/bicep",
 );
 
-export const moduleCacheRoot = path.resolve(homedir(), ".bicep");
+export const defaultModuleCacheRoot = path.resolve(homedir(), ".bicep");
 
 export function pathToExampleFile(...pathNames: string[]): string {
   return path.join(__dirname, "../examples", ...pathNames);
@@ -22,11 +22,11 @@ export function pathToTempFile(...pathNames: string[]): string {
   return tempPath;
 }
 
-export function pathToCachedTsModuleFile(...pathNames: string[]): string {
+export function pathToCachedTsModuleFile(moduleCacheRoot: string, ...pathNames: string[]): string {
   return path.join(moduleCacheRoot, "ts", ...pathNames);
 }
 
-export function pathToCachedBrModuleFile(...pathNames: string[]): string {
+export function pathToCachedBrModuleFile(moduleCacheRoot: string, ...pathNames: string[]): string {
   return path.join(moduleCacheRoot, "br", ...pathNames);
 }
 
@@ -67,11 +67,7 @@ export function expectFileNotExists(filePath: string): void {
   expect(fs.existsSync(filePath)).toBeFalsy();
 }
 
-export function writeTempFile(
-  testArea: string,
-  fileName: string,
-  contents: string
-): string {
+export function writeTempFile(testArea: string, fileName: string, contents: string): string {
   const tempDir = pathToTempFile(testArea);
   fs.mkdirSync(tempDir, { recursive: true });
 
@@ -91,8 +87,8 @@ export function copyToTempFile(
   testArea: string,
   replace?: {
     values: Record<string, string>;
-    relativePath: string
-  }
+    relativePath: string;
+  },
 ) {
   const fileContents = readFileSync(path.join(baseFolder, relativePath));
 

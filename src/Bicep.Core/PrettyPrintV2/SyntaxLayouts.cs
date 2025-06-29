@@ -6,7 +6,6 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2.Documents;
 using Bicep.Core.Syntax;
-using Microsoft.Extensions.Primitives;
 using static Bicep.Core.PrettyPrintV2.Documents.DocumentOperators;
 
 namespace Bicep.Core.PrettyPrintV2
@@ -14,18 +13,15 @@ namespace Bicep.Core.PrettyPrintV2
     public partial class SyntaxLayouts
     {
         private IEnumerable<Document> LayoutArrayAccessSyntax(ArrayAccessSyntax syntax) =>
-            syntax.SafeAccessMarker is not null
-                ? this.Glue(
-                    syntax.BaseExpression,
-                    syntax.OpenSquare,
-                    syntax.SafeAccessMarker,
-                    syntax.IndexExpression,
-                    syntax.CloseSquare)
-                : this.Glue(
-                    syntax.BaseExpression,
-                    syntax.OpenSquare,
-                    syntax.IndexExpression,
-                    syntax.CloseSquare);
+            this.Glue(new[]
+            {
+                syntax.BaseExpression,
+                syntax.OpenSquare,
+                syntax.SafeAccessMarker,
+                syntax.FromEndMarker,
+                syntax.IndexExpression,
+                syntax.CloseSquare
+            }.WhereNotNull());
 
         private IEnumerable<Document> LayoutArraySyntax(ArraySyntax syntax) =>
             this.Bracket(
@@ -120,6 +116,14 @@ namespace Bicep.Core.PrettyPrintV2
                     syntax.SpecificationString,
                     syntax.WithClause,
                     syntax.AsClause));
+
+        private IEnumerable<Document> LayoutExtensionConfigAssignmentSyntax(ExtensionConfigAssignmentSyntax syntax) =>
+            this.LayoutLeadingNodes(syntax.LeadingNodes)
+                .Concat(
+                    this.Spread(
+                        syntax.Keyword,
+                        syntax.SpecificationString,
+                        syntax.WithClause));
 
         private IEnumerable<Document> LayoutExtensionWithClauseSyntax(ExtensionWithClauseSyntax syntax) =>
             this.Spread(
@@ -477,11 +481,9 @@ namespace Bicep.Core.PrettyPrintV2
 
         private IEnumerable<Document> LayoutVariableDeclarationSyntax(VariableDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
-                .Concat(this.Spread(
-                    syntax.Keyword,
-                    syntax.Name,
-                    syntax.Assignment,
-                    syntax.Value));
+                .Concat(syntax.Type is not null
+                    ? Spread(syntax.Keyword, syntax.Name, syntax.Type, syntax.Assignment, syntax.Value)
+                    : Spread(syntax.Keyword, syntax.Name, syntax.Assignment, syntax.Value));
 
         private IEnumerable<Document> LayoutAssertDeclarationSyntax(AssertDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
@@ -576,8 +578,8 @@ namespace Bicep.Core.PrettyPrintV2
 
             if (tail is GroupDocument)
             {
-                // ParameterizedTypeInstantiationSyntax is only applied to resource derived types (resource<'xxx'>).
-                // It is more readable to print resource<'xxx'> on a single line, even if it's longer than the max line width.
+                // ParameterizedTypeInstantiationSyntax is only applied to resource derived types (resourceInput<'xxx'>).
+                // It is more readable to print resourceInput<'xxx'> on a single line, even if it's longer than the max line width.
                 // We may need to revisit this if we introduce generic types later at some point.
                 tail = tail.Flatten().Glue();
             }
@@ -597,8 +599,8 @@ namespace Bicep.Core.PrettyPrintV2
 
             if (tail is GroupDocument)
             {
-                // InstanceParameterizedTypeInstantiationSyntax is only applied to resource derived types (resource<'xxx'>).
-                // It is more readable to print resource<'xxx'> on a single line, even if it's longer than the max line width.
+                // InstanceParameterizedTypeInstantiationSyntax is only applied to resource derived types (resourceInput<'xxx'>).
+                // It is more readable to print resourceInput<'xxx'> on a single line, even if it's longer than the max line width.
                 // We may need to revisit this if we introduce generic types later at some point.
                 tail = tail.Flatten().Glue();
             }

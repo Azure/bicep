@@ -8,16 +8,17 @@ namespace Bicep.Core.Syntax
 {
     public abstract class FunctionCallSyntaxBase : ExpressionSyntax, ISymbolReference
     {
-        protected FunctionCallSyntaxBase(IdentifierSyntax name, Token openParen, IEnumerable<SyntaxBase> children, Token closeParen)
+        protected FunctionCallSyntaxBase(IdentifierSyntax name, Token openParen, IEnumerable<SyntaxBase> children, SyntaxBase closeParen)
         {
             AssertTokenType(openParen, nameof(openParen), TokenType.LeftParen);
-            AssertTokenType(closeParen, nameof(closeParen), TokenType.RightParen);
+            AssertSyntaxType(closeParen, nameof(closeParen), typeof(Token), typeof(SkippedTriviaSyntax));
+            AssertTokenType(closeParen as Token, nameof(closeParen), TokenType.RightParen);
 
             this.Name = name;
             this.OpenParen = openParen;
-            this.Children = children.ToImmutableArray();
+            this.Children = [.. children];
             this.CloseParen = closeParen;
-            this.Arguments = this.Children.OfType<FunctionArgumentSyntax>().ToImmutableArray();
+            this.Arguments = [.. this.Children.OfType<FunctionArgumentSyntax>()];
         }
 
         public IdentifierSyntax Name { get; }
@@ -28,7 +29,7 @@ namespace Bicep.Core.Syntax
 
         public ImmutableArray<FunctionArgumentSyntax> Arguments { get; }
 
-        public Token CloseParen { get; }
+        public SyntaxBase CloseParen { get; }
 
         public FunctionArgumentSyntax GetArgumentByPosition(int index) => Arguments[index];
     }

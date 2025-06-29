@@ -616,7 +616,7 @@ func lineBeforeComma(
 //@[005:0020) | ├─IdentifierSyntax
 //@[005:0020) | | └─Token(Identifier) |lineBeforeComma|
 //@[020:0061) | └─TypedLambdaSyntax
-//@[020:0061) |   ├─TypedVariableBlockSyntax
+//@[020:0045) |   ├─TypedVariableBlockSyntax
 //@[020:0021) |   | ├─Token(LeftParen) |(|
 //@[021:0022) |   | ├─Token(NewLine) |\n|
   a string
@@ -628,17 +628,20 @@ func lineBeforeComma(
 //@[004:0010) |   | |     └─Token(Identifier) |string|
 //@[010:0011) |   | ├─Token(NewLine) |\n|
   ,b string) string => 'foo'
-//@[002:0028) |   | └─SkippedTriviaSyntax
-//@[002:0003) |   |   ├─Token(Comma) |,|
-//@[003:0004) |   |   ├─Token(Identifier) |b|
-//@[005:0011) |   |   ├─Token(Identifier) |string|
-//@[011:0012) |   |   ├─Token(RightParen) |)|
-//@[013:0019) |   |   ├─Token(Identifier) |string|
-//@[020:0022) |   |   ├─Token(Arrow) |=>|
-//@[023:0028) |   |   └─Token(StringComplete) |'foo'|
-//@[028:0028) |   ├─SkippedTriviaSyntax
-//@[028:0028) |   ├─SkippedTriviaSyntax
-//@[028:0028) |   └─SkippedTriviaSyntax
+//@[002:0003) |   | ├─Token(Comma) |,|
+//@[003:0011) |   | ├─TypedLocalVariableSyntax
+//@[003:0004) |   | | ├─IdentifierSyntax
+//@[003:0004) |   | | | └─Token(Identifier) |b|
+//@[005:0011) |   | | └─TypeVariableAccessSyntax
+//@[005:0011) |   | |   └─IdentifierSyntax
+//@[005:0011) |   | |     └─Token(Identifier) |string|
+//@[011:0012) |   | └─Token(RightParen) |)|
+//@[013:0019) |   ├─TypeVariableAccessSyntax
+//@[013:0019) |   | └─IdentifierSyntax
+//@[013:0019) |   |   └─Token(Identifier) |string|
+//@[020:0022) |   ├─Token(Arrow) |=>|
+//@[023:0028) |   └─StringSyntax
+//@[023:0028) |     └─Token(StringComplete) |'foo'|
 //@[028:0029) ├─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

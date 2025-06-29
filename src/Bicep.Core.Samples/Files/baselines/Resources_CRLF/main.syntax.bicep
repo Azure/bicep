@@ -1,5 +1,5 @@
 
-//@[000:13327) ProgramSyntax
+//@[000:14067) ProgramSyntax
 //@[000:00002) ├─Token(NewLine) |\r\n|
 @sys.description('this is basicStorage')
 //@[000:00225) ├─ResourceDeclarationSyntax
@@ -1180,22 +1180,22 @@ resource resourceA 'My.Rp/typeA@2020-01-01' = {
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
-//@[000:00092) ├─ResourceDeclarationSyntax
+//@[000:00095) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00018) | ├─IdentifierSyntax
 //@[009:00018) | | └─Token(Identifier) |resourceB|
 //@[019:00049) | ├─StringSyntax
 //@[019:00049) | | └─Token(StringComplete) |'My.Rp/typeA/typeB@2020-01-01'|
 //@[050:00051) | ├─Token(Assignment) |=|
-//@[052:00092) | └─ObjectSyntax
+//@[052:00095) | └─ObjectSyntax
 //@[052:00053) |   ├─Token(LeftBrace) |{|
 //@[053:00055) |   ├─Token(NewLine) |\r\n|
-  name: '${resourceA.name}/myName'
-//@[002:00034) |   ├─ObjectPropertySyntax
+  name: '${resourceA.name}/resourceB'
+//@[002:00037) |   ├─ObjectPropertySyntax
 //@[002:00006) |   | ├─IdentifierSyntax
 //@[002:00006) |   | | └─Token(Identifier) |name|
 //@[006:00007) |   | ├─Token(Colon) |:|
-//@[008:00034) |   | └─StringSyntax
+//@[008:00037) |   | └─StringSyntax
 //@[008:00011) |   |   ├─Token(StringLeftPiece) |'${|
 //@[011:00025) |   |   ├─PropertyAccessSyntax
 //@[011:00020) |   |   | ├─VariableAccessSyntax
@@ -1204,29 +1204,29 @@ resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[020:00021) |   |   | ├─Token(Dot) |.|
 //@[021:00025) |   |   | └─IdentifierSyntax
 //@[021:00025) |   |   |   └─Token(Identifier) |name|
-//@[025:00034) |   |   └─Token(StringRightPiece) |}/myName'|
-//@[034:00036) |   ├─Token(NewLine) |\r\n|
+//@[025:00037) |   |   └─Token(StringRightPiece) |}/resourceB'|
+//@[037:00039) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
-//@[000:00269) ├─ResourceDeclarationSyntax
+//@[000:00272) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00018) | ├─IdentifierSyntax
 //@[009:00018) | | └─Token(Identifier) |resourceC|
 //@[019:00049) | ├─StringSyntax
 //@[019:00049) | | └─Token(StringComplete) |'My.Rp/typeA/typeB@2020-01-01'|
 //@[050:00051) | ├─Token(Assignment) |=|
-//@[052:00269) | └─ObjectSyntax
+//@[052:00272) | └─ObjectSyntax
 //@[052:00053) |   ├─Token(LeftBrace) |{|
 //@[053:00055) |   ├─Token(NewLine) |\r\n|
-  name: '${resourceA.name}/myName'
-//@[002:00034) |   ├─ObjectPropertySyntax
+  name: '${resourceA.name}/resourceC'
+//@[002:00037) |   ├─ObjectPropertySyntax
 //@[002:00006) |   | ├─IdentifierSyntax
 //@[002:00006) |   | | └─Token(Identifier) |name|
 //@[006:00007) |   | ├─Token(Colon) |:|
-//@[008:00034) |   | └─StringSyntax
+//@[008:00037) |   | └─StringSyntax
 //@[008:00011) |   |   ├─Token(StringLeftPiece) |'${|
 //@[011:00025) |   |   ├─PropertyAccessSyntax
 //@[011:00020) |   |   | ├─VariableAccessSyntax
@@ -1235,8 +1235,8 @@ resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[020:00021) |   |   | ├─Token(Dot) |.|
 //@[021:00025) |   |   | └─IdentifierSyntax
 //@[021:00025) |   |   |   └─Token(Identifier) |name|
-//@[025:00034) |   |   └─Token(StringRightPiece) |}/myName'|
-//@[034:00036) |   ├─Token(NewLine) |\r\n|
+//@[025:00037) |   |   └─Token(StringRightPiece) |}/resourceC'|
+//@[037:00039) |   ├─Token(NewLine) |\r\n|
   properties: {
 //@[002:00175) |   ├─ObjectPropertySyntax
 //@[002:00012) |   | ├─IdentifierSyntax
@@ -2150,8 +2150,8 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
 
 /*
   valid loop cases
-*/ 
-//@[003:00005) ├─Token(NewLine) |\r\n|
+*/
+//@[002:00004) ├─Token(NewLine) |\r\n|
 var storageAccounts = [
 //@[000:00129) ├─VariableDeclarationSyntax
 //@[000:00003) | ├─Token(Identifier) |var|
@@ -2426,7 +2426,7 @@ resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01
 // basic nested loop
 //@[020:00022) ├─Token(NewLine) |\r\n|
 @sys.description('this is just a basic nested loop')
-//@[000:00399) ├─ResourceDeclarationSyntax
+//@[000:00394) ├─ResourceDeclarationSyntax
 //@[000:00052) | ├─DecoratorSyntax
 //@[000:00001) | | ├─Token(At) |@|
 //@[001:00052) | | └─InstanceFunctionCallSyntax
@@ -2449,7 +2449,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[014:00060) | ├─StringSyntax
 //@[014:00060) | | └─Token(StringComplete) |'Microsoft.Network/virtualNetworks@2020-06-01'|
 //@[061:00062) | ├─Token(Assignment) |=|
-//@[063:00345) | └─ForSyntax
+//@[063:00340) | └─ForSyntax
 //@[063:00064) |   ├─Token(LeftSquare) |[|
 //@[064:00067) |   ├─Token(Identifier) |for|
 //@[068:00069) |   ├─LocalVariableSyntax
@@ -2469,7 +2469,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[082:00083) |   | |   └─Token(Integer) |3|
 //@[083:00084) |   | └─Token(RightParen) |)|
 //@[084:00085) |   ├─Token(Colon) |:|
-//@[086:00344) |   ├─ObjectSyntax
+//@[086:00339) |   ├─ObjectSyntax
 //@[086:00087) |   | ├─Token(LeftBrace) |{|
 //@[087:00089) |   | ├─Token(NewLine) |\r\n|
   name: 'vnet-${i}'
@@ -2485,19 +2485,19 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[017:00019) |   | |   └─Token(StringRightPiece) |}'|
 //@[019:00021) |   | ├─Token(NewLine) |\r\n|
   properties: {
-//@[002:00231) |   | ├─ObjectPropertySyntax
+//@[002:00226) |   | ├─ObjectPropertySyntax
 //@[002:00012) |   | | ├─IdentifierSyntax
 //@[002:00012) |   | | | └─Token(Identifier) |properties|
 //@[012:00013) |   | | ├─Token(Colon) |:|
-//@[014:00231) |   | | └─ObjectSyntax
+//@[014:00226) |   | | └─ObjectSyntax
 //@[014:00015) |   | |   ├─Token(LeftBrace) |{|
 //@[015:00017) |   | |   ├─Token(NewLine) |\r\n|
     subnets: [for j in range(0, 4): {
-//@[004:00209) |   | |   ├─ObjectPropertySyntax
+//@[004:00204) |   | |   ├─ObjectPropertySyntax
 //@[004:00011) |   | |   | ├─IdentifierSyntax
 //@[004:00011) |   | |   | | └─Token(Identifier) |subnets|
 //@[011:00012) |   | |   | ├─Token(Colon) |:|
-//@[013:00209) |   | |   | └─ForSyntax
+//@[013:00204) |   | |   | └─ForSyntax
 //@[013:00014) |   | |   |   ├─Token(LeftSquare) |[|
 //@[014:00017) |   | |   |   ├─Token(Identifier) |for|
 //@[018:00019) |   | |   |   ├─LocalVariableSyntax
@@ -2517,13 +2517,12 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[032:00033) |   | |   |   | |   └─Token(Integer) |4|
 //@[033:00034) |   | |   |   | └─Token(RightParen) |)|
 //@[034:00035) |   | |   |   ├─Token(Colon) |:|
-//@[036:00208) |   | |   |   ├─ObjectSyntax
+//@[036:00203) |   | |   |   ├─ObjectSyntax
 //@[036:00037) |   | |   |   | ├─Token(LeftBrace) |{|
 //@[037:00039) |   | |   |   | ├─Token(NewLine) |\r\n|
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
-//@[062:00064) |   | |   |   | ├─Token(NewLine) |\r\n|
-     
-//@[005:00007) |   | |   |   | ├─Token(NewLine) |\r\n|
+//@[062:00066) |   | |   |   | ├─Token(NewLine) |\r\n\r\n|
+
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
 //@[059:00061) |   | |   |   | ├─Token(NewLine) |\r\n|
       name: 'subnet-${i}-${j}'
@@ -3437,24 +3436,24 @@ output p1_subnet1id string = p1_subnet1.id
 // parent property with extension resource
 //@[042:00044) ├─Token(NewLine) |\r\n|
 resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
-//@[000:00076) ├─ResourceDeclarationSyntax
+//@[000:00078) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00016) | ├─IdentifierSyntax
 //@[009:00016) | | └─Token(Identifier) |p2_res1|
 //@[017:00053) | ├─StringSyntax
 //@[017:00053) | | └─Token(StringComplete) |'Microsoft.Rp1/resource1@2020-06-01'|
 //@[054:00055) | ├─Token(Assignment) |=|
-//@[056:00076) | └─ObjectSyntax
+//@[056:00078) | └─ObjectSyntax
 //@[056:00057) |   ├─Token(LeftBrace) |{|
 //@[057:00059) |   ├─Token(NewLine) |\r\n|
-  name: 'res1'
-//@[002:00014) |   ├─ObjectPropertySyntax
+  name: 'p2res1'
+//@[002:00016) |   ├─ObjectPropertySyntax
 //@[002:00006) |   | ├─IdentifierSyntax
 //@[002:00006) |   | | └─Token(Identifier) |name|
 //@[006:00007) |   | ├─Token(Colon) |:|
-//@[008:00014) |   | └─StringSyntax
-//@[008:00014) |   |   └─Token(StringComplete) |'res1'|
-//@[014:00016) |   ├─Token(NewLine) |\r\n|
+//@[008:00016) |   | └─StringSyntax
+//@[008:00016) |   |   └─Token(StringComplete) |'p2res1'|
+//@[016:00018) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|
@@ -3631,7 +3630,7 @@ output p2_res2childid string = p2_res2child.id
 // parent property with 'existing' resource
 //@[043:00045) ├─Token(NewLine) |\r\n|
 resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
-//@[000:00085) ├─ResourceDeclarationSyntax
+//@[000:00087) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00016) | ├─IdentifierSyntax
 //@[009:00016) | | └─Token(Identifier) |p3_res1|
@@ -3639,17 +3638,17 @@ resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 //@[017:00053) | | └─Token(StringComplete) |'Microsoft.Rp1/resource1@2020-06-01'|
 //@[054:00062) | ├─Token(Identifier) |existing|
 //@[063:00064) | ├─Token(Assignment) |=|
-//@[065:00085) | └─ObjectSyntax
+//@[065:00087) | └─ObjectSyntax
 //@[065:00066) |   ├─Token(LeftBrace) |{|
 //@[066:00068) |   ├─Token(NewLine) |\r\n|
-  name: 'res1'
-//@[002:00014) |   ├─ObjectPropertySyntax
+  name: 'p3res1'
+//@[002:00016) |   ├─ObjectPropertySyntax
 //@[002:00006) |   | ├─IdentifierSyntax
 //@[002:00006) |   | | └─Token(Identifier) |name|
 //@[006:00007) |   | ├─Token(Colon) |:|
-//@[008:00014) |   | └─StringSyntax
-//@[008:00014) |   |   └─Token(StringComplete) |'res1'|
-//@[014:00016) |   ├─Token(NewLine) |\r\n|
+//@[008:00016) |   | └─StringSyntax
+//@[008:00016) |   |   └─Token(StringComplete) |'p3res1'|
+//@[016:00018) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|
@@ -3762,7 +3761,7 @@ output p3_res1childid string = p3_child1.id
 // parent & child with 'existing'
 //@[033:00035) ├─Token(NewLine) |\r\n|
 resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
-//@[000:00104) ├─ResourceDeclarationSyntax
+//@[000:00106) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00016) | ├─IdentifierSyntax
 //@[009:00016) | | └─Token(Identifier) |p4_res1|
@@ -3770,7 +3769,7 @@ resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 //@[017:00053) | | └─Token(StringComplete) |'Microsoft.Rp1/resource1@2020-06-01'|
 //@[054:00062) | ├─Token(Identifier) |existing|
 //@[063:00064) | ├─Token(Assignment) |=|
-//@[065:00104) | └─ObjectSyntax
+//@[065:00106) | └─ObjectSyntax
 //@[065:00066) |   ├─Token(LeftBrace) |{|
 //@[066:00068) |   ├─Token(NewLine) |\r\n|
   scope: tenant()
@@ -3784,14 +3783,14 @@ resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 //@[015:00016) |   |   ├─Token(LeftParen) |(|
 //@[016:00017) |   |   └─Token(RightParen) |)|
 //@[017:00019) |   ├─Token(NewLine) |\r\n|
-  name: 'res1'
-//@[002:00014) |   ├─ObjectPropertySyntax
+  name: 'p4res1'
+//@[002:00016) |   ├─ObjectPropertySyntax
 //@[002:00006) |   | ├─IdentifierSyntax
 //@[002:00006) |   | | └─Token(Identifier) |name|
 //@[006:00007) |   | ├─Token(Colon) |:|
-//@[008:00014) |   | └─StringSyntax
-//@[008:00014) |   |   └─Token(StringComplete) |'res1'|
-//@[014:00016) |   ├─Token(NewLine) |\r\n|
+//@[008:00016) |   | └─StringSyntax
+//@[008:00016) |   |   └─Token(StringComplete) |'p4res1'|
+//@[016:00018) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|
@@ -3926,14 +3925,14 @@ var dbs = ['db1', 'db2','db3']
 //@[029:00030) |   └─Token(RightSquare) |]|
 //@[030:00032) ├─Token(NewLine) |\r\n|
 resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
-//@[000:00416) ├─ResourceDeclarationSyntax
+//@[000:00527) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00018) | ├─IdentifierSyntax
 //@[009:00018) | | └─Token(Identifier) |sqlServer|
 //@[019:00053) | ├─StringSyntax
 //@[019:00053) | | └─Token(StringComplete) |'Microsoft.Sql/servers@2021-11-01'|
 //@[054:00055) | ├─Token(Assignment) |=|
-//@[056:00416) | └─ObjectSyntax
+//@[056:00527) | └─ObjectSyntax
 //@[056:00057) |   ├─Token(LeftBrace) |{|
 //@[057:00059) |   ├─Token(NewLine) |\r\n|
   name: 'sql-server-name'
@@ -4022,7 +4021,7 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 //@[004:00008) |   ├─Token(NewLine) |\r\n\r\n|
 
   @description('Primary Sql Database')
-//@[002:00136) |   ├─ResourceDeclarationSyntax
+//@[002:00247) |   ├─ResourceDeclarationSyntax
 //@[002:00038) |   | ├─DecoratorSyntax
 //@[002:00003) |   | | ├─Token(At) |@|
 //@[003:00038) |   | | └─FunctionCallSyntax
@@ -4041,7 +4040,7 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 //@[021:00032) |   | ├─StringSyntax
 //@[021:00032) |   | | └─Token(StringComplete) |'databases'|
 //@[033:00034) |   | ├─Token(Assignment) |=|
-//@[035:00096) |   | └─ObjectSyntax
+//@[035:00207) |   | └─ObjectSyntax
 //@[035:00036) |   |   ├─Token(LeftBrace) |{|
 //@[036:00038) |   |   ├─Token(NewLine) |\r\n|
     name: 'primary-db'
@@ -4059,10 +4058,267 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 //@[012:00013) |   |   | ├─Token(Colon) |:|
 //@[014:00029) |   |   | └─StringSyntax
 //@[014:00029) |   |   |   └─Token(StringComplete) |'polandcentral'|
-//@[029:00031) |   |   ├─Token(NewLine) |\r\n|
+//@[029:00033) |   |   ├─Token(NewLine) |\r\n\r\n|
+
+    resource threatProtection 'advancedThreatProtectionSettings' existing = {
+//@[004:00107) |   |   ├─ResourceDeclarationSyntax
+//@[004:00012) |   |   | ├─Token(Identifier) |resource|
+//@[013:00029) |   |   | ├─IdentifierSyntax
+//@[013:00029) |   |   | | └─Token(Identifier) |threatProtection|
+//@[030:00064) |   |   | ├─StringSyntax
+//@[030:00064) |   |   | | └─Token(StringComplete) |'advancedThreatProtectionSettings'|
+//@[065:00073) |   |   | ├─Token(Identifier) |existing|
+//@[074:00075) |   |   | ├─Token(Assignment) |=|
+//@[076:00107) |   |   | └─ObjectSyntax
+//@[076:00077) |   |   |   ├─Token(LeftBrace) |{|
+//@[077:00079) |   |   |   ├─Token(NewLine) |\r\n|
+      name: 'default'
+//@[006:00021) |   |   |   ├─ObjectPropertySyntax
+//@[006:00010) |   |   |   | ├─IdentifierSyntax
+//@[006:00010) |   |   |   | | └─Token(Identifier) |name|
+//@[010:00011) |   |   |   | ├─Token(Colon) |:|
+//@[012:00021) |   |   |   | └─StringSyntax
+//@[012:00021) |   |   |   |   └─Token(StringComplete) |'default'|
+//@[021:00023) |   |   |   ├─Token(NewLine) |\r\n|
+    }
+//@[004:00005) |   |   |   └─Token(RightBrace) |}|
+//@[005:00007) |   |   ├─Token(NewLine) |\r\n|
   }
 //@[002:00003) |   |   └─Token(RightBrace) |}|
 //@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
-//@[001:00001) └─Token(EndOfFile) ||
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
+
+//nameof
+//@[008:00010) ├─Token(NewLine) |\r\n|
+output nameof_sqlServer string = nameof(sqlServer)
+//@[000:00050) ├─OutputDeclarationSyntax
+//@[000:00006) | ├─Token(Identifier) |output|
+//@[007:00023) | ├─IdentifierSyntax
+//@[007:00023) | | └─Token(Identifier) |nameof_sqlServer|
+//@[024:00030) | ├─TypeVariableAccessSyntax
+//@[024:00030) | | └─IdentifierSyntax
+//@[024:00030) | |   └─Token(Identifier) |string|
+//@[031:00032) | ├─Token(Assignment) |=|
+//@[033:00050) | └─FunctionCallSyntax
+//@[033:00039) |   ├─IdentifierSyntax
+//@[033:00039) |   | └─Token(Identifier) |nameof|
+//@[039:00040) |   ├─Token(LeftParen) |(|
+//@[040:00049) |   ├─FunctionArgumentSyntax
+//@[040:00049) |   | └─VariableAccessSyntax
+//@[040:00049) |   |   └─IdentifierSyntax
+//@[040:00049) |   |     └─Token(Identifier) |sqlServer|
+//@[049:00050) |   └─Token(RightParen) |)|
+//@[050:00052) ├─Token(NewLine) |\r\n|
+output nameof_location string = nameof(sqlServer.location)
+//@[000:00058) ├─OutputDeclarationSyntax
+//@[000:00006) | ├─Token(Identifier) |output|
+//@[007:00022) | ├─IdentifierSyntax
+//@[007:00022) | | └─Token(Identifier) |nameof_location|
+//@[023:00029) | ├─TypeVariableAccessSyntax
+//@[023:00029) | | └─IdentifierSyntax
+//@[023:00029) | |   └─Token(Identifier) |string|
+//@[030:00031) | ├─Token(Assignment) |=|
+//@[032:00058) | └─FunctionCallSyntax
+//@[032:00038) |   ├─IdentifierSyntax
+//@[032:00038) |   | └─Token(Identifier) |nameof|
+//@[038:00039) |   ├─Token(LeftParen) |(|
+//@[039:00057) |   ├─FunctionArgumentSyntax
+//@[039:00057) |   | └─PropertyAccessSyntax
+//@[039:00048) |   |   ├─VariableAccessSyntax
+//@[039:00048) |   |   | └─IdentifierSyntax
+//@[039:00048) |   |   |   └─Token(Identifier) |sqlServer|
+//@[048:00049) |   |   ├─Token(Dot) |.|
+//@[049:00057) |   |   └─IdentifierSyntax
+//@[049:00057) |   |     └─Token(Identifier) |location|
+//@[057:00058) |   └─Token(RightParen) |)|
+//@[058:00060) ├─Token(NewLine) |\r\n|
+output nameof_minCapacity string = nameof(sqlServer::primaryDb.properties.minCapacity)
+//@[000:00086) ├─OutputDeclarationSyntax
+//@[000:00006) | ├─Token(Identifier) |output|
+//@[007:00025) | ├─IdentifierSyntax
+//@[007:00025) | | └─Token(Identifier) |nameof_minCapacity|
+//@[026:00032) | ├─TypeVariableAccessSyntax
+//@[026:00032) | | └─IdentifierSyntax
+//@[026:00032) | |   └─Token(Identifier) |string|
+//@[033:00034) | ├─Token(Assignment) |=|
+//@[035:00086) | └─FunctionCallSyntax
+//@[035:00041) |   ├─IdentifierSyntax
+//@[035:00041) |   | └─Token(Identifier) |nameof|
+//@[041:00042) |   ├─Token(LeftParen) |(|
+//@[042:00085) |   ├─FunctionArgumentSyntax
+//@[042:00085) |   | └─PropertyAccessSyntax
+//@[042:00073) |   |   ├─PropertyAccessSyntax
+//@[042:00062) |   |   | ├─ResourceAccessSyntax
+//@[042:00051) |   |   | | ├─VariableAccessSyntax
+//@[042:00051) |   |   | | | └─IdentifierSyntax
+//@[042:00051) |   |   | | |   └─Token(Identifier) |sqlServer|
+//@[051:00053) |   |   | | ├─Token(DoubleColon) |::|
+//@[053:00062) |   |   | | └─IdentifierSyntax
+//@[053:00062) |   |   | |   └─Token(Identifier) |primaryDb|
+//@[062:00063) |   |   | ├─Token(Dot) |.|
+//@[063:00073) |   |   | └─IdentifierSyntax
+//@[063:00073) |   |   |   └─Token(Identifier) |properties|
+//@[073:00074) |   |   ├─Token(Dot) |.|
+//@[074:00085) |   |   └─IdentifierSyntax
+//@[074:00085) |   |     └─Token(Identifier) |minCapacity|
+//@[085:00086) |   └─Token(RightParen) |)|
+//@[086:00088) ├─Token(NewLine) |\r\n|
+output nameof_creationTime string = nameof(sqlServer::primaryDb::threatProtection.properties.creationTime)
+//@[000:00106) ├─OutputDeclarationSyntax
+//@[000:00006) | ├─Token(Identifier) |output|
+//@[007:00026) | ├─IdentifierSyntax
+//@[007:00026) | | └─Token(Identifier) |nameof_creationTime|
+//@[027:00033) | ├─TypeVariableAccessSyntax
+//@[027:00033) | | └─IdentifierSyntax
+//@[027:00033) | |   └─Token(Identifier) |string|
+//@[034:00035) | ├─Token(Assignment) |=|
+//@[036:00106) | └─FunctionCallSyntax
+//@[036:00042) |   ├─IdentifierSyntax
+//@[036:00042) |   | └─Token(Identifier) |nameof|
+//@[042:00043) |   ├─Token(LeftParen) |(|
+//@[043:00105) |   ├─FunctionArgumentSyntax
+//@[043:00105) |   | └─PropertyAccessSyntax
+//@[043:00092) |   |   ├─PropertyAccessSyntax
+//@[043:00081) |   |   | ├─ResourceAccessSyntax
+//@[043:00063) |   |   | | ├─ResourceAccessSyntax
+//@[043:00052) |   |   | | | ├─VariableAccessSyntax
+//@[043:00052) |   |   | | | | └─IdentifierSyntax
+//@[043:00052) |   |   | | | |   └─Token(Identifier) |sqlServer|
+//@[052:00054) |   |   | | | ├─Token(DoubleColon) |::|
+//@[054:00063) |   |   | | | └─IdentifierSyntax
+//@[054:00063) |   |   | | |   └─Token(Identifier) |primaryDb|
+//@[063:00065) |   |   | | ├─Token(DoubleColon) |::|
+//@[065:00081) |   |   | | └─IdentifierSyntax
+//@[065:00081) |   |   | |   └─Token(Identifier) |threatProtection|
+//@[081:00082) |   |   | ├─Token(Dot) |.|
+//@[082:00092) |   |   | └─IdentifierSyntax
+//@[082:00092) |   |   |   └─Token(Identifier) |properties|
+//@[092:00093) |   |   ├─Token(Dot) |.|
+//@[093:00105) |   |   └─IdentifierSyntax
+//@[093:00105) |   |     └─Token(Identifier) |creationTime|
+//@[105:00106) |   └─Token(RightParen) |)|
+//@[106:00108) ├─Token(NewLine) |\r\n|
+output nameof_id string = nameof(sqlServer::sqlDatabases[0].id)
+//@[000:00063) ├─OutputDeclarationSyntax
+//@[000:00006) | ├─Token(Identifier) |output|
+//@[007:00016) | ├─IdentifierSyntax
+//@[007:00016) | | └─Token(Identifier) |nameof_id|
+//@[017:00023) | ├─TypeVariableAccessSyntax
+//@[017:00023) | | └─IdentifierSyntax
+//@[017:00023) | |   └─Token(Identifier) |string|
+//@[024:00025) | ├─Token(Assignment) |=|
+//@[026:00063) | └─FunctionCallSyntax
+//@[026:00032) |   ├─IdentifierSyntax
+//@[026:00032) |   | └─Token(Identifier) |nameof|
+//@[032:00033) |   ├─Token(LeftParen) |(|
+//@[033:00062) |   ├─FunctionArgumentSyntax
+//@[033:00062) |   | └─PropertyAccessSyntax
+//@[033:00059) |   |   ├─ArrayAccessSyntax
+//@[033:00056) |   |   | ├─ResourceAccessSyntax
+//@[033:00042) |   |   | | ├─VariableAccessSyntax
+//@[033:00042) |   |   | | | └─IdentifierSyntax
+//@[033:00042) |   |   | | |   └─Token(Identifier) |sqlServer|
+//@[042:00044) |   |   | | ├─Token(DoubleColon) |::|
+//@[044:00056) |   |   | | └─IdentifierSyntax
+//@[044:00056) |   |   | |   └─Token(Identifier) |sqlDatabases|
+//@[056:00057) |   |   | ├─Token(LeftSquare) |[|
+//@[057:00058) |   |   | ├─IntegerLiteralSyntax
+//@[057:00058) |   |   | | └─Token(Integer) |0|
+//@[058:00059) |   |   | └─Token(RightSquare) |]|
+//@[059:00060) |   |   ├─Token(Dot) |.|
+//@[060:00062) |   |   └─IdentifierSyntax
+//@[060:00062) |   |     └─Token(Identifier) |id|
+//@[062:00063) |   └─Token(RightParen) |)|
+//@[063:00067) ├─Token(NewLine) |\r\n\r\n|
+
+var sqlConfig = {
+//@[000:00055) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00013) | ├─IdentifierSyntax
+//@[004:00013) | | └─Token(Identifier) |sqlConfig|
+//@[014:00015) | ├─Token(Assignment) |=|
+//@[016:00055) | └─ObjectSyntax
+//@[016:00017) |   ├─Token(LeftBrace) |{|
+//@[017:00019) |   ├─Token(NewLine) |\r\n|
+  westus: {}
+//@[002:00012) |   ├─ObjectPropertySyntax
+//@[002:00008) |   | ├─IdentifierSyntax
+//@[002:00008) |   | | └─Token(Identifier) |westus|
+//@[008:00009) |   | ├─Token(Colon) |:|
+//@[010:00012) |   | └─ObjectSyntax
+//@[010:00011) |   |   ├─Token(LeftBrace) |{|
+//@[011:00012) |   |   └─Token(RightBrace) |}|
+//@[012:00014) |   ├─Token(NewLine) |\r\n|
+  'server-name': {}
+//@[002:00019) |   ├─ObjectPropertySyntax
+//@[002:00015) |   | ├─StringSyntax
+//@[002:00015) |   | | └─Token(StringComplete) |'server-name'|
+//@[015:00016) |   | ├─Token(Colon) |:|
+//@[017:00019) |   | └─ObjectSyntax
+//@[017:00018) |   |   ├─Token(LeftBrace) |{|
+//@[018:00019) |   |   └─Token(RightBrace) |}|
+//@[019:00021) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
+
+resource sqlServerWithNameof 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:00173) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00028) | ├─IdentifierSyntax
+//@[009:00028) | | └─Token(Identifier) |sqlServerWithNameof|
+//@[029:00063) | ├─StringSyntax
+//@[029:00063) | | └─Token(StringComplete) |'Microsoft.Sql/servers@2021-11-01'|
+//@[064:00065) | ├─Token(Assignment) |=|
+//@[066:00173) | └─ObjectSyntax
+//@[066:00067) |   ├─Token(LeftBrace) |{|
+//@[067:00069) |   ├─Token(NewLine) |\r\n|
+  name: 'sql-server-nameof-${nameof(sqlConfig['server-name'])}'
+//@[002:00063) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00063) |   | └─StringSyntax
+//@[008:00029) |   |   ├─Token(StringLeftPiece) |'sql-server-nameof-${|
+//@[029:00061) |   |   ├─FunctionCallSyntax
+//@[029:00035) |   |   | ├─IdentifierSyntax
+//@[029:00035) |   |   | | └─Token(Identifier) |nameof|
+//@[035:00036) |   |   | ├─Token(LeftParen) |(|
+//@[036:00060) |   |   | ├─FunctionArgumentSyntax
+//@[036:00060) |   |   | | └─ArrayAccessSyntax
+//@[036:00045) |   |   | |   ├─VariableAccessSyntax
+//@[036:00045) |   |   | |   | └─IdentifierSyntax
+//@[036:00045) |   |   | |   |   └─Token(Identifier) |sqlConfig|
+//@[045:00046) |   |   | |   ├─Token(LeftSquare) |[|
+//@[046:00059) |   |   | |   ├─StringSyntax
+//@[046:00059) |   |   | |   | └─Token(StringComplete) |'server-name'|
+//@[059:00060) |   |   | |   └─Token(RightSquare) |]|
+//@[060:00061) |   |   | └─Token(RightParen) |)|
+//@[061:00063) |   |   └─Token(StringRightPiece) |}'|
+//@[063:00065) |   ├─Token(NewLine) |\r\n|
+  location: nameof(sqlConfig.westus)
+//@[002:00036) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00036) |   | └─FunctionCallSyntax
+//@[012:00018) |   |   ├─IdentifierSyntax
+//@[012:00018) |   |   | └─Token(Identifier) |nameof|
+//@[018:00019) |   |   ├─Token(LeftParen) |(|
+//@[019:00035) |   |   ├─FunctionArgumentSyntax
+//@[019:00035) |   |   | └─PropertyAccessSyntax
+//@[019:00028) |   |   |   ├─VariableAccessSyntax
+//@[019:00028) |   |   |   | └─IdentifierSyntax
+//@[019:00028) |   |   |   |   └─Token(Identifier) |sqlConfig|
+//@[028:00029) |   |   |   ├─Token(Dot) |.|
+//@[029:00035) |   |   |   └─IdentifierSyntax
+//@[029:00035) |   |   |     └─Token(Identifier) |westus|
+//@[035:00036) |   |   └─Token(RightParen) |)|
+//@[036:00038) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
+
+//@[000:00000) └─Token(EndOfFile) ||

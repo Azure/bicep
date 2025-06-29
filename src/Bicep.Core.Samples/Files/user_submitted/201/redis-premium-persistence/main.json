@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18376013986871716906"
+      "templateHash": "5155470699132713673"
     }
   },
   "parameters": {
@@ -111,22 +111,12 @@
       }
     },
     {
-      "type": "Microsoft.Insights/diagnosticSettings",
+      "type": "microsoft.insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.Cache/redis/{0}', parameters('redisCacheName'))]",
       "name": "[parameters('redisCacheName')]",
       "properties": {
-        "storageAccountId": "[parameters('existingDiagnosticsStorageAccountId')]",
-        "metrics": [
-          {
-            "timeGrain": "AllMetrics",
-            "enabled": "[parameters('diagnosticsEnabled')]",
-            "retentionPolicy": {
-              "days": 90,
-              "enabled": "[parameters('diagnosticsEnabled')]"
-            }
-          }
-        ]
+        "storageAccountId": "[parameters('existingDiagnosticsStorageAccountId')]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Cache/redis', parameters('redisCacheName'))]"

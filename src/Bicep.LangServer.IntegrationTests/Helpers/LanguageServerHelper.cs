@@ -5,11 +5,14 @@ using Bicep.Core.Tracing;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.FileSystem;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.Options;
+using Bicep.LanguageServer.Registry;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -39,12 +42,13 @@ namespace Bicep.LangServer.IntegrationTests
             var clientPipe = new Pipe();
             var serverPipe = new Pipe();
 
+            var mockRestoreScheduler = new Mock<IModuleRestoreScheduler>(MockBehavior.Loose);
             var server = new Server(
                 BicepLangServerOptions.Default,
                 options => options
                     .WithInput(serverPipe.Reader)
                     .WithOutput(clientPipe.Writer)
-                    .WithServices(services => services.AddSingleton(BicepTestConstants.ModuleRestoreScheduler))
+                    .WithServices(services => services.AddSingleton(mockRestoreScheduler.Object))
                     .WithServices(services => onRegisterServices?.Invoke(services)));
             var _ = server.RunAsync(CancellationToken.None); // do not wait on this async method, or you'll be waiting a long time!
 
@@ -68,17 +72,18 @@ namespace Bicep.LangServer.IntegrationTests
         /// No further file opening is possible.
         /// </summary>
         public static Task<LanguageServerHelper> StartServerWithText(TestContext testContext, string text, DocumentUri documentUri, Action<IServiceCollection>? onRegisterServices = null)
-            => StartServerWithText(testContext, new Dictionary<Uri, string> { [documentUri.ToUriEncoded()] = text }, documentUri.ToUriEncoded(), onRegisterServices);
+            => StartServerWithText(testContext, new Dictionary<DocumentUri, string> { [documentUri] = text }, documentUri, onRegisterServices);
 
         /// <summary>
         /// Starts a language client/server pair that will load the specified Bicep text and wait for the diagnostics to be published.
         /// No further file opening is possible.
         /// </summary>
-        public static async Task<LanguageServerHelper> StartServerWithText(TestContext testContext, IReadOnlyDictionary<Uri, string> fileContentsByUri, Uri entryFileUri, Action<IServiceCollection>? onRegisterServices = null)
+        public static async Task<LanguageServerHelper> StartServerWithText(TestContext testContext, IReadOnlyDictionary<DocumentUri, string> fileContentsByUri, DocumentUri entryFileUri, Action<IServiceCollection>? onRegisterServices = null)
         {
             var diagnosticsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
 
-            var fileResolver = new InMemoryFileResolver(fileContentsByUri);
+            var fileResolver = new InMemoryFileResolver(fileContentsByUri.ToDictionary(x => x.Key.ToUriEncoded(), x => x.Value));
+            var fileExplorer = new FileSystemFileExplorer(fileResolver.MockFileSystem);
             var helper = await LanguageServerHelper.StartServer(
                 testContext,
                 options => options.OnPublishDiagnostics(diagnosticsListener.AddMessage),
@@ -86,6 +91,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     onRegisterServices?.Invoke(services);
                     services.WithFileResolver(fileResolver);
+                    services.WithFileExplorer(fileExplorer);
                 });
 
             // send open document notification

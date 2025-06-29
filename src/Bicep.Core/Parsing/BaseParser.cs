@@ -7,6 +7,7 @@ using System.Globalization;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Parsing
 {
@@ -36,11 +37,28 @@ namespace Bicep.Core.Parsing
         protected SyntaxBase VariableDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.VariableKeyword);
-            var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
-            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), RecoveryFlags.None, TokenType.Identifier, TokenType.NewLine);
+            var type = WithRecoveryNullable(() => reader.Peek().Type switch
+            {
+                TokenType.EndOfFile or
+                TokenType.NewLine or
+                TokenType.Assignment => null,
+                _ => Type(allowOptionalResourceType: false),
+            }, GetSuppressionFlag(name), TokenType.Assignment, TokenType.NewLine);
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type ?? name), TokenType.NewLine);
             var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
 
-            return new VariableDeclarationSyntax(leadingNodes, keyword, name, assignment, value);
+            return new VariableDeclarationSyntax(leadingNodes, keyword, name, type, assignment, value);
+        }
+
+        protected SyntaxBase TypeDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+        {
+            var keyword = ExpectKeyword(LanguageConstants.TypeKeyword);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedTypeIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
+            var value = this.WithRecovery(() => Type(allowOptionalResourceType: false), GetSuppressionFlag(name), TokenType.Assignment, TokenType.LeftBrace, TokenType.NewLine);
+
+            return new TypeDeclarationSyntax(leadingNodes, keyword, name, assignment, value);
         }
 
         protected CompileTimeImportDeclarationSyntax CompileTimeImportDeclaration(Token keyword, IEnumerable<SyntaxBase> leadingNodes)
@@ -374,7 +392,7 @@ namespace Bicep.Core.Parsing
         /// <summary>
         /// Method that gets a function call identifier, its arguments plus open and close parens
         /// </summary>
-        protected (IdentifierSyntax Identifier, Token OpenParen, IEnumerable<SyntaxBase> ArgumentNodes, Token CloseParen) FunctionCallAccess(IdentifierSyntax functionName, ExpressionFlags expressionFlags)
+        protected (IdentifierSyntax Identifier, Token OpenParen, IEnumerable<SyntaxBase> ArgumentNodes, SyntaxBase CloseParen) FunctionCallAccess(IdentifierSyntax functionName, ExpressionFlags expressionFlags)
         {
             var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
 
@@ -382,7 +400,10 @@ namespace Bicep.Core.Parsing
                 closingTokenType: TokenType.RightParen,
                 parseChildElement: () => FunctionArgument(expressionFlags));
 
-            var closeParen = this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")"));
+
+            SyntaxBase closeParen = Check(TokenType.RightParen)
+                ? reader.Read()
+                : SkipEmpty(b => b.ExpectedCharacter(")"));
 
             return (functionName, openParen, itemsOrTokens, closeParen);
         }
@@ -425,7 +446,7 @@ namespace Bicep.Core.Parsing
             return new ParameterizedTypeArgumentSyntax(expression);
         }
 
-        protected (IdentifierSyntax Identifier, Token OpenChevron, IEnumerable<SyntaxBase> ParameterNodes, Token CloseChevron) ParameterizedTypeInstantiation(IdentifierSyntax parameterizedTypeName)
+        protected (IdentifierSyntax Identifier, Token OpenChevron, IEnumerable<SyntaxBase> ParameterNodes, SyntaxBase CloseChevron) ParameterizedTypeInstantiation(IdentifierSyntax parameterizedTypeName)
         {
             var openChevron = this.Expect(TokenType.LeftChevron, b => b.ExpectedCharacter("<"));
 
@@ -433,7 +454,9 @@ namespace Bicep.Core.Parsing
                 closingTokenType: TokenType.RightChevron,
                 parseChildElement: ParameterizedTypeArgument);
 
-            var closeChevron = this.Expect(TokenType.RightChevron, b => b.ExpectedCharacter(">"));
+            SyntaxBase closeChevron = Check(TokenType.RightChevron)
+                ? reader.Read()
+                : SkipEmpty(b => b.ExpectedCharacter(">"));
 
             return (parameterizedTypeName, openChevron, itemsOrTokens, closeChevron);
         }
@@ -542,7 +565,9 @@ namespace Bicep.Core.Parsing
             return itemsOrTokens;
         }
 
-        private IEnumerable<SyntaxBase> HandleFunctionElements(TokenType closingTokenType, Func<SyntaxBase> parseChildElement)
+        private IEnumerable<SyntaxBase> HandleFunctionElements(
+            TokenType closingTokenType,
+            Func<SyntaxBase> parseChildElement)
         {
             if (Check(closingTokenType))
             {
@@ -569,7 +594,14 @@ namespace Bicep.Core.Parsing
                             // Check End of comments for closingTokenType
                             peekPosition++;
                         }
-                        if (!Check(this.reader.PeekAhead(peekPosition), closingTokenType))
+
+                        if (this.reader.PeekAhead(peekPosition) is null or { Type: TokenType.EndOfFile })
+                        {
+                            // We've reached the end of the file and didn't hit the closing token. Bail without
+                            // consuming the newlines so that the missing char diagnostic will be in the correct place.
+                            break;
+                        }
+                        else if (!Check(this.reader.PeekAhead(peekPosition), closingTokenType))
                         {
                             itemsOrTokens.Add(SkipEmpty(x => x.ExpectedCommaSeparator()));
                         }
@@ -848,20 +880,26 @@ namespace Bicep.Core.Parsing
                         safeAccessMarker = this.reader.Read();
                     }
 
+                    Token? fromEndMarker = null;
+                    if (this.Check(TokenType.Hat))
+                    {
+                        fromEndMarker = this.reader.Read();
+                    }
+
                     if (this.Check(TokenType.RightSquare))
                     {
                         // empty indexer - we are allowing this special case in the parser to help with completions
                         SyntaxBase skipped = SkipEmpty(b => b.EmptyIndexerNotAllowed());
                         Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
 
-                        current = new ArrayAccessSyntax(current, openSquare, safeAccessMarker, skipped, closeSquare);
+                        current = new ArrayAccessSyntax(current, openSquare, safeAccessMarker, fromEndMarker, skipped, closeSquare);
                     }
                     else
                     {
                         SyntaxBase indexExpression = this.Expression(expressionFlags);
                         Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
 
-                        current = new ArrayAccessSyntax(current, openSquare, safeAccessMarker, indexExpression, closeSquare);
+                        current = new ArrayAccessSyntax(current, openSquare, safeAccessMarker, fromEndMarker, indexExpression, closeSquare);
                     }
 
                     continue;
@@ -1166,6 +1204,7 @@ namespace Bicep.Core.Parsing
                     TokenType.NewLine,
                     TokenType.Comma);
                 itemsOrTokens.Add(expression);
+                parseNewLines();
 
                 if (this.Check(TokenType.Comma))
                 {
@@ -1379,7 +1418,7 @@ namespace Bicep.Core.Parsing
             {
                 Synchronize(true, expectedTypes);
 
-                skippedTokens = reader.Slice(startReaderPosition, reader.Position - startReaderPosition).ToArray();
+                skippedTokens = [.. reader.Slice(startReaderPosition, reader.Position - startReaderPosition)];
                 skippedSpan = TextSpan.SafeBetween(skippedTokens, startToken.Span.Position);
             }
 

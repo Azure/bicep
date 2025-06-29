@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <RootNamespace>Bicep.Local.Extension.Mock</RootNamespace>
@@ -12,10 +12,10 @@
   <ItemGroup>
     <ProjectReference Include="../Bicep.Local.Extension/Bicep.Local.Extension.csproj" />
     <ProjectReference Include="../Bicep.Core/Bicep.Core.csproj" />
-    <PackageReference Include="Grpc.AspNetCore" Version="2.65.0" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.67.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.6.143" />
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.7.112" />
   </ItemGroup>
 </Project>

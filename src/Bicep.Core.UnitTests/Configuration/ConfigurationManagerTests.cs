@@ -8,10 +8,11 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.IO.FileSystem;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
+using OnDiskFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.UnitTests.Configuration
 {
@@ -62,8 +63,7 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "extensions": {
           "az": "builtin:",
-          "kubernetes": "builtin:",
-          "microsoftGraph": "builtin:"
+          "kubernetes": "builtin:"
         },
         "implicitExtensions": ["az"],
         "analyzers": {
@@ -74,7 +74,6 @@ namespace Bicep.Core.UnitTests.Configuration
               "no-hardcoded-env-urls": {
                 "level": "warning",
                 "disallowedhosts": [
-                  "api.loganalytics.io",
                   "azuredatalakeanalytics.net",
                   "azuredatalakestore.net",
                   "batch.core.windows.net",
@@ -86,8 +85,6 @@ namespace Bicep.Core.UnitTests.Configuration
                   "login.microsoftonline.com",
                   "management.azure.com",
                   "management.core.windows.net",
-                  "region.asazure.windows.net",
-                  "trafficmanager.net",
                   "vault.azure.net"
                 ],
                 "excludedhosts": [
@@ -100,16 +97,19 @@ namespace Bicep.Core.UnitTests.Configuration
         "experimentalFeaturesEnabled": {
           "extendableParamFiles": false,
           "symbolicNameCodegen": false,
-          "extensibility": false,
+          "moduleExtensionConfigs": false,
           "resourceTypedParamsAndOutputs": false,
           "sourceMapping": false,
           "legacyFormatter": false,
           "testFramework": false,
           "assertions": false,
-          "optionalModuleNames": false,
+          "waitAndRetry": false,
           "localDeploy": false,
-          "resourceDerivedTypes": false,
-          "secureOutputs": false
+          "resourceInfoCodegen": false,
+          "desiredStateConfiguration": false,
+          "externalInputFunction": false,
+          "onlyIfNotExists": false,
+          "moduleIdentity": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -171,8 +171,7 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "extensions": {
             "az": "builtin:",
-            "kubernetes": "builtin:",
-            "microsoftGraph": "builtin:"
+            "kubernetes": "builtin:"
         },
         "implicitExtensions": [
             "az"
@@ -181,16 +180,19 @@ namespace Bicep.Core.UnitTests.Configuration
         "experimentalFeaturesEnabled": {
           "extendableParamFiles": false,
           "symbolicNameCodegen": false,
-          "extensibility": false,
           "resourceTypedParamsAndOutputs": false,
           "sourceMapping": false,
           "legacyFormatter": false,
           "testFramework": false,
           "assertions": false,
-          "optionalModuleNames": false,
+          "waitAndRetry": false,
           "localDeploy": false,
-          "resourceDerivedTypes": false,
-          "secureOutputs": false
+          "resourceInfoCodegen": false,
+          "moduleExtensionConfigs": false,
+          "desiredStateConfiguration": false,
+          "externalInputFunction": false,
+          "onlyIfNotExists": false,
+          "moduleIdentity": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -244,8 +246,7 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "extensions": {
             "az": "builtin:",
-            "kubernetes": "builtin:",
-            "microsoftGraph": "builtin:"
+            "kubernetes": "builtin:"
         },
         "implicitExtensions": [
             "az"
@@ -258,7 +259,6 @@ namespace Bicep.Core.UnitTests.Configuration
               "no-hardcoded-env-urls": {
                 "level": "off",
                 "disallowedhosts": [
-                  "api.loganalytics.io",
                   "azuredatalakeanalytics.net",
                   "azuredatalakestore.net",
                   "batch.core.windows.net",
@@ -270,8 +270,6 @@ namespace Bicep.Core.UnitTests.Configuration
                   "login.microsoftonline.com",
                   "management.azure.com",
                   "management.core.windows.net",
-                  "region.asazure.windows.net",
-                  "trafficmanager.net",
                   "vault.azure.net"
                 ],
                 "excludedhosts": [
@@ -287,16 +285,19 @@ namespace Bicep.Core.UnitTests.Configuration
         "experimentalFeaturesEnabled": {
           "extendableParamFiles": false,
           "symbolicNameCodegen": false,
-          "extensibility": false,
           "resourceTypedParamsAndOutputs": false,
           "sourceMapping": false,
           "legacyFormatter": false,
           "testFramework": false,
           "assertions": false,
-          "optionalModuleNames": false,
+          "waitAndRetry": false,
           "localDeploy": false,
-          "resourceDerivedTypes": false,
-          "secureOutputs": false
+          "resourceInfoCodegen": false,
+          "moduleExtensionConfigs": false,
+          "desiredStateConfiguration": false,
+          "externalInputFunction": false,
+          "onlyIfNotExists": false,
+          "moduleIdentity": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -313,7 +314,8 @@ namespace Bicep.Core.UnitTests.Configuration
         public void GetConfiguration_CustomConfigurationNotFound_ReturnsBuiltInConfiguration()
         {
             // Arrange.
-            var sut = new ConfigurationManager(new IOFileSystem());
+            var fileExplorer = new FileSystemFileExplorer(new OnDiskFileSystem());
+            var sut = new ConfigurationManager(fileExplorer);
             var sourceFileUri = new Uri(this.CreatePath("foo/bar/main.bicep"));
 
             // Act.
@@ -332,13 +334,13 @@ namespace Bicep.Core.UnitTests.Configuration
             {
                 [configurationPath] = "",
             });
-
-            var sut = new ConfigurationManager(fileSystem);
+            var fileExplorer = new FileSystemFileExplorer(fileSystem);
+            var sut = new ConfigurationManager(fileExplorer);
             var sourceFileUri = new Uri(CreatePath("path/to/main.bicep"));
 
             // Act & Assert.
-            var diagnostics = sut.GetConfiguration(sourceFileUri).DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForDocumentStart())).ToList();
-            diagnostics.Count.Should().Be(1);
+            var diagnostics = sut.GetConfiguration(sourceFileUri).Diagnostics;
+            diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
             diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.");
         }
@@ -348,26 +350,24 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             // Arrange.
             var configurationPath = CreatePath("path/to/bicepconfig.json");
+            var configFileData = new MockFileData("")
+            {
+                AllowedFileShare = FileShare.None,
+            };
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                [configurationPath] = "",
+                [configurationPath] = configFileData,
             });
 
-            var fileSystemMock = StrictMock.Of<IFileSystem>();
-            fileSystemMock.SetupGet(x => x.Path).Returns(fileSystem.Path);
-            fileSystemMock.SetupGet(x => x.Directory).Returns(fileSystem.Directory);
-            fileSystemMock.SetupGet(x => x.File).Returns(fileSystem.File);
-            fileSystemMock.Setup(x => x.FileStream.New(It.IsAny<string>(), It.IsAny<FileMode>(), It.IsAny<FileAccess>()))
-                .Throws(new UnauthorizedAccessException("Not allowed."));
-
-            var sut = new ConfigurationManager(fileSystemMock.Object);
+            var fileExplorer = new FileSystemFileExplorer(fileSystem);
+            var sut = new ConfigurationManager(fileExplorer);
             var sourceFileUri = new Uri(CreatePath("path/to/main.bicep"));
 
             // Act & Assert.
-            var diagnostics = sut.GetConfiguration(sourceFileUri).DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForDocumentStart())).ToList();
-            diagnostics.Count.Should().Be(1);
+            var diagnostics = sut.GetConfiguration(sourceFileUri).Diagnostics;
+            diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
-            diagnostics[0].Message.Should().Be($"Could not load the Bicep configuration file \"{configurationPath}\": Not allowed.");
+            diagnostics[0].Message.Should().StartWith($"Could not load the Bicep configuration file \"{configurationPath}\":");
         }
 
         [TestMethod]
@@ -378,17 +378,20 @@ namespace Bicep.Core.UnitTests.Configuration
 
             ExperimentalFeaturesEnabled experimentalFeaturesEnabled = new(
                 SymbolicNameCodegen: false,
-                Extensibility: false,
                 ExtendableParamFiles: true,
                 ResourceTypedParamsAndOutputs: false,
                 SourceMapping: false,
                 LegacyFormatter: false,
                 TestFramework: false,
                 Assertions: false,
-                OptionalModuleNames: false,
+                WaitAndRetry: false,
                 LocalDeploy: false,
-                ResourceDerivedTypes: false,
-                SecureOutputs: false);
+                ResourceInfoCodegen: false,
+                ModuleExtensionConfigs: false,
+                DesiredStateConfiguration: false,
+                ExternalInputFunction: false,
+                OnlyIfNotExists: false,
+                ModuleIdentity: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -423,7 +426,6 @@ namespace Bicep.Core.UnitTests.Configuration
                 }
             },
             "extensions": {
-                "microsoftGraph": "builtin:",
                 "kubernetes": "builtin:",
                 "az": "builtin:"
             },
@@ -438,7 +440,6 @@ namespace Bicep.Core.UnitTests.Configuration
                     "no-hardcoded-env-urls": {
                     "level": "warning",
                     "disallowedhosts": [
-                        "api.loganalytics.io",
                         "azuredatalakeanalytics.net",
                         "azuredatalakestore.net",
                         "batch.core.windows.net",
@@ -450,8 +451,6 @@ namespace Bicep.Core.UnitTests.Configuration
                         "login.microsoftonline.com",
                         "management.azure.com",
                         "management.core.windows.net",
-                        "region.asazure.windows.net",
-                        "trafficmanager.net",
                         "vault.azure.net"
                     ],
                     "excludedhosts": [
@@ -463,17 +462,20 @@ namespace Bicep.Core.UnitTests.Configuration
             },
             "experimentalFeaturesEnabled": {
                 "symbolicNameCodegen": false,
-                "extensibility": false,
                 "extendableParamFiles": true,
                 "resourceTypedParamsAndOutputs": false,
                 "sourceMapping": false,
                 "legacyFormatter": false,
                 "testFramework": false,
                 "assertions": false,
-                "optionalModuleNames": false,
+                "waitAndRetry": false,
                 "localDeploy": false,
-                "resourceDerivedTypes": false,
-                "secureOutputs": false
+                "resourceInfoCodegen": false,
+                "moduleExtensionConfigs": false,
+                "desiredStateConfiguration": false,
+                "externalInputFunction": false,
+                "onlyIfNotExists": false,
+                "moduleIdentity": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -493,19 +495,21 @@ namespace Bicep.Core.UnitTests.Configuration
             var fileSystemMock = StrictMock.Of<IFileSystem>();
             fileSystemMock.Setup(x => x.Path.GetDirectoryName(It.IsAny<string>())).Returns("foo");
             fileSystemMock.Setup(x => x.Path.Combine(It.IsAny<string>(), It.IsAny<string>())).Returns("");
-            fileSystemMock.Setup(x => x.File.Exists(It.IsAny<string>())).Returns(false);
-            fileSystemMock.Setup(x => x.Directory.GetParent(It.IsAny<string>())).Throws(new IOException("Oops."));
+            fileSystemMock.Setup(x => x.Path.DirectorySeparatorChar).Returns('/');
+            fileSystemMock.Setup(x => x.Path.GetFullPath(It.IsAny<string>())).Returns("/foo/bar");
+            fileSystemMock.Setup(x => x.Path.GetFullPath(It.IsAny<string>(), It.IsAny<string>())).Returns("/bar/foo");
+            fileSystemMock.Setup(x => x.Path.IsPathRooted(It.IsAny<string>())).Returns(false);
+            fileSystemMock.Setup(x => x.File.Exists(It.IsAny<string>())).Throws(new IOException("Oops."));
 
-            var sut = new ConfigurationManager(fileSystemMock.Object);
-            var configurationPath = CreatePath("path/to/main.bicep");
-            var sourceFileUri = new Uri(configurationPath);
-            var configuration = sut.GetConfiguration(sourceFileUri);
+            var fileExplorer = new FileSystemFileExplorer(fileSystemMock.Object);
+            var sut = new ConfigurationManager(fileExplorer);
+            var configuration = sut.GetConfiguration(new Uri("file:///foo/bar/main.bicep"));
 
             // Act & Assert.
-            var diagnostics = configuration.DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForDocumentStart())).ToList();
-            diagnostics.Count.Should().Be(1);
+            var diagnostics = configuration.Diagnostics;
+            diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Info);
-            diagnostics[0].Message.Should().Be("Error scanning \"foo\" for bicep configuration: Oops.");
+            diagnostics[0].Message.Should().Be("Error scanning \"/foo/bar/\" for bicep configuration: Oops.");
             configuration.ToUtf8Json().Should().Be(IConfigurationManager.GetBuiltInConfiguration().ToUtf8Json());
         }
 
@@ -574,12 +578,13 @@ namespace Bicep.Core.UnitTests.Configuration
                 [configurationPath] = configurationContents,
             });
 
-            var sut = new ConfigurationManager(fileSystem);
+            var fileExplorer = new FileSystemFileExplorer(fileSystem);
+            var sut = new ConfigurationManager(fileExplorer);
             var sourceFileUri = new Uri(CreatePath("path/to/main.bicep"));
 
             // Act & Assert.
-            var diagnostics = sut.GetConfiguration(sourceFileUri).DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForDocumentStart())).ToList();
-            diagnostics.Count.Should().Be(1);
+            var diagnostics = sut.GetConfiguration(sourceFileUri).Diagnostics;
+            diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
             diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\": {expectedExceptionMessage}");
         }
@@ -641,28 +646,30 @@ namespace Bicep.Core.UnitTests.Configuration
             {
                 [configurationPath] = configurationContents,
             });
-
-            var sut = new ConfigurationManager(fileSystem);
+            var fileExplorer = new FileSystemFileExplorer(fileSystem);
+            var sut = new ConfigurationManager(fileExplorer);
             var sourceFileUri = new Uri(CreatePath("path/to/main.bicep"));
 
             // Act.
-            var diagnostics = sut.GetConfiguration(sourceFileUri).DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForDocumentStart())).ToList();
+            var diagnostics = sut.GetConfiguration(sourceFileUri).Diagnostics;
 
             // Assert.
-            diagnostics.Count.Should().Be(1);
+            diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
             diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\": {expectedExceptionMessage}");
         }
 
-        [TestMethod]
-        public void GetConfiguration_ValidCustomConfiguration_OverridesBuiltInConfiguration()
+        [DataTestMethod]
+        [DataRow("repo")]
+        [DataRow("re%20po")]
+        public void GetConfiguration_ValidCustomConfiguration_OverridesBuiltInConfiguration(string root)
         {
             // Arrange.
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                [CreatePath("repo")] = new MockDirectoryData(),
-                [CreatePath("repo/modules")] = new MockDirectoryData(),
-                [CreatePath("repo/bicepconfig.json")] = /*lang=json,strict*/ """
+                [CreatePath(root)] = new MockDirectoryData(),
+                [CreatePath($"{root}/modules")] = new MockDirectoryData(),
+                [CreatePath($"{root}/bicepconfig.json")] = /*lang=json,strict*/ """
         {
           "cloud": {
             "currentProfile": "MyCloud",
@@ -710,9 +717,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 "azuredatalakestore.net",
                 "azuredatalakeanalytics.net",
                 "vault.azure.net",
-                "api.loganalytics.io",
                 "asazure.windows.net",
-                "region.asazure.windows.net",
                 "batch.core.windows.net"
                 ]
             }
@@ -721,7 +726,6 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "cacheRootDirectory": "/home/username/.bicep/cache",
         "experimentalFeaturesEnabled": {
-        "extensibility": true
         },
         "formatting": {
         "indentKind": "Space",
@@ -733,10 +737,11 @@ namespace Bicep.Core.UnitTests.Configuration
     }
     """
             });
+            var fileExplorer = new FileSystemFileExplorer(fileSystem);
+            var sut = new ConfigurationManager(fileExplorer);
+            var sourceFileUri = new Uri(this.CreatePath($"{root}/modules/vnet.bicep"));
 
             // Act.
-            var sut = new ConfigurationManager(fileSystem);
-            var sourceFileUri = new Uri(this.CreatePath("repo/modules/vnet.bicep"));
             var configuration = sut.GetConfiguration(sourceFileUri);
 
             // Assert.
@@ -795,8 +800,7 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "extensions": {
             "az": "builtin:",
-            "kubernetes": "builtin:",
-            "microsoftGraph": "builtin:"
+            "kubernetes": "builtin:"
         },
         "implicitExtensions": [
             "az"
@@ -813,9 +817,7 @@ namespace Bicep.Core.UnitTests.Configuration
                   "azuredatalakestore.net",
                   "azuredatalakeanalytics.net",
                   "vault.azure.net",
-                  "api.loganalytics.io",
                   "asazure.windows.net",
-                  "region.asazure.windows.net",
                   "batch.core.windows.net"
                 ],
                 "excludedhosts": [
@@ -829,16 +831,19 @@ namespace Bicep.Core.UnitTests.Configuration
         "experimentalFeaturesEnabled": {
           "extendableParamFiles": false,
           "symbolicNameCodegen": false,
-          "extensibility": true,
           "resourceTypedParamsAndOutputs": false,
           "sourceMapping": false,
           "legacyFormatter": false,
           "testFramework": false,
           "assertions": false,
-          "optionalModuleNames": false,
+          "waitAndRetry": false,
           "localDeploy": false,
-          "resourceDerivedTypes": false,
-          "secureOutputs": false
+          "resourceInfoCodegen": false,
+          "moduleExtensionConfigs": false,
+          "desiredStateConfiguration": false,
+          "externalInputFunction": false,
+          "onlyIfNotExists": false,
+          "moduleIdentity": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -879,9 +884,12 @@ namespace Bicep.Core.UnitTests.Configuration
         }
         """
             });
-            // Act.
-            var sut = new ConfigurationManager(fileSystem);
+
+            var fileExplorer = new FileSystemFileExplorer(fileSystem);
+            var sut = new ConfigurationManager(fileExplorer);
             var sourceFileUri = new Uri(this.CreatePath("repo/modules/vnet.bicep"));
+
+            // Act.
             var configuration = sut.GetConfiguration(sourceFileUri);
 
             // Assert.

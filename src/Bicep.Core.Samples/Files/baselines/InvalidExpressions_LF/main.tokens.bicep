@@ -1568,6 +1568,110 @@ var partialObject = {
 //@[00:01) RightBrace |}|
 //@[01:03) NewLine |\n\n|
 
+//nameof expressions
+//@[20:21) NewLine |\n|
+var nameOfConstant = nameof('abc')
+//@[00:03) Identifier |var|
+//@[04:18) Identifier |nameOfConstant|
+//@[19:20) Assignment |=|
+//@[21:27) Identifier |nameof|
+//@[27:28) LeftParen |(|
+//@[28:33) StringComplete |'abc'|
+//@[33:34) RightParen |)|
+//@[34:35) NewLine |\n|
+var nameOfKeyword1 = nameof(param)
+//@[00:03) Identifier |var|
+//@[04:18) Identifier |nameOfKeyword1|
+//@[19:20) Assignment |=|
+//@[21:27) Identifier |nameof|
+//@[27:28) LeftParen |(|
+//@[28:33) Identifier |param|
+//@[33:34) RightParen |)|
+//@[34:35) NewLine |\n|
+var nameOfKeyword2 = nameof(var)
+//@[00:03) Identifier |var|
+//@[04:18) Identifier |nameOfKeyword2|
+//@[19:20) Assignment |=|
+//@[21:27) Identifier |nameof|
+//@[27:28) LeftParen |(|
+//@[28:31) Identifier |var|
+//@[31:32) RightParen |)|
+//@[32:33) NewLine |\n|
+var nameOfKeyword3 = nameof(resource)
+//@[00:03) Identifier |var|
+//@[04:18) Identifier |nameOfKeyword3|
+//@[19:20) Assignment |=|
+//@[21:27) Identifier |nameof|
+//@[27:28) LeftParen |(|
+//@[28:36) Identifier |resource|
+//@[36:37) RightParen |)|
+//@[37:38) NewLine |\n|
+var nameOfKeyword4 = nameof(module)
+//@[00:03) Identifier |var|
+//@[04:18) Identifier |nameOfKeyword4|
+//@[19:20) Assignment |=|
+//@[21:27) Identifier |nameof|
+//@[27:28) LeftParen |(|
+//@[28:34) Identifier |module|
+//@[34:35) RightParen |)|
+//@[35:36) NewLine |\n|
+var nameOfKeyword5 = nameof(output)
+//@[00:03) Identifier |var|
+//@[04:18) Identifier |nameOfKeyword5|
+//@[19:20) Assignment |=|
+//@[21:27) Identifier |nameof|
+//@[27:28) LeftParen |(|
+//@[28:34) Identifier |output|
+//@[34:35) RightParen |)|
+//@[35:36) NewLine |\n|
+var nameofExpression1 = nameof(1 + 2)
+//@[00:03) Identifier |var|
+//@[04:21) Identifier |nameofExpression1|
+//@[22:23) Assignment |=|
+//@[24:30) Identifier |nameof|
+//@[30:31) LeftParen |(|
+//@[31:32) Integer |1|
+//@[33:34) Plus |+|
+//@[35:36) Integer |2|
+//@[36:37) RightParen |)|
+//@[37:38) NewLine |\n|
+var nameofVar= 'abc'
+//@[00:03) Identifier |var|
+//@[04:13) Identifier |nameofVar|
+//@[13:14) Assignment |=|
+//@[15:20) StringComplete |'abc'|
+//@[20:21) NewLine |\n|
+var nameofExpression2 = nameof(true ? nameofVar : nameofVar)
+//@[00:03) Identifier |var|
+//@[04:21) Identifier |nameofExpression2|
+//@[22:23) Assignment |=|
+//@[24:30) Identifier |nameof|
+//@[30:31) LeftParen |(|
+//@[31:35) TrueKeyword |true|
+//@[36:37) Question |?|
+//@[38:47) Identifier |nameofVar|
+//@[48:49) Colon |:|
+//@[50:59) Identifier |nameofVar|
+//@[59:60) RightParen |)|
+//@[60:61) NewLine |\n|
+var nameofUnknown = nameof(symbolNotFound)
+//@[00:03) Identifier |var|
+//@[04:17) Identifier |nameofUnknown|
+//@[18:19) Assignment |=|
+//@[20:26) Identifier |nameof|
+//@[26:27) LeftParen |(|
+//@[27:41) Identifier |symbolNotFound|
+//@[41:42) RightParen |)|
+//@[42:43) NewLine |\n|
+var nameofEmpty = nameof()
+//@[00:03) Identifier |var|
+//@[04:15) Identifier |nameofEmpty|
+//@[16:17) Assignment |=|
+//@[18:24) Identifier |nameof|
+//@[24:25) LeftParen |(|
+//@[25:26) RightParen |)|
+//@[26:28) NewLine |\n\n|
+
 // dangling decorators - to make sure the tests work, please do not add contents after this line
 //@[96:97) NewLine |\n|
 @concat()
@@ -1647,9 +1751,7 @@ var unterminated2 = (,
 //@[01:10) Identifier |minLength|
 //@[10:11) LeftParen |(|
 //@[11:12) RightParen |)|
-//@[12:16) NewLine |\n\n\n\n|
-
-
+//@[12:14) NewLine |\n\n|
 
 
 //@[00:00) EndOfFile ||

@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -64,32 +65,32 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             "asserts",
         ];
 
-        public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, [], LanguageConstants.String, TypePropertyFlags.None);
-        public static readonly TypeSymbol ResourceAsserts = new ObjectType(nameof(ResourceAsserts), TypeSymbolValidationFlags.Default, [], LanguageConstants.Bool, TypePropertyFlags.DeployTimeConstant);
+        public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, [], new TypeProperty(LanguageConstants.String, TypePropertyFlags.None));
+        public static readonly TypeSymbol ResourceAsserts = new ObjectType(nameof(ResourceAsserts), TypeSymbolValidationFlags.Default, [], new TypeProperty(LanguageConstants.Bool, TypePropertyFlags.DeployTimeConstant));
 
         private readonly IResourceTypeLoader resourceTypeLoader;
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
 
-        public static readonly ImmutableHashSet<string> UniqueIdentifierProperties =
+        public static readonly FrozenSet<string> UniqueIdentifierProperties = FrozenSet.ToFrozenSet(
         [
             ResourceNamePropertyName,
             LanguageConstants.ResourceScopePropertyName,
             LanguageConstants.ResourceParentPropertyName,
-        ];
+        ]);
 
-        public static IEnumerable<TypeProperty> GetCommonResourceProperties(ResourceTypeReference reference)
+        public static IEnumerable<NamedTypeProperty> GetCommonResourceProperties(ResourceTypeReference reference)
         {
             // We don't expect any Az resource types without an API version
             var apiVersion = reference.ApiVersion ?? throw new ArgumentException($"Resource reference {reference.FormatName()} contains null API Version", nameof(reference));
 
-            yield return new TypeProperty(ResourceIdPropertyName, LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "The resource id");
-            yield return new TypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.LoopVariant | TypePropertyFlags.SystemProperty, "The resource name");
-            yield return new TypeProperty(ResourceTypePropertyName, TypeFactory.CreateStringLiteralType(reference.FormatType()), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "The resource type");
-            yield return new TypeProperty(ResourceApiVersionPropertyName, TypeFactory.CreateStringLiteralType(apiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "The resource api version");
+            yield return new NamedTypeProperty(ResourceIdPropertyName, LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "The resource id");
+            yield return new NamedTypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.LoopVariant | TypePropertyFlags.SystemProperty, "The resource name");
+            yield return new NamedTypeProperty(ResourceTypePropertyName, TypeFactory.CreateStringLiteralType(reference.FormatType()), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "The resource type");
+            yield return new NamedTypeProperty(ResourceApiVersionPropertyName, TypeFactory.CreateStringLiteralType(apiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "The resource api version");
         }
 
-        public static IEnumerable<TypeProperty> CreateResourceProperties(ResourceTypeReference resourceTypeReference)
+        public static IEnumerable<NamedTypeProperty> CreateResourceProperties(ResourceTypeReference resourceTypeReference)
         {
             /*
              * The following properties are intentionally excluded from this model:
@@ -110,31 +111,31 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             }
         }
 
-        public static IEnumerable<TypeProperty> KnownTopLevelResourceProperties()
+        public static IEnumerable<NamedTypeProperty> KnownTopLevelResourceProperties()
         {
-            yield return new TypeProperty("location", LanguageConstants.String);
+            yield return new NamedTypeProperty("location", LanguageConstants.String);
 
-            yield return new TypeProperty("tags", Tags);
+            yield return new NamedTypeProperty("tags", Tags);
 
-            yield return new TypeProperty("asserts", ResourceAsserts);
+            yield return new NamedTypeProperty("asserts", ResourceAsserts);
 
-            yield return new TypeProperty("properties", LanguageConstants.Object);
+            yield return new NamedTypeProperty("properties", LanguageConstants.Object);
 
-            yield return new TypeProperty("sku", new ObjectType("sku", TypeSymbolValidationFlags.Default, new[]
+            yield return new NamedTypeProperty("sku", new ObjectType("sku", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("name", LanguageConstants.String),
-                new TypeProperty("tier", LanguageConstants.String),
-                new TypeProperty("size", LanguageConstants.String),
-                new TypeProperty("family", LanguageConstants.String),
-                new TypeProperty("model", LanguageConstants.String),
-                new TypeProperty("capacity", LanguageConstants.Int),
+                new NamedTypeProperty("name", LanguageConstants.String),
+                new NamedTypeProperty("tier", LanguageConstants.String),
+                new NamedTypeProperty("size", LanguageConstants.String),
+                new NamedTypeProperty("family", LanguageConstants.String),
+                new NamedTypeProperty("model", LanguageConstants.String),
+                new NamedTypeProperty("capacity", LanguageConstants.Int),
             }, null));
 
-            yield return new TypeProperty("kind", LanguageConstants.String);
-            yield return new TypeProperty("managedBy", LanguageConstants.String);
+            yield return new NamedTypeProperty("kind", LanguageConstants.String);
+            yield return new NamedTypeProperty("managedBy", LanguageConstants.String);
 
             var stringArray = new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default);
-            yield return new TypeProperty("managedByExtended", stringArray);
+            yield return new NamedTypeProperty("managedByExtended", stringArray);
 
             var extendedLocationType = TypeHelper.CreateTypeUnion(
                 TypeFactory.CreateStringLiteralType("NotSpecified"),
@@ -143,23 +144,23 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 TypeFactory.CreateStringLiteralType("ArcZone"),
                 LanguageConstants.String);
 
-            yield return new TypeProperty("extendedLocation", new ObjectType("extendedLocation", TypeSymbolValidationFlags.Default, new[]
+            yield return new NamedTypeProperty("extendedLocation", new ObjectType("extendedLocation", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("type", extendedLocationType, TypePropertyFlags.Required),
-                new TypeProperty("name", LanguageConstants.String),
+                new NamedTypeProperty("type", extendedLocationType, TypePropertyFlags.Required),
+                new NamedTypeProperty("name", LanguageConstants.String),
             }, null));
 
-            yield return new TypeProperty("zones", stringArray);
+            yield return new NamedTypeProperty("zones", stringArray);
 
-            yield return new TypeProperty("plan", LanguageConstants.Object);
+            yield return new NamedTypeProperty("plan", LanguageConstants.Object);
 
-            yield return new TypeProperty("eTag", LanguageConstants.String);
+            yield return new NamedTypeProperty("eTag", LanguageConstants.String);
 
-            yield return new TypeProperty("scale", new ObjectType("scale", TypeSymbolValidationFlags.Default, new[]
+            yield return new NamedTypeProperty("scale", new ObjectType("scale", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("capacity", LanguageConstants.Int, TypePropertyFlags.Required),
-                new TypeProperty("maximum", LanguageConstants.Int),
-                new TypeProperty("minimum", LanguageConstants.Int),
+                new NamedTypeProperty("capacity", LanguageConstants.Int, TypePropertyFlags.Required),
+                new NamedTypeProperty("maximum", LanguageConstants.Int),
+                new NamedTypeProperty("minimum", LanguageConstants.Int),
             }, null));
 
             var resourceIdentityType = TypeHelper.CreateTypeUnion(
@@ -172,23 +173,23 @@ namespace Bicep.Core.TypeSystem.Providers.Az
 
             var userAssignedIdentity = new ObjectType("userAssignedIdentityProperties", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("principalId", LanguageConstants.String),
-                new TypeProperty("clientId", LanguageConstants.String)
+                new NamedTypeProperty("principalId", LanguageConstants.String),
+                new NamedTypeProperty("clientId", LanguageConstants.String)
             }, null);
 
-            yield return new TypeProperty("identity", new ObjectType("identity", TypeSymbolValidationFlags.Default, new[]
+            yield return new NamedTypeProperty("identity", new ObjectType("identity", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("principalId", LanguageConstants.String),
-                new TypeProperty("tenantId", LanguageConstants.String),
-                new TypeProperty("type", resourceIdentityType, TypePropertyFlags.Required),
-                new TypeProperty("identityIds", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
-                new TypeProperty("userAssignedIdentities", new ObjectType("userAssignedIdentities", TypeSymbolValidationFlags.Default, [], userAssignedIdentity)),
-                new TypeProperty("delegatedResources", LanguageConstants.Object),
+                new NamedTypeProperty("principalId", LanguageConstants.String),
+                new NamedTypeProperty("tenantId", LanguageConstants.String),
+                new NamedTypeProperty("type", resourceIdentityType, TypePropertyFlags.Required),
+                new NamedTypeProperty("identityIds", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
+                new NamedTypeProperty("userAssignedIdentities", new ObjectType("userAssignedIdentities", TypeSymbolValidationFlags.Default, [], new(userAssignedIdentity))),
+                new NamedTypeProperty("delegatedResources", LanguageConstants.Object),
             }, null));
         }
 
         public AzResourceTypeProvider(IResourceTypeLoader resourceTypeLoader)
-            : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
+            : base([.. resourceTypeLoader.GetAvailableTypes()])
         {
             this.resourceTypeLoader = resourceTypeLoader;
             definedTypeCache = new ResourceTypeCache();
@@ -214,7 +215,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             {
                 case ObjectType bodyObjectType:
                     if (bodyObjectType.Properties.TryGetValue(ResourceNamePropertyName, out var nameProperty) &&
-                        nameProperty.TypeReference.Type is not StringType &&
+                        !ReferenceEquals(nameProperty.TypeReference.Type, LanguageConstants.String) &&
                         !SupportsLiteralNames(resourceType, flags))
                     {
                         // The 'name' property doesn't support fixed value names (e.g. we're in a top-level child resource declaration).
@@ -223,9 +224,8 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                         bodyObjectType = new ObjectType(
                             bodyObjectType.Name,
                             bodyObjectType.ValidationFlags,
-                            bodyObjectType.Properties.SetItem(ResourceNamePropertyName, new TypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags | TypePropertyFlags.SystemProperty)).Values,
-                            bodyObjectType.AdditionalPropertiesType,
-                            bodyObjectType.AdditionalPropertiesFlags,
+                            bodyObjectType.Properties.SetItem(ResourceNamePropertyName, new(nameProperty.Name, LanguageConstants.String, nameProperty.Flags | TypePropertyFlags.SystemProperty, nameProperty.Description)).Values,
+                            bodyObjectType.AdditionalProperties,
                             bodyObjectType.MethodResolver.CopyToObject);
 
                         bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, flags);
@@ -280,7 +280,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         private static ObjectType SetBicepResourceProperties(ObjectType objectType, ResourceScope validParentScopes, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
         {
             // Local function.
-            static TypeProperty UpdateFlags(TypeProperty typeProperty, TypePropertyFlags flags) =>
+            static NamedTypeProperty UpdateFlags(NamedTypeProperty typeProperty, TypePropertyFlags flags) =>
                 new(typeProperty.Name, typeProperty.TypeReference, flags, typeProperty.Description);
 
             var properties = objectType.Properties;
@@ -293,6 +293,9 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 scopePropertyFlags |= TypePropertyFlags.Required;
             }
 
+            // TODO: remove 'dependsOn' from the type library
+            properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny | TypePropertyFlags.SystemProperty));
+
             if (isExistingResource)
             {
                 // we can refer to a resource at any scope if it is an existing resource not being deployed by this file
@@ -300,9 +303,6 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             }
             else
             {
-                // TODO: remove 'dependsOn' from the type library
-                properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny | TypePropertyFlags.SystemProperty));
-
                 if (ScopeHelper.TryCreateNonExistingResourceScopeProperty(validParentScopes, scopePropertyFlags) is { } scopeProperty)
                 {
                     properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, scopeProperty);
@@ -341,14 +341,14 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 var parentType = new ResourceParentType(typeReference);
                 var parentFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant | TypePropertyFlags.SystemProperty;
 
-                properties = properties.SetItem(LanguageConstants.ResourceParentPropertyName, new TypeProperty(LanguageConstants.ResourceParentPropertyName, parentType, parentFlags));
+                properties = properties.SetItem(LanguageConstants.ResourceParentPropertyName, new(LanguageConstants.ResourceParentPropertyName, parentType, parentFlags));
             }
 
             // Deployments RP
             if (StringComparer.OrdinalIgnoreCase.Equals(typeReference.FormatType(), ResourceTypeDeployments))
             {
-                properties = properties.SetItem("resourceGroup", new TypeProperty("resourceGroup", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty));
-                properties = properties.SetItem("subscriptionId", new TypeProperty("subscriptionId", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty));
+                properties = properties.SetItem("resourceGroup", new("resourceGroup", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty));
+                properties = properties.SetItem("subscriptionId", new("subscriptionId", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty));
             }
 
             var functions = objectType.MethodResolver.functionOverloads.Concat(GetBicepMethods(typeReference));
@@ -357,7 +357,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             {
                 if (!properties.ContainsKey(item.Name))
                 {
-                    properties = properties.Add(item.Name, new TypeProperty(item.Name, item.TypeReference, item.Flags | TypePropertyFlags.FallbackProperty));
+                    properties = properties.Add(item.Name, new(item.Name, item.TypeReference, item.Flags | TypePropertyFlags.FallbackProperty));
                 }
             }
 
@@ -365,8 +365,9 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 objectType.Name,
                 objectType.ValidationFlags,
                 isExistingResource ? ConvertToReadOnly(properties.Values) : properties.Values,
-                objectType.AdditionalPropertiesType,
-                isExistingResource ? ConvertToReadOnly(objectType.AdditionalPropertiesFlags) : objectType.AdditionalPropertiesFlags,
+                isExistingResource && objectType.AdditionalProperties is not null
+                    ? objectType.AdditionalProperties with { Flags = ConvertToReadOnly(objectType.AdditionalProperties.Flags) }
+                    : objectType.AdditionalProperties,
                 functions);
         }
 
@@ -392,18 +393,19 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             }
         }
 
-        private static IEnumerable<TypeProperty> ConvertToReadOnly(IEnumerable<TypeProperty> properties)
+        private static IEnumerable<NamedTypeProperty> ConvertToReadOnly(IEnumerable<NamedTypeProperty> properties)
         {
             foreach (var property in properties)
             {
-                // "name", "scope" & "parent" can be set for existing resources - everything else should be read-only
-                if (UniqueIdentifierProperties.Contains(property.Name))
+                // "name", "dependsOn", "scope" & "parent" can be set for existing resources - everything else should be read-only
+                if (UniqueIdentifierProperties.Contains(property.Name) ||
+                    property.Name.Equals(LanguageConstants.ResourceDependsOnPropertyName))
                 {
                     yield return property;
                 }
                 else
                 {
-                    yield return new TypeProperty(property.Name, property.TypeReference, ConvertToReadOnly(property.Flags));
+                    yield return new NamedTypeProperty(property.Name, property.TypeReference, ConvertToReadOnly(property.Flags));
                 }
             }
         }

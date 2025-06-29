@@ -3,6 +3,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Bicep.Core;
 using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -14,7 +15,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.IntegrationTests
+namespace Bicep.Decompiler.IntegrationTests
 {
     [TestClass]
     public class DecompilationTests
@@ -44,8 +45,8 @@ namespace Bicep.Core.IntegrationTests
             {
                 foreach (var (bicepFile, diagnostics) in diagnosticsByBicepFile)
                 {
-                    var baselineFile = baselineFolder.GetFileOrEnsureCheckedIn(bicepFile.FileUri);
-                    var bicepOutput = filesToSave[bicepFile.FileUri];
+                    var baselineFile = baselineFolder.GetFileOrEnsureCheckedIn(bicepFile.Uri);
+                    var bicepOutput = filesToSave[bicepFile.Uri];
 
                     var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepOutput, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepOutput, baselineFolder.OutputFolderPath, diag));
 
@@ -148,10 +149,15 @@ namespace Bicep.Core.IntegrationTests
         [DataRow("not(equals(toLower(variables('a')),toLower(variables('b'))))", "boolean", "(a !~ b)")]
         [DataRow("createArray(1, 2, 3)", "array", "[\n  1\n  2\n  3\n]")]
         [DataRow("createObject('key', 'value')", "object", "{\n  key: 'value'\n}")]
-        [DataRow("tryGet(parameters('z'), 'y')", "int", "(z.?y)")]
-        [DataRow("tryGet(parameters('z'), 'y', 'x', 'w')", "int", "(z.?y.x.w)")]
-        [DataRow("tryGet(tryGet(parameters('z'), 'y', 'x'), 'w', 'v')", "int", "((z.?y.x).?w.v)")]
+        [DataRow("tryGet(parameters('z'), 'y')", "int", "z.?y")]
+        [DataRow("tryGet(parameters('z'), 'y', 'x', 'w')", "int", "z.?y.x.w")]
+        [DataRow("tryGet(tryGet(parameters('z'), 'y', 'x'), 'w', 'v')", "int", "z.?y.x.?w.v")]
         [DataRow("tryGet(parameters('z'), 'y', 'x', 'w').v", "int", "(z.?y.x.w).v")]
+        [DataRow("tryIndexFromEnd(parameters('z').array, 3, 'foo')", "int", "z.array[?^3].foo")]
+        [DataRow("tryIndexFromEnd(parameters('z').array, 3, createObject('value', 2, 'fromEnd', true()))", "int", "z.array[?^3][^2]")]
+        [DataRow("tryIndexFromEnd(parameters('z').array, 3, createObject('value', 2))", "int", "z.array[?^3][2]")]
+        [DataRow("tryIndexFromEnd(parameters('z').array, 3, createObject('value', 2)).foo", "int", "(z.array[?^3][2]).foo")]
+        [DataRow("indexFromEnd(parameters('z').array, 3)", "int", "z.array[^3]")]
         public async Task Decompiler_handles_banned_function_replacement(string expression, string type, string expectedValue)
         {
             var template = @"{
@@ -180,64 +186,6 @@ namespace Bicep.Core.IntegrationTests
             var (entryPointUri, filesToSave) = await decompiler.Decompile(PathHelper.ChangeToBicepExtension(fileUri), template);
 
             filesToSave[entryPointUri].Should().Contain($"output calculated {type} = {expectedValue}");
-        }
-
-        [TestMethod]
-        public async Task Decompiler_should_partially_handle_user_defined_functions_with_placeholders()
-        {
-            const string template = """
-                {
-                 "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                 "contentVersion": "1.0.0.0",
-                 "parameters": {
-                   "storageNamePrefix": {
-                     "type": "string",
-                     "maxLength": 11
-                   }
-                 },
-                 "functions": [
-                  {
-                    "namespace": "contoso",
-                    "members": {
-                      "uniqueName": {
-                        "parameters": [
-                          {
-                            "name": "namePrefix",
-                            "type": "string"
-                          }
-                        ],
-                        "output": {
-                          "type": "string",
-                          "value": "[concat(toLower(parameters('namePrefix')), uniqueString(resourceGroup().id))]"
-                        }
-                      }
-                    }
-                  }
-                ],
-                 "resources": [
-                   {
-                     "type": "Microsoft.Storage/storageAccounts",
-                     "apiVersion": "2019-04-01",
-                     "name": "[contoso.uniqueName(parameters('storageNamePrefix'))]",
-                     "location": "South Central US",
-                     "sku": {
-                       "name": "Standard_LRS"
-                     },
-                     "kind": "StorageV2",
-                     "properties": {
-                       "supportsHttpsTrafficOnly": true
-                     }
-                   }
-                 ]
-                }
-                """;
-
-            var fileUri = new Uri("file:///path/to/main.json");
-
-            var decompiler = CreateDecompiler();
-            var (entryPointUri, filesToSave) = await decompiler.Decompile(PathHelper.ChangeToBicepExtension(fileUri), template);
-
-            filesToSave[entryPointUri].Should().Contain($"? /* TODO: User defined functions are not supported and have not been decompiled */");
         }
 
         [TestMethod]

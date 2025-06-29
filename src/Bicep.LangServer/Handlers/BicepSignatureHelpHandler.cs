@@ -4,9 +4,9 @@
 using System.Collections.Immutable;
 using System.Text;
 using Bicep.Core;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.LanguageServer.CompilationManager;

@@ -258,5 +258,10 @@ namespace Bicep.LanguageServer.Completions
         /// The current location needs a bicepparam file path completion for extends declaration
         /// </summary>
         ExtendsFilePath = 1UL << 47,
+
+        /// <summary>
+        /// The location immediately after a name in a variable declaration.
+        /// </summary>
+        VariableNameFollower = 1UL << 48,
     }
 }

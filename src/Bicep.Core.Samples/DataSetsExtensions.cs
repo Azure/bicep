@@ -3,18 +3,24 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 
 namespace Bicep.Core.Samples
 {
@@ -46,31 +52,38 @@ namespace Bicep.Core.Samples
             return (compilation, outputDirectory, fileUri);
         }
 
-        public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, params (string registryUri, string repository)[] additionalClients)
+        public static IContainerRegistryClientFactory CreateMockRegistryClients(
+            this DataSet dataSet,
+            params RepoDescriptor[] additionalClients)
             => CreateMockRegistryClients(dataSet.RegistryModules, additionalClients);
 
-        public static IContainerRegistryClientFactory CreateMockRegistryClients(ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules, params (string registryUri, string repository)[] additionalClients)
+        public static IContainerRegistryClientFactory CreateMockRegistryClients(
+            ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules,
+            params RepoDescriptor[] additionalClients)
         {
-            var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
+            var services = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
-                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
-            ).Construct<IModuleDispatcher>();
+                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory));
 
-            var clients = new List<(string, string)>();
+            var dispatcher = services.Construct<IModuleDispatcher>();
+            var sourceFileFactory = services.Construct<ISourceFileFactory>();
+            var dummyReferencingFile = BicepTestConstants.DummyBicepFile;
+
+            var clients = new List<RepoDescriptor>();
 
             foreach (var (moduleName, publishInfo) in registryModules)
             {
                 var target = publishInfo.Metadata.Target;
 
-                if (!dispatcher.TryGetArtifactReference(ArtifactType.Module, target, RandomFileUri()).IsSuccess(out var @ref) || @ref is not OciArtifactReference targetReference)
+                if (!dispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Module, target).IsSuccess(out var @ref) || @ref is not OciArtifactReference targetReference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
                 }
 
-                clients.Add((targetReference.Registry, targetReference.Repository));
+                clients.Add(new(targetReference.Registry, targetReference.Repository, ["tag"]));
             }
 
-            return RegistryHelper.CreateMockRegistryClients([.. clients, .. additionalClients]).factoryMock;
+            return RegistryHelper.CreateMockRegistryClient([.. clients, .. additionalClients]);
         }
 
         public static ITemplateSpecRepositoryFactory CreateEmptyTemplateSpecRepositoryFactory()
@@ -81,15 +94,18 @@ namespace Bicep.Core.Samples
 
         public static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRepositoryFactory(ImmutableDictionary<string, DataSet.ExternalModuleInfo> templateSpecs)
         {
-            var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
+            var services = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
-                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
-                ).Construct<IModuleDispatcher>();
+                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory));
+
+            var dispatcher = services.Construct<IModuleDispatcher>();
+            var sourceFileFactory = services.Construct<ISourceFileFactory>();
+            var dummyReferencingFile = BicepTestConstants.DummyBicepFile;
             var repositoryMocksBySubscription = new Dictionary<string, Mock<ITemplateSpecRepository>>();
 
             foreach (var (moduleName, templateSpecInfo) in templateSpecs)
             {
-                if (!dispatcher.TryGetArtifactReference(ArtifactType.Module, templateSpecInfo.Metadata.Target, RandomFileUri()).IsSuccess(out var @ref) || @ref is not TemplateSpecModuleReference reference)
+                if (!dispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Module, templateSpecInfo.Metadata.Target).IsSuccess(out var @ref) || @ref is not TemplateSpecModuleReference reference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{templateSpecInfo.Metadata.Target}'. Specify a reference to a template spec.");
                 }
@@ -118,10 +134,12 @@ namespace Bicep.Core.Samples
         {
             foreach (var (moduleName, publishInfo) in registryModules)
             {
-                await RegistryHelper.PublishModuleToRegistryAsync(clientFactory, BicepTestConstants.FileSystem, moduleName, publishInfo.Metadata.Target, publishInfo.ModuleSource, publishSource, null);
+                await RegistryHelper.PublishModuleToRegistryAsync(
+                    new ServiceBuilder(),
+                    clientFactory,
+                    BicepTestConstants.FileSystem,
+                    new(publishInfo.Metadata.Target, publishInfo.ModuleSource, WithSource: publishSource, DocumentationUri: null));
             }
         }
-
-        private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
     }
 }

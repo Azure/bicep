@@ -193,7 +193,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "no-unused-params": {
                         "allOf": [
                             {
-                                "description": "No unused parameters. See https://aka.ms/bicep/linter/no-unused-params",
+                                "description": "No unused parameters. See https://aka.ms/bicep/linter-diagnostics#no-unused-params",
                                 ...
                             },
                             {
@@ -210,7 +210,7 @@ namespace Bicep.Core.UnitTests.Configuration
 
                 var description = allOf[0]?.SelectToken("description")?.ToString();
                 Assert.IsNotNull(description);
-                description.Should().EndWith($" See https://aka.ms/bicep/linter/{configKey}", "each rule's description should end with 'See <help-link>' using the link to the rule's docs");
+                description.Should().EndWith($" See https://aka.ms/bicep/linter-diagnostics#{configKey}", "each rule's description should end with 'See <help-link>' using the link to the rule's docs");
 
                 var matchingRule = AllRules.SingleOrDefault(r => r.Code == configKey);
                 matchingRule.Should().NotBeNull("Rule's key in config does not match any linter rule's code");
@@ -439,7 +439,7 @@ namespace Bicep.Core.UnitTests.Configuration
             var defaultLevelInSchema = GetRuleDefaultLevel(ruleSchema);
 
             defaultLevelInSchema.Should().Be(defaultLevelInRuleDefinition,
-                $"the default diagnostic level of a rule's config schema should match that defined in the rule's class definition (make sure rule {id} #/definitions/rule-def-level-xxx reference is correct)");
+                $"the default diagnostic level of a rule's config schema should match that defined in the rule's class definition (make sure rule {id}'s #/definitions/rule-def-level-xxx reference is correct)");
         }
 
         [TestMethod]

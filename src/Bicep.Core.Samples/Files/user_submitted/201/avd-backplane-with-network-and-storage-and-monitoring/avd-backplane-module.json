@@ -224,7 +224,7 @@
                   },
                   "resources": [
                     {
-                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "type": "microsoft.insights/diagnosticSettings",
                       "apiVersion": "2017-05-01-preview",
                       "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostpoolName'))]",
                       "name": "hostpool-diag",
@@ -255,7 +255,7 @@
                       }
                     },
                     {
-                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "type": "microsoft.insights/diagnosticSettings",
                       "apiVersion": "2017-05-01-preview",
                       "scope": "[format('Microsoft.DesktopVirtualization/workspaces/{0}', parameters('workspaceName'))]",
                       "name": "workspacepool-diag",

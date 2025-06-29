@@ -6,7 +6,10 @@ using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
+using Azure.Deployments.Core.Diagnostics;
 using Azure.Deployments.Expression.Expressions;
+using Azure.Deployments.Templates.Extensions;
+using Azure.Identity;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -16,13 +19,14 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 using static Bicep.Core.Semantics.FunctionOverloadBuilder;
@@ -31,9 +35,10 @@ namespace Bicep.Core.Semantics.Namespaces
 {
     public static class SystemNamespaceType
     {
+        private readonly record struct LoadTextContentResult(IOUri FileUri, string Content);
+
         public const string BuiltInName = "sys";
         public const long UniqueStringHashLength = 13;
-
         private const string ConcatDescription = "Combines multiple arrays and returns the concatenated array, or combines multiple string values and returns the concatenated string.";
         private const string TakeDescription = "Returns an array or string. An array has the specified number of elements from the start of the array. A string has the specified number of characters from the start of the string.";
         private const string SkipDescription = "Returns a string with all the characters after the specified number of characters, or an array with all the elements after the specified number of elements.";
@@ -57,11 +62,9 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private record NamespaceValue<T>(T Value, VisibilityDelegate IsVisible);
 
-        private static readonly ImmutableArray<NamespaceValue<FunctionOverload>> Overloads = GetSystemOverloads().ToImmutableArray();
+        private static readonly ImmutableArray<NamespaceValue<NamedTypeProperty>> AmbientSymbols = [.. GetSystemAmbientSymbols()];
 
-        private static readonly ImmutableArray<NamespaceValue<TypeProperty>> AmbientSymbols = GetSystemAmbientSymbols().ToImmutableArray();
-
-        private static IEnumerable<NamespaceValue<FunctionOverload>> GetSystemOverloads()
+        private static IEnumerable<NamespaceValue<FunctionOverload>> GetSystemOverloads(IFeatureProvider featureProvider)
         {
             static IEnumerable<FunctionOverload> GetAlwaysPermittedOverloads()
             {
@@ -77,7 +80,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     {
                         if (argumentTypes.All(t => t is TupleType))
                         {
-                            return new(new TupleType(argumentTypes.OfType<TupleType>().SelectMany(tt => tt.Items).ToImmutableArray(), default));
+                            return new(new TupleType([.. argumentTypes.OfType<TupleType>().SelectMany(tt => tt.Items)], default));
                         }
 
                         BigInteger minLength = 0;
@@ -149,6 +152,18 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("network", LanguageConstants.String, "String in CIDR notation containing an IP address range to be converted.")
                     .Build();
 
+                yield return new FunctionOverloadBuilder("buildUri")
+                    .WithReturnType(LanguageConstants.String)
+                    .WithGenericDescription("Constructs a URI from specified components and returns an object with these components.")
+                    .WithRequiredParameter("components", GetParseOrBuildUriReturnType(), "An object containing URI components such as scheme, host, port, path, and query.")
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("parseUri")
+                    .WithReturnType(GetParseOrBuildUriReturnType())
+                    .WithGenericDescription("Parses a URI string into its components (scheme, host, port, path, query).")
+                    .WithRequiredParameter("baseUrl", LanguageConstants.String, "The complete URI to parse.")
+                    .Build();
+
                 yield return new FunctionOverloadBuilder("concat")
                     .WithReturnType(LanguageConstants.String)
                     .WithGenericDescription(ConcatDescription)
@@ -183,7 +198,7 @@ namespace Bicep.Core.Semantics.Namespaces
                             return new(TypeFactory.CreateStringType(
                                 minLength.HasValue ? Math.Max(minLength.Value, literalLength.Value) : null,
                                 maxLength.HasValue ? Math.Max(maxLength.Value, literalLength.Value) : null,
-                                argumentTypes[0].ValidationFlags));
+                                validationFlags: argumentTypes[0].ValidationFlags));
                         }),
                         LanguageConstants.String)
                     .WithGenericDescription("Returns a right-aligned string by adding characters to the left until reaching the total specified length.")
@@ -216,7 +231,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 static int MinLength(ObjectType @object) =>
                     @object.Properties.Where(kvp => kvp.Value.Flags.HasFlag(TypePropertyFlags.Required) && TypeHelper.TryRemoveNullability(kvp.Value.TypeReference.Type) is null).Count();
 
-                static int? MaxLength(ObjectType @object) => @object.AdditionalPropertiesType is null ? @object.Properties.Count : null;
+                static int? MaxLength(ObjectType @object) => @object.AdditionalProperties is null ? @object.Properties.Count : null;
 
                 yield return new FunctionOverloadBuilder("length")
                     .WithReturnResultBuilder(TryDeriveLiteralReturnType("length", (_, _, _, argumentTypes) => new(argumentTypes.FirstOrDefault() switch
@@ -343,7 +358,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithReturnResultBuilder(
                         TryDeriveLiteralReturnType("trim",
                             (_, _, _, argumentTypes) => new(argumentTypes.FirstOrDefault() is StringType @string
-                                ? TypeFactory.CreateStringType(minLength: null, @string.MaxLength, @string.ValidationFlags)
+                                ? TypeFactory.CreateStringType(minLength: null, @string.MaxLength, validationFlags: @string.ValidationFlags)
                                 : LanguageConstants.String)),
                         LanguageConstants.String)
                     .WithGenericDescription("Removes all leading and trailing white-space characters from the specified string.")
@@ -362,53 +377,95 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithReturnResultBuilder(
                         TryDeriveLiteralReturnType("substring", (_, _, _, argumentTypes) =>
                         {
-                            var originalString = argumentTypes[0] as StringType;
-                            var literalStartIndex = argumentTypes[1] as IntegerLiteralType;
-                            var literalLength = argumentTypes.Skip(2).FirstOrDefault() as IntegerLiteralType;
-
-                            if (literalLength is null)
+                            switch (argumentTypes.Skip(2).FirstOrDefault())
                             {
-                                long? minLength = literalStartIndex is null ? null : ((originalString?.MinLength ?? 0) - literalStartIndex.Value) switch
-                                {
-                                    <= 0 => null,
-                                    long otherwise => otherwise,
-                                };
-                                long? maxLength = literalStartIndex is null ? originalString?.MaxLength : originalString?.MaxLength.HasValue == true
-                                    ? Math.Max(0, originalString.MaxLength.Value - literalStartIndex.Value)
-                                    : null;
-
-                                return new(TypeFactory.CreateStringType(minLength, maxLength, argumentTypes[0].ValidationFlags));
+                                case IntegerLiteralType intLiteral:
+                                    return new(TypeFactory.CreateStringType(
+                                        intLiteral.Value,
+                                        intLiteral.Value,
+                                        validationFlags: argumentTypes[0].ValidationFlags));
+                                case IntegerType @int:
+                                    return new(TypeFactory.CreateStringType(
+                                        @int.MinValue,
+                                        @int.MaxValue,
+                                        validationFlags: argumentTypes[0].ValidationFlags));
                             }
 
-                            if (literalStartIndex is null || originalString is null)
+                            (long? minLength, long? maxLength) = argumentTypes[0] switch
                             {
-                                return new(TypeFactory.CreateStringType(minLength: null,
-                                    maxLength: originalString?.MaxLength.HasValue == true
-                                        ? Math.Min(literalLength.Value, originalString.MaxLength.Value)
-                                        : literalLength.Value,
-                                    argumentTypes[0].ValidationFlags));
-                            }
-
-                            long derivedMaxLength = originalString.MaxLength.HasValue
-                                ? Math.Min(Math.Max(0, originalString.MaxLength.Value - literalStartIndex.Value), literalLength.Value)
-                                : literalLength.Value;
-                            long? derivedMinLength = ((originalString.MinLength ?? 0) - literalStartIndex.Value) switch
-                            {
-                                <= 0 => null,
-                                long otherwise => otherwise,
+                                StringLiteralType literal => (literal.RawStringValue.Length, literal.RawStringValue.Length),
+                                StringType @string => (@string.MinLength, @string.MaxLength),
+                                _ => (null, null),
                             };
-                            if (derivedMinLength.HasValue && derivedMinLength.Value > derivedMaxLength)
+
+                            switch (argumentTypes[1])
                             {
-                                derivedMinLength = derivedMaxLength;
+                                case IntegerLiteralType intLiteral:
+                                    minLength = minLength.HasValue && minLength.Value >= intLiteral.Value
+                                        ? minLength.Value - intLiteral.Value
+                                        : null;
+                                    maxLength = maxLength.HasValue && maxLength.Value >= intLiteral.Value
+                                        ? maxLength.Value - intLiteral.Value
+                                        : maxLength;
+                                    break;
+                                case IntegerType @int:
+                                    minLength = minLength.HasValue && @int.MaxValue.HasValue
+                                        ? Math.Max(0, minLength.Value - @int.MaxValue.Value)
+                                        : null;
+                                    maxLength = maxLength.HasValue && @int.MinValue.HasValue
+                                        ? Math.Max(0, maxLength.Value - @int.MinValue.Value)
+                                        : maxLength;
+                                    break;
+                                default:
+                                    minLength = null;
+                                    break;
                             }
 
-                            return new(TypeFactory.CreateStringType(derivedMinLength, derivedMaxLength, originalString.ValidationFlags));
+                            return new(TypeFactory.CreateStringType(minLength, maxLength, validationFlags: argumentTypes[0].ValidationFlags));
                         }),
                         LanguageConstants.String)
                     .WithGenericDescription("Returns a substring that starts at the specified character position and contains the specified number of characters.")
-                    .WithRequiredParameter("stringToParse", LanguageConstants.String, "The original string from which the substring is extracted.")
-                    .WithRequiredParameter("startIndex", LanguageConstants.Int, "The zero-based starting character position for the substring.")
-                    .WithOptionalParameter("length", LanguageConstants.Int, "The number of characters for the substring. Must refer to a location within the string. Must be zero or greater.")
+                    .WithRequiredParameter(
+                        "stringToParse",
+                        LanguageConstants.String,
+                        "The original string from which the substring is extracted.")
+                    .WithRequiredParameter(
+                        "startIndex",
+                        TypeFactory.CreateIntegerType(minValue: 0),
+                        "The zero-based starting character position for the substring.",
+                        getArgumentType => TypeFactory.CreateIntegerType(
+                            minValue: 0,
+                            maxValue: getArgumentType(0) switch
+                            {
+                                StringLiteralType stringLiteral => stringLiteral.RawStringValue.Length,
+                                StringType @string => @string.MaxLength,
+                                _ => null
+                            }))
+                    .WithOptionalParameter(
+                        "length",
+                        TypeFactory.CreateIntegerType(minValue: 0),
+                        "The number of characters for the substring. Must refer to a location within the string. Must be zero or greater.",
+                        getArgumentType =>
+                        {
+                            var maxInputLength = getArgumentType(0) switch
+                            {
+                                StringLiteralType stringLiteral => stringLiteral.RawStringValue.Length,
+                                StringType @string => @string.MaxLength,
+                                _ => null
+                            };
+                            return TypeFactory.CreateIntegerType(
+                                minValue: 0,
+                                maxValue: maxInputLength is long derivedMax
+                                    ? getArgumentType(1) switch
+                                    {
+                                        IntegerLiteralType intLiteral when derivedMax >= intLiteral.Value
+                                            => derivedMax - intLiteral.Value,
+                                        IntegerType { MinValue: long minStart } when derivedMax >= minStart
+                                            => derivedMax - minStart,
+                                        _ => derivedMax,
+                                    }
+                                    : null);
+                        })
                     .Build();
 
                 yield return new FunctionOverloadBuilder("take")
@@ -430,7 +487,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         {
                             TupleType tupleType when minToTake == maxToTake && minToTake >= tupleType.Items.Length => tupleType,
                             TupleType tupleType when minToTake == maxToTake && minToTake <= 0 => new TupleType([], tupleType.ValidationFlags),
-                            TupleType tupleType when minToTake == maxToTake && minToTake <= int.MaxValue => new TupleType(tupleType.Items.Take((int)minToTake).ToImmutableArray(), tupleType.ValidationFlags),
+                            TupleType tupleType when minToTake == maxToTake && minToTake <= int.MaxValue => new TupleType([.. tupleType.Items.Take((int)minToTake)], tupleType.ValidationFlags),
                             ArrayType array => TypeFactory.CreateArrayType(array.Item,
                                 !array.MinLength.HasValue ? null : minToTake switch
                                 {
@@ -476,7 +533,7 @@ namespace Bicep.Core.Semantics.Namespaces
                                 < 0 => 0,
                                 long otherwise => otherwise,
                             },
-                            argumentTypes[0].ValidationFlags));
+                            validationFlags: argumentTypes[0].ValidationFlags));
                     }), LanguageConstants.String)
                     .WithGenericDescription(TakeDescription)
                     .WithDescription("Returns a string with the specified number of characters from the start of the string.")
@@ -497,7 +554,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         return new(argumentTypes[0] switch
                         {
                             TypeSymbol original when maxToSkip <= 0 => original,
-                            TupleType tupleType when minToSkip == maxToSkip && minToSkip <= int.MaxValue => new TupleType(tupleType.Items.Skip((int)minToSkip).ToImmutableArray(), tupleType.ValidationFlags),
+                            TupleType tupleType when minToSkip == maxToSkip && minToSkip <= int.MaxValue => new TupleType([.. tupleType.Items.Skip((int)minToSkip)], tupleType.ValidationFlags),
                             ArrayType array => TypeFactory.CreateArrayType(array.Item,
                                 ((array.MinLength ?? 0) - maxToSkip) switch
                                 {
@@ -546,7 +603,7 @@ namespace Bicep.Core.Semantics.Namespaces
                                 < 0 => 0,
                                 long otherwise => otherwise,
                             },
-                            argumentTypes[0].ValidationFlags));
+                            validationFlags: argumentTypes[0].ValidationFlags));
                     }), LanguageConstants.String)
                     .WithGenericDescription(SkipDescription)
                     .WithDescription("Returns a string with all the characters after the specified number in the string.")
@@ -640,8 +697,14 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithReturnResultBuilder(
                         TryDeriveLiteralReturnType("first",
                             (_, _, _, argumentTypes) => new(argumentTypes.FirstOrDefault() is StringType @string
-                                ? TypeFactory.CreateStringType(@string.MinLength.HasValue ? Math.Min(@string.MinLength.Value, 1) : null, 1, @string.ValidationFlags)
-                                : TypeFactory.CreateStringType(minLength: null, 1, argumentTypes[0].ValidationFlags))),
+                                ? TypeFactory.CreateStringType(
+                                    @string.MinLength.HasValue ? Math.Min(@string.MinLength.Value, 1) : null,
+                                    maxLength: 1,
+                                    validationFlags: @string.ValidationFlags)
+                                : TypeFactory.CreateStringType(
+                                    minLength: null,
+                                    maxLength: 1,
+                                    validationFlags: argumentTypes[0].ValidationFlags))),
                         LanguageConstants.String)
                     .WithGenericDescription(FirstDescription)
                     .WithDescription("Returns the first character of the string.")
@@ -665,8 +728,14 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithReturnResultBuilder(
                         TryDeriveLiteralReturnType("last",
                             (_, _, _, argumentTypes) => new(argumentTypes.FirstOrDefault() is StringType @string
-                                ? TypeFactory.CreateStringType(@string.MinLength.HasValue ? Math.Min(@string.MinLength.Value, 1) : null, 1, @string.ValidationFlags)
-                                : TypeFactory.CreateStringType(minLength: null, 1, argumentTypes[0].ValidationFlags))),
+                                ? TypeFactory.CreateStringType(
+                                    minLength: @string.MinLength.HasValue ? Math.Min(@string.MinLength.Value, 1) : null,
+                                    maxLength: 1,
+                                    validationFlags: @string.ValidationFlags)
+                                : TypeFactory.CreateStringType(
+                                    minLength: null,
+                                    maxLength: 1,
+                                    validationFlags: argumentTypes[0].ValidationFlags))),
                         LanguageConstants.String)
                     .WithGenericDescription(LastDescription)
                     .WithDescription("Returns the last character of the string.")
@@ -715,10 +784,79 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
                     .Build();
 
+                static long? MinOf(TypeSymbol type) => type switch
+                {
+                    IntegerType @int => @int.MinValue,
+                    IntegerLiteralType intLiteral => intLiteral.Value,
+                    _ => null,
+                };
+                static long? MaxOf(TypeSymbol type) => type switch
+                {
+                    IntegerType @int => @int.MaxValue,
+                    IntegerLiteralType intLiteral => intLiteral.Value,
+                    _ => null,
+                };
+
+                static FunctionResult CalculateMin(
+                    SemanticModel model,
+                    IDiagnosticWriter diagnostics,
+                    FunctionCallSyntaxBase syntax,
+                    ImmutableArray<TypeSymbol> argumentTypes)
+                {
+                    long? min = MinOf(argumentTypes[0]);
+                    long? max = MaxOf(argumentTypes[0]);
+
+                    for (int i = 1; i < argumentTypes.Length; i++)
+                    {
+                        if (min.HasValue)
+                        {
+                            min = MinOf(argumentTypes[i]) is { } minAtIdx
+                                ? Math.Min(min.Value, minAtIdx)
+                                : null;
+                        }
+
+                        if (MaxOf(argumentTypes[i]) is { } maxAtIdx)
+                        {
+                            max = max.HasValue
+                                ? Math.Min(max.Value, maxAtIdx)
+                                : maxAtIdx;
+                        }
+                    }
+
+                    return new(TypeFactory.CreateIntegerType(min, max));
+                }
+
+                static FunctionResult CalculateMax(
+                    SemanticModel model,
+                    IDiagnosticWriter diagnostics,
+                    FunctionCallSyntaxBase syntax,
+                    ImmutableArray<TypeSymbol> argumentTypes)
+                {
+                    long? min = MinOf(argumentTypes[0]);
+                    long? max = MaxOf(argumentTypes[0]);
+
+                    for (int i = 1; i < argumentTypes.Length; i++)
+                    {
+                        if (MinOf(argumentTypes[i]) is { } minAtIdx)
+                        {
+                            min = min.HasValue ? Math.Max(min.Value, minAtIdx) : minAtIdx;
+                        }
+
+                        if (max.HasValue)
+                        {
+                            max = MaxOf(argumentTypes[i]) is { } maxAtIdx
+                                ? Math.Max(max.Value, maxAtIdx)
+                                : null;
+                        }
+                    }
+
+                    return new(TypeFactory.CreateIntegerType(min, max));
+                }
+
                 // TODO: Needs to support number type as well
                 // TODO: Docs need updates
                 yield return new FunctionOverloadBuilder("min")
-                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("min", LanguageConstants.Int), LanguageConstants.Int)
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("min", CalculateMin), LanguageConstants.Int)
                     .WithGenericDescription(MinDescription)
                     .WithDescription("Returns the minimum value from the specified integers.")
                     .WithVariableParameter("int", LanguageConstants.Int, minimumCount: 1, "One of the integers used to calculate the minimum value")
@@ -726,7 +864,13 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 // TODO: Docs need updates
                 yield return new FunctionOverloadBuilder("min")
-                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("min", LanguageConstants.Int), LanguageConstants.Int)
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("min", (model, diagnostics, syntax, argumentTypes) => argumentTypes[0] switch
+                    {
+                        TupleType tuple => CalculateMin(model, diagnostics, syntax, [.. tuple.Items.Select(t => t.Type)]),
+                        TypedArrayType typedArray when typedArray.Item.Type is IntegerType or IntegerLiteralType
+                            => new(typedArray.Item.Type),
+                        _ => new(LanguageConstants.Int),
+                    }), LanguageConstants.Int)
                     .WithGenericDescription(MinDescription)
                     .WithDescription("Returns the minimum value from an array of integers.")
                     .WithRequiredParameter("intArray", new TypedArrayType(LanguageConstants.Int, TypeSymbolValidationFlags.Default), "The array of integers.")
@@ -735,7 +879,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 // TODO: Needs to support number type as well
                 // TODO: Docs need updates
                 yield return new FunctionOverloadBuilder("max")
-                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("max", LanguageConstants.Int), LanguageConstants.Int)
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("max", CalculateMax), LanguageConstants.Int)
                     .WithGenericDescription(MaxDescription)
                     .WithDescription("Returns the maximum value from the specified integers.")
                     .WithVariableParameter("int", LanguageConstants.Int, minimumCount: 1, "One of the integers used to calculate the maximum value")
@@ -743,7 +887,13 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 // TODO: Docs need updates
                 yield return new FunctionOverloadBuilder("max")
-                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("max", LanguageConstants.Int), LanguageConstants.Int)
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("max", (model, diagnostics, syntax, argumentTypes) => argumentTypes[0] switch
+                    {
+                        TupleType tuple => CalculateMax(model, diagnostics, syntax, [.. tuple.Items.Select(t => t.Type)]),
+                        TypedArrayType typedArray when typedArray.Item.Type is IntegerType or IntegerLiteralType
+                            => new(typedArray.Item.Type),
+                        _ => new(LanguageConstants.Int),
+                    }), LanguageConstants.Int)
                     .WithGenericDescription(MaxDescription)
                     .WithDescription("Returns the maximum value from an array of integers.")
                     .WithRequiredParameter("intArray", new TypedArrayType(LanguageConstants.Int, TypeSymbolValidationFlags.Default), "The array of integers.")
@@ -1001,7 +1151,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     {
                         LambdaType lambdaType => new(lambdaType.ReturnType.Type),
                         _ => new(LanguageConstants.Any),
-                    }, LanguageConstants.Array)
+                    }, LanguageConstants.Any)
                     .Build();
 
                 yield return new FunctionOverloadBuilder("toObject")
@@ -1053,9 +1203,33 @@ namespace Bicep.Core.Semantics.Namespaces
                         return new(LanguageConstants.Object);
                     }, LanguageConstants.Object)
                     .Build();
+
+                yield return new FunctionOverloadBuilder(LanguageConstants.NameofFunctionName)
+                    .WithGenericDescription("Returns the name of a declared symbol or property. Evaluation occurs during compilation, not at runtime.")
+                    .WithRequiredParameter("symbol", LanguageConstants.Any, "The declared symbol or property to get the name of.")
+                    .WithReturnResultBuilder((model, diagnostics, call, argumentTypes) =>
+                    {
+                        var argument = call.Arguments[0].Expression;
+                        if (GetNameOfReturnValue(argument) is not { } returnValue)
+                        {
+                            return new(ErrorType.Create(DiagnosticBuilder.ForPosition(call.Arguments[0]).NameofInvalidOnUnnamedExpression()));
+                        }
+
+                        return new(
+                            new StringLiteralType(returnValue, TypeSymbolValidationFlags.Default),
+                            new StringLiteralExpression(argument, returnValue));
+                    }, LanguageConstants.String)
+                    .WithFlags(FunctionFlags.IsArgumentValueIndependent)
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("fail")
+                    .WithGenericDescription("Raises a runtime error with the provided message. Will cause a deployment to fail when evaluated.")
+                    .WithRequiredParameter("message", LanguageConstants.String, "The error message to use.")
+                    .WithReturnType(LanguageConstants.Never)
+                    .Build();
             }
 
-            static IEnumerable<FunctionOverload> GetParamsFilePermittedOverloads()
+            static IEnumerable<FunctionOverload> GetParamsFilePermittedOverloads(IFeatureProvider featureProvider)
             {
                 yield return new FunctionOverloadBuilder("readEnvironmentVariable")
                     .WithGenericDescription($"Reads the specified Environment variable as bicep string. Variable loading occurs during compilation, not at runtime.")
@@ -1064,6 +1238,26 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
                     .WithOptionalParameter("default", LanguageConstants.String, "Default value to return if environment variable is not found.")
                     .Build();
+
+                if (featureProvider.ExternalInputFunctionEnabled)
+                {
+                    yield return new FunctionOverloadBuilder(LanguageConstants.ExternalInputBicepFunctionName)
+                        .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
+                        .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.")
+                        .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.")
+                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, exp.Parameters))
+                        .WithReturnResultBuilder((model, diagnostics, functionCall, argumentTypes) =>
+                        {
+                            var visitor = new CompileTimeConstantVisitor(diagnostics);
+                            foreach (var arg in functionCall.Arguments)
+                            {
+                                arg.Accept(visitor);
+                            }
+
+                            return new(LanguageConstants.Any);
+                        }, LanguageConstants.Any)
+                        .Build();
+                }
             }
 
             foreach (var overload in GetAlwaysPermittedOverloads())
@@ -1071,7 +1265,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 yield return new(overload, (_, _) => true);
             }
 
-            foreach (var overload in GetParamsFilePermittedOverloads())
+            foreach (var overload in GetParamsFilePermittedOverloads(featureProvider))
             {
                 yield return new(overload, (_, sfk) => sfk == BicepSourceFileKind.ParamsFile);
             }
@@ -1081,33 +1275,25 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             return new ObjectType("parseCidr", TypeSymbolValidationFlags.Default, new[]
             {
-                new TypeProperty("network", LanguageConstants.String),
-                new TypeProperty("netmask", LanguageConstants.String),
-                new TypeProperty("broadcast", LanguageConstants.String),
-                new TypeProperty("firstUsable", LanguageConstants.String),
-                new TypeProperty("lastUsable", LanguageConstants.String),
-                new TypeProperty("cidr", TypeFactory.CreateIntegerType(0, 255)),
+                new NamedTypeProperty("network", LanguageConstants.String),
+                new NamedTypeProperty("netmask", LanguageConstants.String),
+                new NamedTypeProperty("broadcast", LanguageConstants.String),
+                new NamedTypeProperty("firstUsable", LanguageConstants.String),
+                new NamedTypeProperty("lastUsable", LanguageConstants.String),
+                new NamedTypeProperty("cidr", TypeFactory.CreateIntegerType(0, 255)),
             }, null);
         }
 
-        private static ResultWithDiagnosticBuilder<Uri> TryGetFileUriWithDiagnostics(IBinder binder, string filePath)
+        private static ObjectType GetParseOrBuildUriReturnType()
         {
-            if (!LocalModuleReference.Validate(filePath).IsSuccess(out _, out var validateFilePathFailureBuilder))
+            return new ObjectType("parseUri", TypeSymbolValidationFlags.Default, new[]
             {
-                return new(validateFilePathFailureBuilder);
-            }
-
-            if (PathHelper.TryResolveFilePath(binder.FileSymbol.FileUri, filePath) is not { } fileUri)
-            {
-                return new(x => x.FilePathCouldNotBeResolved(filePath, binder.FileSymbol.FileUri.LocalPath));
-            }
-
-            if (!fileUri.IsFile)
-            {
-                return new(x => x.UnableToLoadNonFileUri(fileUri));
-            }
-
-            return new(fileUri);
+                new NamedTypeProperty("scheme", LanguageConstants.String, TypePropertyFlags.Required),
+                new NamedTypeProperty("host", LanguageConstants.String, TypePropertyFlags.Required),
+                new NamedTypeProperty("port", LanguageConstants.Int, TypePropertyFlags.None),
+                new NamedTypeProperty("path", LanguageConstants.String, TypePropertyFlags.None),
+                new NamedTypeProperty("query", LanguageConstants.String, TypePropertyFlags.None),
+             }, null);
         }
 
         private static FunctionOverload.ResultBuilderDelegate TryDeriveLiteralReturnType(string armFunctionName, TypeSymbol nonLiteralReturnType) =>
@@ -1247,46 +1433,44 @@ namespace Bicep.Core.Semantics.Namespaces
                 new StringLiteralExpression(null, envVariableValue));
         }
 
-        private record LoadTextContentResult(Uri FileUri, string Content);
-
-        private static ResultWithDiagnostic<LoadTextContentResult> TryLoadTextContentFromFile(SemanticModel model, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, int maxCharacters = -1)
+        private static ResultWithDiagnostic<LoadTextContentResult> TryLoadTextContentFromFile(SemanticModel model, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, int maxCharacters)
         {
             if (filePathArgument.typeSymbol is not StringLiteralType filePathType)
             {
                 return new(DiagnosticBuilder.ForPosition(filePathArgument.syntax).CompileTimeConstantRequired());
             }
 
-            if (!TryGetFileUriWithDiagnostics(model.Binder, filePathType.RawStringValue).IsSuccess(out var fileUri, out var errorBuilder))
-            {
-                return new(errorBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
-            }
 
-            var fileEncoding = Encoding.UTF8;
+            var encoding = Encoding.UTF8;
             if (encodingArgument is not null)
             {
                 if (encodingArgument.Value.typeSymbol is not StringLiteralType encodingType)
                 {
                     return new(DiagnosticBuilder.ForPosition(encodingArgument.Value.syntax).CompileTimeConstantRequired());
                 }
-                fileEncoding = LanguageConstants.SupportedEncodings[encodingType.RawStringValue];
+
+                encoding = LanguageConstants.SupportedEncodings[encodingType.RawStringValue];
             }
 
-            if (!model.ReadAuxiliaryFile(fileUri).IsSuccess(out var auxiliaryFile, out var readErrorBuilder))
+            var auxiliaryFileLoadResult = RelativePath.TryCreate(filePathType.RawStringValue).Transform(model.SourceFile.TryLoadAuxiliaryFile);
+
+            if (!auxiliaryFileLoadResult.IsSuccess(out var auxiliaryFile, out var errorBuilder))
             {
-                return new(readErrorBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
+                return new(errorBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
             }
 
-            if (!FileResolver.ReadWithEncoding(auxiliaryFile.Content, fileEncoding, maxCharacters, fileUri).IsSuccess(out var result, out var fileReadFailureBuilder))
+            if (encodingArgument is not null && auxiliaryFile.TryDetectEncodingFromByteOrderMarks() is { } detectedEncoding && !Equals(encoding, detectedEncoding))
             {
-                return new(fileReadFailureBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
+                // FileEncodingMimatch has DiagnosticLevel.Info
+                diagnostics.Write(DiagnosticBuilder.ForPosition(encodingArgument.Value.syntax).FileEncodingMismatch(detectedEncoding.WebName));
             }
 
-            if (encodingArgument is not null && !Equals(fileEncoding, result.Encoding))
+            if (!auxiliaryFile.TryReadText(encoding, maxCharacters).IsSuccess(out var content, out errorBuilder))
             {
-                diagnostics.Write(DiagnosticBuilder.ForPosition(encodingArgument.Value.syntax).FileEncodingMismatch(result.Encoding.WebName));
+                return new(errorBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
             }
 
-            return new(new LoadTextContentResult(fileUri, result.Contents));
+            return new(new LoadTextContentResult(auxiliaryFile.Uri, content));
         }
 
         private static ResultWithDiagnostic<LoadTextContentResult> TryLoadTextContentAsBase64(SemanticModel model, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument)
@@ -1296,35 +1480,32 @@ namespace Bicep.Core.Semantics.Namespaces
                 return new(DiagnosticBuilder.ForPosition(filePathArgument.syntax).CompileTimeConstantRequired());
             }
 
-            if (!TryGetFileUriWithDiagnostics(model.Binder, filePathType.RawStringValue).IsSuccess(out var fileUri, out var errorBuilder))
-            {
-                return new(errorBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
-            }
+            var auxiliaryFileLoadResult = RelativePath.TryCreate(filePathType.RawStringValue).Transform(model.SourceFile.TryLoadAuxiliaryFile);
 
-            if (!model.ReadAuxiliaryFile(fileUri).IsSuccess(out var auxiliaryFile, out var readErrorBuilder))
+            if (!auxiliaryFileLoadResult.IsSuccess(out var auxiliaryFile, out var readErrorBuilder))
             {
                 return new(readErrorBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
             }
 
-            var bytes = auxiliaryFile.Content.ToArray();
-            var maxFileSize = LanguageConstants.MaxLiteralCharacterLimit / 4 * 3; //each base64 character represents 6 bits
-            if (bytes.Length > maxFileSize)
+            var maxFileSizeInBytes = LanguageConstants.MaxLiteralCharacterLimit / 4 * 3; //each base64 character represents 6 bits
+
+            if (!auxiliaryFile.TryReadBytes(maxFileSizeInBytes).IsSuccess(out var bytes, out var errorBuilder))
             {
-                return new(DiagnosticBuilder.ForPosition(filePathArgument.syntax).FileExceedsMaximumSize(fileUri.LocalPath, maxFileSize, "bytes"));
+                return new(errorBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
             }
 
-            var content = Convert.ToBase64String(bytes, Base64FormattingOptions.None);
-            return new(new LoadTextContentResult(fileUri, content));
+            var content = Convert.ToBase64String(bytes.Span, Base64FormattingOptions.None);
+
+            return new(new LoadTextContentResult(auxiliaryFile.Uri, content));
         }
 
         private static FunctionResult LoadContentAsBase64ResultBuilder(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
             var arguments = functionCall.Arguments.ToImmutableArray();
-            if (TryLoadTextContentAsBase64(model, (arguments[0], argumentTypes[0]))
-                .IsSuccess(out var result, out var errorDiagnostic))
+            if (TryLoadTextContentAsBase64(model, (arguments[0], argumentTypes[0])).IsSuccess(out var result, out var errorDiagnostic))
             {
                 return new(
-                    new StringLiteralType(model.SourceFile.FileUri.MakeRelativeUri(result.FileUri).ToString(), result.Content, TypeSymbolValidationFlags.Default),
+                    new StringLiteralType(result.FileUri.GetPathRelativeTo(model.SourceFile.FileHandle.Uri), result.Content, TypeSymbolValidationFlags.Default),
                     new StringLiteralExpression(functionCall, result.Content));
             }
 
@@ -1335,14 +1516,12 @@ namespace Bicep.Core.Semantics.Namespaces
         private static Expression ConvertJsonToExpression(JToken token)
             => token switch
             {
-                JObject @object => new ObjectExpression(null, @object.Properties()
+                JObject @object => new ObjectExpression(null, [.. @object.Properties()
                     .Where(x => SupportedJsonTokenTypes.Contains(x.Value.Type))
-                    .Select(x => new ObjectPropertyExpression(null, new StringLiteralExpression(null, x.Name), ConvertJsonToExpression(x.Value)))
-                    .ToImmutableArray()),
-                JArray @array => new ArrayExpression(null, @array
+                    .Select(x => new ObjectPropertyExpression(null, new StringLiteralExpression(null, x.Name), ConvertJsonToExpression(x.Value)))]),
+                JArray @array => new ArrayExpression(null, [.. @array
                     .Where(x => SupportedJsonTokenTypes.Contains(x.Type))
-                    .Select(ConvertJsonToExpression)
-                    .ToImmutableArray()),
+                    .Select(ConvertJsonToExpression)]),
                 JValue value => value.Type switch
                 {
                     JTokenType.String => new StringLiteralExpression(null, value.ToString(CultureInfo.InvariantCulture)),
@@ -1362,8 +1541,8 @@ namespace Bicep.Core.Semantics.Namespaces
                     "object",
                     TypeSymbolValidationFlags.Default,
                     new[] {
-                        new TypeProperty("key", keyType, description: "The key of the object property being iterated over."),
-                        new TypeProperty("value", valueType, description: "The value of the object property being iterated over."),
+                        new NamedTypeProperty("key", keyType, Description: "The key of the object property being iterated over."),
+                        new NamedTypeProperty("value", valueType, Description: "The value of the object property being iterated over."),
                     },
                     null),
                 TypeSymbolValidationFlags.Default);
@@ -1384,7 +1563,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 valueTypes.Add(property.TypeReference.Type);
             }
 
-            if (objectType.AdditionalPropertiesType?.Type is { } additionalPropertiesType)
+            if (objectType.AdditionalProperties?.TypeReference.Type is { } additionalPropertiesType)
             {
                 keyTypes.Add(LanguageConstants.String);
                 valueTypes.Add(additionalPropertiesType);
@@ -1424,7 +1603,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 JObject @object => new ObjectType(
                     "object",
                     TypeSymbolValidationFlags.Default,
-                    @object.Properties().Where(x => SupportedJsonTokenTypes.Contains(x.Value.Type)).Select(x => new TypeProperty(x.Name, ConvertJsonToBicepType(x.Value), TypePropertyFlags.ReadOnly | TypePropertyFlags.ReadableAtDeployTime)),
+                    @object.Properties().Where(x => SupportedJsonTokenTypes.Contains(x.Value.Type)).Select(x => new NamedTypeProperty(x.Name, ConvertJsonToBicepType(x.Value), TypePropertyFlags.ReadOnly | TypePropertyFlags.ReadableAtDeployTime)),
                     null),
                 JArray @array => new TypedArrayType(
                     TypeHelper.CreateTypeUnion(@array.Where(x => SupportedJsonTokenTypes.Contains(x.Type)).Select(ConvertJsonToBicepType)),
@@ -1599,7 +1778,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSecurePropertyName)
                     .WithDescription("Makes the parameter a secure parameter.")
-                    .WithFlags(featureProvider.SecureOutputsEnabled ? FunctionFlags.ParameterOutputOrTypeDecorator : FunctionFlags.ParameterOrTypeDecorator)
+                    .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                     .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
                     .WithValidator(ValidateNotTargetingAlias)
                     .WithEvaluator((functionCall, decorated) =>
@@ -1771,6 +1950,34 @@ namespace Bicep.Core.Semantics.Namespaces
                     })
                     .Build();
 
+                if (featureProvider.WaitAndRetryEnabled)
+                {
+                    yield return new DecoratorBuilder(LanguageConstants.WaitUntilPropertyName)
+                    .WithDescription("Causes the resource deployment to wait until the given condition is satisfied")
+                    .WithRequiredParameter("predicate", OneParamLambda(LanguageConstants.Object, LanguageConstants.Bool), "The predicate applied to the resource.")
+                    .WithRequiredParameter("maxWaitTime", LanguageConstants.String, "Maximum time used to wait until the predicate is true. Please be cautious as max wait time adds to total deployment time. It cannot be a negative value. Use [ISO 8601 duration format](https://en.wikipedia.org/wiki/ISO_8601#Durations).")
+                    .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
+                    .WithEvaluator(AddDecoratorConfigToResource)
+                    .Build();
+
+                    yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
+                    .WithDescription("Causes the resource deployment to retry when deployment failed with one of the exceptions listed")
+                    .WithRequiredParameter("exceptionCodes", LanguageConstants.StringArray, "List of exceptions.")
+                    .WithOptionalParameter("retryCount", TypeFactory.CreateIntegerType(minValue: 1), "Maximum number if retries on the exception.")
+                    .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
+                    .WithEvaluator(AddDecoratorConfigToResource)
+                    .Build();
+                }
+
+                if (featureProvider.OnlyIfNotExistsEnabled)
+                {
+                    yield return new DecoratorBuilder(LanguageConstants.OnlyIfNotExistsPropertyName)
+                    .WithDescription("Causes the resource deployment to be skipped if the resource already exists")
+                    .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
+                    .WithEvaluator(AddDecoratorConfigToResource)
+                    .Build();
+                }
+
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSealedPropertyName)
                     .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
                     .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
@@ -1785,7 +1992,7 @@ namespace Bicep.Core.Semantics.Namespaces
                             case AccessExpressionSyntax accessExpression when binder.GetSymbolInfo(accessExpression.BaseExpression) is not BuiltInNamespaceSymbol:
                                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
                                 break;
-                            case ParameterizedTypeInstantiationSyntaxBase parameterized when LanguageConstants.IdentifierComparer.Equals(parameterized.Name.IdentifierName, LanguageConstants.TypeNameResource):
+                            case ParameterizedTypeInstantiationSyntaxBase parameterized when LanguageConstants.ResourceDerivedTypeNames.Contains(parameterized.Name.IdentifierName):
                                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetResourceDerivedType(decoratorName));
                                 break;
                             case ObjectTypeSyntax @object when @object.AdditionalProperties is not null:
@@ -1888,6 +2095,7 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             ParameterDeclarationSyntax parameterDeclaration => parameterDeclaration.Type,
             OutputDeclarationSyntax outputDeclaration => outputDeclaration.Type,
+            VariableDeclarationSyntax variableDeclaration => variableDeclaration.Type,
             TypeDeclarationSyntax typeDeclaration => typeDeclaration.Value,
             ObjectTypePropertySyntax objectTypeProperty => objectTypeProperty.Value,
             _ => null,
@@ -1908,51 +2116,85 @@ namespace Bicep.Core.Semantics.Namespaces
             _ => false,
         };
 
-        private static IEnumerable<NamespaceValue<TypeProperty>> GetSystemAmbientSymbols()
+        private static IEnumerable<NamespaceValue<NamedTypeProperty>> GetSystemAmbientSymbols()
         {
-            static IEnumerable<TypeProperty> GetArmPrimitiveTypes()
-                => LanguageConstants.DeclarationTypes.Select(t => new TypeProperty(t.Key, new TypeType(t.Value)));
+            static IEnumerable<NamedTypeProperty> GetArmPrimitiveTypes()
+                => LanguageConstants.DeclarationTypes.Select(t => new NamedTypeProperty(t.Key, new TypeType(t.Value)));
 
-            static IEnumerable<TypeProperty> GetResourceDerivedTypesTypeProperties()
+            static IEnumerable<NamedTypeProperty> GetResourceDerivedTypesTypeProperties()
             {
-                yield return new(LanguageConstants.TypeNameResource,
-                    new TypeTemplate(LanguageConstants.TypeNameResource,
-                        [
-                            new TypeParameter("ResourceTypeIdentifier",
-                                        "A string of the format '<type-name>@<api-version>' that identifies the kind of resource whose body type definition is to be used.",
-                                        LanguageConstants.StringResourceIdentifier),
-                        ],
-                        (binder, syntax, argumentTypes) =>
+                ImmutableArray<TypeParameter> resourceInputParameters = [new TypeParameter(
+                    "ResourceTypeIdentifier",
+                    "A string of the format `<type-name>@<api-version>` that identifies the kind of resource whose body type definition is to be used.",
+                    LanguageConstants.StringResourceIdentifier)];
+
+                static TypeTemplate.InstantiatorDelegate GetResourceDerivedTypeInstantiator(ResourceDerivedTypeVariant derivedTypeVariant)
+                    => (binder, syntax, argumentTypes) =>
+                    {
+                        if (syntax.Arguments.FirstOrDefault()?.Expression is not StringTypeLiteralSyntax stringArg || stringArg.SegmentValues.Length > 1)
                         {
-                            if (syntax.Arguments.FirstOrDefault()?.Expression is not StringTypeLiteralSyntax stringArg || stringArg.SegmentValues.Length > 1)
-                            {
-                                return new(DiagnosticBuilder.ForPosition(TextSpan.BetweenExclusive(syntax.OpenChevron, syntax.CloseChevron)).CompileTimeConstantRequired());
-                            }
+                            return new(DiagnosticBuilder.ForPosition(TextSpan.BetweenExclusive(syntax.OpenChevron, syntax.CloseChevron)).CompileTimeConstantRequired());
+                        }
 
-                            if (!TypeHelper.GetResourceTypeFromString(binder, stringArg.SegmentValues[0], ResourceTypeGenerationFlags.None, parentResourceType: null)
-                                .IsSuccess(out var resourceType, out var errorBuilder))
-                            {
-                                return new(errorBuilder(DiagnosticBuilder.ForPosition(syntax.GetArgumentByPosition(0))));
-                            }
+                        if (!TypeHelper.GetResourceTypeFromString(binder, stringArg.SegmentValues[0], ResourceTypeGenerationFlags.None, parentResourceType: null)
+                            .IsSuccess(out var resourceType, out var errorBuilder))
+                        {
+                            return new(errorBuilder(DiagnosticBuilder.ForPosition(syntax.GetArgumentByPosition(0))));
+                        }
 
-                            return new(new ResourceDerivedTypeExpression(syntax, resourceType));
-                        }),
-                    description: """
-                        Use the type definition of the body of a specific resource rather than a user-defined type.
+                        return new(new ResourceDerivedTypeExpression(syntax, resourceType, derivedTypeVariant));
+                    };
 
-                        NB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.
+                var resourceDerivedTypeNotaBene = "NB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.";
+
+                yield return new(
+                    LanguageConstants.TypeNameResourceInput,
+                    new TypeTemplate(
+                        LanguageConstants.TypeNameResourceInput,
+                        resourceInputParameters,
+                        GetResourceDerivedTypeInstantiator(ResourceDerivedTypeVariant.Input)),
+                    Description: $"""
+                        Use the type definition of the input for a specific resource rather than a user-defined type.
+
+                        {resourceDerivedTypeNotaBene}
                         """);
+
+                yield return new(
+                    LanguageConstants.TypeNameResourceOutput,
+                    new TypeTemplate(
+                        LanguageConstants.TypeNameResourceOutput,
+                        resourceInputParameters,
+                        GetResourceDerivedTypeInstantiator(ResourceDerivedTypeVariant.Output)),
+                    Description: $"""
+                        Use the type definition of the return value of a specific resource rather than a user-defined type.
+
+                        {resourceDerivedTypeNotaBene}
+                        """);
+
             }
 
             foreach (var typeProp in GetArmPrimitiveTypes())
             {
-                yield return new(typeProp, (features, sfk) => sfk == BicepSourceFileKind.BicepFile);
+                yield return new(typeProp, (features, sfk) => true);
             }
 
             foreach (var typeProp in GetResourceDerivedTypesTypeProperties())
             {
-                yield return new(typeProp, (features, sfk) => features.ResourceDerivedTypesEnabled && sfk == BicepSourceFileKind.BicepFile);
+                yield return new(typeProp, (features, sfk) => sfk == BicepSourceFileKind.BicepFile);
             }
+        }
+
+        private static string? GetNameOfReturnValue(SyntaxBase syntax)
+        {
+            return syntax switch
+            {
+                VariableAccessSyntax variableAccess => variableAccess.Name.IdentifierName,
+                PropertyAccessSyntax propertyAccess => propertyAccess.PropertyName.IdentifierName,
+                ResourceAccessSyntax resourceAccess => resourceAccess.ResourceName.IdentifierName,
+                ModuleDeclarationSyntax moduleDeclaration => moduleDeclaration.Name.IdentifierName,
+                ArrayAccessSyntax { IndexExpression: StringSyntax indexExpression } when indexExpression.TryGetLiteralValue() is { } literalValue => literalValue,
+                _ => null,
+            };
         }
 
         public static NamespaceType Create(string aliasName, IFeatureProvider featureProvider, BicepSourceFileKind sourceFileKind)
@@ -1961,10 +2203,22 @@ namespace Bicep.Core.Semantics.Namespaces
                 aliasName,
                 Settings,
                 AmbientSymbols.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
-                Overloads.Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
+                GetSystemOverloads(featureProvider).Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 BannedFunctions,
                 GetSystemDecorators(featureProvider).Where(x => x.IsVisible(featureProvider, sourceFileKind)).Select(x => x.Value),
                 new EmptyResourceTypeProvider());
+        }
+
+        private static Expression AddDecoratorConfigToResource(FunctionCallExpression functionCall, Expression decorated)
+        {
+            if (decorated is DeclaredResourceExpression declaredResourceExpression)
+            {
+                return declaredResourceExpression with
+                {
+                    DecoratorConfig = declaredResourceExpression.DecoratorConfig.Add(functionCall.Name, new ArrayExpression(functionCall.SourceSyntax, functionCall.Parameters))
+                };
+            }
+            return decorated;
         }
     }
 }

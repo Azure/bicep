@@ -5,6 +5,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -119,6 +120,26 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     x.Message.Should().Be(matcherData.Message);
                 }));
             }
+        }
+
+        [TestMethod]
+        public void Modulo_by_zero_resolves_to_error()
+        {
+            var actual = OperationReturnTypeEvaluator.TryFoldBinaryExpression(
+                OperationSyntaxFor(BinaryOperator.Modulo),
+                LanguageConstants.Int,
+                TypeFactory.CreateIntegerLiteralType(0),
+                ToListDiagnosticWriter.Create());
+
+            actual.Should().NotBeNull();
+            actual!.TypeKind.Should().Be(TypeKind.Error);
+            actual.GetDiagnostics().Should().SatisfyRespectively(
+                d =>
+                {
+                    d.Level.Should().Be(DiagnosticLevel.Error);
+                    d.Code.Should().Be("BCP410");
+                    d.Message.Should().Be("Division by zero is not supported.");
+                });
         }
 
         private static BinaryOperationSyntax OperationSyntaxFor(BinaryOperator @operator) => new(leftExpression: TestSyntaxFactory.CreateVariableAccess("foo"), rightExpression: TestSyntaxFactory.CreateVariableAccess("bar"), operatorToken: @operator switch
@@ -296,6 +317,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 Case(BinaryOperator.Modulo, LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(3), TypeFactory.CreateIntegerType(-2, 2)),
                 Case(BinaryOperator.Modulo, TypeFactory.CreateIntegerType(0, 27), TypeFactory.CreateIntegerLiteralType(3), TypeFactory.CreateIntegerType(0, 2)),
                 Case(BinaryOperator.Modulo, LanguageConstants.Int, TypeFactory.CreateIntegerType(-28, 33), TypeFactory.CreateIntegerType(-32, 32)),
+                Case(BinaryOperator.Modulo, TypeFactory.CreateIntegerType(0, 27), TypeFactory.CreateIntegerType(0, 3), TypeFactory.CreateIntegerType(0, 2)),
 
                 // ??
                 Case(BinaryOperator.Coalesce, LanguageConstants.Any, LanguageConstants.Any, LanguageConstants.Any),

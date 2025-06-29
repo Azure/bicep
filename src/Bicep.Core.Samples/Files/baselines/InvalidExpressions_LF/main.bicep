@@ -1,4 +1,4 @@
-﻿/*
+/*
   This tests the various cases of invalid expressions.
 */
 
@@ -248,6 +248,19 @@ var partialObject = {
   d  : %
 }
 
+//nameof expressions
+var nameOfConstant = nameof('abc')
+var nameOfKeyword1 = nameof(param)
+var nameOfKeyword2 = nameof(var)
+var nameOfKeyword3 = nameof(resource)
+var nameOfKeyword4 = nameof(module)
+var nameOfKeyword5 = nameof(output)
+var nameofExpression1 = nameof(1 + 2)
+var nameofVar= 'abc'
+var nameofExpression2 = nameof(true ? nameofVar : nameofVar)
+var nameofUnknown = nameof(symbolNotFound)
+var nameofEmpty = nameof()
+
 // dangling decorators - to make sure the tests work, please do not add contents after this line
 @concat()
 @sys.secure()
@@ -263,6 +276,4 @@ var unterminated2 = (,
 
 // trailing decorator with no declaration
 @minLength()
-
-
 

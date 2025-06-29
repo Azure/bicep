@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.SourceGraph;
 
 namespace Bicep.Core.Registry
 {
@@ -10,6 +11,8 @@ namespace Bicep.Core.Registry
     /// </summary>
     public interface IArtifactRegistryProvider
     {
-        ImmutableArray<IArtifactRegistry> Registries(Uri templateUri);
+        ImmutableArray<string> SupportedSchemes { get; }
+
+        public IArtifactRegistry? TryGetRegistry(string scheme);
     }
 }

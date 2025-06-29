@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Cli.IntegrationTests
@@ -186,6 +188,52 @@ namespace Bicep.Cli.IntegrationTests
                 }
 
                 """);
+        }
+
+        [TestMethod]
+        public async Task Test_Issue13785()
+        {
+            var paramFile =
+              """
+              {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "foo": {
+                    "value": "bar"
+                  }
+                }
+              }
+              """;
+            var expectedOutput =
+                """
+                using '../main.bicep'
+
+                param foo = 'bar'
+
+                """;
+
+            var (jsonPath, bicepparamPath) = Setup(TestContext, paramFile);
+            Directory.SetCurrentDirectory(Path.GetDirectoryName(jsonPath)!);
+            var (output, _, result) = await Bicep("decompile-params", jsonPath, "--bicep-file", "../main.bicep");
+
+            using (new AssertionScope())
+            {
+                output.Should().BeEmpty();
+                result.Should().Be(0);
+                File.ReadAllText(bicepparamPath).Should().BeEquivalentToIgnoringNewlines(expectedOutput);
+            }
+        }
+
+        private static (string jsonPath, string bicepparamPath) Setup(TestContext context, string template, string? inputFile = null, string? outputDir = null)
+        {
+            var jsonPath = FileHelper.SaveResultFile(context, inputFile ?? "param.json", template);
+
+            var bicepparamPath = outputDir is null
+              ? PathHelper.GetBicepparamOutputPath(jsonPath)
+              : FileHelper.GetResultFilePath(context, outputDir);
+
+            return (jsonPath, bicepparamPath);
         }
     }
 }

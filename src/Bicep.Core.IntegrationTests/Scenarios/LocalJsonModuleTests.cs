@@ -124,6 +124,6 @@ module mod 'module.json' = {
         }
 
         private static ImmutableDictionary<string, ImmutableArray<IDiagnostic>> GetDiagnosticsByFileName(Compilation compilation) =>
-            compilation.GetAllDiagnosticsByBicepFile().ToImmutableDictionary(kvp => Path.GetFileName(kvp.Key.FileUri.LocalPath), kvp => kvp.Value);
+            compilation.GetAllDiagnosticsByBicepFile().ToImmutableDictionary(kvp => Path.GetFileName(kvp.Key.Uri.LocalPath), kvp => kvp.Value);
     }
 }

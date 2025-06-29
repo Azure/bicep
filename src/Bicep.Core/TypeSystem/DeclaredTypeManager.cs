@@ -3,7 +3,6 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
-using System.Configuration;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -17,8 +16,8 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.Utils;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -99,6 +98,9 @@ namespace Bicep.Core.TypeSystem
                 case ExtensionDeclarationSyntax extension:
                     return GetExtensionType(extension);
 
+                case ExtensionConfigAssignmentSyntax extConfigAssignment:
+                    return GetExtensionConfigAssignmentType(extConfigAssignment);
+
                 case MetadataDeclarationSyntax metadata:
                     return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(metadata.Value), metadata);
 
@@ -130,7 +132,11 @@ namespace Bicep.Core.TypeSystem
                     return new DeclaredTypeAssignment(TypeFactory.CreateBooleanType(), assert);
 
                 case TargetScopeSyntax targetScope:
-                    return new DeclaredTypeAssignment(targetScope.GetDeclaredType(), targetScope, DeclaredTypeFlags.Constant);
+                    var supportedScopes = TargetScopeSyntax.GetDeclaredType(features);
+
+                    return new DeclaredTypeAssignment(
+                        supportedScopes,
+                        targetScope, DeclaredTypeFlags.Constant);
 
                 case IfConditionSyntax ifCondition:
                     return GetIfConditionType(ifCondition);
@@ -179,6 +185,9 @@ namespace Bicep.Core.TypeSystem
 
                 case TypedLambdaSyntax typedLambda:
                     return GetTypedLambdaType(typedLambda);
+
+                case VariableDeclarationSyntax variableDeclaration:
+                    return GetVariableTypeIfDefined(variableDeclaration);
             }
 
             return null;
@@ -259,9 +268,6 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetUserDefinedTypeType(TypeAliasSymbol symbol)
         {
-            // Even if the declared type is invalid because of a illegal cycle, we still want to visit (and cache the type of) nested elements.
-            var declaredType = GetTypeFromTypeSyntax(symbol.DeclaringType.Value);
-
             if (binder.TryGetCycle(symbol) is { } cycle)
             {
                 var builder = DiagnosticBuilder.ForPosition(symbol.DeclaringType.Name);
@@ -272,7 +278,9 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(diagnostic);
             }
 
-            return ApplyTypeModifyingDecorators(DisallowNamespaceTypes(declaredType.Type, symbol.DeclaringType.Value), symbol.DeclaringType);
+            return ApplyTypeModifyingDecorators(
+                DisallowNamespaceTypes(GetTypeFromTypeSyntax(symbol.DeclaringType.Value).Type, symbol.DeclaringType.Value),
+                symbol.DeclaringType);
         }
 
         private static ITypeReference DisallowNamespaceTypes(ITypeReference typeReference, SyntaxBase syntax) => typeReference switch
@@ -294,7 +302,7 @@ namespace Bicep.Core.TypeSystem
         };
 
         private TypeSymbol GetTypePropertyType(ObjectTypePropertySyntax syntax, TypeSymbol typeSymbol)
-            => ApplyTypeModifyingDecorators(DisallowNamespaceTypes(UnwrapType(syntax.Value, typeSymbol), syntax.Value), syntax);
+            => ApplyTypeModifyingDecorators(DisallowNamespaceTypes(UnwrapType(typeSymbol), syntax.Value), syntax);
 
         private TypeSymbol GetInstantiatedType(ParameterizedTypeInstantiationSyntaxBase syntax)
             => GetReifiedTypeResult(syntax).IsSuccess(out var typeExpression, out var error)
@@ -398,7 +406,7 @@ namespace Bicep.Core.TypeSystem
                 return errorType;
             }
 
-            return TypeFactory.CreateStringType(minLength, maxLength, validationFlags);
+            return TypeFactory.CreateStringType(minLength, maxLength, validationFlags: validationFlags);
         }
 
         private bool GetLengthModifiers(DecorableSyntax syntax, long? defaultMinLength, long? defaultMaxLength, out long? minLength, out long? maxLength, [NotNullWhen(false)] out ErrorType? error)
@@ -440,7 +448,7 @@ namespace Bicep.Core.TypeSystem
         {
             if (TryGetSystemDecorator(syntax, LanguageConstants.ParameterSealedPropertyName) is not null)
             {
-                return new ObjectType(declaredObject.Name, validationFlags, declaredObject.Properties.Values, additionalPropertiesType: null);
+                return new ObjectType(declaredObject.Name, validationFlags, declaredObject.Properties.Values, null);
             }
 
             if (declaredObject.ValidationFlags == validationFlags)
@@ -448,7 +456,7 @@ namespace Bicep.Core.TypeSystem
                 return declaredObject;
             }
 
-            return new ObjectType(declaredObject.Name, validationFlags, declaredObject.Properties.Values, declaredObject.AdditionalPropertiesType, declaredObject.AdditionalPropertiesFlags);
+            return new ObjectType(declaredObject.Name, validationFlags, declaredObject.Properties.Values, declaredObject.AdditionalProperties);
         }
 
         private ITypeReference GetTypeAdditionalPropertiesType(ObjectTypeAdditionalPropertiesSyntax syntax)
@@ -468,6 +476,19 @@ namespace Bicep.Core.TypeSystem
         {
             var declaredType = TryGetTypeFromTypeSyntax(syntax.Type) ??
                 ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidOutputType(GetValidTypeNames()));
+
+            return new(ApplyTypeModifyingDecorators(DisallowNamespaceTypes(declaredType.Type, syntax.Type), syntax), syntax);
+        }
+
+        private DeclaredTypeAssignment? GetVariableTypeIfDefined(VariableDeclarationSyntax syntax)
+        {
+            if (syntax.Type is null)
+            {
+                return null;
+            }
+
+            var declaredType = TryGetTypeFromTypeSyntax(syntax.Type) ??
+                ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidVariableType(GetValidTypeNames()));
 
             return new(ApplyTypeModifyingDecorators(DisallowNamespaceTypes(declaredType.Type, syntax.Type), syntax), syntax);
         }
@@ -515,9 +536,6 @@ namespace Bicep.Core.TypeSystem
             return declaredType is not null ? new(declaredType, syntax, DeclaredTypeFlags.None) : null;
         });
 
-        private DeclaredTypeAssignment GetResourceTypeType(ResourceTypeSyntax syntax)
-            => new(GetTypeReferenceForResourceType(syntax), syntax);
-
         private TypeSymbol GetTypeReferenceForResourceType(ResourceTypeSyntax syntax)
         {
             if (!this.features.ResourceTypedParamsAndOutputsEnabled)
@@ -528,17 +546,12 @@ namespace Bicep.Core.TypeSystem
             // The resource type of an output can be inferred.
             var type = syntax.Type == null && GetOutputValueType(syntax) is { } inferredType ? inferredType : GetDeclaredResourceType(syntax);
 
-            if (type is ResourceType resourceType && IsExtensibilityType(resourceType))
+            if (type is ResourceType resourceType && !resourceType.IsAzResource())
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnsupportedResourceTypeParameterOrOutputType(resourceType.Name));
             }
 
             return type;
-        }
-
-        private static bool IsExtensibilityType(ResourceType resourceType)
-        {
-            return resourceType.DeclaringNamespace.ExtensionName != AzNamespaceType.BuiltInName;
         }
 
         private TypeSymbol? GetOutputValueType(SyntaxBase syntax) => binder.GetParent(syntax) switch
@@ -554,9 +567,9 @@ namespace Bicep.Core.TypeSystem
                 BuiltInNamespaceSymbol builtInNamespace => builtInNamespace.Type,
                 ExtensionNamespaceSymbol extensionNamespace => extensionNamespace.Type,
                 WildcardImportSymbol wildcardImport => wildcardImport.Type,
-                AmbientTypeSymbol ambientType => UnwrapType(syntax, ambientType.Type),
-                ImportedTypeSymbol importedType => UnwrapType(syntax, importedType.Type),
-                TypeAliasSymbol declaredType => TypeRefToType(syntax, declaredType),
+                AmbientTypeSymbol ambientType => EnsureNonParameterizedType(syntax, UnwrapType(ambientType.Type)),
+                ImportedTypeSymbol importedType => EnsureNonParameterizedType(syntax, UnwrapType(importedType.Type)),
+                TypeAliasSymbol declaredType => EnsureNonParameterizedType(syntax, TypeRefToType(syntax, declaredType)),
                 DeclaredSymbol declaredSymbol => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ValueSymbolUsedAsType(declaredSymbol.Name)),
                 _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
             };
@@ -580,7 +593,7 @@ namespace Bicep.Core.TypeSystem
         {
             AmbientTypeSymbol ambientType => InstantiateType(syntax, ambientType.Name, ambientType.Type),
             ImportedTypeSymbol importedType => InstantiateType(syntax, importedType.Name, importedType.Type),
-            TypeAliasSymbol typeAlias => InstantiateType(syntax, typeAlias.Name, typeAlias.Type),
+            TypeAliasSymbol typeAlias => InstantiateType(syntax, typeAlias.Name, GetUserDefinedTypeType(typeAlias)),
             DeclaredSymbol declaredSymbol => new(DiagnosticBuilder.ForPosition(syntax).ValueSymbolUsedAsType(declaredSymbol.Name)),
             _ => new(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
         };
@@ -588,7 +601,7 @@ namespace Bicep.Core.TypeSystem
         private ResultWithDiagnostic<TypeExpression> InstantiateType(InstanceParameterizedTypeInstantiationSyntax syntax)
         {
             var baseType = GetTypeFromTypeSyntax(syntax.BaseExpression).Type;
-            var propertyType = FinalizeTypePropertyType(baseType, syntax.PropertyName.IdentifierName, syntax.PropertyName);
+            var propertyType = GetTypePropertyType(baseType, syntax.PropertyName.IdentifierName, syntax.PropertyName);
 
             return InstantiateType(syntax, $"{baseType.Name}.{syntax.PropertyName.IdentifierName}", propertyType);
         }
@@ -624,7 +637,7 @@ namespace Bicep.Core.TypeSystem
         private TypeSymbol GetObjectTypeType(ObjectTypeSyntax syntax)
         {
             HashSet<string> propertyNamesEncountered = new();
-            List<TypeProperty> properties = new();
+            List<NamedTypeProperty> properties = new();
             List<IDiagnostic> diagnostics = new();
             ObjectTypeNameBuilder nameBuilder = new();
 
@@ -671,8 +684,10 @@ namespace Bicep.Core.TypeSystem
 
             if (additionalPropertiesType is not null && !additionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty))
             {
-                nameBuilder.AppendPropertyMatcher("*", GetPropertyTypeName(additionalPropertiesDeclarations[0].Value, additionalPropertiesType));
+                nameBuilder.AppendPropertyMatcher(GetPropertyTypeName(additionalPropertiesDeclarations[0].Value, additionalPropertiesType));
             }
+
+            var additionalPropertiesDescription = !additionalPropertiesDeclarations.Any() ? null : DescriptionHelper.TryGetFromDecorator(binder, typeManager, additionalPropertiesDeclarations[0]);
 
             if (diagnostics.Any())
             {
@@ -681,7 +696,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(diagnostics.Concat(properties.Select(p => p.TypeReference).OfType<TypeSymbol>().SelectMany(e => e.GetDiagnostics())));
             }
 
-            return new ObjectType(nameBuilder.ToString(), default, properties, additionalPropertiesType, additionalPropertiesFlags);
+            return new ObjectType(nameBuilder.ToString(), default, properties, additionalPropertiesType is not null ? new(additionalPropertiesType, additionalPropertiesFlags, additionalPropertiesDescription) : null);
         }
 
         private static string GetPropertyTypeName(SyntaxBase typeSyntax, ITypeReference propertyType)
@@ -695,7 +710,7 @@ namespace Bicep.Core.TypeSystem
         }
 
         private bool HasSecureDecorator(DecorableSyntax syntax)
-            => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSecurePropertyName) is not null;
+            => syntax.HasSecureDecorator(binder, typeManager);
 
         private DecoratorSyntax? TryGetSystemDecorator(DecorableSyntax syntax, string decoratorName)
             => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, decoratorName);
@@ -936,16 +951,11 @@ namespace Bicep.Core.TypeSystem
 
         private ITypeReference ConvertTypeExpressionToType(SyntaxBase syntax, SyntaxBase baseExpression, string propertyName, SyntaxBase propertyNameSyntax)
         {
-            if (!IsPermittedTypeAccessExpressionBase(baseExpression))
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
-            }
-
             var baseType = GetTypeFromTypeSyntax(baseExpression);
 
             return RequiresDeferral(baseExpression)
-                ? new DeferredTypeReference(() => FinalizeTypePropertyType(baseType, propertyName, propertyNameSyntax))
-                : FinalizeTypePropertyType(baseType, propertyName, propertyNameSyntax);
+                ? new DeferredTypeReference(() => FinalizeTypePropertyType(syntax, baseExpression, baseType, propertyName, propertyNameSyntax))
+                : FinalizeTypePropertyType(syntax, baseExpression, baseType, propertyName, propertyNameSyntax);
         }
 
         private bool IsPermittedTypeAccessExpressionBase(SyntaxBase baseExpression) => baseExpression switch
@@ -961,15 +971,37 @@ namespace Bicep.Core.TypeSystem
             ParameterizedTypeInstantiationSyntax parameterized
                 when binder.GetSymbolInfo(parameterized) is AmbientTypeSymbol ambient &&
                 ambient.DeclaringNamespace.ExtensionNameEquals(SystemNamespaceType.BuiltInName) &&
-                LanguageConstants.IdentifierComparer.Equals(ambient.Name, LanguageConstants.TypeNameResource) => true,
+                LanguageConstants.ResourceDerivedTypeNames.Contains(ambient.Name) => true,
             InstanceParameterizedTypeInstantiationSyntax parameterized
                 when binder.GetSymbolInfo(parameterized.BaseExpression) is BuiltInNamespaceSymbol ns &&
                 ns.TryGetNamespaceType()?.ExtensionNameEquals(SystemNamespaceType.BuiltInName) is true &&
-                LanguageConstants.IdentifierComparer.Equals(parameterized.Name.IdentifierName, LanguageConstants.TypeNameResource) => true,
+                LanguageConstants.ResourceDerivedTypeNames.Contains(parameterized.Name.IdentifierName) => true,
             _ => false,
         };
 
-        private static TypeSymbol FinalizeTypePropertyType(ITypeReference baseExpressionType, string propertyName, SyntaxBase propertyNameSyntax)
+        private TypeSymbol FinalizeTypePropertyType(
+            SyntaxBase syntax,
+            SyntaxBase baseExpression,
+            ITypeReference baseExpressionType,
+            string propertyName,
+            SyntaxBase propertyNameSyntax)
+        {
+            var typePropertyType = GetTypePropertyType(baseExpressionType, propertyName, propertyNameSyntax);
+
+            if (typePropertyType is ErrorType)
+            {
+                return typePropertyType;
+            }
+
+            if (!IsPermittedTypeAccessExpressionBase(baseExpression))
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
+            }
+
+            return EnsureNonParameterizedType(propertyNameSyntax, typePropertyType);
+        }
+
+        private static TypeSymbol GetTypePropertyType(ITypeReference baseExpressionType, string propertyName, SyntaxBase propertyNameSyntax)
         {
             var baseType = baseExpressionType.Type;
 
@@ -995,16 +1027,11 @@ namespace Bicep.Core.TypeSystem
                         .Invoke(DiagnosticBuilder.ForPosition(propertyNameSyntax)));
             }
 
-            return UnwrapType(propertyNameSyntax, typeProperty.TypeReference.Type);
+            return UnwrapType(typeProperty.TypeReference.Type);
         }
 
         private ITypeReference ConvertTypeExpressionToType(TypeArrayAccessSyntax syntax, ulong index)
         {
-            if (!IsPermittedTypeAccessExpressionBase(syntax.BaseExpression))
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
-            }
-
             var baseType = GetTypeFromTypeSyntax(syntax.BaseExpression);
 
             return RequiresDeferral(syntax.BaseExpression)
@@ -1012,7 +1039,7 @@ namespace Bicep.Core.TypeSystem
                 : FinalizeTypeIndexAccessType(syntax, index, baseType);
         }
 
-        private static TypeSymbol FinalizeTypeIndexAccessType(TypeArrayAccessSyntax syntax, ulong index, ITypeReference baseExpressionType)
+        private TypeSymbol FinalizeTypeIndexAccessType(TypeArrayAccessSyntax syntax, ulong index, ITypeReference baseExpressionType)
         {
             var baseType = baseExpressionType.Type;
 
@@ -1024,6 +1051,11 @@ namespace Bicep.Core.TypeSystem
             if (baseType is ErrorType error)
             {
                 return error;
+            }
+
+            if (!IsPermittedTypeAccessExpressionBase(syntax.BaseExpression))
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
             }
 
             if (baseType is not TupleType tupleType)
@@ -1037,16 +1069,11 @@ namespace Bicep.Core.TypeSystem
                     .IndexOutOfBounds(baseType.Name, tupleType.Items.Length, index <= long.MaxValue ? (long)index : long.MaxValue));
             }
 
-            return UnwrapType(syntax.IndexExpression, tupleType.Items[(int)index].Type);
+            return EnsureNonParameterizedType(syntax.IndexExpression, UnwrapType(tupleType.Items[(int)index].Type));
         }
 
         private ITypeReference ConvertTypeExpressionToType(TypeAdditionalPropertiesAccessSyntax syntax)
         {
-            if (!IsPermittedTypeAccessExpressionBase(syntax.BaseExpression))
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
-            }
-
             var baseType = DisallowNamespaceTypes(GetTypeFromTypeSyntax(syntax.BaseExpression), syntax.BaseExpression);
 
             return RequiresDeferral(syntax.BaseExpression)
@@ -1054,7 +1081,7 @@ namespace Bicep.Core.TypeSystem
                 : FinalizeAdditionalPropertiesAccessType(syntax, baseType);
         }
 
-        private static TypeSymbol FinalizeAdditionalPropertiesAccessType(TypeAdditionalPropertiesAccessSyntax syntax, ITypeReference baseExpressionType)
+        private TypeSymbol FinalizeAdditionalPropertiesAccessType(TypeAdditionalPropertiesAccessSyntax syntax, ITypeReference baseExpressionType)
         {
             var baseType = baseExpressionType.Type;
 
@@ -1068,21 +1095,21 @@ namespace Bicep.Core.TypeSystem
                 return error;
             }
 
-            if (baseType is not ObjectType @object || @object.AdditionalPropertiesType is null || @object.AdditionalPropertiesType == LanguageConstants.Any)
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Asterisk).ExplicitAdditionalPropertiesTypeRequiredForAccessThereto(baseType));
-            }
-
-            return UnwrapType(syntax.Asterisk, @object.AdditionalPropertiesType.Type);
-        }
-
-        private ITypeReference ConvertTypeExpressionToType(TypeItemsAccessSyntax syntax)
-        {
             if (!IsPermittedTypeAccessExpressionBase(syntax.BaseExpression))
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
             }
 
+            if (baseType is not ObjectType @object || @object.AdditionalProperties is null || @object.AdditionalProperties.TypeReference.Type == LanguageConstants.Any)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Asterisk).ExplicitAdditionalPropertiesTypeRequiredForAccessThereto(baseType));
+            }
+
+            return EnsureNonParameterizedType(syntax.Asterisk, UnwrapType(@object.AdditionalProperties.TypeReference.Type));
+        }
+
+        private ITypeReference ConvertTypeExpressionToType(TypeItemsAccessSyntax syntax)
+        {
             var baseType = DisallowNamespaceTypes(GetTypeFromTypeSyntax(syntax.BaseExpression), syntax.BaseExpression);
 
             return RequiresDeferral(syntax.BaseExpression)
@@ -1090,7 +1117,7 @@ namespace Bicep.Core.TypeSystem
                 : FinalizeItemsAccessType(syntax, baseType);
         }
 
-        private static TypeSymbol FinalizeItemsAccessType(TypeItemsAccessSyntax syntax, ITypeReference baseExpressionType)
+        private TypeSymbol FinalizeItemsAccessType(TypeItemsAccessSyntax syntax, ITypeReference baseExpressionType)
         {
             var baseType = baseExpressionType.Type;
 
@@ -1104,12 +1131,17 @@ namespace Bicep.Core.TypeSystem
                 return error;
             }
 
+            if (!IsPermittedTypeAccessExpressionBase(syntax.BaseExpression))
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
+            }
+
             if (baseType is not TypedArrayType @array)
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.OpenSquare, syntax.CloseSquare)).ExplicitItemsTypeRequiredForAccessThereto());
             }
 
-            return UnwrapType(syntax.Asterisk, @array.Item.Type);
+            return EnsureNonParameterizedType(syntax.Asterisk, UnwrapType(@array.Item.Type));
         }
 
         private static TypeSymbol EnsureNonParameterizedType(SyntaxBase syntax, TypeSymbol type) => type switch
@@ -1118,16 +1150,16 @@ namespace Bicep.Core.TypeSystem
             _ => type,
         };
 
-        private static TypeSymbol UnwrapType(SyntaxBase syntax, TypeSymbol type) => EnsureNonParameterizedType(syntax, type) switch
+        private static ITypeReference EnsureNonParameterizedType(SyntaxBase syntax, ITypeReference type) => type switch
+        {
+            DeferredTypeReference => new DeferredTypeReference(() => EnsureNonParameterizedType(syntax, type.Type)),
+            _ => EnsureNonParameterizedType(syntax, type.Type),
+        };
+
+        private static TypeSymbol UnwrapType(TypeSymbol type) => type switch
         {
             TypeType tt => tt.Unwrapped,
             _ => type,
-        };
-
-        private static ITypeReference UnwrapType(SyntaxBase syntax, ITypeReference typeReference) => typeReference switch
-        {
-            DeferredTypeReference => new DeferredTypeReference(() => UnwrapType(syntax, typeReference.Type)),
-            _ => UnwrapType(syntax, typeReference.Type),
         };
 
         private ITypeReference ConvertTypeExpressionToType(NullableTypeSyntax syntax)
@@ -1165,6 +1197,38 @@ namespace Bicep.Core.TypeSystem
             if (this.binder.GetSymbolInfo(syntax) is ExtensionNamespaceSymbol importedNamespace)
             {
                 return new(importedNamespace.DeclaredType, syntax);
+            }
+
+            return null;
+        }
+
+        private TypeSymbol? GetDeclaredExtensionConfigAssignmentType(ExtensionConfigAssignmentSyntax syntax)
+        {
+            if (!binder.FileSymbol.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var semanticModel, out var failureDiagnostic))
+            {
+                // failed to resolve using
+                return failureDiagnostic.IsError() ? ErrorType.Create(failureDiagnostic) : null;
+            }
+
+            // TODO(kylealbert): this needs some thought with spec strings, ext names, and aliases
+            if (syntax.TryGetSymbolName() is not { } symbolName)
+            {
+                return null;
+            }
+
+            if (semanticModel.Extensions.TryGetValue(symbolName, out var extensionMetadata))
+            {
+                return extensionMetadata.NamespaceType?.ConfigurationType;
+            }
+
+            return null;
+        }
+
+        private DeclaredTypeAssignment? GetExtensionConfigAssignmentType(ExtensionConfigAssignmentSyntax extConfigAssignment)
+        {
+            if (GetDeclaredExtensionConfigAssignmentType(extConfigAssignment) is { } configType)
+            {
+                return new(configType, extConfigAssignment);
             }
 
             return null;
@@ -1217,7 +1281,7 @@ namespace Bicep.Core.TypeSystem
                     var innerModuleBody = moduleSymbol.DeclaringModule.Value;
                     return this.GetDeclaredTypeAssignment(innerModuleBody);
 
-                case VariableSymbol variableSymbol when IsCycleFree(variableSymbol):
+                case VariableSymbol variableSymbol when variableSymbol.DeclaringVariable.Type is null && IsCycleFree(variableSymbol):
                     var variableType = this.typeManager.GetTypeInfo(variableSymbol.DeclaringVariable.Value);
                     return new DeclaredTypeAssignment(variableType, variableSymbol.DeclaringVariable);
 
@@ -1324,13 +1388,16 @@ namespace Bicep.Core.TypeSystem
         private DeclaredTypeAssignment? GetArrayAccessType(DeclaredTypeAssignment baseExpressionAssignment, ArrayAccessSyntax syntax)
         {
             var indexAssignedType = this.typeManager.GetTypeInfo(syntax.IndexExpression);
-
-            static TypeSymbol GetTypeAtIndex(TupleType baseType, IntegerLiteralType indexType, SyntaxBase indexSyntax) => indexType.Value switch
+            static TypeSymbol GetTypeAtIndex(TupleType baseType, IntegerLiteralType indexType, SyntaxBase indexSyntax, bool fromEnd) => indexType.Value switch
             {
-                < 0 => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, indexType.Value)),
-                long value when value >= baseType.Items.Length => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, value)),
-                // unlikely to hit this given that we've established that the tuple has a item at the given position
-                > int.MaxValue => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, indexType.Value)),
+                long value when value < 0 ||
+                    (value == 0 && fromEnd) ||
+                    value > baseType.Items.Length ||
+                    (value == baseType.Items.Length && !fromEnd) ||
+                    // unlikely to hit this given that we've established that the tuple has a item at the given position
+                    value > int.MaxValue => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax)
+                        .IndexOutOfBounds(baseType.Name, baseType.Items.Length, value)),
+                long otherwise when fromEnd => baseType.Items[^(int)otherwise].Type,
                 long otherwise => baseType.Items[(int)otherwise].Type,
             };
 
@@ -1346,10 +1413,14 @@ namespace Bicep.Core.TypeSystem
             switch (baseExpressionAssignment?.Reference.Type)
             {
                 case TupleType tupleTypeWithKnownIndex when indexAssignedType is IntegerLiteralType integerLiteral:
-                    return new(GetTypeAtIndex(tupleTypeWithKnownIndex, integerLiteral, syntax.IndexExpression), DeclaringSyntaxForArrayAccessIfCollectionBase(baseExpressionAssignment));
+                    return new(
+                        GetTypeAtIndex(tupleTypeWithKnownIndex, integerLiteral, syntax.IndexExpression, syntax.FromEndMarker is not null),
+                        DeclaringSyntaxForArrayAccessIfCollectionBase(baseExpressionAssignment));
 
                 case TupleType tupleTypeWithIndexPossibilities when indexAssignedType is UnionType indexUnion && indexUnion.Members.All(t => t.Type is IntegerLiteralType):
-                    var possibilities = indexUnion.Members.Select(t => t.Type).OfType<IntegerLiteralType>().Select(ilt => GetTypeAtIndex(tupleTypeWithIndexPossibilities, ilt, syntax.IndexExpression));
+                    var possibilities = indexUnion.Members.Select(t => t.Type)
+                        .OfType<IntegerLiteralType>()
+                        .Select(ilt => GetTypeAtIndex(tupleTypeWithIndexPossibilities, ilt, syntax.IndexExpression, syntax.FromEndMarker is not null));
                     if (possibilities.OfType<ErrorType>().Any())
                     {
                         return new(ErrorType.Create(possibilities.SelectMany(t => t.GetDiagnostics())), syntax);
@@ -1448,6 +1519,8 @@ namespace Bicep.Core.TypeSystem
                     // the declared type should be the same as the array and we should propagate the flags
                     return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
                 case FunctionArgumentSyntax:
+                case OutputDeclarationSyntax parentOutput when syntax == parentOutput.Value:
+                case VariableDeclarationSyntax parentVariable when syntax == parentVariable.Value:
                     return GetNonNullableTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
                 case ParameterDefaultValueSyntax when this.binder.GetParent(parent) is ParameterDeclarationSyntax parameterDeclaration:
                     return GetNonNullableTypeAssignment(parameterDeclaration)?.ReplaceDeclaringSyntax(syntax);
@@ -1509,7 +1582,7 @@ namespace Bicep.Core.TypeSystem
         {
             var parent = this.binder.GetParent(syntax);
             if (parent is not FunctionCallSyntaxBase parentFunction ||
-                SymbolHelper.TryGetSymbolInfo(this.binder, this.GetDeclaredType, parent) is not FunctionSymbol functionSymbol)
+                SymbolHelper.TryGetSymbolInfo(this.binder, this.GetDeclaredType, parent) is not IFunctionSymbol functionSymbol)
             {
                 return null;
             }
@@ -1727,13 +1800,25 @@ namespace Bicep.Core.TypeSystem
                         throw new InvalidOperationException("Expected ImportWithClauseSyntax to have a parent.");
                     }
 
-                    if (GetDeclaredTypeAssignment(parent) is not { } extensionAssignment ||
-                        extensionAssignment.Reference.Type is not NamespaceType namespaceType)
+                    ObjectLikeType? configType = null;
+
+                    if (GetDeclaredTypeAssignment(parent) is not { } extensionAssignment)
                     {
                         return null;
                     }
 
-                    if (namespaceType.ConfigurationType is null)
+                    if (extensionAssignment.Reference.Type is NamespaceType namespaceType)
+                    {
+                        // This case is extension declarations in bicep files.
+                        configType = namespaceType.ConfigurationType;
+                    }
+                    else if (parent is ExtensionConfigAssignmentSyntax && extensionAssignment.Reference.Type is ObjectType configTypeFromAssignment)
+                    {
+                        // This case is extension config assignments in bicepparam files.
+                        configType = configTypeFromAssignment;
+                    }
+
+                    if (configType is null)
                     {
                         // this namespace doesn't support configuration, but it has been provided.
                         // we'll check for this during type assignment.
@@ -1742,9 +1827,10 @@ namespace Bicep.Core.TypeSystem
 
                     // the object is an item in an array
                     // use the item's type and propagate flags
-                    return TryCreateAssignment(ResolveDiscriminatedObjects(namespaceType.ConfigurationType.Type, syntax), syntax, extensionAssignment.Flags);
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(configType.Type, syntax), syntax, extensionAssignment.Flags);
                 case FunctionArgumentSyntax:
                 case OutputDeclarationSyntax parentOutput when syntax == parentOutput.Value:
+                case VariableDeclarationSyntax parentVariable when syntax == parentVariable.Value:
                     if (GetNonNullableTypeAssignment(parent) is not { } parentAssignment)
                     {
                         return null;
@@ -1780,6 +1866,14 @@ namespace Bicep.Core.TypeSystem
                     var type = TypeHelper.MakeRequiredPropertiesOptional(enclosingObjectType);
 
                     return TryCreateAssignment(type, syntax);
+
+                case TypedLambdaSyntax lambda when binder.IsEqualOrDescendent(syntax, lambda.Body):
+                    if (GetTypedLambdaType(lambda).Reference is not LambdaType lambdaType)
+                    {
+                        return null;
+                    }
+
+                    return TryCreateAssignment(lambdaType.ReturnType, syntax);
             }
 
             return null;
@@ -1826,7 +1920,7 @@ namespace Bicep.Core.TypeSystem
                 // properties with their own types), then use the dictionary value type
                 if (parentAssignment?.Reference.Type is ObjectType parentObjectType &&
                     parentObjectType.Properties.IsEmpty &&
-                    parentObjectType.AdditionalPropertiesType is { } additionalPropertiesType)
+                    parentObjectType.AdditionalProperties?.TypeReference.Type is { } additionalPropertiesType)
                 {
                     return new(additionalPropertiesType, syntax, DeclaredTypeFlags.None);
                 }
@@ -1880,9 +1974,10 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     // if there are additional properties, try those
-                    if (objectType.AdditionalPropertiesType != null)
+                    if (objectType.AdditionalProperties is { } additionalProperties)
+
                     {
-                        return new DeclaredTypeAssignment(objectType.AdditionalPropertiesType.Type, declaringProperty, ConvertFlags(objectType.AdditionalPropertiesFlags));
+                        return new DeclaredTypeAssignment(additionalProperties.TypeReference.Type, declaringProperty, ConvertFlags(additionalProperties.Flags));
                     }
 
                     break;
@@ -2016,7 +2111,7 @@ namespace Bicep.Core.TypeSystem
             // We need to bind and validate all of the parameters and outputs that declare resource types
             // within the context of this type manager. This will surface any issues where the type declared by
             // a module is not understood inside this compilation unit.
-            var parameters = new List<TypeProperty>();
+            var parameters = new List<NamedTypeProperty>();
 
             foreach (var parameter in moduleSemanticModel.Parameters.Values)
             {
@@ -2043,10 +2138,33 @@ namespace Bicep.Core.TypeSystem
                     type = TypeHelper.CreateTypeUnion(type, LanguageConstants.Null);
                 }
 
-                parameters.Add(new TypeProperty(parameter.Name, type, flags, parameter.Description));
+                parameters.Add(new NamedTypeProperty(parameter.Name, type, flags, parameter.Description));
             }
 
-            var outputs = new List<TypeProperty>();
+            List<NamedTypeProperty>? extensionConfigs = null;
+
+            if (features.ModuleExtensionConfigsEnabled)
+            {
+                extensionConfigs = [];
+
+                foreach (var extension in moduleSemanticModel.Extensions.Values)
+                {
+                    if (extension.NamespaceType is not { } namespaceType ||
+                        namespaceType.ConfigurationType is not { } configurationType)
+                    {
+                        continue;
+                    }
+
+                    var extAliasProperty = new NamedTypeProperty(
+                        extension.Alias,
+                        configurationType,
+                        namespaceType.IsConfigurationRequired ? TypePropertyFlags.Required | TypePropertyFlags.WriteOnly : TypePropertyFlags.WriteOnly);
+
+                    extensionConfigs.Add(extAliasProperty);
+                }
+            }
+
+            var outputs = new List<NamedTypeProperty>();
             foreach (var output in moduleSemanticModel.Outputs)
             {
                 var type = output.TypeReference.Type;
@@ -2059,12 +2177,13 @@ namespace Bicep.Core.TypeSystem
                     type = resourceDerivedTypeResolver.ResolveResourceDerivedTypes(type);
                 }
 
-                outputs.Add(new TypeProperty(output.Name, type, TypePropertyFlags.ReadOnly, output.Description));
+                outputs.Add(new NamedTypeProperty(output.Name, type, TypePropertyFlags.ReadOnly, output.Description));
             }
 
             return LanguageConstants.CreateModuleType(
                 this.features,
                 parameters,
+                extensionConfigs,
                 outputs,
                 moduleSemanticModel.TargetScope,
                 binder.TargetScope,
@@ -2084,14 +2203,14 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(failureDiagnostic);
             }
 
-            var parameters = new List<TypeProperty>();
+            var parameters = new List<NamedTypeProperty>();
 
             foreach (var parameter in testSemanticModel.Parameters.Values)
             {
                 var type = parameter.TypeReference.Type;
 
                 var flags = parameter.IsRequired ? TypePropertyFlags.Required | TypePropertyFlags.WriteOnly : TypePropertyFlags.WriteOnly;
-                parameters.Add(new TypeProperty(parameter.Name, type, flags, parameter.Description));
+                parameters.Add(new NamedTypeProperty(parameter.Name, type, flags, parameter.Description));
             }
 
             return CreateTestType(
@@ -2099,7 +2218,7 @@ namespace Bicep.Core.TypeSystem
                 LanguageConstants.TypeNameTest);
         }
 
-        private TypeSymbol CreateTestType(IEnumerable<TypeProperty> paramsProperties, string typeName)
+        private TypeSymbol CreateTestType(IEnumerable<NamedTypeProperty> paramsProperties, string typeName)
         {
             var paramsType = new ObjectType(LanguageConstants.TestParamsPropertyName, TypeSymbolValidationFlags.Default, paramsProperties, null);
             // If none of the params are required, we can allow the 'params' declaration to be omitted entirely
@@ -2110,7 +2229,7 @@ namespace Bicep.Core.TypeSystem
                 TypeSymbolValidationFlags.Default,
                 new[]
                 {
-                    new TypeProperty(LanguageConstants.TestParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
+                    new NamedTypeProperty(LanguageConstants.TestParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                 },
                 null);
 

@@ -5,10 +5,8 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using Azure.Deployments.Core.Definitions.Schema;
-using Azure.Deployments.Core.Diagnostics;
 using Azure.Deployments.Core.ErrorResponses;
 using Azure.Deployments.Expression.Expressions;
-using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Expressions;
 using Azure.Deployments.Templates.Extensions;
 using Bicep.Core.ArmHelpers;
@@ -17,6 +15,7 @@ using Bicep.Core.Emit.CompileTimeImports;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.Syntax;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -70,6 +69,7 @@ public class ParameterAssignmentEvaluator
             JToken evaluateFunction(Template template, string originalFunctionName)
             {
                 var functionsLookup = template.GetFunctionDefinitions().ToOrdinalInsensitiveDictionary(x => x.Key, x => x.Function);
+                TemplateVariablesEvaluator variablesEvaluator = new(template);
 
                 var rewrittenExpression = new FunctionExpression(
                     $"{EmitConstants.UserDefinedFunctionsNamespace}.{originalFunctionName}",
@@ -81,6 +81,7 @@ public class ParameterAssignmentEvaluator
                 var helper = new TemplateExpressionEvaluationHelper
                 {
                     OnGetFunction = (name, _) => functionsLookup[name],
+                    OnGetVariable = (name, _) => variablesEvaluator.GetEvaluatedVariableValue(name),
                     ValidationContext = SchemaValidationContext.ForTemplate(template),
                 };
 
@@ -112,25 +113,28 @@ public class ParameterAssignmentEvaluator
 
     public class Result
     {
-        private Result(JToken? value, ParameterKeyVaultReferenceExpression? keyVaultReference, IDiagnostic? diagnostic)
+        private Result(JToken? value, Expression? expression, ParameterKeyVaultReferenceExpression? keyVaultReference, IDiagnostic? diagnostic)
         {
             Value = value;
             KeyVaultReference = keyVaultReference;
+            Expression = expression;
             Diagnostic = diagnostic;
         }
 
         public JToken? Value { get; }
+        public Expression? Expression { get; }
         public ParameterKeyVaultReferenceExpression? KeyVaultReference { get; }
         public IDiagnostic? Diagnostic { get; }
 
-        public static Result For(JToken value) => new(value, null, null);
+        public static Result For(JToken value) => new(value, null, null, null);
+        public static Result For(Expression expression) => new(null, expression, null, null);
+        public static Result For(ParameterKeyVaultReferenceExpression expression) => new(null, null, expression, null);
 
-        public static Result For(ParameterKeyVaultReferenceExpression expression) => new(null, expression, null);
-
-        public static Result For(IDiagnostic diagnostic) => new(null, null, diagnostic);
+        public static Result For(IDiagnostic diagnostic) => new(null, null, null, diagnostic);
     }
 
     private readonly ConcurrentDictionary<ParameterAssignmentSymbol, Result> results = new();
+    private readonly ConcurrentDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, Result>> extensionConfigAssignmentResults = new();
     private readonly ConcurrentDictionary<VariableSymbol, Result> varResults = new();
     private readonly ConcurrentDictionary<ImportedVariableSymbol, Result> importResults = new();
     private readonly ConcurrentDictionary<WildcardImportPropertyReference, Result> wildcardImportVariableResults = new();
@@ -142,6 +146,7 @@ public class ParameterAssignmentEvaluator
     private readonly ImmutableDictionary<string, ImportedSymbol> importsByName;
     private readonly ImmutableDictionary<string, WildcardImportPropertyReference> wildcardImportPropertiesByName;
     private readonly ImmutableDictionary<string, Expression> synthesizedVariableValuesByName;
+    private readonly ExternalInputReferences externalInputReferences;
     private readonly ExpressionConverter converter;
 
     public ParameterAssignmentEvaluator(SemanticModel model)
@@ -155,16 +160,18 @@ public class ParameterAssignmentEvaluator
 
         EmitterContext context = new(model);
         this.converter = new(context);
-        this.importsByName = context.ImportClosureInfo.ImportedSymbolNames.Keys
-            .Select(importedVariable => (context.ImportClosureInfo.ImportedSymbolNames[importedVariable], importedVariable))
+        this.importsByName = context.SemanticModel.ImportClosureInfo.ImportedSymbolNames.Keys
+            .Select(importedVariable => (context.SemanticModel.ImportClosureInfo.ImportedSymbolNames[importedVariable], importedVariable))
             .GroupBy(x => x.Item1, LanguageConstants.IdentifierComparer)
             .ToImmutableDictionary(x => x.Key, x => x.First().importedVariable, LanguageConstants.IdentifierComparer);
-        this.wildcardImportPropertiesByName = context.ImportClosureInfo.WildcardImportPropertyNames
+        this.wildcardImportPropertiesByName = context.SemanticModel.ImportClosureInfo.WildcardImportPropertyNames
             .GroupBy(x => x.Value, LanguageConstants.IdentifierComparer)
             .ToImmutableDictionary(x => x.Key, x => x.First().Key, LanguageConstants.IdentifierComparer);
         this.synthesizedVariableValuesByName = context.FunctionVariables.Values
             .GroupBy(result => result.Name)
             .ToImmutableDictionary(x => x.Key, x => x.First().Value);
+
+        this.externalInputReferences = context.ExternalInputReferences;
     }
 
     public Result EvaluateParameter(ParameterAssignmentSymbol parameter)
@@ -174,7 +181,17 @@ public class ParameterAssignmentEvaluator
             {
                 var context = GetExpressionEvaluationContext();
 
-                var intermediate = converter.ConvertToIntermediateExpression(parameter.DeclaringParameterAssignment.Value);
+                var declaringParam = parameter.DeclaringParameterAssignment;
+
+                var intermediate = converter.ConvertToIntermediateExpression(declaringParam.Value);
+
+                if (this.externalInputReferences.ParametersReferences.Contains(parameter))
+                {
+                    var rewrittenExpression = ExternalInputExpressionRewriter
+                        .Rewrite(intermediate, this.externalInputReferences);
+
+                    return Result.For(rewrittenExpression);
+                }
 
                 if (intermediate is ParameterKeyVaultReferenceExpression keyVaultReferenceExpression)
                 {
@@ -187,9 +204,61 @@ public class ParameterAssignmentEvaluator
                 }
                 catch (Exception ex)
                 {
-                    return Result.For(DiagnosticBuilder.ForPosition(parameter.DeclaringParameterAssignment.Value)
+                    return Result.For(DiagnosticBuilder.ForPosition(declaringParam.Value)
                         .FailedToEvaluateParameter(parameter.Name, ex.Message));
                 }
+            });
+
+    public ImmutableDictionary<string, Result> EvaluateExtensionConfigAssignment(ExtensionConfigAssignmentSymbol inputExtConfigAssignment)
+        => extensionConfigAssignmentResults.GetOrAdd(
+            inputExtConfigAssignment,
+            extConfigAssignment =>
+            {
+                if (extConfigAssignment.DeclaringExtensionConfigAssignment.Config is null)
+                {
+                    return ImmutableDictionary<string, Result>.Empty;
+                }
+
+                var context = GetExpressionEvaluationContext();
+                var configAssignmentProperties = extConfigAssignment.DeclaringExtensionConfigAssignment.Config.Properties;
+
+                var resultBuilder = ImmutableDictionary.CreateBuilder<string, Result>();
+
+                foreach (var property in configAssignmentProperties)
+                {
+                    var propertyName = property.TryGetKeyText();
+
+                    if (propertyName is null)
+                    {
+                        continue;
+                    }
+
+                    var intermediate = converter.ConvertToIntermediateExpression(property.Value);
+
+                    Result propertyResult;
+
+                    if (intermediate is ParameterKeyVaultReferenceExpression keyVaultReferenceExpr)
+                    {
+                        propertyResult = Result.For(keyVaultReferenceExpr);
+                    }
+                    else
+                    {
+                        try
+                        {
+                            propertyResult = Result.For(converter.ConvertExpression(intermediate).EvaluateExpression(context));
+                        }
+                        catch (Exception ex)
+                        {
+                            propertyResult = Result.For(
+                                DiagnosticBuilder.ForPosition(property.Value)
+                                    .FailedToEvaluateParameter(extConfigAssignment.Name, ex.Message));
+                        }
+                    }
+
+                    resultBuilder.Add(propertyName, propertyResult);
+                }
+
+                return resultBuilder.ToImmutableDictionary();
             });
 
     private Result EvaluateVariable(VariableSymbol variable)
@@ -402,8 +471,49 @@ public class ParameterAssignmentEvaluator
         }
         catch (Exception ex)
         {
-            Trace.WriteLine($"Failed to generate template for {model.Root.FileUri}: {ex}");
+            Trace.WriteLine($"Failed to generate template for {model.SourceFile.FileHandle.Uri}: {ex}");
             return new(x => x.ReferencedModuleHasErrors());
+        }
+    }
+
+
+    /// <summary>
+    /// Rewrites the external input function calls to use the externalInputs function with the index of the external input.
+    /// e.g. externalInput('sys.cli', 'foo') becomes externalInputs('0')
+    /// </summary>
+    private class ExternalInputExpressionRewriter : ExpressionRewriteVisitor
+    {
+        private readonly ExternalInputReferences externalInputReferences;
+
+        private ExternalInputExpressionRewriter(
+            ExternalInputReferences externalInputReferences)
+        {
+            this.externalInputReferences = externalInputReferences;
+        }
+
+        public static Expression Rewrite(
+            Expression expression,
+            ExternalInputReferences externalInputReferences)
+        {
+            var visitor = new ExternalInputExpressionRewriter(externalInputReferences);
+            var rewritten = visitor.Replace(expression);
+            return rewritten;
+        }
+
+        public override Expression ReplaceFunctionCallExpression(FunctionCallExpression expression)
+        {
+            if (LanguageConstants.IdentifierComparer.Equals(expression.Name, LanguageConstants.ExternalInputsArmFunctionName) &&
+                expression.SourceSyntax is FunctionCallSyntaxBase functionCallSyntax &&
+                externalInputReferences.ExternalInputIndexMap.TryGetValue(functionCallSyntax, out var definitionKey))
+            {
+                return new FunctionCallExpression(
+                    functionCallSyntax,
+                    LanguageConstants.ExternalInputsArmFunctionName,
+                    [ExpressionFactory.CreateStringLiteral(definitionKey)]
+                );
+            }
+
+            return base.ReplaceFunctionCallExpression(expression);
         }
     }
 }

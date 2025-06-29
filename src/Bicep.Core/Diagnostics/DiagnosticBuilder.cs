@@ -7,15 +7,16 @@ using Bicep.Core.CodeAction;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Modules;
-using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Providers;
-using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Diagnostics
 {
@@ -42,7 +43,8 @@ namespace Bicep.Core.Diagnostics
                 level,
                 DiagnosticSource.Compiler,
                 code,
-                message) { Uri = new($"https://aka.ms/bicep/core-diagnostics#{code}") };
+                message)
+            { Uri = new($"https://aka.ms/bicep/core-diagnostics#{code}") };
 
             private Diagnostic CoreError(string code, string message) => CoreDiagnostic(
                 DiagnosticLevel.Error,
@@ -81,8 +83,8 @@ namespace Bicep.Core.Diagnostics
                 ? $"The Template Spec reference \"{referenceValue}\" after resolving alias \"{aliasName}\" is not valid."
                 : $"The specified Template Spec reference \"{referenceValue}\" is not valid.";
 
-            private static string BuildBicepConfigurationClause(Uri? configFileUri) => configFileUri is not null
-                ? $"Bicep configuration \"{configFileUri.LocalPath}\""
+            private static string BuildBicepConfigurationClause(IOUri? configFileUri) => configFileUri is not null
+                ? $"Bicep configuration \"{configFileUri}\""
                 : $"built-in Bicep configuration";
 
             public Diagnostic UnrecognizedToken(string token) => CoreError(
@@ -191,7 +193,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic InvalidResourceType() => CoreError(
                 "BCP029",
-                "The resource type is not valid. Specify a valid resource type of format \"<types>@<apiVersion>\".");
+                "The resource type is not valid. Specify a valid resource type of format \"<type-name>@<apiVersion>\".");
 
             public Diagnostic InvalidOutputType(IEnumerable<string> validTypes) => CoreError(
                 "BCP030",
@@ -240,7 +242,8 @@ namespace Bicep.Core.Diagnostics
                     warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                     "BCP035",
                     $"The specified \"{blockName}\" declaration is missing the following required properties{sourceDeclarationClause}: {ToQuotedString(properties)}.{(showTypeInaccuracy ? TypeInaccuracyClause : string.Empty)}")
-                    with { Fixes = [codeFix] };
+                    with
+                { Fixes = [codeFix] };
             }
 
             public Diagnostic PropertyTypeMismatch(bool warnInsteadOfError, Symbol? sourceDeclaration, string property, TypeSymbol expectedType, TypeSymbol actualType, bool showTypeInaccuracy = false)
@@ -409,7 +412,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic ExpectedResourceTypeString() => CoreError(
                 "BCP068",
-                "Expected a resource type string. Specify a valid resource type of format \"<types>@<apiVersion>\".");
+                "Expected a resource type string. Specify a valid resource type of format \"<type-name>@<apiVersion>\".");
 
             public Diagnostic FunctionNotSupportedOperatorAvailable(string function, string @operator) => CoreError(
                 "BCP069",
@@ -487,17 +490,23 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic SymbolicNameDoesNotExistWithSuggestion(string name, string suggestedName) => CoreError(
                 "BCP082",
                 $"The name \"{name}\" does not exist in the current context. Did you mean \"{suggestedName}\"?")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedName))
-                ]};
+                ]
+            };
 
             public Diagnostic UnknownPropertyWithSuggestion(bool warnInsteadOfError, TypeSymbol type, string badProperty, string suggestedProperty) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP083",
                 $"The type \"{type}\" does not contain property \"{badProperty}\". Did you mean \"{suggestedProperty}\"?")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new CodeFix($"Change \"{badProperty}\" to \"{suggestedProperty}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedProperty))
-                ]};
+                ]
+            };
 
             public Diagnostic SymbolicNameCannotUseReservedNamespaceName(string name, IEnumerable<string> namespaces) => CoreError(
                 "BCP084",
@@ -519,17 +528,23 @@ namespace Bicep.Core.Diagnostics
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP088",
                 $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value is of type \"{actualStringLiteral}\". Did you mean \"{suggestedStringLiteral}\"?")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new CodeFix($"Change \"{actualStringLiteral}\" to \"{suggestedStringLiteral}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedStringLiteral))
-                ]};
+                ]
+            };
 
             public Diagnostic DisallowedPropertyWithSuggestion(bool warnInsteadOfError, string property, TypeSymbol type, string suggestedProperty) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                 "BCP089",
                 $"The property \"{property}\" is not allowed on objects of type \"{type}\". Did you mean \"{suggestedProperty}\"?")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new CodeFix($"Change \"{property}\" to \"{suggestedProperty}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedProperty))
-                ]};
+                ]
+            };
 
             public Diagnostic ModulePathHasNotBeenSpecified() => CoreError(
                 "BCP090",
@@ -543,9 +558,9 @@ namespace Bicep.Core.Diagnostics
                 "BCP092",
                 "String interpolation is not supported in file paths.");
 
-            public Diagnostic FilePathCouldNotBeResolved(string filePath, string parentPath) => CoreError(
+            public Diagnostic FilePathCouldNotBeResolved(string filePath, string baseUri) => CoreError(
                 "BCP093",
-                $"File path \"{filePath}\" could not be resolved relative to \"{parentPath}\".");
+                $"File path \"{filePath}\" could not be resolved relative to \"{baseUri}\".");
 
             public Diagnostic CyclicModuleSelfReference() => CoreError(
                 "BCP094",
@@ -606,9 +621,12 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic FunctionDoesNotExistInNamespaceWithSuggestion(Symbol namespaceType, string name, string suggestedName) => CoreError(
                 "BCP108",
                 $"The function \"{name}\" does not exist in namespace \"{namespaceType.Name}\". Did you mean \"{suggestedName}\"?")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedName))
-                ]};                
+                ]
+            };
 
             public Diagnostic FunctionDoesNotExistOnObject(TypeSymbol type, string name) => CoreError(
                 "BCP109",
@@ -617,9 +635,12 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic FunctionDoesNotExistOnObjectWithSuggestion(TypeSymbol type, string name, string suggestedName) => CoreError(
                 "BCP110",
                 $"The type \"{type}\" does not contain function \"{name}\". Did you mean \"{suggestedName}\"?")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedName))
-                ]};
+                ]
+            };
 
             public Diagnostic FilePathContainsControlChars() => CoreError(
                 "BCP111",
@@ -823,9 +844,16 @@ namespace Bicep.Core.Diagnostics
                 "BCP158",
                 $"Cannot access nested resources of type \"{wrongType}\". A resource type is required.");
 
-            public Diagnostic NestedResourceNotFound(string resourceName, string identifierName, IEnumerable<string> nestedResourceNames) => CoreError(
-                "BCP159",
-                $"The resource \"{resourceName}\" does not contain a nested resource named \"{identifierName}\". Known nested resources are: {ToQuotedString(nestedResourceNames)}.");
+            public Diagnostic NestedResourceNotFound(string resourceName, string identifierName, IEnumerable<string> nestedResourceNames)
+            {
+                var nestedResourceNamesClause = nestedResourceNames.Any()
+                    ? $" Known nested resources are: {ToQuotedString(nestedResourceNames)}."
+                    : string.Empty;
+
+                return CoreError(
+                    "BCP159",
+                    $"""The resource "{resourceName}" does not contain a nested resource named "{identifierName}".{nestedResourceNamesClause}""");
+            }
 
             public Diagnostic NestedResourceNotAllowedInLoop() => CoreError(
                 "BCP160",
@@ -909,9 +937,11 @@ namespace Bicep.Core.Diagnostics
                     ? $"Unique resource or deployment name is required when looping. The loop item variable \"{itemVariableName}\" must be referenced in at least one of the value expressions of the following properties: {ToQuotedString(expectedVariantProperties)}"
                     : $"Unique resource or deployment name is required when looping. The loop item variable \"{itemVariableName}\" or the index variable \"{indexVariableName}\" must be referenced in at least one of the value expressions of the following properties in the loop body: {ToQuotedString(expectedVariantProperties)}");
 
-            public Diagnostic FunctionOnlyValidInModuleSecureParameterAssignment(string functionName) => CoreError(
+            public Diagnostic FunctionOnlyValidInModuleSecureParameterAndExtensionConfigAssignment(string functionName, bool moduleExtensionConfigsEnabled) => CoreError(
                 "BCP180",
-                $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator.");
+                moduleExtensionConfigsEnabled
+                    ? $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator or a secure extension configuration property."
+                    : $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator.");
 
             public Diagnostic RuntimeValueNotAllowedInRunTimeFunctionArguments(string functionName, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
             {
@@ -951,7 +981,8 @@ namespace Bicep.Core.Diagnostics
                 "BCP186",
                 $"Unable to parse literal JSON value. Please ensure that it is well-formed.");
 
-            public Diagnostic FallbackPropertyUsed(string property) => CoreWarning(
+            public Diagnostic FallbackPropertyUsed(bool shouldDowngrade, string property) => CoreDiagnostic(
+                shouldDowngrade ? DiagnosticLevel.Info : DiagnosticLevel.Warning,
                 "BCP187",
                 $"The property \"{property}\" does not exist in the resource or type definition, although it might still be valid.{TypeInaccuracyClause}");
 
@@ -1031,10 +1062,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP202",
                 "Expected an extension alias name at this location.");
 
-            public Diagnostic ExtensionsAreDisabled() => CoreError(
-                "BCP203",
-                $@"Using extension declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.Extensibility)}"".");
-
             public Diagnostic UnrecognizedExtension(string identifier) => CoreError(
                 "BCP204",
                 $"Extension \"{identifier}\" is not recognized.");
@@ -1067,23 +1094,23 @@ namespace Bicep.Core.Diagnostics
                 "BCP211",
                 $"The module alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
 
-            public Diagnostic TemplateSpecModuleAliasNameDoesNotExistInConfiguration(string aliasName, Uri? configFileUri) => CoreError(
+            public Diagnostic TemplateSpecModuleAliasNameDoesNotExistInConfiguration(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP212",
                 $"The Template Spec module alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileUri)}.");
 
-            public Diagnostic OciArtifactModuleAliasNameDoesNotExistInConfiguration(string aliasName, Uri? configFileUri) => CoreError(
+            public Diagnostic OciArtifactModuleAliasNameDoesNotExistInConfiguration(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP213",
                 $"The OCI artifact module alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileUri)}.");
 
-            public Diagnostic InvalidTemplateSpecAliasSubscriptionNullOrUndefined(string aliasName, Uri? configFileUri) => CoreError(
+            public Diagnostic InvalidTemplateSpecAliasSubscriptionNullOrUndefined(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP214",
                 $"The Template Spec module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is in valid. The \"subscription\" property cannot be null or undefined.");
 
-            public Diagnostic InvalidTemplateSpecAliasResourceGroupNullOrUndefined(string aliasName, Uri? configFileUri) => CoreError(
+            public Diagnostic InvalidTemplateSpecAliasResourceGroupNullOrUndefined(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP215",
                 $"The Template Spec module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is in valid. The \"resourceGroup\" property cannot be null or undefined.");
 
-            public Diagnostic InvalidOciArtifactModuleAliasRegistryNullOrUndefined(string aliasName, Uri? configFileUri) => CoreError(
+            public Diagnostic InvalidOciArtifactModuleAliasRegistryNullOrUndefined(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP216",
                 $"The OCI artifact module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. The \"registry\" property cannot be null or undefined.");
 
@@ -1130,7 +1157,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic UnsupportedResourceTypeParameterOrOutputType(string resourceType) => CoreError(
                 "BCP227",
-                $"The type \"{resourceType}\" cannot be used as a parameter or output type. Extensibility types are currently not supported as parameters or outputs.");
+                $"The type \"{resourceType}\" cannot be used as a parameter or output type. Resource types from extensions are currently not supported as parameters or outputs.");
 
             public Diagnostic InvalidResourceScopeCannotBeResourceTypeParameter(string parameterName) => CoreError(
                 "BCP229",
@@ -1183,7 +1210,8 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic DeprecatedProvidersFunction(string functionName) => CoreWarning(
                 "BCP241",
                 $"The \"{functionName}\" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow.")
-                with { Styling = DiagnosticStyling.ShowCodeDeprecated };
+                with
+            { Styling = DiagnosticStyling.ShowCodeDeprecated };
 
             public Diagnostic LambdaFunctionsOnlyValidInFunctionArguments() => CoreError(
                 "BCP242",
@@ -1237,7 +1265,8 @@ namespace Bicep.Core.Diagnostics
             public IDiagnostic MissingParameterAssignment(IEnumerable<string> identifiers, CodeFix insertMissingCodefix) => CoreError(
                 "BCP258",
                 $"The following parameters are declared in the Bicep file but are missing an assignment in the params file: {ToQuotedString(identifiers)}.")
-                with { Fixes = [insertMissingCodefix] };
+                with
+            { Fixes = [insertMissingCodefix] };
 
             public Diagnostic MissingParameterDeclaration(string? identifier) => CoreError(
                 "BCP259",
@@ -1266,9 +1295,12 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic SymbolicNameShadowsAKnownFunction(string name, string knownFunctionNamespace, string knownFunctionName) => CoreError(
                 "BCP265",
                 $"The name \"{name}\" is not a function. Did you mean \"{knownFunctionNamespace}.{knownFunctionName}\"?")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new CodeFix($"Change \"{name}\" to \"{knownFunctionNamespace}.{knownFunctionName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, $"{knownFunctionNamespace}.{knownFunctionName}"))
-                ]};
+                ]
+            };
 
             public Diagnostic ExpectedMetadataIdentifier() => CoreError(
                 "BCP266",
@@ -1286,22 +1318,22 @@ namespace Bicep.Core.Diagnostics
                 "BCP269",
                 $"Function \"{functionName}\" cannot be used as a metadata decorator.");
 
-            public Diagnostic UnparsableBicepConfigFile(string configurationPath, string parsingErrorMessage) => CoreError(
+            public Diagnostic UnparsableBicepConfigFile(IOUri configFileUri, string parsingErrorMessage) => CoreError(
                 "BCP271",
-                $"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: {parsingErrorMessage.TrimEnd('.')}.");
+                $"Failed to parse the contents of the Bicep configuration file \"{configFileUri}\" as valid JSON: {parsingErrorMessage.TrimEnd('.')}.");
 
-            public Diagnostic UnloadableBicepConfigFile(string configurationPath, string loadErrorMessage) => CoreError(
+            public Diagnostic UnloadableBicepConfigFile(IOUri configFileUri, string loadErrorMessage) => CoreError(
                 "BCP272",
-                $"Could not load the Bicep configuration file \"{configurationPath}\": {loadErrorMessage.TrimEnd('.')}.");
+                $"Could not load the Bicep configuration file \"{configFileUri}\": {loadErrorMessage.TrimEnd('.')}.");
 
-            public Diagnostic InvalidBicepConfigFile(string configurationPath, string parsingErrorMessage) => CoreError(
+            public Diagnostic InvalidBicepConfigFile(IOUri configFileUri, string parsingErrorMessage) => CoreError(
                 "BCP273",
-                $"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\": {parsingErrorMessage.TrimEnd('.')}.");
+                $"Failed to parse the contents of the Bicep configuration file \"{configFileUri}\": {parsingErrorMessage.TrimEnd('.')}.");
 
-            public Diagnostic PotentialConfigDirectoryCouldNotBeScanned(string? directoryPath, string scanErrorMessage) => CoreDiagnostic(
+            public Diagnostic PotentialConfigDirectoryCouldNotBeScanned(IOUri? directoryIdentifier, string scanErrorMessage) => CoreDiagnostic(
                 DiagnosticLevel.Info, // should this be a warning instead?
                 "BCP274",
-                $"Error scanning \"{directoryPath}\" for bicep configuration: {scanErrorMessage.TrimEnd('.')}.");
+                $"Error scanning \"{directoryIdentifier}\" for bicep configuration: {scanErrorMessage.TrimEnd('.')}.");
 
             public Diagnostic FoundDirectoryInsteadOfFile(string directoryPath) => CoreError(
                 "BCP275",
@@ -1454,14 +1486,17 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic DereferenceOfPossiblyNullReference(string possiblyNullType, AccessExpressionSyntax accessExpression) => CoreWarning(
                 "BCP318",
                 $@"The value of type ""{possiblyNullType}"" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail.")
-                with { Fixes = [
+                with
+            {
+                Fixes = [
                     new(
                         "If you do not know whether the value will be null and the template would handle a null value for the overall expression, use a `.?` (safe dereference) operator to short-circuit the access expression if the base expression's value is null",
                         true,
                         CodeFixKind.QuickFix,
                         new(accessExpression.Span, accessExpression.AsSafeAccess().ToString())),
                     AsNonNullable(accessExpression.BaseExpression),
-                ]};
+                ]
+            };
 
             private static CodeFix AsNonNullable(SyntaxBase expression) => new(
                 "If you know the value will not be null, use a non-null assertion operator to inform the compiler that the value will not be null",
@@ -1480,7 +1515,8 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic PossibleNullReferenceAssignment(TypeSymbol expectedType, TypeSymbol actualType, SyntaxBase expression) => CoreWarning(
                 "BCP321",
                 $"Expected a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".")
-                with { Fixes = [AsNonNullable(expression)] };
+                with
+            { Fixes = [AsNonNullable(expression)] };
 
             public Diagnostic SafeDereferenceNotPermittedOnInstanceFunctions() => CoreError(
                 "BCP322",
@@ -1538,9 +1574,20 @@ namespace Bicep.Core.Diagnostics
                 "BCP335",
                 $"The provided value can have a length as large as {sourceMaxLength} and may be too long to assign to a target with a configured maximum length of {targetMaxLength}.");
 
-            public Diagnostic UnrecognizedParamsFileDeclaration() => CoreError(
-                "BCP337",
-                $@"This declaration type is not valid for a Bicep Parameters file. Specify a ""{LanguageConstants.UsingKeyword}"", ""{LanguageConstants.ExtendsKeyword}"", ""{LanguageConstants.ParameterKeyword}"" or ""{LanguageConstants.VariableKeyword}"" declaration.");
+            public Diagnostic UnrecognizedParamsFileDeclaration()
+            {
+                List<string> supportedDeclarations = [
+                    LanguageConstants.UsingKeyword,
+                    LanguageConstants.ExtendsKeyword,
+                    LanguageConstants.ParameterKeyword,
+                    LanguageConstants.VariableKeyword,
+                    LanguageConstants.TypeKeyword,
+                ];
+
+                return CoreError(
+                    "BCP337",
+                    $@"This declaration type is not valid for a Bicep Parameters file. Supported declarations: {ToQuotedString(supportedDeclarations)}.");
+            }
 
             public Diagnostic FailedToEvaluateParameter(string parameterName, string message) => CoreError(
                 "BCP338",
@@ -1687,11 +1734,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP377",
                 $"The extension alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
 
-            public Diagnostic InvalidOciArtifactExtensionAliasRegistryNullOrUndefined(string aliasName, Uri? configFileUri) => CoreError(
+            public Diagnostic InvalidOciArtifactExtensionAliasRegistryNullOrUndefined(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP378",
                 $"The OCI artifact extension alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. The \"registry\" property cannot be null or undefined.");
 
-            public Diagnostic OciArtifactExtensionAliasNameDoesNotExistInConfiguration(string aliasName, Uri? configFileUri) => CoreError(
+            public Diagnostic OciArtifactExtensionAliasNameDoesNotExistInConfiguration(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP379",
                 $"The OCI artifact extension alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileUri)}.");
 
@@ -1700,20 +1747,6 @@ namespace Bicep.Core.Diagnostics
                 $"Artifacts of type: \"{artifactType}\" are not supported."
             );
 
-            public Diagnostic ExtensionDeclarationKeywordIsDeprecated(ExtensionDeclarationSyntax syntax)
-            {
-                var codeFix = new CodeFix(
-                    $"Replace the {syntax.Keyword.Text} keyword with the extension keyword",
-                    true,
-                    CodeFixKind.QuickFix,
-                    new CodeReplacement(syntax.Keyword.Span, LanguageConstants.ExtensionKeyword));
-
-                return CoreWarning(
-                    "BCP381",
-                    @$"Declaring extension with the ""{syntax.Keyword.Text}"" keyword has been deprecated. Please use the ""extension"" keyword instead. Please see https://github.com/Azure/bicep/issues/14374 for more information.")
-                    with { Fixes = [codeFix] };
-            }
-
             public Diagnostic TypeIsNotParameterizable(string typeName) => CoreError(
                 "BCP383",
                 $"The \"{typeName}\" type is not parameterizable.");
@@ -1721,10 +1754,6 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic TypeRequiresParameterization(string typeName, int requiredArgumentCount) => CoreError(
                 "BCP384",
                 $"The \"{typeName}\" type requires {requiredArgumentCount} argument(s).");
-
-            public Diagnostic ResourceDerivedTypesUnsupported() => CoreError(
-                "BCP385",
-                $@"Using resource-derived types requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.ResourceDerivedTypes)}"".");
 
             public Diagnostic DecoratorMayNotTargetResourceDerivedType(string decoratorName) => CoreError(
                 "BCP386",
@@ -1766,11 +1795,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP396",
                 "The referenced extension types artifact has been published with malformed content.");
 
-            public Diagnostic InvalidExtension_ImplicitExtensionMissingConfig(Uri? configFileUri, string name) => CoreError(
+            public Diagnostic InvalidExtension_ImplicitExtensionMissingConfig(IOUri? configFileUri, string name) => CoreError(
                 "BCP397",
                 $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is referenced in the "{RootConfiguration.ImplicitExtensionsKey}" section, but is missing corresponding configuration in the "{RootConfiguration.ExtensionsKey}" section.""");
 
-            public Diagnostic InvalidExtension_NotABuiltInExtension(Uri? configFileUri, string name) => CoreError(
+            public Diagnostic InvalidExtension_NotABuiltInExtension(IOUri? configFileUri, string name) => CoreError(
                 "BCP398",
                 $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is configured as built-in in the "{RootConfiguration.ExtensionsKey}" section, but no built-in extension exists.""");
 
@@ -1797,7 +1826,101 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic ExtendsNotSupported() => CoreError(
                 "BCP406",
-                $"The \"{LanguageConstants.ExtendsKeyword}\" keyword is not supported");
+                $"Using \"{LanguageConstants.ExtendsKeyword}\" keyword requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.ExtendableParamFiles)}\".");
+
+            public Diagnostic MicrosoftGraphBuiltinRetired(ExtensionDeclarationSyntax? syntax)
+            {
+                var msGraphRegistryPath = "br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.9-preview";
+                var codeFix = new CodeFix(
+                    $"Replace built-in extension \'microsoftGraph\' with dynamic types registry path",
+                    true,
+                    CodeFixKind.QuickFix,
+                    new CodeReplacement(syntax?.SpecificationString.Span ?? TextSpan, $"\'{msGraphRegistryPath}\'"));
+
+                return CoreError(
+                "BCP407",
+                $"Built-in extension \"microsoftGraph\" is retired. Use dynamic types instead. See https://aka.ms/graphBicepDynamicTypes")
+                with
+                {
+                    Fixes = [codeFix]
+                };
+            }
+
+            public Diagnostic NameofInvalidOnUnnamedExpression() => CoreError(
+                "BCP408",
+                $"The \"{LanguageConstants.NameofFunctionName}\" function can only be used with an expression which has a name.");
+
+            public Diagnostic ResourceParameterizedTypeIsDeprecated(ParameterizedTypeInstantiationSyntaxBase syntax)
+            {
+                var fixToResourceInput = new CodeFix(
+                    $"Replace the 'resource<>' parameterized type with the 'resourceInput<>' parameterized type (for values that will be used in the right-hand side of a `resource` statement)",
+                    true,
+                    CodeFixKind.QuickFix,
+                    new CodeReplacement(syntax.Name.Span, LanguageConstants.TypeNameResourceInput));
+
+                var fixToResourceOutput = new CodeFix(
+                    $"Replace the 'resource<>' parameterized type with the 'resourceOutput<>' parameterized type (for values that should match the value of a `resource` symbol after it has been declared)",
+                    // we've encouraged users to adopt resource-derived types for when values will be passed to resource statements. Few if any existing usages should align with `resourceOutput<>`
+                    isPreferred: false,
+                    CodeFixKind.QuickFix,
+                    new CodeReplacement(syntax.Name.Span, LanguageConstants.TypeNameResourceOutput));
+
+                return CoreWarning(
+                    "BCP409",
+                    "The 'resource<>' parameterized type has been deprecated. Please specify whether you want this type to correspond to the resource input or the resource output.")
+                    with
+                { Fixes = [fixToResourceInput, fixToResourceOutput] };
+            }
+
+            public Diagnostic AttemptToDivideByZero() => CoreError("BCP410", "Division by zero is not supported.");
+
+            public Diagnostic TypeExpressionResolvesToUnassignableType(TypeSymbol type) => CoreError(
+                "BCP411",
+                $"The type \"{type}\" cannot be used in a type assignment because it does not fit within one of ARM's primitive type categories (string, int, bool, array, object).{TypeInaccuracyClause}");
+
+            public Diagnostic InvalidVariableType(IEnumerable<string> validTypes) => CoreError(
+                "BCP412",
+                $"The variable type is not valid. Please specify one of the following types: {ToQuotedString(validTypes)}.");
+
+            public Diagnostic FromEndArrayAccessNotSupportedOnBaseType(TypeSymbol baseType) => CoreError(
+                "BCP414",
+                $"The \"^\" indexing operator cannot be used on base expressions of type \"{baseType}\".");
+
+            public Diagnostic FromEndArrayAccessNotSupportedWithIndexType(TypeSymbol indexType) => CoreError(
+                "BCP415",
+                $"The \"^\" indexing operator cannot be used with index expressions of type \"{indexType}\".");
+
+            public Diagnostic SuppliedStringDoesNotMatchExpectedPattern(bool shouldWarn, string expectedPattern)
+                => CoreDiagnostic(
+                    shouldWarn ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                    "BCP416",
+                    $"The supplied string does not match the expected pattern of /${expectedPattern}/.");
+
+            public Diagnostic SpreadOperatorCannotBeUsedWithForLoop(SpreadExpressionSyntax spread) => CoreError(
+                "BCP417",
+                $"The spread operator \"{spread.Ellipsis.Text}\" cannot be used inside objects with property for-expressions.");
+
+            public Diagnostic ExtensionCannotBeReferenced() => CoreError(
+                "BCP418",
+                "Extensions cannot be referenced here. Extensions can only be referenced by module extension configurations.");
+
+            public Diagnostic InvalidReservedImplicitExtensionNamespace(string name) => CoreError(
+                "BCP419",
+                $"Namespace name \"{name}\", and cannot be used an extension name.");
+
+            public Diagnostic ScopeKindUnresolvableAtCompileTime() => CoreError(
+                "BCP420",
+                "The scope could not be resolved at compile time because the supplied expression is ambiguous or too complex. Scoping expressions must be reducible to a specific kind of scope without knowledge of parameter values.");
+
+            public Diagnostic SecureOutputsNotSupportedWithLocalDeploy(string moduleName) => CoreError(
+                "BCP421",
+                $"""Module "{moduleName}" contains one or more secure outputs, which are not supported with "{LanguageConstants.TargetScopeKeyword}" set to "{LanguageConstants.TargetScopeTypeLocal}".""");
+
+            public Diagnostic InstanceFunctionCallOnPossiblyNullBase(TypeSymbol baseType, SyntaxBase expression) => CoreWarning(
+                "BCP422",
+                $"A resource of type \"{baseType}\" may or may not exist when this function is called, which could cause the deployment to fail.")
+                with
+            { Fixes = [AsNonNullable(expression)] };
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

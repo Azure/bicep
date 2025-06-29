@@ -16,17 +16,23 @@ namespace Bicep.Core.Semantics
         public static SyntaxBase? TryGetBodyPropertyValue(this ResourceSymbol resourceSymbol, string propertyName)
             => TryGetBodyProperty(resourceSymbol, propertyName)?.Value;
 
-        public static ObjectPropertySyntax UnTryGetBodyProperty(this ResourceSymbol resourceSymbol, string propertyName)
-            => resourceSymbol.TryGetBodyProperty(propertyName) ?? throw new ArgumentException($"Expected resource syntax body to contain property '{propertyName}'");
+        public static ObjectPropertySyntax GetBodyProperty(this ResourceSymbol resourceSymbol, string propertyName)
+            => resourceSymbol.TryGetBodyProperty(propertyName) ?? throw new ArgumentException($"Expected resource syntax body to contain property '{propertyName}'.");
 
-        public static SyntaxBase UnTryGetBodyPropertyValue(this ResourceSymbol resourceSymbol, string propertyName)
-            => resourceSymbol.TryGetBodyPropertyValue(propertyName) ?? throw new ArgumentException($"Expected resource syntax body to contain property '{propertyName}'");
+        public static SyntaxBase GetBodyPropertyValue(this ResourceSymbol resourceSymbol, string propertyName)
+            => resourceSymbol.TryGetBodyPropertyValue(propertyName) ?? throw new ArgumentException($"Expected resource syntax body to contain property '{propertyName}'.");
 
         public static ObjectPropertySyntax? TryGetBodyProperty(this ModuleSymbol moduleSymbol, string propertyName)
             => moduleSymbol.DeclaringModule.TryGetBody()?.TryGetPropertyByName(propertyName);
 
         public static SyntaxBase? TryGetBodyPropertyValue(this ModuleSymbol moduleSymbol, string propertyName)
             => TryGetBodyProperty(moduleSymbol, propertyName)?.Value;
+
+        public static ObjectPropertySyntax GetBodyProperty(this ModuleSymbol moduleSymbol, string propertyName)
+            => moduleSymbol.TryGetBodyProperty(propertyName) ?? throw new ArgumentException($"Expected module syntax body to contain property '{propertyName}'.");
+
+        public static SyntaxBase GetBodyPropertyValue(this ModuleSymbol moduleSymbol, string propertyName)
+            => moduleSymbol.TryGetBodyPropertyValue(propertyName) ?? throw new ArgumentException($"Expected module syntax body to contain property '{propertyName}'.");
 
         public static bool IsSecure(this ParameterSymbol parameterSymbol)
         {
@@ -88,15 +94,15 @@ namespace Bicep.Core.Semantics
         public static bool CanBeReferenced(this DeclaredSymbol declaredSymbol)
             => declaredSymbol is not OutputSymbol and not MetadataSymbol;
 
-        public static string? TryGetDescriptionFromDecorator(this DeclaredSymbol symbol)
-            => symbol.DeclaringSyntax is DecorableSyntax decorableSyntax ? DescriptionHelper.TryGetFromDecorator(symbol.Context.Compilation.GetSemanticModel(symbol.Context.SourceFile), decorableSyntax) : null;
+        public static string? TryGetDescriptionFromDecorator(this DeclaredSymbol symbol, SemanticModel model)
+            => symbol.DeclaringSyntax is DecorableSyntax decorableSyntax ? DescriptionHelper.TryGetFromDecorator(model, decorableSyntax) : null;
 
-        public static DecoratorSyntax? TryGetDecorator(this Symbol symbol, string @namespace, string decoratorName)
+        public static DecoratorSyntax? TryGetDecorator(this Symbol symbol, SemanticModel model, string @namespace, string decoratorName)
             => symbol is DeclaredSymbol declaredSymbol && declaredSymbol.DeclaringSyntax is DecorableSyntax decorableSyntax ?
-                SemanticModelHelper.TryGetDecoratorInNamespace(declaredSymbol.Context.SemanticModel, decorableSyntax, @namespace, decoratorName) :
+                SemanticModelHelper.TryGetDecoratorInNamespace(model, decorableSyntax, @namespace, decoratorName) :
                 null;
 
-        public static bool IsExported(this Symbol symbol)
-            => TryGetDecorator(symbol, SystemNamespaceType.BuiltInName, LanguageConstants.ExportPropertyName) is { };
+        public static bool IsExported(this Symbol symbol, SemanticModel model)
+            => TryGetDecorator(symbol, model, SystemNamespaceType.BuiltInName, LanguageConstants.ExportPropertyName) is { };
     }
 }

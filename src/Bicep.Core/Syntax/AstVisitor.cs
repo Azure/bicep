@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
@@ -73,6 +74,7 @@ namespace Bicep.Core.Syntax
         {
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Name);
+            this.Visit(syntax.Type);
             this.Visit(syntax.Value);
         }
 
@@ -330,6 +332,13 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.SpecificationString);
             this.Visit(syntax.WithClause);
             this.Visit(syntax.AsClause);
+        }
+
+        public override void VisitExtensionConfigAssignmentSyntax(ExtensionConfigAssignmentSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.SpecificationString);
+            this.Visit(syntax.WithClause);
         }
 
         public override void VisitExtensionWithClauseSyntax(ExtensionWithClauseSyntax syntax)

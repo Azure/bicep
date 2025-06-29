@@ -9,6 +9,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
@@ -35,8 +36,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public SecretsInParamsMustBeSecureRule() : base(
             code: Code,
             description: CoreResources.SecretsInParamsRule_Description,
-            LinterRuleCategory.Security,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
+            LinterRuleCategory.Security)
         { }
 
         public override string FormatMessage(params object[] values)
@@ -59,7 +59,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private Diagnostic? AnalyzeUnsecuredParameter(SemanticModel model, DiagnosticLevel diagnosticLevel, ParameterSymbol parameterSymbol)
+        private IDiagnostic? AnalyzeUnsecuredParameter(SemanticModel model, DiagnosticLevel diagnosticLevel, ParameterSymbol parameterSymbol)
         {
             string name = parameterSymbol.Name;
             TypeSymbol type = parameterSymbol.Type;
@@ -69,23 +69,36 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 {
                     if (!AllowedRegex.IsMatch(name))
                     {
-                        // Create fix
-                        var decorator = SyntaxFactory.CreateDecorator("secure");
-                        var newline = model.Configuration.Formatting.Data.NewlineKind.ToEscapeSequence();
-                        var decoratorText = $"{decorator}{newline}";
-                        var fixSpan = new TextSpan(parameterSymbol.DeclaringSyntax.Span.Position, 0);
-                        var codeReplacement = new CodeReplacement(fixSpan, decoratorText);
-
-                        return CreateFixableDiagnosticForSpan(
-                            diagnosticLevel,
-                            parameterSymbol.NameSource.Span,
-                            new CodeFix("Mark parameter as secure", isPreferred: true, CodeFixKind.QuickFix, codeReplacement),
-                            name);
+                        return CreateDiagnostic(model, parameterSymbol, diagnosticLevel);
                     }
                 }
             }
 
+            foreach (var referencedSymbol in model.Binder.GetSymbolsReferencedInDeclarationOf(parameterSymbol))
+            {
+                if (referencedSymbol is ParameterSymbol referencedParameter && referencedParameter.IsSecure())
+                {
+                    // The default vlaue has a reference to a parameter marked as secure
+                    return CreateDiagnostic(model, parameterSymbol, diagnosticLevel);
+                }
+            }
+
             return null;
+        }
+
+        private IDiagnostic CreateDiagnostic(SemanticModel model, ParameterSymbol parameterSymbol, DiagnosticLevel diagnosticLevel)
+        {
+            var decorator = SyntaxFactory.CreateDecorator("secure");
+            var newline = model.Configuration.Formatting.Data.NewlineKind.ToEscapeSequence();
+            var decoratorText = $"{decorator}{newline}";
+            var fixSpan = new TextSpan(parameterSymbol.DeclaringSyntax.Span.Position, 0);
+            var codeReplacement = new CodeReplacement(fixSpan, decoratorText);
+
+            return CreateFixableDiagnosticForSpan(
+                diagnosticLevel,
+                parameterSymbol.NameSource.Span,
+                new CodeFix("Mark parameter as secure", isPreferred: true, CodeFixKind.QuickFix, codeReplacement),
+                parameterSymbol.Name);
         }
     }
 }

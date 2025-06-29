@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "308803406197414192"
+      "templateHash": "5964134893459816940"
     }
   },
   "parameters": {
@@ -113,30 +113,17 @@
           "rdb-backup-enabled": "true",
           "rdb-backup-frequency": "60",
           "rdb-backup-max-snapshot-count": "1",
-          "rdb-storage-connection-string": "[format('DefaultEndpointsProtocol=https;BlobEndpoint=https://{0}.blob.{1};AccountName={2};AccountKey={3}', parameters('storageAccountName'), environment().suffixes.storage, parameters('storageAccountName'), listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2021-04-01').keys[0].value)]"
+          "rdb-storage-connection-string": "[format('DefaultEndpointsProtocol=https;BlobEndpoint=https://{0}.blob.{1};AccountName={2};AccountKey={3}', parameters('storageAccountName'), environment().suffixes.storage, parameters('storageAccountName'), listKeys('storageAccount', '2021-04-01').keys[0].value)]"
         }
-      },
-      "dependsOn": [
-        "storageAccount"
-      ]
+      }
     },
     "diagSettings": {
-      "type": "Microsoft.Insights/diagnosticSettings",
+      "type": "microsoft.insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.Cache/redis/{0}', parameters('redisCacheName'))]",
       "name": "[parameters('redisCacheName')]",
       "properties": {
-        "storageAccountId": "[parameters('existingDiagnosticsStorageAccountId')]",
-        "metrics": [
-          {
-            "timeGrain": "AllMetrics",
-            "enabled": "[parameters('diagnosticsEnabled')]",
-            "retentionPolicy": {
-              "days": 90,
-              "enabled": "[parameters('diagnosticsEnabled')]"
-            }
-          }
-        ]
+        "storageAccountId": "[parameters('existingDiagnosticsStorageAccountId')]"
       },
       "dependsOn": [
         "cache"

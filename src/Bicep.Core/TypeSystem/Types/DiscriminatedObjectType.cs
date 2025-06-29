@@ -5,10 +5,10 @@ using System.Collections.Immutable;
 
 namespace Bicep.Core.TypeSystem.Types
 {
-    public class DiscriminatedObjectType : TypeSymbol
+    public class DiscriminatedObjectType : ObjectLikeType
     {
         public DiscriminatedObjectType(string name, TypeSymbolValidationFlags validationFlags, string discriminatorKey, IEnumerable<ITypeReference> unionMembers)
-            : base(name)
+            : base(name, validationFlags)
         {
             var unionMembersByKey = new Dictionary<string, ObjectType>();
             var unionKeyTypes = new List<StringLiteralType>();
@@ -41,9 +41,8 @@ namespace Bicep.Core.TypeSystem.Types
 
             // NOTE(kylealbert): keys are bicep string literals (ex: "'a'" and not "a")
             UnionMembersByKey = unionMembersByKey.ToImmutableDictionary();
-            ValidationFlags = validationFlags;
             DiscriminatorKeysUnionType = TypeHelper.CreateTypeUnion(unionKeyTypes);
-            DiscriminatorProperty = new TypeProperty(discriminatorKey, DiscriminatorKeysUnionType, discriminatorPropertyFlags);
+            DiscriminatorProperty = new NamedTypeProperty(discriminatorKey, DiscriminatorKeysUnionType, discriminatorPropertyFlags);
         }
 
         public override TypeKind TypeKind => TypeKind.DiscriminatedObject;
@@ -52,9 +51,7 @@ namespace Bicep.Core.TypeSystem.Types
 
         public ImmutableDictionary<string, ObjectType> UnionMembersByKey { get; }
 
-        public override TypeSymbolValidationFlags ValidationFlags { get; }
-
-        public TypeProperty DiscriminatorProperty { get; }
+        public NamedTypeProperty DiscriminatorProperty { get; }
 
         public string DiscriminatorKey => DiscriminatorProperty.Name;
 

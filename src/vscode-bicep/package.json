@@ -10,7 +10,7 @@
   "preview": false,
   "aiKey": "0c6ae279ed8443289764825290e4f9e2-1a736e7c-1324-4338-be46-fc2a58ae4d14-7255",
   "engines": {
-    "vscode": "^1.82.0"
+    "vscode": "^1.90.0"
   },
   "categories": [
     "Azure",
@@ -95,11 +95,6 @@
           "description": "When completing 'br:' module references, query Azure for all container registries accessible to the user (may be slow). If this option is off, only registries configured under moduleAliases in bicepconfig.json will be listed.",
           "default": false
         },
-        "bicep.experimental.disableDeploymentPane": {
-          "type": "boolean",
-          "description": "Disable the experimental Bicep Deployment Pane.",
-          "default": false
-        },
         "bicep.trace.server": {
           "type": "string",
           "enum": [
@@ -182,14 +177,12 @@
     "commands": [
       {
         "command": "bicep.showDeployPane",
-        "when": "!config.bicep.experimental.disableDeploymentPane",
         "title": "Show Deployment Pane",
         "category": "Bicep",
         "icon": "$(cloud-upload)"
       },
       {
         "command": "bicep.showDeployPaneToSide",
-        "when": "!config.bicep.experimental.disableDeploymentPane",
         "title": "Show Deployment Pane to the Side",
         "category": "Bicep",
         "icon": "$(cloud-upload)"
@@ -284,6 +277,11 @@
         "category": "Bicep Internal"
       },
       {
+        "command": "bicep.internal.postExtraction",
+        "title": "(Perform operations after var/param/type extractions)",
+        "category": "Bicep Internal"
+      },
+      {
         "$section": "================== Walkthrough commands (not visible to users) ==================",
         "command": "bicep.gettingStarted.createBicepFile",
         "title": "Create Empty Bicep File (Walkthrough)",
@@ -340,7 +338,7 @@
       "editor/title": [
         {
           "command": "bicep.showDeployPaneToSide",
-          "when": "!config.bicep.experimental.disableDeploymentPane && (editorLangId == bicep || editorLangId == bicep-params)",
+          "when": "editorLangId == bicep || editorLangId == bicep-params",
           "alt": "bicep.showDeployPane",
           "group": "navigation"
         },
@@ -399,12 +397,12 @@
         },
         {
           "command": "bicep.showDeployPane",
-          "when": "!config.bicep.experimental.disableDeploymentPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
+          "when": "resourceLangId == bicep || resourceLangId == bicep-params",
           "group": "2_bicep_2_deploy"
         },
         {
           "command": "bicep.showDeployPaneToSide",
-          "when": "!config.bicep.experimental.disableDeploymentPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
+          "when": "resourceLangId == bicep || resourceLangId == bicep-params",
           "group": "2_bicep_2_deploy"
         },
         {
@@ -461,12 +459,12 @@
         },
         {
           "command": "bicep.showDeployPane",
-          "when": "!config.bicep.experimental.disableDeploymentPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
+          "when": "resourceLangId == bicep || resourceLangId == bicep-params",
           "group": "2_bicep_2_deploy"
         },
         {
           "command": "bicep.showDeployPaneToSide",
-          "when": "!config.bicep.experimental.disableDeploymentPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
+          "when": "resourceLangId == bicep || resourceLangId == bicep-params",
           "group": "2_bicep_2_deploy"
         },
         {
@@ -528,12 +526,12 @@
         },
         {
           "command": "bicep.showDeployPane",
-          "when": "!config.bicep.experimental.disableDeploymentPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
+          "when": "resourceLangId == bicep || resourceLangId == bicep-params",
           "group": "2_bicep_2_deploy"
         },
         {
           "command": "bicep.showDeployPaneToSide",
-          "when": "!config.bicep.experimental.disableDeploymentPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
+          "when": "resourceLangId == bicep || resourceLangId == bicep-params",
           "group": "2_bicep_2_deploy"
         },
         {
@@ -585,12 +583,10 @@
         },
         {
           "command": "bicep.showDeployPane",
-          "when": "!config.bicep.experimental.disableDeploymentPane",
           "group": "0_bicep"
         },
         {
           "command": "bicep.showDeployPaneToSide",
-          "when": "!config.bicep.experimental.disableDeploymentPane",
           "group": "0_bicep"
         },
         {
@@ -626,6 +622,10 @@
         },
         {
           "command": "bicep.internal.showModuleSourceFile",
+          "when": "never"
+        },
+        {
+          "command": "bicep.internal.postExtraction",
           "when": "never"
         }
       ]
@@ -706,7 +706,7 @@
           {
             "id": "deployToAzure",
             "title": "Deploy to Azure",
-            "description": "It's time to get these resources into Azure. If you don't have the [Azure Account Extension](command:extension.open?%5B%22ms-vscode.azure-account%22%5D) installed, you will need it to complete this step.\n[Deploy](command:bicep.deploy?%7B%22walkthrough%22%3A%22true%22%7D)",
+            "description": "It's time to get these resources into Azure. You will be asked to sign in to Azure if you haven't already.",
             "media": {
               "image": "media/walkthroughs/gettingStarted/5_Deploy.gif",
               "altText": "Example of deploying Bicep file to Azure"
@@ -752,8 +752,8 @@
     "build:prod": "tsc --noEmit && webpack --mode production",
     "build:e2e": "tsc -p ./tsconfig.e2e.json",
     "watch": "webpack --watch --mode development --stats=minimal",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "lint:fix": "eslint . --ext ts,tsx --report-unused-disable-directives --fix",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --report-unused-disable-directives --fix",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "$test:e2e.comment": "use testlocal:e2e to run on a local Mac/Linux/Windows (not PowerShell) machine",
     "test:e2e": "node ./out/test/e2e/runTests.js",
@@ -766,73 +766,74 @@
     "package:local": "rimraf ./bicepLanguageServer && cp -r ../Bicep.LangServer/bin/Debug/net8.0 ./bicepLanguageServer && npm run package"
   },
   "devDependencies": {
-    "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.22.0",
+    "@ianvs/prettier-plugin-sort-imports": "^4.4.2",
     "@types/cytoscape": "^3.21.7",
     "@types/fs-extra": "^11.0.4",
-    "@types/jest": "^29.5.12",
-    "@types/mocha": "^10.0.7",
-    "@types/node": "^22.5.5",
-    "@types/react": "^18.3.5",
+    "@types/jest": "^29.5.13",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.15.2",
+    "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.0",
     "@types/react-test-renderer": "^18.3.0",
-    "@types/semver": "^7.5.8",
+    "@types/semver": "^7.7.0",
     "@types/triple-beam": "^1.3.5",
-    "@types/vscode": "^1.82.0",
+    "@types/vscode": "^1.90.0",
     "@types/webpack": "^5.28.5",
-    "@typescript-eslint/eslint-plugin": "^8.5.0",
-    "@typescript-eslint/parser": "^8.5.0",
-    "@vscode/test-electron": "^2.4.1",
-    "@vscode/vsce": "^3.1.0",
-    "copy-webpack-plugin": "^12.0.2",
+    "@typescript-eslint/eslint-plugin": "^8.28.0",
+    "@typescript-eslint/parser": "^8.30.1",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.2.1",
+    "copy-webpack-plugin": "^13.0.0",
     "css-loader": "^7.1.2",
-    "esbuild-loader": "^4.2.2",
-    "eslint": "^8.57.0",
-    "eslint-plugin-header": "^3.1.1",
-    "eslint-plugin-jest": "^28.8.3",
-    "eslint-plugin-react": "^7.35.2",
+    "esbuild-loader": "^4.3.0",
+    "eslint": "^9.29.0",
+    "eslint-plugin-jest": "^28.11.0",
+    "eslint-plugin-notice": "^1.0.0",
+    "eslint-plugin-react": "^7.37.5",
     "fork-ts-checker-webpack-plugin": "^9.0.2",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "jest-styled-components": "^7.2.0",
     "moment": "^2.30.1",
     "ncp": "^2.0.0",
-    "nerdbank-gitversioning": "^3.6.143",
-    "prettier": "^3.3.3",
+    "nerdbank-gitversioning": "^3.7.115",
+    "prettier": "^3.5.3",
     "react-test-renderer": "^18.3.1",
     "rimraf": "^6.0.1",
-    "semver": "^7.6.3",
+    "semver": "^7.7.1",
     "style-loader": "^4.0.0",
     "svg-inline-loader": "^0.8.2",
-    "terser-webpack-plugin": "5.3.10",
-    "ts-jest": "^29.2.5",
+    "terser-webpack-plugin": "5.3.14",
+    "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.4",
-    "webpack": "^5.94.0",
-    "webpack-cli": "^5.1.4"
+    "typescript": "^5.7.3",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1"
   },
   "dependencies": {
     "@azure/arm-managementgroups": "2.0.2",
-    "@azure/arm-resources": "^5.2.0",
+    "@azure/arm-resources": "^6.0.0",
     "@azure/arm-subscriptions": "^5.1.0",
-    "@azure/identity": "^4.4.1",
-    "@microsoft/vscode-azext-azureutils": "^3.1.1",
-    "@microsoft/vscode-azext-utils": "^2.5.7",
-    "@vscode-bicep-ui/components": "file:../vscode-bicep-ui/packages/components",
-    "@vscode-bicep-ui/packages": "file:../vscode-bicep-ui/apps",
-    "@vscode/webview-ui-toolkit": "^1.4.0",
-    "cytoscape": "^3.30.2",
-    "cytoscape-elk": "^2.2.0",
-    "fs-extra": "^11.2.0",
+    "@azure/identity": "^4.10.0",
+    "@microsoft/vscode-azext-azureauth": "^4.1.1",
+    "@microsoft/vscode-azext-azureutils": "^3.1.3",
+    "@microsoft/vscode-azext-utils": "^2.6.6",
+    "@vscode/codicons": "^0.0.36",
+    "cytoscape": "^3.30.4",
+    "cytoscape-elk": "^2.3.0",
+    "fs-extra": "^11.3.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-icons": "^5.3.0",
-    "styled-components": "^6.1.13",
-    "stylis": "^4.3.4",
+    "react-icons": "^5.5.0",
+    "styled-components": "^6.1.18",
+    "stylis": "^4.3.6",
     "triple-beam": "^1.4.1",
     "vscode-languageclient": "^9.0.1",
     "vscode-nls": "^5.2.0",
-    "winston": "^3.14.2",
-    "winston-transport": "^4.7.1"
+    "winston": "^3.17.0",
+    "winston-transport": "^4.9.0"
   },
   "extensionDependencies": [
     "ms-dotnettools.vscode-dotnet-runtime"

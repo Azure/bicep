@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8034218730798252475"
+      "templateHash": "16793550498477002119"
     }
   },
   "parameters": {
@@ -56,10 +56,7 @@
         "email": "[variables('usersSet')[copyIndex()].email]",
         "state": "[variables('usersSet')[copyIndex()].state]",
         "note": "[variables('usersSet')[copyIndex()].notes]"
-      },
-      "dependsOn": [
-        "parentAPIM"
-      ]
+      }
     }
   }
 }

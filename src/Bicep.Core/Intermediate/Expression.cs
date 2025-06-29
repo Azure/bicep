@@ -233,6 +233,7 @@ public record ModuleOutputPropertyAccessExpression(
     SyntaxBase? SourceSyntax,
     Expression Base,
     string PropertyName,
+    bool IsSecureOutput,
     AccessExpressionFlags Flags
 ) : AccessExpression(SourceSyntax, Base, new StringLiteralExpression(null, PropertyName), Flags)
 {
@@ -387,7 +388,7 @@ public record DeclaredMetadataExpression(
     protected override object? GetDebugAttributes() => new { Name };
 }
 
-public record DeclaredExtensionExpression(
+public record ExtensionExpression(
     SyntaxBase? SourceSyntax,
     string Name,
     NamespaceSettings Settings,
@@ -396,9 +397,20 @@ public record DeclaredExtensionExpression(
 ) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)
-        => visitor.VisitDeclaredExtensionExpression(this);
+        => visitor.VisitExtensionExpression(this);
 
     protected override object? GetDebugAttributes() => new { Name };
+}
+
+public record ExtensionReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    ExtensionNamespaceSymbol ExtensionNamespace)
+    : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitExtensionReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { ExtensionAlias = ExtensionNamespace.Name };
 }
 
 public abstract record TypeDeclaringExpression(
@@ -439,6 +451,7 @@ public record DeclaredParameterExpression(
 public record DeclaredVariableExpression(
     SyntaxBase? SourceSyntax,
     string Name,
+    TypeExpression? Type,
     Expression Value,
     Expression? Description = null,
     Expression? Exported = null
@@ -491,6 +504,7 @@ public record DeclaredResourceExpression(
     SyntaxBase BodySyntax,
     Expression Body,
     ImmutableArray<ResourceDependencyExpression> DependsOn,
+    ImmutableDictionary<string, ArrayExpression> DecoratorConfig,
     Expression? Description = null
 ) : DescribableExpression(SourceSyntax, Description)
 {
@@ -505,6 +519,7 @@ public record DeclaredModuleExpression(
     SyntaxBase BodySyntax,
     Expression Body,
     Expression? Parameters,
+    Expression? ExtensionConfigs,
     ImmutableArray<ResourceDependencyExpression> DependsOn,
     Expression? Description = null
 ) : DescribableExpression(SourceSyntax, Description)
@@ -525,7 +540,7 @@ public record ResourceDependencyExpression(
 public record ProgramExpression(
     SyntaxBase? SourceSyntax,
     ImmutableArray<DeclaredMetadataExpression> Metadata,
-    ImmutableArray<DeclaredExtensionExpression> Extensions,
+    ImmutableArray<ExtensionExpression> Extensions,
     ImmutableArray<DeclaredTypeExpression> Types,
     ImmutableArray<DeclaredParameterExpression> Parameters,
     ImmutableArray<DeclaredVariableExpression> Variables,
@@ -950,8 +965,17 @@ public record ParameterKeyVaultReferenceExpression(
 
 public record ResourceDerivedTypeExpression(
     SyntaxBase? SourceSyntax,
-    ResourceType RootResourceType
-) : TypeExpression(SourceSyntax, RootResourceType.Body.Type)
+    ResourceType RootResourceType,
+    ResourceDerivedTypeVariant Variant) : TypeExpression(
+        SourceSyntax,
+        Variant switch
+        {
+            ResourceDerivedTypeVariant.Input
+                => TypeHelper.RemovePropertyFlagsRecursively(RootResourceType.Body.Type, TypePropertyFlags.WriteOnly),
+            ResourceDerivedTypeVariant.Output
+                => TypeHelper.RemovePropertyFlagsRecursively(RootResourceType.Body.Type, TypePropertyFlags.ReadOnly),
+            _ => RootResourceType.Body.Type,
+        })
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitResourceDerivedTypeExpression(this);

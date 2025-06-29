@@ -6,12 +6,13 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
+using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Utils;
@@ -163,17 +164,17 @@ var test = isTrue(|)
         [TestMethod]
         public async Task Signature_help_works_with_parameterized_types()
         {
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(@"type resourceDerived = resource<|>");
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(@"type resourceDerived = resourceInput<|>");
 
-            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFeatureOverrides(new(ResourceDerivedTypesEnabled: true)));
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext);
             var file = await new ServerRequestHelper(TestContext, server).OpenFile(text);
 
             var signatureHelp = await file.RequestSignatureHelp(cursor);
             var signature = signatureHelp!.Signatures.Single();
 
-            signature.Label.Should().Be("resource<ResourceTypeIdentifier: string>");
+            signature.Label.Should().Be("resourceInput<ResourceTypeIdentifier: string>");
             signature.Documentation!.MarkupContent!.Value.Should().Be("""
-                Use the type definition of the body of a specific resource rather than a user-defined type.
+                Use the type definition of the input for a specific resource rather than a user-defined type.
 
                 NB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.
                 """);

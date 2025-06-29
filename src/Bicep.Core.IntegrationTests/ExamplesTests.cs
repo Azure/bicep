@@ -24,16 +24,18 @@ namespace Bicep.Core.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private async Task RunExampleTest(EmbeddedFile embeddedBicep, FeatureProviderOverrides features, string jsonFileExtension)
+        public static async Task RunExampleTest(TestContext testContext, EmbeddedFile embeddedBicep, FeatureProviderOverrides? features = null, string jsonFileExtension = ".json")
         {
-            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, embeddedBicep);
+            features ??= new();
+            var baselineFolder = BaselineFolder.BuildOutputFolder(testContext, embeddedBicep);
             var bicepFile = baselineFolder.EntryFile;
             var jsonFile = baselineFolder.GetFileOrEnsureCheckedIn(Path.ChangeExtension(embeddedBicep.FileName, jsonFileExtension));
 
             var compiler = Services.WithFeatureOverrides(features).Build().GetCompiler();
             var compilation = await compiler.CreateCompilation(bicepFile.OutputFileUri);
+            var model = compilation.GetEntrypointSemanticModel();
 
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
+            var emitter = new TemplateEmitter(model);
 
             foreach (var (file, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
             {
@@ -42,7 +44,7 @@ namespace Bicep.Core.IntegrationTests
                     diagnostics.Where(d => !IsPermittedMissingTypeDiagnostic(d)),
                     diagnostics =>
                     {
-                        diagnostics.Should().BeEmpty("{0} should not have warnings or errors", file.FileUri.LocalPath);
+                        diagnostics.Should().BeEmpty("{0} should not have warnings or errors", file.FileHandle.Uri);
                     });
             }
 
@@ -60,31 +62,22 @@ namespace Bicep.Core.IntegrationTests
                     jsonFile.ShouldHaveExpectedJsonValue();
 
                     // validate that the template is parseable by the deployment engine
-                    TemplateHelper.TemplateShouldBeValid(stringWriter.ToString());
+                    UnitTests.Utils.TemplateHelper.TemplateShouldBeValid(stringWriter.ToString(), model.Features);
                 }
             }
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetAllExampleData), DynamicDataSourceType.Method)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public Task ExampleIsValid(EmbeddedFile embeddedBicep)
-            => RunExampleTest(embeddedBicep, new(), ".json");
+            => RunExampleTest(TestContext, embeddedBicep, new(), ".json");
 
         [DataTestMethod]
-        [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method)]
+        [DynamicData(nameof(GetAllExampleData), DynamicDataSourceType.Method)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public Task ExampleIsValid_using_experimental_symbolic_names(EmbeddedFile embeddedBicep)
-            => RunExampleTest(embeddedBicep, new(SymbolicNameCodegenEnabled: true), ".symbolicnames.json");
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetExtensibilityExampleData), DynamicDataSourceType.Method)]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public Task ExampleIsValid_extensibility(EmbeddedFile embeddedBicep)
-            => RunExampleTest(
-                embeddedBicep,
-                new(ExtensibilityEnabled: true),
-                ".json");
+            => RunExampleTest(TestContext, embeddedBicep, new(SymbolicNameCodegenEnabled: true), ".symbolicnames.json");
 
         [DataTestMethod]
         [DynamicData(nameof(GetAllExampleData), DynamicDataSourceType.Method)]
@@ -109,17 +102,8 @@ namespace Bicep.Core.IntegrationTests
             GetAllExampleData().Should().HaveCountGreaterOrEqualTo(30, "sanity check to ensure we're finding examples to test");
         }
 
-        private static string GetParentStreamName(string streamName)
-            => Path.GetDirectoryName(streamName)!.Replace('\\', '/');
-
         private static IEnumerable<object[]> GetAllExampleData()
             => ExampleData.GetAllExampleData().Select(x => new object[] { x.BicepFile });
-
-        private static IEnumerable<object[]> GetExampleData()
-            => ExampleData.GetAllExampleData().Where(x => !x.IsExtensibilitySample).Select(x => new object[] { x.BicepFile });
-
-        private static IEnumerable<object[]> GetExtensibilityExampleData()
-            => ExampleData.GetAllExampleData().Where(x => x.IsExtensibilitySample).Select(x => new object[] { x.BicepFile });
 
         private static bool IsPermittedMissingTypeDiagnostic(IDiagnostic diagnostic)
         {
@@ -138,8 +122,7 @@ namespace Bicep.Core.IntegrationTests
         }
 
         public record ExampleData(
-            EmbeddedFile BicepFile,
-            bool IsExtensibilitySample)
+            EmbeddedFile BicepFile)
         {
             public static IEnumerable<ExampleData> GetAllExampleData()
             {
@@ -150,11 +133,7 @@ namespace Bicep.Core.IntegrationTests
 
                 foreach (var bicepFile in embeddedFiles)
                 {
-                    var isExtensibilitySample = bicepFile.StreamPath.StartsWith($"Files/user_submitted/extensibility/", StringComparison.Ordinal);
-
-                    yield return new ExampleData(
-                        BicepFile: bicepFile,
-                        IsExtensibilitySample: isExtensibilitySample);
+                    yield return new ExampleData(bicepFile);
                 }
             }
         }

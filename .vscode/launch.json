@@ -12,7 +12,8 @@
             ],
             "env": {
                 "BICEP_TRACING_ENABLED": "true",
-
+                "BICEP_TRACING_VERBOSITY": "basic",
+                "BICEP_EXTENSION_TRACING_ENABLED": "false",
                 // Defaulting to "verbose" when debugging so that new telemetry IDs during development aren't accidentally sent and created before they're finalized
                 "DEBUGTELEMETRY": "v", // "" or "0" or "false": send telemetry as normal; "1": debug mode (no telemetry sent); "verbose": telemetry in console, don't send (from microsoft/vscode-azext-utils)
             },
@@ -32,25 +33,10 @@
                 "build",
                 "${file}"
             ],
-          "env": {
-            "BICEP_TRACING_ENABLED": "true"
-          },
-            "cwd": "${workspaceFolder}/src/Bicep.Cli",
-            "console": "internalConsole",
-            "stopAtEntry": false
-        },
-        {
-            "name": "CLI-Test",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "Build CLI",
-            "program": "${workspaceFolder}/src/Bicep.Cli/bin/Debug/net8.0/bicep",
-            "args": [
-                "test",
-                "${file}"
-            ],
             "env": {
                 "BICEP_TRACING_ENABLED": "true",
+                "BICEP_TRACING_VERBOSITY": "basic",
+                "BICEP_EXTENSION_TRACING_ENABLED": "false",
             },
             "cwd": "${workspaceFolder}/src/Bicep.Cli",
             "console": "internalConsole",
@@ -94,6 +80,23 @@
             "type": "coreclr",
             "request": "attach",
             "processId": "${command:pickProcess}"
-        }
+        },
+        {
+            "name": "PowerShell Launch Current File",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "${file}",
+            "cwd": "${cwd}"
+        },
+        {
+            "name": "Deploy Pane Tests",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "test"
+            ],
+            "cwd": "${workspaceFolder}/src/vscode-bicep-ui/apps/deploy-pane"
+        },
     ]
 }

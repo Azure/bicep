@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 import crypto from "crypto";
 import path from "path";
+import { Environment } from "@azure/ms-rest-azure-env";
 import { callWithTelemetryAndErrorHandlingSync, IActionContext } from "@microsoft/vscode-azext-utils";
 import fse from "fs-extra";
 import vscode, { ExtensionContext } from "vscode";
@@ -245,8 +246,18 @@ export class DeployPaneView extends Disposable {
     const { cspSource } = this.webviewPanel.webview;
     const nonce = crypto.randomBytes(16).toString("hex");
     const scriptUri = this.webviewPanel.webview.asWebviewUri(
-      vscode.Uri.joinPath(this.extensionUri, "out", "deployPane.js"),
+      vscode.Uri.joinPath(this.extensionUri, "out", "deploy-pane", "index.js"),
     );
+    const codiconCssUri = this.webviewPanel.webview.asWebviewUri(
+      vscode.Uri.joinPath(this.extensionUri, "out", "deploy-pane", "assets", "index.css"),
+    );
+
+    const armEndpoints = [
+      Environment.AzureCloud,
+      Environment.ChinaCloud,
+      Environment.GermanCloud,
+      Environment.USGovernment,
+    ].map((env) => env.resourceManagerEndpointUrl);
 
     return `
       <!DOCTYPE html>
@@ -257,12 +268,13 @@ export class DeployPaneView extends Disposable {
         Use a content security policy to only allow loading images from our extension directory,
         and only allow scripts that have a specific nonce.
         -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://management.azure.com; style-src ${cspSource} 'unsafe-inline'; img-src ${cspSource} data:; script-src 'nonce-${nonce}' vscode-webview-resource:; font-src data: ${cspSource};">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' ${armEndpoints.join(" ")}; style-src ${cspSource} 'unsafe-inline'; img-src ${cspSource} data:; script-src 'nonce-${nonce}' vscode-webview-resource:; font-src data: ${cspSource};">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link id="vscode-codicon-stylesheet" rel="stylesheet" nonce="${nonce}" href="${codiconCssUri}">
       </head>
       <body>
         <div id="root"></div>
-        <script nonce="${nonce}" src="${scriptUri}" />
+        <script nonce="${nonce}" type="module" src="${scriptUri}" />
       </body>
       </html>`;
   }

@@ -1,16 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Immutable;
 using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
-using Bicep.Core.Extensions;
-using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
@@ -20,24 +18,20 @@ namespace Bicep.Core.Semantics
         private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;
 
         public Compilation(
-            IFeatureProviderFactory featureProviderFactory,
             IEnvironment environment,
             INamespaceProvider namespaceProvider,
             SourceFileGrouping sourceFileGrouping,
-            IConfigurationManager configurationManager,
             IBicepAnalyzer linterAnalyzer,
             IArtifactReferenceFactory artifactReferenceFactory,
-            IReadableFileCache fileCache,
+            ISourceFileFactory sourceFileFactory,
             ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
-            this.FeatureProviderFactory = featureProviderFactory;
             this.Environment = environment;
             this.SourceFileGrouping = sourceFileGrouping;
             this.NamespaceProvider = namespaceProvider;
-            this.FileCache = fileCache;
-            this.ConfigurationManager = configurationManager;
             this.LinterAnalyzer = linterAnalyzer;
             this.ArtifactReferenceFactory = artifactReferenceFactory;
+            this.SourceFileFactory = sourceFileFactory;
 
             this.lazySemanticModelLookup = sourceFileGrouping.SourceFiles.ToImmutableDictionary(
                 sourceFile => sourceFile,
@@ -60,15 +54,11 @@ namespace Bicep.Core.Semantics
 
         public IArtifactReferenceFactory ArtifactReferenceFactory { get; }
 
-        public IReadableFileCache FileCache { get; }
-
         public IEnvironment Environment { get; }
 
         public IBicepAnalyzer LinterAnalyzer;
 
-        public IConfigurationManager ConfigurationManager { get; }
-
-        public IFeatureProviderFactory FeatureProviderFactory { get; }
+        public ISourceFileFactory SourceFileFactory { get; }
 
         public ICompilationEmitter Emitter { get; }
 
@@ -90,6 +80,9 @@ namespace Bicep.Core.Semantics
                 bicepFile => bicepFile,
                 bicepFile => this.GetSemanticModel(bicepFile) is SemanticModel semanticModel ? semanticModel.GetAllDiagnostics() : []);
 
+        public ImmutableDictionary<Uri, ImmutableArray<IDiagnostic>> GetAllDiagnosticsByBicepFileUri()
+            => GetAllDiagnosticsByBicepFile().ToImmutableDictionary(kvp => kvp.Key.Uri, bicepFile => bicepFile.Value);
+
         private T GetSemanticModel<T>(ISourceFile sourceFile) where T : class, ISemanticModel =>
             this.GetSemanticModel(sourceFile) as T ??
             throw new ArgumentException($"Expected the semantic model type to be \"{typeof(T).Name}\".");
@@ -100,6 +93,13 @@ namespace Bicep.Core.Semantics
         public IEnumerable<SemanticModel> GetAllBicepModels()
             => GetAllModels().OfType<SemanticModel>();
 
-        private SemanticModel CreateSemanticModel(BicepSourceFile bicepFile) => new(this, bicepFile);
+        private SemanticModel CreateSemanticModel(BicepSourceFile bicepFile) => new(
+            this.LinterAnalyzer,
+            this.NamespaceProvider,
+            this.ArtifactReferenceFactory,
+            this,
+            this.SourceFileGrouping,
+            this.Environment,
+            bicepFile);
     }
 }

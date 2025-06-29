@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
-using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Syntax
 {
@@ -9,8 +9,8 @@ namespace Bicep.Core.Syntax
     {
         public SeparatedSyntaxList(IEnumerable<SyntaxBase> elements, IEnumerable<SyntaxBase> separators, TextSpan span)
         {
-            this.Elements = elements.ToImmutableArray();
-            this.Separators = separators.ToImmutableArray();
+            this.Elements = [.. elements];
+            this.Separators = [.. separators];
             this.Span = span;
 
             if (this.Elements.Any())

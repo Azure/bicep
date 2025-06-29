@@ -4,10 +4,10 @@
 using System.Collections.Immutable;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
-using Bicep.Core.Workspaces;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -21,8 +21,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public NoHardcodedLocationRule() : base(
             code: Code,
-            description: CoreResources.NoHardcodedLocationRuleDescription,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
+            description: CoreResources.NoHardcodedLocationRuleDescription)
         {
         }
 

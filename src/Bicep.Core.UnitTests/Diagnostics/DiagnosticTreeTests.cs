@@ -3,6 +3,7 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

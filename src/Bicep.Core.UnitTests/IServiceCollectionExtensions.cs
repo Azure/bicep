@@ -8,23 +8,26 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Features;
-using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Mock.Registry;
+using Bicep.Core.UnitTests.Mock.Registry.Catalog;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
+using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Providers;
 using Microsoft.Extensions.DependencyInjection;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
+using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.UnitTests;
 
@@ -41,16 +44,19 @@ public static class IServiceCollectionExtensions
             .AddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>()
             .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
             .AddSingleton<IFileResolver, FileResolver>()
-            .AddSingleton<IEnvironment>(TestEnvironment.Create())
-            .AddSingleton<IFileSystem, IOFileSystem>()
+            .AddSingleton<IEnvironment>(TestEnvironment.Default)
+            .AddSingleton<IFileSystem, LocalFileSystem>()
+            .AddSingleton<IFileExplorer, FileSystemFileExplorer>()
+            .AddSingleton<IAuxiliaryFileCache, AuxiliaryFileCache>()
             .AddSingleton<IConfigurationManager, ConfigurationManager>()
             .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
             .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
             .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
-            .AddPublicRegistryModuleMetadataProviderServices()
+            .AddSingleton<ISourceFileFactory, SourceFileFactory>()
+            .AddRegistryCatalogServices()
             .AddSingleton<BicepCompiler>();
 
-        AddMockHttpClient(services, PublicRegistryModuleMetadataClientMock.Create([]).Object);
+        AddMockHttpClient(services, PublicModuleIndexHttpClientMocks.Create([]).Object);
 
         return services;
     }
@@ -64,6 +70,9 @@ public static class IServiceCollectionExtensions
 
     public static IServiceCollection WithFileResolver(this IServiceCollection services, IFileResolver fileResolver)
         => Register(services, fileResolver);
+
+    public static IServiceCollection WithFileExplorer(this IServiceCollection services, IFileExplorer fileExplorer)
+        => Register(services, fileExplorer);
 
     public static IServiceCollection WithFileSystem(this IServiceCollection services, IFileSystem fileSystem)
         => Register(services, fileSystem);
@@ -83,7 +92,10 @@ public static class IServiceCollectionExtensions
             .AddSingleton<IFeatureProviderFactory, OverriddenFeatureProviderFactory>();
 
     public static IServiceCollection WithEnvironmentVariables(this IServiceCollection services, params (string key, string? value)[] variables)
-        => Register(services, TestEnvironment.Create(variables));
+        => WithEnvironment(services, TestEnvironment.Default.WithVariables(variables));
+
+    public static IServiceCollection WithEnvironment(this IServiceCollection services, IEnvironment environment)
+        => Register(services, environment);
 
     public static IServiceCollection WithNamespaceProvider(this IServiceCollection services, INamespaceProvider namespaceProvider)
         => Register(services, namespaceProvider);
@@ -96,6 +108,9 @@ public static class IServiceCollectionExtensions
 
     public static IServiceCollection WithCompilationManager(this IServiceCollection services, ICompilationManager compilationManager)
         => Register(services, compilationManager);
+
+    public static IServiceCollection WithConfigurationManager(this IServiceCollection services, IConfigurationManager configurationManager)
+        => Register(services, configurationManager);
 
     public static IServiceCollection WithConfigurationPatch(this IServiceCollection services, Func<RootConfiguration, RootConfiguration> patchFunc)
         => Register(services, patchFunc)

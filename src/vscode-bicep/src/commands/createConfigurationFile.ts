@@ -46,7 +46,6 @@ export class CreateBicepConfigurationFile implements Command {
     let selectedPath: string = recommendedPath;
 
     if (!suppressQuery) {
-      // eslint-disable-next-line no-constant-condition
       while (true) {
         const response = await window.showSaveDialog({
           defaultUri: Uri.file(selectedPath),

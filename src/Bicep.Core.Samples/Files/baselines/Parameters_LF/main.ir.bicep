@@ -1,5 +1,5 @@
 /*
-//@[000:3162) ProgramExpression
+//@[000:3213) ProgramExpression
   This is a block comment.
 */
 
@@ -418,23 +418,28 @@ param decoratedObject object = {
 }
 
 @sys.metadata({
-//@[000:0166) └─DeclaredParameterExpression { Name = decoratedArray }
-//@[014:0056)   ├─ObjectExpression
+//@[000:0166) ├─DeclaredParameterExpression { Name = decoratedArray }
+//@[014:0056) | ├─ObjectExpression
     description: 'I will be overrode.'
-//@[004:0038)   | └─ObjectPropertyExpression
-//@[004:0015)   |   ├─StringLiteralExpression { Value = description }
-//@[017:0038)   |   └─StringLiteralExpression { Value = I will be overrode. }
+//@[004:0038) | | └─ObjectPropertyExpression
+//@[004:0015) | |   ├─StringLiteralExpression { Value = description }
+//@[017:0038) | |   └─StringLiteralExpression { Value = I will be overrode. }
 })
 @sys.maxLength(20)
-//@[015:0017)   ├─IntegerLiteralExpression { Value = 20 }
+//@[015:0017) | ├─IntegerLiteralExpression { Value = 20 }
 @sys.description('An array.')
-//@[017:0028)   ├─StringLiteralExpression { Value = An array. }
+//@[017:0028) | ├─StringLiteralExpression { Value = An array. }
 param decoratedArray array = [
-//@[021:0026)   ├─AmbientTypeReferenceExpression { Name = array }
-//@[029:0059)   └─ArrayExpression
+//@[021:0026) | ├─AmbientTypeReferenceExpression { Name = array }
+//@[029:0059) | └─ArrayExpression
     utcNow()
-//@[004:0012)     ├─FunctionCallExpression { Name = utcNow }
+//@[004:0012) |   ├─FunctionCallExpression { Name = utcNow }
     newGuid()
-//@[004:0013)     └─FunctionCallExpression { Name = newGuid }
+//@[004:0013) |   └─FunctionCallExpression { Name = newGuid }
 ]
+
+param nameofParam string = nameof(decoratedArray)
+//@[000:0049) └─DeclaredParameterExpression { Name = nameofParam }
+//@[018:0024)   ├─AmbientTypeReferenceExpression { Name = string }
+//@[034:0048)   └─StringLiteralExpression { Value = decoratedArray }
 

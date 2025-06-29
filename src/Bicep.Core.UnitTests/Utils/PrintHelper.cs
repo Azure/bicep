@@ -1,13 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Text;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.UnitTests.Utils
 {
@@ -48,11 +49,14 @@ namespace Bicep.Core.UnitTests.Utils
             return string.Join("\n", [.. GetProgramTextLines(bicepFile)]);
         }
 
-        public static string PrintWithAnnotations(BicepSourceFile bicepFile, IEnumerable<Annotation> annotations, int context, bool includeLineNumbers)
+        public static string PrintWithAnnotations(BicepSourceFile bicepFile, IEnumerable<Annotation> annotations, int context, bool includeLineNumbers) =>
+            PrintWithAnnotations(bicepFile.ProgramSyntax.ToString(), bicepFile.LineStarts, annotations, context, includeLineNumbers);
+
+        public static string PrintWithAnnotations(string fileText, ImmutableArray<int> lineStarts, IEnumerable<Annotation> annotations, int context, bool includeLineNumbers)
         {
             var annotationPositions = annotations.ToDictionary(
                 x => x,
-                x => TextCoordinateConverter.GetPosition(bicepFile.LineStarts, x.Span.Position));
+                x => TextCoordinateConverter.GetPosition(lineStarts, x.Span.Position));
 
             if (annotationPositions.Count == 0)
             {
@@ -60,7 +64,7 @@ namespace Bicep.Core.UnitTests.Utils
             }
 
             var output = new StringBuilder();
-            var programLines = GetProgramTextLines(bicepFile);
+            var programLines = StringUtils.SplitOnNewLine(fileText).ToArray();
 
             var annotationsByLine = annotationPositions.ToLookup(x => x.Value.line, x => x.Key);
 
@@ -68,7 +72,7 @@ namespace Bicep.Core.UnitTests.Utils
             var maxLine = annotationPositions.Values.Aggregate(0, (max, curr) => Math.Max(curr.line, max)) + 1;
 
             minLine = Math.Max(0, minLine - context);
-            maxLine = Math.Min(bicepFile.LineStarts.Length, maxLine + context);
+            maxLine = Math.Min(lineStarts.Length, maxLine + context);
             var digits = maxLine.ToString().Length;
 
             for (var i = minLine; i < maxLine; i++)

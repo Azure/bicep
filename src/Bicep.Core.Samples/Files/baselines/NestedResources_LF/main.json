@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15295876813466684932"
+      "templateHash": "4287109754528407984"
     }
   },
   "parameters": {
@@ -35,6 +35,7 @@
         "style": "[reference(resourceId('My.Rp/parentType/childType', 'basicParent', 'basicChild'), '2020-12-01').style]"
       },
       "dependsOn": [
+        "[resourceId('My.Rp/parentType', 'basicParent')]",
         "[resourceId('My.Rp/parentType/childType', 'basicParent', 'basicChild')]"
       ]
     },
@@ -59,8 +60,8 @@
         "style": "[reference(resourceId('My.Rp/parentType/childType/grandchildType', 'basicParent', 'basicChild', 'basicGrandchild'), '2020-12-01').style]"
       },
       "dependsOn": [
-        "[resourceId('My.Rp/parentType/childType/grandchildType', 'basicParent', 'basicChild', 'basicGrandchild')]",
-        "[resourceId('My.Rp/parentType', 'basicParent')]"
+        "[resourceId('My.Rp/parentType', 'basicParent')]",
+        "[resourceId('My.Rp/parentType/childType/grandchildType', 'basicParent', 'basicChild', 'basicGrandchild')]"
       ]
     },
     {
@@ -82,6 +83,7 @@
         "style": "[reference(resourceId('My.Rp/parentType/childType', 'conditionParent', 'conditionChild'), '2020-12-01').style]"
       },
       "dependsOn": [
+        "[resourceId('My.Rp/parentType', 'conditionParent')]",
         "[resourceId('My.Rp/parentType/childType', 'conditionParent', 'conditionChild')]"
       ]
     },
@@ -96,7 +98,7 @@
     },
     {
       "copy": {
-        "name": "loopChild",
+        "name": "loopParent::loopChild",
         "count": "[length(variables('items'))]"
       },
       "type": "My.Rp/parentType/childType",

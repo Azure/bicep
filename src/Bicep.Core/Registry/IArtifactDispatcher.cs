@@ -4,8 +4,9 @@
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceLink;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Registry
 {
@@ -24,7 +25,7 @@ namespace Bicep.Core.Registry
 
         ArtifactRestoreStatus GetArtifactRestoreStatus(ArtifactReference reference, out DiagnosticBuilder.DiagnosticBuilderDelegate? errorDetailBuilder);
 
-        ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference);
+        ResultWithDiagnosticBuilder<IFileHandle> TryGetLocalArtifactEntryPointFileHandle(ArtifactReference reference);
 
         Task<bool> RestoreArtifacts(IEnumerable<ArtifactReference> references, bool forceRestore);
 
@@ -37,10 +38,5 @@ namespace Bicep.Core.Registry
         Task PublishExtension(ArtifactReference reference, ExtensionPackage package);
 
         void PruneRestoreStatuses();
-
-        // Retrieves the sources that have been restored along with the module into the cache (if available)
-        ResultWithException<SourceArchive> TryGetModuleSources(ArtifactReference reference);
-
-        Uri? TryGetExtensionBinary(ArtifactReference reference);
     }
 }

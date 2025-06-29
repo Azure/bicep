@@ -2,9 +2,13 @@
 // Licensed under the MIT License.
 
 using System.Reflection;
+using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -26,7 +30,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         public record ValidCase(string Value, string ExpectedRegistry, string ExpectedRepository, string? ExpectedTag, string? ExpectedDigest);
 
-        private static void VerifyEqual(ArtifactAddressComponents first, ArtifactAddressComponents second)
+        private static void VerifyEqual(OciArtifactAddressComponents first, OciArtifactAddressComponents second)
         {
             first.Equals(second).Should().BeTrue();
             second.Equals(first).Should().BeTrue();
@@ -40,7 +44,7 @@ namespace Bicep.Core.UnitTests.Modules
             first.GetHashCode().Should().Be(secondAsObject.GetHashCode());
         }
 
-        private static void VerifyNotEqual(ArtifactAddressComponents first, ArtifactAddressComponents second)
+        private static void VerifyNotEqual(OciArtifactAddressComponents first, OciArtifactAddressComponents second)
         {
             first.Equals(second).Should().BeFalse();
             second.Equals(first).Should().BeFalse();
@@ -66,8 +70,8 @@ namespace Bicep.Core.UnitTests.Modules
         [DataTestMethod]
         public void ValidReferenceShouldBeEqualToItself(ValidCase @case)
         {
-            ArtifactAddressComponents first = Parse(@case.Value);
-            ArtifactAddressComponents second = Parse(@case.Value);
+            OciArtifactAddressComponents first = Parse(@case.Value);
+            OciArtifactAddressComponents second = Parse(@case.Value);
             VerifyEqual(first, second);
         }
 
@@ -75,9 +79,9 @@ namespace Bicep.Core.UnitTests.Modules
         [DataTestMethod]
         public void ValidReferenceShouldBeEqualWithCaseChanged(ValidCase @case)
         {
-            ArtifactAddressComponents first = Parse(@case.Value);
-            ArtifactAddressComponents firstLower = Parse((@case with { ExpectedDigest = @case.Value.ToLower() }).Value);
-            ArtifactAddressComponents firstUpper = Parse((@case with { ExpectedDigest = @case.Value.ToUpper() }).Value);
+            OciArtifactAddressComponents first = Parse(@case.Value);
+            OciArtifactAddressComponents firstLower = Parse((@case with { ExpectedDigest = @case.Value.ToLower() }).Value);
+            OciArtifactAddressComponents firstUpper = Parse((@case with { ExpectedDigest = @case.Value.ToUpper() }).Value);
 
             VerifyEqual(first, firstLower);
             VerifyEqual(first, firstUpper);
@@ -96,11 +100,11 @@ namespace Bicep.Core.UnitTests.Modules
 
             for (int i = 0; i < @case.Value.Length - 1; ++i)
             {
-                ArtifactAddressComponents first = Parse(@case.Value);
+                OciArtifactAddressComponents first = Parse(@case.Value);
                 var modified = ModifyCharAt(@case.Value, i);
                 if (IsValid(modified))
                 {
-                    ArtifactAddressComponents second = Parse(modified);
+                    OciArtifactAddressComponents second = Parse(modified);
                     VerifyNotEqual(first, second);
                 }
             }
@@ -109,16 +113,16 @@ namespace Bicep.Core.UnitTests.Modules
         private static bool IsValid(string package)
         {
             // NOTE: ArtifactAddressComponents doesn't currently have a parser separate from OciArtifactReference.
-            return OciArtifactReference.TryParse(ArtifactType.Module, null, package, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri()).IsSuccess(out var _, out var _);
+            return OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile, ArtifactType.Module, null, package).IsSuccess(out var _, out var _);
         }
 
-        private static ArtifactAddressComponents Parse(string package)
+        private static OciArtifactAddressComponents Parse(string package)
         {
             // NOTE: ArtifactAddressComponents doesn't currently have a parser separate from OciArtifactReference.
-            OciArtifactReference.TryParse(ArtifactType.Module, null, package, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri()).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
+            OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile, ArtifactType.Module, null, package).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
             failureBuilder!.Should().BeNull();
             parsed.Should().NotBeNull();
-            return (ArtifactAddressComponents)parsed!.AddressComponents;
+            return (OciArtifactAddressComponents)parsed!.AddressComponents;
         }
 
         public static IEnumerable<object[]> GetValidCases()
@@ -136,8 +140,6 @@ namespace Bicep.Core.UnitTests.Modules
             yield return CreateRow(ExampleRegistryOfMaxLength + "/hello/there:1.0", ExampleRegistryOfMaxLength, "hello/there", "1.0", null);
             yield return CreateRow("hello-there.azurecr.io/general/kenobi@sha256:b131a80d6764593360293a4a0a55e6850356c16754c4b5eb9a2286293fddcdfb", "hello-there.azurecr.io", "general/kenobi", null, "sha256:b131a80d6764593360293a4a0a55e6850356c16754c4b5eb9a2286293fddcdfb");
         }
-
-        private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
 
         public static string GetDisplayName(MethodInfo info, object[] data) => $"{info.Name}_{((ValidCase)data[0]).Value}";
     }

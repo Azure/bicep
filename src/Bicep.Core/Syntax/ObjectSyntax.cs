@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Syntax
 {
@@ -13,7 +14,7 @@ namespace Bicep.Core.Syntax
             AssertTokenType(closeBrace, nameof(closeBrace), TokenType.RightBrace);
 
             this.OpenBrace = openBrace;
-            this.Children = children.ToImmutableArray();
+            this.Children = [.. children];
             this.CloseBrace = closeBrace;
         }
 

@@ -1,1 +1,1 @@
-@call "%~dp0\Install.cmd" release
+@call "%~dp0\build.cmd" release

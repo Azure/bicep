@@ -164,11 +164,11 @@ resource resourceA 'My.Rp/typeA@2020-01-01' = {
 }
 
 resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
-  name: '${resourceA.name}/myName'
+  name: '${resourceA.name}/resourceB'
 }
 
 resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
-  name: '${resourceA.name}/myName'
+  name: '${resourceA.name}/resourceC'
   properties: {
     aId: resourceA.id
     aType: resourceA.type
@@ -291,7 +291,7 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
 
 /*
   valid loop cases
-*/ 
+*/
 var storageAccounts = [
   {
     name: 'one'
@@ -332,7 +332,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
   properties: {
     subnets: [for j in range(0, 4): {
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
-     
+
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
       name: 'subnet-${i}-${j}'
     }]
@@ -439,7 +439,7 @@ output p1_subnet1id string = p1_subnet1.id
 
 // parent property with extension resource
 resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
-  name: 'res1'
+  name: 'p2res1'
 }
 
 resource p2_res1child 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
@@ -464,7 +464,7 @@ output p2_res2childid string = p2_res2child.id
 
 // parent property with 'existing' resource
 resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
-  name: 'res1'
+  name: 'p3res1'
 }
 
 resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
@@ -480,7 +480,7 @@ output p3_res1childid string = p3_child1.id
 // parent & child with 'existing'
 resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
   scope: tenant()
-  name: 'res1'
+  name: 'p4res1'
 }
 
 resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {
@@ -510,5 +510,26 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
   resource primaryDb 'databases' = {
     name: 'primary-db'
     location: 'polandcentral'
+
+    resource threatProtection 'advancedThreatProtectionSettings' existing = {
+      name: 'default'
+    }
   }
+}
+
+//nameof
+output nameof_sqlServer string = nameof(sqlServer)
+output nameof_location string = nameof(sqlServer.location)
+output nameof_minCapacity string = nameof(sqlServer::primaryDb.properties.minCapacity)
+output nameof_creationTime string = nameof(sqlServer::primaryDb::threatProtection.properties.creationTime)
+output nameof_id string = nameof(sqlServer::sqlDatabases[0].id)
+
+var sqlConfig = {
+  westus: {}
+  'server-name': {}
+}
+
+resource sqlServerWithNameof 'Microsoft.Sql/servers@2021-11-01' = {
+  name: 'sql-server-nameof-${nameof(sqlConfig['server-name'])}'
+  location: nameof(sqlConfig.westus)
 }

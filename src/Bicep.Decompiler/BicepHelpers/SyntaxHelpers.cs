@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 
 namespace Bicep.Decompiler.BicepHelpers
 {
@@ -74,6 +75,7 @@ namespace Bicep.Decompiler.BicepHelpers
             "subscription",
             "resourceGroup",
             "deployment",
+            "deployer",
             "environment",
             "managementGroupResourceId",
             "resourceId",

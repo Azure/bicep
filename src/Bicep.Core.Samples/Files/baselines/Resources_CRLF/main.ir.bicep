@@ -1,5 +1,7 @@
 
-//@[000:13327) ProgramExpression
+//@[000:14067) ProgramExpression
+//@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
+//@[000:00000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[000:00000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
@@ -474,10 +476,9 @@ resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
     otherThings: nested.properties.mode
 //@[004:00039) | |     └─ObjectPropertyExpression
 //@[004:00015) | |       ├─StringLiteralExpression { Value = otherThings }
-//@[017:00039) | |       └─AccessChainExpression
-//@[017:00034) | |         ├─PropertyAccessExpression { PropertyName = properties }
-//@[017:00023) | |         | └─ResourceReferenceExpression
-//@[035:00039) | |         └─StringLiteralExpression { Value = mode }
+//@[017:00039) | |       └─PropertyAccessExpression { PropertyName = mode }
+//@[017:00034) | |         └─PropertyAccessExpression { PropertyName = properties }
+//@[017:00023) | |           └─ResourceReferenceExpression
   }
 }
 
@@ -488,15 +489,15 @@ resource resourceA 'My.Rp/typeA@2020-01-01' = {
 }
 
 resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
-//@[000:00092) ├─DeclaredResourceExpression
-//@[052:00092) | ├─ObjectExpression
-  name: '${resourceA.name}/myName'
+//@[000:00095) ├─DeclaredResourceExpression
+//@[052:00095) | ├─ObjectExpression
+  name: '${resourceA.name}/resourceB'
 }
 
 resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
-//@[000:00269) ├─DeclaredResourceExpression
-//@[052:00269) | ├─ObjectExpression
-  name: '${resourceA.name}/myName'
+//@[000:00272) ├─DeclaredResourceExpression
+//@[052:00272) | ├─ObjectExpression
+  name: '${resourceA.name}/resourceC'
   properties: {
 //@[002:00175) | | └─ObjectPropertyExpression
 //@[002:00012) | |   ├─StringLiteralExpression { Value = properties }
@@ -746,10 +747,9 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
     res1runtime: vmWithCondition.properties.something
 //@[004:00053) | |     ├─ObjectPropertyExpression
 //@[004:00015) | |     | ├─StringLiteralExpression { Value = res1runtime }
-//@[017:00053) | |     | └─AccessChainExpression
-//@[017:00043) | |     |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[017:00032) | |     |   | └─ResourceReferenceExpression
-//@[044:00053) | |     |   └─StringLiteralExpression { Value = something }
+//@[017:00053) | |     | └─PropertyAccessExpression { PropertyName = something }
+//@[017:00043) | |     |   └─PropertyAccessExpression { PropertyName = properties }
+//@[017:00032) | |     |     └─ResourceReferenceExpression
     res2: extension1.id
 //@[004:00023) | |     ├─ObjectPropertyExpression
 //@[004:00008) | |     | ├─StringLiteralExpression { Value = res2 }
@@ -758,10 +758,9 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
     res2runtime: extension1.properties.something
 //@[004:00048) | |     ├─ObjectPropertyExpression
 //@[004:00015) | |     | ├─StringLiteralExpression { Value = res2runtime }
-//@[017:00048) | |     | └─AccessChainExpression
-//@[017:00038) | |     |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[017:00027) | |     |   | └─ResourceReferenceExpression
-//@[039:00048) | |     |   └─StringLiteralExpression { Value = something }
+//@[017:00048) | |     | └─PropertyAccessExpression { PropertyName = something }
+//@[017:00038) | |     |   └─PropertyAccessExpression { PropertyName = properties }
+//@[017:00027) | |     |     └─ResourceReferenceExpression
     res3: extension2.id
 //@[004:00023) | |     ├─ObjectPropertyExpression
 //@[004:00008) | |     | ├─StringLiteralExpression { Value = res3 }
@@ -770,10 +769,9 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
     res3runtime: extension2.properties.something
 //@[004:00048) | |     └─ObjectPropertyExpression
 //@[004:00015) | |       ├─StringLiteralExpression { Value = res3runtime }
-//@[017:00048) | |       └─AccessChainExpression
-//@[017:00038) | |         ├─PropertyAccessExpression { PropertyName = properties }
-//@[017:00027) | |         | └─ResourceReferenceExpression
-//@[039:00048) | |         └─StringLiteralExpression { Value = something }
+//@[017:00048) | |       └─PropertyAccessExpression { PropertyName = something }
+//@[017:00038) | |         └─PropertyAccessExpression { PropertyName = properties }
+//@[017:00027) | |           └─ResourceReferenceExpression
   }
 }
 
@@ -802,7 +800,7 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
 
 /*
   valid loop cases
-*/ 
+*/
 var storageAccounts = [
 //@[000:00129) ├─DeclaredVariableExpression { Name = storageAccounts }
 //@[022:00129) | └─ArrayExpression
@@ -894,35 +892,35 @@ resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01
 
 // basic nested loop
 @sys.description('this is just a basic nested loop')
-//@[000:00399) ├─DeclaredResourceExpression
+//@[000:00394) ├─DeclaredResourceExpression
 //@[017:00051) | ├─StringLiteralExpression { Value = this is just a basic nested loop }
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[063:00345) | └─ForLoopExpression
+//@[063:00340) | └─ForLoopExpression
 //@[073:00084) |   ├─FunctionCallExpression { Name = range }
 //@[079:00080) |   | ├─IntegerLiteralExpression { Value = 0 }
 //@[082:00083) |   | └─IntegerLiteralExpression { Value = 3 }
-//@[086:00344) |   └─ObjectExpression
+//@[086:00339) |   └─ObjectExpression
 //@[073:00084) |                   | └─FunctionCallExpression { Name = range }
 //@[079:00080) |                   |   ├─IntegerLiteralExpression { Value = 0 }
 //@[082:00083) |                   |   └─IntegerLiteralExpression { Value = 3 }
   name: 'vnet-${i}'
   properties: {
-//@[002:00231) |     └─ObjectPropertyExpression
+//@[002:00226) |     └─ObjectPropertyExpression
 //@[002:00012) |       ├─StringLiteralExpression { Value = properties }
-//@[014:00231) |       └─ObjectExpression
+//@[014:00226) |       └─ObjectExpression
     subnets: [for j in range(0, 4): {
-//@[004:00209) |         └─ObjectPropertyExpression
+//@[004:00204) |         └─ObjectPropertyExpression
 //@[004:00011) |           ├─StringLiteralExpression { Value = subnets }
-//@[013:00209) |           └─ForLoopExpression
+//@[013:00204) |           └─ForLoopExpression
 //@[023:00034) |             ├─FunctionCallExpression { Name = range }
 //@[029:00030) |             | ├─IntegerLiteralExpression { Value = 0 }
 //@[032:00033) |             | └─IntegerLiteralExpression { Value = 4 }
-//@[036:00208) |             └─ObjectExpression
+//@[036:00203) |             └─ObjectExpression
 //@[023:00034) |                     └─FunctionCallExpression { Name = range }
 //@[029:00030) |                       ├─IntegerLiteralExpression { Value = 0 }
 //@[032:00033) |                       └─IntegerLiteralExpression { Value = 4 }
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
-     
+
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
       name: 'subnet-${i}-${j}'
 //@[006:00030) |               └─ObjectPropertyExpression
@@ -1191,10 +1189,9 @@ resource p1_subnet2 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
 output p1_subnet1prefix string = p1_subnet1.properties.addressPrefix
 //@[000:00068) ├─DeclaredOutputExpression { Name = p1_subnet1prefix }
 //@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
-//@[033:00068) | └─AccessChainExpression
-//@[033:00054) |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[033:00043) |   | └─ResourceReferenceExpression
-//@[055:00068) |   └─StringLiteralExpression { Value = addressPrefix }
+//@[033:00068) | └─PropertyAccessExpression { PropertyName = addressPrefix }
+//@[033:00054) |   └─PropertyAccessExpression { PropertyName = properties }
+//@[033:00043) |     └─ResourceReferenceExpression
 output p1_subnet1name string = p1_subnet1.name
 //@[000:00046) ├─DeclaredOutputExpression { Name = p1_subnet1name }
 //@[022:00028) | ├─AmbientTypeReferenceExpression { Name = string }
@@ -1213,9 +1210,9 @@ output p1_subnet1id string = p1_subnet1.id
 
 // parent property with extension resource
 resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
-//@[000:00076) ├─DeclaredResourceExpression
-//@[056:00076) | └─ObjectExpression
-  name: 'res1'
+//@[000:00078) ├─DeclaredResourceExpression
+//@[056:00078) | └─ObjectExpression
+  name: 'p2res1'
 }
 
 resource p2_res1child 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
@@ -1242,10 +1239,9 @@ resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
 output p2_res2childprop string = p2_res2child.properties.someProp
 //@[000:00065) ├─DeclaredOutputExpression { Name = p2_res2childprop }
 //@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
-//@[033:00065) | └─AccessChainExpression
-//@[033:00056) |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[033:00045) |   | └─ResourceReferenceExpression
-//@[057:00065) |   └─StringLiteralExpression { Value = someProp }
+//@[033:00065) | └─PropertyAccessExpression { PropertyName = someProp }
+//@[033:00056) |   └─PropertyAccessExpression { PropertyName = properties }
+//@[033:00045) |     └─ResourceReferenceExpression
 output p2_res2childname string = p2_res2child.name
 //@[000:00050) ├─DeclaredOutputExpression { Name = p2_res2childname }
 //@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
@@ -1264,9 +1260,9 @@ output p2_res2childid string = p2_res2child.id
 
 // parent property with 'existing' resource
 resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
-//@[000:00085) ├─DeclaredResourceExpression
-//@[065:00085) | └─ObjectExpression
-  name: 'res1'
+//@[000:00087) ├─DeclaredResourceExpression
+//@[065:00087) | └─ObjectExpression
+  name: 'p3res1'
 }
 
 resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
@@ -1279,10 +1275,9 @@ resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
 output p3_res1childprop string = p3_child1.properties.someProp
 //@[000:00062) ├─DeclaredOutputExpression { Name = p3_res1childprop }
 //@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
-//@[033:00062) | └─AccessChainExpression
-//@[033:00053) |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[033:00042) |   | └─ResourceReferenceExpression
-//@[054:00062) |   └─StringLiteralExpression { Value = someProp }
+//@[033:00062) | └─PropertyAccessExpression { PropertyName = someProp }
+//@[033:00053) |   └─PropertyAccessExpression { PropertyName = properties }
+//@[033:00042) |     └─ResourceReferenceExpression
 output p3_res1childname string = p3_child1.name
 //@[000:00047) ├─DeclaredOutputExpression { Name = p3_res1childname }
 //@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
@@ -1301,10 +1296,10 @@ output p3_res1childid string = p3_child1.id
 
 // parent & child with 'existing'
 resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
-//@[000:00104) ├─DeclaredResourceExpression
-//@[065:00104) | └─ObjectExpression
+//@[000:00106) ├─DeclaredResourceExpression
+//@[065:00106) | └─ObjectExpression
   scope: tenant()
-  name: 'res1'
+  name: 'p4res1'
 }
 
 resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {
@@ -1317,10 +1312,9 @@ resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {
 output p4_res1childprop string = p4_child1.properties.someProp
 //@[000:00062) ├─DeclaredOutputExpression { Name = p4_res1childprop }
 //@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
-//@[033:00062) | └─AccessChainExpression
-//@[033:00053) |   ├─PropertyAccessExpression { PropertyName = properties }
-//@[033:00042) |   | └─ResourceReferenceExpression
-//@[054:00062) |   └─StringLiteralExpression { Value = someProp }
+//@[033:00062) | └─PropertyAccessExpression { PropertyName = someProp }
+//@[033:00053) |   └─PropertyAccessExpression { PropertyName = properties }
+//@[033:00042) |     └─ResourceReferenceExpression
 output p4_res1childname string = p4_child1.name
 //@[000:00047) ├─DeclaredOutputExpression { Name = p4_res1childname }
 //@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
@@ -1332,10 +1326,10 @@ output p4_res1childtype string = p4_child1.type
 //@[033:00047) | └─PropertyAccessExpression { PropertyName = type }
 //@[033:00042) |   └─ResourceReferenceExpression
 output p4_res1childid string = p4_child1.id
-//@[000:00043) └─DeclaredOutputExpression { Name = p4_res1childid }
-//@[022:00028)   ├─AmbientTypeReferenceExpression { Name = string }
-//@[031:00043)   └─PropertyAccessExpression { PropertyName = id }
-//@[031:00040)     └─ResourceReferenceExpression
+//@[000:00043) ├─DeclaredOutputExpression { Name = p4_res1childid }
+//@[022:00028) | ├─AmbientTypeReferenceExpression { Name = string }
+//@[031:00043) | └─PropertyAccessExpression { PropertyName = id }
+//@[031:00040) |   └─ResourceReferenceExpression
 
 // parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
 var dbs = ['db1', 'db2','db3']
@@ -1345,8 +1339,8 @@ var dbs = ['db1', 'db2','db3']
 //@[018:00023) |   ├─StringLiteralExpression { Value = db2 }
 //@[024:00029) |   └─StringLiteralExpression { Value = db3 }
 resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
-//@[000:00416) ├─DeclaredResourceExpression
-//@[056:00416) | └─ObjectExpression
+//@[000:00527) ├─DeclaredResourceExpression
+//@[056:00527) | └─ObjectExpression
   name: 'sql-server-name'
   location: 'polandcentral'
 //@[002:00027) |   └─ObjectPropertyExpression
@@ -1369,14 +1363,66 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
   }]
 
   @description('Primary Sql Database')
-//@[002:00136) ├─DeclaredResourceExpression
+//@[002:00247) ├─DeclaredResourceExpression
 //@[015:00037) | ├─StringLiteralExpression { Value = Primary Sql Database }
   resource primaryDb 'databases' = {
-//@[035:00096) | ├─ObjectExpression
+//@[035:00207) | ├─ObjectExpression
     name: 'primary-db'
     location: 'polandcentral'
 //@[004:00029) | | └─ObjectPropertyExpression
 //@[004:00012) | |   ├─StringLiteralExpression { Value = location }
 //@[014:00029) | |   └─StringLiteralExpression { Value = polandcentral }
+
+    resource threatProtection 'advancedThreatProtectionSettings' existing = {
+//@[004:00107) ├─DeclaredResourceExpression
+//@[076:00107) | ├─ObjectExpression
+      name: 'default'
+    }
   }
 }
+
+//nameof
+output nameof_sqlServer string = nameof(sqlServer)
+//@[000:00050) ├─DeclaredOutputExpression { Name = nameof_sqlServer }
+//@[024:00030) | ├─AmbientTypeReferenceExpression { Name = string }
+//@[040:00049) | └─StringLiteralExpression { Value = sqlServer }
+output nameof_location string = nameof(sqlServer.location)
+//@[000:00058) ├─DeclaredOutputExpression { Name = nameof_location }
+//@[023:00029) | ├─AmbientTypeReferenceExpression { Name = string }
+//@[039:00057) | └─StringLiteralExpression { Value = location }
+output nameof_minCapacity string = nameof(sqlServer::primaryDb.properties.minCapacity)
+//@[000:00086) ├─DeclaredOutputExpression { Name = nameof_minCapacity }
+//@[026:00032) | ├─AmbientTypeReferenceExpression { Name = string }
+//@[042:00085) | └─StringLiteralExpression { Value = minCapacity }
+output nameof_creationTime string = nameof(sqlServer::primaryDb::threatProtection.properties.creationTime)
+//@[000:00106) ├─DeclaredOutputExpression { Name = nameof_creationTime }
+//@[027:00033) | ├─AmbientTypeReferenceExpression { Name = string }
+//@[043:00105) | └─StringLiteralExpression { Value = creationTime }
+output nameof_id string = nameof(sqlServer::sqlDatabases[0].id)
+//@[000:00063) └─DeclaredOutputExpression { Name = nameof_id }
+//@[017:00023)   ├─AmbientTypeReferenceExpression { Name = string }
+//@[033:00062)   └─StringLiteralExpression { Value = id }
+
+var sqlConfig = {
+//@[000:00055) ├─DeclaredVariableExpression { Name = sqlConfig }
+//@[016:00055) | └─ObjectExpression
+  westus: {}
+//@[002:00012) |   ├─ObjectPropertyExpression
+//@[002:00008) |   | ├─StringLiteralExpression { Value = westus }
+//@[010:00012) |   | └─ObjectExpression
+  'server-name': {}
+//@[002:00019) |   └─ObjectPropertyExpression
+//@[002:00015) |     ├─StringLiteralExpression { Value = server-name }
+//@[017:00019) |     └─ObjectExpression
+}
+
+resource sqlServerWithNameof 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:00173) ├─DeclaredResourceExpression
+//@[066:00173) | └─ObjectExpression
+  name: 'sql-server-nameof-${nameof(sqlConfig['server-name'])}'
+  location: nameof(sqlConfig.westus)
+//@[002:00036) |   └─ObjectPropertyExpression
+//@[002:00010) |     ├─StringLiteralExpression { Value = location }
+//@[019:00035) |     └─StringLiteralExpression { Value = westus }
+}
+

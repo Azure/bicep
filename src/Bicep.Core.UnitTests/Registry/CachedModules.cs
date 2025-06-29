@@ -6,8 +6,11 @@ using System.IO.Abstractions;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceLink;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
 using FluentAssertions;
 
 namespace Bicep.Core.UnitTests.Registry;
@@ -17,9 +20,9 @@ namespace Bicep.Core.UnitTests.Registry;
 public static class CachedModules
 {
     // Get all cached modules from the local on-disk registry cache
-    public static ImmutableArray<CachedModule> GetCachedRegistryModules(IFileSystem fileSystem, string cacheRootDirectory)
+    public static ImmutableArray<CachedModule> GetCachedModules(IFileSystem fileSystem, IDirectoryHandle cacheRootDirectory)
     {
-        var cacheDir = fileSystem.DirectoryInfo.New(cacheRootDirectory);
+        var cacheDir = fileSystem.DirectoryInfo.New(cacheRootDirectory.Uri.GetLocalFilePath());
         if (!cacheDir.Exists)
         {
             return [];
@@ -90,7 +93,10 @@ public record CachedModule(
         var sourceArchivePath = FileSystem.Path.Combine(ModuleCacheFolder, $"source.tgz");
         if (FileSystem.File.Exists(sourceArchivePath))
         {
-            return SourceArchive.UnpackFromStream(File.OpenRead(sourceArchivePath));
+            var sourceTgzFileMock = StrictMock.Of<IFileHandle>();
+            sourceTgzFileMock.Setup(x => x.Exists()).Returns(true);
+            sourceTgzFileMock.Setup(x => x.OpenRead()).Returns(FileSystem.File.OpenRead(sourceArchivePath));
+            return SourceArchive.TryUnpackFromFile(sourceTgzFileMock.Object);
         }
 
         return new(new SourceNotAvailableException());

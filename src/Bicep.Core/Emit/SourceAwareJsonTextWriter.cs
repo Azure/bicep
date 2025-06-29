@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter.Rules;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -9,557 +10,100 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     [TestClass]
-    public class MaxNumberVariablesRuleTests : LinterRuleTestsBase
+    public class MaxNumberVariablesRuleTests : MaxNumberTestsBase
     {
         [TestMethod]
-        public void ParameterNameInFormattedMessage()
+        public void LimitShouldBeInFormattedMessage()
         {
             var ruleToTest = new MaxNumberVariablesRule();
             ruleToTest.GetMessage(1).Should().Be("Too many variables. Number of variables is limited to 1.");
         }
 
-        private void CompileAndTest(string text, params string[] unusedParams)
+        [DataRow(
+            1, 512, "var v% = %",
+            new string[] { })]
+        [DataRow(
+            2, 513, "var v% = %",
+            new string[] { })]
+        [DataRow(
+            1, 513, "var v% = %",
+            new string[] {
+                "Too many variables. Number of variables is limited to 512."
+            })]
+        [DataRow(
+            2, 514, "var v% = %",
+            new string[] {
+                "Too many variables. Number of variables is limited to 512."
+            })]
+        [DataRow(2, 514, @"
+        @export()
+        var v% = %
+        ", new string[] { })]
+        [DataTestMethod]
+        public void TooManyVariables(int i, int j, string pattern, string[] expectedMessages)
         {
-            AssertLinterRuleDiagnostics(MaxNumberVariablesRule.Code, text, diags =>
-                {
-                    if (unusedParams.Any())
-                    {
-                        diags.Should().HaveCount(unusedParams.Count());
-
-                        var rule = new MaxNumberVariablesRule();
-                        string[] expectedMessages = unusedParams.Select(p => rule.GetMessage(MaxNumberVariablesRule.MaxNumber)).ToArray();
-                        diags.Select(e => e.Message).Should().ContainInOrder(expectedMessages);
-                    }
-                    else
-                    {
-                        diags.Should().BeEmpty();
-                    }
-                },
-                new Options(OnCompileErrors.Ignore));
+            CompileAndTest(GenerateText(i, j, pattern), MaxNumberVariablesRule.Code, DiagnosticLevel.Error, expectedMessages);
         }
 
-        [DataRow(@"
-                    var v1 string
-                    var v2 string
-                    var v3 string
-                    var v4 string
-                    var v5 string
-                    var v6 string
-                    var v7 string
-                    var v8 string
-                    var v9 string
-                    var v10 string
-                    var v11 string
-                    var v12 string
-                    var v13 string
-                    var v14 string
-                    var v15 string
-                    var v16 string
-                    var v17 string
-                    var v18 string
-                    var v19 string
-                    var v20 string
-                    var v21 string
-                    var v22 string
-                    var v23 string
-                    var v24 string
-                    var v25 string
-                    var v26 string
-                    var v27 string
-                    var v28 string
-                    var v29 string
-                    var v30 string
-                    var v31 string
-                    var v32 string
-                    var v33 string
-                    var v34 string
-                    var v35 string
-                    var v36 string
-                    var v37 string
-                    var v38 string
-                    var v39 string
-                    var v40 string
-                    var v41 string
-                    var v42 string
-                    var v43 string
-                    var v44 string
-                    var v45 string
-                    var v46 string
-                    var v47 string
-                    var v48 string
-                    var v49 string
-                    var v50 string
-                    var v51 string
-                    var v52 string
-                    var v53 string
-                    var v54 string
-                    var v55 string
-                    var v56 string
-                    var v57 string
-                    var v58 string
-                    var v59 string
-                    var v60 string
-                    var v61 string
-                    var v62 string
-                    var v63 string
-                    var v64 string
-                    var v65 string
-                    var v66 string
-                    var v67 string
-                    var v68 string
-                    var v69 string
-                    var v70 string
-                    var v71 string
-                    var v72 string
-                    var v73 string
-                    var v74 string
-                    var v75 string
-                    var v76 string
-                    var v77 string
-                    var v78 string
-                    var v79 string
-                    var v80 string
-                    var v81 string
-                    var v82 string
-                    var v83 string
-                    var v84 string
-                    var v85 string
-                    var v86 string
-                    var v87 string
-                    var v88 string
-                    var v89 string
-                    var v90 string
-                    var v91 string
-                    var v92 string
-                    var v93 string
-                    var v94 string
-                    var v95 string
-                    var v96 string
-                    var v97 string
-                    var v98 string
-                    var v99 string
-                    var v100 string
-                    var v101 string
-                    var v102 string
-                    var v103 string
-                    var v104 string
-                    var v105 string
-                    var v106 string
-                    var v107 string
-                    var v108 string
-                    var v109 string
-                    var v110 string
-                    var v111 string
-                    var v112 string
-                    var v113 string
-                    var v114 string
-                    var v115 string
-                    var v116 string
-                    var v117 string
-                    var v118 string
-                    var v119 string
-                    var v120 string
-                    var v121 string
-                    var v122 string
-                    var v123 string
-                    var v124 string
-                    var v125 string
-                    var v126 string
-                    var v127 string
-                    var v128 string
-                    var v129 string
-                    var v130 string
-                    var v131 string
-                    var v132 string
-                    var v133 string
-                    var v134 string
-                    var v135 string
-                    var v136 string
-                    var v137 string
-                    var v138 string
-                    var v139 string
-                    var v140 string
-                    var v141 string
-                    var v142 string
-                    var v143 string
-                    var v144 string
-                    var v145 string
-                    var v146 string
-                    var v147 string
-                    var v148 string
-                    var v149 string
-                    var v150 string
-                    var v151 string
-                    var v152 string
-                    var v153 string
-                    var v154 string
-                    var v155 string
-                    var v156 string
-                    var v157 string
-                    var v158 string
-                    var v159 string
-                    var v160 string
-                    var v161 string
-                    var v162 string
-                    var v163 string
-                    var v164 string
-                    var v165 string
-                    var v166 string
-                    var v167 string
-                    var v168 string
-                    var v169 string
-                    var v170 string
-                    var v171 string
-                    var v172 string
-                    var v173 string
-                    var v174 string
-                    var v175 string
-                    var v176 string
-                    var v177 string
-                    var v178 string
-                    var v179 string
-                    var v180 string
-                    var v181 string
-                    var v182 string
-                    var v183 string
-                    var v184 string
-                    var v185 string
-                    var v186 string
-                    var v187 string
-                    var v188 string
-                    var v189 string
-                    var v190 string
-                    var v191 string
-                    var v192 string
-                    var v193 string
-                    var v194 string
-                    var v195 string
-                    var v196 string
-                    var v197 string
-                    var v198 string
-                    var v199 string
-                    var v200 string
-                    var v201 string
-                    var v202 string
-                    var v203 string
-                    var v204 string
-                    var v205 string
-                    var v206 string
-                    var v207 string
-                    var v208 string
-                    var v209 string
-                    var v210 string
-                    var v211 string
-                    var v212 string
-                    var v213 string
-                    var v214 string
-                    var v215 string
-                    var v216 string
-                    var v217 string
-                    var v218 string
-                    var v219 string
-                    var v220 string
-                    var v221 string
-                    var v222 string
-                    var v223 string
-                    var v224 string
-                    var v225 string
-                    var v226 string
-                    var v227 string
-                    var v228 string
-                    var v229 string
-                    var v230 string
-                    var v231 string
-                    var v232 string
-                    var v233 string
-                    var v234 string
-                    var v235 string
-                    var v236 string
-                    var v237 string
-                    var v238 string
-                    var v239 string
-                    var v240 string
-                    var v241 string
-                    var v242 string
-                    var v243 string
-                    var v244 string
-                    var v245 string
-                    var v246 string
-                    var v247 string
-                    var v248 string
-                    var v249 string
-                    var v250 string
-                    var v251 string
-                    var v252 string
-                    var v253 string
-                    var v254 string
-                    var v255 string
-                    var v256 string
-        ")]
-        [DataRow(@"
-            var v1 string
-            var v2 string
-            var v3 string
-            var v4 string
-            var v5 string
-            var v6 string
-            var v7 string
-            var v8 string
-            var v9 string
-            var v10 string
-            var v11 string
-            var v12 string
-            var v13 string
-            var v14 string
-            var v15 string
-            var v16 string
-            var v17 string
-            var v18 string
-            var v19 string
-            var v20 string
-            var v21 string
-            var v22 string
-            var v23 string
-            var v24 string
-            var v25 string
-            var v26 string
-            var v27 string
-            var v28 string
-            var v29 string
-            var v30 string
-            var v31 string
-            var v32 string
-            var v33 string
-            var v34 string
-            var v35 string
-            var v36 string
-            var v37 string
-            var v38 string
-            var v39 string
-            var v40 string
-            var v41 string
-            var v42 string
-            var v43 string
-            var v44 string
-            var v45 string
-            var v46 string
-            var v47 string
-            var v48 string
-            var v49 string
-            var v50 string
-            var v51 string
-            var v52 string
-            var v53 string
-            var v54 string
-            var v55 string
-            var v56 string
-            var v57 string
-            var v58 string
-            var v59 string
-            var v60 string
-            var v61 string
-            var v62 string
-            var v63 string
-            var v64 string
-            var v65 string
-            var v66 string
-            var v67 string
-            var v68 string
-            var v69 string
-            var v70 string
-            var v71 string
-            var v72 string
-            var v73 string
-            var v74 string
-            var v75 string
-            var v76 string
-            var v77 string
-            var v78 string
-            var v79 string
-            var v80 string
-            var v81 string
-            var v82 string
-            var v83 string
-            var v84 string
-            var v85 string
-            var v86 string
-            var v87 string
-            var v88 string
-            var v89 string
-            var v90 string
-            var v91 string
-            var v92 string
-            var v93 string
-            var v94 string
-            var v95 string
-            var v96 string
-            var v97 string
-            var v98 string
-            var v99 string
-            var v100 string
-            var v101 string
-            var v102 string
-            var v103 string
-            var v104 string
-            var v105 string
-            var v106 string
-            var v107 string
-            var v108 string
-            var v109 string
-            var v110 string
-            var v111 string
-            var v112 string
-            var v113 string
-            var v114 string
-            var v115 string
-            var v116 string
-            var v117 string
-            var v118 string
-            var v119 string
-            var v120 string
-            var v121 string
-            var v122 string
-            var v123 string
-            var v124 string
-            var v125 string
-            var v126 string
-            var v127 string
-            var v128 string
-            var v129 string
-            var v130 string
-            var v131 string
-            var v132 string
-            var v133 string
-            var v134 string
-            var v135 string
-            var v136 string
-            var v137 string
-            var v138 string
-            var v139 string
-            var v140 string
-            var v141 string
-            var v142 string
-            var v143 string
-            var v144 string
-            var v145 string
-            var v146 string
-            var v147 string
-            var v148 string
-            var v149 string
-            var v150 string
-            var v151 string
-            var v152 string
-            var v153 string
-            var v154 string
-            var v155 string
-            var v156 string
-            var v157 string
-            var v158 string
-            var v159 string
-            var v160 string
-            var v161 string
-            var v162 string
-            var v163 string
-            var v164 string
-            var v165 string
-            var v166 string
-            var v167 string
-            var v168 string
-            var v169 string
-            var v170 string
-            var v171 string
-            var v172 string
-            var v173 string
-            var v174 string
-            var v175 string
-            var v176 string
-            var v177 string
-            var v178 string
-            var v179 string
-            var v180 string
-            var v181 string
-            var v182 string
-            var v183 string
-            var v184 string
-            var v185 string
-            var v186 string
-            var v187 string
-            var v188 string
-            var v189 string
-            var v190 string
-            var v191 string
-            var v192 string
-            var v193 string
-            var v194 string
-            var v195 string
-            var v196 string
-            var v197 string
-            var v198 string
-            var v199 string
-            var v200 string
-            var v201 string
-            var v202 string
-            var v203 string
-            var v204 string
-            var v205 string
-            var v206 string
-            var v207 string
-            var v208 string
-            var v209 string
-            var v210 string
-            var v211 string
-            var v212 string
-            var v213 string
-            var v214 string
-            var v215 string
-            var v216 string
-            var v217 string
-            var v218 string
-            var v219 string
-            var v220 string
-            var v221 string
-            var v222 string
-            var v223 string
-            var v224 string
-            var v225 string
-            var v226 string
-            var v227 string
-            var v228 string
-            var v229 string
-            var v230 string
-            var v231 string
-            var v232 string
-            var v233 string
-            var v234 string
-            var v235 string
-            var v236 string
-            var v237 string
-            var v238 string
-            var v239 string
-            var v240 string
-            var v241 string
-            var v242 string
-            var v243 string
-            var v244 string
-            var v245 string
-            var v246 string
-            var v247 string
-            var v248 string
-            var v249 string
-            var v250 string
-            var v251 string
-            var v252 string
-            var v253 string
-            var v254 string
-            var v255 string
-            var v256 string
-            var v257 string
-            ",
-            "v1")]
-        [DataTestMethod]
-        public void TestRule(string text, params string[] unusedParams)
+        [TestMethod]
+        public void TooManyVariablesAfterImport()
         {
-            CompileAndTest(text, unusedParams);
+            var withoutImport = GenerateText(1, MaxNumberVariablesRule.MaxNumber, "var v% = %");
+            CompileAndTest(withoutImport, MaxNumberVariablesRule.Code, DiagnosticLevel.Off, []);
+
+            var importTarget = """
+                @export()
+                var imported1 = 1
+                """;
+            CompileAndTest(
+                string.Join('\n', "import {imported1} from 'imported.bicep'", withoutImport),
+                MaxNumberVariablesRule.Code,
+                DiagnosticLevel.Error,
+                [$"Too many variables. Number of variables is limited to {MaxNumberVariablesRule.MaxNumber}."],
+                new(AdditionalFiles: [("imported.bicep", importTarget)]));
+
+            CompileAndTest(
+                string.Join('\n', "import * as imported from 'imported.bicep'", withoutImport),
+                MaxNumberVariablesRule.Code,
+                DiagnosticLevel.Error,
+                [$"Too many variables. Number of variables is limited to {MaxNumberVariablesRule.MaxNumber}."],
+                new(AdditionalFiles: [("imported.bicep", importTarget)]));
+        }
+
+        [DataRow("param p1 string = 'test'")]
+        [DataRow("output out string = ''")]
+        [DataRow(@"
+        resource r1 'Microsoft.Resources/deployments@2020-10-01' = {
+            name: 'test'
+            properties: {
+                mode: 'Incremental'
+                template: {
+                }
+            }
+        }")]
+        [DataRow(@"
+        module m1 'm1.bicep' = {
+            name: 'test'
+            params: {
+                p1: 'test'
+            }
+        }")]
+        [DataTestMethod]
+        public void TooManyVariablesWithDeploymentSyntax(string deployableSyntaxDeclaration)
+        {
+            var variablesWithExport = GenerateText(2, 514, """
+                                                 @export()
+                                                 var v% = %
+                                                 """);
+            variablesWithExport += $"""
+
+                                   {deployableSyntaxDeclaration}
+                                   """;
+            CompileAndTest(variablesWithExport,
+                MaxNumberVariablesRule.Code,
+                DiagnosticLevel.Error,
+                [$"Too many variables. Number of variables is limited to {MaxNumberVariablesRule.MaxNumber}."],
+                new(AdditionalFiles: [("m1.bicep", "param p1 string = 'test'")]));
         }
     }
 }

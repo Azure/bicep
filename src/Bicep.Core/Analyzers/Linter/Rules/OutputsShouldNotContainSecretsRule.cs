@@ -1,10 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Reflection;
 using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
@@ -16,8 +19,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public OutputsShouldNotContainSecretsRule() : base(
             code: Code,
             description: CoreResources.OutputsShouldNotContainSecretsRuleDescription,
-            LinterRuleCategory.Security,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}")
+            LinterRuleCategory.Security
         )
         {
         }
@@ -54,6 +56,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
             {
+                // If the output has a secure decorator and contains secure values, don't emit a diagnostic.
+                // If the output contains secure values but doesn't have a secure decorator, emit a warning diagnostic.
+                if (syntax.HasSecureDecorator(model.Binder, model.TypeManager))
+                {
+                    return;
+                }
+
                 // Does the output name contain 'password' (suggesting it contains an actual password)?
                 if (syntax.Name.IdentifierName.Contains("password", StringComparison.OrdinalIgnoreCase))
                 {

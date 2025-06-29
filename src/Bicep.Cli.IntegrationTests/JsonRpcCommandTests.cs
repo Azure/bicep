@@ -1,9 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.IO.Abstractions.TestingHelpers;
 using System.IO.Pipes;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Bicep.Cli.Rpc;
+using Bicep.Core.Json;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -191,26 +195,27 @@ resource baz 'My.Rp/foo@2020-01-01' = {
     [TestMethod]
     public async Task GetFileReferences_returns_all_referenced_files()
     {
-        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-            ["/main.bicepparam"] = """
-using 'main.bicep'
+        var fileSystem = new MockFileSystem(
+            new Dictionary<string, MockFileData>
+            {
+                ["/main.bicepparam"] = """
+                    using 'main.bicep'
 
-param foo = 'foo'
-""",
-            ["/main.bicep"] = """
-param foo string
+                    param foo = 'foo'
+                    """,
+                ["/main.bicep"] = """
+                    param foo string
 
-var test = loadTextContent('invalid.txt')
-var test2 = loadTextContent('valid.txt')
-""",
-            ["/valid.txt"] = """
-hello!
-""",
-            ["/bicepconfig.json"] = """
-{}
-""",
-        });
+                    var test = loadTextContent('invalid.txt')
+                    var test2 = loadTextContent('valid.txt')
+                    """,
+                ["/valid.txt"] = """
+                    hello!
+                    """,
+                ["/bicepconfig.json"] = """
+                    {}
+                    """,
+            });
 
         await RunServerTest(
             services => services.WithFileSystem(fileSystem),
@@ -218,13 +223,228 @@ hello!
             {
                 var response = await client.GetFileReferences(new("/main.bicepparam"), token);
 
-                response.FilePaths.Should().Equal([
+                response.FilePaths.Should().BeEquivalentTo([
                     "/bicepconfig.json",
                     "/invalid.txt",
                     "/main.bicep",
                     "/main.bicepparam",
                     "/valid.txt",
                 ]);
+            });
+    }
+
+    [TestMethod]
+    public async Task CompileParams_returns_a_compilation_result()
+    {
+        var fileSystem = new MockFileSystem(
+            new Dictionary<string, MockFileData>
+            {
+                ["/main.bicepparam"] = """
+                    using './main.bicep'
+
+                    param location = externalInput('custom.binding', '__MY_REGION__')
+                    param storageAccountType = externalInput('custom.binding', '__UNRESOLVED_BINDING__')
+                    """,
+                ["/main.bicep"] = """
+                    @description('Storage Account type')
+                    param storageAccountType string = 'Standard_LRS'
+                    
+                    @description('The storage account location.')
+                    param location string = resourceGroup().location
+                    
+                    @description('The name of the storage account')
+                    param storageAccountName string = 'store${uniqueString(resourceGroup().id)}'
+                    
+                    resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+                      name: storageAccountName
+                      location: location
+                      sku: {
+                        name: storageAccountType
+                      }
+                      kind: 'StorageV2'
+                      properties: {}
+                    }
+                    """,
+                ["/bicepconfig.json"] = """
+                    {
+                      "experimentalFeaturesEnabled": {
+                        "externalInputFunction": true
+                      }
+                    }
+                    """,
+            });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var response = await client.CompileParams(new("/main.bicepparam", []), token);
+
+                response.Parameters.FromJson<JToken>().Should().HaveValueAtPath("$.parameters['location'].expression", "[externalInputs('custom_binding_0')]");
+                response.Parameters.FromJson<JToken>().Should().HaveValueAtPath("$.parameters['storageAccountType'].expression", "[externalInputs('custom_binding_1')]");
+
+                response.Parameters.FromJson<JToken>().Should().HaveJsonAtPath("$.externalInputDefinitions['custom_binding_0']", """
+                {
+                  "kind": "custom.binding",
+                  "config": "__MY_REGION__"
+                }
+                """);
+
+                response.Parameters.FromJson<JToken>().Should().HaveJsonAtPath("$.externalInputDefinitions['custom_binding_1']", """
+                {
+                  "kind": "custom.binding",
+                  "config": "__UNRESOLVED_BINDING__"
+                }
+                """);
+
+                response.Template.FromJson<JToken>().Should().HaveValueAtPath("$.parameters['location'].type", "string");
+                response.Template.FromJson<JToken>().Should().HaveValueAtPath("$.parameters['storageAccountType'].type", "string");
+            });
+    }
+
+    [TestMethod]
+    public async Task GetSnapshot_returns_a_snapshot()
+    {
+        var fileSystem = new MockFileSystem(
+            new Dictionary<string, MockFileData>
+            {
+                ["/main.bicepparam"] = """
+                    using './main.bicep'
+
+                    param location = 'eastus'
+                    """,
+                ["/main.bicep"] = """
+                    @description('Storage Account type')
+                    param storageAccountType string = 'Standard_LRS'
+                    
+                    @description('The storage account location.')
+                    param location string = resourceGroup().location
+                    
+                    @description('The name of the storage account')
+                    param storageAccountName string = 'store${uniqueString(resourceGroup().id)}'
+                    
+                    resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+                      name: storageAccountName
+                      location: location
+                      sku: {
+                        name: storageAccountType
+                      }
+                      kind: 'StorageV2'
+                      properties: {}
+                    }
+                    """,
+            });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var response = await client.GetSnapshot(new("/main.bicepparam", new(
+                    TenantId: null,
+                    SubscriptionId: "11068ed9-6c31-4a47-8183-4eca6d84bb32",
+                    ResourceGroup: "myRg",
+                    Location: null,
+                    DeploymentName: null),
+                    null), token);
+
+                response.Snapshot.FromJson<JToken>().Should().DeepEqual(JObject.Parse("""
+                    {
+                      "predictedResources": [
+                        {
+                          "id": "/subscriptions/11068ed9-6c31-4a47-8183-4eca6d84bb32/resourceGroups/myRg/providers/Microsoft.Storage/storageAccounts/storepwt7yebfrftwu",
+                          "type": "Microsoft.Storage/storageAccounts",
+                          "name": "storepwt7yebfrftwu",
+                          "apiVersion": "2022-09-01",
+                          "location": "eastus",
+                          "sku": {
+                            "name": "Standard_LRS"
+                          },
+                          "kind": "StorageV2",
+                          "properties": {}
+                        }
+                      ],
+                      "diagnostics": []
+                    }
+                    """));
+            });
+    }
+
+    [TestMethod]
+    public async Task GetSnapshot_returns_a_snapshot_with_external_inputs()
+    {
+        var fileSystem = new MockFileSystem(
+            new Dictionary<string, MockFileData>
+            {
+                ["/main.bicepparam"] = """
+                    using './main.bicep'
+
+                    param location = externalInput('custom.binding', '__MY_REGION__')
+                    param storageAccountType = externalInput('custom.binding', '__UNRESOLVED_BINDING__')
+                    """,
+                ["/main.bicep"] = """
+                    @description('Storage Account type')
+                    param storageAccountType string = 'Standard_LRS'
+                    
+                    @description('The storage account location.')
+                    param location string = resourceGroup().location
+                    
+                    @description('The name of the storage account')
+                    param storageAccountName string = 'store${uniqueString(resourceGroup().id)}'
+                    
+                    resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+                      name: storageAccountName
+                      location: location
+                      sku: {
+                        name: storageAccountType
+                      }
+                      kind: 'StorageV2'
+                      properties: {}
+                    }
+                    """,
+                ["/bicepconfig.json"] = """
+                    {
+                      "experimentalFeaturesEnabled": {
+                        "externalInputFunction": true
+                      }
+                    }
+                    """,
+            });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                ImmutableArray<GetSnapshotRequest.ExternalInputValue> externalInputs = [
+                    new("custom.binding", "__MY_REGION__", "Antarctica"),
+                ];
+
+                var response = await client.GetSnapshot(new("/main.bicepparam", new(
+                    TenantId: null,
+                    SubscriptionId: "11068ed9-6c31-4a47-8183-4eca6d84bb32",
+                    ResourceGroup: "myRg",
+                    Location: null,
+                    DeploymentName: null),
+                    externalInputs), token);
+
+                response.Snapshot.FromJson<JToken>().Should().DeepEqual(JObject.Parse("""
+                    {
+                      "predictedResources": [
+                        {
+                          "id": "/subscriptions/11068ed9-6c31-4a47-8183-4eca6d84bb32/resourceGroups/myRg/providers/Microsoft.Storage/storageAccounts/storepwt7yebfrftwu",
+                          "type": "Microsoft.Storage/storageAccounts",
+                          "name": "storepwt7yebfrftwu",
+                          "apiVersion": "2022-09-01",
+                          "location": "Antarctica",
+                          "sku": {
+                            "name": "[externalInputs('custom_binding_1')]"
+                          },
+                          "kind": "StorageV2",
+                          "properties": {}
+                        }
+                      ],
+                      "diagnostics": []
+                    }
+                    """));
             });
     }
 }

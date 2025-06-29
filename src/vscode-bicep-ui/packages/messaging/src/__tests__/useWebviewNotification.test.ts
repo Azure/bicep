@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { useWebviewNotification } from "../useWebviewNotification";

@@ -30,8 +30,13 @@ namespace Bicep.Cli.UnitTests
         }
 
         [DataTestMethod]
-        [DataRow(new[] { "build" }, "The input file path was not specified")]
-        [DataRow(new[] { "build", "--stdout" }, "The input file path was not specified")]
+        // build
+        [DataRow(new[] { "build" }, "Either the input file path or the --pattern parameter must be specified")]
+        [DataRow(new[] { "build", "foo.bicep", "--pattern", "*.bicep" }, "The input file path and the --pattern parameter cannot both be specified")]
+        [DataRow(new[] { "build", "--pattern" }, "The --pattern parameter expects an argument")]
+        [DataRow(new[] { "build", "--pattern", "*.bicep", "--stdout" }, "The --stdout parameter cannot be used with the --pattern parameter")]
+        [DataRow(new[] { "build", "--pattern", "*.bicep", "--outfile", "foo" }, "The --outfile parameter cannot be used with the --pattern parameter")]
+        [DataRow(new[] { "build", "--stdout" }, "Either the input file path or the --pattern parameter must be specified")]
         [DataRow(new[] { "build", "file1", "file2" }, "The input file path cannot be specified multiple times")]
         [DataRow(new[] { "build", "--wibble" }, "Unrecognized parameter \"--wibble\"")]
         [DataRow(new[] { "build", "--outdir" }, "The --outdir parameter expects an argument")]
@@ -42,6 +47,23 @@ namespace Bicep.Cli.UnitTests
         [DataRow(new[] { "build", "--stdout", "--outdir", "dir1", "file1" }, "The --outdir and --stdout parameters cannot both be used")]
         [DataRow(new[] { "build", "--outfile", "dir1", "--outdir", "dir2", "file1" }, "The --outdir and --outfile parameters cannot both be used")]
         [DataRow(new[] { "build", "--outdir", "dir1", "file1" }, "The specified output directory \"*\" does not exist.")]
+        // build-params
+        [DataRow(new[] { "build-params" }, "Either the input file path or the --pattern parameter must be specified")]
+        [DataRow(new[] { "build-params", "foo.bicepparam", "--pattern", "*.bicepparam" }, "The input file path and the --pattern parameter cannot both be specified")]
+        [DataRow(new[] { "build-params", "--pattern" }, "The --pattern parameter expects an argument")]
+        [DataRow(new[] { "build-params", "--pattern", "*.bicepparam", "--stdout" }, "The --stdout parameter cannot be used with the --pattern parameter")]
+        [DataRow(new[] { "build-params", "--pattern", "*.bicepparam", "--outfile", "foo" }, "The --outfile parameter cannot be used with the --pattern parameter")]
+        [DataRow(new[] { "build-params", "--stdout" }, "Either the input file path or the --pattern parameter must be specified")]
+        [DataRow(new[] { "build-params", "file1", "file2" }, "The input file path cannot be specified multiple times")]
+        [DataRow(new[] { "build-params", "--wibble" }, "Unrecognized parameter \"--wibble\"")]
+        [DataRow(new[] { "build-params", "--outdir" }, "The --outdir parameter expects an argument")]
+        [DataRow(new[] { "build-params", "--outdir", "dir1", "--outdir", "dir2" }, "The --outdir parameter cannot be specified twice")]
+        [DataRow(new[] { "build-params", "--outfile" }, "The --outfile parameter expects an argument")]
+        [DataRow(new[] { "build-params", "--outfile", "dir1", "--outfile", "dir2" }, "The --outfile parameter cannot be specified twice")]
+        [DataRow(new[] { "build-params", "--stdout", "--outfile", "dir1", "file1" }, "The --outfile and --stdout parameters cannot both be used")]
+        [DataRow(new[] { "build-params", "--stdout", "--outdir", "dir1", "file1" }, "The --outdir and --stdout parameters cannot both be used")]
+        [DataRow(new[] { "build-params", "--outfile", "dir1", "--outdir", "dir2", "file1" }, "The --outdir and --outfile parameters cannot both be used")]
+        // decompile
         [DataRow(new[] { "decompile" }, "The input file path was not specified")]
         [DataRow(new[] { "decompile", "--stdout" }, "The input file path was not specified")]
         [DataRow(new[] { "decompile", "file1", "file2" }, "The input file path cannot be specified multiple times")]
@@ -54,6 +76,7 @@ namespace Bicep.Cli.UnitTests
         [DataRow(new[] { "decompile", "--stdout", "--outdir", "dir1", "file1" }, "The --outdir and --stdout parameters cannot both be used")]
         [DataRow(new[] { "decompile", "--outfile", "dir1", "--outdir", "dir2", "file1" }, "The --outdir and --outfile parameters cannot both be used")]
         [DataRow(new[] { "decompile", "--outdir", "dir1", "file1" }, "The specified output directory \"*\" does not exist.")]
+        // publish
         [DataRow(new[] { "publish" }, "The input file path was not specified.")]
         [DataRow(new[] { "publish", "--fake" }, "Unrecognized parameter \"--fake\"")]
         [DataRow(new[] { "publish", "--target" }, "The --target parameter expects an argument.")]
@@ -61,9 +84,22 @@ namespace Bicep.Cli.UnitTests
         [DataRow(new[] { "publish", "--target", "foo", "--target", "foo2" }, "The --target parameter cannot be specified twice.")]
         [DataRow(new[] { "publish", "file" }, "The target module was not specified.")]
         [DataRow(new[] { "publish", "file", "file2" }, "The input file path cannot be specified multiple times.")]
-        [DataRow(new[] { "restore" }, "The input file path was not specified.")]
+        // restore
+        [DataRow(new[] { "restore" }, "Either the input file path or the --pattern parameter must be specified")]
+        [DataRow(new[] { "restore", "foo.bicep", "--pattern", "*.bicep" }, "The input file path and the --pattern parameter cannot both be specified")]
+        [DataRow(new[] { "restore", "--pattern" }, "The --pattern parameter expects an argument")]
         [DataRow(new[] { "restore", "--fake" }, "Unrecognized parameter \"--fake\"")]
-        [DataRow(new[] { "restore", "file1", "file2" }, "The input file path cannot be specified multiple times.")]
+        [DataRow(new[] { "restore", "file1", "file2" }, "The input file path cannot be specified multiple times")]
+        // lint
+        [DataRow(new[] { "lint" }, "Either the input file path or the --pattern parameter must be specified")]
+        [DataRow(new[] { "lint", "foo.bicep", "--pattern", "*.bicep" }, "The input file path and the --pattern parameter cannot both be specified")]
+        [DataRow(new[] { "lint", "--pattern" }, "The --pattern parameter expects an argument")]
+        [DataRow(new[] { "lint", "--fake" }, "Unrecognized parameter \"--fake\"")]
+        // format
+        [DataRow(new[] { "format" }, "Either the input file path or the --pattern parameter must be specified")]
+        [DataRow(new[] { "format", "foo.bicep", "--pattern", "*.bicep" }, "The input file path and the --pattern parameter cannot both be specified")]
+        [DataRow(new[] { "format", "--pattern" }, "The --pattern parameter expects an argument")]
+        [DataRow(new[] { "format", "--fake" }, "Unrecognized parameter \"--fake\"")]
         public void Invalid_args_trigger_validation_exceptions(string[] parameters, string expectedException)
         {
             Action parseFunc = () => ArgumentParser.TryParse(parameters, IO, FileSystem);

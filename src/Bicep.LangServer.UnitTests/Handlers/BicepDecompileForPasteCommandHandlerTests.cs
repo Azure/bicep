@@ -34,17 +34,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             return builder.Construct<BicepDecompileForPasteCommandHandler>();
         }
 
-        public enum PasteType
-        {
-            None,
-            FullTemplate,
-            SingleResource,
-            ResourceList,
-            JsonValue,
-            BicepValue,
-        }
-
-        record Options(
+        private record Options(
             string pastedJson,
             PasteType? expectedPasteType = null,
             PasteContext expectedPasteContext = PasteContext.None,
@@ -60,7 +50,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             string? expectedErrorMessage = null,
             string? editorContentsWithCursor = null)
         {
-            await TestDecompileForPaste(new Options(
+            await TestDecompileForPaste(new(
                 json,
                 expectedPasteType,
                 PasteContext.None,
@@ -82,7 +72,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var handler = CreateHandler(server);
 
 
-            var result = await handler.Handle(new BicepDecompileForPasteCommandParams(editorContentsWithPastedJson, cursorOffset, options.pastedJson.Length, options.pastedJson, queryCanPaste: false), CancellationToken.None);
+            var result = await handler.Handle(new BicepDecompileForPasteCommandParams(editorContentsWithPastedJson, cursorOffset, options.pastedJson.Length, options.pastedJson, queryCanPaste: false, "bicep"), CancellationToken.None);
 
             result.ErrorMessage.Should().Be(options.expectedErrorMessage);
 
@@ -102,12 +92,12 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             result.PasteType.Should().Be(options.expectedPasteType switch
             {
-                PasteType.None => BicepDecompileForPasteCommandHandler.PasteType_None,
-                PasteType.FullTemplate => BicepDecompileForPasteCommandHandler.PasteType_FullTemplate,
-                PasteType.SingleResource => BicepDecompileForPasteCommandHandler.PasteType_SingleResource,
-                PasteType.ResourceList => BicepDecompileForPasteCommandHandler.PasteType_ResourceList,
-                PasteType.JsonValue => BicepDecompileForPasteCommandHandler.PasteType_JsonValue,
-                PasteType.BicepValue => BicepDecompileForPasteCommandHandler.PasteType_BicepValue,
+                PasteType.None => null,
+                PasteType.FullTemplate => "fullTemplate",
+                PasteType.SingleResource => "resource",
+                PasteType.ResourceList => "resourceList",
+                PasteType.JsonValue => "jsonValue",
+                PasteType.BicepValue => "bicepValue",
                 _ => throw new NotImplementedException(),
             });
         }
@@ -1401,6 +1391,7 @@ name: 'Premium_LRS'
                     expectedBicep: expectedBicep);
         }
 
+        [DataTestMethod]
         [DataRow(
             @"{
               ipConfigurations: [

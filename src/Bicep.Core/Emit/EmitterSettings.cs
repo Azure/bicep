@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Emit
 {
@@ -20,6 +20,13 @@ namespace Bicep.Core.Emit
                 UseExperimentalTemplateLanguageVersion ||
                 // symbolic name codegen has been explicitly enabled
                 model.Features.SymbolicNameCodegenEnabled ||
+                // use of extensions or extensible resources
+                model.Root.ExtensionDeclarations.Any() ||
+                model.DeclaredResources.Any(x => !x.IsAzResource) ||
+                // resourceinfo codegen has been enabled
+                model.Features.ResourceInfoCodegenEnabled ||
+                // there are typed variables
+                model.Root.VariableDeclarations.Any(x => x.DeclaringVariable.Type is { }) ||
                 // there are any user-defined type declarations
                 model.Root.TypeDeclarations.Any() ||
                 // there are any user-defined function declarations
@@ -28,6 +35,13 @@ namespace Bicep.Core.Emit
                 model.Root.ImportedSymbols.Any() ||
                 // there are any wildcard compile-time imports
                 model.Root.WildcardImports.Any() ||
+                // there are any existing resources with explicit dependencies
+                model.Root.ResourceDeclarations.Any(r => r.DeclaringResource.IsExistingResource() &&
+                    r.DeclaringResource.TryGetBody()?.TryGetPropertyByName(LanguageConstants.ResourceDependsOnPropertyName) is not null) ||
+                // there are secure outputs
+                model.Outputs.Any(output => output.IsSecure) ||
+                // there are secure outputs in modules
+                model.Root.ModuleDeclarations.Any(module => module.TryGetSemanticModel().TryUnwrap()?.Outputs.Any(output => output.IsSecure) ?? false) ||
                 // any user-defined type declaration syntax is used (e.g., in a `param` or `output` statement)
                 SyntaxAggregator.Aggregate(model.SourceFile.ProgramSyntax,
                     seed: false,
@@ -38,7 +52,9 @@ namespace Bicep.Core.Emit
                         syntax is UnionTypeSyntax ||
                         syntax is NullableTypeSyntax,
                     resultSelector: result => result,
-                    continuationFunction: (result, syntax) => !result);
+                    continuationFunction: (result, syntax) => !result) ||
+                // there are optional module names
+                model.Root.ModuleDeclarations.Any(module => module.TryGetBodyProperty(LanguageConstants.ModuleNamePropertyName) is null);
         }
 
         /// <summary>

@@ -9,4 +9,7 @@ public class Environment : IEnvironment
 
     public IEnumerable<string> GetVariableNames()
         => System.Environment.GetEnvironmentVariables().Keys.OfType<string>();
+
+    public string CurrentDirectory
+        => System.Environment.CurrentDirectory;
 }

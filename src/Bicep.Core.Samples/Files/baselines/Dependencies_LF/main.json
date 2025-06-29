@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10969660194523330241"
+      "templateHash": "9865822508247546164"
     }
   },
   "parameters": {
@@ -80,7 +80,7 @@
     {
       "type": "My.Rp/myResourceType/childType",
       "apiVersion": "2020-01-01",
-      "name": "resC/resD",
+      "name": "resC/resD_2",
       "properties": {
         "resDRef": "[resourceId('My.Rp/myResourceType/childType', split(format('{0}/resD', 'resC'), '/')[0], split(format('{0}/resD', 'resC'), '/')[1])]"
       },

@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
@@ -64,6 +64,13 @@ namespace Bicep.Core.TypeSystem
 
             this.DiagnosticWriter.Write(diagnostic);
         }
+
+        protected (SyntaxBase? parent, SyntaxBase immediateChild) GetParentAndChildIgnoringNonNullAssertions(SyntaxBase syntax)
+            => SemanticModel.Binder.GetParent(syntax) switch
+            {
+                NonNullAssertionSyntax nonNullAssertion => GetParentAndChildIgnoringNonNullAssertions(nonNullAssertion),
+                var parent => (parent, syntax),
+            };
 
         private string? ErrorSyntaxInForBodyOfVariable(ForSyntax forSyntax, SyntaxBase errorSyntax) =>
             this.SemanticModel.Binder.GetParent(forSyntax) is VariableDeclarationSyntax variableDeclarationSyntax &&

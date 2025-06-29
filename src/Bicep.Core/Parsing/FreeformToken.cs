@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Parsing
 {

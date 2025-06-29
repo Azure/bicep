@@ -83,7 +83,9 @@ binaryExpression ->
 equalityExpression ->
   relationalExpression |
   equalityExpression "==" relationalExpression |
-  equalityExpression "!=" relationalExpression
+  equalityExpression "!=" relationalExpression |
+  equalityExpression "=~" relationalExpression |
+  equalityExpression "!~" relationalExpression
 
 relationalExpression ->
   additiveExpression |
@@ -112,7 +114,11 @@ unaryOperator -> "!" | "-" | "+"
 memberExpression ->
   primaryExpression |
   memberExpression "[" expression "]" |
+  memberExpression "[^" expression "]" |
+  memberExpression "[?" expression "]" |
+  memberExpression "[?^" expression "]" |
   memberExpression "." IDENTIFIER(property) |
+  memberExpression ".?" IDENTIFIER(property) |
   memberExpression "." functionCall |
   memberExpression "::" IDENTIFIER(name) |
   memberExpression "!"

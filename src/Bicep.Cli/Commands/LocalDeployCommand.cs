@@ -1,45 +1,36 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Core.Json;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
+using Bicep.IO.Abstraction;
 using Bicep.Local.Deploy;
 using Bicep.Local.Deploy.Extensibility;
 using Bicep.Local.Extension.Rpc;
+using Json.Patch;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Bicep.Cli.Commands;
 
-public class LocalDeployCommand : ICommand
+public class LocalDeployCommand(
+    IOContext io,
+    ILogger logger,
+    DiagnosticLogger diagnosticLogger,
+    BicepCompiler compiler,
+    LocalExtensionDispatcherFactory dispatcherFactory) : ICommand
 {
-    private readonly IModuleDispatcher moduleDispatcher;
-    private readonly IOContext io;
-    private readonly ILogger logger;
-    private readonly DiagnosticLogger diagnosticLogger;
-    private readonly BicepCompiler compiler;
-
-    public LocalDeployCommand(
-        IModuleDispatcher moduleDispatcher,
-        IOContext io,
-        ILogger logger,
-        DiagnosticLogger diagnosticLogger,
-        BicepCompiler compiler)
-    {
-        this.moduleDispatcher = moduleDispatcher;
-        this.io = io;
-        this.logger = logger;
-        this.diagnosticLogger = diagnosticLogger;
-        this.compiler = compiler;
-    }
-
     public async Task<int> RunAsync(LocalDeployArguments args, CancellationToken cancellationToken)
     {
         var paramsFileUri = ArgumentHelper.GetFileUri(args.ParamsFile);
@@ -65,16 +56,27 @@ public class LocalDeployCommand : ICommand
             return 1;
         }
 
-        await using LocalExtensibilityHostManager extensibilityHandler = new(moduleDispatcher, GrpcBuiltInLocalExtension.Start);
-        await extensibilityHandler.InitializeExtensions(compilation);
+        if (compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var usingModel) &&
+            usingModel.TargetScope is not ResourceScope.Local)
+        {
+            logger.LogError($"The referenced .bicep file must have targetScope set to 'local'.");
+            return 1;
+        }
 
-        var result = await LocalDeployment.Deploy(extensibilityHandler, templateString, parametersString, cancellationToken);
+
+        // this using block is intentional to ensure that the dispatcher completes running before we write the summary
+        LocalDeploymentResult result;
+        await using (var dispatcher = dispatcherFactory.Create())
+        {
+            await dispatcher.InitializeExtensions(compilation);
+            result = await dispatcher.Deploy(templateString, parametersString, cancellationToken);
+        }
 
         await WriteSummary(result);
-        return 0;
+        return result.Deployment.Properties.ProvisioningState == ProvisioningState.Succeeded ? 0 : 1;
     }
 
-    private async Task WriteSummary(LocalDeployment.Result result)
+    private async Task WriteSummary(LocalDeploymentResult result)
     {
         if (result.Deployment.Properties.Outputs is { } outputs)
         {

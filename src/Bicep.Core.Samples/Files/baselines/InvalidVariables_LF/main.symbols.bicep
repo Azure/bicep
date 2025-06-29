@@ -28,9 +28,9 @@ var missingValue =
 var 2 
 //@[04:05) Variable <error>. Type: error. Declaration start char: 0, length: 6
 var $ = 23
-//@[04:05) Variable <error>. Type: 23. Declaration start char: 0, length: 10
+//@[04:10) Variable <error>. Type: error. Declaration start char: 0, length: 10
 var # 33 = 43
-//@[04:08) Variable <error>. Type: 43. Declaration start char: 0, length: 13
+//@[04:13) Variable <error>. Type: error. Declaration start char: 0, length: 13
 
 // no value assigned
 var foo =
@@ -38,13 +38,13 @@ var foo =
 
 // bad =
 var badEquals 2
-//@[04:13) Variable badEquals. Type: error. Declaration start char: 0, length: 15
+//@[04:13) Variable badEquals. Type: 2. Declaration start char: 0, length: 15
 var badEquals2 3 true
-//@[04:14) Variable badEquals2. Type: error. Declaration start char: 0, length: 21
+//@[04:14) Variable badEquals2. Type: 3. Declaration start char: 0, length: 21
 
 // malformed identifier but type check should happen regardless
 var 2 = x
-//@[04:05) Variable <error>. Type: error. Declaration start char: 0, length: 9
+//@[04:07) Variable <error>. Type: error. Declaration start char: 0, length: 9
 
 // bad token value
 var foo = &
@@ -218,9 +218,9 @@ var anotherThing = true
 
 // invalid identifier character classes
 var ☕ = true
-//@[04:05) Variable <error>. Type: true. Declaration start char: 0, length: 12
+//@[04:12) Variable <error>. Type: error. Declaration start char: 0, length: 12
 var a☕ = true
-//@[04:05) Variable a. Type: error. Declaration start char: 0, length: 13
+//@[04:05) Variable a. Type: any. Declaration start char: 0, length: 13
 
 var missingArrayVariable = [for thing in stuff: 4]
 //@[32:37) Local thing. Type: any. Declaration start char: 32, length: 5
@@ -314,7 +314,7 @@ var myRef = [
 ]
 var runtimeLoop5 = [for (item, index) in myRef: 's']
 //@[25:29) Local item. Type: string. Declaration start char: 25, length: 4
-//@[31:36) Local index. Type: int. Declaration start char: 31, length: 5
+//@[31:36) Local index. Type: 0. Declaration start char: 31, length: 5
 //@[04:16) Variable runtimeLoop5. Type: 's'[]. Declaration start char: 0, length: 52
 
 // cannot use loops in expressions

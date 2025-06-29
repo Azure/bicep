@@ -4,8 +4,9 @@
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
-using Bicep.Core.Workspaces;
+using Bicep.IO.FileSystem;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Configuration;
 using Bicep.LanguageServer.Handlers;
@@ -187,16 +188,13 @@ public class BicepTextDocumentSyncHandlerTests
     private async Task ChangeLinterRuleState(Mock<ITelemetryProvider> telemetryProvider, string prevBicepConfigFileContents, string curBicepConfigFileContents)
     {
         var fileSystem = new MockFileSystem();
-        fileSystem.File.WriteAllText("/bicepconfig.json", prevBicepConfigFileContents);
-        var bicepConfigUri = new Uri("file:///bicepconfig.json");
+        var configFilePath = fileSystem.Path.GetFullPath("/bicepconfig.json");
+        fileSystem.File.WriteAllText(configFilePath, prevBicepConfigFileContents);
+        var bicepConfigUri = new UriBuilder { Scheme = "file", Host = "", Path = configFilePath.Replace('\\', '/') }.Uri;
 
         var compilationManager = BicepCompilationManagerHelper.CreateCompilationManager(bicepConfigUri, prevBicepConfigFileContents);
-        var bicepConfigChangeHandler = new BicepConfigChangeHandler(compilationManager,
-                                                                    new ConfigurationManager(fileSystem),
-                                                                    linterRulesProvider,
-                                                                    telemetryProvider.Object,
-                                                                    new Workspace());
-
+        var fileExplorer = new FileSystemFileExplorer(fileSystem);
+        var bicepConfigChangeHandler = new BicepConfigChangeHandler(compilationManager, new ConfigurationManager(fileExplorer), linterRulesProvider, telemetryProvider.Object, new Workspace());
 
         var bicepTextDocumentSyncHandler = new BicepTextDocumentSyncHandler(compilationManager, bicepConfigChangeHandler, new DocumentSelectorFactory(BicepLangServerOptions.Default));
 

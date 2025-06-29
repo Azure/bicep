@@ -8,10 +8,10 @@ namespace Bicep.Core.TypeSystem.Providers.Az
 {
     public class ResourceGroupScopeType : ObjectType, IScopeReference
     {
-        public ResourceGroupScopeType(IEnumerable<FunctionArgumentSyntax> arguments, IEnumerable<TypeProperty> properties)
+        public ResourceGroupScopeType(IEnumerable<FunctionArgumentSyntax> arguments, IEnumerable<NamedTypeProperty> properties)
             : base("resourceGroup", TypeSymbolValidationFlags.Default, properties, null)
         {
-            Arguments = arguments.ToImmutableArray();
+            Arguments = [.. arguments];
         }
 
         public ImmutableArray<FunctionArgumentSyntax> Arguments { get; }

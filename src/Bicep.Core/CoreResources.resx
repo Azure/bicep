@@ -364,9 +364,8 @@
     <value>Use parent property</value>
   </data>
   <data name="UseSecureValueForSecureInputsRule_MessageFormat" xml:space="preserve">
-    <value>Property path "{0}" for resources of type "{1}" should be assigned a secure value.</value>
-    <comment>{0} property path
-{1} resource type name</comment>
+    <value>Property '{0}' expects a secure value, but the value provided may not be secure.</value>
+    <comment>{0} property name</comment>
   </data>
   <data name="UseSecureValueForSecureInputsRule_Description" xml:space="preserve">
     <value>Resource properties expecting secure input should be assigned secure values.</value>
@@ -484,9 +483,6 @@
   <data name="ExperimentalFeatureNames_Asserts" xml:space="preserve">
     <value>Asserts</value>
   </data>
-  <data name="ExperimentalFeatureNames_Extensibility" xml:space="preserve">
-    <value>Extensibility</value>
-  </data>
   <data name="ExperimentalFeatureNames_ResourceTypedParamsAndOutputs" xml:space="preserve">
     <value>Resource-typed parameters and outputs</value>
   </data>
@@ -496,11 +492,17 @@
   <data name="ExperimentalFeatureNames_SymbolicNameCodegen" xml:space="preserve">
     <value>Symbolic name code generation</value>
   </data>
+  <data name="ExperimentalFeatureNames_ResourceInfoCodegen" xml:space="preserve">
+    <value>Resource info code generation</value>
+  </data>
   <data name="ExperimentalFeatureNames_TestFramework" xml:space="preserve">
     <value>Test framework</value>
   </data>
-  <data name="ExperimentalFeatureNames_OptionalModuleNames" xml:space="preserve">
-    <value>Enable optional module names</value>
+  <data name="ExperimentalFeatureNames_WaitAndRetry" xml:space="preserve">
+    <value>Enable wait and retry feature</value>
+  </data>
+  <data name="ExperimentalFeatureNames_ExternalInputFunction" xml:space="preserve">
+    <value>External input function</value>
   </data>
   <data name="NoSymbolicReferencesInInnerScopedDeploymentResourcesDescription" xml:space="preserve">
     <value>Nested deployment resources cannot refer to top-level symbols from within the 'template' property when inner-scoped evaluation is used.</value>
@@ -512,13 +514,19 @@
     <value>Resource-derived types</value>
   </data>
   <data name="UseSafeAccessRule_Description" xml:space="preserve">
-    <value>Use the safe access (.?) operator instead of checking object contents with the 'contains' function.</value>
+    <value>Use the safe access (.?) operator.</value>
+  </data>
+  <data name="UseUserDefinedTypesRule_Description" xml:space="preserve">
+    <value>Use user-defined types instead of 'object' or 'array'.</value>
   </data>
   <data name="UseSafeAccessRule_CodeFix" xml:space="preserve">
     <value>Use the safe access (.?) operator</value>
   </data>
-  <data name="UseSafeAccessRule_MessageFormat" xml:space="preserve">
+  <data name="UseSafeAccessRule_ContainsReplacement_MessageFormat" xml:space="preserve">
     <value>The syntax can be simplified by using the safe access (.?) operator.</value>
+  </data>
+  <data name="UseSafeAccessRule_NullCheckReplacement_MessageFormat" xml:space="preserve">
+    <value>The property being accessed may be null. Use the (.?) operator to handle this safely.</value>
   </data>
   <data name="WhatIfShortCircuitingRuleDescription" xml:space="preserve">
     <value>Runtime values should not be used to determine resource IDs</value>
@@ -527,7 +535,13 @@
     <value>Runtime value '{0}' will reduce the precision of what-if analysis for module '{1}'</value>
     <comment>{0} Parameter name</comment>
   </data>
-  <data name="ExperimentalFeatureNames_SecureOutputs" xml:space="preserve">
-    <value>Secure outputs</value>
+  <data name="ExperimentalFeatureNames_OnlyIfNotExists" xml:space="preserve">
+    <value>Enable OnlyIfNotExists feature</value>
+  </data>
+  <data name="ImportMustBeUsedRuleDescription" xml:space="preserve">
+    <value>All imports must be used.</value>
+  </data>
+  <data name="ImportMustBeUsedRuleMessageFormat" xml:space="preserve">
+    <value>Import "{0}" is declared but never used.</value>
   </data>
 </root>

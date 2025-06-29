@@ -178,7 +178,8 @@ namespace Bicep.Core.UnitTests.Assertions
             var actualStringWithoutWhitespace = instance.Subject is null ? null : new Regex("\\s*").Replace(instance.Subject, "");
             var expectedStringWithoutWhitespace = expected is null ? null : new Regex("\\s*").Replace(expected, "");
 
-            using (new AssertionScope()) {
+            using (new AssertionScope())
+            {
                 Execute.Assertion
                     .BecauseOf(because, becauseArgs)
                     .ForCondition(string.Equals(expectedStringWithoutWhitespace, actualStringWithoutWhitespace, StringComparison.Ordinal))

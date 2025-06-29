@@ -1,13 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Providers;
@@ -24,14 +26,14 @@ namespace Bicep.LangServer.UnitTests
     {
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
 
-        public static BicepCompilationManager CreateCompilationManager(DocumentUri documentUri, string fileContents, bool upsertCompilation = false, IWorkspace? workspace = null)
+        public static BicepCompilationManager CreateCompilationManager(DocumentUri documentUri, string fileContents, bool upsertCompilation = false, IWorkspace? workspace = null, IConfigurationManager? configurationManager = null)
         {
             workspace ??= new Workspace();
             PublishDiagnosticsParams? receivedParams = null;
             var document = CreateMockDocument(p => receivedParams = p);
             var server = CreateMockServer(document);
 
-            var bicepCompilationManager = CreateCompilationManager(server.Object, workspace);
+            var bicepCompilationManager = CreateCompilationManager(server.Object, workspace, configurationManager ?? BicepTestConstants.ConfigurationManager);
 
             if (upsertCompilation)
             {
@@ -41,7 +43,7 @@ namespace Bicep.LangServer.UnitTests
             return bicepCompilationManager;
         }
 
-        public static BicepCompilationManager CreateCompilationManager(ILanguageServerFacade server, IWorkspace workspace)
+        public static BicepCompilationManager CreateCompilationManager(ILanguageServerFacade server, IWorkspace workspace, IConfigurationManager configurationManager)
         {
             var helper = ServiceBuilder.Create(services => services
                 .AddSingleton<ILanguageServerFacade>(server)
@@ -50,6 +52,7 @@ namespace Bicep.LangServer.UnitTests
                 .AddSingleton(BicepTestConstants.CreateMockTelemetryProvider().Object)
                 .AddSingleton<ICompilationProvider, BicepCompilationProvider>()
                 .AddSingleton<IWorkspace>(workspace)
+                .WithConfigurationManager(configurationManager)
                 .WithFeatureOverrides(new FeatureProviderOverrides(
                     // This is necessary to avoid hard-coding a particular version number into a compiled template
                     AssemblyVersion: BicepTestConstants.DevAssemblyFileVersion))

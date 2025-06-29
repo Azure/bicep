@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
@@ -9,8 +11,9 @@ using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
-using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
@@ -32,12 +35,13 @@ namespace Bicep.LanguageServer
         public const string LinterEnabledSetting = "core.enabled";
 
         private readonly IWorkspace workspace;
-        private readonly AuxiliaryFileCache fileCache;
         private readonly ILanguageServerFacade server;
         private readonly ICompilationProvider provider;
         private readonly IModuleRestoreScheduler scheduler;
         private readonly ITelemetryProvider TelemetryProvider;
         private readonly ILinterRulesProvider LinterRulesProvider;
+        private readonly ISourceFileFactory sourceFileFactory;
+        private readonly IAuxiliaryFileCache auxiliaryfileCache;
 
         // represents compilations of open bicep or param files
         private readonly ConcurrentDictionary<DocumentUri, CompilationContextBase> activeContexts = new();
@@ -49,15 +53,18 @@ namespace Bicep.LanguageServer
             IModuleRestoreScheduler scheduler,
             ITelemetryProvider telemetryProvider,
             ILinterRulesProvider LinterRulesProvider,
-            IFileResolver fileResolver)
+            IFileResolver fileResolver,
+            ISourceFileFactory sourceFileFactory,
+            IAuxiliaryFileCache auxiliaryFileCache)
         {
-            this.fileCache = new(fileResolver);
             this.server = server;
             this.provider = provider;
             this.workspace = workspace;
             this.scheduler = scheduler;
             this.TelemetryProvider = telemetryProvider;
             this.LinterRulesProvider = LinterRulesProvider;
+            this.sourceFileFactory = sourceFileFactory;
+            this.auxiliaryfileCache = auxiliaryFileCache;
         }
 
         public void RefreshCompilation(DocumentUri documentUri, bool forceReloadAuxiliaryFiles)
@@ -84,11 +91,8 @@ namespace Bicep.LanguageServer
 
             if (forceReloadAuxiliaryFiles)
             {
-                var auxiliaryFiles = compilationContext.Compilation.GetAllBicepModels()
-                    .SelectMany(x => x.GetAuxiliaryFileReferences())
-                    .Distinct();
-
-                fileCache.ClearEntries(auxiliaryFiles);
+                var auxiliaryFileUris = compilationContext.Compilation.SourceFileGrouping.GetAllReferencedAuxiliaryFileUris();
+                this.auxiliaryfileCache.Trim(auxiliaryFileUris);
             }
 
             // TODO: This may cause race condition if the user is modifying the file at the same time
@@ -108,47 +112,20 @@ namespace Bicep.LanguageServer
 
         public void OpenCompilation(DocumentUri documentUri, int? version, string fileContents, string languageId)
         {
-            if (this.ShouldUpsertCompilation(documentUri, languageId))
+            if (this.ShouldUpsertCompilation(documentUri, languageId, out var sourceFileType))
             {
-                var newFile = CreateSourceFile(documentUri, fileContents, languageId);
+                var newFile = this.sourceFileFactory.CreateSourceFile(documentUri.ToUriEncoded(), fileContents, sourceFileType);
                 UpsertCompilationInternal(documentUri, version, newFile, triggeredByFileOpenEvent: true);
             }
         }
 
         public void UpdateCompilation(DocumentUri documentUri, int? version, string fileContents)
         {
-            if (this.ShouldUpsertCompilation(documentUri, languageId: null))
+            if (this.ShouldUpsertCompilation(documentUri, languageId: null, out var sourceFileType))
             {
-                var newFile = CreateSourceFile(documentUri, fileContents, languageId: null);
+                var newFile = this.sourceFileFactory.CreateSourceFile(documentUri.ToUriEncoded(), fileContents, sourceFileType);
                 UpsertCompilationInternal(documentUri, version, newFile, triggeredByFileOpenEvent: false);
             }
-        }
-
-        private ISourceFile CreateSourceFile(DocumentUri documentUri, string fileContents, string? languageId)
-        {
-            if (languageId is not null &&
-                SourceFileFactory.TryCreateSourceFileByBicepLanguageId(documentUri.ToUriEncoded(), fileContents, languageId) is { } sourceFileViaLanguageId)
-            {
-                return sourceFileViaLanguageId;
-            }
-
-            // try creating the file using the URI (like in the SourceFileGroupingBuilder)
-            if (SourceFileFactory.TryCreateSourceFile(documentUri.ToUriEncoded(), fileContents) is { } sourceFileViaUri)
-            {
-                // this handles *.bicep, *.bicepparam, *.jsonc, *.json, and *.arm files
-                return sourceFileViaUri;
-            }
-
-            // we failed to create new file by URI
-            // this means we're dealing with an untitled file
-            // however the language ID was made available to us on file open
-            if (this.GetCompilationUnsafe(documentUri) is { } potentiallyUnsafeContext &&
-                SourceFileFactory.TryCreateSourceFileByFileKind(documentUri.ToUriEncoded(), fileContents, potentiallyUnsafeContext.SourceFileKind) is { } sourceFileViaFileKind)
-            {
-                return sourceFileViaFileKind;
-            }
-
-            throw new InvalidOperationException($"Unable to create source file for uri '{documentUri.ToUriEncoded()}'.");
         }
 
         private void UpsertCompilationInternal(DocumentUri documentUri, int? version, ISourceFile newFile, bool triggeredByFileOpenEvent = false, bool clearAuxiliaryFileCache = false)
@@ -171,12 +148,10 @@ namespace Bicep.LanguageServer
                 }
             }
 
-            var activeEntries = GetAllSafeActiveContexts()
-                .SelectMany(x => x.Value.Compilation.GetAllBicepModels())
-                .SelectMany(x => x.GetAuxiliaryFileReferences())
-                .Distinct();
+            var activeAuxiliaryFileUris = GetAllSafeActiveContexts().SelectMany(x => x.Value.Compilation.SourceFileGrouping.GetAllReferencedAuxiliaryFileUris());
+            var inactiveAuxliaryFileUris = auxiliaryfileCache.Keys.Except(activeAuxiliaryFileUris);
 
-            fileCache.PruneInactiveEntries(activeEntries);
+            auxiliaryfileCache.Trim(inactiveAuxliaryFileUris);
         }
 
         public void CloseCompilation(DocumentUri documentUri)
@@ -196,8 +171,8 @@ namespace Bicep.LanguageServer
         public void HandleFileChanges(IEnumerable<FileEvent> fileEvents)
         {
             var modifiedSourceFiles = new HashSet<ISourceFile>();
-            var modifiedAuxiliaryFiles = new HashSet<Uri>();
-            var activeAuxiliaryFiles = fileCache.GetEntries().ToHashSet();
+            var modifiedAuxiliaryFileUris = new HashSet<IOUri>();
+            var activeAuxiliaryFileUris = auxiliaryfileCache.Keys;
 
             foreach (var change in fileEvents.Where(x => x.Type is FileChangeType.Changed or FileChangeType.Deleted))
             {
@@ -205,6 +180,7 @@ namespace Bicep.LanguageServer
                 // We should bear that in mind when making changes here, to avoid introducing performance bottlenecks.
 
                 var changedFileUri = change.Uri.ToUriEncoded();
+                var changedFileIOUri = change.Uri.ToIOUri();
                 if (change.Type is FileChangeType.Deleted)
                 {
                     // If we don't know definitively that we're deleting a file, we have to assume it's a directory; the file system watcher does not give us any information to differentiate reliably.
@@ -212,13 +188,13 @@ namespace Bicep.LanguageServer
                     var removedSourceFiles = workspace.GetSourceFilesForDirectory(changedFileUri);
                     modifiedSourceFiles.UnionWith(removedSourceFiles);
 
-                    var removedAuxiliaryFiles = activeAuxiliaryFiles.Where(uri => PathHelper.IsSubPathOf(changedFileUri, uri));
-                    modifiedAuxiliaryFiles.UnionWith(removedAuxiliaryFiles);
+                    var removedAuxiliaryFiles = activeAuxiliaryFileUris.Where(changedFileIOUri.IsBaseOf);
+                    modifiedAuxiliaryFileUris.UnionWith(removedAuxiliaryFiles);
                 }
 
-                if (activeAuxiliaryFiles.Contains(changedFileUri))
+                if (activeAuxiliaryFileUris.Contains(changedFileIOUri))
                 {
-                    modifiedAuxiliaryFiles.Add(changedFileUri);
+                    modifiedAuxiliaryFileUris.Add(changedFileIOUri);
                 }
 
                 if (!activeContexts.ContainsKey(change.Uri) &&
@@ -231,17 +207,17 @@ namespace Bicep.LanguageServer
             }
 
             workspace.RemoveSourceFiles(modifiedSourceFiles);
-            fileCache.ClearEntries(modifiedAuxiliaryFiles);
+            auxiliaryfileCache.Trim(modifiedAuxiliaryFileUris);
 
             var modelLookup = new Dictionary<ISourceFile, ISemanticModel>();
             foreach (var (entrypointUri, context) in GetAllSafeActiveContexts())
             {
-                foreach (var model in context.Compilation.GetAllBicepModels())
+                foreach (var sourceFile in context.Compilation.SourceFileGrouping.EnumerateBicepSourceFiles())
                 {
-                    if (modifiedAuxiliaryFiles.Any(model.HasAuxiliaryFileReference))
+                    if (modifiedAuxiliaryFileUris.Any(sourceFile.IsReferencingAuxiliaryFile))
                     {
                         // Ensure we refresh any source files that reference a modified auxiliary file
-                        modifiedSourceFiles.Add(model.SourceFile);
+                        modifiedSourceFiles.Add(sourceFile);
                     }
                 }
 
@@ -252,31 +228,45 @@ namespace Bicep.LanguageServer
             }
         }
 
-        public CompilationContext? GetCompilation(DocumentUri uri) => GetCompilationUnsafe(uri) as CompilationContext;
-
-        private CompilationContextBase? GetCompilationUnsafe(DocumentUri uri)
-        {
-            this.activeContexts.TryGetValue(uri, out var context);
-            return context;
-        }
+        public CompilationContext? GetCompilation(DocumentUri uri) => this.activeContexts.GetValueOrDefault(uri) as CompilationContext;
 
         private IEnumerable<KeyValuePair<DocumentUri, CompilationContext>> GetAllSafeActiveContexts() =>
             this.activeContexts
                 .Where(pair => pair.Value is CompilationContext)
                 .Select(pair => new KeyValuePair<DocumentUri, CompilationContext>(pair.Key, (CompilationContext)pair.Value));
 
-        private bool ShouldUpsertCompilation(DocumentUri documentUri, string? languageId = null)
+        private bool ShouldUpsertCompilation(DocumentUri documentUri, string? languageId, [NotNullWhen(true)] out Type? sourceFileType)
         {
             if (documentUri.Scheme == LangServerConstants.ExternalSourceFileScheme)
             {
                 // Don't compile source code from external modules (and therefore also don't show compiler/linter warnings etc.)
+                sourceFileType = null;
                 return false;
             }
 
             // We should only upsert compilation when languageId is bicep or the file is already tracked in workspace.
             // When the file is in workspace but languageId is null, the file can be a bicep file or a JSON template
             // being referenced as a bicep module.
-            return LanguageConstants.IsBicepOrParamsLanguage(languageId) || this.workspace.TryGetSourceFile(documentUri.ToUriEncoded(), out var _);
+            if (LanguageConstants.IsBicepLanguage(languageId))
+            {
+                sourceFileType = typeof(BicepFile);
+                return true;
+            }
+
+            if (LanguageConstants.IsParamsLanguage(languageId))
+            {
+                sourceFileType = typeof(BicepParamFile);
+                return true;
+            }
+
+            if (this.workspace.TryGetSourceFile(documentUri.ToUriEncoded(), out var sourceFile))
+            {
+                sourceFileType = sourceFile.GetType();
+                return true;
+            }
+
+            sourceFileType = null;
+            return false;
         }
 
         private ImmutableArray<ISourceFile> CloseCompilationInternal(DocumentUri documentUri, int? version, IEnumerable<Diagnostic> closingDiagnostics)
@@ -305,7 +295,7 @@ namespace Bicep.LanguageServer
         {
             try
             {
-                return this.provider.Create(workspace, fileCache, documentUri, modelLookup);
+                return this.provider.Create(workspace, documentUri, modelLookup);
             }
             catch (Exception exception)
             {
@@ -353,8 +343,8 @@ namespace Bicep.LanguageServer
                         if (prevPotentiallyUnsafeContext is CompilationContext prevContext)
                         {
                             var sourceDependencies = removedFiles
-                                .SelectMany(x => prevContext.Compilation.SourceFileGrouping.GetFilesDependingOn(x))
-                                .ToImmutableHashSet();
+                                .SelectMany(x => prevContext.Compilation.SourceFileGrouping.GetSourceFilesDependingOn(x))
+                                .ToFrozenSet();
 
                             // check for semantic models that we can safely reuse from the previous compilation
                             foreach (var sourceFile in prevContext.Compilation.SourceFileGrouping.SourceFiles)
@@ -448,7 +438,7 @@ namespace Bicep.LanguageServer
         {
             var properties = GetTelemetryPropertiesForMainFile(semanticModel, mainFile, diagnostics);
 
-            var referencedFiles = semanticModel.Compilation.SourceFileGrouping.SourceFiles.Where(x => x != mainFile);
+            var referencedFiles = semanticModel.SourceFileGrouping.SourceFiles.Where(x => x != mainFile);
             var propertiesFromReferencedFiles = GetTelemetryPropertiesForReferencedFiles(referencedFiles);
 
             properties = properties.Concat(propertiesFromReferencedFiles).ToDictionary(s => s.Key, s => s.Value);
@@ -472,8 +462,9 @@ namespace Bicep.LanguageServer
             properties.Add("Parameters", declarationsInMainFile.Count(x => x is ParameterDeclarationSyntax).ToString());
             properties.Add("Resources", semanticModel.DeclaredResources.Length.ToString());
             properties.Add("Variables", declarationsInMainFile.Count(x => x is VariableDeclarationSyntax).ToString());
+            properties.Add("ExtendsDeclarations", declarationsInMainFile.Count(x => x is ExtendsDeclarationSyntax).ToString());
 
-            properties.Add("CharCount", bicepFile.GetOriginalSource().Length.ToString());
+            properties.Add("CharCount", bicepFile.Text.Length.ToString());
 
             var (errorsCount, warningsCount) = CountErrorsAndWarnings(diagnostics);
             properties.Add("LineCount", bicepFile.LineStarts.Length.ToString());

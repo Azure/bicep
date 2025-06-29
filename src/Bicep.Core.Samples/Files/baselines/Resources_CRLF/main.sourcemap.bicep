@@ -345,25 +345,25 @@ resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
 //@    {
 //@      "type": "My.Rp/typeA/typeB",
 //@      "apiVersion": "2020-01-01",
-//@      "name": "[format('{0}/myName', 'resourceA')]",
+//@      "name": "[format('{0}/resourceB', 'resourceA')]",
 //@      "dependsOn": [
 //@        "[resourceId('My.Rp/typeA', 'resourceA')]"
 //@      ]
 //@    },
-  name: '${resourceA.name}/myName'
+  name: '${resourceA.name}/resourceB'
 }
 
 resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
 //@    {
 //@      "type": "My.Rp/typeA/typeB",
 //@      "apiVersion": "2020-01-01",
-//@      "name": "[format('{0}/myName', 'resourceA')]",
+//@      "name": "[format('{0}/resourceC', 'resourceA')]",
 //@      "dependsOn": [
 //@        "[resourceId('My.Rp/typeA', 'resourceA')]",
-//@        "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]"
+//@        "[resourceId('My.Rp/typeA/typeB', split(format('{0}/resourceB', 'resourceA'), '/')[0], split(format('{0}/resourceB', 'resourceA'), '/')[1])]"
 //@      ]
 //@    },
-  name: '${resourceA.name}/myName'
+  name: '${resourceA.name}/resourceC'
   properties: {
 //@      "properties": {
 //@      },
@@ -376,7 +376,7 @@ resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
     aApiVersion: resourceA.apiVersion
 //@        "aApiVersion": "2020-01-01",
     bProperties: resourceB.properties
-//@        "bProperties": "[reference(resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1]), '2020-01-01')]"
+//@        "bProperties": "[reference(resourceId('My.Rp/typeA/typeB', split(format('{0}/resourceB', 'resourceA'), '/')[0], split(format('{0}/resourceB', 'resourceA'), '/')[1]), '2020-01-01')]"
   }
 }
 
@@ -384,11 +384,11 @@ var varARuntime = {
 //@          {
 //@          }
   bId: resourceB.id
-//@            "bId": "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]",
+//@            "bId": "[resourceId('My.Rp/typeA/typeB', split(format('{0}/resourceB', 'resourceA'), '/')[0], split(format('{0}/resourceB', 'resourceA'), '/')[1])]",
   bType: resourceB.type
 //@            "bType": "My.Rp/typeA/typeB",
   bName: resourceB.name
-//@            "bName": "[format('{0}/myName', 'resourceA')]",
+//@            "bName": "[format('{0}/resourceB', 'resourceA')]",
   bApiVersion: resourceB.apiVersion
 //@            "bApiVersion": "2020-01-01",
   aKind: resourceA.kind
@@ -405,7 +405,7 @@ var resourceCRef = {
 //@    "resourceCRef": {
 //@    },
   id: resourceC.id
-//@      "id": "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]"
+//@      "id": "[resourceId('My.Rp/typeA/typeB', split(format('{0}/resourceC', 'resourceA'), '/')[0], split(format('{0}/resourceC', 'resourceA'), '/')[1])]"
 }
 var setResourceCRef = true
 //@    "setResourceCRef": true,
@@ -417,8 +417,8 @@ resource resourceD 'My.Rp/typeD@2020-01-01' = {
 //@      "name": "constant",
 //@      "dependsOn": [
 //@        "[resourceId('My.Rp/typeA', 'resourceA')]",
-//@        "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]",
-//@        "[resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1])]"
+//@        "[resourceId('My.Rp/typeA/typeB', split(format('{0}/resourceB', 'resourceA'), '/')[0], split(format('{0}/resourceB', 'resourceA'), '/')[1])]",
+//@        "[resourceId('My.Rp/typeA/typeB', split(format('{0}/resourceC', 'resourceA'), '/')[0], split(format('{0}/resourceC', 'resourceA'), '/')[1])]"
 //@      ]
 //@    },
   name: 'constant'
@@ -621,7 +621,7 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
 
 /*
   valid loop cases
-*/ 
+*/
 var storageAccounts = [
 //@    "storageAccounts": [
 //@    ],
@@ -728,7 +728,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@            }
 //@          }
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
-     
+
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
       name: 'subnet-${i}-${j}'
 //@              "name": "[format('subnet-{0}-{1}', range(0, 3)[copyIndex()], range(0, 4)[copyIndex('subnets')])]"
@@ -1006,18 +1006,18 @@ resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 //@    {
 //@      "type": "Microsoft.Rp1/resource1",
 //@      "apiVersion": "2020-06-01",
-//@      "name": "res1"
+//@      "name": "p2res1"
 //@    },
-  name: 'res1'
+  name: 'p2res1'
 }
 
 resource p2_res1child 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
 //@    {
 //@      "type": "Microsoft.Rp1/resource1/child1",
 //@      "apiVersion": "2020-06-01",
-//@      "name": "[format('{0}/{1}', 'res1', 'child1')]",
+//@      "name": "[format('{0}/{1}', 'p2res1', 'child1')]",
 //@      "dependsOn": [
-//@        "[resourceId('Microsoft.Rp1/resource1', 'res1')]"
+//@        "[resourceId('Microsoft.Rp1/resource1', 'p2res1')]"
 //@      ]
 //@    },
   parent: p2_res1
@@ -1028,10 +1028,10 @@ resource p2_res2 'Microsoft.Rp2/resource2@2020-06-01' = {
 //@    {
 //@      "type": "Microsoft.Rp2/resource2",
 //@      "apiVersion": "2020-06-01",
-//@      "scope": "[format('Microsoft.Rp1/resource1/{0}/child1/{1}', 'res1', 'child1')]",
+//@      "scope": "[format('Microsoft.Rp1/resource1/{0}/child1/{1}', 'p2res1', 'child1')]",
 //@      "name": "res2",
 //@      "dependsOn": [
-//@        "[resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')]"
+//@        "[resourceId('Microsoft.Rp1/resource1/child1', 'p2res1', 'child1')]"
 //@      ]
 //@    },
   scope: p2_res1child
@@ -1042,10 +1042,10 @@ resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
 //@    {
 //@      "type": "Microsoft.Rp2/resource2/child2",
 //@      "apiVersion": "2020-06-01",
-//@      "scope": "[format('Microsoft.Rp1/resource1/{0}/child1/{1}', 'res1', 'child1')]",
+//@      "scope": "[format('Microsoft.Rp1/resource1/{0}/child1/{1}', 'p2res1', 'child1')]",
 //@      "name": "[format('{0}/{1}', 'res2', 'child2')]",
 //@      "dependsOn": [
-//@        "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), 'Microsoft.Rp2/resource2', 'res2')]"
+//@        "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'p2res1', 'child1'), 'Microsoft.Rp2/resource2', 'res2')]"
 //@      ]
 //@    },
   parent: p2_res2
@@ -1055,7 +1055,7 @@ resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
 output p2_res2childprop string = p2_res2child.properties.someProp
 //@    "p2_res2childprop": {
 //@      "type": "string",
-//@      "value": "[reference(extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), 'Microsoft.Rp2/resource2/child2', 'res2', 'child2'), '2020-06-01').someProp]"
+//@      "value": "[reference(extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'p2res1', 'child1'), 'Microsoft.Rp2/resource2/child2', 'res2', 'child2'), '2020-06-01').someProp]"
 //@    },
 output p2_res2childname string = p2_res2child.name
 //@    "p2_res2childname": {
@@ -1070,19 +1070,19 @@ output p2_res2childtype string = p2_res2child.type
 output p2_res2childid string = p2_res2child.id
 //@    "p2_res2childid": {
 //@      "type": "string",
-//@      "value": "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), 'Microsoft.Rp2/resource2/child2', 'res2', 'child2')]"
+//@      "value": "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'p2res1', 'child1'), 'Microsoft.Rp2/resource2/child2', 'res2', 'child2')]"
 //@    },
 
 // parent property with 'existing' resource
 resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
-  name: 'res1'
+  name: 'p3res1'
 }
 
 resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
 //@    {
 //@      "type": "Microsoft.Rp1/resource1/child1",
 //@      "apiVersion": "2020-06-01",
-//@      "name": "[format('{0}/{1}', 'res1', 'child1')]"
+//@      "name": "[format('{0}/{1}', 'p3res1', 'child1')]"
 //@    },
   parent: p3_res1
   name: 'child1'
@@ -1091,7 +1091,7 @@ resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
 output p3_res1childprop string = p3_child1.properties.someProp
 //@    "p3_res1childprop": {
 //@      "type": "string",
-//@      "value": "[reference(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), '2020-06-01').someProp]"
+//@      "value": "[reference(resourceId('Microsoft.Rp1/resource1/child1', 'p3res1', 'child1'), '2020-06-01').someProp]"
 //@    },
 output p3_res1childname string = p3_child1.name
 //@    "p3_res1childname": {
@@ -1106,13 +1106,13 @@ output p3_res1childtype string = p3_child1.type
 output p3_res1childid string = p3_child1.id
 //@    "p3_res1childid": {
 //@      "type": "string",
-//@      "value": "[resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')]"
+//@      "value": "[resourceId('Microsoft.Rp1/resource1/child1', 'p3res1', 'child1')]"
 //@    },
 
 // parent & child with 'existing'
 resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
   scope: tenant()
-  name: 'res1'
+  name: 'p4res1'
 }
 
 resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {
@@ -1123,7 +1123,7 @@ resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {
 output p4_res1childprop string = p4_child1.properties.someProp
 //@    "p4_res1childprop": {
 //@      "type": "string",
-//@      "value": "[reference(tenantResourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), '2020-06-01').someProp]"
+//@      "value": "[reference(tenantResourceId('Microsoft.Rp1/resource1/child1', 'p4res1', 'child1'), '2020-06-01').someProp]"
 //@    },
 output p4_res1childname string = p4_child1.name
 //@    "p4_res1childname": {
@@ -1138,8 +1138,8 @@ output p4_res1childtype string = p4_child1.type
 output p4_res1childid string = p4_child1.id
 //@    "p4_res1childid": {
 //@      "type": "string",
-//@      "value": "[tenantResourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')]"
-//@    }
+//@      "value": "[tenantResourceId('Microsoft.Rp1/resource1/child1', 'p4res1', 'child1')]"
+//@    },
 
 // parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
 var dbs = ['db1', 'db2','db3']
@@ -1147,13 +1147,13 @@ var dbs = ['db1', 'db2','db3']
 //@      "db1",
 //@      "db2",
 //@      "db3"
-//@    ]
+//@    ],
 resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 //@    {
 //@      "type": "Microsoft.Sql/servers",
 //@      "apiVersion": "2021-11-01",
 //@      "name": "sql-server-name",
-//@    }
+//@    },
   name: 'sql-server-name'
   location: 'polandcentral'
 //@      "location": "polandcentral"
@@ -1164,7 +1164,7 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
   resource sqlDatabases 'databases' = [for db in dbs: {
 //@    {
 //@      "copy": {
-//@        "name": "sqlDatabases",
+//@        "name": "sqlServer::sqlDatabases",
 //@        "count": "[length(variables('dbs'))]",
 //@        "mode": "serial",
 //@        "batchSize": 1
@@ -1199,5 +1199,57 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
     name: 'primary-db'
     location: 'polandcentral'
 //@      "location": "polandcentral",
+
+    resource threatProtection 'advancedThreatProtectionSettings' existing = {
+      name: 'default'
+    }
   }
 }
+
+//nameof
+output nameof_sqlServer string = nameof(sqlServer)
+//@    "nameof_sqlServer": {
+//@      "type": "string",
+//@      "value": "sqlServer"
+//@    },
+output nameof_location string = nameof(sqlServer.location)
+//@    "nameof_location": {
+//@      "type": "string",
+//@      "value": "location"
+//@    },
+output nameof_minCapacity string = nameof(sqlServer::primaryDb.properties.minCapacity)
+//@    "nameof_minCapacity": {
+//@      "type": "string",
+//@      "value": "minCapacity"
+//@    },
+output nameof_creationTime string = nameof(sqlServer::primaryDb::threatProtection.properties.creationTime)
+//@    "nameof_creationTime": {
+//@      "type": "string",
+//@      "value": "creationTime"
+//@    },
+output nameof_id string = nameof(sqlServer::sqlDatabases[0].id)
+//@    "nameof_id": {
+//@      "type": "string",
+//@      "value": "id"
+//@    }
+
+var sqlConfig = {
+//@    "sqlConfig": {
+//@    }
+  westus: {}
+//@      "westus": {},
+  'server-name': {}
+//@      "server-name": {}
+}
+
+resource sqlServerWithNameof 'Microsoft.Sql/servers@2021-11-01' = {
+//@    {
+//@      "type": "Microsoft.Sql/servers",
+//@      "apiVersion": "2021-11-01",
+//@      "name": "[format('sql-server-nameof-{0}', 'server-name')]",
+//@    }
+  name: 'sql-server-nameof-${nameof(sqlConfig['server-name'])}'
+  location: nameof(sqlConfig.westus)
+//@      "location": "westus"
+}
+

@@ -52,6 +52,17 @@ const extensionConfig: webpack.Configuration = {
     new CopyPlugin({
       patterns: [
         {
+          from: "../vscode-bicep-ui/apps/deploy-pane/dist",
+          to: path.join(__dirname, "out/deploy-pane"),
+          globOptions: {
+            ignore: ["**/index.html"],
+          },
+        },
+      ],
+    }),
+    new CopyPlugin({
+      patterns: [
+        {
           from: "../textmate/bicep.tmlanguage",
           to: path.join(__dirname, "syntaxes/bicep.tmlanguage"),
         },
@@ -115,53 +126,6 @@ const visualizerConfig: webpack.Configuration = {
   ],
 };
 
-const deployPaneConfig: webpack.Configuration = {
-  target: "web",
-  entry: "./src/panes/deploy/app/components/index.tsx",
-  devtool: "source-map",
-  output: {
-    filename: "deployPane.js",
-    path: outputPath,
-    devtoolModuleFilenameTemplate: "file:///[absolute-resource-path]",
-  },
-  externals: {
-    "web-worker": "commonjs web-worker",
-  },
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        loader: "esbuild-loader",
-        options: {
-          loader: "tsx",
-          target: "es2019",
-        },
-        exclude: /node_modules/,
-      },
-      {
-        test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
-      },
-      {
-        test: /\.js$/,
-        resolve: {
-          fullySpecified: false,
-        },
-      },
-    ],
-  },
-  resolve: {
-    extensions: [".js", ".ts", ".tsx"],
-  },
-  plugins: [
-    // Since React 17 it's not necessary to do "import React from 'react';" anymore.
-    // This is needed for esbuild-loader to resolve react.
-    new webpack.ProvidePlugin({
-      React: "react",
-    }),
-  ],
-};
-
 module.exports = (_env: unknown, argv: { mode: string }) => {
   if (argv.mode === "development") {
     // "cheap-module-source-map" is almost 2x faster than "source-map",
@@ -177,5 +141,5 @@ module.exports = (_env: unknown, argv: { mode: string }) => {
     //extensionConfig.devtool = developmentDevtool;
   }
 
-  return [extensionConfig, visualizerConfig, deployPaneConfig];
+  return [extensionConfig, visualizerConfig];
 };

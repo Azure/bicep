@@ -5,7 +5,7 @@
     "body": [
       "{",
       "\t// See https://aka.ms/bicep/config for more information on Bicep configuration options",
-      "\t// Press CTRL+SPACE/CMD+SPACE at any location to see Intellisense suggestions",
+      "\t// Press CTRL+SPACE at any location to see Intellisense suggestions",
       "\t\"analyzers\": {",
       "\t\t\"core\": {",
       "\t\t\t\"rules\": {",

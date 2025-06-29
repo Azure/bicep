@@ -37,7 +37,7 @@ namespace Bicep.Decompiler.ArmHelpers
         public static void VisitExpressions<TToken>(TToken input, Action<LanguageExpression> visitFunc)
             where TToken : JToken
         {
-            var visitor = new LanguageExpressionVisitor
+            var visitor = new LanguageExpressionDelegatedVisitor
             {
                 OnFunctionExpression = visitFunc,
                 OnJTokenExpression = visitFunc,

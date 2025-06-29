@@ -1,13 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { describe, expect, it } from "vitest";
 import { Example } from "./example";
 
-function getOutputFiles(
-  configuration: "Debug" | "Release",
-  framework: string,
-  publish: boolean,
-): string[] {
+function getOutputFiles(configuration: "Debug" | "Release", framework: string, publish: boolean): string[] {
   const publishPart = publish ? "publish/" : "";
   return [
     // templates
@@ -35,29 +32,21 @@ describe("msbuild", () => {
     expect(result.stderr).toBe("");
 
     const framework = "net8.0";
-    getOutputFiles("Debug", framework, false).forEach((file) =>
-      example.expectTemplate(file),
-    );
+    getOutputFiles("Debug", framework, false).forEach((file) => example.expectTemplate(file));
 
     const cleanResult = example.clean();
     expect(cleanResult.stderr).toBe("");
 
-    getOutputFiles("Debug", framework, false).forEach((file) =>
-      example.expectNoFile(file),
-    );
+    getOutputFiles("Debug", framework, false).forEach((file) => example.expectNoFile(file));
 
     const publishResult = example.publish(framework);
     expect(publishResult.stderr).toBe("");
 
     // after publish we should expect build output
     // in the Release directory for the chosen framework
-    getOutputFiles("Release", framework, false).forEach((file) =>
-      example.expectTemplate(file),
-    );
+    getOutputFiles("Release", framework, false).forEach((file) => example.expectTemplate(file));
 
     // publish dir should be populated with the same content
-    getOutputFiles("Release", framework, true).forEach((file) =>
-      example.expectTemplate(file),
-    );
+    getOutputFiles("Release", framework, true).forEach((file) => example.expectTemplate(file));
   });
 });

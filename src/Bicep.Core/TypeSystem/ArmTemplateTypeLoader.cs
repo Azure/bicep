@@ -12,6 +12,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
 using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.TypeSystem;
@@ -62,10 +63,29 @@ public static class ArmTemplateTypeLoader
     private static ITypeReference? TryGetResourceDerivedType(SchemaValidationContext context, ITemplateSchemaNode schemaNode, TypeSymbolValidationFlags flags)
     {
         if (schemaNode.Metadata?.Value is JObject metadataObject &&
-            metadataObject.TryGetValue(LanguageConstants.MetadataResourceDerivedTypePropertyName, out var resourceType) &&
-            resourceType is JValue { Value: string resourceTypeString })
+            metadataObject.TryGetValue(LanguageConstants.MetadataResourceDerivedTypePropertyName, out var resourceType))
         {
             var fallbackType = ToTypeReference(context, new SansMetadata(schemaNode), flags).Type;
+            var variant = ResourceDerivedTypeVariant.None;
+            string? resourceTypeString = null;
+            if (resourceType.GetProperty(LanguageConstants.MetadataResourceDerivedTypePointerPropertyName)
+                ?.TryGetStringValue() is string pointerPropVal)
+            {
+                variant = resourceType.TryGetProperty<bool>(LanguageConstants.MetadataResourceDerivedTypeOutputFlagName)
+                    ? ResourceDerivedTypeVariant.Output
+                    : ResourceDerivedTypeVariant.Input;
+                resourceTypeString = pointerPropVal;
+            }
+            // The legacy representation uses a string (the type pointer), not an object
+            else if (resourceType.TryGetStringValue() is string strVal)
+            {
+                resourceTypeString = strVal;
+            }
+
+            if (resourceTypeString is null)
+            {
+                return new UnparsableResourceDerivedType(resourceType.ToString(), fallbackType);
+            }
 
             var resourceTypeStringParts = resourceTypeString.Split('#', 2);
             var resourceTypeIdentifier = resourceTypeStringParts[0];
@@ -74,7 +94,7 @@ public static class ArmTemplateTypeLoader
                 : [];
 
             return ResourceTypeReference.TryParse(resourceTypeIdentifier) is ResourceTypeReference resourceTypeReference
-                ? new UnresolvedResourceDerivedType(resourceTypeReference, internalPointerSegments, fallbackType)
+                ? new UnresolvedResourceDerivedType(resourceTypeReference, internalPointerSegments, fallbackType, variant)
                 : new UnparsableResourceDerivedType(resourceTypeIdentifier, fallbackType);
         }
 
@@ -88,7 +108,7 @@ public static class ArmTemplateTypeLoader
             return TryGetLiteralUnionType(jArray, t => t.IsTextBasedJTokenType(), b => b.InvalidUnionTypeMember(LanguageConstants.TypeNameString));
         }
 
-        return TypeFactory.CreateStringType(schemaNode.MinLength?.Value, schemaNode.MaxLength?.Value, flags);
+        return TypeFactory.CreateStringType(schemaNode.MinLength?.Value, schemaNode.MaxLength?.Value, validationFlags: flags);
     }
 
     private static TypeSymbol TryGetLiteralUnionType(JArray allowedValues, Func<JToken, bool> validator, DiagnosticBuilder.DiagnosticBuilderDelegate diagnosticOnMismatch)
@@ -231,6 +251,7 @@ public static class ArmTemplateTypeLoader
                 variants.Add(TryGetResourceDerivedType(context, variant, flags) is UnresolvedResourceDerivedType resourceDerivedObject
                     ? new UnresolvedResourceDerivedPartialObjectType(resourceDerivedObject.TypeReference,
                         resourceDerivedObject.PointerSegments,
+                        resourceDerivedObject.Variant,
                         discriminator.PropertyName.Value,
                         mappingEntry.Key)
                     : GetObjectType(
@@ -252,11 +273,21 @@ public static class ArmTemplateTypeLoader
         TemplateBooleanOrSchemaNode? additionalProperties,
         TypeSymbolValidationFlags flags)
     {
+        static string? GetDescriptionFromMetadata(TemplateGenericProperty<JToken>? metadataNode)
+        {
+            return metadataNode?.Value is JObject metadataObject &&
+                    metadataObject.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName, out var descriptionToken) &&
+                    descriptionToken is JValue { Value: string descriptionString }
+                ? descriptionString
+                : null;
+        }
+
         var requiredProps = requiredProperties is not null ? ImmutableHashSet.CreateRange(requiredProperties) : null;
 
         ObjectTypeNameBuilder nameBuilder = new();
-        List<TypeProperty>? propertyList = null;
+        List<NamedTypeProperty>? propertyList = null;
         ITypeReference? additionalPropertiesType = LanguageConstants.Any;
+        string? additionalPropertiesDescription = null;
         TypePropertyFlags additionalPropertiesFlags = TypePropertyFlags.FallbackProperty;
 
         if (properties is not null)
@@ -269,11 +300,7 @@ public static class ArmTemplateTypeLoader
                 var required = context.TemplateLanguageVersion?.HasFeature(TemplateLanguageFeature.NullableParameters) == true
                     || (requiredProps?.Contains(propertyName) ?? false);
                 var propertyFlags = required ? TypePropertyFlags.Required : TypePropertyFlags.None;
-                var description = schema.Metadata?.Value is JObject metadataObject &&
-                    metadataObject.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName, out var descriptionToken) &&
-                    descriptionToken is JValue { Value: string descriptionString }
-                        ? descriptionString
-                        : null;
+                var description = GetDescriptionFromMetadata(schema.Metadata);
 
                 var (type, typeName) = GetDeferrableTypeInfo(context, schema);
                 propertyList.Add(new(propertyName, type, propertyFlags, description));
@@ -289,7 +316,9 @@ public static class ArmTemplateTypeLoader
             {
                 var (type, typeName) = GetDeferrableTypeInfo(context, additionalPropertiesSchema);
                 additionalPropertiesType = type;
-                nameBuilder.AppendPropertyMatcher("*", typeName);
+                additionalPropertiesDescription = GetDescriptionFromMetadata(additionalPropertiesSchema.Metadata);
+
+                nameBuilder.AppendPropertyMatcher(typeName);
             }
             else if (additionalProperties.BooleanValue == false)
             {
@@ -302,7 +331,7 @@ public static class ArmTemplateTypeLoader
             return flags.HasFlag(TypeSymbolValidationFlags.IsSecure) ? LanguageConstants.SecureObject : LanguageConstants.Object;
         }
 
-        return new ObjectType(nameBuilder.ToString(), flags, propertyList.CoalesceEnumerable(), additionalPropertiesType, additionalPropertiesFlags);
+        return new ObjectType(nameBuilder.ToString(), flags, propertyList.CoalesceEnumerable(), additionalPropertiesType is not null ? new(additionalPropertiesType, additionalPropertiesFlags, additionalPropertiesDescription) : null);
     }
 
     private class SansMetadata : ITemplateSchemaNode

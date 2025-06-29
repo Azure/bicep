@@ -1,17 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.IO.Abstraction;
+
 namespace Bicep.Core.Features;
 
 public interface IFeatureProvider
 {
     string AssemblyVersion { get; }
 
-    string CacheRootDirectory { get; }
+    IDirectoryHandle CacheRootDirectory { get; }
 
     bool SymbolicNameCodegenEnabled { get; }
-
-    bool ExtensibilityEnabled { get; }
 
     bool ResourceTypedParamsAndOutputsEnabled { get; }
 
@@ -23,17 +23,23 @@ public interface IFeatureProvider
 
     bool AssertsEnabled { get; }
 
-    bool OptionalModuleNamesEnabled { get; }
+    bool WaitAndRetryEnabled { get; }
+
+    bool OnlyIfNotExistsEnabled { get; }
 
     bool LocalDeployEnabled { get; }
 
-    bool ResourceDerivedTypesEnabled { get; }
-
     bool ExtendableParamFilesEnabled { get; }
 
-    bool SecureOutputsEnabled { get; }
+    bool ResourceInfoCodegenEnabled { get; }
 
-    bool ExtensibilityV2EmittingEnabled { get; }
+    bool ModuleExtensionConfigsEnabled { get; }
+
+    bool DesiredStateConfigurationEnabled { get; }
+
+    bool ExternalInputFunctionEnabled { get; }
+
+    bool ModuleIdentityEnabled { get; }
 
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
@@ -44,16 +50,19 @@ public interface IFeatureProvider
             foreach (var (enabled, name, impactsCompilation, usesExperimentalArmEngineFeature) in new[]
             {
                 (SymbolicNameCodegenEnabled, CoreResources.ExperimentalFeatureNames_SymbolicNameCodegen, false, false), // Symbolic name codegen is listed as not impacting compilation because it is GA
-                (ExtensibilityEnabled, CoreResources.ExperimentalFeatureNames_Extensibility, true, true),
+                (ResourceInfoCodegenEnabled, CoreResources.ExperimentalFeatureNames_ResourceInfoCodegen, true, true),
                 (ResourceTypedParamsAndOutputsEnabled, CoreResources.ExperimentalFeatureNames_ResourceTypedParamsAndOutputs, true, false),
                 (SourceMappingEnabled, CoreResources.ExperimentalFeatureNames_SourceMapping, true, false),
                 (TestFrameworkEnabled, CoreResources.ExperimentalFeatureNames_TestFramework, false, false),
                 (AssertsEnabled, CoreResources.ExperimentalFeatureNames_Asserts, true, true),
-                (OptionalModuleNamesEnabled, CoreResources.ExperimentalFeatureNames_OptionalModuleNames, true, false),
-                (LocalDeployEnabled, "Enable local deploy", false, false),
-                (ResourceDerivedTypesEnabled, CoreResources.ExperimentalFeatureNames_ResourceDerivedTypes, true, false),
-                (SecureOutputsEnabled, CoreResources.ExperimentalFeatureNames_SecureOutputs, true, false),
+                (WaitAndRetryEnabled, CoreResources.ExperimentalFeatureNames_WaitAndRetry, true, true),
+                (OnlyIfNotExistsEnabled, CoreResources.ExperimentalFeatureNames_OnlyIfNotExists, true, true),
+                (LocalDeployEnabled, "Enable local deploy", true, true),
                 (ExtendableParamFilesEnabled, "Enable extendable parameters", true, false),
+                (ModuleExtensionConfigsEnabled, "Enable defining extension configs for modules", true, true),
+                (DesiredStateConfigurationEnabled, "Enable defining Desired State Configuration documents", true, false),
+                (ExternalInputFunctionEnabled, CoreResources.ExperimentalFeatureNames_ExternalInputFunction, true, false),
+                (ModuleIdentityEnabled, "Enable module identity support", true, true),
             })
             {
                 if (enabled)

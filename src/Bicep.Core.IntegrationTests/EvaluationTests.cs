@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Diagnostics.CodeAnalysis;
+using Azure.Deployments.ClientTools;
 using Azure.Deployments.Core.Definitions.Identifiers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -38,7 +40,7 @@ output sub int = sub
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template);
+            var evaluated = TemplateEvaluator.Evaluate(template).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.outputs['sum'].value", 4);
             evaluated.Should().HaveValueAtPath("$.outputs['mult'].value", 20);
@@ -79,7 +81,7 @@ output multiline string = multiline
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template);
+            var evaluated = TemplateEvaluator.Evaluate(template).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.outputs['literal'].value", "hello!");
             evaluated.Should().HaveValueAtPath("$.outputs['interp'].value", ">False<>12948<>hello!<>{'a':'b','!c':2}<>[true,2893,'abc']<");
@@ -167,7 +169,7 @@ output resource1Type string = existing1.type
             {
                 SubscriptionId = testSubscriptionId,
                 ResourceGroup = testRgName,
-            });
+            }).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.outputs['resource1Id'].value", $"/subscriptions/{testSubscriptionId}/resourceGroups/{testRgName}/providers/My.Rp/parent/myParent/child/myChild");
             evaluated.Should().HaveValueAtPath("$.outputs['resource2Id'].value", $"/subscriptions/{testSubscriptionId}/resourceGroups/customRg/providers/My.Rp/parent/myParent/child/myChild");
@@ -201,7 +203,7 @@ output coalesce int = null ?? 123
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template);
+            var evaluated = TemplateEvaluator.Evaluate(template).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.outputs['less'].value", true);
             evaluated.Should().HaveValueAtPath("$.outputs['lessOrEquals'].value", true);
@@ -243,7 +245,7 @@ output abcVal string = testRes.properties.abc
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template, parameters);
+            var evaluated = TemplateEvaluator.Evaluate(template, parameters).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.outputs['abcVal'].value", "test!!!");
         }
@@ -276,7 +278,7 @@ output abcVal string = testRes.properties.abc
 
                     throw new NotImplementedException();
                 },
-            });
+            }).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.outputs['abcVal'].value", "test!!!");
         }
@@ -311,7 +313,7 @@ output inputObjValues array = [for item in items(inputObj): item.value]
 
         var result = CompilationHelper.Compile(bicepTemplateText);
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters).ToJToken();
 
         evaluated.Should().HaveValueAtPath("$.outputs['inputObjKeys'].value", new JArray
             {
@@ -359,7 +361,7 @@ output joined3 string = join([
 
         result.Should().NotHaveAnyDiagnostics();
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         evaluated.Should().HaveValueAtPath("$.outputs['joined1'].value", "abcdefghi");
         evaluated.Should().HaveValueAtPath("$.outputs['joined2'].value", "abc,def,ghi");
         evaluated.Should().HaveValueAtPath("$.outputs['joined3'].value", "I love Bicep");
@@ -412,7 +414,7 @@ output containsArr123 bool = contains(inputArray, 123)
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template, parameters);
+            var evaluated = TemplateEvaluator.Evaluate(template, parameters).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.outputs['strIdxFooLC'].value", new JValue(0));
             evaluated.Should().HaveValueAtPath("$.outputs['strIdxFooUC'].value", new JValue(0));
@@ -520,7 +522,7 @@ var objectMap3 = toObject(sortByObjectKey, x => x.name)
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template, parameters);
+            var evaluated = TemplateEvaluator.Evaluate(template, parameters).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.variables['sayHello']", new JArray
                 {
@@ -735,7 +737,7 @@ output testFor array = [for record in testArray: {
 }]
 ");
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         evaluated.Should().HaveValueAtPath("$.outputs['testMap'].value", JToken.Parse(@"
 [
   {
@@ -794,7 +796,7 @@ output output2 array = map(
         var result = CompilationHelper.Compile(bicepTemplateText);
 
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters).ToJToken();
         evaluated.Should().HaveValueAtPath("$.outputs['output1'].value", JToken.Parse(@"[
   [
     ""no""
@@ -846,7 +848,7 @@ var dogs = [
 output iDogs array = filter(dogs, dog =>  (contains(dog.name, 'C') || contains(dog.name, 'i')))
 ");
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         evaluated.Should().HaveValueAtPath("$.outputs['iDogs'].value", JToken.Parse(@"
 [
   {
@@ -943,7 +945,7 @@ output foo object = {
   }
 }");
             },
-        });
+        }).ToJToken();
 
         evaluated.Should().HaveValueAtPath("$.outputs['test1'].value", "abc");
         evaluated.Should().HaveValueAtPath("$.outputs['test2'].value", "def");
@@ -974,7 +976,7 @@ param param2 = union(param1, { reference: 'param2' })
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template, parameters);
+            var evaluated = TemplateEvaluator.Evaluate(template, parameters).ToJToken();
 
             diagnostics.Should().NotHaveAnyDiagnostics();
 
@@ -1064,7 +1066,7 @@ output properties object = {
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template);
+            var evaluated = TemplateEvaluator.Evaluate(template).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.outputs['properties'].value.exists", "baz");
             evaluated.Should().HaveValueAtPath("$.outputs['properties'].value.doesntExist", JValue.CreateNull());
@@ -1113,7 +1115,7 @@ param location = 'westus'
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template, parameters);
+            var evaluated = TemplateEvaluator.Evaluate(template, parameters).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.asserts['a1']", false);
             evaluated.Should().HaveValueAtPath("$.asserts['a2']", true);
@@ -1130,7 +1132,7 @@ param location = 'westus'
                 output foo string = foo ?? 'not specified'
                 """);
 
-        var evaluated = TemplateEvaluator.Evaluate(template);
+        var evaluated = TemplateEvaluator.Evaluate(template).ToJToken();
 
         evaluated.Should().HaveValueAtPath("$.languageVersion", "2.0");
         evaluated.Should().HaveValueAtPath("$.outputs.foo.value", "not specified");
@@ -1160,7 +1162,7 @@ output sayHiWithLambdas string = replaceMultiple('Hi, $firstName $lastName!', {
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template);
+            var evaluated = TemplateEvaluator.Evaluate(template).ToJToken();
 
             evaluated.Should().HaveValueAtPath("$.outputs['sayHiWithComposition'].value", "Hi, Anthony Martin!");
             evaluated.Should().HaveValueAtPath("$.outputs['sayHiWithLambdas'].value", "Hi, Anthony Martin!");
@@ -1214,7 +1216,7 @@ output groupByWithValMapTest object = groupBy([
 
         using (new AssertionScope())
         {
-            var evaluated = TemplateEvaluator.Evaluate(template);
+            var evaluated = TemplateEvaluator.Evaluate(template).ToJToken();
 
             evaluated.Should().HaveJsonAtPath("$.outputs['sayHello'].value", """
 [
@@ -1286,6 +1288,122 @@ output groupByWithValMapTest object = groupBy([
   ]
 }
 """);
+        }
+    }
+
+    [TestMethod]
+    public async Task ExternalInput_functions_are_evaluated_correctly()
+    {
+        var bicepFile = @"
+param input int
+param input2 string
+param input3 string
+param input4 object
+param input5 bool
+param input6 int
+param myParam customType
+param input7 customType
+param nestedObj object
+
+output output int = input
+output output2 string = input2
+output output3 string = input3
+output output4 object = input4
+output output5 bool = input5
+output output6 int = input6
+output output7 customType = input7
+output nestedObj object = nestedObj
+
+type customType = {
+    foo: string
+    bar: int
+}
+";
+
+        var bicepparamText = @"
+using 'main.bicep'
+
+param input = int(externalInput('custom.binding', 'input'))
+
+param input2 = string(externalInput('custom.uriForPath', {
+  path: '/path/to/file'
+}))
+
+param input3 = '${externalInput('custom.binding', '__BINDING__')}_combined_with_${externalInput('custom.binding', '__ANOTHER_BINDING__')}'
+
+param input4 = json(externalInput('custom.binding', 'objectInput'))
+
+param input5 = bool(externalInput('sys.cli'))
+
+var foo = int(externalInput('custom.binding', 'input'))
+
+param input6 = foo
+
+param myParam = json(externalInput('custom.binding', 'input7'))
+param input7 = myParam
+param nestedObj = {
+  foo: externalInput('custom.binding', 'input')
+}
+"
+;
+
+        var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ExternalInputFunctionEnabled: true));
+
+        var paramResult = CompilationHelper.CompileParams(
+            services,
+            ("parameters.bicepparam", bicepparamText), ("main.bicep", bicepFile));
+
+        var templateResult = CompilationHelper.Compile(bicepFile);
+
+        var bindingValues = new Dictionary<JToken, string>
+        {
+            { "input",  "123" },
+            { "__BINDING__", "test1" },
+            { "__ANOTHER_BINDING__", "test2" },
+            { "objectInput", "{ \"key1\": \"value1\", \"key2\": \"value2\" }" },
+            { "input7", "{ \"foo\": \"bar\", \"bar\": 123 }" },
+        };
+
+        using (new AssertionScope())
+        {
+            templateResult.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            paramResult.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            // provide external inputs
+            var parametersWithExternalInputs = await ParametersProcessor.Process(paramResult.Parameters!.ToString()!, async (kind, config) =>
+            {
+                await Task.CompletedTask;
+
+                return kind switch
+                {
+                    "custom.binding" => bindingValues[config!],
+                    "custom.uriForPath" => "https://example.com?sas=token",
+                    "sys.cli" => "false",
+                    _ => throw new InvalidOperationException(),
+                };
+            });
+
+            var evaluated = TemplateEvaluator.Evaluate(templateResult.Template, JToken.Parse(parametersWithExternalInputs)).ToJToken();
+
+            evaluated.Should().HaveValueAtPath("$.outputs['output'].value", 123);
+            evaluated.Should().HaveValueAtPath("$.outputs['output2'].value", "https://example.com?sas=token");
+            evaluated.Should().HaveValueAtPath("$.outputs['output3'].value", "test1_combined_with_test2");
+            evaluated.Should().HaveValueAtPath("$.outputs['output4'].value", new JObject
+            {
+                ["key1"] = "value1",
+                ["key2"] = "value2"
+            });
+            evaluated.Should().HaveValueAtPath("$.outputs['output5'].value", false);
+            evaluated.Should().HaveValueAtPath("$.outputs['output6'].value", 123);
+            evaluated.Should().HaveValueAtPath("$.outputs['output7'].value", new JObject
+            {
+                ["foo"] = "bar",
+                ["bar"] = 123
+            });
+            evaluated.Should().HaveValueAtPath("$.outputs['nestedObj'].value", new JObject
+            {
+                ["foo"] = "123"
+            });
         }
     }
 }

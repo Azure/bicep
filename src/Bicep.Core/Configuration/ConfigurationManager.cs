@@ -2,48 +2,76 @@
 // Licensed under the MIT License.
 
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using System.IO.Abstractions;
 using System.Security;
+using System.ServiceModel;
 using System.Text.Json;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
+using Bicep.Core.TypeSystem;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Configuration
 {
     public class ConfigurationManager : IConfigurationManager
     {
-        private readonly ConcurrentDictionary<Uri, (RootConfiguration? config, DiagnosticBuilder.DiagnosticBuilderDelegate? loadError)> configFileUriToLoadedConfigCache = new();
-        private readonly ConcurrentDictionary<Uri, ConfigLookupResult> templateUriToConfigUriCache = new();
-        private readonly IFileSystem fileSystem;
+        private readonly static DiagnosticBuilder.DiagnosticBuilderInternal ConfigDiagnosticBuilder = DiagnosticBuilder.ForDocumentStart();
+        private readonly ConcurrentDictionary<IDirectoryHandle, ResultWithDiagnostic<IFileHandle?>> configFileLookupCache = new(); // Source file directory handle -> config file handle.
+        private readonly ConcurrentDictionary<IFileHandle, ResultWithDiagnostic<RootConfiguration>> loadedConfigCache = new();     // Config file handle -> RootConfiguration.
+        private readonly IFileExplorer fileExplorer;
 
-        public ConfigurationManager(IFileSystem fileSystem)
+        public ConfigurationManager(IFileExplorer fileExplorer)
         {
-            this.fileSystem = fileSystem;
+            this.fileExplorer = fileExplorer;
         }
 
         public RootConfiguration GetConfiguration(Uri sourceFileUri)
         {
-            var (config, diagnosticBuilders) = GetConfigurationFromCache(sourceFileUri);
-            return WithLoadDiagnostics(config, diagnosticBuilders);
+            if (!sourceFileUri.IsFile)
+            {
+                return GetDefaultConfiguration();
+            }
+
+            var sourceFileIOUri = sourceFileUri.ToIOUri();
+            var sourceDirectory = this.fileExplorer.GetFile(sourceFileIOUri).GetParent();
+
+            if (!configFileLookupCache.GetOrAdd(sourceDirectory, LookupConfigurationFile).IsSuccess(out var configFileHandle, out var lookupDiagnostic))
+            {
+                return GetDefaultConfiguration().With(diagnostics: [lookupDiagnostic]);
+            }
+
+            if (configFileHandle is null)
+            {
+                return GetDefaultConfiguration();
+            }
+
+            if (!loadedConfigCache.GetOrAdd(configFileHandle, LoadConfiguration).IsSuccess(out var configuration, out var loadDiagnostic))
+            {
+                return GetDefaultConfiguration().With(diagnostics: [loadDiagnostic]);
+            }
+
+            return configuration;
         }
 
         public void PurgeCache()
         {
             PurgeLookupCache();
-            configFileUriToLoadedConfigCache.Clear();
+            loadedConfigCache.Clear();
         }
 
-        public void PurgeLookupCache() => templateUriToConfigUriCache.Clear();
+        public void PurgeLookupCache() => configFileLookupCache.Clear();
 
-        public (RootConfiguration prevConfiguration, RootConfiguration newConfiguration)? RefreshConfigCacheEntry(Uri configUri)
+        public (RootConfiguration prevConfiguration, RootConfiguration newConfiguration)? RefreshConfigCacheEntry(IOUri configFileIdentifier)
         {
             (RootConfiguration, RootConfiguration)? returnVal = null;
-            configFileUriToLoadedConfigCache.AddOrUpdate(configUri, LoadConfiguration, (uri, prev) =>
+            var configFileHandle = this.fileExplorer.GetFile(configFileIdentifier);
+            loadedConfigCache.AddOrUpdate(configFileHandle, LoadConfiguration, (handle, prev) =>
             {
-                var reloaded = LoadConfiguration(uri);
-                if (prev.config is { } prevConfig && reloaded.Item1 is { } newConfig)
+                var reloaded = LoadConfiguration(handle);
+                if (prev.IsSuccess(out var prevConfig) && reloaded.IsSuccess(out var newConfig))
                 {
                     returnVal = (prevConfig, newConfig);
                 }
@@ -53,122 +81,63 @@ namespace Bicep.Core.Configuration
             return returnVal;
         }
 
-        public void RemoveConfigCacheEntry(Uri configUri)
+        public void RemoveConfigCacheEntry(IOUri identifier)
         {
-            if (configFileUriToLoadedConfigCache.TryRemove(configUri, out _))
+            var configFileHandle = this.fileExplorer.GetFile(identifier);
+            if (loadedConfigCache.TryRemove(configFileHandle, out _))
             {
                 // If a config file has been removed from a workspace, the lookup cache is no longer valid.
                 PurgeLookupCache();
             }
         }
 
-        private (RootConfiguration, List<DiagnosticBuilder.DiagnosticBuilderDelegate>) GetConfigurationFromCache(Uri sourceFileUri)
-        {
-            List<DiagnosticBuilder.DiagnosticBuilderDelegate> diagnostics = new();
-
-            var (configFileUri, lookupDiagnostic) = templateUriToConfigUriCache.GetOrAdd(sourceFileUri, LookupConfiguration);
-            if (lookupDiagnostic is not null)
-            {
-                diagnostics.Add(lookupDiagnostic);
-            }
-
-            if (configFileUri is not null)
-            {
-                var (config, loadError) = configFileUriToLoadedConfigCache.GetOrAdd(configFileUri, LoadConfiguration);
-                if (loadError is not null)
-                {
-                    diagnostics.Add(loadError);
-                }
-
-                if (config is not null)
-                {
-                    return (config, diagnostics);
-                }
-            }
-
-            return (GetDefaultConfiguration(), diagnostics);
-        }
-
-        private static RootConfiguration WithLoadDiagnostics(RootConfiguration configuration, List<DiagnosticBuilder.DiagnosticBuilderDelegate> diagnostics)
-        {
-            if (diagnostics.Count > 0)
-            {
-                return new(
-                    configuration.Cloud,
-                    configuration.ModuleAliases,
-                    configuration.Extensions,
-                    configuration.ImplicitExtensions,
-                    configuration.Analyzers,
-                    configuration.CacheRootDirectory,
-                    configuration.ExperimentalFeaturesEnabled,
-                    configuration.Formatting,
-                    configuration.ConfigFileUri,
-                    diagnostics);
-            }
-
-            return configuration;
-        }
-
         private static RootConfiguration GetDefaultConfiguration() => IConfigurationManager.GetBuiltInConfiguration();
 
-        private (RootConfiguration?, DiagnosticBuilder.DiagnosticBuilderDelegate?) LoadConfiguration(Uri configurationUri)
+        private static ResultWithDiagnostic<RootConfiguration> LoadConfiguration(IFileHandle configFileHandle)
         {
             try
             {
-                using var stream = fileSystem.FileStream.New(configurationUri.LocalPath, FileMode.Open, FileAccess.Read);
+                using var stream = configFileHandle.OpenRead();
                 var element = IConfigurationManager.BuiltInConfigurationElement.Merge(JsonElementFactory.CreateElementFromStream(stream));
 
-                return (RootConfiguration.Bind(element, configurationUri), null);
+                return RootConfiguration.Bind(element, configFileHandle.Uri);
             }
             catch (ConfigurationException exception)
             {
-                return (null, x => x.InvalidBicepConfigFile(configurationUri.LocalPath, exception.Message));
+                return new(ConfigDiagnosticBuilder.InvalidBicepConfigFile(configFileHandle.Uri, exception.Message));
             }
             catch (JsonException exception)
             {
-                return (null, x => x.UnparsableBicepConfigFile(configurationUri.LocalPath, exception.Message));
+                return new(ConfigDiagnosticBuilder.UnparsableBicepConfigFile(configFileHandle.Uri, exception.Message));
             }
             catch (Exception exception)
             {
-                return (null, x => x.UnloadableBicepConfigFile(configurationUri.LocalPath, exception.Message));
+                return new(ConfigDiagnosticBuilder.UnloadableBicepConfigFile(configFileHandle.Uri, exception.Message));
             }
         }
 
-        private ConfigLookupResult LookupConfiguration(Uri sourceFileUri)
+        private ResultWithDiagnostic<IFileHandle?> LookupConfigurationFile(IDirectoryHandle? directoryToLookup)
         {
-            DiagnosticBuilder.DiagnosticBuilderDelegate? lookupDiagnostic = null;
-            if (sourceFileUri.Scheme == Uri.UriSchemeFile)
+            try
             {
-                string? currentDirectory = fileSystem.Path.GetDirectoryName(sourceFileUri.LocalPath);
-                while (!string.IsNullOrEmpty(currentDirectory))
+                while (directoryToLookup is not null)
                 {
-                    var configurationPath = this.fileSystem.Path.Combine(currentDirectory, LanguageConstants.BicepConfigurationFileName);
+                    var configFileHandle = directoryToLookup.GetFile(LanguageConstants.BicepConfigurationFileName);
 
-                    if (this.fileSystem.File.Exists(configurationPath))
+                    if (configFileHandle.Exists())
                     {
-                        return new(PathHelper.FilePathToFileUrl(configurationPath), lookupDiagnostic);
+                        return new(configFileHandle);
                     }
 
-                    try
-                    {
-                        // Catching Directory.GetParent alone because it is the only one that throws IO related exceptions.
-                        // Path.Combine only throws ArgumentNullException which indicates a bug in our code.
-                        // File.Exists will not throw exceptions regardless the existence of path or if the user has permissions to read the file.
-                        currentDirectory = this.fileSystem.Directory.GetParent(currentDirectory)?.FullName;
-                    }
-                    catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or SecurityException)
-                    {
-                        // The exception could happen in scenarios where users may not have read permission on the parent folder.
-                        // We should not throw ConfigurationException in such cases since it will block compilation.
-                        lookupDiagnostic = x => x.PotentialConfigDirectoryCouldNotBeScanned(currentDirectory, exception.Message);
-                        break;
-                    }
+                    directoryToLookup = directoryToLookup.GetParent();
                 }
             }
+            catch (IOException exception)
+            {
+                return new(ConfigDiagnosticBuilder.PotentialConfigDirectoryCouldNotBeScanned(directoryToLookup?.Uri, exception.Message));
+            }
 
-            return new(null, lookupDiagnostic);
+            return new((IFileHandle?)null);
         }
-
-        private record ConfigLookupResult(Uri? configFileUri = null, DiagnosticBuilder.DiagnosticBuilderDelegate? lookupDiagnostic = null);
     }
 }

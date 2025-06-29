@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
 
@@ -20,10 +21,7 @@ namespace Bicep.Core.Semantics
         public override SymbolKind Kind => SymbolKind.Test;
 
         public ResultWithDiagnostic<ISemanticModel> TryGetSemanticModel()
-            => SemanticModelHelper.TryGetTemplateModelForArtifactReference(Context.Compilation.SourceFileGrouping,
-                DeclaringTest,
-                b => b.ModuleDeclarationMustReferenceBicepModule(),
-                Context.Compilation);
+            => DeclaringTest.TryGetReferencedModel(Context.SourceFileLookup, Context.ModelLookup, b => b.ModuleDeclarationMustReferenceBicepModule());
 
         public override IEnumerable<Symbol> Descendants
         {
@@ -32,6 +30,5 @@ namespace Bicep.Core.Semantics
                 yield return this.Type;
             }
         }
-
     }
 }

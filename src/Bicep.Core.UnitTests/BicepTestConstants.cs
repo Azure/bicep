@@ -1,31 +1,34 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
 using System.IO.Abstractions;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
-using Bicep.LanguageServer.Registry;
+using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
+using Bicep.IO.InMemory;
 using Bicep.LanguageServer.Telemetry;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Moq;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
+using OnDiskFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.UnitTests
 {
@@ -37,18 +40,25 @@ namespace Bicep.Core.UnitTests
 
         public const string GeneratorTemplateHashPath = "metadata._generator.templateHash";
 
-        public static readonly IFileSystem FileSystem = new IOFileSystem();
+        public static readonly IFileSystem FileSystem = new OnDiskFileSystem();
+
         public static readonly FileResolver FileResolver = new(FileSystem);
+
+        public static readonly IFileExplorer FileExplorer = new FileSystemFileExplorer(FileSystem);
 
         public static readonly FeatureProviderOverrides FeatureOverrides = new();
 
         public static readonly ConfigurationManager ConfigurationManager = CreateFilesystemConfigurationManager();
 
-        public static readonly IFeatureProviderFactory FeatureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(ConfigurationManager), FeatureOverrides);
+        public static readonly IFeatureProviderFactory FeatureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(ConfigurationManager, FileExplorer), FeatureOverrides);
 
-        public static readonly IResourceTypeProviderFactory ResourceTypeProviderFactory = new ResourceTypeProviderFactory(FileSystem);
+        public static readonly IAuxiliaryFileCache AuxiliaryFileCache = new AuxiliaryFileCache();
 
-        public static readonly INamespaceProvider NamespaceProvider = new NamespaceProvider(ResourceTypeProviderFactory);
+        public static readonly ISourceFileFactory SourceFileFactory = new SourceFileFactory(ConfigurationManager, FeatureProviderFactory, AuxiliaryFileCache, FileExplorer);
+
+        public static readonly BicepFile DummyBicepFile = CreateDummyBicepFile();
+
+        public static readonly IResourceTypeProviderFactory ResourceTypeProviderFactory = new ResourceTypeProviderFactory();
 
         public static readonly IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
 
@@ -67,15 +77,16 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IConfigurationManager BuiltInOnlyConfigurationManager = IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration);
 
-        public static readonly IFeatureProvider Features = new OverriddenFeatureProvider(new FeatureProvider(BuiltInConfiguration), FeatureOverrides);
+        public static readonly IFeatureProvider Features = new OverriddenFeatureProvider(new FeatureProvider(BuiltInConfiguration, FileExplorer), FeatureOverrides);
+
+        public static readonly INamespaceProvider NamespaceProvider = new NamespaceProvider(ResourceTypeProviderFactory);
 
         public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
 
         public static IArtifactRegistryProvider CreateRegistryProvider(IServiceProvider services) =>
-            new DefaultArtifactRegistryProvider(services, FileResolver, FileSystem, ClientFactory, TemplateSpecRepositoryFactory, FeatureProviderFactory, BuiltInOnlyConfigurationManager);
+            new DefaultArtifactRegistryProvider(services, ClientFactory, TemplateSpecRepositoryFactory);
 
-        public static IModuleDispatcher CreateModuleDispatcher(IServiceProvider services) =>
-            new ModuleDispatcher(CreateRegistryProvider(services), IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration));
+        public static IModuleDispatcher CreateModuleDispatcher(IServiceProvider services) => new ModuleDispatcher(CreateRegistryProvider(services));
 
         public static readonly NamespaceResolver DefaultNamespaceResolver = NamespaceResolver.Create([
             new("az", AzNamespaceType.Create("az", ResourceScope.ResourceGroup, AzNamespaceType.BuiltInTypeProvider, BicepSourceFileKind.BicepFile), null),
@@ -85,11 +96,12 @@ namespace Bicep.Core.UnitTests
         // By default turns off only problematic analyzers
         public static readonly LinterAnalyzer LinterAnalyzer = new(EmptyServiceProvider);
 
-        public static IEnvironment EmptyEnvironment = new TestEnvironment(ImmutableDictionary<string, string?>.Empty);
+        public static readonly IEnvironment EmptyEnvironment = TestEnvironment.Default;
 
-        public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
+        public static RootConfiguration GetConfiguration(string contents)
+            => RootConfiguration.Bind(IConfigurationManager.BuiltInConfigurationElement.Merge(JsonElementFactory.CreateElement(contents)));
 
-        public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, Uri? configFileUri = null)
+        public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configFilePath = null)
         {
             var configurationData = new Dictionary<string, object>
             {
@@ -120,19 +132,15 @@ namespace Bicep.Core.UnitTests
                 element = element.SetPropertyByPath(path, value);
             }
 
-            return RootConfiguration.Bind(element, configFileUri);
+            IOUri? configFileIdentifier = configFilePath is not null ? new IOUri("file", "", configFilePath) : null;
+
+            return RootConfiguration.Bind(element, configFileIdentifier);
         }
 
-        public static ConfigurationManager CreateFilesystemConfigurationManager() => new(new IOFileSystem());
+        public static ConfigurationManager CreateFilesystemConfigurationManager() => new(new FileSystemFileExplorer(new OnDiskFileSystem()));
 
         public static IFeatureProviderFactory CreateFeatureProviderFactory(FeatureProviderOverrides featureOverrides, IConfigurationManager? configurationManager = null)
-            => new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager ?? CreateFilesystemConfigurationManager()), featureOverrides);
-
-        private static IModuleRestoreScheduler CreateMockModuleRestoreScheduler()
-        {
-            var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
-            return new ModuleRestoreScheduler(moduleDispatcher.Object);
-        }
+            => new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager ?? CreateFilesystemConfigurationManager(), FileExplorer), featureOverrides);
 
         public static Mock<ITelemetryProvider> CreateMockTelemetryProvider()
         {
@@ -167,6 +175,49 @@ namespace Bicep.Core.UnitTests
         }
         """);
 
-        public static string BuiltinAzExtensionVersion = AzNamespaceType.Settings.TemplateExtensionVersion;
+        public static BicepFile CreateDummyBicepFile(RootConfiguration? configuration = null, FeatureProviderOverrides? featureOverrides = null)
+        {
+            var configurationManager = IConfigurationManager.WithStaticConfiguration(configuration ?? IConfigurationManager.GetBuiltInConfiguration());
+            var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, FileExplorer), featureOverrides ?? FeatureOverrides);
+
+            return CreateDummyBicepFile(configurationManager, featureProviderFactory);
+        }
+
+        public static BicepFile CreateDummyBicepFile(IConfigurationManager configurationManager, IFeatureProviderFactory? featureProviderFactory = null)
+        {
+            return new(
+                new Uri($"inmemory:///main.bicep"),
+                DummyFileHandle.Instance,
+                [],
+                SyntaxFactory.EmptyProgram,
+                configurationManager,
+                featureProviderFactory ?? FeatureProviderFactory,
+                BicepTestConstants.AuxiliaryFileCache,
+                EmptyDiagnosticLookup.Instance,
+                EmptyDiagnosticLookup.Instance);
+        }
+
+        public readonly static string BuiltinAzExtensionVersion = AzNamespaceType.Settings.TemplateExtensionVersion;
+
+        public const string MsGraphVersionV10 = "1.2.3";
+        public const string MsGraphVersionBeta = "1.2.3-beta";
+
+        public static string GetMsGraphIndexJson(string version)
+        {
+            var isBeta = version.EndsWithInsensitively("-beta");
+
+            return
+                $$"""
+                  {
+                    "resources": {},
+                    "resourceFunctions": {},
+                    "settings": {
+                      "name": "MicrosoftGraph{{(isBeta ? "Beta" : "V1.0")}}",
+                      "version": "{{version}}",
+                      "isSingleton": false
+                    }
+                  }
+                  """;
+        }
     }
 }

@@ -7,6 +7,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 
 namespace Bicep.Core.IntegrationTests.Extensibility;
 
@@ -15,10 +16,9 @@ public class RadiusCompatibilityTests
 {
     private static ServiceBuilder GetServiceBuilder(IFileSystem fileSystem, string registryHost, string repositoryPath)
     {
-        var clientFactory = RegistryHelper.CreateMockRegistryClient(registryHost, repositoryPath);
+        var clientFactory = RegistryHelper.CreateMockRegistryClient(new RepoDescriptor(registryHost, repositoryPath, ["tag"]));
 
         return new ServiceBuilder()
-            .WithFeatureOverrides(new(ExtensibilityEnabled: true))
             .WithFileSystem(fileSystem)
             .WithContainerRegistryClientFactory(clientFactory);
     }
@@ -30,7 +30,7 @@ public class RadiusCompatibilityTests
 
         var services = GetServiceBuilder(new MockFileSystem(), registry, repository);
 
-        var tgzData = ThirdPartyTypeHelper.GetMockRadiusTypesTgz();
+        var tgzData = ExtensionResourceTypeHelper.GetMockRadiusTypesTgz();
         await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.0.0", tgzData);
 
         return services;

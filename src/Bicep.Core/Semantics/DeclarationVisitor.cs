@@ -1,28 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Immutable;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
-using Bicep.Core.Registry.Oci;
+using Bicep.Core.Navigation;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
-using Bicep.Core.Syntax.Visitors;
-using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Providers;
-using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
     public sealed class DeclarationVisitor : AstVisitor
     {
         private readonly ImmutableDictionary<ExtensionDeclarationSyntax, NamespaceResult> namespaceResults;
-        private readonly IArtifactFileLookup artifactFileLookup;
-        private readonly ISemanticModelLookup modelLookup;
         private readonly ISymbolContext context;
         private readonly IList<ScopeInfo> localScopes;
 
@@ -30,14 +22,10 @@ namespace Bicep.Core.Semantics
 
         private DeclarationVisitor(
             ImmutableDictionary<ExtensionDeclarationSyntax, NamespaceResult> namespaceResults,
-            IArtifactFileLookup sourceFileLookup,
-            ISemanticModelLookup modelLookup,
             ISymbolContext context,
             IList<ScopeInfo> localScopes)
         {
             this.namespaceResults = namespaceResults;
-            this.artifactFileLookup = sourceFileLookup;
-            this.modelLookup = modelLookup;
             this.context = context;
             this.localScopes = localScopes;
         }
@@ -45,8 +33,6 @@ namespace Bicep.Core.Semantics
         // Returns the list of top level declarations as well as top level scopes.
         public static LocalScope GetDeclarations(
             ImmutableArray<NamespaceResult> namespaceResults,
-            IArtifactFileLookup sourceFileLookup,
-            ISemanticModelLookup modelLookup,
             BicepSourceFile sourceFile,
             ISymbolContext symbolContext)
         {
@@ -55,8 +41,6 @@ namespace Bicep.Core.Semantics
 
             var declarationVisitor = new DeclarationVisitor(
                 namespaceResults.ToImmutableDictionaryExcludingNull(x => x.Origin),
-                sourceFileLookup,
-                modelLookup,
                 symbolContext,
                 localScopes);
             declarationVisitor.Visit(sourceFile.ProgramSyntax);
@@ -190,6 +174,20 @@ namespace Bicep.Core.Semantics
             DeclareSymbol(symbol);
         }
 
+        public override void VisitExtensionConfigAssignmentSyntax(ExtensionConfigAssignmentSyntax syntax)
+        {
+            base.VisitExtensionConfigAssignmentSyntax(syntax);
+
+            if (syntax.TryGetSymbolName() is not { } extAlias)
+            {
+                // TODO(kylealbert): Figure out specifics for spec strings vs alias.
+                return;
+            }
+
+            var symbol = new ExtensionConfigAssignmentSymbol(this.context, extAlias, syntax);
+            DeclareSymbol(symbol);
+        }
+
         public override void VisitLambdaSyntax(LambdaSyntax syntax)
         {
             // create new scope without any descendants
@@ -215,7 +213,7 @@ namespace Bicep.Core.Semantics
         public override void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax)
         {
             // create new scope without any descendants
-            var scope = new LocalScope(string.Empty, syntax, syntax.Body, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.InheritFunctionsOnly);
+            var scope = new LocalScope(string.Empty, syntax, syntax.Body, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.InheritFunctionsAndVariablesOnly);
             this.PushScope(scope);
 
             /*
@@ -344,7 +342,7 @@ namespace Bicep.Core.Semantics
 
         private ResultWithDiagnostic<ISemanticModel> GetImportSourceModel(CompileTimeImportDeclarationSyntax syntax)
         {
-            if (!SemanticModelHelper.TryGetModelForArtifactReference(artifactFileLookup, syntax, modelLookup).IsSuccess(out var model, out var modelLoadError))
+            if (!syntax.TryGetReferencedModel(context.SourceFileLookup, context.ModelLookup).IsSuccess(out var model, out var modelLoadError))
             {
                 return new(modelLoadError);
             }

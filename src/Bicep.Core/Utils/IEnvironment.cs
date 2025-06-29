@@ -7,4 +7,6 @@ public interface IEnvironment
     string? GetVariable(string variable);
 
     IEnumerable<string> GetVariableNames();
+
+    string CurrentDirectory { get; }
 }

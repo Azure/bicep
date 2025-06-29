@@ -3,11 +3,14 @@
 
 using System.Diagnostics;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceLink;
+using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Telemetry;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
@@ -32,17 +35,17 @@ namespace Bicep.LanguageServer.Handlers
         public const string BicepExternalSourceLspMethodName = "textDocument/bicepExternalSource";
 
         private readonly IModuleDispatcher moduleDispatcher;
-        private readonly IFileResolver fileResolver;
         private readonly ITelemetryProvider telemetryProvider;
+        private readonly ISourceFileFactory sourceFileFactory;
 
         public BicepExternalSourceRequestHandler(
             IModuleDispatcher moduleDispatcher,
-            IFileResolver fileResolver,
-            ITelemetryProvider telemetryProvider)
+            ITelemetryProvider telemetryProvider,
+            ISourceFileFactory sourceFileFactory)
         {
             this.moduleDispatcher = moduleDispatcher;
-            this.fileResolver = fileResolver;
             this.telemetryProvider = telemetryProvider;
+            this.sourceFileFactory = sourceFileFactory;
         }
 
         public Task<BicepExternalSourceResponse> Handle(BicepExternalSourceParams request, CancellationToken cancellationToken)
@@ -50,36 +53,36 @@ namespace Bicep.LanguageServer.Handlers
             // If any of the following paths results in an exception being thrown (and surfaced client-side to the user),
             // it indicates a code defect client or server-side.
             // In normal operation, the user should never see them regardless of how malformed their code is.
-
-            if (!moduleDispatcher.TryGetArtifactReference(ArtifactType.Module, request.Target, new Uri("file:///no-parent-file-is-available.bicep")).IsSuccess(out var moduleReference))
+            var dummyReferencingFile = this.sourceFileFactory.CreateDummyArtifactReferencingFile();
+            if (!moduleDispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Module, request.Target).IsSuccess(out var moduleReference))
             {
                 telemetryProvider.PostEvent(ExternalSourceRequestFailure(nameof(moduleDispatcher.TryGetArtifactReference)));
                 return Task.FromResult(new BicepExternalSourceResponse(null,
                     $"The client specified an invalid module reference '{request.Target}'."));
             }
 
-            if (!moduleReference.IsExternal)
+            if (moduleReference is not OciArtifactReference ociModuleReference)
             {
                 telemetryProvider.PostEvent(ExternalSourceRequestFailure("localNotSupported"));
                 return Task.FromResult(new BicepExternalSourceResponse(null,
                     $"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepExternalSourceLspMethodName} requests."));
             }
 
-            if (!moduleDispatcher.TryGetLocalArtifactEntryPointUri(moduleReference).IsSuccess(out var compiledJsonUri))
+            if (!moduleDispatcher.TryGetLocalArtifactEntryPointFileHandle(moduleReference).IsSuccess())
             {
-                telemetryProvider.PostEvent(ExternalSourceRequestFailure(nameof(moduleDispatcher.TryGetLocalArtifactEntryPointUri)));
+                telemetryProvider.PostEvent(ExternalSourceRequestFailure(nameof(moduleDispatcher.TryGetLocalArtifactEntryPointFileHandle)));
                 return Task.FromResult(new BicepExternalSourceResponse(null,
                     $"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'."));
             }
 
-            var success = moduleDispatcher.TryGetModuleSources(moduleReference).IsSuccess(out var sourceArchive, out var ex);
+            var success = ociModuleReference.TryLoadSourceArchive().IsSuccess(out var sourceArchive, out var ex);
 
             if (request.requestedSourceFile is { })
             {
                 if (success)
                 {
                     Debug.Assert(sourceArchive is { });
-                    var requestedFile = sourceArchive.FindExpectedSourceFile(request.requestedSourceFile);
+                    var requestedFile = sourceArchive.FindSourceFile(request.requestedSourceFile);
                     telemetryProvider.PostEvent(CreateSuccessTelemetry(sourceArchive, request.requestedSourceFile));
                     return Task.FromResult(new BicepExternalSourceResponse(requestedFile.Contents));
                 }
@@ -97,10 +100,10 @@ namespace Bicep.LanguageServer.Handlers
 
             // No sources available, or specifically requesting the compiled main.json (requestedSourceFile=null).
             // Return the compiled JSON (main.json).
-            if (!this.fileResolver.TryRead(compiledJsonUri).IsSuccess(out var contents, out var failureBuilder))
+            if (!ociModuleReference.ModuleMainTemplateFile.TryReadAllText().IsSuccess(out var contents, out var failureBuilder))
             {
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
-                return Task.FromResult(new BicepExternalSourceResponse(null, $"Unable to read file '{compiledJsonUri}'. {message}"));
+                return Task.FromResult(new BicepExternalSourceResponse(null, $"Unable to read file '{ociModuleReference.ModuleMainTemplateFile.Uri}'. {message}"));
             }
 
             telemetryProvider.PostEvent(CreateSuccessTelemetry(sourceArchive, request.requestedSourceFile));
@@ -119,7 +122,7 @@ namespace Bicep.LanguageServer.Handlers
             return new ExternalSourceReference(reference, sourceArchive).ToUri();
         }
 
-        public static Uri GetTemplateSpeckSourceLinkUri(TemplateSpecModuleReference reference)
+        public static Uri GetTemplateSpecSourceLinkUri(TemplateSpecModuleReference reference)
         {
             var uriBuilder = new UriBuilder($"{LangServerConstants.ExternalSourceFileScheme}:{Uri.EscapeDataString(reference.FullyQualifiedReference)}")
             {
@@ -133,7 +136,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             return ExternalSourceRequestSuccess(
                 hasSource: sourceArchive is not null,
-                archiveFilesCount: sourceArchive?.SourceFiles.Length ?? 0,
+                archiveFilesCount: sourceArchive?.SourceFileCount ?? 0,
                 fileExtension: Path.GetExtension(requestedSourceFile) ?? (requestedSourceFile is null ? ".json" : string.Empty),
                 requestType: requestedSourceFile switch
                 {

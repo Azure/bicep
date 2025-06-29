@@ -3,8 +3,8 @@
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics;
 
@@ -28,7 +28,7 @@ public abstract class ImportedSymbol : DeclaredSymbol
     public abstract string? Description { get; }
 
     public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference()
-        => Context.Compilation.ArtifactReferenceFactory.TryGetArtifactReference(EnclosingDeclaration, Context.SourceFile.FileUri);
+        => Context.ArtifactReferenceFactory.TryGetArtifactReference(this.Context.SourceFile, this.EnclosingDeclaration);
 }
 
 public abstract class ImportedSymbol<T> : ImportedSymbol where T : ExportMetadata
@@ -65,6 +65,7 @@ public abstract class ImportedSymbol<T> : ImportedSymbol where T : ExportMetadat
         {
             ExportMetadataKind.Variable or
             ExportMetadataKind.Function => true,
+            ExportMetadataKind.Type => true,
             _ => false,
         },
         _ => false,

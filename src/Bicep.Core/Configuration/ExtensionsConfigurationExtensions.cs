@@ -25,7 +25,7 @@ public static class ExtensionsConfigurationExtensions
             rootConfiguration.ExperimentalFeaturesEnabled,
             rootConfiguration.Formatting,
             rootConfiguration.ConfigFileUri,
-            rootConfiguration.DiagnosticBuilders);
+            rootConfiguration.Diagnostics);
     }
 
     public static RootConfiguration WithImplicitExtensions(this RootConfiguration rootConfiguration, string payload)
@@ -40,6 +40,6 @@ public static class ExtensionsConfigurationExtensions
             rootConfiguration.ExperimentalFeaturesEnabled,
             rootConfiguration.Formatting,
             rootConfiguration.ConfigFileUri,
-            rootConfiguration.DiagnosticBuilders);
+            rootConfiguration.Diagnostics);
     }
 }

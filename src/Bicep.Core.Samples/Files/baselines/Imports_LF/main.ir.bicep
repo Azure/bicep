@@ -24,11 +24,10 @@ param fizzParam mod2.fizz
 output magicWord pop = refersToCopyVariable[3].value
 //@[00:052) ├─DeclaredOutputExpression { Name = magicWord }
 //@[17:020) | ├─ImportedTypeReferenceExpression { Name = pop }
-//@[23:052) | └─AccessChainExpression
-//@[23:046) |   ├─ArrayAccessExpression
-//@[44:045) |   | ├─IntegerLiteralExpression { Value = 3 }
-//@[23:043) |   | └─ImportedVariableReferenceExpression { Variable = refersToCopyVariable }
-//@[47:052) |   └─StringLiteralExpression { Value = value }
+//@[23:052) | └─PropertyAccessExpression { PropertyName = value }
+//@[23:046) |   └─ArrayAccessExpression
+//@[44:045) |     ├─IntegerLiteralExpression { Value = 3 }
+//@[23:043) |     └─ImportedVariableReferenceExpression { Variable = refersToCopyVariable }
 
 output greeting string = greet('friend')
 //@[00:040) └─DeclaredOutputExpression { Name = greeting }

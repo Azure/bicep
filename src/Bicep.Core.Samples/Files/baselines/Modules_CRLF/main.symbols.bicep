@@ -325,7 +325,7 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 
 module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for thing in range(0,1): {
 //@[79:84) Local thing. Type: 0. Declaration start char: 79, length: 5
-//@[07:55) Module propertyLoopInsideParameterValueInsideModuleLoop. Type: module[]. Declaration start char: 0, length: 529
+//@[07:55) Module propertyLoopInsideParameterValueInsideModuleLoop. Type: module[]. Declaration start char: 0, length: 535
   name: 'propertyLoopInsideParameterValueInsideModuleLoop'
   params: {
     objParam: {
@@ -345,7 +345,7 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
     stringParamB: ''
     arrayParam: [
       {
-        e: [for j in range(7,7): j % thing]
+        e: [for j in range(7,7): j % (thing + 1)]
 //@[16:17) Local j. Type: int. Declaration start char: 16, length: 1
       }
     ]
@@ -448,4 +448,43 @@ module folderWithSpace 'child/folder with space/child with space.bicep' = {
 //@[07:22) Module folderWithSpace. Type: module. Declaration start char: 0, length: 104
   name: 'childWithSpace'
 }
+
+// nameof
+
+var nameofModule = nameof(folderWithSpace)
+//@[04:16) Variable nameofModule. Type: 'folderWithSpace'. Declaration start char: 0, length: 42
+var nameofModuleParam = nameof(secureModuleCondition.outputs.exposedSecureString)
+//@[04:21) Variable nameofModuleParam. Type: 'exposedSecureString'. Declaration start char: 0, length: 81
+
+module moduleWithNameof 'modulea.bicep' = {
+//@[07:23) Module moduleWithNameof. Type: module. Declaration start char: 0, length: 358
+  name: 'nameofModule'
+  scope: resourceGroup(nameof(nameofModuleParam))
+  params:{
+    stringParamA: nameof(withSpace)
+    stringParamB: nameof(folderWithSpace)
+    objParam: {
+      a: nameof(secureModuleCondition.outputs.exposedSecureString)
+    }
+    arrayParam: [
+      nameof(vaults)
+    ]
+  }
+}
+
+module moduleWithNullableOutputs 'child/nullableOutputs.bicep' = {
+//@[07:32) Module moduleWithNullableOutputs. Type: module. Declaration start char: 0, length: 96
+  name: 'nullableOutputs'
+}
+
+output nullableString string? = moduleWithNullableOutputs.outputs.?nullableString
+//@[07:21) Output nullableString. Type: null | string. Declaration start char: 0, length: 81
+output deeplyNestedProperty string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.property
+//@[07:27) Output deeplyNestedProperty. Type: null | string. Declaration start char: 0, length: 107
+output deeplyNestedArrayItem string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[0]
+//@[07:28) Output deeplyNestedArrayItem. Type: null | string. Declaration start char: 0, length: 108
+output deeplyNestedArrayItemFromEnd string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[^1]
+//@[07:35) Output deeplyNestedArrayItemFromEnd. Type: null | string. Declaration start char: 0, length: 116
+output deeplyNestedArrayItemFromEndAttempt string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[?^1]
+//@[07:42) Output deeplyNestedArrayItemFromEndAttempt. Type: null | string. Declaration start char: 0, length: 124
 

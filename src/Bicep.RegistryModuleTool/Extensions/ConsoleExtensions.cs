@@ -5,8 +5,8 @@ using System.CommandLine;
 using System.CommandLine.IO;
 using System.CommandLine.Rendering;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Text;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.RegistryModuleTool.Extensions
 {
@@ -16,7 +16,7 @@ namespace Bicep.RegistryModuleTool.Extensions
         {
             (int line, int character) = TextCoordinateConverter.GetPosition(file.LineStarts, diagnostic.Span.Position);
             var codeDescription = diagnostic.Uri == null ? string.Empty : $" [{diagnostic.Uri.AbsoluteUri}]";
-            var message = $"{file.FileUri.LocalPath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}{codeDescription}";
+            var message = $"{file.FileHandle.Uri}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}{codeDescription}";
 
             switch (diagnostic.Level)
             {

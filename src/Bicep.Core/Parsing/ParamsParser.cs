@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Immutable;
 using Bicep.Core.Syntax;
 
@@ -60,6 +61,8 @@ namespace Bicep.Core.Parsing
                             LanguageConstants.ParameterKeyword => this.ParameterAssignment(),
                             LanguageConstants.VariableKeyword => this.VariableDeclaration(leadingNodes),
                             LanguageConstants.ImportKeyword => this.CompileTimeImportDeclaration(ExpectKeyword(LanguageConstants.ImportKeyword), leadingNodes),
+                            LanguageConstants.ExtensionKeyword => this.ExtensionConfigAssignment(leadingNodes),
+                            LanguageConstants.TypeKeyword => this.TypeDeclaration(leadingNodes),
                             _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration()),
                         },
                         TokenType.NewLine => this.NewLine(),
@@ -105,6 +108,32 @@ namespace Bicep.Core.Parsing
             var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
 
             return new ParameterAssignmentSyntax(keyword, name, assignment, value);
+        }
+
+        private ExtensionConfigAssignmentSyntax ExtensionConfigAssignment(IEnumerable<SyntaxBase> leadingNodes)
+        {
+            var extKeyword = ExpectKeyword(LanguageConstants.ExtensionKeyword);
+
+            var specificationSyntax = reader.Peek().Type switch
+            {
+                TokenType.Identifier => new IdentifierSyntax(reader.Read()),
+                _ => this.WithRecovery(
+                    () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedExtensionSpecification()),
+                    RecoveryFlags.None,
+                    TokenType.NewLine)
+            };
+
+            var withClause = this.WithRecovery(this.ExtensionWithClause, GetSuppressionFlag(specificationSyntax), TokenType.NewLine);
+
+            return new(leadingNodes, extKeyword, specificationSyntax, withClause);
+        }
+
+        private ExtensionWithClauseSyntax ExtensionWithClause()
+        {
+            var keyword = this.ExpectKeyword(LanguageConstants.WithKeyword);
+            var config = this.WithRecovery(() => this.Object(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine);
+
+            return new(keyword, config);
         }
     }
 }

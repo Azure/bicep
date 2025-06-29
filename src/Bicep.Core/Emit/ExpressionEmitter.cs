@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Immutable;
+
 using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Expression.Serializers;
 using Bicep.Core.Intermediate;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Newtonsoft.Json.Linq;
 
@@ -137,7 +137,7 @@ namespace Bicep.Core.Emit
         {
             var converterForContext = this.converter.GetConverter(indexContext);
 
-            var resourceIdExpression = converterForContext.GetFullyQualifiedResourceId(moduleSymbol);
+            var resourceIdExpression = converterForContext.GetFullyQualifiedResourceId(moduleSymbol, indexContext?.Index);
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
 
             writer.WriteValue(serialized);
@@ -251,7 +251,7 @@ namespace Bicep.Core.Emit
                             // because the object syntax here does not match the JSON equivalent due to the presence of { "value": ... } wrappers
                             // for now, we will manually replace the copy index in the converted expression
                             // this approach will not work for nested property loops
-                            var visitor = new LanguageExpressionVisitor
+                            var visitor = new LanguageExpressionDelegatedVisitor
                             {
                                 OnFunctionExpression = function =>
                                 {
@@ -325,7 +325,9 @@ namespace Bicep.Core.Emit
             {
                 case ResourceFunctionCallExpression functionCall when
                     LanguageConstants.IdentifierComparer.Equals(functionCall.Name, AzResourceTypeProvider.GetSecretFunctionName):
-                    return ConvertModuleParameterGetSecret(functionCall);
+                    return ExpressionFactory.CreateObject(
+                        [ExpressionFactory.CreateObjectProperty("reference", ConvertToKeyVaultReference(functionCall))],
+                        functionCall.SourceSyntax);
                 case TernaryExpression ternary:
                     return new TernaryExpression(ternary.SourceSyntax, ternary.Condition, ConvertModuleParameter(ternary.True), ConvertModuleParameter(ternary.False));
                 default:
@@ -335,21 +337,58 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private static Expression ConvertModuleParameterGetSecret(ResourceFunctionCallExpression functionCall)
+        public static Expression ConvertModuleExtensionConfig(Expression extensionConfigValueExpr) =>
+            extensionConfigValueExpr switch
+            {
+                ResourceFunctionCallExpression functionCall when LanguageConstants.IdentifierComparer.Equals(functionCall.Name, AzResourceTypeProvider.GetSecretFunctionName)
+                    => ExpressionFactory.CreateObject(
+                        [ExpressionFactory.CreateObjectProperty("keyVaultReference", ConvertToKeyVaultReference(functionCall))],
+                        functionCall.SourceSyntax),
+                TernaryExpression ternary => new TernaryExpression(ternary.SourceSyntax, ternary.Condition, ConvertModuleExtensionConfig(ternary.True), ConvertModuleExtensionConfig(ternary.False)),
+                PropertyAccessExpression paExpr when IsExtensionConfigPropertyAccess(paExpr) => extensionConfigValueExpr,
+                _ => ExpressionFactory.CreateObject(
+                    [ExpressionFactory.CreateObjectProperty("value", extensionConfigValueExpr)],
+                    extensionConfigValueExpr.SourceSyntax)
+            };
+
+        private static ObjectExpression ConvertToKeyVaultReference(ResourceFunctionCallExpression functionCall)
         {
-            var properties = new List<ObjectPropertyExpression>();
-            properties.Add(ExpressionFactory.CreateObjectProperty("keyVault", ExpressionFactory.CreateObject(new[] {
-                ExpressionFactory.CreateObjectProperty("id", new PropertyAccessExpression(functionCall.Resource.SourceSyntax, functionCall.Resource, "id", AccessExpressionFlags.None)),
-            }, functionCall.SourceSyntax)));
-            properties.Add(ExpressionFactory.CreateObjectProperty("secretName", functionCall.Parameters[0]));
+            var properties = new List<ObjectPropertyExpression>
+            {
+                ExpressionFactory.CreateObjectProperty(
+                    "keyVault",
+                    ExpressionFactory.CreateObject(
+                        [
+                            ExpressionFactory.CreateObjectProperty(
+                                "id", new PropertyAccessExpression(functionCall.Resource.SourceSyntax, functionCall.Resource, "id", AccessExpressionFlags.None))
+                        ],
+                        functionCall.SourceSyntax)),
+                ExpressionFactory.CreateObjectProperty("secretName", functionCall.Parameters[0])
+            };
+
             if (functionCall.Parameters.Length > 1)
             {
                 properties.Add(ExpressionFactory.CreateObjectProperty("secretVersion", functionCall.Parameters[1]));
             }
 
-            return ExpressionFactory.CreateObject(new[] {
-                ExpressionFactory.CreateObjectProperty("reference", ExpressionFactory.CreateObject(properties))
-            }, functionCall.SourceSyntax);
+            return ExpressionFactory.CreateObject(properties);
+        }
+
+        private static bool IsExtensionConfigPropertyAccess(PropertyAccessExpression propertyAccessExpr)
+        {
+            // NOTE(kylealbert): Extension config property access has an intermediate object of value and key vault reference. When this
+            // expression type is used, we must make sure the expression aligns with the schema where we're generating the language expression.
+
+            // check we're accessing the config property...
+            var parent = propertyAccessExpr.Base;
+
+            if (parent is not PropertyAccessExpression { PropertyName: LanguageConstants.ExtensionConfigPropertyName } parentPropertyAccessExpr)
+            {
+                return false;
+            }
+
+            // ... of an extension reference
+            return parentPropertyAccessExpr.Base is ExtensionReferenceExpression;
         }
 
         public void EmitProperty(ObjectPropertyExpression property)

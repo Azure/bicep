@@ -489,9 +489,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         @secure()
                         param stgAccountName3 object
 
-                        #disable-next-line outputs-should-not-contain-secrets
-                        output s string = '${stgAccountName}${stgAccountName2}'
-
                         resource nested 'Microsoft.Resources/deployments@2021-04-01' = {
                           name: 'nested'
                           properties: {
@@ -518,7 +515,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         }
                         ",
                 [
-                    "[12] 'nested' is an outer scoped nested deployment that accesses secure string parameters ('stgAccountName', 'stgAccountName2'), which could expose their values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.",
+                    "[9] 'nested' is an outer scoped nested deployment that accesses secure string parameters ('stgAccountName', 'stgAccountName2'), which could expose their values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.",
                 ]);
         }
 

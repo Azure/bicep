@@ -18,15 +18,13 @@ namespace Bicep.LanguageServer.Handlers
         private readonly ILogger<BicepCompletionHandler> logger;
         private readonly ICompilationManager compilationManager;
         private readonly ICompletionProvider completionProvider;
-        private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly DocumentSelectorFactory documentSelectorFactory;
 
-        public BicepCompletionHandler(ILogger<BicepCompletionHandler> logger, ICompilationManager compilationManager, ICompletionProvider completionProvider, IFeatureProviderFactory featureProviderFactory, DocumentSelectorFactory documentSelectorFactory)
+        public BicepCompletionHandler(ILogger<BicepCompletionHandler> logger, ICompilationManager compilationManager, ICompletionProvider completionProvider, DocumentSelectorFactory documentSelectorFactory)
         {
             this.logger = logger;
             this.compilationManager = compilationManager;
             this.completionProvider = completionProvider;
-            this.featureProviderFactory = featureProviderFactory;
             this.documentSelectorFactory = documentSelectorFactory;
         }
 
@@ -34,7 +32,6 @@ namespace Bicep.LanguageServer.Handlers
         {
             var completions = Enumerable.Empty<CompletionItem>();
 
-            var featureProvider = featureProviderFactory.GetFeatureProvider(request.TextDocument.Uri.ToUriEncoded());
             var compilationContext = this.compilationManager.GetCompilation(request.TextDocument.Uri);
             if (compilationContext is null)
             {
@@ -44,7 +41,7 @@ namespace Bicep.LanguageServer.Handlers
 
             int offset = PositionHelper.GetOffset(compilationContext.LineStarts, request.Position);
 
-            var completionContext = BicepCompletionContext.Create(featureProvider, compilationContext.Compilation, offset);
+            var completionContext = BicepCompletionContext.Create(compilationContext.Compilation, offset);
 
             try
             {
@@ -60,14 +57,14 @@ namespace Bicep.LanguageServer.Handlers
 
         public override Task<CompletionItem> Handle(CompletionItem request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(request);
+            return this.completionProvider.Resolve(request, cancellationToken);
         }
 
         protected override CompletionRegistrationOptions CreateRegistrationOptions(CompletionCapability capability, ClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = documentSelectorFactory.CreateForBicepAndParams(),
             AllCommitCharacters = new Container<string>(),
-            ResolveProvider = false,
+            ResolveProvider = true,
             TriggerCharacters = new Container<string>(":", " ", ".", "/", "'", "@", "{", "#", "?")
         };
     }

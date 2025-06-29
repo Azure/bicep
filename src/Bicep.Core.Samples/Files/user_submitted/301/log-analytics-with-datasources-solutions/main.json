@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7661581430833195871"
+      "templateHash": "7925037426815391494"
     }
   },
   "parameters": {
@@ -24,9 +24,6 @@
     },
     "sku": {
       "type": "string",
-      "metadata": {
-        "description": "Sku of the workspace"
-      },
       "allowedValues": [
         "PerGB2018",
         "Free",
@@ -34,12 +31,15 @@
         "PerNode",
         "Standard",
         "Premium"
-      ]
+      ],
+      "metadata": {
+        "description": "Sku of the workspace"
+      }
     },
     "retentionInDays": {
       "type": "int",
-      "maxValue": 730,
       "minValue": 7,
+      "maxValue": 730,
       "metadata": {
         "description": "The workspace data retention in days, between 30 and 730"
       }
@@ -174,7 +174,7 @@
     },
     {
       "condition": "[parameters('enableDiagnostics')]",
-      "type": "Microsoft.Insights/diagnosticSettings",
+      "type": "microsoft.insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.OperationalInsights/workspaces/{0}', parameters('name'))]",
       "name": "[variables('diagnosticsName')]",
@@ -184,12 +184,6 @@
         "logs": [
           {
             "category": "Audit",
-            "enabled": true
-          }
-        ],
-        "metrics": [
-          {
-            "category": "AllMetrics",
             "enabled": true
           }
         ]

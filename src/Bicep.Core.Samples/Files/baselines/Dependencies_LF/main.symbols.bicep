@@ -64,8 +64,8 @@ resource resD 'My.Rp/myResourceType/childType@2020-01-01' = {
 }
 
 resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {
-//@[9:13) Resource resE. Type: My.Rp/myResourceType/childType@2020-01-01. Declaration start char: 0, length: 124
-  name: 'resC/resD'
+//@[9:13) Resource resE. Type: My.Rp/myResourceType/childType@2020-01-01. Declaration start char: 0, length: 126
+  name: 'resC/resD_2'
   properties: {
     resDRef: resD.id
   }

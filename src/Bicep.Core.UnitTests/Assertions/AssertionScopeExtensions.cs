@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
 using FluentAssertions.Execution;
 
 namespace Bicep.Core.UnitTests.Assertions
@@ -55,6 +57,15 @@ namespace Bicep.Core.UnitTests.Assertions
             assertionScope.AddReportable(
                 contextName,
                 () => PrintHelper.PrintWithAnnotations(bicepFile, annotations, 1, true));
+
+            return assertionScope;
+        }
+
+        public static AssertionScope WithAnnotatedSource(AssertionScope assertionScope, string fileText, ImmutableArray<int> lineStarts, string contextName, IEnumerable<PrintHelper.Annotation> annotations)
+        {
+            assertionScope.AddReportable(
+                contextName,
+                () => PrintHelper.PrintWithAnnotations(fileText, lineStarts, annotations, 1, true));
 
             return assertionScope;
         }

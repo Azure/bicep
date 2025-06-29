@@ -6,9 +6,9 @@ using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Semantics;
+using Bicep.Core.Text;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Analyzers.Linter
@@ -79,7 +79,7 @@ namespace Bicep.Core.Analyzers.Linter
                         DiagnosticLevel.Info,
                         DiagnosticSource.CoreLinter,
                         "Linter Disabled",
-                        string.Format(CoreResources.LinterDisabledFormatMessage, semanticModel.Configuration.ConfigFileUri?.LocalPath ?? IConfigurationManager.BuiltInConfigurationResourceName)));
+                        string.Format(CoreResources.LinterDisabledFormatMessage, semanticModel.Configuration.ConfigFileUri?.ToString() ?? IConfigurationManager.BuiltInConfigurationResourceName)));
                 }
             }
 
@@ -90,7 +90,7 @@ namespace Bicep.Core.Analyzers.Linter
         {
             var configMessage = model.Configuration.IsBuiltIn
                 ? CoreResources.BicepConfigNoCustomSettingsMessage
-                : string.Format(CoreResources.BicepConfigCustomSettingsFoundFormatMessage, model.Configuration.ConfigFileUri?.LocalPath);
+                : string.Format(CoreResources.BicepConfigCustomSettingsFoundFormatMessage, model.Configuration.ConfigFileUri?.ToString());
 
             return new Diagnostic(
                 TextSpan.TextDocumentStart,

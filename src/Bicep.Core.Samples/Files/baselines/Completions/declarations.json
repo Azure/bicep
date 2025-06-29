@@ -1,5 +1,19 @@
 [
   {
+    "label": "extension",
+    "kind": "keyword",
+    "detail": "Extension keyword",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_extension",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "extension"
+    }
+  },
+  {
     "label": "func",
     "kind": "snippet",
     "detail": "Function declaration",
@@ -417,37 +431,6 @@
           "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-app-insights"
-          }
-        }
-      ]
-    }
-  },
-  {
-    "label": "res-app-insights-alert-rules",
-    "kind": "snippet",
-    "detail": "Application Insights Alert Rules",
-    "documentation": {
-      "kind": "markdown",
-      "value": "```bicep\nresource appInsightsAlertRules 'Microsoft.Insights/alertrules@2016-03-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    name: 'name'\n    description: 'description'\n    isEnabled: false\n    condition: {\n      failedLocationCount: 'failedLocationCount'\n      'odata.type': 'Microsoft.Azure.Management.Insights.Models.LocationThresholdRuleCondition'\n      dataSource: {\n        'odata.type': 'Microsoft.Azure.Management.Insights.Models.RuleManagementEventDataSource'\n        resourceUri: 'resourceUri'\n      }\n      windowSize: 'windowSize'\n    }\n    action: {\n      'odata.type': 'Microsoft.Azure.Management.Insights.Models.RuleEmailAction'\n      sendToServiceOwners: true\n    }\n  }\n}\n\n```  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_res-app-insights-alert-rules",
-    "filterText": "res-app-insights-alert-rules Application Insights Alert Rules Microsoft.Insights/alertrules",
-    "insertTextFormat": "snippet",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "resource ${1:appInsightsAlertRules} 'Microsoft.Insights/alertrules@2016-03-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    name: ${4:'name'}\n    description: ${5:'description'}\n    isEnabled: false\n    condition: {\n      failedLocationCount: ${6:'failedLocationCount'}\n      'odata.type': '${7|Microsoft.Azure.Management.Insights.Models.LocationThresholdRuleCondition,Microsoft.Azure.Management.Insights.Models.ManagementEventRuleCondition,Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition|}'\n      dataSource: {\n        'odata.type': '${8|Microsoft.Azure.Management.Insights.Models.RuleManagementEventDataSource,Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource|}'\n        resourceUri: ${9:'resourceUri'}\n      }\n      windowSize: ${10:'windowSize'}\n    }\n    action: {\n      'odata.type': '${11|Microsoft.Azure.Management.Insights.Models.RuleEmailAction,Microsoft.Azure.Management.Insights.Models.RuleWebhookAction|}'\n      sendToServiceOwners: true\n    }\n  }\n}\n"
-    },
-    "command": {
-      "title": "top level snippet completion",
-      "command": "bicep.Telemetry",
-      "arguments": [
-        {
-          "EventName": "snippet/toplevel",
-          "Properties": {
-            "name": "res-app-insights-alert-rules"
           }
         }
       ]
@@ -1192,6 +1175,68 @@
           "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-data-lake"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "label": "res-deployment-script-az-cli",
+    "kind": "snippet",
+    "detail": "Deployment script AzureCLI",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource deploymentScript 'Microsoft.Resources/deploymentScripts@2023-08-01' = {\n  name: 'name'\n  location: location\n  kind: 'AzureCLI'\n  properties: {\n    azCliVersion: 'azCliVersion'\n    scriptContent: 'scriptContent'\n    retentionInterval: 'retentionInterval'\n  }\n}\n\n```  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-deployment-script-az-cli",
+    "filterText": "res-deployment-script-az-cli Deployment script AzureCLI Microsoft.Resources/deploymentScripts",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:deploymentScript} 'Microsoft.Resources/deploymentScripts@2023-08-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  kind: 'AzureCLI'\n  properties: {\n    azCliVersion: ${4:'azCliVersion'}\n    scriptContent: ${5:'scriptContent'}\n    retentionInterval: ${6:'retentionInterval'}\n  }\n}\n"
+    },
+    "command": {
+      "title": "top level snippet completion",
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "snippet/toplevel",
+          "Properties": {
+            "name": "res-deployment-script-az-cli"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "label": "res-deployment-script-az-powershell",
+    "kind": "snippet",
+    "detail": "Deployment script AzurePowerShell",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource deploymentScript 'Microsoft.Resources/deploymentScripts@2023-08-01' = {\n  name: 'name'\n  location: location\n  kind: 'AzurePowerShell'\n  properties: {\n    azPowerShellVersion: 'azPowerShellVersion'\n    scriptContent: 'scriptContent'\n    retentionInterval: 'retentionInterval'\n  }\n}\n\n```  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-deployment-script-az-powershell",
+    "filterText": "res-deployment-script-az-powershell Deployment script AzurePowerShell Microsoft.Resources/deploymentScripts",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:deploymentScript} 'Microsoft.Resources/deploymentScripts@2023-08-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  kind: 'AzurePowerShell'\n  properties: {\n    azPowerShellVersion: ${4:'azPowerShellVersion'}\n    scriptContent: ${5:'scriptContent'}\n    retentionInterval: ${6:'retentionInterval'}\n  }\n}\n"
+    },
+    "command": {
+      "title": "top level snippet completion",
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "snippet/toplevel",
+          "Properties": {
+            "name": "res-deployment-script-az-powershell"
           }
         }
       ]

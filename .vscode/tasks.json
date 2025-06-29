@@ -49,8 +49,19 @@
                 "cwd": "${workspaceFolder}/src/vscode-bicep"
             },
             "dependsOn": [
-                "Build Language Server for VSIX"
+                "Build Language Server for VSIX",
+                "Build VSCode UI"
             ]
+        },
+        {
+            "label": "Build VSCode UI",
+            "command": "npm",
+            "args": ["run", "build", "--loglevel", "silent"],
+            "type": "shell",
+            "problemMatcher": "$tsc-watch",
+            "options": {
+                "cwd": "${workspaceFolder}/src/vscode-bicep-ui"
+            }
         },
         {
             "label": "Build WASM for Playground",
@@ -80,10 +91,11 @@
             "type": "process",
             "args": [
                 "test",
+                "--",
                 "--filter",
                 "TestCategory=Baseline",
-                "--",
-                "TestRunParameters.Parameter(name=\"SetBaseLine\", value=\"true\")",
+                "--test-parameter",
+                "SetBaseLine=true",
             ],
             "problemMatcher": "$msCompile"
         }

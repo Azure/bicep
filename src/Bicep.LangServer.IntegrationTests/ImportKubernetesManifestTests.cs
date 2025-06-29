@@ -35,7 +35,7 @@ namespace Bicep.LangServer.IntegrationTests
             using var helper = await LanguageServerHelper.StartServer(
                 this.TestContext,
                 options => options.OnTelemetryEvent(telemetryEventsListener.AddMessage),
-                services => services.WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true)));
+                services => services.WithFeatureOverrides(new(TestContext)));
             var client = helper.Client;
 
             var response = await client.SendRequest(new ImportKubernetesManifestRequest(yamlFile.OutputFilePath), default);
@@ -48,7 +48,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             bicepFile.ShouldHaveExpectedValue();
 
-            CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(ExtensibilityEnabled: true)), bicepFile.ReadFromOutputFolder()).Should().GenerateATemplate();
+            CompilationHelper.Compile(bicepFile.ReadFromOutputFolder()).Should().GenerateATemplate();
         }
 
         [TestMethod]

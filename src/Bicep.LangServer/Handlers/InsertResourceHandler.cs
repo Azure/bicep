@@ -17,8 +17,9 @@ using Bicep.Core.Resources;
 using Bicep.Core.Rewriters;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
-using Bicep.Core.Workspaces;
+using Bicep.Core.Text;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
@@ -52,7 +53,8 @@ namespace Bicep.LanguageServer.Handlers
             ILanguageServerFacade server,
             ICompilationManager compilationManager,
             IAzResourceProvider azResourceProvider,
-            ITelemetryProvider telemetryProvider)
+            ITelemetryProvider telemetryProvider,
+            ISourceFileFactory sourceFileFactory)
         {
             this.compiler = compiler;
             this.server = server;
@@ -193,11 +195,11 @@ namespace Bicep.LanguageServer.Handlers
                 [resourceDeclaration],
                 SyntaxFactory.EndOfFileToken);
 
-            BicepSourceFile bicepFile = SourceFileFactory.CreateBicepFile(new Uri("inmemory:///generated.bicep"), program.ToString());
+            BicepSourceFile bicepFile = compiler.SourceFileFactory.CreateBicepFile(new Uri("inmemory:///generated.bicep"), program.ToString());
 
             var workspace = new Workspace();
             workspace.UpsertSourceFile(bicepFile);
-            var compilation = compiler.CreateCompilationWithoutRestore(bicepFile.FileUri, workspace);
+            var compilation = compiler.CreateCompilationWithoutRestore(bicepFile.Uri, workspace);
 
             bicepFile = RewriterHelper.RewriteMultiple(
                 compiler,
@@ -208,7 +210,7 @@ namespace Bicep.LanguageServer.Handlers
                 model => new ReadOnlyPropertyRemovalRewriter(model));
 
             var printerOptions = configuration.Formatting.Data;
-            var printed = PrettyPrinterV2.PrintValid(program, printerOptions);
+            var printed = PrettyPrinterV2.PrintValid(bicepFile.ProgramSyntax, printerOptions);
 
             var newline = printerOptions.NewlineKind.ToEscapeSequence();
             var newlineCharacters = newline.ToCharArray();

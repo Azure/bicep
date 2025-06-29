@@ -1,20 +1,26 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Immutable;
+
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Emit;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
+using Bicep.IO.InMemory;
+using Bicep.TextFixtures.Assertions;
+using Bicep.TextFixtures.IO;
+using Bicep.TextFixtures.Mocks;
+using Bicep.TextFixtures.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -26,11 +32,13 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class ModuleTests
     {
+        private readonly TestCompiler compiler = TestCompiler.ForMockFileSystemCompilation();
+
         private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
 
-        private static readonly MockRepository Repository = new(MockBehavior.Strict);
-
         private ServiceBuilder ServicesWithResourceTyped => new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceTypedParamsAndOutputsEnabled: true));
+
+        private ServiceBuilder ServicesWithModuleIdentity => new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, ModuleExtensionConfigsEnabled: true, ModuleIdentityEnabled: true));
 
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -83,10 +91,10 @@ output outputb string = '${inputa}-${inputb}'
 
             var compilation = Services.BuildCompilation(files, mainUri);
 
-            var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
             success.Should().BeTrue();
-            GetTemplate(compilation).Should().NotBeEmpty();
+            compilation.GetTestTemplate().Should().NotBeEmpty();
         }
 
         [TestMethod]
@@ -112,7 +120,7 @@ module mainRecursive 'main.bicep' = {
 
             var compilation = Services.BuildCompilation(files, mainUri);
 
-            var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
                 ("BCP094", DiagnosticLevel.Error, "This module references itself, which is not allowed."),
             });
@@ -166,7 +174,7 @@ module main 'main.bicep' = {
 
             var compilation = Services.BuildCompilation(files, mainUri);
 
-            var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
                 ("BCP095", DiagnosticLevel.Error, "The file is involved in a cycle (\"/modulea.bicep\" -> \"/moduleb.bicep\" -> \"/main.bicep\")."),
             });
@@ -181,22 +189,20 @@ module main 'main.bicep' = {
 
         private delegate bool TryReadDelegate(Uri fileUri, out string? fileContents, out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder);
 
-        private static void SetupFileReaderMock(Mock<IFileResolver> mockFileResolver, Uri fileUri, string? fileContents, DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder)
-        {
-            mockFileResolver.Setup(x => x.TryRead(fileUri)).Returns(ResultHelper.Create(fileContents, failureBuilder));
-        }
-
         [TestMethod]
         public void SourceFileGroupingBuilder_build_should_throw_diagnostic_exception_if_entrypoint_file_read_fails()
         {
             var fileUri = new Uri("file:///path/to/main.bicep");
 
-            var mockFileResolver = Repository.Create<IFileResolver>();
-            var mockDispatcher = Repository.Create<IModuleDispatcher>().Object;
-            var mockConfigurationManager = Repository.Create<IConfigurationManager>().Object;
-            SetupFileReaderMock(mockFileResolver, fileUri, null, x => x.ErrorOccurredReadingFile("Mock read failure!"));
+            var fileHandleMock = StrictMock.Of<IFileHandle>();
+            fileHandleMock.Setup(x => x.OpenRead()).Throws(new IOException("Mock read failure!"));
 
-            Action buildAction = () => SourceFileGroupingBuilder.Build(mockFileResolver.Object, mockDispatcher, mockConfigurationManager, new Workspace(), fileUri, BicepTestConstants.FeatureProviderFactory);
+            var fileExplorerMock = StrictMock.Of<IFileExplorer>();
+            fileExplorerMock.Setup(x => x.GetFile(fileUri.ToIOUri())).Returns(fileHandleMock.Object);
+
+            var mockDispatcher = StrictMock.Of<IModuleDispatcher>().Object;
+
+            Action buildAction = () => SourceFileGroupingBuilder.Build(fileExplorerMock.Object, mockDispatcher, new Workspace(), BicepTestConstants.SourceFileFactory, fileUri);
             buildAction.Should().Throw<DiagnosticException>()
                 .And.Diagnostic.Should().HaveCodeAndSeverity("BCP091", DiagnosticLevel.Error).And.HaveMessage("An error occurred reading file. Mock read failure!");
         }
@@ -205,7 +211,7 @@ module main 'main.bicep' = {
         public async Task Module_should_include_diagnostic_if_module_file_cannot_be_resolved()
         {
             var mainFileUri = new Uri("file:///path/to/main.bicep");
-            var mainFileContents = @"
+            var mainFileText = @"
 param inputa string
 param inputb string
 
@@ -217,17 +223,10 @@ module modulea 'modulea.bicep' = {
   }
 }
 ";
+            var result = await this.compiler.CompileInline(mainFileText);
 
-            var mockFileResolver = Repository.Create<IFileResolver>();
-            SetupFileReaderMock(mockFileResolver, mainFileUri, mainFileContents, null);
-            mockFileResolver.Setup(x => x.TryResolveFilePath(mainFileUri, "modulea.bicep")).Returns((Uri?)null);
-
-            var compiler = ServiceBuilder.Create(s => s.WithFileResolver(mockFileResolver.Object).WithDisabledAnalyzersConfiguration()).GetCompiler();
-            var compilation = await compiler.CreateCompilation(mainFileUri);
-
-            var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
-            diagnosticsByFile[mainFileUri].Should().HaveDiagnostics(new[] {
-                ("BCP093", DiagnosticLevel.Error, "File path \"modulea.bicep\" could not be resolved relative to \"/path/to/main.bicep\"."),
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP091", DiagnosticLevel.Error, $"An error occurred reading file. Could not find file '{TestFileUri.FromMockFileSystemPath("modulea.bicep")}'."),
             });
         }
 
@@ -297,11 +296,11 @@ output outputc2 int = inputb + 1
 
             var compilation = Services.BuildCompilation(files, mainUri);
 
-            var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
             success.Should().BeTrue();
 
-            var templateString = GetTemplate(compilation);
+            var templateString = compilation.GetTestTemplate();
             var template = JToken.Parse(templateString);
             template.Should().NotBeNull();
 
@@ -359,17 +358,15 @@ module modulea 'modulea.bicep' = {
   }
 }
 ";
-            var mockFileResolver = Repository.Create<IFileResolver>();
-            SetupFileReaderMock(mockFileResolver, mainUri, mainFileContents, null);
-            SetupFileReaderMock(mockFileResolver, moduleAUri, null, x => x.ErrorOccurredReadingFile("Mock read failure!"));
-            mockFileResolver.Setup(x => x.TryResolveFilePath(mainUri, "modulea.bicep")).Returns(moduleAUri);
+            var fileExplorer = new InMemoryFileExplorer();
+            fileExplorer.GetFile(mainUri.ToIOUri()).Write(mainFileContents);
 
-            var compiler = ServiceBuilder.Create(s => s.WithFileResolver(mockFileResolver.Object).WithDisabledAnalyzersConfiguration()).GetCompiler();
+            var compiler = ServiceBuilder.Create(s => s.WithFileExplorer(fileExplorer).WithDisabledAnalyzersConfiguration()).GetCompiler();
             var compilation = await compiler.CreateCompilation(mainUri);
 
-            var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
-                ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. Mock read failure!"),
+                ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. File '/path/to/modulea.bicep' does not exist."),
             });
         }
 
@@ -652,7 +649,7 @@ resource fake 'Another.Fake/Type@2019-06-01' = {
 
 output storage resource 'Another.Fake/Type@2019-06-01' = fake
 "));
-            var diagnosticsMap = result.Compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.FileUri, kvp => kvp.Value);
+            var diagnosticsMap = result.Compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.Uri, kvp => kvp.Value);
             using (new AssertionScope())
             {
                 diagnosticsMap[InMemoryFileResolver.GetFileUri("/path/to/module.bicep")].Should().HaveDiagnostics(new[]
@@ -721,7 +718,7 @@ module mod './foo.bicepparam' = {
         [DataTestMethod]
         public void Module_name_is_generated_correctly_when_optional_module_names_enabled(string symbolicName, string symbolicNamePrefix)
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, OptionalModuleNamesEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
             var result = CompilationHelper.Compile(
                 services,
 ("main.bicep", $@"
@@ -731,7 +728,7 @@ module {symbolicName} 'mod.bicep' = {{}}
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
-            result.Template.Should().HaveValueAtPath("$.resources[0].name", $"[format('{symbolicNamePrefix}-{{0}}', uniqueString('{symbolicName}', deployment().name))]");
+            result.Template.Should().HaveValueAtPath($"$.resources.{symbolicName}.name", $"[format('{symbolicNamePrefix}-{{0}}', uniqueString('{symbolicName}', deployment().name))]");
         }
 
         [DataRow("a", "a")]
@@ -742,7 +739,7 @@ module {symbolicName} 'mod.bicep' = {{}}
         [DataTestMethod]
         public void Module_collection_name_is_generated_correctly_when_optional_module_names_enabled(string symbolicName, string symbolicNamePrefix)
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, OptionalModuleNamesEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
             var result = CompilationHelper.Compile(
                 services,
 ("main.bicep", $@"
@@ -753,34 +750,361 @@ module {symbolicName} 'mod.bicep' = [for x in []: {{
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
-            result.Template.Should().HaveValueAtPath("$.resources[0].name", $"[format('{symbolicNamePrefix}-{{0}}-{{1}}', copyIndex(), uniqueString('{symbolicName}', deployment().name))]");
+            result.Template.Should().HaveValueAtPath($"$.resources.{symbolicName}.name", $"[format('{symbolicNamePrefix}-{{0}}-{{1}}', copyIndex(), uniqueString('{symbolicName}', deployment().name))]");
         }
 
-        private static string GetTemplate(Compilation compilation)
+        [DataRow("a", "a")]
+        [DataRow("hello", "hello")]
+        [DataRow("this______has_________fifty_____________characters", "this______has_________fifty_____________characters")]
+        [DataRow("this______has_________fifty_one__________characters", "this______has_________fifty_one__________character")]
+        [DataRow("module_symbolic_name_with_a_super_long_name_that_has_seventy_seven_characters", "module_symbolic_name_with_a_super_long_name_that_h")]
+        [DataTestMethod]
+        public void Module_with_generated_name_can_be_referenced_correctly(string symbolicName, string symbolicNamePrefix)
         {
-            var stringBuilder = new StringBuilder();
-            var stringWriter = new StringWriter(stringBuilder);
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
+            var result = CompilationHelper.Compile(services,
+                ("main.bicep", $$"""
+                    module {{symbolicName}} 'mod1.bicep' = {}
 
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
-            emitter.Emit(stringWriter);
+                    output name string = {{symbolicName}}.name
+                    """),
+                ("mod1.bicep", ""));
 
-            return stringBuilder.ToString();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            result.Template.Should().HaveValueAtPath("$.outputs.name.value", $"[format('{symbolicNamePrefix}-{{0}}', uniqueString('{symbolicName}', deployment().name))]");
         }
 
-        private static (bool success, IDictionary<Uri, ImmutableArray<IDiagnostic>> diagnosticsByFile) GetSuccessAndDiagnosticsByFile(Compilation compilation)
+        [DataRow("a", "a")]
+        [DataRow("hello", "hello")]
+        [DataRow("this______has_______forty_six_______characters", "this______has_______forty_six_______characters")]
+        [DataRow("this______has_______forty_seven______characters", "this______has_______forty_seven______character")]
+        [DataRow("module_symbolic_name_with_a_super_long_name_that_has_seventy_seven_characters", "module_symbolic_name_with_a_super_long_name_th")]
+        [DataTestMethod]
+        public void Module_collection_with_generated_name_can_be_referenced_correctly(string symbolicName, string symbolicNamePrefix)
         {
-            var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.FileUri, kvp => kvp.Value);
-            var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => !d.IsError());
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
+            var result = CompilationHelper.Compile(services,
+                ("main.bicep", $$"""
+                    module {{symbolicName}} 'mod.bicep' = [for _ in range(0, 10): {}]
 
-            return (success, diagnosticsByFile);
+                    output firstModName string = {{symbolicName}}[0].name
+                    output allModNames string[] = [for i in range(0, 10): {{symbolicName}}[i].name]
+                    """),
+                ("mod.bicep", ""));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            result.Template.Should().HaveValueAtPath("$.outputs.firstModName.value", $"[format('{symbolicNamePrefix}-{{0}}-{{1}}', 0, uniqueString('{symbolicName}', deployment().name))]");
+            result.Template.Should().HaveValueAtPath("$.outputs.firstModName.value", $"[format('{symbolicNamePrefix}-{{0}}-{{1}}', 0, uniqueString('{symbolicName}', deployment().name))]");
+            result.Template.Should().HaveValueAtPath("$.outputs.allModNames.copy.input", $"[format('{symbolicNamePrefix}-{{0}}-{{1}}', range(0, 10)[copyIndex()], uniqueString('{symbolicName}', deployment().name))]");
+        }
+
+        [TestMethod]
+        public void Module_can_be_compiled_with_identity_with_param_and_function_successfully()
+        {
+            var mainUri = new Uri("file:///main.bicep");
+            var moduleAUri = new Uri("file:///modulea.bicep");
+            var moduleBUri = new Uri("file:///moduleb.bicep");
+
+            var files = new Dictionary<Uri, string>
+            {
+                [mainUri] = """
+param inputa string
+param inputb string
+param identityId string
+
+module modulea 'modulea.bicep' = {
+  name: 'modulea'
+  params: {
+    inputa: inputa
+    inputb: inputb
+  }
+}
+
+func test () string => 'val'
+
+module moduleb 'moduleb.bicep' = {
+  name: 'moduleb'
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${identityId}': {}
+      '${test()}': {}
+      id: {}
+    }
+  }
+  params: {
+    inputa: inputa
+    inputb: inputb
+  }
+}
+
+module modulec 'moduleb.bicep' = {
+  name: 'modulec'
+  identity: {
+    type: 'None'
+  }
+  params: {
+    inputa: inputa
+    inputb: inputb
+  }
+}
+
+""",
+                [moduleAUri] = """
+param inputa string
+param inputb string
+
+output outputa string = '${inputa}-${inputb}'
+""",
+                [moduleBUri] = """
+param inputa string
+param inputb string
+
+output outputb string = '${inputa}-${inputb}'
+"""
+            };
+
+            var compilation = ServicesWithModuleIdentity.BuildCompilation(files, mainUri);
+
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
+            diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
+            success.Should().BeTrue();
+            compilation.GetTestTemplate().Should().NotBeEmpty();
+            var templateString = compilation.GetTestTemplate();
+            templateString.Should().NotBeNull();
+            var template = JToken.Parse(templateString);
+            template.Should().NotBeNull();
+            var test = template.SelectToken("resources.moduleb.identity")?.ToString();
+            template.Should().HaveValueAtPath("$.resources.moduleb.identity", new JObject()
+            {
+                ["type"] = new JValue("UserAssigned"),
+                ["userAssignedIdentities"] = new JObject()
+                {
+                    ["[format('{0}', parameters('identityId'))]"] = new JObject(),
+                    ["[format('{0}', __bicep.test())]"] = new JObject(),
+                    ["id"] = new JObject(),
+                },
+            });
+            template.Should().HaveValueAtPath("$.resources.modulec.identity", new JObject()
+            {
+                ["type"] = new JValue("None"),
+            });
+            template.Should().HaveValueAtPath("$.resources.modulec.apiVersion", new JValue("2025-04-01"));
+        }
+
+        [TestMethod]
+        public void Module_can_be_compiled_with_identity_successfully()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithModuleIdentity,
+("main.bicep", """
+module mod './module.bicep' = {
+    identity: {
+        type: 'UserAssigned'
+        userAssignedIdentities: {
+            identityId: {}
+        }
+    }
+    name: 'test'
+    params: {
+        keyVaultUri: 'keyVaultUri'
+        identityId: 'identityId'
+    }
+}
+
+"""),
+("module.bicep", """
+param keyVaultUri string
+param identityId string
+
+output out string = '${keyVaultUri}-${identityId}'
+"""));
+            result.Should().NotHaveAnyDiagnostics();
+
+            result.Template.Should().HaveValueAtPath("$.resources.mod.identity", new JObject()
+            {
+                ["type"] = new JValue("UserAssigned"),
+                ["userAssignedIdentities"] = new JObject()
+                {
+                    ["identityId"] = new JObject(),
+                },
+            });
+            result.Template.Should().HaveValueAtPath("$.resources.mod.apiVersion", new JValue("2025-04-01"));
+        }
+
+        [TestMethod]
+        public void Module_can_be_compiled_with_identity_successfully_with_object_param()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithModuleIdentity,
+("main.bicep", """
+param identity object
+module mod './module.bicep' = {
+    identity: identity
+    name: 'test'
+    params: {
+        keyVaultUri: 'keyVaultUri'
+        identityId: 'identityId'
+    }
+}
+
+"""),
+("module.bicep", """
+param keyVaultUri string
+param identityId string
+
+output out string = '${keyVaultUri}-${identityId}'
+"""));
+            result.Should().NotHaveAnyDiagnostics();
+
+            result.Template.Should().HaveValueAtPath("$.resources.mod.identity", new JValue("[parameters('identity')]"));
+
+            result.Template.Should().HaveValueAtPath("$.resources.mod.apiVersion", new JValue("2025-04-01"));
+        }
+
+        [TestMethod]
+        public void Module_incorrect_identity_raises_diagnostics()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithModuleIdentity,
+("main.bicep", """
+module mod './module.bicep' = {
+    identity: {
+        userAssignedIdentities: [
+            'val'
+        ]
+        additionalProperty: {}
+    }
+    name: 'test'
+    params: {
+        keyVaultUri: 'keyVaultUri'
+        identityId: 'identityId'
+    }
+}
+
+"""),
+("module.bicep", """
+param keyVaultUri string
+param identityId string
+
+output out string = '${keyVaultUri}-${identityId}'
+"""));
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"type\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"userAssignedIdentities\" expected a value of type \"object\" but the provided value is of type \"['val']\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"additionalProperty\" is not allowed on objects of type \"identity\". Permissible properties include \"type\".")
+            });
+        }
+
+        [TestMethod]
+        public void Module_invalid_identity_type_raises_diagnostics()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithModuleIdentity,
+("main.bicep", """
+module mod './module.bicep' = {
+    identity: {
+        type: 'SystemAssigned'
+    }
+    name: 'test'
+    params: {
+        keyVaultUri: 'keyVaultUri'
+        identityId: 'identityId'
+    }
+}
+
+"""),
+("module.bicep", """
+param keyVaultUri string
+param identityId string
+
+output out string = '${keyVaultUri}-${identityId}'
+"""));
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP088", DiagnosticLevel.Error, "The property \"type\" expected a value of type \"'None' | 'UserAssigned'\" but the provided value is of type \"'SystemAssigned'\". Did you mean \"'UserAssigned'\"?")
+            });
+        }
+
+        [TestMethod]
+        public void Module_identity_not_enabled_raises_diagnostics()
+        {
+            var result = CompilationHelper.Compile(
+                Services,
+("main.bicep", """
+module mod './module.bicep' = {
+    identity: {
+        type: 'None'
+    }
+    name: 'test'
+    params: {
+        keyVaultUri: 'keyVaultUri'
+        identityId: 'identityId'
+    }
+}
+
+"""),
+("module.bicep", """
+param keyVaultUri string
+param identityId string
+
+output out string = '${keyVaultUri}-${identityId}'
+"""));
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP037", DiagnosticLevel.Error, "The property \"identity\" is not allowed on objects of type \"module\". Permissible properties include \"dependsOn\", \"scope\".")
+            });
+        }
+
+        [TestMethod]
+        public void Module_with_identity_runtime_value_raises_diagnostic()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithModuleIdentity,
+("main.bicep", """
+module outputModule './modoutput.bicep' = {
+    name: 'modWithOutput'
+}
+
+module mod './module.bicep' = {
+    identity: {
+        type: 'UserAssigned'
+        userAssignedIdentities: {
+            '${outputModule.outputs.runtimevalue}': {}
+        }
+    }
+    name: 'test'
+    params: {
+        keyVaultUri: 'keyVaultUri'
+        identityId: 'identityId'
+    }
+}
+
+"""),
+("module.bicep", """
+param keyVaultUri string
+param identityId string
+
+output out string = '${keyVaultUri}-${identityId}'
+"""),
+("modoutput.bicep", """
+output runtimevalue string = 'runtime'
+"""));
+            result.Should().HaveDiagnostics(new[]
+           {
+                ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"identity\" property of the \"module\" type, which requires a value that can be calculated at the start of the deployment. Properties of outputModule which can be calculated at the start include \"name\".")
+            });
         }
 
         private static void ModuleTemplateHashValidator(Compilation compilation, string expectedTemplateHash)
         {
-            var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
+            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
             success.Should().BeTrue();
-            var templateString = GetTemplate(compilation);
+            var templateString = compilation.GetTestTemplate();
             var template = JToken.Parse(templateString);
             template.Should().NotBeNull();
             template.SelectToken(BicepTestConstants.GeneratorTemplateHashPath)?.ToString().Should().Be(expectedTemplateHash);

@@ -41,10 +41,10 @@ public class KestrelProviderExtension : ProviderExtension
         {
             switch (connectionOptions)
             {
-                case { Socket: {}, Pipe: null }:
+                case { Socket: { }, Pipe: null }:
                     options.ListenUnixSocket(connectionOptions.Socket, listenOptions => listenOptions.Protocols = HttpProtocols.Http2);
                     break;
-                case { Socket: null, Pipe: {} }:
+                case { Socket: null, Pipe: { } }:
                     options.ListenNamedPipe(connectionOptions.Pipe, listenOptions => listenOptions.Protocols = HttpProtocols.Http2);
                     break;
                 default:

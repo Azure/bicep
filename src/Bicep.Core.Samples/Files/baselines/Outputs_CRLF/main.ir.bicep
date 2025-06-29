@@ -137,31 +137,30 @@ output isWestUs bool = resourceGroup().location != 'westus' ? false : true
 output expressionBasedIndexer string = {
 //@[00:0140) ├─DeclaredOutputExpression { Name = expressionBasedIndexer }
 //@[30:0036) | ├─AmbientTypeReferenceExpression { Name = string }
-//@[39:0140) | └─AccessChainExpression
-//@[39:0136) |   ├─ArrayAccessExpression
-//@[39:0110) |   | └─ObjectExpression
+//@[39:0140) | └─PropertyAccessExpression { PropertyName = foo }
+//@[39:0136) |   └─ArrayAccessExpression
+//@[39:0110) |     └─ObjectExpression
   eastus: {
-//@[02:0031) |   |   ├─ObjectPropertyExpression
-//@[02:0008) |   |   | ├─StringLiteralExpression { Value = eastus }
-//@[10:0031) |   |   | └─ObjectExpression
+//@[02:0031) |       ├─ObjectPropertyExpression
+//@[02:0008) |       | ├─StringLiteralExpression { Value = eastus }
+//@[10:0031) |       | └─ObjectExpression
     foo: true
-//@[04:0013) |   |   |   └─ObjectPropertyExpression
-//@[04:0007) |   |   |     ├─StringLiteralExpression { Value = foo }
-//@[09:0013) |   |   |     └─BooleanLiteralExpression { Value = True }
+//@[04:0013) |       |   └─ObjectPropertyExpression
+//@[04:0007) |       |     ├─StringLiteralExpression { Value = foo }
+//@[09:0013) |       |     └─BooleanLiteralExpression { Value = True }
   }
   westus: {
-//@[02:0032) |   |   └─ObjectPropertyExpression
-//@[02:0008) |   |     ├─StringLiteralExpression { Value = westus }
-//@[10:0032) |   |     └─ObjectExpression
+//@[02:0032) |       └─ObjectPropertyExpression
+//@[02:0008) |         ├─StringLiteralExpression { Value = westus }
+//@[10:0032) |         └─ObjectExpression
     foo: false
-//@[04:0014) |   |       └─ObjectPropertyExpression
-//@[04:0007) |   |         ├─StringLiteralExpression { Value = foo }
-//@[09:0014) |   |         └─BooleanLiteralExpression { Value = False }
+//@[04:0014) |           └─ObjectPropertyExpression
+//@[04:0007) |             ├─StringLiteralExpression { Value = foo }
+//@[09:0014) |             └─BooleanLiteralExpression { Value = False }
   }
 }[resourceGroup().location].foo
-//@[02:0026) |   | ├─PropertyAccessExpression { PropertyName = location }
-//@[02:0017) |   | | └─FunctionCallExpression { Name = resourceGroup }
-//@[28:0031) |   └─StringLiteralExpression { Value = foo }
+//@[02:0026) |     ├─PropertyAccessExpression { PropertyName = location }
+//@[02:0017) |     | └─FunctionCallExpression { Name = resourceGroup }
 
 var secondaryKeyIntermediateVar = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01').secondaryKey
 //@[34:0106) | └─PropertyAccessExpression { PropertyName = secondaryKey }

@@ -7,14 +7,19 @@ using System.Globalization;
 using Azure.Deployments.Core.Definitions.Identifiers;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
+using Azure.Deployments.Expression.Extensions;
+using Azure.Deployments.Templates.Expressions;
 using Bicep.Core;
+using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
-using Bicep.Core.Workspaces;
 using Bicep.Decompiler.ArmHelpers;
 using Bicep.Decompiler.BicepHelpers;
 using Bicep.Decompiler.Exceptions;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -25,6 +30,7 @@ namespace Bicep.Decompiler
         private const string ResourceCopyLoopIndexVar = "i";
         private const string PropertyCopyLoopIndexVar = "j";
 
+        private ISourceFileFactory sourceFileFactory;
         private INamingResolver nameResolver;
         private readonly Workspace workspace;
         private readonly Uri bicepFileUri;
@@ -32,8 +38,9 @@ namespace Bicep.Decompiler
         private readonly Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule;
         private readonly DecompileOptions options;
 
-        private TemplateConverter(Workspace workspace, Uri bicepFileUri, JObject template, Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule, DecompileOptions options)
+        private TemplateConverter(ISourceFileFactory sourceFileFactory, Workspace workspace, Uri bicepFileUri, JObject template, Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule, DecompileOptions options)
         {
+            this.sourceFileFactory = sourceFileFactory;
             this.workspace = workspace;
             this.bicepFileUri = bicepFileUri;
             this.template = template;
@@ -43,6 +50,7 @@ namespace Bicep.Decompiler
         }
 
         public static (ProgramSyntax programSyntax, IReadOnlyDictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule) DecompileTemplate(
+            ISourceFileFactory sourceFileFactory,
             Workspace workspace,
             Uri bicepFileUri,
             string content,
@@ -51,6 +59,7 @@ namespace Bicep.Decompiler
             JObject templateObject = JTokenHelpers.LoadJson(content, JObject.Load, options.IgnoreTrailingInput);
 
             var instance = new TemplateConverter(
+                sourceFileFactory,
                 workspace,
                 bicepFileUri,
                 templateObject,
@@ -61,6 +70,7 @@ namespace Bicep.Decompiler
         }
 
         public static SyntaxBase? DecompileJsonValue(
+            ISourceFileFactory sourceFileFactory,
             Workspace workspace,
             Uri bicepFileUri,
             string jsonInput,
@@ -69,6 +79,7 @@ namespace Bicep.Decompiler
             JToken jToken = JTokenHelpers.LoadJson(jsonInput, JToken.Load, options.IgnoreTrailingInput);
 
             var instance = new TemplateConverter(
+                sourceFileFactory,
                 workspace,
                 bicepFileUri,
                 new JObject(),
@@ -78,7 +89,7 @@ namespace Bicep.Decompiler
             return instance.ParseJToken(jToken);
         }
 
-        private void RegisterNames(IEnumerable<JProperty> parameters, IEnumerable<JToken> resources, IEnumerable<JProperty> variables, IEnumerable<JProperty> outputs)
+        private void RegisterNames(IEnumerable<JProperty> parameters, IEnumerable<JToken> resources, IEnumerable<JProperty> variables, IEnumerable<JProperty> outputs, IEnumerable<JToken> functions)
         {
             // Register names in order: parameters, outputs, resources, variables to deal with naming clashes.
             // This avoids renaming 'external' template symbolic names (params & outputs) where possible,
@@ -106,6 +117,15 @@ namespace Bicep.Decompiler
                 if (nameResolver.TryRequestResourceName(typeString, ExpressionHelpers.ParseExpression(nameString)) == null)
                 {
                     throw new ConversionFailedException($"Unable to pick unique name for resource {typeString} {nameString}", resource);
+                }
+            }
+
+            foreach (var (@namespace, name, function) in GetFunctions(functions))
+            {
+                var functionName = GetBicepFunctionName(@namespace, name);
+                if (nameResolver.TryRequestName(NameType.Function, functionName) == null)
+                {
+                    throw new ConversionFailedException($"Unable to pick unique name for function {name}", function);
                 }
             }
 
@@ -146,7 +166,7 @@ namespace Bicep.Decompiler
 
             return new FunctionExpression(
                 functionExpression.Function,
-                inlinedParameters.ToArray(),
+                [.. inlinedParameters],
                 functionExpression.Properties);
         }
 
@@ -424,10 +444,45 @@ namespace Bicep.Decompiler
                 syntax = ParsePropertyAccess(ParseLanguageExpression(expression.Parameters[0]), expression.Parameters[1], safeNavigation: true);
                 for (int i = 2; i < expression.Parameters.Length; i++)
                 {
-                    syntax = ParsePropertyAccess(syntax, expression.Parameters[i], safeNavigation: false);
+                    syntax = ParsePropertyAccess(syntax, expression.Parameters[i], safeNavigation: false, allowWrappedProperties: true);
                 }
 
-                syntax = new ParenthesizedExpressionSyntax(SyntaxFactory.LeftParenToken, syntax, SyntaxFactory.RightParenToken);
+                if (expression.Properties.Length > 0)
+                {
+                    syntax = new ParenthesizedExpressionSyntax(SyntaxFactory.LeftParenToken, syntax, SyntaxFactory.RightParenToken);
+                }
+
+                return true;
+            }
+
+            if (expression.IsNamed("indexFromEnd"))
+            {
+                if (expression.Parameters.Length != 2)
+                {
+                    throw new ArgumentException($"Expected exactly 2 parameters for function {expression.Function}");
+                }
+
+                syntax = ParsePropertyAccess(ParseLanguageExpression(expression.Parameters[0]), expression.Parameters[1], safeNavigation: false, fromEnd: true);
+                return true;
+            }
+
+            if (expression.IsNamed("tryIndexFromEnd"))
+            {
+                if (expression.Parameters.Length < 2)
+                {
+                    throw new ArgumentException($"Expected at least 2 parameters for function {expression.Function}");
+                }
+
+                syntax = ParsePropertyAccess(ParseLanguageExpression(expression.Parameters[0]), expression.Parameters[1], safeNavigation: true, fromEnd: true);
+                for (int i = 2; i < expression.Parameters.Length; i++)
+                {
+                    syntax = ParsePropertyAccess(syntax, expression.Parameters[i], safeNavigation: false, allowWrappedProperties: true);
+                }
+
+                if (expression.Properties.Length > 0)
+                {
+                    syntax = new ParenthesizedExpressionSyntax(SyntaxFactory.LeftParenToken, syntax, SyntaxFactory.RightParenToken);
+                }
                 return true;
             }
 
@@ -611,6 +666,14 @@ namespace Bicep.Decompiler
 
                 var expressions = expression.Parameters.Select(ParseLanguageExpression).ToArray();
 
+                if (expression.Function.Split('.') is { } funcNameArr &&
+                    funcNameArr.Length == 2 &&
+                    nameResolver.TryLookupName(NameType.Function, GetBicepFunctionName(funcNameArr[0], funcNameArr[1])) is { } resolvedUdfName)
+                {
+                    // This is a reference to a user-defined function
+                    return SyntaxFactory.CreateFunctionCall(resolvedUdfName, expressions);
+                }
+
                 baseSyntax = SyntaxFactory.CreateFunctionCall(functionName, expressions);
             }
 
@@ -622,24 +685,35 @@ namespace Bicep.Decompiler
             return baseSyntax;
         }
 
-        private SyntaxBase ParsePropertyAccess(SyntaxBase baseExpression, LanguageExpression property, bool safeNavigation = false)
+        private SyntaxBase ParsePropertyAccess(SyntaxBase baseExpression, LanguageExpression propertyExpression, bool safeNavigation = false, bool fromEnd = false, bool allowWrappedProperties = false)
         {
+            var property = ParseLanguageExpression(propertyExpression);
+
+            if (allowWrappedProperties &&
+                property is ObjectSyntax @object &&
+                @object.TryGetPropertyByName("value", StringComparison.OrdinalIgnoreCase) is { } wrappedProperty)
+            {
+                fromEnd = @object.TryGetPropertyByName("fromEnd", StringComparison.OrdinalIgnoreCase)?.Value is Token { Type: TokenType.TrueKeyword };
+                property = wrappedProperty.Value;
+            }
+
             Token? safeAccessMarker = safeNavigation ? SyntaxFactory.QuestionToken : null;
+            Token? fromEndMarker = fromEnd ? SyntaxFactory.HatToken : null;
+
             return TryParseIdentifier(property) is { } propertyName
                 ? new PropertyAccessSyntax(baseExpression, SyntaxFactory.DotToken, safeAccessMarker, propertyName)
                 : new ArrayAccessSyntax(
                     baseExpression,
                     SyntaxFactory.LeftSquareToken,
                     safeAccessMarker,
-                    ParseLanguageExpression(property),
+                    fromEndMarker,
+                    property,
                     SyntaxFactory.RightSquareToken);
         }
 
-        private static IdentifierSyntax? TryParseIdentifier(LanguageExpression? expression)
+        private static IdentifierSyntax? TryParseIdentifier(SyntaxBase expression)
         {
-            if (expression is JTokenExpression jTokenExpression &&
-                jTokenExpression.Value.Type == JTokenType.String &&
-                jTokenExpression.Value.Value<string>() is string propertyName &&
+            if ((expression as StringSyntax)?.TryGetLiteralValue() is string propertyName &&
                 Lexer.IsValidIdentifier(propertyName))
             {
                 return SyntaxFactory.CreateIdentifier(propertyName);
@@ -922,6 +996,35 @@ namespace Bicep.Decompiler
                 modifier);
         }
 
+        private FunctionDeclarationSyntax ParseFunctionDeclaration(string @namespace, string name, JObject body)
+        {
+            var parameters = TemplateHelpers.AssertRequiredProperty(body, "parameters");
+            var output = TemplateHelpers.AssertRequiredProperty(body, "output");
+
+            var parametersArray = TemplateHelpers.AssertArray(parameters);
+            var outputObj = TemplateHelpers.AssertObject(output);
+
+            var parameterData = new List<(string Name, SyntaxBase Type)>();
+            foreach (var parameter in parametersArray)
+            {
+                var parameterObj = TemplateHelpers.AssertObject(parameter);
+                var parameterName = TemplateHelpers.AssertRequiredProperty(parameterObj, "name");
+                var parameterType = TemplateHelpers.AssertRequiredProperty(parameterObj, "type");
+
+                parameterData.Add((
+                    TemplateHelpers.AssertString(parameterName),
+                    TryParseType(parameterType) ?? throw new ConversionFailedException($"Unable to locate 'type' for parameter '{parameterName}'", parameterObj)));
+            }
+
+            var outputType = TryParseType(TemplateHelpers.AssertRequiredProperty(outputObj, "type")) ?? throw new ConversionFailedException($"Unable to locate 'type' for function '{name}'", body);
+            var outputBody = PerformScopedAction(
+                () => ParseJToken(TemplateHelpers.AssertRequiredProperty(outputObj, "value")),
+                [],
+                parameterData.Select(x => x.Name));
+
+            return SyntaxFactory.CreateFunctionDeclaration(GetBicepFunctionName(@namespace, name), parameterData, outputType, outputBody);
+        }
+
         private VariableDeclarationSyntax ParseVariable(string name, JToken value, bool isCopyVariable)
         {
             var identifier = nameResolver.TryLookupName(NameType.Variable, name) ?? throw new ConversionFailedException($"Unable to find variable {name}", value);
@@ -944,12 +1047,7 @@ namespace Bicep.Decompiler
                 variableValue = ParseJToken(value);
             }
 
-            return new VariableDeclarationSyntax(
-                ImmutableArray<SyntaxBase>.Empty,
-                SyntaxFactory.VariableKeywordToken,
-                SyntaxFactory.CreateIdentifierWithTrailingSpace(identifier),
-                SyntaxFactory.AssignmentToken,
-                variableValue);
+            return SyntaxFactory.CreateVariableDeclaration(identifier, variableValue);
         }
 
         private (SyntaxBase moduleFilePathStringLiteral, Uri? jsonTemplateUri) GetModuleFilePath(string templateLink)
@@ -1073,7 +1171,7 @@ namespace Bicep.Decompiler
                 });
 
                 return SyntaxFactory.CreateRangedForSyntax(indexIdentifier, ParseJToken(count), getSyntaxForInputFunc(input));
-            }, new[] { indexIdentifier });
+            }, new[] { indexIdentifier }, Array.Empty<string>());
         }
 
         private (SyntaxBase body, IEnumerable<SyntaxBase> decorators) ProcessResourceCopy(JObject resource, Func<JObject, SyntaxBase> resourceBodyFunc)
@@ -1349,8 +1447,8 @@ namespace Bicep.Decompiler
                 }
 
                 var nestedOptions = this.options with { AllowMissingParamsAndVars = this.options.AllowMissingParamsAndVarsInNestedTemplates };
-                var nestedConverter = new TemplateConverter(workspace, nestedModuleUri, nestedTemplateObject, this.jsonTemplateUrisByModule, nestedOptions);
-                var nestedBicepFile = SourceFileFactory.CreateBicepFile(nestedModuleUri, nestedConverter.Parse().ToString());
+                var nestedConverter = new TemplateConverter(this.sourceFileFactory, workspace, nestedModuleUri, nestedTemplateObject, this.jsonTemplateUrisByModule, nestedOptions);
+                var nestedBicepFile = this.sourceFileFactory.CreateBicepFile(nestedModuleUri, nestedConverter.Parse().ToString());
                 workspace.UpsertSourceFile(nestedBicepFile);
 
                 return new ModuleDeclarationSyntax(
@@ -1490,12 +1588,34 @@ namespace Bicep.Decompiler
             throw new ConversionFailedException($"Parsing failed for property value {scopeProperty}", scopeProperty);
         }
 
-        private SyntaxBase ParseResource(IReadOnlyDictionary<string, string> copyResourceLookup, JToken token)
+        private static JToken? TryEvaluate(IEvaluationContext evalContext, string expression)
+        {
+            try
+            {
+                return ExpressionsEngine.ParseLanguageExpression(expression).EvaluateExpression(evalContext);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private SyntaxBase ParseResource(IEvaluationContext evalContext, IReadOnlyDictionary<string, string> copyResourceLookup, JToken token)
         {
             var resource = (token as JObject) ?? throw new ConversionFailedException("Incorrect resource format", token);
 
             // mandatory properties
             var (typeString, nameString, apiVersionString) = TemplateHelpers.ParseResource(resource);
+            if (ExpressionsEngine.IsLanguageExpression(apiVersionString))
+            {
+                // Using variables to define API versions is a common authoring pattern used in JSON.
+                // It's not suported in Bicep. Let's try to detect it and fix it where possible.
+                apiVersionString = TryEvaluate(evalContext, apiVersionString) switch
+                {
+                    JValue jValue when jValue.IsTextBasedJTokenType() => jValue.ToString(CultureInfo.InvariantCulture),
+                    _ => apiVersionString,
+                };
+            }
 
             if (StringComparer.OrdinalIgnoreCase.Equals(typeString, "Microsoft.Resources/deployments"))
             {
@@ -1719,16 +1839,29 @@ namespace Bicep.Decompiler
             }
         }
 
+        public static IEnumerable<(string @namespace, string name, JObject declaration)> GetFunctions(IEnumerable<JToken> functionsBlock)
+        {
+            foreach (var ns in functionsBlock)
+            {
+                var nsObject = TemplateHelpers.AssertObject(ns);
+                var nsName = TemplateHelpers.AssertString(TemplateHelpers.AssertRequiredProperty(nsObject, "namespace"));
+                var members = TemplateHelpers.AssertRequiredProperty(nsObject, "members");
+
+                var membersObject = TemplateHelpers.AssertObject(members);
+
+                foreach (var property in membersObject.Properties())
+                {
+                    var functionName = property.Name;
+                    var functionObject = TemplateHelpers.AssertObject(property.Value);
+
+                    yield return (nsName, functionName, functionObject);
+                }
+            }
+        }
+
         private ProgramSyntax Parse()
         {
             var statements = new List<SyntaxBase>();
-
-            var functions = TemplateHelpers.GetProperty(template, "functions")?.Value as JArray;
-            if (functions?.Any() == true)
-            {
-                var fixupToken = SyntaxHelpers.CreatePlaceholderToken(TokenType.Unrecognized, "TODO: User defined functions are not supported and have not been decompiled");
-                statements.Add(fixupToken);
-            }
 
             var targetScope = ParseTargetScope(template);
             if (targetScope != null)
@@ -1746,11 +1879,12 @@ namespace Bicep.Decompiler
             var resources = TemplateHelpers.GetProperty(template, "resources")?.Value as JArray ?? new JArray();
             var variables = (TemplateHelpers.GetProperty(template, "variables")?.Value as JObject ?? new JObject()).Properties();
             var outputs = (TemplateHelpers.GetProperty(template, "outputs")?.Value as JObject ?? new JObject()).Properties();
+            var functions = TemplateHelpers.GetProperty(template, "functions")?.Value as JArray ?? new JArray();
 
             // FlattenAndNormalizeResource has side effects, so use .ToArray() to force single enumeration
             var flattenedResources = resources.SelectMany(TemplateHelpers.FlattenAndNormalizeResource).ToArray();
 
-            RegisterNames(parameters, flattenedResources, variables, outputs);
+            RegisterNames(parameters, flattenedResources, variables, outputs, functions);
 
             var copyResourceLookup = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             foreach (var resource in resources.OfType<JObject>())
@@ -1768,11 +1902,19 @@ namespace Bicep.Decompiler
                 }
             }
 
+            var variablesByName = GetVariables(variables).ToOrdinalInsensitiveDictionary(x => x.name, x => x);
+
+            var evalContext = new TemplateExpressionEvaluationHelper
+            {
+                OnGetVariable = (variableName, _) => variablesByName[variableName].value,
+            }.EvaluationContext;
+
             // We are ignoring _generator metadata since it is generated by bicep build
             AddSyntaxBlock(statements, metadata.Where(x => !x.Name.StartsWith('_')).Select(ParseMetadata), false);
+            AddSyntaxBlock(statements, GetFunctions(functions).Select(x => ParseFunctionDeclaration(x.@namespace, x.name, x.declaration)), true);
             AddSyntaxBlock(statements, parameters.Select(ParseParam), false);
             AddSyntaxBlock(statements, GetVariables(variables).Select(x => ParseVariable(x.name, x.value, x.isCopyVariable)), false);
-            AddSyntaxBlock(statements, flattenedResources.Select(resource => ParseResource(copyResourceLookup, resource)), true);
+            AddSyntaxBlock(statements, flattenedResources.Select(resource => ParseResource(evalContext, copyResourceLookup, resource)), true);
             AddSyntaxBlock(statements, outputs.Select(ParseOutput), false);
 
             return new ProgramSyntax(
@@ -1780,13 +1922,13 @@ namespace Bicep.Decompiler
                 SyntaxFactory.EndOfFileToken);
         }
 
-        private T PerformScopedAction<T>(Func<T> action, IEnumerable<string> scopeVariables)
+        private T PerformScopedAction<T>(Func<T> action, IEnumerable<string> scopeVariables, IEnumerable<string> scopeParameters)
         {
             var prevNameResolver = nameResolver;
 
             try
             {
-                nameResolver = new ScopedNamingResolver(prevNameResolver, scopeVariables);
+                nameResolver = new ScopedNamingResolver(prevNameResolver, scopeVariables, scopeParameters);
 
                 return action();
             }
@@ -1794,6 +1936,18 @@ namespace Bicep.Decompiler
             {
                 nameResolver = prevNameResolver;
             }
+        }
+
+        private static string GetBicepFunctionName(string @namespace, string name)
+        {
+            if (@namespace == EmitConstants.UserDefinedFunctionsNamespace)
+            {
+                // although we don't want to encourage decompilation of Bicep-generated templates, it doesn't
+                // hurt to special-case Bicep-emitted output, where we use the namespace '__bicep'.
+                return name;
+            }
+
+            return $"{@namespace}_{name}";
         }
     }
 }

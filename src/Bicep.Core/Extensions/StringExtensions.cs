@@ -20,4 +20,32 @@ public static class StringExtensions
     /// <returns>The encoded path segment</returns>
     public static string Rfc6901Encode(this string toEncode)
         => Uri.EscapeDataString(toEncode.Replace("~", "~0").Replace("/", "~1"));
+
+    public static string TruncateWithEllipses(this string input, int maxLength)
+    {
+        if (maxLength < 4)
+        {
+            throw new ArgumentException("maxLength must be at least 4");
+        }
+
+        if (input.Length > maxLength)
+        {
+            return input.Substring(0, maxLength - 3) + "...";
+        }
+
+        return input;
+    }
+
+    public static string UppercaseFirstLetter(this string input)
+    {
+        if (input.Length > 0)
+        {
+            return char.ToUpperInvariant(input[0]) + input[1..];
+        }
+        else
+        {
+            return input;
+        }
+    }
+
 }

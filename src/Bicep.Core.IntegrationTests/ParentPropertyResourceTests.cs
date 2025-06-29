@@ -3,6 +3,7 @@
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -151,14 +152,14 @@ output otherRes2childId string = otherResChild[2].id
             result.Diagnostics.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().BeEmpty();
 
             var compiled = result.Template;
-            var evaluated = TemplateEvaluator.Evaluate(compiled);
+            var evaluated = TemplateEvaluator.Evaluate(compiled).ToJToken();
 
             compiled.Should().HaveValueAtPath("$.outputs['otherRes2childName'].value", "[format('otherResChild{0}', sub(range(30, 10)[2], 30))]");
             evaluated.Should().HaveValueAtPath("$.outputs['otherRes2childName'].value", "otherResChild2");
             compiled.Should().HaveValueAtPath("$.outputs['otherRes2childType'].value", "Microsoft.Rp2/resource2/child2");
             evaluated.Should().HaveValueAtPath("$.outputs['otherRes2childType'].value", "Microsoft.Rp2/resource2/child2");
             compiled.Should().HaveValueAtPath("$.outputs['otherRes2childId'].value", "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', format('res{0}', range(0, 10)[sub(range(10, 10)[sub(range(30, 10)[2], 30)], 10)]), format('child{0}', sub(range(10, 10)[sub(range(30, 10)[2], 30)], 10))), 'Microsoft.Rp2/resource2/child2', format('otherRes{0}', sub(range(20, 10)[sub(range(30, 10)[2], 30)], 20)), format('otherResChild{0}', sub(range(30, 10)[2], 30)))]");
-            evaluated.Should().HaveValueAtPath("$.outputs['otherRes2childId'].value", "/subscriptions/f91a30fd-f403-4999-ae9f-ec37a6d81e13/resourceGroups/testResourceGroup/providers/Microsoft.Rp1/resource1/res2/child1/child2/providers/Microsoft.Rp2/resource2/otherRes2/child2/otherResChild2");
+            evaluated.Should().HaveValueAtPath("$.outputs['otherRes2childId'].value", $"/subscriptions/{Guid.Empty}/resourceGroups/DummyResourceGroup/providers/Microsoft.Rp1/resource1/res2/child1/child2/providers/Microsoft.Rp2/resource2/otherRes2/child2/otherResChild2");
         }
 
         [TestMethod]
@@ -408,7 +409,7 @@ resource res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
 
 resource res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
   parent: res1
-  name: '${res1.name}/res2'
+  name: '${res1.name}/res3'
 }
 ");
 

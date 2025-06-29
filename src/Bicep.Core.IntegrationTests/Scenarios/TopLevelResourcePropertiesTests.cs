@@ -7,6 +7,7 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -18,10 +19,12 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     {
         private static ServiceBuilder Services => new ServiceBuilder().WithAzResources(BuiltInTestTypes.Types).WithDisabledAnalyzersConfiguration();
 
+        private ServiceBuilder ServicesWithModuleIdentity => new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(ModuleIdentityEnabled: true)).WithAzResources(BuiltInTestTypes.Types).WithDisabledAnalyzersConfiguration();
+
         /// <summary>
         /// https://github.com/Azure/bicep/issues/3000
         /// </summary>
-        public static IEnumerable<object[]> FallbackProperties
+        public static IEnumerable<object[]> ResourceFallbackProperties
         {
             get
             {
@@ -38,7 +41,23 @@ namespace Bicep.Core.IntegrationTests.Scenarios
             }
         }
 
-        [DynamicData(nameof(FallbackProperties))]
+        public static IEnumerable<object[]> ModuleFallbackProperties
+        {
+            get
+            {
+                yield return new object[] { "sku", "{}" };
+                yield return new object[] { "kind", "''" };
+                yield return new object[] { "managedBy", "''" };
+                yield return new object[] { "managedByExtended", "[]" };
+                yield return new object[] { "extendedLocation", "{'type': 'NotSpecified'}" };
+                yield return new object[] { "zones", "[]" };
+                yield return new object[] { "plan", "{}" };
+                yield return new object[] { "eTag", "''" };
+                yield return new object[] { "scale", "{'capacity': 1}" };
+            }
+        }
+
+        [DynamicData(nameof(ResourceFallbackProperties))]
         [DataTestMethod]
         public void FallbackProperty_ShouldShowWarningDiagnostics1_WhenNotDefinedInType(string property, string value)
         {
@@ -58,7 +77,7 @@ resource fallbackProperty 'Test.Rp/readWriteTests@2020-01-01' = {
             });
         }
 
-        [DynamicData(nameof(FallbackProperties))]
+        [DynamicData(nameof(ResourceFallbackProperties))]
         [DataTestMethod]
         public void FallbackProperty_ShouldShowWarningDiagnostics2_WhenNotDefinedInType(string property, string value)
         {
@@ -78,7 +97,7 @@ resource fallbackProperty 'Test.Rp/readWriteTests@2020-01-01' = {
             });
         }
 
-        [DynamicData(nameof(FallbackProperties))]
+        [DynamicData(nameof(ResourceFallbackProperties))]
         [DataTestMethod]
         public void FallbackProperty_ShouldShowWarningDiagnostics3_WhenNotDefinedInType(string property, string value)
         {
@@ -100,7 +119,7 @@ resource fallbackProperty 'Test.Rp/readWriteTests@2020-01-01' = {
             });
         }
 
-        [DynamicData(nameof(FallbackProperties))]
+        [DynamicData(nameof(ResourceFallbackProperties))]
         [DataTestMethod]
         public void FallbackProperty_ShouldShowWarning_WhenIsRead(string property, string value)
         {
@@ -121,7 +140,7 @@ var value = fallbackProperty." + property + @"
             });
         }
 
-        [DynamicData(nameof(FallbackProperties))]
+        [DynamicData(nameof(ResourceFallbackProperties))]
         [DataTestMethod]
         public void FallbackProperty_ShouldNotShowWarning_WhenDefinedInType(string property, string value)
         {
@@ -139,11 +158,10 @@ resource fallbackProperty 'Test.Rp/fallbackProperties@2020-01-01' = {
             compilation.Should().NotHaveAnyDiagnostics();
         }
 
-        [DynamicData(nameof(FallbackProperties))]
+        [DynamicData(nameof(ModuleFallbackProperties))]
         [DataTestMethod]
         public void FallbackProperty_ShouldShowError_WhenUsedOnModule(string property, string value)
         {
-
             var mainUri = new Uri("file:///main.bicep");
             var moduleAUri = new Uri("file:///modulea.bicep");
 
@@ -172,14 +190,14 @@ output outputa string = '${inputa}-${inputb}'
 ",
             };
 
-            var compilation = Services.WithAzResources(BuiltInTestTypes.Types).BuildCompilation(files, mainUri);
+            var compilation = ServicesWithModuleIdentity.WithAzResources(BuiltInTestTypes.Types).BuildCompilation(files, mainUri);
 
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP037", DiagnosticLevel.Error, $"The property \"{property}\" is not allowed on objects of type \"module\". Permissible properties include \"dependsOn\", \"scope\".")
+                ("BCP037", DiagnosticLevel.Error, $"The property \"{property}\" is not allowed on objects of type \"module\". Permissible properties include \"dependsOn\", \"identity\", \"scope\".")
             });
         }
 
-        [DynamicData(nameof(FallbackProperties))]
+        [DynamicData(nameof(ModuleFallbackProperties))]
         [DataTestMethod]
         public void FallbackProperty_ShouldShowError_WhenUsedOnModuleParams(string property, string value)
         {
@@ -220,7 +238,7 @@ output outputa string = '${inputa}-${inputb}'
             });
         }
 
-        [DynamicData(nameof(FallbackProperties))]
+        [DynamicData(nameof(ModuleFallbackProperties))]
         [DataTestMethod]
         public void FallbackProperty_ShouldShowError_WhenUsedOnModuleParams_ThroughVariable(string property, string value)
         {
@@ -264,7 +282,7 @@ output outputa string = '${inputa}-${inputb}'
             });
         }
 
-        [DynamicData(nameof(FallbackProperties))]
+        [DynamicData(nameof(ModuleFallbackProperties))]
         [DataTestMethod]
         public void FallbackProperty_ShouldShowError_WhenReadOnModule(string property, string value)
         {
@@ -295,10 +313,10 @@ output outputa string = '${inputa}-${inputb}'
 ",
             };
 
-            var compilation = Services.WithAzResources(BuiltInTestTypes.Types).BuildCompilation(files, mainUri);
+            var compilation = ServicesWithModuleIdentity.WithAzResources(BuiltInTestTypes.Types).BuildCompilation(files, mainUri);
 
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP053", DiagnosticLevel.Error, $"The type \"module\" does not contain property \"{property}\". Available properties include \"name\", \"outputs\".")
+                ("BCP053", DiagnosticLevel.Error, $"The type \"module\" does not contain property \"{property}\". Available properties include \"identity\", \"name\", \"outputs\".")
             });
         }
 
@@ -311,9 +329,9 @@ output outputa string = '${inputa}-${inputb}'
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
                 new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
-                    new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
-                    new TypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "required property"),
-                    new TypeProperty("systemRequired", LanguageConstants.String, TypePropertyFlags.SystemProperty | TypePropertyFlags.Required, "system required property")
+                    new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
+                    new NamedTypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "required property"),
+                    new NamedTypeProperty("systemRequired", LanguageConstants.String, TypePropertyFlags.SystemProperty | TypePropertyFlags.Required, "system required property")
                 }, null))
             });
 
@@ -339,9 +357,9 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
                 new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
-                    new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
-                    new TypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "required property"),
-                    new TypeProperty("systemRequired", LanguageConstants.String, TypePropertyFlags.SystemProperty | TypePropertyFlags.Required, "system required property")
+                    new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
+                    new NamedTypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "required property"),
+                    new NamedTypeProperty("systemRequired", LanguageConstants.String, TypePropertyFlags.SystemProperty | TypePropertyFlags.Required, "system required property")
                 }, null))
             });
 
@@ -367,9 +385,9 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
                 new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
-                    new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
-                    new TypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "required property"),
-                    new TypeProperty("systemRequired", LanguageConstants.String, TypePropertyFlags.SystemProperty | TypePropertyFlags.Required, "system required property")
+                    new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
+                    new NamedTypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "required property"),
+                    new NamedTypeProperty("systemRequired", LanguageConstants.String, TypePropertyFlags.SystemProperty | TypePropertyFlags.Required, "system required property")
                 }, null))
             });
 
@@ -394,8 +412,8 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
                 new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
-                    new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
-                    new TypeProperty("systemRequired", LanguageConstants.String, TypePropertyFlags.SystemProperty | TypePropertyFlags.Required, "system required property")
+                    new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
+                    new NamedTypeProperty("systemRequired", LanguageConstants.String, TypePropertyFlags.SystemProperty | TypePropertyFlags.Required, "system required property")
                 }, null))
             });
 
@@ -415,30 +433,13 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
         /// https://github.com/Azure/bicep/issues/5960
         /// </summary>
         [TestMethod]
-        public void Test_Issue5960_case5()
-        {
-            // explicitly pass a valid scope
-            var result = CompilationHelper.Compile(("main.bicep", @"
-module mod 'mod.bicep' = {
-}
-"), ("mod.bicep", ""));
-            result.Should().NotGenerateATemplate().And.HaveDiagnostics(new[]
-            {
-                ("BCP035", DiagnosticLevel.Error, "The specified \"module\" declaration is missing the following required properties: \"name\".")
-            });
-        }
-
-        /// <summary>
-        /// https://github.com/Azure/bicep/issues/5960
-        /// </summary>
-        [TestMethod]
         public void Test_Issue5960_case6()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
                 new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
-                    new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
-                    new TypeProperty("required", LanguageConstants.Object, TypePropertyFlags.Required, "required property"),
+                    new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
+                    new NamedTypeProperty("required", LanguageConstants.Object, TypePropertyFlags.Required, "required property"),
                 }, null))
             });
 
@@ -464,8 +465,8 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
                 new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
-                    new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
-                    new TypeProperty("systemRequired", LanguageConstants.Object, TypePropertyFlags.Required | TypePropertyFlags.SystemProperty, "system required property"),
+                    new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
+                    new NamedTypeProperty("systemRequired", LanguageConstants.Object, TypePropertyFlags.Required | TypePropertyFlags.SystemProperty, "system required property"),
                 }, null))
             });
 
@@ -491,9 +492,9 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
                 new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
-                    new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
-                    new TypeProperty("systemRequired", LanguageConstants.Object, TypePropertyFlags.Required | TypePropertyFlags.SystemProperty, "system required property"),
-                    new TypeProperty("required", LanguageConstants.Object, TypePropertyFlags.Required, "required property"),
+                    new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
+                    new NamedTypeProperty("systemRequired", LanguageConstants.Object, TypePropertyFlags.Required | TypePropertyFlags.SystemProperty, "system required property"),
+                    new NamedTypeProperty("required", LanguageConstants.Object, TypePropertyFlags.Required, "required property"),
                 }, null))
             });
 

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Parsing;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -17,6 +18,13 @@ namespace Bicep.LanguageServer.Telemetry
     {
         public const string MCR = "MCR";
         public const string ACR = "ACR";
+        public const string AcrBasePathFromAlias = "basePathFromAlias";
+    }
+
+    public static class ModuleRegistryResolutionType
+    {
+        public const string AcrVersion = "acrVersion";
+        public const string AcrModulePath = "acrPath";
     }
 
     public record BicepTelemetryEvent : TelemetryEventParams
@@ -249,7 +257,7 @@ namespace Bicep.LanguageServer.Telemetry
                 }
             );
 
-        public static BicepTelemetryEvent DecompileForPaste(string decompileId, string? pasteContext, string? pasteType, int jsonSize, int? bicepSize)
+        public static BicepTelemetryEvent DecompileForPaste(string decompileId, string? pasteContext, string? pasteType, int jsonSize, int? bicepSize, string? languageId)
             => new(
                 eventName: TelemetryConstants.EventNames.DecompileForPaste,
                 properties: new()
@@ -259,6 +267,7 @@ namespace Bicep.LanguageServer.Telemetry
                     ["pasteType"] = pasteType ?? string.Empty,
                     ["jsonSize"] = jsonSize.ToString(),
                     ["bicepSize"] = bicepSize?.ToString() ?? string.Empty,
+                    ["languageId"] = languageId ?? string.Empty,
                 }
             );
 
@@ -271,12 +280,23 @@ namespace Bicep.LanguageServer.Telemetry
                 }
             );
 
-        public static BicepTelemetryEvent ModuleRegistryPathCompletion(string moduleRegistryType)
+        public static BicepTelemetryEvent ModuleRegistryPathCompletion(string moduleRegistryType, bool isAlias, int? totalRepos)
             => new(
                 eventName: TelemetryConstants.EventNames.ModuleRegistryPathCompletion,
                 properties: new()
                 {
-                    ["moduleRegistryType"] = moduleRegistryType
+                    ["moduleRegistryType"] = moduleRegistryType,
+                    ["isAlias"] = ToTrueFalse(isAlias),
+                    ["totalRepos"] = totalRepos.HasValue ? totalRepos.Value.ToString() : string.Empty,
+                }
+            );
+
+        public static BicepTelemetryEvent ModuleRegistryResolution(string resolutionType)
+            => new(
+                eventName: TelemetryConstants.EventNames.ModuleRegistryResolution,
+                properties: new()
+                {
+                    ["type"] = resolutionType,
                 }
             );
 
@@ -327,6 +347,31 @@ namespace Bicep.LanguageServer.Telemetry
                 {
                     ["failureType"] = failureType,
                     ["code"] = code ?? string.Empty,
+                }
+            );
+
+        public enum ExtractionKind
+        {
+            Variable,
+            SimpleParam,    // Extract parameter when only simple type is available
+            UserDefParam,          // Extract parameter with user-defined type (both simple and user-defined-type params are available)
+            ResDerivedParam,    // Extract parameter with resource-derived type
+            Type,
+        }
+
+        public record ExtractKindsAvailable(bool simpleTypeAvailable, bool userDefinedTypeAvailable, bool resourceDerivedTypeAvailable);
+
+        public static BicepTelemetryEvent ExtractionRefactoring(
+            ExtractionKind extractionKind,
+            ExtractKindsAvailable extractKindsAvailable)
+            => new(
+                eventName: TelemetryConstants.EventNames.ExtractionRefactoring,
+                properties: new()
+                {
+                    ["kind"] = StringUtils.ToCamelCase(extractionKind.ToString()),
+                    ["simpleParamAvail"] = ToTrueFalse(extractKindsAvailable.simpleTypeAvailable),
+                    ["userParamAvail"] = ToTrueFalse(extractKindsAvailable.userDefinedTypeAvailable),
+                    ["resDerivedParamAvail"] = ToTrueFalse(extractKindsAvailable.resourceDerivedTypeAvailable),
                 }
             );
     }

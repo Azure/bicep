@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11528852364160566097"
+      "templateHash": "14248540637091011874"
     }
   },
   "parameters": {
@@ -56,10 +56,7 @@
         "secret": "[variables('apimNameValueSet')[copyIndex()].isSecret]",
         "value": "[variables('apimNameValueSet')[copyIndex()].value]",
         "tags": "[variables('apimNameValueSet')[copyIndex()].tags]"
-      },
-      "dependsOn": [
-        "parentAPIM"
-      ]
+      }
     }
   },
   "outputs": {

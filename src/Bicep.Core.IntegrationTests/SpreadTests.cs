@@ -3,6 +3,7 @@
 
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.IntegrationTests;
@@ -29,7 +30,7 @@ output test object = {
         result.Template.Should().HaveValueAtPath("$.variables['other']['bar']", "[flatten(createArray(createArray(1), createArray(2, 3), createArray(4)))]");
         result.Template.Should().HaveValueAtPath("$.outputs['test'].value", "[shallowMerge(createArray(createObject('foo', 'foo'), variables('other'), createObject('baz', 'baz')))]");
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         evaluated.Should().HaveJsonAtPath("$.outputs['test'].value", """
 {
   "foo": "foo",
@@ -188,6 +189,31 @@ resource foo 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     }
 
     [TestMethod]
+    public void Spread_is_blocked_adjacent_to_for_loop()
+    {
+        // https://github.com/Azure/bicep/issues/16660
+        var result = CompilationHelper.Compile("""
+var test1 = true
+var array1 =[]
+
+resource ex 'Microsoft.Network/expressRouteCircuits@2024-05-01' = {
+  name: 'test'
+  properties: {
+    ...test1 ? {
+      gatewayManagerEtag: '1'
+    } : {}
+    authorizations: [for item in array1: {
+      name: item
+    }]
+  }
+}
+""");
+
+        result.ExcludingLinterDiagnostics().Should().ContainDiagnostic(
+            "BCP417", Diagnostics.DiagnosticLevel.Error, """The spread operator "..." cannot be used inside objects with property for-expressions.""");
+    }
+
+    [TestMethod]
     public void Object_spread_edge_cases()
     {
         var result = CompilationHelper.Compile("""
@@ -210,7 +236,7 @@ output test3 object = {
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         evaluated.Should().HaveJsonAtPath("$.outputs['test1'].value", """
 {
   "a": 1,

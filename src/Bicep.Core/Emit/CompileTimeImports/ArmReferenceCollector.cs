@@ -7,7 +7,7 @@ using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Templates.Extensions;
 using Bicep.Core.ArmHelpers;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit.CompileTimeImports;
@@ -23,7 +23,7 @@ internal partial class ArmReferenceCollector
     {
         if (templateFile.Template is not { } template)
         {
-            throw new InvalidOperationException($"Source template of {templateFile.FileUri} is not valid");
+            throw new InvalidOperationException($"Source template of {templateFile.FileHandle.Uri} is not valid");
         }
 
         schemaContext = SchemaValidationContext.ForTemplate(template);

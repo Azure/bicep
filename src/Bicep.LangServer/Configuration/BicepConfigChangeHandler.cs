@@ -3,7 +3,7 @@
 
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Telemetry;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -52,17 +52,17 @@ namespace Bicep.LanguageServer.Configuration
         }
 
         private void HandleBicepConfigOpenOrChangeEvent(DocumentUri documentUri)
-            => configurationManager.RefreshConfigCacheEntry(documentUri.ToUriEncoded());
+            => configurationManager.RefreshConfigCacheEntry(documentUri.ToIOUri());
 
         public void HandleBicepConfigSaveEvent(DocumentUri documentUri)
         {
-            if (configurationManager.RefreshConfigCacheEntry(documentUri.ToUriEncoded()) is { } update)
+            if (configurationManager.RefreshConfigCacheEntry(documentUri.ToIOUri()) is { } update)
             {
                 TelemetryHelper.SendTelemetryOnBicepConfigChange(update.prevConfiguration, update.newConfiguration, linterRulesProvider, telemetryProvider);
             }
         }
 
         public void HandleBicepConfigCloseEvent(DocumentUri documentUri)
-            => configurationManager.RemoveConfigCacheEntry(documentUri.ToUriEncoded());
+            => configurationManager.RemoveConfigCacheEntry(documentUri.ToIOUri());
     }
 }

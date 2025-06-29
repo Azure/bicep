@@ -25,7 +25,7 @@ metadata missingAssignment 'noAssignmentOperator'
 // metadata referencing metadata
 metadata myMetadata = 'hello'
 var attemptToReferenceMetadata = myMetadata
-//@[04:30) [no-unused-vars (Warning)] Variable "attemptToReferenceMetadata" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |attemptToReferenceMetadata|
+//@[04:30) [no-unused-vars (Warning)] Variable "attemptToReferenceMetadata" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |attemptToReferenceMetadata|
 //@[33:43) [BCP057 (Error)] The name "myMetadata" does not exist in the current context. (bicep https://aka.ms/bicep/core-diagnostics#BCP057) |myMetadata|
 
 // two meta blocks with same identifier name

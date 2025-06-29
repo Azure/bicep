@@ -1,3 +1,6 @@
+# NOTE: CURRENTLY DOES NOT WORK!
+
+
 # Implements "slash commands" on PR comments
 #   see https://github.com/peter-evans/slash-command-dispatch
 #   and https://david.gardiner.net.au/2021/05/dependabot-nuget-lockfiles.html
@@ -23,7 +26,7 @@ jobs:
         uses: raven-actions/bot-details@v1
 
         # Obtain the name of the branch that is linked to the pull request for the triggering comment.
-      - uses: xt0rted/pull-request-comment-branch@v2
+      - uses: xt0rted/pull-request-comment-branch@v3
         id: comment-branch
 
       - name: Dump comment context

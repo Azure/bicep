@@ -1,3 +1,5 @@
+targetScope = 'local'
+
 extension mock
 
 param payload string

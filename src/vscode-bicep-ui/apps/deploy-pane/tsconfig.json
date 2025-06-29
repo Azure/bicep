@@ -1,0 +1,8 @@
+{
+  "extends": ["../../tsconfig.base.json"],
+  "include": ["src"],
+  "compilerOptions": {
+    "noUncheckedIndexedAccess": true,
+    "types": ["vite/client", "@testing-library/dom", "@testing-library/jest-dom/vitest"]
+  }
+}

@@ -1,5 +1,15 @@
 [
   {
+    "name": "deployer",
+    "description": "Returns information about the current deployment principal.",
+    "fixedParameters": [],
+    "minimumArgumentCount": 0,
+    "maximumArgumentCount": 0,
+    "flags": "default",
+    "typeSignature": "(): deployer",
+    "parameterTypeSignatures": []
+  },
+  {
     "name": "deployment",
     "description": "Returns information about the current deployment operation.",
     "fixedParameters": [],
@@ -554,6 +564,138 @@
     "parameterTypeSignatures": [
       "resourceType: string",
       "... : string"
+    ]
+  },
+  {
+    "name": "toLogicalZone",
+    "description": "Returns the logical zone corresponding to the given physical zone.",
+    "fixedParameters": [
+      {
+        "name": "subscriptionId",
+        "description": "The subscription ID of the deployed availability zones",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "location",
+        "description": "The location of the availability zone mappings",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "physicalZone",
+        "description": "The physical zone to convert",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 3,
+    "maximumArgumentCount": 3,
+    "flags": "requiresInlining",
+    "typeSignature": "(subscriptionId: string, location: string, physicalZone: string): string",
+    "parameterTypeSignatures": [
+      "subscriptionId: string",
+      "location: string",
+      "physicalZone: string"
+    ]
+  },
+  {
+    "name": "toLogicalZones",
+    "description": "Returns the logical zone array corresponding to the given array of physical zones.",
+    "fixedParameters": [
+      {
+        "name": "subscriptionId",
+        "description": "The subscription ID of the deployed availability zones",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "location",
+        "description": "The location of the availability zone mappings",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "physicalZones",
+        "description": "An array of physical zones to convert",
+        "type": "array",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 3,
+    "maximumArgumentCount": 3,
+    "flags": "requiresInlining",
+    "typeSignature": "(subscriptionId: string, location: string, physicalZones: array): string[]",
+    "parameterTypeSignatures": [
+      "subscriptionId: string",
+      "location: string",
+      "physicalZones: array"
+    ]
+  },
+  {
+    "name": "toPhysicalZone",
+    "description": "Returns the physical zone corresponding to the given logical zone.",
+    "fixedParameters": [
+      {
+        "name": "subscriptionId",
+        "description": "The subscription ID of the deployed availability zones",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "location",
+        "description": "The location of the availability zone mappings",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "logicalZone",
+        "description": "The logical zone to convert",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 3,
+    "maximumArgumentCount": 3,
+    "flags": "requiresInlining",
+    "typeSignature": "(subscriptionId: string, location: string, logicalZone: string): string",
+    "parameterTypeSignatures": [
+      "subscriptionId: string",
+      "location: string",
+      "logicalZone: string"
+    ]
+  },
+  {
+    "name": "toPhysicalZones",
+    "description": "Returns the physical zone array corresponding to the given array of logical zones.",
+    "fixedParameters": [
+      {
+        "name": "subscriptionId",
+        "description": "The subscription ID of the deployed availability zones",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "location",
+        "description": "The location of the availability zone mappings",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "logicalZones",
+        "description": "An array of logical zones to convert",
+        "type": "array",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 3,
+    "maximumArgumentCount": 3,
+    "flags": "requiresInlining",
+    "typeSignature": "(subscriptionId: string, location: string, logicalZones: array): string[]",
+    "parameterTypeSignatures": [
+      "subscriptionId: string",
+      "location: string",
+      "logicalZones: array"
     ]
   }
 ]

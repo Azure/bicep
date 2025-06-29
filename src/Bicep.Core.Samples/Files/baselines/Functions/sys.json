@@ -114,6 +114,25 @@
     ]
   },
   {
+    "name": "buildUri",
+    "description": "Constructs a URI from specified components and returns an object with these components.",
+    "fixedParameters": [
+      {
+        "name": "components",
+        "description": "An object containing URI components such as scheme, host, port, path, and query.",
+        "type": "parseUri",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(components: parseUri): string",
+    "parameterTypeSignatures": [
+      "components: parseUri"
+    ]
+  },
+  {
     "name": "cidrHost",
     "description": "Calculates the usable IP address of the host with the specified index on the specified IP address range in CIDR notation.",
     "fixedParameters": [
@@ -436,6 +455,25 @@
     "parameterTypeSignatures": [
       "stringToSearch: string",
       "stringToFind: string"
+    ]
+  },
+  {
+    "name": "fail",
+    "description": "Raises a runtime error with the provided message. Will cause a deployment to fail when evaluated.",
+    "fixedParameters": [
+      {
+        "name": "message",
+        "description": "The error message to use.",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(message: string): never",
+    "parameterTypeSignatures": [
+      "message: string"
     ]
   },
   {
@@ -1129,6 +1167,25 @@
     ]
   },
   {
+    "name": "nameof",
+    "description": "Returns the name of a declared symbol or property. Evaluation occurs during compilation, not at runtime.",
+    "fixedParameters": [
+      {
+        "name": "symbol",
+        "description": "The declared symbol or property to get the name of.",
+        "type": "any",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "isArgumentValueIndependent",
+    "typeSignature": "(symbol: any): string",
+    "parameterTypeSignatures": [
+      "symbol: any"
+    ]
+  },
+  {
     "name": "newGuid",
     "description": "Returns a value in the format of a globally unique identifier. **This function can only be used in the default value for a parameter**.",
     "fixedParameters": [],
@@ -1210,6 +1267,25 @@
     ]
   },
   {
+    "name": "parseUri",
+    "description": "Parses a URI string into its components (scheme, host, port, path, query).",
+    "fixedParameters": [
+      {
+        "name": "baseUrl",
+        "description": "The complete URI to parse.",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(baseUrl: string): parseUri",
+    "parameterTypeSignatures": [
+      "baseUrl: string"
+    ]
+  },
+  {
     "name": "range",
     "description": "Creates an array of integers from a starting integer and containing a number of items.",
     "fixedParameters": [
@@ -1261,7 +1337,7 @@
     "minimumArgumentCount": 3,
     "maximumArgumentCount": 3,
     "flags": "default",
-    "typeSignature": "(array: array, initialValue: any, predicate: (any, any[, int]) => any): array",
+    "typeSignature": "(array: array, initialValue: any, predicate: (any, any[, int]) => any): any",
     "parameterTypeSignatures": [
       "array: array",
       "initialValue: any",

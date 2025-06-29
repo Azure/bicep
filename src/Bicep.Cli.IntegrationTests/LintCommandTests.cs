@@ -6,10 +6,12 @@ using System.Diagnostics;
 using Bicep.Cli.UnitTests;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Mock.Registry;
+using Bicep.Core.UnitTests.Mock.Registry.Catalog;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -27,31 +29,6 @@ namespace Bicep.Cli.IntegrationTests;
 public class LintCommandTests : TestBase
 {
     [TestMethod]
-    public async Task Help_should_output_lint_usage_information()
-    {
-        var (output, error, result) = await Bicep("--help");
-
-        result.Should().Be(0);
-        error.Should().BeEmpty();
-        output.Should().Contain("""
-  bicep lint [options] <file>
-    Lints a .bicep file.
-
-    Arguments:
-      <file>        The input file
-
-    Options:
-      --no-restore                   Skips restoring external modules.
-      --diagnostics-format <format>  Sets the format with which diagnostics are displayed. Valid values are ( Default | Sarif ).
-
-    Examples:
-      bicep lint file.bicep
-      bicep lint file.bicep --no-restore
-      bicep lint file.bicep --diagnostics-format sarif
-""");
-    }
-
-    [TestMethod]
     public async Task Lint_ZeroFiles_ShouldFail_WithExpectedErrorMessage()
     {
         var (output, error, result) = await Bicep("lint");
@@ -62,7 +39,7 @@ public class LintCommandTests : TestBase
             output.Should().BeEmpty();
 
             error.Should().NotBeEmpty();
-            error.Should().Contain($"The input file path was not specified");
+            error.Should().Contain($"Either the input file path or the --pattern parameter must be specified");
         }
     }
 
@@ -109,10 +86,10 @@ public class LintCommandTests : TestBase
         var registryUri = new Uri("https://" + registry);
         var repository = "hello/there";
 
-        var client = new MockRegistryBlobClient();
+        var client = new FakeRegistryBlobClient();
 
         var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
-        clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);
+        clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), registryUri, repository)).Returns(client);
 
         var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
 
@@ -178,14 +155,46 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
         var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
         var configurationPath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", string.Empty, testOutputPath);
-        var settings = new InvocationSettings() { ModuleMetadataClient = PublicRegistryModuleMetadataClientMock.CreateToThrow(new Exception("unit test failed: shouldn't call this")).Object };
+        var settings = new InvocationSettings() { ModuleMetadataClient = PublicModuleIndexHttpClientMocks.Create([]).Object };
 
         var (output, error, result) = await Bicep(settings, "lint", inputFile);
-
 
         result.Should().Be(1);
         output.Should().BeEmpty();
         error.Should().StartWith($"{inputFile}(1,1) : Error BCP271: Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.");
+    }
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public async Task Lint_should_compile_files_matching_pattern(bool useRootPath)
+    {
+        var contents = """
+output myOutput string = 'hello!'
+""";
+
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var fileResults = new[]
+        {
+            (input: "file1.bicep", expectOutput: true),
+            (input: "file2.bicep", expectOutput: true),
+            (input: "nofile.bicep", expectOutput: false)
+        };
+
+        foreach (var (input, _) in fileResults)
+        {
+            FileHelper.SaveResultFile(TestContext, input, contents, outputPath);
+        }
+
+        var (output, error, result) = await Bicep(
+            services => services.WithEnvironment(useRootPath ? TestEnvironment.Default : TestEnvironment.Default with { CurrentDirectory = outputPath }),
+            ["lint",
+                "--pattern",
+                useRootPath ? $"{outputPath}/file*.bicep" : "file*.bicep"]);
+
+        result.Should().Be(0);
+        error.Should().BeEmpty();
+        output.Should().BeEmpty();
     }
 
     [TestMethod]
@@ -201,7 +210,7 @@ param notUsedParam int = 3
 
         result.Should().Be(0);
         output.Should().BeEmpty();
-        error.Should().StartWith($"{inputFile}(4,7) : Warning no-unused-params: Parameter \"notUsedParam\" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]");
+        error.Should().StartWith($"{inputFile}(4,7) : Warning no-unused-params: Parameter \"notUsedParam\" is declared but never used. [https://aka.ms/bicep/linter-diagnostics#no-unused-params]");
     }
 
     [TestMethod]
@@ -222,7 +231,7 @@ param notUsedParam = 3
 
         result.Should().Be(0);
         output.Should().BeEmpty();
-        error.Should().StartWith($"{bicepFile}(4,7) : Warning no-unused-params: Parameter \"notUsedParam\" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]");
+        error.Should().StartWith($"{bicepFile}(4,7) : Warning no-unused-params: Parameter \"notUsedParam\" is declared but never used. [https://aka.ms/bicep/linter-diagnostics#no-unused-params]");
     }
 
     [TestMethod]
@@ -243,7 +252,7 @@ param notUsedParm = 'string'
 
         result.Should().Be(1);
         output.Should().BeEmpty();
-        error.Should().Contain($"{bicepFile}(4,7) : Warning no-unused-params: Parameter \"notUsedParam\" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]");
+        error.Should().Contain($"{bicepFile}(4,7) : Warning no-unused-params: Parameter \"notUsedParam\" is declared but never used. [https://aka.ms/bicep/linter-diagnostics#no-unused-params]");
         error.Should().Contain($"{inputFile}(2,7) : Error BCP258: The following parameters are declared in the Bicep file but are missing an assignment in the params file: \"notUsedParam\".");
         error.Should().Contain($"{inputFile}(3,1) : Error BCP259: The parameter \"notUsedParm\" is assigned in the params file without being declared in the Bicep file.");
     }

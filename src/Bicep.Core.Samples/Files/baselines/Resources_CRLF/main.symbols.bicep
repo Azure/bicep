@@ -187,13 +187,13 @@ resource resourceA 'My.Rp/typeA@2020-01-01' = {
 }
 
 resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
-//@[09:018) Resource resourceB. Type: My.Rp/typeA/typeB@2020-01-01. Declaration start char: 0, length: 92
-  name: '${resourceA.name}/myName'
+//@[09:018) Resource resourceB. Type: My.Rp/typeA/typeB@2020-01-01. Declaration start char: 0, length: 95
+  name: '${resourceA.name}/resourceB'
 }
 
 resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
-//@[09:018) Resource resourceC. Type: My.Rp/typeA/typeB@2020-01-01. Declaration start char: 0, length: 269
-  name: '${resourceA.name}/myName'
+//@[09:018) Resource resourceC. Type: My.Rp/typeA/typeB@2020-01-01. Declaration start char: 0, length: 272
+  name: '${resourceA.name}/resourceC'
   properties: {
     aId: resourceA.id
     aType: resourceA.type
@@ -333,7 +333,7 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
 
 /*
   valid loop cases
-*/ 
+*/
 var storageAccounts = [
 //@[04:019) Variable storageAccounts. Type: [object, object]. Declaration start char: 0, length: 129
   {
@@ -377,13 +377,13 @@ resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01
 @sys.description('this is just a basic nested loop')
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
 //@[68:069) Local i. Type: int. Declaration start char: 68, length: 1
-//@[09:013) Resource vnet. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 399
+//@[09:013) Resource vnet. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 394
   name: 'vnet-${i}'
   properties: {
     subnets: [for j in range(0, 4): {
 //@[18:019) Local j. Type: int. Declaration start char: 18, length: 1
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
-     
+
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
       name: 'subnet-${i}-${j}'
     }]
@@ -516,8 +516,8 @@ output p1_subnet1id string = p1_subnet1.id
 
 // parent property with extension resource
 resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
-//@[09:016) Resource p2_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 76
-  name: 'res1'
+//@[09:016) Resource p2_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 78
+  name: 'p2res1'
 }
 
 resource p2_res1child 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
@@ -549,8 +549,8 @@ output p2_res2childid string = p2_res2child.id
 
 // parent property with 'existing' resource
 resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
-//@[09:016) Resource p3_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 85
-  name: 'res1'
+//@[09:016) Resource p3_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 87
+  name: 'p3res1'
 }
 
 resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
@@ -570,9 +570,9 @@ output p3_res1childid string = p3_child1.id
 
 // parent & child with 'existing'
 resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
-//@[09:016) Resource p4_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 104
+//@[09:016) Resource p4_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 106
   scope: tenant()
-  name: 'res1'
+  name: 'p4res1'
 }
 
 resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {
@@ -594,7 +594,7 @@ output p4_res1childid string = p4_child1.id
 var dbs = ['db1', 'db2','db3']
 //@[04:007) Variable dbs. Type: ['db1', 'db2', 'db3']. Declaration start char: 0, length: 30
 resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
-//@[09:018) Resource sqlServer. Type: Microsoft.Sql/servers@2021-11-01. Declaration start char: 0, length: 416
+//@[09:018) Resource sqlServer. Type: Microsoft.Sql/servers@2021-11-01. Declaration start char: 0, length: 527
   name: 'sql-server-name'
   location: 'polandcentral'
 
@@ -609,8 +609,38 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 
   @description('Primary Sql Database')
   resource primaryDb 'databases' = {
-//@[11:020) Resource primaryDb. Type: Microsoft.Sql/servers/databases@2021-11-01. Declaration start char: 2, length: 134
+//@[11:020) Resource primaryDb. Type: Microsoft.Sql/servers/databases@2021-11-01. Declaration start char: 2, length: 245
     name: 'primary-db'
     location: 'polandcentral'
+
+    resource threatProtection 'advancedThreatProtectionSettings' existing = {
+//@[13:029) Resource threatProtection. Type: Microsoft.Sql/servers/databases/advancedThreatProtectionSettings@2021-11-01. Declaration start char: 4, length: 103
+      name: 'default'
+    }
   }
 }
+
+//nameof
+output nameof_sqlServer string = nameof(sqlServer)
+//@[07:023) Output nameof_sqlServer. Type: string. Declaration start char: 0, length: 50
+output nameof_location string = nameof(sqlServer.location)
+//@[07:022) Output nameof_location. Type: string. Declaration start char: 0, length: 58
+output nameof_minCapacity string = nameof(sqlServer::primaryDb.properties.minCapacity)
+//@[07:025) Output nameof_minCapacity. Type: string. Declaration start char: 0, length: 86
+output nameof_creationTime string = nameof(sqlServer::primaryDb::threatProtection.properties.creationTime)
+//@[07:026) Output nameof_creationTime. Type: string. Declaration start char: 0, length: 106
+output nameof_id string = nameof(sqlServer::sqlDatabases[0].id)
+//@[07:016) Output nameof_id. Type: string. Declaration start char: 0, length: 63
+
+var sqlConfig = {
+//@[04:013) Variable sqlConfig. Type: object. Declaration start char: 0, length: 55
+  westus: {}
+  'server-name': {}
+}
+
+resource sqlServerWithNameof 'Microsoft.Sql/servers@2021-11-01' = {
+//@[09:028) Resource sqlServerWithNameof. Type: Microsoft.Sql/servers@2021-11-01. Declaration start char: 0, length: 173
+  name: 'sql-server-nameof-${nameof(sqlConfig['server-name'])}'
+  location: nameof(sqlConfig.westus)
+}
+

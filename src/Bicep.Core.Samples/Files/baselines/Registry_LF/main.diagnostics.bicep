@@ -91,6 +91,7 @@ module vnetDeploy 'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2'
 }]
 
 output siteUrls array = [for (site, i) in websites: siteDeploy[i].outputs.siteUrl]
+//@[16:21) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |array|
 
 module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
   scope: rg

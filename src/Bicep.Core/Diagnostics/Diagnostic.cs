@@ -3,7 +3,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using Bicep.Core.CodeAction;
-using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Diagnostics;
 

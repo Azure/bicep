@@ -43,16 +43,16 @@ var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 //@[04:09) Variable w42__. Type: string. Declaration start char: 0, length: 42
 
 var w38___ = true? 'xxxxx' : 'xxxxxx'
-//@[04:10) Variable w38___. Type: 'xxxxx' | 'xxxxxx'. Declaration start char: 0, length: 37
+//@[04:10) Variable w38___. Type: 'xxxxx'. Declaration start char: 0, length: 37
 var w39___ = true
 //@[04:10) Variable w39___. Type: 'xxxxxx'. Declaration start char: 0, length: 39
 ? 'xxxxxx' : 'xxxxxx' // suffix
 var w40___ = true ?'xxxxxx' : 'xxxxxxx'
-//@[04:10) Variable w40___. Type: 'xxxxxx' | 'xxxxxxx'. Declaration start char: 0, length: 39
+//@[04:10) Variable w40___. Type: 'xxxxxx'. Declaration start char: 0, length: 39
 var w41___ = true ? 'xxxxxxx' :         'xxxxxxx'
 //@[04:10) Variable w41___. Type: 'xxxxxxx'. Declaration start char: 0, length: 49
 var w42___ = true ? 'xxxxxxx':'xxxxxxxx'
-//@[04:10) Variable w42___. Type: 'xxxxxxx' | 'xxxxxxxx'. Declaration start char: 0, length: 40
+//@[04:10) Variable w42___. Type: 'xxxxxxx'. Declaration start char: 0, length: 40
 
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////// Baselines for width 80 ////////////////////////////
@@ -103,9 +103,9 @@ var w78___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true
 ? 1234567890
 : 1234567890
 var w79___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? { foo: 1 } : [12345678]
-//@[04:10) Variable w79___. Type: [12345678] | object. Declaration start char: 0, length: 79
+//@[04:10) Variable w79___. Type: object. Declaration start char: 0, length: 79
 var w80___ = true ? { foo: true, bar: false } : [123, 234, 456, { xyz: 'xxxx' }]
-//@[04:10) Variable w80___. Type: [123, 234, 456, object] | object. Declaration start char: 0, length: 80
+//@[04:10) Variable w80___. Type: object. Declaration start char: 0, length: 80
 var w81___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
 //@[04:10) Variable w81___. Type: 1234567890. Declaration start char: 0, length: 81
 var w82___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 1234567890
@@ -185,26 +185,26 @@ var forceBreak10 = [1, 2, intersection({ foo: true, bar: false }, {
   foo: true})]
 
 var forceBreak11 = true // comment
-//@[04:16) Variable forceBreak11. Type: false | true. Declaration start char: 0, length: 57
+//@[04:16) Variable forceBreak11. Type: true. Declaration start char: 0, length: 57
     ? true
     : false
 var forceBreak12 = true ? true // comment
-//@[04:16) Variable forceBreak12. Type: false | true. Declaration start char: 0, length: 53
+//@[04:16) Variable forceBreak12. Type: true. Declaration start char: 0, length: 53
     : false
 var forceBreak13 = true
-//@[04:16) Variable forceBreak13. Type: false | true. Declaration start char: 0, length: 57
+//@[04:16) Variable forceBreak13. Type: true. Declaration start char: 0, length: 57
     ? true // comment
     : false
 var forceBreak14 = true ? {
-//@[04:16) Variable forceBreak14. Type: false | object. Declaration start char: 0, length: 49
+//@[04:16) Variable forceBreak14. Type: object. Declaration start char: 0, length: 49
     foo: 42
 } : false
 var forceBreak15 = true ? { foo: 0 } : {
-//@[04:16) Variable forceBreak15. Type: object | object. Declaration start char: 0, length: 52
+//@[04:16) Variable forceBreak15. Type: object. Declaration start char: 0, length: 52
     bar: 1}
 
 var forceBreak16 = union({ foo: 0 }, {
-//@[04:16) Variable forceBreak16. Type: { bar: 456, foo: 123 }. Declaration start char: 0, length: 79
+//@[04:16) Variable forceBreak16. Type: { foo: 123, bar: 456 }. Declaration start char: 0, length: 79
     foo: 123
     bar: 456
 } // comment

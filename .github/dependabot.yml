@@ -20,6 +20,7 @@ updates:
       day: "sunday"
     ignore:
       - dependency-name: "Moq"
+      - dependency-name: "FluentAssertions"
   - package-ecosystem: "nuget"
     directory: "/src/vs-bicep"
     schedule:
@@ -27,6 +28,9 @@ updates:
       day: "sunday"
     ignore:
       - dependency-name: "Moq"
+      - dependency-name: "FluentAssertions"
+      # This causes problems with the mirror build because it tends to pull in Roslyn versions that are incompatible (ADO seems to lag behind the versions used in github actions)
+      - dependency-name: "Microsoft.CodeAnalysis.CSharp.CodeStyle"
     labels:
       - vs-bicep-dependencies
       - dependencies
@@ -44,82 +48,53 @@ updates:
       # we're deliberately taking a dependency on an older version of vscode for back-compatibility
       - dependency-name: "@types/vscode"
         versions:
-        - ">1.52.0"
-      # 9.0.0 contains many breaking changes that we're not ready to adopt yet.
-      - dependency-name: "eslint"
-        versions:
-        - ">9.0.0"
+          - ">1.90.0"
   - package-ecosystem: "npm"
     directory: "/src/vscode-bicep-ui"
     schedule:
       interval: "weekly"
       day: "sunday"
-    ignore:
-      # 9.0.0 contains many breaking changes that we're not ready to adopt yet.
-      - dependency-name: "eslint"
-        versions:
-        - ">9.0.0"
   - package-ecosystem: "npm"
     directory: "/src/playground"
     schedule:
       interval: "weekly"
       day: "sunday"
-    ignore:
-      # 9.0.0 contains many breaking changes that we're not ready to adopt yet.
-      - dependency-name: "eslint"
-        versions:
-        - ">9.0.0"
   - package-ecosystem: "npm"
     directory: "/src/Bicep.Cli.E2eTests"
     schedule:
       interval: "weekly"
       day: "sunday"
-    ignore:
-      # 9.0.0 contains many breaking changes that we're not ready to adopt yet.
-      - dependency-name: "eslint"
-        versions:
-        - ">9.0.0"
   - package-ecosystem: "npm"
     directory: "/src/Bicep.MSBuild.E2eTests"
     schedule:
       interval: "weekly"
       day: "sunday"
-    ignore:
-      # 9.0.0 contains many breaking changes that we're not ready to adopt yet.
-      - dependency-name: "eslint"
-        versions:
-        - ">9.0.0"
   - package-ecosystem: "npm"
     directory: "/src/textmate"
     schedule:
       interval: "weekly"
       day: "sunday"
-    ignore:
-      # 9.0.0 contains many breaking changes that we're not ready to adopt yet.
-      - dependency-name: "eslint"
-        versions:
-        - ">9.0.0"
   - package-ecosystem: "npm"
     directory: "/src/highlightjs"
     schedule:
       interval: "weekly"
       day: "sunday"
-    ignore:
-      # 9.0.0 contains many breaking changes that we're not ready to adopt yet.
-      - dependency-name: "eslint"
-        versions:
-        - ">9.0.0"
   - package-ecosystem: "npm"
     directory: "/src/monarch"
     schedule:
       interval: "weekly"
       day: "sunday"
-    ignore:
-      # 9.0.0 contains many breaking changes that we're not ready to adopt yet.
-      - dependency-name: "eslint"
-        versions:
-        - ">9.0.0"
   - package-ecosystem: "devcontainers"
     directory: "/"
     schedule:
       interval: weekly
+  - package-ecosystem: dotnet-sdk
+    directory: /
+    schedule:
+      interval: weekly
+      day: wednesday
+    ignore:
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor

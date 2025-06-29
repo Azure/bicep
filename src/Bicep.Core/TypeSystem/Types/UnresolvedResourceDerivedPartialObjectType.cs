@@ -12,15 +12,20 @@ namespace Bicep.Core.TypeSystem.Types;
 /// </summary>
 public class UnresolvedResourceDerivedPartialObjectType : ObjectType, IUnresolvedResourceDerivedType
 {
-    public UnresolvedResourceDerivedPartialObjectType(ResourceTypeReference typeReference, ImmutableArray<string> pointerSegments, string discriminatorName, string discriminatorValue)
-        : base(typeReference.FormatType(),
+    public UnresolvedResourceDerivedPartialObjectType(
+        ResourceTypeReference typeReference,
+        ImmutableArray<string> pointerSegments,
+        ResourceDerivedTypeVariant variant,
+        string discriminatorName,
+        string discriminatorValue) : base(
+            typeReference.FormatType(),
             TypeSymbolValidationFlags.Default,
-            new TypeProperty(discriminatorName, TypeFactory.CreateStringLiteralType(discriminatorValue)).AsEnumerable(),
-            LanguageConstants.Any,
-            TypePropertyFlags.FallbackProperty)
+            new NamedTypeProperty(discriminatorName, TypeFactory.CreateStringLiteralType(discriminatorValue)).AsEnumerable(),
+                new TypeProperty(LanguageConstants.Any, TypePropertyFlags.FallbackProperty))
     {
         TypeReference = typeReference;
         PointerSegments = pointerSegments;
+        Variant = variant;
     }
 
     public ResourceTypeReference TypeReference { get; }
@@ -28,6 +33,8 @@ public class UnresolvedResourceDerivedPartialObjectType : ObjectType, IUnresolve
     public ImmutableArray<string> PointerSegments { get; }
 
     public TypeSymbol FallbackType => this;
+
+    public ResourceDerivedTypeVariant Variant { get; }
 
     public override TypeKind TypeKind => TypeKind.UnboundResourceDerivedType;
 }

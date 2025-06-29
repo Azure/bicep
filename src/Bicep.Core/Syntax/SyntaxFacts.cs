@@ -62,6 +62,7 @@ namespace Bicep.Core.Syntax
             TokenType.Arrow => "=>",
             TokenType.Pipe => "|",
             TokenType.Ellipsis => "...",
+            TokenType.Hat => "^",
             _ => null,
         };
 

@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8766450146642797131"
+      "templateHash": "11189823585100150972"
     }
   },
   "parameters": {
@@ -239,6 +239,10 @@
         "description": "An array."
       },
       "maxLength": 20
+    },
+    "nameofParam": {
+      "type": "string",
+      "defaultValue": "decoratedArray"
     }
   },
   "resources": {}

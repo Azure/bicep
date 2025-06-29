@@ -3,7 +3,7 @@
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit;
@@ -42,7 +42,7 @@ public class CompilationEmitter : ICompilationEmitter
         var model = compilation.GetEntrypointSemanticModel();
         if (model.SourceFileKind != BicepSourceFileKind.ParamsFile)
         {
-            throw new InvalidOperationException($"Entry-point {model.Root.FileUri} is not a parameters file");
+            throw new InvalidOperationException($"Entry-point {model.SourceFile.FileHandle.Uri} is not a parameters file");
         }
 
         var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
@@ -57,7 +57,7 @@ public class CompilationEmitter : ICompilationEmitter
         var parametersData = writer.ToString();
         if (!model.Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var usingModel))
         {
-            throw new InvalidOperationException($"Failed to find linked bicep file for parameters file {model.Root.FileUri}");
+            throw new InvalidOperationException($"Failed to find linked bicep file for parameters file {model.SourceFile.FileHandle.Uri}");
         }
 
         switch (usingModel)
@@ -69,7 +69,7 @@ public class CompilationEmitter : ICompilationEmitter
                 }
             case ArmTemplateSemanticModel armTemplateModel:
                 {
-                    var template = armTemplateModel.SourceFile.GetOriginalSource();
+                    var template = armTemplateModel.SourceFile.Text;
                     var templateResult = new TemplateResult(true, ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>>.Empty, template, null);
 
                     return new ParametersResult(true, diagnostics, parametersData, null, templateResult);
@@ -90,9 +90,9 @@ public class CompilationEmitter : ICompilationEmitter
     public TemplateResult Template()
     {
         var model = this.compilation.GetEntrypointSemanticModel();
-        if (model.SourceFileKind != Workspaces.BicepSourceFileKind.BicepFile)
+        if (model.SourceFileKind != SourceGraph.BicepSourceFileKind.BicepFile)
         {
-            throw new InvalidOperationException($"Entry-point {model.Root.FileUri} is not a bicep file");
+            throw new InvalidOperationException($"Entry-point {model.SourceFile.FileHandle.Uri} is not a bicep file");
         }
 
         return Template(model);

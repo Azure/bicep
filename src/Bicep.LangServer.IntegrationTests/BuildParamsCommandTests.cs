@@ -10,6 +10,7 @@ using Bicep.LangServer.IntegrationTests.Helpers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
@@ -48,7 +49,7 @@ namespace Bicep.LangServer.IntegrationTests
             {
                 Name = "buildParams",
                 Arguments = new JArray {
-                    bicepFilePath,
+                    DocumentUri.FromFileSystemPath(bicepFilePath).ToString(),
                 }
             });
 

@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Registry.Extensions;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -140,25 +142,6 @@ resource foos 'Microsoft.Network/dnsZones@2018-05-01' = [for (item, i) in []: {
         }
 
         [TestMethod]
-        public void MissingModuleExpectedVariantPropertiesShouldProduceNoWarning()
-        {
-            const string text = @"
-module mod 'mod.bicep' = [for a in []: {
-  params: {
-    foo: 's'
-  }
-}]";
-            //bicep(BCP035)
-            var result = CompilationHelper.Compile(
-                ("main.bicep", text),
-                ("mod.bicep", "param foo string"));
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-{
-                ("BCP035", DiagnosticLevel.Error, "The specified \"module\" declaration is missing the following required properties: \"name\".")
-            });
-        }
-
-        [TestMethod]
         public void InvariantModuleNameShouldProduceWarning()
         {
             const string text = @"
@@ -234,13 +217,8 @@ resource c3 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for (cname,i) in []
         }
 
         [TestMethod]
-        public void OptionalInvariantModulePropertiesWhenRequiredPropertyIsMissingShouldNotProduceWarning()
+        public void OptionalModuleNameShouldNotProduceWarning()
         {
-            /*
-             * This asserts that we don't overwarn. If the user didn't yet put in a value for
-             * a required property that is expected to be loop-variant, we should not warn them.
-             */
-
             const string text = @"
 module mod 'mod.bicep' = [for a in []: {
   scope: resourceGroup()
@@ -249,13 +227,13 @@ module mod 'mod.bicep' = [for a in []: {
   }
 }]
 ";
+            var serviceBuilder = new ServiceBuilder();
             var result = CompilationHelper.Compile(
+                serviceBuilder,
                 ("main.bicep", text),
                 ("mod.bicep", "param foo string"));
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-{
-                ("BCP035", DiagnosticLevel.Error, "The specified \"module\" declaration is missing the following required properties: \"name\".")
-            });
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
@@ -296,6 +274,72 @@ resource foos 'Microsoft.Network/dnsZones@2018-05-01' existing = [for (item, i) 
 }]
 ";
             var result = CompilationHelper.Compile(text);
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public async Task Extensible_resource_with_invariant_properties_should_produce_warning()
+        {
+            // See https://github.com/Azure/bicep/issues/14770 for context
+            var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
+            var extensionTgz = await ExtensionV1Archive.Build(new(typesTgz, false, []));
+
+            var result = await CompilationHelper.RestoreAndCompile(
+              ("main.bicep", new("""
+                  extension '../extension.tgz'
+
+                  resource fooRes 'fooType@v1' = [for x in ['foo']: {
+                    identifier: 'foobar'
+                    properties: {
+                      required: 'bar'
+                    }
+                  }]
+                  """)), ("../extension.tgz", extensionTgz));
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+            {
+                ("BCP179", DiagnosticLevel.Warning, "Unique resource or deployment name is required when looping. The loop item variable \"x\" must be referenced in at least one of the value expressions of the following properties: \"identifier\""),
+            });
+        }
+
+        [TestMethod]
+        public async Task Extensible_resource_with_variant_properties_should_produce_no_warning()
+        {
+            // See https://github.com/Azure/bicep/issues/14770 for context
+            var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
+            var extensionTgz = await ExtensionV1Archive.Build(new(typesTgz, false, []));
+
+            var result = await CompilationHelper.RestoreAndCompile(
+              ("main.bicep", new("""
+                  extension '../extension.tgz'
+
+                  resource fooRes 'fooType@v1' = [for x in ['foo']: {
+                    identifier: 'foobar${x}'
+                    properties: {
+                      required: 'bar'
+                    }
+                  }]
+                  """)), ("../extension.tgz", extensionTgz));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public async Task Existing_extensible_resource_with_invariant_properties_should_produce_no_warning()
+        {
+            // See https://github.com/Azure/bicep/issues/14770 for context
+            var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
+            var extensionTgz = await ExtensionV1Archive.Build(new(typesTgz, false, []));
+
+            var result = await CompilationHelper.RestoreAndCompile(
+              ("main.bicep", new("""
+                  extension '../extension.tgz'
+
+                  resource fooRes 'fooType@v1' existing = [for x in ['foo']: {
+                    identifier: 'foo'
+                  }]
+                  """)), ("../extension.tgz", extensionTgz));
+
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
     }

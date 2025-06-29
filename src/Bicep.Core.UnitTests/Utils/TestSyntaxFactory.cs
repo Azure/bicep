@@ -3,6 +3,7 @@
 using System.Collections.Immutable;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.UnitTests.Utils
 {

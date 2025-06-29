@@ -33,7 +33,7 @@ namespace Bicep.Core.PrettyPrint.Documents
         {
             RuntimeHelpers.EnsureSufficientExecutionStack();
 
-            return new TextDocument(this.text, successors.Select(s => s.Nest()).ToImmutableArray());
+            return new TextDocument(this.text, [.. successors.Select(s => s.Nest())]);
         }
 
         public void Layout(StringBuilder sb, string indent, string newline)

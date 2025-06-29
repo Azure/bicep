@@ -19,5 +19,9 @@ namespace Bicep.Core.TypeSystem
         Subscription = 1 << 4,
 
         ResourceGroup = 1 << 5,
+
+        DesiredStateConfiguration = 1 << 6,
+
+        Local = 1 << 7,
     }
 }

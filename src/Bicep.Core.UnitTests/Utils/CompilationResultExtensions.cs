@@ -43,15 +43,20 @@ public static class ICompilationResultExtensions
             throw new InvalidOperationException("Diagnostic is not fixable");
         }
 
-        // TODO - support multiple fixes / replacements
-        var fix = fixable.Fixes.Single();
+        // TODO - support multiple fixes
+        return ApplyCodeFix(result, fixable.Fixes.Single());
+    }
+
+    public static string ApplyCodeFix(this ICompilationResult result, CodeFix fix)
+    {
+        // TODO - support multiple replacements
         var replacement = fix.Replacements.Single();
 
-        var originalFile = result.SourceFile.GetOriginalSource();
+        var sourceText = result.SourceFile.Text;
 
         return string.Concat(
-            originalFile.AsSpan(0, replacement.Span.Position),
+            sourceText.AsSpan(0, replacement.Span.Position),
             replacement.Text,
-            originalFile.AsSpan(replacement.Span.GetEndPosition()));
+            sourceText.AsSpan(replacement.Span.GetEndPosition()));
     }
 }

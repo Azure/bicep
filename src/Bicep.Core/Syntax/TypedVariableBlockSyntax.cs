@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Syntax;
 
@@ -13,9 +14,9 @@ public class TypedVariableBlockSyntax : SyntaxBase
         AssertTokenType(openParen, nameof(openParen), TokenType.LeftParen);
 
         this.OpenParen = openParen;
-        this.Children = children.ToImmutableArray();
+        this.Children = [.. children];
         this.CloseParen = closeParen;
-        this.Arguments = this.Children.OfType<TypedLocalVariableSyntax>().ToImmutableArray();
+        this.Arguments = [.. this.Children.OfType<TypedLocalVariableSyntax>()];
     }
 
     public Token OpenParen { get; }

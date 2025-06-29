@@ -112,6 +112,9 @@ jobs:
           dotnet publish --configuration release ./src/Bicep.LangServer/Bicep.LangServer.csproj
           cp -R src/Bicep.LangServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepLanguageServer
 
+      - name: Check npm version
+        run: npm -v
+
       - name: npm ci (vscode-bicep-ui)
         run: npm ci
         working-directory: ./src/vscode-bicep-ui
@@ -121,13 +124,13 @@ jobs:
         working-directory: ./src/vscode-bicep-ui
 
       - name: npm ci (vscode-bicep)
-        run: npm ci --install-links
+        run: npm ci
         working-directory: ./src/vscode-bicep
 
       - name: Generate VSIX notice
         run: |
           mkdir -p ./src/vscode-bicep-notice/inputs
-          npm --prefix ./src/vscode-bicep list -a --install-links --json > ./src/vscode-bicep-notice/inputs/npm-list.json
+          npm --prefix ./src/vscode-bicep list -a --json > ./src/vscode-bicep-notice/inputs/npm-list.json
           cp ./src/Bicep.LangServer/obj/project.assets.json ./src/vscode-bicep-notice/inputs/project.assets.json
           dotnet build --configuration Release ./src/vscode-bicep-notice/vscode-bicep-notice.proj
 
@@ -165,12 +168,19 @@ jobs:
         with:
           node-version: 20
 
+      - name: Check npm version
+        run: npm -v
+
       - name: npm ci
         run: npm ci
         working-directory: ./src/vscode-bicep-ui
 
       - name: Run lint
         run: npm run lint
+        working-directory: ./src/vscode-bicep-ui
+
+      - name: Run build
+        run: npm run build
         working-directory: ./src/vscode-bicep-ui
 
       - name: Run tests
@@ -215,6 +225,9 @@ jobs:
           dotnet publish --configuration release ./src/Bicep.LangServer/Bicep.LangServer.csproj
           cp -R src/Bicep.LangServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepLanguageServer
 
+      - name: Check npm version
+        run: npm -v
+
       - name: npm ci (vscode-bicep-ui)
         run: npm ci
         working-directory: ./src/vscode-bicep-ui
@@ -224,7 +237,7 @@ jobs:
         working-directory: ./src/vscode-bicep-ui
 
       - name: npm ci (vscode-bicep)
-        run: npm ci --install-links
+        run: npm ci
         working-directory: ./src/vscode-bicep
 
       - name: Run lint
@@ -264,7 +277,7 @@ jobs:
         working-directory: ./src/vscode-bicep
 
       - name: Upload Code Coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           flags: typescript
           directory: ./src/vscode-bicep/coverage
@@ -293,6 +306,7 @@ jobs:
         run: msbuild src/vs-bicep/BicepInVisualStudio.sln /restore /p:Configuration=Release /v:m /bl:./src/binlog/bicep_in_visual_studio_build.binlog
 
       - name: Upload BicepInVisualStudio.sln build binlog
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-binlog-files
@@ -308,9 +322,7 @@ jobs:
 
       - name: Run bicep in visual studio unit tests
         run: |
-          $vswhere = (Invoke-WebRequest -Uri "https://github.com/microsoft/vswhere/releases/latest/download/vswhere.exe" -OutFile "vswhere.exe")
-          $vstest = & .\vswhere.exe -latest -products * -requires Microsoft.VisualStudio.PackageGroup.TestTools.Core -find **\TestPlatform\vstest.console.exe
-          . $vstest .\src\vs-bicep\Bicep.VSLanguageServerClient.UnitTests\bin\release\net472\Bicep.VSLanguageServerClient.UnitTests.dll
+          dotnet test src\vs-bicep\Bicep.VSLanguageServerClient.UnitTests\bin\release\net472\Bicep.VSLanguageServerClient.UnitTests.exe
 
       # Temporarily disable VS Bicep integration tests, they're flaky
       # Proper fix tracked under https://github.com/Azure/bicep/issues/8078
@@ -384,13 +396,13 @@ jobs:
           - os: macos-latest
             rid: osx-x64
             runTests: true
-          - os: ubuntu-latest
+          - os: windows-latest
             rid: win-arm64
             runTests: false
           - os: ubuntu-latest
             rid: linux-arm64
             runTests: false
-          - os: ubuntu-latest
+          - os: macos-latest
             rid: osx-arm64
             runTests: false
 
@@ -408,14 +420,12 @@ jobs:
         with:
           node-version: 20
 
+      - name: Check npm version
+        run: npm -v
+
       - name: npm ci
         if: matrix.runTests
         run: npm ci
-        working-directory: ./src/Bicep.MSBuild.E2eTests
-
-      - name: Compile
-        if: matrix.runTests
-        run: npm run compile
         working-directory: ./src/Bicep.MSBuild.E2eTests
 
       - name: Run lint
@@ -440,6 +450,10 @@ jobs:
         with:
           name: bicep-nupkg-any
           path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
+
+      - name: Install mono
+        run: sudo apt update && sudo apt install mono-complete
+        if: ${{ matrix.rid == 'linux-x64' || matrix.rid == 'linux-arm64' }}
 
       - name: Build CLI Package
         run: dotnet build --configuration Release /p:RuntimeSuffix=${{ matrix.rid }} ./src/Bicep.Cli.Nuget/nuget.proj
@@ -479,7 +493,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 23
+
+      - name: Check npm version
+        run: npm -v
 
       - name: npm ci
         run: npm ci
@@ -517,6 +534,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      - name: Check npm version
+        run: npm -v
 
       - name: TextMate Grammar
         run: |
@@ -634,7 +654,7 @@ jobs:
         uses: actions/setup-dotnet@v4
 
       - name: Run Tests
-        run: dotnet test --filter '${{ matrix.config.filter}}' --configuration release --settings ./.github/workflows/ci.runsettings --results-directory ./TestResults
+        run: dotnet test --configuration release -- --filter '${{ matrix.config.filter }}' --report-trx --results-directory ${{ github.workspace }}/TestResults
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
@@ -643,11 +663,6 @@ jobs:
           name: TestResults-${{ matrix.config.name }}-${{ matrix.os }}
           path: ./TestResults/*.trx
           if-no-files-found: error
-
-      - name: Upload Code Coverage
-        uses: codecov/codecov-action@v4
-        with:
-          flags: dotnet
 
   comment-test-summary:
     name: "PR Comment: Dotnet Tests Summary"
@@ -735,7 +750,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        environment: [prod, ff]
+        environment: [prod] # [prod, ff] - re-add ff once the environment has been re-enabled
         runtime:
           # should be the list of RIDs that correspond to OSs supported by GitHub hosted runners
           - os: windows-latest
@@ -783,7 +798,18 @@ jobs:
           subscription-id: ${{ (matrix.environment == 'prod' && secrets.LIVE_TEST_SUBSCRIPTION_ID_PROD) || secrets.LIVE_TEST_SUBSCRIPTION_ID_FF }}
 
       - name: Run Bicep Live E2E Tests (${{ matrix.environment }})
+        id: live-tests
+        continue-on-error: true
         run: npm ci && npm run test:live:${{ matrix.environment }}
+        env:
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+        working-directory: ./src/Bicep.Cli.E2eTests
+
+      - name: "RETRY: Run Bicep Live E2E Tests (${{ matrix.environment }})"
+        if: steps.live-tests.outcome == 'failure'
+        run: |
+          echo "::warning::The initial run of Bicep Live E2E Tests failed. Retrying..."
+          npm ci && npm run test:live:${{ matrix.environment }}
         env:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
         working-directory: ./src/Bicep.Cli.E2eTests
@@ -792,9 +818,7 @@ jobs:
     name: Test CLI (live) (linux-musl-x64) (${{ matrix.environment }})
     strategy:
       matrix:
-        environment:
-          - prod
-          - ff
+        environment: [prod] # [prod, ff] - re-add ff once the environment has been re-enabled
     runs-on: ubuntu-latest
     container:
       # The azure-cli image is based on Alpine linux which uses musl libc.
@@ -829,7 +853,19 @@ jobs:
           subscription-id: ${{ (matrix.environment == 'prod' && secrets.LIVE_TEST_SUBSCRIPTION_ID_PROD) || secrets.LIVE_TEST_SUBSCRIPTION_ID_FF }}
 
       - name: Run Bicep Live E2E Tests (${{ matrix.environment }})
+        id: live-tests
+        continue-on-error: true
         run: npm ci && npm run test:live:${{ matrix.environment }}
+        env:
+          BICEP_CLI_DOTNET_RID: linux-musl-x64
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+        working-directory: ./src/Bicep.Cli.E2eTests
+
+      - name: "RETRY: Run Bicep Live E2E Tests (${{ matrix.environment }})"
+        if: failure() && steps.live-tests.outcome == 'failure'
+        run: |
+          echo "::warning::The initial run of Bicep Live E2E Tests failed. Retrying..."
+          npm ci && npm run test:live:${{ matrix.environment }}
         env:
           BICEP_CLI_DOTNET_RID: linux-musl-x64
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep

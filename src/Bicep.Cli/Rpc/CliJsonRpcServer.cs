@@ -3,17 +3,17 @@
 
 using System.Collections.Immutable;
 using Bicep.Cli.Helpers;
+using Bicep.Cli.Helpers.Snapshot;
 using Bicep.Core;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.Workspaces;
 using Newtonsoft.Json.Serialization;
 using StreamJsonRpc;
 
@@ -48,8 +48,9 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
     /// <inheritdoc/>
     public async Task<CompileResponse> Compile(CompileRequest request, CancellationToken cancellationToken)
     {
-        var model = await GetSemanticModel(compiler, request.Path);
-        var diagnostics = GetDiagnostics(model.Compilation).ToImmutableArray();
+        var compilation = await GetCompilation(compiler, request.Path);
+        var model = compilation.GetEntrypointSemanticModel();
+        var diagnostics = GetDiagnostics(compilation).ToImmutableArray();
 
         var writer = new StringWriter();
         var result = model.SourceFileKind == BicepSourceFileKind.BicepFile ?
@@ -63,22 +64,23 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
     /// <inheritdoc/>
     public async Task<CompileParamsResponse> CompileParams(CompileParamsRequest request, CancellationToken cancellationToken)
     {
-        var model = await GetSemanticModel(compiler, request.Path);
+        var compilation = await GetCompilation(compiler, request.Path);
+        var model = compilation.GetEntrypointSemanticModel();
         if (model.SourceFile is not BicepParamFile paramFile)
         {
             throw new InvalidOperationException($"Expected a .bicepparam file");
         }
 
-        paramFile = ParamsFileHelper.ApplyParameterOverrides(paramFile, request.ParameterOverrides);
+        paramFile = ParamsFileHelper.ApplyParameterOverrides(compilation.SourceFileFactory, paramFile, request.ParameterOverrides);
 
         var workspace = new Workspace();
         workspace.UpsertSourceFile(paramFile);
-        var compilation = await compiler.CreateCompilation(paramFile.FileUri, workspace);
+        compilation = await compiler.CreateCompilation(paramFile.Uri, workspace);
         var paramsResult = compilation.Emitter.Parameters();
 
         return new(
             paramsResult.Success,
-            GetDiagnostics(compilation).ToImmutableArray(),
+            [.. GetDiagnostics(compilation)],
             paramsResult.Parameters,
             paramsResult.Template?.Template,
             paramsResult.TemplateSpecId);
@@ -87,17 +89,25 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
     /// <inheritdoc/>
     public async Task<GetFileReferencesResponse> GetFileReferences(GetFileReferencesRequest request, CancellationToken cancellationToken)
     {
-        var model = await GetSemanticModel(compiler, request.Path);
-        var diagnostics = GetDiagnostics(model.Compilation).ToImmutableArray();
+        var compilation = await GetCompilation(compiler, request.Path);
+        var model = compilation.GetEntrypointSemanticModel();
+        var diagnostics = GetDiagnostics(compilation).ToImmutableArray();
 
         var fileUris = new HashSet<Uri>();
-        foreach (var otherModel in model.Compilation.GetAllBicepModels())
+        foreach (var otherModel in compilation.GetAllBicepModels())
         {
-            fileUris.Add(otherModel.SourceFile.FileUri);
-            fileUris.UnionWith(otherModel.GetAuxiliaryFileReferences());
-            if (otherModel.Configuration.ConfigFileUri is { } configFileUri)
+            fileUris.Add(otherModel.SourceFile.Uri);
+            fileUris.UnionWith(otherModel.SourceFile.GetReferencedAuxiliaryFileUris().Select(ioUri => ioUri.ToUri()));
+            if (otherModel.Configuration.ConfigFileUri is { } configFileIdentifier)
             {
-                fileUris.Add(configFileUri);
+                var uri = new UriBuilder
+                {
+                    Scheme = configFileIdentifier.Scheme,
+                    Host = configFileIdentifier.Authority,
+                    Path = configFileIdentifier.Path,
+                }.Uri;
+
+                fileUris.Add(uri);
             }
         }
 
@@ -108,12 +118,13 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
     /// <inheritdoc/>
     public async Task<GetMetadataResponse> GetMetadata(GetMetadataRequest request, CancellationToken cancellationToken)
     {
-        var model = await GetSemanticModel(compiler, request.Path);
+        var compilation = await GetCompilation(compiler, request.Path);
+        var model = compilation.GetEntrypointSemanticModel();
 
         var metadata = GetModelMetadata(model).ToImmutableArray();
         var parameters = model.Root.ParameterDeclarations.Select(x => GetSymbolDefinition(model, x)).ToImmutableArray();
         var outputs = model.Root.OutputDeclarations.Select(x => GetSymbolDefinition(model, x)).ToImmutableArray();
-        var exports = model.Root.Declarations.Where(x => x.IsExported()).Select(x => GetExportDefinition(model, x)).ToImmutableArray();
+        var exports = model.Root.Declarations.Where(x => x.IsExported(model)).Select(x => GetExportDefinition(model, x)).ToImmutableArray();
 
         return new(metadata, parameters, outputs, exports);
     }
@@ -123,7 +134,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
             GetRange(model.SourceFile, symbol.DeclaringSyntax),
             symbol.Name,
             symbol.Kind.ToString(),
-            symbol.TryGetDescriptionFromDecorator());
+            symbol.TryGetDescriptionFromDecorator(model));
 
     private static GetMetadataResponse.SymbolDefinition GetSymbolDefinition(SemanticModel model, DeclaredSymbol symbol)
     {
@@ -157,13 +168,14 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
             GetRange(model.SourceFile, symbol.DeclaringSyntax),
             symbol.Name,
             getTypeInfo(),
-            symbol.TryGetDescriptionFromDecorator());
+            symbol.TryGetDescriptionFromDecorator(model));
     }
 
     public async Task<GetDeploymentGraphResponse> GetDeploymentGraph(GetDeploymentGraphRequest request, CancellationToken cancellationToken)
     {
-        var model = await GetSemanticModel(compiler, request.Path);
-        var dependenciesBySymbol = ResourceDependencyVisitor.GetResourceDependencies(model, new() { IncludeExisting = true })
+        var compilation = await GetCompilation(compiler, request.Path);
+        var model = compilation.GetEntrypointSemanticModel();
+        var dependenciesBySymbol = ResourceDependencyVisitor.GetResourceDependencies(model)
             .Where(x => !x.Key.Type.IsError())
             .ToImmutableDictionary(x => x.Key, x => x.Value);
 
@@ -188,7 +200,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         foreach (var (symbol, dependencies) in dependenciesBySymbol)
         {
             var source = nodesBySymbol.TryGetValue(symbol);
-            foreach (var dependency in dependencies.Where(d => d.Kind == ResourceDependencyKind.Primary))
+            foreach (var dependency in dependencies)
             {
                 var target = nodesBySymbol.TryGetValue(dependency.Resource);
                 if (source is { } && target is { })
@@ -203,7 +215,34 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
             [.. edges.OrderBy(x => x.Source).ThenBy(x => x.Target)]);
     }
 
-    private static async Task<SemanticModel> GetSemanticModel(BicepCompiler compiler, string filePath)
+    public async Task<GetSnapshotResponse> GetSnapshot(GetSnapshotRequest request, CancellationToken cancellationToken)
+    {
+        var compilation = await GetCompilation(compiler, request.Path);
+        if (compilation.Emitter.Parameters() is not { } result ||
+            result.Template?.Template is not { } templateContent ||
+            result.Parameters is not { } parametersContent)
+        {
+            throw new InvalidOperationException($"Compilation failed");
+        }
+
+        var externalInputs = request.ExternalInputs ?? [];
+
+        var snapshot = await SnapshotHelper.GetSnapshot(
+            targetScope: compilation.GetEntrypointSemanticModel().TargetScope,
+            templateContent: templateContent,
+            parametersContent: parametersContent,
+            tenantId: request.Metadata.TenantId,
+            subscriptionId: request.Metadata.SubscriptionId,
+            resourceGroup: request.Metadata.ResourceGroup,
+            location: request.Metadata.Location,
+            deploymentName: request.Metadata.DeploymentName,
+            externalInputs: [.. externalInputs.Select(x => new SnapshotHelper.ExternalInputValue(x.Kind, x.Config, x.Value))],
+            cancellationToken: cancellationToken);
+
+        return new(SnapshotHelper.Serialize(snapshot));
+    }
+
+    private static async Task<Compilation> GetCompilation(BicepCompiler compiler, string filePath)
     {
         var fileUri = PathHelper.FilePathToFileUrl(filePath);
         if (!PathHelper.HasBicepExtension(fileUri) &&
@@ -214,7 +253,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
 
         var compilation = await compiler.CreateCompilation(fileUri);
 
-        return compilation.GetEntrypointSemanticModel();
+        return compilation;
     }
 
     private static IEnumerable<DiagnosticDefinition> GetDiagnostics(Compilation compilation)
@@ -223,7 +262,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         {
             foreach (var diagnostic in diagnostics)
             {
-                yield return new(bicepFile.FileUri.LocalPath, GetRange(bicepFile, diagnostic), diagnostic.Level.ToString(), diagnostic.Code, diagnostic.Message);
+                yield return new(bicepFile.FileHandle.Uri, GetRange(bicepFile, diagnostic), diagnostic.Level.ToString(), diagnostic.Code, diagnostic.Message);
             }
         }
     }

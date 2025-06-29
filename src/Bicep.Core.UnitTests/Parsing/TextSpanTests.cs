@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Extensions;
-using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -80,8 +80,8 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow("[520:520]", "[530:540]", false)]
         public void AreOverlapping_ShouldDetermineOverlapCorrectly(string firstSpan, string secondSpan, bool expectedOverlapResult)
         {
-            var first = TextSpan.Parse(firstSpan);
-            var second = TextSpan.Parse(secondSpan);
+            var first = ParseSpan(firstSpan);
+            var second = ParseSpan(secondSpan);
 
             TextSpan.AreOverlapping(first, second).Should().Be(expectedOverlapResult);
             TextSpan.AreOverlapping(second, first).Should().Be(expectedOverlapResult);
@@ -95,8 +95,8 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow("[100:200]", "[105:205]", false)]
         public void AreNeighbors_ShouldProduceCorrectResult(string firstSpan, string secondSpan, bool expectedResult)
         {
-            var first = TextSpan.Parse(firstSpan);
-            var second = TextSpan.Parse(secondSpan);
+            var first = ParseSpan(firstSpan);
+            var second = ParseSpan(secondSpan);
 
             TextSpan.AreNeighbors(first, second).Should().Be(expectedResult);
         }
@@ -109,50 +109,11 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow("[35:48]", "[14:18]", "[18:48]")]
         public void BetweenInclusiveAndExclusive_ShouldProduceCorrectSpan(string inclusiveSpan, string exclusiveSpan, string expected)
         {
-            var inclusive = TextSpan.Parse(inclusiveSpan);
-            var exclusive = TextSpan.Parse(exclusiveSpan);
+            var inclusive = ParseSpan(inclusiveSpan);
+            var exclusive = ParseSpan(exclusiveSpan);
 
             // this operation is not commutative
             TextSpan.BetweenInclusiveAndExclusive(inclusive, exclusive).ToString().Should().Be(expected);
-        }
-
-        [DataTestMethod]
-        [DataRow(null)]
-        [DataRow("")]
-        [DataRow("\r")]
-        [DataRow("\n")]
-        [DataRow("[")]
-        [DataRow("[a")]
-        [DataRow("[11")]
-        [DataRow("[12:]")]
-        [DataRow("[]")]
-        [DataRow("[:]")]
-        [DataRow("[1:99999999999999999999999999999999999999999999]")]
-        [DataRow("[23333333333333333333333333333333333333:22]")]
-        [DataRow("[123:121]")]
-        public void InvalidSpanString_ShouldNotParse(string str)
-        {
-            TextSpan.TryParse(str, out var span).Should().BeFalse();
-            span.Should().Be(TextSpan.Nil);
-
-            Action parse = () => TextSpan.Parse(str);
-            parse.Should().Throw<FormatException>().WithMessage($"The specified text span string '{str}' is not valid.");
-        }
-
-        [DataTestMethod]
-        [DataRow("[0:0]", 0, 0)]
-        [DataRow("[0:1]", 0, 1)]
-        [DataRow("[123:134]", 123, 11)]
-        public void ValidSpanString_ShouldParse(string str, int expectedPosition, int expectedLength)
-        {
-            TextSpan.TryParse(str, out var span).Should().BeTrue();
-            span.Should().NotBeNull();
-            span!.Position.Should().Be(expectedPosition);
-            span.Length.Should().Be(expectedLength);
-
-            var second = TextSpan.Parse(str);
-            second.Position.Should().Be(expectedPosition);
-            second.Length.Should().Be(expectedLength);
         }
 
         [DataTestMethod]
@@ -161,8 +122,18 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow("[123:134]")]
         public void GetEndPosition_ShouldReturnExpectedValue(string str)
         {
-            var span = TextSpan.Parse(str);
+            var span = ParseSpan(str);
             span.GetEndPosition().Should().Be(span.Position + span.Length);
+        }
+
+        private static TextSpan ParseSpan(string value)
+        {
+            var colonIndex = value.IndexOf(':');
+            var startInclusive = int.Parse(value.AsSpan(1, colonIndex - 1));
+            var endExclusive = int.Parse(value.AsSpan(colonIndex + 1, value.Length - colonIndex - 2));
+            var length = endExclusive - startInclusive;
+
+            return new TextSpan(startInclusive, length);
         }
     }
 }

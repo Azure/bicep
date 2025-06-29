@@ -7,6 +7,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 
 namespace Bicep.Core.IntegrationTests;
 
@@ -28,10 +29,9 @@ public class ResourceTypeProviderFactoryTests
         var repositoryPath = $"test/extension";
         var repositoryNames = new[] { "foo", "bar" };
 
-        var (clientFactory, _) = RegistryHelper.CreateMockRegistryClients(repositoryNames.Select(name => (registry, $"{repositoryPath}/{name}")).ToArray());
+        var clientFactory = RegistryHelper.CreateMockRegistryClient([.. repositoryNames.Select(name => new RepoDescriptor(registry, $"{repositoryPath}/{name}", ["v1"]))]);
 
         var services = new ServiceBuilder()
-            .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true))
             .WithContainerRegistryClientFactory(clientFactory);
 
         foreach (var repoName in repositoryNames)

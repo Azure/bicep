@@ -30,10 +30,9 @@ namespace Bicep.Core.Syntax
         /// <returns>The list of ancestors.</returns>
         public static ImmutableArray<TSyntax> GetAllAncestors<TSyntax>(this ISyntaxHierarchy hierarchy, SyntaxBase syntax)
             where TSyntax : SyntaxBase
-            => EnumerateAncestorsUpwards(hierarchy, syntax)
+            => [.. EnumerateAncestorsUpwards(hierarchy, syntax)
                 .OfType<TSyntax>()
-                .Reverse()
-                .ToImmutableArray();
+                .Reverse()];
 
         /// <summary>
         /// Gets the nearest ancestor assignable to <typeparamref name="TSyntax" /> above <paramref name="syntax" />

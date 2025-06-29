@@ -1,18 +1,25 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Assertions;
+using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Registry;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 
 namespace Bicep.LangServer.IntegrationTests;
 
@@ -64,23 +71,29 @@ param foo: string
         // * The module is re-published with different contents. The module cache (on disk) is not aware of this change
         // * The user forces a module restore to fetch the latest contents
 
-        var clientFactory = RegistryHelper.CreateMockRegistryClient("mockregistry.io", "test/foo");
+        var clientFactory = RegistryHelper.CreateMockRegistryClient(new RepoDescriptor("mockregistry.io", "test/foo", ["v1"]));
         async Task publish(string source)
             => await RegistryHelper.PublishModuleToRegistryAsync(
+                new ServiceBuilder(),
                 clientFactory,
                 BicepTestConstants.FileSystem,
-                "modulename",
-                "br:mockregistry.io/test/foo:1.1",
-                source,
-                publishSource: false);
+                new("br:mockregistry.io/test/foo:1.1", source, WithSource: false));
 
-        var cacheRootPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var cacheRoot = FileHelper.GetCacheRootDirectory(TestContext);
         var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
             TestContext,
-            services => services
-                .WithFeatureOverrides(new(CacheRootDirectory: cacheRootPath))
-                .WithContainerRegistryClientFactory(clientFactory)
-                .AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>());
+            services =>
+            {
+                services = services
+                    .WithFeatureOverrides(new(CacheRootDirectory: cacheRoot))
+                    .WithContainerRegistryClientFactory(clientFactory)
+                    .AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>();
+
+                // Using a mock IPublicModuleIndexHttpClient since this test doesn't require public registry modules. 
+                // This prevents downloading public registry metadata on each run, avoiding potential flakiness 
+                // or test timeouts caused by slow internet connections.
+                services.AddHttpClient<IPublicModuleIndexHttpClient, MockPublicModuleIndexHttpClient>();
+            });
 
         // the published module has the wrong param type - this should cause an error
         await publish("param foo bool");
@@ -116,5 +129,42 @@ param foo = 'abc'
         // the diagnostics being empty indicates that compilation succeeded (e.g. we picked up the new changes)
         diags = await helper.WaitForDiagnostics(paramsFileUri);
         diags.Diagnostics.Should().BeEmpty();
+    }
+
+    [TestMethod]
+    public async Task Test_Issue13893() // https://github.com/Azure/bicep/issues/13893
+    {
+        var bicepText = @"
+type fooType = {
+  @description('Description of foo')
+  *: string
+}
+param foo fooType
+";
+
+        var bicepparamText = @"
+using 'test.bicep'
+param foo = {
+  n|ame: 'test1'
+}
+";
+        var (bicepContent, _) = ParserHelper.GetFileWithCursors(bicepText);
+        var (bicepparamContent, bicepparamCursor) = ParserHelper.GetFileWithSingleCursor(bicepparamText);
+
+        using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext);
+        var helper = new ServerRequestHelper(TestContext, server);
+
+        await helper.OpenFile("/test.bicep", bicepContent);
+        var file = await helper.OpenFile("/main.bicepparam", bicepparamContent);
+
+        var hover = await file.RequestHover(bicepparamCursor);
+
+        hover!.Contents.MarkupContent!.Value.Should().Be("""
+```bicep
+*: string
+```  
+Description of foo  
+
+""");
     }
 }

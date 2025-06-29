@@ -645,5 +645,13 @@ var test = {
 }
 
 var arraySpread = [...arrayOfBooleans, ...arrayOfHardCodedNumbers, ...arrayOfHardCodedStrings]
-//@    "arraySpread": "[flatten(createArray(variables('arrayOfBooleans'), variables('arrayOfHardCodedNumbers'), variables('arrayOfHardCodedStrings')))]"
+//@    "arraySpread": "[flatten(createArray(variables('arrayOfBooleans'), variables('arrayOfHardCodedNumbers'), variables('arrayOfHardCodedStrings')))]",
+
+
+var nameof1 = nameof(arraySpread)
+//@    "nameof1": "arraySpread",
+var nameof2 = nameof(spread.foo)
+//@    "nameof2": "foo",
+var nameof3 = nameof(myObj.obj.nested)
+//@    "nameof3": "nested"
 

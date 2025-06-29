@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Syntax
 {
@@ -74,7 +75,14 @@ namespace Bicep.Core.Syntax
         public ObjectSyntax GetBody() =>
             this.TryGetBody() ?? throw new InvalidOperationException($"A valid resource body is not available on this module due to errors. Use {nameof(TryGetBody)}() instead.");
 
-        public bool HasCondition() => this.Value is IfConditionSyntax or ForSyntax { Body: IfConditionSyntax };
+        public bool HasCondition() => TryGetCondition() is not null;
+
+        public SyntaxBase? TryGetCondition() => Value switch
+        {
+            IfConditionSyntax ifCondition => ifCondition.ConditionExpression,
+            ForSyntax { Body: IfConditionSyntax ifCondition } => ifCondition.ConditionExpression,
+            _ => null,
+        };
 
         public bool IsCollection() => this.Value is ForSyntax;
     }

@@ -15,6 +15,7 @@
 
     <NugetExePath>$(PkgNuGet_CommandLine)\tools\NuGet.exe</NugetExePath>
     <NugetExePath Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">mono $(NugetExePath)</NugetExePath>
+    <NugetExePath Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">mono $(NugetExePath)</NugetExePath>
 
     <BicepBinariesDirectory>$(MSBuildProjectDirectory)\tools</BicepBinariesDirectory>
     <BicepExePathWindows>$(BicepBinariesDirectory)\bicep.exe</BicepExePathWindows>

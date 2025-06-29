@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Concurrent;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer;
 using FluentAssertions;
@@ -71,8 +71,8 @@ namespace Bicep.LangServer.IntegrationTests
             return await diagsListener.WaitNext();
         }
 
-        public async Task<PublishDiagnosticsParams> OpenFileOnceAsync(TestContext testContext, BicepSourceFile file)
-            => await OpenFileOnceAsync(testContext, file.ProgramSyntax.ToString(), file.FileUri);
+        public async Task<PublishDiagnosticsParams> OpenFileOnceAsync(TestContext testContext, LanguageClientFile file)
+            => await OpenFileOnceAsync(testContext, file.Text, file.Uri);
 
         public async Task<PublishDiagnosticsParams> ChangeFileAsync(TestContext testContext, string text, DocumentUri documentUri, int version)
         {
@@ -109,7 +109,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         public async Task ChangeFileAsync(TestContext testContext, BicepFile file, int version)
-            => await ChangeFileAsync(testContext, file.ProgramSyntax.ToString(), file.FileUri, version);
+            => await ChangeFileAsync(testContext, file.ProgramSyntax.ToString(), file.Uri, version);
 
         public void Dispose()
         {

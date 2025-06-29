@@ -19,8 +19,7 @@ public sealed class UseParentPropertyRule : LinterRuleBase
     public UseParentPropertyRule() : base(
         code: Code,
         description: CoreResources.UseParentPropertyRule_Description,
-        LinterRuleCategory.BestPractice,
-        docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
+        LinterRuleCategory.BestPractice)
     { }
 
     public override string FormatMessage(params object[] values)
@@ -40,7 +39,7 @@ public sealed class UseParentPropertyRule : LinterRuleBase
                 continue;
             }
 
-            if (TryGetReplacementChildName(model, childName) is { } info &&
+            if (TryGetReplacementChildName(model, resource, childName) is { } info &&
                 TryCreateDiagnostic(model, diagnosticLevel, info.parent, resource, info.name) is { } nameDiagnostic)
             {
                 yield return nameDiagnostic;
@@ -155,13 +154,14 @@ public sealed class UseParentPropertyRule : LinterRuleBase
         return TryGetReplacementChildName(model, parentNameString, childName);
     }
 
-    private (SyntaxBase name, DeclaredResourceMetadata parent)? TryGetReplacementChildName(SemanticModel model, StringSyntax childName)
+    private (SyntaxBase name, DeclaredResourceMetadata parent)? TryGetReplacementChildName(SemanticModel model, DeclaredResourceMetadata child, StringSyntax childName)
     {
         if (childName.SegmentValues.Length > 1 &&
             childName.SegmentValues[1].StartsWith('/') &&
             childName.Expressions[0] is PropertyAccessSyntax nameProp &&
             nameProp.PropertyName.NameEquals("name") &&
-            model.ResourceMetadata.TryLookup(nameProp.BaseExpression) is DeclaredResourceMetadata nameResource)
+            model.ResourceMetadata.TryLookup(nameProp.BaseExpression) is DeclaredResourceMetadata nameResource &&
+            nameResource.TypeReference.IsParentOf(child.TypeReference))
         {
             var name = SyntaxFactory.CreateString(
                 RemoveFirstLeadingSlash(childName.SegmentValues.Skip(1)),

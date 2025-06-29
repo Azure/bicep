@@ -13,6 +13,9 @@ namespace Bicep.VSLanguageServerClient
         public const string BicepConfigContentType = "BicepConfig";
         public const string BicepConfigFileExtension = ".json";
 
+        public const string BicepParamContentType = "bicep-params";
+        public const string BicepParamFileExtension = ".bicepparam";
+
         public const string BicepLanguageServerName = "Bicep Language Server";
         public const string BicepLanguageServerInstallationSubPath = "LanguageServer";
 

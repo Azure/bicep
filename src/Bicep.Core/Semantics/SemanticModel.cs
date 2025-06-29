@@ -1,27 +1,28 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
-using Bicep.Core.CodeAction;
 using Bicep.Core.CodeAction.Fixes;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.Emit.CompileTimeImports;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
+using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
@@ -31,10 +32,12 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<SymbolHierarchy> symbolHierarchyLazy;
         private readonly Lazy<ResourceAncestorGraph> resourceAncestorsLazy;
         private readonly Lazy<ImmutableSortedDictionary<string, ParameterMetadata>> parametersLazy;
+        private readonly Lazy<ImmutableSortedDictionary<string, ExtensionMetadata>> extensionsLazy;
         private readonly Lazy<ImmutableSortedDictionary<string, ExportMetadata>> exportsLazy;
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
         private readonly Lazy<IApiVersionProvider> apiVersionProviderLazy;
         private readonly Lazy<EmitterSettings> emitterSettingsLazy;
+        private readonly Lazy<ImportClosureInfo> importClosureInfoLazy;
 
         // needed to support param file go to def
         private readonly Lazy<ImmutableDictionary<ParameterAssignmentSymbol, ParameterMetadata?>> declarationsByAssignment;
@@ -43,35 +46,26 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnostics;
-        private readonly ConcurrentDictionary<Uri, ResultWithDiagnosticBuilder<AuxiliaryFile>> auxiliaryFileCache = new();
 
-        public SemanticModel(Compilation compilation, BicepSourceFile sourceFile)
+        public SemanticModel(IBicepAnalyzer linterAnalyzer, INamespaceProvider namespaceProvider, IArtifactReferenceFactory artifactReferenceFactory, ISemanticModelLookup modelLookup, SourceFileGrouping sourceFileGrouping, IEnvironment environment, BicepSourceFile sourceFile)
         {
-            this.Compilation = compilation;
+            this.ArtifactReferenceFactory = artifactReferenceFactory;
+            this.ModelLookup = modelLookup;
+            this.SourceFileGrouping = sourceFileGrouping;
             this.SourceFile = sourceFile;
-            this.Configuration = compilation.ConfigurationManager.GetConfiguration(sourceFile.FileUri);
-            this.Features = compilation.FeatureProviderFactory.GetFeatureProvider(sourceFile.FileUri);
-            this.Environment = compilation.Environment;
-
+            this.Environment = environment;
             TraceBuildOperation(sourceFile, Features, Configuration);
 
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done
             // (if a type check is done too early, unbound symbol references would cause incorrect type check results)
-            var symbolContext = new SymbolContext(compilation, this);
+            var symbolContext = new SymbolContext(this, sourceFileGrouping, modelLookup, artifactReferenceFactory, sourceFile);
             // Because import cycles would have been detected and blocked earlier in the compilation, it's fine to allow
             // access to *other* models in the compilation while the symbol context is locked.
             // This allows the binder to create the right kind of symbol for compile-time imports.
-            var cycleBlockingModelLookup = ISemanticModelLookup.Excluding(compilation, sourceFile);
+            var cycleBlockingModelLookup = ISemanticModelLookup.Excluding(modelLookup, sourceFile);
             this.SymbolContext = symbolContext;
-            this.Binder = new Binder(
-                compilation.NamespaceProvider,
-                Configuration,
-                Features,
-                compilation.SourceFileGrouping,
-                cycleBlockingModelLookup,
-                sourceFile,
-                this.SymbolContext);
+            this.Binder = new Binder(namespaceProvider, sourceFileGrouping, cycleBlockingModelLookup, sourceFile, this.SymbolContext);
 
             // TODO(#13239): ApiVersionProvider is only used by UseRecentApiVersionRule. Coupling the linter with the semantic model is suboptimal. A better approach would be to integrate ApiVersionProvider into IResourceTypeProvider.
             this.apiVersionProviderLazy = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(Features, this.Binder.NamespaceResolver.GetAvailableAzureResourceTypes()));
@@ -84,6 +78,7 @@ namespace Bicep.Core.Semantics
 
             this.emitterSettingsLazy = new(() => new(this));
             this.emitLimitationInfoLazy = new(() => EmitLimitationCalculator.Calculate(this));
+            this.importClosureInfoLazy = new(() => ImportClosureInfo.Calculate(this));
             this.symbolHierarchyLazy = new(() =>
             {
                 var hierarchy = new SymbolHierarchy();
@@ -94,10 +89,10 @@ namespace Bicep.Core.Semantics
             this.resourceAncestorsLazy = new(() => ResourceAncestorGraph.Compute(this));
             this.ResourceMetadata = new ResourceMetadataCache(this);
 
-            LinterAnalyzer = compilation.LinterAnalyzer;
+            LinterAnalyzer = linterAnalyzer;
 
             this.allResourcesLazy = new(GetAllResourceMetadata);
-            this.declaredResourcesLazy = new(() => this.AllResources.OfType<DeclaredResourceMetadata>().ToImmutableArray());
+            this.declaredResourcesLazy = new(() => [.. this.AllResources.OfType<DeclaredResourceMetadata>()]);
 
             this.assignmentsByDeclaration = new(InitializeDeclarationToAssignmentDictionary);
             this.declarationsByAssignment = new(InitializeAssignmentToDeclarationDictionary);
@@ -129,13 +124,15 @@ namespace Bicep.Core.Semantics
                 return parameters.ToImmutable();
             });
 
+            this.extensionsLazy = new(FindExtensions);
+
             this.exportsLazy = new(() => FindExportedTypes().Concat(FindExportedVariables()).Concat(FindExportedFunctions())
                 .DistinctBy(export => export.Name, LanguageConstants.IdentifierComparer)
                 .ToImmutableSortedDictionary(export => export.Name, export => export, LanguageConstants.IdentifierComparer));
 
             this.outputsLazy = new(() =>
             {
-                var outputs = new List<OutputMetadata>();
+                var outputs = ImmutableArray.CreateBuilder<OutputMetadata>();
 
                 foreach (var output in this.Root.OutputDeclarations.DistinctBy(o => o.Name))
                 {
@@ -145,39 +142,34 @@ namespace Bicep.Core.Semantics
                         // Resource type parameters are a special case, we need to convert to a dedicated
                         // type so we can compare differently for assignment and code generation.
                         var type = new UnresolvedResourceType(resourceType.TypeReference);
-                        outputs.Add(new OutputMetadata(output.Name, type, description));
+                        outputs.Add(new OutputMetadata(output.Name, type, description, IsSecure: false));
                     }
                     else
                     {
-                        outputs.Add(new OutputMetadata(output.Name, output.Type, description));
+                        outputs.Add(new OutputMetadata(output.Name, output.Type, description, TypeHelper.IsOrContainsSecureType(output.Type)));
                     }
                 }
 
-                return [.. outputs];
+                return outputs.ToImmutable();
             });
         }
 
-        public ResultWithDiagnosticBuilder<AuxiliaryFile> ReadAuxiliaryFile(Uri uri)
-            => auxiliaryFileCache.GetOrAdd(uri, Compilation.FileCache.Read);
-
-        public IEnumerable<Uri> GetAuxiliaryFileReferences()
-            => auxiliaryFileCache.Keys;
-
-        public bool HasAuxiliaryFileReference(Uri uri)
-            => auxiliaryFileCache.ContainsKey(uri);
-
         private IEnumerable<ExportMetadata> FindExportedTypes() => Root.TypeDeclarations
-            .Where(t => t.IsExported())
+            .Where(t => t.IsExported(this))
             .Select(t => new ExportedTypeMetadata(t.Name, t.Type, DescriptionHelper.TryGetFromDecorator(this, t.DeclaringType)));
 
         private IEnumerable<ExportMetadata> FindExportedVariables() => Root.VariableDeclarations
-            .Where(v => v.IsExported())
-            .Select(v => new ExportedVariableMetadata(v.Name, v.Type, DescriptionHelper.TryGetFromDecorator(this, v.DeclaringVariable)));
+            .Where(v => v.IsExported(this))
+            .Select(v => new ExportedVariableMetadata(
+                v.Name,
+                v.Type,
+                DescriptionHelper.TryGetFromDecorator(this, v.DeclaringVariable),
+                DeclaredType: GetDeclaredType(v.DeclaringVariable)));
 
         private IEnumerable<ExportMetadata> FindExportedFunctions() => Root.FunctionDeclarations
-            .Where(f => f.IsExported())
+            .Where(f => f.IsExported(this))
             .Select(f => new ExportedFunctionMetadata(f.Name,
-                f.Overload.FixedParameters.Select(p => new ExportedFunctionParameterMetadata(p.Name, p.Type, p.Description)).ToImmutableArray(),
+                [.. f.Overload.FixedParameters.Select(p => new ExportedFunctionParameterMetadata(p.Name, p.Type, p.Description))],
                 new(f.Overload.TypeSignatureSymbol, null),
                 DescriptionHelper.TryGetFromDecorator(this, f.DeclaringFunction)));
 
@@ -185,7 +177,7 @@ namespace Bicep.Core.Semantics
         {
             var sb = new StringBuilder();
 
-            sb.Append($"Building semantic model for {sourceFile.FileUri} ({sourceFile.FileKind}). ");
+            sb.Append($"Building semantic model for {sourceFile.FileHandle.Uri} ({sourceFile.FileKind}). ");
             var experimentalFeatures = features.EnabledFeatureMetadata.Select(x => x.name).ToArray();
             if (experimentalFeatures.Any())
             {
@@ -210,9 +202,9 @@ namespace Bicep.Core.Semantics
 
         public BicepSourceFileKind SourceFileKind => this.SourceFile.FileKind;
 
-        public RootConfiguration Configuration { get; }
+        public RootConfiguration Configuration => this.SourceFile.Configuration;
 
-        public IFeatureProvider Features { get; }
+        public IFeatureProvider Features => this.SourceFile.Features;
 
         public IApiVersionProvider ApiVersionProvider =>
             this.apiVersionProviderLazy.Value;
@@ -221,7 +213,11 @@ namespace Bicep.Core.Semantics
 
         public ISymbolContext SymbolContext { get; }
 
-        public Compilation Compilation { get; }
+        public IArtifactReferenceFactory ArtifactReferenceFactory { get; }
+
+        public ISemanticModelLookup ModelLookup { get; }
+
+        public SourceFileGrouping SourceFileGrouping { get; }
 
         public ITypeManager TypeManager { get; }
 
@@ -233,6 +229,8 @@ namespace Bicep.Core.Semantics
 
         public EmitLimitationInfo EmitLimitationInfo => emitLimitationInfoLazy.Value;
 
+        public ImportClosureInfo ImportClosureInfo => importClosureInfoLazy.Value;
+
         public ResourceAncestorGraph ResourceAncestors => resourceAncestorsLazy.Value;
 
         public ResourceMetadataCache ResourceMetadata { get; }
@@ -240,6 +238,8 @@ namespace Bicep.Core.Semantics
         public IBicepAnalyzer LinterAnalyzer { get; }
 
         public ImmutableSortedDictionary<string, ParameterMetadata> Parameters => this.parametersLazy.Value;
+
+        public ImmutableSortedDictionary<string, ExtensionMetadata> Extensions => this.extensionsLazy.Value;
 
         public ImmutableSortedDictionary<string, ExportMetadata> Exports => exportsLazy.Value;
 
@@ -255,18 +255,6 @@ namespace Bicep.Core.Semantics
         /// Does not include parameters and outputs of modules.
         /// </summary>
         public ImmutableArray<DeclaredResourceMetadata> DeclaredResources => declaredResourcesLazy.Value;
-
-        /// <summary>
-        /// Gets all diagnostics raised by loading Bicep config for this template.
-        /// </summary>
-        private IEnumerable<IDiagnostic> GetConfigDiagnostics()
-        {
-            foreach (var builderFunc in Configuration.DiagnosticBuilders)
-            {
-                // This diagnostic does not correspond to any specific location in the template, so just use the first character span.
-                yield return builderFunc(DiagnosticBuilder.ForDocumentStart());
-            }
-        }
 
         /// <summary>
         /// Gets all the semantic diagnostics unsorted. Does not include parser and lexer diagnostics.
@@ -313,7 +301,7 @@ namespace Bicep.Core.Semantics
 
         private ImmutableArray<IDiagnostic> AssembleDiagnostics()
         {
-            var diagnostics = GetConfigDiagnostics()
+            var diagnostics = this.Configuration.Diagnostics
                 .Concat(this.LexingErrorLookup)
                 .Concat(this.ParsingErrorLookup)
                 .Concat(GetSemanticDiagnostics())
@@ -433,7 +421,12 @@ namespace Bicep.Core.Semantics
         /// </summary>
         public FileSymbol Root => this.Binder.FileSymbol;
 
-        public ResourceScope TargetScope => this.Binder.TargetScope;
+        public ResourceScope TargetScope => SourceFileKind switch
+        {
+            BicepSourceFileKind.ParamsFile when TryGetSemanticModelForParamsFile() is { } templateModel
+                => templateModel.TargetScope,
+            _ => this.Binder.TargetScope,
+        };
 
         public ParameterMetadata? TryGetParameterMetadata(ParameterAssignmentSymbol parameterAssignmentSymbol) =>
             this.declarationsByAssignment.Value.TryGetValue(parameterAssignmentSymbol, out var parameterMetadata) ? parameterMetadata : null;
@@ -469,6 +462,21 @@ namespace Bicep.Core.Semantics
             return Root.ParameterAssignments.ToImmutableDictionary(
                 decl => decl,
                 decl => parameterDeclarations[decl.Name].FirstOrDefault());
+        }
+
+        private ImmutableSortedDictionary<string, ExtensionMetadata> FindExtensions()
+        {
+            var extensions = ImmutableSortedDictionary.CreateBuilder<string, ExtensionMetadata>();
+
+            foreach (var extDecl in this.Root.ExtensionDeclarations.DistinctBy(p => p.Name))
+            {
+                if (extDecl.TryGetNamespaceType() is { } extType)
+                {
+                    extensions.Add(extType.Name, new ExtensionMetadata(extType.Name, extType.ExtensionName, extType.ExtensionVersion, extType));
+                }
+            }
+
+            return extensions.ToImmutable();
         }
 
         private ISemanticModel? TryGetSemanticModelForParamsFile()
@@ -573,7 +581,7 @@ namespace Bicep.Core.Semantics
 
         private IEnumerable<IDiagnostic> GatherTypeMismatchDiagnostics()
         {
-            foreach (var assignmentSymbol in Root.ParameterAssignments)
+            foreach (var assignmentSymbol in Root.ParameterAssignments.Where(x => x.Context.SourceFile == Root.Context.SourceFile))
             {
                 if (assignmentSymbol.Type is not ErrorType &&
                     assignmentSymbol.Type is not NullType && // `param x = null` is equivalent to skipping the assignment altogether

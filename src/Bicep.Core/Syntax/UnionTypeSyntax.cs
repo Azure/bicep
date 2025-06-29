@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
-using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Syntax;
 
@@ -9,7 +9,7 @@ public class UnionTypeSyntax : TypeSyntax
 {
     public UnionTypeSyntax(IEnumerable<SyntaxBase> children)
     {
-        Children = children.ToImmutableArray();
+        Children = [.. children];
         if (!Members.Any())
         {
             throw new ArgumentException("Union types must contain at least one member");

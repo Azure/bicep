@@ -6,6 +6,7 @@ using Bicep.Core.Emit;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -1620,8 +1621,8 @@ public class CompileTimeImportTests
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
-        var parameters = TemplateEvaluator.ParseParametersFile(result.Parameters);
-        parameters["intParam"].Should().DeepEqual(9);
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["intParam"].Value.Should().DeepEqual(9);
     }
 
     [TestMethod]
@@ -1649,12 +1650,12 @@ public class CompileTimeImportTests
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
-        var parameters = TemplateEvaluator.ParseParametersFile(result.Parameters);
-        parameters["intParam"].Should().DeepEqual(9);
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["intParam"].Value.Should().DeepEqual(9);
     }
 
     [TestMethod]
-    public void Importing_types_is_blocked_in_bicepparam_files()
+    public void Importing_types_is_permitted_in_bicepparam_files()
     {
         var result = CompilationHelper.CompileParams(
             ("parameters.bicepparam", """
@@ -1668,10 +1669,7 @@ public class CompileTimeImportTests
                 type foo = string
                 """));
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
-            ("BCP376", DiagnosticLevel.Error, "The \"foo\" symbol cannot be imported because imports of kind Type are not supported in files of kind ParamsFile."),
-        });
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
     // https://github.com/Azure/bicep/issues/12042
@@ -1925,7 +1923,7 @@ public class CompileTimeImportTests
         result.Diagnostics.Should().BeEmpty();
         result.Template.Should().NotBeNull();
 
-        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
         evaluated.Should().HaveValueAtPath("outputs.out.value", "ASP999");
     }
 
@@ -1985,7 +1983,10 @@ public class CompileTimeImportTests
                 type str = string
                 """));
 
-        result.Diagnostics.Should().BeEmpty();
+        result.Diagnostics.Should().HaveDiagnostics(new[]
+        {
+            ("no-unused-imports", DiagnosticLevel.Warning, """Import "types" is declared but never used.""")
+        });
         result.Template.Should().NotBeNull();
         result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
     }
@@ -2026,7 +2027,10 @@ INVALID FILE
                 func b() string[] => ['c', 'd']
                 """));
 
-        result.Diagnostics.Should().BeEmpty();
+        result.Diagnostics.Should().HaveDiagnostics(new[]
+        {
+            ("no-unused-imports", DiagnosticLevel.Warning, """Import "a" is declared but never used.""")
+        });
         result.Template.Should().NotBeNull();
         result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
     }
@@ -2034,7 +2038,7 @@ INVALID FILE
     [TestMethod]
     public void Resource_derived_types_are_bound_when_imported_from_ARM_JSON_models()
     {
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
             ("main.bicep", """
                 import {foo} from 'mod.json'
 
@@ -2086,59 +2090,9 @@ INVALID FILE
     }
 
     [TestMethod]
-    public void Resource_derived_typed_compile_time_imports_raise_diagnostic_when_imported_from_ARM_JSON_models_without_feature_flag_set()
-    {
-        var result = CompilationHelper.Compile(
-            ("main.bicep", """
-                import {foo} from 'mod.json'
-
-                param location string = resourceGroup().location
-                param fooParam foo = {
-                    bar: {
-                        name: 'acct'
-                        location: location
-                        kind: 'StorageV2'
-                        sku: {
-                            name: 'Standard_LRS'
-                        }
-                    }
-                }
-
-                output fooOutput foo = fooParam
-                """),
-            ("mod.json", $$"""
-                {
-                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                    "languageVersion": "2.0",
-                    "contentVersion": "1.0.0.0",
-                    "definitions": {
-                        "foo": {
-                            "metadata": {
-                                "{{LanguageConstants.MetadataExportedPropertyName}}": true
-                            },
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "object",
-                                "metadata": {
-                                    "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01"
-                                }
-                            }
-                        }
-                    },
-                    "resources": []
-                }
-                """));
-
-        result.Should().HaveDiagnostics(new[]
-        {
-            ("BCP385", DiagnosticLevel.Error, """Using resource-derived types requires enabling EXPERIMENTAL feature "ResourceDerivedTypes"."""),
-        });
-    }
-
-    [TestMethod]
     public void Resource_derived_typed_compile_time_imports_raise_diagnostic_when_imported_from_ARM_JSON_models_with_unrecognized_resource()
     {
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
             ("main.bicep", """
                 import {foo} from 'mod.json'
 
@@ -2207,7 +2161,10 @@ INVALID FILE
                 var test = 'test'
                 """));
 
-        result.Diagnostics.Should().BeEmpty();
+        result.Diagnostics.Should().HaveDiagnostics(new[]
+        {
+            ("no-unused-imports", DiagnosticLevel.Warning, """Import "vars" is declared but never used.""")
+        });
         result.Template.Should().NotBeNull();
         result.Template.Should().HaveValueAtPath("variables.copy[?(@.name == '_1.domainControllerIPs')].input", "[cidrHost(variables('_1.identityPrefix'), add(3, range(0, 2)[copyIndex('_1.domainControllerIPs')]))]");
     }
@@ -2395,5 +2352,180 @@ INVALID FILE
                 """));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Imports_that_enclose_type_fragments_are_supported()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                import * as foo from 'mod.json'
+                """),
+            ("mod.json", $$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "languageVersion": "2.0",
+                    "definitions": {
+                      "exported": {
+                        "metadata": {
+                          "{{LanguageConstants.MetadataExportedPropertyName}}": true
+                        },
+                        "type": "array",
+                        "prefixItems": [
+                          {
+                            "$ref": "#/definitions/notExported/properties/prop"
+                          }
+                        ],
+                        "items": false
+                      },
+                      "notExported": {
+                        "type": "object",
+                        "properties": {
+                          "prop": {
+                            "type": "object",
+                            "properties": {
+                              "foo": {
+                                "$ref": "#/parameters/param/additionalProperties"
+                              },
+                              "bar": {
+                                "$ref": "#/outputs/out/items"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "parameters": {
+                      "param": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "int"
+                        }
+                      }
+                    },
+                    "outputs": {
+                      "out": {
+                        "type": "array",
+                        "items": {
+                          "type": "bool"
+                        },
+                        "value": [true]
+                      }
+                    },
+                    "resources": {}
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions", JToken.Parse($$"""
+            {
+              "_1._2": {
+                "type": "object",
+                "properties": {
+                  "foo": {
+                    "$ref": "#/definitions/_1._4"
+                  },
+                  "bar": {
+                    "$ref": "#/definitions/_1._3"
+                  }
+                },
+                "metadata": {
+                  "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                    "sourceTemplate": "mod.json",
+                    "originalIdentifier": "#/definitions/notExported/properties/prop"
+                  }
+                }
+              },
+              "_1._3": {
+                "type": "bool",
+                "metadata": {
+                  "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                    "sourceTemplate": "mod.json",
+                    "originalIdentifier": "#/outputs/out/items"
+                  }
+                }
+              },
+              "_1._4": {
+                "type": "int",
+                "metadata": {
+                  "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                    "sourceTemplate": "mod.json",
+                    "originalIdentifier": "#/parameters/param/additionalProperties"
+                  }
+                }
+              },
+              "_1.exported": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "$ref": "#/definitions/_1._2"
+                  }
+                ],
+                "items": false,
+                "metadata": {
+                  "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                    "sourceTemplate": "mod.json"
+                  }
+                }
+              }
+            }
+            """));
+    }
+
+    [TestMethod]
+    public void Imported_functions_invoked_in_bicepparam_files_can_refer_to_variables_in_source_template()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using 'main.bicep'
+
+                import { diagnosticSettings } from './common.bicep'
+
+                var location = 'uksouth'
+                var locationSlug = substring(location, 0, 3)
+
+                var env = readEnvironmentVariable('ENVIRONMENT', 'dev')
+                var diagSettings = diagnosticSettings(env)
+
+                param keyVaults = {
+                  'key-vault': {
+                    resourceGroupName: 'resource-group'
+                    diagnosticSettings: diagSettings
+                  }
+                }
+                """),
+            ("main.bicep", "param keyVaults object"),
+            ("common.bicep", """
+                @export()
+                func diagnosticSettings(env string) object => {
+                  eventHub: {
+                    namespace: {
+                      subscriptionId: subscriptions.default[env]
+                      resourceGroupName: 'diag-rg'
+                      name: 'diag-ehn'
+                    }
+                    name: 'metrics'
+                  }
+                  metrics: [
+                    {
+                      category: 'AllMetrics'
+                    }
+                  ]
+                }
+
+                @export()
+                var subscriptions = {
+                  default: {
+                    'dev': 'xxx'
+                    'uat': 'yyy'
+                    'prd': 'zzz'
+                  }
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics("no-unused-vars").Should().NotHaveAnyDiagnostics();
+        result.Parameters.Should().NotBeNull();
+        result.Parameters.Should().HaveValueAtPath("$.parameters.keyVaults.value['key-vault'].diagnosticSettings.eventHub.namespace.subscriptionId", "xxx");
     }
 }

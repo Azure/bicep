@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.Workspaces;
+
+using Bicep.Core.SourceGraph;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Decompiler;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,6 +27,8 @@ public class ServiceBuilder
 {
     private readonly IServiceCollection services;
 
+    private FeatureProviderOverrides? FeatureOverrides { get; set; }
+
     public ServiceBuilder()
     {
         this.services = new ServiceCollection()
@@ -45,6 +49,20 @@ public class ServiceBuilder
         registerAction(services);
 
         return this;
+    }
+
+    public ServiceBuilder WithFeatureOverrides(FeatureProviderOverrides overrides)
+    {
+        var resultFeatures = FeatureOverrides = overrides;
+
+        return WithRegistration(x => x.WithFeatureOverrides(resultFeatures));
+    }
+
+    public ServiceBuilder WithFeaturesOverridden(Func<FeatureProviderOverrides, FeatureProviderOverrides> overrides)
+    {
+        var resultFeatures = FeatureOverrides = overrides(FeatureOverrides ?? new FeatureProviderOverrides());
+
+        return WithRegistration(x => x.WithFeatureOverrides(resultFeatures));
     }
 
     public IDependencyHelper Build()

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Configuration;
-using Bicep.Core.Intermediate;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Features
 {
@@ -10,16 +10,17 @@ namespace Bicep.Core.Features
     {
         private readonly RootConfiguration configuration;
 
-        public FeatureProvider(RootConfiguration configuration)
+        private readonly IFileExplorer fileExplorer;
+
+        public FeatureProvider(RootConfiguration configuration, IFileExplorer fileExplorer)
         {
             this.configuration = configuration;
+            this.fileExplorer = fileExplorer;
         }
 
-        public string CacheRootDirectory => GetCacheRootDirectory(this.configuration.CacheRootDirectory);
+        public IDirectoryHandle CacheRootDirectory => GetCacheRootDirectory(this.configuration.CacheRootDirectory);
 
         public bool SymbolicNameCodegenEnabled => this.configuration.ExperimentalFeaturesEnabled.SymbolicNameCodegen;
-
-        public bool ExtensibilityEnabled => this.configuration.ExperimentalFeaturesEnabled.Extensibility;
 
         public bool ExtendableParamFilesEnabled => this.configuration.ExperimentalFeaturesEnabled.ExtendableParamFiles;
 
@@ -35,19 +36,29 @@ namespace Bicep.Core.Features
 
         public bool AssertsEnabled => configuration.ExperimentalFeaturesEnabled.Assertions;
 
-        public static bool TracingEnabled => ReadBooleanEnvVar("BICEP_TRACING_ENABLED", defaultValue: false);
+        public static readonly bool TracingEnabled = ReadBooleanEnvVar("BICEP_TRACING_ENABLED", defaultValue: false);
 
-        public static TraceVerbosity TracingVerbosity => ReadEnumEnvVar("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);
+        public static readonly bool ExtensionTracingEnabled = ReadBooleanEnvVar("BICEP_EXTENSION_TRACING_ENABLED", defaultValue: false);
 
-        public bool OptionalModuleNamesEnabled => configuration.ExperimentalFeaturesEnabled.OptionalModuleNames;
+        public static readonly TraceVerbosity TracingVerbosity = ReadEnumEnvVar("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);
+
+        public static bool HasTracingVerbosity(TraceVerbosity verbosity) => TracingVerbosity >= verbosity;
+
+        public bool WaitAndRetryEnabled => configuration.ExperimentalFeaturesEnabled.WaitAndRetry;
+
+        public bool OnlyIfNotExistsEnabled => configuration.ExperimentalFeaturesEnabled.OnlyIfNotExists;
 
         public bool LocalDeployEnabled => configuration.ExperimentalFeaturesEnabled.LocalDeploy;
 
-        public bool ResourceDerivedTypesEnabled => configuration.ExperimentalFeaturesEnabled.ResourceDerivedTypes;
+        public bool ResourceInfoCodegenEnabled => this.configuration.ExperimentalFeaturesEnabled.ResourceInfoCodegen;
 
-        public bool SecureOutputsEnabled => configuration.ExperimentalFeaturesEnabled.SecureOutputs;
+        public bool ModuleExtensionConfigsEnabled => configuration.ExperimentalFeaturesEnabled.ModuleExtensionConfigs;
 
-        public bool ExtensibilityV2EmittingEnabled => ReadBooleanEnvVar("BICEP_EXTENSIBILITY_V2_EMITTING_ENABLED", defaultValue: false);
+        public bool DesiredStateConfigurationEnabled => configuration.ExperimentalFeaturesEnabled.DesiredStateConfiguration;
+
+        public bool ExternalInputFunctionEnabled => configuration.ExperimentalFeaturesEnabled.ExternalInputFunction;
+
+        public bool ModuleIdentityEnabled => configuration.ExperimentalFeaturesEnabled.ModuleIdentity;
 
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
             => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;
@@ -61,21 +72,12 @@ namespace Bicep.Core.Features
             return Enum.TryParse<T>(str, true, out var value) ? value : defaultValue;
         }
 
-        private static string GetDefaultCachePath()
-        {
-            string basePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        private IDirectoryHandle GetCacheRootDirectory(string? customPath) =>
+            this.GetCacheRootDirectoryFromLocalPath(string.IsNullOrWhiteSpace(customPath)
+                ? $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/.bicep"
+                : customPath);
 
-            return Path.Combine(basePath, ".bicep");
-        }
-
-        private static string GetCacheRootDirectory(string? customPath)
-        {
-            if (string.IsNullOrWhiteSpace(customPath))
-            {
-                return GetDefaultCachePath();
-            }
-
-            return customPath;
-        }
+        private IDirectoryHandle GetCacheRootDirectoryFromLocalPath(string localPath) =>
+            this.fileExplorer.GetDirectory(IOUri.FromLocalFilePath(localPath));
     }
 }

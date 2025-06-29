@@ -18,6 +18,8 @@ namespace Bicep.Core.Samples
 
         public static DataSet Empty => CreateDataSet();
 
+        public static DataSet Extensions_CRLF => CreateDataSet();
+
         public static DataSet Functions_LF => CreateDataSet();
 
         public static DataSet Imports_LF => CreateDataSet();
@@ -27,6 +29,8 @@ namespace Bicep.Core.Samples
         public static DataSet InvalidDisableNextLineDiagnosticsDirective_CRLF => CreateDataSet();
 
         public static DataSet InvalidExpressions_LF => CreateDataSet();
+
+        public static DataSet InvalidExtensions_CRLF => CreateDataSet();
 
         public static DataSet InvalidFunctions_LF => CreateDataSet();
 
@@ -79,6 +83,8 @@ namespace Bicep.Core.Samples
         public static DataSet ResourcesTenant_CRLF => CreateDataSet();
 
         public static DataSet TypeDeclarations_LF => CreateDataSet();
+
+        public static DataSet TypedVariables_LF => CreateDataSet();
 
         public static DataSet Unicode_LF => CreateDataSet();
 

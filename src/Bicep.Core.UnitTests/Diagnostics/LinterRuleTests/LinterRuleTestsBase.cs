@@ -92,7 +92,7 @@ public class LinterRuleTestsBase
         }
 
         RunWithDiagnosticAnnotations(
-            files.ToArray(),
+            [.. files],
             diag =>
                 diag.Code == ruleCode
                 || (IsCompilerDiagnostic(diag) && options.OnCompileErrors == OnCompileErrors.IncludeErrors && diag.IsError())
@@ -128,10 +128,11 @@ public class LinterRuleTestsBase
         return diagnostic.Code.StartsWith("BCP");
     }
 
-    protected static void AssertCodeFix(string expectedCode, string expectedFixTitle, string inputFile, string resultFile)
+    protected static void AssertCodeFix(string expectedCode, string expectedFixTitle, string inputFile, string resultFile, CompilationHelper.InputFile[]? supportingFiles = null)
     {
+        supportingFiles ??= [];
         var (file, cursor) = ParserHelper.GetFileWithSingleCursor(inputFile, '|');
-        var result = CompilationHelper.Compile(file);
+        var result = CompilationHelper.Compile([.. supportingFiles, new("main.bicep", file)]);
 
         using (new AssertionScope().WithVisualCursor(result.Compilation.GetEntrypointSemanticModel().SourceFile, cursor))
         {

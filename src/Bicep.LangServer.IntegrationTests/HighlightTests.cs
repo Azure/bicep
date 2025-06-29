@@ -73,6 +73,7 @@ var blah = '${test}'
 
     private static string AnnotateWithHighlights(FileRequestHelper file, DocumentHighlightContainer? highlights)
         => PrintHelper.PrintWithAnnotations(
-            file.Source,
-            highlights!.Select(x => new PrintHelper.Annotation(Assertions.AssertionScopeExtensions.FromRange(file.Source, x.Range), x.Kind.ToString())), 1, true);
+            file.Source.Text,
+            file.Source.LineStarts,
+            highlights!.Select(x => new PrintHelper.Annotation(file.Source.GetSpan(x.Range), x.Kind.ToString())), 1, true);
 }

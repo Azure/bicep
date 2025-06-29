@@ -88,13 +88,16 @@ public class BicepExtensionImpl : BicepExtension.BicepExtensionBase
             {
                 Code = response.Error.Code,
                 Message = response.Error.Message,
-                InnerError = response.Error.InnerError?.ToJsonString(),
                 Target = response.Error.Target,
             }
         };
 
-        var errorDetails = Convert(response.Error.Details);
-        if (errorDetails is not null)
+        if (response.Error.InnerError?.ToJsonString() is { } innerError)
+        {
+            errorData.Error.InnerError = innerError;
+        }
+
+        if (Convert(response.Error.Details) is { } errorDetails)
         {
             errorData.Error.Details.AddRange(errorDetails);
         }
@@ -124,7 +127,7 @@ public class BicepExtensionImpl : BicepExtension.BicepExtensionBase
             Target = response.Target,
         };
 
-    private LocalExtensibilityOperationResponse Convert(Protocol.LocalExtensibilityOperationResponse response)
+    private LocalExtensibilityOperationResponse Convert(Protocol.LocalExtensionOperationResponse response)
         => new()
         {
             ErrorData = Convert(response.ErrorData),

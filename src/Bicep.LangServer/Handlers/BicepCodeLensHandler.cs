@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Registry;
+using Bicep.Core.SourceGraph;
 using Bicep.LanguageServer.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -14,11 +15,13 @@ namespace Bicep.LanguageServer.Handlers
     public class BicepCodeLensHandler : CodeLensHandlerBase
     {
         private readonly IModuleDispatcher moduleDispatcher;
+        private readonly ISourceFileFactory sourceFileFactory;
         private readonly DocumentSelectorFactory documentSelectorFactory;
 
-        public BicepCodeLensHandler(IModuleDispatcher moduleDispatcher, DocumentSelectorFactory documentSelectorFactory)
+        public BicepCodeLensHandler(IModuleDispatcher moduleDispatcher, ISourceFileFactory sourceFileFactory, DocumentSelectorFactory documentSelectorFactory)
         {
             this.moduleDispatcher = moduleDispatcher;
+            this.sourceFileFactory = sourceFileFactory;
             this.documentSelectorFactory = documentSelectorFactory;
         }
 
@@ -26,7 +29,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var lenses = ExternalSourceCodeLensProvider.GetCodeLenses(moduleDispatcher, request, cancellationToken);
+            var lenses = ExternalSourceCodeLensProvider.GetCodeLenses(moduleDispatcher, sourceFileFactory, request, cancellationToken);
 
             return Task.FromResult<CodeLensContainer?>(new CodeLensContainer(lenses));
         }

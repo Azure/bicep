@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { existsSync } from "fs";
 import { writeFile, mkdir, readFile } from "fs/promises";
 import path from "path";
@@ -13,6 +16,7 @@ export async function expectFileContents(filePath: string, contents: string) {
     expect(existsSync(filePath)).toBeTruthy();
 
     const readContents = await readFile(filePath, { encoding: 'utf8' });
-    expect(contents).toBe(readContents);
+    
+    expect(contents.replace(/\r\n/g, '\n')).toBe(readContents.replace(/\r\n/g, '\n'));
   }
 }

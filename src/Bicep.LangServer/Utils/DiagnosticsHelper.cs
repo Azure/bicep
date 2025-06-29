@@ -4,8 +4,8 @@
 using System.Collections.Immutable;
 using System.Text;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Text;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.LanguageServer.Utils
 {
@@ -23,7 +23,7 @@ namespace Bicep.LanguageServer.Utils
                 // Build a code description link if the Uri is assigned
                 var codeDescription = diagnostic.Uri == null ? string.Empty : $" [{diagnostic.Uri.AbsoluteUri}]";
 
-                sb.AppendLine($"{diagnosticsByFile.Key.FileUri.LocalPath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}{codeDescription}");
+                sb.AppendLine($"{diagnosticsByFile.Key.FileHandle.Uri}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}{codeDescription}");
             }
 
             return sb.ToString();

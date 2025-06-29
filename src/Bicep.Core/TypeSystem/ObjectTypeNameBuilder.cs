@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
 using System.Text;
 using Bicep.Core.Parsing;
 
 namespace Bicep.Core.TypeSystem;
 
+[DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
 internal class ObjectTypeNameBuilder
 {
     private readonly StringBuilder builder = new("{");
@@ -17,6 +19,9 @@ internal class ObjectTypeNameBuilder
 
     internal void AppendPropertyMatcher(string matchNotation, string value)
         => DoAppendProperty(matchNotation, value);
+
+    internal void AppendPropertyMatcher(string value)
+        => AppendPropertyMatcher("*", value);
 
     private void DoAppendProperty(string propertyName, string propertyValue)
     {
@@ -47,4 +52,8 @@ internal class ObjectTypeNameBuilder
 
         return builder.ToString();
     }
+
+    // use the debugger display to avoid calling ToString (which modifies state) in the debugger
+    // this avoids the InvalidOperationException thrown in DoAppendProperty
+    private string GetDebuggerDisplay() => builder.ToString();
 }

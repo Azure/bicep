@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parsing;
 using Bicep.Core.Text;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 

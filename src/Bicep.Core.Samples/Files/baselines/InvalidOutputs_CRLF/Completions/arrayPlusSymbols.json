@@ -172,6 +172,27 @@
     }
   },
   {
+    "label": "buildUri",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nbuildUri(components: parseUri): string\n\n```  \nConstructs a URI from specified components and returns an object with these components.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_buildUri",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "buildUri($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "cidrHost",
     "kind": "function",
     "documentation": {
@@ -361,6 +382,23 @@
     }
   },
   {
+    "label": "deployer",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndeployer(): deployer\n\n```  \nReturns information about the current deployment principal.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_deployer",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "deployer()$0"
+    }
+  },
+  {
     "label": "deployment",
     "kind": "function",
     "documentation": {
@@ -451,6 +489,27 @@
     "textEdit": {
       "range": {},
       "newText": "extensionResourceId($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "fail",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nfail(message: string): never\n\n```  \nRaises a runtime error with the provided message. Will cause a deployment to fail when evaluated.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_fail",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "fail($0)"
     },
     "command": {
       "title": "signature help",
@@ -1050,6 +1109,27 @@
     }
   },
   {
+    "label": "nameof",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nnameof(symbol: any): string\n\n```  \nReturns the name of a declared symbol or property. Evaluation occurs during compilation, not at runtime.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_nameof",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameof($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "objectKeys",
     "kind": "function",
     "documentation": {
@@ -1106,6 +1186,27 @@
     "textEdit": {
       "range": {},
       "newText": "parseCidr($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "parseUri",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nparseUri(baseUrl: string): parseUri\n\n```  \nParses a URI string into its components (scheme, host, port, path, query).  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_parseUri",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "parseUri($0)"
     },
     "command": {
       "title": "signature help",
@@ -1180,7 +1281,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nreduce(array: array, initialValue: any, predicate: (any, any[, int]) => any): array\n\n```  \nReduces an array with a custom reduce function.  \n"
+      "value": "```bicep\nreduce(array: array, initialValue: any, predicate: (any, any[, int]) => any): any\n\n```  \nReduces an array with a custom reduce function.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1561,6 +1662,48 @@
     }
   },
   {
+    "label": "toLogicalZone",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntoLogicalZone(subscriptionId: string, location: string, physicalZone: string): string\n\n```  \nReturns the logical zone corresponding to the given physical zone.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toLogicalZone",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "toLogicalZone($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "toLogicalZones",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntoLogicalZones(subscriptionId: string, location: string, physicalZones: array): string[]\n\n```  \nReturns the logical zone array corresponding to the given array of physical zones.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toLogicalZones",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "toLogicalZones($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "toLower",
     "kind": "function",
     "documentation": {
@@ -1596,6 +1739,48 @@
     "textEdit": {
       "range": {},
       "newText": "toObject($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "toPhysicalZone",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntoPhysicalZone(subscriptionId: string, location: string, logicalZone: string): string\n\n```  \nReturns the physical zone corresponding to the given logical zone.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toPhysicalZone",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "toPhysicalZone($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "toPhysicalZones",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntoPhysicalZones(subscriptionId: string, location: string, logicalZones: array): string[]\n\n```  \nReturns the physical zone array corresponding to the given array of logical zones.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toPhysicalZones",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "toPhysicalZones($0)"
     },
     "command": {
       "title": "signature help",

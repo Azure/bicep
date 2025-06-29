@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "39478038817515390"
+      "templateHash": "14650989739404175409"
     }
   },
   "parameters": {
@@ -135,7 +135,7 @@
             },
             {
               "name": "CosmosDb:Key",
-              "value": "[listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosAccountName')), '2021-04-15').primaryMasterKey]"
+              "value": "[listKeys('cosmosAccount', '2021-04-15').primaryMasterKey]"
             },
             {
               "name": "CosmosDb:DatabaseName",

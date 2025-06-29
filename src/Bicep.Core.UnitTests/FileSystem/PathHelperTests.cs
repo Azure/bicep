@@ -25,7 +25,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         [DataRow("foo.json")]
         public void GetBuildOutputPath_ShouldThrowOnJsonExtensions_Linux(string path)
         {
-            Action badExtension = () => PathHelper.GetDefaultBuildOutputPath(path);
+            Action badExtension = () => PathHelper.GetJsonOutputPath(path);
             badExtension.Should().Throw<ArgumentException>().WithMessage("The specified file already has the '.json' extension.");
         }
 
@@ -33,7 +33,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         [DataRow("foo.bicep")]
         public void GetDecompileOutputPath_ShouldThrowOnBicepExtensions_Linux(string path)
         {
-            Action badExtension = () => PathHelper.GetDefaultDecompileOutputPath(path);
+            Action badExtension = () => PathHelper.GetBicepOutputPath(path);
             badExtension.Should().Throw<ArgumentException>().WithMessage("The specified file already has the '.bicep' extension.");
         }
 #else
@@ -50,7 +50,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         [DataRow("foo.JsOn")]
         public void GetBuildOutputPath_ShouldThrowOnJsonExtensions_WindowsAndMac(string path)
         {
-            Action badExtension = () => PathHelper.GetDefaultBuildOutputPath(path);
+            Action badExtension = () => PathHelper.GetJsonOutputPath(path);
             badExtension.Should().Throw<ArgumentException>().WithMessage("The specified file already has the '.json' extension.");
         }
 
@@ -60,7 +60,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         [DataRow("foo.BiCeP")]
         public void GetDecompileOutputPath_ShouldThrowOnBicepExtensions_WindowsAndMac(string path)
         {
-            Action badExtension = () => PathHelper.GetDefaultDecompileOutputPath(path);
+            Action badExtension = () => PathHelper.GetBicepOutputPath(path);
             badExtension.Should().Throw<ArgumentException>().WithMessage("The specified file already has the '.bicep' extension.");
         }
 #endif
@@ -83,14 +83,14 @@ namespace Bicep.Core.UnitTests.FileSystem
         [DynamicData(nameof(GetBuildOutputPathData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void GetDefaultBuildOutputPath_ShouldChangeExtensionCorrectly(string path, string expectedPath)
         {
-            PathHelper.GetDefaultBuildOutputPath(path).Should().Be(expectedPath);
+            PathHelper.GetJsonOutputPath(path).Should().Be(expectedPath);
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetDecompileOutputPathData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void GetDefaultDecompileOutputPath_ShouldChangeExtensionCorrectly(string path, string expectedPath)
         {
-            PathHelper.GetDefaultDecompileOutputPath(path).Should().Be(expectedPath);
+            PathHelper.GetBicepOutputPath(path).Should().Be(expectedPath);
         }
 
         [DataRow("file:///path/to/source.txt", "file:///path/to/target.exe", "target.exe")]

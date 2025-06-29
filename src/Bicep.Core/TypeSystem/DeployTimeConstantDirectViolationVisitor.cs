@@ -18,7 +18,8 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
-            if (this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
+            if (this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(
+                SyntaxHelper.UnwrapNonNullAssertion(syntax.BaseExpression)) is ({ } accessedSymbol, { } accessedBodyType))
             {
                 var indexExprTypeInfo = SemanticModel.GetTypeInfo(syntax.IndexExpression);
                 if (indexExprTypeInfo is StringLiteralType { RawStringValue: var propertyName })
@@ -53,7 +54,8 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
-            if (this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
+            if (this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(
+                SyntaxHelper.UnwrapNonNullAssertion(syntax.BaseExpression)) is ({ } accessedSymbol, { } accessedBodyType))
             {
                 this.FlagIfPropertyNotReadableAtDeployTime(syntax, syntax.PropertyName.IdentifierName, accessedSymbol, accessedBodyType);
             }
@@ -73,42 +75,51 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
-            this.FlagIfFunctionRequiresInlining(syntax);
+            var functionSymbol = this.SemanticModel.GetSymbolInfo(syntax) as FunctionSymbol;
 
-            base.VisitFunctionCallSyntax(syntax);
+            FlagIfFunctionRequiresInlining(functionSymbol, syntax);
+            if (ShouldVisitFunctionArguments(functionSymbol))
+            {
+                base.VisitFunctionCallSyntax(syntax);
+            }
         }
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
-            this.FlagIfFunctionRequiresInlining(syntax);
+            var functionSymbol = this.SemanticModel.GetSymbolInfo(syntax) as FunctionSymbol;
 
-            base.VisitInstanceFunctionCallSyntax(syntax);
+            FlagIfFunctionRequiresInlining(functionSymbol, syntax);
+            if (ShouldVisitFunctionArguments(functionSymbol))
+            {
+                base.VisitInstanceFunctionCallSyntax(syntax);
+            }
         }
 
         private void FlagIfAccessingEntireResourceOrModule(SyntaxBase syntax)
         {
+            var (parent, immediateChild) = GetParentAndChildIgnoringNonNullAssertions(syntax);
             if (this.DeployTimeConstantContainer is ObjectPropertySyntax property &&
                 property.TryGetTypeProperty(this.SemanticModel) is { } typeProperty &&
                 typeProperty.TypeReference is ResourceParentType or ResourceScopeType)
             {
-                switch (this.SemanticModel.Binder.GetParent(syntax))
+                switch (parent)
                 {
                     case not PropertyAccessSyntax and not ArrayAccessSyntax when
                         this.ResourceTypeResolver.TryResolveRuntimeExistingResourceSymbolAndBodyType(syntax) is ({ } resourceSymbol, { } resourceType):
                         {
-                            this.FlagDeployTimeConstantViolation(syntax, resourceSymbol, resourceType);
+                            this.FlagDeployTimeConstantViolation(immediateChild, resourceSymbol, resourceType);
 
                             return;
                         }
                     case ArrayAccessSyntax arrayAccessSyntax when
-                        arrayAccessSyntax.BaseExpression == syntax &&
+                        arrayAccessSyntax.BaseExpression == immediateChild &&
                         this.SemanticModel.Binder.GetParent(arrayAccessSyntax) is not PropertyAccessSyntax and not ArrayAccessSyntax &&
                         this.ResourceTypeResolver.TryResolveRuntimeExistingResourceSymbolAndBodyType(arrayAccessSyntax) is ({ } resourceSymbol, { } resourceType):
                         {
                             var arrayIndexExprType = this.SemanticModel.GetTypeInfo(arrayAccessSyntax.IndexExpression);
                             if (arrayIndexExprType.IsIntegerOrIntegerLiteral())
                             {
-                                this.FlagDeployTimeConstantViolation(syntax, resourceSymbol, resourceType);
+                                this.FlagDeployTimeConstantViolation(immediateChild, resourceSymbol, resourceType);
                             }
                             return;
                         }
@@ -118,15 +129,15 @@ namespace Bicep.Core.TypeSystem
                 }
             }
 
-            switch (this.SemanticModel.Binder.GetParent(syntax))
+            switch (parent)
             {
                 // var foo = [for x in [...]: {
                 //   bar: myVM <-- accessing an entire resource/module.
                 // }]
                 case not PropertyAccessSyntax and not ArrayAccessSyntax when
-                    this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax) is ({ } accessedSymbol, { } accessedBodyType):
+                    this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(immediateChild) is ({ } accessedSymbol, { } accessedBodyType):
                     {
-                        this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
+                        this.FlagDeployTimeConstantViolation(immediateChild, accessedSymbol, accessedBodyType);
 
                         return;
                     }
@@ -134,7 +145,7 @@ namespace Bicep.Core.TypeSystem
                 //   bar: myVNets[1] <-- accessing an entire resource/module via an array index.
                 // }]
                 case ArrayAccessSyntax arrayAccessSyntax when
-                    arrayAccessSyntax.BaseExpression == syntax && // need this condition because this case is hit both when syntax is myVNets (variable access) or the index expression
+                    arrayAccessSyntax.BaseExpression == immediateChild && // need this condition because this case is hit both when syntax is myVNets (variable access) or the index expression
                     this.SemanticModel.Binder.GetParent(arrayAccessSyntax) is not PropertyAccessSyntax and not ArrayAccessSyntax &&
                     this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(arrayAccessSyntax) is ({ } accessedSymbol, { } accessedBodyType):
                     {
@@ -143,7 +154,7 @@ namespace Bicep.Core.TypeSystem
                             || arrayIndexExprType.TypeKind == TypeKind.Any
                             || (arrayIndexExprType is UnionType indexUnionType && indexUnionType.Members.All(m => m.Type.IsIntegerOrIntegerLiteral())))
                         {
-                            this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
+                            this.FlagDeployTimeConstantViolation(immediateChild, accessedSymbol, accessedBodyType);
                         }
                         return;
                     }
@@ -162,10 +173,12 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        protected void FlagIfFunctionRequiresInlining(FunctionCallSyntaxBase syntax)
+        protected bool ShouldVisitFunctionArguments(FunctionSymbol? functionSymbol)
+            => functionSymbol is null || !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.IsArgumentValueIndependent);
+
+        protected void FlagIfFunctionRequiresInlining(FunctionSymbol? functionSymbol, FunctionCallSyntaxBase syntax)
         {
-            if (this.SemanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol &&
-                functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
+            if (functionSymbol is { } && functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
             {
                 FlagDeployTimeConstantViolation(syntax);
             }

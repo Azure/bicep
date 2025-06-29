@@ -21,7 +21,7 @@ namespace Bicep.Core.TypeSystem.Types
             => Create(diagnostic.AsEnumerable());
 
         public static ErrorType Create(IEnumerable<IDiagnostic> diagnostics)
-            => new(diagnostics.ToImmutableArray());
+            => new([.. diagnostics]);
 
         public static ErrorType Empty()
             => new([]);

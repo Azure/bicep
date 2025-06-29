@@ -762,15 +762,15 @@ resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[050:051) Assignment |=|
 //@[052:053) LeftBrace |{|
 //@[053:055) NewLine |\r\n|
-  name: '${resourceA.name}/myName'
+  name: '${resourceA.name}/resourceB'
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|
 //@[008:011) StringLeftPiece |'${|
 //@[011:020) Identifier |resourceA|
 //@[020:021) Dot |.|
 //@[021:025) Identifier |name|
-//@[025:034) StringRightPiece |}/myName'|
-//@[034:036) NewLine |\r\n|
+//@[025:037) StringRightPiece |}/resourceB'|
+//@[037:039) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
 //@[001:005) NewLine |\r\n\r\n|
@@ -782,15 +782,15 @@ resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[050:051) Assignment |=|
 //@[052:053) LeftBrace |{|
 //@[053:055) NewLine |\r\n|
-  name: '${resourceA.name}/myName'
+  name: '${resourceA.name}/resourceC'
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|
 //@[008:011) StringLeftPiece |'${|
 //@[011:020) Identifier |resourceA|
 //@[020:021) Dot |.|
 //@[021:025) Identifier |name|
-//@[025:034) StringRightPiece |}/myName'|
-//@[034:036) NewLine |\r\n|
+//@[025:037) StringRightPiece |}/resourceC'|
+//@[037:039) NewLine |\r\n|
   properties: {
 //@[002:012) Identifier |properties|
 //@[012:013) Colon |:|
@@ -1369,8 +1369,8 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
 
 /*
   valid loop cases
-*/ 
-//@[003:005) NewLine |\r\n|
+*/
+//@[002:004) NewLine |\r\n|
 var storageAccounts = [
 //@[000:003) Identifier |var|
 //@[004:019) Identifier |storageAccounts|
@@ -1601,9 +1601,8 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[036:037) LeftBrace |{|
 //@[037:039) NewLine |\r\n|
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
-//@[062:064) NewLine |\r\n|
-     
-//@[005:007) NewLine |\r\n|
+//@[062:066) NewLine |\r\n\r\n|
+
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
 //@[059:061) NewLine |\r\n|
       name: 'subnet-${i}-${j}'
@@ -2195,11 +2194,11 @@ resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 //@[054:055) Assignment |=|
 //@[056:057) LeftBrace |{|
 //@[057:059) NewLine |\r\n|
-  name: 'res1'
+  name: 'p2res1'
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|
-//@[008:014) StringComplete |'res1'|
-//@[014:016) NewLine |\r\n|
+//@[008:016) StringComplete |'p2res1'|
+//@[016:018) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
 //@[001:005) NewLine |\r\n\r\n|
@@ -2316,11 +2315,11 @@ resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 //@[063:064) Assignment |=|
 //@[065:066) LeftBrace |{|
 //@[066:068) NewLine |\r\n|
-  name: 'res1'
+  name: 'p3res1'
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|
-//@[008:014) StringComplete |'res1'|
-//@[014:016) NewLine |\r\n|
+//@[008:016) StringComplete |'p3res1'|
+//@[016:018) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
 //@[001:005) NewLine |\r\n\r\n|
@@ -2402,11 +2401,11 @@ resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 //@[015:016) LeftParen |(|
 //@[016:017) RightParen |)|
 //@[017:019) NewLine |\r\n|
-  name: 'res1'
+  name: 'p4res1'
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|
-//@[008:014) StringComplete |'res1'|
-//@[014:016) NewLine |\r\n|
+//@[008:016) StringComplete |'p4res1'|
+//@[016:018) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
 //@[001:005) NewLine |\r\n\r\n|
@@ -2569,10 +2568,161 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 //@[004:012) Identifier |location|
 //@[012:013) Colon |:|
 //@[014:029) StringComplete |'polandcentral'|
-//@[029:031) NewLine |\r\n|
+//@[029:033) NewLine |\r\n\r\n|
+
+    resource threatProtection 'advancedThreatProtectionSettings' existing = {
+//@[004:012) Identifier |resource|
+//@[013:029) Identifier |threatProtection|
+//@[030:064) StringComplete |'advancedThreatProtectionSettings'|
+//@[065:073) Identifier |existing|
+//@[074:075) Assignment |=|
+//@[076:077) LeftBrace |{|
+//@[077:079) NewLine |\r\n|
+      name: 'default'
+//@[006:010) Identifier |name|
+//@[010:011) Colon |:|
+//@[012:021) StringComplete |'default'|
+//@[021:023) NewLine |\r\n|
+    }
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
   }
 //@[002:003) RightBrace |}|
 //@[003:005) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
-//@[001:001) EndOfFile ||
+//@[001:005) NewLine |\r\n\r\n|
+
+//nameof
+//@[008:010) NewLine |\r\n|
+output nameof_sqlServer string = nameof(sqlServer)
+//@[000:006) Identifier |output|
+//@[007:023) Identifier |nameof_sqlServer|
+//@[024:030) Identifier |string|
+//@[031:032) Assignment |=|
+//@[033:039) Identifier |nameof|
+//@[039:040) LeftParen |(|
+//@[040:049) Identifier |sqlServer|
+//@[049:050) RightParen |)|
+//@[050:052) NewLine |\r\n|
+output nameof_location string = nameof(sqlServer.location)
+//@[000:006) Identifier |output|
+//@[007:022) Identifier |nameof_location|
+//@[023:029) Identifier |string|
+//@[030:031) Assignment |=|
+//@[032:038) Identifier |nameof|
+//@[038:039) LeftParen |(|
+//@[039:048) Identifier |sqlServer|
+//@[048:049) Dot |.|
+//@[049:057) Identifier |location|
+//@[057:058) RightParen |)|
+//@[058:060) NewLine |\r\n|
+output nameof_minCapacity string = nameof(sqlServer::primaryDb.properties.minCapacity)
+//@[000:006) Identifier |output|
+//@[007:025) Identifier |nameof_minCapacity|
+//@[026:032) Identifier |string|
+//@[033:034) Assignment |=|
+//@[035:041) Identifier |nameof|
+//@[041:042) LeftParen |(|
+//@[042:051) Identifier |sqlServer|
+//@[051:053) DoubleColon |::|
+//@[053:062) Identifier |primaryDb|
+//@[062:063) Dot |.|
+//@[063:073) Identifier |properties|
+//@[073:074) Dot |.|
+//@[074:085) Identifier |minCapacity|
+//@[085:086) RightParen |)|
+//@[086:088) NewLine |\r\n|
+output nameof_creationTime string = nameof(sqlServer::primaryDb::threatProtection.properties.creationTime)
+//@[000:006) Identifier |output|
+//@[007:026) Identifier |nameof_creationTime|
+//@[027:033) Identifier |string|
+//@[034:035) Assignment |=|
+//@[036:042) Identifier |nameof|
+//@[042:043) LeftParen |(|
+//@[043:052) Identifier |sqlServer|
+//@[052:054) DoubleColon |::|
+//@[054:063) Identifier |primaryDb|
+//@[063:065) DoubleColon |::|
+//@[065:081) Identifier |threatProtection|
+//@[081:082) Dot |.|
+//@[082:092) Identifier |properties|
+//@[092:093) Dot |.|
+//@[093:105) Identifier |creationTime|
+//@[105:106) RightParen |)|
+//@[106:108) NewLine |\r\n|
+output nameof_id string = nameof(sqlServer::sqlDatabases[0].id)
+//@[000:006) Identifier |output|
+//@[007:016) Identifier |nameof_id|
+//@[017:023) Identifier |string|
+//@[024:025) Assignment |=|
+//@[026:032) Identifier |nameof|
+//@[032:033) LeftParen |(|
+//@[033:042) Identifier |sqlServer|
+//@[042:044) DoubleColon |::|
+//@[044:056) Identifier |sqlDatabases|
+//@[056:057) LeftSquare |[|
+//@[057:058) Integer |0|
+//@[058:059) RightSquare |]|
+//@[059:060) Dot |.|
+//@[060:062) Identifier |id|
+//@[062:063) RightParen |)|
+//@[063:067) NewLine |\r\n\r\n|
+
+var sqlConfig = {
+//@[000:003) Identifier |var|
+//@[004:013) Identifier |sqlConfig|
+//@[014:015) Assignment |=|
+//@[016:017) LeftBrace |{|
+//@[017:019) NewLine |\r\n|
+  westus: {}
+//@[002:008) Identifier |westus|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:012) RightBrace |}|
+//@[012:014) NewLine |\r\n|
+  'server-name': {}
+//@[002:015) StringComplete |'server-name'|
+//@[015:016) Colon |:|
+//@[017:018) LeftBrace |{|
+//@[018:019) RightBrace |}|
+//@[019:021) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
+resource sqlServerWithNameof 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:008) Identifier |resource|
+//@[009:028) Identifier |sqlServerWithNameof|
+//@[029:063) StringComplete |'Microsoft.Sql/servers@2021-11-01'|
+//@[064:065) Assignment |=|
+//@[066:067) LeftBrace |{|
+//@[067:069) NewLine |\r\n|
+  name: 'sql-server-nameof-${nameof(sqlConfig['server-name'])}'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:029) StringLeftPiece |'sql-server-nameof-${|
+//@[029:035) Identifier |nameof|
+//@[035:036) LeftParen |(|
+//@[036:045) Identifier |sqlConfig|
+//@[045:046) LeftSquare |[|
+//@[046:059) StringComplete |'server-name'|
+//@[059:060) RightSquare |]|
+//@[060:061) RightParen |)|
+//@[061:063) StringRightPiece |}'|
+//@[063:065) NewLine |\r\n|
+  location: nameof(sqlConfig.westus)
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:018) Identifier |nameof|
+//@[018:019) LeftParen |(|
+//@[019:028) Identifier |sqlConfig|
+//@[028:029) Dot |.|
+//@[029:035) Identifier |westus|
+//@[035:036) RightParen |)|
+//@[036:038) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
+
+//@[000:000) EndOfFile ||

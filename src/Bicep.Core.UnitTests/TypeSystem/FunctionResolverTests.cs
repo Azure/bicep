@@ -4,8 +4,11 @@ using System.Collections.Immutable;
 using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Intermediate;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Assertions;
@@ -13,6 +16,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+
 
 namespace Bicep.Core.UnitTests.TypeSystem
 {
@@ -124,7 +128,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetInputsThatFlattenToArrayOfAny), DynamicDataSourceType.Method)]
         public void ShouldFlattenToArrayOfAny(TypeSymbol typeToFlatten)
         {
-            EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>()))])
+            EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray([]))])
                 .Type.As<ArrayType>()
                 .Item.Should().Be(LanguageConstants.Any);
         }
@@ -133,14 +137,14 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetFlattenPositiveTestCases), DynamicDataSourceType.Method)]
         public void ShouldFlattenTo(TypeSymbol typeToFlatten, TypeSymbol expected)
         {
-            TypeValidator.AreTypesAssignable(EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>()))]).Type, expected).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray([]))]).Type, expected).Should().BeTrue();
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetFlattenNegativeTestCases), DynamicDataSourceType.Method)]
         public void ShouldNotFlatten(TypeSymbol typeToFlatten, params string[] diagnosticMessages)
         {
-            EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>()))]).Type.GetDiagnostics().Cast<IDiagnostic>()
+            EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray([]))]).Type.GetDiagnostics().Cast<IDiagnostic>()
                 .Should().HaveDiagnostics(diagnosticMessages.Select(message => ("BCP309", DiagnosticLevel.Error, message)));
         }
 
@@ -148,14 +152,14 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetFirstTestCases), DynamicDataSourceType.Method)]
         public void FirstReturnsCorrectType(TypeSymbol inputArrayType, TypeSymbol expected)
         {
-            TypeValidator.AreTypesAssignable(EvaluateFunction("first", new List<TypeSymbol> { inputArrayType }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>()))]).Type, expected).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(EvaluateFunction("first", new List<TypeSymbol> { inputArrayType }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray([]))]).Type, expected).Should().BeTrue();
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetLastTestCases), DynamicDataSourceType.Method)]
         public void LastReturnsCorrectType(TypeSymbol inputArrayType, TypeSymbol expected)
         {
-            TypeValidator.AreTypesAssignable(EvaluateFunction("last", new List<TypeSymbol> { inputArrayType }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>()))]).Type, expected).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(EvaluateFunction("last", new List<TypeSymbol> { inputArrayType }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray([]))]).Type, expected).Should().BeTrue();
         }
 
         [TestMethod]
@@ -330,6 +334,61 @@ namespace Bicep.Core.UnitTests.TypeSystem
             returnType.ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.IsSecure);
         }
 
+        [TestMethod]
+        public void BuildUriFunction_ShouldReturnConstructedUri()
+        {
+            var result = EvaluateFunction("buildUri", [LanguageConstants.Object], [new FunctionArgumentSyntax(SyntaxFactory.CreateObject([]))]);
+            result.Type.Should().Be(LanguageConstants.String);
+        }
+
+        [TestMethod]
+        public void ParseUriFunction_ShouldReturnUriComponents()
+        {
+            var result = EvaluateFunction(
+                functionName: "parseUri",
+                argumentTypes: [LanguageConstants.String],
+                arguments: [new FunctionArgumentSyntax(SyntaxFactory.CreateStringLiteral("https://example.com/path?query=value"))]);
+
+            result.Should().NotBeNull();
+            result.Type.Should().BeOfType<ObjectType>();
+
+            var objectType = (ObjectType)result.Type;
+            objectType.Should().NotBeNull();
+
+            var properties = objectType.Properties.Values.OrderBy(p => p.Name).ToList();
+            properties.Should().SatisfyRespectively(
+                p =>
+                {
+                    p.Name.Should().Be("host");
+                    p.TypeReference.Should().Be(LanguageConstants.String);
+                    p.Flags.Should().HaveFlag(TypePropertyFlags.Required);
+                },
+                p =>
+                {
+                    p.Name.Should().Be("path");
+                    p.TypeReference.Should().Be(LanguageConstants.String);
+                    p.Flags.Should().NotHaveFlag(TypePropertyFlags.Required);
+                },
+                p =>
+                {
+                    p.Name.Should().Be("port");
+                    p.TypeReference.Should().Be(LanguageConstants.Int);
+                    p.Flags.Should().NotHaveFlag(TypePropertyFlags.Required);
+                },
+                p =>
+                {
+                    p.Name.Should().Be("query");
+                    p.TypeReference.Should().Be(LanguageConstants.String);
+                    p.Flags.Should().NotHaveFlag(TypePropertyFlags.Required);
+                },
+                p =>
+                {
+                    p.Name.Should().Be("scheme");
+                    p.TypeReference.Should().Be(LanguageConstants.String);
+                    p.Flags.Should().HaveFlag(TypePropertyFlags.Required);
+                });
+        }
+
         [DataTestMethod]
         [DynamicData(nameof(GetLengthTestCases), DynamicDataSourceType.Method)]
         public void LengthInfersPossibleRangesFromRefinementMetadata(TypeSymbol argumentType, TypeSymbol expectedReturn)
@@ -361,12 +420,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     TypeFactory.CreateIntegerType(0)),
                 CreateRow(new ObjectType("object",
                     default,
-                    new TypeProperty[] { new("prop", LanguageConstants.Any, TypePropertyFlags.Required) },
+                    new NamedTypeProperty[] { new("prop", LanguageConstants.Any, TypePropertyFlags.Required) },
                     null),
                     TypeFactory.CreateIntegerLiteralType(1)),
                 CreateRow(new ObjectType("object",
                     default,
-                    new TypeProperty[]
+                    new NamedTypeProperty[]
                     {
                         new("prop", LanguageConstants.Any, TypePropertyFlags.Required),
                         new("prop2", LanguageConstants.Any),
@@ -375,19 +434,19 @@ namespace Bicep.Core.UnitTests.TypeSystem
                     TypeFactory.CreateIntegerType(1, 2)),
                 CreateRow(new ObjectType("object",
                     default,
-                    new TypeProperty[]
+                    new NamedTypeProperty[]
                     {
                         new("prop", LanguageConstants.Any, TypePropertyFlags.Required),
                         new("prop2", LanguageConstants.Any),
                     },
-                    LanguageConstants.Any),
+                    new(LanguageConstants.Any)),
                     TypeFactory.CreateIntegerType(1)),
 
                 CreateRow(new DiscriminatedObjectType("discriminated", default, "type", new[]
                 {
                     new ObjectType("object",
                         default,
-                        new TypeProperty[]
+                        new NamedTypeProperty[]
                         {
                             new("type", TypeFactory.CreateStringLiteralType("fizz"), TypePropertyFlags.Required),
                             new("prop", LanguageConstants.Any, TypePropertyFlags.Required),
@@ -395,7 +454,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                         null),
                     new ObjectType("object",
                         default,
-                        new TypeProperty[]
+                        new NamedTypeProperty[]
                         {
                             new("type", TypeFactory.CreateStringLiteralType("buzz"), TypePropertyFlags.Required),
                             new("prop", LanguageConstants.Any, TypePropertyFlags.Required),
@@ -477,13 +536,13 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow(TypeFactory.CreateStringType(4, 5), TypeFactory.CreateStringType(9, 10), TypeFactory.CreateIntegerLiteralType(5)),
                 CreateRow(LanguageConstants.String, LanguageConstants.String, TypeFactory.CreateIntegerLiteralType(5)),
 
-                CreateRow(TypeFactory.CreateStringType(null, 5), LanguageConstants.String, LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(5)),
-                CreateRow(TypeFactory.CreateStringType(null, 5), LanguageConstants.Any, LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(5)),
-                CreateRow(TypeFactory.CreateStringType(null, 5), LanguageConstants.String, LanguageConstants.Any, TypeFactory.CreateIntegerLiteralType(5)),
-                CreateRow(TypeFactory.CreateStringType(null, 5, LanguageConstants.SecureString.ValidationFlags), LanguageConstants.SecureString, LanguageConstants.Any, TypeFactory.CreateIntegerLiteralType(5)),
-                CreateRow(TypeFactory.CreateStringType(null, 5), TypeFactory.CreateStringType(9, 10), LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(5)),
-                CreateRow(TypeFactory.CreateStringType(null, 10), TypeFactory.CreateStringType(9, 10), LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(50)),
-                CreateRow(TypeFactory.CreateStringType(4, 5), TypeFactory.CreateStringType(9, 10), TypeFactory.CreateIntegerLiteralType(5), TypeFactory.CreateIntegerLiteralType(5)),
+                CreateRow(TypeFactory.CreateStringType(5, 5), LanguageConstants.String, LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(5)),
+                CreateRow(TypeFactory.CreateStringType(5, 5), LanguageConstants.Any, LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(5)),
+                CreateRow(TypeFactory.CreateStringType(5, 5), LanguageConstants.String, LanguageConstants.Any, TypeFactory.CreateIntegerLiteralType(5)),
+                CreateRow(TypeFactory.CreateStringType(5, 5, validationFlags: LanguageConstants.SecureString.ValidationFlags), LanguageConstants.SecureString, LanguageConstants.Any, TypeFactory.CreateIntegerLiteralType(5)),
+                CreateRow(TypeFactory.CreateStringType(5, 5), TypeFactory.CreateStringType(9, 10), LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(5)),
+                CreateRow(TypeFactory.CreateStringType(50, 50), TypeFactory.CreateStringType(9, 10), LanguageConstants.Int, TypeFactory.CreateIntegerLiteralType(50)),
+                CreateRow(TypeFactory.CreateStringType(5, 5), TypeFactory.CreateStringType(9, 10), TypeFactory.CreateIntegerLiteralType(5), TypeFactory.CreateIntegerLiteralType(5)),
                 CreateRow(TypeFactory.CreateStringType(2, 2), TypeFactory.CreateStringType(9, 10), TypeFactory.CreateIntegerLiteralType(5), TypeFactory.CreateIntegerLiteralType(2)),
             };
         }
@@ -580,11 +639,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
         public void TrimDropsMinLengthButPreservesMaxLengthAndFlags()
         {
             var returnType = EvaluateFunction("trim",
-                new List<TypeSymbol> { TypeFactory.CreateStringType(10, 20, TypeSymbolValidationFlags.IsSecure) },
+                new List<TypeSymbol> { TypeFactory.CreateStringType(10, 20, validationFlags: TypeSymbolValidationFlags.IsSecure) },
                 [new(TestSyntaxFactory.CreateVariableAccess("foo"))])
                 .Type;
 
-            returnType.Should().Be(TypeFactory.CreateStringType(minLength: null, 20, TypeSymbolValidationFlags.IsSecure));
+            returnType.Should().Be(TypeFactory.CreateStringType(minLength: null, 20, validationFlags: TypeSymbolValidationFlags.IsSecure));
         }
 
         [DataTestMethod]
@@ -1046,3 +1105,4 @@ namespace Bicep.Core.UnitTests.TypeSystem
         }
     }
 }
+

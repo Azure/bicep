@@ -1,6 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using System.Diagnostics;
+using Bicep.Core.Extensions;
+using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Navigation
 {
@@ -18,6 +23,25 @@ namespace Bicep.Core.Navigation
             visitor.Visit(root);
 
             return visitor.Result;
+        }
+
+        public static TextSpan GetSpanIncludingTrivia(this SyntaxBase root)
+        {
+            if (root is not Token token)
+            {
+                return root.Span;
+            }
+
+            var first = token.LeadingTrivia.Where(t => !t.Span.IsNil).FirstOrDefault();
+            var start = first is { } ? first.Span.Position : token.Span.Position;
+
+            var last = token.TrailingTrivia.Where(t => !t.Span.IsNil).LastOrDefault();
+            var end = last is { } ? last.GetEndPosition() : token.GetEndPosition();
+
+            Debug.Assert(start >= 0 && end >= 0, "start and end shouldn't be nil");
+            Debug.Assert(start <= end, "start <= end");
+
+            return new TextSpan(start, end - start);
         }
 
         private sealed class NavigationSearchVisitor : CstVisitor

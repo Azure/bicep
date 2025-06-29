@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7700084129878109462"
+      "templateHash": "10606682027059250365"
     }
   },
   "parameters": {
@@ -178,7 +178,7 @@
     },
     {
       "condition": "[parameters('enableDiagnostics')]",
-      "type": "Microsoft.Insights/diagnosticSettings",
+      "type": "microsoft.insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.Automation/automationAccounts/{0}', parameters('name'))]",
       "name": "[variables('diagnosticsName')]",
@@ -196,12 +196,6 @@
           },
           {
             "category": "DscNodeStatus",
-            "enabled": true
-          }
-        ],
-        "metrics": [
-          {
-            "category": "AllMetrics",
             "enabled": true
           }
         ]

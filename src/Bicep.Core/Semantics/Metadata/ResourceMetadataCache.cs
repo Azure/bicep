@@ -33,15 +33,14 @@ namespace Bicep.Core.Semantics.Metadata
         // the discovery is driven by semantics not syntax.
         public ResourceMetadata? TryAdd(ModuleSymbol module, string output)
         {
-            if (module.TryGetBodyPropertyValue(AzResourceTypeProvider.ResourceNamePropertyName) is { } nameSyntax &&
-                module.TryGetBodyObjectType() is ObjectType objectType &&
+            if (module.TryGetBodyObjectType() is ObjectType objectType &&
                 objectType.Properties.TryGetValue(LanguageConstants.ModuleOutputsPropertyName, out var outputsProperty) &&
                 outputsProperty.TypeReference.Type is ObjectType outputsType &&
                 outputsType.Properties.TryGetValue(output, out var property))
             {
                 if (property.TypeReference.Type is ResourceType resourceType)
                 {
-                    var metadata = new ModuleOutputResourceMetadata(resourceType, module, nameSyntax, output);
+                    var metadata = new ModuleOutputResourceMetadata(resourceType, module, output);
                     moduleOutputLookup.TryAdd((module, output), metadata);
                     return metadata;
                 }
@@ -154,8 +153,7 @@ namespace Bicep.Core.Semantics.Metadata
             if (propertyAccessSyntax.BaseExpression is PropertyAccessSyntax childPropertyAccess &&
                 childPropertyAccess.PropertyName.IdentifierName == LanguageConstants.ModuleOutputsPropertyName &&
                 childPropertyAccess.BaseExpression is VariableAccessSyntax grandChildAccess &&
-                this.semanticModel.GetSymbolInfo(grandChildAccess) is ModuleSymbol module &&
-                module.TryGetBodyPropertyValue(AzResourceTypeProvider.ResourceNamePropertyName) is { } name)
+                this.semanticModel.GetSymbolInfo(grandChildAccess) is ModuleSymbol module)
             {
                 symbol = module;
                 return true;

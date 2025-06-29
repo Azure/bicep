@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14611001828329396005"
+      "templateHash": "7712144198658183766"
     }
   },
   "parameters": {
@@ -227,7 +227,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16846926962182872904"
+              "templateHash": "16704253611176477253"
             }
           },
           "parameters": {
@@ -366,7 +366,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "9356800282323307322"
+                      "templateHash": "6607063108355547742"
                     }
                   },
                   "parameters": {
@@ -432,7 +432,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "15977740014990001438"
+                              "templateHash": "7397250722142967265"
                             }
                           },
                           "parameters": {
@@ -460,7 +460,7 @@
                               "name": "[parameters('workspaceName')]"
                             },
                             "avdhpds": {
-                              "type": "Microsoft.Insights/diagnosticSettings",
+                              "type": "microsoft.insights/diagnosticSettings",
                               "apiVersion": "2017-05-01-preview",
                               "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostpoolName'))]",
                               "name": "hostpool-diag",
@@ -488,13 +488,10 @@
                                     "enabled": true
                                   }
                                 ]
-                              },
-                              "dependsOn": [
-                                "hostPool"
-                              ]
+                              }
                             },
                             "avdwsds": {
-                              "type": "Microsoft.Insights/diagnosticSettings",
+                              "type": "microsoft.insights/diagnosticSettings",
                               "apiVersion": "2017-05-01-preview",
                               "scope": "[format('Microsoft.DesktopVirtualization/workspaces/{0}', parameters('workspaceName'))]",
                               "name": "workspacepool-diag",
@@ -518,10 +515,7 @@
                                     "enabled": true
                                   }
                                 ]
-                              },
-                              "dependsOn": [
-                                "workspace"
-                              ]
+                              }
                             }
                           }
                         }
@@ -1107,7 +1101,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "9616745895991063718"
+              "templateHash": "2725585745262341266"
             }
           },
           "parameters": {
@@ -1200,10 +1194,7 @@
                     "replicationRegions": []
                   }
                 ]
-              },
-              "dependsOn": [
-                "managedidentity"
-              ]
+              }
             },
             "aibdef": {
               "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",

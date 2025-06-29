@@ -300,7 +300,7 @@ var isTrue = sys.max(1, 2) == 3
 var isFalse = !isTrue
 //@[04:11) Variable isFalse. Type: true. Declaration start char: 0, length: 21
 var someText = isTrue ? sys.concat('a', sys.concat('b', 'c')) : 'someText'
-//@[04:12) Variable someText. Type: 'someText' | string. Declaration start char: 0, length: 74
+//@[04:12) Variable someText. Type: 'someText'. Declaration start char: 0, length: 74
 
 // Bicep functions that cannot be converted into ARM functions
 var scopesWithoutArmRepresentation = {
@@ -320,7 +320,7 @@ var scopesWithArmRepresentation = {
 var issue1332_propname = 'ptest'
 //@[04:22) Variable issue1332_propname. Type: 'ptest'. Declaration start char: 0, length: 32
 var issue1332 = true ? {
-//@[04:13) Variable issue1332. Type: object | object. Declaration start char: 0, length: 86
+//@[04:13) Variable issue1332. Type: object. Declaration start char: 0, length: 86
     prop1: {
         '${issue1332_propname}': {}
     }
@@ -507,4 +507,12 @@ var test = {
 
 var arraySpread = [...arrayOfBooleans, ...arrayOfHardCodedNumbers, ...arrayOfHardCodedStrings]
 //@[04:15) Variable arraySpread. Type: ('hi' | 3 | bool)[]. Declaration start char: 0, length: 94
+
+
+var nameof1 = nameof(arraySpread)
+//@[04:11) Variable nameof1. Type: 'arraySpread'. Declaration start char: 0, length: 33
+var nameof2 = nameof(spread.foo)
+//@[04:11) Variable nameof2. Type: 'foo'. Declaration start char: 0, length: 32
+var nameof3 = nameof(myObj.obj.nested)
+//@[04:11) Variable nameof3. Type: 'nested'. Declaration start char: 0, length: 38
 

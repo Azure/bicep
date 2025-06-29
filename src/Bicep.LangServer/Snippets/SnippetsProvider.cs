@@ -7,6 +7,7 @@ using System.DirectoryServices.Protocols;
 using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core;
+using Bicep.Core.Features;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrintV2;
@@ -145,7 +146,7 @@ public class SnippetsProvider : ISnippetsProvider
         return SyntaxFactory.CreateObject(objectProperties);
     }
 
-    private static ObjectPropertySyntax GetObjectPropertySnippetSyntax(TypeProperty typeProperty, ref int tabStopIndex, string? discriminatedObjectKey)
+    private static ObjectPropertySyntax GetObjectPropertySnippetSyntax(NamedTypeProperty typeProperty, ref int tabStopIndex, string? discriminatedObjectKey)
     {
         var valueType = typeProperty.TypeReference.Type;
         if (valueType is ObjectType objectType)
@@ -284,6 +285,61 @@ public class SnippetsProvider : ISnippetsProvider
                     yield return new Snippet(text, prefix: resourceInfo.Prefix, detail: resourceInfo.Description);
                 }
             }
+        }
+    }
+
+    public IEnumerable<Snippet> GetIdentitySnippets(bool isResource)
+    {
+        string userAssignedIdentityLabel = "user-assigned-identity";
+        string userAssignedIdentityDescription = "User assigned identity";
+        string userAssignedIdentityArrayLabel = "user-assigned-identity-array";
+        string userAssignedIdentityArrayDescription = "User assigned identity array";
+        string noneIdentityLabel = "none-identity";
+        string noneIdentityDescription = "None identity";
+
+        string systemAssignedIdentityLabel = "system-assigned-identity";
+        string systemAssignedIdentityDescription = "System assigned identity";
+        string userAndSystemAssignedIdentityLabel = "user-and-system-assigned-identity";
+        string userAndSystemAssignedIdentityDescription = "User and system assigned identity";
+
+        yield return new Snippet("""
+            {
+              type: 'UserAssigned'
+              userAssignedIdentities: {
+                '${${0:identityId}}': {}
+              }
+            }
+            """, CompletionPriority.High, userAssignedIdentityLabel, userAssignedIdentityDescription);
+
+        yield return new Snippet("""
+            {
+              type: 'UserAssigned'
+              userAssignedIdentities: toObject(${0:identityIdArray}, x => x, x => {})
+            }
+            """, CompletionPriority.High, userAssignedIdentityArrayLabel, userAssignedIdentityArrayDescription);
+
+        yield return new Snippet("""
+            {
+              type: 'None'
+            }
+            """, CompletionPriority.High, noneIdentityLabel, noneIdentityDescription);
+
+        if (isResource)
+        {
+            yield return new Snippet("""
+            {
+              type: 'SystemAssigned'
+            }
+            """, CompletionPriority.High, systemAssignedIdentityLabel, systemAssignedIdentityDescription);
+
+            yield return new Snippet("""
+            {
+              type: 'SystemAssigned,UserAssigned'
+              userAssignedIdentities: {
+                '${${0:identityId}}': {}
+              }
+            }
+            """, CompletionPriority.High, userAndSystemAssignedIdentityLabel, userAndSystemAssignedIdentityDescription);
         }
     }
 }

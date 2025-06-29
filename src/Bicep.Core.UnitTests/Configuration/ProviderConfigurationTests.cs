@@ -6,6 +6,8 @@ using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -51,7 +53,7 @@ public class ExtensionsConfigurationTests
         config.Should().NotBeNull();
         config!.Extensions.Should().NotBeNull();
 
-        foreach (var extensionName in new[] { "az", "kubernetes", "microsoftGraph" })
+        foreach (var extensionName in new[] { "az", "kubernetes" })
         {
             config.Extensions!.TryGetExtensionSource(extensionName).IsSuccess(out var extension).Should().BeTrue();
             extension!.Value.Should().Be("builtin:");
@@ -77,10 +79,11 @@ public class ExtensionsConfigurationTests
             """)
         });
 
-        var configManager = new ConfigurationManager(fs);
+        var fileExplorer = new FileSystemFileExplorer(fs);
+        var configManager = new ConfigurationManager(fileExplorer);
         var testFilePath = fs.Path.GetFullPath(bicepConfigFileName);
         var config = configManager.GetConfiguration(PathHelper.FilePathToFileUrl(testFilePath));
-        config.DiagnosticBuilders.Should().BeEmpty();
+        config.Diagnostics.Should().BeEmpty();
         config.Should().NotBeNull();
         config!.Extensions.Should().NotBeNull();
 

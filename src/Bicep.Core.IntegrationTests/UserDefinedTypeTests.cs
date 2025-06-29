@@ -877,9 +877,9 @@ param myParam string
     [TestMethod]
     public void Resource_derived_type_should_compile_successfully()
     {
-        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext)),
             """
-            type myType = resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
+            type myType = resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
             """);
 
         result.Template.Should().HaveValueAtPath("definitions", JToken.Parse($$"""
@@ -887,7 +887,9 @@ param myParam string
                 "myType": {
                     "type": "string",
                     "metadata": {
-                        "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
+                        "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": {
+                            "{{LanguageConstants.MetadataResourceDerivedTypePointerPropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
+                        }
                     }
                 }
             }
@@ -897,10 +899,10 @@ param myParam string
     [TestMethod]
     public void Resource_derived_type_should_compile_successfully_with_namespace_qualified_syntax()
     {
-        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext)),
             """
             var resource = 'foo'
-            type myType = sys.resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
+            type myType = sys.resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
             """);
 
         result.Template.Should().HaveValueAtPath("definitions", JToken.Parse($$"""
@@ -908,7 +910,9 @@ param myParam string
                 "myType": {
                     "type": "string",
                     "metadata": {
-                        "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
+                        "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": {
+                            "{{LanguageConstants.MetadataResourceDerivedTypePointerPropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
+                        }
                     }
                 }
             }
@@ -918,7 +922,7 @@ param myParam string
     [TestMethod]
     public void Param_with_resource_derived_type_can_be_loaded()
     {
-        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext)),
             ("main.bicep", """
                 param location string = resourceGroup().location
 
@@ -971,7 +975,7 @@ param myParam string
     [TestMethod]
     public void Param_with_resource_derived_type_property_can_be_loaded()
     {
-        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext)),
             ("main.bicep", """
                 @minLength(2)
                 param saName string
@@ -1027,7 +1031,7 @@ param myParam string
     [TestMethod]
     public void Output_with_resource_derived_type_can_be_loaded()
     {
-        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext)),
             ("main.bicep", """
                 module mod 'mod.json' = {
                     name: 'mod'
@@ -1205,9 +1209,9 @@ param myParam string
     public void Type_property_access_can_be_used_on_resource_derived_types()
     {
         var result = CompilationHelper.Compile(
-            new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
             ("main.bicep", """
-                type storageAccountName = resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
+                type storageAccountName = resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
                 """));
 
         result.Should().NotHaveAnyCompilationBlockingDiagnostics();
@@ -1215,7 +1219,9 @@ param myParam string
             {
                 "type": "string",
                 "metadata": {
-                    "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
+                    "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": {
+                        "{{LanguageConstants.MetadataResourceDerivedTypePointerPropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
+                    }
                 }
             }
             """));
@@ -1224,12 +1230,12 @@ param myParam string
     [TestMethod]
     public void Type_property_access_resolves_refs_and_traverses_imports()
     {
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
             ("types.bicep", """
                 @export()
                 type myObject = {
                   quux: int
-                  saSku: resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.sku
+                  saSku: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.sku
                 }
                 """),
             ("main.bicep", """
@@ -1259,7 +1265,9 @@ param myParam string
             {
               "type": "string",
               "metadata": {
-                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/sku/properties/name"
+                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": {
+                    "{{LanguageConstants.MetadataResourceDerivedTypePointerPropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/sku/properties/name"
+                }
               }
             }
             """));
@@ -1377,9 +1385,9 @@ param myParam string
     public void Type_additional_properties_access_can_be_used_on_resource_derived_types()
     {
         var result = CompilationHelper.Compile(
-            new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
             ("main.bicep", """
-                type tag = resource<'Microsoft.Resources/tags@2022-09-01'>.properties.tags.*
+                type tag = resourceInput<'Microsoft.Resources/tags@2022-09-01'>.properties.tags.*
                 """));
 
         result.Should().NotHaveAnyCompilationBlockingDiagnostics();
@@ -1387,7 +1395,9 @@ param myParam string
             {
                 "type": "string",
                 "metadata": {
-                    "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Resources/tags@2022-09-01#properties/properties/properties/tags/additionalProperties"
+                    "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": {
+                        "{{LanguageConstants.MetadataResourceDerivedTypePointerPropertyName}}": "Microsoft.Resources/tags@2022-09-01#properties/properties/properties/tags/additionalProperties"
+                    }
                 }
             }
             """));
@@ -1396,10 +1406,10 @@ param myParam string
     [TestMethod]
     public void Type_additional_properties_access_resolves_refs_and_traverses_imports()
     {
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
             ("types.bicep", """
                 type tagsDict = {
-                  *: resource<'Microsoft.Resources/tags@2022-09-01'>.properties.tags
+                  *: resourceInput<'Microsoft.Resources/tags@2022-09-01'>.properties.tags
                 }
 
                 @export()
@@ -1435,7 +1445,9 @@ param myParam string
             {
               "type": "string",
               "metadata": {
-                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Resources/tags@2022-09-01#properties/properties/properties/tags/additionalProperties"
+                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": {
+                    "{{LanguageConstants.MetadataResourceDerivedTypePointerPropertyName}}": "Microsoft.Resources/tags@2022-09-01#properties/properties/properties/tags/additionalProperties"
+                }
               }
             }
             """));
@@ -1483,9 +1495,9 @@ param myParam string
     public void Type_element_access_can_be_used_on_resource_derived_types()
     {
         var result = CompilationHelper.Compile(
-            new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
             ("main.bicep", """
-                type storageAccountName = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
+                type storageAccountName = resourceInput<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
                 """));
 
         result.Should().NotHaveAnyCompilationBlockingDiagnostics();
@@ -1493,7 +1505,9 @@ param myParam string
             {
                 "type": "object",
                 "metadata": {
-                    "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.KeyVault/vaults@2022-07-01#properties/properties/properties/accessPolicies/items"
+                    "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": {
+                        "{{LanguageConstants.MetadataResourceDerivedTypePointerPropertyName}}": "Microsoft.KeyVault/vaults@2022-07-01#properties/properties/properties/accessPolicies/items"
+                    }
                 }
             }
             """));
@@ -1502,10 +1516,10 @@ param myParam string
     [TestMethod]
     public void Type_element_access_resolves_refs_and_traverses_imports()
     {
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
             ("types.bicep", """
                 @export()
-                type accessPolicy = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
+                type accessPolicy = resourceInput<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
 
                 @export()
                 type strings = string[]
@@ -1513,7 +1527,7 @@ param myParam string
             ("main.bicep", """
                 import * as types from 'types.bicep'
 
-                type accessPolicy = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
+                type accessPolicy = resourceInput<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
 
                 type test = types.strings[]
 
@@ -1534,7 +1548,9 @@ param myParam string
             {
               "type": "string",
               "metadata": {
-                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.KeyVault/vaults@2022-07-01#properties/properties/properties/accessPolicies/items/properties/permissions/properties/keys/items"
+                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": {
+                    "{{LanguageConstants.MetadataResourceDerivedTypePointerPropertyName}}": "Microsoft.KeyVault/vaults@2022-07-01#properties/properties/properties/accessPolicies/items/properties/permissions/properties/keys/items"
+                }
               }
             }
             """));
@@ -1542,7 +1558,9 @@ param myParam string
             {
               "type": "string",
               "metadata": {
-                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.KeyVault/vaults@2022-07-01#properties/properties/properties/accessPolicies/items/properties/permissions/properties/keys/items"
+                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": {
+                    "{{LanguageConstants.MetadataResourceDerivedTypePointerPropertyName}}": "Microsoft.KeyVault/vaults@2022-07-01#properties/properties/properties/accessPolicies/items/properties/permissions/properties/keys/items"
+                }
               }
             }
             """));
@@ -1551,9 +1569,9 @@ param myParam string
     [TestMethod]
     public void Using_a_complete_resource_body_as_a_type_should_not_throw_exception()
     {
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
             ("main.bicep", """
-                param subnets resource<'Microsoft.Network/virtualNetworks/subnets@2023-09-01'>[]
+                param subnets resourceInput<'Microsoft.Network/virtualNetworks/subnets@2023-09-01'>[]
                 """));
 
         result.Template.Should().BeNull();
@@ -1566,7 +1584,7 @@ param myParam string
     [TestMethod]
     public void Resource_derived_type_nullability_should_be_preserved_when_loading_from_ARM_JSON()
     {
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
             ("main.bicep", """
                 module mod 'mod.json' = {
                     name: 'mod'
@@ -1581,7 +1599,9 @@ param myParam string
                         "foo": {
                             "type": "string",
                             "metadata": {
-                                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/sku/properties/name"
+                                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": {
+                                    "{{LanguageConstants.MetadataResourceDerivedTypePointerPropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/sku/properties/name"
+                                }
                             },
                             "nullable": true
                         }
@@ -1597,15 +1617,15 @@ param myParam string
     public void Issue_14869()
     {
         var result = CompilationHelper.Compile(
-            new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
             ("main.bicep", """
-                param container resource<'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2024-05-15'>.properties.resource.indexingPolicy
+                param container resourceInput<'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2024-05-15'>.properties.resource.indexingPolicy
 
                 resource sa 'Microsoft.Storage/storageAccounts@2023-05-01'  = {
                   location: resourceGroup().location
                   sku: { name: 'Standard_GRS' }
                   kind: 'StorageV2'
-                  name: 'my-sa'
+                  name: 'mysa'
                   properties: {
                     accessTier: 'Hot'
                     azureFilesIdentityBasedAuthentication: container
@@ -1623,5 +1643,250 @@ param myParam string
             ("BCP037", DiagnosticLevel.Warning, """The property "indexingMode" is not allowed on objects of type "AzureFilesIdentityBasedAuthentication". Permissible properties include "activeDirectoryProperties", "defaultSharePermission", "directoryServiceOptions". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
             ("BCP037", DiagnosticLevel.Warning, """The property "spatialIndexes" is not allowed on objects of type "AzureFilesIdentityBasedAuthentication". Permissible properties include "activeDirectoryProperties", "defaultSharePermission", "directoryServiceOptions". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
         });
+    }
+
+    [TestMethod]
+    public void Parameterized_types_should_require_parameterization()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
+            """type t = resourceInput""");
+
+        result.Should().HaveDiagnostics([
+            ("BCP384", DiagnosticLevel.Error, """The "resourceInput<ResourceTypeIdentifier>" type requires 1 argument(s)."""),
+        ]);
+    }
+
+    [TestMethod]
+    public void Resource_input_type_should_raise_no_diagnostic_when_resource_writeOnly_property_accessed()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
+            """
+                param orderProperties resourceInput<'Microsoft.Capacity/reservationOrders@2022-11-01'>.properties
+
+                output orderScopeType string = orderProperties.appliedScopeType
+                """);
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Assignment_to_readOnly_property_diagnostic_should_be_raised_when_resource_output_is_assigned_to_resource_input()
+    {
+        var result = CompilationHelper.Compile("""
+            param siteProperties object
+
+            resource appService1 'Microsoft.Web/sites@2022-09-01' = {
+              name: 'name'
+              location: resourceGroup().location
+              properties: siteProperties
+            }
+
+            resource appService2 'Microsoft.Web/sites@2022-09-01' = {
+              name: 'name2'
+              location: resourceGroup().location
+              properties: appService1.properties
+            }
+            """);
+
+        result.Diagnostics.Should().NotBeNullOrEmpty();
+        result.Diagnostics.Should().ContainDiagnostic(
+            "BCP073",
+            DiagnosticLevel.Warning,
+            """The property "availabilityState" is read-only. Expressions cannot be assigned to read-only properties. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""
+        );
+    }
+
+    [TestMethod]
+    public void Assignment_to_readOnly_property_diagnostic_should_not_be_raised_when_resourceInput_typed_param_is_assigned_to_resource_input()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
+            """
+                param siteProperties resourceInput<'Microsoft.Web/sites@2022-09-01'>.properties
+
+                resource appService 'Microsoft.Web/sites@2022-09-01' = {
+                  name: 'name'
+                  location: resourceGroup().location
+                  properties: siteProperties
+                }
+                """);
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Assignment_to_readOnly_property_diagnostic_should_not_be_raised_when_resource_output_is_assigned_to_resourceOutput_typed_target()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
+            """
+                param siteProperties resourceInput<'Microsoft.Web/sites@2022-09-01'>.properties
+
+                resource appService 'Microsoft.Web/sites@2022-09-01' = {
+                  name: 'name'
+                  location: resourceGroup().location
+                  properties: siteProperties
+                }
+
+                @secure()
+                output siteProperties resourceOutput<'Microsoft.Web/sites@2022-09-01'>.properties = appService.properties
+                """);
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Assignment_to_readOnly_property_diagnostic_should_be_raised_when_resource_output_is_assigned_to_resourceInput_typed_target()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
+            """
+                param siteProperties resourceInput<'Microsoft.Web/sites@2022-09-01'>.properties
+
+                resource appService 'Microsoft.Web/sites@2022-09-01' = {
+                  name: 'name'
+                  location: resourceGroup().location
+                  properties: siteProperties
+                }
+
+                output siteProperties resourceInput<'Microsoft.Web/sites@2022-09-01'>.properties = appService.properties
+                """);
+
+        result.Diagnostics.Should().NotBeNullOrEmpty();
+        result.Diagnostics.Should().ContainDiagnostic(
+            "BCP073",
+            DiagnosticLevel.Warning,
+            """The property "availabilityState" is read-only. Expressions cannot be assigned to read-only properties."""
+        );
+    }
+
+    [DataTestMethod]
+    [DataRow("type resourceInput = resourceInput<'Microsoft.Compute/virtualMachines'>")] // should be caught at syntax level
+    [DataRow("type resourceInput = resourceInput<'Microsoft.Compute/virtualMachines'>.properties")] // should be caught by type manager
+    public void Parameterized_type_recursion_raises_diagnostic(string template)
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
+            template);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
+        });
+    }
+
+    // https://www.github.com/Azure/bicep/issues/15277
+    [DataTestMethod]
+    [DataRow("type resourceDerived = resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings")]
+    [DataRow("param resourceDerived resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings")]
+    [DataRow("output resourceDerived resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings = 'foo'")]
+    [DataRow("type t = { property: resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings }")]
+    [DataRow("type t = { *: resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings }")]
+    [DataRow("type t = [ resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings ]")]
+    [DataRow("type t = resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings[]")]
+    [DataRow("func f() resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings => 'foo'")]
+    [DataRow("func f(p resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings) string => 'foo'")]
+    public void Type_expressions_that_will_become_ARM_schema_nodes_are_checked_for_ARM_type_system_compatibility_prior_to_compilation(string template)
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
+            template);
+
+        result.Template.Should().BeNull();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP411", DiagnosticLevel.Error, """The type "any" cannot be used in a type assignment because it does not fit within one of ARM's primitive type categories (string, int, bool, array, object). If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
+        });
+    }
+
+    [TestMethod]
+    public void Diagnostic_should_be_emitted_for_safe_access_of_non_existent_property()
+    {
+        var result = CompilationHelper.Compile("""
+            param unsealed {
+              requiredProperty: string
+            }
+
+            output x string = unsealed.?undeclaredProperty
+            """);
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP187", DiagnosticLevel.Info, "The property \"undeclaredProperty\" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+        });
+    }
+
+    [TestMethod]
+    public void Accessing_property_of_resource_derived_type_when_feature_is_disabled_raises_useful_error()
+    {
+        var result = CompilationHelper.Compile("""
+            param probes resourceInput<'Microsoft.App/containerApps@2024-10-02-preview'>.properties.templates.containers[*].probes
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP083", DiagnosticLevel.Error, "The type \"ContainerAppProperties\" does not contain property \"templates\". Did you mean \"template\"?"),
+        });
+    }
+
+    [TestMethod]
+    public void FromEnd_indexing_of_tuple_resolves_correct_type()
+    {
+        var result = CompilationHelper.Compile("""
+            param foo [int, string]
+            output foo int = foo[^2]
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+
+        result = CompilationHelper.Compile("""
+            param foo [int, string]
+            output foo int = foo[^1]
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"int\" but the provided value is of type \"string\"."),
+        });
+    }
+
+    [TestMethod]
+    public void Safe_FromEnd_indexing_of_tuple_resolves_correct_type()
+    {
+        var result = CompilationHelper.Compile("""
+            param foo [int, string]?
+            output foo int? = foo[?^2]
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+
+        result = CompilationHelper.Compile("""
+            param foo [int, string]?
+            output foo int? = foo[?^1]
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"int | null\" but the provided value is of type \"null | string\"."),
+        });
+    }
+
+    [TestMethod]
+    public void Narrowing_a_recursive_type_against_itself_does_not_recur_infinitely()
+    {
+        var result = CompilationHelper.Compile("""
+            type recursiveType = {
+              recursion: recursiveType?
+            }
+
+            param p recursiveType
+
+            output o recursiveType = p
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
     }
 }

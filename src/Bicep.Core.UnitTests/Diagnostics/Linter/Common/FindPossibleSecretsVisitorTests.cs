@@ -105,7 +105,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.Linter.Common
                 output test = v.listAnything().keys[0].value
             "
             )]
-        /* TODO: blocked by https://github.com/Azure/bicep/issues/4833
         [DataRow(@"
                 param storageName string
 
@@ -119,8 +118,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.Linter.Common
                   value: storage.listAnything().keys[0].value
                 }
             ",
-            "Outputs should not contain secrets. function 'listAnything'"
-        )]*/
+            "function 'listAnything'"
+        )]
         [DataRow(
             @"
                 param storageName string

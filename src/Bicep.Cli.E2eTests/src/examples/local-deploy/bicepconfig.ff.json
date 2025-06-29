@@ -1,6 +1,5 @@
 {
   "experimentalFeaturesEnabled": {
-    "extensibility": true,
     "localDeploy": true
   },
   "extensions": {
@@ -9,7 +8,6 @@
   "cloud": {
     "currentProfile": "AzureUSGovernment",
     "credentialPrecedence": [
-      // used by CI
       "Environment",
       "AzureCLI"
     ]

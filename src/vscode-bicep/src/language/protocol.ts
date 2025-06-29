@@ -113,7 +113,7 @@ export interface BicepDeploymentStartParams {
   location: string;
   template: string;
   token: string;
-  expiresOnTimestamp: string;
+  expiresOnTimestamp: string | undefined;
   deployId: string;
   deploymentName: string;
   portalUrl: string;
@@ -250,6 +250,7 @@ export interface BicepDecompileForPasteCommandParams {
   rangeLength: number;
   jsonContent: string;
   queryCanPaste: boolean;
+  languageId: string;
 }
 
 export interface BicepDecompileForPasteCommandResult {
@@ -258,7 +259,7 @@ export interface BicepDecompileForPasteCommandResult {
   errorMessage?: string;
   pasteContext?: "none" | "string";
   // undefined if can't be pasted
-  pasteType: undefined | "fullTemplate" | "resource" | "resourceList" | "jsonValue" | "bicepValue";
+  pasteType: undefined | "fullTemplate" | "resource" | "resourceList" | "jsonValue" | "bicepValue" | "fullParams";
   bicep?: string;
   disclaimer?: string;
 }

@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Analyzers.Interfaces;
@@ -7,26 +8,25 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.PublicRegistry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.UnitTests.Features;
-using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.UnitTests.Utils;
 
 public static class ServiceBuilderExtensions
 {
+    public static ServiceBuilder WithFileExplorer(this ServiceBuilder serviceBuilder, IFileExplorer fileExplorer)
+        => serviceBuilder.WithRegistration(x => x.WithFileExplorer(fileExplorer));
+
     public static ServiceBuilder WithFileResolver(this ServiceBuilder serviceBuilder, IFileResolver fileResolver)
         => serviceBuilder.WithRegistration(x => x.WithFileResolver(fileResolver));
 
     public static ServiceBuilder WithWorkspace(this ServiceBuilder serviceBuilder, IWorkspace workspace)
         => serviceBuilder.WithRegistration(x => x.WithWorkspace(workspace));
-
-    public static ServiceBuilder WithFeatureOverrides(this ServiceBuilder serviceBuilder, FeatureProviderOverrides overrides)
-        => serviceBuilder.WithRegistration(x => x.WithFeatureOverrides(overrides));
 
     public static ServiceBuilder WithContainerRegistryClientFactory(this ServiceBuilder serviceBuilder, IContainerRegistryClientFactory containerRegistryClientFactory)
         => serviceBuilder.WithRegistration(x => x.WithContainerRegistryClientFactory(containerRegistryClientFactory));
@@ -84,9 +84,17 @@ public static class ServiceBuilderExtensions
     public static Compilation BuildCompilation(this ServiceBuilder services, IReadOnlyDictionary<Uri, string> fileContentsByUri, Uri entryFileUri)
     {
         var compiler = services.Build().GetCompiler();
-        var workspace = CompilationHelper.CreateWorkspace(fileContentsByUri);
+        var workspace = CompilationHelper.CreateWorkspace(compiler.SourceFileFactory, fileContentsByUri);
 
         return compiler.CreateCompilationWithoutRestore(entryFileUri, workspace);
+    }
+
+    public static async Task<Compilation> BuildCompilationWithRestore(this ServiceBuilder services, IReadOnlyDictionary<Uri, string> fileContentsByUri, Uri entryFileUri)
+    {
+        var compiler = services.Build().GetCompiler();
+        var workspace = CompilationHelper.CreateWorkspace(compiler.SourceFileFactory, fileContentsByUri);
+
+        return await compiler.CreateCompilation(entryFileUri, workspace);
     }
 
     public static Compilation BuildCompilation(this ServiceBuilder services, string text)

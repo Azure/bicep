@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { useContext } from "react";
 import { AccordionContext } from "./AccordionProvider";
 

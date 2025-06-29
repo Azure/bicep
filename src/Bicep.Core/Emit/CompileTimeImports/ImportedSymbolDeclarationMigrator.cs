@@ -101,7 +101,7 @@ internal class ImportedSymbolDeclarationMigrator : ExpressionRewriteVisitor
     {
         var (namespaceName, name) = GetFunctionName(declaredSymbolNames[expression.Symbol]);
         return new SynthesizedUserDefinedFunctionCallExpression(sourceSyntax, namespaceName, name,
-            expression.Parameters.Select(Replace).ToImmutableArray());
+            [.. expression.Parameters.Select(Replace)]);
     }
 
     public override Expression ReplaceSynthesizedVariableReferenceExpression(SynthesizedVariableReferenceExpression expression)

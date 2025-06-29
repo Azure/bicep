@@ -3,6 +3,8 @@
 using System.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
+using Bicep.Core.PrettyPrintV2;
+using Bicep.Core.Text;
 using JetBrains.Annotations;
 
 namespace Bicep.Core.Syntax
@@ -80,11 +82,20 @@ namespace Bicep.Core.Syntax
             }
         }
 
+        public override string ToString() => this.ToString(newlineKind: null);
+
         /// <summary>
         /// Returns a string that mirrors the original text of the syntax node.
         /// </summary>
-        public override string ToString() => SyntaxStringifier.Stringify(this);
+        public string ToString(NewlineKind? newlineKind = null) => SyntaxStringifier.Stringify(this, newlineReplacement: newlineKind switch
+        {
+            null => null,
+            NewlineKind.CR => "\r",
+            NewlineKind.LF => "\n",
+            NewlineKind.CRLF => "\r\n",
+            _ => throw new ArgumentOutOfRangeException(nameof(newlineKind), newlineKind, null)
+        });
 
-        public string GetDebuggerDisplay() => ToString();
+        public string GetDebuggerDisplay() => $"[{GetType().Name}] {ToString()}";
     }
 }

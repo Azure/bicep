@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5898567106534730923"
+      "templateHash": "12715898051173612753"
     }
   },
   "parameters": {
@@ -149,10 +149,7 @@
             ]
           }
         }
-      },
-      "dependsOn": [
-        "existingVirtualNetwork"
-      ]
+      }
     },
     "bastionHost": {
       "type": "Microsoft.Network/bastionHosts",

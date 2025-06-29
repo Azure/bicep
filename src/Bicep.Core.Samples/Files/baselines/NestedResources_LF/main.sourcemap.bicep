@@ -37,6 +37,7 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
 //@      "apiVersion": "2020-12-01",
 //@      "name": "[format('{0}/{1}/{2}', 'basicParent', 'basicChild', 'basicGrandchild')]",
 //@      "dependsOn": [
+//@        "[resourceId('My.Rp/parentType', 'basicParent')]",
 //@        "[resourceId('My.Rp/parentType/childType', 'basicParent', 'basicChild')]"
 //@      ]
 //@    },
@@ -58,8 +59,8 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
 //@      "apiVersion": "2020-12-01",
 //@      "name": "[format('{0}/{1}', 'basicParent', 'basicSibling')]",
 //@      "dependsOn": [
-//@        "[resourceId('My.Rp/parentType/childType/grandchildType', 'basicParent', 'basicChild', 'basicGrandchild')]",
-//@        "[resourceId('My.Rp/parentType', 'basicParent')]"
+//@        "[resourceId('My.Rp/parentType', 'basicParent')]",
+//@        "[resourceId('My.Rp/parentType/childType/grandchildType', 'basicParent', 'basicChild', 'basicGrandchild')]"
 //@      ]
 //@    },
     name: 'basicSibling'
@@ -151,6 +152,7 @@ resource conditionParent 'My.Rp/parentType@2020-12-01' = if (createParent) {
 //@      "apiVersion": "2020-12-01",
 //@      "name": "[format('{0}/{1}/{2}', 'conditionParent', 'conditionChild', 'conditionGrandchild')]",
 //@      "dependsOn": [
+//@        "[resourceId('My.Rp/parentType', 'conditionParent')]",
 //@        "[resourceId('My.Rp/parentType/childType', 'conditionParent', 'conditionChild')]"
 //@      ]
 //@    },
@@ -186,7 +188,7 @@ resource loopParent 'My.Rp/parentType@2020-12-01' = {
   resource loopChild 'childType' = [for item in items: {
 //@    {
 //@      "copy": {
-//@        "name": "loopChild",
+//@        "name": "loopParent::loopChild",
 //@        "count": "[length(variables('items'))]"
 //@      },
 //@      "type": "My.Rp/parentType/childType",

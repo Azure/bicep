@@ -1,0 +1,534 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "2.2-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+    "_EXPERIMENTAL_FEATURES_ENABLED": [
+      "Enable defining extension configs for modules"
+    ],
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "9917811382712767337"
+    }
+  },
+  "parameters": {
+    "strParam1": {
+      "type": "string"
+    },
+    "secureStrParam1": {
+      "type": "securestring"
+    },
+    "boolParam1": {
+      "type": "bool"
+    }
+  },
+  "extensions": {
+    "az": {
+      "name": "AzureResourceManager",
+      "version": "0.2.771"
+    },
+    "k8s": {
+      "name": "Kubernetes",
+      "version": "1.0.0",
+      "config": {
+        "kubeConfig": {
+          "defaultValue": "DELETE"
+        },
+        "namespace": {
+          "defaultValue": "DELETE"
+        }
+      }
+    }
+  },
+  "resources": {
+    "kv1": {
+      "existing": true,
+      "extension": "az",
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2019-09-01",
+      "name": "kv1"
+    },
+    "scopedKv1": {
+      "existing": true,
+      "extension": "az",
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2019-09-01",
+      "resourceGroup": "otherGroup",
+      "name": "scopedKv1"
+    },
+    "testResource1": {
+      "extension": "az",
+      "type": "My.Rp/TestType",
+      "apiVersion": "2020-01-01",
+      "name": "testResource1",
+      "properties": {}
+    },
+    "aks": {
+      "extension": "az",
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2024-02-01",
+      "name": "aksCluster",
+      "location": "[resourceGroup().location]"
+    },
+    "moduleWithExtsWithAliases": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-03-01",
+      "name": "moduleWithExtsWithAliases",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "k8s": {
+            "kubeConfig": {
+              "value": "kubeConfig2FromModule"
+            },
+            "namespace": {
+              "value": "ns2FromModule"
+            }
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.2-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable defining extension configs for modules"
+            ],
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9956339962035221962"
+            }
+          },
+          "extensions": {
+            "k8s": {
+              "name": "Kubernetes",
+              "version": "1.0.0",
+              "config": {
+                "kubeConfig": {
+                  "defaultValue": "DELETE"
+                },
+                "namespace": {
+                  "defaultValue": "DELETE"
+                }
+              }
+            }
+          },
+          "resources": {}
+        }
+      }
+    },
+    "moduleWithExtsWithoutAliases": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-03-01",
+      "name": "moduleWithExtsWithoutAliases",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "kubernetes": {
+            "kubeConfig": {
+              "value": "kubeConfig2FromModule"
+            },
+            "namespace": {
+              "value": "ns2FromModule"
+            }
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.2-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable defining extension configs for modules"
+            ],
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "14917334107033963301"
+            }
+          },
+          "extensions": {
+            "kubernetes": {
+              "name": "Kubernetes",
+              "version": "1.0.0",
+              "config": {
+                "kubeConfig": {
+                  "defaultValue": "DELETE"
+                },
+                "namespace": {
+                  "defaultValue": "DELETE"
+                }
+              }
+            }
+          },
+          "resources": {}
+        }
+      }
+    },
+    "moduleExtConfigsFromParams": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-03-01",
+      "name": "moduleExtConfigsFromParams",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "k8s": {
+            "kubeConfig": "[if(parameters('boolParam1'), createObject('value', parameters('secureStrParam1')), createObject('value', parameters('strParam1')))]",
+            "namespace": "[if(parameters('boolParam1'), createObject('value', parameters('strParam1')), createObject('value', 'falseCond'))]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.2-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable defining extension configs for modules"
+            ],
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9956339962035221962"
+            }
+          },
+          "extensions": {
+            "k8s": {
+              "name": "Kubernetes",
+              "version": "1.0.0",
+              "config": {
+                "kubeConfig": {
+                  "defaultValue": "DELETE"
+                },
+                "namespace": {
+                  "defaultValue": "DELETE"
+                }
+              }
+            }
+          },
+          "resources": {}
+        }
+      }
+    },
+    "moduleExtConfigFromKeyVaultReference": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-03-01",
+      "name": "moduleExtConfigKeyVaultReference",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "k8s": {
+            "kubeConfig": {
+              "keyVaultReference": {
+                "keyVault": {
+                  "id": "[resourceId('Microsoft.KeyVault/vaults', 'kv1')]"
+                },
+                "secretName": "myKubeConfig"
+              }
+            },
+            "namespace": {
+              "value": "default"
+            }
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.2-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable defining extension configs for modules"
+            ],
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9956339962035221962"
+            }
+          },
+          "extensions": {
+            "k8s": {
+              "name": "Kubernetes",
+              "version": "1.0.0",
+              "config": {
+                "kubeConfig": {
+                  "defaultValue": "DELETE"
+                },
+                "namespace": {
+                  "defaultValue": "DELETE"
+                }
+              }
+            }
+          },
+          "resources": {}
+        }
+      }
+    },
+    "moduleExtConfigFromReferences": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-03-01",
+      "name": "moduleExtConfigFromReferences",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "k8s": {
+            "kubeConfig": {
+              "value": "[listClusterAdminCredential('aks', '2024-02-01').kubeconfigs[0].value]"
+            },
+            "namespace": {
+              "value": "[reference('testResource1').namespace]"
+            }
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.2-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable defining extension configs for modules"
+            ],
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9956339962035221962"
+            }
+          },
+          "extensions": {
+            "k8s": {
+              "name": "Kubernetes",
+              "version": "1.0.0",
+              "config": {
+                "kubeConfig": {
+                  "defaultValue": "DELETE"
+                },
+                "namespace": {
+                  "defaultValue": "DELETE"
+                }
+              }
+            }
+          },
+          "resources": {}
+        }
+      },
+      "dependsOn": [
+        "aks",
+        "testResource1"
+      ]
+    },
+    "moduleWithExtsUsingFullInheritance": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-03-01",
+      "name": "moduleWithExtsFullInheritance",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "k8s": "[extensions('k8s').config]"
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.2-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable defining extension configs for modules"
+            ],
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9956339962035221962"
+            }
+          },
+          "extensions": {
+            "k8s": {
+              "name": "Kubernetes",
+              "version": "1.0.0",
+              "config": {
+                "kubeConfig": {
+                  "defaultValue": "DELETE"
+                },
+                "namespace": {
+                  "defaultValue": "DELETE"
+                }
+              }
+            }
+          },
+          "resources": {}
+        }
+      }
+    },
+    "moduleWithExtsUsingPiecemealInheritance": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-03-01",
+      "name": "moduleWithExtsPiecemealInheritance",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "k8s": {
+            "kubeConfig": "[extensions('k8s').config.kubeConfig]",
+            "namespace": "[extensions('k8s').config.namespace]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.2-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable defining extension configs for modules"
+            ],
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9956339962035221962"
+            }
+          },
+          "extensions": {
+            "k8s": {
+              "name": "Kubernetes",
+              "version": "1.0.0",
+              "config": {
+                "kubeConfig": {
+                  "defaultValue": "DELETE"
+                },
+                "namespace": {
+                  "defaultValue": "DELETE"
+                }
+              }
+            }
+          },
+          "resources": {}
+        }
+      }
+    },
+    "moduleWithExtsUsingPiecemealInheritanceLooped": {
+      "copy": {
+        "name": "moduleWithExtsUsingPiecemealInheritanceLooped",
+        "count": "[length(range(0, 4))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-03-01",
+      "name": "[format('moduleWithExtsPiecemealInheritanceLooped{0}', range(0, 4)[copyIndex()])]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "k8s": {
+            "kubeConfig": "[extensions('k8s').config.kubeConfig]",
+            "namespace": "[extensions('k8s').config.namespace]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.2-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable defining extension configs for modules"
+            ],
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9956339962035221962"
+            }
+          },
+          "extensions": {
+            "k8s": {
+              "name": "Kubernetes",
+              "version": "1.0.0",
+              "config": {
+                "kubeConfig": {
+                  "defaultValue": "DELETE"
+                },
+                "namespace": {
+                  "defaultValue": "DELETE"
+                }
+              }
+            }
+          },
+          "resources": {}
+        }
+      }
+    },
+    "moduleExtConfigsConditionalMixed": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-03-01",
+      "name": "moduleExtConfigsConditionalMixedValueAndInheritance",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "k8s": {
+            "kubeConfig": "[if(parameters('boolParam1'), createObject('value', parameters('secureStrParam1')), extensions('k8s').config.kubeConfig)]",
+            "namespace": "[if(parameters('boolParam1'), createObject('value', resourceGroup().location), extensions('k8s').config.namespace)]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.2-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable defining extension configs for modules"
+            ],
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9956339962035221962"
+            }
+          },
+          "extensions": {
+            "k8s": {
+              "name": "Kubernetes",
+              "version": "1.0.0",
+              "config": {
+                "kubeConfig": {
+                  "defaultValue": "DELETE"
+                },
+                "namespace": {
+                  "defaultValue": "DELETE"
+                }
+              }
+            }
+          },
+          "resources": {}
+        }
+      }
+    }
+  }
+}

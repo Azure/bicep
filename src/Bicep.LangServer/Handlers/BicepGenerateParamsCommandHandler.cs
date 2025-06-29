@@ -52,21 +52,22 @@ namespace Bicep.LanguageServer.Handlers
 
         private async Task<string> GenerateCompiledParametersFileAndReturnOutputMessage(string bicepFilePath, OutputFormatOption outputFormat, IncludeParamsOption includeParams, DocumentUri documentUri)
         {
-            string compiledFilePath = PathHelper.ResolveParametersFileOutputPath(bicepFilePath, outputFormat);
-            string compiledFile = Path.GetFileName(compiledFilePath);
+            var compiledFilePath = PathHelper.ResolveParametersFileOutputPath(bicepFilePath, outputFormat);
+            var compiledFile = Path.GetFileName(compiledFilePath);
+            var extension = Path.GetExtension(compiledFilePath).ToLowerInvariant();
 
-            // If the template exists and contains bicep generator metadata, we can go ahead and replace the file.
-            // If not, we'll fail the generate params.
-            if (File.Exists(compiledFilePath) && !TemplateIsParametersFile(File.ReadAllText(compiledFilePath)))
+            // If the template exists and has a .json extension and contains the Bicep metadata, fail the generate params.
+            // If not, continue to update the file.
+            if (extension == LanguageConstants.JsonFileExtension && File.Exists(compiledFilePath) && !TemplateIsParametersFile(File.ReadAllText(compiledFilePath)))
             {
-                return "Generating parameters file failed. The file \"" + compiledFile + "\" already exists but does not contain the schema for a parameters file. If overwriting the file is intended, delete it manually and retry the Generate Parameters command.";
+                return "Generating parameters file failed. The file \"" + compiledFile + "\" already exists. If overwriting the file is intended, delete it manually and retry the Generate Parameters command.";
             }
 
             var compilation = await new CompilationHelper(bicepCompiler, compilationManager).GetRefreshedCompilation(documentUri);
-            var fileUri = documentUri.ToUriEncoded();
+            var fileUri = documentUri.ToIOUri();
 
             var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile()
-                .FirstOrDefault(x => x.Key.FileUri == fileUri);
+                .FirstOrDefault(x => x.Key.FileHandle.Uri == fileUri);
 
             if (diagnosticsByFile.Value.Any(x => x.IsError()))
             {

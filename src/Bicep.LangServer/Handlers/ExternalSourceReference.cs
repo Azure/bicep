@@ -7,7 +7,8 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceLink;
 using Bicep.Core.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
@@ -20,14 +21,22 @@ namespace Bicep.LanguageServer.Handlers
     [DebuggerDisplay("{ToUri()}")]
     public partial class ExternalSourceReference
     {
+        // Current real-life example:
+        //   module m 'br:mcr.microsoft.com/bicep/avm/ptn/aca-lza/hosting-environment:0.1.0' = ...
+        //     -> Press F12
+        //   a) To display a bicep source file other than main.bicep inside the module, CTRL+click on:
+        //     module spoke 'modules/spoke/deploy.spoke.bicep' = ...
+        //   b) To display a nested external reference to another module, CTRL+click on:
+        //     module spokeResourceGroup 'br/public:avm/res/resources/resource-group:0.2.3' = ...
+
         // The title to display for the document's tab,
-        //   e.g. "br:myregistry.azurecr.io/myrepo/module:v1/main.json (module:v1)" or something similar.
+        //   e.g. "br:myregistry.azurecr.io/myrepo/module:v1 -> main.json" or something similar.
         // VSCode will display everything after the last slash in the document's tab (interpreting it as
         //   a file path and name), and the full string on hover.
         public string FullTitle { get; init; }
 
         // Fully qualified module reference, e.g. "myregistry.azurecr.io/myrepo/module:v1"
-        public IArtifactAddressComponents Components { get; init; }
+        public IOciArtifactAddressComponents Components { get; init; }
 
         // File being requested from the source, relative to the module root.
         //   e.g. main.bicep or myPath/module.bicep
@@ -63,7 +72,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             DiagnosticBuilderDelegate? error = null;
             if (!fullyQualifiedModuleReference.StartsWith($"{OciArtifactReferenceFacts.Scheme}:", StringComparison.Ordinal) ||
-                !OciArtifactReference.TryParseFullyQualifiedComponents(fullyQualifiedModuleReference.Substring(OciArtifactReferenceFacts.Scheme.Length + 1)).IsSuccess(out var components, out error))
+                !OciArtifactAddressComponents.TryParse(fullyQualifiedModuleReference[(OciArtifactReferenceFacts.Scheme.Length + 1)..]).IsSuccess(out var components, out error))
             {
                 string? innerMessage = null;
                 if (error is { })
@@ -88,10 +97,9 @@ namespace Bicep.LanguageServer.Handlers
             return new ExternalSourceReference(Components, requestedSourceFile); // recalculate title
         }
 
-        public ExternalSourceReference(OciArtifactReference moduleReference, SourceArchive? sourceArchive)
+        public ExternalSourceReference(IOciArtifactAddressComponents moduleReferenceComponents, SourceArchive? sourceArchive)
         {
-            Debug.Assert(moduleReference.Type == ArtifactType.Module && moduleReference.Scheme == OciArtifactReferenceFacts.Scheme, "Expecting a module reference");
-            Components = moduleReference.AddressComponents;
+            Components = moduleReferenceComponents;
 
             if (sourceArchive is { })
             {
@@ -107,7 +115,7 @@ namespace Bicep.LanguageServer.Handlers
             FullTitle = GetFullTitle();
         }
 
-        private ExternalSourceReference(IArtifactAddressComponents module, string? requestedFile, string? fullTitle = null, string? shortTitle = null) // title auto-calculated if not specified
+        private ExternalSourceReference(IOciArtifactAddressComponents module, string? requestedFile, string? fullTitle = null, string? shortTitle = null) // title auto-calculated if not specified
         {
             Components = module;
             RequestedFile = requestedFile;
@@ -124,10 +132,10 @@ namespace Bicep.LanguageServer.Handlers
             // Example:
             //
             //   source available (will be encoded):
-            //     bicep-extsrc:br:myregistry.azurecr.io/myrepo:main.bicep (v1)?br:myregistry.azurecr.io/myrepo:v1#main.bicep
+            //     bicep-extsrc:br:myregistry.azurecr.io/myrepo/module1:v1 -> subfolder>main.bicep?br:myregistry.azurecr.io/myrepo/module1:v1#subfolder/main.bicep
             //
             //   source not available, showing just JSON (will be encoded)
-            //     bicep-extsrc:br:myregistry.azurecr.io/myrepo:main.json (v1)?br:myregistry.azurecr.io/myrepo:v1
+            //     bicep-extsrc:br:myregistry.azurecr.io/myrepo/module1:v1 -> main.json?br:myregistry.azurecr.io/myrepo/module1:v1
             //
             var uri = new UriBuilder($"{LangServerConstants.ExternalSourceFileScheme}:{Uri.EscapeDataString(this.FullTitle)}")
             {
@@ -138,11 +146,11 @@ namespace Bicep.LanguageServer.Handlers
             return uri.Uri;
         }
 
-        public Result<OciArtifactReference, string> ToArtifactReference()
+        public Result<OciArtifactReference, string> ToArtifactReference(BicepFile referencingFile)
         {
-            if (OciArtifactReference.TryParseFullyQualifiedComponents(Components.ArtifactId).IsSuccess(out var components, out var failureBuilder))
+            if (OciArtifactAddressComponents.TryParse(Components.ArtifactId).IsSuccess(out var components, out var failureBuilder))
             { // No parent file template is available or needed because these are absolute references
-                return new(new OciArtifactReference(ArtifactType.Module, components, new Uri("file:///no-parent-file-is-available.bicep")));
+                return new(new OciArtifactReference(referencingFile, ArtifactType.Module, components));
             }
             else
             {
@@ -157,32 +165,41 @@ namespace Bicep.LanguageServer.Handlers
 
         private string GetFullTitle()
         {
-            var version = GetVersion();
             var shortTitle = GetShortTitle();
-            var fullDocumentTitle = $"{OciArtifactReferenceFacts.Scheme}:{Components.Registry}/{Components.Repository}{version}/{shortTitle}";
+            var repositoryBasePath = Path.GetDirectoryName(Components.Repository) ?? string.Empty;
+
+            // Example: br:mockregistry.io/test/modules/module1:v1 -> localpath>main.bicep
+            var fullDocumentTitle = $"{OciArtifactReferenceFacts.Scheme}:{Components.Registry}/{Path.Join(repositoryBasePath, shortTitle).Replace('\\', '/')}";
 
             return fullDocumentTitle;
         }
 
         // Includes the filename and the module reference (repo and tag/digest).
-        //  e.g. "main.json (myregistry.azurecr.io/myrepo:v1)"
+        //  e.g. "module1:v1 -> main.json"
         // This portion will be visible in the document's tab (minus any parent folders of the filename) without hover.
         public string GetShortTitle()
         {
-            string filename = RequestedFile ?? "main.json";
+            string filePath = RequestedFile ?? "main.json";
+            // Our display of "module1:v1 -> <path>.bicep" in vscode depends on vscode interpreting that as the "filename" part of the uri,
+            //   since it's always displays the filename.
+            // If <path> contains / or \, vscode will interpret that as a folder structure and only display the last part of it.
+            filePath = CharsToReplaceInFilePath().Replace(filePath, ">");
+
             var version = GetVersion();
             var repoAndTag = $"{Path.GetFileName(Components.Repository)}{version}";
 
             string shortTitle;
             if (RequestedFile is not null && externalModulePathRegex.Match(RequestedFile) is Match match && match.Success)
             {
-                // We're display a nested external module's source. Show both its info and the info of the module that references it.
+                // We're displaying a nested external module's source. Show both its info and the info of the module that references it.
                 var externalRepoAndTag = $"{match.Groups["repoName"].Value}:{match.Groups["tag"].Value}";
-                shortTitle = $"{Path.GetFileName(filename)} ({repoAndTag}->{externalRepoAndTag})";
+                var fileNameInCache = match.Groups["filename"].Value;
+                fileNameInCache = CharsToReplaceInFilePath().Replace(fileNameInCache, ">");
+                shortTitle = $"{repoAndTag} -> {externalRepoAndTag} -> {fileNameInCache}";
             }
             else
             {
-                shortTitle = $"{filename} ({repoAndTag})";
+                shortTitle = $"{repoAndTag} -> {filePath}";
             }
 
             return shortTitle;
@@ -196,5 +213,8 @@ namespace Bicep.LanguageServer.Handlers
             \/(?<filename>[^\/]+)$            
             """, RegexOptions.IgnorePatternWhitespace)]
         private static partial Regex ExternalModulePathRegex();
+
+        [GeneratedRegex(@"[\/:?]")]
+        private static partial Regex CharsToReplaceInFilePath();
     }
 }

@@ -3,12 +3,12 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
@@ -61,50 +61,6 @@ namespace Bicep.Core.Semantics
                 return LanguageConstants.IdentifierComparer.Equals(namespaceType.ExtensionName, @namespace) &&
                     LanguageConstants.IdentifierComparer.Equals(functionSymbol.Name, decoratorName);
             });
-        }
-
-        public static ResultWithDiagnostic<ISemanticModel> TryGetModelForArtifactReference(IArtifactFileLookup sourceFileLookup,
-            IArtifactReferenceSyntax reference,
-            ISemanticModelLookup semanticModelLookup)
-        {
-            return TryGetSourceFile(sourceFileLookup, reference).Transform(semanticModelLookup.GetSemanticModel);
-        }
-
-        public static ResultWithDiagnostic<ISemanticModel> TryGetTemplateModelForArtifactReference(IArtifactFileLookup sourceFileLookup,
-            IArtifactReferenceSyntax reference,
-            DiagnosticBuilder.DiagnosticBuilderDelegate onInvalidSourceFileType,
-            ISemanticModelLookup semanticModelLookup)
-        {
-            if (!TryGetSourceFile(sourceFileLookup, reference).IsSuccess(out var sourceFile, out var error))
-            {
-                return new(error);
-            }
-
-            // when we inevitably add a third language ID,
-            // the inclusion list style below will prevent the new language ID from being
-            // automatically allowed to be referenced via module declarations
-            var isValidReference = (reference, sourceFile) switch
-            {
-                (ExtendsDeclarationSyntax, BicepParamFile) => true,
-                (_, BicepFile or ArmTemplateFile or TemplateSpecFile) => true,
-                _ => false,
-            };
-            if (!isValidReference)
-            {
-                return new(onInvalidSourceFileType(DiagnosticBuilder.ForPosition(reference.SourceSyntax)));
-            }
-
-            return new(semanticModelLookup.GetSemanticModel(sourceFile));
-        }
-
-        private static ResultWithDiagnostic<ISourceFile> TryGetSourceFile(IArtifactFileLookup sourceFileLookup, IArtifactReferenceSyntax reference)
-        {
-            if (!sourceFileLookup.TryGetSourceFile(reference).IsSuccess(out var sourceFile, out var errorBuilder))
-            {
-                return new(errorBuilder(DiagnosticBuilder.ForPosition(reference.SourceSyntax)));
-            }
-
-            return new(sourceFile);
         }
     }
 }

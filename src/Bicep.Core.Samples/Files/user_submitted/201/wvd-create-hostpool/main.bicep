@@ -221,7 +221,7 @@ var applicationGroupReferencesArr = (('' == allApplicationGroupReferences)
 var hostpoolRequiredProps = {
   friendlyName: hostpoolFriendlyName
   description: hostpoolDescription
-  hostpoolType: hostpoolType
+  hostPoolType: hostpoolType
   personalDesktopAssignmentType: personalDesktopAssignmentType
   maxSessionLimit: maxSessionLimit
   loadBalancerType: loadBalancerType

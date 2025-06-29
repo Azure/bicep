@@ -6,11 +6,16 @@ using Azure.Deployments.Core.Uri;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceGraph.Artifacts;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Modules
 {
     public class TemplateSpecModuleReference : ArtifactReference
     {
+        private readonly Lazy<TemplateSpecModuleArtifact> templateSpecModuleArtifact;
+
         private const int ResourceNameMaximumLength = 90;
 
         private static readonly UriTemplate TemplateSpecUriTemplate = new("{subscriptionId}/{resourceGroupName}/{templateSpecName}:{version}");
@@ -19,13 +24,14 @@ namespace Bicep.Core.Modules
 
         private static readonly Regex ResourceNameRegex = new(@"^[-\w\.\(\)]{0,89}[-\w\(\)]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-        private TemplateSpecModuleReference(string subscriptionId, string resourceGroupName, string templateSpecName, string version, Uri parentModuleUri)
-            : base(ArtifactReferenceSchemes.TemplateSpecs, parentModuleUri)
+        private TemplateSpecModuleReference(BicepSourceFile referencingFile, string subscriptionId, string resourceGroupName, string templateSpecName, string version)
+            : base(referencingFile, ArtifactReferenceSchemes.TemplateSpecs)
         {
             this.SubscriptionId = subscriptionId;
             this.ResourceGroupName = resourceGroupName;
             this.TemplateSpecName = templateSpecName;
             this.Version = version;
+            this.templateSpecModuleArtifact = new(() => new(subscriptionId, resourceGroupName, templateSpecName, version, referencingFile.Features.CacheRootDirectory));
         }
 
         public override string UnqualifiedReference => $"{this.SubscriptionId}/{this.ResourceGroupName}/{this.TemplateSpecName}:{this.Version}";
@@ -41,6 +47,8 @@ namespace Bicep.Core.Modules
         public string TemplateSpecResourceId => $"/subscriptions/{this.SubscriptionId}/resourceGroups/{this.ResourceGroupName}/providers/Microsoft.Resources/templateSpecs/{this.TemplateSpecName}/versions/{this.Version}";
 
         public override bool IsExternal => true;
+
+        public IFileHandle MainTemplateSpecFile => this.templateSpecModuleArtifact.Value.MainTemplateSpecFile;
 
         public override bool Equals(object? obj) =>
             obj is TemplateSpecModuleReference other &&
@@ -61,11 +69,11 @@ namespace Bicep.Core.Modules
             return hash.ToHashCode();
         }
 
-        public static ResultWithDiagnosticBuilder<TemplateSpecModuleReference> TryParse(string? aliasName, string referenceValue, RootConfiguration configuration, Uri parentModuleUri)
+        public static ResultWithDiagnosticBuilder<TemplateSpecModuleReference> TryParse(BicepSourceFile referencingFile, string? aliasName, string referenceValue)
         {
             if (aliasName is not null)
             {
-                if (!configuration.ModuleAliases.TryGetTemplateSpecModuleAlias(aliasName).IsSuccess(out var alias, out var errorBuilder))
+                if (!referencingFile.Configuration.ModuleAliases.TryGetTemplateSpecModuleAlias(aliasName).IsSuccess(out var alias, out var errorBuilder))
                 {
                     return new(errorBuilder);
                 }
@@ -124,8 +132,11 @@ namespace Bicep.Core.Modules
                 return new(x => x.InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(aliasName, version, FullyQualify(referenceValue)));
             }
 
-            return new(new TemplateSpecModuleReference(subscriptionId, resourceGroupName, templateSpecName, version, parentModuleUri));
+            return new(new TemplateSpecModuleReference(referencingFile, subscriptionId, resourceGroupName, templateSpecName, version));
         }
+
+        public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle() => new(this.MainTemplateSpecFile);
+
         private static string FullyQualify(string referenceValue) => $"{ArtifactReferenceSchemes.TemplateSpecs}:{referenceValue}";
 
         private static string GetBoundVariable(UriTemplateMatch match, string variableName) =>

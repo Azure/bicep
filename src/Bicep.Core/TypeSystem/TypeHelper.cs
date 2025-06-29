@@ -1,19 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Numerics;
+using System.Text.RegularExpressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Types;
-using Json.Patch;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.TypeSystem
@@ -46,93 +46,22 @@ namespace Bicep.Core.TypeSystem
             };
         }
 
-        private static TypeProperty GetCombinedTypeProperty(IEnumerable<ObjectType> objectTypes, string propertyName)
+        public static TypeSymbol CollapseOrCreateTypeUnion(IEnumerable<ITypeReference> itemTypes)
         {
-            var flags = TypePropertyFlags.None;
-            var types = new List<TypeSymbol>();
-            
-            foreach (var objectType in objectTypes)
-            {
-                if (objectType.Properties.TryGetValue(propertyName) is {} namedProperty)
-                {
-                    flags |= namedProperty.Flags;
-                    types.Add(namedProperty.TypeReference.Type);
-                }
-                else if (objectType.AdditionalPropertiesType is {} additionalPropertyType)
-                {
-                    flags |= objectType.AdditionalPropertiesFlags;
-                    types.Add(additionalPropertyType.Type);
-                }
-                else
-                {
-                    flags |= TypePropertyFlags.None;
-                    types.Add(LanguageConstants.Null);
-                }
-            }
-
-            // descriptions are not combined here
-            return new TypeProperty(propertyName, CreateTypeUnion(types), flags);
+            var unionType = CreateTypeUnion(itemTypes);
+            return TypeCollapser.TryCollapse(unionType) ?? unionType;
         }
 
-        private static (TypeSymbol type, TypePropertyFlags flags)? TryGetCombinedAdditionalProperties(IReadOnlyList<ObjectType> objectTypes)
-        {
-            if (!objectTypes.Any(x => x.AdditionalPropertiesType is {}))
-            {
-                return null;
-            }
-
-            var flags = TypePropertyFlags.None;
-            var types = new List<TypeSymbol>();
-            
-            foreach (var objectType in objectTypes)
-            {
-                if (objectType.AdditionalPropertiesType is {} additionalPropertyType)
-                {
-                    flags |= objectType.AdditionalPropertiesFlags;
-                    types.Add(additionalPropertyType.Type);
-                }
-                else
-                {
-                    flags |= TypePropertyFlags.None;
-                    types.Add(LanguageConstants.Null);
-                }
-            }
-
-            return (CreateTypeUnion(types), flags);
-        }
+        public static TypeSymbol CollapseOrCreateTypeUnion(params ITypeReference[] itemTypes)
+            => CollapseOrCreateTypeUnion((IEnumerable<ITypeReference>)itemTypes);
 
         /// <summary>
-        /// Converts a set of object types into a single object type with unioned properties
-        /// e.g. { foo: 'abc', bar: 'def' } | { foo: 'ghi', baz: 'jkl' }
-        /// would become { foo: ('abc' | 'ghi'), bar: ('def' | null), baz: ('jkl' | null) }
+        /// Makes a type nullable by unioning it with null
         /// </summary>
-        public static ObjectType CreateObjectTypeFromObjectUnion(IReadOnlyList<ObjectType> objectTypes)
-        {
-            var propertyNames = objectTypes
-                .SelectMany(obj => obj.Properties.Select(x => x.Key))
-                .Distinct(LanguageConstants.IdentifierComparer);
-
-            var newProperties = new List<TypeProperty>();
-            foreach (var propertyName in propertyNames)
-            {
-                var newPropertyType = GetCombinedTypeProperty(objectTypes, propertyName);
-                newProperties.Add(newPropertyType);
-            }
-
-            var additionalProperties = TryGetCombinedAdditionalProperties(objectTypes);
-            var validationFlags = objectTypes.Select(x => x.ValidationFlags).Aggregate((a, b) => a | b);
-
-            return new ObjectType(
-                // TODO: Add better naming?
-                LanguageConstants.Object.Name,
-                validationFlags,
-                newProperties,
-                additionalProperties?.type,
-                additionalProperties?.flags ?? TypePropertyFlags.None);
-        }
+        public static TypeSymbol MakeNullable(ITypeReference typeReference) => CreateTypeUnion(typeReference, LanguageConstants.Null);
 
         public static LambdaType CreateLambdaType(IEnumerable<ITypeReference> argumentTypes, IEnumerable<ITypeReference> optionalArgumentTypes, TypeSymbol returnType)
-            => new(argumentTypes.ToImmutableArray(), optionalArgumentTypes.ToImmutableArray(), returnType);
+            => new([.. argumentTypes], [.. optionalArgumentTypes], returnType);
 
         /// <summary>
         /// Returns an ordered enumerable of type names.
@@ -167,7 +96,7 @@ namespace Bicep.Core.TypeSystem
             //
             // The lattermost condition is identified by the object type either not defining an AdditionalPropertiesType
             // or explicitly flagging the AdditionalPropertiesType as a fallback (the default for non-sealed user-defined types)
-            ObjectType objectType => (objectType.AdditionalPropertiesType is null || objectType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty)) &&
+            ObjectType objectType => (objectType.AdditionalProperties is null || objectType.AdditionalProperties.Flags.HasFlag(TypePropertyFlags.FallbackProperty)) &&
                 objectType.Properties.All(kvp => kvp.Value.Flags.HasFlag(TypePropertyFlags.Required) && IsLiteralType(kvp.Value.TypeReference.Type)),
 
             _ => false,
@@ -194,7 +123,7 @@ namespace Bicep.Core.TypeSystem
 
         private static TypeSymbol? TryCreateTypeLiteral(JObject jObject)
         {
-            List<TypeProperty> convertedProperties = new();
+            List<NamedTypeProperty> convertedProperties = new();
             ObjectTypeNameBuilder nameBuilder = new();
             foreach (var prop in jObject.Properties())
             {
@@ -209,7 +138,7 @@ namespace Bicep.Core.TypeSystem
                 }
             }
 
-            return new ObjectType(nameBuilder.ToString(), TypeSymbolValidationFlags.Default, convertedProperties, additionalPropertiesType: default);
+            return new ObjectType(nameBuilder.ToString(), TypeSymbolValidationFlags.Default, convertedProperties, additionalProperties: default);
         }
 
         private static TypeSymbol? TryCreateTypeLiteral(JArray jArray)
@@ -232,17 +161,112 @@ namespace Bicep.Core.TypeSystem
             return new TupleType(nameBuilder.ToString(), [.. convertedItems], TypeSymbolValidationFlags.Default);
         }
 
-        public static TypeSymbol GetNamedPropertyType(UnionType unionType, IPositionable propertyExpressionPositionable, string propertyName, bool shouldWarn, IDiagnosticWriter diagnostics)
-        {
-            if (unionType.Members.IsEmpty ||
-                unionType.Members.Any(x => x is not ObjectType))
+        public static TypeSymbol GetNamedPropertyType(
+            UnionType unionType,
+            IPositionable propertyExpressionPositionable,
+            string propertyName,
+            bool isSafeAccess,
+            bool shouldWarn,
+            IDiagnosticWriter diagnostics) => TryCollapseTypes(unionType.Members) switch
             {
+                ObjectType @object => GetNamedPropertyType(
+                    @object,
+                    propertyExpressionPositionable,
+                    propertyName,
+                    isSafeAccess,
+                    shouldWarn,
+                    diagnostics),
+                DiscriminatedObjectType taggedUnion => GetNamedPropertyType(
+                    taggedUnion,
+                    propertyExpressionPositionable,
+                    propertyName,
+                    isSafeAccess,
+                    shouldWarn,
+                    diagnostics),
                 // TODO improve later here if necessary - we should be able to block stuff that is obviously wrong
-                return LanguageConstants.Any;
+                _ => LanguageConstants.Any,
+            };
+
+        public static TypeSymbol GetNamedPropertyType(
+            DiscriminatedObjectType discriminatedObjectType,
+            IPositionable propertyExpressionPositionable,
+            string propertyName,
+            bool isSafeAccess,
+            bool shouldWarn,
+            IDiagnosticWriter diagnostics)
+        {
+            if (propertyName.Equals(discriminatedObjectType.DiscriminatorProperty.Name))
+            {
+                return discriminatedObjectType.DiscriminatorProperty.TypeReference.Type;
             }
 
-            var objectType = CreateObjectTypeFromObjectUnion(unionType.Members.OfType<ObjectType>().ToArray());
-            return GetNamedPropertyType(objectType, propertyExpressionPositionable, propertyName, shouldWarn, diagnostics);
+            TypePropertyFlags flags = TypePropertyFlags.None;
+            List<TypeSymbol> propertyTypes = new();
+            var declaredOnAny = false;
+
+            foreach (var member in discriminatedObjectType.UnionMembersByKey.Values)
+            {
+                if (member.Properties.TryGetValue(propertyName, out var memberProperty))
+                {
+                    declaredOnAny = true;
+                    propertyTypes.Add(memberProperty.TypeReference.Type);
+                    flags |= memberProperty.Flags;
+                }
+                else if (member.AdditionalProperties is { } addlProperties)
+                {
+                    declaredOnAny = true;
+                    propertyTypes.Add(addlProperties.TypeReference.Type);
+                    flags |= addlProperties.Flags;
+                }
+                else
+                {
+                    propertyTypes.Add(LanguageConstants.Null);
+                    flags |= TypePropertyFlags.FallbackProperty;
+                }
+            }
+
+            if (declaredOnAny)
+            {
+                return GenerateAccessError(flags, discriminatedObjectType, propertyExpressionPositionable, propertyName, isSafeAccess, shouldWarn, diagnostics)
+                    ?? TypeHelper.CollapseOrCreateTypeUnion(propertyTypes);
+            }
+
+            return GetUnknownPropertyType(
+                discriminatedObjectType,
+                discriminatedObjectType.UnionMembersByKey.Values.SelectMany(obj => obj.Properties.Values),
+                propertyExpressionPositionable,
+                propertyName,
+                shouldWarn,
+                diagnostics);
+        }
+
+        private static ErrorType? GenerateAccessError(
+            TypePropertyFlags flags,
+            TypeSymbol baseType,
+            IPositionable propertyExpressionPositionable,
+            string propertyName,
+            bool isSafeAccess,
+            bool shouldWarn,
+            IDiagnosticWriter diagnostics)
+        {
+            if (flags.HasFlag(TypePropertyFlags.WriteOnly))
+            {
+                var writeOnlyDiagnostic = DiagnosticBuilder.ForPosition(propertyExpressionPositionable).WriteOnlyProperty(shouldWarn, baseType, propertyName);
+                diagnostics.Write(writeOnlyDiagnostic);
+
+                if (writeOnlyDiagnostic.IsError())
+                {
+                    return ErrorType.Empty();
+                }
+            }
+
+            if (flags.HasFlag(TypePropertyFlags.FallbackProperty))
+            {
+                diagnostics.Write(DiagnosticBuilder.ForPosition(propertyExpressionPositionable)
+                    .FallbackPropertyUsed(shouldDowngrade: isSafeAccess, propertyName));
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -251,9 +275,16 @@ namespace Bicep.Core.TypeSystem
         /// <param name="baseType">The base object type</param>
         /// <param name="propertyExpressionPositionable">The position of the property name expression</param>
         /// <param name="propertyName">The resolved property name</param>
+        /// <param name="isSafeAccess">Whether the expression accessing this property uses null-conditional access.</param>
         /// <param name="shouldWarn">Whether diagnostics with a configurable level should be issued as warnings</param>
         /// <param name="diagnostics">Sink for diagnostics are not included in the return type symbol</param>
-        public static TypeSymbol GetNamedPropertyType(ObjectType baseType, IPositionable propertyExpressionPositionable, string propertyName, bool shouldWarn, IDiagnosticWriter diagnostics)
+        public static TypeSymbol GetNamedPropertyType(
+            ObjectType baseType,
+            IPositionable propertyExpressionPositionable,
+            string propertyName,
+            bool isSafeAccess,
+            bool shouldWarn,
+            IDiagnosticWriter diagnostics)
         {
             if (baseType.TypeKind == TypeKind.Any)
             {
@@ -261,62 +292,64 @@ namespace Bicep.Core.TypeSystem
                 return LanguageConstants.Any;
             }
 
-            ErrorType? GenerateAccessError(TypePropertyFlags flags)
-            {
-                if (flags.HasFlag(TypePropertyFlags.WriteOnly))
-                {
-                    var writeOnlyDiagnostic = DiagnosticBuilder.ForPosition(propertyExpressionPositionable).WriteOnlyProperty(shouldWarn, baseType, propertyName);
-                    diagnostics.Write(writeOnlyDiagnostic);
-
-                    if (writeOnlyDiagnostic.IsError())
-                    {
-                        return ErrorType.Empty();
-                    }
-                }
-
-                if (flags.HasFlag(TypePropertyFlags.FallbackProperty))
-                {
-                    diagnostics.Write(DiagnosticBuilder.ForPosition(propertyExpressionPositionable).FallbackPropertyUsed(propertyName));
-                }
-
-                return null;
-            };
-
             // is there a declared property with this name
             var declaredProperty = baseType.Properties.TryGetValue(propertyName);
             if (declaredProperty != null)
             {
                 // there is - return its type or any error raised by its use
-                return GenerateAccessError(declaredProperty.Flags) ?? declaredProperty.TypeReference.Type;
+                return GenerateAccessError(declaredProperty.Flags, baseType, propertyExpressionPositionable, propertyName, isSafeAccess, shouldWarn, diagnostics)
+                    ?? declaredProperty.TypeReference.Type;
             }
 
             // the property is not declared
             // check additional properties
-            if (baseType.AdditionalPropertiesType != null)
+            if (baseType.AdditionalProperties is { } addlProperties)
             {
                 // yes - return the additional property type or any error raised by its use
-                return GenerateAccessError(baseType.AdditionalPropertiesFlags) ?? baseType.AdditionalPropertiesType.Type;
+                return GenerateAccessError(addlProperties.Flags, baseType, propertyExpressionPositionable, propertyName, isSafeAccess, shouldWarn, diagnostics)
+                    ?? addlProperties.TypeReference.Type;
             }
 
-            var availableProperties = baseType.Properties.Values
-                .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
-                .Select(p => p.Name)
-                .OrderBy(x => x);
+            return GetUnknownPropertyType(
+                baseType,
+                baseType.Properties.Values,
+                propertyExpressionPositionable,
+                propertyName,
+                shouldWarn,
+                diagnostics);
+        }
 
-            var unknownPropertyDiagnostic = GetUnknownPropertyDiagnostic(baseType, propertyName, shouldWarn)
+        private static TypeSymbol GetUnknownPropertyType(
+            TypeSymbol baseType,
+            IEnumerable<NamedTypeProperty> properties,
+            IPositionable propertyExpressionPositionable,
+            string propertyName,
+            bool shouldWarn,
+            IDiagnosticWriter diagnostics)
+        {
+            var unknownPropertyDiagnostic = GetUnknownPropertyDiagnostic(baseType, properties, propertyName, shouldWarn)
                 .Invoke(DiagnosticBuilder.ForPosition(propertyExpressionPositionable));
 
             diagnostics.Write(unknownPropertyDiagnostic);
 
-            return (unknownPropertyDiagnostic.IsError()) ? ErrorType.Empty() : LanguageConstants.Any;
+            return unknownPropertyDiagnostic.IsError() ? ErrorType.Empty() : LanguageConstants.Any;
         }
 
         public static DiagnosticBuilder.DiagnosticBuilderDelegate GetUnknownPropertyDiagnostic(ObjectType baseType, string propertyName, bool shouldWarn)
+            => GetUnknownPropertyDiagnostic(baseType, baseType.Properties.Values, propertyName, shouldWarn);
+
+        public static DiagnosticBuilder.DiagnosticBuilderDelegate GetUnknownPropertyDiagnostic(
+            TypeSymbol baseType,
+            IEnumerable<NamedTypeProperty> properties,
+            string propertyName,
+            bool shouldWarn)
         {
-            var availableProperties = baseType.Properties.Values
+            var availableProperties = properties
                 .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
                 .Select(p => p.Name)
-                .OrderBy(x => x);
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList();
 
             return availableProperties.Any() switch
             {
@@ -580,7 +613,7 @@ namespace Bicep.Core.TypeSystem
 
         public static ObjectType CreateDictionaryType(string name, TypeSymbolValidationFlags validationFlags, ITypeReference valueType)
         {
-            return new(name, validationFlags, ImmutableArray<TypeProperty>.Empty, valueType);
+            return new(name, validationFlags, ImmutableArray<NamedTypeProperty>.Empty, new(valueType));
         }
 
         private static ImmutableArray<ITypeReference> NormalizeTypeList(IEnumerable<ITypeReference> unionMembers)
@@ -648,18 +681,190 @@ namespace Bicep.Core.TypeSystem
             return new(ResourceTypeReference.Combine(parentResourceType.TypeReference, typeReference));
         }
 
-        private static ObjectType TransformProperties(ObjectType input, Func<TypeProperty, TypeProperty> transformFunc)
+        private static ObjectType TransformProperties(ObjectType input, Func<NamedTypeProperty, NamedTypeProperty> transformFunc)
         {
             return new ObjectType(
                 input.Name,
                 input.ValidationFlags,
                 input.Properties.Values.Select(transformFunc),
-                input.AdditionalPropertiesType,
-                input.AdditionalPropertiesFlags,
+                input.AdditionalProperties,
                 input.MethodResolver.functionOverloads);
         }
 
         public static ObjectType MakeRequiredPropertiesOptional(ObjectType input)
-            => TransformProperties(input, p => p.With(p.Flags & ~TypePropertyFlags.Required));
+            => TransformProperties(input, p => p with { Flags = p.Flags & ~TypePropertyFlags.Required });
+
+        public static TypeSymbol RemovePropertyFlagsRecursively(TypeSymbol type, TypePropertyFlags flagsToRemove)
+            => ModifyPropertyFlagsRecursively(type, f => f & ~flagsToRemove, new());
+
+        private static TType ModifyPropertyFlagsRecursively<TType>(
+            TType type,
+            Func<TypePropertyFlags, TypePropertyFlags> transformFlags,
+            ConcurrentDictionary<ObjectType, ObjectType> transformedObjectCache) where TType : TypeSymbol =>
+            type switch
+            {
+                ObjectType @object => (transformedObjectCache.GetOrAdd(
+                    @object,
+                    obj => ModifyPropertyFlagsRecursively(obj, transformFlags, transformedObjectCache)) as TType)!,
+                _ => type,
+            };
+
+        private static ObjectType ModifyPropertyFlagsRecursively(
+            ObjectType @object,
+            Func<TypePropertyFlags, TypePropertyFlags> transformFlags,
+            ConcurrentDictionary<ObjectType, ObjectType> cache) => TransformProperties(@object, property => new(
+                property.Name,
+                new DeferredTypeReference(
+                    () => ModifyPropertyFlagsRecursively(
+                    property.TypeReference.Type,
+                    transformFlags,
+                    cache)),
+                transformFlags(property.Flags),
+                property.Description));
+
+        /// <summary>
+        /// Validates that the supplied pattern is: 1) a syntactically valid regular expression, and 2) compatible with
+        /// .NET's non-backtracking regular expression engine.
+        /// </summary>
+        /// <param name="pattern">The regular expression pattern</param>
+        /// <returns>The pattern string iff it can be used with the non-backtracking engine.</returns>
+        public static string? AsOptionalValidFiniteRegexPattern(string? pattern)
+        {
+            if (pattern is not null && TryGetRegularExpressionValidationException(pattern) is null)
+            {
+                return pattern;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Attempts to instantiate a <see cref="Regex"/> with the supplied pattern and returns the error raised
+        /// thereby.
+        /// </summary>
+        /// <param name="pattern">The regular expression pattern</param>
+        /// <returns>The exception raised by <see cref="Regex.Regex(string, RegexOptions)"/>, if any.</returns>
+        public static Exception? TryGetRegularExpressionValidationException(string pattern)
+        {
+            try
+            {
+                var _ = new Regex(pattern, RegexOptions.NonBacktracking);
+                return null;
+            }
+            catch (Exception e)
+            {
+                return e;
+            }
+        }
+
+        public static bool MatchesPattern(string pattern, string value)
+            => Regex.IsMatch(value, pattern, RegexOptions.NonBacktracking);
+
+        public static bool IsOrContainsSecureType(TypeSymbol type)
+            => FindPathsToSecureTypeComponents(type, false).Any();
+
+        public static IEnumerable<string> FindPathsToSecureTypeComponents(TypeSymbol type, bool hasTrailingAccessExpressions = false)
+            => FindPathsToSecureTypeComponents(
+                type,
+                hasTrailingAccessExpressions,
+                path: "",
+                currentlyProcessing: new(ReferenceEqualityComparer.Instance));
+
+        private static IEnumerable<string> FindPathsToSecureTypeComponents(
+            TypeSymbol type,
+            bool hasTrailingAccessExpressions,
+            string path,
+            HashSet<TypeSymbol> currentlyProcessing)
+        {
+            // types can be recursive. cut out early if we've already seen this type
+            if (!currentlyProcessing.Add(type))
+            {
+                yield break;
+            }
+
+            if (type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
+            {
+                yield return path;
+            }
+
+            if (type is UnionType union)
+            {
+                foreach (var variantPath in union.Members.SelectMany(m => FindPathsToSecureTypeComponents(
+                    m.Type,
+                    hasTrailingAccessExpressions,
+                    path,
+                    currentlyProcessing)))
+                {
+                    yield return variantPath;
+                }
+            }
+
+            // if the expression being visited is dereferencing a specific property or index of this type, we shouldn't warn if the type under inspection
+            // *contains* properties or indices that are flagged as secure. We will have already warned if those have been accessed in the expression, and
+            // if they haven't, then the value dereferenced isn't sensitive
+            //
+            //    param p {
+            //      prop: {
+            //        @secure()
+            //        nestedSecret: string
+            //        nestedInnocuousProperty: string
+            //      }
+            //    }
+            //
+            //    output objectContainingSecrets object = p                     // <-- should be flagged
+            //    output propertyContainingSecrets object = p.prop              // <-- should be flagged
+            //    output nestedSecret string = p.prop.nestedSecret              // <-- should be flagged
+            //    output siblingOfSecret string = p.prop.nestedInnocuousData    // <-- should NOT be flagged
+            if (!hasTrailingAccessExpressions)
+            {
+                switch (type)
+                {
+                    case ObjectType obj:
+                        if (obj.AdditionalProperties?.TypeReference.Type is TypeSymbol addlPropsType)
+                        {
+                            foreach (var dictMemberPath in FindPathsToSecureTypeComponents(
+                                addlPropsType,
+                                hasTrailingAccessExpressions,
+                                $"{path}.*",
+                                currentlyProcessing))
+                            {
+                                yield return dictMemberPath;
+                            }
+                        }
+
+                        foreach (var propertyPath in obj.Properties.SelectMany(p => FindPathsToSecureTypeComponents(
+                            p.Value.TypeReference.Type,
+                            hasTrailingAccessExpressions,
+                            $"{path}.{p.Key}",
+                            currentlyProcessing)))
+                        {
+                            yield return propertyPath;
+                        }
+                        break;
+                    case TupleType tuple:
+                        foreach (var pathFromIndex in tuple.Items.SelectMany((t, i) => FindPathsToSecureTypeComponents(
+                            t.Type,
+                            hasTrailingAccessExpressions,
+                            $"{path}[{i}]",
+                            currentlyProcessing)))
+                        {
+                            yield return pathFromIndex;
+                        }
+                        break;
+                    case ArrayType array:
+                        foreach (var pathFromElement in FindPathsToSecureTypeComponents(
+                            array.Item.Type,
+                            hasTrailingAccessExpressions,
+                            $"{path}[*]",
+                            currentlyProcessing))
+                        {
+                            yield return pathFromElement;
+                        }
+                        break;
+                }
+            }
+
+            currentlyProcessing.Remove(type);
+        }
     }
 }

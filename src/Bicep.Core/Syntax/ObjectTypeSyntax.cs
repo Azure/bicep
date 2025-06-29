@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Syntax;
 
@@ -14,7 +15,7 @@ public class ObjectTypeSyntax : TypeSyntax
         AssertTokenType(closeBrace, nameof(closeBrace), TokenType.RightBrace);
 
         OpenBrace = openBrace;
-        Children = children.ToImmutableArray();
+        Children = [.. children];
         CloseBrace = closeBrace;
     }
 

@@ -4,8 +4,8 @@
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -16,8 +16,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public ExplicitValuesForLocationParamsRule() : base(
             code: Code,
-            description: "When consuming a module, any location-related parameters that have a default value must be assigned an explicit value.",
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
+            description: "When consuming a module, any location-related parameters that have a default value must be assigned an explicit value.")
         {
         }
 

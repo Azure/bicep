@@ -3,6 +3,7 @@
 using System.Collections.Immutable;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Syntax
 {
@@ -10,7 +11,7 @@ namespace Bicep.Core.Syntax
     {
         public ProgramSyntax(IEnumerable<SyntaxBase> children, Token endOfFile)
         {
-            this.Children = children.ToImmutableArray();
+            this.Children = [.. children];
             this.EndOfFile = endOfFile;
         }
 

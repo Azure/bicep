@@ -18,7 +18,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-
 namespace Bicep.Core.IntegrationTests.Emit
 {
     [TestClass]
@@ -36,6 +35,9 @@ namespace Bicep.Core.IntegrationTests.Emit
 
         private async Task<Compilation> GetCompilation(DataSet dataSet, FeatureProviderOverrides features)
         {
+            // Use a unique cache root directory for each test run to avoid conflicts
+            features = features with { CacheRootDirectory = FileHelper.GetCacheRootDirectory(TestContext) };
+
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var clientFactory = dataSet.CreateMockRegistryClients();
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
@@ -64,6 +66,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             var result = EmitTemplate(compilation, compiledFilePath);
             result.Diagnostics.Should().NotHaveErrors();
             result.Status.Should().Be(EmitStatus.Succeeded);
+            result.Features.Should().NotBeNull();
 
             var outputFile = File.ReadAllText(compiledFilePath);
             var actual = JToken.Parse(outputFile);
@@ -75,7 +78,7 @@ namespace Bicep.Core.IntegrationTests.Emit
                 actualLocation: compiledFilePath);
 
             // validate that the template is parseable by the deployment engine
-            TemplateHelper.TemplateShouldBeValid(outputFile);
+            UnitTests.Utils.TemplateHelper.TemplateShouldBeValid(outputFile, result.Features!);
         }
 
         [DataTestMethod]
@@ -89,6 +92,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             var result = EmitTemplate(compilation, compiledFilePath);
             result.Diagnostics.Should().NotHaveErrors();
             result.Status.Should().Be(EmitStatus.Succeeded);
+            result.Features.Should().NotBeNull();
 
             var outputFile = File.ReadAllText(compiledFilePath);
             var actual = JToken.Parse(outputFile);
@@ -100,7 +104,7 @@ namespace Bicep.Core.IntegrationTests.Emit
                 actualLocation: compiledFilePath);
 
             // validate that the template is parseable by the deployment engine
-            TemplateHelper.TemplateShouldBeValid(outputFile);
+            UnitTests.Utils.TemplateHelper.TemplateShouldBeValid(outputFile, result.Features!);
         }
 
         [DataTestMethod]

@@ -1,5 +1,5 @@
 /*
-//@[000:3162) ProgramSyntax
+//@[000:3213) ProgramSyntax
   This is a block comment.
 */
 //@[002:0004) ├─Token(NewLine) |\n\n|
@@ -1402,6 +1402,27 @@ param decoratedArray array = [
 //@[013:0014) |     ├─Token(NewLine) |\n|
 ]
 //@[000:0001) |     └─Token(RightSquare) |]|
-//@[001:0002) ├─Token(NewLine) |\n|
+//@[001:0003) ├─Token(NewLine) |\n\n|
+
+param nameofParam string = nameof(decoratedArray)
+//@[000:0049) ├─ParameterDeclarationSyntax
+//@[000:0005) | ├─Token(Identifier) |param|
+//@[006:0017) | ├─IdentifierSyntax
+//@[006:0017) | | └─Token(Identifier) |nameofParam|
+//@[018:0024) | ├─TypeVariableAccessSyntax
+//@[018:0024) | | └─IdentifierSyntax
+//@[018:0024) | |   └─Token(Identifier) |string|
+//@[025:0049) | └─ParameterDefaultValueSyntax
+//@[025:0026) |   ├─Token(Assignment) |=|
+//@[027:0049) |   └─FunctionCallSyntax
+//@[027:0033) |     ├─IdentifierSyntax
+//@[027:0033) |     | └─Token(Identifier) |nameof|
+//@[033:0034) |     ├─Token(LeftParen) |(|
+//@[034:0048) |     ├─FunctionArgumentSyntax
+//@[034:0048) |     | └─VariableAccessSyntax
+//@[034:0048) |     |   └─IdentifierSyntax
+//@[034:0048) |     |     └─Token(Identifier) |decoratedArray|
+//@[048:0049) |     └─Token(RightParen) |)|
+//@[049:0050) ├─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

@@ -7,10 +7,11 @@ namespace Bicep.Core.Semantics;
 
 public class AmbientTypeSymbol : Symbol, ITypeReference
 {
-    public AmbientTypeSymbol(string name, TypeSymbol type, NamespaceType declaringNamespace, string? description) : base(name)
+    public AmbientTypeSymbol(string name, TypeSymbol type, NamespaceType declaringNamespace, TypePropertyFlags flags, string? description) : base(name)
     {
         Type = type;
         DeclaringNamespace = declaringNamespace;
+        Flags = flags;
         Description = description;
     }
 
@@ -19,6 +20,8 @@ public class AmbientTypeSymbol : Symbol, ITypeReference
     public NamespaceType DeclaringNamespace { get; }
 
     public string? Description { get; }
+
+    public TypePropertyFlags Flags { get; }
 
     public override IEnumerable<Symbol> Descendants
     {

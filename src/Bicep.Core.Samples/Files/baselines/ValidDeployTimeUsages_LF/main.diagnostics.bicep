@@ -30,12 +30,12 @@ var idAccessor = 'id'
 var dStr = 'd'
 var idAccessor2 = idAccessor
 var idAccessorInterpolated = '${idAccessor}'
-//@[29:44) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (bicep core linter https://aka.ms/bicep/linter/simplify-interpolation) |'${idAccessor}'|
+//@[29:44) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#simplify-interpolation) |'${idAccessor}'|
 var idAccessorMixed = 'i${dStr}'
 var strArray = ['id', 'properties']
 
 var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
-//@[04:32) [no-unused-vars (Warning)] Variable "varForBodyOkDeployTimeUsages" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |varForBodyOkDeployTimeUsages|
+//@[04:32) [no-unused-vars (Warning)] Variable "varForBodyOkDeployTimeUsages" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |varForBodyOkDeployTimeUsages|
   case1: foo.id
   case2: existingFoo.id
   case3: foo::fooChild.id
@@ -45,21 +45,21 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
   case7: foos[zeroIndex].id
   case8: foos[otherIndex].id
   case9: foo['id']
-//@[12:18) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter/prefer-unquoted-property-names) |['id']|
+//@[12:18) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-unquoted-property-names) |['id']|
   case10: existingFoo['id']
-//@[21:27) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter/prefer-unquoted-property-names) |['id']|
+//@[21:27) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-unquoted-property-names) |['id']|
   case11: foo::fooChild['id']
-//@[23:29) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter/prefer-unquoted-property-names) |['id']|
+//@[23:29) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-unquoted-property-names) |['id']|
   case12: foos[0]['id']
-//@[17:23) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter/prefer-unquoted-property-names) |['id']|
+//@[17:23) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-unquoted-property-names) |['id']|
   case13: foos[i]['id']
-//@[17:23) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter/prefer-unquoted-property-names) |['id']|
+//@[17:23) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-unquoted-property-names) |['id']|
   case14: foos[i + 2]['id']
-//@[21:27) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter/prefer-unquoted-property-names) |['id']|
+//@[21:27) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-unquoted-property-names) |['id']|
   case15: foos[zeroIndex]['id']
-//@[25:31) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter/prefer-unquoted-property-names) |['id']|
+//@[25:31) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-unquoted-property-names) |['id']|
   case16: foos[otherIndex]['id']
-//@[26:32) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter/prefer-unquoted-property-names) |['id']|
+//@[26:32) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-unquoted-property-names) |['id']|
   case17: foo[idAccessor]
   case18: existingFoo[idAccessor]
   case19: foo::fooChild[idAccessor]
@@ -133,14 +133,14 @@ var varForBodyOkDeployTimeUsages = [for i in range(0, 2): {
   case87: foos[zeroIndex][cond ? first(strArray) : strArray[0]]
   case88: foos[otherIndex][cond ? first(strArray) : strArray[0]]
   case89: foos[cond ? i : zeroIndex]['id']
-//@[36:42) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter/prefer-unquoted-property-names) |['id']|
+//@[36:42) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-unquoted-property-names) |['id']|
   case90: foos[any(0)].id
   case91: foos[cond ? any(0) : i - 1]['id']
-//@[37:43) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter/prefer-unquoted-property-names) |['id']|
+//@[37:43) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-unquoted-property-names) |['id']|
 }]
 var varForBodyOkDeployTimeUsageExpression = [for i in range(0, 2): foo.id]
-//@[04:41) [no-unused-vars (Warning)] Variable "varForBodyOkDeployTimeUsageExpression" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |varForBodyOkDeployTimeUsageExpression|
+//@[04:41) [no-unused-vars (Warning)] Variable "varForBodyOkDeployTimeUsageExpression" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |varForBodyOkDeployTimeUsageExpression|
 var varForBodyOkDeployTimeUsageInterpolatedKey = [for i in range(0, 2): {
-//@[04:46) [no-unused-vars (Warning)] Variable "varForBodyOkDeployTimeUsageInterpolatedKey" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |varForBodyOkDeployTimeUsageInterpolatedKey|
+//@[04:46) [no-unused-vars (Warning)] Variable "varForBodyOkDeployTimeUsageInterpolatedKey" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |varForBodyOkDeployTimeUsageInterpolatedKey|
   '${foo.id}': 'id'
 }]

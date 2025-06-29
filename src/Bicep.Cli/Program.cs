@@ -92,9 +92,6 @@ namespace Bicep.Cli
                     case PublishArguments publishArguments when publishArguments.CommandName == Constants.Command.Publish: // bicep publish [options]
                         return await services.GetRequiredService<PublishCommand>().RunAsync(publishArguments);
 
-                    case PublishExtensionArguments publishProviderArguments when publishProviderArguments.CommandName == Constants.Command.PublishProvider: // bicep publish-provider [options]
-                        return await services.GetRequiredService<PublishExtensionCommand>().RunAsync(publishProviderArguments);
-
                     case PublishExtensionArguments publishProviderArguments when publishProviderArguments.CommandName == Constants.Command.PublishExtension: // bicep publish-extension [options]
                         return await services.GetRequiredService<PublishExtensionCommand>().RunAsync(publishProviderArguments);
 
@@ -109,6 +106,9 @@ namespace Bicep.Cli
 
                     case LocalDeployArguments localDeployArguments when localDeployArguments.CommandName == Constants.Command.LocalDeploy: // bicep local-deploy [options]
                         return await services.GetRequiredService<LocalDeployCommand>().RunAsync(localDeployArguments, cancellationToken);
+
+                    case SnapshotArguments snapshotArguments when snapshotArguments.CommandName == Constants.Command.Snapshot: // bicep snapshot [options]
+                        return await services.GetRequiredService<SnapshotCommand>().RunAsync(snapshotArguments, cancellationToken);
 
                     case RootArguments rootArguments when rootArguments.CommandName == Constants.Command.Root: // bicep [options]
                         return services.GetRequiredService<RootCommand>().Run(rootArguments);
@@ -164,6 +164,7 @@ namespace Bicep.Cli
             => new ServiceCollection()
                 .AddBicepCore()
                 .AddBicepDecompiler()
+                .AddLocalDeploy()
                 .AddCommands()
                 .AddSingleton(CreateLoggerFactory(io).CreateLogger("bicep"))
                 .AddSingleton<DiagnosticLogger>()

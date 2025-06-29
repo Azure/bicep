@@ -8,7 +8,7 @@ namespace Bicep.Core.PrettyPrintV2.Documents
     public class GlueDocument : ContainerDocument
     {
         public GlueDocument(IEnumerable<Document> documents)
-            : base(documents.ToImmutableArray())
+            : base([.. documents])
         {
         }
     }

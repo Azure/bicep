@@ -7,6 +7,7 @@ using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Parsing
 {
@@ -23,10 +24,13 @@ namespace Bicep.Core.Parsing
             {'$', '$'}
         }.ToImmutableSortedDictionary();
 
-        private static readonly ImmutableArray<string> CharacterEscapeSequences = SingleCharacterEscapes.Keys
-            .Select(c => $"\\{c}")
-            .Append("\\u{...}")
-            .ToImmutableArray();
+        private static readonly ImmutableArray<string> CharacterEscapeSequences =
+        [
+            .. SingleCharacterEscapes.Keys
+                        .Select(c => $"\\{c}")
+,
+            "\\u{...}",
+        ];
 
         private const int MultilineStringTerminatingQuoteCount = 3;
 
@@ -941,6 +945,8 @@ namespace Bicep.Core.Parsing
                     return TokenType.Asterisk;
                 case '/':
                     return TokenType.Slash;
+                case '^':
+                    return TokenType.Hat;
                 case '!':
                     if (!textWindow.IsAtEnd())
                     {

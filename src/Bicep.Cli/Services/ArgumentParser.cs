@@ -35,13 +35,13 @@ namespace Bicep.Cli.Services
                 Constants.Command.GenerateParamsFile => new GenerateParametersFileArguments(args[1..]),
                 Constants.Command.Decompile => new DecompileArguments(args[1..]),
                 Constants.Command.DecompileParams => new DecompileParamsArguments(args[1..]),
-                Constants.Command.PublishProvider => new PublishExtensionArguments(args[1..], Constants.Command.PublishProvider, io),
                 Constants.Command.PublishExtension => new PublishExtensionArguments(args[1..], Constants.Command.PublishExtension, io),
                 Constants.Command.Publish => new PublishArguments(args[1..], io),
                 Constants.Command.Restore => new RestoreArguments(args[1..]),
                 Constants.Command.Lint => new LintArguments(args[1..]),
                 Constants.Command.JsonRpc => new JsonRpcArguments(args[1..]),
                 Constants.Command.LocalDeploy => new LocalDeployArguments(args[1..]),
+                Constants.Command.Snapshot => new SnapshotArguments(args[1..]),
                 _ => null,
             };
         }

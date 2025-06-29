@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "value": {
+      "obj": {
+        "property": "value",
+        "deeply": {
+          "nested": {
+            "object": {
+              "property": "value"
+            },
+            "arrayOfObjects": [
+              {
+                "property": "value"
+              },
+              {}
+            ]
+          }
+        }
+      },
+      "array": [
+        "foo",
+        "bar"
+      ]
+    },
+    "standardPropertyAccess": [
+      "[variables('value').obj.property]",
+      "[variables('value').array[1]]",
+      "[variables('value').obj.deeply.nested.object.property]",
+      "[variables('value').obj.deeply.nested.arrayOfObjects[0].property]"
+    ],
+    "safeDereferences": [
+      "[tryGet(variables('value').obj, 'property')]",
+      "[tryGet(variables('value'), 'obj', 'property')]",
+      "[tryGet(variables('value').array, 1)]",
+      "[tryGet(variables('value'), 'array', 1)]",
+      "[tryGet(variables('value').obj.deeply, 'nested', 'arrayOfObjects', 0, 'property')]"
+    ],
+    "fromEnd": [
+      "[indexFromEnd(variables('value').array, 1)]",
+      "[tryIndexFromEnd(variables('value').array, 1)]",
+      "[tryGet(variables('value'), 'array', createObject('value', 1, 'fromEnd', true()))]",
+      "[tryGet(variables('value').obj.deeply, 'nested', 'arrayOfObjects', createObject('fromEnd', true(), 'value', 2), 'property')]",
+      "[tryGet(variables('value').obj.deeply, 'nested', 'arrayOfObjects', createObject('fromEnd', true(), 'value', 2)).property]"
+    ]
+  },
+  "resources": []
+}

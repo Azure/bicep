@@ -2,7 +2,8 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Semantics;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.CompilationManager;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -38,7 +39,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             var semanticModel = context.Compilation.GetEntrypointSemanticModel();
-            var localDeployEnabled = semanticModel.Features.LocalDeployEnabled;
+            var localDeployEnabled = false;
 
             string? paramsFile = null;
             string? templateFile = null;
@@ -46,24 +47,26 @@ namespace Bicep.LanguageServer.Handlers
             {
                 var result = context.Compilation.Emitter.Parameters();
 
-                if (result.Parameters is null ||
-                    result.Template?.Template is null)
-                {
-                    return new(ErrorMessage: $"Compilation failed. The Bicep parameters file contains errors.", LocalDeployEnabled: localDeployEnabled);
-                }
-
-                paramsFile = result.Parameters;
-                templateFile = result.Template.Template;
-
                 if (!semanticModel.Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var usingModel))
                 {
                     return new(ErrorMessage: $"Compilation failed. Failed to find a file referenced via 'using'.", LocalDeployEnabled: localDeployEnabled);
+                }
+
+                paramsFile = result.Parameters;
+                templateFile = result.Template?.Template;
+                localDeployEnabled = usingModel.TargetScope == ResourceScope.Local;
+
+                if (paramsFile is null ||
+                    templateFile is null)
+                {
+                    return new(ErrorMessage: $"Compilation failed. The Bicep parameters file contains errors.", LocalDeployEnabled: localDeployEnabled);
                 }
             }
             else if (semanticModel.Root.FileKind == BicepSourceFileKind.BicepFile)
             {
                 var result = context.Compilation.Emitter.Template();
                 templateFile = result.Template;
+                localDeployEnabled = context.Compilation.GetEntrypointSemanticModel().TargetScope == ResourceScope.Local;
 
                 if (result.Template is null)
                 {

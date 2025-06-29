@@ -128,12 +128,12 @@ resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {
 //@    {
 //@      "type": "My.Rp/myResourceType/childType",
 //@      "apiVersion": "2020-01-01",
-//@      "name": "resC/resD",
+//@      "name": "resC/resD_2",
 //@      "dependsOn": [
 //@        "[resourceId('My.Rp/myResourceType/childType', split(format('{0}/resD', 'resC'), '/')[0], split(format('{0}/resD', 'resC'), '/')[1])]"
 //@      ]
 //@    }
-  name: 'resC/resD'
+  name: 'resC/resD_2'
   properties: {
 //@      "properties": {
 //@      },

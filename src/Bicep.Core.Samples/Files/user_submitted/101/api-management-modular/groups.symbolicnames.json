@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "403029788224868668"
+      "templateHash": "6816770503491912011"
     }
   },
   "parameters": {
@@ -47,10 +47,7 @@
       "properties": {
         "displayName": "[variables('groupsSet')[copyIndex()].groupDisplayName]",
         "description": "[variables('groupsSet')[copyIndex()].groupDescription]"
-      },
-      "dependsOn": [
-        "parentAPIM"
-      ]
+      }
     }
   },
   "outputs": {

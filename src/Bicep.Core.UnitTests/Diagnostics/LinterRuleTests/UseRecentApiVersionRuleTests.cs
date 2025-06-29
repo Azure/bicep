@@ -10,6 +10,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Json;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Mock;
 using FluentAssertions;
@@ -127,7 +128,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 original.CacheRootDirectory,
                 original.ExperimentalFeaturesEnabled with
                 {
-                    Extensibility = true,
+                    SymbolicNameCodegen = true,
                 },
                 original.Formatting,
                 null,
@@ -1189,7 +1190,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    ["[2] The resource type is not valid. Specify a valid resource type of format \"<types>@<apiVersion>\"."]);
+                    ["[2] The resource type is not valid. Specify a valid resource type of format \"<type-name>@<apiVersion>\"."]);
             }
 
             [TestMethod]
@@ -1315,7 +1316,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
                     [
-                      "[2] The resource type is not valid. Specify a valid resource type of format \"<types>@<apiVersion>\"."
+                      "[2] The resource type is not valid. Specify a valid resource type of format \"<type-name>@<apiVersion>\"."
                     ]);
             }
 
@@ -1887,7 +1888,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             public void LinterIgnoresNotAzureResources()
             {
                 CompileAndTestWithFakeDateAndTypes(@"
-                        provider kubernetes with {
+                        extension kubernetes with {
                           namespace: 'default'
                           kubeConfig: ''
                         }

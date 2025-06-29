@@ -5,10 +5,9 @@ using System.Collections.Immutable;
 using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Parsing;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
-using Bicep.Core.Workspaces;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -231,11 +230,13 @@ namespace Bicep.Core.Emit
             Array.Fill(weights, int.MaxValue);
 
             var sourceMapFileEntries = new List<SourceMapFileEntry>();
-            var entrypointFileName = System.IO.Path.GetFileName(sourceFile.FileUri.AbsolutePath);
+            var entrypointFileName = sourceFile.GetFileName();
 
             foreach (var bicepFileEntry in this.rawSourceMap.Entries)
             {
-                var bicepRelativeFilePath = PathHelper.GetRelativePath(sourceFile.FileUri, bicepFileEntry.SourceFile.FileUri);
+                var bicepRelativeFilePath = bicepFileEntry.SourceFile == sourceFile
+                    ? entrypointFileName
+                    : bicepFileEntry.SourceFile.FileHandle.Uri.GetPathRelativeTo(sourceFile.FileHandle.Uri);
                 var sourceMapEntries = new List<SourceMapEntry>();
 
                 foreach (var sourceMapEntry in bicepFileEntry.SourceMap)

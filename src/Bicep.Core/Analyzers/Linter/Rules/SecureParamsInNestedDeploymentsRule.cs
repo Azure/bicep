@@ -24,8 +24,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public SecureParamsInNestedDeploymentsRule() : base(
             code: Code,
             description: CoreResources.SecureParamsInNestedDeployRule_Description,
-            LinterRuleCategory.Security,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
+            LinterRuleCategory.Security)
         { }
 
         public override string FormatMessage(params object[] values)
@@ -97,7 +96,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             // It's a valid deployment resource
             if (propertiesObject is not null
-                && propertiesObject.TryGetPropertyByNameRecursive(new[] { "expressionEvaluationOptions", "scope" })?.Value
+                && propertiesObject.TryGetPropertyByNameRecursive(["expressionEvaluationOptions", "scope"])?.Value
                 is StringSyntax scope)
             {
                 if (scope.TryGetLiteralValue()?.Equals("inner", StringComparison.InvariantCultureIgnoreCase) == true)

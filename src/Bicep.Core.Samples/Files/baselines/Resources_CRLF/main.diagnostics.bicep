@@ -45,7 +45,6 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
   properties: {
     supportsHttpsTrafficOnly: !false
     accessTier: true ? 'Hot' : 'Cold'
-//@[16:37) [BCP036 (Warning)] The property "accessTier" expected a value of type "'Cool' | 'Hot' | null" but the provided value is of type "'Cold' | 'Hot'". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP036) |true ? 'Hot' : 'Cold'|
     encryption: {
       keySource: 'Microsoft.Storage'
       services: {
@@ -97,10 +96,11 @@ var cosmosDbRef = reference(cosmosDbResourceId).documentEndpoint
 // this variable is not accessed anywhere in this template and depends on a run-time reference
 // it should not be present at all in the template output as there is nowhere logical to put it
 var cosmosDbEndpoint = cosmosDbRef.documentEndpoint
-//@[04:20) [no-unused-vars (Warning)] Variable "cosmosDbEndpoint" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |cosmosDbEndpoint|
+//@[04:20) [no-unused-vars (Warning)] Variable "cosmosDbEndpoint" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |cosmosDbEndpoint|
 
 param webSiteName string
 param cosmosDb object
+//@[15:21) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |object|
 resource site 'Microsoft.Web/sites@2019-08-01' = {
   name: webSiteName
   location: location
@@ -130,15 +130,15 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 }
 
 var _siteApiVersion = site.apiVersion
-//@[04:19) [no-unused-vars (Warning)] Variable "_siteApiVersion" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |_siteApiVersion|
+//@[04:19) [no-unused-vars (Warning)] Variable "_siteApiVersion" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |_siteApiVersion|
 var _siteType = site.type
-//@[04:13) [no-unused-vars (Warning)] Variable "_siteType" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |_siteType|
+//@[04:13) [no-unused-vars (Warning)] Variable "_siteType" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |_siteType|
 
 output siteApiVersion string = site.apiVersion
 output siteType string = site.type
 
 resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
-//@[16:60) [no-deployments-resources (Warning)] Resource 'nested' of type 'Microsoft.Resources/deployments@2019-10-01' should instead be declared as a Bicep module. (bicep core linter https://aka.ms/bicep/linter/no-deployments-resources) |'Microsoft.Resources/deployments@2019-10-01'|
+//@[16:60) [no-deployments-resources (Warning)] Resource 'nested' of type 'Microsoft.Resources/deployments@2019-10-01' should instead be declared as a Bicep module. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-deployments-resources) |'Microsoft.Resources/deployments@2019-10-01'|
   name: 'nestedTemplate1'
   properties: {
     mode: 'Incremental'
@@ -173,14 +173,14 @@ resource resourceA 'My.Rp/typeA@2020-01-01' = {
 
 resource resourceB 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[19:49) [BCP081 (Warning)] Resource type "My.Rp/typeA/typeB@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'My.Rp/typeA/typeB@2020-01-01'|
-  name: '${resourceA.name}/myName'
-//@[08:34) [use-parent-property (Warning)] Resource "resourceB" has its name formatted as a child of resource "resourceA". The syntax can be simplified by using the parent property. (bicep core linter https://aka.ms/bicep/linter/use-parent-property) |'${resourceA.name}/myName'|
+  name: '${resourceA.name}/resourceB'
+//@[08:37) [use-parent-property (Warning)] Resource "resourceB" has its name formatted as a child of resource "resourceA". The syntax can be simplified by using the parent property. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-parent-property) |'${resourceA.name}/resourceB'|
 }
 
 resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
 //@[19:49) [BCP081 (Warning)] Resource type "My.Rp/typeA/typeB@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'My.Rp/typeA/typeB@2020-01-01'|
-  name: '${resourceA.name}/myName'
-//@[08:34) [use-parent-property (Warning)] Resource "resourceC" has its name formatted as a child of resource "resourceA". The syntax can be simplified by using the parent property. (bicep core linter https://aka.ms/bicep/linter/use-parent-property) |'${resourceA.name}/myName'|
+  name: '${resourceA.name}/resourceC'
+//@[08:37) [use-parent-property (Warning)] Resource "resourceC" has its name formatted as a child of resource "resourceA". The syntax can be simplified by using the parent property. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-parent-property) |'${resourceA.name}/resourceC'|
   properties: {
     aId: resourceA.id
     aType: resourceA.type
@@ -284,6 +284,7 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
   properties: {
     res1: vmWithCondition.id
     res1runtime: vmWithCondition.properties.something
+//@[32:43) [BCP318 (Warning)] The value of type "Microsoft.Compute/virtualMachines | null" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail. (bicep https://aka.ms/bicep/core-diagnostics#BCP318) |.properties|
 //@[44:53) [BCP053 (Warning)] The type "VirtualMachineProperties" does not contain property "something". Available properties include "additionalCapabilities", "availabilitySet", "billingProfile", "diagnosticsProfile", "evictionPolicy", "extensionsTimeBudget", "hardwareProfile", "host", "hostGroup", "instanceView", "licenseType", "networkProfile", "osProfile", "priority", "provisioningState", "proximityPlacementGroup", "securityProfile", "storageProfile", "virtualMachineScaleSet", "vmId". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |something|
     res2: extension1.id
     res2runtime: extension1.properties.something
@@ -300,7 +301,7 @@ resource existing1 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
 }
 
 resource existing2 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
-//@[09:18) [no-unused-existing-resources (Warning)] Existing resource "existing2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-existing-resources) |existing2|
+//@[09:18) [no-unused-existing-resources (Warning)] Existing resource "existing2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-existing-resources) |existing2|
 //@[19:65) [BCP081 (Warning)] Resource type "Mock.Rp/existingExtensionResource@2020-01-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'Mock.Rp/existingExtensionResource@2020-01-01'|
   name: 'existing2'
   scope: existing1
@@ -314,7 +315,7 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
 
 /*
   valid loop cases
-*/ 
+*/
 var storageAccounts = [
   {
     name: 'one'
@@ -355,7 +356,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
   properties: {
     subnets: [for j in range(0, 4): {
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
-     
+
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
       name: 'subnet-${i}-${j}'
     }]
@@ -374,7 +375,7 @@ resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-
 
 // duplicate identifiers in global and single loop scope are allowed (inner variable hides the outer)
 var canHaveDuplicatesAcrossScopes = 'hello'
-//@[04:33) [no-unused-vars (Warning)] Variable "canHaveDuplicatesAcrossScopes" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |canHaveDuplicatesAcrossScopes|
+//@[04:33) [no-unused-vars (Warning)] Variable "canHaveDuplicatesAcrossScopes" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |canHaveDuplicatesAcrossScopes|
 resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for canHaveDuplicatesAcrossScopes in range(0, 3): {
   name: 'vnet-${canHaveDuplicatesAcrossScopes}'
   properties: {
@@ -386,7 +387,7 @@ resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-
 
 // duplicate in global and multiple loop scopes are allowed (inner hides the outer)
 var duplicatesEverywhere = 'hello'
-//@[04:24) [no-unused-vars (Warning)] Variable "duplicatesEverywhere" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |duplicatesEverywhere|
+//@[04:24) [no-unused-vars (Warning)] Variable "duplicatesEverywhere" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |duplicatesEverywhere|
 resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for duplicatesEverywhere in range(0, 3): {
   name: 'vnet-${duplicatesEverywhere}'
   properties: {
@@ -465,7 +466,7 @@ output p1_subnet1id string = p1_subnet1.id
 // parent property with extension resource
 resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 //@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'Microsoft.Rp1/resource1@2020-06-01'|
-  name: 'res1'
+  name: 'p2res1'
 }
 
 resource p2_res1child 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
@@ -494,7 +495,7 @@ output p2_res2childid string = p2_res2child.id
 // parent property with 'existing' resource
 resource p3_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 //@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'Microsoft.Rp1/resource1@2020-06-01'|
-  name: 'res1'
+  name: 'p3res1'
 }
 
 resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
@@ -512,7 +513,7 @@ output p3_res1childid string = p3_child1.id
 resource p4_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 //@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed. (bicep https://aka.ms/bicep/core-diagnostics#BCP081) |'Microsoft.Rp1/resource1@2020-06-01'|
   scope: tenant()
-  name: 'res1'
+  name: 'p4res1'
 }
 
 resource p4_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' existing = {
@@ -543,5 +544,27 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
   resource primaryDb 'databases' = {
     name: 'primary-db'
     location: 'polandcentral'
+
+    resource threatProtection 'advancedThreatProtectionSettings' existing = {
+      name: 'default'
+    }
   }
 }
+
+//nameof
+output nameof_sqlServer string = nameof(sqlServer)
+output nameof_location string = nameof(sqlServer.location)
+output nameof_minCapacity string = nameof(sqlServer::primaryDb.properties.minCapacity)
+output nameof_creationTime string = nameof(sqlServer::primaryDb::threatProtection.properties.creationTime)
+output nameof_id string = nameof(sqlServer::sqlDatabases[0].id)
+
+var sqlConfig = {
+  westus: {}
+  'server-name': {}
+}
+
+resource sqlServerWithNameof 'Microsoft.Sql/servers@2021-11-01' = {
+  name: 'sql-server-nameof-${nameof(sqlConfig['server-name'])}'
+  location: nameof(sqlConfig.westus)
+}
+

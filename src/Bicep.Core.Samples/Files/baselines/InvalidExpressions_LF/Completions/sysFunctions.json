@@ -168,6 +168,27 @@
     }
   },
   {
+    "label": "buildUri",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nbuildUri(components: parseUri): string\n\n```  \nConstructs a URI from specified components and returns an object with these components.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_buildUri",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "buildUri($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "cidrHost",
     "kind": "function",
     "documentation": {
@@ -392,6 +413,27 @@
     "textEdit": {
       "range": {},
       "newText": "endsWith($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "fail",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nfail(message: string): never\n\n```  \nRaises a runtime error with the provided message. Will cause a deployment to fail when evaluated.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_fail",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "fail($0)"
     },
     "command": {
       "title": "signature help",
@@ -903,6 +945,27 @@
     }
   },
   {
+    "label": "nameof",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nnameof(symbol: any): string\n\n```  \nReturns the name of a declared symbol or property. Evaluation occurs during compilation, not at runtime.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_nameof",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameof($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "newGuid",
     "kind": "function",
     "documentation": {
@@ -1004,6 +1067,27 @@
     }
   },
   {
+    "label": "parseUri",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nparseUri(baseUrl: string): parseUri\n\n```  \nParses a URI string into its components (scheme, host, port, path, query).  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_parseUri",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "parseUri($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "range",
     "kind": "function",
     "documentation": {
@@ -1029,7 +1113,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nreduce(array: array, initialValue: any, predicate: (any, any[, int]) => any): array\n\n```  \nReduces an array with a custom reduce function.  \n"
+      "value": "```bicep\nreduce(array: array, initialValue: any, predicate: (any, any[, int]) => any): any\n\n```  \nReduces an array with a custom reduce function.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1065,6 +1149,48 @@
       "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
+  },
+  {
+    "label": "resourceInput",
+    "kind": "property",
+    "detail": "resourceInput",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `resourceInput<ResourceTypeIdentifier>`  \nUse the type definition of the input for a specific resource rather than a user-defined type.\n\nNB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_resourceInput",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceInput"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "resourceOutput",
+    "kind": "property",
+    "detail": "resourceOutput",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `resourceOutput<ResourceTypeIdentifier>`  \nUse the type definition of the return value of a specific resource rather than a user-defined type.\n\nNB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_resourceOutput",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceOutput"
+    },
+    "commitCharacters": [
+      "."
+    ]
   },
   {
     "label": "shallowMerge",

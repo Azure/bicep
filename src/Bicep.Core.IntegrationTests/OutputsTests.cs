@@ -24,18 +24,17 @@ namespace Bicep.Core.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private ServiceBuilder ServicesWithExtensibility => new ServiceBuilder()
-            .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true, ResourceTypedParamsAndOutputsEnabled: true))
+        private ServiceBuilder ServicesWithExtensions => new ServiceBuilder()
+            .WithFeatureOverrides(new(TestContext, ResourceTypedParamsAndOutputsEnabled: true))
             .WithConfigurationPatch(c => c.WithExtensions("""
             {
               "az": "builtin:",
               "kubernetes": "builtin:",
-              "microsoftGraph": "builtin:",
               "foo": "builtin:",
               "bar": "builtin:"
             }
             """))
-            .WithNamespaceProvider(TestExtensibilityNamespaceProvider.CreateWithDefaults());
+            .WithNamespaceProvider(TestExtensionsNamespaceProvider.CreateWithDefaults());
 
         [TestMethod]
         public void Output_can_have_inferred_resource_type()
@@ -231,9 +230,9 @@ output out resource = resource
         }
 
         [TestMethod]
-        public void Output_cannot_use_extensibility_resource_type()
+        public void Output_cannot_use_extension_resource_type()
         {
-            var result = CompilationHelper.Compile(ServicesWithExtensibility,
+            var result = CompilationHelper.Compile(ServicesWithExtensions,
             """
             extension bar with {
                 connectionString: 'asdf'
@@ -248,7 +247,7 @@ output out resource = resource
 
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
-                ("BCP227", DiagnosticLevel.Error, "The type \"container\" cannot be used as a parameter or output type. Extensibility types are currently not supported as parameters or outputs."),
+                ("BCP227", DiagnosticLevel.Error, "The type \"container\" cannot be used as a parameter or output type. Resource types from extensions are currently not supported as parameters or outputs."),
             });
         }
     }

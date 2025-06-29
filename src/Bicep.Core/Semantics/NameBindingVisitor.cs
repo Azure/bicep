@@ -191,6 +191,9 @@ namespace Bicep.Core.Semantics
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
+            allowedFlags = FunctionFlags.TypeDecorator;
+            this.Visit(syntax.Type);
+            allowedFlags = FunctionFlags.VariableDecorator;
             this.Visit(syntax.Assignment);
             allowedFlags = FunctionFlags.RequiresInlining;
             this.Visit(syntax.Value);
@@ -366,10 +369,10 @@ namespace Bicep.Core.Semantics
                     break;
                 }
 
-                if (scope.ScopeResolution == ScopeResolution.InheritFunctionsOnly)
+                if (scope.ScopeResolution == ScopeResolution.InheritFunctionsAndVariablesOnly)
                 {
                     // FIXME: How can we make sure only wildcard import instance functions are included in the local scope?
-                    symbolFilter = symbol => symbol is VariableSymbol or DeclaredFunctionSymbol or ImportedFunctionSymbol or WildcardImportSymbol;
+                    symbolFilter = symbol => symbol is VariableSymbol or ImportedVariableSymbol or DeclaredFunctionSymbol or ImportedFunctionSymbol or WildcardImportSymbol;
                 }
             }
 

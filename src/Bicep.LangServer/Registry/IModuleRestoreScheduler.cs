@@ -3,7 +3,7 @@
 
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Bicep.LanguageServer.CompilationManager;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 

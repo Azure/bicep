@@ -21,6 +21,7 @@ import { WalkthroughOpenBicepFileCommand } from "./commands/gettingStarted/Walkt
 import { ImportKubernetesManifestCommand } from "./commands/importKubernetesManifest";
 import { InsertResourceCommand } from "./commands/insertResource";
 import { PasteAsBicepCommand } from "./commands/pasteAsBicep";
+import { PostExtractionCommand } from "./commands/PostExtractionCommand";
 import { ShowDeployPaneCommand, ShowDeployPaneToSideCommand } from "./commands/showDeployPane";
 import { ShowModuleSourceFileCommand } from "./commands/ShowModuleSourceFileCommand";
 import { ShowSourceFromVisualizerCommand } from "./commands/showSourceFromVisualizer";
@@ -32,9 +33,9 @@ import { BicepExternalSourceContentProvider, createLanguageService, ensureDotnet
 import { bicepConfigurationPrefix, bicepLanguageId } from "./language/constants";
 import { BicepExternalSourceScheme } from "./language/decodeExternalSourceUri";
 import { DeployPaneViewManager } from "./panes/deploy";
-import { TreeManager } from "./tree/TreeManager";
 import { updateUiContext } from "./updateUiContext";
 import { createAzExtOutputChannel } from "./utils/AzExtOutputChannel";
+import { AzurePickers } from "./utils/AzurePickers";
 import { Disposable } from "./utils/disposable";
 import { createLogger, getLogger, resetLogger } from "./utils/logger";
 import { OutputChannelManager } from "./utils/OutputChannelManager";
@@ -106,7 +107,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
           new OutputChannelManager("Bicep Operations", bicepConfigurationPrefix),
         );
 
-        const treeManager = extension.register(new TreeManager(outputChannelManager));
+        const azurePickers = extension.register(new AzurePickers(outputChannelManager));
 
         const deployPaneViewManager = extension.register(
           new DeployPaneViewManager(
@@ -114,7 +115,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
             extensionContext,
             extension.extensionUri,
             languageClient,
-            new AzureUiManager(actionContext, treeManager),
+            new AzureUiManager(actionContext, azurePickers),
           ),
         );
 
@@ -133,7 +134,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
             new GenerateParamsCommand(languageClient, outputChannelManager),
             new BuildParamsCommand(languageClient, outputChannelManager),
             new CreateBicepConfigurationFile(languageClient),
-            new DeployCommand(languageClient, outputChannelManager, treeManager),
+            new DeployCommand(languageClient, outputChannelManager, azurePickers),
             new DecompileCommand(languageClient, outputChannelManager),
             new DecompileParamsCommand(languageClient, outputChannelManager),
             new ForceModulesRestoreCommand(languageClient, outputChannelManager),
@@ -149,6 +150,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
             new WalkthroughOpenBicepFileCommand(),
             new ImportKubernetesManifestCommand(languageClient),
             new ShowModuleSourceFileCommand(),
+            new PostExtractionCommand(),
           );
 
         // Register events

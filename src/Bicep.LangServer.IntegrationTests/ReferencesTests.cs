@@ -53,7 +53,7 @@ var blah = '${test}'
         var locations = await file.RequestReferences(cursor, includeDeclaration: true);
 
         // all URIs should be the same in the results
-        locations!.Select(r => r.Uri.ToUriEncoded()).Should().AllBeEquivalentTo(file.Source.FileUri);
+        locations!.Select(r => r.Uri).Should().AllBeEquivalentTo(file.Source.Uri);
 
         AnnotateWithLocations(file, locations).Should().EqualIgnoringTrailingWhitespace(outputAnnotated);
     }
@@ -80,7 +80,7 @@ var blah = '${test}'
         var locations = await file.RequestReferences(cursor, includeDeclaration: false);
 
         // all URIs should be the same in the results
-        locations!.Select(r => r.Uri.ToUriEncoded()).Should().AllBeEquivalentTo(file.Source.FileUri);
+        locations!.Select(r => r.Uri).Should().AllBeEquivalentTo(file.Source.Uri);
 
         AnnotateWithLocations(file, locations).Should().EqualIgnoringTrailingWhitespace(outputAnnotated);
     }
@@ -132,8 +132,9 @@ var dep2 = az.deploy|ment()
 
     private static string AnnotateWithLocations(FileRequestHelper file, LocationContainer? locations)
         => PrintHelper.PrintWithAnnotations(
-            file.Source,
-            locations!.Select(x => new PrintHelper.Annotation(Assertions.AssertionScopeExtensions.FromRange(file.Source, x.Range), "here")), 1, true);
+            file.Source.Text,
+            file.Source.LineStarts,
+            locations!.Select(x => new PrintHelper.Annotation(file.Source.GetSpan(x.Range), "here")), 1, true);
 
     private static async Task<IEnumerable<LocationContainer?>> RequestReferences(FileRequestHelper file, IEnumerable<int> cursors)
     {

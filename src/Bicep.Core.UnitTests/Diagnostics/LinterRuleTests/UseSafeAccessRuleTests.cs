@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter.Rules;
+using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
@@ -9,8 +10,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 [TestClass]
 public class UseSafeAccessRuleTests : LinterRuleTestsBase
 {
-    private void AssertCodeFix(string inputFile, string resultFile)
-        => AssertCodeFix(UseSafeAccessRule.Code, "Use the safe access (.?) operator", inputFile, resultFile);
+    private void AssertCodeFix(string inputFile, string resultFile, CompilationHelper.InputFile[]? supportingFiles = null)
+        => AssertCodeFix(UseSafeAccessRule.Code, "Use the safe access (.?) operator", inputFile, resultFile, supportingFiles);
 
     private void AssertNoDiagnostics(string inputFile)
         => AssertLinterRuleDiagnostics(UseSafeAccessRule.Code, inputFile, [], new(OnCompileErrors.Ignore, IncludePosition.None));
@@ -148,4 +149,104 @@ type roleAssignmentType = {
   roleDefinitionIdOrName: string
 }[]?
 """);
+
+    [TestMethod]
+    public void Codefix_recommends_safe_access_for_nullable_property_access() => AssertCodeFix("""
+param foo {
+  bar: string?
+}
+
+output bar string? = foo.b|ar
+""", """
+param foo {
+  bar: string?
+}
+
+output bar string? = foo.?bar
+""");
+
+    [TestMethod]
+    public void Rule_ignores_non_nullable_property_access() => AssertNoDiagnostics("""
+param foo {
+  bar: string
+}
+
+output bar string? = foo.bar
+""");
+
+    [TestMethod]
+    public void Codefix_recommends_safe_access_for_nullable_module_output_property_access() => AssertCodeFix("""
+module foo 'module.bicep' = {
+  name: 'foo'
+}
+
+output bar string? = foo.outputs.b|ar
+""", """
+module foo 'module.bicep' = {
+  name: 'foo'
+}
+
+output bar string? = foo.outputs.?bar
+""",
+supportingFiles: [new("module.bicep", """
+output bar string? = null
+""")]);
+
+    [TestMethod]
+    public void Codefix_recommends_safe_access_for_nullable_array_access() => AssertCodeFix("""
+param foo {
+  bar: string?
+}
+
+output bar string? = foo['b|ar']
+""", """
+param foo {
+  bar: string?
+}
+
+output bar string? = foo[?'bar']
+""");
+
+    [TestMethod]
+    public void Rule_ignores_non_nullable_array_access() => AssertNoDiagnostics("""
+param foo {
+  bar: string
+}
+
+output bar string? = foo['bar']
+""");
+
+    [TestMethod]
+    public void Rule_ignores_array_access_on_array() => AssertNoDiagnostics("""
+param foo (string | null)[]
+
+output bar string? = foo[0]
+""");
+
+    [TestMethod]
+    public void Codefix_recommends_safe_access_for_nullable_module_output_array_access() => AssertCodeFix("""
+module foo 'module.bicep' = {
+  name: 'foo'
+}
+
+output bar string? = foo.outputs['b|ar']
+""", """
+module foo 'module.bicep' = {
+  name: 'foo'
+}
+
+output bar string? = foo.outputs[?'bar']
+""",
+supportingFiles: [new("module.bicep", """
+output bar string? = null
+""")]);
+
+    [TestMethod]
+    public void Rule_ignores_access_with_null_forgiving_operator() => AssertNoDiagnostics("""
+        param foo {
+          optionalProperty: string?
+        }
+
+        output bar string = foo.optionalProperty!
+        """);
 }

@@ -58,7 +58,7 @@
       }
     },
     "automation_account_diagnostic": {
-      "type": "Microsoft.Insights/diagnosticSettings",
+      "type": "microsoft.insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.Automation/automationAccounts/{0}', variables('automationaccountName'))]",
       "name": "[variables('automationaccountDiagName')]",

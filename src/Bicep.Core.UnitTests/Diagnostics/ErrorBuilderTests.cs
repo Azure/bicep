@@ -9,13 +9,15 @@ using Bicep.Core.Registry;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -200,6 +202,15 @@ namespace Bicep.Core.UnitTests.Diagnostics
                     TestSyntaxFactory.CreateVariableAccess("identifier"));
             }
 
+            if (parameter.ParameterType == typeof(ParameterizedTypeInstantiationSyntaxBase))
+            {
+                return new ParameterizedTypeInstantiationSyntax(
+                    TestSyntaxFactory.CreateIdentifier("foo"),
+                    SyntaxFactory.CreateToken(TokenType.LeftChevron),
+                    TestSyntaxFactory.CreateString("RP.Namespace/widgets@v1").AsEnumerable(),
+                    SyntaxFactory.CreateToken(TokenType.RightChevron));
+            }
+
             if (parameter.ParameterType == typeof(ExportMetadataKind))
             {
                 return ExportMetadataKind.Error;
@@ -213,6 +224,11 @@ namespace Bicep.Core.UnitTests.Diagnostics
             if (parameter.ParameterType == typeof(ArtifactType))
             {
                 return ArtifactType.Module;
+            }
+
+            if (parameter.ParameterType == typeof(IOUri) || parameter.ParameterType == typeof(IOUri?))
+            {
+                return new IOUri("file", "", "/foo");
             }
 
             throw new AssertFailedException($"Unable to generate mock parameter value of type '{parameter.ParameterType}' for the diagnostic builder method.");

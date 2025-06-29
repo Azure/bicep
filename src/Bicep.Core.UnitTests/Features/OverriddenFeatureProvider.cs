@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Features;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.UnitTests.Features;
 
@@ -18,11 +19,9 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public string AssemblyVersion => overrides.AssemblyVersion ?? features.AssemblyVersion;
 
-    public string CacheRootDirectory => overrides.CacheRootDirectory ?? features.CacheRootDirectory;
+    public IDirectoryHandle CacheRootDirectory => overrides.CacheRootDirectory ?? features.CacheRootDirectory;
 
     public bool SymbolicNameCodegenEnabled => overrides.SymbolicNameCodegenEnabled ?? features.SymbolicNameCodegenEnabled;
-
-    public bool ExtensibilityEnabled => overrides.ExtensibilityEnabled ?? features.ExtensibilityEnabled;
 
     public bool ResourceTypedParamsAndOutputsEnabled => overrides.ResourceTypedParamsAndOutputsEnabled ?? features.ResourceTypedParamsAndOutputsEnabled;
 
@@ -34,15 +33,21 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool AssertsEnabled => overrides.AssertsEnabled ?? features.AssertsEnabled;
 
-    public bool OptionalModuleNamesEnabled => overrides.OptionalModuleNamesEnabled ?? features.OptionalModuleNamesEnabled;
+    public bool WaitAndRetryEnabled => overrides.WaitAndRetryEnabled ?? features.WaitAndRetryEnabled;
+
+    public bool OnlyIfNotExistsEnabled => overrides.OnlyIfNotExistsEnabled ?? features.OnlyIfNotExistsEnabled;
 
     public bool LocalDeployEnabled => overrides.LocalDeployEnabled ?? features.LocalDeployEnabled;
 
-    public bool ResourceDerivedTypesEnabled => overrides.ResourceDerivedTypesEnabled ?? features.ResourceDerivedTypesEnabled;
-
-    public bool SecureOutputsEnabled => overrides.SecureOutputsEnabled ?? features.SecureOutputsEnabled;
+    public bool ResourceInfoCodegenEnabled => overrides.ResourceInfoCodegenEnabled ?? features.ResourceInfoCodegenEnabled;
 
     public bool ExtendableParamFilesEnabled => overrides.ExtendableParamFilesEnabled ?? features.ExtendableParamFilesEnabled;
 
-    public bool ExtensibilityV2EmittingEnabled => overrides.ExtensibilityV2EmittingEnabled ?? features.ExtensibilityV2EmittingEnabled;
+    public bool ModuleExtensionConfigsEnabled => overrides.ModuleExtensionConfigsEnabled ?? features.ModuleExtensionConfigsEnabled;
+
+    public bool DesiredStateConfigurationEnabled => overrides.DesiredStateConfigurationEnabled ?? features.DesiredStateConfigurationEnabled;
+
+    public bool ExternalInputFunctionEnabled => overrides.ExternalInputFunctionEnabled ?? features.ExternalInputFunctionEnabled;
+
+    public bool ModuleIdentityEnabled => overrides.ModuleIdentityEnabled ?? features.ModuleIdentityEnabled;
 }

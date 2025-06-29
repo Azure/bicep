@@ -8,7 +8,7 @@ public abstract class DecorableSyntax : SyntaxBase
 {
     protected DecorableSyntax(IEnumerable<SyntaxBase> leadingNodes)
     {
-        this.LeadingNodes = leadingNodes.ToImmutableArray();
+        this.LeadingNodes = [.. leadingNodes];
     }
 
     public ImmutableArray<SyntaxBase> LeadingNodes { get; }

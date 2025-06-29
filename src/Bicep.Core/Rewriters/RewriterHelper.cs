@@ -3,8 +3,8 @@
 
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Rewriters;
 
@@ -12,7 +12,7 @@ public static class RewriterHelper
 {
     private static (BicepSourceFile bicepFile, bool hasChanges) Rewrite(BicepCompiler compiler, Workspace workspace, BicepSourceFile bicepFile, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
     {
-        var compilation = compiler.CreateCompilationWithoutRestore(bicepFile.FileUri, workspace);
+        var compilation = compiler.CreateCompilationWithoutRestore(bicepFile.Uri, workspace);
         var newProgramSyntax = rewriteVisitorBuilder(compilation.GetEntrypointSemanticModel()).Rewrite(bicepFile.ProgramSyntax);
 
         if (object.ReferenceEquals(bicepFile.ProgramSyntax, newProgramSyntax))
@@ -20,7 +20,7 @@ public static class RewriterHelper
             return (bicepFile, false);
         }
 
-        bicepFile = SourceFileFactory.CreateBicepFile(bicepFile.FileUri, newProgramSyntax.ToString());
+        bicepFile = compilation.SourceFileFactory.CreateBicepFile(bicepFile.Uri, newProgramSyntax.ToString());
         return (bicepFile, true);
     }
 
@@ -28,7 +28,6 @@ public static class RewriterHelper
     {
         var workspace = new Workspace();
         workspace.UpsertSourceFiles(compilation.SourceFileGrouping.SourceFiles);
-        var fileUri = bicepFile.FileUri;
 
         // Changing the syntax changes the semantic model, so it's possible for rewriters to have dependencies on each other.
         // For example, fixing the casing of a type may fix type validation, causing another rewriter to apply.

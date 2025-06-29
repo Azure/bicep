@@ -208,7 +208,7 @@
     "kind": "file",
     "deprecated": false,
     "preselect": false,
-    "sortText": "1_module%20with%20space.bicep",
+    "sortText": "1_module with space.bicep",
     "filterText": "'module with space.bicep'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",

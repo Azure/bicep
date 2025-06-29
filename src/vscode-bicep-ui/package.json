@@ -14,18 +14,24 @@
   "scripts": {
     "build": "turbo build",
     "test": "turbo test",
+    "test:fix": "turbo test --force -- -u",
     "lint": "turbo lint",
+    "lint:fix": "turbo lint:fix",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
-    "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
-    "@typescript-eslint/eslint-plugin": "^8.5.0",
-    "@typescript-eslint/parser": "^8.5.0",
-    "eslint": "^8.57.0",
-    "eslint-plugin-react-hooks": "^4.6.2",
-    "eslint-plugin-react-refresh": "^0.4.11",
-    "prettier": "^3.3.3",
-    "turbo": "^2.1.1",
-    "typescript": "^5.5.4"
+    "@eslint/js": "^9.27.0",
+    "@ianvs/prettier-plugin-sort-imports": "^4.4.2",
+    "@types/eslint__js": "^8.42.3",
+    "eslint": "^9.18.0",
+    "eslint-plugin-notice": "^1.0.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^15.14.0",
+    "prettier": "^3.5.3",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.26.0"
   }
 }

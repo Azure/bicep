@@ -11,91 +11,104 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrintV2;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.Text;
+using Bicep.Core.Utils;
 
 namespace Bicep.Cli.Commands;
 
-public class FormatCommand : ICommand
+public class FormatCommand(
+    IOContext io,
+    IEnvironment environment,
+    IFileResolver fileResolver,
+    IFileSystem fileSystem,
+    ISourceFileFactory sourceFileFactory) : ICommand
 {
-    private readonly IOContext io;
-    private readonly IFileResolver fileResolver;
-    private readonly IFileSystem fileSystem;
-    private readonly IConfigurationManager configurationManager;
-    private readonly IFeatureProviderFactory featureProviderFactory;
-
-    public FormatCommand(
-        IOContext io,
-        IFileResolver fileResolver,
-        IFileSystem fileSystem,
-        IConfigurationManager configurationManager,
-        IFeatureProviderFactory featureProviderFactory)
-    {
-        this.io = io;
-        this.fileResolver = fileResolver;
-        this.fileSystem = fileSystem;
-        this.configurationManager = configurationManager;
-        this.featureProviderFactory = featureProviderFactory;
-    }
-
     public int Run(FormatArguments args)
     {
-        var inputUri = ArgumentHelper.GetFileUri(args.InputFile, this.fileSystem);
+        if (args.InputFile is null)
+        {
+            FormatMultiple(args);
+            return 0;
+        }
+
+        var inputUri = ArgumentHelper.GetFileUri(args.InputFile, fileSystem);
         ArgumentHelper.ValidateBicepOrBicepParamFile(inputUri);
 
-        if (!this.fileResolver.TryRead(inputUri).IsSuccess(out var fileContents, out var failureBuilder))
+        var outputUri = GetOutputUri(inputUri, args.OutputDir, args.OutputFile);
+
+        Format(args, inputUri, outputUri, args.OutputToStdOut);
+        return 0;
+    }
+
+    public void Format(FormatArguments args, Uri inputUri, Uri outputUri, bool outputToStdOut)
+    {
+        if (!fileResolver.TryRead(inputUri).IsSuccess(out var fileContents, out var failureBuilder))
         {
             var diagnostic = failureBuilder(DiagnosticBuilder.ForPosition(new TextSpan(0, 0)));
             throw new DiagnosticException(diagnostic);
         }
 
-        BaseParser parser = PathHelper.HasBicepExtension(inputUri) ? new Parser(fileContents) : new ParamsParser(fileContents);
-        var program = parser.Program();
-        var featureProvider = this.featureProviderFactory.GetFeatureProvider(inputUri);
-
-        if (featureProvider.LegacyFormatterEnabled)
+        if (sourceFileFactory.CreateSourceFile(inputUri, fileContents) is not BicepSourceFile sourceFile)
         {
-            var v2Options = this.GetPrettyPrinterOptions(inputUri, args);
-            var legacyOptions = PrettyPrintOptions.FromV2Options(v2Options);
-            var output = PrettyPrinter.PrintProgram(program, legacyOptions, parser.LexingErrorLookup, parser.ParsingErrorLookup);
+            throw new InvalidOperationException("Unable to create Bicep source file.");
+        }
 
-            if (args.OutputToStdOut)
+        if (sourceFile.Features.LegacyFormatterEnabled)
+        {
+            var v2Options = GetPrettyPrinterOptions(sourceFile, args);
+            var legacyOptions = PrettyPrintOptions.FromV2Options(v2Options);
+            var output = PrettyPrinter.PrintProgram(sourceFile.ProgramSyntax, legacyOptions, sourceFile.LexingErrorLookup, sourceFile.ParsingErrorLookup);
+
+            if (outputToStdOut)
             {
                 io.Output.Write(output);
                 io.Output.Flush();
             }
             else
             {
-                var outputPath = PathHelper.ResolveDefaultOutputPath(inputUri.LocalPath, args.OutputDir, args.OutputFile, path => path, this.fileSystem);
-
-                this.fileSystem.File.WriteAllText(outputPath, output);
+                fileSystem.File.WriteAllText(outputUri.LocalPath, output);
             }
 
-            return 0;
+            return;
         }
 
-        var options = GetPrettyPrinterOptions(inputUri, args);
-        var context = PrettyPrinterV2Context.Create(options, parser.LexingErrorLookup, parser.ParsingErrorLookup);
+        var options = GetPrettyPrinterOptions(sourceFile, args);
+        var context = PrettyPrinterV2Context.Create(options, sourceFile.LexingErrorLookup, sourceFile.ParsingErrorLookup);
 
-        if (args.OutputToStdOut)
+        if (outputToStdOut)
         {
-            PrettyPrinterV2.PrintTo(this.io.Output, program, context);
-            this.io.Output.Flush();
+            PrettyPrinterV2.PrintTo(io.Output, sourceFile.ProgramSyntax, context);
+            io.Output.Flush();
         }
         else
         {
-            var outputPath = PathHelper.ResolveDefaultOutputPath(inputUri.LocalPath, args.OutputDir, args.OutputFile, path => path, this.fileSystem);
-            using var fileStream = this.fileSystem.File.Open(outputPath, FileMode.Create, FileAccess.Write, FileShare.Read);
+            using var fileStream = fileSystem.File.Open(outputUri.LocalPath, FileMode.Create, FileAccess.Write, FileShare.Read);
             using var writer = new StreamWriter(fileStream);
 
 
-            PrettyPrinterV2.PrintTo(writer, program, context);
+            PrettyPrinterV2.PrintTo(writer, sourceFile.ProgramSyntax, context);
         }
 
-        return 0;
+        return;
     }
 
-    private PrettyPrinterV2Options GetPrettyPrinterOptions(Uri inputUri, FormatArguments args)
+    public void FormatMultiple(FormatArguments args)
     {
-        var options = this.configurationManager.GetConfiguration(inputUri).Formatting.Data;
+        foreach (var inputUri in CommandHelper.GetInputFilesForPattern(environment, args.FilePattern))
+        {
+            ArgumentHelper.ValidateBicepOrBicepParamFile(inputUri);
+
+            // only allow in-place formatting
+            var outputUri = inputUri;
+
+            Format(args, inputUri, outputUri, false);
+        }
+    }
+
+    private static PrettyPrinterV2Options GetPrettyPrinterOptions(BicepSourceFile sourceFile, FormatArguments args)
+    {
+        var options = sourceFile.Configuration.Formatting.Data;
 
         if (args.NewlineKind is not null)
         {
@@ -118,5 +131,11 @@ public class FormatCommand : ICommand
         }
 
         return options;
+    }
+
+    private Uri GetOutputUri(Uri inputUri, string? outputDir, string? outputFile)
+    {
+        var outputPath = PathHelper.ResolveOutputPath(inputUri.LocalPath, outputDir, outputFile, path => path, fileSystem);
+        return PathHelper.FilePathToFileUrl(outputPath);
     }
 }

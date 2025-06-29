@@ -297,7 +297,7 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [
       stringParamB: ''
       arrayParam: [
         {
-          e: [for j in range(7, 7): j % thing]
+          e: [for j in range(7, 7): j % (thing + 1)]
         }
       ]
     }
@@ -389,3 +389,33 @@ module withSpace 'module with space.bicep' = {
 module folderWithSpace 'child/folder with space/child with space.bicep' = {
   name: 'childWithSpace'
 }
+
+// nameof
+
+var nameofModule = nameof(folderWithSpace)
+var nameofModuleParam = nameof(secureModuleCondition.outputs.exposedSecureString)
+
+module moduleWithNameof 'modulea.bicep' = {
+  name: 'nameofModule'
+  scope: resourceGroup(nameof(nameofModuleParam))
+  params: {
+    stringParamA: nameof(withSpace)
+    stringParamB: nameof(folderWithSpace)
+    objParam: {
+      a: nameof(secureModuleCondition.outputs.exposedSecureString)
+    }
+    arrayParam: [
+      nameof(vaults)
+    ]
+  }
+}
+
+module moduleWithNullableOutputs 'child/nullableOutputs.bicep' = {
+  name: 'nullableOutputs'
+}
+
+output nullableString string? = moduleWithNullableOutputs.outputs.?nullableString
+output deeplyNestedProperty string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.property
+output deeplyNestedArrayItem string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[0]
+output deeplyNestedArrayItemFromEnd string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[^1]
+output deeplyNestedArrayItemFromEndAttempt string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[?^1]

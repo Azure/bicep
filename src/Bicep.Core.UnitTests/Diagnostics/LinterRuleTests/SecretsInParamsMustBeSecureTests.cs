@@ -14,6 +14,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class SecretsInParamsMustBeSecureTests : LinterRuleTestsBase
     {
+        private void AssertCodeFix(string inputFile, string resultFile)
+            => AssertCodeFix(SecretsInParamsMustBeSecureRule.Code, "Mark parameter as secure", inputFile, resultFile);
+
         [TestMethod]
         public void ParameterNameInFormattedMessage()
         {
@@ -156,5 +159,21 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ";
             CompileAndTest(bicep, 0);
         }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/15835
+        public void Default_value_reference_to_insecure_param_is_flagged()
+            => AssertCodeFix("""
+@secure()
+param secureParam string
+
+param insecurePa|ram string = secureParam
+""", """
+@secure()
+param secureParam string
+
+@secure()
+param insecureParam string = secureParam
+""");
     }
 }

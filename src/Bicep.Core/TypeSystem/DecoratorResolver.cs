@@ -25,6 +25,9 @@ namespace Bicep.Core.TypeSystem
 
         public IReadOnlyDictionary<string, FunctionSymbol> GetKnownDecoratorFunctions() => this.functionResolver.GetKnownFunctions();
 
+        public FunctionSymbol? TryGetDecoratorFunctionSymbol(string name)
+            => this.functionResolver.TryGetFunctionSymbol(name);
+
         public IEnumerable<Decorator> GetMatches(FunctionSymbol symbol, IList<TypeSymbol> argumentTypes)
         {
             foreach (var overload in FunctionResolver.GetMatches(symbol, argumentTypes, out var _, out var _))

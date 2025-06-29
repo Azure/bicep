@@ -10,17 +10,15 @@ namespace Bicep.Core.Registry.Oci
         // media types are case-insensitive (they are lowercase by convention only)
         public static readonly StringComparison MediaTypeComparison = StringComparison.OrdinalIgnoreCase;
 
-        public OciArtifactResult(BinaryData manifestBits, string manifestDigest, IEnumerable<OciArtifactLayer> layers)
+        public OciArtifactResult(BinaryData manifestData, string manifestDigest, IEnumerable<OciArtifactLayer> layers)
         {
-            this.manifestBits = manifestBits;
-            this.Manifest = OciManifest.FromBinaryData(manifestBits) ?? throw new InvalidArtifactException("Unable to deserialize OCI manifest");
+            this.ManifestData = manifestData;
+            this.Manifest = OciManifest.FromBinaryData(manifestData) ?? throw new InvalidArtifactException("Unable to deserialize OCI manifest");
             this.ManifestDigest = manifestDigest;
-            this.Layers = layers.ToImmutableArray();
+            this.Layers = [.. layers];
         }
 
-        private readonly BinaryData manifestBits;
-
-        public Stream ToStream() => manifestBits.ToStream();
+        public BinaryData ManifestData { get; }
 
         public OciManifest Manifest { get; init; }
 

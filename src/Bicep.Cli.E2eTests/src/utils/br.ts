@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { v4 as uuidv4 } from "uuid";
-import { expectFileExists, pathToCachedBrModuleFile } from "./fs";
 import path from "path";
+import { v4 as uuidv4 } from "uuid";
 import { invokingBicepCommand } from "./command";
-import { pathToExampleFile } from "./fs";
-import { EnvironmentOverrides } from "./types";
+import { expectFileExists, pathToCachedBrModuleFile, pathToExampleFile } from "./fs";
+import { EnvironmentOverrides } from "./liveTestEnvironments";
 
 // The modules published from live tests to our test ACR instances need to be periodically
 // purged. ACR purge tasks support wildcards but only on tags. This means that we have to have
@@ -14,7 +13,10 @@ import { EnvironmentOverrides } from "./types";
 export class BicepRegistryReferenceBuilder {
   readonly tagSuffix: string;
 
-  constructor(readonly registry: string, readonly testArea: string) {
+  constructor(
+    readonly registry: string,
+    readonly testArea: string,
+  ) {
     const runId = uuidv4();
 
     // round down to full hour
@@ -36,11 +38,7 @@ export class BicepRegistryReferenceBuilder {
     return `br:${this.registry}/${this.getRepository(name)}:${tag}`;
   }
 
-  public getBicepReferenceWithAlias(
-    alias: string,
-    name: string,
-    tagPrefix: string
-  ): string {
+  public getBicepReferenceWithAlias(alias: string, name: string, tagPrefix: string): string {
     const tag = this.getTag(tagPrefix);
     return `br/${alias}:${name}:${tag}`;
   }
@@ -50,9 +48,9 @@ export class BicepRegistryReferenceBuilder {
   }
 }
 
-export function expectBrModuleStructure(...pathNames: string[]): void {
+export function expectBrModuleStructure(moduleCacheRoot: string, ...pathNames: string[]): void {
   const moduleFiles = ["lock", "main.json", "manifest", "metadata"];
-  const directoryPath = pathToCachedBrModuleFile(...pathNames);
+  const directoryPath = pathToCachedBrModuleFile(moduleCacheRoot, ...pathNames);
 
   moduleFiles.forEach((fileName) => {
     const filePath = path.join(directoryPath, fileName);

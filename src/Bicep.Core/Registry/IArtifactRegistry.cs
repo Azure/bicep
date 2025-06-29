@@ -3,7 +3,8 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceLink;
 using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
@@ -30,20 +31,13 @@ namespace Bicep.Core.Registry
         /// <param name="aliasName">The alias name</param>
         /// <param name="reference">The unqualified artifact reference</param>
         /// <param name="artifactType">The artifact type.</param>
-        ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference);
+        ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string? aliasName, string reference);
 
         /// <summary>
         /// Returns true if the specified artifact is already cached in the local cache.
         /// </summary>
         /// <param name="reference">The reference to the artifact.</param>
         bool IsArtifactRestoreRequired(ArtifactReference reference);
-
-        /// <summary>
-        /// Returns a URI to the entry point module.
-        /// </summary>
-        /// <param name="reference">The module reference</param>
-        /// <returns></returns>
-        ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference);
 
         /// <summary>
         /// Returns true if the specified module exists in the registry.
@@ -95,14 +89,5 @@ namespace Bicep.Core.Registry
         /// Returns description for a module.
         /// </summary>
         Task<string?> TryGetModuleDescription(ModuleSymbol module, ArtifactReference reference);
-
-        /// <summary>
-        /// Returns the source code for the module, if available.
-        /// </summary>
-        /// <param name="reference">The module reference</param>
-        /// <returns>A source archive</returns>
-        ResultWithException<SourceArchive> TryGetSource(ArtifactReference reference);
-
-        Uri? TryGetExtensionBinary(ArtifactReference reference);
     }
 }

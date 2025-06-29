@@ -5,11 +5,11 @@ using System.Collections.Immutable;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Resources;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics.Namespaces
 {
@@ -71,13 +71,14 @@ namespace Bicep.Core.Semantics.Namespaces
         /// </summary>
         public IEnumerable<AmbientTypeSymbol> ResolveUnqualifiedTypeSymbol(IdentifierSyntax identifierSyntax) => this.namespaceTypes.Values
             .Select(@namespace => @namespace.Properties.TryGetValue(identifierSyntax.IdentifierName, out var found)
-                ? new AmbientTypeSymbol(identifierSyntax.IdentifierName, found.TypeReference.Type, @namespace, found.Description)
+                ? new AmbientTypeSymbol(identifierSyntax.IdentifierName, found.TypeReference.Type, @namespace, found.Flags, found.Description)
                 : null)
             .WhereNotNull();
 
-        public IEnumerable<FunctionSymbol> GetKnownFunctions(string functionName)
+        public IEnumerable<FunctionSymbol> GetKnownFunctions(string functionName, bool includeDecorators)
             => this.namespaceTypes.Values
-                .Select(type => type.MethodResolver.TryGetFunctionSymbol(functionName))
+                .Select(type => type.MethodResolver.TryGetFunctionSymbol(functionName) ??
+                    (includeDecorators ? type.DecoratorResolver.TryGetDecoratorFunctionSymbol(functionName) : null))
                 .OfType<FunctionSymbol>();
 
         public IEnumerable<string> GetKnownFunctionNames(bool includeDecorators)
@@ -90,7 +91,7 @@ namespace Bicep.Core.Semantics.Namespaces
             => this.namespaceTypes.Values.SelectMany(type => type.Properties.Keys);
 
         public IEnumerable<AmbientTypeSymbol> GetKnownTypes() => this.namespaceTypes.Values
-            .SelectMany(@namespace => @namespace.Properties.Select(p => new AmbientTypeSymbol(p.Key, p.Value.TypeReference.Type, @namespace, p.Value.Description)));
+            .SelectMany(@namespace => @namespace.Properties.Select(p => new AmbientTypeSymbol(p.Key, p.Value.TypeReference.Type, @namespace, p.Value.Flags, p.Value.Description)));
 
         public IEnumerable<string> GetNamespaceNames()
             => this.namespaceTypes.Keys;

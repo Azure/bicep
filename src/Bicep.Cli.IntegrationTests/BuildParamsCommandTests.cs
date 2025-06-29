@@ -6,9 +6,9 @@ using Azure.Containers.ContainerRegistry;
 using Bicep.Cli.Models;
 using Bicep.Cli.UnitTests.Assertions;
 using Bicep.Core.Configuration;
-using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Mock;
@@ -31,12 +31,22 @@ namespace Bicep.Cli.IntegrationTests
         private InvocationSettings Settings
             => new()
             {
-                Environment = TestEnvironment.Create(
+                Environment = TestEnvironment.Default.WithVariables(
                     ("stringEnvVariableName", "test"),
                     ("intEnvVariableName", "100"),
                     ("boolEnvironmentVariable", "true")
                 )
             };
+
+        [TestMethod]
+        public async Task Build_Params_With_NonExisting_File_ShouldFail_WithExpectedErrorMessage()
+        {
+            var (output, error, result) = await Bicep(Settings, "build-params", "/tmp/nonexisting.bicepparam");
+
+            result.Should().Be(1);
+            output.Should().BeEmpty();
+            error.Should().Contain($"The specified file \"/tmp/nonexisting.bicepparam\" does not exist.");
+        }
 
         [TestMethod]
         public async Task Build_Params_With_Incorrect_Bicep_File_Extension_ShouldFail_WithExpectedErrorMessage()
@@ -135,7 +145,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var settings = Settings with
             {
-                Environment = TestEnvironment.Create(
+                Environment = TestEnvironment.Default.WithVariables(
                 ("BICEP_PARAMETERS_OVERRIDES", paramsOverrides)
             )
             };
@@ -180,7 +190,7 @@ output foo string = foo
 """,
                 Path.GetDirectoryName(bicepparamsPath));
 
-            var environment = TestEnvironment.Create(("BICEP_PARAMETERS_OVERRIDES", new
+            var environment = TestEnvironment.Default.WithVariables(("BICEP_PARAMETERS_OVERRIDES", new
             {
                 foo = "bar"
             }.ToJson()));
@@ -224,7 +234,7 @@ output foo string = foo
 """,
                 Path.GetDirectoryName(bicepparamsPath));
 
-            var environment = TestEnvironment.Create(("BICEP_PARAMETERS_OVERRIDES", new
+            var environment = TestEnvironment.Default.WithVariables(("BICEP_PARAMETERS_OVERRIDES", new
             {
                 wrongName = "bar"
             }.ToJson()));
@@ -262,7 +272,7 @@ output foo string = foo
 
             var settings = Settings with
             {
-                Environment = TestEnvironment.Create(
+                Environment = TestEnvironment.Default.WithVariables(
                 ("BICEP_PARAMETERS_OVERRIDES", paramsOverrides)
             )
             };
@@ -290,6 +300,7 @@ output foo string = foo
                 AssertNoErrors(error);
             }
 
+            data.Compiled.Should().NotBeNull();
             data.Compiled!.ShouldHaveExpectedJsonValue();
         }
 
@@ -308,6 +319,7 @@ output foo string = foo
                 AssertNoErrors(error);
             }
 
+            data.Compiled.Should().NotBeNull();
             data.Compiled!.ReadFromOutputFolder().Should().OnlyContainLFNewline();
             data.Compiled!.ShouldHaveExpectedJsonValue();
         }
@@ -331,6 +343,7 @@ output foo string = foo
             var parametersStdout = output.FromJson<BuildParamsStdout>();
             parametersStdout.parametersJson.Should().OnlyContainLFNewline();
 
+            data.Compiled.Should().NotBeNull();
             data.Compiled!.WriteToOutputFolder(parametersStdout.parametersJson);
             data.Compiled.ShouldHaveExpectedJsonValue();
         }
@@ -409,7 +422,7 @@ output foo string = foo
 
             var result = await Bicep(settings, "build-params", mainBicepParamPath, "--stdout");
 
-            result.Should().Fail().And.HaveStderrMatch($"*Error BCP406: The \"extends\" keyword is not supported*");
+            result.Should().Fail().And.HaveStderrMatch($"*Error BCP406: Using \"extends\" keyword requires enabling EXPERIMENTAL feature \"ExtendableParamFiles\".*");
         }
 
         [TestMethod]
@@ -426,6 +439,32 @@ output foo string = foo
 
             var result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath, "--bicep-file", bicepFile, "--stdout");
             result.Should().Fail().And.HaveStderrMatch($"Bicep file * provided with --bicep-file can only be used if the Bicep parameters \"using\" declaration refers to a Bicep file on disk.*");
+        }
+
+        [TestMethod]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public async Task Build_params_works_with_using_none()
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            var bicepFile = FileHelper.SaveResultFile(TestContext, "main.bicep", @"
+                param unusedParam int
+                ", outputPath);
+
+            var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicepparam", @"
+                using none
+
+                param unusedParam = 3
+                ", outputPath);
+
+            var (output, error, result) = await Bicep(["build-params", inputFile, "--bicep-file", bicepFile]);
+
+            var expectedOutputFile = FileHelper.GetResultFilePath(TestContext, "main.json", outputPath);
+
+            File.Exists(expectedOutputFile).Should().BeTrue();
+            output.Should().BeEmpty();
+            error.Should().BeEmpty();
+            result.Should().Be(0);
         }
 
         [TestMethod]
@@ -466,7 +505,7 @@ output foo string = foo
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory
-                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), new Uri("https://mockregistry.io"), "parameters/basic"))
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), new Uri("https://mockregistry.io"), "parameters/basic"))
                 .Returns(client.Object);
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
@@ -507,14 +546,99 @@ output foo string = foo
             {
                 var sarifLog = JsonConvert.DeserializeObject<SarifLog>(error)!;
                 sarifLog.Runs[0].Results[0].RuleId.Should().Be("no-unused-params");
-                sarifLog.Runs[0].Results[0].Message.Text.Should().Be("Parameter \"unusedParam\" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]");
+                sarifLog.Runs[0].Results[0].Message.Text.Should().Be("Parameter \"unusedParam\" is declared but never used. [https://aka.ms/bicep/linter-diagnostics#no-unused-params]");
             }
             else
             {
-                error.Should().Contain($"{bicepFile}(4,11) : Warning no-unused-params: Parameter \"unusedParam\" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]");
+                error.Should().Contain($"{bicepFile}(4,11) : Warning no-unused-params: Parameter \"unusedParam\" is declared but never used. [https://aka.ms/bicep/linter-diagnostics#no-unused-params]");
             }
 
             result.Should().Be(0);
+        }
+
+        [TestMethod]
+        [DataRow(false)]
+        [DataRow(true)]
+        public async Task BuildParams_should_compile_files_matching_pattern(bool useRootPath)
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            FileHelper.SaveResultFile(TestContext, "main.bicep", """
+param intParam int
+
+output intOutput int = intParam
+""", outputPath);
+            var contents = """
+using 'main.bicep'
+
+param intParam = 42
+""";
+
+
+            var fileResults = new[]
+            {
+                (input: "file1.bicepparam", expectOutput: true),
+                (input: "file2.bicepparam", expectOutput: true),
+                (input: "nofile.bicepparam", expectOutput: false)
+            };
+
+            foreach (var (input, _) in fileResults)
+            {
+                FileHelper.SaveResultFile(TestContext, input, contents, outputPath);
+            }
+
+            var (output, error, result) = await Bicep(
+                services => services.WithEnvironment(useRootPath ? TestEnvironment.Default : TestEnvironment.Default with { CurrentDirectory = outputPath }),
+                ["build-params",
+                    "--pattern",
+                    useRootPath ? $"{outputPath}/file*.bicepparam" : "file*.bicepparam"]);
+
+            result.Should().Be(0);
+            error.Should().BeEmpty();
+            output.Should().BeEmpty();
+
+            foreach (var (input, expectOutput) in fileResults)
+            {
+                var outputFile = Path.ChangeExtension(input, ".json");
+                File.Exists(Path.Combine(outputPath, outputFile)).Should().Be(expectOutput);
+            }
+        }
+
+        [TestMethod]
+        public async Task Build_WithPatternAndOutDir_ShouldReplicateDirStructure()
+        {
+            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var bicepInputPath = Path.Combine(testOutputPath, "input");
+            var bicepOutputPath = Path.Combine(testOutputPath, "output");
+            Directory.CreateDirectory(bicepOutputPath);
+            var fileResults = new[]
+            {
+                (Path: "foo.bicepparam", Contents: "using 'main.bicep'\n\nparam intParam = 42\n"),
+                (Path: "dir/bar.bicepparam", Contents: "using '../main.bicep'\n\nparam intParam = 42\n"),
+            };
+            FileHelper.SaveResultFile(TestContext, Path.Combine(bicepInputPath, "main.bicep"),
+                """
+                param intParam int
+                output intOutput int = intParam
+                """);
+
+            // Create input structure
+            foreach (var (f, contents) in fileResults)
+            {
+                FileHelper.SaveResultFile(TestContext, Path.Combine(bicepInputPath, f), contents, testOutputPath);
+            }
+
+            var (output, error, result) = await Bicep(["build-params", "--pattern", $"{bicepInputPath}/**/*.bicepparam", "--outdir", bicepOutputPath]);
+
+            error.Should().BeEmpty();
+            output.Should().BeEmpty();
+            result.Should().Be(0);
+
+            foreach (var (f, _) in fileResults)
+            {
+                var outputFile = Path.ChangeExtension(f, ".json");
+                File.Exists(Path.Combine(bicepOutputPath, outputFile)).Should().Be(true, f);
+            }
         }
     }
 }

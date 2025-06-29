@@ -53,10 +53,9 @@ namespace Bicep.Core.Emit
             var visitor = new InlineDependencyVisitor(model, null);
             visitor.Visit(model.Root.Syntax);
 
-            return visitor.shouldInlineCache
+            return [.. visitor.shouldInlineCache
                 .Where(kvp => kvp.Value == Decision.Inline)
-                .Select(kvp => kvp.Key)
-                .ToImmutableHashSet();
+                .Select(kvp => kvp.Key)];
         }
 
         /// <summary>
@@ -109,14 +108,24 @@ namespace Bicep.Core.Emit
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
-            VisitFunctionCallSyntaxBaseInternal(syntax);
-            base.VisitFunctionCallSyntax(syntax);
+            var functionSymbol = model.GetSymbolInfo(syntax) as FunctionSymbol;
+            VisitFunctionCallSyntaxBaseInternal(functionSymbol, syntax);
+
+            if (ShouldVisitFunctionArguments(functionSymbol))
+            {
+                base.VisitFunctionCallSyntax(syntax);
+            }
         }
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
-            VisitFunctionCallSyntaxBaseInternal(syntax);
-            base.VisitInstanceFunctionCallSyntax(syntax);
+            var functionSymbol = model.GetSymbolInfo(syntax) as FunctionSymbol;
+            VisitFunctionCallSyntaxBaseInternal(functionSymbol, syntax);
+
+            if (ShouldVisitFunctionArguments(functionSymbol))
+            {
+                base.VisitInstanceFunctionCallSyntax(syntax);
+            }
         }
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
@@ -231,7 +240,7 @@ namespace Bicep.Core.Emit
                 return false;
             }
 
-            switch (this.TryResolveSymbol(syntax.BaseExpression))
+            switch (this.TryResolveSymbol(SyntaxHelper.UnwrapNonNullAssertion(syntax.BaseExpression)))
             {
                 // Note - there's a limitation here that we're using the 'declared' type and not the 'assigned' type.
                 // This means that we may encounter a DiscriminatedObjectType. For now we should accept this limitation,
@@ -255,7 +264,7 @@ namespace Bicep.Core.Emit
             _ => this.model.GetSymbolInfo(syntax)
         };
 
-        private void VisitFunctionCallSyntaxBaseInternal(FunctionCallSyntaxBase syntax)
+        private void VisitFunctionCallSyntaxBaseInternal(FunctionSymbol? functionSymbol, FunctionCallSyntaxBase syntax)
         {
             if (currentDeclaration == null)
             {
@@ -268,11 +277,10 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            switch (model.GetSymbolInfo(syntax))
+            if (functionSymbol is { })
             {
-                case FunctionSymbol functionSymbol:
-                    SetInlineCache(functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining));
-                    return;
+                var shouldInline = functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining);
+                SetInlineCache(shouldInline);
             }
         }
 
@@ -290,5 +298,8 @@ namespace Bicep.Core.Emit
                 this.shouldInlineCache[this.currentDeclaration] = shouldNotInline ? Decision.SkipInline : Decision.Inline;
             }
         }
+
+        private static bool ShouldVisitFunctionArguments(FunctionSymbol? functionSymbol)
+            => functionSymbol is null || !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.IsArgumentValueIndependent);
     }
 }

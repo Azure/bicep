@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "847860570633955362"
+      "templateHash": "9120534741192221910"
     }
   },
   "parameters": {
@@ -54,7 +54,9 @@
         "name": "secret02",
         "version": "versionB"
       }
-    ]
+    ],
+    "nameofModule": "folderWithSpace",
+    "nameofModuleParam": "exposedSecureString"
   },
   "resources": {
     "resWithDependencies": {
@@ -1722,7 +1724,7 @@
                   {
                     "name": "e",
                     "count": "[length(range(7, 7))]",
-                    "input": "[mod(range(7, 7)[copyIndex('e')], range(0, 1)[copyIndex()])]"
+                    "input": "[mod(range(7, 7)[copyIndex('e')], add(range(0, 1)[copyIndex()], 1))]"
                   }
                 ]
               }
@@ -1849,10 +1851,7 @@
             }
           }
         }
-      },
-      "dependsOn": [
-        "kv"
-      ]
+      }
     },
     "secureModule2": {
       "type": "Microsoft.Resources/deployments",
@@ -1910,10 +1909,7 @@
             }
           }
         }
-      },
-      "dependsOn": [
-        "scopedKv"
-      ]
+      }
     },
     "secureModuleLooped": {
       "copy": {
@@ -1975,11 +1971,7 @@
             }
           }
         }
-      },
-      "dependsOn": [
-        "[format('loopedKv[{0}]', copyIndex())]",
-        "[format('loopedKv[{0}]', copyIndex())]"
-      ]
+      }
     },
     "secureModuleCondition": {
       "type": "Microsoft.Resources/deployments",
@@ -2022,10 +2014,7 @@
             }
           }
         }
-      },
-      "dependsOn": [
-        "kv"
-      ]
+      }
     },
     "withSpace": {
       "type": "Microsoft.Resources/deployments",
@@ -2098,6 +2087,149 @@
           }
         }
       }
+    },
+    "moduleWithNameof": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "nameofModule",
+      "resourceGroup": "nameofModuleParam",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "stringParamA": {
+            "value": "withSpace"
+          },
+          "stringParamB": {
+            "value": "folderWithSpace"
+          },
+          "objParam": {
+            "value": {
+              "a": "exposedSecureString"
+            }
+          },
+          "arrayParam": {
+            "value": [
+              "vaults"
+            ]
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "17198946721055526437"
+            }
+          },
+          "parameters": {
+            "stringParamA": {
+              "type": "string",
+              "defaultValue": "test"
+            },
+            "stringParamB": {
+              "type": "string"
+            },
+            "objParam": {
+              "type": "object"
+            },
+            "arrayParam": {
+              "type": "array"
+            }
+          },
+          "resources": {
+            "basicStorage": {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "basicblobs",
+              "location": "[parameters('stringParamA')]"
+            },
+            "dnsZone": {
+              "type": "Mock.Rp/mockResource",
+              "apiVersion": "2020-01-01",
+              "name": "myZone",
+              "location": "[parameters('stringParamB')]"
+            }
+          },
+          "outputs": {
+            "stringOutputA": {
+              "type": "string",
+              "value": "[parameters('stringParamA')]"
+            },
+            "stringOutputB": {
+              "type": "string",
+              "value": "[parameters('stringParamB')]"
+            },
+            "objOutput": {
+              "type": "object",
+              "value": "[reference('basicStorage')]"
+            },
+            "arrayOutput": {
+              "type": "array",
+              "value": [
+                "[resourceId('Mock.Rp/mockResource', 'basicblobs')]",
+                "[resourceId('Mock.Rp/mockResource', 'myZone')]"
+              ]
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "folderWithSpace",
+        "secureModuleCondition",
+        "withSpace"
+      ]
+    },
+    "moduleWithNullableOutputs": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "nullableOutputs",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "9938797971770597442"
+            }
+          },
+          "resources": {},
+          "outputs": {
+            "nullableString": {
+              "type": "string",
+              "nullable": true,
+              "value": "foo"
+            },
+            "nullableObj": {
+              "type": "object",
+              "nullable": true,
+              "value": {
+                "deeply": {
+                  "nested": {
+                    "property": "value",
+                    "array": [
+                      "foo",
+                      "bar"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "outputs": {
@@ -2120,6 +2252,31 @@
     "modCalculatedNameOutput": {
       "type": "object",
       "value": "[reference('moduleWithCalculatedName').outputs.outputObj.value]"
+    },
+    "nullableString": {
+      "type": "string",
+      "nullable": true,
+      "value": "[tryGet(tryGet(reference('moduleWithNullableOutputs').outputs, 'nullableString'), 'value')]"
+    },
+    "deeplyNestedProperty": {
+      "type": "string",
+      "nullable": true,
+      "value": "[tryGet(tryGet(reference('moduleWithNullableOutputs').outputs, 'nullableObj'), 'value', 'deeply', 'nested', 'property')]"
+    },
+    "deeplyNestedArrayItem": {
+      "type": "string",
+      "nullable": true,
+      "value": "[tryGet(tryGet(reference('moduleWithNullableOutputs').outputs, 'nullableObj'), 'value', 'deeply', 'nested', 'array', 0)]"
+    },
+    "deeplyNestedArrayItemFromEnd": {
+      "type": "string",
+      "nullable": true,
+      "value": "[tryGet(tryGet(reference('moduleWithNullableOutputs').outputs, 'nullableObj'), 'value', 'deeply', 'nested', 'array', createObject('value', 1, 'fromEnd', true()))]"
+    },
+    "deeplyNestedArrayItemFromEndAttempt": {
+      "type": "string",
+      "nullable": true,
+      "value": "[tryIndexFromEnd(tryGet(tryGet(reference('moduleWithNullableOutputs').outputs, 'nullableObj'), 'value', 'deeply', 'nested', 'array'), 1)]"
     }
   }
 }

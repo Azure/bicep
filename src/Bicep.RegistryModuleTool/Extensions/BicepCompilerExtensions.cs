@@ -27,7 +27,7 @@ namespace Bicep.RegistryModuleTool.Extensions
                         hasError = true;
                     }
 
-                    if (!file.FileUri.LocalPath.Equals(skipWritingDiagnosticsPath, StringComparison.Ordinal))
+                    if (!file.Uri.LocalPath.Equals(skipWritingDiagnosticsPath, StringComparison.Ordinal))
                     {
                         console.WriteDiagnostic(file, diagnostic);
                     }

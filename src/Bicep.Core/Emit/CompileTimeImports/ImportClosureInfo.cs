@@ -11,9 +11,10 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
-using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Emit.CompileTimeImports;
@@ -38,7 +39,7 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
 
     public static ImportClosureInfo Calculate(SemanticModel model)
     {
-        IntraTemplateSymbolicReferenceFactory referenceFactory = new(model.SourceFile.FileUri);
+        IntraTemplateSymbolicReferenceFactory referenceFactory = new(model.SourceFile.FileHandle.Uri);
         var closure = CalculateImportClosure(model, referenceFactory);
         var closureMetadata = CalculateImportedSymbolNames(model, closure);
 
@@ -115,16 +116,16 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
                     }
                     break;
                 case BicepSynthesizedVariableReference synthesizedVariableRef:
-                    importedVariables.Add(name, new(closure.SymbolsInImportClosure[synthesizedVariableRef], name, synthesizedVariableRef.Value));
+                    importedVariables.Add(name, new(closure.SymbolsInImportClosure[synthesizedVariableRef], name, null, synthesizedVariableRef.Value));
                     break;
                 default:
                     throw new UnreachableException($"This switch was expected to exhaustively process all kinds of {nameof(IntraTemplateSymbolicReference)} but did not handle an instance of type {symbol.GetType().Name}");
             }
         }
 
-        return new(ImmutableArray.CreateRange(importedTypes.Values.OrderBy(dte => dte.Name)),
-            ImmutableArray.CreateRange(importedVariables.Values.OrderBy(dve => dve.Name)),
-            ImmutableArray.CreateRange(importedFunctions.Values.OrderBy(dfe => dfe.Name)),
+        return new([.. importedTypes.Values.OrderBy(dte => dte.Name)],
+            [.. importedVariables.Values.OrderBy(dve => dve.Name)],
+            [.. importedFunctions.Values.OrderBy(dfe => dfe.Name)],
             importedSymbolNames,
             wildcardImportPropertyNames,
             importedSymbolMetadata.ToImmutable());
@@ -205,7 +206,7 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
                 if (!targetModel.Exports.TryGetValue(name, out var exportMetadata))
                 {
                     throw new InvalidOperationException($"No export named {name} found in {TemplateIdentifier(
-                        model.SourceFile.FileUri,
+                        model.SourceFile.FileHandle.Uri,
                         targetModel,
                         importedSymbolReference.ImportTarget)}");
                 }
@@ -213,7 +214,7 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
                 IntraTemplateSymbolicReference target = targetModel switch
                 {
                     SemanticModel targetBicepModel => referenceFactory.SymbolFor(
-                        FindSymbolNamed(name, targetBicepModel),
+                        FindExportedSymbol(exportMetadata, targetBicepModel),
                         targetBicepModel,
                         importedSymbolReference),
                     ArmTemplateSemanticModel targetArmModel => ReferenceForArmTarget(
@@ -330,7 +331,7 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
     ) => model.Root.TypeDeclarations
         .Concat<DeclaredSymbol>(model.Root.VariableDeclarations)
         .Concat(model.Root.FunctionDeclarations)
-        .Where(t => t.IsExported())
+        .Where(t => t.IsExported(model))
         .Select(s => (s.Name, referenceFactory.SymbolFor(s, model, referrer)));
 
     private static IEnumerable<
@@ -358,20 +359,30 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
         ArmTemplateFile templateFile,
         BicepWildcardImportSymbolicReference referrer,
         IntraTemplateSymbolicReferenceFactory referenceFactory
-    ) => model.Exports.Values.Select<ExportMetadata, (string, IntraTemplateSymbolicReference)>(
-        md => (md.Name, ReferenceForArmTarget(md, templateFile, model, referrer, referenceFactory)));
+    ) => model.Exports.Values
+        .Where(export => export.Kind != ExportMetadataKind.Error)
+        .Select<ExportMetadata, (string, IntraTemplateSymbolicReference)>(
+            md => (md.Name, ReferenceForArmTarget(md, templateFile, model, referrer, referenceFactory)));
 
-    private static DeclaredSymbol FindSymbolNamed(string nameOfSymbolSought, SemanticModel model)
-        => model.Root.Declarations.Where(t => LanguageConstants.IdentifierComparer.Equals(t.Name, nameOfSymbolSought)).Single();
+    private static DeclaredSymbol FindExportedSymbol(ExportMetadata target, SemanticModel model)
+    {
+        var source = target.Kind switch
+        {
+            ExportMetadataKind.Type => model.Root.TypeDeclarations,
+            ExportMetadataKind.Variable => model.Root.VariableDeclarations,
+            ExportMetadataKind.Function => model.Root.FunctionDeclarations,
+            _ => model.Root.Declarations.Where(s => s is not OutputSymbol),
+        };
+
+        return source.Where(t => LanguageConstants.IdentifierComparer.Equals(t.Name, target.Name)).Single();
+    }
 
     private static IntraTemplateSymbolicReference ReferenceForArmTarget(
         ExportMetadata targetMetadata,
         ArmTemplateFile sourceTemplateFile,
         ISemanticModel sourceModel,
         InterTemplateSymbolicReference referrer,
-        IntraTemplateSymbolicReferenceFactory referenceFactory
-    )
-        => targetMetadata switch
+        IntraTemplateSymbolicReferenceFactory referenceFactory) => targetMetadata switch
         {
             ExportedTypeMetadata => referenceFactory.SymbolFor(
                 ArmSymbolType.Type,
@@ -431,19 +442,19 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
         return importedSymbolNames.ToImmutable();
     }
 
-    private static string TemplateIdentifier(Uri entryPointUri, ISemanticModel modelToIdentify, ArtifactReference reference)
+    private static string TemplateIdentifier(IOUri entryPointUri, ISemanticModel modelToIdentify, ArtifactReference reference)
         => reference switch
         {
             // for local modules, use the path on disk relative to the entry point template
-            LocalModuleReference => entryPointUri.MakeRelativeUri(GetSourceFileUri(modelToIdentify)).ToString(),
+            LocalModuleReference => GetSourceFileUri(modelToIdentify).GetPathRelativeTo(entryPointUri),
             ArtifactReference otherwise => otherwise.FullyQualifiedReference,
         };
 
-    private static Uri GetSourceFileUri(ISemanticModel model) => model switch
+    private static IOUri GetSourceFileUri(ISemanticModel model) => model switch
     {
-        SemanticModel bicepModel => bicepModel.SourceFile.FileUri,
-        ArmTemplateSemanticModel armTemplate => armTemplate.SourceFile.FileUri,
-        TemplateSpecSemanticModel templateSpec => templateSpec.SourceFile.FileUri,
+        SemanticModel bicepModel => bicepModel.SourceFile.FileHandle.Uri,
+        ArmTemplateSemanticModel armTemplate => armTemplate.SourceFile.FileHandle.Uri,
+        TemplateSpecSemanticModel templateSpec => templateSpec.SourceFile.FileHandle.Uri,
         _ => throw new InvalidOperationException($"Unrecognized module type {model.GetType().Name} encountered"),
     };
 
@@ -515,9 +526,9 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
 
     private class IntraTemplateSymbolicReferenceFactory
     {
-        private readonly Uri entryPointUri;
+        private readonly IOUri entryPointUri;
 
-        internal IntraTemplateSymbolicReferenceFactory(Uri entryPointUri)
+        internal IntraTemplateSymbolicReferenceFactory(IOUri entryPointUri)
         {
             this.entryPointUri = entryPointUri;
         }

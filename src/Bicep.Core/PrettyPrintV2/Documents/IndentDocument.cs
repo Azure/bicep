@@ -8,7 +8,7 @@ namespace Bicep.Core.PrettyPrintV2.Documents
     public sealed class IndentDocument : ContainerDocument
     {
         public IndentDocument(IEnumerable<Document> documents)
-            : base(documents.ToImmutableArray())
+            : base([.. documents])
         {
         }
     }

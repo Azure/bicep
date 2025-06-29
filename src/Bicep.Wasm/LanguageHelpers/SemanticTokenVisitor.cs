@@ -4,6 +4,7 @@ using Bicep.Core;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 
 namespace Bicep.Wasm.LanguageHelpers
 {

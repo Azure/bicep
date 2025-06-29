@@ -6,11 +6,17 @@
 		<String Name="Resources" Value="/Bicep.VSLanguageServerClient.Vsix;Component/Icons" />
 		<Guid Name="AssetsGuid" Value="{8c3d631c-7c5b-469d-ac8a-4838177d7c50}" />
 		<ID Name="bicep" Value="0" />
+		<ID Name="bicepparam" Value="1" />
 	</Symbols>
 	<Images>
 		<Image Guid="$(AssetsGuid)" ID="$(bicep)">
 			<Source Uri="$(Resources)/BicepFileIcon.png">
-				<Size Value="16" />
+				<Size Value="32" />
+			</Source>
+		</Image>
+		<Image Guid="$(AssetsGuid)" ID="$(bicepparam)">
+			<Source Uri="$(Resources)/BicepparamFileIcon.png">
+				<Size Value="32" />
 			</Source>
 		</Image>
 	</Images>

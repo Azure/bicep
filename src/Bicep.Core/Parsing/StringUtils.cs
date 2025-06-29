@@ -75,10 +75,7 @@ namespace Bicep.Core.Parsing
             ReplaceNewlines(value, "\n");
 
         public static IEnumerable<string> SplitOnNewLine(string value) =>
-            value.Split(
-                new string[] { "\r\n", "\r", "\n" },
-                StringSplitOptions.None
-            );
+            value.Split(["\r\n", "\r", "\n"], StringSplitOptions.None);
 
         public static string NormalizeIndent(string value)
         {
@@ -107,5 +104,7 @@ namespace Bicep.Core.Parsing
                     .Select(x => x.Length == 0 ? x : x[commonPrefixLength..])
                     .Prepend(firstLine));
         }
+
+        public static string ToCamelCase(string name) => char.ToLowerInvariant(name[0]) + name[1..];
     }
 }

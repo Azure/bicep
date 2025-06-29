@@ -15,6 +15,7 @@ namespace Bicep.Core.Emit
         {
             Module,
             ModuleParams,
+            ModuleExtensionConfigs
         }
 
         private readonly SemanticModel semanticModel;
@@ -54,14 +55,23 @@ namespace Bicep.Core.Emit
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
-            var visitingModuleParams = elementsRecorder.Contains(VisitedElement.Module)
-                && !(elementsRecorder.TryPeek(out var head) && head == VisitedElement.ModuleParams)
-                && syntax.Key is IdentifierSyntax identifierSyntax
-                && string.Equals(identifierSyntax.IdentifierName, LanguageConstants.ModuleParamsPropertyName, LanguageConstants.IdentifierComparison);
+            VisitedElement? scope = null;
 
-            using var _ = visitingModuleParams ? elementsRecorder.Scope(VisitedElement.ModuleParams) : null;
+            if (elementsRecorder.Contains(VisitedElement.Module) && syntax.Key is IdentifierSyntax identifierSyntax && elementsRecorder.TryPeek(out var head))
+            {
+                if (head != VisitedElement.ModuleParams && string.Equals(identifierSyntax.IdentifierName, LanguageConstants.ModuleParamsPropertyName, LanguageConstants.IdentifierComparison))
+                {
+                    scope = VisitedElement.ModuleParams;
+                }
+                else if (head != VisitedElement.ModuleExtensionConfigs && string.Equals(identifierSyntax.IdentifierName, LanguageConstants.ModuleExtensionConfigsPropertyName, LanguageConstants.IdentifierComparison))
+                {
+                    scope = VisitedElement.ModuleExtensionConfigs;
+                }
+            }
+
+            using var _ = scope is not null ? elementsRecorder.Scope(scope.Value) : null;
+
             base.VisitObjectPropertySyntax(syntax);
-
         }
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
@@ -84,13 +94,15 @@ namespace Bicep.Core.Emit
                 {
                     // we can check placement only for functions that were matched and has a proper placement flag
                     var (_, levelUpSymbol) = syntaxRecorder.Skip(1).SkipWhile(x => x.syntax is TernaryOperationSyntax).FirstOrDefault();
-                    if (!(elementsRecorder.TryPeek(out var head) && head == VisitedElement.ModuleParams)
+                    if (!(elementsRecorder.TryPeek(out var head) && head is VisitedElement.ModuleParams or VisitedElement.ModuleExtensionConfigs)
                         || levelUpSymbol is not PropertySymbol propertySymbol
                         || !(TypeHelper.TryRemoveNullability(propertySymbol.Type) ?? propertySymbol.Type).ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
                     {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).FunctionOnlyValidInModuleSecureParameterAssignment(functionSymbol.Name));
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax)
+                            .FunctionOnlyValidInModuleSecureParameterAndExtensionConfigAssignment(functionSymbol.Name, semanticModel.Features.ModuleExtensionConfigsEnabled));
                     }
                 }
+
                 if (functionSymbol.FunctionFlags.HasFlag(FunctionFlags.DirectAssignment))
                 {
                     var (_, levelUpSymbol) = syntaxRecorder.Skip(1).SkipWhile(x => x.syntax is TernaryOperationSyntax).FirstOrDefault();

@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
@@ -67,13 +68,13 @@ namespace Bicep.Core.IntegrationTests.Semantics
 
             var symbols = SymbolCollector
                 .CollectSymbols(model)
-                .OfType<ParameterAssignmentSymbol>();
+                .OfType<DeclaredSymbol>();
 
-            string getLoggingString(ParameterAssignmentSymbol symbol)
+            string getLoggingString(DeclaredSymbol symbol)
             {
-                (_, var startChar) = TextCoordinateConverter.GetPosition(model.SourceFile.LineStarts, symbol.DeclaringParameterAssignment.Span.Position);
+                (_, var startChar) = TextCoordinateConverter.GetPosition(model.SourceFile.LineStarts, symbol.DeclaringSyntax.Span.Position);
 
-                return $"{symbol.Kind} {symbol.Name}. Type: {symbol.Type}. Declaration start char: {startChar}, length: {symbol.DeclaringParameterAssignment.Span.Length}";
+                return $"{symbol.Kind} {symbol.Name}. Type: {symbol.Type}. Declaration start char: {startChar}, length: {symbol.DeclaringSyntax.Span.Length}";
             }
 
             var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.Contents, "\n", symbols, symb => symb.NameSource.Span, getLoggingString);

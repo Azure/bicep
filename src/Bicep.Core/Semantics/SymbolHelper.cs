@@ -52,13 +52,13 @@ namespace Bicep.Core.Semantics
             {
                 if (baseType is null ||
                     TypeAssignmentVisitor.UnwrapType(baseType) is not ObjectType objectType ||
-                    objectType.AdditionalPropertiesType is null ||
-                    objectType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty))
+                    objectType.AdditionalProperties is null ||
+                    objectType.AdditionalProperties.Flags.HasFlag(TypePropertyFlags.FallbackProperty))
                 {
                     return null;
                 }
 
-                return new PropertySymbol("*", string.Empty, objectType.AdditionalPropertiesType.Type);
+                return new PropertySymbol("*", objectType.AdditionalProperties.Description, objectType.AdditionalProperties.TypeReference.Type);
             }
 
             switch (syntax)

@@ -6,49 +6,54 @@ using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Core;
 using Bicep.Core.Features;
+using Bicep.Core.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands;
 
-public class LintCommand : ICommand
+public class LintCommand(
+    ILogger logger,
+    IEnvironment environment,
+    DiagnosticLogger diagnosticLogger,
+    BicepCompiler compiler) : ICommand
 {
-    private readonly ILogger logger;
-    private readonly DiagnosticLogger diagnosticLogger;
-    private readonly BicepCompiler compiler;
-    private readonly IFeatureProviderFactory featureProviderFactory;
-
-    public LintCommand(
-        ILogger logger,
-        DiagnosticLogger diagnosticLogger,
-        BicepCompiler compiler,
-        IFeatureProviderFactory featureProviderFactory)
-    {
-        this.logger = logger;
-        this.diagnosticLogger = diagnosticLogger;
-        this.compiler = compiler;
-        this.featureProviderFactory = featureProviderFactory;
-    }
-
     public async Task<int> RunAsync(LintArguments args)
     {
+        if (args.InputFile is null)
+        {
+            var summaryMultiple = await LintMultiple(args);
+            return CommandHelper.GetExitCode(summaryMultiple);
+        }
+
         var inputUri = ArgumentHelper.GetFileUri(args.InputFile);
         ArgumentHelper.ValidateBicepOrBicepParamFile(inputUri);
 
-        var compilation = await compiler.CreateCompilation(inputUri, skipRestore: args.NoRestore);
-
-        if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping, featureProviderFactory) is { } warningMessage)
-        {
-            logger.LogWarning(warningMessage);
-        }
-
-        var summary = diagnosticLogger.LogDiagnostics(GetDiagnosticOptions(args), compilation);
-
-        // return non-zero exit code on errors
-        return summary.HasErrors ? 1 : 0;
+        var summary = await Lint(inputUri, args.NoRestore, args.DiagnosticsFormat);
+        return CommandHelper.GetExitCode(summary);
     }
 
-    private DiagnosticOptions GetDiagnosticOptions(LintArguments args)
-        => new(
-            Format: args.DiagnosticsFormat ?? DiagnosticsFormat.Default,
-            SarifToStdout: true);
+    private async Task<DiagnosticSummary> Lint(Uri inputUri, bool noRestore, DiagnosticsFormat? diagnosticsFormat)
+    {
+        var compilation = await compiler.CreateCompilation(inputUri, skipRestore: noRestore);
+        CommandHelper.LogExperimentalWarning(logger, compilation);
+
+        var summary = diagnosticLogger.LogDiagnostics(ArgumentHelper.GetDiagnosticOptions(diagnosticsFormat) with { SarifToStdout = true }, compilation);
+
+        return summary;
+    }
+
+    public async Task<DiagnosticSummary> LintMultiple(LintArguments args)
+    {
+        var hasErrors = false;
+
+        foreach (var inputUri in CommandHelper.GetInputFilesForPattern(environment, args.FilePattern))
+        {
+            ArgumentHelper.ValidateBicepOrBicepParamFile(inputUri);
+
+            var result = await Lint(inputUri, args.NoRestore, args.DiagnosticsFormat);
+            hasErrors |= result.HasErrors;
+        }
+
+        return new(hasErrors);
+    }
 }

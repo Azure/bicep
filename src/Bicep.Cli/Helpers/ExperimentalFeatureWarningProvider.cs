@@ -3,16 +3,17 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Features;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 
 namespace Bicep.Cli.Helpers;
 
 public static class ExperimentalFeatureWarningProvider
 {
-    public static string? TryGetEnabledExperimentalFeatureWarningMessage(SourceFileGrouping sourceFileGrouping, IFeatureProviderFactory featureProviderFactory)
+    public static string? TryGetEnabledExperimentalFeatureWarningMessage(IEnumerable<ISourceFile> sourceFiles)
     {
-        var experimentalFeaturesEnabled = sourceFileGrouping.SourceFiles
-            .Select(file => featureProviderFactory.GetFeatureProvider(file.FileUri))
+        var experimentalFeaturesEnabled = sourceFiles
+            .OfType<BicepSourceFile>()
+            .Select(file => file.Features)
             .SelectMany(static features => features.EnabledFeatureMetadata.Where(f => f.impactsCompilation).Select(f => f.name))
             .Distinct()
             .ToImmutableArray();

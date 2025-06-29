@@ -18,6 +18,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Moq;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
@@ -45,7 +46,7 @@ namespace Bicep.LangServer.IntegrationTests
             var bicepFileUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
             var bicepparamFileUri = InMemoryFileResolver.GetFileUri("/path/to/param.bicepparam");
 
-            var fileTextsByUri = new Dictionary<Uri, string>()
+            var fileTextsByUri = new Dictionary<DocumentUri, string>()
             {
                 [bicepFileUri] = "",
                 [bicepparamFileUri] = ""
@@ -99,7 +100,7 @@ namespace Bicep.LangServer.IntegrationTests
             var bicepFileUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
             var bicepparamFileUri = InMemoryFileResolver.GetFileUri("/path/to/param.bicepparam");
 
-            var fileTextsByUri = new Dictionary<Uri, string>()
+            var fileTextsByUri = new Dictionary<DocumentUri, string>()
             {
                 [bicepFileUri] = "",
                 [bicepparamFileUri] = ""
@@ -154,7 +155,7 @@ namespace Bicep.LangServer.IntegrationTests
             var bicepFileUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
             var paramFileUri = InMemoryFileResolver.GetFileUri("/path/to/param.json");
 
-            var fileTextsByUri = new Dictionary<Uri, string>()
+            var fileTextsByUri = new Dictionary<DocumentUri, string>()
             {
                 [bicepFileUri] = "",
                 [paramFileUri] = ""
@@ -207,7 +208,7 @@ namespace Bicep.LangServer.IntegrationTests
             var bicepFileUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
             var invalidParamFilePath = @"c:\parameter.json";
 
-            var fileTextsByUri = new Dictionary<Uri, string>()
+            var fileTextsByUri = new Dictionary<DocumentUri, string>()
             {
                 [bicepFileUri] = "",
             };
@@ -262,7 +263,7 @@ namespace Bicep.LangServer.IntegrationTests
             var bicepFileUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
             var parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", "invalid_parameters_file");
 
-            var fileTextsByUri = new Dictionary<Uri, string>()
+            var fileTextsByUri = new Dictionary<DocumentUri, string>()
             {
                 [bicepFileUri] = "",
             };
@@ -318,7 +319,7 @@ namespace Bicep.LangServer.IntegrationTests
             var bicepFileUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
             var parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", "invalid_parameters_file");
 
-            var fileTextsByUri = new Dictionary<Uri, string>()
+            var fileTextsByUri = new Dictionary<DocumentUri, string>()
             {
                 [bicepFileUri] = "",
             };

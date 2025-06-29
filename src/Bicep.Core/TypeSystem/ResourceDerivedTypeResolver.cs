@@ -75,8 +75,8 @@ public class ResourceDerivedTypeResolver
                         current = namedProperty.TypeReference.Type;
                         continue;
                     case "additionalproperties" when current is ObjectType @object &&
-                        @object.AdditionalPropertiesType is not null:
-                        current = @object.AdditionalPropertiesType.Type;
+                        @object.AdditionalProperties?.TypeReference.Type is { } additionalPropertiesType:
+                        current = additionalPropertiesType;
                         continue;
                     case "discriminator" when current is DiscriminatedObjectType discriminatedObject &&
                         unresolved.PointerSegments[++i].Equals("mapping", StringComparison.OrdinalIgnoreCase) &&
@@ -97,7 +97,12 @@ public class ResourceDerivedTypeResolver
                 return unresolved.FallbackType;
             }
 
-            return current;
+            return unresolved.Variant switch
+            {
+                ResourceDerivedTypeVariant.Input => TypeHelper.RemovePropertyFlagsRecursively(current, TypePropertyFlags.WriteOnly),
+                ResourceDerivedTypeVariant.Output => TypeHelper.RemovePropertyFlagsRecursively(current, TypePropertyFlags.ReadOnly),
+                _ => current,
+            };
         }
 
         return unresolved.FallbackType;
@@ -181,7 +186,7 @@ public class ResourceDerivedTypeResolver
 
     private ObjectType ResolveType(ObjectType unresolved)
     {
-        var resolvedProperties = ImmutableArray.CreateBuilder<TypeProperty>(unresolved.Properties.Count);
+        var resolvedProperties = ImmutableArray.CreateBuilder<NamedTypeProperty>(unresolved.Properties.Count);
         var hasChanges = false;
 
         foreach (var unresolvedProperty in unresolved.Properties.Values)
@@ -206,7 +211,7 @@ public class ResourceDerivedTypeResolver
             }
         }
 
-        var addlPropertiesType = unresolved.AdditionalPropertiesType;
+        var addlPropertiesType = unresolved.AdditionalProperties?.TypeReference.Type;
         if (addlPropertiesType is not null)
         {
             var resolvedAddlPropertiesType = ResolveResourceDerivedTypes(addlPropertiesType.Type);
@@ -215,7 +220,13 @@ public class ResourceDerivedTypeResolver
         }
 
         return hasChanges
-            ? new(unresolved.Name, unresolved.ValidationFlags, resolvedProperties.ToImmutable(), addlPropertiesType, unresolved.AdditionalPropertiesFlags)
+            ? new(
+                unresolved.Name,
+                unresolved.ValidationFlags,
+                resolvedProperties.ToImmutable(),
+                addlPropertiesType is not null && unresolved.AdditionalProperties is { } additionalProperties
+                    ? new TypeProperty(addlPropertiesType, additionalProperties.Flags, additionalProperties.Description)
+                    : null)
             : unresolved;
     }
 
@@ -279,8 +290,8 @@ public class ResourceDerivedTypeResolver
 
         return hasChanges
             ? new(
-                resolvedParameterTypes.Take(unresolved.ArgumentTypes.Length).ToImmutableArray(),
-                resolvedParameterTypes.Skip(unresolved.ArgumentTypes.Length).ToImmutableArray(),
+                [.. resolvedParameterTypes.Take(unresolved.ArgumentTypes.Length)],
+                [.. resolvedParameterTypes.Skip(unresolved.ArgumentTypes.Length)],
                 resolvedReturnType)
             : unresolved;
     }
@@ -329,7 +340,7 @@ public class ResourceDerivedTypeResolver
 
     private bool ContainsUnboundTypes(ObjectType objectType)
         => objectType.Properties.Values.Any(property => ContainsUnresolvedTypes(property.TypeReference.Type)) ||
-            (objectType.AdditionalPropertiesType?.Type is TypeSymbol addlPropertiesType && ContainsUnresolvedTypes(addlPropertiesType));
+            (objectType.AdditionalProperties?.TypeReference.Type is TypeSymbol addlPropertiesType && ContainsUnresolvedTypes(addlPropertiesType));
 
     private bool ContainsUnboundTypes(UnionType union)
         => union.Members.Any(member => ContainsUnresolvedTypes(member.Type));

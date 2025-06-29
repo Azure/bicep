@@ -8,9 +8,9 @@ using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -25,10 +25,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public LocationRuleBase(
             string code,
             string description,
-            Uri docUri,
             DiagnosticStyling diagnosticStyling = DiagnosticStyling.Default
             )
-        : base(code, description, LinterRuleCategory.ResourceLocationRules, docUri, diagnosticStyling) { }
+        : base(code, description, LinterRuleCategory.ResourceLocationRules, diagnosticStyling) { }
 
         /// <summary>
         /// Retrieves the literal text value of a syntax node if that node is either a string literal or a reference (possibly indirectly)
@@ -164,9 +163,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         /// </summary>
         protected static ImmutableArray<ParameterDeclarationSyntax> TryGetParameterDefinitionsForConsumedModule(ModuleDeclarationSyntax moduleDeclarationSyntax, SemanticModel model)
         {
-            if (model.Compilation.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax).IsSuccess(out var sourceFile) && sourceFile is BicepFile bicepFile)
+            if (model.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax).IsSuccess(out var sourceFile) && sourceFile is BicepFile bicepFile)
             {
-                return bicepFile.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().ToImmutableArray();
+                return [.. bicepFile.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>()];
             }
 
             return [];
@@ -177,7 +176,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         /// </summary>
         private ImmutableArray<ParameterSymbol> GetParametersUsedInResourceLocations(
             Dictionary<ISourceFile, ImmutableArray<ParameterSymbol>> cachedParamsUsedInLocationPropsForFile,
-            BicepFile bicepFile,
+            BicepSourceFile bicepFile,
             SemanticModel semanticModel)
         {
             if (cachedParamsUsedInLocationPropsForFile.TryGetValue(bicepFile, out ImmutableArray<ParameterSymbol> cachedValue))
@@ -218,22 +217,20 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
 
             // Parameters used in any resource's location property
-            if (fileSemanticModel.Compilation.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax).IsSuccess(out var sourceFile) && sourceFile is BicepFile bicepFile)
+            if (fileSemanticModel.GetSymbolInfo(moduleDeclarationSyntax) is ModuleSymbol moduleSymbol &&
+                moduleSymbol.TryGetSemanticModel().TryUnwrap() is SemanticModel moduleSemanticModel)
             {
-                if (fileSemanticModel.Compilation.GetSemanticModel(bicepFile) is SemanticModel moduleSemanticModel)
+                ImmutableArray<ParameterSymbol> parametersUsedInResourceLocationProperties =
+                    GetParametersUsedInResourceLocations(cachedParamsUsedInLocationPropsForFile, moduleSemanticModel.SourceFile, moduleSemanticModel);
+                foreach (var moduleFormalParameter in parametersUsedInResourceLocationProperties)
                 {
-                    ImmutableArray<ParameterSymbol> parametersUsedInResourceLocationProperties =
-                        GetParametersUsedInResourceLocations(cachedParamsUsedInLocationPropsForFile, bicepFile, moduleSemanticModel);
-                    foreach (var moduleFormalParameter in parametersUsedInResourceLocationProperties)
+                    // No duplicates in the list
+                    if (!locationParameters.Contains(moduleFormalParameter.Name))
                     {
-                        // No duplicates in the list
-                        if (!locationParameters.Contains(moduleFormalParameter.Name))
+                        if (!onlyParamsWithDefaultValues ||
+                            null != (moduleFormalParameter.DeclaringParameter.Modifier as ParameterDefaultValueSyntax)?.DefaultValue)
                         {
-                            if (!onlyParamsWithDefaultValues ||
-                                null != (moduleFormalParameter.DeclaringParameter.Modifier as ParameterDefaultValueSyntax)?.DefaultValue)
-                            {
-                                locationParameters.Add(moduleFormalParameter.Name);
-                            }
+                            locationParameters.Add(moduleFormalParameter.Name);
                         }
                     }
                 }

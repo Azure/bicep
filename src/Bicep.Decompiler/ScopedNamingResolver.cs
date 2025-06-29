@@ -7,17 +7,23 @@ namespace Bicep.Decompiler
     public class ScopedNamingResolver : INamingResolver
     {
         private readonly INamingResolver parent;
+        private readonly ISet<string> scopedParameters;
         private readonly ISet<string> scopedVariables;
 
-        public ScopedNamingResolver(INamingResolver parent, IEnumerable<string> scopedVariables)
+        public ScopedNamingResolver(INamingResolver parent, IEnumerable<string> scopedVariables, IEnumerable<string> scopedParameters)
         {
             this.parent = parent;
+            this.scopedParameters = scopedParameters.ToHashSet();
             this.scopedVariables = scopedVariables.ToHashSet();
         }
 
         public string? TryLookupName(NameType nameType, string desiredName)
         {
             if (nameType == NameType.Variable && scopedVariables.Contains(desiredName))
+            {
+                return desiredName;
+            }
+            if (nameType == NameType.Parameter && scopedParameters.Contains(desiredName))
             {
                 return desiredName;
             }

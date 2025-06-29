@@ -20,17 +20,17 @@
   "outputs": {
     "myStr": {
       "type": "string",
-      "value": "hello",
       "metadata": {
         "description": "string output description"
-      }
+      },
+      "value": "hello"
     },
     "myInt": {
       "type": "int",
-      "value": 7,
       "metadata": {
         "description": "int output description"
-      }
+      },
+      "value": 7
     },
     "myOtherInt": {
       "type": "int",
@@ -38,10 +38,10 @@
     },
     "myBool": {
       "type": "bool",
-      "value": "[not(false())]",
       "metadata": {
         "description": "bool output description"
-      }
+      },
+      "value": "[not(false())]"
     },
     "myOtherBool": {
       "type": "bool",
@@ -49,10 +49,10 @@
     },
     "suchEmpty": {
       "type": "array",
-      "value": [],
       "metadata": {
         "description": "object array description"
-      }
+      },
+      "value": []
     },
     "suchEmpty2": {
       "type": "object",
@@ -60,6 +60,9 @@
     },
     "obj": {
       "type": "object",
+      "metadata": {
+        "description": "object output description"
+      },
       "value": {
         "a": "a",
         "b": 12,
@@ -77,9 +80,6 @@
             "hello"
           ]
         }
-      },
-      "metadata": {
-        "description": "object output description"
       }
     },
     "myArr": {

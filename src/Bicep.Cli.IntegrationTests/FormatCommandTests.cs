@@ -61,7 +61,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             var result = await Bicep("format");
 
-            AssertFailure(result, "The input file path was not specified");
+            AssertFailure(result, "Either the input file path or the --pattern parameter must be specified");
         }
 
         [TestMethod]
@@ -163,6 +163,48 @@ namespace Bicep.Cli.IntegrationTests
 
             var actual = File.ReadAllText(bicepFilePath);
             actual.Should().Be(dataSet.Formatted);
+        }
+
+        [TestMethod]
+        [DataRow(false)]
+        [DataRow(true)]
+        public async Task Format_should_format_files_matching_pattern(bool useRootPath)
+        {
+            var unformatted = """
+output     myOutput     string    =    'hello!'
+""";
+            var formatted = """
+output myOutput string = 'hello!'
+
+""";
+
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var fileResults = new[]
+            {
+                (input: "file1.bicep", expectOutput: true),
+                (input: "file2.bicep", expectOutput: true),
+                (input: "nofile.bicep", expectOutput: false)
+            };
+
+            foreach (var (input, _) in fileResults)
+            {
+                FileHelper.SaveResultFile(TestContext, input, unformatted, outputPath);
+            }
+
+            var (output, error, result) = await Bicep(
+                services => services.WithEnvironment(useRootPath ? TestEnvironment.Default : TestEnvironment.Default with { CurrentDirectory = outputPath }),
+                ["format",
+                    "--pattern",
+                    useRootPath ? $"{outputPath}/file*.bicep" : "file*.bicep"]);
+
+            result.Should().Be(0);
+            error.Should().BeEmpty();
+            output.Should().BeEmpty();
+
+            foreach (var (input, expectOutput) in fileResults)
+            {
+                File.ReadAllText(Path.Combine(outputPath, input)).Should().Be(expectOutput ? formatted : unformatted);
+            }
         }
 
         [TestMethod]

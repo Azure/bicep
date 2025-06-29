@@ -23,5 +23,6 @@ namespace Bicep.Core.Semantics
         ParameterAssignment,
         Metadata,
         TypeAlias,
+        ExtensionConfigAssignment
     }
 }

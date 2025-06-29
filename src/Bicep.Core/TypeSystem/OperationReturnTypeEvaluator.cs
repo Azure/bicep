@@ -107,8 +107,7 @@ public static class OperationReturnTypeEvaluator
                     return ErrorType.Create(errors.SelectMany(e => e.GetDiagnostics()));
                 }
 
-                var unionOfTransformed = TypeHelper.CreateTypeUnion(transformed);
-                return TypeCollapser.TryCollapse(unionOfTransformed) ?? unionOfTransformed;
+                return TypeHelper.CollapseOrCreateTypeUnion(transformed);
             case IntegerLiteralType integerLiteral when Negate(integerLiteral.Value) is long negated:
                 return TypeFactory.CreateIntegerLiteralType(negated, integerLiteral.ValidationFlags);
             case IntegerType @int:
@@ -369,18 +368,25 @@ public static class OperationReturnTypeEvaluator
             : base(@operator, (LanguageConstants.Int, LanguageConstants.Int), armFunctionName, LanguageConstants.Int) { }
 
         protected override TypeSymbol? TryDeriveNonLiteralType(SyntaxBase expressionSyntax, TypeSymbol leftOperandType, TypeSymbol rightOperandType)
-            => DeriveNonLiteralType(leftOperandType, rightOperandType);
+            => DeriveNonLiteralType(expressionSyntax, leftOperandType, rightOperandType);
 
-        private TypeSymbol DeriveNonLiteralType(TypeSymbol leftOperandType, TypeSymbol rightOperandType) => (leftOperandType, rightOperandType) switch
-        {
-            (UnionType leftUnion, _) => CollapseIfPossible(TypeHelper.CreateTypeUnion(leftUnion.Members.Select(m => DeriveNonLiteralType(m.Type, rightOperandType)))),
-            (_, UnionType rightUnion) => CollapseIfPossible(TypeHelper.CreateTypeUnion(rightUnion.Members.Select(m => DeriveNonLiteralType(leftOperandType, m.Type)))),
-            _ => PerformTypeArithmetic(leftOperandType, rightOperandType),
-        };
+        private TypeSymbol DeriveNonLiteralType(SyntaxBase expressionSyntax, TypeSymbol leftOperandType, TypeSymbol rightOperandType)
+            => (leftOperandType, rightOperandType) switch
+            {
+                (UnionType leftUnion, _) => CollapseIfPossible(TypeHelper.CreateTypeUnion(
+                    leftUnion.Members.Select(m => DeriveNonLiteralType(expressionSyntax, m.Type, rightOperandType)))),
+                (_, UnionType rightUnion) => CollapseIfPossible(TypeHelper.CreateTypeUnion(
+                    rightUnion.Members.Select(m => DeriveNonLiteralType(expressionSyntax, leftOperandType, m.Type)))),
+                _ => PerformTypeArithmetic(expressionSyntax, leftOperandType, rightOperandType),
+            };
 
-        private static TypeSymbol CollapseIfPossible(TypeSymbol derived) => TypeCollapser.TryCollapse(derived) ?? derived;
+        private static TypeSymbol CollapseIfPossible(TypeSymbol derived)
+            => TypeCollapser.TryCollapse(derived) ?? derived;
 
-        protected abstract TypeSymbol PerformTypeArithmetic(TypeSymbol leftOperandType, TypeSymbol rightOperandType);
+        protected abstract TypeSymbol PerformTypeArithmetic(
+            SyntaxBase expressionSyntax,
+            TypeSymbol leftOperandType,
+            TypeSymbol rightOperandType);
     }
 
     private static TypeSymbol PerformAdditiveTypeArithmetic(TypeSymbol leftOperand, TypeSymbol rightOperand) => (leftOperand, rightOperand) switch
@@ -411,7 +417,7 @@ public static class OperationReturnTypeEvaluator
     {
         internal AdditionEvaluator() : base(BinaryOperator.Add, "add") { }
 
-        protected override TypeSymbol PerformTypeArithmetic(TypeSymbol leftOperandType, TypeSymbol rightOperandType)
+        protected override TypeSymbol PerformTypeArithmetic(SyntaxBase _, TypeSymbol leftOperandType, TypeSymbol rightOperandType)
             => PerformAdditiveTypeArithmetic(leftOperandType, rightOperandType);
     }
 
@@ -419,7 +425,7 @@ public static class OperationReturnTypeEvaluator
     {
         internal SubtractionEvaluator() : base(BinaryOperator.Subtract, "sub") { }
 
-        protected override TypeSymbol PerformTypeArithmetic(TypeSymbol leftOperandType, TypeSymbol rightOperandType)
+        protected override TypeSymbol PerformTypeArithmetic(SyntaxBase _, TypeSymbol leftOperandType, TypeSymbol rightOperandType)
             => PerformAdditiveTypeArithmetic(leftOperandType, Negate(rightOperandType));
     }
 
@@ -427,23 +433,26 @@ public static class OperationReturnTypeEvaluator
     {
         internal ModuloEvaluator() : base(BinaryOperator.Modulo, "mod") { }
 
-        protected override TypeSymbol PerformTypeArithmetic(TypeSymbol leftOperandType, TypeSymbol rightOperandType) => (leftOperandType, rightOperandType) switch
+        protected override TypeSymbol PerformTypeArithmetic(SyntaxBase expressionSyntax, TypeSymbol leftOperandType, TypeSymbol rightOperandType)
+            => (leftOperandType, rightOperandType) switch
+            {
+                (_, IntegerLiteralType literalDivisor) when literalDivisor.Value == 0
+                    => ErrorType.Create(DiagnosticBuilder.ForPosition(expressionSyntax).AttemptToDivideByZero()),
+                (IntegerLiteralType literalDividend, IntegerLiteralType literalDivisor)
+                    => TypeFactory.CreateIntegerLiteralType(literalDividend.Value % literalDivisor.Value),
+                (_, _) when TryGetMaxDivisor(rightOperandType) is long maxDivisor
+                    => TypeFactory.CreateIntegerType(
+                        minValue: MinValue(leftOperandType) >= 0 ? 0 : 1 - maxDivisor,
+                        maxValue: MaxValue(leftOperandType) <= 0 ? 0 : maxDivisor - 1),
+                _ => LanguageConstants.Int,
+            };
+
+        private static long? TryGetMaxDivisor(TypeSymbol divisorType) => divisorType switch
         {
-            (IntegerLiteralType literalDividend, IntegerLiteralType literalDivisor) => TypeFactory.CreateIntegerLiteralType(literalDividend.Value % literalDivisor.Value),
-            (IntegerType rangedDividend, IntegerLiteralType literalDivisor) => TypeFactory.CreateIntegerType(
-                minValue: rangedDividend.MinValue.HasValue && rangedDividend.MinValue.Value >= 0
-                    ? 0
-                    : 1 - Math.Abs(literalDivisor.Value),
-                maxValue: rangedDividend.MaxValue.HasValue && rangedDividend.MaxValue.Value <= 0
-                    ? 0
-                    : Math.Abs(literalDivisor.Value) - 1),
-            (_, IntegerLiteralType literalDivisor) => TypeFactory.CreateIntegerType(1 - Math.Abs(literalDivisor.Value), Math.Abs(literalDivisor.Value) - 1),
-            (_, IntegerType rangedDivisor) when rangedDivisor.MinValue.HasValue && rangedDivisor.MaxValue.HasValue && rangedDivisor.MinValue.Value > long.MinValue
-                => Math.Max(Math.Abs(rangedDivisor.MinValue.Value), Math.Abs(rangedDivisor.MaxValue.Value)) switch
-                {
-                    long maxDivisor => TypeFactory.CreateIntegerType(1 - maxDivisor, maxDivisor - 1),
-                },
-            _ => LanguageConstants.Int,
+            IntegerLiteralType literal => Math.Abs(literal.Value),
+            IntegerType ranged when ranged.MaxValue.HasValue && ranged.MinValue > long.MinValue
+                => Math.Max(Math.Abs(ranged.MinValue.Value), Math.Abs(ranged.MaxValue.Value)),
+            _ => null,
         };
     }
 

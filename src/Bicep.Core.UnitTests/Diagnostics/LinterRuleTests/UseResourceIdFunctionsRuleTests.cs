@@ -476,6 +476,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ",
             new string[]
             {
+                "[8:21] Resources: \"certificateOrderName\", \"certificateOrderName2\" are defined with this same name in a file. Rename them or split into different modules.",
+                "[17:21] Resources: \"certificateOrderName\", \"certificateOrderName2\" are defined with this same name in a file. Rename them or split into different modules.",
                 $"[20:17] If property \"keyVaultShouldFailId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {allowedFunctions}. Found nonconforming expression at keyVaultShouldFailId -> existingKeyVaultId",
             },
             DisplayName = "pass/IDs-In-KeyVault.json")]
@@ -2067,8 +2069,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             CompileAndTest(
                 bicep,
                 new Options(
-                    AdditionalFiles: new[]
-                    {
+                    AdditionalFiles: [
                         (
                         "nestedtemplates/virtualNetworks.bicep",
                         @"
@@ -2083,7 +2084,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                             output nsgID string = 'name'
                         "
                         )
-                    }),
+                    ]),
                 expectedMessages: []);
         }
 

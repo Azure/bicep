@@ -701,10 +701,10 @@ namespace Bicep.Core.IntegrationTests
         public void User_defined_discriminated_objects_can_amend_resource_derived_discriminated_unions()
         {
             var result = CompilationHelper.Compile(
-                new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+                new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
                 """
                 @discriminator('computeType')
-                type taggedUnion = resource<'Microsoft.MachineLearningServices/workspaces/computes@2020-04-01'>.properties
+                type taggedUnion = resourceInput<'Microsoft.MachineLearningServices/workspaces/computes@2020-04-01'>.properties
                   | { computeType: 'foo', bar: string }
                 """);
 
@@ -716,43 +716,57 @@ namespace Bicep.Core.IntegrationTests
                       "DataFactory": {
                         "type": "object",
                         "metadata": {
-                          "__bicep_resource_derived_type!": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/DataFactory"
+                          "__bicep_resource_derived_type!": {
+                            "source": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/DataFactory"
+                          }
                         }
                       },
                       "Databricks": {
                         "type": "object",
                         "metadata": {
-                          "__bicep_resource_derived_type!": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/Databricks"
+                          "__bicep_resource_derived_type!": {
+                            "source": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/Databricks"
+                          }
                         }
                       },
                       "VirtualMachine": {
                         "type": "object",
                         "metadata": {
-                          "__bicep_resource_derived_type!": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/VirtualMachine"
+                          "__bicep_resource_derived_type!": {
+                            "source": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/VirtualMachine"
+                          }
                         }
                       },
                       "AmlCompute": {
                         "type": "object",
                         "metadata": {
-                          "__bicep_resource_derived_type!": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/AmlCompute"
+                          "__bicep_resource_derived_type!": {
+                            "source": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/AmlCompute"
+                          }
                         }
                       },
                       "AKS": {
                         "type": "object",
                         "metadata": {
-                          "__bicep_resource_derived_type!": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/AKS"
+                          "__bicep_resource_derived_type!": {
+                            "source": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/AKS"
+                          }
                         }
                       },
                       "HDInsight": {
                         "type": "object",
                         "metadata": {
-                          "__bicep_resource_derived_type!": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/HDInsight"
+                          "__bicep_resource_derived_type!": {
+                            "source": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/HDInsight"
+                          }
                         }
                       },
                       "DataLakeAnalytics": {
                         "type": "object",
                         "metadata": {
-                          "__bicep_resource_derived_type!": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/DataLakeAnalytics"
+                          "__bicep_resource_derived_type!": {
+                            "source": "Microsoft.MachineLearningServices/workspaces/computes@2020-04-01#properties/properties/discriminator/mapping/DataLakeAnalytics"
+                          }
                         }
                       },
                       "foo": {

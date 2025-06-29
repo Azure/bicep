@@ -6,7 +6,7 @@ using Bicep.Cli.Services;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Decompiler;
 using Microsoft.Extensions.Logging;
 
@@ -21,6 +21,7 @@ namespace Bicep.Cli.Commands
         private readonly BicepDecompiler decompiler;
         private readonly BicepCompiler compiler;
         private readonly OutputWriter writer;
+        private readonly ISourceFileFactory sourceFileFactory;
 
         public DecompileCommand(
             ILogger logger,
@@ -29,7 +30,8 @@ namespace Bicep.Cli.Commands
             IFileResolver fileResolver,
             BicepDecompiler decompiler,
             BicepCompiler compiler,
-            OutputWriter writer)
+            OutputWriter writer,
+            ISourceFileFactory sourceFileFactory)
         {
             this.logger = logger;
             this.diagnosticLogger = diagnosticLogger;
@@ -38,6 +40,7 @@ namespace Bicep.Cli.Commands
             this.decompiler = decompiler;
             this.compiler = compiler;
             this.writer = writer;
+            this.sourceFileFactory = sourceFileFactory;
         }
 
         public async Task<int> RunAsync(DecompileArguments args)
@@ -45,7 +48,7 @@ namespace Bicep.Cli.Commands
             logger.LogWarning(BicepDecompiler.DecompilerDisclaimerMessage);
 
             var inputUri = PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(args.InputFile));
-            var outputPath = PathHelper.ResolveDefaultOutputPath(inputUri.LocalPath, args.OutputDir, args.OutputFile, PathHelper.GetDefaultDecompileOutputPath);
+            var outputPath = PathHelper.ResolveOutputPath(inputUri.LocalPath, args.OutputDir, args.OutputFile, PathHelper.GetBicepOutputPath);
             var outputUri = PathHelper.FilePathToFileUrl(outputPath);
 
             try
@@ -60,7 +63,7 @@ namespace Bicep.Cli.Commands
                 var workspace = new Workspace();
                 foreach (var (fileUri, bicepOutput) in decompilation.FilesToSave)
                 {
-                    workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(fileUri, bicepOutput));
+                    workspace.UpsertSourceFile(this.sourceFileFactory.CreateBicepFile(fileUri, bicepOutput));
                 }
 
                 // to verify success we recompile and check for syntax errors.

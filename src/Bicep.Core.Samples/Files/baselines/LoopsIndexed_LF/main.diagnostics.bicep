@@ -1,5 +1,6 @@
 param name string
 param accounts array
+//@[15:020) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |array|
 param index int
 
 // single resource
@@ -81,9 +82,11 @@ output indexedCollectionVersion string = storageAccounts[index].apiVersion
 
 // general case property access
 output indexedCollectionIdentity object = storageAccounts[index].identity
+//@[33:039) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |object|
 
 // indexed access of two properties
 output indexedEndpointPair object = {
+//@[27:033) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |object|
   primary: storageAccounts[index].properties.primaryEndpoints.blob
   secondary: storageAccounts[index + 1].properties.secondaryEndpoints.blob
 }
@@ -207,7 +210,7 @@ var moduleSetup = [
 @sys.batchSize(3)
 module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for (moduleName, moduleIndex) in moduleSetup: {
   name: concat(moduleName, moduleIndex)
-//@[08:039) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter/prefer-interpolation) |concat(moduleName, moduleIndex)|
+//@[08:039) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-interpolation) |concat(moduleName, moduleIndex)|
   params: {
     myInput: 'in-${moduleName}-${moduleIndex}'
   }
@@ -220,7 +223,7 @@ module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for (moduleNa
 // another module collection with dependency on another module collection
 module moduleCollectionWithCollectionDependencies 'passthrough.bicep' = [for (moduleName, moduleIndex) in moduleSetup: {
   name: concat(moduleName, moduleIndex)
-//@[08:039) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter/prefer-interpolation) |concat(moduleName, moduleIndex)|
+//@[08:039) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-interpolation) |concat(moduleName, moduleIndex)|
   params: {
     myInput: 'in-${moduleName}-${moduleIndex}'
   }
@@ -234,7 +237,7 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
   name: 'hello'
   params: {
     myInput: concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)
-//@[13:137) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter/prefer-interpolation) |concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)|
+//@[13:137) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-interpolation) |concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)|
   }
   dependsOn: [
     storageAccounts2[index - 10]
@@ -243,7 +246,7 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
 
 module moduleCollectionWithIndexedDependencies 'passthrough.bicep' = [for (moduleName, moduleIndex) in moduleSetup: {
   name: concat(moduleName, moduleIndex)
-//@[08:039) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter/prefer-interpolation) |concat(moduleName, moduleIndex)|
+//@[08:039) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-interpolation) |concat(moduleName, moduleIndex)|
   params: {
     myInput: '${moduleCollectionWithCollectionDependencies[index].outputs.myOutput} - ${storageAccounts[index * 3].properties.accessTier} - ${moduleName} - ${moduleIndex}'
   }

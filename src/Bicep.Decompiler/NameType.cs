@@ -12,5 +12,7 @@ namespace Bicep.Decompiler
         Variable,
 
         Output,
+
+        Function,
     }
 }

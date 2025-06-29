@@ -381,3 +381,7 @@ var test = {
 }
 
 var arraySpread = [...arrayOfBooleans, ...arrayOfHardCodedNumbers, ...arrayOfHardCodedStrings]
+
+var nameof1 = nameof(arraySpread)
+var nameof2 = nameof(spread.foo)
+var nameof3 = nameof(myObj.obj.nested)

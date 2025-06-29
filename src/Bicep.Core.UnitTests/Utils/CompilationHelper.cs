@@ -1,16 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
-using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
-using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 
@@ -18,6 +18,10 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class CompilationHelper
     {
+        public record InputFile(
+            string FileName,
+            string Contents);
+
         public interface ICompilationResult
         {
             IEnumerable<IDiagnostic> Diagnostics { get; }
@@ -83,10 +87,13 @@ namespace Bicep.Core.UnitTests.Utils
         public static async Task<CompilationResult> RestoreAndCompile(ServiceBuilder services, IReadOnlyDictionary<Uri, string> uriDictionary, Uri entryUri)
         {
             var compiler = services.Build().GetCompiler();
-            var compilation = await compiler.CreateCompilation(entryUri, CreateWorkspace(uriDictionary));
+            var compilation = await compiler.CreateCompilation(entryUri, CreateWorkspace(compiler.SourceFileFactory, uriDictionary));
 
             return GetCompilationResult(compilation);
         }
+
+        public static Task<ParamsCompilationResult> RestoreAndCompileParams(ServiceBuilder services, string mainBicepFileContents, string bicepParamsFileContent)
+            => RestoreAndCompileParams(services, ("main.bicep", mainBicepFileContents), ("parameters.bicepparam", bicepParamsFileContent));
 
         public static async Task<ParamsCompilationResult> RestoreAndCompileParams(ServiceBuilder services, params (string fileName, string fileContents)[] files)
         {
@@ -106,10 +113,10 @@ namespace Bicep.Core.UnitTests.Utils
             return CompileParams(compilation);
         }
 
-        public static IWorkspace CreateWorkspace(IReadOnlyDictionary<Uri, string> uriDictionary)
+        public static IWorkspace CreateWorkspace(ISourceFileFactory sourceFileFactory, IReadOnlyDictionary<Uri, string> uriDictionary)
         {
             var workspace = new Workspace();
-            var sourceFiles = uriDictionary.Select(kvp => SourceFileFactory.CreateSourceFile(kvp.Key, kvp.Value));
+            var sourceFiles = uriDictionary.Select(kvp => sourceFileFactory.CreateSourceFile(kvp.Key, kvp.Value));
             workspace.UpsertSourceFiles(sourceFiles);
 
             return workspace;
@@ -126,9 +133,9 @@ namespace Bicep.Core.UnitTests.Utils
             return Compile(services, fileResolver, uriDictionary.Keys, entryUri);
         }
 
-        public static CompilationResult Compile(ServiceBuilder services, IFileResolver fileResolver, IEnumerable<Uri> sourceFiles, Uri entryUri)
+        public static CompilationResult Compile(ServiceBuilder services, InMemoryFileResolver fileResolver, IEnumerable<Uri> sourceFiles, Uri entryUri)
         {
-            var compiler = services.WithFileResolver(fileResolver).Build().GetCompiler();
+            var compiler = services.WithFileResolver(fileResolver).WithFileSystem(fileResolver.MockFileSystem).Build().GetCompiler();
             var sourceFileDict = sourceFiles
                 .Where(x => PathHelper.HasBicepExtension(x) || PathHelper.HasArmTemplateLikeExtension(x))
                 .ToDictionary(x => x, x => fileResolver.TryRead(x).IsSuccess(out var fileContents) ? fileContents : throw new InvalidOperationException($"Failed to find file {x}"));
@@ -139,6 +146,9 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static CompilationResult Compile(IResourceTypeLoader resourceTypeLoader, params (string fileName, string fileContents)[] files)
             => Compile(new ServiceBuilder().WithFeatureOverrides(BicepTestConstants.FeatureOverrides).WithAzResourceTypeLoader(resourceTypeLoader), files);
+
+        public static CompilationResult Compile(params InputFile[] files)
+            => Compile(files.Select(x => (x.FileName, x.Contents)).ToArray());
 
         public static CompilationResult Compile(params (string fileName, string fileContents)[] files)
             => Compile(new ServiceBuilder().WithFeatureOverrides(BicepTestConstants.FeatureOverrides), files);

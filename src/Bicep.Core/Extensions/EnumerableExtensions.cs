@@ -76,7 +76,7 @@ namespace Bicep.Core.Extensions
 
         public static T[] ToArrayExcludingNull<T>(this IEnumerable<T?> source)
             where T : class
-            => source.WhereNotNull().ToArray();
+            => [.. source.WhereNotNull()];
 
         public static ILookup<T, T> InvertLookup<T>(this ILookup<T, T> source)
             => source.SelectMany(group => group.Select(val => (group.Key, val)))

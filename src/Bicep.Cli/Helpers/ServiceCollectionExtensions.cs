@@ -11,14 +11,19 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
 using Bicep.Decompiler;
+using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
+using Bicep.Local.Deploy.Azure;
+using Bicep.Local.Deploy.Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 using Environment = Bicep.Core.Utils.Environment;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
+using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Cli.Helpers;
 
@@ -55,6 +60,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<LintCommand>()
             .AddSingleton<JsonRpcCommand>()
             .AddSingleton<LocalDeployCommand>()
+            .AddSingleton<SnapshotCommand>()
             .AddSingleton<RootCommand>();
 
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
@@ -67,14 +73,22 @@ public static class ServiceCollectionExtensions
         .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
         .AddSingleton<IFileResolver, FileResolver>()
         .AddSingleton<IEnvironment, Environment>()
-        .AddSingleton<IFileSystem, IOFileSystem>()
+        .AddSingleton<IFileSystem, LocalFileSystem>()
+        .AddSingleton<IFileExplorer, FileSystemFileExplorer>()
+        .AddSingleton<IAuxiliaryFileCache, AuxiliaryFileCache>()
         .AddSingleton<IConfigurationManager, ConfigurationManager>()
         .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
         .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
         .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
-        .AddPublicRegistryModuleMetadataProviderServices()
+        .AddSingleton<ISourceFileFactory, SourceFileFactory>()
+        .AddRegistryCatalogServices()
         .AddSingleton<BicepCompiler>();
 
     public static IServiceCollection AddBicepDecompiler(this IServiceCollection services) => services
         .AddSingleton<BicepDecompiler>();
+
+    public static IServiceCollection AddLocalDeploy(this IServiceCollection services) => services
+        .AddSingleton<LocalExtensionDispatcherFactory>()
+        .AddSingleton<IArmDeploymentProvider, ArmDeploymentProvider>()
+        .AddSingleton<ILocalExtensionFactory, GrpcLocalExtensionFactory>();
 }

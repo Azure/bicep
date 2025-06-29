@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15977740014990001438"
+      "templateHash": "7397250722142967265"
     }
   },
   "parameters": {
@@ -34,7 +34,7 @@
       "name": "[parameters('workspaceName')]"
     },
     "avdhpds": {
-      "type": "Microsoft.Insights/diagnosticSettings",
+      "type": "microsoft.insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostpoolName'))]",
       "name": "hostpool-diag",
@@ -62,13 +62,10 @@
             "enabled": true
           }
         ]
-      },
-      "dependsOn": [
-        "hostPool"
-      ]
+      }
     },
     "avdwsds": {
-      "type": "Microsoft.Insights/diagnosticSettings",
+      "type": "microsoft.insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
       "scope": "[format('Microsoft.DesktopVirtualization/workspaces/{0}', parameters('workspaceName'))]",
       "name": "workspacepool-diag",
@@ -92,10 +89,7 @@
             "enabled": true
           }
         ]
-      },
-      "dependsOn": [
-        "workspace"
-      ]
+      }
     }
   }
 }

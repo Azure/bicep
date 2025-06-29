@@ -11,10 +11,13 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
-using Bicep.Core.SourceCode;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.SourceLink;
 using Bicep.Core.Syntax;
+using Bicep.Core.UnitTests;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
+using Bicep.IO.Abstraction;
+using Bicep.IO.InMemory;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Registry;
 using FluentAssertions;
@@ -28,8 +31,6 @@ namespace Bicep.LangServer.IntegrationTests.Registry
     public class ModuleRestoreSchedulerTests
     {
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
-
-        private static readonly RootConfiguration Configuration = IConfigurationManager.GetBuiltInConfiguration();
 
         [TestMethod]
         public async Task DisposeAfterCreateShouldNotThrow()
@@ -78,11 +79,10 @@ namespace Bicep.LangServer.IntegrationTests.Registry
         [TestMethod]
         public async Task RestoreShouldBeScheduledAsRequested()
         {
-            var provider = Repository.Create<IArtifactRegistryProvider>();
             var mockRegistry = new MockRegistry();
-            provider.Setup(m => m.Registries(It.IsAny<Uri>())).Returns(((IArtifactRegistry)mockRegistry).AsEnumerable().ToImmutableArray());
+            var provider = new MockArtifactRegistryProvider(mockRegistry.AsEnumerable());
 
-            var dispatcher = new ModuleDispatcher(provider.Object, IConfigurationManager.WithStaticConfiguration(Configuration));
+            var dispatcher = new ModuleDispatcher(provider);
 
             var firstUri = DocumentUri.From("foo://one");
             var firstSource = new TaskCompletionSource<bool>();
@@ -152,12 +152,9 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             }
         }
 
-        private static ImmutableArray<ArtifactReference> CreateArtifactReferences(MockRegistry mockRegistry, params string[] references)
-        {
-            return references
-                .Select(x => mockRegistry.TryParseArtifactReference(ArtifactType.Module, null, x).Unwrap())
-                .ToImmutableArray<ArtifactReference>();
-        }
+        private static ImmutableArray<ArtifactReference> CreateArtifactReferences(MockRegistry mockRegistry, params string[] references) => references
+            .Select(x => mockRegistry.TryParseArtifactReference(BicepTestConstants.DummyBicepFile, ArtifactType.Module, null, x).Unwrap())
+            .ToImmutableArray();
 
         private class MockRegistry : IArtifactRegistry
         {
@@ -188,30 +185,22 @@ namespace Bicep.LangServer.IntegrationTests.Registry
                 return Task.FromResult<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>>(new Dictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>());
             }
 
-            public ResultWithDiagnosticBuilder<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference _)
-            {
-                throw new NotImplementedException();
-            }
-
             public string? GetDocumentationUri(ArtifactReference _) => null;
 
             public Task<string?> TryGetModuleDescription(ModuleSymbol module, ArtifactReference _) => Task.FromResult<string?>(null);
 
-            public ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(ArtifactType _, string? __, string reference)
+            public ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType _, string? __, string reference)
             {
-                return new(new MockArtifactRef(reference, PathHelper.FilePathToFileUrl(Path.GetTempFileName())));
+                return new(new MockArtifactRef(referencingFile, reference));
             }
 
-            public ResultWithException<SourceArchive> TryGetSource(ArtifactReference artifactReference) => new(new SourceNotAvailableException());
-
-            public Uri? TryGetExtensionBinary(ArtifactReference reference) => null;
             public Task OnRestoreArtifacts(bool forceRestore) => Task.CompletedTask;
         }
 
         private class MockArtifactRef : ArtifactReference
         {
-            public MockArtifactRef(string value, Uri parentModuleUri)
-                : base("mock", parentModuleUri)
+            public MockArtifactRef(BicepSourceFile referencingFile, string value)
+                : base(referencingFile, "mock")
             {
                 this.Value = value;
             }
@@ -221,6 +210,12 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             public override string UnqualifiedReference => this.Value;
 
             public override bool IsExternal => true;
+
+            public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle() => new(DummyFileHandle.Instance);
+        }
+
+        private class MockArtifactRegistryProvider(IEnumerable<IArtifactRegistry> registries) : ArtifactRegistryProvider(registries)
+        {
         }
     }
 }

@@ -1634,7 +1634,7 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
       {
 //@[006:007) LeftBrace |{|
 //@[007:009) NewLine |\r\n|
-        e: [for j in range(7,7): j % thing]
+        e: [for j in range(7,7): j % (thing + 1)]
 //@[008:009) Identifier |e|
 //@[009:010) Colon |:|
 //@[011:012) LeftSquare |[|
@@ -1650,9 +1650,13 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[031:032) Colon |:|
 //@[033:034) Identifier |j|
 //@[035:036) Modulo |%|
-//@[037:042) Identifier |thing|
-//@[042:043) RightSquare |]|
-//@[043:045) NewLine |\r\n|
+//@[037:038) LeftParen |(|
+//@[038:043) Identifier |thing|
+//@[044:045) Plus |+|
+//@[046:047) Integer |1|
+//@[047:048) RightParen |)|
+//@[048:049) RightSquare |]|
+//@[049:051) NewLine |\r\n|
       }
 //@[006:007) RightBrace |}|
 //@[007:009) NewLine |\r\n|
@@ -2102,6 +2106,235 @@ module folderWithSpace 'child/folder with space/child with space.bicep' = {
 //@[024:026) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
-//@[001:003) NewLine |\r\n|
+//@[001:005) NewLine |\r\n\r\n|
+
+// nameof
+//@[009:013) NewLine |\r\n\r\n|
+
+var nameofModule = nameof(folderWithSpace)
+//@[000:003) Identifier |var|
+//@[004:016) Identifier |nameofModule|
+//@[017:018) Assignment |=|
+//@[019:025) Identifier |nameof|
+//@[025:026) LeftParen |(|
+//@[026:041) Identifier |folderWithSpace|
+//@[041:042) RightParen |)|
+//@[042:044) NewLine |\r\n|
+var nameofModuleParam = nameof(secureModuleCondition.outputs.exposedSecureString)
+//@[000:003) Identifier |var|
+//@[004:021) Identifier |nameofModuleParam|
+//@[022:023) Assignment |=|
+//@[024:030) Identifier |nameof|
+//@[030:031) LeftParen |(|
+//@[031:052) Identifier |secureModuleCondition|
+//@[052:053) Dot |.|
+//@[053:060) Identifier |outputs|
+//@[060:061) Dot |.|
+//@[061:080) Identifier |exposedSecureString|
+//@[080:081) RightParen |)|
+//@[081:085) NewLine |\r\n\r\n|
+
+module moduleWithNameof 'modulea.bicep' = {
+//@[000:006) Identifier |module|
+//@[007:023) Identifier |moduleWithNameof|
+//@[024:039) StringComplete |'modulea.bicep'|
+//@[040:041) Assignment |=|
+//@[042:043) LeftBrace |{|
+//@[043:045) NewLine |\r\n|
+  name: 'nameofModule'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:022) StringComplete |'nameofModule'|
+//@[022:024) NewLine |\r\n|
+  scope: resourceGroup(nameof(nameofModuleParam))
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:022) Identifier |resourceGroup|
+//@[022:023) LeftParen |(|
+//@[023:029) Identifier |nameof|
+//@[029:030) LeftParen |(|
+//@[030:047) Identifier |nameofModuleParam|
+//@[047:048) RightParen |)|
+//@[048:049) RightParen |)|
+//@[049:051) NewLine |\r\n|
+  params:{
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[009:010) LeftBrace |{|
+//@[010:012) NewLine |\r\n|
+    stringParamA: nameof(withSpace)
+//@[004:016) Identifier |stringParamA|
+//@[016:017) Colon |:|
+//@[018:024) Identifier |nameof|
+//@[024:025) LeftParen |(|
+//@[025:034) Identifier |withSpace|
+//@[034:035) RightParen |)|
+//@[035:037) NewLine |\r\n|
+    stringParamB: nameof(folderWithSpace)
+//@[004:016) Identifier |stringParamB|
+//@[016:017) Colon |:|
+//@[018:024) Identifier |nameof|
+//@[024:025) LeftParen |(|
+//@[025:040) Identifier |folderWithSpace|
+//@[040:041) RightParen |)|
+//@[041:043) NewLine |\r\n|
+    objParam: {
+//@[004:012) Identifier |objParam|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
+      a: nameof(secureModuleCondition.outputs.exposedSecureString)
+//@[006:007) Identifier |a|
+//@[007:008) Colon |:|
+//@[009:015) Identifier |nameof|
+//@[015:016) LeftParen |(|
+//@[016:037) Identifier |secureModuleCondition|
+//@[037:038) Dot |.|
+//@[038:045) Identifier |outputs|
+//@[045:046) Dot |.|
+//@[046:065) Identifier |exposedSecureString|
+//@[065:066) RightParen |)|
+//@[066:068) NewLine |\r\n|
+    }
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
+    arrayParam: [
+//@[004:014) Identifier |arrayParam|
+//@[014:015) Colon |:|
+//@[016:017) LeftSquare |[|
+//@[017:019) NewLine |\r\n|
+      nameof(vaults)
+//@[006:012) Identifier |nameof|
+//@[012:013) LeftParen |(|
+//@[013:019) Identifier |vaults|
+//@[019:020) RightParen |)|
+//@[020:022) NewLine |\r\n|
+    ]
+//@[004:005) RightSquare |]|
+//@[005:007) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
+module moduleWithNullableOutputs 'child/nullableOutputs.bicep' = {
+//@[000:006) Identifier |module|
+//@[007:032) Identifier |moduleWithNullableOutputs|
+//@[033:062) StringComplete |'child/nullableOutputs.bicep'|
+//@[063:064) Assignment |=|
+//@[065:066) LeftBrace |{|
+//@[066:068) NewLine |\r\n|
+  name: 'nullableOutputs'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:025) StringComplete |'nullableOutputs'|
+//@[025:027) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
+output nullableString string? = moduleWithNullableOutputs.outputs.?nullableString
+//@[000:006) Identifier |output|
+//@[007:021) Identifier |nullableString|
+//@[022:028) Identifier |string|
+//@[028:029) Question |?|
+//@[030:031) Assignment |=|
+//@[032:057) Identifier |moduleWithNullableOutputs|
+//@[057:058) Dot |.|
+//@[058:065) Identifier |outputs|
+//@[065:066) Dot |.|
+//@[066:067) Question |?|
+//@[067:081) Identifier |nullableString|
+//@[081:083) NewLine |\r\n|
+output deeplyNestedProperty string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.property
+//@[000:006) Identifier |output|
+//@[007:027) Identifier |deeplyNestedProperty|
+//@[028:034) Identifier |string|
+//@[034:035) Question |?|
+//@[036:037) Assignment |=|
+//@[038:063) Identifier |moduleWithNullableOutputs|
+//@[063:064) Dot |.|
+//@[064:071) Identifier |outputs|
+//@[071:072) Dot |.|
+//@[072:073) Question |?|
+//@[073:084) Identifier |nullableObj|
+//@[084:085) Dot |.|
+//@[085:091) Identifier |deeply|
+//@[091:092) Dot |.|
+//@[092:098) Identifier |nested|
+//@[098:099) Dot |.|
+//@[099:107) Identifier |property|
+//@[107:109) NewLine |\r\n|
+output deeplyNestedArrayItem string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[0]
+//@[000:006) Identifier |output|
+//@[007:028) Identifier |deeplyNestedArrayItem|
+//@[029:035) Identifier |string|
+//@[035:036) Question |?|
+//@[037:038) Assignment |=|
+//@[039:064) Identifier |moduleWithNullableOutputs|
+//@[064:065) Dot |.|
+//@[065:072) Identifier |outputs|
+//@[072:073) Dot |.|
+//@[073:074) Question |?|
+//@[074:085) Identifier |nullableObj|
+//@[085:086) Dot |.|
+//@[086:092) Identifier |deeply|
+//@[092:093) Dot |.|
+//@[093:099) Identifier |nested|
+//@[099:100) Dot |.|
+//@[100:105) Identifier |array|
+//@[105:106) LeftSquare |[|
+//@[106:107) Integer |0|
+//@[107:108) RightSquare |]|
+//@[108:110) NewLine |\r\n|
+output deeplyNestedArrayItemFromEnd string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[^1]
+//@[000:006) Identifier |output|
+//@[007:035) Identifier |deeplyNestedArrayItemFromEnd|
+//@[036:042) Identifier |string|
+//@[042:043) Question |?|
+//@[044:045) Assignment |=|
+//@[046:071) Identifier |moduleWithNullableOutputs|
+//@[071:072) Dot |.|
+//@[072:079) Identifier |outputs|
+//@[079:080) Dot |.|
+//@[080:081) Question |?|
+//@[081:092) Identifier |nullableObj|
+//@[092:093) Dot |.|
+//@[093:099) Identifier |deeply|
+//@[099:100) Dot |.|
+//@[100:106) Identifier |nested|
+//@[106:107) Dot |.|
+//@[107:112) Identifier |array|
+//@[112:113) LeftSquare |[|
+//@[113:114) Hat |^|
+//@[114:115) Integer |1|
+//@[115:116) RightSquare |]|
+//@[116:118) NewLine |\r\n|
+output deeplyNestedArrayItemFromEndAttempt string? = moduleWithNullableOutputs.outputs.?nullableObj.deeply.nested.array[?^1]
+//@[000:006) Identifier |output|
+//@[007:042) Identifier |deeplyNestedArrayItemFromEndAttempt|
+//@[043:049) Identifier |string|
+//@[049:050) Question |?|
+//@[051:052) Assignment |=|
+//@[053:078) Identifier |moduleWithNullableOutputs|
+//@[078:079) Dot |.|
+//@[079:086) Identifier |outputs|
+//@[086:087) Dot |.|
+//@[087:088) Question |?|
+//@[088:099) Identifier |nullableObj|
+//@[099:100) Dot |.|
+//@[100:106) Identifier |deeply|
+//@[106:107) Dot |.|
+//@[107:113) Identifier |nested|
+//@[113:114) Dot |.|
+//@[114:119) Identifier |array|
+//@[119:120) LeftSquare |[|
+//@[120:121) Question |?|
+//@[121:122) Hat |^|
+//@[122:123) Integer |1|
+//@[123:124) RightSquare |]|
+//@[124:126) NewLine |\r\n|
 
 //@[000:000) EndOfFile ||

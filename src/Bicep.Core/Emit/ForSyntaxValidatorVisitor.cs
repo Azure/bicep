@@ -3,9 +3,10 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Emit
 {
@@ -251,6 +252,24 @@ namespace Bicep.Core.Emit
             base.VisitResourceAccessSyntax(syntax);
         }
 
+        public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
+        {
+            var functionSymbol = semanticModel.GetSymbolInfo(syntax) as FunctionSymbol;
+            if (functionSymbol is null || !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.IsArgumentValueIndependent))
+            {
+                base.VisitFunctionCallSyntax(syntax);
+            }
+        }
+
+        public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
+        {
+            var functionSymbol = semanticModel.GetSymbolInfo(syntax) as FunctionSymbol;
+            if (functionSymbol is null || !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.IsArgumentValueIndependent))
+            {
+                base.VisitInstanceFunctionCallSyntax(syntax);
+            }
+        }
+
         protected override void VisitInternal(SyntaxBase node)
         {
             var previousIsPropertyLoopPotentiallyAllowed = this.isPropertyLoopPotentiallyAllowed;
@@ -295,11 +314,12 @@ namespace Bicep.Core.Emit
                     //  1. Allowed in a variable declaration value
                     //  1. Allowed in an output value
                     var isValidResourceCollectionDirectAccessLocation =
-                        this.semanticModel.Features.SymbolicNameCodegenEnabled
-                        && this.loopLevel == 0
-                        && (this.insideProperties
-                            || this.currentOutputDeclarationSyntax != null
-                            || (this.currentVariableDeclarationSyntax != null && this.variableAccessForInlineCheck == null));
+                        (this.semanticModel.EmitterSettings.EnableSymbolicNames
+                         && this.loopLevel == 0
+                         && (this.insideProperties
+                             || this.currentOutputDeclarationSyntax != null
+                             || (this.currentVariableDeclarationSyntax != null && this.variableAccessForInlineCheck == null))
+                        );
 
                     if (!isValidResourceCollectionDirectAccessLocation)
                     {

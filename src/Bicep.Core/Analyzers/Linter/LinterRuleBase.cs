@@ -6,8 +6,8 @@ using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Analyzers.Linter
 {
@@ -17,7 +17,6 @@ namespace Bicep.Core.Analyzers.Linter
             string code,
             string description,
             LinterRuleCategory category,
-            Uri? docUri = null,
             DiagnosticStyling diagnosticStyling = DiagnosticStyling.Default,
             // This should normally be left unspecified so that the default diagnostic level is set based on the category.  Only specify
             //   if it needs to default to something other than the category's default diagnostic level.
@@ -25,7 +24,7 @@ namespace Bicep.Core.Analyzers.Linter
         {
             this.Code = code;
             this.Description = description;
-            this.Uri = docUri;
+            this.Uri = new Uri($"https://aka.ms/bicep/linter-diagnostics#{Code}");
             this.Category = category;
             this.DiagnosticStyling = diagnosticStyling;
             this.OverrideCategoryDefaultDiagnosticLevel = overrideCategoryDefaultDiagnosticLevel;
@@ -42,7 +41,7 @@ namespace Bicep.Core.Analyzers.Linter
 
         public string Description { get; }
 
-        public Uri? Uri { get; }
+        public Uri Uri { get; }
 
         public DiagnosticLevel? OverrideCategoryDefaultDiagnosticLevel { get; }
 
@@ -131,15 +130,16 @@ namespace Bicep.Core.Analyzers.Linter
             level,
             DiagnosticSource.CoreLinter,
             Code,
-            GetMessage(values)) {
-                Uri = Uri,
-                Styling = DiagnosticStyling
-            };
+            GetMessage(values))
+        {
+            Uri = Uri,
+            Styling = DiagnosticStyling
+        };
 
         protected virtual Diagnostic CreateFixableDiagnosticForSpan(DiagnosticLevel level, TextSpan span, CodeFix fix, params object[] values) =>
             CreateFixableDiagnosticForSpan(level, span, [fix], values);
 
-        protected virtual Diagnostic CreateFixableDiagnosticForSpan(DiagnosticLevel level, TextSpan span, CodeFix[] fixes, params object[] values) => 
+        protected virtual Diagnostic CreateFixableDiagnosticForSpan(DiagnosticLevel level, TextSpan span, CodeFix[] fixes, params object[] values) =>
             CreateDiagnosticForSpan(level, span, values) with { Fixes = [.. fixes] };
 
         public static DiagnosticLevel GetDefaultDiagosticLevelForCategory(LinterRuleCategory category) =>

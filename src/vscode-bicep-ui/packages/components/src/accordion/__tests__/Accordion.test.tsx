@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MotionGlobalConfig } from "framer-motion";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";

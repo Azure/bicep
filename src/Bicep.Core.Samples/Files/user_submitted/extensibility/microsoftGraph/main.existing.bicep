@@ -1,4 +1,4 @@
-extension microsoftGraph
+extension microsoftGraphBeta
 
 resource resourceApp 'Microsoft.Graph/applications@beta' existing = {
   uniqueName: 'resourceApp'

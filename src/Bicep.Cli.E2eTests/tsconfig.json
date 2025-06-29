@@ -1,16 +1,16 @@
 {
-    "compilerOptions": {
-        "target": "es6",
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "esModuleInterop": true,
-        "outDir": "out",
-        "lib": ["es2019"],
-        "sourceMap": true,
-        "skipLibCheck": true,
-        "strict": true,
-        "noImplicitReturns": true,
-        "noUnusedLocals": true
-    },
-    "include": ["src"]
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "outDir": "out",
+    "lib": ["ES2020"],
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true
+  },
+  "include": ["src"]
 }

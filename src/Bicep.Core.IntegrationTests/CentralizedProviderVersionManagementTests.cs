@@ -13,7 +13,7 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class CentralizedExtensionVersionManagementTests : TestBase
     {
-        private ServiceBuilder Services => new ServiceBuilder().WithFeatureOverrides(new(ExtensibilityEnabled: true));
+        private ServiceBuilder Services => new();
 
         [TestMethod]
         [DynamicData(nameof(ExtensionsConfig_SupportForConfigManagedExtensionDeclarationSyntax_When_ExtensionIsBuiltIn_TestCases))]
@@ -42,8 +42,9 @@ namespace Bicep.Core.IntegrationTests
                     emptyDiagnostics };
                 yield return new object[] {
                     "microsoftGraph",
-                    true,
-                    emptyDiagnostics };
+                    false,
+                    new (string, DiagnosticLevel, string)[] {
+                     ("BCP407", DiagnosticLevel.Error, "Built-in extension \"microsoftGraph\" is retired. Use dynamic types instead. See https://aka.ms/graphBicepDynamicTypes" ) } };
                 yield return new object[] {
                     "az",
                     true,

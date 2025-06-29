@@ -7,7 +7,8 @@ using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.PublicRegistry;
+using Bicep.Core.Registry.Catalog.Implementation;
+using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
@@ -23,14 +24,14 @@ namespace Bicep.Cli.IntegrationTests
 {
     public abstract class TestBase : Bicep.Core.UnitTests.TestBase
     {
-        private static BicepCompiler CreateCompiler(IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IPublicRegistryModuleMetadataClient? moduleMetadataClient)
+        private static BicepCompiler CreateCompiler(IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IPublicModuleIndexHttpClient? moduleMetadataClient)
             => ServiceBuilder.Create(
                 services =>
                 {
                     services
                         .AddSingleton(clientFactory)
                         .AddSingleton(templateSpecRepositoryFactory)
-                        .AddSingleton<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>();
+                        .AddRegistryCatalogServices();
 
                     IServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, moduleMetadataClient);
                 }
@@ -49,21 +50,21 @@ namespace Bicep.Cli.IntegrationTests
             public IContainerRegistryClientFactory ClientFactory { get; init; }
             public ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory { get; init; }
             public IEnvironment? Environment { get; init; }
-            public IPublicRegistryModuleMetadataClient ModuleMetadataClient { get; init; }
+            public IPublicModuleIndexHttpClient ModuleMetadataClient { get; init; }
 
             public InvocationSettings(
                 FeatureProviderOverrides? FeatureOverrides = null,
                 IContainerRegistryClientFactory? ClientFactory = null,
                 ITemplateSpecRepositoryFactory? TemplateSpecRepositoryFactory = null,
                 IEnvironment? Environment = null,
-                IPublicRegistryModuleMetadataClient? ModuleMetadataClient = null)
+                IPublicModuleIndexHttpClient? ModuleMetadataClient = null)
             {
                 this.FeatureOverrides = FeatureOverrides;
                 this.ClientFactory = ClientFactory ?? Repository.Create<IContainerRegistryClientFactory>().Object;
                 this.TemplateSpecRepositoryFactory = TemplateSpecRepositoryFactory ?? Repository.Create<ITemplateSpecRepositoryFactory>().Object;
                 this.Environment = Environment;
 
-                this.ModuleMetadataClient = ModuleMetadataClient ?? StrictMock.Of<IPublicRegistryModuleMetadataClient>().Object;
+                this.ModuleMetadataClient = ModuleMetadataClient ?? new MockPublicModuleIndexHttpClient(new());
             }
         }
 
@@ -109,7 +110,7 @@ namespace Bicep.Cli.IntegrationTests
             }
         }
 
-        protected static async Task<IEnumerable<string>> GetAllDiagnostics(string bicepFilePath, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IPublicRegistryModuleMetadataClient? moduleMetadataClient = null)
+        protected static async Task<IEnumerable<string>> GetAllDiagnostics(string bicepFilePath, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IPublicModuleIndexHttpClient? moduleMetadataClient = null)
         {
             var compilation = await CreateCompiler(clientFactory, templateSpecRepositoryFactory, moduleMetadataClient).CreateCompilation(PathHelper.FilePathToFileUrl(bicepFilePath));
 
@@ -120,7 +121,7 @@ namespace Bicep.Cli.IntegrationTests
                 {
                     var (line, character) = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, diagnostic.Span.Position);
                     var codeDescription = diagnostic.Uri == null ? string.Empty : $" [{diagnostic.Uri.AbsoluteUri}]";
-                    output.Add($"{bicepFile.FileUri.LocalPath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}{codeDescription}");
+                    output.Add($"{bicepFile.FileHandle.Uri}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}{codeDescription}");
                 }
             }
 

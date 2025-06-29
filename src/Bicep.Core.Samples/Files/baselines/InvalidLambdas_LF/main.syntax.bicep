@@ -1913,30 +1913,43 @@ var multiLineTrailingCommas = map([0], (
 //@[014:0016) ├─Token(NewLine) |\n\n|
 
 var lineBeforeComma = map([0], (
-//@[000:0053) ├─VariableDeclarationSyntax
+//@[000:0052) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
 //@[004:0019) | ├─IdentifierSyntax
 //@[004:0019) | | └─Token(Identifier) |lineBeforeComma|
 //@[020:0021) | ├─Token(Assignment) |=|
-//@[022:0053) | └─SkippedTriviaSyntax
-//@[022:0025) |   ├─Token(Identifier) |map|
+//@[022:0052) | └─FunctionCallSyntax
+//@[022:0025) |   ├─IdentifierSyntax
+//@[022:0025) |   | └─Token(Identifier) |map|
 //@[025:0026) |   ├─Token(LeftParen) |(|
-//@[026:0027) |   ├─Token(LeftSquare) |[|
-//@[027:0028) |   ├─Token(Integer) |0|
-//@[028:0029) |   ├─Token(RightSquare) |]|
+//@[026:0029) |   ├─FunctionArgumentSyntax
+//@[026:0029) |   | └─ArraySyntax
+//@[026:0027) |   |   ├─Token(LeftSquare) |[|
+//@[027:0028) |   |   ├─ArrayItemSyntax
+//@[027:0028) |   |   | └─IntegerLiteralSyntax
+//@[027:0028) |   |   |   └─Token(Integer) |0|
+//@[028:0029) |   |   └─Token(RightSquare) |]|
 //@[029:0030) |   ├─Token(Comma) |,|
-//@[031:0032) |   ├─Token(LeftParen) |(|
-//@[032:0033) |   ├─Token(NewLine) |\n|
+//@[031:0051) |   ├─FunctionArgumentSyntax
+//@[031:0051) |   | └─LambdaSyntax
+//@[031:0042) |   |   ├─VariableBlockSyntax
+//@[031:0032) |   |   | ├─Token(LeftParen) |(|
+//@[032:0033) |   |   | ├─Token(NewLine) |\n|
   a
-//@[002:0003) |   ├─Token(Identifier) |a|
-//@[003:0004) |   ├─Token(NewLine) |\n|
+//@[002:0003) |   |   | ├─LocalVariableSyntax
+//@[002:0003) |   |   | | └─IdentifierSyntax
+//@[002:0003) |   |   | |   └─Token(Identifier) |a|
+//@[003:0004) |   |   | ├─Token(NewLine) |\n|
   ,b) => 'foo')
-//@[002:0003) |   ├─Token(Comma) |,|
-//@[003:0004) |   ├─Token(Identifier) |b|
-//@[004:0005) |   ├─Token(RightParen) |)|
-//@[006:0008) |   ├─Token(Arrow) |=>|
-//@[009:0014) |   ├─Token(StringComplete) |'foo'|
-//@[014:0015) |   ├─Token(RightParen) |)|
-//@[015:0016) |   └─Token(NewLine) |\n|
+//@[002:0003) |   |   | ├─Token(Comma) |,|
+//@[003:0004) |   |   | ├─LocalVariableSyntax
+//@[003:0004) |   |   | | └─IdentifierSyntax
+//@[003:0004) |   |   | |   └─Token(Identifier) |b|
+//@[004:0005) |   |   | └─Token(RightParen) |)|
+//@[006:0008) |   |   ├─Token(Arrow) |=>|
+//@[009:0014) |   |   └─StringSyntax
+//@[009:0014) |   |     └─Token(StringComplete) |'foo'|
+//@[014:0015) |   └─Token(RightParen) |)|
+//@[015:0016) ├─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

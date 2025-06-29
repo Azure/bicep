@@ -3,7 +3,7 @@
 using System.Diagnostics;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceGraph;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Formatting;
@@ -25,6 +25,7 @@ namespace Bicep.Core.UnitTests.Assertions
         {
             public bool CanHandle(object value)
             {
+
                 return value is Diagnostic;
             }
 

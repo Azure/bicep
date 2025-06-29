@@ -27,7 +27,7 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
         {
             var cache = GetCache(scope);
             Debug.Assert(!cache.typesCached, $"{nameof(InjectTypeReferences)} Types have already been cached for scope {scope}");
-            cache.injectedTypes = resourceTypeReferences.ToArray();
+            cache.injectedTypes = [.. resourceTypeReferences];
         }
 
         private ApiVersionCache GetCache(ResourceScope scope)

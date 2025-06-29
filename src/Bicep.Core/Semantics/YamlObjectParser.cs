@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 using Newtonsoft.Json.Linq;
 using SharpYaml.Serialization;
 
