@@ -3,24 +3,37 @@
 
 import type { ReactNode } from "react";
 
-import { createContext, useEffect } from "react";
+import { createContext, useCallback, useEffect, useRef } from "react";
 import { WebviewMessageChannel } from "./webviewMessageChannel";
 
 export interface WebviewMessageChannelProviderProps {
-  messageChannel: WebviewMessageChannel;
+  messageChannel?: WebviewMessageChannel;
   children: ReactNode;
 }
 
-export const WebviewMessageChannelContext = createContext<WebviewMessageChannel | undefined>(undefined);
+export const WebviewMessageChannelContext = createContext<(() => WebviewMessageChannel) | undefined>(undefined);
 
 export function WebviewMessageChannelProvider({ messageChannel, children }: WebviewMessageChannelProviderProps) {
+  const messageChannelRef = useRef<WebviewMessageChannel | undefined>(messageChannel);
+
+  const getMessageChannel = useCallback(() => {
+    if (!messageChannelRef.current) {
+      messageChannelRef.current = new WebviewMessageChannel();
+    }
+
+    return messageChannelRef.current;
+  }, []);
+
   useEffect(() => {
+    // Make it work with React <StrictMode>.
+    messageChannelRef.current?.revive();
+
     return () => {
-      messageChannel.dispose();
+      messageChannelRef.current?.dispose();
     };
-  }, [messageChannel]);
+  }, []);
 
   return (
-    <WebviewMessageChannelContext.Provider value={messageChannel}>{children}</WebviewMessageChannelContext.Provider>
+    <WebviewMessageChannelContext.Provider value={getMessageChannel}>{children}</WebviewMessageChannelContext.Provider>
   );
 }
