@@ -4,8 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    # TODO: remove visual-designer-hackathon before merging to main
-    branches: [main, visual-designer-hackathon]
+    branches: [main]
   workflow_dispatch:
 
 permissions:

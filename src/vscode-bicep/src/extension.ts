@@ -41,7 +41,6 @@ import { createLogger, getLogger, resetLogger } from "./utils/logger";
 import { OutputChannelManager } from "./utils/OutputChannelManager";
 import { activateWithTelemetryAndErrorHandling } from "./utils/telemetry";
 import { BicepVisualizerViewManager } from "./visualizer";
-import { DraggableResourcesViewProvider } from "./webviews/draggable-resources-view/provider";
 
 let languageClient: lsp.LanguageClient | null = null;
 
