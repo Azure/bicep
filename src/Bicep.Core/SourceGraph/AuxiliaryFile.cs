@@ -36,16 +36,21 @@ namespace Bicep.Core.SourceGraph
             return Equals(reader.CurrentEncoding, utf8NoBom) ? null : reader.CurrentEncoding;
         }
 
-        public ResultWithDiagnosticBuilder<string> TryReadText(Encoding? encoding, int charactersLimit)
+        public ResultWithDiagnosticBuilder<string> TryReadText(Encoding? encoding, int? charactersLimit)
         {
             using var reader = new StreamReader(this.data.ToStream(), encoding ?? Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
 
-            char[] buffer = new char[charactersLimit];
-            int charactersRead = reader.ReadBlock(buffer, 0, charactersLimit);
+            if (charactersLimit is null)
+            {
+                return new(reader.ReadToEnd());
+            }
+
+            char[] buffer = new char[charactersLimit.Value];
+            int charactersRead = reader.ReadBlock(buffer, 0, charactersLimit.Value);
 
             if (charactersRead == charactersLimit && !reader.EndOfStream)
             {
-                return new(x => x.FileExceedsMaximumSize(this.Uri, charactersLimit, "characters"));
+                return new(x => x.FileExceedsMaximumSize(this.Uri, charactersLimit.Value, "characters"));
             }
 
             return new(new string(buffer, 0, charactersRead));
