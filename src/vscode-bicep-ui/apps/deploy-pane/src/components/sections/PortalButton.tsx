@@ -26,7 +26,8 @@ export function PortalButton(props: PortalButtonProps) {
   }
 
   return (
-    <a style={{ verticalAlign: "middle" }} title="Open in Portal" href={`${portalResourceUrl}`}>
+    <a style={{ verticalAlign: "middle" }} title="Open in Portal" href={`${portalResourceUrl}`}> { // CodeQL [SM03712] Input is checked properly before formatting URL
+    }
       <Codicon name="globe" size={12} />
     </a>
   );

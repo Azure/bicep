@@ -223,6 +223,7 @@ exports[`App > handles synchronous deployment failures correctly 1`] = `
                     style="vertical-align: middle;"
                     title="Open in Portal"
                   >
+                     
                     <div
                       aria-hidden="true"
                       class="sc-gnOvAp jiyPEE codicon codicon-globe"
@@ -698,6 +699,7 @@ exports[`App > runs a deployment 1`] = `
                     style="vertical-align: middle;"
                     title="Open in Portal"
                   >
+                     
                     <div
                       aria-hidden="true"
                       class="sc-gnOvAp jiyPEE codicon codicon-globe"
@@ -797,6 +799,7 @@ exports[`App > runs a deployment 1`] = `
                   style="vertical-align: middle;"
                   title="Open in Portal"
                 >
+                   
                   <div
                     aria-hidden="true"
                     class="sc-gnOvAp jiyPEE codicon codicon-globe"
