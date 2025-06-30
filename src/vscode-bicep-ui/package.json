@@ -22,7 +22,6 @@
   "devDependencies": {
     "@eslint/js": "^9.30.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.4.2",
-    "@types/eslint__js": "^9.14.0",
     "eslint": "^9.30.0",
     "eslint-plugin-notice": "^1.0.0",
     "eslint-plugin-react": "^7.37.5",

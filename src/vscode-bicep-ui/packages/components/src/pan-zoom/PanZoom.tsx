@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { D3ZoomEvent } from "d3-zoom";
 import type { PropsWithChildren } from "react";
 

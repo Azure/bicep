@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { createGlobalStyle } from "styled-components";
 
 export const GlobalStyle = createGlobalStyle`

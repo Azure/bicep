@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { atom } from "jotai";
 import { createIsolation } from "jotai-scope";
 import { atomWithReset } from "jotai/utils";

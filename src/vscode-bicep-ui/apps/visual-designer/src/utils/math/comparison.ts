@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 export const EPSILON = 1.0e-8;
 
 export function equalsZero(x: number, epsilon = EPSILON): boolean {

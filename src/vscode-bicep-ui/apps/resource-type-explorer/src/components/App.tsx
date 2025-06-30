@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { Accordion } from "@vscode-bicep-ui/components";
 import { useWebviewRequest } from "@vscode-bicep-ui/messaging";
 import { ResourceTypeGroupHeader } from "./ResourceTypeGroupHeader";

@@ -24,3 +24,5 @@ export const BaseNode = forwardRef<HTMLDivElement, BaseNodeProps>(({ zIndex, chi
     </$BaseNode>
   );
 });
+
+BaseNode.displayName = "BaseNode";

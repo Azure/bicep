@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { useEffect } from "react";
 import { panZoomTransformAtom, useAtomValue, useStore } from "./atoms";
 

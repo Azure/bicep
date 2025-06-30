@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import { WebviewMessageChannelProvider } from "@vscode-bicep-ui/messaging";
 import React from "react";
 import ReactDOM from "react-dom/client";

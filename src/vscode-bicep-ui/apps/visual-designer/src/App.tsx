@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { ComponentType, MouseEvent } from "react";
 import type { NodeKind } from "./features/graph/atoms";
 

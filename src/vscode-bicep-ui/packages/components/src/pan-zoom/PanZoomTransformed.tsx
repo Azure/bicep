@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { PropsWithChildren } from "react";
 
 import { useCallback, useRef } from "react";

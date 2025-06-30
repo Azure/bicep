@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { RenderHookResult } from "@testing-library/react";
 import type { PropsWithChildren } from "react";
 
