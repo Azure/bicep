@@ -2,16 +2,16 @@
 // Licensed under the MIT License.
 
 import type { Point } from "../../../utils/math";
-import type { PrimitiveNodeState } from "../atoms/nodes";
+import type { AtomicNodeState } from "../atoms/nodes";
 
 import useResizeObserver from "@react-hook/resize-observer";
-import { animate, frame, transform } from "motion/react";
 import { useStore } from "jotai";
+import { animate, frame, transform } from "motion/react";
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { pointsEqual, translateBox } from "../../../utils/math";
 import { useBoxUpdate, useDragListener } from "../hooks";
-import { NodeContent } from "./NodeContent";
 import { BaseNode } from "./BaseNode";
+import { NodeContent } from "./NodeContent";
 
 function animatePointTranslation(fromPoint: Point, toPoint: Point, onPointUpdate: (point: Point) => void) {
   const from = 0;
@@ -33,7 +33,7 @@ function animatePointTranslation(fromPoint: Point, toPoint: Point, onPointUpdate
   });
 }
 
-export function PrimitiveNode({ id, originAtom, boxAtom, dataAtom }: PrimitiveNodeState) {
+export function AtomicNode({ id, originAtom, boxAtom, dataAtom }: AtomicNodeState) {
   const ref = useRef<HTMLDivElement>(null);
   const store = useStore();
 
@@ -98,7 +98,7 @@ export function PrimitiveNode({ id, originAtom, boxAtom, dataAtom }: PrimitiveNo
 
   return (
     <BaseNode ref={ref} zIndex={1}>
-      <NodeContent id={id} kind="primitive" dataAtom={dataAtom} />
+      <NodeContent id={id} kind="atomic" dataAtom={dataAtom} />
     </BaseNode>
   );
 }

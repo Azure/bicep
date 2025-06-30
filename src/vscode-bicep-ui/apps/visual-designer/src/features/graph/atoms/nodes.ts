@@ -7,8 +7,8 @@ import type { Box, Point } from "../../../utils/math/geometry";
 import { atom } from "jotai";
 import { nodeConfigAtom } from "./configs";
 
-export interface PrimitiveNodeState {
-  kind: "primitive";
+export interface AtomicNodeState {
+  kind: "atomic";
   id: string;
   originAtom: PrimitiveAtom<Point>;
   boxAtom: PrimitiveAtom<Box>;
@@ -23,21 +23,21 @@ export interface CompoundNodeState {
   dataAtom: PrimitiveAtom<unknown>;
 }
 
-export type NodeState = PrimitiveNodeState | CompoundNodeState;
+export type NodeState = AtomicNodeState | CompoundNodeState;
 
 export type NodeKind = NodeState["kind"];
 
 export const nodesAtom = atom<Record<string, NodeState>>({});
 
-export const addPrimitiveNodeAtom = atom(null, (get, set, id: string, origin: Point, data: unknown) => {
+export const addAtomicNodeAtom = atom(null, (get, set, id: string, origin: Point, data: unknown) => {
   if (get(nodesAtom)[id] !== undefined) {
-    throw new Error(`Cannot add primitive node ${id} because it already exists.`);
+    throw new Error(`Cannot add atomic node ${id} because it already exists.`);
   }
 
   set(nodesAtom, (nodes) => ({
     ...nodes,
     [id]: {
-      kind: "primitive",
+      kind: "atomic",
       id,
       originAtom: atom(origin),
       boxAtom: atom({ min: { ...origin }, max: { ...origin } }),

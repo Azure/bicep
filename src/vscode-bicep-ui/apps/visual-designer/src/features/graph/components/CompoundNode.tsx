@@ -3,14 +3,14 @@
 
 import type { CompoundNodeState } from "../atoms/nodes";
 
-import { frame } from "motion/react";
 import { useStore } from "jotai";
+import { frame } from "motion/react";
 import { useRef } from "react";
 import { translateBox } from "../../../utils/math";
 import { nodesAtom } from "../atoms";
 import { useBoxUpdate, useDragListener } from "../hooks";
-import { NodeContent } from "./NodeContent";
 import { BaseNode } from "./BaseNode";
+import { NodeContent } from "./NodeContent";
 
 export function CompoundNode({ id, childIdsAtom, boxAtom, dataAtom }: CompoundNodeState) {
   const ref = useRef<HTMLDivElement>(null);
@@ -25,7 +25,7 @@ export function CompoundNode({ id, childIdsAtom, boxAtom, dataAtom }: CompoundNo
           return;
         }
 
-        if (child.kind === "primitive") {
+        if (child.kind === "atomic") {
           store.set(child.boxAtom, (box) => translateBox(box, dx, dy));
         } else {
           translateChildren(store.get(child.childIdsAtom));

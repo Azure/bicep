@@ -13,7 +13,7 @@ import { ResourceDeclaration } from "./features/declarations/components/Resource
 import {
   addCompoundNodeAtom,
   addEdgeAtom,
-  addPrimitiveNodeAtom,
+  addAtomicNodeAtom,
   edgesAtom,
   nodeConfigAtom,
   nodesAtom,
@@ -30,13 +30,13 @@ store.set(nodeConfigAtom, {
     top: 50,
   },
   getContentComponent: (kind: NodeKind) =>
-    (kind === "primitive" ? ResourceDeclaration : ModuleDeclaration) as ComponentType<{ id: string; data: unknown }>,
+    (kind === "atomic" ? ResourceDeclaration : ModuleDeclaration) as ComponentType<{ id: string; data: unknown }>,
 });
 
 export function App() {
   const setNodesAtom = useSetAtom(nodesAtom);
   const setEdgesAtom = useSetAtom(edgesAtom);
-  const addPrimitiveNode = useSetAtom(addPrimitiveNodeAtom);
+  const addAtomicNode = useSetAtom(addAtomicNodeAtom);
   const addCompoundNode = useSetAtom(addCompoundNodeAtom);
   const addEdge = useSetAtom(addEdgeAtom);
 
@@ -46,7 +46,7 @@ export function App() {
 
       const nodes = get(nodesAtom);
       for (const node of Object.values(nodes)) {
-        if (node.kind === "primitive") {
+        if (node.kind === "atomic") {
           set(node.originAtom, { ...get(node.originAtom) });
         }
       }
@@ -54,14 +54,14 @@ export function App() {
   );
 
   useEffect(() => {
-    addPrimitiveNode(
+    addAtomicNode(
       "A",
       { x: 200, y: 200 },
       { symbolicName: "foobar", resourceType: "Microsoft.Compute/virtualMachines" },
     );
-    addPrimitiveNode("B", { x: 500, y: 200 }, { symbolicName: "bar", resourceType: "Foo" });
-    addPrimitiveNode("C", { x: 800, y: 500 }, { symbolicName: "someRandomStorage", resourceType: "Foo" });
-    addPrimitiveNode("D", { x: 1200, y: 700 }, { symbolicName: "Tricep", resourceType: "Foo" });
+    addAtomicNode("B", { x: 500, y: 200 }, { symbolicName: "bar", resourceType: "Foo" });
+    addAtomicNode("C", { x: 800, y: 500 }, { symbolicName: "someRandomStorage", resourceType: "Foo" });
+    addAtomicNode("D", { x: 1200, y: 700 }, { symbolicName: "Tricep", resourceType: "Foo" });
     addCompoundNode("E", ["A", "C"], { symbolicName: "myMod", path: "modules/foooooooooooooooooooooooooooooooooooooobar.bicep" });
 
     addEdge("A->B", "A", "B");
@@ -72,7 +72,7 @@ export function App() {
       setEdgesAtom([]);
       setNodesAtom({});
     };
-  }, [addCompoundNode, addPrimitiveNode, addEdge, setNodesAtom, setEdgesAtom]);
+  }, [addCompoundNode, addAtomicNode, addEdge, setNodesAtom, setEdgesAtom]);
 
   return (
     <PanZoomProvider>

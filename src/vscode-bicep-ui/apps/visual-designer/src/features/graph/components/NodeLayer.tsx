@@ -4,12 +4,12 @@
 import { useAtomValue } from "jotai";
 import { nodesAtom } from "../atoms";
 import { CompoundNode } from "./CompoundNode";
-import { PrimitiveNode } from "./PrimitiveNode";
+import { AtomicNode } from "./AtomicNode";
 
 export function NodeLayer() {
   const nodes = useAtomValue(nodesAtom);
 
   return Object.entries(nodes).map(([id, node]) =>
-    node.kind === "primitive" ? <PrimitiveNode key={id} {...node} /> : <CompoundNode key={id} {...node} />,
+    node.kind === "atomic" ? <AtomicNode key={id} {...node} /> : <CompoundNode key={id} {...node} />,
   );
 }
