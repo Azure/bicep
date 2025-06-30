@@ -26,7 +26,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             });
         }
 
-        [DataRow(@"
+        [DataRow("""
             param location string = resourceGroup().location
 
             resource storage 'Microsoft.Storage/storageAccounts@2021-09-01' = {
@@ -36,9 +36,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               sku: {
                 name: 'Standard_LRS'
               }
-            }"
-        )]
-        [DataRow(@"
+            }
+            """)]
+        [DataRow("""
             param location string = resourceGroup().location
             param snap string
 
@@ -52,9 +52,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               sku: {
                 name: 'Standard_LRS'
               }
-            }"
-        )]
-        [DataRow(@"
+            }
+            """)]
+        [DataRow(
+            """
             param location string = resourceGroup().location
             param snap string = newGuid()
 
@@ -68,11 +69,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               sku: {
                 name: 'Standard_LRS'
               }
-            }",
+            }
+            """,
             "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'newGuid' function (storage.name -> pop -> snap (default value) -> newGuid()).",
-            "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'newGuid' function (storage.name -> pop -> crackle -> snap (default value) -> newGuid())."
-        )]
-        [DataRow(@"
+            "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'newGuid' function (storage.name -> pop -> crackle -> snap (default value) -> newGuid()).")]
+        [DataRow(
+            """
             param location string = resourceGroup().location
             param snap string = utcNow('F')
 
@@ -86,11 +88,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               sku: {
                 name: 'Standard_LRS'
               }
-            }",
+            }
+            """,
             "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'utcNow' function (storage.name -> pop -> snap (default value) -> utcNow('F')).",
-            "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'utcNow' function (storage.name -> pop -> crackle -> snap (default value) -> utcNow('F'))."
-        )]
-        [DataRow(@"
+            "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'utcNow' function (storage.name -> pop -> crackle -> snap (default value) -> utcNow('F')).")]
+        [DataRow(
+            """
             param location string = resourceGroup().location
             param snap string = '${newGuid()}${newGuid()}${utcNow('u')}'
 
@@ -104,14 +107,42 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               sku: {
                 name: 'Standard_LRS'
               }
-            }",
+            }
+            """,
             "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'newGuid' function (storage.name -> pop -> snap (default value) -> newGuid()).",
             "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'newGuid' function (storage.name -> pop -> snap (default value) -> newGuid()).",
             "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'utcNow' function (storage.name -> pop -> snap (default value) -> utcNow('u')).",
             "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'newGuid' function (storage.name -> pop -> crackle -> snap (default value) -> newGuid()).",
             "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'newGuid' function (storage.name -> pop -> crackle -> snap (default value) -> newGuid()).",
-            "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'utcNow' function (storage.name -> pop -> crackle -> snap (default value) -> utcNow('u'))."
-        )]
+            "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'utcNow' function (storage.name -> pop -> crackle -> snap (default value) -> utcNow('u')).")]
+        [DataRow(
+            """
+            param name string = sys.newGuid()
+            param location string = resourceGroup().location
+            
+            resource storage 'Microsoft.Storage/storageAccounts@2021-09-01' = {
+              name: name
+              location: location
+              kind: 'StorageV2'
+              sku: {
+                name: 'Standard_LRS'
+              }
+            }
+            """,
+            "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'newGuid' function (storage.name -> name (default value) -> sys.newGuid()).")]
+        [DataRow(
+            """
+            func newGuid() string => "abc"
+            
+            resource storage 'Microsoft.Storage/storageAccounts@2021-09-01' = {
+              name: newGuid()
+              location: location
+              kind: 'StorageV2'
+              sku: {
+                name: 'Standard_LRS'
+              }
+            }
+            """)]
         [DataTestMethod]
         public void TestRule(string text, params string[] expectedMessages)
         {
