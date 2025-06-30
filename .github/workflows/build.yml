@@ -92,6 +92,8 @@ jobs:
   build-vscode-ext:
     name: "Build: VSCode Extension"
     runs-on: ubuntu-latest
+    env:
+      TURBO_TELEMETRY_DISABLED: 1
 
     steps:
       - uses: actions/checkout@v4
