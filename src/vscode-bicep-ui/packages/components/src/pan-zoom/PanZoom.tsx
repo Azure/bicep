@@ -3,7 +3,7 @@ import type { PropsWithChildren } from "react";
 
 import { select } from "d3-selection";
 import { zoom, zoomIdentity } from "d3-zoom";
-import { frame } from "framer-motion";
+import { frame } from "motion/react";
 import { RESET } from "jotai/utils";
 import { useEffect, useRef } from "react";
 import { panZoomControlAtom, panZoomTransformAtom, useSetAtom } from "./atoms.ts";

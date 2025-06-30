@@ -24,7 +24,6 @@
     "d3-drag": "^3.0.0",
     "d3-selection": "^3.0.0",
     "d3-zoom": "^3.0.0",
-    "framer-motion": "^11.3.24",
     "jotai": "^2.9.3",
     "jotai-scope": "^0.7.2",
     "react": "^18.3.1",
@@ -58,5 +57,8 @@
     "vite-plugin-lib-inject-css": "^2.2.1",
     "vite-plugin-svgr": "^4.3.0",
     "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "motion": "^12.19.2"
   }
 }

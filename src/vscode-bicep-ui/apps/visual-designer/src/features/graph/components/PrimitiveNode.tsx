@@ -5,7 +5,7 @@ import type { Point } from "../../../utils/math";
 import type { PrimitiveNodeState } from "../atoms/nodes";
 
 import useResizeObserver from "@react-hook/resize-observer";
-import { animate, frame, transform } from "framer-motion";
+import { animate, frame, transform } from "motion/react";
 import { useStore } from "jotai";
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { pointsEqual, translateBox } from "../../../utils/math";

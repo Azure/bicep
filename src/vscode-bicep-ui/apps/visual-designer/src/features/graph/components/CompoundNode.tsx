@@ -3,7 +3,7 @@
 
 import type { CompoundNodeState } from "../atoms/nodes";
 
-import { frame } from "framer-motion";
+import { frame } from "motion/react";
 import { useStore } from "jotai";
 import { useRef } from "react";
 import { translateBox } from "../../../utils/math";
