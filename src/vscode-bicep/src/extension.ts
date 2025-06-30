@@ -183,16 +183,6 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
           }),
         );
 
-        const resourceTypeExplorerViewProvider =
-          new DraggableResourcesViewProvider(extension.extensionUri);
-
-        extension.register(
-          window.registerWebviewViewProvider(
-            "bicep-draggable-resources.view",
-            resourceTypeExplorerViewProvider,
-          ),
-        );
-
         await languageClient.start();
         getLogger().info("Bicep language service started.");
 

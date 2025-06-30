@@ -726,25 +726,7 @@
           }
         ]
       }
-    ],
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "bicep-draggable-resources",
-          "title": "Bicep Resources",
-          "icon": "icons/dumbbell.svg"
-        }
-      ]
-    },
-    "views": {
-      "bicep-draggable-resources": [
-        {
-          "type": "webview",
-          "id": "bicep-draggable-resources.view",
-          "name": "Resource Types"
-        }
-      ]
-    }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run build:prod",
