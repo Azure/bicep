@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import type { ComponentType, MouseEvent } from "react";
-import type { NodeKind } from "./features/graph/atoms";
+import type { NodeKind } from "./features/graph-core/atoms";
 
 import { PanZoomProvider } from "@vscode-bicep-ui/components";
 import { getDefaultStore, useSetAtom } from "jotai";
@@ -17,8 +17,8 @@ import {
   edgesAtom,
   nodeConfigAtom,
   nodesAtom,
-} from "./features/graph/atoms";
-import { Canvas, Graph } from "./features/graph/components";
+} from "./features/graph-core/atoms";
+import { Canvas, Graph } from "./features/graph-core/components";
 
 const store = getDefaultStore();
 const nodeConfig = store.get(nodeConfigAtom);
