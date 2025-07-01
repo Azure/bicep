@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import type { ComponentType } from "react";
-import type { NodeKind } from "./features/graph-core/atoms";
+import type { NodeKind } from "./features/graph-engine/atoms";
 
 import { PanZoomProvider } from "@vscode-bicep-ui/components";
 import { getDefaultStore, useSetAtom } from "jotai";
@@ -10,7 +10,7 @@ import { useEffect } from "react";
 import { styled } from "styled-components";
 import { ModuleDeclaration } from "./features/design-view/components/ModuleDeclaration";
 import { ResourceDeclaration } from "./features/design-view/components/ResourceDeclaration";
-import { GraphControlBar } from "./features/graph-controls/components/GraphControlBar";
+import { GraphControlBar } from "./features/design-view/components/GraphControlBar";
 import {
   addCompoundNodeAtom,
   addEdgeAtom,
@@ -18,8 +18,8 @@ import {
   edgesAtom,
   nodeConfigAtom,
   nodesAtom,
-} from "./features/graph-core/atoms";
-import { Canvas, Graph } from "./features/graph-core/components";
+} from "./features/graph-engine/atoms";
+import { Canvas, Graph } from "./features/graph-engine/components";
 
 const store = getDefaultStore();
 const nodeConfig = store.get(nodeConfigAtom);

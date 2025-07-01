@@ -59,6 +59,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@react-hook/resize-observer": "^2.0.2",
     "motion": "^12.19.2"
   }
 }

@@ -8,10 +8,11 @@ import { select } from "d3-selection";
 import { zoom, zoomIdentity } from "d3-zoom";
 import { frame } from "motion/react";
 import { RESET } from "jotai/utils";
-import { useEffect, useRef } from "react";
-import { panZoomControlAtom, panZoomTransformAtom, useSetAtom } from "./atoms.ts";
+import { useEffect, useLayoutEffect, useRef } from "react";
+import { panZoomControlAtom, panZoomDimensionsAtom, panZoomTransformAtom, useSetAtom } from "./atoms";
 
 import "d3-transition";
+import useResizeObserver from "@react-hook/resize-observer";
 
 /**
  * Props for the PanZoom component.
@@ -30,7 +31,7 @@ type PanZoomProps = PropsWithChildren<{
   /**
    * The factor by which to zoom in or out when triggered programmatically.
    */
-  scaleFactor?: number;
+  defaultScaleFactor?: number;
 
   /**
    * The zoom transition settings to use when triggered programmatically.
@@ -65,14 +66,31 @@ type PanZoomProps = PropsWithChildren<{
 export function PanZoom({
   minimumScale = 1 / 4,
   maximumScale = 4,
-  scaleFactor = 1.4,
+  defaultScaleFactor = 1.15,
   transition = { duration: 400 },
   className,
   children,
 }: PanZoomProps): JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
   const setPanZoomTransform = useSetAtom(panZoomTransformAtom);
+  const setPanZoomDimensions = useSetAtom(panZoomDimensionsAtom);
   const setPanZoomControl = useSetAtom(panZoomControlAtom);
+
+  useLayoutEffect(() => {
+    if (!ref.current) {
+      return;
+    }
+
+    const { width, height } = ref.current.getBoundingClientRect();
+    console.log("PanZoom dimensions:", { width, height });
+    setPanZoomDimensions({ width, height });
+  });
+
+  useResizeObserver(ref, (entry) => {
+    const { width, height } = entry.contentRect;
+    console.log("PanZoom dimensions:", { width, height });
+    setPanZoomDimensions({ width, height });
+  });
 
   useEffect(() => {
     if (!ref.current) {
@@ -92,15 +110,20 @@ export function PanZoom({
 
     setPanZoomControl({
       reset: () => selection.transition().duration(transition.duration).call(panZoomBehavior.transform, zoomIdentity),
-      zoomIn: () => selection.transition().duration(transition.duration).call(panZoomBehavior.scaleBy, scaleFactor),
-      zoomOut: () => selection.transition().duration(transition.duration).call(panZoomBehavior.scaleBy, 1 / scaleFactor),
+      zoomIn: (scaleFactor?: number) => selection.transition().duration(transition.duration).call(panZoomBehavior.scaleBy, scaleFactor ?? defaultScaleFactor),
+      zoomOut: (scaleFactor?: number) => selection.transition().duration(transition.duration).call(panZoomBehavior.scaleBy, 1 / (scaleFactor ?? defaultScaleFactor)),
+      transform: (x: number, y: number, scale: number) => {
+        const clammpedScale = Math.min(Math.max(scale, minimumScale), maximumScale);
+        const transform = zoomIdentity.translate(x, y).scale(clammpedScale);
+        selection.transition().duration(transition.duration).call(panZoomBehavior.transform, transform);
+      },
     });
 
     return () => {
       panZoomBehavior.on("zoom", null);
       setPanZoomControl(RESET);
     };
-  }, [maximumScale, minimumScale, scaleFactor, setPanZoomControl, setPanZoomTransform, transition.duration]);
+  }, [maximumScale, minimumScale, defaultScaleFactor, setPanZoomControl, setPanZoomTransform, transition.duration]);
 
   return (
     <div className={className} ref={ref} data-testid="pan-zoom">
