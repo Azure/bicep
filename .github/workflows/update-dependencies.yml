@@ -29,11 +29,11 @@ jobs:
         run: |
           npm install -g npm-check-updates
           dotnet tool install -g dotnet-outdated-tool
-      
+
       - name: Update Dependencies
         continue-on-error: true
         run: ./scripts/update_dependencies.sh
-      
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
