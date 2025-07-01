@@ -35,7 +35,7 @@ namespace Bicep.Core.Semantics.Namespaces
 {
     public static class SystemNamespaceType
     {
-        private readonly record struct LoadTextContentResult(IOUri FileUri, string Content);
+        private record LoadTextContentResult(IOUri FileUri, string Content);
 
         public const string BuiltInName = "sys";
         public const long UniqueStringHashLength = 13;
