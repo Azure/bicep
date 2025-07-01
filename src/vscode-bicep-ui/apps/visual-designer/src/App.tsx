@@ -8,8 +8,8 @@ import { PanZoomProvider } from "@vscode-bicep-ui/components";
 import { getDefaultStore, useSetAtom } from "jotai";
 import { useAtomCallback } from "jotai/utils";
 import { useCallback, useEffect } from "react";
-import { ModuleDeclaration } from "./features/declarations/components/ModuleDeclaration";
-import { ResourceDeclaration } from "./features/declarations/components/ResourceDeclaration";
+import { ModuleDeclaration } from "./features/design-view/components/ModuleDeclaration";
+import { ResourceDeclaration } from "./features/design-view/components/ResourceDeclaration";
 import {
   addCompoundNodeAtom,
   addEdgeAtom,
