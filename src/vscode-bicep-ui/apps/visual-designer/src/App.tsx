@@ -1,15 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { ComponentType, MouseEvent } from "react";
+import type { ComponentType } from "react";
 import type { NodeKind } from "./features/graph-core/atoms";
 
 import { PanZoomProvider } from "@vscode-bicep-ui/components";
 import { getDefaultStore, useSetAtom } from "jotai";
-import { useAtomCallback } from "jotai/utils";
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
+import { styled } from "styled-components";
 import { ModuleDeclaration } from "./features/design-view/components/ModuleDeclaration";
 import { ResourceDeclaration } from "./features/design-view/components/ResourceDeclaration";
+import { GraphControlBar } from "./features/graph-controls/components/GraphControlBar";
 import {
   addCompoundNodeAtom,
   addEdgeAtom,
@@ -22,6 +23,13 @@ import { Canvas, Graph } from "./features/graph-core/components";
 
 const store = getDefaultStore();
 const nodeConfig = store.get(nodeConfigAtom);
+
+const $ControlBarContainer = styled.div`
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 100;
+`;
 
 store.set(nodeConfigAtom, {
   ...nodeConfig,
@@ -39,19 +47,6 @@ export function App() {
   const addAtomicNode = useSetAtom(addAtomicNodeAtom);
   const addCompoundNode = useSetAtom(addCompoundNodeAtom);
   const addEdge = useSetAtom(addEdgeAtom);
-
-  const layout = useAtomCallback(
-    useCallback((get, set, event: MouseEvent<HTMLButtonElement>) => {
-      event.stopPropagation();
-
-      const nodes = get(nodesAtom);
-      for (const node of Object.values(nodes)) {
-        if (node.kind === "atomic") {
-          set(node.originAtom, { ...get(node.originAtom) });
-        }
-      }
-    }, []),
-  );
 
   useEffect(() => {
     addAtomicNode(
@@ -76,11 +71,11 @@ export function App() {
 
   return (
     <PanZoomProvider>
+      <$ControlBarContainer>
+        <GraphControlBar />
+      </$ControlBarContainer>
       <Canvas>
         <Graph />
-        <button style={{ position: "absolute", zIndex: 100, left: 10, top: 10 }} onClick={layout}>
-          Layout
-        </button>
       </Canvas>
     </PanZoomProvider>
   );
