@@ -1,17 +1,17 @@
 program -> statement* EOF 
 statement -> 
   usingDecl |
-  parameterDecl |
+  paramDecl |
   NL
 
 usingDecl ->
-  "using" stringLiteral NL
+  "using" stringLiteral | "none" NL
 
+paramDecl ->
+  "param" IDENTIFIER(name) "=" literalValue NL
 
-  importDecl -> decorator* "import" IDENTIFIER(providerName) "as" IDENTIFIER(aliasName) object? NL
-
-parameterDecl ->
-  "parameter" IDENTIFIER(name) "=" literalValue NL
+varDecl ->
+  "var" IDENTIFIER(name) "=" literalValue NL
 
 stringLiteral -> "'" STRINGCHAR* "'"
 
