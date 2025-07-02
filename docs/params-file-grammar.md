@@ -5,7 +5,7 @@ statement ->
   NL
 
 usingDecl ->
-  "using" stringLiteral | "none" NL
+  "using" (stringLiteral | "none") NL
 
 paramDecl ->
   "param" IDENTIFIER(name) "=" literalValue NL
