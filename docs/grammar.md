@@ -7,9 +7,9 @@ statement ->
   extensionDecl |
   compileTimeImportDecl |
   metadataDecl |
-  parameterDecl |
+  paramDecl |
   typeDecl |
-  variableDecl |
+  varDecl |
   resourceDecl |
   moduleDecl |
   testDecl |
@@ -42,14 +42,14 @@ compileTimeImportFromClause -> "from" interpString(path)
 
 metadataDecl -> "metadata" IDENTIFIER(name) "=" expression NL
 
-parameterDecl ->
-  decorator* "parameter" IDENTIFIER(name) typeExpression parameterDefaultValue? NL |
-  decorator* "parameter" IDENTIFIER(name) "resource" interpString(type) parameterDefaultValue? NL |
+paramDecl ->
+  decorator* "param" IDENTIFIER(name) typeExpression parameterDefaultValue? NL |
+  decorator* "param" IDENTIFIER(name) "resource" interpString(type) parameterDefaultValue? NL |
 parameterDefaultValue -> "=" expression
 
 typeDecl -> decorator* "type" IDENTIFIER(name) "=" typeExpression NL
 
-variableDecl -> decorator* "variable" IDENTIFIER(name) "=" expression NL
+varDecl -> decorator* "var" IDENTIFIER(name) "=" expression NL
 
 resourceDecl -> decorator* "resource" IDENTIFIER(name) interpString(type) "existing"? "=" (ifCondition | object | forExpression) NL
 
