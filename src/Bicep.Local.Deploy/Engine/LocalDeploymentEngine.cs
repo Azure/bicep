@@ -16,7 +16,6 @@ using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs.Exceptions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
 using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Bicep.Local.Deploy.Engine;
 
@@ -56,12 +55,9 @@ public class LocalDeploymentEngine
     {
         var template = TemplateParsingEngine.ParseTemplate(templateString);
 
-        var parameters = parametersString.FromJson<DeploymentParametersDefinition>().Parameters;
+        var paramsFileContent = parametersString.FromJson<DeploymentParametersDefinition>();
 
-        // TODO(kylealbert): Update this when the parameters definition model is updated.
-        var extensionConfigs = JToken.Parse(parametersString).SelectToken("extensionConfigs")?.ToString().FromJson<OrdinalDictionary<OrdinalDictionary<DeploymentExtensionConfigItem>>>();
-
-        return (template, parameters, extensionConfigs);
+        return (template, paramsFileContent.Parameters, paramsFileContent.ExtensionConfigs);
     }
 
     public async Task StartDeployment(string name, string templateString, string parametersString, CancellationToken cancellationToken)

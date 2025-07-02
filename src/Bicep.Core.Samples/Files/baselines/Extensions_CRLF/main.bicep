@@ -12,10 +12,7 @@ param boolParam1 bool
 // BEGIN: Extension declarations
 
 extension az
-extension kubernetes with {
-  kubeConfig: 'DELETE'
-  namespace: 'DELETE'
-} as k8s
+extension kubernetes as k8s
 
 //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
 
@@ -54,8 +51,8 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
   name: 'moduleWithExtsWithAliases'
   extensionConfigs: {
     k8s: {
-      kubeConfig: 'kubeConfig2FromModule'
-      namespace: 'ns2FromModule'
+      kubeConfig: 'kubeConfig2'
+      namespace: 'ns2'
     }
   }
 }
@@ -64,8 +61,7 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
   name: 'moduleWithExtsWithoutAliases'
   extensionConfigs: {
     kubernetes: {
-      kubeConfig: 'kubeConfig2FromModule'
-      namespace: 'ns2FromModule'
+      kubeConfig: 'kubeConfig2'
     }
   }
 }

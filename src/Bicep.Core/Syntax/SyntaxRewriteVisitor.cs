@@ -369,7 +369,7 @@ namespace Bicep.Core.Syntax
         {
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
             hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
-            hasChanges |= TryRewriteStrict(syntax.SpecificationString, out var specification);
+            hasChanges |= TryRewriteStrict(syntax.Alias, out var alias);
             hasChanges |= TryRewriteStrict(syntax.WithClause, out var withClause);
 
             if (!hasChanges)
@@ -377,7 +377,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ExtensionConfigAssignmentSyntax(leadingNodes, keyword, specification, withClause);
+            return new ExtensionConfigAssignmentSyntax(leadingNodes, keyword, alias, withClause);
         }
 
         void ISyntaxVisitor.VisitExtensionConfigAssignmentSyntax(ExtensionConfigAssignmentSyntax syntax) => ReplaceCurrent(syntax, ReplaceExtensionConfigAssignmentSyntax);

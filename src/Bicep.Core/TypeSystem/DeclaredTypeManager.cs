@@ -1210,18 +1210,12 @@ namespace Bicep.Core.TypeSystem
                 return failureDiagnostic.IsError() ? ErrorType.Create(failureDiagnostic) : null;
             }
 
-            // TODO(kylealbert): this needs some thought with spec strings, ext names, and aliases
-            if (syntax.TryGetSymbolName() is not { } symbolName)
+            if (syntax.TryGetAlias() is not { } extAlias || !semanticModel.Extensions.TryGetValue(extAlias, out var extMetadata))
             {
                 return null;
             }
 
-            if (semanticModel.Extensions.TryGetValue(symbolName, out var extensionMetadata))
-            {
-                return extensionMetadata.NamespaceType?.ConfigurationType;
-            }
-
-            return null;
+            return extMetadata.ConfigAssignmentDeclaredType;
         }
 
         private DeclaredTypeAssignment? GetExtensionConfigAssignmentType(ExtensionConfigAssignmentSyntax extConfigAssignment)
@@ -1860,10 +1854,17 @@ namespace Bicep.Core.TypeSystem
 
                     return TryCreateAssignment(parameterAssignmentTypeAssignment.Reference.Type, syntax);
 
+                case ExtensionConfigAssignmentSyntax:
+                    if (GetDeclaredTypeAssignment(parent) is not { } extConfigAssignment)
+                    {
+                        return null;
+                    }
+
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(extConfigAssignment.Reference.Type, syntax), syntax);
 
                 case SpreadExpressionSyntax when GetClosestMaybeTypedAncestor(parent) is { } grandParent &&
                     GetDeclaredTypeAssignment(grandParent)?.Reference is ObjectType enclosingObjectType:
-                    var type = TypeHelper.MakeRequiredPropertiesOptional(enclosingObjectType);
+                    var type = enclosingObjectType.WithModifiedProperties(p => p.WithoutFlags(TypePropertyFlags.Required));
 
                     return TryCreateAssignment(type, syntax);
 
@@ -2149,16 +2150,15 @@ namespace Bicep.Core.TypeSystem
 
                 foreach (var extension in moduleSemanticModel.Extensions.Values)
                 {
-                    if (extension.NamespaceType is not { } namespaceType ||
-                        namespaceType.ConfigurationType is not { } configurationType)
+                    if (extension.ConfigAssignmentDeclaredType is null)
                     {
                         continue;
                     }
 
                     var extAliasProperty = new NamedTypeProperty(
                         extension.Alias,
-                        configurationType,
-                        namespaceType.IsConfigurationRequired ? TypePropertyFlags.Required | TypePropertyFlags.WriteOnly : TypePropertyFlags.WriteOnly);
+                        extension.ConfigAssignmentDeclaredType!.Type,
+                        TypePropertyFlags.WriteOnly | (extension.RequiresConfigAssignment ? TypePropertyFlags.Required : TypePropertyFlags.None));
 
                     extensionConfigs.Add(extAliasProperty);
                 }

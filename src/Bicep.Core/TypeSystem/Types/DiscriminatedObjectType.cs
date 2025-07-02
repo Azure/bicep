@@ -45,6 +45,14 @@ namespace Bicep.Core.TypeSystem.Types
             DiscriminatorProperty = new NamedTypeProperty(discriminatorKey, DiscriminatorKeysUnionType, discriminatorPropertyFlags);
         }
 
+        private DiscriminatedObjectType(DiscriminatedObjectType other, ImmutableDictionary<string, ObjectType> unionMembersByKey)
+            : base(other.Name, other.ValidationFlags)
+        {
+            DiscriminatorProperty = other.DiscriminatorProperty;
+            DiscriminatorKeysUnionType = other.DiscriminatorKeysUnionType;
+            UnionMembersByKey = unionMembersByKey;
+        }
+
         public override TypeKind TypeKind => TypeKind.DiscriminatedObject;
 
         public override string FormatNameForCompoundTypes() => Name.IndexOf(' ') > -1 ? WrapTypeName() : Name;
@@ -74,5 +82,8 @@ namespace Bicep.Core.TypeSystem.Types
 
             return null;
         }
+
+        public DiscriminatedObjectType WithModifiedMembers(Func<ObjectType, ObjectType> modifyMemberFn) =>
+            new(this, UnionMembersByKey.ToImmutableDictionary(kvp => kvp.Key, kvp => modifyMemberFn(kvp.Value)));
     }
 }

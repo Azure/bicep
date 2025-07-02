@@ -16,11 +16,8 @@ param boolParam1 bool
 
 extension az
 //@[010:012) ImportedNamespace az. Type: az. Declaration start char: 0, length: 12
-extension kubernetes with {
-  kubeConfig: 'DELETE'
-  namespace: 'DELETE'
-} as k8s
-//@[005:008) ImportedNamespace k8s. Type: k8s. Declaration start char: 0, length: 84
+extension kubernetes as k8s
+//@[024:027) ImportedNamespace k8s. Type: k8s. Declaration start char: 0, length: 27
 
 //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
 
@@ -60,23 +57,22 @@ resource aks 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
 // BEGIN: Extension configs for modules
 
 module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[007:032) Module moduleWithExtsWithAliases. Type: module. Declaration start char: 0, length: 249
+//@[007:032) Module moduleWithExtsWithAliases. Type: module. Declaration start char: 0, length: 229
   name: 'moduleWithExtsWithAliases'
   extensionConfigs: {
     k8s: {
-      kubeConfig: 'kubeConfig2FromModule'
-      namespace: 'ns2FromModule'
+      kubeConfig: 'kubeConfig2'
+      namespace: 'ns2'
     }
   }
 }
 
 module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias.bicep' = {
-//@[007:035) Module moduleWithExtsWithoutAliases. Type: module. Declaration start char: 0, length: 265
+//@[007:035) Module moduleWithExtsWithoutAliases. Type: module. Declaration start char: 0, length: 221
   name: 'moduleWithExtsWithoutAliases'
   extensionConfigs: {
     kubernetes: {
-      kubeConfig: 'kubeConfig2FromModule'
-      namespace: 'ns2FromModule'
+      kubeConfig: 'kubeConfig2'
     }
   }
 }

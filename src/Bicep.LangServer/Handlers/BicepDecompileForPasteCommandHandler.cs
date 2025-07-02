@@ -125,7 +125,7 @@ namespace Bicep.LanguageServer.Handlers
             BaseParser parser = languageId switch
             {
                 LanguageId.Bicep => new Parser(newContents),
-                LanguageId.BicepParams => new ParamsParser(newContents),
+                LanguageId.BicepParams => new ParamsParser(newContents, null), // At the current time, the feature provider is only used to change diagnostic messages.
                 _ => throw new ArgumentException($"Unexpected languageId value {languageId}"),
             };
             var program = parser.Program();
