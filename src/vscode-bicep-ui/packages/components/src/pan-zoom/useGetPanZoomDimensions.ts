@@ -19,10 +19,6 @@ export function useGetPanZoomDimensions() {
   const store = useStore();
 
   return useCallback(() => {
-    const panZoomDimensions = store.get(panZoomDimensionsAtom);
-
-    console.log("Current PanZoom dimensions:", panZoomDimensions);
-
     return store.get(panZoomDimensionsAtom);
   }, [store]);
 }

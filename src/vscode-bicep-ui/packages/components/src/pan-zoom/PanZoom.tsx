@@ -67,7 +67,7 @@ export function PanZoom({
   minimumScale = 1 / 4,
   maximumScale = 4,
   defaultScaleFactor = 1.15,
-  transition = { duration: 250 },
+  transition = { duration: 400 },
   className,
   children,
 }: PanZoomProps): JSX.Element {
@@ -82,13 +82,11 @@ export function PanZoom({
     }
 
     const { width, height } = ref.current.getBoundingClientRect();
-    console.log("PanZoom dimensions:", { width, height });
     setPanZoomDimensions({ width, height });
   });
 
   useResizeObserver(ref, (entry) => {
     const { width, height } = entry.contentRect;
-    console.log("PanZoom dimensions:", { width, height });
     setPanZoomDimensions({ width, height });
   });
 
@@ -99,7 +97,6 @@ export function PanZoom({
 
     const panZoomBehavior = zoom<HTMLDivElement, unknown>()
       .scaleExtent([minimumScale, maximumScale])
-      .wheelDelta((event) => -event.deltaY * (event.deltaMode === 1 ? 0.05 : 0.0015))
       .on("zoom", ({ transform }: D3ZoomEvent<HTMLDivElement, unknown>) => {
         frame.render(() => {
           const { x, y, k: scale } = transform;
