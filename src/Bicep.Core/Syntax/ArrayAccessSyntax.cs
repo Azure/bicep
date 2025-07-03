@@ -30,7 +30,7 @@ namespace Bicep.Core.Syntax
 
         public Token? FromEndMarker { get; }
 
-        public SyntaxBase IndexExpression { get; }
+        public override SyntaxBase IndexExpression { get; }
 
         public Token CloseSquare { get; }
 
