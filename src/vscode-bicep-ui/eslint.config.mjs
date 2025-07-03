@@ -36,6 +36,14 @@ export default tseslint.config(
           template: `// Copyright (c) Microsoft Corporation.\n// Licensed under the MIT License.\n\n`,
         },
       ],
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          args: "all",
+          argsIgnorePattern: "^_",
+        },
+      ],
     },
   },
 );

@@ -14,8 +14,11 @@ export const { useAtom, useAtomValue, useSetAtom, useStore } = isolation;
 
 export const panZoomTransformAtom = atom({ x: 0, y: 0, scale: 1 });
 
+export const panZoomDimensionsAtom = atom({ height: 0, width: 0 });
+
 export const panZoomControlAtom = atomWithReset({
-  zoomIn: () => {},
-  zoomOut: () => {},
+  zoomIn: (_scaleFactor?: number) => {},
+  zoomOut: (_scaleFactor?: number) => {},
   reset: () => {},
+  transform: (_x: number, _y: number, _scale: number) => {},
 });
