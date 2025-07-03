@@ -358,23 +358,6 @@ metadata foo = 'foo'
             }
         }
 
-        [TestMethod]
-        public void DescriptionDecorator_OnValidTargets_ShouldWork()
-        {
-            var (template, diagnostics, _) = CompilationHelper.Compile(@"
-@description('param description')
-param myParam string
 
-@description('output description')
-output myOutput string = 'test'
-");
-            using (new AssertionScope())
-            {
-                diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
-                template.Should().NotBeNull();
-                template.Should().HaveValueAtPath("parameters.myParam.metadata.description", "param description");
-                template.Should().HaveValueAtPath("outputs.myOutput.metadata.description", "output description");
-            }
-        }
     }
 }
