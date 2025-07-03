@@ -25,6 +25,16 @@ type TargetFile =
   | "activeEditor";
 type Properties = TelemetryProperties & { targetFile: TargetFile };
 
+export enum FileTypes {
+  Bicep,
+  BicepAndBicepParam
+}
+
+export enum MustBeSaved {
+  Yes,
+  No
+}
+
 /**
  * Determines which bicep file to target for a command.
  * @summary
@@ -41,14 +51,15 @@ export async function findOrCreateActiveBicepFile(
   context: IActionContext,
   documentUri: Uri | undefined,
   prompt: string,
-  includeBicepParam = false,
+  includeFileTypes: FileTypes = FileTypes.Bicep,
+  fileMustBeSaved: MustBeSaved = MustBeSaved.Yes
 ): Promise<Uri> {
   const properties = <Properties>context.telemetry.properties;
   const ui = context.ui;
 
   const matchesLanguageId = (editor: TextEditor) => {
     const languageId = editor.document.languageId;
-    return languageId === bicepLanguageId || (includeBicepParam && languageId === bicepParamLanguageId);
+    return languageId === bicepLanguageId || (includeFileTypes == FileTypes.BicepAndBicepParam && languageId === bicepParamLanguageId);
   };
 
   if (documentUri) {
@@ -56,16 +67,16 @@ export async function findOrCreateActiveBicepFile(
     // The only scenario where we should *not* have a documentUri is when a command is invoked through the command
     //   palette or through a shortcut key.
     properties.targetFile = "rightClickOrMenu";
-    return documentUri;
+    return verifyFileSaved(documentUri, fileMustBeSaved);
   }
 
   const activeEditor = window.activeTextEditor;
   if (activeEditor && matchesLanguageId(activeEditor)) {
     properties.targetFile = "activeEditor";
-    return activeEditor.document.uri;
+    return verifyFileSaved(activeEditor.document.uri, fileMustBeSaved);
   }
 
-  const globPattern = includeBicepParam ? "**/*.{bicep, bicepparam}" : "**/*.bicep";
+  const globPattern = includeFileTypes == FileTypes.BicepAndBicepParam ? "**/*.{bicep, bicepparam}" : "**/*.bicep";
 
   const workspaceBicepFiles = (await workspace.findFiles(globPattern, undefined)).filter((f) => !!f.fsPath);
   const visibleBicepFiles = window.visibleTextEditors // List of the active editor in each editor tab group
@@ -81,7 +92,7 @@ export async function findOrCreateActiveBicepFile(
   if (bicepFilesSorted.length === 1) {
     // Only a single Bicep file in the workspace/visible editors - choose it
     properties.targetFile = workspaceBicepFiles.length === 1 ? "singleInWorkspace" : "singleInVisibleEditors";
-    return bicepFilesSorted[0];
+    return verifyFileSaved(bicepFilesSorted[0], fileMustBeSaved);
   }
 
   if (bicepFilesSorted.length === 0) {
@@ -99,7 +110,19 @@ export async function findOrCreateActiveBicepFile(
   const response = await ui.showQuickPick(entries, {
     placeHolder: prompt,
   });
-  return response.data;
+  return verifyFileSaved(response.data, fileMustBeSaved);
+}
+
+function verifyFileSaved(uri: Uri, fileMustBeSaved: MustBeSaved): Uri {
+  if (fileMustBeSaved === MustBeSaved.No) {
+    return uri;
+  }
+
+  if (uri.scheme == 'untitled') {
+    throw new Error(`"${uri.fsPath}" has never been saved. Save it first and then try again.`);
+  }
+
+  return uri;
 }
 
 export async function findOrCreateActiveBicepParamFile(
