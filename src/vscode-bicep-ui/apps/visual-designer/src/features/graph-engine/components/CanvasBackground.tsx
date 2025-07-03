@@ -7,12 +7,24 @@ import { styled } from "styled-components";
 
 const $Svg = styled.svg`
   overflow: visible;
+  background-color: #f5f5f5;
   position: absolute;
   pointer-events: none;
 `;
 
 const defaultSpacing = 16;
 const defaultDotRadius = 1;
+const minScale = 0.95;
+
+function getEffectiveScale(actualScale: number): number {
+  // This creates the looping effect where dots get dense, then suddenly sparse again
+  if (actualScale <= minScale) {
+    const scaleFactor = Math.floor(Math.log2(minScale / actualScale));
+    return actualScale * Math.pow(2, scaleFactor);
+  }
+
+  return actualScale;
+}
 
 export function CanvasBackground() {
   const patternRef = useRef<SVGPatternElement | null>(null);
@@ -23,7 +35,8 @@ export function CanvasBackground() {
       return;
     }
 
-    const spacing = defaultSpacing * scale;
+    const effectiveScale = getEffectiveScale(scale);
+    const spacing = defaultSpacing * effectiveScale;
 
     const patternX = (x % spacing).toString();
     const patternY = (y % spacing).toString();
@@ -35,15 +48,15 @@ export function CanvasBackground() {
     patternRef.current.setAttribute("width", width);
     patternRef.current.setAttribute("height", height);
 
-    const offsetX = (-spacing / 2).toString();
-    const offsetY = offsetX;
-    const patternTransform = `translate(${offsetX},${offsetY})`;
+    const offset = (-spacing / 2).toString();
+    const patternTransform = `translate(${offset},${offset})`;
     patternRef.current.setAttribute("patternTransform", patternTransform);
 
-    const dotRadius = (defaultDotRadius * scale).toString();
-    circleRef.current.setAttribute("cx", dotRadius);
-    circleRef.current.setAttribute("cy", dotRadius);
-    circleRef.current.setAttribute("r", dotRadius);
+    const dotRadius = defaultDotRadius * effectiveScale;
+    const clampedDotRadius = Math.max(dotRadius, 0.5).toString();
+    circleRef.current.setAttribute("cx", clampedDotRadius);
+    circleRef.current.setAttribute("cy", clampedDotRadius);
+    circleRef.current.setAttribute("r", clampedDotRadius);
   });
 
   return (
@@ -59,7 +72,7 @@ export function CanvasBackground() {
           patternUnits="userSpaceOnUse"
           patternTransform={`translate(-${defaultSpacing / 2},-${defaultSpacing / 2})`}
         >
-          <circle ref={circleRef} cx="1" cy="1" r="1" fill="#e6e6e6" />
+          <circle ref={circleRef} cx="1" cy="1" r="1" fill="#c4c4c4" />
         </pattern>
       </defs>
       <rect x="0" y="0" width="100%" height="100%" fill="url(#figma-like-dots)" />
