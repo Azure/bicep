@@ -1908,6 +1908,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP419",
                 $"Namespace name \"{name}\", and cannot be used an extension name.");
 
+
             public Diagnostic ScopeKindUnresolvableAtCompileTime() => CoreError(
                 "BCP420",
                 "The scope could not be resolved at compile time because the supplied expression is ambiguous or too complex. Scoping expressions must be reducible to a specific kind of scope without knowledge of parameter values.");
@@ -1921,6 +1922,11 @@ namespace Bicep.Core.Diagnostics
                 $"A resource of type \"{baseType}\" may or may not exist when this function is called, which could cause the deployment to fail.")
                 with
             { Fixes = [AsNonNullable(expression)] };
+
+            public Diagnostic ErrorOccuredBrowsingDirectory(string failureMessage) => CoreError(
+                "BCP423",
+                $"An error occured browsing directory. {failureMessage}"
+            );
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
