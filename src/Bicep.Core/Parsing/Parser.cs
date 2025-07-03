@@ -7,7 +7,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parsing
 {
-    public class Parser(string text) : BaseParser(text, null)
+    public class Parser(string text) : BaseParser(text)
     {
         public override ProgramSyntax Program()
         {

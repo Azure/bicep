@@ -9,8 +9,11 @@ namespace Bicep.Core.Parsing
 {
     public class ParamsParser : BaseParser
     {
-        public ParamsParser(string text, IFeatureProvider? featureProvider) : base(text, featureProvider)
+        private readonly IFeatureProvider featureProvider;
+
+        public ParamsParser(string text, IFeatureProvider featureProvider) : base(text)
         {
+            this.featureProvider = featureProvider;
         }
 
         public override ProgramSyntax Program()
@@ -64,10 +67,10 @@ namespace Bicep.Core.Parsing
                             LanguageConstants.ImportKeyword => this.CompileTimeImportDeclaration(ExpectKeyword(LanguageConstants.ImportKeyword), leadingNodes),
                             LanguageConstants.ExtensionConfigKeyword => this.ExtensionConfigAssignment(leadingNodes),
                             LanguageConstants.TypeKeyword => this.TypeDeclaration(leadingNodes),
-                            _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration(featureProvider?.ModuleExtensionConfigsEnabled ?? false)),
+                            _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration(featureProvider.ModuleExtensionConfigsEnabled)),
                         },
                         TokenType.NewLine => this.NewLine(),
-                        _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration(featureProvider?.ModuleExtensionConfigsEnabled ?? false)),
+                        _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration(featureProvider.ModuleExtensionConfigsEnabled)),
                     };
 
                     string? ValidateKeyword(string keyword) =>
