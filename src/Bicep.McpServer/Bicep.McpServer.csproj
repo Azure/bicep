@@ -8,7 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.771" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.5" />
+    <PackageReference Include="Microsoft.WindowsAzure.ResourceStack" Version="6.0.0.1318" />
     <PackageReference Include="ModelContextProtocol" Version="0.3.0-preview.1" />
   </ItemGroup>
 
