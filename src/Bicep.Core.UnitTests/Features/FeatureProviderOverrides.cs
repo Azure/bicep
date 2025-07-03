@@ -24,7 +24,6 @@ public record FeatureProviderOverrides(
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
     bool? ModuleExtensionConfigsEnabled = default,
     bool? DesiredStateConfigurationEnabled = default,
-    bool? ExternalInputFunctionEnabled = default,
     bool? OnlyIfNotExistsEnabled = default,
     bool? ModuleIdentityEnabled = default)
 {
@@ -45,7 +44,6 @@ public record FeatureProviderOverrides(
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
         bool? ModuleExtensionConfigsEnabled = default,
         bool? DesiredStateConfigurationEnabled = default,
-        bool? ExternalInputFunctionEnabled = default,
         bool? OnlyIfNotExistsEnabled = default,
         bool? ModuleIdentityEnabled = default
     ) : this(
@@ -65,7 +63,6 @@ public record FeatureProviderOverrides(
         AssemblyVersion,
         ModuleExtensionConfigsEnabled,
         DesiredStateConfigurationEnabled,
-        ExternalInputFunctionEnabled,
         OnlyIfNotExistsEnabled,
         ModuleIdentityEnabled)
     { }

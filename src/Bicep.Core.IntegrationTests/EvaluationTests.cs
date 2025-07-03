@@ -1347,10 +1347,7 @@ param nestedObj = {
 "
 ;
 
-        var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ExternalInputFunctionEnabled: true));
-
         var paramResult = CompilationHelper.CompileParams(
-            services,
             ("parameters.bicepparam", bicepparamText), ("main.bicep", bicepFile));
 
         var templateResult = CompilationHelper.Compile(bicepFile);
