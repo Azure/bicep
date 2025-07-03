@@ -340,5 +340,22 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
                 template.Should().BeNull();
             }
         }
+
+        [TestMethod]
+        public void DescriptionDecorator_OnMetadata_ShouldProduceError()
+        {
+            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+@description('description')
+metadata foo = 'foo'
+");
+            using (new AssertionScope())
+            {
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+                {
+                    ("BCP269", DiagnosticLevel.Error, "Function \"description\" cannot be used as a metadata decorator."),
+                });
+                template.Should().BeNull();
+            }
+        }
     }
 }

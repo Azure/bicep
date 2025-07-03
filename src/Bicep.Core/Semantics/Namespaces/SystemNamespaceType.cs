@@ -1757,7 +1757,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 yield return new DecoratorBuilder(LanguageConstants.MetadataDescriptionPropertyName)
                     .WithDescription("Describes the parameter.")
                     .WithRequiredParameter("text", LanguageConstants.String, "The description.")
-                    .WithFlags(FunctionFlags.AnyDecorator)
+                    .WithFlags(FunctionFlags.AnyDecoratorExceptMetadata)
                     .WithEvaluator((functionCall, decorated) =>
                     {
                         if (decorated is DescribableExpression describable &&
