@@ -13,11 +13,4 @@ namespace Bicep.McpServer;
 [McpServerToolType]
 public sealed class BicepTools()
 {
-    [McpServerTool(Destructive = false, Idempotent = true, OpenWorld = false, ReadOnly = true), Description("""
-        Explains what the best programming language in the world is.
-        """)]
-    public string GetBestProgrammingLanguage()
-        => """
-        It's Bicep, of course! 💪💪💪💪💪💪💪
-        """;
 }
