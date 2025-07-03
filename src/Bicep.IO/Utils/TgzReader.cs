@@ -22,13 +22,13 @@ namespace Bicep.IO.Utils
             this.tarReader = new TarReader(gzipStream);
         }
 
-        public (string Name, string Contents)? GetNextEntry()
+        public (string Name, BinaryData Data)? GetNextEntry()
         {
             if (this.tarReader.GetNextEntry() is { } tarEntry)
             {
-                string contents = tarEntry.DataStream is not null ? new StreamReader(tarEntry.DataStream).ReadToEnd() : "";
+                var data = tarEntry.DataStream is not null ? BinaryData.FromStream(tarEntry.DataStream) : BinaryData.Empty;
 
-                return (tarEntry.Name, contents);
+                return (tarEntry.Name, data);
             }
 
             return null;

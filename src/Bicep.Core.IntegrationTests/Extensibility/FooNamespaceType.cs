@@ -14,11 +14,6 @@ public static class FooNamespaceType
 {
     public const string BuiltInName = "foo";
 
-    public static readonly ImmutableHashSet<string> UniqueIdentifierProperties =
-    [
-        "uniqueName",
-    ];
-
     public static NamespaceSettings Settings { get; } = new(
         IsSingleton: true,
         BicepExtensionName: BuiltInName,
@@ -36,7 +31,7 @@ public static class FooNamespaceType
                 ResourceFlags.None,
                 new ObjectType("application", TypeSymbolValidationFlags.Default, new[]
                 {
-                    new NamedTypeProperty("uniqueName", LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.SystemProperty),
+                    new NamedTypeProperty("uniqueName", LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.ResourceIdentifier | TypePropertyFlags.SystemProperty),
                     new NamedTypeProperty("appId", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                 }, null)),
         }.ToImmutableDictionary(x => x.TypeReference);
@@ -63,7 +58,7 @@ public static class FooNamespaceType
                 resourceType.ReadOnlyScopes,
                 resourceType.Flags,
                 resourceType.Body,
-                UniqueIdentifierProperties);
+                resourceType.GetUniqueIdentifierPropertyNames());
         }
 
         public bool HasDefinedType(ResourceTypeReference typeReference)

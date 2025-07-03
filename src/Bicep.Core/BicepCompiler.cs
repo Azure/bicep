@@ -14,6 +14,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core;
 
@@ -22,21 +23,21 @@ public class BicepCompiler
     private readonly IEnvironment environment;
     private readonly INamespaceProvider namespaceProvider;
     private readonly IBicepAnalyzer bicepAnalyzer;
-    private readonly IFileResolver fileResolver;
+    private readonly IFileExplorer fileExplorer;
     private readonly IModuleDispatcher moduleDispatcher;
 
     public BicepCompiler(
         IEnvironment environment,
         INamespaceProvider namespaceProvider,
         IBicepAnalyzer bicepAnalyzer,
-        IFileResolver fileResolver,
+        IFileExplorer fileExplorer,
         IModuleDispatcher moduleDispatcher,
         ISourceFileFactory sourceFileFactory)
     {
         this.environment = environment;
         this.namespaceProvider = namespaceProvider;
         this.bicepAnalyzer = bicepAnalyzer;
-        this.fileResolver = fileResolver;
+        this.fileExplorer = fileExplorer;
         this.moduleDispatcher = moduleDispatcher;
         this.SourceFileFactory = sourceFileFactory;
     }
@@ -46,7 +47,7 @@ public class BicepCompiler
     public Compilation CreateCompilationWithoutRestore(Uri bicepUri, IReadOnlyWorkspace? workspace = null, bool markAllForRestore = false)
     {
         workspace ??= new Workspace();
-        var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, workspace, this.SourceFileFactory, bicepUri, markAllForRestore);
+        var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileExplorer, moduleDispatcher, workspace, this.SourceFileFactory, bicepUri, markAllForRestore);
 
         return Create(sourceFileGrouping);
     }
@@ -71,7 +72,7 @@ public class BicepCompiler
         if (await moduleDispatcher.RestoreArtifacts(ArtifactHelper.GetValidArtifactReferences(artifactsToRestore), forceRestore: forceRestore))
         {
             // modules had to be restored - recompile
-            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(fileResolver, moduleDispatcher, workspace, this.SourceFileFactory, sourceFileGrouping);
+            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(fileExplorer, moduleDispatcher, workspace, this.SourceFileFactory, sourceFileGrouping);
         }
         return Create(sourceFileGrouping);
     }
@@ -85,7 +86,7 @@ public class BicepCompiler
         if (await moduleDispatcher.RestoreArtifacts(ArtifactHelper.GetValidArtifactReferences(artifactsToRestore), forceRestore))
         {
             // artifacts had to be restored - recompile
-            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(fileResolver, moduleDispatcher, workspace, this.SourceFileFactory, sourceFileGrouping);
+            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(fileExplorer, moduleDispatcher, workspace, this.SourceFileFactory, sourceFileGrouping);
         }
 
         return GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, [.. artifactsToRestore], forceRestore);
@@ -113,7 +114,7 @@ public class BicepCompiler
                 if (artifact.Syntax is not null and not ExtensionDeclarationSyntax &&
                     DiagnosticForModule(grouping, artifact.Syntax) is { } diagnostic)
                 {
-                    yield return (artifact.Origin, diagnostic);
+                    yield return (artifact.ReferencingFile, diagnostic);
                 }
             }
         }

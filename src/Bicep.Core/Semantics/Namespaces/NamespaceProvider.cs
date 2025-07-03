@@ -9,7 +9,7 @@ using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
-using Bicep.Core.TypeSystem.Providers.MicrosoftGraph;
+using Bicep.Core.TypeSystem.Providers.Extensibility;
 using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Semantics.Namespaces;
@@ -160,7 +160,7 @@ public class NamespaceProvider : INamespaceProvider
         }
 
         // microsoftGraph built-in extension is no longer supported.
-        if (LanguageConstants.IdentifierComparer.Equals(extensionName, MicrosoftGraphNamespaceType.BuiltInName))
+        if (LanguageConstants.IdentifierComparer.Equals(extensionName, MicrosoftGraphExtensionFacts.builtInExtensionName))
         {
             return ErrorType.Create(diagBuilder.MicrosoftGraphBuiltinRetired(syntax));
         }
@@ -170,26 +170,21 @@ public class NamespaceProvider : INamespaceProvider
 
     private ResultWithDiagnosticBuilder<NamespaceType> GetNamespaceTypeForArtifact(ArtifactResolutionInfo artifact, BicepSourceFile sourceFile, ResourceScope targetScope, string? aliasName)
     {
-        if (!artifact.Result.IsSuccess(out var typesTgzUri, out var errorBuilder))
+        if (!artifact.Result.IsSuccess(out var typesTgzFileHandle, out var errorBuilder))
         {
             return new(errorBuilder);
         }
 
-        if (!resourceTypeProviderFactory.GetResourceTypeProvider(artifact.Reference, typesTgzUri).IsSuccess(out var typeProvider, out errorBuilder))
+        if (!resourceTypeProviderFactory.GetResourceTypeProvider(typesTgzFileHandle).IsSuccess(out var typeProvider, out errorBuilder))
         {
             return new(errorBuilder);
         }
 
-        if (typeProvider is AzResourceTypeProvider)
+        return typeProvider switch
         {
-            return new(AzNamespaceType.Create(aliasName, targetScope, typeProvider, sourceFile.FileKind));
-        }
-
-        if (typeProvider is MicrosoftGraphResourceTypeProvider)
-        {
-            return new(MicrosoftGraphNamespaceType.Create(aliasName, typeProvider, artifact.Reference));
-        }
-
-        return new(ExtensionNamespaceType.Create(aliasName, typeProvider, artifact.Reference, sourceFile.Features));
+            AzResourceTypeProvider => new(AzNamespaceType.Create(aliasName, targetScope, typeProvider, sourceFile.FileKind)),
+            ExtensionResourceTypeProvider extensionResourceTypeProvider => new(ExtensionNamespaceType.Create(aliasName, extensionResourceTypeProvider, artifact.Reference, sourceFile.Features)),
+            _ => throw new InvalidOperationException($"Unexpected resource type provider type: {typeProvider.GetType().Name}."),
+        };
     }
 }

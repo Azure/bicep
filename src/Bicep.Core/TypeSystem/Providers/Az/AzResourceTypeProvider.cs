@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -71,12 +72,12 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
 
-        public static readonly ImmutableHashSet<string> UniqueIdentifierProperties =
+        public static readonly FrozenSet<string> UniqueIdentifierProperties = FrozenSet.ToFrozenSet(
         [
             ResourceNamePropertyName,
             LanguageConstants.ResourceScopePropertyName,
             LanguageConstants.ResourceParentPropertyName,
-        ];
+        ]);
 
         public static IEnumerable<NamedTypeProperty> GetCommonResourceProperties(ResourceTypeReference reference)
         {

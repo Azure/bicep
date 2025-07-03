@@ -926,9 +926,7 @@ namespace Bicep.Core.TypeSystem
                 }
                 else
                 {
-                    if (syntax.WithClause.IsSkipped &&
-                        namespaceType.ConfigurationType is not null &&
-                        namespaceType.ConfigurationType.Properties.Values.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required)))
+                    if (syntax.WithClause.IsSkipped && namespaceType.IsConfigurationRequired)
                     {
                         diagnostics.Write(syntax, x => x.ExtensionRequiresConfiguration(namespaceType.ExtensionName));
                     }
@@ -1653,7 +1651,12 @@ namespace Bicep.Core.TypeSystem
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics => GetAccessedType(syntax, diagnostics));
 
-        private static TypeSymbol GetArrayItemType(ArrayAccessSyntax syntax, IDiagnosticWriter diagnostics, TypeSymbol baseType, TypeSymbol indexType)
+        private TypeSymbol GetArrayItemType(
+            ArrayAccessSyntax syntax,
+            IDiagnosticWriter diagnostics,
+            TypeSymbol baseType,
+            Symbol? baseSymbol,
+            TypeSymbol indexType)
         {
             var errors = new List<IDiagnostic>();
             CollectErrors(errors, baseType);
@@ -1669,7 +1672,7 @@ namespace Bicep.Core.TypeSystem
             // if the index type is nullable but otherwise valid, emit a fixable warning
             if (TypeHelper.TryRemoveNullability(indexType) is { } nonNullableIndex)
             {
-                var withNonNullableIndex = GetArrayItemType(syntax, diagnostics, baseType, nonNullableIndex);
+                var withNonNullableIndex = GetArrayItemType(syntax, diagnostics, baseType, baseSymbol, nonNullableIndex);
 
                 if (withNonNullableIndex is not ErrorType)
                 {
@@ -1695,9 +1698,16 @@ namespace Bicep.Core.TypeSystem
             switch (baseType)
             {
                 case TypeSymbol when TypeHelper.TryRemoveNullability(baseType) is TypeSymbol nonNullableBaseType:
-                    diagnostics.Write(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.OpenSquare, syntax.CloseSquare)).DereferenceOfPossiblyNullReference(baseType.Name, syntax));
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.OpenSquare, syntax.CloseSquare))
+                        .DereferenceOfPossiblyNullReference(baseType.Name, syntax));
 
-                    return GetArrayItemType(syntax, diagnostics, nonNullableBaseType, indexType);
+                    return GetArrayItemType(syntax, diagnostics, nonNullableBaseType, baseSymbol, indexType);
+
+                case TypeSymbol when IsPotentiallyDisabledResourceOrModule(baseSymbol):
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.OpenSquare, syntax.CloseSquare))
+                        .DereferenceOfPossiblyNullReference(TypeHelper.CreateTypeUnion(baseType, LanguageConstants.Null).Name, syntax));
+
+                    return GetArrayItemType(syntax, diagnostics, baseType, baseSymbol: null, indexType);
 
                 case AnyType:
                     // base expression is of type any
@@ -1813,7 +1823,7 @@ namespace Bicep.Core.TypeSystem
                     {
                         // ensure we enumerate only once since some paths include a side effect that writes a diagnostic
                         var arrayItemTypes = unionType.Members
-                            .Select(baseMemberType => GetArrayItemType(syntax, diagnostics, baseMemberType.Type, indexType))
+                            .Select(baseMemberType => GetArrayItemType(syntax, diagnostics, baseMemberType.Type, baseSymbol, indexType))
                             .ToList();
 
                         if (arrayItemTypes.OfType<ErrorType>().Any())
@@ -1846,6 +1856,16 @@ namespace Bicep.Core.TypeSystem
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics => GetAccessedType(syntax, diagnostics));
 
+        private static (SyntaxBase unwrapped, bool nonNullAsserted) UnwrapParenthesesAndAssertions(SyntaxBase syntax)
+            => syntax switch
+            {
+                NonNullAssertionSyntax nonNullAssertion
+                    => (UnwrapParenthesesAndAssertions(nonNullAssertion.BaseExpression).unwrapped, true),
+                ParenthesizedExpressionSyntax parenthesized
+                    => UnwrapParenthesesAndAssertions(parenthesized.Expression),
+                _ => (syntax, false),
+            };
+
         private TypeSymbol GetAccessedType(AccessExpressionSyntax syntax, IDiagnosticWriter diagnostics)
         {
             Stack<AccessExpressionSyntax> chainedAccesses = syntax.ToAccessExpressionStack();
@@ -1854,8 +1874,12 @@ namespace Bicep.Core.TypeSystem
 
             var nullVariantRemoved = false;
             AccessExpressionSyntax? prevAccess = null;
+            Symbol? prevBaseSymbol = null;
             while (chainedAccesses.TryPop(out var nextAccess))
             {
+                var (unwrappedBase, nonNullAsserted) = UnwrapParenthesesAndAssertions(nextAccess.BaseExpression);
+                var baseSymbol = nonNullAsserted ? null : binder.GetSymbolInfo(unwrappedBase);
+
                 if (prevAccess?.IsSafeAccess is true || nextAccess.IsSafeAccess)
                 {
                     // if the first access definitely returns null, short-circuit the whole chain
@@ -1870,16 +1894,44 @@ namespace Bicep.Core.TypeSystem
                         nullVariantRemoved = true;
                         baseType = nonNullable;
                     }
+                    else if (nextAccess.IsSafeAccess && (
+                        // this access expression is a safe dereference of a resource or module property (`res.?properties` or `mod.?outputs`)
+                        IsPotentiallyDisabledResourceOrModule(baseSymbol) ||
+                        // this access expression is a safe dereference of a property of an element of a resource or module collection (`res[0].?properties` or `mod[0].?outputs`)
+                        (IsPotentiallyDisabledResourceOrModule(prevBaseSymbol) && prevAccess is ArrayAccessSyntax)))
+                    {
+                        nullVariantRemoved = true;
+                        baseSymbol = null;
+                    }
                 }
+
+                DeclaredSymbol? baseSymbolToUse = prevBaseSymbol switch
+                {
+                    DeclaredSymbol ds when binder.TryGetCycle(ds).HasValue ||
+                        syntax.Span.IsNil ||
+                        binder.IsDescendant(syntax, ds.DeclaringSyntax) => null,
+                    ResourceSymbol rs when rs.IsCollection => rs,
+                    ModuleSymbol ms when ms.IsCollection => ms,
+                    _ => baseSymbol switch
+                    {
+                        DeclaredSymbol ds when binder.TryGetCycle(ds).HasValue ||
+                            syntax.Span.IsNil ||
+                            binder.IsDescendant(syntax, ds.DeclaringSyntax) => null,
+                        ResourceSymbol rs when !rs.IsCollection => rs,
+                        ModuleSymbol ms when !ms.IsCollection => ms,
+                        _ => null,
+                    },
+                };
 
                 baseType = nextAccess switch
                 {
-                    ArrayAccessSyntax arrayAccess => GetArrayItemType(arrayAccess, diagnostics, baseType, typeManager.GetTypeInfo(arrayAccess.IndexExpression)),
-                    PropertyAccessSyntax propertyAccess => GetNamedPropertyType(propertyAccess, baseType, diagnostics),
+                    ArrayAccessSyntax arrayAccess => GetArrayItemType(arrayAccess, diagnostics, baseType, baseSymbolToUse, typeManager.GetTypeInfo(arrayAccess.IndexExpression)),
+                    PropertyAccessSyntax propertyAccess => GetNamedPropertyType(propertyAccess, baseType, baseSymbolToUse, diagnostics),
                     _ => throw new InvalidOperationException("Unrecognized access syntax"),
                 };
 
                 prevAccess = nextAccess;
+                prevBaseSymbol = baseSymbol;
             }
 
             return nullVariantRemoved
@@ -1887,48 +1939,102 @@ namespace Bicep.Core.TypeSystem
                 : baseType;
         }
 
-        private static TypeSymbol GetNamedPropertyType(PropertyAccessSyntax syntax, TypeSymbol baseType, IDiagnosticWriter diagnostics) => UnwrapType(baseType) switch
-        {
-            ErrorType error => error,
-            TypeSymbol withErrors when withErrors.GetDiagnostics().Any() => ErrorType.Create(withErrors.GetDiagnostics()),
+        private TypeSymbol GetNamedPropertyType(PropertyAccessSyntax syntax, TypeSymbol baseType, Symbol? baseSymbol, IDiagnosticWriter diagnostics)
+            => UnwrapType(baseType) switch
+            {
+                ErrorType error => error,
+                TypeSymbol withErrors when withErrors.GetDiagnostics().Any(d => d.Level == DiagnosticLevel.Error)
+                    => ErrorType.Create(withErrors.GetDiagnostics()),
 
-            TypeSymbol original when TypeHelper.TryRemoveNullability(original) is TypeSymbol nonNullable => EmitNullablePropertyAccessDiagnosticAndEraseNullability(syntax, original, nonNullable, diagnostics),
+                TypeSymbol original when TypeHelper.TryRemoveNullability(original) is TypeSymbol nonNullable
+                    => EmitNullablePropertyAccessDiagnosticAndEraseNullability(syntax, original, nonNullable, diagnostics),
 
-            // the property is not valid
-            // there's already a parse error for it, so we don't need to add a type error as well
-            ObjectType when !syntax.PropertyName.IsValid => ErrorType.Empty(),
+                TypeSymbol original when IsPotentiallyDisabledResourceOrModule(baseSymbol) && !IsResourceInfoProperty(baseSymbol, syntax.PropertyName.IdentifierName)
+                    => EmitNullablePropertyAccessDiagnosticAndEraseNullability(syntax, TypeHelper.CreateTypeUnion(original, LanguageConstants.Null), original, diagnostics),
 
-            ObjectType objectType => TypeHelper.GetNamedPropertyType(objectType,
-                syntax.PropertyName,
-                syntax.PropertyName.IdentifierName,
-                syntax.IsSafeAccess,
-                syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(objectType),
-                diagnostics),
+                // the property is not valid
+                // there's already a parse error for it, so we don't need to add a type error as well
+                ObjectType when !syntax.PropertyName.IsValid => ErrorType.Empty(),
 
-            UnionType unionType when syntax.PropertyName.IsValid => TypeHelper.GetNamedPropertyType(unionType,
-                syntax.PropertyName,
-                syntax.PropertyName.IdentifierName,
-                syntax.IsSafeAccess,
-                syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(unionType),
-                diagnostics),
+                ObjectType objectType => TypeHelper.GetNamedPropertyType(objectType,
+                    syntax.PropertyName,
+                    syntax.PropertyName.IdentifierName,
+                    syntax.IsSafeAccess,
+                    syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(objectType),
+                    diagnostics),
 
-            // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
-            DiscriminatedObjectType => LanguageConstants.Any,
+                UnionType unionType when syntax.PropertyName.IsValid => TypeHelper.GetNamedPropertyType(unionType,
+                    syntax.PropertyName,
+                    syntax.PropertyName.IdentifierName,
+                    syntax.IsSafeAccess,
+                    syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(unionType),
+                    diagnostics),
 
-            // We can assign to an object, but we don't have a type for that object.
-            // The best we can do is allow it and return the 'any' type.
-            TypeSymbol maybeObject when TypeValidator.AreTypesAssignable(maybeObject, LanguageConstants.Object) => LanguageConstants.Any,
+                // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
+                DiscriminatedObjectType => LanguageConstants.Any,
 
-            // can only access properties of objects
-            TypeSymbol otherwise => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(otherwise)),
-        };
+                // We can assign to an object, but we don't have a type for that object.
+                // The best we can do is allow it and return the 'any' type.
+                TypeSymbol maybeObject when TypeValidator.AreTypesAssignable(maybeObject, LanguageConstants.Object) => LanguageConstants.Any,
 
-        private static TypeSymbol EmitNullablePropertyAccessDiagnosticAndEraseNullability(PropertyAccessSyntax syntax, TypeSymbol originalBaseType, TypeSymbol nonNullableBaseType, IDiagnosticWriter diagnostics)
+                // can only access properties of objects
+                TypeSymbol otherwise => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(otherwise)),
+            };
+
+        private TypeSymbol EmitNullablePropertyAccessDiagnosticAndEraseNullability(PropertyAccessSyntax syntax, TypeSymbol originalBaseType, TypeSymbol nonNullableBaseType, IDiagnosticWriter diagnostics)
         {
             diagnostics.Write(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.Dot, syntax.PropertyName)).DereferenceOfPossiblyNullReference(originalBaseType.Name, syntax));
 
-            return GetNamedPropertyType(syntax, nonNullableBaseType, diagnostics);
+            return GetNamedPropertyType(syntax, nonNullableBaseType, baseSymbol: null, diagnostics);
         }
+
+        private bool IsPotentiallyDisabledResourceOrModule(Symbol? symbol) => symbol switch
+        {
+            ResourceSymbol resourceSymbol => IsResourceEnabled(resourceSymbol) is not true,
+            ModuleSymbol moduleSymbol => moduleSymbol.DeclaringModule.TryGetCondition() is { } condition &&
+                GetTypeInfo(condition) is not BooleanLiteralType { Value: true },
+            _ => false,
+        };
+
+        private bool? IsResourceEnabled(ResourceSymbol resource)
+        {
+            if (resource.DeclaringResource.TryGetCondition() is { } condition)
+            {
+                switch (GetTypeInfo(condition))
+                {
+                    case BooleanLiteralType { Value: false }:
+                        // if the resource condition is false, that's definitive
+                        return false;
+                    case BooleanType:
+                        // we can't resolve the resource condition at compile time
+                        return null;
+                }
+            }
+
+            if (TryGetEnclosingResource(resource.DeclaringResource) is ResourceSymbol syntacticAncestor)
+            {
+                // nested resource conditions stack. This resource either doesn't have a condition or has a condition
+                // that is definitely `true`, so check its parent
+                return IsResourceEnabled(syntacticAncestor);
+            }
+
+            return true;
+        }
+
+        private ResourceSymbol? TryGetEnclosingResource(SyntaxBase syntax) => binder.GetParent(syntax) switch
+        {
+            ResourceDeclarationSyntax rds => binder.GetSymbolInfo(rds) as ResourceSymbol,
+            SyntaxBase otherwise => TryGetEnclosingResource(otherwise),
+            _ => null,
+        };
+
+        private bool IsResourceInfoProperty(Symbol? symbol, string propertyName) => symbol switch
+        {
+            ResourceSymbol resource when resource.TryGetResourceType()?.IsAzResource() is true
+                => EmitConstants.ResourceInfoProperties.Contains(propertyName),
+            ModuleSymbol => propertyName == LanguageConstants.ModuleNamePropertyName,
+            _ => false,
+        };
 
         public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
@@ -2105,6 +2211,14 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 baseType = UnwrapType(baseType);
+                var (unwrapped, nonNullAsserted) = UnwrapParenthesesAndAssertions(syntax.BaseExpression);
+
+                if (!nonNullAsserted &&
+                    IsPotentiallyDisabledResourceOrModule(binder.GetSymbolInfo(unwrapped)))
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Name)
+                        .InstanceFunctionCallOnPossiblyNullBase(TypeHelper.CreateTypeUnion(baseType, LanguageConstants.Null), syntax.Name));
+                }
 
                 if (baseType is not ObjectType objectType)
                 {
@@ -2112,7 +2226,7 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name).ObjectRequiredForMethodAccess(baseType));
                 }
 
-                foreach (TypeSymbol argumentType in this.GetArgumentTypes(syntax.Arguments).ToArray())
+                foreach (TypeSymbol argumentType in this.GetArgumentTypes(syntax.Arguments))
                 {
                     CollectErrors(errors, argumentType);
                 }

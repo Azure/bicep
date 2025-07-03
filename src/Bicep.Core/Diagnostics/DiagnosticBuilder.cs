@@ -1917,11 +1917,16 @@ namespace Bicep.Core.Diagnostics
                 "BCP421",
                 $"""Module "{moduleName}" contains one or more secure outputs, which are not supported with "{LanguageConstants.TargetScopeKeyword}" set to "{LanguageConstants.TargetScopeTypeLocal}".""");
 
-            public Diagnostic ErrorOccuredBrowsingDirectory(string failureMessage) => CoreError(
+            public Diagnostic InstanceFunctionCallOnPossiblyNullBase(TypeSymbol baseType, SyntaxBase expression) => CoreWarning(
                 "BCP422",
+                $"A resource of type \"{baseType}\" may or may not exist when this function is called, which could cause the deployment to fail.")
+                with
+            { Fixes = [AsNonNullable(expression)] };
+
+            public Diagnostic ErrorOccuredBrowsingDirectory(string failureMessage) => CoreError(
+                "BCP423",
                 $"An error occured browsing directory. {failureMessage}"
             );
-
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

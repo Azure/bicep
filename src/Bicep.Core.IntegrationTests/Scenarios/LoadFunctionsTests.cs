@@ -7,6 +7,8 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.TextFixtures.Utils;
+using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -805,6 +807,30 @@ var fileObj = loadJsonContent('file.json')
 }
 "));
             }
+        }
+
+        [TestMethod]
+        public async Task LoadJsonFunction_LocalDeploy_NoCharacterCountLimit()
+        {
+            var result = await TestCompiler
+                .ForMockFileSystemCompilation()
+                .Compile(
+                    ("main.bicep", """
+                        var fileObj = loadJsonContent('file.json')
+                        """),
+                    ("bicepconfig.json", """
+                        {
+                          "experimentalFeaturesEnabled": {
+                            "localDeploy": true
+                          }
+                        }
+                        """),
+                    ("file.json", $$"""
+                          "long" : "{{new string('x', LanguageConstants.MaxJsonFileCharacterLimit + 1)}}"
+                        }
+                        """));
+
+            result.Diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
         }
 
         /**** loadYamlContent ****/

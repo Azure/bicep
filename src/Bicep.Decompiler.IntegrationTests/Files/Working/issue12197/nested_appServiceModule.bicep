@@ -40,6 +40,6 @@ resource app_appService 'Microsoft.Web/sites@2022-09-01' = {
 }
 
 output appServiceManagedIdentity string = reference(app_appService.id, '2022-09-01', 'full').identity.principalId
-//@[42:92) [use-resource-symbol-reference (Warning)] Use a resource reference instead of invoking function "reference". This simplifies the syntax and allows Bicep to better understand your deployment dependency graph. (bicep core linter https://aka.ms/bicep/linter/use-resource-symbol-reference) |reference(app_appService.id, '2022-09-01', 'full')|
+//@[42:92) [use-resource-symbol-reference (Warning)] Use a resource reference instead of invoking function "reference". This simplifies the syntax and allows Bicep to better understand your deployment dependency graph. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-resource-symbol-reference) |reference(app_appService.id, '2022-09-01', 'full')|
 output appServiceName string = toLower('app-${appServiceName}')
 

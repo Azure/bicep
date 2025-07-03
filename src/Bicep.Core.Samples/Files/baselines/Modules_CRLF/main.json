@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15908073943310272866"
+      "templateHash": "17401662066036177246"
     }
   },
   "parameters": {
@@ -1806,13 +1806,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "2.0",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7780080016747983536"
+              "templateHash": "15522334618541518671"
             }
           },
           "parameters": {
@@ -1824,7 +1823,7 @@
               "defaultValue": ""
             }
           },
-          "resources": {},
+          "resources": [],
           "outputs": {
             "exposedSecureString": {
               "type": "string",
@@ -1864,13 +1863,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "2.0",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7780080016747983536"
+              "templateHash": "15522334618541518671"
             }
           },
           "parameters": {
@@ -1882,7 +1880,7 @@
               "defaultValue": ""
             }
           },
-          "resources": {},
+          "resources": [],
           "outputs": {
             "exposedSecureString": {
               "type": "string",
@@ -1926,13 +1924,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "2.0",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7780080016747983536"
+              "templateHash": "15522334618541518671"
             }
           },
           "parameters": {
@@ -1944,7 +1941,7 @@
               "defaultValue": ""
             }
           },
-          "resources": {},
+          "resources": [],
           "outputs": {
             "exposedSecureString": {
               "type": "string",
@@ -1969,13 +1966,12 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "2.0",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7780080016747983536"
+              "templateHash": "15522334618541518671"
             }
           },
           "parameters": {
@@ -1987,7 +1983,7 @@
               "defaultValue": ""
             }
           },
-          "resources": {},
+          "resources": [],
           "outputs": {
             "exposedSecureString": {
               "type": "string",

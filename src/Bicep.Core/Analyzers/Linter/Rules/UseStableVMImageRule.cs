@@ -21,8 +21,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public UseStableVMImageRule() : base(
             code: Code,
             description: CoreResources.UseStableVMImage,
-            LinterRuleCategory.BestPractice,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
+            LinterRuleCategory.BestPractice)
         {
         }
 

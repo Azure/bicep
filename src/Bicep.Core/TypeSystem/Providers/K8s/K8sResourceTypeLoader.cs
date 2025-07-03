@@ -18,9 +18,9 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
         public K8sResourceTypeLoader()
         {
             typeLoader = new K8sTypeLoader();
-            resourceTypeFactory = new ExtensionResourceTypeFactory();
-            var indexedTypes = typeLoader.LoadTypeIndex();
-            availableTypes = indexedTypes.Resources.ToImmutableDictionary(
+            var typeIndex = typeLoader.LoadTypeIndex();
+            resourceTypeFactory = new ExtensionResourceTypeFactory(typeIndex.Settings);
+            availableTypes = typeIndex.Resources.ToImmutableDictionary(
                 kvp => ResourceTypeReference.Parse(kvp.Key),
                 kvp => kvp.Value);
         }

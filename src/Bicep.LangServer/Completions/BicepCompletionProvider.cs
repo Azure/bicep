@@ -858,7 +858,7 @@ namespace Bicep.LanguageServer.Completions
         private IEnumerable<CompletionItem> CreateModuleBodyCompletions(SemanticModel model, BicepCompletionContext context, ModuleDeclarationSyntax moduleDeclarationSyntax)
         {
             TypeSymbol typeSymbol = model.GetTypeInfo(moduleDeclarationSyntax);
-            IEnumerable<Snippet> snippets = snippetsProvider.GetModuleBodyCompletionSnippets(typeSymbol.UnwrapArrayType(), model.Features);
+            IEnumerable<Snippet> snippets = snippetsProvider.GetModuleBodyCompletionSnippets(typeSymbol.UnwrapArrayType());
 
             foreach (Snippet snippet in snippets)
             {
@@ -1349,8 +1349,26 @@ namespace Bicep.LanguageServer.Completions
                 return [];
             }
 
+            // Check if the property name is "identity" and the parent is a resource or module
+            // Use a single identity snippet provider for both resources and modules
+            IEnumerable<CompletionItem> snippetCompletions = [];
+            if (context.Property is { } propertySyntax &&
+                propertySyntax.TryGetKeyText() is "identity" &&
+                (context.EnclosingDeclaration is ResourceDeclarationSyntax ||
+                 (context.EnclosingDeclaration is ModuleDeclarationSyntax && model.Features.ModuleIdentityEnabled)))
+            {
+                snippetCompletions = snippetsProvider.GetIdentitySnippets(context.EnclosingDeclaration is ResourceDeclarationSyntax)
+                    .Select(snippet => CreateContextualSnippetCompletion(
+                        snippet.Prefix,
+                        snippet.Detail,
+                        snippet.Text,
+                        context.ReplacementRange,
+                        snippet.CompletionPriority,
+                        preselect: true));
+            }
+
             var loopsAllowed = context.Property is not null && ForSyntaxValidatorVisitor.IsAddingPropertyLoopAllowed(model, context.Property);
-            return GetValueCompletionsForType(model, context, declaredTypeAssignment.Reference.Type, context.Property?.Value, loopsAllowed);
+            return GetValueCompletionsForType(model, context, declaredTypeAssignment.Reference.Type, context.Property?.Value, loopsAllowed).Concat(snippetCompletions);
         }
 
         private IEnumerable<CompletionItem> GetArrayItemCompletions(SemanticModel model, BicepCompletionContext context)

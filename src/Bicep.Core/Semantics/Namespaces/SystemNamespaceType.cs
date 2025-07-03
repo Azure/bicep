@@ -1380,7 +1380,9 @@ namespace Bicep.Core.Semantics.Namespaces
                 tokenSelectorPath = tokenSelectorType.RawStringValue;
             }
 
-            if (TryLoadTextContentFromFile(model, diagnostics, (arguments[0], argumentTypes[0]), arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null, LanguageConstants.MaxJsonFileCharacterLimit)
+            int? characterLimit = model.Features.LocalDeployEnabled ? null : LanguageConstants.MaxJsonFileCharacterLimit;
+
+            if (TryLoadTextContentFromFile(model, diagnostics, (arguments[0], argumentTypes[0]), arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null, characterLimit)
                 .IsSuccess(out var result, out var errorDiagnostic) &&
                 objectParser.TryExtractFromObject(result.Content, tokenSelectorPath, positionables, out errorDiagnostic, out var token))
             {
@@ -1442,7 +1444,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 new StringLiteralExpression(null, envVariableValue));
         }
 
-        private static ResultWithDiagnostic<LoadTextContentResult> TryLoadTextContentFromFile(SemanticModel model, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, int maxCharacters)
+        private static ResultWithDiagnostic<LoadTextContentResult> TryLoadTextContentFromFile(SemanticModel model, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, int? maxCharacters)
         {
             if (filePathArgument.typeSymbol is not StringLiteralType filePathType)
             {

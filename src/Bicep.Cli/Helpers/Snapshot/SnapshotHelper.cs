@@ -72,6 +72,7 @@ public static class SnapshotHelper
             template,
             parameters: ResolveParameters(parameters, externalInputs),
             rootDeploymentMetadata: GetDeploymentMetadata(tenantId, subscriptionId, resourceGroup, deploymentName, location, scope, template),
+            referenceFunctionPreflightEnabled: true,
             cancellationToken: cancellationToken);
 
         return new(
@@ -126,8 +127,7 @@ public static class SnapshotHelper
             return rewriteVisitor.Rewrite(ExpressionParser.ParseLanguageExpression(parameter.Expression));
         }
 
-        throw new InvalidOperationException(
-            $"Parameters compilation produced an invalid object for parameter '{parameterName}'.");
+        return new NullExpression(position: null);
     }
 
     private class ParametersRewriteVisitor : ExpressionRewriteVisitor

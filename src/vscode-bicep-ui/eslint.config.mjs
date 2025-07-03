@@ -1,3 +1,4 @@
+// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
 import eslint from "@eslint/js";
 import notice from "eslint-plugin-notice";
 import reactPlugin from "eslint-plugin-react";

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Concurrent;
+using Azure.Bicep.Types.Index;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
@@ -11,10 +12,16 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
     public class ExtensionResourceTypeFactory
     {
         private readonly ConcurrentDictionary<Azure.Bicep.Types.Concrete.TypeBase, TypeSymbol> typeCache;
+        private readonly bool shouldWarnOnResourceTypeMismatch;
 
-        public ExtensionResourceTypeFactory()
+        public ExtensionResourceTypeFactory(TypeSettings? typeSettings)
         {
-            typeCache = new();
+            this.typeCache = new();
+
+            // TODO: Make this a new type setting.
+            this.shouldWarnOnResourceTypeMismatch =
+                typeSettings is not null &&
+                MicrosoftGraphExtensionFacts.IsMicrosoftGraphExtension(typeSettings.Name);
         }
 
         public ResourceTypeComponents GetResourceType(Azure.Bicep.Types.Concrete.ResourceType resourceType)
@@ -32,9 +39,14 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             return new ResourceTypeComponents(resourceTypeReference, ToResourceScope(resourceType.ScopeType), ToResourceScope(resourceType.ReadOnlyScopes), ToResourceFlags(resourceType.Flags), bodyType);
         }
 
-        public TypeSymbol GetObjectType(Azure.Bicep.Types.Concrete.ObjectType objectType)
+        public TypeSymbol GetConfigurationType(Azure.Bicep.Types.Concrete.TypeBase configurationType)
         {
-            var bodyType = GetTypeSymbol(objectType, false);
+            if (configurationType is not Azure.Bicep.Types.Concrete.ObjectType and not Azure.Bicep.Types.Concrete.DiscriminatedObjectType)
+            {
+                throw new ArgumentException("Configuration type must be an ObjectType or a DiscriminatedObjectType.");
+            }
+
+            var bodyType = GetTypeSymbol(configurationType, false);
 
             return bodyType;
         }
@@ -77,12 +89,12 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
         private TypeSymbol GetTypeSymbol(Azure.Bicep.Types.Concrete.TypeBase serializedType, bool isResourceBodyType)
             => typeCache.GetOrAdd(serializedType, serializedType => ToTypeSymbol(serializedType, isResourceBodyType));
 
-        private ITypeReference GetTypeReference(Azure.Bicep.Types.Concrete.ITypeReference input)
-            => new DeferredTypeReference(() => GetTypeSymbol(input.Type, false));
+        private ITypeReference GetTypeReference(Azure.Bicep.Types.Concrete.ITypeReference input, bool isResourceBodyType)
+            => new DeferredTypeReference(() => GetTypeSymbol(input.Type, isResourceBodyType));
 
-        private NamedTypeProperty GetTypeProperty(string name, Azure.Bicep.Types.Concrete.ObjectTypeProperty input)
+        private NamedTypeProperty GetTypeProperty(string name, Azure.Bicep.Types.Concrete.ObjectTypeProperty input, bool isResourceBodyType)
         {
-            return new NamedTypeProperty(name, GetTypeReference(input.Type), GetTypePropertyFlags(input), input.Description);
+            return new NamedTypeProperty(name, GetTypeReference(input.Type, isResourceBodyType), GetTypePropertyFlags(input), input.Description);
         }
 
         private static TypePropertyFlags GetTypePropertyFlags(Azure.Bicep.Types.Concrete.ObjectTypeProperty input)
@@ -130,7 +142,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                 case Azure.Bicep.Types.Concrete.BooleanType:
                     return LanguageConstants.Bool;
                 case Azure.Bicep.Types.Concrete.IntegerType @int:
-                    return TypeFactory.CreateIntegerType(@int.MinValue, @int.MaxValue, GetValidationFlags(isResourceBodyType, isSensitive: false));
+                    return TypeFactory.CreateIntegerType(@int.MinValue, @int.MaxValue, this.GetValidationFlags(isResourceBodyType, isSensitive: false));
                 case Azure.Bicep.Types.Concrete.StringType @string:
                     return TypeFactory.CreateStringType(
                         @string.MinLength,
@@ -154,18 +166,18 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                     };
                 case Azure.Bicep.Types.Concrete.ObjectType objectType:
                     {
-                        var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties) : null;
-                        var properties = objectType.Properties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value));
+                        var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties, isResourceBodyType) : null;
+                        var properties = objectType.Properties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value, isResourceBodyType));
 
-                        return new ObjectType(objectType.Name, GetValidationFlags(isResourceBodyType, isSensitive: objectType.Sensitive ?? false), properties, additionalProperties is not null ? new(additionalProperties) : null);
+                        return new ObjectType(objectType.Name, this.GetValidationFlags(isResourceBodyType, isSensitive: objectType.Sensitive ?? false), properties, additionalProperties is not null ? new(additionalProperties) : null);
                     }
                 case Azure.Bicep.Types.Concrete.ArrayType arrayType:
                     {
-                        return new TypedArrayType(GetTypeReference(arrayType.ItemType), GetValidationFlags(isResourceBodyType, isSensitive: false));
+                        return new TypedArrayType(GetTypeReference(arrayType.ItemType, isResourceBodyType), GetValidationFlags(isResourceBodyType, isSensitive: false));
                     }
                 case Azure.Bicep.Types.Concrete.UnionType unionType:
                     {
-                        return TypeHelper.CreateTypeUnion(unionType.Elements.Select(x => GetTypeReference(x)));
+                        return TypeHelper.CreateTypeUnion(unionType.Elements.Select(x => GetTypeReference(x, isResourceBodyType)));
                     }
                 case Azure.Bicep.Types.Concrete.StringLiteralType stringLiteralType:
                     return TypeFactory.CreateStringLiteralType(stringLiteralType.Value);
@@ -187,7 +199,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                 throw new ArgumentException();
             }
 
-            var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties) : null;
+            var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties, isResourceBodyType) : null;
 
             var extendedProperties = objectType.Properties.ToDictionary(kvp => kvp.Key, kvp => kvp.Value, StringComparer.OrdinalIgnoreCase);
             foreach (var property in baseProperties.Where(x => !extendedProperties.ContainsKey(x.Key)))
@@ -195,24 +207,25 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                 extendedProperties[property.Key] = property.Value;
             }
 
-            return new ObjectType(name, GetValidationFlags(isResourceBodyType, isSensitive: objectType.Sensitive ?? false), extendedProperties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value)), additionalProperties is not null ? new(additionalProperties) : null);
+            return new ObjectType(name, GetValidationFlags(isResourceBodyType, isSensitive: objectType.Sensitive ?? false), extendedProperties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value, isResourceBodyType)), additionalProperties is not null ? new(additionalProperties) : null);
         }
 
-        private static TypeSymbolValidationFlags GetValidationFlags(bool isResourceBodyType, bool isSensitive)
+        private TypeSymbolValidationFlags GetValidationFlags(bool isResourceBodyType, bool isSensitive)
         {
-            if (isResourceBodyType)
+            // TODO: Add this to ResourceFlags
+            var flags = TypeSymbolValidationFlags.Default;
+
+            if (isResourceBodyType && this.shouldWarnOnResourceTypeMismatch)
             {
-                // strict validation on top-level resource properties, as 'custom' top-level properties are not supported by the platform
-                return TypeSymbolValidationFlags.Default;
+                flags |= TypeSymbolValidationFlags.WarnOnTypeMismatch | TypeSymbolValidationFlags.WarnOnPropertyTypeMismatch;
             }
 
             if (isSensitive)
             {
-                return TypeSymbolValidationFlags.IsSecure;
+                flags |= TypeSymbolValidationFlags.IsSecure;
             }
 
-            // in all other places, we should allow some wiggle room so that we don't block compilation if there are any swagger inaccuracies
-            return TypeSymbolValidationFlags.WarnOnTypeMismatch;
+            return flags;
         }
 
         private static ResourceFlags ToResourceFlags(Azure.Bicep.Types.Concrete.ResourceFlags input)
