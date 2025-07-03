@@ -2,7 +2,10 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
+using Bicep.Core.PrettyPrintV2;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
 
@@ -54,9 +57,10 @@ public static class CodeFixHelper
             new(program.EndOfFile.Span, additionalProgram.ToString()));
     }
 
-    public static CodeFix GetCodeFixForMissingBicepExtensionConfigAssignments(ProgramSyntax program, IReadOnlyList<(string Alias, ObjectLikeType ExpectedConfigType)> missingExtAliasesWithExpectedType)
+    public static CodeFix GetCodeFixForMissingBicepExtensionConfigAssignments(ProgramSyntax program, BicepSourceFile file, IReadOnlyList<(string Alias, ObjectLikeType ExpectedConfigType)> missingExtAliasesWithExpectedType)
     {
-        // Create the new syntax
+        // Create the new syntax. Start with a double new line because this is a top-level insertion.
+        var leadingNewLine = SyntaxFactory.DoubleNewlineToken;
         var newSyntaxList = new List<SyntaxBase>(missingExtAliasesWithExpectedType.Count * 2); // * 2 for new lines per new syntax
 
         for (var i = 0; i < missingExtAliasesWithExpectedType.Count; i++)
@@ -110,30 +114,58 @@ public static class CodeFixHelper
             }
         }
 
-        // Determine spacing above.
-        newSyntaxList.Insert(0, SyntaxFactory.DoubleNewlineToken);
-
-        // Determine spacing below.
-        var numExistingProceedingNewLines = existingSyntaxProceedingInsert is Token { Type: TokenType.NewLine } proceedingNewLineToken
-            ? StringUtils.CountNewlines(proceedingNewLineToken.Text)
-            : object.ReferenceEquals(insertAfterSyntax, program.EndOfFile)
-                ? -1
-                : 0;
-
-        var newProceedingSyntax = numExistingProceedingNewLines switch
-        {
-            -1 => SyntaxFactory.EndOfFileToken,
-            0 => SyntaxFactory.DoubleNewlineToken,
-            _ => SyntaxFactory.NewlineToken,
-        };
-
-        // Make the code replacement.
-        var additionalProgram = new ProgramSyntax(newSyntaxList, newProceedingSyntax);
+        var prettyPrintContext = PrettyPrinterV2Context.Create(file.Configuration.Formatting.Data, file.LexingErrorLookup, file.ParsingErrorLookup);
+        var codeReplacement = CreatePrettyPrintedInsertionCodeReplacement(program, prettyPrintContext, insertAfterSyntax, leadingNewLine, newSyntaxList, existingSyntaxProceedingInsert);
 
         return new(
             "Insert missing required extension configuration assignments",
             true,
             CodeFixKind.QuickFix,
-            new(insertAfterSyntax.Span, additionalProgram.ToString()));
+            codeReplacement);
+    }
+
+    private static CodeReplacement CreatePrettyPrintedInsertionCodeReplacement(ProgramSyntax existingProgram, PrettyPrinterV2Context prettyPrintContext, SyntaxBase insertAfterSyntax, Token? leadingNewLine, IEnumerable<SyntaxBase> syntaxToInsert, SyntaxBase? existingSyntaxProceedingInsert)
+    {
+        if (existingSyntaxProceedingInsert is null || existingSyntaxProceedingInsert is Token { Type: TokenType.EndOfFile } || object.ReferenceEquals(insertAfterSyntax, existingProgram.EndOfFile))
+        {
+            // Replace the EOF with new syntax + EOF.
+            return new(
+                existingProgram.EndOfFile.Span,
+                GetPrettyPrintedSyntaxWithSurroundingNewLines(new ProgramSyntax(syntaxToInsert, SyntaxFactory.EndOfFileToken), prettyPrintContext, leadingNewLine, null));
+        }
+
+        var newProceedingToken = SyntaxFactory.NewlineToken;
+
+        if (existingSyntaxProceedingInsert is not Token existingTokenProceedingInsert)
+        {
+            // We have a non-token after we insert. Insert a new line after our new syntax but do not replace the existing syntax span.
+            return new(
+                existingSyntaxProceedingInsert.Span.ToZeroLengthSpan(), // use a zero length span to insert before the existing proceeding syntax
+                GetPrettyPrintedSyntaxWithSurroundingNewLines(
+                    new ProgramSyntax(syntaxToInsert, newProceedingToken), prettyPrintContext, leadingNewLine, newProceedingToken));
+        }
+
+        // We have an existing proceeding token. If it's not a new line, add two, one for the new syntax and 1 for a blank line before the existing token.
+        if (existingTokenProceedingInsert is not { Type: TokenType.NewLine })
+        {
+            syntaxToInsert = syntaxToInsert.Append(SyntaxFactory.DoubleNewlineToken);
+        }
+        else
+        {
+            newProceedingToken = existingTokenProceedingInsert;
+        }
+
+        var additionalProgram = new ProgramSyntax(syntaxToInsert, newProceedingToken);
+
+        return new(
+            existingTokenProceedingInsert.Span, // replace our existing proceeding token with pretty printed new syntax + existing token
+            GetPrettyPrintedSyntaxWithSurroundingNewLines(additionalProgram, prettyPrintContext, leadingNewLine, newProceedingToken));
+    }
+
+    private static string GetPrettyPrintedSyntaxWithSurroundingNewLines(ProgramSyntax program, PrettyPrinterV2Context context, Token? leadingToken, Token? trailingToken)
+    {
+        var prettyPrintedSyntax = PrettyPrinterV2.Print(program, context).Trim(); // trim any trailing whitespace because we're handling it here
+
+        return $"{leadingToken?.ToString() ?? string.Empty}{prettyPrintedSyntax}{trailingToken?.ToString() ?? string.Empty}";
     }
 }

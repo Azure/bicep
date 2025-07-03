@@ -660,7 +660,7 @@ namespace Bicep.Core.Semantics
             {
                 yield return DiagnosticBuilder.ForPosition(usingDeclarationSyntax.Path!)
                     .MissingExtensionConfigAssignments(missingRequiredAssignments.Select(kvp => kvp.Key))
-                    .WithAppendedFixes(CodeFixHelper.GetCodeFixForMissingBicepExtensionConfigAssignments(Root.Syntax, missingRequiredAssignments));
+                    .WithAppendedFixes(CodeFixHelper.GetCodeFixForMissingBicepExtensionConfigAssignments(Root.Syntax, SourceFile, missingRequiredAssignments));
             }
 
             foreach (var assignmentAlias in assignmentAliasesWithMissingExtension)
