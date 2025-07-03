@@ -47,34 +47,4 @@ public record ExperimentalFeaturesEnabled(
         ExternalInputFunction: false,
         OnlyIfNotExists: false,
         ModuleIdentity: false);
-
-    public IFeatureProvider ToFeatureProvider() => new FeatureProviderAdapter(this);
-
-    private class FeatureProviderAdapter : IFeatureProvider
-    {
-        private readonly ExperimentalFeaturesEnabled features;
-
-        public FeatureProviderAdapter(ExperimentalFeaturesEnabled features)
-        {
-            this.features = features;
-        }
-
-        public string AssemblyVersion => throw new NotImplementedException();
-        public IDirectoryHandle CacheRootDirectory => throw new NotImplementedException();
-        public bool SymbolicNameCodegenEnabled => features.SymbolicNameCodegen;
-        public bool ResourceTypedParamsAndOutputsEnabled => features.ResourceTypedParamsAndOutputs;
-        public bool SourceMappingEnabled => features.SourceMapping;
-        public bool LegacyFormatterEnabled => features.LegacyFormatter;
-        public bool TestFrameworkEnabled => features.TestFramework;
-        public bool AssertsEnabled => features.Assertions;
-        public bool WaitAndRetryEnabled => features.WaitAndRetry;
-        public bool OnlyIfNotExistsEnabled => features.OnlyIfNotExists;
-        public bool LocalDeployEnabled => features.LocalDeploy;
-        public bool ExtendableParamFilesEnabled => features.ExtendableParamFiles;
-        public bool ResourceInfoCodegenEnabled => features.ResourceInfoCodegen;
-        public bool ModuleExtensionConfigsEnabled => features.ModuleExtensionConfigs;
-        public bool DesiredStateConfigurationEnabled => features.DesiredStateConfiguration;
-        public bool ExternalInputFunctionEnabled => features.ExternalInputFunction;
-        public bool ModuleIdentityEnabled => features.ModuleIdentity;
-    }
 }
