@@ -1,17 +1,35 @@
+# Language Grammar
+The following is the active pseudo-grammar of the Bicep parameters file
+
+```
 program -> statement* EOF 
 statement -> 
   usingDecl |
-  parameterDecl |
+  paramDecl |
   NL
 
 usingDecl ->
-  "using" stringLiteral NL
+  "using" (stringLiteral | "none") NL
 
+compileTimeImportDecl -> decorator* "import" compileTimeImportTarget compileTimeImportFromClause
 
-  importDecl -> decorator* "import" IDENTIFIER(providerName) "as" IDENTIFIER(aliasName) object? NL
+compileTimeImportTarget ->
+  importedSymbolsList |
+  wildcardImport
 
-parameterDecl ->
-  "parameter" IDENTIFIER(name) "=" literalValue NL
+importedSymbolsList -> "{" ( NL+ ( importedSymbolsListItem NL+ )* )? "}"
+
+importedSymbolsListItem -> IDENTIFIER(originalSymbolName) extensionAsClause?
+
+wildcardImport -> "*" extensionAsClause
+
+compileTimeImportFromClause -> "from" interpString(path)
+
+paramDecl ->
+  "param" IDENTIFIER(name) "=" literalValue NL
+
+varDecl ->
+  "var" IDENTIFIER(name) "=" literalValue NL
 
 stringLiteral -> "'" STRINGCHAR* "'"
 
@@ -22,3 +40,4 @@ objectProperty -> ( IDENTIFIER(name) | stringLiteral ) ":" literalValue
 
 array -> "[" ( NL+ arrayItem* )? "]"
 arrayItem -> literalValue NL+
+```
