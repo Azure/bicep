@@ -40,6 +40,20 @@
             "problemMatcher": "$msCompile"
         },
         {
+            "label": "Build MCP Server for VSIX",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/Bicep.McpServer/Bicep.McpServer.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary",
+                "--output",
+                "${workspaceFolder}/src/vscode-bicep/bicepMcpServer"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
             "label": "Build VSIX",
             "command": "npm",
             "args": ["run", "build", "--loglevel", "silent"],
@@ -50,6 +64,7 @@
             },
             "dependsOn": [
                 "Build Language Server for VSIX",
+                "Build MCP Server for VSIX",
                 "Build VSCode UI"
             ]
         },

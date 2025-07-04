@@ -12,6 +12,7 @@ import { bicepLanguageId } from "./constants";
 
 const dotnetRuntimeVersion = "8.0";
 const packagedServerPath = "bicepLanguageServer/Bicep.LangServer.dll";
+const packagedMcpServerPath = "bicepMcpServer/Bicep.McpServer.dll";
 const extensionId = "ms-azuretools.vscode-bicep";
 const dotnetAcquisitionExtensionSetting = "dotnetAcquisitionExtension";
 const existingDotnetPathSetting = "existingDotnetPath";
@@ -183,6 +184,18 @@ function ensureLanguageServerExists(context: vscode.ExtensionContext): string {
   }
 
   return path.resolve(languageServerPath);
+}
+
+export function ensureMcpServerExists(context: vscode.ExtensionContext): string {
+  const mcpServerPath =
+    process.env.BICEP_MCP_SERVER_PATH ?? // Local server for debugging.
+    context.asAbsolutePath(packagedMcpServerPath); // Packaged server.
+
+  if (!existsSync(mcpServerPath)) {
+    throw new Error(`MCP server does not exist at '${mcpServerPath}'.`);
+  }
+
+  return path.resolve(mcpServerPath);
 }
 
 function configureTelemetry(client: lsp.LanguageClient) {
