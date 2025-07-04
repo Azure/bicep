@@ -30,7 +30,7 @@ namespace Bicep.IO.Abstraction
     /// <see href="https://datatracker.ietf.org/doc/html/rfc8089">RFC8089</see>
     /// to satisfy the functionality requirements of Bicep.
     /// </remarks>
-    public readonly struct IOUri : IEquatable<IOUri>
+    public class IOUri : IEquatable<IOUri>
     {
         public static class GlobalSettings
         {
@@ -147,7 +147,8 @@ namespace Bicep.IO.Abstraction
 
         public override bool Equals(object? @object) => @object is IOUri other && this.Equals(other);
 
-        public bool Equals(IOUri other) =>
+        public bool Equals(IOUri? other) =>
+            other is not null &&
             this.SchemeEquals(other) &&
             this.AuthorityEquals(other) &&
             this.PathEquals(other) &&

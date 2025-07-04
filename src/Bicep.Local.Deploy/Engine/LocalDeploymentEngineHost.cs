@@ -30,7 +30,7 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
 {
     private readonly LocalExtensionDispatcher extensionHostManager;
 
-    public readonly record struct ExtensionInfo(string ExtensionName, string ExtensionVersion, string Method);
+    public record ExtensionInfo(string ExtensionName, string ExtensionVersion, string Method);
 
     public LocalDeploymentEngineHost(
         LocalExtensionDispatcher extensionHostManager,

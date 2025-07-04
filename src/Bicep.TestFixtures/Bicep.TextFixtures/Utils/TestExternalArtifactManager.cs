@@ -14,7 +14,7 @@ namespace Bicep.TextFixtures.Utils
 {
     public class TestExternalArtifactManager
     {
-        public readonly record struct RegistryModulePublishArguments(string ModuleArtifactId, string ModuleContent, bool WithSource = false, string? DocumentationUri = null);
+        public record RegistryModulePublishArguments(string ModuleArtifactId, string ModuleContent, bool WithSource = false, string? DocumentationUri = null);
 
         private readonly FakeContainerRegistryClientFactory containerRegistryClientFactory;
         private readonly FakeTemplateSpecRepository templateSpecRepository;
