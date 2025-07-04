@@ -1921,6 +1921,14 @@ namespace Bicep.Core.Diagnostics
                 $"A resource of type \"{baseType}\" may or may not exist when this function is called, which could cause the deployment to fail.")
                 with
             { Fixes = [AsNonNullable(expression)] };
+
+            public Diagnostic InlineMustNotHaveValueAssigned() => CoreError(
+                "BCP423",
+                $"A parameter marked with the \"@{LanguageConstants.ParameterInlinePropertyName}\" decorator shouldn't have a value assigned.");
+
+            public Diagnostic MissingParameterValue(string identifier) => CoreError(
+                "BCP424",
+                $"Parameter {identifier} is declared but missing a value assignment.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -16,6 +16,7 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -183,7 +184,12 @@ public class ParameterAssignmentEvaluator
 
                 var declaringParam = parameter.DeclaringParameterAssignment;
 
-                var intermediate = converter.ConvertToIntermediateExpression(declaringParam.Value);
+                if (declaringParam.Value is null)
+                {
+                    return Result.For(DiagnosticBuilder.ForPosition(declaringParam.Name).FailedToEvaluateParameter(parameter.Name, "Parameter value is null"));
+                }
+
+                var intermediate = converter.ConvertToIntermediateExpression(declaringParam.Value!);
 
                 if (this.externalInputReferences.ParametersReferences.Contains(parameter))
                 {
@@ -204,7 +210,7 @@ public class ParameterAssignmentEvaluator
                 }
                 catch (Exception ex)
                 {
-                    return Result.For(DiagnosticBuilder.ForPosition(declaringParam.Value)
+                    return Result.For(DiagnosticBuilder.ForPosition(declaringParam.Value ?? parameter.DeclaringParameterAssignment.Name)
                         .FailedToEvaluateParameter(parameter.Name, ex.Message));
                 }
             });
