@@ -46,6 +46,7 @@ metadata selfRef = selfRef
 
 // metadata with decorators
 @description('this is a description')
+//@[01:12) [BCP269 (Error)] Function "description" cannot be used as a metadata decorator. (bicep https://aka.ms/bicep/core-diagnostics#BCP269) |description|
 metadata decoratedDescription = 'hasDescription'
 
 @secure()
