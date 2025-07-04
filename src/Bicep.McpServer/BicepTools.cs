@@ -2,37 +2,35 @@
 // Licensed under the MIT License.
 
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Security;
 using System.Text.Json;
-using Azure.Bicep.Types.Az;
+using Bicep.Core.Resources;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.McpServer.ResourceProperties;
 using Bicep.McpServer.ResourceProperties.Entities;
-using Microsoft.Extensions.AI;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 
 namespace Bicep.McpServer;
 
 [McpServerToolType]
-public sealed class BicepTools
+public sealed class BicepTools(
+    AzResourceTypeLoader azResourceTypeLoader,
+    ResourceVisitor resourceVisitor)
 {
     private static readonly JsonSerializerOptions JsonSerializerOptions = new() { WriteIndented = true };
-    private readonly ILoggerFactory loggerFactory;
-    private readonly ResourceVisitor _resourceVisitor;
-
-    public BicepTools()
-    {
-        loggerFactory = NullLoggerFactory.Instance;
-        _resourceVisitor = new ResourceVisitor(loggerFactory.CreateLogger<ResourceVisitor>());
-    }
 
     [McpServerTool, Description("Lists all available Azure resource types for a specific provider.")]
-    public static string ListAzResourceTypesForProvider(
-        [Description("The resource provider (or namespace) of the Azure resource; e.g. Microsoft.KeyVault")] string provider)
+    public string ListAzResourceTypesForProvider(
+        [Description("The resource provider (or namespace) of the Azure resource; e.g. Microsoft.KeyVault")] string providerNamespace)
     {
-        return ListAzResourceTypesFromAzTypeLoader(provider);
+        var azResourceTypes = azResourceTypeLoader.GetAvailableTypes();
+
+        if (providerNamespace is { })
+        {
+            azResourceTypes = azResourceTypes.Where(type => type.TypeSegments[0].Equals(providerNamespace, StringComparison.OrdinalIgnoreCase));
+        }
+
+        return string.Join("\n", azResourceTypes.Select(x => x.Type).Distinct(StringComparer.OrdinalIgnoreCase));
     }
 
     [McpServerTool, Description("Gets the schema for a specific Azure resource type.")]
@@ -48,19 +46,5 @@ public sealed class BicepTools
         allComplexTypes.AddRange(typesDefinition.OtherComplexTypeEntities);
 
         return JsonSerializer.Serialize(allComplexTypes, JsonSerializerOptions);
-    }
-
-    private static string ListAzResourceTypesFromAzTypeLoader(string? provider = null)
-    {
-        AzTypeLoader azTypeLoader = new();
-        var azResourceTypes = azTypeLoader.LoadTypeIndex().Resources.Keys;
-
-        if (!string.IsNullOrEmpty(provider))
-        {
-            azResourceTypes = azResourceTypes.Where(type => type.StartsWith(provider, StringComparison.OrdinalIgnoreCase));
-        }
-
-        return azResourceTypes.Aggregate(string.Empty, (current, resourceType) =>
-            current + $"{resourceType}\n");
     }
 }
