@@ -42,7 +42,7 @@ const $SymbolicNameContainer = styled.div`
   font-size: 18px;
   font-weight: 500;
   color: #242424;
-`
+`;
 
 const $ResourceTypeContainer = styled.div`
   font-size: 12px;

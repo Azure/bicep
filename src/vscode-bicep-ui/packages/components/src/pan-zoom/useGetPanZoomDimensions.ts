@@ -4,7 +4,6 @@
 import { useCallback } from "react";
 import { panZoomDimensionsAtom, useStore } from "./atoms";
 
-
 export interface PanZoomDimensions {
   width: number;
   height: number;

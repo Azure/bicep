@@ -3,8 +3,8 @@
 
 import { screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { renderPanZoomHook } from "./utils";
 import { usePanZoomControl } from "../usePanZoomControl";
+import { renderPanZoomHook } from "./utils";
 
 describe("usePanZoomControl", () => {
   it("should zoom in", async () => {
@@ -25,7 +25,9 @@ describe("usePanZoomControl", () => {
     zoomOut();
 
     await waitFor(() => {
-      expect(screen.getByText("pan-zoom transform spy").style.transform).toMatch(/^translate\(0px, 0px\) scale\(0.86.+\)$/);
+      expect(screen.getByText("pan-zoom transform spy").style.transform).toMatch(
+        /^translate\(0px, 0px\) scale\(0.86.+\)$/,
+      );
     });
   });
 

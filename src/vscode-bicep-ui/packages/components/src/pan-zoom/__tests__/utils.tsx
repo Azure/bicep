@@ -6,8 +6,8 @@ import type { PropsWithChildren } from "react";
 
 import { fireEvent, renderHook } from "@testing-library/react";
 import { PanZoom } from "../PanZoom";
-import { PanZoomTransformed } from "../PanZoomTransformed";
 import { PanZoomProvider } from "../PanZoomProvider";
+import { PanZoomTransformed } from "../PanZoomTransformed";
 
 export function firePanZoomEvent(element: HTMLElement) {
   // Workaround for d3. See https://github.com/d3/d3-drag/issues/79#issuecomment-1631409544.

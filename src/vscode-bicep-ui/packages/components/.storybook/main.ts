@@ -1,9 +1,10 @@
-import { createRequire } from "node:module";
-import { dirname, join } from "node:path";
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 import type { StorybookConfig } from "@storybook/react-vite";
+
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
 
 const require = createRequire(import.meta.url);
 
@@ -12,7 +13,7 @@ const config: StorybookConfig = {
   addons: [
     getAbsolutePath("@storybook/addon-links"),
     getAbsolutePath("@storybook/addon-themes"),
-    getAbsolutePath("@storybook/addon-docs")
+    getAbsolutePath("@storybook/addon-docs"),
   ],
   framework: {
     name: getAbsolutePath("@storybook/react-vite"),

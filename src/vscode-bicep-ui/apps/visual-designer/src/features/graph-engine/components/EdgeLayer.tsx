@@ -4,8 +4,8 @@
 import { useAtomValue } from "jotai";
 import { styled } from "styled-components";
 import { edgesAtom } from "../atoms/edges";
-import { StraightEdge } from "./StraightEdge";
 import { EdgeMarkerDefs } from "./EdgeMarkerDefs";
+import { StraightEdge } from "./StraightEdge";
 
 const $Svg = styled.svg`
   overflow: visible;

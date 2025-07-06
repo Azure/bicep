@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -12,8 +12,8 @@ export default defineConfig({
       output: {
         entryFileNames: `[name].js`,
         chunkFileNames: `chunks/[name].js`,
-        assetFileNames: `assets/[name].[ext]`
-      }
-    }
-  }
-})
+        assetFileNames: `assets/[name].[ext]`,
+      },
+    },
+  },
+});

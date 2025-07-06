@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-
 import { type Point } from "./point";
 
 export interface Box {
@@ -68,7 +67,7 @@ export function getBoxCenterSegmentIntersection(fromBox: Box, toPoint: Point): P
   const k = centerPoint.y > toPoint.y ? -1 : 1;
 
   return {
-    x: centerPoint.x + k * h / 2 / m,
-    y: centerPoint.y + k * h / 2,
+    x: centerPoint.x + (k * h) / 2 / m,
+    y: centerPoint.y + (k * h) / 2,
   };
 }
