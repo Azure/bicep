@@ -4,9 +4,9 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { PanZoom } from "../PanZoom";
+import { PanZoomProvider } from "../PanZoomProvider";
 import { PanZoomTransformed } from "../PanZoomTransformed";
 import { firePanZoomEvent } from "./utils";
-import { PanZoomProvider } from "../PanZoomProvider";
 
 describe("PanZoomTransformed", () => {
   it("should apply transform style changes on pan and zoom events", async () => {

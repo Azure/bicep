@@ -6,12 +6,13 @@ import type { PropsWithChildren } from "react";
 
 import { select } from "d3-selection";
 import { zoom, zoomIdentity } from "d3-zoom";
-import { frame } from "motion/react";
 import { RESET } from "jotai/utils";
+import { frame } from "motion/react";
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { panZoomControlAtom, panZoomDimensionsAtom, panZoomTransformAtom, useSetAtom } from "./atoms";
 
 import "d3-transition";
+
 import useResizeObserver from "@react-hook/resize-observer";
 
 /**
@@ -108,8 +109,16 @@ export function PanZoom({
 
     setPanZoomControl({
       reset: () => selection.transition().duration(transition.duration).call(panZoomBehavior.transform, zoomIdentity),
-      zoomIn: (scaleFactor?: number) => selection.transition().duration(transition.duration).call(panZoomBehavior.scaleBy, scaleFactor ?? defaultScaleFactor),
-      zoomOut: (scaleFactor?: number) => selection.transition().duration(transition.duration).call(panZoomBehavior.scaleBy, 1 / (scaleFactor ?? defaultScaleFactor)),
+      zoomIn: (scaleFactor?: number) =>
+        selection
+          .transition()
+          .duration(transition.duration)
+          .call(panZoomBehavior.scaleBy, scaleFactor ?? defaultScaleFactor),
+      zoomOut: (scaleFactor?: number) =>
+        selection
+          .transition()
+          .duration(transition.duration)
+          .call(panZoomBehavior.scaleBy, 1 / (scaleFactor ?? defaultScaleFactor)),
       transform: (x: number, y: number, scale: number) => {
         const clammpedScale = Math.min(Math.max(scale, minimumScale), maximumScale);
         const transform = zoomIdentity.translate(x, y).scale(clammpedScale);

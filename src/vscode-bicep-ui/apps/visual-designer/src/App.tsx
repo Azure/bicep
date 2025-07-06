@@ -8,13 +8,13 @@ import { PanZoomProvider } from "@vscode-bicep-ui/components";
 import { getDefaultStore, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { styled } from "styled-components";
+import { GraphControlBar } from "./features/design-view/components/GraphControlBar";
 import { ModuleDeclaration } from "./features/design-view/components/ModuleDeclaration";
 import { ResourceDeclaration } from "./features/design-view/components/ResourceDeclaration";
-import { GraphControlBar } from "./features/design-view/components/GraphControlBar";
 import {
+  addAtomicNodeAtom,
   addCompoundNodeAtom,
   addEdgeAtom,
-  addAtomicNodeAtom,
   edgesAtom,
   nodeConfigAtom,
   nodesAtom,
@@ -57,7 +57,10 @@ export function App() {
     addAtomicNode("B", { x: 500, y: 200 }, { symbolicName: "bar", resourceType: "Foo" });
     addAtomicNode("C", { x: 800, y: 500 }, { symbolicName: "someRandomStorage", resourceType: "Foo" });
     addAtomicNode("D", { x: 1200, y: 700 }, { symbolicName: "Tricep", resourceType: "Foo" });
-    addCompoundNode("E", ["A", "C"], { symbolicName: "myMod", path: "modules/foooooooooooooooooooooooooooooooooooooobar.bicep" });
+    addCompoundNode("E", ["A", "C"], {
+      symbolicName: "myMod",
+      path: "modules/foooooooooooooooooooooooooooooooooooooobar.bicep",
+    });
 
     addEdge("A->B", "A", "B");
     addEdge("E->D", "E", "D");

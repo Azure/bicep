@@ -8,9 +8,9 @@ import styled from "styled-components";
 import { PanZoom } from "./PanZoom";
 import { PanZoomProvider } from "./PanZoomProvider";
 import { PanZoomTransformed } from "./PanZoomTransformed";
+import { usePanZoomControl } from "./usePanZoomControl";
 import { usePanZoomTransform } from "./usePanZoomTransform";
 import { usePanZoomTransformListener } from "./usePanZoomTransformListener";
-import { usePanZoomControl } from "./usePanZoomControl";
 
 const meta: Meta<typeof PanZoom> = {
   title: "Examples/PanZoom",
@@ -55,7 +55,7 @@ const $CenteredText = styled.div`
   align-items: center;
   height: 100%;
   font-size: 24px;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border-radius: 8px;
@@ -100,116 +100,110 @@ function PanZoomControl() {
   };
 
   const buttonStyle = {
-    padding: '8px 16px',
-    border: '1px solid #ccc',
-    borderRadius: '6px',
-    backgroundColor: '#fff',
-    cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: '500',
-    transition: 'all 0.2s ease',
+    padding: "8px 16px",
+    border: "1px solid #ccc",
+    borderRadius: "6px",
+    backgroundColor: "#fff",
+    cursor: "pointer",
+    fontSize: "14px",
+    fontWeight: "500",
+    transition: "all 0.2s ease",
   };
 
   const primaryButtonStyle = {
     ...buttonStyle,
-    backgroundColor: '#0078d4',
-    color: 'white',
-    border: '1px solid #0078d4',
+    backgroundColor: "#0078d4",
+    color: "white",
+    border: "1px solid #0078d4",
   };
 
   const inputStyle = {
-    width: '70px',
-    padding: '6px 8px',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
-    fontSize: '14px',
-    textAlign: 'center' as const,
+    width: "70px",
+    padding: "6px 8px",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    fontSize: "14px",
+    textAlign: "center" as const,
   };
 
   const labelStyle = {
-    fontSize: '14px',
-    fontWeight: '500',
-    minWidth: '40px',
-    textAlign: 'left' as const,
+    fontSize: "14px",
+    fontWeight: "500",
+    minWidth: "40px",
+    textAlign: "left" as const,
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '16px',
-      maxWidth: '450px',
-      padding: '16px',
-      border: '1px solid #e1e1e1',
-      borderRadius: '8px',
-      backgroundColor: '#fafafa',
-      fontFamily: 'system-ui, -apple-system, sans-serif'
-    }}>
-      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "16px",
+        maxWidth: "450px",
+        padding: "16px",
+        border: "1px solid #e1e1e1",
+        borderRadius: "8px",
+        backgroundColor: "#fafafa",
+        fontFamily: "system-ui, -apple-system, sans-serif",
+      }}
+    >
+      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
         <button
           onClick={() => zoomIn(2)}
           style={buttonStyle}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f5")}
+          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#fff")}
         >
           Zoom In
         </button>
         <button
           onClick={() => zoomOut(2)}
           style={buttonStyle}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f5")}
+          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#fff")}
         >
           Zoom Out
         </button>
         <button
           onClick={reset}
           style={buttonStyle}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f5")}
+          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#fff")}
         >
           Reset
         </button>
       </div>
 
-      <div style={{
-        padding: '12px',
-        backgroundColor: '#e3f2fd',
-        borderRadius: '6px',
-        border: '1px solid #90caf9'
-      }}>
-        <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '4px', color: '#1565c0' }}>
+      <div
+        style={{
+          padding: "12px",
+          backgroundColor: "#e3f2fd",
+          borderRadius: "6px",
+          border: "1px solid #90caf9",
+        }}
+      >
+        <div style={{ fontSize: "14px", fontWeight: "600", marginBottom: "4px", color: "#1565c0" }}>
           Current Transform
         </div>
-        <div style={{ fontSize: '13px', fontFamily: 'monospace', color: '#1976d2' }}>
+        <div style={{ fontSize: "13px", fontFamily: "monospace", color: "#1976d2" }}>
           x: {currentX.toFixed(2)}, y: {currentY.toFixed(2)}, scale: {currentScale.toFixed(2)}
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <h4 style={{ margin: '0', fontSize: '16px', fontWeight: '600', color: '#333' }}>
-          Custom Transform
-        </h4>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'auto 1fr auto 1fr auto 1fr',
-          gap: '8px',
-          alignItems: 'center'
-        }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+        <h4 style={{ margin: "0", fontSize: "16px", fontWeight: "600", color: "#333" }}>Custom Transform</h4>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "auto 1fr auto 1fr auto 1fr",
+            gap: "8px",
+            alignItems: "center",
+          }}
+        >
           <label style={labelStyle}>X:</label>
-          <input
-            type="number"
-            value={x}
-            onChange={(e) => setX(Number(e.target.value))}
-            style={inputStyle}
-          />
+          <input type="number" value={x} onChange={(e) => setX(Number(e.target.value))} style={inputStyle} />
           <label style={labelStyle}>Y:</label>
-          <input
-            type="number"
-            value={y}
-            onChange={(e) => setY(Number(e.target.value))}
-            style={inputStyle}
-          />
+          <input type="number" value={y} onChange={(e) => setY(Number(e.target.value))} style={inputStyle} />
           <label style={labelStyle}>Scale:</label>
           <input
             type="number"
@@ -225,12 +219,12 @@ function PanZoomControl() {
           onClick={handleTransform}
           style={primaryButtonStyle}
           onMouseOver={(e) => {
-            e.currentTarget.style.backgroundColor = '#106ebe';
-            e.currentTarget.style.borderColor = '#106ebe';
+            e.currentTarget.style.backgroundColor = "#106ebe";
+            e.currentTarget.style.borderColor = "#106ebe";
           }}
           onMouseOut={(e) => {
-            e.currentTarget.style.backgroundColor = '#0078d4';
-            e.currentTarget.style.borderColor = '#0078d4';
+            e.currentTarget.style.backgroundColor = "#0078d4";
+            e.currentTarget.style.borderColor = "#0078d4";
           }}
         >
           Apply Transform
@@ -242,26 +236,32 @@ function PanZoomControl() {
 
 export const BasicUsage: Story = {
   render: () => (
-    <div style={{
-      padding: '20px',
-      backgroundColor: '#f8f9fa',
-      borderRadius: '12px',
-      border: '1px solid #e9ecef'
-    }}>
-      <h3 style={{
-        margin: '0 0 16px 0',
-        fontSize: '18px',
-        fontWeight: '600',
-        color: '#495057'
-      }}>
+    <div
+      style={{
+        padding: "20px",
+        backgroundColor: "#f8f9fa",
+        borderRadius: "12px",
+        border: "1px solid #e9ecef",
+      }}
+    >
+      <h3
+        style={{
+          margin: "0 0 16px 0",
+          fontSize: "18px",
+          fontWeight: "600",
+          color: "#495057",
+        }}
+      >
         Basic Pan & Zoom
       </h3>
-      <p style={{
-        margin: '0 0 16px 0',
-        fontSize: '14px',
-        color: '#6c757d',
-        lineHeight: '1.5'
-      }}>
+      <p
+        style={{
+          margin: "0 0 16px 0",
+          fontSize: "14px",
+          color: "#6c757d",
+          lineHeight: "1.5",
+        }}
+      >
         Click and drag to pan, use mouse wheel to zoom. Maximum scale is set to 10x.
       </p>
       <PanZoomProvider>
@@ -275,41 +275,51 @@ export const BasicUsage: Story = {
 
 export const MultipleProviders: Story = {
   render: () => (
-    <div style={{
-      padding: '20px',
-      backgroundColor: '#f8f9fa',
-      borderRadius: '12px',
-      border: '1px solid #e9ecef'
-    }}>
-      <h3 style={{
-        margin: '0 0 16px 0',
-        fontSize: '18px',
-        fontWeight: '600',
-        color: '#495057'
-      }}>
+    <div
+      style={{
+        padding: "20px",
+        backgroundColor: "#f8f9fa",
+        borderRadius: "12px",
+        border: "1px solid #e9ecef",
+      }}
+    >
+      <h3
+        style={{
+          margin: "0 0 16px 0",
+          fontSize: "18px",
+          fontWeight: "600",
+          color: "#495057",
+        }}
+      >
         Multiple Independent Pan & Zoom Areas
       </h3>
-      <p style={{
-        margin: '0 0 20px 0',
-        fontSize: '14px',
-        color: '#6c757d',
-        lineHeight: '1.5'
-      }}>
+      <p
+        style={{
+          margin: "0 0 20px 0",
+          fontSize: "14px",
+          color: "#6c757d",
+          lineHeight: "1.5",
+        }}
+      >
         Each area maintains its own independent pan and zoom state.
       </p>
 
-      <div style={{
-        display: 'grid',
-        gap: '20px',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))'
-      }}>
+      <div
+        style={{
+          display: "grid",
+          gap: "20px",
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+        }}
+      >
         <div>
-          <h4 style={{
-            margin: '0 0 8px 0',
-            fontSize: '14px',
-            fontWeight: '600',
-            color: '#6c757d'
-          }}>
+          <h4
+            style={{
+              margin: "0 0 8px 0",
+              fontSize: "14px",
+              fontWeight: "600",
+              color: "#6c757d",
+            }}
+          >
             Area 1
           </h4>
           <PanZoomProvider>
@@ -320,12 +330,14 @@ export const MultipleProviders: Story = {
         </div>
 
         <div>
-          <h4 style={{
-            margin: '0 0 8px 0',
-            fontSize: '14px',
-            fontWeight: '600',
-            color: '#6c757d'
-          }}>
+          <h4
+            style={{
+              margin: "0 0 8px 0",
+              fontSize: "14px",
+              fontWeight: "600",
+              color: "#6c757d",
+            }}
+          >
             Area 2
           </h4>
           <PanZoomProvider>
@@ -341,42 +353,50 @@ export const MultipleProviders: Story = {
 
 export const Hooks: Story = {
   render: () => (
-    <div style={{
-      padding: '20px',
-      backgroundColor: '#f8f9fa',
-      borderRadius: '12px',
-      border: '1px solid #e9ecef'
-    }}>
-      <h3 style={{
-        margin: '0 0 16px 0',
-        fontSize: '18px',
-        fontWeight: '600',
-        color: '#495057'
-      }}>
+    <div
+      style={{
+        padding: "20px",
+        backgroundColor: "#f8f9fa",
+        borderRadius: "12px",
+        border: "1px solid #e9ecef",
+      }}
+    >
+      <h3
+        style={{
+          margin: "0 0 16px 0",
+          fontSize: "18px",
+          fontWeight: "600",
+          color: "#495057",
+        }}
+      >
         Pan & Zoom Hooks Demo
       </h3>
-      <p style={{
-        margin: '0 0 24px 0',
-        fontSize: '14px',
-        color: '#6c757d',
-        lineHeight: '1.5'
-      }}>
+      <p
+        style={{
+          margin: "0 0 24px 0",
+          fontSize: "14px",
+          color: "#6c757d",
+          lineHeight: "1.5",
+        }}
+      >
         Demonstration of different hooks for accessing and controlling pan & zoom state.
       </p>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
         <div>
-          <div style={{
-            padding: '12px 16px',
-            backgroundColor: '#e3f2fd',
-            borderRadius: '8px',
-            border: '1px solid #90caf9',
-            marginBottom: '16px'
-          }}>
-            <h4 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: '600', color: '#1565c0' }}>
+          <div
+            style={{
+              padding: "12px 16px",
+              backgroundColor: "#e3f2fd",
+              borderRadius: "8px",
+              border: "1px solid #90caf9",
+              marginBottom: "16px",
+            }}
+          >
+            <h4 style={{ margin: "0 0 4px 0", fontSize: "16px", fontWeight: "600", color: "#1565c0" }}>
               usePanZoomTransform
             </h4>
-            <p style={{ margin: '0', fontSize: '13px', color: '#1976d2' }}>
+            <p style={{ margin: "0", fontSize: "13px", color: "#1976d2" }}>
               Triggers re-render, slower than usePanZoomTransformListener.
             </p>
           </div>
@@ -388,17 +408,19 @@ export const Hooks: Story = {
         </div>
 
         <div>
-          <div style={{
-            padding: '12px 16px',
-            backgroundColor: '#f3e5f5',
-            borderRadius: '8px',
-            border: '1px solid #ce93d8',
-            marginBottom: '16px'
-          }}>
-            <h4 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: '600', color: '#7b1fa2' }}>
+          <div
+            style={{
+              padding: "12px 16px",
+              backgroundColor: "#f3e5f5",
+              borderRadius: "8px",
+              border: "1px solid #ce93d8",
+              marginBottom: "16px",
+            }}
+          >
+            <h4 style={{ margin: "0 0 4px 0", fontSize: "16px", fontWeight: "600", color: "#7b1fa2" }}>
               usePanZoomTransformListener
             </h4>
-            <p style={{ margin: '0', fontSize: '13px', color: '#8e24aa' }}>
+            <p style={{ margin: "0", fontSize: "13px", color: "#8e24aa" }}>
               Does not trigger re-render, preferred for better performance.
             </p>
           </div>
@@ -410,22 +432,24 @@ export const Hooks: Story = {
         </div>
 
         <div>
-          <div style={{
-            padding: '12px 16px',
-            backgroundColor: '#e8f5e8',
-            borderRadius: '8px',
-            border: '1px solid #81c784',
-            marginBottom: '16px'
-          }}>
-            <h4 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: '600', color: '#2e7d32' }}>
+          <div
+            style={{
+              padding: "12px 16px",
+              backgroundColor: "#e8f5e8",
+              borderRadius: "8px",
+              border: "1px solid #81c784",
+              marginBottom: "16px",
+            }}
+          >
+            <h4 style={{ margin: "0 0 4px 0", fontSize: "16px", fontWeight: "600", color: "#2e7d32" }}>
               usePanZoomControl
             </h4>
-            <p style={{ margin: '0', fontSize: '13px', color: '#388e3c' }}>
+            <p style={{ margin: "0", fontSize: "13px", color: "#388e3c" }}>
               Provides programmatic control over pan and zoom operations.
             </p>
           </div>
           <PanZoomProvider>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               <PanZoomControl />
               <$PanZoom maximumScale={10}>
                 <$PanZoomTransformed>💪</$PanZoomTransformed>
