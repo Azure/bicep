@@ -43,6 +43,23 @@ namespace Bicep.IO.FileSystem
             return this.FileSystem.FileStream.New(this.FilePath, FileMode.Create, FileAccess.Write, FileShare.None);
         }
 
+        public string ReadAllText() => this.FileSystem.File.ReadAllText(this.FilePath);
+
+        public Task<string> ReadAllTextAsync() => this.FileSystem.File.ReadAllTextAsync(this.FilePath);
+
+        public void WriteAllText(string text)
+        {
+            this.GetParent().EnsureExists();
+            this.FileSystem.File.WriteAllText(this.FilePath, text);
+        }
+
+        public async Task WriteAllTextAsync(string text)
+        {
+            this.GetParent().EnsureExists();
+
+            await this.FileSystem.File.WriteAllTextAsync(this.FilePath, text);
+        }
+
         public void Delete() => this.FileSystem.File.Delete(this.FilePath);
 
         public void MakeExecutable()
