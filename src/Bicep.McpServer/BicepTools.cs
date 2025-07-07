@@ -38,7 +38,7 @@ public sealed class BicepTools(
         [Description("The resource type of the Azure resource; e.g. Microsoft.KeyVault/vaults")] string azResourceType,
         [Description("The API version of the resource type; e.g. 2024-11-01 or 2024-12-01-preview")] string apiVersion)
     {
-        TypesDefinitionResult typesDefinition = _resourceVisitor.LoadSingleResourceType(azResourceType, apiVersion);
+        TypesDefinitionResult typesDefinition = resourceVisitor.LoadSingleResourceType(azResourceType, apiVersion);
 
         var allComplexTypes = new List<ComplexType>();
         allComplexTypes.AddRange(typesDefinition.ResourceTypeEntities);
