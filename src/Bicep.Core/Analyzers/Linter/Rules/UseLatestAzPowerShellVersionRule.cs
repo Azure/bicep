@@ -68,8 +68,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             private bool IsDeploymentScriptResource(ResourceDeclarationSyntax syntax)
             {
-                return syntax.TypeString?.StringTokens.Any(token =>
-                    token.Value.Contains("Microsoft.Resources/deploymentScripts")) == true;
+                return syntax.TypeString?.TryGetLiteralValue()?.Contains("Microsoft.Resources/deploymentScripts") == true;
             }
 
             private string? GetAzPowerShellVersion(ResourceDeclarationSyntax syntax)
@@ -89,7 +88,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                         if (azPowerShellVersionProperty?.Value is StringSyntax stringSyntax)
                         {
-                            return stringSyntax.SegmentValues.FirstOrDefault();
+                            return stringSyntax.TryGetLiteralValue();
                         }
                     }
                 }
@@ -99,7 +98,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             private bool IsVersionBelowMinimum(string version)
             {
                 if (string.IsNullOrWhiteSpace(version))
+                {
                     return false;
+                }
                 if (Version.TryParse(version, out var parsedVersion) &&
                     Version.TryParse(MinimumAzPowerShellVersion, out var minimumVersion))
                 {
