@@ -235,22 +235,26 @@ namespace Bicep.Core.Emit
 
         private LanguageExpression ConvertModuleOutputPropertyAccessExpression(ModuleOutputPropertyAccessExpression exp)
         {
-            var @base = ToFunctionExpression(ConvertExpression(exp.Base));
-
+            LanguageExpression baseExpr;
             // the listOutputsWithSecureValues API has a different format from regular outputs
-            var requiresTrailingValueAccess = @base.Function switch
-            {
-                secureOutputsApi => false,
-                "if" when @base.Parameters.Length == 3 && @base.Parameters[1] is FunctionExpression funcIfTrue
-                    => funcIfTrue.Function != secureOutputsApi,
-                _ => true,
-            };
-
             List<JTokenExpression> tail = [new(exp.PropertyName)];
-            if (requiresTrailingValueAccess)
+
+            if (exp.Base is PropertyAccessExpression { Base: ModuleReferenceExpression module } baseAccessExpr)
             {
+                baseExpr = GetConverter(module.IndexContext)
+                    .ConvertModulePropertyAccess(module, baseAccessExpr, exp.IsSecureOutput);
+                if (!exp.IsSecureOutput)
+                {
+                    tail.Add(new("value"));
+                }
+            }
+            else
+            {
+                baseExpr = ConvertExpression(exp.Base);
                 tail.Add(new("value"));
             }
+
+            var @base = ToFunctionExpression(baseExpr);
 
             if (exp.Flags.HasFlag(AccessExpressionFlags.SafeAccess))
             {
@@ -508,7 +512,10 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private LanguageExpression ConvertModulePropertyAccess(ModuleReferenceExpression reference, PropertyAccessExpression expression)
+        private LanguageExpression ConvertModulePropertyAccess(
+            ModuleReferenceExpression reference,
+            PropertyAccessExpression expression,
+            bool? isSecureOutput = null)
         {
             LanguageExpression guardOnModuleCondition(LanguageExpression toGuard)
             {
@@ -530,7 +537,7 @@ namespace Bicep.Core.Emit
 
                 case "outputs":
                     // When referencing secure outputs, convert to listOutputsWithSecureValues function
-                    if (reference.Module.TryGetSemanticModel().Unwrap().Outputs.Any(o => o.IsSecure))
+                    if (isSecureOutput ?? reference.Module.TryGetSemanticModel().Unwrap().Outputs.Any(o => o.IsSecure))
                     {
                         var target = context.Settings.EnableSymbolicNames
                             ? GenerateSymbolicReference(reference.Module, reference.IndexContext)

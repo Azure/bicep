@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { PropsWithChildren } from "react";
 
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { css, styled } from "styled-components";
 import { Accordion } from "./Accordion";
 import { AccordionItem } from "./AccordionItem";

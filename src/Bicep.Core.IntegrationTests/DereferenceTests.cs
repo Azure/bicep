@@ -455,6 +455,7 @@ public class DereferenceTests
                 output nullableFoo string? = mod.?outputs.?foo
                 output nullableFoo2 string? = mod2.?outputs.?foo
                 output bar string? = mod.?outputs.bar
+                output nullableBar string? = mod.?outputs.?bar
             
                 """),
             ("mod.bicep", """
@@ -472,11 +473,12 @@ public class DereferenceTests
         result.Template.Should().HaveValueAtPath("$.outputs.name.value", "[if(parameters('condition'), 'mod', null())]");
         result.Template.Should().HaveValueAtPath("$.outputs.outputs.value", "[if(parameters('condition'), listOutputsWithSecureValues('mod', '2022-09-01'), null())]");
         result.Template.Should().HaveValueAtPath("$.outputs.outputs2.value", "[tryGet(if(not(parameters('condition')), reference('mod2'), null()), 'outputs')]");
-        result.Template.Should().HaveValueAtPath("$.outputs.foo.value", "[tryGet(if(parameters('condition'), listOutputsWithSecureValues('mod', '2022-09-01'), null()), 'foo')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.foo.value", "[tryGet(if(parameters('condition'), reference('mod'), null()), 'outputs', 'foo', 'value')]");
         result.Template.Should().HaveValueAtPath("$.outputs.foo2.value", "[tryGet(if(not(parameters('condition')), reference('mod2'), null()), 'outputs', 'foo', 'value')]");
-        result.Template.Should().HaveValueAtPath("$.outputs.nullableFoo.value", "[tryGet(if(parameters('condition'), listOutputsWithSecureValues('mod', '2022-09-01'), null()), 'foo')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.nullableFoo.value", "[tryGet(tryGet(tryGet(if(parameters('condition'), reference('mod'), null()), 'outputs'), 'foo'), 'value')]");
         result.Template.Should().HaveValueAtPath("$.outputs.nullableFoo2.value", "[tryGet(tryGet(tryGet(if(not(parameters('condition')), reference('mod2'), null()), 'outputs'), 'foo'), 'value')]");
         result.Template.Should().HaveValueAtPath("$.outputs.bar.value", "[tryGet(if(parameters('condition'), listOutputsWithSecureValues('mod', '2022-09-01'), null()), 'bar')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.nullableBar.value", "[tryGet(if(parameters('condition'), listOutputsWithSecureValues('mod', '2022-09-01'), null()), 'bar')]");
     }
 
     [TestMethod]

@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
@@ -13,6 +12,8 @@ using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.LangServer.IntegrationTests.Helpers;
+using Bicep.LanguageServer.Extensions;
+using Bicep.TextFixtures.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -30,12 +31,12 @@ public class FileWatcherTests
     [NotNull]
     public TestContext? TestContext { get; set; }
 
-    private static void SendDidChangeWatchedFiles(ILanguageClient client, params (DocumentUri documentUri, FileChangeType changeType)[] changes)
+    private static void SendDidChangeWatchedFiles(ILanguageClient client, params (IOUri fileUri, FileChangeType changeType)[] changes)
     {
         var fileChanges = new Container<FileEvent>(changes.Select(x => new FileEvent
         {
             Type = x.changeType,
-            Uri = x.documentUri,
+            Uri = x.fileUri.ToDocumentUri(),
         }));
 
         client.Workspace.DidChangeWatchedFiles(new DidChangeWatchedFilesParams
@@ -47,33 +48,34 @@ public class FileWatcherTests
     [TestMethod]
     public async Task Module_file_change_should_trigger_a_recompilation()
     {
-        var fileSystemDict = new Dictionary<Uri, string>();
         var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
+        var mainContent = """
+            module myMod '../toOther/module.bicep' = {
+              name: 'myMod'
+              params: {
+                requiredInput: 'hello!'
+              }
+            }
+            """;
+        var moduleContent = """
+            // mis-spelling!
+            param requiredIpnut string
+            """;
+        var fileSet = InMemoryTestFileSet.Create(
+            ("main.bicep", mainContent),
+            ("../toOther/module.bicep", moduleContent));
+        var mainUri = fileSet.GetUri("main.bicep").ToDocumentUri();
+        var moduleUri = fileSet.GetUri("../toOther/module.bicep").ToDocumentUri();
 
-        var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
-        fileSystemDict[mainUri.ToUriEncoded()] = @"
-module myMod '../toOther/module.bicep' = {
-  name: 'myMod'
-  params: {
-    requiredInput: 'hello!'
-  }
-}
-";
-
-        var moduleUri = DocumentUri.FromFileSystemPath("/path/toOther/module.bicep");
-        fileSystemDict[moduleUri.ToUriEncoded()] = @"
-// mis-spelling!
-param requiredIpnut string
-";
         using var helper = await LanguageServerHelper.StartServer(
             this.TestContext,
             options => options.OnPublishDiagnostics(diagsListener.AddMessage),
-            services => services.WithFileResolver(new InMemoryFileResolver(fileSystemDict)));
+            services => services.WithFileExplorer(fileSet.FileExplorer));
         var client = helper.Client;
 
         // open the main document
         {
-            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUriEncoded()], 1));
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, mainContent, 1));
 
             var diagsParams = await diagsListener.WaitNext();
             diagsParams.Uri.Should().Be(mainUri);
@@ -82,7 +84,7 @@ param requiredIpnut string
 
         // open the module document. this should trigger diagnostics for both the module and the main doc which references it.
         {
-            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(moduleUri, fileSystemDict[moduleUri.ToUriEncoded()], 1));
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(moduleUri, moduleContent, 1));
 
             var diagsParams = await diagsListener.WaitNext();
             diagsParams.Uri.Should().Be(moduleUri);
@@ -125,54 +127,58 @@ param requiredInput string
     [TestMethod]
     public async Task Background_file_deletion_should_trigger_a_recompilation()
     {
-        var fileSystemDict = new Dictionary<Uri, string>();
         var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
+        var mainContent = """
+            module myMod '../toOther/module.bicep' = {
+              name: 'myMod'
+              params: {
+                requiredInput: 'hello!'
+              }
+            }
+            """;
 
-        var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
-        fileSystemDict[mainUri.ToUriEncoded()] = @"
-module myMod '../toOther/module.bicep' = {
-  name: 'myMod'
-  params: {
-    requiredInput: 'hello!'
-  }
-}
-";
+        var fileSet = new InMemoryTestFileSet().AddFiles(
+            ("main.bicep", mainContent),
+            ("../toOther/module.bicep", """
+                // mis-spelling!
+                param requiredIpnut string
+                """));
 
-        var moduleUri = DocumentUri.FromFileSystemPath("/path/toOther/module.bicep");
-        fileSystemDict[moduleUri.ToUriEncoded()] = @"
-// mis-spelling!
-param requiredIpnut string
-";
+        var mainUri = fileSet.GetUri("main.bicep");
+        var moduleUri = fileSet.GetUri("../toOther/module.bicep");
 
-        var fileResolver = new InMemoryFileResolver(fileSystemDict);
+        //var fileResolver = new InMemoryFileResolver(fileSystemDict);
         using var helper = await LanguageServerHelper.StartServer(
             this.TestContext,
             options => options.OnPublishDiagnostics(diagsListener.AddMessage),
-            services => services.WithFileResolver(fileResolver));
+            services => services.WithFileExplorer(fileSet.FileExplorer));
         var client = helper.Client;
 
         // open the main document
         {
-            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUriEncoded()], 1));
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri.ToString(), mainContent, 1));
 
             var diagsParams = await diagsListener.WaitNext();
-            diagsParams.Uri.Should().Be(mainUri);
+            diagsParams.Uri.Should().Be(DocumentUri.From(mainUri.ToString()));
             diagsParams.Diagnostics.Should().Contain(x => x.Message.Contains("The specified \"object\" declaration is missing the following required properties: \"requiredIpnut\"."));
         }
 
         // delete the module file with a background process
         {
-            fileResolver.MockFileSystem.File.Delete(moduleUri.GetFileSystemPath());
+            fileSet.RemoveFile(moduleUri);
             SendDidChangeWatchedFiles(client, (moduleUri, FileChangeType.Deleted));
 
             var nextDiags = await diagsListener.WaitNext();
-            nextDiags.Uri.Should().Be(mainUri);
-            nextDiags.Diagnostics.Should().Contain(x => x.Message.Contains("An error occurred reading file. Could not find file '/path/toOther/module.bicep'."));
+
+            // DocumentUri lowercases the drive letter, causing a mismatch with the IOUri used by the language server, which is annoying.
+            // We need to convert the DocumentUri to a string and then back to a DocumentUri to get the expected format.
+            nextDiags.Diagnostics.Should().HaveCount(1);
+            nextDiags.Diagnostics.Single().Message.Should().Be($"An error occurred reading file. File '{moduleUri}' does not exist.");
         }
 
         // delete the main file with a background process. this should be ignored, as the close document event should clean it up
         {
-            fileResolver.MockFileSystem.File.Delete(moduleUri.GetFileSystemPath());
+            fileSet.RemoveFile(mainUri);
             SendDidChangeWatchedFiles(client, (mainUri, FileChangeType.Deleted));
 
             await diagsListener.EnsureNoMessageSent();
@@ -180,10 +186,10 @@ param requiredIpnut string
 
         // close the main file. the language server should send empty diagnostics to clear the IDE state.
         {
-            client.TextDocument.DidCloseTextDocument(TextDocumentParamHelper.CreateDidCloseTextDocumentParams(mainUri, 1));
+            client.TextDocument.DidCloseTextDocument(TextDocumentParamHelper.CreateDidCloseTextDocumentParams(mainUri.ToDocumentUri(), 1));
 
             var diagsParams = await diagsListener.WaitNext();
-            diagsParams.Uri.Should().Be(mainUri);
+            diagsParams.Uri.Should().Be(mainUri.ToDocumentUri());
             diagsParams.Diagnostics.Should().BeEmpty();
         }
     }
@@ -195,46 +201,48 @@ param requiredIpnut string
         var fileSystemDict = new Dictionary<Uri, string>();
         var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
 
-        var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
-        fileSystemDict[mainUri.ToUriEncoded()] = @"
-module myMod '../toOther/module.bicep' = {
-  name: 'myMod'
-  params: {
-    requiredInput: 'hello!'
-  }
-}
-";
+        var mainContent = """
+            module myMod '../toOther/module.bicep' = {
+              name: 'myMod'
+              params: {
+                requiredInput: 'hello!'
+              }
+            }
+            """;
 
-        var moduleUri = DocumentUri.FromFileSystemPath("/path/toOther/module.bicep");
-        fileSystemDict[moduleUri.ToUriEncoded()] = @"
-// mis-spelling!
-param requiredIpnut string
-";
+        var fileSet = new InMemoryTestFileSet().AddFiles(
+            ("main.bicep", mainContent),
+            ("../toOther/module.bicep", """
+                // mis-spelling!
+                param requiredIpnut string
+                """));
 
-        var fileResolver = new InMemoryFileResolver(fileSystemDict);
+        var mainUri = fileSet.GetUri("main.bicep");
+        var moduleUri = fileSet.GetUri("../toOther/module.bicep");
+
         using var helper = await LanguageServerHelper.StartServer(
             this.TestContext,
             options => options.OnPublishDiagnostics(diagsListener.AddMessage),
-            services => services.WithFileResolver(fileResolver));
+            services => services.WithFileExplorer(fileSet.FileExplorer));
         var client = helper.Client;
 
         // open the main document
         {
-            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUriEncoded()], 1));
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri.ToDocumentUri(), mainContent, 1));
 
             var diagsParams = await diagsListener.WaitNext();
-            diagsParams.Uri.Should().Be(mainUri);
+            diagsParams.Uri.Should().Be(mainUri.ToDocumentUri());
             diagsParams.Diagnostics.Should().Contain(x => x.Message.Contains("The specified \"object\" declaration is missing the following required properties: \"requiredIpnut\"."));
         }
 
         // delete the module folder with a background process
         {
-            fileResolver.MockFileSystem.File.Delete(moduleUri.GetFileSystemPath());
-            SendDidChangeWatchedFiles(client, (DocumentUri.FromFileSystemPath("/path/toOther"), FileChangeType.Deleted));
+            fileSet.RemoveFile(moduleUri);
+            SendDidChangeWatchedFiles(client, (moduleUri, FileChangeType.Deleted));
 
             var nextDiags = await diagsListener.WaitNext();
-            nextDiags.Uri.Should().Be(mainUri);
-            nextDiags.Diagnostics.Should().Contain(x => x.Message.Contains("An error occurred reading file. Could not find file '/path/toOther/module.bicep'."));
+            nextDiags.Uri.Should().Be(mainUri.ToDocumentUri());
+            nextDiags.Diagnostics.Should().Contain(x => x.Message.Contains($"An error occurred reading file. File '{moduleUri}' does not exist."));
         }
     }
 

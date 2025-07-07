@@ -30,7 +30,7 @@ public class HandlerRequest
     public HandlerRequest(string type, string apiVersion, JsonObject? extensionSettings, JsonObject? resourceJson)
     {
         Type = string.IsNullOrWhiteSpace(type) ? throw new ArgumentNullException(nameof(type)) : type;
-        ApiVersion = apiVersion;
+        ApiVersion = string.IsNullOrWhiteSpace(apiVersion) ? throw new ArgumentException(nameof(apiVersion)) : apiVersion;
         ExtensionSettings = extensionSettings ?? [];
         ResourceJson = resourceJson ?? [];
     }

@@ -72,6 +72,7 @@ public static class SnapshotHelper
             template,
             parameters: ResolveParameters(parameters, externalInputs),
             rootDeploymentMetadata: GetDeploymentMetadata(tenantId, subscriptionId, resourceGroup, deploymentName, location, scope, template),
+            referenceFunctionPreflightEnabled: true,
             cancellationToken: cancellationToken);
 
         return new(

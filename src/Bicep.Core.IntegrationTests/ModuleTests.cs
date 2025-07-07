@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
@@ -13,10 +15,12 @@ using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using Bicep.TextFixtures.Assertions;
+using Bicep.TextFixtures.IO;
+using Bicep.TextFixtures.Mocks;
 using Bicep.TextFixtures.Utils;
-using Bicep.TextFixtures.Utils.IO;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -28,9 +32,9 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class ModuleTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
+        private readonly TestCompiler compiler = TestCompiler.ForMockFileSystemCompilation();
 
-        private static readonly MockRepository Repository = new(MockBehavior.Strict);
+        private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
 
         private ServiceBuilder ServicesWithResourceTyped => new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceTypedParamsAndOutputsEnabled: true));
 
@@ -185,21 +189,20 @@ module main 'main.bicep' = {
 
         private delegate bool TryReadDelegate(Uri fileUri, out string? fileContents, out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder);
 
-        private static void SetupFileReaderMock(Mock<IFileResolver> mockFileResolver, Uri fileUri, string? fileContents, DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder)
-        {
-            mockFileResolver.Setup(x => x.TryRead(fileUri)).Returns(ResultHelper.Create(fileContents, failureBuilder));
-        }
-
         [TestMethod]
         public void SourceFileGroupingBuilder_build_should_throw_diagnostic_exception_if_entrypoint_file_read_fails()
         {
             var fileUri = new Uri("file:///path/to/main.bicep");
 
-            var mockFileResolver = Repository.Create<IFileResolver>();
-            var mockDispatcher = Repository.Create<IModuleDispatcher>().Object;
-            SetupFileReaderMock(mockFileResolver, fileUri, null, x => x.ErrorOccurredReadingFile("Mock read failure!"));
+            var fileHandleMock = StrictMock.Of<IFileHandle>();
+            fileHandleMock.Setup(x => x.OpenRead()).Throws(new IOException("Mock read failure!"));
 
-            Action buildAction = () => SourceFileGroupingBuilder.Build(mockFileResolver.Object, mockDispatcher, new Workspace(), BicepTestConstants.SourceFileFactory, fileUri);
+            var fileExplorerMock = StrictMock.Of<IFileExplorer>();
+            fileExplorerMock.Setup(x => x.GetFile(fileUri.ToIOUri())).Returns(fileHandleMock.Object);
+
+            var mockDispatcher = StrictMock.Of<IModuleDispatcher>().Object;
+
+            Action buildAction = () => SourceFileGroupingBuilder.Build(fileExplorerMock.Object, mockDispatcher, new Workspace(), BicepTestConstants.SourceFileFactory, fileUri);
             buildAction.Should().Throw<DiagnosticException>()
                 .And.Diagnostic.Should().HaveCodeAndSeverity("BCP091", DiagnosticLevel.Error).And.HaveMessage("An error occurred reading file. Mock read failure!");
         }
@@ -208,7 +211,7 @@ module main 'main.bicep' = {
         public async Task Module_should_include_diagnostic_if_module_file_cannot_be_resolved()
         {
             var mainFileUri = new Uri("file:///path/to/main.bicep");
-            var mainFileContents = @"
+            var mainFileText = @"
 param inputa string
 param inputb string
 
@@ -220,7 +223,7 @@ module modulea 'modulea.bicep' = {
   }
 }
 ";
-            var result = await new TestCompiler().RestoreAndCompileMockFileSystemFile(mainFileContents);
+            var result = await this.compiler.CompileInline(mainFileText);
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP091", DiagnosticLevel.Error, $"An error occurred reading file. Could not find file '{TestFileUri.FromMockFileSystemPath("modulea.bicep")}'."),
@@ -355,16 +358,15 @@ module modulea 'modulea.bicep' = {
   }
 }
 ";
-            var mockFileResolver = Repository.Create<IFileResolver>();
-            SetupFileReaderMock(mockFileResolver, mainUri, mainFileContents, null);
-            SetupFileReaderMock(mockFileResolver, moduleAUri, null, x => x.ErrorOccurredReadingFile("Mock read failure!"));
+            var fileExplorer = new InMemoryFileExplorer();
+            fileExplorer.GetFile(mainUri.ToIOUri()).Write(mainFileContents);
 
-            var compiler = ServiceBuilder.Create(s => s.WithFileResolver(mockFileResolver.Object).WithDisabledAnalyzersConfiguration()).GetCompiler();
+            var compiler = ServiceBuilder.Create(s => s.WithFileExplorer(fileExplorer).WithDisabledAnalyzersConfiguration()).GetCompiler();
             var compilation = await compiler.CreateCompilation(mainUri);
 
             var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
-                ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. Mock read failure!"),
+                ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. File '/path/to/modulea.bicep' does not exist."),
             });
         }
 

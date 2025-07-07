@@ -9,8 +9,10 @@ using Azure.Deployments.Engine.Definitions;
 using Bicep.Cli.Models;
 using Bicep.Core.Emit;
 using Bicep.Core.Exceptions;
+using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Decompiler;
+using Bicep.IO.Abstraction;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 
@@ -20,11 +22,13 @@ namespace Bicep.Cli.Services
     {
         private readonly IOContext io;
         private readonly IFileSystem fileSystem;
+        private readonly IFileExplorer fileExplorer;
 
-        public OutputWriter(IOContext io, IFileSystem fileSystem)
+        public OutputWriter(IOContext io, IFileSystem fileSystem, IFileExplorer fileExplorer)
         {
             this.io = io;
             this.fileSystem = fileSystem;
+            this.fileExplorer = fileExplorer;
         }
 
         public void ParametersToStdout(Compilation compilation)
@@ -76,6 +80,17 @@ namespace Bicep.Cli.Services
             WriteToFile(outputUri, templateResult.Template);
         }
 
+        public void TemplateToFile(Compilation compilation, IOUri outputUri)
+        {
+            var templateResult = compilation.Emitter.Template();
+            if (templateResult.Template is null)
+            {
+                throw new InvalidOperationException("Failed to emit template");
+            }
+
+            WriteToFile(outputUri, templateResult.Template);
+        }
+
         public void DecompileResultToFile(DecompileResult decompilation)
         {
             foreach (var (fileUri, bicepOutput) in decompilation.FilesToSave)
@@ -106,6 +121,18 @@ namespace Bicep.Cli.Services
                 using var sw = new StreamWriter(fileStream, TemplateEmitter.UTF8EncodingWithoutBom, 4096, leaveOpen: true);
 
                 sw.Write(contents);
+            }
+            catch (Exception exception)
+            {
+                throw new BicepException(exception.Message, exception);
+            }
+        }
+
+        public void WriteToFile(IOUri fileUri, string contents)
+        {
+            try
+            {
+                this.fileExplorer.GetFile(fileUri).Write(contents);
             }
             catch (Exception exception)
             {

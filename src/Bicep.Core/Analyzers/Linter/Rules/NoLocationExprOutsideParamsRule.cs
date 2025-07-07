@@ -15,8 +15,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public NoLocationExprOutsideParamsRule() : base(
             code: Code,
-            description: CoreResources.NoLocExprOutsideParamsRuleDescription,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
+            description: CoreResources.NoLocExprOutsideParamsRuleDescription)
         {
         }
 

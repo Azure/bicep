@@ -179,7 +179,7 @@ resource storageAccounts_ll21w7onmmpv65q24_name_default_blobs11 'Microsoft.Stora
   }
   dependsOn: [
     storageAccounts_ll21w7onmmpv65q24_name_resource
-//@[4:51) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll21w7onmmpv65q24_name_resource'. (bicep core linter https://aka.ms/bicep/linter/no-unnecessary-dependson) |storageAccounts_ll21w7onmmpv65q24_name_resource|
+//@[4:51) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll21w7onmmpv65q24_name_resource'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unnecessary-dependson) |storageAccounts_ll21w7onmmpv65q24_name_resource|
   ]
 }
 
@@ -193,7 +193,7 @@ resource storageAccounts_ll21w7onmmpv65q24_name_default_blobs12 'Microsoft.Stora
   }
   dependsOn: [
     storageAccounts_ll21w7onmmpv65q24_name_resource
-//@[4:51) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll21w7onmmpv65q24_name_resource'. (bicep core linter https://aka.ms/bicep/linter/no-unnecessary-dependson) |storageAccounts_ll21w7onmmpv65q24_name_resource|
+//@[4:51) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll21w7onmmpv65q24_name_resource'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unnecessary-dependson) |storageAccounts_ll21w7onmmpv65q24_name_resource|
   ]
 }
 
@@ -207,7 +207,7 @@ resource storageAccounts_ll22w7onmmpv65q24_name_default_blobs21 'Microsoft.Stora
   }
   dependsOn: [
     storageAccounts_ll22w7onmmpv65q24_name_resource
-//@[4:51) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll22w7onmmpv65q24_name_resource'. (bicep core linter https://aka.ms/bicep/linter/no-unnecessary-dependson) |storageAccounts_ll22w7onmmpv65q24_name_resource|
+//@[4:51) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll22w7onmmpv65q24_name_resource'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unnecessary-dependson) |storageAccounts_ll22w7onmmpv65q24_name_resource|
   ]
 }
 
@@ -221,7 +221,7 @@ resource storageAccounts_ll22w7onmmpv65q24_name_default_blobs22 'Microsoft.Stora
   }
   dependsOn: [
     storageAccounts_ll22w7onmmpv65q24_name_resource
-//@[4:51) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll22w7onmmpv65q24_name_resource'. (bicep core linter https://aka.ms/bicep/linter/no-unnecessary-dependson) |storageAccounts_ll22w7onmmpv65q24_name_resource|
+//@[4:51) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll22w7onmmpv65q24_name_resource'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unnecessary-dependson) |storageAccounts_ll22w7onmmpv65q24_name_resource|
   ]
 }
 
