@@ -14,7 +14,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public NoUnusedExistingResourcesRule() : base(
             code: Code,
             description: CoreResources.UnusedExistingResourceRuleDescription,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
             diagnosticStyling: Diagnostics.DiagnosticStyling.ShowCodeAsUnused)
         { }
 

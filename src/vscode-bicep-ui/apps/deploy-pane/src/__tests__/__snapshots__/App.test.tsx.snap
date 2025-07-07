@@ -16,7 +16,7 @@ exports[`App > handles synchronous deployment failures correctly 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -94,7 +94,7 @@ exports[`App > handles synchronous deployment failures correctly 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -121,8 +121,6 @@ exports[`App > handles synchronous deployment failures correctly 1`] = `
             fooParam
           </vscode-label>
           <vscode-textfield
-            aria-invalid="false"
-            internals-valid=""
             type="text"
           />
         </span>
@@ -139,7 +137,7 @@ exports[`App > handles synchronous deployment failures correctly 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -187,7 +185,7 @@ exports[`App > handles synchronous deployment failures correctly 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -223,9 +221,10 @@ exports[`App > handles synchronous deployment failures correctly 1`] = `
                     style="vertical-align: middle;"
                     title="Open in Portal"
                   >
+                     
                     <div
                       aria-hidden="true"
-                      class="sc-gnOvAp jiyPEE codicon codicon-globe"
+                      class="sc-hvigdm gDPfJL codicon codicon-globe"
                       data-testid="globe-codicon"
                     />
                   </a>
@@ -253,11 +252,8 @@ exports[`App > handles synchronous deployment failures correctly 1`] = `
           </vscode-table-body>
         </vscode-table>
         <vscode-checkbox
-          aria-checked="false"
           aria-invalid="false"
-          aria-label="Show JSON?"
           internals-valid=""
-          role="checkbox"
         >
           Show JSON?
         </vscode-checkbox>
@@ -305,7 +301,7 @@ exports[`App > renders the App component with deployment state 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -383,7 +379,7 @@ exports[`App > renders the App component with deployment state 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -410,8 +406,6 @@ exports[`App > renders the App component with deployment state 1`] = `
             fooParam
           </vscode-label>
           <vscode-textfield
-            aria-invalid="false"
-            internals-valid=""
             type="text"
           />
         </span>
@@ -428,7 +422,7 @@ exports[`App > renders the App component with deployment state 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -491,7 +485,7 @@ exports[`App > runs a deployment 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -569,7 +563,7 @@ exports[`App > runs a deployment 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -596,8 +590,6 @@ exports[`App > runs a deployment 1`] = `
             fooParam
           </vscode-label>
           <vscode-textfield
-            aria-invalid="false"
-            internals-valid=""
             type="text"
           />
         </span>
@@ -614,7 +606,7 @@ exports[`App > runs a deployment 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -662,7 +654,7 @@ exports[`App > runs a deployment 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -698,9 +690,10 @@ exports[`App > runs a deployment 1`] = `
                     style="vertical-align: middle;"
                     title="Open in Portal"
                   >
+                     
                     <div
                       aria-hidden="true"
-                      class="sc-gnOvAp jiyPEE codicon codicon-globe"
+                      class="sc-hvigdm gDPfJL codicon codicon-globe"
                       data-testid="globe-codicon"
                     />
                   </a>
@@ -740,7 +733,7 @@ exports[`App > runs a deployment 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -797,9 +790,10 @@ exports[`App > runs a deployment 1`] = `
                   style="vertical-align: middle;"
                   title="Open in Portal"
                 >
+                   
                   <div
                     aria-hidden="true"
-                    class="sc-gnOvAp jiyPEE codicon codicon-globe"
+                    class="sc-hvigdm gDPfJL codicon codicon-globe"
                     data-testid="globe-codicon"
                   />
                 </a>
@@ -842,7 +836,7 @@ exports[`App > runs a deployment 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -914,7 +908,7 @@ exports[`App > supports the scope picker 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -992,7 +986,7 @@ exports[`App > supports the scope picker 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -1019,8 +1013,6 @@ exports[`App > supports the scope picker 1`] = `
             fooParam
           </vscode-label>
           <vscode-textfield
-            aria-invalid="false"
-            internals-valid=""
             type="text"
           />
         </span>
@@ -1037,7 +1029,7 @@ exports[`App > supports the scope picker 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -1094,7 +1086,7 @@ exports[`App > validates a deployment 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -1172,7 +1164,7 @@ exports[`App > validates a deployment 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -1199,8 +1191,6 @@ exports[`App > validates a deployment 1`] = `
             fooParam
           </vscode-label>
           <vscode-textfield
-            aria-invalid="false"
-            internals-valid=""
             type="text"
           />
         </span>
@@ -1217,7 +1207,7 @@ exports[`App > validates a deployment 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -1265,7 +1255,7 @@ exports[`App > validates a deployment 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -1302,11 +1292,8 @@ exports[`App > validates a deployment 1`] = `
           </vscode-table-body>
         </vscode-table>
         <vscode-checkbox
-          aria-checked="false"
           aria-invalid="false"
-          aria-label="Show JSON?"
           internals-valid=""
-          role="checkbox"
         >
           Show JSON?
         </vscode-checkbox>
@@ -1368,7 +1355,7 @@ exports[`App > what-ifs a deployment 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -1446,7 +1433,7 @@ exports[`App > what-ifs a deployment 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -1473,8 +1460,6 @@ exports[`App > what-ifs a deployment 1`] = `
             fooParam
           </vscode-label>
           <vscode-textfield
-            aria-invalid="false"
-            internals-valid=""
             type="text"
           />
         </span>
@@ -1491,7 +1476,7 @@ exports[`App > what-ifs a deployment 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -1539,7 +1524,7 @@ exports[`App > what-ifs a deployment 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>
@@ -1588,7 +1573,7 @@ exports[`App > what-ifs a deployment 1`] = `
       >
         <div
           aria-hidden="true"
-          class="sc-gnOvAp FKHEF codicon codicon-chevron-up"
+          class="sc-hvigdm cUFKKa codicon codicon-chevron-up"
           data-testid="chevron-up-codicon"
         />
         <h3>

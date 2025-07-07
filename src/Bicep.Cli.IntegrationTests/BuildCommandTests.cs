@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using System.Text.RegularExpressions;
 using Bicep.Cli.UnitTests;
 using Bicep.Core;
@@ -55,7 +56,7 @@ namespace Bicep.Cli.IntegrationTests
                 output.Should().BeEmpty();
 
                 error.Should().NotBeEmpty();
-                error.Should().Contain($@"The specified input ""/dev/zero"" was not recognized as a Bicep file. Bicep files must use the {LanguageConstants.LanguageFileExtension} extension.");
+                error.Should().Contain($@"The specified input ""{Path.GetFullPath("/dev/zero")}"" was not recognized as a Bicep file. Bicep files must use the {LanguageConstants.LanguageFileExtension} extension.");
             }
         }
 
@@ -310,13 +311,24 @@ output myOutput string = 'hello!'
                 (input: "nofile.bicep", expectOutput: false)
             };
 
+            var fileSystem = new MockFileSystem();
+
             foreach (var (input, _) in fileResults)
             {
+                fileSystem.AddFile($"{outputPath}/{input}", contents);
+                // Since Matcher uses the real file system, we need to save the files to the
+                // real file system as well so it can find the files.
                 FileHelper.SaveResultFile(TestContext, input, contents, outputPath);
             }
 
+            if (!useRootPath)
+            {
+                fileSystem.Directory.SetCurrentDirectory(outputPath);
+            }
+
+
             var (output, error, result) = await Bicep(
-                services => services.WithEnvironment(useRootPath ? TestEnvironment.Default : TestEnvironment.Default with { CurrentDirectory = outputPath }),
+                services => services.WithFileSystem(fileSystem),
                 ["build",
                     "--pattern",
                     useRootPath ? $"{outputPath}/file*.bicep" : "file*.bicep"]);
@@ -327,8 +339,8 @@ output myOutput string = 'hello!'
 
             foreach (var (input, expectOutput) in fileResults)
             {
-                var outputFile = Path.ChangeExtension(input, ".json");
-                File.Exists(Path.Combine(outputPath, outputFile)).Should().Be(expectOutput);
+                var outputFile = fileSystem.Path.ChangeExtension(input, ".json");
+                fileSystem.File.Exists(fileSystem.Path.Combine(outputPath, outputFile)).Should().Be(expectOutput);
             }
         }
 
@@ -553,7 +565,7 @@ output myOutput string = 'hello!'
             File.Exists(expectedOutputFile).Should().BeTrue();
             result.Should().Be(0);
             output.Should().BeEmpty();
-            error.Should().Contain(@"main.bicep(1,7) : Warning no-unused-params: Parameter ""storageAccountName"" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]");
+            error.Should().Contain(@"main.bicep(1,7) : Warning no-unused-params: Parameter ""storageAccountName"" is declared but never used. [https://aka.ms/bicep/linter-diagnostics#no-unused-params]");
         }
 
         [TestMethod]
@@ -606,7 +618,7 @@ output myOutput string = 'hello!'
             {
                "ruleId":"no-unused-params",
                "message":{
-                  "text":"Parameter \"storageAccountName\" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]"
+                  "text":"Parameter \"storageAccountName\" is declared but never used. [https://aka.ms/bicep/linter-diagnostics#no-unused-params]"
                },
                "locations":[
                   {

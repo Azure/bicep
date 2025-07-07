@@ -4,7 +4,7 @@ using Bicep.Cli.Extensions;
 
 namespace Bicep.Cli.Arguments
 {
-    public class PublishArguments : ArgumentsBase
+    public class PublishArguments : ArgumentsBase, IInputArguments
     {
         public PublishArguments(string[] args, IOContext io) : base(Constants.Command.Publish)
         {

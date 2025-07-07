@@ -24,8 +24,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public ArtifactsParametersRule() : base(
             code: Code,
             description: "Follow best practices when including the _artifactsLocation and _artifactsLocationSasToken parameters.",
-            LinterRuleCategory.BestPractice,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
+            LinterRuleCategory.BestPractice)
         {
             Debug.Assert(ArtifactsLocationName.StartsWith('_'));
             Debug.Assert(ArtifactsLocationSasTokenName.StartsWith('_'));

@@ -6,7 +6,7 @@ param baseUrl string = 'https://my.base/url'
 var armBaseUrl = baseUrl
 var module1Url = '${armBaseUrl}/nested/module1.json'
 var module2Url = '${armBaseUrl}/nested/module2.jsonc'
-//@[04:14) [no-unused-vars (Warning)] Variable "module2Url" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |module2Url|
+//@[04:14) [no-unused-vars (Warning)] Variable "module2Url" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |module2Url|
 var objectVar = {
   val1: 'a${location}b'
 }

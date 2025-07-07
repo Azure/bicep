@@ -80,7 +80,7 @@ namespace Bicep.IO.InMemory
 
             public void WriteFile(InMemoryFileHandle file, string text) => this.fileEntries.AddOrUpdate(file, text, (_, _) => text);
 
-            public string ReadFile(InMemoryFileHandle file) => this.fileEntries.GetValueOrDefault(file) ?? throw new InvalidOperationException($"File '{file.Uri}' does not exist.");
+            public string ReadFile(InMemoryFileHandle file) => this.fileEntries.GetValueOrDefault(file) ?? throw new FileNotFoundException($"File '{file.Uri}' does not exist.");
         }
     }
 }

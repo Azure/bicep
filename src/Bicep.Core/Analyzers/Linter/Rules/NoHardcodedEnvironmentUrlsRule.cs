@@ -21,8 +21,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public NoHardcodedEnvironmentUrlsRule() : base(
             code: Code,
             description: CoreResources.EnvironmentUrlHardcodedRuleDescription,
-            LinterRuleCategory.BestPractice,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
+            LinterRuleCategory.BestPractice)
         {
         }
 

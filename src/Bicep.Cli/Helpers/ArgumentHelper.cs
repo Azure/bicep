@@ -5,7 +5,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.IO.Abstraction;
 using Json.Patch;
 
 namespace Bicep.Cli.Helpers;
@@ -42,6 +44,14 @@ public class ArgumentHelper
     [return: NotNullIfNotNull(nameof(filePath))]
     public static Uri? GetFileUri(string? filePath, IFileSystem? fileSystem = null)
         => filePath is { } ? PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(filePath, fileSystem: fileSystem)) : null;
+
+    public static void ValidateBicepFile(IOUri fileUri)
+    {
+        if (!fileUri.HasBicepExtension())
+        {
+            throw new CommandLineException(string.Format(CliResources.UnrecognizedBicepFileExtensionMessage, fileUri.ToString()));
+        }
+    }
 
     public static void ValidateBicepFile(Uri fileUri)
     {
