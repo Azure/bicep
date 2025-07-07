@@ -136,16 +136,8 @@ public static class CodeFixHelper
 
         var newProceedingToken = SyntaxFactory.NewlineToken;
 
-        if (existingSyntaxProceedingInsert is not Token existingTokenProceedingInsert)
+        if (existingSyntaxProceedingInsert is SkippedTriviaSyntax or (Token and not { Type: TokenType.NewLine }))
         {
-            if (existingSyntaxProceedingInsert is not SkippedTriviaSyntax)
-            {
-                return new(
-                    existingSyntaxProceedingInsert.Span.ToZeroLengthSpan(), // use a zero length span to insert before the existing proceeding syntax
-                    GetPrettyPrintedSyntaxWithSurroundingNewLines(
-                        prettyPrintContext, leadingNewLine, new ProgramSyntax(syntaxToInsert, newProceedingToken), newProceedingToken));
-            }
-
             syntaxToInsert = new[] { existingSyntaxProceedingInsert, SyntaxFactory.DoubleNewlineToken }.Concat(syntaxToInsert); // keep it with insertAfterSyntax.
             leadingNewLine = null; // we don't need leading now
 
@@ -155,21 +147,12 @@ public static class CodeFixHelper
                     prettyPrintContext, leadingNewLine, new ProgramSyntax(syntaxToInsert, newProceedingToken), newProceedingToken));
         }
 
-        if (existingTokenProceedingInsert.Type == TokenType.NewLine)
-        {
-            newProceedingToken = existingTokenProceedingInsert; // keep existing new lines
-        }
-        else
-        {
-            syntaxToInsert = new SyntaxBase[] { existingTokenProceedingInsert, SyntaxFactory.DoubleNewlineToken }.Concat(syntaxToInsert); // keep it with insertAfterSyntax.
-            leadingNewLine = null; // we don't need leading now
-        }
-
-        var additionalProgram = new ProgramSyntax(syntaxToInsert, newProceedingToken);
-
         return new(
-            existingTokenProceedingInsert.Span, // replace our existing proceeding token with pretty printed new syntax + existing token
-            GetPrettyPrintedSyntaxWithSurroundingNewLines(prettyPrintContext, leadingNewLine, additionalProgram, newProceedingToken));
+            existingSyntaxProceedingInsert is Token
+                ? existingSyntaxProceedingInsert.Span // replace our existing proceeding newline token with pretty printed new syntax + new line
+                : existingSyntaxProceedingInsert.Span.ToZeroLengthSpan(), // use a zero length span to insert before the existing proceeding syntax
+            GetPrettyPrintedSyntaxWithSurroundingNewLines(
+                prettyPrintContext, leadingNewLine, new ProgramSyntax(syntaxToInsert, newProceedingToken), newProceedingToken));
     }
 
     private static string GetPrettyPrintedSyntaxWithSurroundingNewLines(PrettyPrinterV2Context context, Token? leadingToken, ProgramSyntax program, Token? trailingToken)
