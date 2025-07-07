@@ -6,36 +6,85 @@ using Bicep.Local.Extension.Host.Extensions;
 
 namespace Bicep.Local.Extension.Host.Handlers;
 
-public record EmptyGeneric();
+/// <summary>
+/// Represents a generic resource type used as a placeholder for the generic resource handler when no specific type is required.
+/// </summary>
+internal record GenericResource();
 
+/// <summary>
+/// Implements the <see cref="IResourceHandlerDispatcher"/> interface to route resource operations to appropriate handlers.
+/// This dispatcher maintains a registry of resource handlers and maps resource types to their corresponding handlers.
+/// </summary>
 public class ResourceHandlerDispatcher
     : IResourceHandlerDispatcher
 {
-    public FrozenDictionary<string, TypeResourceHandler> TypedResourceHandlers { get; }
-    public TypeResourceHandler? GenericResourceHandler { get; }
-
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ResourceHandlerDispatcher"/> class.
+    /// </summary>
+    /// <param name="resourceHandlers">A collection of resource handlers to be registered with the dispatcher.</param>
+    /// <exception cref="ArgumentException">Thrown when no resource handlers are provided.</exception>
     public ResourceHandlerDispatcher(IEnumerable<IResourceHandler> resourceHandlers)
     {
         if (resourceHandlers is null || resourceHandlers.Count() == 0)
         {
-            throw new InvalidOperationException("No resource handlers were provided.");
+            throw new ArgumentException("No resource handlers were provided.");
         }
 
         var resourceHandlerMaps = BuildResourceHandlerTypeMap(resourceHandlers);
 
         TypedResourceHandlers = resourceHandlerMaps.Typed;
-        GenericResourceHandler = resourceHandlerMaps.Generic;
+        GenericResourceHandler = resourceHandlerMaps.Generic?.Handler;
     }
 
+    /// <summary>
+    /// Gets a dictionary of type-specific resource handlers, where the key is the resource type name
+    /// and the value is the associated TypeResourceHandler.
+    /// </summary>
+    /// <remarks>
+    /// This dictionary contains handlers for strongly-typed resources that implement <see cref="IResourceHandler{TResource}"/>.
+    /// </remarks>
+    public FrozenDictionary<string, TypeResourceHandler> TypedResourceHandlers { get; }
 
-    public TypeResourceHandler GetResourceHandler(Type resourceType)
+    /// <summary>
+    /// Gets the generic resource handler that can process any resource type if available.
+    /// </summary>
+    /// <remarks>
+    /// This is a fallback handler used when no type-specific handler is found for a resource type.
+    /// It implements <see cref="IResourceHandler"/> without the generic type parameter.
+    /// </remarks>
+    public IResourceHandler? GenericResourceHandler { get; }
+
+
+    /// <summary>
+    /// Retrieves the appropriate resource handler for the specified resource type.
+    /// </summary>
+    /// <param name="resourceType">The CLR Type of the resource to get a handler for.</param>
+    /// <returns>A TypeResourceHandler that can process operations for the specified resource type.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when resourceType is null.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when no handler is found for the specified resource type.</exception>
+    /// <remarks>
+    /// This method internally calls <see cref="GetResourceHandler(string)"/> with the name of the provided type.
+    /// </remarks>
+    public IResourceHandler GetResourceHandler(Type resourceType)
         => GetResourceHandler(resourceType?.Name ?? throw new ArgumentNullException(nameof(resourceType)));
 
-    public TypeResourceHandler GetResourceHandler(string resourceType)
+    /// <summary>
+    /// Retrieves the appropriate resource handler for the specified resource type name.
+    /// </summary>
+    /// <param name="resourceType">The name of the resource type to get a handler for.</param>
+    /// <returns>A TypeResourceHandler that can process operations for the specified resource type.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when no handler is found for the specified resource type.</exception>
+    /// <remarks>
+    /// This method first checks for a type-specific handler in TypedResourceHandlers and falls back to
+    /// the GenericResourceHandler if no specific handler is found.
+    /// </remarks>
+    public IResourceHandler GetResourceHandler(string resourceType)
     {
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(resourceType, nameof(resourceType));
+
         if (TypedResourceHandlers.TryGetValue(resourceType, out var handlerMap))
         {
-            return handlerMap;
+            return handlerMap.Handler;
         }
         else if (GenericResourceHandler is not null)
         {
@@ -43,8 +92,8 @@ public class ResourceHandlerDispatcher
         }
 
         throw new InvalidOperationException($"No generic or typed resource handler found for type {resourceType}. Ensure the resource handler is registered.");
-
     }
+
 
     private static (TypeResourceHandler? Generic, FrozenDictionary<string, TypeResourceHandler> Typed) BuildResourceHandlerTypeMap(IEnumerable<IResourceHandler> resourceHandlers)
     {
@@ -54,6 +103,8 @@ public class ResourceHandlerDispatcher
         foreach (var resourceHandler in resourceHandlers)
         {
             var resourceHandlerType = resourceHandler.GetType();
+
+            // Check if the resource handler implements a typed resource handler interface
 
             if (resourceHandlerType.TryGetTypedResourceHandlerInterface(out Type? baseInterface))
             {
@@ -76,11 +127,11 @@ public class ResourceHandlerDispatcher
                     throw new ArgumentException($"A generic resource handler has already been registered.");
                 }
 
-                genericHandler = new TypeResourceHandler(typeof(EmptyGeneric), resourceHandler);
+                genericHandler = new TypeResourceHandler(typeof(GenericResource), resourceHandler);
             }
             else
             {
-                throw new ArgumentException($"Unable to register handler {resourceHandlerType.FullName}");
+                throw new ArgumentException($"{resourceHandlerType.FullName} does not implement a valid resource handler interface.");
             }
         }
 
