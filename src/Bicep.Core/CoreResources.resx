@@ -544,4 +544,10 @@
   <data name="ImportMustBeUsedRuleMessageFormat" xml:space="preserve">
     <value>Import "{0}" is declared but never used.</value>
   </data>
+  <data name="UseLatestAzPowerShellVersionRuleDescription" xml:space="preserve">
+    <value>Use AzPowerShell version 11.0 or higher in deployment scripts to avoid EOL Ubuntu 20.04 LTS</value>
+  </data>
+  <data name="UseLatestAzPowerShellVersionRuleMessageFormat" xml:space="preserve">
+    <value>Deployment script is using AzPowerShell version '{0}' which is below the recommended minimum version '{1}'. Consider upgrading to version 11.0 or higher to avoid EOL Ubuntu 20.04 LTS.</value>
+  </data>
 </root>
