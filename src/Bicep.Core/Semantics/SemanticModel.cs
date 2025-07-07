@@ -654,7 +654,7 @@ namespace Bicep.Core.Semantics
                 .Where(kvp => kvp.Value.RequiresConfigAssignment && TryGetExtensionConfigAssignment(kvp.Value) is null)
                 .Select(kvp => (kvp.Key, kvp.Value.ConfigAssignmentDeclaredType!))
                 .OrderBy(kvp => kvp.Key)
-                .ToImmutableArray();
+                .ToArray();
 
             if (usingDeclarationSyntax is not null && missingRequiredAssignments.Any())
             {
