@@ -51,7 +51,7 @@ public class HandlerResponse
     /// <param name="apiVersion">The API version of the resource.</param>
     /// <param name="status">The status of the operation.</param>
     /// <param name="properties">The properties of the response.</param>
-    public HandlerResponse(string type, string apiVersion, HandlerResponseStatus status, JsonObject? properties)
+    public HandlerResponse(string type, string? apiVersion, HandlerResponseStatus status, JsonObject? properties)
         : this(type, apiVersion, status, properties, null)
     { }
 
@@ -65,10 +65,10 @@ public class HandlerResponse
     /// <param name="error">The error that occurred during the operation, if any.</param>
     /// <param name="message">An optional message providing additional information about the response.</param>
     /// <exception cref="ArgumentException">Thrown when <paramref name="type"/> or <paramref name="apiVersion"/> is null or whitespace.</exception>
-    public HandlerResponse(string type, string apiVersion, HandlerResponseStatus status, JsonObject? properties, Error? error, string? message = null)
+    public HandlerResponse(string type, string? apiVersion, HandlerResponseStatus status, JsonObject? properties, Error? error, string? message = null)
     {
         Type = string.IsNullOrWhiteSpace(type) ? throw new ArgumentException(nameof(type)) : type;
-        ApiVersion = string.IsNullOrWhiteSpace(apiVersion) ? throw new ArgumentException(nameof(apiVersion)) : apiVersion;
+        ApiVersion = apiVersion;
         Status = status;
         Properties = properties ?? [];
         Error = error;
@@ -83,7 +83,7 @@ public class HandlerResponse
     /// <summary>
     /// Gets the API version of the resource.
     /// </summary>
-    public string ApiVersion { get; }
+    public string? ApiVersion { get; }
 
     /// <summary>
     /// Gets the status of the operation.
@@ -119,7 +119,7 @@ public class HandlerResponse
     /// <param name="properties">The properties of the response.</param>
     /// <param name="message">An optional message providing additional information about the response.</param>
     /// <returns>A new <see cref="HandlerResponse"/> with a <see cref="HandlerResponseStatus.Success"/> status.</returns>
-    public static HandlerResponse Success(string resourceType, string apiVersion, JsonObject? properties, string? message = null)
+    public static HandlerResponse Success(string resourceType, string? apiVersion, JsonObject? properties, string? message = null)
         => new(resourceType, apiVersion, HandlerResponseStatus.Success, properties, null, message: message);
 
     /// <summary>
@@ -131,7 +131,7 @@ public class HandlerResponse
     /// <param name="error">The error that occurred during the operation.</param>
     /// <param name="message">An optional message providing additional information about the error.</param>
     /// <returns>A new <see cref="HandlerResponse"/> with a <see cref="HandlerResponseStatus.Error"/> status.</returns>
-    public static HandlerResponse Failed(string resourceType, string apiVersion, JsonObject? properties, Error? error = null, string? message = null)
+    public static HandlerResponse Failed(string resourceType, string? apiVersion, JsonObject? properties, Error? error = null, string? message = null)
         => new(resourceType, apiVersion, HandlerResponseStatus.Error, properties, error, message: message);
 
     /// <summary>
@@ -142,7 +142,7 @@ public class HandlerResponse
     /// <param name="properties">The properties of the response.</param>
     /// <param name="message">An optional message providing additional information about the cancellation.</param>
     /// <returns>A new <see cref="HandlerResponse"/> with a <see cref="HandlerResponseStatus.Canceled"/> status.</returns>
-    public static HandlerResponse Canceled(string resourceType, string apiVersion, JsonObject? properties, string? message = null)
+    public static HandlerResponse Canceled(string resourceType, string? apiVersion, JsonObject? properties, string? message = null)
         => new(resourceType, apiVersion, HandlerResponseStatus.Canceled, properties, null, message: message);
 
     /// <summary>
@@ -153,6 +153,6 @@ public class HandlerResponse
     /// <param name="properties">The properties of the response.</param>
     /// <param name="message">An optional message providing additional information about the timeout.</param>
     /// <returns>A new <see cref="HandlerResponse"/> with a <see cref="HandlerResponseStatus.TimedOut"/> status.</returns>
-    public static HandlerResponse TimedOut(string resourceType, string apiVersion, JsonObject? properties, string? message = null)
+    public static HandlerResponse TimedOut(string resourceType, string? apiVersion, JsonObject? properties, string? message = null)
         => new(resourceType, apiVersion, HandlerResponseStatus.TimedOut, properties, null, message: message);
 }

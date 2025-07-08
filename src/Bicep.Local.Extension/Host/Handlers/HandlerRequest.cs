@@ -15,7 +15,7 @@ public class HandlerRequest
     /// </summary>
     /// <param name="type">The resource type identifier.</param>
     /// <param name="apiVersion">The API version to use for the request.</param>
-    public HandlerRequest(string type, string apiVersion)
+    public HandlerRequest(string type, string? apiVersion)
         : this(type, apiVersion, [], [])
     { }
 
@@ -23,15 +23,14 @@ public class HandlerRequest
     /// Initializes a new instance of the <see cref="HandlerRequest"/> class with the specified parameters.
     /// </summary>
     /// <param name="type">The resource type identifier. Cannot be null or whitespace.</param>
-    /// <param name="apiVersion">The API version to use for the request. Cannot be null or whitespace.</param>
+    /// <param name="apiVersion">The API version to use for the request. Can be null.</param>
     /// <param name="extensionSettings">Additional settings for the extension processing the request. If null, an empty object is used.</param>
     /// <param name="resourceJson">The JSON representation of the resource. If null, an empty object is used.</param>
     /// <exception cref="ArgumentException">Thrown when <paramref name="type"/> is null or whitespace.</exception>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="apiVersion"/> is null or whitespace.</exception>
-    public HandlerRequest(string type, string apiVersion, JsonObject? extensionSettings, JsonObject? resourceJson)
+    public HandlerRequest(string type, string? apiVersion, JsonObject? extensionSettings, JsonObject? resourceJson)
     {
         Type = string.IsNullOrWhiteSpace(type) ? throw new ArgumentException(nameof(type)) : type;
-        ApiVersion = string.IsNullOrWhiteSpace(apiVersion) ? throw new ArgumentException(nameof(apiVersion)) : apiVersion;
+        ApiVersion = apiVersion;
         ExtensionSettings = extensionSettings ?? [];
         ResourceJson = resourceJson ?? [];
     }
@@ -42,19 +41,21 @@ public class HandlerRequest
     public string Type { get; }
 
     /// <summary>
-    /// Gets the API version to use for the request.
+    /// Gets the API version to use for the request. Can be null if no specific API version is required.
     /// </summary>
-    public string ApiVersion { get; }
+    public string? ApiVersion { get; }
 
     /// <summary>
     /// Gets additional settings for the extension processing the request.
+    /// Never null; defaults to an empty object if not provided.
     /// </summary>
-    public JsonObject? ExtensionSettings { get; }
+    public JsonObject ExtensionSettings { get; }
 
     /// <summary>
     /// Gets the JSON representation of the resource.
+    /// Never null; defaults to an empty object if not provided.
     /// </summary>
-    public JsonObject? ResourceJson { get; }
+    public JsonObject ResourceJson { get; }
 }
 
 /// <summary>
@@ -69,15 +70,14 @@ public class HandlerRequest<TResource>
     /// Initializes a new instance of the <see cref="HandlerRequest{TResource}"/> class with the specified parameters.
     /// </summary>
     /// <param name="resource">The strongly-typed resource instance. Cannot be null.</param>
-    /// <param name="apiVersion">The API version to use for the request. Cannot be null or whitespace.</param>
+    /// <param name="apiVersion">The API version to use for the request. Can be null.</param>
     /// <param name="extensionSettings">Additional settings for the extension processing the request. If null, an empty object is used.</param>
     /// <param name="resourceJson">The JSON representation of the resource. If null, an empty object is used.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="resource"/> is null.</exception>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="apiVersion"/> is null or whitespace.</exception>
     /// <remarks>
     /// The resource type identifier is derived from the runtime type name of the provided resource instance.
     /// </remarks>
-    public HandlerRequest(TResource resource, string apiVersion, JsonObject? extensionSettings, JsonObject resourceJson)
+    public HandlerRequest(TResource resource, string? apiVersion, JsonObject? extensionSettings, JsonObject resourceJson)
         : base(resource?.GetType().Name ?? throw new ArgumentNullException(nameof(resource))
             , apiVersion
             , extensionSettings
