@@ -222,14 +222,16 @@ resource baz 'My.Rp/foo@2020-01-01' = {
             async (client, token) =>
             {
                 var response = await client.GetFileReferences(new("/main.bicepparam"), token);
+                var expectedFilePaths = new[]
+                    {
+                        "/bicepconfig.json",
+                        "/invalid.txt",
+                        "/main.bicep",
+                        "/main.bicepparam",
+                        "/valid.txt",
+                    }.Select(fileSystem.Path.GetFullPath);
 
-                response.FilePaths.Should().BeEquivalentTo([
-                    "/bicepconfig.json",
-                    "/invalid.txt",
-                    "/main.bicep",
-                    "/main.bicepparam",
-                    "/valid.txt",
-                ]);
+                response.FilePaths.Should().BeEquivalentTo(expectedFilePaths);
             });
     }
 
