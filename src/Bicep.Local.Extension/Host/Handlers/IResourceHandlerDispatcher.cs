@@ -16,7 +16,7 @@ public record TypeResourceHandler(Type Type, IResourceHandler Handler);
 /// <summary>
 /// Defines a dispatcher that routes resource operations to the appropriate resource handlers.
 /// The dispatcher maintains mappings between resource types and their corresponding handlers,
-/// supporting both typed and generic resource handlers.
+/// supporting both strongly-typed and untyped resource handlers.
 /// </summary>
 public interface IResourceHandlerDispatcher
 {
@@ -30,11 +30,11 @@ public interface IResourceHandlerDispatcher
     FrozenDictionary<string, TypeResourceHandler>? TypedResourceHandlers { get; }
     
     /// <summary>
-    /// Gets the generic resource handler that can process any resource type if available.
+    /// Gets the untyped resource handler that can process any resource type if available.
     /// </summary>
     /// <remarks>
     /// This is a fallback handler used when no type-specific handler is found for a resource type.
-    /// It implements <see cref="IResourceHandler"/> without the generic type parameter.
+    /// It implements the non-generic <see cref="IResourceHandler"/> interface.
     /// </remarks>
     IResourceHandler? GenericResourceHandler { get; }
 
@@ -42,8 +42,7 @@ public interface IResourceHandlerDispatcher
     /// Retrieves the appropriate resource handler for the specified resource type name.
     /// </summary>
     /// <param name="resourceType">The name of the resource type to get a handler for.</param>
-    /// <returns>A TypeResourceHandler that can process operations for the specified resource type.</returns>
-    /// <exception cref="InvalidOperationException">Thrown when no handler is found for the specified resource type.</exception>
+    /// <returns>An IResourceHandler that can process operations for the specified resource type.</returns>
     /// <remarks>
     /// This method first checks for a type-specific handler in TypedResourceHandlers and falls back to
     /// the GenericResourceHandler if no specific handler is found.
@@ -54,9 +53,7 @@ public interface IResourceHandlerDispatcher
     /// Retrieves the appropriate resource handler for the specified resource type.
     /// </summary>
     /// <param name="resourceType">The CLR Type of the resource to get a handler for.</param>
-    /// <returns>A TypeResourceHandler that can process operations for the specified resource type.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when resourceType is null.</exception>
-    /// <exception cref="InvalidOperationException">Thrown when no handler is found for the specified resource type.</exception>
+    /// <returns>An IResourceHandler that can process operations for the specified resource type.</returns>
     /// <remarks>
     /// This method internally calls <see cref="GetResourceHandler(string)"/> with the name of the provided type.
     /// </remarks>

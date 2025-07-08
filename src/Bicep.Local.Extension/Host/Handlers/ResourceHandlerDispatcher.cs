@@ -7,7 +7,7 @@ using Bicep.Local.Extension.Host.Extensions;
 namespace Bicep.Local.Extension.Host.Handlers;
 
 /// <summary>
-/// Represents a generic resource type used as a placeholder for the generic resource handler when no specific type is required.
+/// Represents a generic resource type used as a placeholder for the untyped resource handler when no specific type is required.
 /// </summary>
 internal record GenericResource();
 
@@ -46,11 +46,11 @@ public class ResourceHandlerDispatcher
     public FrozenDictionary<string, TypeResourceHandler> TypedResourceHandlers { get; }
 
     /// <summary>
-    /// Gets the generic resource handler that can process any resource type if available.
+    /// Gets the untyped resource handler that can process any resource type if available.
     /// </summary>
     /// <remarks>
     /// This is a fallback handler used when no type-specific handler is found for a resource type.
-    /// It implements <see cref="IResourceHandler"/> without the generic type parameter.
+    /// It implements the non-generic <see cref="IResourceHandler"/> interface.
     /// </remarks>
     public IResourceHandler? GenericResourceHandler { get; }
 
@@ -59,7 +59,7 @@ public class ResourceHandlerDispatcher
     /// Retrieves the appropriate resource handler for the specified resource type.
     /// </summary>
     /// <param name="resourceType">The CLR Type of the resource to get a handler for.</param>
-    /// <returns>A TypeResourceHandler that can process operations for the specified resource type.</returns>
+    /// <returns>An IResourceHandler that can process operations for the specified resource type.</returns>
     /// <exception cref="ArgumentNullException">Thrown when resourceType is null.</exception>
     /// <exception cref="InvalidOperationException">Thrown when no handler is found for the specified resource type.</exception>
     /// <remarks>
@@ -72,7 +72,7 @@ public class ResourceHandlerDispatcher
     /// Retrieves the appropriate resource handler for the specified resource type name.
     /// </summary>
     /// <param name="resourceType">The name of the resource type to get a handler for.</param>
-    /// <returns>A TypeResourceHandler that can process operations for the specified resource type.</returns>
+    /// <returns>An IResourceHandler that can process operations for the specified resource type.</returns>
     /// <exception cref="InvalidOperationException">Thrown when no handler is found for the specified resource type.</exception>
     /// <remarks>
     /// This method first checks for a type-specific handler in TypedResourceHandlers and falls back to
@@ -103,8 +103,6 @@ public class ResourceHandlerDispatcher
         foreach (var resourceHandler in resourceHandlers)
         {
             var resourceHandlerType = resourceHandler.GetType();
-
-            // Check if the resource handler implements a typed resource handler interface
 
             if (resourceHandlerType.TryGetTypedResourceHandlerInterface(out Type? baseInterface))
             {

@@ -59,12 +59,12 @@ public class HandlerResponse
     /// Initializes a new instance of the <see cref="HandlerResponse"/> class with the specified parameters.
     /// </summary>
     /// <param name="type">The resource type identifier. Cannot be null or whitespace.</param>
-    /// <param name="apiVersion">The API version of the resource.</param>
+    /// <param name="apiVersion">The API version of the resource. Cannot be null or whitespace.</param>
     /// <param name="status">The status of the operation.</param>
     /// <param name="properties">The properties of the response. If null, an empty object is used.</param>
     /// <param name="error">The error that occurred during the operation, if any.</param>
     /// <param name="message">An optional message providing additional information about the response.</param>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="type"/> is null or whitespace.</exception>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="type"/> or <paramref name="apiVersion"/> is null or whitespace.</exception>
     public HandlerResponse(string type, string apiVersion, HandlerResponseStatus status, JsonObject? properties, Error? error, string? message = null)
     {
         Type = string.IsNullOrWhiteSpace(type) ? throw new ArgumentException(nameof(type)) : type;
@@ -92,6 +92,7 @@ public class HandlerResponse
 
     /// <summary>
     /// Gets the properties of the response.
+    /// Never null; defaults to an empty object if not provided.
     /// </summary>
     public JsonObject Properties { get; }
 
@@ -127,11 +128,11 @@ public class HandlerResponse
     /// <param name="resourceType">The resource type identifier.</param>
     /// <param name="apiVersion">The API version of the resource.</param>
     /// <param name="properties">The properties of the response.</param>
-    /// <param name="errors">The error that occurred during the operation.</param>
+    /// <param name="error">The error that occurred during the operation.</param>
     /// <param name="message">An optional message providing additional information about the error.</param>
     /// <returns>A new <see cref="HandlerResponse"/> with a <see cref="HandlerResponseStatus.Error"/> status.</returns>
-    public static HandlerResponse Failed(string resourceType, string apiVersion, JsonObject? properties, Error? errors = null, string? message = null)
-        => new(resourceType, apiVersion, HandlerResponseStatus.Error, properties, errors, message: message);
+    public static HandlerResponse Failed(string resourceType, string apiVersion, JsonObject? properties, Error? error = null, string? message = null)
+        => new(resourceType, apiVersion, HandlerResponseStatus.Error, properties, error, message: message);
 
     /// <summary>
     /// Creates a response indicating the operation was canceled.

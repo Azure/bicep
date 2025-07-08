@@ -14,7 +14,7 @@ public static class TypeExtensions
 {
     /// <summary>
     /// Determines whether the specified type implements the non-generic IResourceHandler interface.
-    /// Used to identify generic resource handlers that can process any resource type.
+    /// Used to identify untyped resource handlers that can process any resource type without strong typing.
     /// </summary>
     /// <param name="type">The type to check.</param>
     /// <returns>True if the type implements the non-generic IResourceHandler interface; otherwise, false.</returns>
@@ -27,12 +27,12 @@ public static class TypeExtensions
 
     /// <summary>
     /// Attempts to get the generic IResourceHandler&lt;T&gt; interface implemented by the specified type.
-    /// Used to identify resource handlers that are typed to handle specific resource types.
+    /// Used to identify strongly-typed resource handlers that are constrained to handle specific resource types.
     /// </summary>
     /// <param name="type">The type to check.</param>
-    /// <param name="resourceHandlerInterface">When this method returns, contains the generic IResourceHandler
+    /// <param name="resourceHandlerInterface">When this method returns, contains the generic IResourceHandler&lt;T&gt;
     /// interface if found; otherwise, null.</param>
-    /// <returns>True if the type implements a generic IResourceHandler interface; otherwise, false.</returns>
+    /// <returns>True if the type implements a generic IResourceHandler&lt;T&gt; interface; otherwise, false.</returns>
     public static bool TryGetTypedResourceHandlerInterface(this Type type, [NotNullWhen(true)] out Type? resourceHandlerInterface)
     {
         ArgumentNullException.ThrowIfNull(type, nameof(type));

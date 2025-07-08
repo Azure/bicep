@@ -93,7 +93,7 @@ public interface IResourceHandler<TResource>
     /// <param name="request">The request to be cast to a strongly-typed request.</param>
     /// <param name="cancellationToken">A token that can be used to request cancellation of the operation.</param>
     /// <returns>The response from the strongly-typed CreateOrUpdate method.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when request is null or cannot be cast to <see cref="HandlerRequest{TResource}"/>.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when request cannot be cast to <see cref="HandlerRequest{TResource}"/>.</exception>
     Task<HandlerResponse> IResourceHandler.CreateOrUpdate(HandlerRequest request, CancellationToken cancellationToken)
         => CreateOrUpdate(request as HandlerRequest<TResource> ?? throw new ArgumentNullException(nameof(request)), cancellationToken);
 
@@ -103,7 +103,7 @@ public interface IResourceHandler<TResource>
     /// <param name="request">The request to be cast to a strongly-typed request.</param>
     /// <param name="cancellationToken">A token that can be used to request cancellation of the operation.</param>
     /// <returns>The response from the strongly-typed Preview method.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when request is null or cannot be cast to <see cref="HandlerRequest{TResource}"/>.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when request cannot be cast to <see cref="HandlerRequest{TResource}"/>.</exception>
     Task<HandlerResponse> IResourceHandler.Preview(HandlerRequest request, CancellationToken cancellationToken)
         => Preview(request as HandlerRequest<TResource> ?? throw new ArgumentNullException(nameof(request)), cancellationToken);
 }
