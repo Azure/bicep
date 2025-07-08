@@ -110,6 +110,14 @@ namespace Bicep.Cli.Services
             }
         }
 
+        public async Task DecompileResultToFileAsync(DecompileResult decompilation)
+        {
+            foreach (var (fileUri, bicepOutput) in decompilation.FilesToSave)
+            {
+                await WriteToFileAsync(fileUri.ToIOUri(), bicepOutput);
+            }
+        }
+
         public void DecompileResultToStdout(DecompileResult decompilation)
         {
             foreach (var (_, bicepOutput) in decompilation.FilesToSave)

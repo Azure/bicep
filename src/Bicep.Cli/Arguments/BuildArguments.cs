@@ -100,16 +100,6 @@ public class BuildArguments : ArgumentsBase, IFilePatternInputOutputArguments<Bu
             throw new CommandLineException($"The {ArgumentConstants.OutDir} and {ArgumentConstants.OutFile} parameters cannot both be used");
         }
 
-        if (OutputDir is not null)
-        {
-            var outputDir = PathHelper.ResolvePath(OutputDir);
-
-            if (!Directory.Exists(outputDir))
-            {
-                throw new CommandLineException(string.Format(CliResources.DirectoryDoesNotExistFormat, outputDir));
-            }
-        }
-
         DiagnosticsFormat ??= Arguments.DiagnosticsFormat.Default;
     }
 
