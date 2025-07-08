@@ -4,10 +4,10 @@
 import type { D3DragEvent, SubjectPosition } from "d3-drag";
 import type { RefObject } from "react";
 
+import { useGetPanZoomTransform } from "@vscode-bicep-ui/components";
 import { drag } from "d3-drag";
 import { select } from "d3-selection";
 import { useEffect } from "react";
-import { useGetPanZoomTransform } from "@vscode-bicep-ui/components";
 
 export function useDragListener(ref: RefObject<HTMLDivElement>, onDrag: (dx: number, dy: number) => void) {
   const getPanZoomTransform = useGetPanZoomTransform();

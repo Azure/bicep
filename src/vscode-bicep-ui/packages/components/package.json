@@ -31,7 +31,7 @@
     "styled-components": "^6.1.11"
   },
   "devDependencies": {
-    "@storybook/addon-docs": "^9.0.14",
+    "@storybook/addon-docs": "^9.0.15",
     "@storybook/addon-links": "^9.0.14",
     "@storybook/addon-themes": "^9.0.14",
     "@storybook/react-vite": "^9.0.14",
@@ -59,6 +59,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@react-hook/resize-observer": "^2.0.2",
     "motion": "^12.19.2"
   }
 }

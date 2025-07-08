@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import type { ComponentType } from "react";
-
 import type { NodeState } from "./nodes";
+
 import { atom } from "jotai";
 
 export interface Padding {

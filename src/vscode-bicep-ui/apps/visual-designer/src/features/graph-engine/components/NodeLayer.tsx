@@ -3,8 +3,8 @@
 
 import { useAtomValue } from "jotai";
 import { nodesAtom } from "../atoms";
-import { CompoundNode } from "./CompoundNode";
 import { AtomicNode } from "./AtomicNode";
+import { CompoundNode } from "./CompoundNode";
 
 export function NodeLayer() {
   const nodes = useAtomValue(nodesAtom);
