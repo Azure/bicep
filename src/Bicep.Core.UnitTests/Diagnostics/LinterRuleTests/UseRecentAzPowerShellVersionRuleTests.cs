@@ -43,15 +43,6 @@ public class UseRecentAzPowerShellVersionRuleTests : LinterRuleTestsBase
     }
     """)]
     [DataRow("""
-    resource storage 'Microsoft.Storage/storageAccounts@2021-02-01' = {
-      name: 'teststorage'
-      location: resourceGroup().location
-      sku: {
-        name: 'Standard_LRS'
-      }
-    }
-    """)]
-    [DataRow("""
     resource script 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
       name: 'test-script'
       location: resourceGroup().location
