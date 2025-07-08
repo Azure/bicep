@@ -278,7 +278,7 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [DataRow("DoesNotExist.json")]
-        [DataRow("WrongDir\\Fake.json")]
+        [DataRow("WrongDir/Fake.json")]
         [DataTestMethod]
         public async Task Decompile_InvalidInputPath_ToStdout_ShouldFail_WithExpectedErrorMessage(string badPath)
         {
