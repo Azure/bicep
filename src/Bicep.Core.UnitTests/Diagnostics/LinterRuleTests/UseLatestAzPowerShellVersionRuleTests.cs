@@ -7,11 +7,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 
 [TestClass]
-public class UseLatestAzPowerShellVersionRuleTests : LinterRuleTestsBase
+public class UseRecentAzPowerShellVersionRuleTests : LinterRuleTestsBase
 {
     private void CompileAndTest(string text, int expectedDiagnosticCount, Options? options = null)
     {
-        AssertLinterRuleDiagnostics(UseLatestAzPowerShellVersionRule.Code, text, expectedDiagnosticCount, options);
+        AssertLinterRuleDiagnostics(UseRecentAzPowerShellVersionRule.Code, text, expectedDiagnosticCount, options);
     }
 
     [DataRow("""

@@ -777,10 +777,19 @@
                     }
                   ]
                 },
-                "use-latest-az-powershell-version": {
+                "use-recent-az-powershell-version": {
                   "allOf": [
                     {
-                      "description": "Use AzPowerShell version 11.0 or higher in deployment scripts to avoid EOL Ubuntu 20.04 LTS. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#use-latest-az-powershell-version"
+                      "description": "Use AzPowerShell version 11.0 or higher in deployment scripts to avoid EOL Ubuntu 20.04 LTS. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#use-recent-az-powershell-version",
+                      "type": "object",
+                      "properties": {
+                        "level": { "$ref": "#/definitions/level" },
+                        "minimumVersion": {
+                          "type": "string",
+                          "description": "Minimum required AzPowerShell version (default: 11.0)",
+                          "default": "11.0"
+                        }
+                      }
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"

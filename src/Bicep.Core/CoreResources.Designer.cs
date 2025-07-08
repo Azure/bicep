@@ -1187,17 +1187,17 @@ namespace Bicep.Core {
         /// <summary>
         ///   Looks up a localized string similar to Use AzPowerShell version 11.0 or higher in deployment scripts to avoid EOL Ubuntu 20.04 LTS.
         /// </summary>
-        internal static string UseLatestAzPowerShellVersionRuleDescription {
+        internal static string UseRecentAzPowerShellVersionRuleDescription {
             get {
-                return ResourceManager.GetString("UseLatestAzPowerShellVersionRuleDescription", resourceCulture);
+                return ResourceManager.GetString("UseRecentAzPowerShellVersionRuleDescription", resourceCulture);
             }
         }
         /// <summary>
         ///   Looks up a localized string similar to Deployment script is using AzPowerShell version '{0}' which is below the recommended minimum version '{1}'. Consider upgrading to version 11.0 or higher to avoid EOL Ubuntu 20.04 LTS.
         /// </summary>
-        internal static string UseLatestAzPowerShellVersionRuleMessageFormat {
+        internal static string UseRecentAzPowerShellVersionRuleMessageFormat {
             get {
-                return ResourceManager.GetString("UseLatestAzPowerShellVersionRuleMessageFormat", resourceCulture);
+                return ResourceManager.GetString("UseRecentAzPowerShellVersionRuleMessageFormat", resourceCulture);
             }
         }
     }
