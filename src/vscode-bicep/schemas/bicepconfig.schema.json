@@ -841,10 +841,6 @@
           "type": "boolean",
           "description": "Allows to enable wait and retry feature on resource type. See https://aka.ms/bicep/experimental-features#waitandretry"
         },
-        "resourceDerivedTypes": {
-          "type": "boolean",
-          "description": "If enabled, templates can reuse resource types wherever a type is expected. See https://aka.ms/bicep/experimental-features#resourcederivedtypes"
-        },
         "resourceInfoCodegen": {
             "type": "boolean",
             "description": "Enables the 'resourceInfo' function for simplified code generation. See https://aka.ms/bicep/experimental-features#resourceinfocodegen"
@@ -852,10 +848,6 @@
         "desiredStateConfiguration": {
           "type": "boolean",
           "description": "Allows you to author Desired State Configuration documents using the target scope 'dsc'. See https://aka.ms/bicep/experimental-features#desiredstateconfiguration"
-        },
-        "externalInputFunction": {
-          "type": "boolean",
-          "description": "Enables the 'externalInput' function for reading input that will be resolved later by external tooling. See https://aka.ms/bicep/experimental-features#externalinputfunction"
         },
         "onlyIfNotExists": {
           "type": "boolean",
