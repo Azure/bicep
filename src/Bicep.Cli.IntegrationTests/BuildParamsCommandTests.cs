@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions.TestingHelpers;
 using Azure;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Cli.Models;
@@ -45,7 +46,7 @@ namespace Bicep.Cli.IntegrationTests
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().Contain($"The specified file \"/tmp/nonexisting.bicepparam\" does not exist.");
+            error.Should().Contain($"An error occurred reading file. Could not find a part of the path '{Path.GetFullPath("/tmp/nonexisting.bicepparam")}'.");
         }
 
         [TestMethod]
@@ -562,17 +563,22 @@ output foo string = foo
         public async Task BuildParams_should_compile_files_matching_pattern(bool useRootPath)
         {
             var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var fileSystem = new MockFileSystem();
 
-            FileHelper.SaveResultFile(TestContext, "main.bicep", """
-param intParam int
+            var mainContents = """
+                param intParam int
 
-output intOutput int = intParam
-""", outputPath);
-            var contents = """
-using 'main.bicep'
+                output intOutput int = intParam
+                """;
 
-param intParam = 42
-""";
+            var paramsContents = """
+                using 'main.bicep'
+
+                param intParam = 42
+                """;
+
+            fileSystem.AddFile($"{outputPath}/main.bicep", mainContents);
+            FileHelper.SaveResultFile(TestContext, "main.bicep", mainContents, outputPath);
 
 
             var fileResults = new[]
@@ -584,11 +590,19 @@ param intParam = 42
 
             foreach (var (input, _) in fileResults)
             {
-                FileHelper.SaveResultFile(TestContext, input, contents, outputPath);
+                fileSystem.AddFile($"{outputPath}/{input}", paramsContents);
+                // Since Matcher uses the real file system, we need to save the files to the
+                // real file system as well so it can find the files.
+                FileHelper.SaveResultFile(TestContext, input, paramsContents, outputPath);
+            }
+
+            if (!useRootPath)
+            {
+                fileSystem.Directory.SetCurrentDirectory(outputPath);
             }
 
             var (output, error, result) = await Bicep(
-                services => services.WithEnvironment(useRootPath ? TestEnvironment.Default : TestEnvironment.Default with { CurrentDirectory = outputPath }),
+                services => services.WithFileSystem(fileSystem),
                 ["build-params",
                     "--pattern",
                     useRootPath ? $"{outputPath}/file*.bicepparam" : "file*.bicepparam"]);
@@ -599,8 +613,8 @@ param intParam = 42
 
             foreach (var (input, expectOutput) in fileResults)
             {
-                var outputFile = Path.ChangeExtension(input, ".json");
-                File.Exists(Path.Combine(outputPath, outputFile)).Should().Be(expectOutput);
+                var outputFile = fileSystem.Path.ChangeExtension(input, ".json");
+                fileSystem.File.Exists(fileSystem.Path.Combine(outputPath, outputFile)).Should().Be(expectOutput);
             }
         }
 
