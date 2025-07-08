@@ -42,11 +42,11 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task Build_Params_With_NonExisting_File_ShouldFail_WithExpectedErrorMessage()
         {
-            var (output, error, result) = await Bicep(Settings, "build-params", "/tmp/nonexisting.bicepparam");
+            var (output, error, result) = await Bicep(Settings, "build-params", "/nonexisting/nonexisting.bicepparam");
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().Contain($"An error occurred reading file. Could not find a part of the path '{Path.GetFullPath("/tmp/nonexisting.bicepparam")}'.");
+            error.Should().Contain($"An error occurred reading file. Could not find a part of the path '{Path.GetFullPath("/nonexisting/nonexisting.bicepparam")}'.");
         }
 
         [TestMethod]
