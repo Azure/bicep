@@ -703,7 +703,7 @@ param intParam = 42
             File.Exists(expectedOutputFile).Should().BeFalse();
 
             output.Should().BeEmpty();
-            error.Should().Contain("Error BCP423: Parameter foo is declared but missing a value assignment.");
+            error.Should().Contain("Error BCP424: Parameter foo is declared but missing a value assignment.");
             result.Should().Be(1);
         }
     }
