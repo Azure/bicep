@@ -207,7 +207,7 @@ internal class ArmDeclarationToExpressionConverter
             return new SynthesizedTypeAliasReferenceExpression(sourceSyntax, armIdentifierToSymbolNameMapping[new(ArmSymbolType.Type, @ref)], bicepType);
         }
 
-        return schemaNode.Type.Value switch
+        return schemaNode.Type?.Value switch
         {
             TemplateParameterType.String or
             TemplateParameterType.SecureString => new AmbientTypeReferenceExpression(sourceSyntax, LanguageConstants.TypeNameString, bicepType),
@@ -216,7 +216,7 @@ internal class ArmDeclarationToExpressionConverter
             TemplateParameterType.Array => ConvertArrayNodeToTypeExpression(schemaNode),
             TemplateParameterType.Object or
             TemplateParameterType.SecureObject => ConvertObjectNodeToTypeExpression(schemaNode),
-            _ => throw new InvalidOperationException($"Unrecognized ARM template type: {schemaNode.Type.Value}"),
+            _ => throw new InvalidOperationException($"Unrecognized ARM template type: {schemaNode.Type?.Value}"),
         };
     }
 
