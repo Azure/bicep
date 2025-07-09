@@ -20,9 +20,6 @@ public static class WebApplicationBuilderExtensions
 {
     private static Dictionary<string, string> ArgumentMappings => new()
             {
-                { "-d", "describe" },
-                { "--describe", "describe" },
-
                 { "-s", "socket" },
                 { "--socket", "socket" },
 

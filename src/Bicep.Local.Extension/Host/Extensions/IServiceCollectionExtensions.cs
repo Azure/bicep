@@ -24,7 +24,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Bicep.Local.Extension.Host.Extensions;
 
-public static class ServiceCollectionExtensions
+public static class IServiceCollectionExtensions
 {
     public static IServiceCollection AddBicepExtensionServices(this IServiceCollection services
                                                             , string name, string version, bool isSingleton

@@ -334,7 +334,7 @@ public class ResourceHandlerDispatcherTests
 
         // Assert
         typedHandlers.Should().NotBeNull();
-        typedHandlers.Should().BeAssignableTo<FrozenDictionary<string, TypeResourceHandler>>();
+        typedHandlers.Should().BeAssignableTo<FrozenDictionary<string, TypedResourceHandler>>();
         typedHandlers.Should().HaveCount(2);
         typedHandlers.Should().ContainKey(nameof(TestResource));
         typedHandlers.Should().ContainKey(nameof(AnotherResource));

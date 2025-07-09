@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Frozen;
+using System.Diagnostics.CodeAnalysis;
 using Bicep.Local.Extension.Host.Extensions;
 
 namespace Bicep.Local.Extension.Host.Handlers;
@@ -43,7 +44,7 @@ public class ResourceHandlerDispatcher
     /// <remarks>
     /// This dictionary contains handlers for strongly-typed resources that implement <see cref="IResourceHandler{TResource}"/>.
     /// </remarks>
-    public FrozenDictionary<string, TypeResourceHandler> TypedResourceHandlers { get; }
+    public FrozenDictionary<string, TypedResourceHandler> TypedResourceHandlers { get; }
 
     /// <summary>
     /// Gets the untyped resource handler that can process any resource type if available.
@@ -62,11 +63,11 @@ public class ResourceHandlerDispatcher
     /// <returns>An IResourceHandler that can process operations for the specified resource type.</returns>
     /// <exception cref="ArgumentNullException">Thrown when resourceType is null.</exception>
     /// <exception cref="InvalidOperationException">Thrown when no handler is found for the specified resource type.</exception>
-    /// <remarks>
-    /// This method internally calls <see cref="GetResourceHandler(string)"/> with the name of the provided type.
+    /// <remarks>    
     /// </remarks>
-    public IResourceHandler GetResourceHandler(Type resourceType)
-        => GetResourceHandler(resourceType?.Name ?? throw new ArgumentNullException(nameof(resourceType)));
+    public bool TryGetTypedResourceHandler(Type resourceType, [NotNullWhen(true)] out TypedResourceHandler? typedResourceHandler)
+        => TryGetTypedResourceHandler(resourceType?.Name ?? throw new ArgumentNullException(nameof(resourceType))
+                                    , out typedResourceHandler);
 
     /// <summary>
     /// Retrieves the appropriate resource handler for the specified resource type name.
@@ -78,27 +79,18 @@ public class ResourceHandlerDispatcher
     /// This method first checks for a type-specific handler in TypedResourceHandlers and falls back to
     /// the GenericResourceHandler if no specific handler is found.
     /// </remarks>
-    public IResourceHandler GetResourceHandler(string resourceType)
+    public bool TryGetTypedResourceHandler(string resourceType, [NotNullWhen(true)] out TypedResourceHandler? typedResourceHandler)
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(resourceType, nameof(resourceType));
 
-        if (TypedResourceHandlers.TryGetValue(resourceType, out var handlerMap))
-        {
-            return handlerMap.Handler;
-        }
-        else if (GenericResourceHandler is not null)
-        {
-            return GenericResourceHandler;
-        }
-
-        throw new InvalidOperationException($"No generic or typed resource handler found for type {resourceType}. Ensure the resource handler is registered.");
+        return TypedResourceHandlers.TryGetValue(resourceType, out typedResourceHandler);        
     }
 
 
-    private static (TypeResourceHandler? Generic, FrozenDictionary<string, TypeResourceHandler> Typed) BuildResourceHandlerTypeMap(IEnumerable<IResourceHandler> resourceHandlers)
+    private static (TypedResourceHandler? Generic, FrozenDictionary<string, TypedResourceHandler> Typed) BuildResourceHandlerTypeMap(IEnumerable<IResourceHandler> resourceHandlers)
     {
-        var handlerDictionary = new Dictionary<string, TypeResourceHandler>();
-        TypeResourceHandler? genericHandler = null;
+        var handlerDictionary = new Dictionary<string, TypedResourceHandler>();
+        TypedResourceHandler? genericHandler = null;
 
         foreach (var resourceHandler in resourceHandlers)
         {
@@ -125,7 +117,7 @@ public class ResourceHandlerDispatcher
                     throw new ArgumentException($"A generic resource handler has already been registered.");
                 }
 
-                genericHandler = new TypeResourceHandler(typeof(GenericResource), resourceHandler);
+                genericHandler = new TypedResourceHandler(typeof(GenericResource), resourceHandler);
             }
             else
             {

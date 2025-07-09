@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Frozen;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Bicep.Local.Extension.Host.Handlers;
 
@@ -11,7 +12,7 @@ namespace Bicep.Local.Extension.Host.Handlers;
 /// </summary>
 /// <param name="Type">The CLR Type that represents the resource model.</param>
 /// <param name="Handler">The resource handler that processes operations for the specified Type.</param>
-public record TypeResourceHandler(Type Type, IResourceHandler Handler);
+public record TypedResourceHandler(Type Type, IResourceHandler Handler);
 
 /// <summary>
 /// Defines a dispatcher that routes resource operations to the appropriate resource handlers.
@@ -27,7 +28,7 @@ public interface IResourceHandlerDispatcher
     /// <remarks>
     /// This dictionary contains handlers for strongly-typed resources that implement <see cref="IResourceHandler{TResource}"/>.
     /// </remarks>
-    FrozenDictionary<string, TypeResourceHandler>? TypedResourceHandlers { get; }
+    FrozenDictionary<string, TypedResourceHandler>? TypedResourceHandlers { get; }
     
     /// <summary>
     /// Gets the untyped resource handler that can process any resource type if available.
@@ -47,15 +48,14 @@ public interface IResourceHandlerDispatcher
     /// This method first checks for a type-specific handler in TypedResourceHandlers and falls back to
     /// the GenericResourceHandler if no specific handler is found.
     /// </remarks>
-    IResourceHandler GetResourceHandler(string resourceType);
+    bool TryGetTypedResourceHandler(Type resourceType, [NotNullWhen(true)] out TypedResourceHandler? typedResourceHandler);
 
     /// <summary>
     /// Retrieves the appropriate resource handler for the specified resource type.
     /// </summary>
     /// <param name="resourceType">The CLR Type of the resource to get a handler for.</param>
     /// <returns>An IResourceHandler that can process operations for the specified resource type.</returns>
-    /// <remarks>
-    /// This method internally calls <see cref="GetResourceHandler(string)"/> with the name of the provided type.
+    /// <remarks>    
     /// </remarks>
-    IResourceHandler GetResourceHandler(Type resourceType);
+    bool TryGetTypedResourceHandler(string resourceType, [NotNullWhen(true)] out TypedResourceHandler? typedResourceHandler);
 }

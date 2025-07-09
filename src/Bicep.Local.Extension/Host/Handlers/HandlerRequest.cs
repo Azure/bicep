@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace Bicep.Local.Extension.Host.Handlers;
 
@@ -16,7 +18,7 @@ public class HandlerRequest
     /// <param name="type">The resource type identifier.</param>
     /// <param name="apiVersion">The API version to use for the request.</param>
     public HandlerRequest(string type, string? apiVersion)
-        : this(type, apiVersion, [], [])
+        : this(type, apiVersion, [], [], [], [])
     { }
 
     /// <summary>
@@ -24,15 +26,17 @@ public class HandlerRequest
     /// </summary>
     /// <param name="type">The resource type identifier. Cannot be null or whitespace.</param>
     /// <param name="apiVersion">The API version to use for the request. Can be null.</param>
-    /// <param name="extensionSettings">Additional settings for the extension processing the request. If null, an empty object is used.</param>
+    /// <param name="config">Additional settings for the extension processing the request. If null, an empty object is used.</param>
     /// <param name="resourceJson">The JSON representation of the resource. If null, an empty object is used.</param>
     /// <exception cref="ArgumentException">Thrown when <paramref name="type"/> is null or whitespace.</exception>
-    public HandlerRequest(string type, string? apiVersion, JsonObject? extensionSettings, JsonObject? resourceJson)
+    public HandlerRequest(string type, string? apiVersion, JsonObject? config, JsonObject? resourceJson, JsonObject identifiers, JsonObject properties)
     {
         Type = string.IsNullOrWhiteSpace(type) ? throw new ArgumentException(nameof(type)) : type;
         ApiVersion = apiVersion;
-        ExtensionSettings = extensionSettings ?? [];
+        Config = config ?? [];
         ResourceJson = resourceJson ?? [];
+        Identifiers = identifiers;
+        Properties = properties;
     }
 
     /// <summary>
@@ -49,13 +53,17 @@ public class HandlerRequest
     /// Gets additional settings for the extension processing the request.
     /// Never null; defaults to an empty object if not provided.
     /// </summary>
-    public JsonObject ExtensionSettings { get; }
+    public JsonObject Config { get; }
 
     /// <summary>
     /// Gets the JSON representation of the resource.
     /// Never null; defaults to an empty object if not provided.
     /// </summary>
-    public JsonObject ResourceJson { get; }
+    public JsonObject ResourceJson { get; protected set; }
+
+    public JsonObject Identifiers { get; protected set; }
+
+    public JsonObject Properties { get; protected set; }
 }
 
 /// <summary>
@@ -71,20 +79,23 @@ public class HandlerRequest<TResource>
     /// </summary>
     /// <param name="resource">The strongly-typed resource instance. Cannot be null.</param>
     /// <param name="apiVersion">The API version to use for the request. Can be null.</param>
-    /// <param name="extensionSettings">Additional settings for the extension processing the request. If null, an empty object is used.</param>
-    /// <param name="resourceJson">The JSON representation of the resource. If null, an empty object is used.</param>
+    /// <param name="config">Additional settings for the extension processing the request. If null, an empty object is used.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="resource"/> is null.</exception>
     /// <remarks>
     /// The resource type identifier is derived from the runtime type name of the provided resource instance.
     /// </remarks>
-    public HandlerRequest(TResource resource, string? apiVersion, JsonObject? extensionSettings, JsonObject resourceJson)
+    public HandlerRequest(TResource resource, string? apiVersion, JsonObject? config, JsonObject? resourceJson, JsonObject identifiers, JsonObject properties)
         : base(resource?.GetType().Name ?? throw new ArgumentNullException(nameof(resource))
             , apiVersion
-            , extensionSettings
-            , resourceJson)
+            , config
+            , resourceJson
+            , identifiers
+            , properties)
     {
         Resource = resource;
     }
+
+
 
     /// <summary>
     /// Gets the strongly-typed resource instance.

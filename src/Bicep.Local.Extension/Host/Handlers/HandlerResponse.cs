@@ -13,12 +13,12 @@ public enum HandlerResponseStatus
     /// <summary>
     /// Indicates the operation completed successfully.
     /// </summary>
-    Success,
+    Succeeded,
     
     /// <summary>
     /// Indicates the operation failed due to an error.
     /// </summary>
-    Error,
+    Failed,
     
     /// <summary>
     /// Indicates the operation was canceled before completion.
@@ -97,11 +97,6 @@ public class HandlerResponse
     public JsonObject Properties { get; }
 
     /// <summary>
-    /// Gets additional extension settings included in the response.
-    /// </summary>
-    public JsonObject? ExtensionSettings { get; }
-
-    /// <summary>
     /// Gets the error that occurred during the operation, if any.
     /// </summary>
     public Error? Error { get; }
@@ -118,9 +113,9 @@ public class HandlerResponse
     /// <param name="apiVersion">The API version of the resource.</param>
     /// <param name="properties">The properties of the response.</param>
     /// <param name="message">An optional message providing additional information about the response.</param>
-    /// <returns>A new <see cref="HandlerResponse"/> with a <see cref="HandlerResponseStatus.Success"/> status.</returns>
+    /// <returns>A new <see cref="HandlerResponse"/> with a <see cref="HandlerResponseStatus.Succeeded"/> status.</returns>
     public static HandlerResponse Success(string resourceType, string? apiVersion, JsonObject? properties, string? message = null)
-        => new(resourceType, apiVersion, HandlerResponseStatus.Success, properties, null, message: message);
+        => new(resourceType, apiVersion, HandlerResponseStatus.Succeeded, properties, null, message: message);
 
     /// <summary>
     /// Creates a failed response indicating an error.
@@ -130,9 +125,9 @@ public class HandlerResponse
     /// <param name="properties">The properties of the response.</param>
     /// <param name="error">The error that occurred during the operation.</param>
     /// <param name="message">An optional message providing additional information about the error.</param>
-    /// <returns>A new <see cref="HandlerResponse"/> with a <see cref="HandlerResponseStatus.Error"/> status.</returns>
+    /// <returns>A new <see cref="HandlerResponse"/> with a <see cref="HandlerResponseStatus.Failed"/> status.</returns>
     public static HandlerResponse Failed(string resourceType, string? apiVersion, JsonObject? properties, Error? error = null, string? message = null)
-        => new(resourceType, apiVersion, HandlerResponseStatus.Error, properties, error, message: message);
+        => new(resourceType, apiVersion, HandlerResponseStatus.Failed, properties, error, message: message);
 
     /// <summary>
     /// Creates a response indicating the operation was canceled.
