@@ -25,7 +25,6 @@ namespace Bicep.Core.Features
         public bool ResourceInfoCodegenEnabled => features.ResourceInfoCodegen;
         public bool ModuleExtensionConfigsEnabled => features.ModuleExtensionConfigs;
         public bool DesiredStateConfigurationEnabled => features.DesiredStateConfiguration;
-        public bool ExternalInputFunctionEnabled => features.ExternalInputFunction;
         public bool ModuleIdentityEnabled => features.ModuleIdentity;
     }
 }

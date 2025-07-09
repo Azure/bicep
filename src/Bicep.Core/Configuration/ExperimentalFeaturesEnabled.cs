@@ -43,7 +43,6 @@ public record ExperimentalFeaturesEnabled(
         ResourceInfoCodegen: false,
         ModuleExtensionConfigs: false,
         DesiredStateConfiguration: false,
-        ExternalInputFunction: false,
         OnlyIfNotExists: false,
         ModuleIdentity: false);
 }
