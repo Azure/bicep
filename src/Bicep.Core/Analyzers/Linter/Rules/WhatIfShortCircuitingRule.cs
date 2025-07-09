@@ -610,22 +610,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             try
             {
-                // A synchronous wait should be fine here since TemplateEngine.ExpandNestedDeployments will only await
-                // three things:
-                //  - Downloading linked parameters
-                //  - Downloading linked templates
-                //  - Fetching the default API version to use in a template that uses an API profile
-                // All three of these will synchronously fail with an exception because the calling code is not
-                // supplying either a contentLinkResolver or an apiProfileResolver, but it feels dangerous to put in
-                // a sync wait and hope the invoked code doesn't change what it's doing!
-#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
-                var (_, preflightResources, extensibleResources) = TemplateEngine.ExpandNestedDeployments(
+                var (_, preflightResources, extensibleResources) = TemplateEngine.ExpandNestedDeploymentsSync(
                     deploymentApiVersion: EmitConstants.NestedDeploymentResourceApiVersion,
                     deploymentScope: EnumConverter.ToTemplateDeploymentScope(targetScope)
                         ?? TemplateDeploymentScope.NotSpecified,
                     template: template,
-                    parameters: parameters).Result;
-#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
+                    parameters: parameters);
 
                 return (preflightResources, extensibleResources);
             }
