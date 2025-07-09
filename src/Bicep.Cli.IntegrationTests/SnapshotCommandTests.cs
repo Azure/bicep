@@ -226,6 +226,74 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
         result.Stderr.Should().NotContain("Unhandled exception");
     }
 
+    [TestMethod]
+    public async Task Snapshot_speculatively_evaluates_references()
+    {
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var bicepparamPath = FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicepparam",
+            """
+                using './main.bicep'
+                """,
+            testOutputPath: outputPath);
+
+        FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicep",
+            """
+                module mod 'mod.bicep' = {}
+                                
+                module mod2 'mod2.bicep' = {
+                  params: {
+                    vnetName: mod.outputs.static
+                  }
+                }
+                """,
+            testOutputPath: outputPath);
+
+        FileHelper.SaveResultFile(
+            TestContext,
+            "mod.bicep",
+            """output static string = 'foo'""",
+            testOutputPath: outputPath);
+
+        FileHelper.SaveResultFile(
+            TestContext,
+            "mod2.bicep",
+            """
+                param vnetName string
+                                
+                resource vnet 'Microsoft.Network/virtualNetworks@2024-07-01' = {
+                  name: vnetName
+                }
+                """,
+            testOutputPath: outputPath);
+
+        var outputFilePath = FileHelper.GetResultFilePath(TestContext, "main.snapshot.json", testOutputPath: outputPath);
+
+        var subscriptionId = new Guid().ToString();
+
+        var result = await Bicep("snapshot", bicepparamPath, "--mode", "overwrite", "--subscription-id", subscriptionId, "--resource-group", "myRg", "--deployment-name", "deployment");
+
+        result.Should().Succeed();
+
+        var snapshotContents = File.ReadAllText(outputFilePath).FromJson<JToken>();
+        snapshotContents.Should().DeepEqual(JObject.Parse("""
+            {
+              "predictedResources": [
+                {
+                  "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg/providers/Microsoft.Network/virtualNetworks/foo",
+                  "type": "Microsoft.Network/virtualNetworks",
+                  "name": "foo",
+                  "apiVersion": "2024-07-01"
+                }
+              ],
+              "diagnostics": []
+            }
+            """));
+    }
+
     private static string ReplaceColorCodes(string input)
     {
         var namesByColor = new Dictionary<Color, string>

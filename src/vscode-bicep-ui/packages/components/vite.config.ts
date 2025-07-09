@@ -26,8 +26,11 @@ export default defineConfig({
       formats: ["es"],
       entry: {
         index: "src/index.ts",
+        accordion: "src/accordion/index.ts",
         "azure-icon": "src/azure-icon/index.ts",
         codicon: "src/codicon/index.ts",
+        list: "src/list/index.ts",
+        "pan-zoom": "src/pan-zoom/index.ts",
       },
     },
     rollupOptions: {

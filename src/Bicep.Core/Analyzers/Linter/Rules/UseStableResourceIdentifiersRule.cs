@@ -4,6 +4,7 @@
 using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
@@ -60,11 +61,23 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
             {
-                if (NonDeterministicFunctionNames.Contains(syntax.Name.IdentifierName))
+                VisitFunctionCallBaseSyntax(syntax);
+                base.VisitFunctionCallSyntax(syntax);
+            }
+
+            public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
+            {
+                VisitFunctionCallBaseSyntax(syntax);
+                base.VisitInstanceFunctionCallSyntax(syntax);
+            }
+
+            private void VisitFunctionCallBaseSyntax(FunctionCallSyntaxBase syntax)
+            {
+                if (SemanticModelHelper.TryGetFunctionInNamespace(model, SystemNamespaceType.BuiltInName, syntax) is not null &&
+                    NonDeterministicFunctionNames.Contains(syntax.Name.IdentifierName))
                 {
                     pathsToNonDeterministicFunctionsUsed.Add((FormatPath(syntax.ToString()), syntax.Name.IdentifierName));
                 }
-                base.VisitFunctionCallSyntax(syntax);
             }
 
             public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)

@@ -3,11 +3,12 @@
 
 using System.Collections.Immutable;
 using Bicep.Cli.Helpers;
+using Bicep.Core;
 using Bicep.Core.FileSystem;
 
 namespace Bicep.Cli.Arguments;
 
-public class BuildArguments : ArgumentsBase
+public class BuildArguments : ArgumentsBase, IFilePatternInputOutputArguments<BuildArguments>
 {
     public BuildArguments(string[] args) : base(Constants.Command.Build)
     {
@@ -111,6 +112,8 @@ public class BuildArguments : ArgumentsBase
 
         DiagnosticsFormat ??= Arguments.DiagnosticsFormat.Default;
     }
+
+    public static string OutputFileExtension => LanguageConstants.JsonFileExtension;
 
     public bool OutputToStdOut { get; }
 

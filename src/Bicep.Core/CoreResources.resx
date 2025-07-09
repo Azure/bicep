@@ -501,17 +501,11 @@
   <data name="ExperimentalFeatureNames_WaitAndRetry" xml:space="preserve">
     <value>Enable wait and retry feature</value>
   </data>
-  <data name="ExperimentalFeatureNames_ExternalInputFunction" xml:space="preserve">
-    <value>External input function</value>
-  </data>
   <data name="NoSymbolicReferencesInInnerScopedDeploymentResourcesDescription" xml:space="preserve">
     <value>Nested deployment resources cannot refer to top-level symbols from within the 'template' property when inner-scoped evaluation is used.</value>
   </data>
   <data name="NoSymbolicReferencesInInnerScopedDeploymentResourcesMessageFormat" xml:space="preserve">
     <value>The symbol "{0}" is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation.</value>
-  </data>
-  <data name="ExperimentalFeatureNames_ResourceDerivedTypes" xml:space="preserve">
-    <value>Resource-derived types</value>
   </data>
   <data name="UseSafeAccessRule_Description" xml:space="preserve">
     <value>Use the safe access (.?) operator.</value>

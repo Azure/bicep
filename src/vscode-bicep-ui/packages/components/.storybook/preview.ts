@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { Preview } from "@storybook/react";
+import type { Preview } from "@storybook/react-vite";
 
 import { withThemeFromJSXProvider } from "@storybook/addon-themes";
 import { createGlobalStyle } from "styled-components";
