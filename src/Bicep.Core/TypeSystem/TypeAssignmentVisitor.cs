@@ -511,13 +511,13 @@ namespace Bicep.Core.TypeSystem
                 {
                     if (decorator.Expression is FunctionCallSyntax functionCallSyntax &&
                         functionCallSyntax.Name.IdentifierName == LanguageConstants.ParameterInlinePropertyName &&
-                        syntax.Value is not null)
+                        syntax.AssignmentClause.Value is not null)
                     {
                         diagnostics.Write(DiagnosticBuilder.ForPosition(decorator).InlineMustNotHaveValueAssigned());
                     }
                 }
 
-                var valueType = this.typeManager.GetTypeInfo(syntax.Value ?? SyntaxFactory.CreateNullLiteral());
+                var valueType = this.typeManager.GetTypeInfo(syntax.AssignmentClause.Value ?? SyntaxFactory.CreateNullLiteral());
                 CollectErrors(errors, valueType);
 
                 if (PropagateErrorType(errors, valueType))

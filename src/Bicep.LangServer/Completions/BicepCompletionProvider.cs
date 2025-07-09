@@ -130,7 +130,7 @@ namespace Bicep.LanguageServer.Completions
             var declaredType = paramsSemanticModel.GetDeclaredType(paramAssignment);
 
             // loops are not allowed in param files... yet!
-            return GetValueCompletionsForType(paramsSemanticModel, paramsCompletionContext, declaredType, paramAssignment.Value, loopsAllowed: false);
+            return GetValueCompletionsForType(paramsSemanticModel, paramsCompletionContext, declaredType, paramAssignment.AssignmentClause.Value, loopsAllowed: false);
         }
 
         private IEnumerable<CompletionItem> GetDeclarationCompletions(SemanticModel model, BicepCompletionContext context)

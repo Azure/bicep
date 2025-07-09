@@ -184,12 +184,12 @@ public class ParameterAssignmentEvaluator
 
                 var declaringParam = parameter.DeclaringParameterAssignment;
 
-                if (declaringParam.Value is null)
+                if (declaringParam.AssignmentClause.Value is null)
                 {
                     return Result.For(DiagnosticBuilder.ForPosition(declaringParam.Name).FailedToEvaluateParameter(parameter.Name, "Parameter value is null"));
                 }
 
-                var intermediate = converter.ConvertToIntermediateExpression(declaringParam.Value!);
+                var intermediate = converter.ConvertToIntermediateExpression(declaringParam.AssignmentClause.Value!);
 
                 if (this.externalInputReferences.ParametersReferences.Contains(parameter))
                 {
@@ -210,7 +210,7 @@ public class ParameterAssignmentEvaluator
                 }
                 catch (Exception ex)
                 {
-                    return Result.For(DiagnosticBuilder.ForPosition(declaringParam.Value ?? parameter.DeclaringParameterAssignment.Name)
+                    return Result.For(DiagnosticBuilder.ForPosition(declaringParam.AssignmentClause.Value ?? parameter.DeclaringParameterAssignment.Name)
                         .FailedToEvaluateParameter(parameter.Name, ex.Message));
                 }
             });
