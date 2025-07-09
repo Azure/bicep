@@ -35,7 +35,7 @@ namespace Bicep.Core.Semantics.Namespaces
 {
     public static class SystemNamespaceType
     {
-        private readonly record struct LoadTextContentResult(IOUri FileUri, string Content);
+        private record LoadTextContentResult(IOUri FileUri, string Content);
 
         public const string BuiltInName = "sys";
         public const long UniqueStringHashLength = 13;
@@ -1239,25 +1239,22 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithOptionalParameter("default", LanguageConstants.String, "Default value to return if environment variable is not found.")
                     .Build();
 
-                if (featureProvider.ExternalInputFunctionEnabled)
-                {
-                    yield return new FunctionOverloadBuilder(LanguageConstants.ExternalInputBicepFunctionName)
-                        .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
-                        .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.")
-                        .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.")
-                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, exp.Parameters))
-                        .WithReturnResultBuilder((model, diagnostics, functionCall, argumentTypes) =>
+                yield return new FunctionOverloadBuilder(LanguageConstants.ExternalInputBicepFunctionName)
+                    .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
+                    .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.")
+                    .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.")
+                    .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, exp.Parameters))
+                    .WithReturnResultBuilder((model, diagnostics, functionCall, argumentTypes) =>
+                    {
+                        var visitor = new CompileTimeConstantVisitor(diagnostics);
+                        foreach (var arg in functionCall.Arguments)
                         {
-                            var visitor = new CompileTimeConstantVisitor(diagnostics);
-                            foreach (var arg in functionCall.Arguments)
-                            {
-                                arg.Accept(visitor);
-                            }
+                            arg.Accept(visitor);
+                        }
 
-                            return new(LanguageConstants.Any);
-                        }, LanguageConstants.Any)
-                        .Build();
-                }
+                        return new(LanguageConstants.Any);
+                    }, LanguageConstants.Any)
+                    .Build();
             }
 
             foreach (var overload in GetAlwaysPermittedOverloads())
@@ -1371,7 +1368,9 @@ namespace Bicep.Core.Semantics.Namespaces
                 tokenSelectorPath = tokenSelectorType.RawStringValue;
             }
 
-            if (TryLoadTextContentFromFile(model, diagnostics, (arguments[0], argumentTypes[0]), arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null, LanguageConstants.MaxJsonFileCharacterLimit)
+            int? characterLimit = model.Features.LocalDeployEnabled ? null : LanguageConstants.MaxJsonFileCharacterLimit;
+
+            if (TryLoadTextContentFromFile(model, diagnostics, (arguments[0], argumentTypes[0]), arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null, characterLimit)
                 .IsSuccess(out var result, out var errorDiagnostic) &&
                 objectParser.TryExtractFromObject(result.Content, tokenSelectorPath, positionables, out errorDiagnostic, out var token))
             {
@@ -1433,7 +1432,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 new StringLiteralExpression(null, envVariableValue));
         }
 
-        private static ResultWithDiagnostic<LoadTextContentResult> TryLoadTextContentFromFile(SemanticModel model, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, int maxCharacters)
+        private static ResultWithDiagnostic<LoadTextContentResult> TryLoadTextContentFromFile(SemanticModel model, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, int? maxCharacters)
         {
             if (filePathArgument.typeSymbol is not StringLiteralType filePathType)
             {

@@ -138,7 +138,7 @@ namespace Bicep.Core.Registry
                             throw new InvalidOperationException("The configuration file URI must be set when trying to resolve an extension reference.");
                         }
 
-                        var extensionUri = config.ConfigFileUri.Value.Resolve(extensionPath);
+                        var extensionUri = config.ConfigFileUri.Resolve(extensionPath);
 
                         return new(extensionUri.GetPathRelativeTo(referencingFile.FileHandle.Uri));
                     }

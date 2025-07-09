@@ -107,7 +107,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "localDeploy": false,
           "resourceInfoCodegen": false,
           "desiredStateConfiguration": false,
-          "externalInputFunction": false,
           "onlyIfNotExists": false,
           "moduleIdentity": false
         },
@@ -190,7 +189,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "moduleExtensionConfigs": false,
           "desiredStateConfiguration": false,
-          "externalInputFunction": false,
           "onlyIfNotExists": false,
           "moduleIdentity": false
         },
@@ -295,7 +293,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "moduleExtensionConfigs": false,
           "desiredStateConfiguration": false,
-          "externalInputFunction": false,
           "onlyIfNotExists": false,
           "moduleIdentity": false
         },
@@ -389,7 +386,6 @@ namespace Bicep.Core.UnitTests.Configuration
                 ResourceInfoCodegen: false,
                 ModuleExtensionConfigs: false,
                 DesiredStateConfiguration: false,
-                ExternalInputFunction: false,
                 OnlyIfNotExists: false,
                 ModuleIdentity: false);
 
@@ -473,7 +469,6 @@ namespace Bicep.Core.UnitTests.Configuration
                 "resourceInfoCodegen": false,
                 "moduleExtensionConfigs": false,
                 "desiredStateConfiguration": false,
-                "externalInputFunction": false,
                 "onlyIfNotExists": false,
                 "moduleIdentity": false
             },
@@ -841,7 +836,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "moduleExtensionConfigs": false,
           "desiredStateConfiguration": false,
-          "externalInputFunction": false,
           "onlyIfNotExists": false,
           "moduleIdentity": false
         },

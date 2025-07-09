@@ -40,7 +40,7 @@ namespace Bicep.IO.FileSystem
         {
             this.GetParent().EnsureExists();
 
-            return this.FileSystem.File.OpenWrite(this.FilePath);
+            return this.FileSystem.FileStream.New(this.FilePath, FileMode.Create, FileAccess.Write, FileShare.None);
         }
 
         public void Delete() => this.FileSystem.File.Delete(this.FilePath);
