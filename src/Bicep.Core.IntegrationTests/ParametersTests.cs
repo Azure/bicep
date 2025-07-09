@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.FileSystem;
 using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
@@ -613,6 +613,49 @@ param stringParam =  /*TODO*/
                     }
                 }
             }"));
+        }
+
+        [TestMethod]
+        public void Missing_required_extension_configs_generates_a_codefix()
+        {
+            var result = CompilationHelper.CompileParams(
+                ("parameters.bicepparam",
+                    """
+                    using './main.bicep'
+                    """),
+                ("main.bicep",
+                    """
+                    param stringParam string
+                    param intParam int
+                    param boolParam bool
+                    param objectParam object
+                    param arrayParam array
+                    """));
+
+            result.ExcludingLinterDiagnostics()
+                .Should()
+                .HaveDiagnostics(
+                [
+                    ("BCP258", DiagnosticLevel.Error, """The following parameters are declared in the Bicep file but are missing an assignment in the params file: "arrayParam", "boolParam", "intParam", "objectParam", "stringParam".""")
+                ]);
+
+            result.ApplyCodeFix(result.Diagnostics.Single(x => x.Code == "BCP258"))
+                .Should()
+                .EqualIgnoringNewlines(
+                    """
+                    using './main.bicep'
+
+                    param arrayParam =  /*TODO*/
+
+                    param boolParam =  /*TODO*/
+
+                    param intParam =  /*TODO*/
+
+                    param objectParam =  /*TODO*/
+
+                    param stringParam =  /*TODO*/
+
+                    """);
         }
     }
 }
