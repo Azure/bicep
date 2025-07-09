@@ -21,9 +21,6 @@ Allows you to author configuration documents for [Microsoft's Desired State Conf
 
 Enables the ability to extend bicepparam files from other bicepparam files. For more information, see [Extendable Bicep Params Files](./experimental/extendable-param-files.md).
 
-### `externalInputFunction`
-Enables the `externalInput` function to allow reading input that will be resolved later by external tooling. This is useful for tools that require the ability to inject values at deployment time. Note: This feature will not work until the backend service support has been deployed.
-
 ### `legacyFormatter`
 
 Enables code formatting with the legacy formatter. This feature flag is introduced to ensure a safer transition to the v2 formatter that implements a pretty-printing algorithm. It is intended for temporary use and will be phased out soon.
@@ -53,10 +50,6 @@ resource onlyDeployIfNotExists 'Microsoft...' = {
   }
 }
 ```
-
-### `resourceDerivedTypes`
-
-If enabled, templates can reuse resource types wherever a type is expected. For example, to declare a parameter `foo` that should be usable as the name of an Azure Storage account, the following syntax would be used: `param foo resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.name`. **NB:** Because resource types may be inaccurate in some cases, no constraints other than the ARM type primitive will be enforced on resource derived types within the ARM deployment engine. Resource-derived types will be checked by Bicep at compile time, but violations will be emitted as warnings rather than errors.
 
 ### `resourceInfoCodegen`
 
