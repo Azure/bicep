@@ -191,12 +191,9 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
               const mcpServerPath = await ensureMcpServerExists(extensionContext);
               return [
                 new McpStdioServerDefinition(
-                  'bicep',
+                  'Bicep (PREVIEW)',
                   dotnetCommandPath,
-                  [mcpServerPath],
-                  {}, // TODO inherit process env
-                  '1.0.0' // TODO set version properly
-                ),
+                  [mcpServerPath]),
               ];
             },
         }));
