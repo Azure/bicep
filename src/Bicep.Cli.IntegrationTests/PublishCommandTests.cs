@@ -130,20 +130,6 @@ namespace Bicep.Cli.IntegrationTests
             error.Should().MatchRegex(@"The --documentation-uri should be a well formed uri string.");
         }
 
-        // TODO: Enable this once Azure CLI is updated to support the new parameters.
-        [TestMethod]
-        public async Task Publish_WithDeprecatedParameter_PrintsDeprecationMessage()
-        {
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"output myOutput string = 'hello!'");
-            var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br:example.azurecr.io/hello/there:v1", "--documentationUri", "invalid_uri");
-
-            result.Should().Be(1);
-            output.Should().BeEmpty();
-            error.Should().MatchRegex(@"The --documentationUri should be a well formed uri string.");
-            error.Should().MatchRegex(@"DEPRECATED: The parameter --documentationUri is deprecated and will be removed in a future version of Bicep CLI. Use --documentation-uri instead.");
-        }
-
         [DataTestMethod]
         [DynamicData(nameof(GetValidDataSetsWithDocUriAndPublishSource), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
         public async Task Publish_AllValidDataSets_ShouldSucceed(string testName, DataSet dataSet, string documentationUri, bool publishSource)

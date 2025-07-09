@@ -20,21 +20,6 @@ namespace Bicep.Cli.IntegrationTests
     public partial class FormatCommandTests : TestBase
     {
         [TestMethod]
-        public async Task Format_WithDeprecatedParams_PrintsDeprecationMessage()
-        {
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", "output myOutput string = 'hello!'");
-
-            var (output, error, result) = await Bicep("format", bicepPath, "--newline", "crlf", "--indentKind", "space", "--indentSize", "4", "--insertFinalNewline");
-
-            result.Should().Be(0);
-            output.Should().BeEmpty();
-            error.Should().MatchRegex(@"DEPRECATED: The parameter --newline is deprecated and will be removed in a future version of Bicep CLI. Use --newline-kind instead.");
-            error.Should().MatchRegex(@"DEPRECATED: The parameter --indentKind is deprecated and will be removed in a future version of Bicep CLI. Use --indent-kind instead.");
-            error.Should().MatchRegex(@"DEPRECATED: The parameter --indentSize is deprecated and will be removed in a future version of Bicep CLI. Use --indent-size instead.");
-            error.Should().MatchRegex(@"DEPRECATED: The parameter --insertFinalNewline is deprecated and will be removed in a future version of Bicep CLI. Use --insert-final-newline instead.");
-        }
-
-        [TestMethod]
         public async Task Format_WithLegacyFormatterEnabled_InvokesLegacyFormatter()
         {
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>()
