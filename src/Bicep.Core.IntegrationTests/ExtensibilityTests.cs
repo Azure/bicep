@@ -857,6 +857,10 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             "DiscriminatedType_NoDefaults",
             "extensionConfig mockExt with { discrim: 'b', b1: 'fooo' }",
             "extension 'br:mcr.microsoft.com/bicep/extensions/configdiscrimobj/v1:1.2.3' as mockExt")]
+        [DataRow(
+            "AssignmentEmpty",
+            "extensionConfig k8s with {}",
+            "extension kubernetes with { kubeConfig: 'templateKubeConfig', namespace: 'templateNs' } as k8s")]
         public async Task Extension_config_assignment_type_checks_are_cross_module_aware(
             string scenarioName,
             string paramsFileExtensionConfigAssignment,
@@ -911,12 +915,6 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             "",
             "BCP425",
             "The extension configuration assignment for \"k8s\" does not match an extension in the Bicep file.")]
-        [DataRow(
-            "AssignmentEmpty",
-            "extensionConfig k8s with {}",
-            "extension kubernetes with { kubeConfig: 'templateKubeConfig', namespace: 'templateNs' } as k8s",
-            "BCP426",
-            "An extension configuration assignment must not be empty.")]
         [DataRow(
             "DiscriminatedType_AssignmentMissingProperties",
             "extensionConfig mockExt with { a2: 'a1 not defined' }",

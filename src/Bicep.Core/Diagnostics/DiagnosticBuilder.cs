@@ -1937,10 +1937,6 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic ExtensionConfigAssignmentDoesNotMatchToExtension(string identifier) => CoreError(
                 "BCP425",
                 $"The extension configuration assignment for \"{identifier}\" does not match an extension in the Bicep file.");
-
-            public Diagnostic ExtensionConfigAssignmentMustNotBeEmpty() => CoreError(
-                "BCP426",
-                "An extension configuration assignment must not be empty.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
