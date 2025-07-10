@@ -82,7 +82,7 @@ namespace Bicep.Core.Parsing
             var decorators = leadingNodes.OfType<DecoratorSyntax>();
             foreach (var decorator in decorators)
             {
-                this.ParsingErrorTree.Errors.Add(DiagnosticBuilder.ForPosition(decorator).DecoratorsNotAllowedOnUsingDeclaration());
+                this.ParsingErrorTree.Write(DiagnosticBuilder.ForPosition(decorator).DecoratorsNotAllowedOnUsingDeclaration());
             }
 
             var keyword = ExpectKeyword(LanguageConstants.UsingKeyword);
@@ -103,7 +103,7 @@ namespace Bicep.Core.Parsing
             var decorators = leadingNodes.OfType<DecoratorSyntax>();
             foreach (var decorator in decorators)
             {
-                this.ParsingErrorTree.Errors.Add(DiagnosticBuilder.ForPosition(decorator).DecoratorsNotAllowedOnExtendsDeclaration());
+                this.ParsingErrorTree.Write(DiagnosticBuilder.ForPosition(decorator).DecoratorsNotAllowedOnExtendsDeclaration());
             }
 
             var keyword = ExpectKeyword(LanguageConstants.ExtendsKeyword);
@@ -121,7 +121,7 @@ namespace Bicep.Core.Parsing
             var decorators = leadingNodes.OfType<DecoratorSyntax>();
             foreach (var decorator in decorators)
             {
-                this.ParsingErrorTree.Errors.Add(DiagnosticBuilder.ForPosition(decorator).DecoratorsNotAllowedOnParameterAssignment());
+                this.ParsingErrorTree.Write(DiagnosticBuilder.ForPosition(decorator).DecoratorsNotAllowedOnParameterAssignment());
             }
 
             var keyword = ExpectKeyword(LanguageConstants.ParameterKeyword);
