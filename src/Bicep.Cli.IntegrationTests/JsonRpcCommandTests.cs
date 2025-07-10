@@ -433,4 +433,39 @@ resource baz 'My.Rp/foo@2020-01-01' = {
                     """));
             });
     }
+
+    [TestMethod]
+    public async Task Format_returns_formatted_content()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/main.bicep"] = """
+param foo string
+param bar int = 42
+
+resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+name: 'mystorageaccount'
+location: 'East US'
+sku: {
+name: 'Standard_LRS'
+}
+kind: 'StorageV2'
+}
+""",
+        });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var response = await client.Format(new("/main.bicep"), token);
+                response.Success.Should().BeTrue();
+                response.Contents.Should().NotBeNull();
+                response.Contents.Should().Contain("param foo string");
+                response.Contents.Should().Contain("param bar int = 42");
+                // The formatted content should have proper indentation
+                response.Contents.Should().Contain("  name: 'mystorageaccount'");
+                response.Contents.Should().Contain("  location: 'East US'");
+            });
+    }
 }

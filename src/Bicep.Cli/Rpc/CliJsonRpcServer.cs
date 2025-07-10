@@ -9,6 +9,8 @@ using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
+using Bicep.Core.PrettyPrint;
+using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
@@ -240,6 +242,47 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
             cancellationToken: cancellationToken);
 
         return new(SnapshotHelper.Serialize(snapshot));
+    }
+
+    /// <inheritdoc/>
+    public async Task<FormatResponse> Format(FormatRequest request, CancellationToken cancellationToken)
+    {
+        var compilation = await GetCompilation(compiler, request.Path);
+        var model = compilation.GetEntrypointSemanticModel();
+        var diagnostics = GetDiagnostics(compilation).ToImmutableArray();
+
+        if (model.SourceFile is not BicepSourceFile sourceFile)
+        {
+            return new(false, diagnostics, null);
+        }
+
+        try
+        {
+            string formattedContent;
+
+            if (sourceFile.Features.LegacyFormatterEnabled)
+            {
+                var v2Options = sourceFile.Configuration.Formatting.Data;
+                var legacyOptions = PrettyPrintOptions.FromV2Options(v2Options);
+                formattedContent = PrettyPrinter.PrintProgram(sourceFile.ProgramSyntax, legacyOptions, sourceFile.LexingErrorLookup, sourceFile.ParsingErrorLookup);
+            }
+            else
+            {
+                var options = sourceFile.Configuration.Formatting.Data;
+                var context = PrettyPrinterV2Context.Create(options, sourceFile.LexingErrorLookup, sourceFile.ParsingErrorLookup);
+
+                using var writer = new StringWriter();
+                PrettyPrinterV2.PrintTo(writer, sourceFile.ProgramSyntax, context);
+                formattedContent = writer.ToString();
+            }
+
+            return new(true, diagnostics, formattedContent);
+        }
+        catch
+        {
+            // If formatting fails, return the original content
+            return new(false, diagnostics, null);
+        }
     }
 
     private static async Task<Compilation> GetCompilation(BicepCompiler compiler, string filePath)

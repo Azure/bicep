@@ -46,6 +46,16 @@ interface GetFileReferencesResponse {
   filePaths: string[];
 }
 
+interface FormatRequest {
+  path: string;
+}
+
+interface FormatResponse {
+  success: boolean;
+  diagnostics: CompileResponseDiagnostic[];
+  contents?: string;
+}
+
 interface Position {
   line: number;
   char: number;
@@ -143,6 +153,8 @@ export const getDeploymentGraphRequestType = new RequestType<
 export const getFileReferencesRequestType = new RequestType<GetFileReferencesRequest, GetFileReferencesResponse, never>(
   "bicep/getFileReferences",
 );
+
+export const formatRequestType = new RequestType<FormatRequest, FormatResponse, never>("bicep/format");
 
 function generateRandomPipeName(): string {
   const randomSuffix = randomBytes(21).toString("hex");
