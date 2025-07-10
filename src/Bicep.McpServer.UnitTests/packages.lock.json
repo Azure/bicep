@@ -4,9 +4,9 @@
     "net8.0": {
       "FluentAssertions": {
         "type": "Direct",
-        "requested": "[7.0.0, )",
-        "resolved": "7.0.0",
-        "contentHash": "mTLbcU991EQ1SEmNbVBaGGGJy0YFzvGd1sYJGNZ07nlPKuyHSn1I22aeKzqQXgEiaKyRO6MSCto9eN9VxMwBdA==",
+        "requested": "[7.2.0, )",
+        "resolved": "7.2.0",
+        "contentHash": "k94gV49Otru4e9nKtj36KpA9UkjuAGKPmhfM0oqyI+rrtxhSrgaeEhILR0AbJ9iNaoagAeQtawPz6njQOC6WQA==",
         "dependencies": {
           "System.Configuration.ConfigurationManager": "6.0.0"
         }
@@ -1806,7 +1806,7 @@
           "Bicep.LangServer": "[1.0.0, )",
           "Bicep.TextFixtures": "[1.0.0, )",
           "DiffPlex": "[1.7.2, )",
-          "FluentAssertions": "[7.0.0, )",
+          "FluentAssertions": "[7.2.0, )",
           "JsonDiffPatch.Net": "[2.3.0, )",
           "MSTest": "[3.8.2, )",
           "Moq": "[4.20.72, )",
@@ -1842,7 +1842,7 @@
           "Azure.Bicep.Core": "[1.0.0, )",
           "Azure.Bicep.Decompiler": "[1.0.0, )",
           "Azure.Bicep.IO": "[1.0.0, )",
-          "FluentAssertions": "[7.0.0, )",
+          "FluentAssertions": "[7.2.0, )",
           "JsonDiffPatch.Net": "[2.3.0, )",
           "Moq": "[4.20.72, )",
           "System.IO.Abstractions.TestingHelpers": "[21.3.1, )"
