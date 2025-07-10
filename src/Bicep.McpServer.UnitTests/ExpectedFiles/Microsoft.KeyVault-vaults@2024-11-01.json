@@ -1,0 +1,528 @@
+[
+  {
+    "type": "ResourceTypeEntity",
+    "data": {
+      "bodyType": {
+        "type": "ObjectTypeEntity",
+        "data": {
+          "properties": [
+            {
+              "name": "apiVersion",
+              "type": "2024-11-01",
+              "description": "The resource api version",
+              "flags": "ReadOnly, DeployTimeConstant",
+              "modifiers": ""
+            },
+            {
+              "name": "id",
+              "type": "string",
+              "description": "The resource id",
+              "flags": "ReadOnly, DeployTimeConstant",
+              "modifiers": ""
+            },
+            {
+              "name": "location",
+              "type": "string",
+              "description": "The supported Azure location where the key vault should be created.",
+              "flags": "Required",
+              "modifiers": ""
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "description": "The resource name",
+              "flags": "Required, DeployTimeConstant",
+              "modifiers": "pattern: ^[a-zA-Z0-9-]{3,24}$"
+            },
+            {
+              "name": "properties",
+              "type": "VaultProperties",
+              "description": "Properties of the vault",
+              "flags": "Required",
+              "modifiers": ""
+            },
+            {
+              "name": "systemData",
+              "type": "SystemData",
+              "description": "System metadata for the key vault.",
+              "flags": "ReadOnly",
+              "modifiers": ""
+            },
+            {
+              "name": "tags",
+              "type": "VaultCreateOrUpdateParametersTags",
+              "description": "The tags that will be assigned to the key vault.",
+              "flags": "None",
+              "modifiers": ""
+            },
+            {
+              "name": "type",
+              "type": "Microsoft.KeyVault/vaults",
+              "description": "The resource type",
+              "flags": "ReadOnly, DeployTimeConstant",
+              "modifiers": ""
+            }
+          ],
+          "name": "Microsoft.KeyVault/vaults"
+        }
+      },
+      "flags": "None",
+      "scopeType": "ResourceGroup",
+      "name": "Microsoft.KeyVault/vaults@2024-11-01"
+    }
+  },
+  {
+    "type": "ObjectTypeEntity",
+    "data": {
+      "properties": [
+        {
+          "name": "applicationId",
+          "type": "string",
+          "description": "Application ID of the client making request on behalf of a principal",
+          "flags": "None",
+          "modifiers": "minLength: 36, maxLength: 36, pattern: ^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$"
+        },
+        {
+          "name": "objectId",
+          "type": "string",
+          "description": "The object ID of a user, service principal or security group in the Azure Active Directory tenant for the vault. The object ID must be unique for the list of access policies.",
+          "flags": "Required",
+          "modifiers": ""
+        },
+        {
+          "name": "permissions",
+          "type": "Permissions",
+          "description": "Permissions the identity has for keys, secrets and certificates.",
+          "flags": "Required",
+          "modifiers": ""
+        },
+        {
+          "name": "tenantId",
+          "type": "string",
+          "description": "The Azure Active Directory tenant ID that should be used for authenticating requests to the key vault.",
+          "flags": "Required",
+          "modifiers": "minLength: 36, maxLength: 36, pattern: ^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$"
+        }
+      ],
+      "name": "AccessPolicyEntry"
+    }
+  },
+  {
+    "type": "ObjectTypeEntity",
+    "data": {
+      "properties": [
+        {
+          "name": "value",
+          "type": "string",
+          "description": "An IPv4 address range in CIDR notation, such as \u0027124.56.78.91\u0027 (simple IP address) or \u0027124.56.78.0/24\u0027 (all addresses that start with 124.56.78).",
+          "flags": "Required",
+          "modifiers": ""
+        }
+      ],
+      "name": "IPRule"
+    }
+  },
+  {
+    "type": "ObjectTypeEntity",
+    "data": {
+      "properties": [
+        {
+          "name": "bypass",
+          "type": "AzureServices | None | string",
+          "description": "Tells what traffic can bypass network rules. This can be \u0027AzureServices\u0027 or \u0027None\u0027.  If not specified the default is \u0027AzureServices\u0027.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "defaultAction",
+          "type": "Allow | Deny | string",
+          "description": "The default action when no rule from ipRules and from virtualNetworkRules match. This is only used after the bypass property has been evaluated.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "ipRules",
+          "type": "IPRule[]",
+          "description": "The list of IP address rules.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "virtualNetworkRules",
+          "type": "VirtualNetworkRule[]",
+          "description": "The list of virtual network rules.",
+          "flags": "None",
+          "modifiers": ""
+        }
+      ],
+      "name": "NetworkRuleSet"
+    }
+  },
+  {
+    "type": "ObjectTypeEntity",
+    "data": {
+      "properties": [
+        {
+          "name": "certificates",
+          "type": "all | get | list | delete | create | import | update | managecontacts | getissuers | listissuers | setissuers | deleteissuers | manageissuers | recover | purge | backup | restore | string[]",
+          "description": "Permissions to certificates",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "keys",
+          "type": "all | encrypt | decrypt | wrapKey | unwrapKey | sign | verify | get | list | create | update | import | delete | backup | restore | recover | purge | release | rotate | getrotationpolicy | setrotationpolicy | string[]",
+          "description": "Permissions to keys",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "secrets",
+          "type": "all | get | list | set | delete | backup | restore | recover | purge | string[]",
+          "description": "Permissions to secrets",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "storage",
+          "type": "all | get | list | delete | set | update | regeneratekey | recover | purge | backup | restore | setsas | listsas | getsas | deletesas | string[]",
+          "description": "Permissions to storage accounts",
+          "flags": "None",
+          "modifiers": ""
+        }
+      ],
+      "name": "Permissions"
+    }
+  },
+  {
+    "type": "ObjectTypeEntity",
+    "data": {
+      "properties": [
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Full identifier of the private endpoint resource.",
+          "flags": "ReadOnly",
+          "modifiers": ""
+        }
+      ],
+      "name": "PrivateEndpoint"
+    }
+  },
+  {
+    "type": "ObjectTypeEntity",
+    "data": {
+      "properties": [
+        {
+          "name": "etag",
+          "type": "string",
+          "description": "Modified whenever there is a change in the state of private endpoint connection.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Id of private endpoint connection.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "properties",
+          "type": "PrivateEndpointConnectionProperties",
+          "description": "Private endpoint connection properties.",
+          "flags": "None",
+          "modifiers": ""
+        }
+      ],
+      "name": "PrivateEndpointConnectionItem"
+    }
+  },
+  {
+    "type": "ObjectTypeEntity",
+    "data": {
+      "properties": [
+        {
+          "name": "privateEndpoint",
+          "type": "PrivateEndpoint",
+          "description": "Properties of the private endpoint object.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "privateLinkServiceConnectionState",
+          "type": "PrivateLinkServiceConnectionState",
+          "description": "Approval state of the private link connection.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "provisioningState",
+          "type": "Succeeded | Creating | Updating | Deleting | Failed | Disconnected | string",
+          "description": "Provisioning state of the private endpoint connection.",
+          "flags": "None",
+          "modifiers": ""
+        }
+      ],
+      "name": "PrivateEndpointConnectionProperties"
+    }
+  },
+  {
+    "type": "ObjectTypeEntity",
+    "data": {
+      "properties": [
+        {
+          "name": "actionsRequired",
+          "type": "None | string",
+          "description": "A message indicating if changes on the service provider require any updates on the consumer.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "description": "The reason for approval or rejection.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "status",
+          "type": "Pending | Approved | Rejected | Disconnected | string",
+          "description": "Indicates whether the connection has been approved, rejected or removed by the key vault owner.",
+          "flags": "None",
+          "modifiers": ""
+        }
+      ],
+      "name": "PrivateLinkServiceConnectionState"
+    }
+  },
+  {
+    "type": "ObjectTypeEntity",
+    "data": {
+      "properties": [
+        {
+          "name": "family",
+          "type": "A | string",
+          "description": "SKU family name",
+          "flags": "Required",
+          "modifiers": ""
+        },
+        {
+          "name": "name",
+          "type": "standard | premium",
+          "description": "SKU name to specify whether the key vault is a standard vault or a premium vault.",
+          "flags": "Required",
+          "modifiers": ""
+        }
+      ],
+      "name": "Sku"
+    }
+  },
+  {
+    "type": "ObjectTypeEntity",
+    "data": {
+      "properties": [
+        {
+          "name": "createdAt",
+          "type": "string",
+          "description": "The timestamp of the key vault resource creation (UTC).",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "createdBy",
+          "type": "string",
+          "description": "The identity that created the key vault resource.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "createdByType",
+          "type": "User | Application | ManagedIdentity | Key | string",
+          "description": "The type of identity that created the key vault resource.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "lastModifiedAt",
+          "type": "string",
+          "description": "The timestamp of the key vault resource last modification (UTC).",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "lastModifiedBy",
+          "type": "string",
+          "description": "The identity that last modified the key vault resource.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "lastModifiedByType",
+          "type": "User | Application | ManagedIdentity | Key | string",
+          "description": "The type of identity that last modified the key vault resource.",
+          "flags": "None",
+          "modifiers": ""
+        }
+      ],
+      "name": "SystemData"
+    }
+  },
+  {
+    "type": "ObjectTypeEntity",
+    "data": {
+      "properties": [],
+      "additionalPropertiesType": "string",
+      "name": "VaultCreateOrUpdateParametersTags"
+    }
+  },
+  {
+    "type": "ObjectTypeEntity",
+    "data": {
+      "properties": [
+        {
+          "name": "accessPolicies",
+          "type": "AccessPolicyEntry[]",
+          "description": "An array of 0 to 1024 identities that have access to the key vault. All identities in the array must use the same tenant ID as the key vault\u0027s tenant ID. When \u0060createMode\u0060 is set to \u0060recover\u0060, access policies are not required. Otherwise, access policies are required.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "createMode",
+          "type": "recover | default",
+          "description": "The vault\u0027s create mode to indicate whether the vault need to be recovered or not.",
+          "flags": "WriteOnly",
+          "modifiers": ""
+        },
+        {
+          "name": "enabledForDeployment",
+          "type": "bool",
+          "description": "Property to specify whether Azure Virtual Machines are permitted to retrieve certificates stored as secrets from the key vault.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "enabledForDiskEncryption",
+          "type": "bool",
+          "description": "Property to specify whether Azure Disk Encryption is permitted to retrieve secrets from the vault and unwrap keys.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "enabledForTemplateDeployment",
+          "type": "bool",
+          "description": "Property to specify whether Azure Resource Manager is permitted to retrieve secrets from the key vault.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "enablePurgeProtection",
+          "type": "bool",
+          "description": "Property specifying whether protection against purge is enabled for this vault. Setting this property to true activates protection against purge for this vault and its content - only the Key Vault service may initiate a hard, irrecoverable deletion. The setting is effective only if soft delete is also enabled. Enabling this functionality is irreversible - that is, the property does not accept false as its value.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "enableRbacAuthorization",
+          "type": "bool",
+          "description": "Property that controls how data actions are authorized. When true, the key vault will use Role Based Access Control (RBAC) for authorization of data actions, and the access policies specified in vault properties will be  ignored. When false, the key vault will use the access policies specified in vault properties, and any policy stored on Azure Resource Manager will be ignored. If null or not specified, the vault is created with the default value of false. Note that management actions are always authorized with RBAC.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "enableSoftDelete",
+          "type": "bool",
+          "description": "Property to specify whether the \u0027soft delete\u0027 functionality is enabled for this key vault. If it\u0027s not set to any value(true or false) when creating new key vault, it will be set to true by default. Once set to true, it cannot be reverted to false.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "hsmPoolResourceId",
+          "type": "string",
+          "description": "The resource id of HSM Pool.",
+          "flags": "ReadOnly",
+          "modifiers": ""
+        },
+        {
+          "name": "networkAcls",
+          "type": "NetworkRuleSet",
+          "description": "Rules governing the accessibility of the key vault from specific network locations.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "privateEndpointConnections",
+          "type": "PrivateEndpointConnectionItem[]",
+          "description": "List of private endpoint connections associated with the key vault.",
+          "flags": "ReadOnly",
+          "modifiers": ""
+        },
+        {
+          "name": "provisioningState",
+          "type": "Succeeded | RegisteringDns | string",
+          "description": "Provisioning state of the vault.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "publicNetworkAccess",
+          "type": "string",
+          "description": "Property to specify whether the vault will accept traffic from public internet. If set to \u0027disabled\u0027 all traffic except private endpoint traffic and that that originates from trusted services will be blocked. This will override the set firewall rules, meaning that even if the firewall rules are present we will not honor the rules.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "sku",
+          "type": "Sku",
+          "description": "SKU details",
+          "flags": "Required",
+          "modifiers": ""
+        },
+        {
+          "name": "softDeleteRetentionInDays",
+          "type": "int",
+          "description": "softDelete data retention days. It accepts \u003E=7 and \u003C=90.",
+          "flags": "None",
+          "modifiers": ""
+        },
+        {
+          "name": "tenantId",
+          "type": "string",
+          "description": "The Azure Active Directory tenant ID that should be used for authenticating requests to the key vault.",
+          "flags": "Required",
+          "modifiers": "minLength: 36, maxLength: 36, pattern: ^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$"
+        },
+        {
+          "name": "vaultUri",
+          "type": "string",
+          "description": "The URI of the vault for performing operations on keys and secrets.",
+          "flags": "None",
+          "modifiers": ""
+        }
+      ],
+      "name": "VaultProperties"
+    }
+  },
+  {
+    "type": "ObjectTypeEntity",
+    "data": {
+      "properties": [
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Full resource id of a vnet subnet, such as \u0027/subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/virtualNetworks/test-vnet/subnets/subnet1\u0027.",
+          "flags": "Required",
+          "modifiers": ""
+        },
+        {
+          "name": "ignoreMissingVnetServiceEndpoint",
+          "type": "bool",
+          "description": "Property to specify whether NRP will ignore the check if parent subnet has serviceEndpoints configured.",
+          "flags": "None",
+          "modifiers": ""
+        }
+      ],
+      "name": "VirtualNetworkRule"
+    }
+  }
+]

@@ -3,11 +3,10 @@
 
 using System.ComponentModel;
 using System.Text.Json;
-using Bicep.Core.Resources;
+using System.Text.Json.Serialization;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.McpServer.ResourceProperties;
 using Bicep.McpServer.ResourceProperties.Entities;
-using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 
 namespace Bicep.McpServer;
@@ -17,7 +16,11 @@ public sealed class BicepTools(
     AzResourceTypeLoader azResourceTypeLoader,
     ResourceVisitor resourceVisitor)
 {
-    private static readonly JsonSerializerOptions JsonSerializerOptions = new() { WriteIndented = true };
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
+    {
+        WriteIndented = true,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
 
     [McpServerTool, Description("Lists all available Azure resource types for a specific provider.")]
     public string ListAzResourceTypesForProvider(
