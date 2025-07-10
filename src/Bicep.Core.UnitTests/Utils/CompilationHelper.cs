@@ -217,7 +217,7 @@ namespace Bicep.Core.UnitTests.Utils
             return new(template, diagnostics, compilation);
         }
 
-        private static ParamsCompilationResult CompileParams(Compilation compilation)
+        public static ParamsCompilationResult CompileParams(Compilation compilation)
         {
             var semanticModel = compilation.GetEntrypointSemanticModel();
             var emitter = new ParametersEmitter(semanticModel);

@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Text;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Features;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
@@ -42,14 +42,14 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static ProgramSyntax ParamsParse(string text)
         {
-            var parser = new ParamsParser(text);
+            var parser = new ParamsParser(text, RecordBasedFeatureProvider.AllDisabled);
 
             return parser.Program();
         }
 
         public static ProgramSyntax ParamsParse(string text, out IDiagnosticLookup lexingErrorLookup, out IDiagnosticLookup parsingErrorLookup)
         {
-            var parser = new ParamsParser(text);
+            var parser = new ParamsParser(text, RecordBasedFeatureProvider.AllDisabled);
             var program = parser.Program();
 
             lexingErrorLookup = parser.LexingErrorLookup;

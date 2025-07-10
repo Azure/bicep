@@ -1,13 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Immutable;
-using System.ComponentModel;
-using System.ServiceModel;
 using Bicep.Core.Extensions;
-using Bicep.Core.Intermediate;
 using Bicep.Core.Parsing;
 using Bicep.Core.Text;
-using Json.Pointer;
 
 namespace Bicep.Core.Syntax
 {
@@ -104,6 +101,7 @@ namespace Bicep.Core.Syntax
         public static Token UsingKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.UsingKeyword);
         public static Token MetadataKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.MetadataKeyword);
         public static Token ParameterKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.ParameterKeyword);
+        public static Token ExtensionConfigKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.ExtensionConfigKeyword);
         public static Token VariableKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.VariableKeyword);
         public static Token FunctionKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.FunctionKeyword);
         public static Token ResourceKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.ResourceKeyword);
@@ -113,6 +111,7 @@ namespace Bicep.Core.Syntax
         public static Token ForKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.ForKeyword);
         public static Token InKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.InKeyword);
         public static Token TypeKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.TypeKeyword);
+        public static Token WithKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.WithKeyword);
 
         public static ObjectPropertySyntax CreateObjectProperty(string key, SyntaxBase value)
         {
@@ -414,6 +413,13 @@ namespace Bicep.Core.Syntax
                 CreateIdentifierWithTrailingSpace(name),
                 AssignmentToken,
                 value);
+
+        public static ExtensionConfigAssignmentSyntax CreateExtensionConfigAssignmentSyntax(string name, ObjectSyntax value)
+            => new(
+                [],
+                ExtensionConfigKeywordToken,
+                CreateIdentifierWithTrailingSpace(name),
+                new ExtensionWithClauseSyntax(WithKeywordToken, value));
 
         public static BinaryOperationSyntax CreateBinaryOperationSyntax(SyntaxBase left, TokenType operatorType, SyntaxBase right)
             => new(

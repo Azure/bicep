@@ -35,27 +35,12 @@ extension az
 //@[000:009) Identifier |extension|
 //@[010:012) Identifier |az|
 //@[012:014) NewLine |\r\n|
-extension kubernetes with {
+extension kubernetes as k8s
 //@[000:009) Identifier |extension|
 //@[010:020) Identifier |kubernetes|
-//@[021:025) Identifier |with|
-//@[026:027) LeftBrace |{|
-//@[027:029) NewLine |\r\n|
-  kubeConfig: 'DELETE'
-//@[002:012) Identifier |kubeConfig|
-//@[012:013) Colon |:|
-//@[014:022) StringComplete |'DELETE'|
-//@[022:024) NewLine |\r\n|
-  namespace: 'DELETE'
-//@[002:011) Identifier |namespace|
-//@[011:012) Colon |:|
-//@[013:021) StringComplete |'DELETE'|
-//@[021:023) NewLine |\r\n|
-} as k8s
-//@[000:001) RightBrace |}|
-//@[002:004) Identifier |as|
-//@[005:008) Identifier |k8s|
-//@[008:012) NewLine |\r\n\r\n|
+//@[021:023) Identifier |as|
+//@[024:027) Identifier |k8s|
+//@[027:031) NewLine |\r\n\r\n|
 
 //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
 //@[084:088) NewLine |\r\n\r\n|
@@ -193,16 +178,16 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
 //@[007:008) Colon |:|
 //@[009:010) LeftBrace |{|
 //@[010:012) NewLine |\r\n|
-      kubeConfig: 'kubeConfig2FromModule'
+      kubeConfig: 'kubeConfig2'
 //@[006:016) Identifier |kubeConfig|
 //@[016:017) Colon |:|
-//@[018:041) StringComplete |'kubeConfig2FromModule'|
-//@[041:043) NewLine |\r\n|
-      namespace: 'ns2FromModule'
+//@[018:031) StringComplete |'kubeConfig2'|
+//@[031:033) NewLine |\r\n|
+      namespace: 'ns2'
 //@[006:015) Identifier |namespace|
 //@[015:016) Colon |:|
-//@[017:032) StringComplete |'ns2FromModule'|
-//@[032:034) NewLine |\r\n|
+//@[017:022) StringComplete |'ns2'|
+//@[022:024) NewLine |\r\n|
     }
 //@[004:005) RightBrace |}|
 //@[005:007) NewLine |\r\n|
@@ -235,16 +220,11 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
 //@[014:015) Colon |:|
 //@[016:017) LeftBrace |{|
 //@[017:019) NewLine |\r\n|
-      kubeConfig: 'kubeConfig2FromModule'
+      kubeConfig: 'kubeConfig2'
 //@[006:016) Identifier |kubeConfig|
 //@[016:017) Colon |:|
-//@[018:041) StringComplete |'kubeConfig2FromModule'|
-//@[041:043) NewLine |\r\n|
-      namespace: 'ns2FromModule'
-//@[006:015) Identifier |namespace|
-//@[015:016) Colon |:|
-//@[017:032) StringComplete |'ns2FromModule'|
-//@[032:034) NewLine |\r\n|
+//@[018:031) StringComplete |'kubeConfig2'|
+//@[031:033) NewLine |\r\n|
     }
 //@[004:005) RightBrace |}|
 //@[005:007) NewLine |\r\n|
