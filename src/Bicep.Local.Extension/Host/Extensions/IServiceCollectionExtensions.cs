@@ -28,7 +28,7 @@ public static class IServiceCollectionExtensions
 {
     public static IServiceCollection AddBicepExtensionServices(this IServiceCollection services
                                                             , string name, string version, bool isSingleton
-                                                            , Action<Dictionary<string, ObjectTypeProperty>>? typeConfiguration = null)
+                                                            , Action<TypeFactory, Dictionary<string, ObjectTypeProperty>>? typeConfiguration = null)
     {
         var typeDictionary = new Dictionary<Type, Func<TypeBase>>
                             {
@@ -38,20 +38,19 @@ public static class IServiceCollectionExtensions
                             }.ToImmutableDictionary();
 
         var typeFactory = new TypeFactory([]);
-        var configuration = new Dictionary<string, ObjectTypeProperty>();
-
-        if (typeConfiguration is not null)
-        {
-            typeConfiguration(configuration);
-        }
-
-        var configurationType = typeFactory.Create(() => new ObjectType("configuration", configuration, null));
-
         foreach (var type in typeDictionary)
         {
             typeFactory.Create(type.Value);
         }
 
+        var configuration = new Dictionary<string, ObjectTypeProperty>();
+
+        if (typeConfiguration is not null)
+        {
+            typeConfiguration(typeFactory, configuration);
+        }
+
+        var configurationType = typeFactory.Create(() => new ObjectType("configuration", configuration, null));
         var typeSettings = new TypeSettings
             (
                 name,

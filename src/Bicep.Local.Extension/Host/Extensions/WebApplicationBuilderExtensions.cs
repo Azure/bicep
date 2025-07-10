@@ -6,30 +6,24 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Bicep.Local.Extension.CommandLineArguments;
 using Bicep.Local.Extension.Rpc;
+using Bicep.Local.Extension.Types;
+using CommandLine;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Bicep.Local.Extension.Host.Extensions;
 
 public static class WebApplicationBuilderExtensions
 {
-    private static Dictionary<string, string> ArgumentMappings => new()
-            {
-                { "-s", "socket" },
-                { "--socket", "socket" },
-
-                { "-t", "http" },
-                { "--http", "http" },
-
-                { "-p", "pipe" },
-                { "--pipe", "pipe" }
-            };
-
     private static bool IsTracingEnabled
         => bool.TryParse(Environment.GetEnvironmentVariable("BICEP_TRACING_ENABLED"), out var isEnabled) && isEnabled;
 
@@ -41,13 +35,15 @@ public static class WebApplicationBuilderExtensions
             Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
         }
 
-        builder.Configuration.AddCommandLine(args, ArgumentMappings);
+        builder.Services.AddSingleton(new CommandLineParser(args));
 
         builder.WebHost.ConfigureKestrel((context, options) =>
         {
-            (string? Socket, string? Pipe, int Http) connectionOptions = (context.Configuration.GetValue<string>("socket"),
-                                                                          context.Configuration.GetValue<string>("pipe"),
-                                                                          context.Configuration.GetValue<int>("http", 5000));
+            var commandLindParser = GetCommandLineParserService(options.ApplicationServices);
+
+            var connectionOptions = (commandLindParser.Options.Socket,
+                                     commandLindParser.Options.Pipe,
+                                     commandLindParser.Options.Http);
 
             switch (connectionOptions)
             {
@@ -79,4 +75,34 @@ public static class WebApplicationBuilderExtensions
 
         return app;
     }
+
+    public static async Task RunBicepExtensionAsync(this WebApplication app)
+    {        
+        ArgumentNullException.ThrowIfNull(app);
+
+        var commandLineParser = GetCommandLineParserService(app.Services);
+
+        if (commandLineParser.Options.Describe)
+        {
+            var typeSpecGenerator = app.Services.GetRequiredService<ITypeDefinitionBuilder>();
+            var spec = typeSpecGenerator.GenerateBicepResourceTypes();
+
+            var jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Converters =
+                    {
+                        new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+                    }
+            };           
+        }
+        else
+        {
+            await app.RunAsync();
+        }
+    }
+
+    private static CommandLineParser GetCommandLineParserService(IServiceProvider serviceProvider)
+        => serviceProvider.GetRequiredService<CommandLineParser>()
+            ?? throw new InvalidOperationException("CommandLineParser service is not registered.");
 }

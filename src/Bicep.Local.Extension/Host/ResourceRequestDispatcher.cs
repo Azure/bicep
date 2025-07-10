@@ -89,13 +89,6 @@ public class ResourceRequestDispatcher
                                                  , []);
     }
 
-    protected virtual HandlerRequest ToHandlerRequest(Rpc.ResourceReference resourceReference)
-    {
-        var extensionSettings = GetExtensionConfig(resourceReference.Config);
-
-        return new HandlerRequest(resourceReference.Type, resourceReference.HasApiVersion ? resourceReference.ApiVersion : "0.0.0");
-    }
-
     private (IResourceHandler Handler, HandlerRequest Request) InternalGetHandlerAndHandlerRequest(string resourceType, string? apiVersion, JsonObject? config, JsonObject resourceJson, JsonObject identifiers, JsonObject properties)
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(resourceType, nameof(resourceType));
@@ -211,6 +204,8 @@ public class ResourceRequestDispatcher
                     }
                 }
             };
+
+            logger.LogError(ex, "An error occurred while processing the RPC request.");
 
             return response;
         }
