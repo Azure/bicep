@@ -31,8 +31,16 @@ public class BicepToolsTests
         var response = tools.ListAzResourceTypesForProvider("Microsoft.Compute");
         var result = response.Split("\n").ToImmutableArray();
 
-        result.Should().HaveCountGreaterThan(10);
-        result.Should().AllSatisfy(x => x.Split('/').First().Equals("Microsoft.Compute", StringComparison.OrdinalIgnoreCase));
+        result.Should().HaveCountGreaterThan(700);
+        result.Should().AllSatisfy(x => x.Split('/').First().Equals("Microsoft.Compute", StringComparison.OrdinalIgnoreCase))
+            .And.AllSatisfy(x => x.Contains('@'));
+    }
+
+    [TestMethod]
+    public void ListAzResourceTypesForProvider_returns_empty_string_for_invalid_provider()
+    {
+        var response = tools.ListAzResourceTypesForProvider("Invalid.Provider");
+        response.Should().BeEmpty();
     }
 
     [TestMethod]
