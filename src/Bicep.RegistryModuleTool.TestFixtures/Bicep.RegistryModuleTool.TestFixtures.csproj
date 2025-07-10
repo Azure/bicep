@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="7.0.0" />
+    <PackageReference Include="FluentAssertions" Version="$(FluentAssertionsVersion)" />
     <PackageReference Include="JsonPatch.Net" Version="3.3.0" />
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="21.3.1" />
