@@ -252,39 +252,28 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
 
         if (model.SourceFile is not BicepSourceFile sourceFile)
         {
-            // For non-Bicep files, return the original content
-            var originalContent = System.IO.File.ReadAllText(request.Path);
-            return new(originalContent);
+            throw new InvalidOperationException($"Expected a .bicep or .bicepparam file");
         }
 
-        try
+        string formattedContent;
+
+        if (sourceFile.Features.LegacyFormatterEnabled)
         {
-            string formattedContent;
-
-            if (sourceFile.Features.LegacyFormatterEnabled)
-            {
-                var v2Options = sourceFile.Configuration.Formatting.Data;
-                var legacyOptions = PrettyPrintOptions.FromV2Options(v2Options);
-                formattedContent = PrettyPrinter.PrintProgram(sourceFile.ProgramSyntax, legacyOptions, sourceFile.LexingErrorLookup, sourceFile.ParsingErrorLookup);
-            }
-            else
-            {
-                var options = sourceFile.Configuration.Formatting.Data;
-                var context = PrettyPrinterV2Context.Create(options, sourceFile.LexingErrorLookup, sourceFile.ParsingErrorLookup);
-
-                using var writer = new StringWriter();
-                PrettyPrinterV2.PrintTo(writer, sourceFile.ProgramSyntax, context);
-                formattedContent = writer.ToString();
-            }
-
-            return new(formattedContent);
+            var v2Options = sourceFile.Configuration.Formatting.Data;
+            var legacyOptions = PrettyPrintOptions.FromV2Options(v2Options);
+            formattedContent = PrettyPrinter.PrintProgram(sourceFile.ProgramSyntax, legacyOptions, sourceFile.LexingErrorLookup, sourceFile.ParsingErrorLookup);
         }
-        catch
+        else
         {
-            // If formatting fails, return the original content
-            var fallbackContent = sourceFile.FileHandle.TryReadAllText();
-            return new(fallbackContent.IsSuccess ? fallbackContent.Data : "");
+            var options = sourceFile.Configuration.Formatting.Data;
+            var context = PrettyPrinterV2Context.Create(options, sourceFile.LexingErrorLookup, sourceFile.ParsingErrorLookup);
+
+            using var writer = new StringWriter();
+            PrettyPrinterV2.PrintTo(writer, sourceFile.ProgramSyntax, context);
+            formattedContent = writer.ToString();
         }
+
+        return new(formattedContent);
     }
 
     private static async Task<Compilation> GetCompilation(BicepCompiler compiler, string filePath)
