@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Helpers.Snapshot;
 using Bicep.Core;
@@ -16,6 +17,7 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
+using Bicep.IO.Abstraction;
 using Newtonsoft.Json.Serialization;
 using StreamJsonRpc;
 
@@ -32,10 +34,12 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
     }
 
     private readonly BicepCompiler compiler;
+    private readonly InputOutputArgumentsResolver inputOutputArgumentsResolver;
 
-    public CliJsonRpcServer(BicepCompiler compiler)
+    public CliJsonRpcServer(BicepCompiler compiler, InputOutputArgumentsResolver inputOutputArgumentsResolver)
     {
         this.compiler = compiler;
+        this.inputOutputArgumentsResolver = inputOutputArgumentsResolver;
     }
 
     /// <inheritdoc/>
@@ -95,26 +99,19 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         var model = compilation.GetEntrypointSemanticModel();
         var diagnostics = GetDiagnostics(compilation).ToImmutableArray();
 
-        var fileUris = new HashSet<Uri>();
+        var fileUris = new HashSet<IOUri>();
         foreach (var otherModel in compilation.GetAllBicepModels())
         {
-            fileUris.Add(otherModel.SourceFile.Uri);
-            fileUris.UnionWith(otherModel.SourceFile.GetReferencedAuxiliaryFileUris().Select(ioUri => ioUri.ToUri()));
-            if (otherModel.Configuration.ConfigFileUri is { } configFileIdentifier)
+            fileUris.Add(otherModel.SourceFile.FileHandle.Uri);
+            fileUris.UnionWith(otherModel.SourceFile.GetReferencedAuxiliaryFileUris());
+            if (otherModel.Configuration.ConfigFileUri is { } configFileUri)
             {
-                var uri = new UriBuilder
-                {
-                    Scheme = configFileIdentifier.Scheme,
-                    Host = configFileIdentifier.Authority,
-                    Path = configFileIdentifier.Path,
-                }.Uri;
-
-                fileUris.Add(uri);
+                fileUris.Add(configFileUri);
             }
         }
 
         return new(
-            [.. fileUris.Select(x => x.LocalPath).OrderBy(x => x)]);
+            [.. fileUris.Select(x => x.GetLocalFilePath()).OrderBy(x => x)]);
     }
 
     /// <inheritdoc/>
@@ -276,16 +273,15 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         return new(formattedContent);
     }
 
-    private static async Task<Compilation> GetCompilation(BicepCompiler compiler, string filePath)
+    private async Task<Compilation> GetCompilation(BicepCompiler compiler, string filePath)
     {
-        var fileUri = PathHelper.FilePathToFileUrl(filePath);
-        if (!PathHelper.HasBicepExtension(fileUri) &&
-            !PathHelper.HasBicepparamsExtension(fileUri))
+        var fileUri = this.inputOutputArgumentsResolver.PathToUri(filePath);
+        if (!fileUri.HasBicepExtension() && !fileUri.HasBicepParamExtension())
         {
             throw new InvalidOperationException($"Invalid file path: {fileUri}");
         }
 
-        var compilation = await compiler.CreateCompilation(fileUri);
+        var compilation = await compiler.CreateCompilation(fileUri.ToUri());
 
         return compilation;
     }

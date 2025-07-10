@@ -7,7 +7,7 @@ using LanguageConstants = Bicep.Core.LanguageConstants;
 
 namespace Bicep.Cli.Arguments
 {
-    public class DecompileArguments : ArgumentsBase
+    public class DecompileArguments : ArgumentsBase, IInputOutputArguments<DecompileArguments>
     {
         public DecompileArguments(string[] args) : base(Constants.Command.Decompile)
         {
@@ -64,27 +64,9 @@ namespace Bicep.Cli.Arguments
             {
                 throw new CommandLineException($"The --outdir and --outfile parameters cannot both be used");
             }
-
-            if (OutputDir is not null)
-            {
-                var outputDir = PathHelper.ResolvePath(OutputDir);
-
-                if (!Directory.Exists(outputDir))
-                {
-                    throw new CommandLineException(string.Format(CliResources.DirectoryDoesNotExistFormat, outputDir));
-                }
-            }
-
-            if (!OutputToStdOut && !AllowOverwrite)
-            {
-                string outputFilePath = Path.ChangeExtension(PathHelper.ResolvePath(InputFile), LanguageConstants.LanguageFileExtension);
-                if (File.Exists(outputFilePath))
-                {
-                    throw new CommandLineException($"The output path \"{outputFilePath}\" already exists. Use --force to overwrite the existing file.");
-                }
-
-            }
         }
+
+        public static string OutputFileExtension => LanguageConstants.LanguageFileExtension;
 
         public bool OutputToStdOut { get; }
 
