@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parsing
@@ -56,9 +57,9 @@ namespace Bicep.Core.Parsing
                     {
                         TokenType.Identifier => ValidateKeyword(current.Text) switch
                         {
-                            LanguageConstants.UsingKeyword => this.UsingDeclaration(),
-                            LanguageConstants.ExtendsKeyword => this.ExtendsDeclaration(),
-                            LanguageConstants.ParameterKeyword => this.ParameterAssignment(),
+                            LanguageConstants.UsingKeyword => this.UsingDeclaration(leadingNodes),
+                            LanguageConstants.ExtendsKeyword => this.ExtendsDeclaration(leadingNodes),
+                            LanguageConstants.ParameterKeyword => this.ParameterAssignment(leadingNodes),
                             LanguageConstants.VariableKeyword => this.VariableDeclaration(leadingNodes),
                             LanguageConstants.ImportKeyword => this.CompileTimeImportDeclaration(ExpectKeyword(LanguageConstants.ImportKeyword), leadingNodes),
                             LanguageConstants.ExtensionKeyword => this.ExtensionConfigAssignment(leadingNodes),
@@ -75,8 +76,15 @@ namespace Bicep.Core.Parsing
                 RecoveryFlags.None,
                 TokenType.NewLine);
 
-        private UsingDeclarationSyntax UsingDeclaration()
+        private UsingDeclarationSyntax UsingDeclaration(ImmutableArray<SyntaxBase> leadingNodes)
         {
+            // Report error if decorators are present
+            var decorators = leadingNodes.OfType<DecoratorSyntax>();
+            foreach (var decorator in decorators)
+            {
+                this.ParsingErrorTree.Errors.Add(DiagnosticBuilder.ForPosition(decorator).DecoratorsNotAllowedOnUsingDeclaration());
+            }
+
             var keyword = ExpectKeyword(LanguageConstants.UsingKeyword);
 
             SyntaxBase expression = reader.Peek().Type switch
@@ -89,8 +97,15 @@ namespace Bicep.Core.Parsing
             return new(keyword, expression);
         }
 
-        private ExtendsDeclarationSyntax ExtendsDeclaration()
+        private ExtendsDeclarationSyntax ExtendsDeclaration(ImmutableArray<SyntaxBase> leadingNodes)
         {
+            // Report error if decorators are present
+            var decorators = leadingNodes.OfType<DecoratorSyntax>();
+            foreach (var decorator in decorators)
+            {
+                this.ParsingErrorTree.Errors.Add(DiagnosticBuilder.ForPosition(decorator).DecoratorsNotAllowedOnExtendsDeclaration());
+            }
+
             var keyword = ExpectKeyword(LanguageConstants.ExtendsKeyword);
             var path = this.WithRecovery(
                 () => ThrowIfSkipped(this.InterpolableString, b => b.ExtendsPathHasNotBeenSpecified()),
@@ -100,8 +115,15 @@ namespace Bicep.Core.Parsing
             return new ExtendsDeclarationSyntax(keyword, path);
         }
 
-        private SyntaxBase ParameterAssignment()
+        private SyntaxBase ParameterAssignment(ImmutableArray<SyntaxBase> leadingNodes)
         {
+            // Report error if decorators are present
+            var decorators = leadingNodes.OfType<DecoratorSyntax>();
+            foreach (var decorator in decorators)
+            {
+                this.ParsingErrorTree.Errors.Add(DiagnosticBuilder.ForPosition(decorator).DecoratorsNotAllowedOnParameterAssignment());
+            }
+
             var keyword = ExpectKeyword(LanguageConstants.ParameterKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedParameterIdentifier(), RecoveryFlags.None, TokenType.Identifier, TokenType.NewLine);
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);

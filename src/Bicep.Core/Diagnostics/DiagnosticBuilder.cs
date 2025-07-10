@@ -1921,6 +1921,18 @@ namespace Bicep.Core.Diagnostics
                 $"A resource of type \"{baseType}\" may or may not exist when this function is called, which could cause the deployment to fail.")
                 with
             { Fixes = [AsNonNullable(expression)] };
+
+            public Diagnostic DecoratorsNotAllowedOnUsingDeclaration() => CoreError(
+                "BCP423",
+                "Decorators are not allowed on using declarations.");
+
+            public Diagnostic DecoratorsNotAllowedOnExtendsDeclaration() => CoreError(
+                "BCP424",
+                "Decorators are not allowed on extends declarations.");
+
+            public Diagnostic DecoratorsNotAllowedOnParameterAssignment() => CoreError(
+                "BCP425",
+                "Decorators are not allowed on parameter assignments in .bicepparam files.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
