@@ -459,7 +459,6 @@ kind: 'StorageV2'
             async (client, token) =>
             {
                 var response = await client.Format(new("/main.bicep"), token);
-                response.Success.Should().BeTrue();
                 response.Contents.Should().NotBeNull();
                 response.Contents.Should().Contain("param foo string");
                 response.Contents.Should().Contain("param bar int = 42");

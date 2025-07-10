@@ -51,9 +51,7 @@ interface FormatRequest {
 }
 
 interface FormatResponse {
-  success: boolean;
-  diagnostics: CompileResponseDiagnostic[];
-  contents?: string;
+  contents: string;
 }
 
 interface Position {

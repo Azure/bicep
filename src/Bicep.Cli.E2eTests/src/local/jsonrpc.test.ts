@@ -200,10 +200,9 @@ kind: 'StorageV2'
 
     const result = await format(connection, bicepPath);
 
-    expect(result.success).toBeTruthy();
     expect(result.contents).toBeDefined();
-    expect(result.contents?.includes("param foo string")).toBeTruthy();
-    expect(result.contents?.includes("  name: 'mystorageaccount'")).toBeTruthy();
+    expect(result.contents.includes("param foo string")).toBeTruthy();
+    expect(result.contents.includes("  name: 'mystorageaccount'")).toBeTruthy();
   });
 });
 

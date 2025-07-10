@@ -249,11 +249,12 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
     {
         var compilation = await GetCompilation(compiler, request.Path);
         var model = compilation.GetEntrypointSemanticModel();
-        var diagnostics = GetDiagnostics(compilation).ToImmutableArray();
 
         if (model.SourceFile is not BicepSourceFile sourceFile)
         {
-            return new(false, diagnostics, null);
+            // For non-Bicep files, return the original content
+            var originalContent = System.IO.File.ReadAllText(request.Path);
+            return new(originalContent);
         }
 
         try
@@ -276,12 +277,13 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
                 formattedContent = writer.ToString();
             }
 
-            return new(true, diagnostics, formattedContent);
+            return new(formattedContent);
         }
         catch
         {
             // If formatting fails, return the original content
-            return new(false, diagnostics, null);
+            var fallbackContent = sourceFile.FileHandle.TryReadAllText();
+            return new(fallbackContent.IsSuccess ? fallbackContent.Data : "");
         }
     }
 

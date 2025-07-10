@@ -126,9 +126,7 @@ public record FormatRequest(
     string Path);
 
 public record FormatResponse(
-    bool Success,
-    ImmutableArray<DiagnosticDefinition> Diagnostics,
-    string? Contents);
+    string Contents);
 
 /// <summary>
 /// The definition for the Bicep CLI JSONRPC interface.
