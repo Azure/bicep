@@ -2,12 +2,10 @@
 // Licensed under the MIT License.
 
 using System.Text.Json.Nodes;
-using System.Threading.Tasks;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Extensibility.Core.V2.Models;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Auth;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -500,7 +498,6 @@ using 'main.bicep'
     [TestMethod]
     public async Task Extension_config_is_passed_via_extensibility_request_v2()
     {
-        // TODO(kylealbert): Update this test when required properties are handled properly between params file and bicep file.
         var package = GetMockLocalDeployPackage(ExtensionResourceTypeHelper.GetTestTypesTgzWithFallbackAndConfiguration(allConfigPropertiesOptional: true));
         var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(package, new(LocalDeployEnabled: true, ModuleExtensionConfigsEnabled: true));
 
@@ -537,7 +534,7 @@ using 'main.bicep'
                 """
                 using 'main.bicep'
 
-                extension foo with {
+                extensionConfig foo with {
                   namespace: 'paramsFileNs'
                   config: 'paramsFileConfig'
                   context: 'paramsFileContext'
