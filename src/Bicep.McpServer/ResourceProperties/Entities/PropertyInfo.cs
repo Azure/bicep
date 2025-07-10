@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Text.Json.Serialization;
@@ -7,7 +7,7 @@ namespace Bicep.McpServer.ResourceProperties.Entities;
 
 public record PropertyInfo
 {
-    public PropertyInfo(string name, string type, string description, string flags, string modifiers)
+    public PropertyInfo(string name, string type, string description, string flags, string? modifiers)
     {
         Name = name;
         Type = type;
@@ -29,6 +29,6 @@ public record PropertyInfo
     public string Flags { get; init; }
 
     [JsonPropertyName("modifiers")]
-    public string Modifiers { get; init; }
+    public string? Modifiers { get; init; }
 
 }

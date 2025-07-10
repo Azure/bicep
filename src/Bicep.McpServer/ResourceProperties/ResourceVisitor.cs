@@ -251,24 +251,24 @@ public class ResourceVisitor
         };
     }
 
-    private string GetModifers(TypeBase typeBase)
+    private string? GetModifers(TypeBase typeBase)
     {
         return typeBase switch
         {
             IntegerType integerType => GetIntegerModifiers(integerType),
             StringType stringType => GetStringModifiers(stringType),
-            _ => string.Empty,
+            _ => null,
         };
     }
 
-    private string GetIntegerModifiers(IntegerType integerType)
+    private string? GetIntegerModifiers(IntegerType integerType)
     {
         return FormatModifiers(
             integerType.MinValue != null ? $"minValue: {integerType.MinValue}" : null,
             integerType.MaxValue != null ? $"maxValue: {integerType.MaxValue}" : null);
     }
 
-    private string GetStringModifiers(StringType stringType)
+    private string? GetStringModifiers(StringType stringType)
     {
         return FormatModifiers(
             stringType.Sensitive == true ? "sensitive" : null,
@@ -277,10 +277,10 @@ public class ResourceVisitor
             stringType.Pattern != null ? $"pattern: {stringType.Pattern}" : null);
     }
 
-    private string FormatModifiers(params string?[] modifiers)
+    private string? FormatModifiers(params string?[] modifiers)
     {
         string modifiersString = string.Join(", ", modifiers.Where(m => !string.IsNullOrEmpty(m)));
-        return string.IsNullOrEmpty(modifiersString) ? string.Empty : modifiersString;
+        return string.IsNullOrEmpty(modifiersString) ? null : modifiersString;
     }
 
     private bool IsComplexType(TypeBase typeBase)
