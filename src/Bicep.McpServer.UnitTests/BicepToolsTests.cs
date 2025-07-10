@@ -2,6 +2,10 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+using Azure.Deployments.Core.Helpers;
+using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Baselines;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
@@ -12,6 +16,9 @@ namespace Bicep.McpServer.UnitTests;
 [TestClass]
 public class BicepToolsTests
 {
+    [NotNull]
+    public TestContext? TestContext { get; set; }
+
     private readonly BicepTools tools = new ServiceCollection()
         .AddMcpDependencies()
         .AddSingleton<BicepTools>()
@@ -29,9 +36,18 @@ public class BicepToolsTests
     }
 
     [TestMethod]
-    public void GetAzResourceTypeSchema_returns_resource_schema()
+    [EmbeddedFilesTestData(@"Files/GetAzResourceSchema/.*\.json")]
+    [TestCategory(BaselineHelper.BaselineTestCategory)]
+    public void GetAzResourceTypeSchema_returns_resource_schema(EmbeddedFile jsonFile)
     {
-        var response = tools.GetAzResourceTypeSchema("Microsoft.KeyVault/vaults", "2024-11-01");
-        response.FromJson<JToken>().Should().NotBeNull();
+        var baselineFile = BaselineFolder.BuildOutputFolder(TestContext, jsonFile).EntryFile;
+        var split = Path.GetFileNameWithoutExtension(jsonFile.FileName).Split("@");
+        var resourceType = split[0].Replace("-", "/");
+        var apiVersion = split[1];
+
+        var response = tools.GetAzResourceTypeSchema(resourceType, apiVersion);
+
+        baselineFile.WriteToOutputFolder(response);
+        baselineFile.ShouldHaveExpectedJsonValue();
     }
 }
