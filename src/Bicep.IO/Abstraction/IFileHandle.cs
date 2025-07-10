@@ -20,6 +20,14 @@ namespace Bicep.IO.Abstraction
 
         Stream OpenWrite();
 
+        string ReadAllText();
+
+        Task<string> ReadAllTextAsync();
+
+        void WriteAllText(string text);
+
+        Task WriteAllTextAsync(string text);
+
         void Delete();
 
         void MakeExecutable();

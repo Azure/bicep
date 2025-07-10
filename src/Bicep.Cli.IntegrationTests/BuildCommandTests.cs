@@ -380,7 +380,7 @@ output myOutput string = 'hello!'
         }
 
         [TestMethod]
-        public async Task Build_WithNonExistentOutDir_ShouldFail_WithExpectedErrorMessage()
+        public async Task Build_WithNonExistentOutDir_ShouldCreateOutDir()
         {
             var bicepPath = FileHelper.SaveResultFile(
                 TestContext,
@@ -392,9 +392,9 @@ output myOutput string = 'hello!'
             var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
             var (output, error, result) = await Bicep("build", "--outdir", outputFileDir, bicepPath);
 
-            result.Should().Be(1);
+            result.Should().Be(0);
             output.Should().BeEmpty();
-            error.Should().MatchRegex(@"The specified output directory "".*outputdir"" does not exist");
+            error.Should().BeEmpty();
         }
 
         [DataRow([])]
