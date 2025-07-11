@@ -56,12 +56,12 @@
       },
       "ModelContextProtocol": {
         "type": "Direct",
-        "requested": "[0.3.0-preview.1, )",
-        "resolved": "0.3.0-preview.1",
-        "contentHash": "il9gKINohZ4V4zpsNELg7fNch89D1GcmsnyMDWMnaH5TURDGPwXdw1gfUAc1D/K2jLGHDWNeIkPyuak+uzZSWA==",
+        "requested": "[0.3.0-preview.2, )",
+        "resolved": "0.3.0-preview.2",
+        "contentHash": "tC4pwKzNPFXFqyqhAcq40QnkSF+md29UKGsaDkF9Pw8oinWqFoC3Nr9AF+YbpIWo8Jc6Nz9S7+LuJwqpZWfLOw==",
         "dependencies": {
           "Microsoft.Extensions.Hosting.Abstractions": "8.0.1",
-          "ModelContextProtocol.Core": "0.3.0-preview.1"
+          "ModelContextProtocol.Core": "0.3.0-preview.2"
         }
       },
       "Nerdbank.GitVersioning": {
@@ -654,8 +654,8 @@
       },
       "ModelContextProtocol.Core": {
         "type": "Transitive",
-        "resolved": "0.3.0-preview.1",
-        "contentHash": "KAMAog1SioXF2x22yfS6RltIykAs7J95qqidM8oW3cD8cSeYDdOVK1MbbWaTPsvMMcCi5uV4givwGyveubDErw==",
+        "resolved": "0.3.0-preview.2",
+        "contentHash": "pM25u8vx2RximQMIU9/b0Nwg201SI4B87wNgaxO3FhAksWFbL7ApRcNdYnyj8qfwEdAY+wIksdYoIBcyb5Aipw==",
         "dependencies": {
           "Microsoft.Extensions.AI.Abstractions": "9.6.0",
           "Microsoft.Extensions.Logging.Abstractions": "8.0.3",

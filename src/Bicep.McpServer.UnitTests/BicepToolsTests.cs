@@ -3,13 +3,10 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using Azure.Deployments.Core.Helpers;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.WindowsAzure.ResourceStack.Common.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Bicep.McpServer.UnitTests;
 
@@ -57,5 +54,17 @@ public class BicepToolsTests
 
         baselineFile.WriteToOutputFolder(response);
         baselineFile.ShouldHaveExpectedJsonValue();
+    }
+
+    [TestMethod]
+    public void GetBicepBestPractices_returns_best_practices_markdown()
+    {
+        var response = tools.GetBicepBestPractices();
+
+        var expectedBestPractices = BinaryData.FromStream(typeof(BicepTools).Assembly.GetManifestResourceStream("Files/bestpractices.md")!).ToString();
+        response.Should().Be(expectedBestPractices);
+
+        // Update this if the file content changes - it's just here as a sanity check to make sure we're decoding the content correctly
+        expectedBestPractices.Should().StartWith("# Bicep best-practices");
     }
 }

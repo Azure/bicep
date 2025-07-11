@@ -75,5 +75,5 @@ public sealed class BicepTools(
     These practices help improve maintainability, security, and reliability of your Bicep files.
     This is helpful additional context if you've been asked to generate Bicep code.
     """)]
-    public static string GetBicepBestPractices() => BestPracticesMarkdownLazy.Value.ToString();
+    public string GetBicepBestPractices() => BestPracticesMarkdownLazy.Value.ToString();
 }
