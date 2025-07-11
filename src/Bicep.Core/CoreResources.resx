@@ -541,7 +541,10 @@
   <data name="StacksExtensibilityCompatibilityRuleDescription" xml:space="preserve">
     <value>Extension configurations have additional constraints for Deployment stack deployments.</value>
   </data>
-  <data name="StacksExtensibilityCompatibilityRuleMessageFormat" xml:space="preserve">
-    <value>TODO. {0}</value>
+  <data name="StacksExtensibilityCompatibilityRule_SecurePropertyValueIsNotReference" xml:space="preserve">
+    <value>Secure config property values must be a key vault reference to be valid for Deployment stack deployments.</value>
+  </data>
+  <data name="StacksExtensibilityCompatibilityRule_NonSecurePropertyValueIsReference" xml:space="preserve">
+    <value>Non-secure config property values must be a value type to be valid for Deployment stack deployments.</value>
   </data>
 </root>

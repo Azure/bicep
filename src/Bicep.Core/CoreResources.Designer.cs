@@ -807,20 +807,29 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Non-secure config property values must be a value type to be valid for Deployment stack deployments..
+        /// </summary>
+        internal static string StacksExtensibilityCompatibilityRule_NonSecurePropertyValueIsReference {
+            get {
+                return ResourceManager.GetString("StacksExtensibilityCompatibilityRule_NonSecurePropertyValueIsReference", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Secure config property values must be a key vault reference to be valid for Deployment stack deployments..
+        /// </summary>
+        internal static string StacksExtensibilityCompatibilityRule_SecurePropertyValueIsNotReference {
+            get {
+                return ResourceManager.GetString("StacksExtensibilityCompatibilityRule_SecurePropertyValueIsNotReference", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Extension configurations have additional constraints for Deployment stack deployments..
         /// </summary>
         internal static string StacksExtensibilityCompatibilityRuleDescription {
             get {
                 return ResourceManager.GetString("StacksExtensibilityCompatibilityRuleDescription", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to TODO. {0}.
-        /// </summary>
-        internal static string StacksExtensibilityCompatibilityRuleMessageFormat {
-            get {
-                return ResourceManager.GetString("StacksExtensibilityCompatibilityRuleMessageFormat", resourceCulture);
             }
         }
         

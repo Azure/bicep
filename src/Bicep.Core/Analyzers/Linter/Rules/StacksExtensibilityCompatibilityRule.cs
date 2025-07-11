@@ -3,8 +3,10 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
 
@@ -17,13 +19,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public StacksExtensibilityCompatibilityRule() : base(
             code: Code,
             description: CoreResources.StacksExtensibilityCompatibilityRuleDescription,
-            category: LinterRuleCategory.PotentialCodeIssues,
-            overrideCategoryDefaultDiagnosticLevel: DiagnosticLevel.Info)
+            category: LinterRuleCategory.DeploymentStackIncompatibility)
         {
         }
-
-        public override string FormatMessage(params object[] values)
-            => string.Format(CoreResources.StacksExtensibilityCompatibilityRuleMessageFormat, values);
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
@@ -92,8 +90,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     {
                         ValidateConfigPropertyAssignment(propertyType, syntax.Value);
                     }
-
-                    if (peek == VisitedElement.Module && LanguageConstants.IdentifierComparer.Equals(syntax.TryGetKeyText(), LanguageConstants.ModuleExtensionConfigsPropertyName))
+                    else if (peek == VisitedElement.Module && LanguageConstants.IdentifierComparer.Equals(syntax.TryGetKeyText(), LanguageConstants.ModuleExtensionConfigsPropertyName))
                     {
                         newVisitedElement = VisitedElement.ModuleExtensionConfigs;
                     }
@@ -108,27 +105,43 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 base.VisitObjectPropertySyntax(syntax);
             }
 
-            private void ValidateConfigPropertyAssignment(TypeSymbol propertyType, SyntaxBase syntaxValue)
+            private void ValidateConfigPropertyAssignment(TypeSymbol propertyType, SyntaxBase valueSyntax)
             {
                 propertyType = TypeHelper.TryRemoveNullability(propertyType) ?? propertyType;
                 var isSecure = propertyType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure);
-                var isKeyVaultReference = IsKeyVaultReference(syntaxValue);
+                var isKeyVaultReference = IsKeyVaultReference(valueSyntax);
 
                 if (isSecure && !isKeyVaultReference)
                 {
-                    // TODO(kylealbert): Diagnostic
+                    Diagnostics.Add(Rule.CreateDiagnosticForSpan(Rule.DefaultDiagnosticLevel, valueSyntax.Span, CoreResources.StacksExtensibilityCompatibilityRule_SecurePropertyValueIsNotReference));
                 }
                 else if (!isSecure && isKeyVaultReference)
                 {
-                    // TODO(kylealbert): Diagnostic
+                    Diagnostics.Add(Rule.CreateDiagnosticForSpan(Rule.DefaultDiagnosticLevel, valueSyntax.Span, CoreResources.StacksExtensibilityCompatibilityRule_NonSecurePropertyValueIsReference));
                 }
             }
 
-            private bool IsKeyVaultReference(SyntaxBase syntaxValue)
+            private bool IsKeyVaultReference(SyntaxBase valueSyntax)
             {
-                // TODO(kylealbert): determine syntax.. ternaries?
+                // TODO(kylealbert): Handle ternaries?
+                if (valueSyntax is InstanceFunctionCallSyntax instCallSyntax
+                    && (IsKeyVaultGetSecretCall(instCallSyntax) || IsAzGetSecretCall(instCallSyntax)))
+                {
+                    return true;
+                }
+
                 return false;
             }
+
+            private bool IsKeyVaultGetSecretCall(InstanceFunctionCallSyntax instCallSyntax) =>
+                Model.Binder.GetSymbolInfo(instCallSyntax.BaseExpression) is ResourceSymbol { Type: ResourceType resourceType }
+                && LanguageConstants.ResourceTypeComparer.Equals(resourceType.TypeReference.Type, AzResourceTypeProvider.ResourceTypeKeyVault)
+                && LanguageConstants.IdentifierComparer.Equals(AzResourceTypeProvider.GetSecretFunctionName, instCallSyntax.Name.IdentifierName);
+
+            private bool IsAzGetSecretCall(InstanceFunctionCallSyntax instCallSyntax) =>
+                Model.Binder.GetSymbolInfo(instCallSyntax.BaseExpression) is BuiltInNamespaceSymbol nsSymbol
+                && LanguageConstants.ExtensionNameComparer.Equals(nsSymbol.Name, AzNamespaceType.BuiltInName)
+                && LanguageConstants.IdentifierComparer.Equals(AzNamespaceType.GetSecretFunctionName, instCallSyntax.Name.IdentifierName);
 
             private enum VisitedElement
             {
