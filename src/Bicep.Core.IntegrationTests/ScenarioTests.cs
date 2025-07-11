@@ -1062,9 +1062,9 @@ resource resC 'Rp.A/a/b/providers@2020-06-01' = {
         result.Template.Should().NotBeNull();
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP081", DiagnosticLevel.Warning, "Resource type \"Rp.A/providers@2020-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
-            ("BCP081", DiagnosticLevel.Warning, "Resource type \"Rp.A/providers/a/b@2020-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
-            ("BCP081", DiagnosticLevel.Warning, "Resource type \"Rp.A/a/b/providers@2020-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
+            ("BCP081", DiagnosticLevel.Warning, "Resource type \"Rp.A/providers@2020-06-01\" does not have types available. Either the type or version does not exist, or Bicep does not yet know about it. This does not prevent attempting deployment, but does mean Bicep may not be able to provide IntelliSense or detect potential errors."),
+            ("BCP081", DiagnosticLevel.Warning, "Resource type \"Rp.A/providers/a/b@2020-06-01\" does not have types available. Either the type or version does not exist, or Bicep does not yet know about it. This does not prevent attempting deployment, but does mean Bicep may not be able to provide IntelliSense or detect potential errors."),
+            ("BCP081", DiagnosticLevel.Warning, "Resource type \"Rp.A/a/b/providers@2020-06-01\" does not have types available. Either the type or version does not exist, or Bicep does not yet know about it. This does not prevent attempting deployment, but does mean Bicep may not be able to provide IntelliSense or detect potential errors."),
         });
 
         result = CompilationHelper.Compile(@"
@@ -3311,7 +3311,7 @@ output fooBadIdProps object = {
 ");
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts@2021-09-00\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
+            ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts@2021-09-00\" does not have types available. Either the type or version does not exist, or Bicep does not yet know about it. This does not prevent attempting deployment, but does mean Bicep may not be able to provide IntelliSense or detect potential errors."),
             ("BCP036", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"string\" but the provided value is of type \"123\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
             ("BCP036", DiagnosticLevel.Warning, "The property \"capacity\" expected a value of type \"int\" but the provided value is of type \"'1'\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
             ("BCP036", DiagnosticLevel.Warning, "The property \"type\" expected a value of type \"string\" but the provided value is of type \"1\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),

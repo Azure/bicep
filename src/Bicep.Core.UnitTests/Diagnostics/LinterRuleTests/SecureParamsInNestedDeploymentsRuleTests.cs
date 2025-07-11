@@ -434,7 +434,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     }
                 }",
                 [
-                    "[6] Resource type \"Microsoft.Resources/notDeployments@2021-04-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."
+                    "[6] Resource type \"Microsoft.Resources/notDeployments@2021-04-01\" does not have types available. Either the type or version does not exist, or Bicep does not yet know about it. This does not prevent attempting deployment, but does mean Bicep may not be able to provide IntelliSense or detect potential errors."
                 ]);
         }
 
