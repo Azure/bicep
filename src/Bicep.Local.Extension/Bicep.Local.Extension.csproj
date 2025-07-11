@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Azure.Bicep.Local.Extension</AssemblyName>
     <RootNamespace>Bicep.Local.Extension</RootNamespace>

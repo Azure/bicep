@@ -45,7 +45,6 @@
 
 ## Post-release Tasks
 1. Upload copyleft dependency source to 3rd party disclosure site. See [instructions](https://msazure.visualstudio.com/One/_wiki/wikis/Azure%20Deployments%20Team%20Wiki/369910/Bicep-release-step-Upload-copyleft-source-to-3rd-party-disclosure-site).
-1. Review history for changes to [bicepconfig.schema.json](https://github.com/Azure/bicep/commits/main/src/vscode-bicep/schemas/bicepconfig.schema.json). Create a GitHub issue for it if none already exists and notify the team for any recently-added linter rules which do not have public documentation. This is non-blocking for the release process (continue to the next step).
 1. Let the PM team know that the release is completed; they may want to post a twitter/X thread on BicepLang twitter account, with the following information:
     * Highlights from Release Notes with link to full release
     * Link to the most recent community call

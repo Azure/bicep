@@ -3,7 +3,7 @@
 
 import type { PropsWithChildren } from "react";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { useAccordionItem } from "./useAccordionItem";
 
 export function AccordionItemContent({ children }: PropsWithChildren) {

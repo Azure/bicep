@@ -11,7 +11,6 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
@@ -910,6 +909,11 @@ namespace Bicep.Core.TypeSystem
                     return namespaceSymbol.DeclaredType as ErrorType ?? ErrorType.Empty();
                 }
 
+                if (features.ModuleExtensionConfigsEnabled && syntax.Path is not null && syntax.TryGetAliasFromAsClause() is null)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ExtensionAliasMustBeDefinedForInlinedRegistryExtensionDeclaration());
+                }
+
                 this.ValidateDecorators(syntax.Decorators, namespaceType, diagnostics);
 
                 if (syntax.Config is not null)
@@ -920,19 +924,48 @@ namespace Bicep.Core.TypeSystem
                     }
                     else
                     {
+                        // When module extension configs are used, exclude required property checks because those properties can be provided on the deployment properties and on the backend, will be merged in and validated.
+                        var assignmentTargetType = namespaceType.ConfigurationType;
+
+                        if (features.ModuleExtensionConfigsEnabled)
+                        {
+                            assignmentTargetType = assignmentTargetType switch
+                            {
+                                ObjectType assignmentTargetObjType => assignmentTargetObjType
+                                    .WithModifiedProperties(p => p.WithoutFlags(TypePropertyFlags.Required)),
+                                DiscriminatedObjectType assignmentTargetDiscrimObjType => assignmentTargetDiscrimObjType
+                                    .WithModifiedMembers(memberType =>
+                                        memberType.WithModifiedProperties(p =>
+                                            LanguageConstants.IdentifierComparer.Equals(p.Name, assignmentTargetDiscrimObjType.DiscriminatorKey)
+                                                ? p
+                                                : p.WithoutFlags(TypePropertyFlags.Required))),
+                                _ => assignmentTargetType
+                            };
+                        }
+
                         // Collect diagnostics for the configuration type assignment.
-                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Config, namespaceType.ConfigurationType.Type, false);
+                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Config, assignmentTargetType.Type, false);
                     }
                 }
                 else
                 {
-                    if (syntax.WithClause.IsSkipped && namespaceType.IsConfigurationRequired)
+                    // When module extension configs are used, exclude required property checks because those properties can be provided on the deployment properties and on the backend, will be merged in and validated.
+                    if (!features.ModuleExtensionConfigsEnabled && syntax.WithClause.IsSkipped && namespaceType.ConfigurationType is not null)
                     {
-                        diagnostics.Write(syntax, x => x.ExtensionRequiresConfiguration(namespaceType.ExtensionName));
+                        var isConfigurationRequired = namespaceType.ConfigurationType switch
+                        {
+                            ObjectType extConfigObjType => extConfigObjType.Properties.Values.Any(p => p.Flags.HasFlag(TypePropertyFlags.Required)),
+                            _ => true
+                        };
+
+                        if (isConfigurationRequired)
+                        {
+                            diagnostics.Write(syntax, x => x.ExtensionRequiresConfiguration(namespaceType.ExtensionName));
+                        }
                     }
                 }
 
-                return namespaceType;
+                return namespaceType; // Return the namespace type as this represents the extension as a whole.
             });
 
         public override void VisitExtensionConfigAssignmentSyntax(ExtensionConfigAssignmentSyntax syntax)
@@ -941,7 +974,7 @@ namespace Bicep.Core.TypeSystem
                 {
                     if (!features.ModuleExtensionConfigsEnabled)
                     {
-                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedParamsFileDeclaration());
+                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedParamsFileDeclaration(false));
                     }
 
                     if (binder.GetSymbolInfo(syntax) is not ExtensionConfigAssignmentSymbol configAssignmentSymbol)
@@ -950,38 +983,37 @@ namespace Bicep.Core.TypeSystem
                         return ErrorType.Empty();
                     }
 
-                    var declaredType = typeManager.GetDeclaredType(syntax); // this is the config type
-
-                    if (declaredType is ErrorType)
-                    {
-                        return declaredType;
-                    }
-                    else if (declaredType is not null && declaredType.GetType() != typeof(ObjectType))
-                    {
-                        return ErrorType.Empty();
-                    }
+                    // The declared type is the module-aware configuration type when moduleConfigsEnabled is true (defaulted config properties in the template are considered optional from this perspective).
+                    var moduleAwareExtConfigType = typeManager.GetDeclaredType(syntax);
 
                     base.VisitExtensionConfigAssignmentSyntax(syntax);
 
-                    var configType = (ObjectType?)declaredType;
-
-                    if (configType is null) // Ext does not support configuration
+                    if (moduleAwareExtConfigType is null or ErrorType) // Ext does not support configuration
                     {
-                        diagnostics.Write(syntax.SpecificationString, x => x.ExtensionDoesNotSupportConfiguration(configAssignmentSymbol.Name));
+                        diagnostics.Write(syntax.Alias, x => x.ExtensionDoesNotSupportConfiguration(configAssignmentSymbol.Name));
 
                         return ErrorType.Empty();
                     }
 
                     if (syntax.Config is not null)
                     {
-                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Config, configType, false);
+                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Config, moduleAwareExtConfigType, false);
                     }
-                    else if (syntax.WithClause.IsSkipped && configType.Properties.Any(p => p.Value.Flags.HasFlag(TypePropertyFlags.Required)))
+                    else if (syntax.WithClause.IsSkipped)
                     {
-                        diagnostics.Write(syntax, x => x.ExtensionRequiresConfiguration(configAssignmentSymbol.Name));
+                        var isConfigurationRequired = moduleAwareExtConfigType switch
+                        {
+                            ObjectType moduleAwareExtConfigObjType => moduleAwareExtConfigObjType.Properties.Values.Any(p => p.Flags.HasFlag(TypePropertyFlags.Required)),
+                            _ => true
+                        };
+
+                        if (isConfigurationRequired)
+                        {
+                            diagnostics.Write(syntax, x => x.ExtensionRequiresConfiguration(configAssignmentSymbol.Name));
+                        }
                     }
 
-                    return configType;
+                    return moduleAwareExtConfigType;
                 });
 
         private void ValidateDecorators(IEnumerable<DecoratorSyntax> decoratorSyntaxes, TypeSymbol targetType, IDiagnosticWriter diagnostics)

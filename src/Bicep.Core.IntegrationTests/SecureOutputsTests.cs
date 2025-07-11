@@ -370,7 +370,7 @@ public class SecureOutputsTests
 
         result.Should().HaveDiagnostics(
         [
-            ("BCP423", DiagnosticLevel.Error, "Secure outputs may only be accessed via a direct module reference. Only non-sensitive outputs are supported when dereferencing a module indirectly via a variable or lambda."),
+            ("BCP426", DiagnosticLevel.Error, "Secure outputs may only be accessed via a direct module reference. Only non-sensitive outputs are supported when dereferencing a module indirectly via a variable or lambda."),
         ]);
     }
 
@@ -393,7 +393,7 @@ public class SecureOutputsTests
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
         [
-            ("BCP423", DiagnosticLevel.Error, "Secure outputs may only be accessed via a direct module reference. Only non-sensitive outputs are supported when dereferencing a module indirectly via a variable or lambda."),
+            ("BCP426", DiagnosticLevel.Error, "Secure outputs may only be accessed via a direct module reference. Only non-sensitive outputs are supported when dereferencing a module indirectly via a variable or lambda."),
         ]);
     }
 }

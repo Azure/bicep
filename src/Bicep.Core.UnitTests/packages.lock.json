@@ -10,9 +10,9 @@
       },
       "FluentAssertions": {
         "type": "Direct",
-        "requested": "[7.0.0, )",
-        "resolved": "7.0.0",
-        "contentHash": "mTLbcU991EQ1SEmNbVBaGGGJy0YFzvGd1sYJGNZ07nlPKuyHSn1I22aeKzqQXgEiaKyRO6MSCto9eN9VxMwBdA==",
+        "requested": "[7.2.0, )",
+        "resolved": "7.2.0",
+        "contentHash": "k94gV49Otru4e9nKtj36KpA9UkjuAGKPmhfM0oqyI+rrtxhSrgaeEhILR0AbJ9iNaoagAeQtawPz6njQOC6WQA==",
         "dependencies": {
           "System.Configuration.ConfigurationManager": "6.0.0"
         }
@@ -111,8 +111,8 @@
       },
       "Azure.Bicep.Types.Az": {
         "type": "Transitive",
-        "resolved": "0.2.771",
-        "contentHash": "x+6h//6GjyvnGWW7LbmnfF+WawCimRq3bN9DkLusU0o7/xXioYVjDhGyqCOfH0DelHq/oU+jCnbd+wV9kRBWSA==",
+        "resolved": "0.2.784",
+        "contentHash": "ARXBJm7c6UBKmo3LGSd41cm7BAk9yr7MO+6dVhfKK+jJsQtPTOJSXbum2L1jLpxwodIA8vO15KNfsYfP/tpOUQ==",
         "dependencies": {
           "Azure.Bicep.Types": "0.5.110"
         }
@@ -1579,7 +1579,7 @@
         "dependencies": {
           "Azure.Bicep.IO": "[1.0.0, )",
           "Azure.Bicep.Types": "[0.5.110, )",
-          "Azure.Bicep.Types.Az": "[0.2.771, )",
+          "Azure.Bicep.Types.Az": "[0.2.784, )",
           "Azure.Bicep.Types.K8s": "[0.1.644, )",
           "Azure.Containers.ContainerRegistry": "[1.1.1, )",
           "Azure.Deployments.Templates": "[1.393.0, )",
@@ -1652,7 +1652,7 @@
           "Azure.Bicep.Core": "[1.0.0, )",
           "Azure.Bicep.Decompiler": "[1.0.0, )",
           "Azure.Bicep.IO": "[1.0.0, )",
-          "FluentAssertions": "[7.0.0, )",
+          "FluentAssertions": "[7.2.0, )",
           "JsonDiffPatch.Net": "[2.3.0, )",
           "Moq": "[4.20.72, )",
           "System.IO.Abstractions.TestingHelpers": "[21.3.1, )"

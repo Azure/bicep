@@ -5,8 +5,12 @@ using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
+using Bicep.IO.InMemory;
 using Bicep.LangServer.IntegrationTests.Helpers;
+using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Handlers;
+using Bicep.TextFixtures.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -26,88 +30,82 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task RequestDeploymentGraphShouldReturnDeploymentGraph()
         {
             var diagnosticsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
-            var fileSystemDict = new Dictionary<Uri, string>();
+            var mainContent = """
+                resource res1 'Test.Rp/basicTests@2020-01-01' = {
+                  name: 'res1'
+                }
 
-            var mainUri = DocumentUri.FromFileSystemPath("/main.bicep");
-            fileSystemDict[mainUri.ToUriEncoded()] = @"
-resource res1 'Test.Rp/basicTests@2020-01-01' = {
-  name: 'res1'
-}
+                resource res2 'Test.Rp/readWriteTests@2020-01-01' = {
+                  name: 'res2'
+                  properites: {
+                    readwrite: mod1.outputs.output1
+                  }
+                }
 
-resource res2 'Test.Rp/readWriteTests@2020-01-01' = {
-  name: 'res2'
-  properites: {
-    readwrite: mod1.outputs.output1
-  }
-}
+                resource unknownRes = {
+                }
 
-resource unknownRes = {
-}
+                module mod1 './modules/module1.bicep' = {
+                  name: 'mod1'
+                }
 
-module mod1 './modules/module1.bicep' = {
-  name: 'mod1'
-}
+                module mod2 './modules/module2.bicep' = {
+                  name: 'mod2'
+                }
 
-module mod2 './modules/module2.bicep' = {
-  name: 'mod2'
-}
+                module nonExistingMod './path/to/nonExistingModule.bicep' = {
+                }
+                """;
+            var fileSet = InMemoryTestFileSet.Create(
+                ("/main.bicep", mainContent),
+                ("/modules/module1.bicep", """
+                    resource res3 'Test.Rp/basicTests@2020-01-01' = {
+                      name: 'res3'
+                    }
 
-module nonExistingMod './path/to/nonExistingModule.bicep' = {
-}
-";
+                    output output1 int = 123
+                    """),
+                ("/modules/module2.bicep", """
+                    resource res4 'Test.Rp/basicTests@2020-01-01' = {
+                      name: 'res4'
+                    }
 
-            var module1Uri = DocumentUri.FromFileSystemPath("/modules/module1.bicep");
-            fileSystemDict[module1Uri.ToUriEncoded()] = @"
-resource res3 'Test.Rp/basicTests@2020-01-01' = {
-  name: 'res3'
-}
+                    module nestedMod './nestedModules/nestedModule.bicep' = [for x in []: {
+                      name: 'nestedMod'
+                      dependsOn: [
+                        res4
+                      ]
+                    }]
+                    """),
+                ("/modules/nestedModules/nestedModule.bicep", """
+                    resource res5 'Test.Rp/basicTests@2020-01-01' = {
+                      name: 'res5'
+                    }
+                    """));
 
-output output1 int = 123
-";
-
-            var module2Uri = DocumentUri.FromFileSystemPath("/modules/module2.bicep");
-            fileSystemDict[module2Uri.ToUriEncoded()] = @"
-resource res4 'Test.Rp/basicTests@2020-01-01' = {
-  name: 'res4'
-}
-
-module nestedMod './nestedModules/nestedModule.bicep' = [for x in []: {
-  name: 'nestedMod'
-  dependsOn: [
-    res4
-  ]
-}]
-";
-
-            var nestedModuleUri = DocumentUri.FromFileSystemPath("/modules/nestedModules/nestedModule.bicep");
-            fileSystemDict[nestedModuleUri.ToUriEncoded()] = @"
-resource res5 'Test.Rp/basicTests@2020-01-01' = {
-  name: 'res5'
-}
-";
-
+            var mainUri = fileSet.GetUri("main.bicep");
             using var helper = await LanguageServerHelper.StartServer(
                 this.TestContext,
                 options => options.OnPublishDiagnostics(diagnosticsListener.AddMessage),
-                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()).WithFileResolver(new InMemoryFileResolver(fileSystemDict)));
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()).WithFileExplorer(fileSet.FileExplorer));
             var client = helper.Client;
 
-            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUriEncoded()], 1));
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri.ToDocumentUri(), mainContent, 1));
             await diagnosticsListener.WaitNext();
 
-            var deploymentGraph = await client.SendRequest(new BicepDeploymentGraphParams(new TextDocumentIdentifier(mainUri)), default);
+            var deploymentGraph = await client.SendRequest(new BicepDeploymentGraphParams(new TextDocumentIdentifier(mainUri.ToDocumentUri())), default);
 
             deploymentGraph.Should().NotBeNull();
             deploymentGraph!.Nodes.Should().Equal(
-                new BicepDeploymentGraphNode("mod1", "<module>", false, CreateTextRange(15, 0, 17, 1), true, false, Path.GetFullPath(mainUri.GetFileSystemPath())),
-                new BicepDeploymentGraphNode("mod1::res3", "Test.Rp/basicTests", false, CreateTextRange(1, 0, 3, 1), false, false, Path.GetFullPath(module1Uri.GetFileSystemPath())),
-                new BicepDeploymentGraphNode("mod2", "<module>", false, CreateTextRange(19, 0, 21, 1), true, false, Path.GetFullPath(mainUri.GetFileSystemPath())),
-                new BicepDeploymentGraphNode("mod2::nestedMod", "<module>", true, CreateTextRange(5, 0, 10, 2), true, false, Path.GetFullPath(module2Uri.GetFileSystemPath())),
-                new BicepDeploymentGraphNode("mod2::nestedMod::res5", "Test.Rp/basicTests", false, CreateTextRange(1, 0, 3, 1), false, false, Path.GetFullPath(nestedModuleUri.GetFileSystemPath())),
-                new BicepDeploymentGraphNode("mod2::res4", "Test.Rp/basicTests", false, CreateTextRange(1, 0, 3, 1), false, false, Path.GetFullPath(module2Uri.GetFileSystemPath())),
-                new BicepDeploymentGraphNode("nonExistingMod", "<module>", false, CreateTextRange(23, 0, 24, 1), false, true, Path.GetFullPath(mainUri.GetFileSystemPath())),
-                new BicepDeploymentGraphNode("res1", "Test.Rp/basicTests", false, CreateTextRange(1, 0, 3, 1), false, false, Path.GetFullPath(mainUri.GetFileSystemPath())),
-                new BicepDeploymentGraphNode("res2", "Test.Rp/readWriteTests", false, CreateTextRange(5, 0, 10, 1), false, true, Path.GetFullPath(mainUri.GetFileSystemPath())));
+                new BicepDeploymentGraphNode("mod1", "<module>", false, CreateTextRange(14, 0, 16, 1), true, false, "/path/to/main.bicep"),
+                new BicepDeploymentGraphNode("mod1::res3", "Test.Rp/basicTests", false, CreateTextRange(0, 0, 2, 1), false, false, "/path/to/modules/module1.bicep"),
+                new BicepDeploymentGraphNode("mod2", "<module>", false, CreateTextRange(18, 0, 20, 1), true, false, "/path/to/main.bicep"),
+                new BicepDeploymentGraphNode("mod2::nestedMod", "<module>", true, CreateTextRange(4, 0, 9, 2), true, false, "/path/to/modules/module2.bicep"),
+                new BicepDeploymentGraphNode("mod2::nestedMod::res5", "Test.Rp/basicTests", false, CreateTextRange(0, 0, 2, 1), false, false, "/path/to/modules/nestedModules/nestedModule.bicep"),
+                new BicepDeploymentGraphNode("mod2::res4", "Test.Rp/basicTests", false, CreateTextRange(0, 0, 2, 1), false, false, "/path/to/modules/module2.bicep"),
+                new BicepDeploymentGraphNode("nonExistingMod", "<module>", false, CreateTextRange(22, 0, 23, 1), false, true, "/path/to/main.bicep"),
+                new BicepDeploymentGraphNode("res1", "Test.Rp/basicTests", false, CreateTextRange(0, 0, 2, 1), false, false, "/path/to/main.bicep"),
+                new BicepDeploymentGraphNode("res2", "Test.Rp/readWriteTests", false, CreateTextRange(4, 0, 9, 1), false, true, "/path/to/main.bicep"));
             deploymentGraph!.Edges.Should().Equal(
                 new BicepDeploymentGraphEdge("mod2::nestedMod", "mod2::res4"),
                 new BicepDeploymentGraphEdge("res2", "mod1"));

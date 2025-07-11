@@ -66,7 +66,7 @@ namespace Bicep.Cli
 
             try
             {
-                switch (ArgumentParser.TryParse(args, this.io, services.GetRequiredService<IFileSystem>()))
+                switch (ArgumentParser.TryParse(args, services.GetRequiredService<IFileSystem>()))
                 {
                     case BuildArguments buildArguments when buildArguments.CommandName == Constants.Command.Build: // bicep build [options]
                         return await services.GetRequiredService<BuildCommand>().RunAsync(buildArguments);
@@ -167,6 +167,7 @@ namespace Bicep.Cli
                 .AddLocalDeploy()
                 .AddCommands()
                 .AddSingleton(CreateLoggerFactory(io).CreateLogger("bicep"))
+                .AddSingleton<InputOutputArgumentsResolver>()
                 .AddSingleton<DiagnosticLogger>()
                 .AddSingleton<OutputWriter>()
                 .AddSingleton<PlaceholderParametersWriter>()

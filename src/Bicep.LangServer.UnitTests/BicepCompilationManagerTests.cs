@@ -13,6 +13,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.FileSystem;
+using Bicep.IO.InMemory;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
@@ -515,19 +516,25 @@ module moduleB './moduleB.bicep' = {
 ",
             };
 
+            var fileExplorer = new InMemoryFileExplorer();
+
+            foreach (var (uri, content) in fileDict)
+            {
+                fileExplorer.GetFile(uri.ToIOUri()).Write(content);
+            }
+
             var diagsReceived = new List<PublishDiagnosticsParams>();
             var document = BicepCompilationManagerHelper.CreateMockDocument(p => diagsReceived.Add(p));
             var server = BicepCompilationManagerHelper.CreateMockServer(document);
 
-            var fileResolver = new InMemoryFileResolver(fileDict);
             var services = new ServiceBuilder()
-                .WithFileResolver(fileResolver)
+                .WithFileExplorer(fileExplorer)
                 .Build();
 
             var compilationProvider = new BicepCompilationProvider(
                 BicepTestConstants.EmptyEnvironment,
                 TestTypeHelper.CreateEmptyNamespaceProvider(),
-                fileResolver,
+                fileExplorer,
                 services.Construct<IModuleDispatcher>(),
                 BicepTestConstants.LinterAnalyzer,
                 BicepTestConstants.SourceFileFactory);

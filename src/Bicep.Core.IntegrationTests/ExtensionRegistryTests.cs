@@ -10,11 +10,10 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
-using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.TextFixtures.Assertions;
+using Bicep.TextFixtures.IO;
 using Bicep.TextFixtures.Utils;
-using Bicep.TextFixtures.Utils.IO;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -26,6 +25,8 @@ public class ExtensionRegistryTests : TestBase
 {
     private static readonly FeatureProviderOverrides AllFeaturesEnabled = new();
     private static readonly FeatureProviderOverrides AllFeaturesEnabledForLocalDeploy = new(LocalDeployEnabled: true);
+
+    private readonly TestCompiler compiler = TestCompiler.ForMockFileSystemCompilation();
 
     [TestMethod]
     [TestCategory(BaselineHelper.BaselineTestCategory)]
@@ -47,8 +48,12 @@ public class ExtensionRegistryTests : TestBase
         }
     }
 
-    [TestMethod]
-    public async Task Extensions_published_to_a_registry_can_be_compiled()
+    [DataTestMethod]
+    [DataRow(false, "", false)]
+    [DataRow(false, "as fooExt", false)]
+    [DataRow(true, "", true)]
+    [DataRow(true, "as fooExt", false)]
+    public async Task Extensions_published_to_a_registry_can_be_compiled(bool moduleConfigsEnabled, string extensionAsSyntax, bool throwsErrorDiagnostic)
     {
         // types taken from https://github.com/Azure/bicep-registry-providers/tree/21aadf24cd6e8c9c5da2db0d1438df9def548b09/providers/http
         var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(
@@ -58,31 +63,46 @@ public class ExtensionRegistryTests : TestBase
         var registry = "example.azurecr.io";
         var repository = $"test/extension/http";
 
-        var services = ExtensionTestHelper.GetServiceBuilder(fileSystem, registry, repository, AllFeaturesEnabled);
+        var services = ExtensionTestHelper.GetServiceBuilder(fileSystem, registry, repository, AllFeaturesEnabled with { ModuleExtensionConfigsEnabled = moduleConfigsEnabled });
 
         await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
-        var result = await CompilationHelper.RestoreAndCompile(services, """
-extension 'br:example.azurecr.io/test/extension/http:1.2.3'
+        var result = await CompilationHelper.RestoreAndCompile(
+            services,
+            $$"""
+              extension 'br:example.azurecr.io/test/extension/http:1.2.3' {{extensionAsSyntax}}
 
-resource dadJoke 'request@v1' = {
-  uri: 'https://icanhazdadjoke.com'
-  method: 'GET'
-  format: 'json'
-}
+              resource dadJoke 'request@v1' = {
+                uri: 'https://icanhazdadjoke.com'
+                method: 'GET'
+                format: 'json'
+              }
 
-output joke string = dadJoke.body.joke
-""");
+              output joke string = dadJoke.body.joke
+              """);
+
+        if (throwsErrorDiagnostic)
+        {
+            var expectedDiagnostic = DiagnosticBuilder.ForDocumentStart().ExtensionAliasMustBeDefinedForInlinedRegistryExtensionDeclaration();
+            result.Should().OnlyContainDiagnostic(expectedDiagnostic.Code, expectedDiagnostic.Level, expectedDiagnostic.Message);
+
+            return;
+        }
 
         result.Should().NotHaveAnyDiagnostics();
         result.Template.Should().NotBeNull();
     }
 
-    [TestMethod]
-    public async Task Extensions_published_to_filesystem_can_be_compiled()
+    [DataTestMethod]
+    [DataRow(false, "", false)]
+    [DataRow(false, "as fooExt", false)]
+    [DataRow(true, "", true)]
+    [DataRow(true, "as fooExt", false)]
+    public async Task Extensions_published_to_filesystem_can_be_compiled(bool moduleConfigsEnabled, string extensionAsSyntax, bool throwsErrorDiagnostic)
     {
         var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
-        var services = new ServiceBuilder().WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory));
+        var services = new ServiceBuilder().WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory, ModuleExtensionConfigsEnabled: moduleConfigsEnabled));
+        ;
 
         var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
         var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
@@ -90,16 +110,18 @@ output joke string = dadJoke.body.joke
 
         var bicepPath = Path.Combine(tempDirectory, "main.bicep");
         var bicepUri = PathHelper.FilePathToFileUrl(bicepPath);
-        await File.WriteAllTextAsync(bicepPath, """
-extension './extension.tgz'
+        await File.WriteAllTextAsync(
+            bicepPath,
+            $$"""
+              extension './extension.tgz' {{extensionAsSyntax}}
 
-resource fooRes 'fooType@v1' = {
-  identifier: 'foo'
-  properties: {
-    required: 'bar'
-  }
-}
-""");
+              resource fooRes 'fooType@v1' = {
+                identifier: 'foo'
+                properties: {
+                  required: 'bar'
+                }
+              }
+              """);
 
         var extensionPath = Path.Combine(tempDirectory, "extension.tgz");
         await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), Path.Combine(tempDirectory, extensionPath), typesTgz, bicepUri);
@@ -109,6 +131,14 @@ resource fooRes 'fooType@v1' = {
         var compilation = await compiler.CreateCompilation(bicepUri);
 
         var result = CompilationHelper.GetCompilationResult(compilation);
+
+        if (throwsErrorDiagnostic)
+        {
+            var expectedDiagnostic = DiagnosticBuilder.ForDocumentStart().ExtensionAliasMustBeDefinedForInlinedRegistryExtensionDeclaration();
+            result.Should().OnlyContainDiagnostic(expectedDiagnostic.Code, expectedDiagnostic.Level, expectedDiagnostic.Message);
+
+            return;
+        }
 
         result.Should().NotHaveAnyDiagnostics();
     }
@@ -142,35 +172,67 @@ resource fooRes 'fooType@v1' = {
         var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
         var extensionTgz = await ExtensionV1Archive.Build(new(typesTgz, false, []));
 
-        var result = await CompilationHelper.RestoreAndCompile(
-          ("main.bicep", new("""
-extension myExtension
+        var result = await this.compiler.Compile(
+            ("main.bicep", """
+                extension myExtension
 
-resource fooRes 'fooType@v1' = {
-  identifier: 'foo'
-  properties: {
-    required: 'bar'
-  }
-}
-""")), ("../bicepconfig.json", new("""
-{
-  "extensions": {
-    "myExtension": "./extension.tgz"
-  }
-}
-""")), ("../extension.tgz", extensionTgz));
+                resource fooRes 'fooType@v1' = {
+                  identifier: 'foo'
+                  properties: {
+                    required: 'bar'
+                  }
+                }
+                """),
+            ("../bicepconfig.json", """
+                {
+                  "extensions": {
+                    "myExtension": "./extension.tgz"
+                  }
+                }
+                """),
+            ("../extension.tgz", extensionTgz));
 
         result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public async Task Extensions_published_to_a_registry_requires_alias_with_module_configs_enabled()
+    {
+        // types taken from https://github.com/Azure/bicep-registry-providers/tree/21aadf24cd6e8c9c5da2db0d1438df9def548b09/providers/http
+        var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(
+            typeof(ExtensionRegistryTests).Assembly,
+            "Files/ExtensionRegistryTests/http");
+
+        var registry = "example.azurecr.io";
+        var repository = "test/extension/http";
+
+        var services = ExtensionTestHelper.GetServiceBuilder(fileSystem, registry, repository, AllFeaturesEnabled with { ModuleExtensionConfigsEnabled = true });
+
+        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
+
+        var result = await CompilationHelper.RestoreAndCompile(
+            services,
+            """
+            extension 'br:example.azurecr.io/test/extension/http:1.2.3'
+
+            resource dadJoke 'request@v1' = {
+              uri: 'https://icanhazdadjoke.com'
+              method: 'GET'
+              format: 'json'
+            }
+
+            output joke string = dadJoke.body.joke
+            """);
+
+        var expectedDiagnostic = DiagnosticBuilder.ForDocumentStart().ExtensionAliasMustBeDefinedForInlinedRegistryExtensionDeclaration();
+        result.Should().OnlyContainDiagnostic(expectedDiagnostic.Code, expectedDiagnostic.Level, expectedDiagnostic.Message);
     }
 
     [TestMethod]
     public async Task Missing_extension_file_raises_a_diagnostic()
     {
         // See https://github.com/Azure/bicep/issues/14770 for context
-        var result = await new TestCompiler().RestoreAndCompileMockFileSystemFiles(
-            ("main.bicep", new("""
-                extension './non_existent.tgz'
-                """)));
+        var result = await this.compiler.CompileInline("extension './non_existent.tgz'");
 
         result.Should().HaveDiagnostics([
             ("BCP091", DiagnosticLevel.Error, $"An error occurred reading file. Could not find file '{TestFileUri.FromMockFileSystemPath("./non_existent.tgz")}'."),
@@ -181,17 +243,15 @@ resource fooRes 'fooType@v1' = {
     public async Task Missing_extension_file_raises_a_diagnostic_bicepconfig()
     {
         // See https://github.com/Azure/bicep/issues/14770 for context
-        var result = await new TestCompiler().RestoreAndCompileMockFileSystemFiles(
-            ("main.bicep", """
-                  extension nonExistent
-                  """),
+        var result = await this.compiler.Compile(
+            ("main.bicep", "extension nonExistent"),
             ("../bicepconfig.json", """
                   {
                     "extensions": {
                       "nonExistent": "./non_existent.tgz"
                     }
                   }
-                  """));
+              """));
 
         //var sourceUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
         result.Should().HaveDiagnostics([
@@ -440,8 +500,7 @@ output joke string = dadJoke.joke
 
             extension 'br:example.azurecr.io/extensions/foo:1.2.3' with {
               namespace: 'ThirdPartyNamespace'
-              config: 'Some path to config file'
-            }
+            } as fooExt
 
             resource dadJoke 'fooType@v1' = {
               identifier: 'foo'
@@ -454,14 +513,11 @@ output joke string = dadJoke.joke
             """
             using 'main.bicep'
 
-            extension ThirdPartyExtension with {
-              namespace: 'paramsFileNs'
+            extensionConfig fooExt with {
               config: 'paramsFileConfig'
               context: 'paramsFileContext'
             }
             """);
-
-        // TODO(kylealbert): update bicep params file config when required property handling is implemented between template and params file.
 
         result.Should().NotHaveAnyDiagnostics();
 
@@ -471,7 +527,7 @@ output joke string = dadJoke.joke
 
         template.Should()
             .HaveValueAtPath(
-                "$.extensions['ThirdPartyExtension']", JObject.Parse(
+                "$.extensions['fooExt']", JObject.Parse(
                     """
                     {
                       "name": "ThirdPartyExtension",
@@ -479,9 +535,6 @@ output joke string = dadJoke.joke
                       "config": {
                         "namespace": {
                           "defaultValue": "ThirdPartyNamespace"
-                        },
-                        "config": {
-                          "defaultValue": "Some path to config file"
                         }
                       }
                     }
@@ -492,12 +545,9 @@ output joke string = dadJoke.joke
 
         parameters.Should()
             .HaveValueAtPath(
-                "$.extensionConfigs['ThirdPartyExtension']", JObject.Parse(
+                "$.extensionConfigs['fooExt']", JObject.Parse(
                     """
                     {
-                      "namespace": {
-                        "value": "paramsFileNs"
-                      },
                       "config": {
                         "value": "paramsFileConfig"
                       },

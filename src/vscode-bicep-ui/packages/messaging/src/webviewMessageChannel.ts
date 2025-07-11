@@ -68,10 +68,12 @@ export class WebviewMessageChannel {
 
         return;
       }
-
-      throw new Error(`Unexpected message: ${messageEvent.data}.`);
     };
 
+    window.addEventListener("message", this.onMessage);
+  }
+
+  revive() {
     window.addEventListener("message", this.onMessage);
   }
 

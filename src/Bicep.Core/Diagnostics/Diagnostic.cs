@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Immutable;
 using System.Diagnostics;
 using Bicep.Core.CodeAction;
@@ -23,4 +24,6 @@ public record Diagnostic(
     public ImmutableArray<CodeFix> Fixes { get; init; } = [];
 
     IEnumerable<CodeFix> IFixable.Fixes => Fixes;
+
+    public Diagnostic WithAppendedFixes(params CodeFix[] fixes) => this with { Fixes = [..this.Fixes, ..fixes] };
 }

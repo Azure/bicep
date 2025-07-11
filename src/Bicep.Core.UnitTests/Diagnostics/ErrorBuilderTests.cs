@@ -226,7 +226,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return ArtifactType.Module;
             }
 
-            if (parameter.ParameterType == typeof(IOUri) || parameter.ParameterType == typeof(IOUri?))
+            if (parameter.ParameterType == typeof(IOUri))
             {
                 return new IOUri("file", "", "/foo");
             }

@@ -3,11 +3,12 @@
 
 using System.Collections.Immutable;
 using Bicep.Cli.Helpers;
+using Bicep.Core;
 using Bicep.Core.FileSystem;
 
 namespace Bicep.Cli.Arguments;
 
-public class BuildArguments : ArgumentsBase
+public class BuildArguments : ArgumentsBase, IFilePatternInputOutputArguments<BuildArguments>
 {
     public BuildArguments(string[] args) : base(Constants.Command.Build)
     {
@@ -99,18 +100,10 @@ public class BuildArguments : ArgumentsBase
             throw new CommandLineException($"The {ArgumentConstants.OutDir} and {ArgumentConstants.OutFile} parameters cannot both be used");
         }
 
-        if (OutputDir is not null)
-        {
-            var outputDir = PathHelper.ResolvePath(OutputDir);
-
-            if (!Directory.Exists(outputDir))
-            {
-                throw new CommandLineException(string.Format(CliResources.DirectoryDoesNotExistFormat, outputDir));
-            }
-        }
-
         DiagnosticsFormat ??= Arguments.DiagnosticsFormat.Default;
     }
+
+    public static string OutputFileExtension => LanguageConstants.JsonFileExtension;
 
     public bool OutputToStdOut { get; }
 

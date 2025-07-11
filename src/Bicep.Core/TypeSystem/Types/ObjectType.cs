@@ -45,5 +45,16 @@ namespace Bicep.Core.TypeSystem.Types
                 properties ?? Properties.Values,
                 additionalProperties ?? AdditionalProperties,
                 methodResolverBuilder ?? MethodResolver.CopyToObject);
+
+        public ObjectType WithProperties(Func<IEnumerable<NamedTypeProperty>, IEnumerable<NamedTypeProperty>> propertiesModifier)
+            => new(
+                Name,
+                ValidationFlags,
+                propertiesModifier(Properties.Values),
+                AdditionalProperties,
+                MethodResolver.functionOverloads);
+
+        public ObjectType WithModifiedProperties(Func<NamedTypeProperty, NamedTypeProperty> propertyModifier)
+            => WithProperties(props => props.Select(propertyModifier));
     }
 }

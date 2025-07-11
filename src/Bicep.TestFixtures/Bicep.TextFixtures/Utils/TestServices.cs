@@ -19,17 +19,15 @@ using Bicep.Core.Utils;
 using Bicep.Decompiler;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
-using Bicep.IO.InMemory;
-using Bicep.TextFixtures.Utils.IO;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Identity.Client;
 
 namespace Bicep.TextFixtures.Utils
 {
     public class TestServices
     {
         private readonly IServiceCollection services;
-        private IServiceProvider? serviceProvider;
+        private IServiceProvider serviceProvider = null!;
+        private bool dirty;
 
         public TestServices()
         {
@@ -54,41 +52,32 @@ namespace Bicep.TextFixtures.Utils
                 .AddRegistryCatalogServices()
                 .AddSingleton<BicepCompiler>()
                 .AddSingleton<BicepDecompiler>();
+            this.dirty = true;
         }
 
-        // TODO(file-io-abstraction): Remove this method when the migration to the file IO abstraction is complete.
-        public TestServices AddMockFileSystem() => this.AddFileSystem(new MockFileSystem());
+        public TestServices AddSingleton<TService>(TService implementationInstance)
+            where TService : class
+        {
+            this.services.AddSingleton<TService>(implementationInstance);
+            this.dirty = true;
+
+            return this;
+        }
 
         // TODO(file-io-abstraction): Remove this method when the migration to the file IO abstraction is complete.
         public TestServices AddFileSystem(IFileSystem fileSystem)
         {
             this.services.AddSingleton<IFileSystem>(fileSystem);
-            this.services.AddSingleton<IFileResolver, FileResolver>();
-            this.services.AddSingleton<IFileExplorer, FileSystemFileExplorer>();
+            this.dirty = true;
 
             return this;
         }
 
-        public TestServices AddFileExplorer(IFileExplorer fileExplorer)
-        {
-            this.services.AddSingleton(fileExplorer);
+        public TestServices AddFileExplorer(IFileExplorer fileExplorer) => this.AddSingleton(fileExplorer);
 
-            return this;
-        }
+        public TestServices AddContainerRegistryClientFactory(IContainerRegistryClientFactory containerRegistryClientFactory) => this.AddSingleton(containerRegistryClientFactory);
 
-        public TestServices AddContainerRegistryClientFactory(IContainerRegistryClientFactory containerRegistryClientFactory)
-        {
-            this.services.AddSingleton(containerRegistryClientFactory);
-
-            return this;
-        }
-
-        public TestServices AddTemplateSpecRepositoryFactory(ITemplateSpecRepositoryFactory templateSpecRepositoryFactory)
-        {
-            this.services.AddSingleton(templateSpecRepositoryFactory);
-
-            return this;
-        }
+        public TestServices AddTemplateSpecRepositoryFactory(ITemplateSpecRepositoryFactory templateSpecRepositoryFactory) => this.AddSingleton(templateSpecRepositoryFactory);
 
         public TestServices AddExternalArtifactManager(TestExternalArtifactManager artifactManager)
         {
@@ -97,13 +86,16 @@ namespace Bicep.TextFixtures.Utils
             return this;
         }
 
-        public TestServices Build()
+        public T Get<T>() where T : notnull
         {
-            this.serviceProvider = this.services.BuildServiceProvider();
+            if (this.dirty)
+            {
+                this.serviceProvider = this.services.BuildServiceProvider();
+                this.dirty = false;
+            }
 
-            return this;
+
+            return this.serviceProvider.GetRequiredService<T>();
         }
-
-        public T Get<T>() where T : notnull => (this.serviceProvider ?? throw new InvalidOperationException("Service provider is not built. Call Build() first.")).GetRequiredService<T>();
     }
 }

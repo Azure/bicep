@@ -65,7 +65,7 @@ namespace Bicep.Local.Extension.UnitTests.TypesTests
 
             types.Should().HaveCount(2, "only public types in the same namespaces should be returned");
 
-            types.Should().Contain(typeof(ActiveResource));            
+            types.Should().Contain(typeof(ActiveResource));
             types.Should().Contain(typeof(NestedActiveResource));
 
             // although these are unique types in .net for bicep this would cause
@@ -87,7 +87,7 @@ namespace Bicep.Local.Extension.UnitTests.TypesTests
             types.Should().NotContain(typeof(Types_B.NoAttributeResource));
 
             types.Should().NotContain(typeof(NestedNoAttributeResource));
-            
+
         }
     }
 }

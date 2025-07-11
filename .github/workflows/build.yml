@@ -91,6 +91,8 @@ jobs:
   build-vscode-ext:
     name: "Build: VSCode Extension"
     runs-on: ubuntu-latest
+    env:
+      TURBO_TELEMETRY_DISABLED: 1
 
     steps:
       - uses: actions/checkout@v4
@@ -110,6 +112,11 @@ jobs:
         run: |
           dotnet publish --configuration release ./src/Bicep.LangServer/Bicep.LangServer.csproj
           cp -R src/Bicep.LangServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepLanguageServer
+
+      - name: Publish MCP Server
+        run: |
+          dotnet publish --configuration release ./src/Bicep.McpServer/Bicep.McpServer.csproj
+          cp -R src/Bicep.McpServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepMcpServer
 
       - name: Check npm version
         run: npm -v
@@ -223,6 +230,11 @@ jobs:
         run: |
           dotnet publish --configuration release ./src/Bicep.LangServer/Bicep.LangServer.csproj
           cp -R src/Bicep.LangServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepLanguageServer
+
+      - name: Publish MCP Server
+        run: |
+          dotnet publish --configuration release ./src/Bicep.McpServer/Bicep.McpServer.csproj
+          cp -R src/Bicep.McpServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepMcpServer
 
       - name: Check npm version
         run: npm -v

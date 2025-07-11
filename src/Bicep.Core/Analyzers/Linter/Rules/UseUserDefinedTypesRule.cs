@@ -22,7 +22,6 @@ public sealed class UseUserDefinedTypesRule : LinterRuleBase
         code: Code,
         description: CoreResources.UseUserDefinedTypesRule_Description,
         LinterRuleCategory.BestPractice,
-        docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
         // this is an optional coding standard, not something that should be enforced by default
         overrideCategoryDefaultDiagnosticLevel: DiagnosticLevel.Off)
     { }
