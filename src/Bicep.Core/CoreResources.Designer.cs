@@ -807,6 +807,24 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Extension configurations have additional constraints for Deployment stack deployments..
+        /// </summary>
+        internal static string StacksExtensibilityCompatibilityRuleDescription {
+            get {
+                return ResourceManager.GetString("StacksExtensibilityCompatibilityRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TODO. {0}.
+        /// </summary>
+        internal static string StacksExtensibilityCompatibilityRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("StacksExtensibilityCompatibilityRuleMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to All existing resources must be used..
         /// </summary>
         internal static string UnusedExistingResourceRuleDescription {
