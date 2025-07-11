@@ -514,7 +514,9 @@ namespace Bicep.Core.Semantics
                 // get diagnostics relating to type mismatch of params between Bicep and params files
                 .Concat(GatherTypeMismatchDiagnostics())
                 // get diagnostics on whether the module referenced in the using statement is valid
-                .Concat(GatherUsingModelInvalidDiagnostics(semanticModel));
+                .Concat(GatherUsingModelInvalidDiagnostics(semanticModel))
+                // get diagnostics for decorators on statements that don't support them
+                .Concat(GatherDecoratorValidationDiagnostics());
         }
 
         private IEnumerable<IDiagnostic> GatherUsingModelInvalidDiagnostics(ISemanticModel usingModel)
@@ -592,6 +594,40 @@ namespace Bicep.Core.Semantics
                     foreach (var diagnostic in diagnostics.GetDiagnostics())
                     {
                         yield return diagnostic;
+                    }
+                }
+            }
+        }
+
+        private IEnumerable<IDiagnostic> GatherDecoratorValidationDiagnostics()
+        {
+            // Check using declaration for decorators
+            var usingDeclaration = this.Root.UsingDeclarationSyntax;
+            if (usingDeclaration?.Decorators.Any() == true)
+            {
+                foreach (var decorator in usingDeclaration.Decorators)
+                {
+                    yield return DiagnosticBuilder.ForPosition(decorator).DecoratorsNotAllowedOnUsingDeclaration();
+                }
+            }
+
+            // Check all extends declarations for decorators
+            foreach (var extendsDeclaration in this.SourceFile.ProgramSyntax.Children.OfType<ExtendsDeclarationSyntax>())
+            {
+                foreach (var decorator in extendsDeclaration.Decorators)
+                {
+                    yield return DiagnosticBuilder.ForPosition(decorator).DecoratorsNotAllowedOnExtendsDeclaration();
+                }
+            }
+
+            // Check all parameter assignments for decorators
+            foreach (var parameterAssignment in this.Root.ParameterAssignments)
+            {
+                if (parameterAssignment.DeclaringParameterAssignment.Decorators.Any())
+                {
+                    foreach (var decorator in parameterAssignment.DeclaringParameterAssignment.Decorators)
+                    {
+                        yield return DiagnosticBuilder.ForPosition(decorator).DecoratorsNotAllowedOnParameterAssignment();
                     }
                 }
             }

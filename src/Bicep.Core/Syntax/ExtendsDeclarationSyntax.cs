@@ -10,8 +10,8 @@ namespace Bicep.Core.Syntax
 {
     public class ExtendsDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IArtifactReferenceSyntax
     {
-        public ExtendsDeclarationSyntax(Token keyword, SyntaxBase path)
-            : base([])
+        public ExtendsDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, SyntaxBase path)
+            : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ExtendsKeyword);
             AssertSyntaxType(path, nameof(path), typeof(StringSyntax), typeof(SkippedTriviaSyntax));
@@ -19,6 +19,11 @@ namespace Bicep.Core.Syntax
             this.Keyword = keyword;
             this.Path = path;
 
+        }
+
+        public ExtendsDeclarationSyntax(Token keyword, SyntaxBase path)
+            : this([], keyword, path)
+        {
         }
 
         public Token Keyword { get; }

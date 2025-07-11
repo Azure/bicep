@@ -10,8 +10,8 @@ namespace Bicep.Core.Syntax
 {
     public class UsingDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IArtifactReferenceSyntax
     {
-        public UsingDeclarationSyntax(Token keyword, SyntaxBase path)
-            : base([])
+        public UsingDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, SyntaxBase path)
+            : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.UsingKeyword);
             AssertSyntaxType(path, nameof(path), typeof(StringSyntax), typeof(SkippedTriviaSyntax), typeof(NoneLiteralSyntax));
@@ -19,6 +19,11 @@ namespace Bicep.Core.Syntax
             this.Keyword = keyword;
             this.Path = path;
 
+        }
+
+        public UsingDeclarationSyntax(Token keyword, SyntaxBase path)
+            : this([], keyword, path)
+        {
         }
 
         public Token Keyword { get; }

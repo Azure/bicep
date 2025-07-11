@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parsing
@@ -78,13 +77,6 @@ namespace Bicep.Core.Parsing
 
         private UsingDeclarationSyntax UsingDeclaration(ImmutableArray<SyntaxBase> leadingNodes)
         {
-            // Report error if decorators are present
-            var decorators = leadingNodes.OfType<DecoratorSyntax>();
-            foreach (var decorator in decorators)
-            {
-                this.ParsingErrorTree.Write(DiagnosticBuilder.ForPosition(decorator).DecoratorsNotAllowedOnUsingDeclaration());
-            }
-
             var keyword = ExpectKeyword(LanguageConstants.UsingKeyword);
 
             SyntaxBase expression = reader.Peek().Type switch
@@ -94,42 +86,28 @@ namespace Bicep.Core.Parsing
                 _ => SkipEmpty(b => b.ExpectedSymbolListOrWildcard()),
             };
 
-            return new(keyword, expression);
+            return new(leadingNodes, keyword, expression);
         }
 
         private ExtendsDeclarationSyntax ExtendsDeclaration(ImmutableArray<SyntaxBase> leadingNodes)
         {
-            // Report error if decorators are present
-            var decorators = leadingNodes.OfType<DecoratorSyntax>();
-            foreach (var decorator in decorators)
-            {
-                this.ParsingErrorTree.Write(DiagnosticBuilder.ForPosition(decorator).DecoratorsNotAllowedOnExtendsDeclaration());
-            }
-
             var keyword = ExpectKeyword(LanguageConstants.ExtendsKeyword);
             var path = this.WithRecovery(
                 () => ThrowIfSkipped(this.InterpolableString, b => b.ExtendsPathHasNotBeenSpecified()),
                 GetSuppressionFlag(keyword),
                 TokenType.NewLine);
 
-            return new ExtendsDeclarationSyntax(keyword, path);
+            return new ExtendsDeclarationSyntax(leadingNodes, keyword, path);
         }
 
         private SyntaxBase ParameterAssignment(ImmutableArray<SyntaxBase> leadingNodes)
         {
-            // Report error if decorators are present
-            var decorators = leadingNodes.OfType<DecoratorSyntax>();
-            foreach (var decorator in decorators)
-            {
-                this.ParsingErrorTree.Write(DiagnosticBuilder.ForPosition(decorator).DecoratorsNotAllowedOnParameterAssignment());
-            }
-
             var keyword = ExpectKeyword(LanguageConstants.ParameterKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedParameterIdentifier(), RecoveryFlags.None, TokenType.Identifier, TokenType.NewLine);
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
             var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
 
-            return new ParameterAssignmentSyntax(keyword, name, assignment, value);
+            return new ParameterAssignmentSyntax(leadingNodes, keyword, name, assignment, value);
         }
 
         private ExtensionConfigAssignmentSyntax ExtensionConfigAssignment(IEnumerable<SyntaxBase> leadingNodes)

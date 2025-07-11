@@ -9,8 +9,8 @@ namespace Bicep.Core.Syntax
 {
     public class ParameterAssignmentSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
     {
-        public ParameterAssignmentSyntax(Token keyword, IdentifierSyntax name, SyntaxBase assignment, SyntaxBase value)
-            : base([])
+        public ParameterAssignmentSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase assignment, SyntaxBase value)
+            : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ParameterKeyword);
             AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
@@ -19,6 +19,11 @@ namespace Bicep.Core.Syntax
             this.Name = name;
             this.Assignment = assignment;
             this.Value = value;
+        }
+
+        public ParameterAssignmentSyntax(Token keyword, IdentifierSyntax name, SyntaxBase assignment, SyntaxBase value)
+            : this([], keyword, name, assignment, value)
+        {
         }
 
         public Token Keyword { get; }
