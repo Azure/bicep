@@ -4,6 +4,9 @@
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -46,6 +49,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             private DiagnosticLevel DiagnosticLevel { get; }
 
+            private VisitorRecorder<VisitedElement> ElementRecorder { get; } = new();
+
             public RuleVisitor(StacksExtensibilityCompatibilityRule rule, SemanticModel model, DiagnosticLevel diagnosticLevel)
             {
                 Rule = rule;
@@ -55,14 +60,82 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
             {
+                if (Model.GetTypeInfo(syntax).IsError())
+                {
+                    return; // skip error elements
+                }
+
+                using var _ = ElementRecorder.Scope(VisitedElement.Module);
+
                 base.VisitModuleDeclarationSyntax(syntax);
-                // TODO(kylealbert): Track when we're in extensionConfigs: { [extAlias]: { [configKey]: [value] } }. [value] must be a keyvault reference for secure properties. [value] must not be a reference for non-secure properties.
             }
 
             public override void VisitExtensionWithClauseSyntax(ExtensionWithClauseSyntax syntax)
             {
+                if (Model.GetTypeInfo(syntax).IsError())
+                {
+                    return; // skip error elements
+                }
+
+                using var _ = ElementRecorder.Scope(VisitedElement.ExtensionWithClause);
+
                 base.VisitExtensionWithClauseSyntax(syntax);
-                // TODO(kylealbert): [value] must be a keyvault reference for secure properties. [value] must not be a reference for non-secure properties.
+            }
+
+            public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
+            {
+                VisitedElement? newVisitedElement = null;
+
+                if (ElementRecorder.TryPeek(out var peek))
+                {
+                    if (peek is VisitedElement.ExtensionWithClause or VisitedElement.ModuleExtensionConfig && Model.GetDeclaredType(syntax) is { } propertyType and not ErrorType)
+                    {
+                        ValidateConfigPropertyAssignment(propertyType, syntax.Value);
+                    }
+
+                    if (peek == VisitedElement.Module && LanguageConstants.IdentifierComparer.Equals(syntax.TryGetKeyText(), LanguageConstants.ModuleExtensionConfigsPropertyName))
+                    {
+                        newVisitedElement = VisitedElement.ModuleExtensionConfigs;
+                    }
+                    else if (peek == VisitedElement.ModuleExtensionConfigs && syntax.TryGetKeyText() is not null && Model.GetDeclaredType(syntax) is ObjectType)
+                    {
+                        newVisitedElement = VisitedElement.ModuleExtensionConfig;
+                    }
+                }
+
+                using var _ = newVisitedElement is not null ? ElementRecorder.Scope(newVisitedElement.Value) : null;
+
+                base.VisitObjectPropertySyntax(syntax);
+            }
+
+            private void ValidateConfigPropertyAssignment(TypeSymbol propertyType, SyntaxBase syntaxValue)
+            {
+                propertyType = TypeHelper.TryRemoveNullability(propertyType) ?? propertyType;
+                var isSecure = propertyType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure);
+                var isKeyVaultReference = IsKeyVaultReference(syntaxValue);
+
+                if (isSecure && !isKeyVaultReference)
+                {
+                    // TODO(kylealbert): Diagnostic
+                }
+                else if (!isSecure && isKeyVaultReference)
+                {
+                    // TODO(kylealbert): Diagnostic
+                }
+            }
+
+            private bool IsKeyVaultReference(SyntaxBase syntaxValue)
+            {
+                // TODO(kylealbert): determine syntax.. ternaries?
+                return false;
+            }
+
+            private enum VisitedElement
+            {
+                ExtensionWithClause,
+                Module,
+                ModuleExtensionConfig,
+                ModuleExtensionConfigs,
             }
         }
     }
