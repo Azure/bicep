@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using Azure;
 using Azure.Containers.ContainerRegistry;
 using Azure.Identity;
@@ -82,16 +83,16 @@ namespace Bicep.Cli.IntegrationTests
         [DataRow(true)]
         public async Task Restore_should_succeed_for_files_matching_pattern(bool useRootPath)
         {
+            var fileSystem = new MockFileSystem();
+            var fileExplorer = new FileSystemFileExplorer(fileSystem);
             var clientFactory = RegistryHelper.CreateMockRegistryClient(new RegistryHelper.RepoDescriptor("mockregistry.io", "test/foo", ["v1"]));
             await RegistryHelper.PublishModuleToRegistryAsync(
                 new ServiceBuilder(),
                 clientFactory,
-                BicepTestConstants.FileSystem,
+                fileSystem,
                 new("br:mockregistry.io/test/foo:1.1", """
 output myOutput string = 'hello!'
 """, WithSource: false));
-
-            var cacheRoot = FileHelper.GetCacheRootDirectory(TestContext);
 
             var contents = """
 module mod 'br:mockregistry.io/test/foo:1.1' = {
@@ -108,14 +109,23 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
 
             foreach (var (input, _) in fileResults)
             {
+                fileSystem.AddFile($"{outputPath}/{input}", contents);
                 FileHelper.SaveResultFile(TestContext, input, contents, outputPath);
             }
+
+            if (!useRootPath)
+            {
+                fileSystem.Directory.SetCurrentDirectory(outputPath);
+            }
+
+            var cacheRoot = fileExplorer.GetDirectory(IOUri.FromLocalFilePath(outputPath));
 
             var (output, error, result) = await Bicep(
                 services => services
                     .WithFeatureOverrides(new(CacheRootDirectory: cacheRoot, RegistryEnabled: true))
                     .WithContainerRegistryClientFactory(clientFactory)
-                    .WithEnvironment(useRootPath ? TestEnvironment.Default : TestEnvironment.Default with { CurrentDirectory = outputPath }),
+                    .WithFileSystem(fileSystem)
+                    .WithFileExplorer(fileExplorer),
                 ["restore",
                     "--pattern",
                     useRootPath ? $"{outputPath}/file*.bicep" : "file*.bicep"]);
@@ -125,7 +135,7 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
             output.Should().BeEmpty();
 
             // ensure something got restored
-            CachedModules.GetCachedModules(BicepTestConstants.FileSystem, cacheRoot).Should().HaveCountGreaterThan(0);
+            CachedModules.GetCachedModules(fileSystem, cacheRoot).Should().HaveCountGreaterThan(0);
         }
 
         [TestMethod]

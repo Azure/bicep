@@ -19,15 +19,45 @@ namespace Bicep.Cli.Arguments
 
         public IOUri PathToUri(string path) => IOUri.FromLocalFilePath(GetFullPath(path));
 
+        public IOUri ResolveInputArguments(IInputArguments arguments)
+        {
+            ArgumentNullException.ThrowIfNull(arguments.InputFile);
+
+            return this.PathToUri(arguments.InputFile);
+        }
+
         public (IOUri inputUri, IOUri outputUri) ResolveInputOutputArguments<T>(T arguments)
             where T : IInputOutputArguments<T>
         {
             ArgumentNullException.ThrowIfNull(arguments.InputFile);
 
             var inputUri = this.PathToUri(arguments.InputFile);
-            var outputUri = this.ResolveOutputUri(inputUri, arguments.OutputDir, arguments.OutputFile, T.OutputFileExtension);
+            var outputUri = this.ResolveOutputUri(inputUri, arguments.OutputDir, arguments.OutputFile, T.OutputFileExtensionResolver.Invoke(arguments, inputUri));
 
             return (inputUri, outputUri);
+        }
+
+        public IReadOnlyList<IOUri> ResolveFilePatternInputArguments(IFilePatternInputArguments arguments)
+        {
+            if (arguments.InputFile is not null)
+            {
+                return [this.ResolveInputArguments(arguments)];
+            }
+
+            if (arguments.FilePattern is not null)
+            {
+                var result = new List<IOUri>();
+                var (rootUri, inputRelativePaths) = this.ResolveFilePattern(arguments.FilePattern);
+
+                foreach (var inputRelativePath in inputRelativePaths)
+                {
+                    var inputUri = rootUri.Resolve(inputRelativePath);
+                    result.Add(inputUri);
+                }
+                return result;
+            }
+
+            throw new InvalidOperationException("Either InputFile or FilePattern must be specified.");
         }
 
         public IReadOnlyList<(IOUri InputUri, IOUri OutputUri)> ResolveFilePatternInputOutputArguments<T>(T arguments)
@@ -47,7 +77,7 @@ namespace Bicep.Cli.Arguments
                 {
                     var inputUri = rootUri.Resolve(inputRelativePath);
                     var outputRootPath = arguments.OutputDir ?? rootUri.GetLocalFilePath();
-                    var outputRelativePath = this.fileSystem.Path.ChangeExtension(inputRelativePath, T.OutputFileExtension);
+                    var outputRelativePath = this.fileSystem.Path.ChangeExtension(inputRelativePath, T.OutputFileExtensionResolver.Invoke(arguments, inputUri));
                     var outputPath = this.fileSystem.Path.Combine(outputRootPath, outputRelativePath);
                     var outputUri = this.PathToUri(outputPath);
 
