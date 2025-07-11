@@ -7428,4 +7428,26 @@ output locations array = flatten(map(databases, database => database.properties.
             ("BCP422", DiagnosticLevel.Warning, "A resource of type \"Microsoft.Storage/storageAccounts | null\" may or may not exist when this function is called, which could cause the deployment to fail."),
         });
     }
+
+    [TestMethod]
+    public void Test_Issue17456()
+    {
+        var result = CompilationHelper.Compile("""
+            var array = [
+              'a'
+              'b'
+              'c'
+              'd'
+              'e'
+              'f'
+              'g'
+              'a'
+              'b'
+            ]
+
+            output unique string[] = reduce(array, [], (acc, x) => union(acc, [x]))
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
 }

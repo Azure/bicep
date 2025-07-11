@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -226,10 +227,19 @@ var fo|o2 = sort(['bar', 'foo'], (abc, def) => abc < d|ef)
         [TestMethod]
         public void Reduce_lambda_functions_assigns_types_accurately()
         {
-            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
-var fo|o = reduce([123], 0, (c|ur, next) => cur + next)
-var fo|o2 = reduce(['abc', 'def'], '', (cur, nex|t) => concat(cur, next))
-",
+            var (file, cursors) = ParserHelper.GetFileWithCursors(
+                """
+                    var fo|o = reduce([123], 0, (c|ur, next) => cur + next)
+                    var fo|o2 = reduce(['abc', 'def'], '', (cur, nex|t) => concat(cur, next))
+                    var fo|o3 = reduce(['a', 'b', 'c', 'd'], {}, (c|ur, nex|t) => {...cur, next: true})
+                    var fo|o4 = replace(
+                        reduce(
+                            items({projectName: 'poc', env: 'dev', index: '001' }),
+                            'nsg-$projectName-$env-$index',
+                            (c|ur, nex|t) => replace(cur, next.key, next.value)),
+                        '$',
+                        '')
+                    """,
                 '|');
 
             var result = CompilationHelper.Compile(file);
@@ -237,10 +247,34 @@ var fo|o2 = reduce(['abc', 'def'], '', (cur, nex|t) => concat(cur, next))
             var info = result.GetInfoAtCursors(cursors);
 
             info.Should().SatisfyRespectively(
-                x => x.Type.Name.Should().Be("246"),
+                // foo
                 x => x.Type.Name.Should().Be("123"),
+                x => x.Type.Name.Should().Be("0"),
+
+                // foo2
                 x => x.Type.Name.Should().Be("string"),
-                x => x.Type.Name.Should().Be("'abc' | 'def'"));
+                x => x.Type.Name.Should().Be("'abc' | 'def'"),
+
+                // foo3
+                x => x.Type.Name.Should().Be("object"),
+                x => x.Type.Name.Should().Be("object"),
+                x => x.Type.Name.Should().Be("'a' | 'b' | 'c' | 'd'"),
+
+                // foo4
+                x => x.Type.Name.Should().Be("string"),
+                x => x.Type.Name.Should().Be("string"),
+                x => x.Type.Should().BeOfType<ObjectType>()
+                .Subject.Properties.Values.Should().SatisfyRespectively(
+                    p =>
+                    {
+                        p.Name.Should().Be("key");
+                        p.TypeReference.Type.Name.Should().Be("'env' | 'index' | 'projectName'");
+                    },
+                    p =>
+                    {
+                        p.Name.Should().Be("value");
+                        p.TypeReference.Type.Name.Should().Be("'001' | 'dev' | 'poc'");
+                    }));
         }
 
         [TestMethod]

@@ -12,6 +12,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Types;
 using Newtonsoft.Json.Linq;
@@ -885,5 +886,20 @@ namespace Bicep.Core.TypeSystem
                 _ => configType
             };
         }
+
+        public static TypeSymbol? TryGetArmPrimitiveType(TypeSymbol type) => type switch
+        {
+            BooleanLiteralType or BooleanType => LanguageConstants.Bool,
+            IntegerLiteralType or IntegerType => LanguageConstants.Int,
+            StringLiteralType or StringType => LanguageConstants.String,
+            ObjectType or DiscriminatedObjectType => LanguageConstants.Object,
+            TupleType or ArrayType => LanguageConstants.Array,
+            UnionType when TryRemoveNullability(type) is { } nonNull => TryGetArmPrimitiveType(nonNull),
+            UnionType union when union.Members.Select(m => TryGetArmPrimitiveType(m.Type)).ToArray() is { } mTypes &&
+                !mTypes.Any(t => t is null) &&
+                mTypes.ToHashSet() is { } mUniqueTypes &&
+                mUniqueTypes.Count == 1 => mUniqueTypes.Single(),
+            _ => null,
+        };
     }
 }
