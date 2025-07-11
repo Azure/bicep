@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
 using FluentAssertions;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
+using ModelContextProtocol.Protocol;
 
 namespace Bicep.McpServer.UnitTests;
 
@@ -23,11 +25,14 @@ public class BicepToolsTests
         .BuildServiceProvider()
         .GetRequiredService<BicepTools>();
 
+    public static string GetText(CallToolResult result)
+        => (result.Content[0] as TextContentBlock)!.Text;
+
     [TestMethod]
     public void ListAzResourceTypesForProvider_returns_list_of_resource_types()
     {
         var response = tools.ListAzResourceTypesForProvider("Microsoft.Compute");
-        var result = response.Split("\n").ToImmutableArray();
+        var result = GetText(response).Split("\n").ToImmutableArray();
 
         result.Should().HaveCountGreaterThan(700);
         result.Should().AllSatisfy(x => x.Split('/').First().Equals("Microsoft.Compute", StringComparison.OrdinalIgnoreCase))
@@ -38,7 +43,7 @@ public class BicepToolsTests
     public void ListAzResourceTypesForProvider_returns_empty_string_for_invalid_provider()
     {
         var response = tools.ListAzResourceTypesForProvider("Invalid.Provider");
-        response.Should().BeEmpty();
+        GetText(response).Should().BeEmpty();
     }
 
     [TestMethod]
@@ -53,7 +58,7 @@ public class BicepToolsTests
 
         var response = tools.GetAzResourceTypeSchema(resourceType, apiVersion);
 
-        baselineFile.WriteToOutputFolder(response);
+        baselineFile.WriteToOutputFolder(GetText(response));
         baselineFile.ShouldHaveExpectedJsonValue();
     }
 
@@ -63,7 +68,7 @@ public class BicepToolsTests
         var response = tools.GetBicepBestPractices();
 
         var expectedBestPractices = BinaryData.FromStream(typeof(BicepTools).Assembly.GetManifestResourceStream("Files/bestpractices.md")!).ToString();
-        response.Should().Be(expectedBestPractices);
+        GetText(response).Should().Be(expectedBestPractices);
 
         // Update this if the file content changes - it's just here as a sanity check to make sure we're decoding the content correctly
         expectedBestPractices.Should().StartWith("# Bicep best-practices");
@@ -76,7 +81,7 @@ public class BicepToolsTests
         var foo string = 123
         """);
 
-        response.Should().Be("""
+        GetText(response).Should().EqualIgnoringNewlines("""
         dummy:///DUMMY(1,5) : Warning no-unused-vars: Variable "foo" is declared but never used. [https://aka.ms/bicep/linter-diagnostics#no-unused-vars]
         dummy:///DUMMY(1,18) : Error BCP033: Expected a value of type "string" but the provided value is of type "123". [https://aka.ms/bicep/core-diagnostics#BCP033]
         
