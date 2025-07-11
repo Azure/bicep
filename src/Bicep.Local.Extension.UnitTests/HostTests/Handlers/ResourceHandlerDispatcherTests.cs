@@ -11,7 +11,7 @@ using Bicep.Local.Extension.Host.Handlers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Local.Extension.UnitTests.HostTests;
+namespace Bicep.Local.Extension.UnitTests.HostTests.Handlers;
 
 [TestClass]
 public class ResourceHandlerDispatcherTests
@@ -179,20 +179,19 @@ public class ResourceHandlerDispatcherTests
             .WithMessage("A generic resource handler has already been registered.");
     }
 
-
     #endregion
 
-    #region GetResourceHandler(Type) Tests
+    #region TryGetTypedResourceHandler(Type) Tests
 
     [TestMethod]
-    public void GetResourceHandler_ByType_WithNullType_ThrowsArgumentNullException()
+    public void TryGetTypedResourceHandler_ByType_WithNullType_ThrowsArgumentNullException()
     {
         // Arrange
         var dispatcher = new ResourceHandlerDispatcher([new GenericResourceHandler()]);
         Type? nullType = null;
 
         // Act
-        var action = () => dispatcher.GetResourceHandler(nullType!);
+        var action = () => dispatcher.TryGetTypedResourceHandler(nullType!, out var resourceHandler);
 
         // Assert
         action.Should().Throw<ArgumentNullException>()
@@ -200,60 +199,64 @@ public class ResourceHandlerDispatcherTests
     }
 
     [TestMethod]
-    public void GetResourceHandler_ByType_WithTypedHandler_ReturnsCorrectHandler()
+    public void TryGetTypedResourceHandler_ByType_WithTypedHandler_ReturnsTrueAndCorrectHandler()
     {
         // Arrange
         var testHandler = new TestResourceHandler();
         var dispatcher = new ResourceHandlerDispatcher([testHandler]);
 
         // Act
-        var result = dispatcher.GetResourceHandler(typeof(TestResource));
+        var result = dispatcher.TryGetTypedResourceHandler(typeof(TestResource), out var typedResourceHandler);
 
         // Assert
-        result.Should().Be(testHandler);
+        result.Should().BeTrue();
+        typedResourceHandler.Should().NotBeNull();
+        typedResourceHandler!.Handler.Should().Be(testHandler);
+        typedResourceHandler.Type.Should().Be(typeof(TestResource));
     }
 
     [TestMethod]
-    public void GetResourceHandler_ByType_WithGenericHandler_ReturnsGenericHandler()
+    public void TryGetTypedResourceHandler_ByType_WithGenericHandler_ReturnsFalse()
     {
         // Arrange
         var genericHandler = new GenericResourceHandler();
         var dispatcher = new ResourceHandlerDispatcher([genericHandler]);
 
         // Act
-        var result = dispatcher.GetResourceHandler(typeof(TestResource));
+        var result = dispatcher.TryGetTypedResourceHandler(typeof(TestResource), out var typedResourceHandler);
 
         // Assert
-        result.Should().Be(genericHandler);
+        result.Should().BeFalse();
+        typedResourceHandler.Should().BeNull();
     }
 
     [TestMethod]
-    public void GetResourceHandler_ByType_WithoutMatchingHandler_ThrowsInvalidOperationException()
+    public void TryGetTypedResourceHandler_ByType_WithoutMatchingHandler_ReturnsFalse()
     {
         // Arrange
         var dispatcher = new ResourceHandlerDispatcher([new TestResourceHandler()]);
 
         // Act
-        var action = () => dispatcher.GetResourceHandler(typeof(AnotherResource));
+        var result = dispatcher.TryGetTypedResourceHandler(typeof(AnotherResource), out var typedResourceHandler);
 
         // Assert
-        action.Should().Throw<InvalidOperationException>()
-            .WithMessage($"No generic or typed resource handler found for type {nameof(AnotherResource)}. Ensure the resource handler is registered.");
+        result.Should().BeFalse();
+        typedResourceHandler.Should().BeNull();
     }
 
     #endregion
 
-    #region GetResourceHandler(string) Tests
+    #region TryGetTypedResourceHandler(string) Tests
 
     [TestMethod]
-    public void GetResourceHandler_ByString_WithNullResourceType_ThrowsArgumentNullException()
+    public void TryGetTypedResourceHandler_ByString_WithNullResourceType_ThrowsArgumentNullException()
     {
         // Arrange
         var dispatcher = new ResourceHandlerDispatcher([new GenericResourceHandler()]);
         string? nullType = null;
 
         // Act
-        var action = () => dispatcher.GetResourceHandler(nullType!);
+        var action = () => dispatcher.TryGetTypedResourceHandler(nullType!, out var typedResourceHandler);
 
         // Assert
         action.Should().Throw<ArgumentNullException>()
@@ -261,35 +264,81 @@ public class ResourceHandlerDispatcherTests
     }
 
     [TestMethod]
-    public void GetResourceHandler_ByString_WithTypedHandler_ReturnsCorrectHandler()
+    public void TryGetTypedResourceHandler_ByString_WithEmptyString_ThrowsArgumentException()
+    {
+        // Arrange
+        var dispatcher = new ResourceHandlerDispatcher([new TestResourceHandler()]);
+
+        // Act
+        var action = () => dispatcher.TryGetTypedResourceHandler(string.Empty, out var typedResourceHandler);
+
+        // Assert
+        action.Should().Throw<ArgumentException>()
+            .WithParameterName("resourceType");
+    }
+
+    [TestMethod]
+    public void TryGetTypedResourceHandler_ByString_WithWhitespaceString_ThrowsArgumentException()
+    {
+        // Arrange
+        var dispatcher = new ResourceHandlerDispatcher([new TestResourceHandler()]);
+
+        // Act
+        var action = () => dispatcher.TryGetTypedResourceHandler("   ", out var typedResourceHandler);
+
+        // Assert
+        action.Should().Throw<ArgumentException>()
+            .WithParameterName("resourceType");
+    }
+
+    [TestMethod]
+    public void TryGetTypedResourceHandler_ByString_WithTypedHandler_ReturnsTrueAndCorrectHandler()
     {
         // Arrange
         var testHandler = new TestResourceHandler();
         var dispatcher = new ResourceHandlerDispatcher([testHandler]);
 
         // Act
-        var result = dispatcher.GetResourceHandler(nameof(TestResource));
+        var result = dispatcher.TryGetTypedResourceHandler(nameof(TestResource), out var typedResourceHandler);
 
         // Assert
-        result.Should().Be(testHandler);
+        result.Should().BeTrue();
+        typedResourceHandler.Should().NotBeNull();
+        typedResourceHandler!.Handler.Should().Be(testHandler);
+        typedResourceHandler.Type.Should().Be(typeof(TestResource));
     }
 
     [TestMethod]
-    public void GetResourceHandler_ByString_WithGenericHandler_ReturnsGenericHandler()
+    public void TryGetTypedResourceHandler_ByString_WithGenericHandler_ReturnsFalse()
     {
         // Arrange
         var genericHandler = new GenericResourceHandler();
         var dispatcher = new ResourceHandlerDispatcher([genericHandler]);
 
         // Act
-        var result = dispatcher.GetResourceHandler("UnknownResourceType");
+        var result = dispatcher.TryGetTypedResourceHandler("UnknownResourceType", out var typedResourceHandler);
 
         // Assert
-        result.Should().Be(genericHandler);
+        result.Should().BeFalse();
+        typedResourceHandler.Should().BeNull();
     }
 
     [TestMethod]
-    public void GetResourceHandler_ByString_PrefersTypedOverGeneric()
+    public void TryGetTypedResourceHandler_ByString_WithoutMatchingHandler_ReturnsFalse()
+    {
+        // Arrange
+        var dispatcher = new ResourceHandlerDispatcher([new TestResourceHandler()]);
+
+        // Act
+        var result = dispatcher.TryGetTypedResourceHandler("UnknownResourceType", out var typedResourceHandler);
+
+        // Assert
+        result.Should().BeFalse();
+        typedResourceHandler.Should().BeNull();
+    }
+
+    [TestMethod]
+    public void TryGetTypedResourceHandler_ByString_PrefersTypedOverGeneric()
     {
         // Arrange
         var testHandler = new TestResourceHandler();
@@ -297,24 +346,13 @@ public class ResourceHandlerDispatcherTests
         var dispatcher = new ResourceHandlerDispatcher([testHandler, genericHandler]);
 
         // Act
-        var result = dispatcher.GetResourceHandler(nameof(TestResource));
+        var result = dispatcher.TryGetTypedResourceHandler(nameof(TestResource), out var typedResourceHandler);
 
         // Assert
-        result.Should().Be(testHandler);
-    }
-
-    [TestMethod]
-    public void GetResourceHandler_ByString_WithoutMatchingHandler_ThrowsInvalidOperationException()
-    {
-        // Arrange
-        var dispatcher = new ResourceHandlerDispatcher([new TestResourceHandler()]);
-
-        // Act
-        var action = () => dispatcher.GetResourceHandler("UnknownResourceType");
-
-        // Assert
-        action.Should().Throw<InvalidOperationException>()
-            .WithMessage("No generic or typed resource handler found for type UnknownResourceType. Ensure the resource handler is registered.");
+        result.Should().BeTrue();
+        typedResourceHandler.Should().NotBeNull();
+        typedResourceHandler!.Handler.Should().Be(testHandler);
+        typedResourceHandler.Type.Should().Be(typeof(TestResource));
     }
 
     #endregion
@@ -388,49 +426,107 @@ public class ResourceHandlerDispatcherTests
         ]);
 
         // Act & Assert - Test typed handlers
-        dispatcher.GetResourceHandler(typeof(TestResource)).Should().Be(testHandler);
-        dispatcher.GetResourceHandler(nameof(TestResource)).Should().Be(testHandler);
-        dispatcher.GetResourceHandler(typeof(AnotherResource)).Should().Be(anotherHandler);
-        dispatcher.GetResourceHandler(nameof(AnotherResource)).Should().Be(anotherHandler);
+        var result1 = dispatcher.TryGetTypedResourceHandler(typeof(TestResource), out var typedHandler1);
+        result1.Should().BeTrue();
+        typedHandler1!.Handler.Should().Be(testHandler);
 
-        // Act & Assert - Test generic fallback
-        dispatcher.GetResourceHandler("UnknownType").Should().Be(genericHandler);
-        dispatcher.GetResourceHandler(typeof(string)).Should().Be(genericHandler);
+        var result2 = dispatcher.TryGetTypedResourceHandler(nameof(TestResource), out var typedHandler2);
+        result2.Should().BeTrue();
+        typedHandler2!.Handler.Should().Be(testHandler);
+
+        var result3 = dispatcher.TryGetTypedResourceHandler(typeof(AnotherResource), out var typedHandler3);
+        result3.Should().BeTrue();
+        typedHandler3!.Handler.Should().Be(anotherHandler);
+
+        var result4 = dispatcher.TryGetTypedResourceHandler(nameof(AnotherResource), out var typedHandler4);
+        result4.Should().BeTrue();
+        typedHandler4!.Handler.Should().Be(anotherHandler);
+
+        // Act & Assert - Test fallback to generic (should return false for unknown types)
+        var result5 = dispatcher.TryGetTypedResourceHandler("UnknownType", out var typedHandler5);
+        result5.Should().BeFalse();
+        typedHandler5.Should().BeNull();
+
+        var result6 = dispatcher.TryGetTypedResourceHandler(typeof(string), out var typedHandler6);
+        result6.Should().BeFalse();
+        typedHandler6.Should().BeNull();
 
         // Act & Assert - Verify properties
         dispatcher.TypedResourceHandlers.Should().HaveCount(2);
         dispatcher.GenericResourceHandler.Should().Be(genericHandler);
     }
 
+    [TestMethod]
+    public void CompleteScenario_GetHandlerLogic_WithTypedHandlerPreferred()
+    {
+        // Arrange
+        var testHandler = new TestResourceHandler();
+        var genericHandler = new GenericResourceHandler();
+        var dispatcher = new ResourceHandlerDispatcher([testHandler, genericHandler]);
+
+        // Act - Simulate the logic of getting a handler with fallback to generic
+        IResourceHandler? actualHandler = null;
+        if (dispatcher.TryGetTypedResourceHandler(nameof(TestResource), out var typedHandler))
+        {
+            actualHandler = typedHandler.Handler;
+        }
+        else
+        {
+            actualHandler = dispatcher.GenericResourceHandler;
+        }
+
+        // Assert - Should get the typed handler, not the generic one
+        actualHandler.Should().Be(testHandler);
+    }
+
+    [TestMethod]
+    public void CompleteScenario_GetHandlerLogic_WithGenericHandlerFallback()
+    {
+        // Arrange
+        var testHandler = new TestResourceHandler();
+        var genericHandler = new GenericResourceHandler();
+        var dispatcher = new ResourceHandlerDispatcher([testHandler, genericHandler]);
+
+        // Act - Simulate the logic of getting a handler with fallback to generic for unknown type
+        IResourceHandler? actualHandler = null;
+        if (dispatcher.TryGetTypedResourceHandler("UnknownType", out var typedHandler))
+        {
+            actualHandler = typedHandler.Handler;
+        }
+        else
+        {
+            actualHandler = dispatcher.GenericResourceHandler;
+        }
+
+        // Assert - Should get the generic handler as fallback
+        actualHandler.Should().Be(genericHandler);
+    }
+
+    [TestMethod]
+    public void CompleteScenario_GetHandlerLogic_WithNoHandlerAvailable()
+    {
+        // Arrange
+        var testHandler = new TestResourceHandler();
+        var dispatcher = new ResourceHandlerDispatcher([testHandler]); // No generic handler
+
+        // Act - Simulate the logic of getting a handler with no fallback available
+        IResourceHandler? actualHandler = null;
+        if (dispatcher.TryGetTypedResourceHandler("UnknownType", out var typedHandler))
+        {
+            actualHandler = typedHandler.Handler;
+        }
+        else
+        {
+            actualHandler = dispatcher.GenericResourceHandler;
+        }
+
+        // Assert - Should be null when no handler is available
+        actualHandler.Should().BeNull();
+    }
+
     #endregion
 
     #region Edge Cases and Defensive Programming
-
-    [TestMethod]
-    public void GetResourceHandler_WithEmptyString_ThrowsArgumentException()
-    {
-        // Arrange
-        var dispatcher = new ResourceHandlerDispatcher([new TestResourceHandler()]);
-
-        // Act
-        var action = () => dispatcher.GetResourceHandler(string.Empty);
-
-        // Assert
-        action.Should().Throw<ArgumentException>();            
-    }
-
-    [TestMethod]
-    public void GetResourceHandler_WithWhitespaceString_ThrowsArgumentException()
-    {
-        // Arrange
-        var dispatcher = new ResourceHandlerDispatcher([new TestResourceHandler()]);
-
-        // Act
-        var action = () => dispatcher.GetResourceHandler("   ");
-
-        // Assert
-        action.Should().Throw<ArgumentException>();
-    }
 
     [TestMethod]
     public void Constructor_WithLargeNumberOfHandlers_PerformsEfficiently()
@@ -442,9 +538,9 @@ public class ResourceHandlerDispatcherTests
             handlers.Add(new TestResourceHandler());
         }
 
-        // Act & Assert - Should not throw
+        // Act & Assert - Should throw due to duplicates, but test that it doesn't hang
         var action = () => new ResourceHandlerDispatcher(handlers);
-        action.Should().Throw<ArgumentException>(); // Will throw due to duplicates, but test that it doesn't hang
+        action.Should().Throw<ArgumentException>();
     }
 
     #endregion

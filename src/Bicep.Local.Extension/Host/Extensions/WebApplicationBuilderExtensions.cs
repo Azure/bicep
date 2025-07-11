@@ -9,7 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Bicep.Local.Extension.CommandLineArguments;
+using Bicep.Local.Extension.Host.CommandLineArguments;
 using Bicep.Local.Extension.Rpc;
 using Bicep.Local.Extension.Types;
 using CommandLine;
@@ -21,6 +21,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Bicep.Local.Extension.Host.Extensions;
+
 
 public static class WebApplicationBuilderExtensions
 {
@@ -41,6 +42,11 @@ public static class WebApplicationBuilderExtensions
         {
             var commandLindParser = GetCommandLineParserService(options.ApplicationServices);
 
+            if(commandLindParser.ShouldExit)
+            {
+                Environment.Exit(commandLindParser.ExitCode);
+            }
+
             var connectionOptions = (commandLindParser.Options.Socket,
                                      commandLindParser.Options.Pipe,
                                      commandLindParser.Options.Http);
@@ -54,7 +60,7 @@ public static class WebApplicationBuilderExtensions
                     options.ListenNamedPipe(connectionOptions.Pipe, listenOptions => listenOptions.Protocols = HttpProtocols.Http2);
                     break;
                 default:
-                    options.ListenLocalhost(connectionOptions.Http, listenOptions => listenOptions.Protocols = HttpProtocols.Http2);
+                    options.ListenLocalhost(connectionOptions.Http ?? throw new ArgumentNullException(nameof(commandLindParser.Options.Http)), listenOptions => listenOptions.Protocols = HttpProtocols.Http2);
                     break;
             }
         });
@@ -77,15 +83,19 @@ public static class WebApplicationBuilderExtensions
     }
 
     public static async Task RunBicepExtensionAsync(this WebApplication app)
-    {        
+    {
         ArgumentNullException.ThrowIfNull(app);
 
         var commandLineParser = GetCommandLineParserService(app.Services);
 
-        if (commandLineParser.Options.Describe)
+        if (commandLineParser.ShouldExit)
         {
-            var typeSpecGenerator = app.Services.GetRequiredService<ITypeDefinitionBuilder>();
-            var spec = typeSpecGenerator.GenerateBicepResourceTypes();
+            Environment.Exit(commandLineParser.ExitCode);
+        }
+        else if (commandLineParser.Options.Describe)
+        {
+            var typeDefinitionBuilder = app.Services.GetRequiredService<ITypeDefinitionBuilder>();
+            var typeDefinition = typeDefinitionBuilder.GenerateBicepResourceTypes();
 
             var jsonOptions = new JsonSerializerOptions
             {
@@ -94,7 +104,12 @@ public static class WebApplicationBuilderExtensions
                     {
                         new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
                     }
-            };           
+            };
+
+            var stdout = Console.Out;
+            await stdout.WriteLineAsync(JsonSerializer.Serialize(
+                typeDefinition,
+                jsonOptions));
         }
         else
         {

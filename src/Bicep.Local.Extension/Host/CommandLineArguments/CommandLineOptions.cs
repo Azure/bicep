@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CommandLine;
 
-namespace Bicep.Local.Extension.CommandLineArguments;
+namespace Bicep.Local.Extension.Host.CommandLineArguments;
 
 public class BicepExtensionCommandLineArgument
 {
@@ -30,8 +30,8 @@ public class CommandLineOptions
     [Option(BicepExtensionCommandLineArgument.DescribeOption, Required = false, Default = false, HelpText = "The named pipe to connect on")]
     public bool Describe { get; set; }
 
-    [Option(BicepExtensionCommandLineArgument.HttpOption, Required = false, Default = 5000, HelpText = "If set, wait for a dotnet debugger to be attached before starting the server")]
-    public int Http { get; set; }
+    [Option(BicepExtensionCommandLineArgument.HttpOption, Required = false, HelpText = "If set, wait for a dotnet debugger to be attached before starting the server")]
+    public int? Http { get; set; }
 
     [Option(BicepExtensionCommandLineArgument.WaitForDebuggerOption, Required = false, HelpText = "If set, wait for a dotnet debugger to be attached before starting the server")]
     public bool WaitForDebugger { get; set; }
