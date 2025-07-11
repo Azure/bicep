@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
 using FluentAssertions;
@@ -66,5 +67,19 @@ public class BicepToolsTests
 
         // Update this if the file content changes - it's just here as a sanity check to make sure we're decoding the content correctly
         expectedBestPractices.Should().StartWith("# Bicep best-practices");
+    }
+
+    [TestMethod]
+    public async Task GetBicepFileDiagnostics_returns_diagnostics()
+    {
+        var response = await tools.GetBicepFileDiagnostics("""
+        var foo string = 123
+        """);
+
+        response.Should().Be("""
+        dummy:///DUMMY(1,5) : Warning no-unused-vars: Variable "foo" is declared but never used. [https://aka.ms/bicep/linter-diagnostics#no-unused-vars]
+        dummy:///DUMMY(1,18) : Error BCP033: Expected a value of type "string" but the provided value is of type "123". [https://aka.ms/bicep/core-diagnostics#BCP033]
+        
+        """);
     }
 }
