@@ -13,9 +13,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Bicep.Cli\Bicep.Cli.csproj" />
+    <ProjectReference Include="..\Bicep.TestFixtures\Bicep.TextFixtures\Bicep.TextFixtures.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Update="Nerdbank.GitVersioning" Version="3.7.112" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Helpers\" />
   </ItemGroup>
 </Project>

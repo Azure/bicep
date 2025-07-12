@@ -38,7 +38,8 @@ public class SnapshotCommand(
     ILogger logger,
     IFileExplorer fileExplorer,
     BicepCompiler compiler,
-    DiagnosticLogger diagnosticLogger) : ICommand
+    DiagnosticLogger diagnosticLogger,
+    InputOutputArgumentsResolver inputOutputArgumentsResolver) : ICommand
 {
     public async Task<int> RunAsync(SnapshotArguments args, CancellationToken cancellationToken)
     {
@@ -46,11 +47,11 @@ public class SnapshotCommand(
 
         var snapshotMode = args.Mode ?? SnapshotArguments.SnapshotMode.Overwrite;
 
-        var inputUri = ArgumentHelper.GetFileUri(args.InputFile);
+        var inputUri = inputOutputArgumentsResolver.ResolveInputArguments(args);
         ArgumentHelper.ValidateBicepParamFile(inputUri);
 
         var newSnapshot = await GetSnapshot(args, inputUri, noRestore: false, cancellationToken)
-            ?? throw new CommandLineException($"Failed to generate snapshot for file {inputUri.LocalPath}");
+            ?? throw new CommandLineException($"Failed to generate snapshot for file {inputUri}");
 
         if (newSnapshot.Diagnostics.Length > 0)
         {
@@ -61,7 +62,7 @@ public class SnapshotCommand(
             }
         }
 
-        var outputUri = PathHelper.ChangeExtension(inputUri, ".snapshot.json").ToIOUri();
+        var outputUri =  inputUri.WithExtension(".snapshot.json");
         switch (snapshotMode)
         {
             case SnapshotArguments.SnapshotMode.Overwrite:
@@ -87,9 +88,9 @@ public class SnapshotCommand(
         }
     }
 
-    private async Task<Snapshot?> GetSnapshot(SnapshotArguments arguments, Uri inputUri, bool noRestore, CancellationToken cancellationToken)
+    private async Task<Snapshot?> GetSnapshot(SnapshotArguments arguments, IOUri inputUri, bool noRestore, CancellationToken cancellationToken)
     {
-        var compilation = await compiler.CreateCompilation(inputUri, skipRestore: noRestore);
+        var compilation = await compiler.CreateCompilation(inputUri.ToUri(), skipRestore: noRestore);
         CommandHelper.LogExperimentalWarning(logger, compilation);
 
         var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, compilation);

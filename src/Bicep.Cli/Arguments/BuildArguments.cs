@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using Bicep.Cli.Helpers;
 using Bicep.Core;
 using Bicep.Core.FileSystem;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Cli.Arguments;
 
@@ -103,7 +104,7 @@ public class BuildArguments : ArgumentsBase, IFilePatternInputOutputArguments<Bu
         DiagnosticsFormat ??= Arguments.DiagnosticsFormat.Default;
     }
 
-    public static string OutputFileExtension => LanguageConstants.JsonFileExtension;
+    public static Func<BuildArguments, IOUri, string> OutputFileExtensionResolver => (_, _) => LanguageConstants.JsonFileExtension;
 
     public bool OutputToStdOut { get; }
 

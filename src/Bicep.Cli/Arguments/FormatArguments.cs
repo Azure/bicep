@@ -7,15 +7,14 @@ using Bicep.Cli.Extensions;
 using Bicep.Cli.Helpers;
 using Bicep.Core.FileSystem;
 using Bicep.Core.PrettyPrintV2;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Cli.Arguments;
 
-public class FormatArguments : ArgumentsBase
+public class FormatArguments : ArgumentsBase, IFilePatternInputOutputArguments<FormatArguments>
 {
-    public FormatArguments(string[] args, IFileSystem fileSystem) : base(Constants.Command.Format)
+    public FormatArguments(string[] args) : base(Constants.Command.Format)
     {
-        ArgumentNullException.ThrowIfNull(fileSystem);
-
         for (var i = 0; i < args.Length; i++)
         {
             switch (args[i].ToLowerInvariant())
@@ -174,18 +173,9 @@ public class FormatArguments : ArgumentsBase
         {
             throw new CommandLineException($"The --outdir and --outfile parameters cannot both be used");
         }
-
-        if (OutputDir is not null)
-        {
-            var outputDir = PathHelper.ResolvePath(OutputDir, fileSystem: fileSystem);
-
-            if ((fileSystem is not null && !fileSystem.Directory.Exists(outputDir)) ||
-                (fileSystem is null && !Directory.Exists(outputDir)))
-            {
-                throw new CommandLineException(string.Format(CliResources.DirectoryDoesNotExistFormat, outputDir));
-            }
-        }
     }
+
+    public static Func<FormatArguments, IOUri, string> OutputFileExtensionResolver { get; } = (_, inputUri) => inputUri.GetExtension().ToString();
 
     public bool OutputToStdOut { get; }
 

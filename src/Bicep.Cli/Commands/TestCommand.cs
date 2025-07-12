@@ -13,34 +13,38 @@ namespace Bicep.Cli.Commands
 {
     public class TestCommand : ICommand
     {
+        private const string SuccessSymbol = "[✓]";
+        private const string FailureSymbol = "[✗]";
+        private const string SkippedSymbol = "[-]";
+
         private readonly ILogger logger;
         private readonly IOContext io;
         private readonly DiagnosticLogger diagnosticLogger;
         private readonly BicepCompiler compiler;
         private readonly IFeatureProviderFactory featureProviderFactory;
-        private const string SuccessSymbol = "[✓]";
-        private const string FailureSymbol = "[✗]";
-        private const string SkippedSymbol = "[-]";
+        private readonly InputOutputArgumentsResolver inputOutputArgumentsResolver;
 
         public TestCommand(
             IOContext io,
             ILogger logger,
             DiagnosticLogger diagnosticLogger,
             BicepCompiler compiler,
-            IFeatureProviderFactory featureProviderFactory)
+            IFeatureProviderFactory featureProviderFactory,
+            InputOutputArgumentsResolver inputOutputArgumentsResolver)
         {
             this.logger = logger;
             this.diagnosticLogger = diagnosticLogger;
             this.compiler = compiler;
             this.featureProviderFactory = featureProviderFactory;
             this.io = io;
+            this.inputOutputArgumentsResolver = inputOutputArgumentsResolver;
         }
 
         public async Task<int> RunAsync(TestArguments args)
         {
-            var inputUri = ArgumentHelper.GetFileUri(args.InputFile);
+            var inputUri = this.inputOutputArgumentsResolver.ResolveInputArguments(args);
             ArgumentHelper.ValidateBicepFile(inputUri);
-            var features = featureProviderFactory.GetFeatureProvider(inputUri);
+            var features = featureProviderFactory.GetFeatureProvider(inputUri.ToUri());
 
             if (!features.TestFrameworkEnabled)
             {
@@ -51,7 +55,7 @@ namespace Bicep.Cli.Commands
 
             logger.LogWarning(string.Format(CliResources.ExperimentalFeaturesDisclaimerMessage, "TestFramework"));
 
-            var compilation = await compiler.CreateCompilation(inputUri, skipRestore: args.NoRestore);
+            var compilation = await compiler.CreateCompilation(inputUri.ToUri(), skipRestore: args.NoRestore);
 
             var summary = diagnosticLogger.LogDiagnostics(GetDiagnosticOptions(args), compilation);
 

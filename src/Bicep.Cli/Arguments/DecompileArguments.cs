@@ -3,6 +3,7 @@
 
 using Bicep.Cli.Helpers;
 using Bicep.Core.FileSystem;
+using Bicep.IO.Abstraction;
 using LanguageConstants = Bicep.Core.LanguageConstants;
 
 namespace Bicep.Cli.Arguments
@@ -66,7 +67,7 @@ namespace Bicep.Cli.Arguments
             }
         }
 
-        public static string OutputFileExtension => LanguageConstants.LanguageFileExtension;
+        public static Func<DecompileArguments, IOUri, string> OutputFileExtensionResolver { get; } = (_, _) => LanguageConstants.LanguageFileExtension;
 
         public bool OutputToStdOut { get; }
 

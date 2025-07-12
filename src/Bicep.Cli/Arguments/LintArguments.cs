@@ -6,7 +6,7 @@ using Bicep.Cli.Helpers;
 
 namespace Bicep.Cli.Arguments;
 
-public class LintArguments : ArgumentsBase
+public class LintArguments : ArgumentsBase, IFilePatternInputArguments
 {
     public LintArguments(string[] args)
         : base(Constants.Command.Lint)

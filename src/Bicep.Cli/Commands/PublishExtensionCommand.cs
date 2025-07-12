@@ -17,6 +17,7 @@ using Bicep.Core.Registry.Extensions;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem;
+using Bicep.IO.Abstraction;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
@@ -24,8 +25,9 @@ namespace Bicep.Cli.Commands
     public class PublishExtensionCommand(
         IModuleDispatcher moduleDispatcher,
         ISourceFileFactory sourceFileFactory,
-        IFileSystem fileSystem,
-        ILogger logger) : ICommand
+        IFileExplorer fileExplorer,
+        ILogger logger,
+        InputOutputArgumentsResolver inputOutputArgumentsResolver) : ICommand
     {
         public async Task<int> RunAsync(PublishExtensionArguments args)
         {
@@ -36,21 +38,22 @@ namespace Bicep.Cli.Commands
                     return null;
                 }
 
-                using var binaryStream = fileSystem.FileStream.New(PathHelper.ResolvePath(binaryPath), FileMode.Open, FileAccess.Read, FileShare.Read);
+                var binaryUri = inputOutputArgumentsResolver.PathToUri(binaryPath);
+                using var binaryStream = fileExplorer.GetFile(binaryUri).OpenRead();
                 return new(architecture, BinaryData.FromStream(binaryStream));
             }
 
             logger.LogWarning($"WARNING: The '{args.CommandName}' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
 
-            var indexPath = PathHelper.ResolvePath(args.IndexFile);
-            var indexUri = PathHelper.FilePathToFileUrl(indexPath);
-            var reference = ValidateReference(args.TargetExtensionReference, indexUri);
+            var indexUri = inputOutputArgumentsResolver.PathToUri(args.IndexFile);
+            var indexFile = fileExplorer.GetFile(indexUri);
+            var reference = ValidateReference(args.TargetExtensionReference);
             var overwriteIfExists = args.Force;
 
             BinaryData tarPayload;
             try
             {
-                tarPayload = await TypesV1Archive.GenerateExtensionTarStream(fileSystem, indexPath);
+                tarPayload = await TypesV1Archive.PackIntoBinaryData(indexFile);
                 ValidateExtension(tarPayload);
             }
             catch (Exception exception)
@@ -86,17 +89,24 @@ namespace Bicep.Cli.Commands
             }
         }
 
-        private ArtifactReference ValidateReference(string targetReference, Uri targetUri)
+        private ArtifactReference ValidateReference(string targetReference)
         {
-            if (!targetReference.StartsWith("br:"))
+            IOUri dummyReferencingFileUri;
+
+            if (!targetReference.StartsWith("br:") && !targetReference.StartsWith("ts:"))
             {
-                // convert to a relative path, as this is the only format supported for the local filesystem
-                targetUri = PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(targetReference));
-                targetReference = Path.GetFileName(targetUri.LocalPath);
+                // If targetReference is a fully qualified file, we need to create a dummy artifact referencing
+                // file with the path, and change targetReference to be the file name so it is a relative reference,
+                // because absoluate reference is not supported by Bicep.
+                dummyReferencingFileUri = inputOutputArgumentsResolver.PathToUri(targetReference);
+                targetReference = dummyReferencingFileUri.GetFileName();
+            }
+            else
+            {
+                dummyReferencingFileUri = new IOUri("file", "", "/dummy");
             }
 
-            var dummyReferencingFile = sourceFileFactory.CreateBicepFile(targetUri, "");
-
+            var dummyReferencingFile = sourceFileFactory.CreateBicepFile(dummyReferencingFileUri.ToUri(), "");
 
             if (!moduleDispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Extension, targetReference).IsSuccess(out var extensionReference, out var failureBuilder))
             {

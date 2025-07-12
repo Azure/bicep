@@ -1720,6 +1720,7 @@
       "bicep.cli.unittests": {
         "type": "Project",
         "dependencies": {
+          "Bicep.TextFixtures": "[1.0.0, )",
           "FluentAssertions": "[7.2.0, )",
           "MSTest": "[3.8.2, )",
           "Moq": "[4.20.72, )",

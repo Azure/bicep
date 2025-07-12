@@ -54,7 +54,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             var result = await Bicep("format", "/dev/zero");
 
-            AssertFailure(result, "The specified input \"/dev/zero\" was not recognized as a Bicep or Bicep Parameters file. Valid files must either the .bicep or .bicepparam extension.");
+            AssertFailure(result, $@"The specified input ""{Path.GetFullPath("/dev/zero").Replace("\\", "\\\\")}"" was not recognized as a Bicep or Bicep Parameters file. Valid files must either the .bicep or .bicepparam extension.");
         }
 
         [TestMethod]
@@ -111,14 +111,14 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public async Task Format_NonExistentOutDir_Fails()
+        public async Task Format_NonExistentOutDir_CreatesOutDir()
         {
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", "iutput myOutput string = 'hello!'");
             var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
 
             var result = await Bicep("format", "--outdir", outputFileDir, bicepPath);
 
-            AssertFailure(result, @"The specified output directory "".*outputdir"" does not exist");
+            result.ExitCode.Should().Be(0);
         }
 
         [DataTestMethod]
@@ -164,6 +164,7 @@ output myOutput string = 'hello!'
 """;
 
             var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var fileSystem = new MockFileSystem();
             var fileResults = new[]
             {
                 (input: "file1.bicep", expectOutput: true),
@@ -173,11 +174,17 @@ output myOutput string = 'hello!'
 
             foreach (var (input, _) in fileResults)
             {
+                fileSystem.AddFile($"{outputPath}/{input}", unformatted);
                 FileHelper.SaveResultFile(TestContext, input, unformatted, outputPath);
             }
 
+            if (!useRootPath)
+            {
+                fileSystem.Directory.SetCurrentDirectory(outputPath);
+            }
+
             var (output, error, result) = await Bicep(
-                services => services.WithEnvironment(useRootPath ? TestEnvironment.Default : TestEnvironment.Default with { CurrentDirectory = outputPath }),
+                services => services.WithFileSystem(fileSystem),
                 ["format",
                     "--pattern",
                     useRootPath ? $"{outputPath}/file*.bicep" : "file*.bicep"]);
@@ -188,7 +195,7 @@ output myOutput string = 'hello!'
 
             foreach (var (input, expectOutput) in fileResults)
             {
-                File.ReadAllText(Path.Combine(outputPath, input)).Should().Be(expectOutput ? formatted : unformatted);
+                fileSystem.File.ReadAllText(fileSystem.Path.Combine(outputPath, input)).Should().Be(expectOutput ? formatted : unformatted);
             }
         }
 
@@ -388,7 +395,7 @@ output myOutput string = 'hello!'
 
                 if (errorMessagePattern is not null)
                 {
-                    result.Stderr.Should().MatchRegex(errorMessagePattern);
+                    result.Stderr.Trim(['\r', '\n']).Should().MatchRegex(errorMessagePattern);
                 }
             }
         }

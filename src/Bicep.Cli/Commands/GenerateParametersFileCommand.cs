@@ -8,6 +8,7 @@ using Bicep.Cli.Services;
 using Bicep.Core;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using Bicep.IO.Abstraction;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
@@ -15,28 +16,34 @@ namespace Bicep.Cli.Commands
     public class GenerateParametersFileCommand : ICommand
     {
         private readonly ILogger logger;
+        private readonly IFileExplorer fileExplorer;
         private readonly DiagnosticLogger diagnosticLogger;
         private readonly BicepCompiler compiler;
         private readonly PlaceholderParametersWriter writer;
+        private readonly InputOutputArgumentsResolver inputOutputArgumentsResolver;
 
         public GenerateParametersFileCommand(
             ILogger logger,
+            IFileExplorer fileExplorer,
             DiagnosticLogger diagnosticLogger,
             BicepCompiler compiler,
-            PlaceholderParametersWriter writer)
+            PlaceholderParametersWriter writer,
+            InputOutputArgumentsResolver inputOutputArgumentsResolver)
         {
             this.logger = logger;
             this.diagnosticLogger = diagnosticLogger;
             this.compiler = compiler;
             this.writer = writer;
+            this.inputOutputArgumentsResolver = inputOutputArgumentsResolver;
+            this.fileExplorer = fileExplorer;
         }
 
         public async Task<int> RunAsync(GenerateParametersFileArguments args)
         {
-            var inputUri = ArgumentHelper.GetFileUri(args.InputFile);
+            var (inputUri, outputUri) = this.inputOutputArgumentsResolver.ResolveInputOutputArguments(args);
             ArgumentHelper.ValidateBicepFile(inputUri);
 
-            var compilation = await compiler.CreateCompilation(inputUri, forceRestore: args.NoRestore);
+            var compilation = await compiler.CreateCompilation(inputUri.ToUri(), forceRestore: args.NoRestore);
             CommandHelper.LogExperimentalWarning(logger, compilation);
 
             var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, compilation);
@@ -49,23 +56,8 @@ namespace Bicep.Cli.Commands
                 }
                 else
                 {
-                    var outputPath = string.Empty;
-                    if (!string.IsNullOrWhiteSpace(args.OutputDir))
-                    {
-                        outputPath = args.OutputDir;
-                    }
-                    else if (!string.IsNullOrWhiteSpace(args.OutputFile))
-                    {
-                        outputPath = args.OutputFile;
-                    }
-                    else
-                    {
-                        outputPath = inputUri.LocalPath;
-                    }
-
-                    outputPath = PathHelper.ResolveParametersFileOutputPath(outputPath, args.OutputFormat);
-
-                    writer.ToFile(compilation, outputPath, args.OutputFormat, args.IncludeParams);
+                    var outputFile = this.fileExplorer.GetFile(outputUri);
+                    writer.ToFile(compilation, outputFile, args.OutputFormat, args.IncludeParams);
                 }
             }
 
