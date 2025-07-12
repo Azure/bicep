@@ -17,7 +17,15 @@ namespace Bicep.Cli.Arguments
             this.fileSystem = fileSystem;
         }
 
-        public IOUri PathToUri(string path) => IOUri.FromLocalFilePath(GetFullPath(path));
+        public IOUri PathToUri(string path)
+        {
+            if (!OperatingSystem.IsWindows() && path.Contains('\\'))
+            {
+                throw new CommandLineException($"The path '{path}' contains '\\'. Bicep does not support '\\' in file paths on non-Windows platforms when used as command-line inputs.");
+            }
+
+            return IOUri.FromLocalFilePath(GetFullPath(path));
+        }
 
         public IOUri ResolveInputArguments(IInputArguments arguments)
         {
@@ -132,8 +140,10 @@ namespace Bicep.Cli.Arguments
 
         public (string rootPath, string relativePattern) SplitFilePatternOnWildcard(string filePattern)
         {
-            var directorySeparatorChar = this.fileSystem.Path.DirectorySeparatorChar;
-            var altDirectorySeparatorChar = this.fileSystem.Path.AltDirectorySeparatorChar;
+            if (!OperatingSystem.IsWindows() && filePattern.Contains('\\'))
+            {
+                throw new CommandLineException($"The filePattern '{filePattern}' contains '\\'. Bicep does not support '\\' in file paths on non-Windows platforms when used as command-line inputs.");
+            }
 
             var wildcardIndex = filePattern.IndexOf('*');
             if (wildcardIndex == -1)
@@ -141,8 +151,8 @@ namespace Bicep.Cli.Arguments
                 wildcardIndex = filePattern.Length;
             }
 
-            // We intentionally want different behavior on different OSes.
-            // Linux treats \ as a regular character, while Windows treats it as a path separator.
+            var directorySeparatorChar = this.fileSystem.Path.DirectorySeparatorChar;
+            var altDirectorySeparatorChar = this.fileSystem.Path.AltDirectorySeparatorChar;
             var prevDirIndex = filePattern[..wildcardIndex].LastIndexOfAny([directorySeparatorChar, altDirectorySeparatorChar]);
             var rootPath = prevDirIndex != -1 ? filePattern[..prevDirIndex] : "";
             var relativePattern = prevDirIndex != -1 ? filePattern[(prevDirIndex + 1)..] : filePattern;
@@ -152,6 +162,8 @@ namespace Bicep.Cli.Arguments
                 rootPath = this.fileSystem.Directory.GetCurrentDirectory();
             }
 
+            // Normalize root dir path so it always ends with a directory separator.
+            // This ensures IOUri.Resolve() works correctly.
             rootPath = rootPath.EndsWith(directorySeparatorChar) || rootPath.EndsWith(altDirectorySeparatorChar) ? rootPath : rootPath + directorySeparatorChar;
             rootPath = this.GetFullPath(rootPath);
 

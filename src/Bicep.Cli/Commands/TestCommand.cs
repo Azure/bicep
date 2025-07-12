@@ -42,9 +42,9 @@ namespace Bicep.Cli.Commands
 
         public async Task<int> RunAsync(TestArguments args)
         {
-            var inputUri = this.inputOutputArgumentsResolver.ResolveInputArguments(args).ToUri();
+            var inputUri = this.inputOutputArgumentsResolver.ResolveInputArguments(args);
             ArgumentHelper.ValidateBicepFile(inputUri);
-            var features = featureProviderFactory.GetFeatureProvider(inputUri);
+            var features = featureProviderFactory.GetFeatureProvider(inputUri.ToUri());
 
             if (!features.TestFrameworkEnabled)
             {
@@ -55,7 +55,7 @@ namespace Bicep.Cli.Commands
 
             logger.LogWarning(string.Format(CliResources.ExperimentalFeaturesDisclaimerMessage, "TestFramework"));
 
-            var compilation = await compiler.CreateCompilation(inputUri, skipRestore: args.NoRestore);
+            var compilation = await compiler.CreateCompilation(inputUri.ToUri(), skipRestore: args.NoRestore);
 
             var summary = diagnosticLogger.LogDiagnostics(GetDiagnosticOptions(args), compilation);
 
