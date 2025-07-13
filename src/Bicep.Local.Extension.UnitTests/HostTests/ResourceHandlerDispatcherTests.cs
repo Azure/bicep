@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Frozen;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,39 +23,39 @@ public class ResourceHandlerDispatcherTests
     // Generic resource handler (implements only IResourceHandler)
     private class GenericResourceHandler : IResourceHandler
     {
-        public Task<HandlerResponse> CreateOrUpdate(HandlerRequest request, CancellationToken cancellationToken) => 
+        public Task<HandlerResponse> CreateOrUpdate(HandlerRequest request, CancellationToken cancellationToken) =>
             Task.FromResult(HandlerResponse.Success(request.Type, request.ApiVersion, null));
-        public Task<HandlerResponse> Preview(HandlerRequest request, CancellationToken cancellationToken) => 
+        public Task<HandlerResponse> Preview(HandlerRequest request, CancellationToken cancellationToken) =>
             Task.FromResult(HandlerResponse.Success(request.Type, request.ApiVersion, null));
-        public Task<HandlerResponse> Delete(HandlerRequest request, CancellationToken cancellationToken) => 
+        public Task<HandlerResponse> Delete(HandlerRequest request, CancellationToken cancellationToken) =>
             Task.FromResult(HandlerResponse.Success(request.Type, request.ApiVersion, null));
-        public Task<HandlerResponse> Get(HandlerRequest request, CancellationToken cancellationToken) => 
+        public Task<HandlerResponse> Get(HandlerRequest request, CancellationToken cancellationToken) =>
             Task.FromResult(HandlerResponse.Success(request.Type, request.ApiVersion, null));
     }
 
     // Typed resource handler (implements IResourceHandler<T>)
     private class TestResourceHandler : IResourceHandler<TestResource>
     {
-        public Task<HandlerResponse> CreateOrUpdate(HandlerRequest<TestResource> request, CancellationToken cancellationToken) => 
+        public Task<HandlerResponse> CreateOrUpdate(HandlerRequest<TestResource> request, CancellationToken cancellationToken) =>
             Task.FromResult(HandlerResponse.Success(request.Type, request.ApiVersion, null));
-        public Task<HandlerResponse> Preview(HandlerRequest<TestResource> request, CancellationToken cancellationToken) => 
+        public Task<HandlerResponse> Preview(HandlerRequest<TestResource> request, CancellationToken cancellationToken) =>
             Task.FromResult(HandlerResponse.Success(request.Type, request.ApiVersion, null));
-        public Task<HandlerResponse> Delete(HandlerRequest request, CancellationToken cancellationToken) => 
+        public Task<HandlerResponse> Delete(HandlerRequest request, CancellationToken cancellationToken) =>
             Task.FromResult(HandlerResponse.Success(request.Type, request.ApiVersion, null));
-        public Task<HandlerResponse> Get(HandlerRequest request, CancellationToken cancellationToken) => 
+        public Task<HandlerResponse> Get(HandlerRequest request, CancellationToken cancellationToken) =>
             Task.FromResult(HandlerResponse.Success(request.Type, request.ApiVersion, null));
     }
 
     // Another typed resource handler
     private class AnotherResourceHandler : IResourceHandler<AnotherResource>
     {
-        public Task<HandlerResponse> CreateOrUpdate(HandlerRequest<AnotherResource> request, CancellationToken cancellationToken) => 
+        public Task<HandlerResponse> CreateOrUpdate(HandlerRequest<AnotherResource> request, CancellationToken cancellationToken) =>
             Task.FromResult(HandlerResponse.Success(request.Type, request.ApiVersion, null));
-        public Task<HandlerResponse> Preview(HandlerRequest<AnotherResource> request, CancellationToken cancellationToken) => 
+        public Task<HandlerResponse> Preview(HandlerRequest<AnotherResource> request, CancellationToken cancellationToken) =>
             Task.FromResult(HandlerResponse.Success(request.Type, request.ApiVersion, null));
-        public Task<HandlerResponse> Delete(HandlerRequest request, CancellationToken cancellationToken) => 
+        public Task<HandlerResponse> Delete(HandlerRequest request, CancellationToken cancellationToken) =>
             Task.FromResult(HandlerResponse.Success(request.Type, request.ApiVersion, null));
-        public Task<HandlerResponse> Get(HandlerRequest request, CancellationToken cancellationToken) => 
+        public Task<HandlerResponse> Get(HandlerRequest request, CancellationToken cancellationToken) =>
             Task.FromResult(HandlerResponse.Success(request.Type, request.ApiVersion, null));
     }
 
@@ -123,8 +123,8 @@ public class ResourceHandlerDispatcherTests
     public void Constructor_WithGenericAndTypedResourceHandlers_InitializesCorrectly()
     {
         // Arrange
-        IResourceHandler[] handlers = 
-        [ 
+        IResourceHandler[] handlers =
+        [
             new GenericResourceHandler(),
             new TestResourceHandler(),
             new AnotherResourceHandler()
@@ -147,8 +147,8 @@ public class ResourceHandlerDispatcherTests
     public void Constructor_WithDuplicateTypedResourceHandlers_ThrowsArgumentException()
     {
         // Arrange
-        IResourceHandler[] handlers = 
-        [ 
+        IResourceHandler[] handlers =
+        [
             new TestResourceHandler(),
             new TestResourceHandler() // Duplicate
         ];
@@ -165,8 +165,8 @@ public class ResourceHandlerDispatcherTests
     public void Constructor_WithMultipleGenericResourceHandlers_ThrowsArgumentException()
     {
         // Arrange
-        IResourceHandler[] handlers = 
-        [ 
+        IResourceHandler[] handlers =
+        [
             new GenericResourceHandler(),
             new GenericResourceHandler() // Duplicate
         ];
@@ -381,10 +381,10 @@ public class ResourceHandlerDispatcherTests
         var anotherHandler = new AnotherResourceHandler();
         var genericHandler = new GenericResourceHandler();
         var dispatcher = new ResourceHandlerDispatcher(
-        [ 
-            testHandler, 
-            anotherHandler, 
-            genericHandler 
+        [
+            testHandler,
+            anotherHandler,
+            genericHandler
         ]);
 
         // Act & Assert - Test typed handlers
@@ -416,7 +416,7 @@ public class ResourceHandlerDispatcherTests
         var action = () => dispatcher.GetResourceHandler(string.Empty);
 
         // Assert
-        action.Should().Throw<ArgumentException>();            
+        action.Should().Throw<ArgumentException>();
     }
 
     [TestMethod]

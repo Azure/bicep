@@ -14,17 +14,17 @@ public enum HandlerResponseStatus
     /// Indicates the operation completed successfully.
     /// </summary>
     Success,
-    
+
     /// <summary>
     /// Indicates the operation failed due to an error.
     /// </summary>
     Error,
-    
+
     /// <summary>
     /// Indicates the operation was canceled before completion.
     /// </summary>
     Canceled,
-    
+
     /// <summary>
     /// Indicates the operation exceeded its allowed execution time.
     /// </summary>

@@ -1,8 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.McpServer.ResourceProperties.Helpers;
 using System.Text.Json.Serialization;
+using Bicep.McpServer.ResourceProperties.Helpers;
 
 namespace Bicep.McpServer.ResourceProperties.Entities;
 
