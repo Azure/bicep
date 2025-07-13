@@ -53,8 +53,8 @@ public class TypeDefinitionBuilder
         this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
         this.typeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
 
-        this.typeToTypeBaseMap = typeToTypeBaseMap is null || typeToTypeBaseMap.Count < 1
-                ? throw new ArgumentNullException(nameof(typeToTypeBaseMap))
+        this.typeToTypeBaseMap = typeToTypeBaseMap is null || typeToTypeBaseMap.Count == 0
+                ? throw new ArgumentException(nameof(typeToTypeBaseMap))
                 : typeToTypeBaseMap;
 
         visited = new HashSet<Type>();
@@ -100,8 +100,6 @@ public class TypeDefinitionBuilder
     protected virtual TypeBase GenerateForRecord(TypeFactory factory, ConcurrentDictionary<Type, TypeBase> typeCache, Type type)
     {
         var typeProperties = new Dictionary<string, ObjectTypeProperty>();
-
-
 
         foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {

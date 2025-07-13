@@ -28,7 +28,7 @@ public class ResourceHandlerDispatcher
     {
         if (resourceHandlers is null || resourceHandlers.Count() == 0)
         {
-            throw new ArgumentException("No resource handlers were provided.");
+            throw new ArgumentException("No resource handlers were provided.", nameof(resourceHandlers));
         }
 
         var resourceHandlerMaps = BuildResourceHandlerTypeMap(resourceHandlers);
@@ -81,7 +81,7 @@ public class ResourceHandlerDispatcher
     /// </remarks>
     public bool TryGetTypedResourceHandler(string resourceType, [NotNullWhen(true)] out TypedResourceHandler? typedResourceHandler)
     {
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(resourceType, nameof(resourceType));
+        ArgumentException.ThrowIfNullOrWhiteSpace(resourceType, nameof(resourceType));
 
         return TypedResourceHandlers.TryGetValue(resourceType, out typedResourceHandler);        
     }
@@ -100,28 +100,28 @@ public class ResourceHandlerDispatcher
             {
                 if (baseInterface is null)
                 {
-                    throw new ArgumentException($"Unable to find a resource handler interface for {resourceHandlerType.FullName}");
+                    throw new InvalidOperationException($"Unable to find a resource handler interface for {resourceHandlerType.FullName}");
                 }
 
                 Type resourceType = baseInterface.GetGenericArguments()[0];
 
                 if (!handlerDictionary.TryAdd(resourceType.Name, new(resourceType, resourceHandler)))
                 {
-                    throw new ArgumentException($"A resource handler for {resourceType.Name} has already been registered.");
+                    throw new InvalidOperationException($"A resource handler for {resourceType.Name} has already been registered.");
                 }
             }
             else if (resourceHandlerType.IsGenericTypedResourceHandler())
             {
                 if (genericHandler is not null)
                 {
-                    throw new ArgumentException($"A generic resource handler has already been registered.");
+                    throw new InvalidOperationException($"A generic resource handler has already been registered.");
                 }
 
                 genericHandler = new TypedResourceHandler(typeof(GenericResource), resourceHandler);
             }
             else
             {
-                throw new ArgumentException($"{resourceHandlerType.FullName} does not implement a valid resource handler interface.");
+                throw new InvalidOperationException($"{resourceHandlerType.FullName} does not implement a valid resource handler interface.");
             }
         }
 
