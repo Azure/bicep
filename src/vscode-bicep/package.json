@@ -730,7 +730,7 @@
     "mcpServerDefinitionProviders": [
       {
         "id": "bicep",
-        "label": "Bicep MCP Server"
+        "label": "Azure Resource Action MCP"
       }
     ]
   },
