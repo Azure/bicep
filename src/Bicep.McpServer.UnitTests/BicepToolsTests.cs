@@ -19,11 +19,15 @@ public class BicepToolsTests
     [NotNull]
     public TestContext? TestContext { get; set; }
 
-    private readonly BicepTools tools = new ServiceCollection()
-        .AddMcpDependencies()
-        .AddSingleton<BicepTools>()
-        .BuildServiceProvider()
-        .GetRequiredService<BicepTools>();
+    private static IServiceProvider GetServiceProvider()
+    {
+        var services = new ServiceCollection();
+        services.AddBicepMcpServer();
+
+        return services.BuildServiceProvider();
+    }
+
+    private readonly BicepTools tools = GetServiceProvider().GetRequiredService<BicepTools>();
 
     public static string GetText(CallToolResult result)
         => (result.Content[0] as TextContentBlock)!.Text;

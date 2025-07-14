@@ -8,10 +8,9 @@ using Bicep.McpServer;
 using Azure.Identity;
 
 var builder = Host.CreateEmptyApplicationBuilder(settings: null);
+
 builder.Services
-    .AddMcpDependencies()
-    .AddMcpServer()
-    .WithStdioServerTransport()
-    .WithTools<BicepTools>();
+    .AddBicepMcpServer()
+    .WithStdioServerTransport();
 
 await builder.Build().RunAsync();

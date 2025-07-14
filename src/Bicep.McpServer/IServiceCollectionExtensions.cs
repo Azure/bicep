@@ -32,7 +32,7 @@ namespace Bicep.McpServer;
 
 public static class IServiceCollectionExtensions
 {
-    public static IServiceCollection AddMcpDependencies(this IServiceCollection services)
+    public static IMcpServerBuilder AddBicepMcpServer(this IServiceCollection services)
     {
         services
             .AddSingleton<ILogger<ResourceVisitor>>(NullLoggerFactory.Instance.CreateLogger<ResourceVisitor>())
@@ -48,7 +48,11 @@ public static class IServiceCollectionExtensions
                 new AzurePowerShellCredential()));
         });
 
-        return services;
+        return services.AddMcpServer(options =>
+        {
+            options.ServerInstructions = Constants.ServerInstructions;
+        })
+        .WithTools<BicepTools>();
     }
         
 

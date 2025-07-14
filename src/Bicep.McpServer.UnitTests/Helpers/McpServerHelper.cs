@@ -36,12 +36,10 @@ public sealed class McpServerHelper : IAsyncDisposable
 
         var builder = Host.CreateEmptyApplicationBuilder(settings: null);
         builder.Services
-            .AddMcpDependencies()
-            .AddMcpServer()
+            .AddBicepMcpServer()
             .WithStreamServerTransport(
                 inputStream: serverPipe.Reader.AsStream(),
-                outputStream: clientPipe.Writer.AsStream())
-            .WithTools<BicepTools>();
+                outputStream: clientPipe.Writer.AsStream());
 
         onRegisterServices?.Invoke(builder.Services);
 
