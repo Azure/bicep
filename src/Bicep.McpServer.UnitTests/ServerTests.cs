@@ -27,4 +27,13 @@ public class ServerTests
             x => x.Name.Should().Be("get_bicep_best_practices"),
             x => x.Name.Should().Be("list_az_resource_types_for_provider"));
     }
+
+    [TestMethod]
+    public async Task Server_returns_instructions()
+    {
+        await using var helper = await McpServerHelper.StartServer(TestContext);
+
+        var instructions = helper.Client.ServerInstructions;
+        instructions.Should().StartWith("This MCP server exposes a number of tools to improve accuracy and quality when authoring Bicep files.");
+    }
 }

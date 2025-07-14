@@ -12,8 +12,17 @@ namespace Bicep.McpServer;
 
 public static class IServiceCollectionExtensions
 {
-    public static IServiceCollection AddMcpDependencies(this IServiceCollection services) => services
-        .AddSingleton<ILogger<ResourceVisitor>>(NullLoggerFactory.Instance.CreateLogger<ResourceVisitor>())
-        .AddSingleton<AzResourceTypeLoader>(provider => new(new AzTypeLoader()))
-        .AddSingleton<ResourceVisitor>();
+    public static IMcpServerBuilder AddBicepMcpServer(this IServiceCollection services)
+    {
+        services
+            .AddSingleton<ILogger<ResourceVisitor>>(NullLoggerFactory.Instance.CreateLogger<ResourceVisitor>())
+            .AddSingleton<AzResourceTypeLoader>(provider => new(new AzTypeLoader()))
+            .AddSingleton<ResourceVisitor>();
+
+        return services.AddMcpServer(options =>
+        {
+            options.ServerInstructions = Constants.ServerInstructions;
+        })
+        .WithTools<BicepTools>();
+    }
 }
