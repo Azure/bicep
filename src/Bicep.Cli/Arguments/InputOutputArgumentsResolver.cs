@@ -21,7 +21,7 @@ namespace Bicep.Cli.Arguments
         {
             if (!OperatingSystem.IsWindows() && path.Contains('\\'))
             {
-                throw new CommandLineException($"The path '{path}' contains '\\'. Bicep does not support '\\' in file paths on non-Windows platforms when used as command-line inputs.");
+                throw new CommandLineException(string.Format(CliResources.FilePathContainsBackslash, path));
             }
 
             return IOUri.FromLocalFilePath(GetFullPath(path));
@@ -142,7 +142,7 @@ namespace Bicep.Cli.Arguments
         {
             if (!OperatingSystem.IsWindows() && filePattern.Contains('\\'))
             {
-                throw new CommandLineException($"The filePattern '{filePattern}' contains '\\'. Bicep does not support '\\' in file paths on non-Windows platforms when used as command-line inputs.");
+                throw new CommandLineException(string.Format(CliResources.FilePathContainsBackslash, filePattern));
             }
 
             var wildcardIndex = filePattern.IndexOf('*');
