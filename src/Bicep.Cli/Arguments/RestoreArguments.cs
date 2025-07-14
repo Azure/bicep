@@ -6,7 +6,7 @@ using Bicep.Cli.Helpers;
 
 namespace Bicep.Cli.Arguments;
 
-public class RestoreArguments : ArgumentsBase
+public class RestoreArguments : ArgumentsBase, IFilePatternInputArguments
 {
     public RestoreArguments(string[] args) : base(Constants.Command.Restore)
     {
