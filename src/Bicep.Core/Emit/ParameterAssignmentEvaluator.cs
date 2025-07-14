@@ -251,7 +251,7 @@ public class ParameterAssignmentEvaluator
                         {
                             propertyResult = Result.For(
                                 DiagnosticBuilder.ForPosition(property.Value)
-                                    .FailedToEvaluateParameter(extConfigAssignment.Name, ex.Message));
+                                    .FailedToEvaluateExtensionConfig(extConfigAssignment.Name, ex.Message));
                         }
                     }
 

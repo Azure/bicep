@@ -86,9 +86,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                 if (ElementRecorder.TryPeek(out var peek))
                 {
-                    if (peek is VisitedElement.ExtensionWithClause or VisitedElement.ModuleExtensionConfig && Model.GetDeclaredType(syntax) is { } propertyType and not ErrorType)
+                    if (peek is VisitedElement.ExtensionWithClause or VisitedElement.ModuleExtensionConfig)
                     {
-                        ValidateConfigPropertyAssignment(propertyType, syntax.Value);
+                        if (Model.GetDeclaredType(syntax) is { } propertyType and not ErrorType)
+                        {
+                            ValidateConfigPropertyAssignment(propertyType, syntax.Value);
+                        }
+
+                        newVisitedElement = VisitedElement.ExtensionConfigRootProperty; // skip inner objects
                     }
                     else if (peek == VisitedElement.Module && LanguageConstants.IdentifierComparer.Equals(syntax.TryGetKeyText(), LanguageConstants.ModuleExtensionConfigsPropertyName))
                     {
@@ -117,17 +122,15 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 // NOTE(kylealbert): The non-secure key vault reference case is not flagged with this rule because this is handled by BCP180 already.
             }
 
-            private bool IsKeyVaultReference(SyntaxBase valueSyntax)
-            {
-                // TODO(kylealbert): Handle ternaries?
-                if (valueSyntax is InstanceFunctionCallSyntax instCallSyntax
-                    && (IsKeyVaultGetSecretCall(instCallSyntax) || IsAzGetSecretCall(instCallSyntax)))
+            private bool IsKeyVaultReference(SyntaxBase valueSyntax) =>
+                valueSyntax switch
                 {
-                    return true;
-                }
-
-                return false;
-            }
+                    // NOTE(kylealbert): Due to current limitations with evaluation & emission, only direct instance function call expression is supported.
+                    // ParenthesizedExpressionSyntax parenSyntax => IsKeyVaultReference(parenSyntax.Expression),
+                    // TernaryOperationSyntax ternarySyntax => IsKeyVaultReference(ternarySyntax.TrueExpression) && IsKeyVaultReference(ternarySyntax.FalseExpression),
+                    InstanceFunctionCallSyntax instCallSyntax when IsKeyVaultGetSecretCall(instCallSyntax) || IsAzGetSecretCall(instCallSyntax) => true,
+                    _ => false
+                };
 
             private bool IsKeyVaultGetSecretCall(InstanceFunctionCallSyntax instCallSyntax) =>
                 Model.Binder.GetSymbolInfo(instCallSyntax.BaseExpression) is ResourceSymbol { Type: ResourceType resourceType }
@@ -145,6 +148,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 Module,
                 ModuleExtensionConfig,
                 ModuleExtensionConfigs,
+                ExtensionConfigRootProperty
             }
         }
     }
