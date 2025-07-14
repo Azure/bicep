@@ -40,6 +40,9 @@ public static class IServiceCollectionExtensions
             .AddSingleton<ResourceVisitor>()
             .AddBicepCore();
 
+        services
+            .AddSingleton<BicepTools>();
+
         services.AddAzureClients(clientBuilder =>
         {
             clientBuilder.AddArmClient("00000000-0000-0000-0000-000000000000");
@@ -54,7 +57,6 @@ public static class IServiceCollectionExtensions
         })
         .WithTools<BicepTools>();
     }
-        
 
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
         .AddSingleton<INamespaceProvider, NamespaceProvider>()
