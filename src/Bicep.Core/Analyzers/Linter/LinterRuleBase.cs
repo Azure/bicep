@@ -135,6 +135,20 @@ namespace Bicep.Core.Analyzers.Linter
             Styling = DiagnosticStyling
         };
 
+        /// <summary>
+        /// Create a diagnostic message for a span that has a customized string.
+        /// </summary>
+        protected Diagnostic CreateDiagnostic(TextSpan span, string message) => new(
+            span,
+            DefaultDiagnosticLevel,
+            DiagnosticSource.CoreLinter,
+            Code,
+            message)
+        {
+            Uri = Uri,
+            Styling = DiagnosticStyling
+        };
+
         protected virtual Diagnostic CreateFixableDiagnosticForSpan(DiagnosticLevel level, TextSpan span, CodeFix fix, params object[] values) =>
             CreateFixableDiagnosticForSpan(level, span, [fix], values);
 

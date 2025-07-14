@@ -70,7 +70,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitExtensionWithClauseSyntax(ExtensionWithClauseSyntax syntax)
             {
-                if (Model.GetTypeInfo(syntax).IsError())
+                if (Model.GetTypeInfo(syntax.Config).IsError())
                 {
                     return; // skip error elements
                 }
@@ -108,17 +108,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             private void ValidateConfigPropertyAssignment(TypeSymbol propertyType, SyntaxBase valueSyntax)
             {
                 propertyType = TypeHelper.TryRemoveNullability(propertyType) ?? propertyType;
-                var isSecure = propertyType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure);
-                var isKeyVaultReference = IsKeyVaultReference(valueSyntax);
 
-                if (isSecure && !isKeyVaultReference)
+                if (propertyType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure) && !IsKeyVaultReference(valueSyntax))
                 {
-                    Diagnostics.Add(Rule.CreateDiagnosticForSpan(Rule.DefaultDiagnosticLevel, valueSyntax.Span, CoreResources.StacksExtensibilityCompatibilityRule_SecurePropertyValueIsNotReference));
+                    Diagnostics.Add(Rule.CreateDiagnostic(valueSyntax.Span, CoreResources.StacksExtensibilityCompatibilityRule_SecurePropertyValueIsNotReference));
                 }
-                else if (!isSecure && isKeyVaultReference)
-                {
-                    Diagnostics.Add(Rule.CreateDiagnosticForSpan(Rule.DefaultDiagnosticLevel, valueSyntax.Span, CoreResources.StacksExtensibilityCompatibilityRule_NonSecurePropertyValueIsReference));
-                }
+
+                // NOTE(kylealbert): The non-secure key vault reference case is not flagged with this rule because this is handled by BCP180 already.
             }
 
             private bool IsKeyVaultReference(SyntaxBase valueSyntax)
