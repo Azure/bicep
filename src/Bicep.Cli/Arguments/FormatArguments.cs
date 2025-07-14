@@ -12,7 +12,7 @@ namespace Bicep.Cli.Arguments;
 
 public class FormatArguments : ArgumentsBase
 {
-    public FormatArguments(string[] args, IOContext io, IFileSystem fileSystem) : base(Constants.Command.Format)
+    public FormatArguments(string[] args, IFileSystem fileSystem) : base(Constants.Command.Format)
     {
         ArgumentNullException.ThrowIfNull(fileSystem);
 
@@ -42,25 +42,6 @@ public class FormatArguments : ArgumentsBase
                     i++;
                     break;
 
-                case "--newline":
-                    io.WriteParameterDeprecationWarning("--newline", "--newline-kind");
-
-                    if (args.Length == i + 1)
-                    {
-                        throw new CommandLineException($"The --newline parameter expects an argument");
-                    }
-                    if (NewlineKind is not null)
-                    {
-                        throw new CommandLineException($"The --newline parameter cannot be specified twice");
-                    }
-                    if (!Enum.TryParse<NewlineKind>(args[i + 1], true, out var newline) || !Enum.IsDefined(newline))
-                    {
-                        throw new CommandLineException($"The --newline parameter only accepts these values: {string.Join(" | ", Enum.GetNames(typeof(NewlineKind)))}");
-                    }
-                    NewlineKind = newline;
-                    i++;
-                    break;
-
                 case "--newline-kind":
                     if (args.Length == i + 1)
                     {
@@ -70,7 +51,7 @@ public class FormatArguments : ArgumentsBase
                     {
                         throw new CommandLineException($"The --newline-kind parameter cannot be specified twice");
                     }
-                    if (!Enum.TryParse(args[i + 1], true, out newline) || !Enum.IsDefined(newline))
+                    if (!Enum.TryParse<NewlineKind>(args[i + 1], true, out var newline) || !Enum.IsDefined(newline))
                     {
                         throw new CommandLineException($"The --newline-kind parameter only accepts these values: {string.Join(" | ", Enum.GetNames(typeof(NewlineKind)))}");
                     }
@@ -78,24 +59,6 @@ public class FormatArguments : ArgumentsBase
                     i++;
                     break;
 
-                case "--indentkind":
-                    io.WriteParameterDeprecationWarning("--indentKind", "--indent-kind");
-
-                    if (args.Length == i + 1)
-                    {
-                        throw new CommandLineException($"The --indentKind parameter expects an argument");
-                    }
-                    if (IndentKind is not null)
-                    {
-                        throw new CommandLineException($"The --indentKind parameter cannot be specified twice");
-                    }
-                    if (!Enum.TryParse<IndentKind>(args[i + 1], true, out var indentKind) || !Enum.IsDefined(indentKind))
-                    {
-                        throw new CommandLineException($"The --indentKind parameter only accepts these cdvalues: {string.Join(" | ", Enum.GetNames(typeof(IndentKind)))}");
-                    }
-                    IndentKind = indentKind;
-                    i++;
-                    break;
                 case "--indent-kind":
                     if (args.Length == i + 1)
                     {
@@ -105,7 +68,7 @@ public class FormatArguments : ArgumentsBase
                     {
                         throw new CommandLineException($"The --indent-kind parameter cannot be specified twice");
                     }
-                    if (!Enum.TryParse(args[i + 1], true, out indentKind) || !Enum.IsDefined(indentKind))
+                    if (!Enum.TryParse<IndentKind>(args[i + 1], true, out var indentKind) || !Enum.IsDefined(indentKind))
                     {
                         throw new CommandLineException($"The --indent-kind parameter only accepts these values: {string.Join(" | ", Enum.GetNames(typeof(IndentKind)))}");
                     }
@@ -113,24 +76,6 @@ public class FormatArguments : ArgumentsBase
                     i++;
                     break;
 
-                case "--indentsize":
-                    io.WriteParameterDeprecationWarning("--indentSize", "--indent-size");
-
-                    if (args.Length == i + 1)
-                    {
-                        throw new CommandLineException($"The --indentSize parameter expects an argument");
-                    }
-                    if (IndentSize is not null)
-                    {
-                        throw new CommandLineException($"The --indentSize parameter cannot be specified twice");
-                    }
-                    if (!int.TryParse(args[i + 1], out var indentSize))
-                    {
-                        throw new CommandLineException($"The --indentSize parameter only accepts integer values");
-                    }
-                    IndentSize = indentSize;
-                    i++;
-                    break;
                 case "--indent-size":
                     if (args.Length == i + 1)
                     {
@@ -140,39 +85,12 @@ public class FormatArguments : ArgumentsBase
                     {
                         throw new CommandLineException($"The --indent-size parameter cannot be specified twice");
                     }
-                    if (!int.TryParse(args[i + 1], out indentSize))
+                    if (!int.TryParse(args[i + 1], out var indentSize))
                     {
                         throw new CommandLineException($"The --indent-size parameter only accepts integer values");
                     }
                     IndentSize = indentSize;
                     i++;
-                    break;
-
-                case "--insertfinalnewline":
-                    io.WriteParameterDeprecationWarning("--insertFinalNewline", "--insert-final-newline");
-
-                    if (InsertFinalNewline is not null)
-                    {
-                        throw new CommandLineException($"The --insertFinalNewline parameter cannot be specified twice");
-                    }
-
-                    if (args.Length == i + 1)
-                    {
-                        InsertFinalNewline = true;
-                        break;
-                    }
-
-                    if (bool.TryParse(args[i + 1], out var insertFinalNewline))
-                    {
-                        InsertFinalNewline = insertFinalNewline;
-                        i++;
-                    }
-                    else
-                    {
-                        // Either "true" or "false" is not supplied after "--insertFinalNewline", or the value is not a valid boolean.
-                        // Treat it as only "--insertFinalNewline" is specified without a value, and default to true.
-                        InsertFinalNewline = true;
-                    }
                     break;
 
                 case "--insert-final-newline":
@@ -187,7 +105,7 @@ public class FormatArguments : ArgumentsBase
                         break;
                     }
 
-                    if (bool.TryParse(args[i + 1], out insertFinalNewline))
+                    if (bool.TryParse(args[i + 1], out var insertFinalNewline))
                     {
                         InsertFinalNewline = insertFinalNewline;
                         i++;

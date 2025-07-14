@@ -22,6 +22,8 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Testing">
+    <!-- Version 8 or above are no longer fully open-source -->
+    <FluentAssertionsVersion>7.2.0</FluentAssertionsVersion>
     <MSTestVersion>3.8.2</MSTestVersion>
     <EnableMSTestRunner>true</EnableMSTestRunner>
 
@@ -44,12 +46,12 @@
   <PropertyGroup>
     <!-- different projects include the GenerateNotice package via different targets - this allows us to centrally manage the upgrades -->
     <GenerateNoticePackageVersion>0.1.45</GenerateNoticePackageVersion>
-    
+
     <!-- settings of the GenerateNotice tool -->
     <GenerateNoticeRetryCount>9</GenerateNoticeRetryCount>
     <GenerateNoticeBatchSize>100</GenerateNoticeBatchSize>
 
-    <!-- 
+    <!--
       use local file for local and GH builds
       the ADO builds will set this to false via the environment variables to generate TPN files using the API
      -->

@@ -46,7 +46,7 @@ namespace Bicep.IO.UnitTests.InMemory
             }
 
             // Assert
-            var updatedContent = store.ReadFile(sut);
+            var updatedContent = store.ReadFile(sut).ToString();
             updatedContent.Should().Be("Updated content");
         }
 

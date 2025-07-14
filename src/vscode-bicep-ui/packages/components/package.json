@@ -60,6 +60,6 @@
   },
   "dependencies": {
     "@react-hook/resize-observer": "^2.0.2",
-    "motion": "^12.19.2"
+    "motion": "^12.23.3"
   }
 }

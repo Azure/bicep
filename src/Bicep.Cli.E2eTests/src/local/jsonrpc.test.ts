@@ -8,6 +8,7 @@ import { pathToExampleFile, writeTempFile } from "../utils/fs";
 import {
   compileParamsRequestType,
   compileRequestType,
+  formatRequestType,
   getDeploymentGraphRequestType,
   getFileReferencesRequestType,
   getMetadataRequestType,
@@ -177,6 +178,32 @@ hello!
       path.join(bicepParamPath, "../valid.txt"),
     ]);
   });
+
+  it("should format a bicep file", async () => {
+    const bicepPath = writeTempFile(
+      "jsonrpc-format",
+      "format.bicep",
+      `
+param foo string
+param bar int = 42
+
+resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+name: 'mystorageaccount'
+location: 'East US'
+sku: {
+name: 'Standard_LRS'
+}
+kind: 'StorageV2'
+}
+    `,
+    );
+
+    const result = await format(connection, bicepPath);
+
+    expect(result.contents).toBeDefined();
+    expect(result.contents.includes("param foo string")).toBeTruthy();
+    expect(result.contents.includes("  name: 'mystorageaccount'")).toBeTruthy();
+  });
 });
 
 async function version(connection: MessageConnection) {
@@ -214,6 +241,12 @@ async function getDeploymentGraph(connection: MessageConnection, bicepFile: stri
 
 async function getFileReferences(connection: MessageConnection, bicepFile: string) {
   return await connection.sendRequest(getFileReferencesRequestType, {
+    path: bicepFile,
+  });
+}
+
+async function format(connection: MessageConnection, bicepFile: string) {
+  return await connection.sendRequest(formatRequestType, {
     path: bicepFile,
   });
 }
