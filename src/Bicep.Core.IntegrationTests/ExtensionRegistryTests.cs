@@ -744,7 +744,7 @@ resource test 'test@v1' = {
         result.Template.Should().HaveValueAtPath("$.resources['test']['properties']['bodyProp']", "fallback body");
 
         result.Should().HaveDiagnostics(new[]{
-            ("BCP081", DiagnosticLevel.Warning, "Resource type \"test@v1\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed.")
+            ("BCP081", DiagnosticLevel.Warning, "Resource type \"test@v1\" does not have types available. Either the type or version does not exist, or Bicep does not yet know about it. This does not prevent attempting deployment, but does mean Bicep may not be able to provide IntelliSense or detect potential errors.")
         });
     }
 
