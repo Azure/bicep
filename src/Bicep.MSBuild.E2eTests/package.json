@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "private": true,
   "devDependencies": {
-    "@eslint/js": "^9.30.0",
+    "@eslint/js": "^9.31.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.5.1",
     "@types/cross-spawn": "^6.0.6",
     "@types/eslint__js": "^8.42.3",
