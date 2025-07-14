@@ -2,21 +2,13 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
-using Azure.Deployments.Core.Diagnostics;
-using Azure.Deployments.Expression.Expressions;
-using Azure.Deployments.Templates.Extensions;
-using Azure.Identity;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Intermediate;
-using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.SourceGraph;
@@ -1420,12 +1412,27 @@ namespace Bicep.Core.Semantics.Namespaces
                     }
 
                     //error to fail the build-param with clear message of the missing env var name
-                    var paramAssignmentDefinition = model.Root.ParameterAssignments.Where(
-                        p => p.DeclaringParameterAssignment.Value.Span.Position == functionCall.Span.Position
-                    ).FirstOrDefault();
-                    var paramName = paramAssignmentDefinition?.Name ?? "";
-                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).FailedToEvaluateParameter(paramName,
-                    $"Environment variable \"{envVariableName}\" does not exist, and no default value set.{suggestion}")));
+                    var paramAssignmentDefinition = model.Root.ParameterAssignments.FirstOrDefault(p => p.DeclaringParameterAssignment.Value.Span.Position == functionCall.Span.Position);
+
+                    IDiagnostic? errorDiagnostic = null;
+
+                    if (paramAssignmentDefinition is not null)
+                    {
+                        errorDiagnostic = DiagnosticBuilder.ForPosition(arguments[0])
+                            .FailedToEvaluateParameter(paramAssignmentDefinition.Name, $"Environment variable \"{envVariableName}\" does not exist, and no default value set.{suggestion}");
+                    }
+                    else if (model.Root.ExtensionConfigAssignments.FirstOrDefault(a => a.DeclaringExtensionConfigAssignment.Config is not null && TextSpan.AreOverlapping(a.DeclaringExtensionConfigAssignment.Config.Span, functionCall.Span)) is { } extConfigAssignment)
+                    {
+                        errorDiagnostic = DiagnosticBuilder.ForPosition(arguments[0])
+                            .FailedToEvaluateExtensionConfig(extConfigAssignment.Name, $"Environment variable \"{envVariableName}\" does not exist, and no default value set.{suggestion}");
+                    }
+
+                    errorDiagnostic ??= DiagnosticBuilder.ForPosition(arguments[0])
+                        .FailedToEvaluateParameter(
+                            string.Empty,
+                            $"Environment variable \"{envVariableName}\" does not exist, and no default value set.{suggestion}");
+
+                    return new(ErrorType.Create(errorDiagnostic));
                 }
             }
             return new(TypeFactory.CreateStringLiteralType(envVariableValue),
