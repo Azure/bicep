@@ -27,11 +27,20 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
-            var minimumVersionString = (GetConfigurationValue(model.Configuration.Analyzers, "minimumVersion", "11.0") as string) ?? "11.0";
+            var minimumVersionString = GetConfigurationValue(model.Configuration.Analyzers, "minimumVersion", "11.0");
             if (!Version.TryParse(minimumVersionString, out var minimumVersion))
             {
-                // If the configuration value is invalid, use the default
-                minimumVersion = new Version("11.0");
+                // If the version is not valid, emit a diagnostic and skip further analysis
+                return [new Diagnostic(
+                    new TextSpan(),
+                    diagnosticLevel,
+                    DiagnosticSource.CoreLinter,
+                    Code,
+                    $"Configuration value for \"minimumVersion\" is not valid: {minimumVersion}")
+                    {
+                        Uri = Uri,
+                        Styling = DiagnosticStyling,
+                    }];
             }
             var visitor = new DeploymentScriptVisitor(this, model, diagnosticLevel, minimumVersion);
             visitor.Visit(model.SourceFile.ProgramSyntax);
