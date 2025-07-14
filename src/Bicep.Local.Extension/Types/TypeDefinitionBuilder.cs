@@ -138,13 +138,12 @@ public class TypeDefinitionBuilder
                         throw new NotImplementedException($"Unsupported collection type {elementType}");
                     }
 
-                    if (!TryResolveTypeReference(elementType, annotation, out typeReference))
+                    if (!TryResolveTypeReference(elementType, annotation, out var elementTypeReference))
                     {
-                        typeReference = factory.Create(()
-                             => new ArrayType(factory.GetReference(
-                                                     typeCache.GetOrAdd(elementType
-                                                    , _ => factory.Create(() => GenerateForRecord(factory, typeCache, elementType))))));
+                        elementTypeReference = typeCache.GetOrAdd(elementType, _ => factory.Create(() => GenerateForRecord(factory, typeCache, elementType)));
                     }
+
+                    typeReference = typeCache.GetOrAdd(propertyType, _ => factory.Create(() => new ArrayType(elementType)));
                 }
                 else if (propertyType.IsClass)
                 {
