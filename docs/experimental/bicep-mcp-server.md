@@ -4,37 +4,36 @@
 > This feature is currently in Preview while we collect feedback.
 
 ## What is it?
-The Bicep VS Code extension now includes a Bicep MCP server with agentic tools to support Bicep code generation for AI agents in VS Code. Model Context Protocol (MCP) is an open standard that enables AI models to interact with external tools and services through a unified interface. 
-
-### What is MCP? 
-MCP follows a client-server architecture:
-- MCP clients (like VS Code) connect to MCP servers and request actions on behalf of the AI model.
-- MCP servers provide one or more tools that expose specific functionalities through a well-defined interface.
-- The Model Context Protocol (MCP) defines the message format for communication between clients and servers, including tool discovery, invocation, and response handling
+The Bicep VS Code extension now includes a Bicep MCP server with agentic tools to support Bicep code generation for AI agents in VS Code. To find out more about MCP, see [Use MCP servers in VS Code](https://code.visualstudio.com/docs/copilot/chat/mcp-servers).
 
 ### Available Bicep MCP tools 
-- `ListAzResourceTypesForProvider`: Lists all available Azure resource types for a specific provider.The return value is a newline-separated list of resource types including their API version, e.g. `Microsoft.KeyVault/vaults@2024-11-01`.Such information is the most accurate and up-to-date as it is sourced from the Azure Resource Provider APIs. 
-- `GetAzResourceTypeSchema`: Gets the schema for a specific Azure resource type and API version. Such information is the most accurate and up-to-date as it is sourced from the Azure Resource Provider APIs. 
-- `GetBicepBestPractices`:  Lists up-to-date recommended Bicep best-practices for authoring templates. These practices help improve maintainability, security, and reliability of your Bicep files. This is helpful additional context if you've been asked to generate Bicep code. 
+- `list_az_resource_types_for_provider`: Lists all available Azure resource types for a specific provider. The return value is a newline-separated list of resource types including their API version, e.g. `Microsoft.KeyVault/vaults@2024-11-01`. Such information is the most accurate and up-to-date as it is sourced from the Azure Resource Provider APIs. 
+- `get_az_resource_type_schema`: Gets the schema for a specific Azure resource type and API version. Such information is the most accurate and up-to-date as it is sourced from the Azure Resource Provider APIs. 
+- `get_bicep_best_practices`:  Lists up-to-date recommended Bicep best-practices for authoring templates. These practices help improve maintainability, security, and reliability of your Bicep files. This is helpful additional context if you've been asked to generate Bicep code.
+
+Please see below on how to contribute to the Bicep best practices tool. 
 
 
 ## How to use it?
 ### Prerequisites
-- Install the latest version of Visual Studio Code [TODO: LINK]
-- Access to Copilot [TODO: LINK] 
+- Install the latest version of the [Bicep VS Code Extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-bicep)
+- Confirm access to [Copilot in VS Code](https://code.visualstudio.com/docs/copilot/overview)
 
-### Using the Bicep tools available tools in Agent Mode 
+### Installing 
+[Install the "Nightly" build](https://github.com/Azure/bicep/blob/main/docs/installing-nightly.md) of the Bicep extension. You should then automatically have access to the Bicep MCP server and all published tools in VS Code.
 
+### Troubleshooting 
+The Bicep server may not appear in your list of MCP servers and tools in VS Code until it has been triggered by a prompt. If you do not see the server, try providing a Bicep related-prompt in the Copilot chat window in "Agent" mode (as shown in Step #3 of the Viewing and Using Bicep Tools in the Bicep MCP Server section below).  
+
+## Viewing and Using Bicep Tools in the Bicep MCP Server
 1. Open the GitHub copilot extension window and select "Agent Mode".
 <img width="985" height="527" alt="image" src="https://github.com/user-attachments/assets/550cab6b-9d8b-450e-9cab-f015bf48afc3" />
 
 2. Click on the tool icon in the GitHub copilot chat window and search for "Bicep (PREVIEW). 
 <img width="697" height="504" alt="image" src="https://github.com/user-attachments/assets/3b68977c-01dc-4eae-b08f-47a795d6564f" />
 
-3. Start using Agent Mode to help with your Bicep tasks! [TODO: Show examples] 
-
-### Troubleshooting 
-TODO 
+3. Start using Agent Mode to help with your Bicep tasks! 
+<img width="584" height="979" alt="image" src="https://github.com/user-attachments/assets/27a45a65-9467-409e-af49-443e22ee778c" />
 
 ## Limitations 
 > [!NOTE]
@@ -42,5 +41,12 @@ TODO
 
 These tools provide additional context to help the chosen model generate semantically and syntactically correct Bicep code. These tools are not designed to deploy directly to Azure. 
 
+There is no way to definitively guarantee whether the agent orchestrator will use any particular Bicep tool. As a workaround, you can view the available Bicep tools and use specific prompting to guide the agent orchestrator to invoke a tool (e.g. "Create a Bicep file to do X using Bicep best practices"  
+
+## Contributing and providing feedack 
+These tools are early on and we value and welcome feedback to improve them. 
+
+In particular, we are looking to crowd source community wisdom on the `get_bicep_best_practices` tool. You can view the details of the tool here [TODO] and submit contributions with rationale here [TODO]. 
+
 ## Raising bugs or feature requests 
-TODO
+Please raise bug reports or feature requests under [Bicep Issues](https://github.com/Azure/bicep/issues) and tag with "story: bicep MCP". 
