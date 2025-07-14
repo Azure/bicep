@@ -38,7 +38,7 @@ param myObject = {
   padLeft: padLeft(13, 5)
   range: range(0, 3)
   reduce: reduce(['a', 'b', 'c'], '', (a, b) => '${a}-${b}')
-//@[39:40) Local a. Type: 'a' | 'b' | 'c'. Declaration start char: 39, length: 1
+//@[39:40) Local a. Type: string. Declaration start char: 39, length: 1
 //@[42:43) Local b. Type: 'a' | 'b' | 'c'. Declaration start char: 42, length: 1
   replace: replace('abc', 'b', '/')
   skip: skip([1, 2, 3], 1)
