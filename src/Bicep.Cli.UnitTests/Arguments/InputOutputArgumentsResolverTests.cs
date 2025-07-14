@@ -68,7 +68,7 @@ public class InputOutputArgumentsResolverTests
         FluentActions.Invoking(() => resolver.SplitFilePatternOnWildcard(filePatternWithBackslash))
             .Should()
             .Throw<CommandLineException>()
-            .WithMessage($"The filePattern '{filePatternWithBackslash}' contains '\\'. Bicep does not support '\\' in file paths on non-Windows platforms when used as command-line inputs.");
+            .WithMessage($"The file pattern '{filePatternWithBackslash}' contains '\\'. Bicep does not support '\\' in file paths on non-Windows platforms when used as command-line inputs.");
     }
 #else
     [TestMethod]
@@ -109,7 +109,7 @@ public class InputOutputArgumentsResolverTests
         FluentActions.Invoking(() => resolver.PathToUri(pathWithBackslash))
             .Should()
             .Throw<CommandLineException>()
-            .WithMessage($"The path '{pathWithBackslash}' contains '\\'. Bicep does not support '\\' in file paths on non-Windows platforms when used as command-line inputs.");
+            .WithMessage($"The file path '{pathWithBackslash}' contains '\\'. Bicep does not support '\\' in file paths on non-Windows platforms when used as command-line inputs.");
     }
 #else
     [TestMethod]

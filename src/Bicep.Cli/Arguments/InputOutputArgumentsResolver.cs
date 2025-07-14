@@ -142,7 +142,7 @@ namespace Bicep.Cli.Arguments
         {
             if (!OperatingSystem.IsWindows() && filePattern.Contains('\\'))
             {
-                throw new CommandLineException(string.Format(CliResources.FilePathContainsBackslash, filePattern));
+                throw new CommandLineException(string.Format(CliResources.FilePatternContainsBackslash, filePattern));
             }
 
             var wildcardIndex = filePattern.IndexOf('*');
