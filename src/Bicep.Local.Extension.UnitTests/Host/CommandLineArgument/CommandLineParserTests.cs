@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Bicep.Local.Extension.UnitTests.HostTests.CommandLineArgumentTests;
+namespace Bicep.Local.Extension.UnitTests.Host.CommandLineArgument;
 
 [TestClass]
 public class CommandLineParserTests

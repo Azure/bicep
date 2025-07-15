@@ -9,7 +9,7 @@ using Bicep.Local.Extension.Host.Handlers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Local.Extension.UnitTests.HostTests.Extensions;
+namespace Bicep.Local.Extension.UnitTests.Host.Extensions;
 
 [TestClass]
 public class TypeExtensionTests

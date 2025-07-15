@@ -11,7 +11,7 @@ using Bicep.Local.Extension.Host.Handlers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Local.Extension.UnitTests.HostTests.Handlers;
+namespace Bicep.Local.Extension.UnitTests.Host.Handlers;
 
 [TestClass]
 public class ResourceHandlerDispatcherTests
