@@ -57,8 +57,8 @@ public class TypeDefinitionBuilder
                 ? throw new ArgumentException(nameof(typeToTypeBaseMap))
                 : typeToTypeBaseMap;
 
-        visited = new HashSet<Type>();
-        typeCache = new ConcurrentDictionary<Type, TypeBase>();
+        this.visited = new HashSet<Type>();
+        this.typeCache = new ConcurrentDictionary<Type, TypeBase>();
     }
 
     /// <summary>
@@ -84,8 +84,8 @@ public class TypeDefinitionBuilder
                     , Settings
                     , null);
 
-        return new(GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes())),
-                   GetString(stream => TypeSerializer.SerializeIndex(stream, index)));
+        return new(TypesJson: GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes())),
+                   IndexJson: GetString(stream => TypeSerializer.SerializeIndex(stream, index)));
     }
 
     protected virtual ResourceType GenerateResource(TypeFactory typeFactory, ConcurrentDictionary<Type, TypeBase> typeCache, Type type)
@@ -136,13 +136,12 @@ public class TypeDefinitionBuilder
                         throw new NotImplementedException($"Unsupported collection type {elementType}");
                     }
 
-                    if (!TryResolveTypeReference(elementType, annotation, out typeReference))
+                    if (!TryResolveTypeReference(elementType, annotation, out var elementTypeReference))
                     {
-                        typeReference = factory.Create(()
-                             => new ArrayType(factory.GetReference(
-                                                     typeCache.GetOrAdd(elementType
-                                                    , _ => factory.Create(() => GenerateForRecord(factory, typeCache, elementType))))));
-                    }
+                        elementTypeReference = typeCache.GetOrAdd(elementType, _ => factory.Create(() => GenerateForRecord(factory, typeCache, elementType)));                      
+                    }                    
+
+                    typeReference = typeCache.GetOrAdd(propertyType, _ => factory.Create(() => new ArrayType(factory.GetReference(elementTypeReference))));
                 }
                 else if (propertyType.IsClass)
                 {
