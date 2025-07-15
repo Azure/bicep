@@ -54,6 +54,7 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
   extensionConfigs: {
     k8s: {
       kubeConfig: 'kubeConfig2'
+//@[18:31) [stacks-extensibility-compat (Info)] Secure config property values must be a key vault reference to be valid for Deployment stack deployments. (bicep core linter https://aka.ms/bicep/linter-diagnostics#stacks-extensibility-compat) |'kubeConfig2'|
       namespace: 'ns2'
     }
   }
@@ -64,6 +65,7 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
   extensionConfigs: {
     kubernetes: {
       kubeConfig: 'kubeConfig2'
+//@[18:31) [stacks-extensibility-compat (Info)] Secure config property values must be a key vault reference to be valid for Deployment stack deployments. (bicep core linter https://aka.ms/bicep/linter-diagnostics#stacks-extensibility-compat) |'kubeConfig2'|
     }
   }
 }
@@ -73,6 +75,7 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
   extensionConfigs: {
     k8s: {
       kubeConfig: boolParam1 ? secureStrParam1 : strParam1
+//@[18:58) [stacks-extensibility-compat (Info)] Secure config property values must be a key vault reference to be valid for Deployment stack deployments. (bicep core linter https://aka.ms/bicep/linter-diagnostics#stacks-extensibility-compat) |boolParam1 ? secureStrParam1 : strParam1|
       namespace: boolParam1 ? strParam1 : 'falseCond'
     }
   }
@@ -93,6 +96,7 @@ module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.b
   extensionConfigs: {
     k8s: {
       kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
+//@[18:71) [stacks-extensibility-compat (Info)] Secure config property values must be a key vault reference to be valid for Deployment stack deployments. (bicep core linter https://aka.ms/bicep/linter-diagnostics#stacks-extensibility-compat) |aks.listClusterAdminCredential().kubeconfigs[0].value|
       namespace: testResource1.properties.namespace
     }
   }
@@ -110,6 +114,7 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
   extensionConfigs: {
     k8s: {
       kubeConfig: k8s.config.kubeConfig
+//@[18:39) [stacks-extensibility-compat (Info)] Secure config property values must be a key vault reference to be valid for Deployment stack deployments. (bicep core linter https://aka.ms/bicep/linter-diagnostics#stacks-extensibility-compat) |k8s.config.kubeConfig|
       namespace: k8s.config.namespace
     }
   }
@@ -120,6 +125,7 @@ module moduleWithExtsUsingPiecemealInheritanceLooped 'child/hasConfigurableExten
   extensionConfigs: {
     k8s: {
       kubeConfig: k8s.config.kubeConfig
+//@[18:39) [stacks-extensibility-compat (Info)] Secure config property values must be a key vault reference to be valid for Deployment stack deployments. (bicep core linter https://aka.ms/bicep/linter-diagnostics#stacks-extensibility-compat) |k8s.config.kubeConfig|
       namespace: k8s.config.namespace
     }
   }
@@ -130,6 +136,7 @@ module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlia
   extensionConfigs: {
     k8s: {
       kubeConfig: boolParam1 ? secureStrParam1 : k8s.config.kubeConfig
+//@[18:70) [stacks-extensibility-compat (Info)] Secure config property values must be a key vault reference to be valid for Deployment stack deployments. (bicep core linter https://aka.ms/bicep/linter-diagnostics#stacks-extensibility-compat) |boolParam1 ? secureStrParam1 : k8s.config.kubeConfig|
       namespace: boolParam1 ? az.resourceGroup().location : k8s.config.namespace
     }
   }
