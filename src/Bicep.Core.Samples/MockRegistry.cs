@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -41,8 +42,16 @@ public class MockRegistry
             modules[registryPath] = new(sourceFile.Contents, new(registryPath));
         }
 
-        var clientFactory = DataSetsExtensions.CreateMockRegistryClients(modules.ToImmutableDictionary());
+        var clientFactory = DataSetsExtensions.CreateMockRegistryClients(modules.ToImmutableDictionary(), DefaultMockExtensions.Select(ext => ext.ToRepoDescriptor()).ToArray());
         await DataSetsExtensions.PublishModulesToRegistryAsync(modules.ToImmutableDictionary(), clientFactory, publishSource);
+
+        var extServiceBuilder = new ServiceBuilder()
+            .WithContainerRegistryClientFactory(clientFactory);
+
+        foreach (var mockExt in DefaultMockExtensions)
+        {
+            await ExtensionTestHelper.AddMockExtension(extServiceBuilder, mockExt);
+        }
 
         return clientFactory;
     }
@@ -74,4 +83,12 @@ public class MockRegistry
 
         return DataSetsExtensions.CreateMockTemplateSpecRepositoryFactory(modules.ToImmutableDictionary());
     }
+
+    private static RegistrySourcedExtensionMockData[] DefaultMockExtensions =>
+    [
+        MockExtensionFactory.CreateMockExtWithNoConfigType("noconfig"),
+        MockExtensionFactory.CreateMockExtWithObjectConfigType("hasconfig"),
+        MockExtensionFactory.CreateMockExtWithSecureConfigType("hassecureconfig"),
+        MockExtensionFactory.CreateMockExtWithDiscriminatedConfigType("hasdiscrimconfig")
+    ];
 }

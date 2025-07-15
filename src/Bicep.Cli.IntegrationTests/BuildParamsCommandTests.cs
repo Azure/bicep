@@ -332,7 +332,15 @@ output foo string = foo
         {
             var data = baselineData.GetData(TestContext);
 
-            var (output, error, result) = await Bicep(Settings, "build-params", data.Parameters.OutputFilePath, "--bicep-file", data.Bicep.OutputFilePath, "--stdout");
+            var clients = await MockRegistry.Build();
+            var settings = Settings with
+            {
+                FeatureOverrides = new(TestContext, RegistryEnabled: true),
+                ClientFactory = clients.ContainerRegistry,
+                TemplateSpecRepositoryFactory = clients.TemplateSpec
+            };
+
+            var (output, error, result) = await Bicep(settings, "build-params", data.Parameters.OutputFilePath, "--bicep-file", data.Bicep.OutputFilePath, "--stdout");
 
             using (new AssertionScope())
             {

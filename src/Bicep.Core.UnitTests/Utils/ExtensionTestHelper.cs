@@ -66,6 +66,13 @@ public static class ExtensionTestHelper
     public static RegistrySourcedExtensionMockData CreateMockExtensionMockData(string name, string version, string repoVersion, CustomExtensionTypeFactoryDelegates typeFactoryDelegates)
         => new(name, version, repoVersion, ExtensionResourceTypeHelper.CreateTypesTgzBytesForCustomExtension(name, version, typeFactoryDelegates));
 
+    public static async Task<ServiceBuilder> AddMockExtension(ServiceBuilder services, RegistrySourcedExtensionMockData registrySourcedExtensionMockData)
+    {
+        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), registrySourcedExtensionMockData.ExtensionRepoReference, registrySourcedExtensionMockData.TypesTgzData);
+
+        return services;
+    }
+
     public static async Task<ServiceBuilder> AddMockExtensions(ServiceBuilder services, TestContext testContext, params RegistrySourcedExtensionMockData[] extensionMocks)
     {
         var clientFactory = RegistryHelper.CreateMockRegistryClient(
@@ -77,7 +84,7 @@ public static class ExtensionTestHelper
 
         foreach (var ext in extensionMocks)
         {
-            await ExtensionTestHelper.AddMockExtension(services, testContext, ext);
+            await ExtensionTestHelper.AddMockExtension(services, ext);
         }
 
         return services;
@@ -99,11 +106,4 @@ public static class ExtensionTestHelper
     }
 
     public static IDirectoryHandle GetCacheRootDirectory(TestContext testContext) => FileHelper.GetCacheRootDirectory(testContext).EnsureExists();
-
-    private static async Task<ServiceBuilder> AddMockExtension(ServiceBuilder services, TestContext testContext, RegistrySourcedExtensionMockData registrySourcedExtensionMockData)
-    {
-        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), registrySourcedExtensionMockData.ExtensionRepoReference, registrySourcedExtensionMockData.TypesTgzData);
-
-        return services;
-    }
 }
