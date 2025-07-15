@@ -733,6 +733,8 @@ namespace Bicep.Core.Emit
             var evaluator = new ParameterAssignmentEvaluator(model);
             HashSet<Symbol> erroredSymbols = new();
 
+            // TODO(kylealbert): verify the below logic actually applies here, if not, get rid of it
+
             foreach (var symbol in GetTopologicallySortedSymbols(referencesInValues))
             {
                 if (symbol.Type is ErrorType)
