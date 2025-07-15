@@ -3,17 +3,57 @@
   "contentVersion": "1.0.0.0",
   "parameters": {},
   "extensionConfigs": {
-    "k8s": {
-      "kubeConfig": {
+    "hasObjConfig1": {
+      "requiredString": {
+        "value": "valueFromParams"
+      }
+    },
+    "hasObjConfig2": {
+      "optionalString": {
+        "value": "optional"
+      }
+    },
+    "hasObjConfig3": {},
+    "hasSecureConfig1": {
+      "requiredSecureString": {
         "keyVaultReference": {
           "keyVault": {
             "id": "/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/mock-rg/providers/Microsoft.KeyVault/vaults/kv"
           },
-          "secretName": "myKubeConfig"
+          "secretName": "mySecret"
         }
+      }
+    },
+    "hasSecureConfig2": {
+      "requiredSecureString": {
+        "value": "Inlined"
       },
-      "namespace": {
-        "value": "nsFromParamFile"
+      "optionalString": {
+        "value": "valueFromParams"
+      }
+    },
+    "hasDiscrimConfig1": {
+      "discrim": {
+        "value": "a"
+      },
+      "z1": {
+        "value": "z1v"
+      },
+      "a1": {
+        "value": "a1v"
+      }
+    },
+    "hasDiscrimConfig2": {
+      "a1": {
+        "value": "a1v"
+      }
+    },
+    "hasDiscrimConfig3": {
+      "discrim": {
+        "value": "b"
+      },
+      "b1": {
+        "value": "b1v"
       }
     }
   }
