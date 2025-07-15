@@ -7,4 +7,5 @@ coverage
 syntaxes/bicep.tmlanguage
 syntaxes/language-configuration.json
 bicepLanguageServer
+bicepMcpServer
 ThirdPartyNotices.txt

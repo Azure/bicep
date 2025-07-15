@@ -5,7 +5,6 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Text;
-using Bicep.Core.TypeSystem.Providers;
 
 namespace Bicep.Core.Syntax
 {
@@ -34,6 +33,8 @@ namespace Bicep.Core.Syntax
         public ObjectSyntax? Config => (this.WithClause as ExtensionWithClauseSyntax)?.Config as ObjectSyntax;
 
         public IdentifierSyntax? Alias => (this.AsClause as AliasAsClauseSyntax)?.Alias;
+
+        public string? TryGetAliasFromAsClause() => this.Alias?.IdentifierName;
 
         public string? TryGetSymbolName() => (this.Alias, this.SpecificationString) switch
         {

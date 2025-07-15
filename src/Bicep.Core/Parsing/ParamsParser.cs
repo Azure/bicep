@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Features;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 
@@ -11,8 +12,11 @@ namespace Bicep.Core.Parsing
 {
     public class ParamsParser : BaseParser
     {
-        public ParamsParser(string text) : base(text)
+        private readonly IFeatureProvider featureProvider;
+
+        public ParamsParser(string text, IFeatureProvider featureProvider) : base(text)
         {
+            this.featureProvider = featureProvider;
         }
 
         public override ProgramSyntax Program()
@@ -64,12 +68,12 @@ namespace Bicep.Core.Parsing
                             LanguageConstants.ParameterKeyword => this.ParameterAssignment(leadingNodes),
                             LanguageConstants.VariableKeyword => this.VariableDeclaration(leadingNodes),
                             LanguageConstants.ImportKeyword => this.CompileTimeImportDeclaration(ExpectKeyword(LanguageConstants.ImportKeyword), leadingNodes),
-                            LanguageConstants.ExtensionKeyword => this.ExtensionConfigAssignment(leadingNodes),
+                            LanguageConstants.ExtensionConfigKeyword => this.ExtensionConfigAssignment(leadingNodes),
                             LanguageConstants.TypeKeyword => this.TypeDeclaration(leadingNodes),
-                            _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration()),
+                            _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration(featureProvider.ModuleExtensionConfigsEnabled)),
                         },
                         TokenType.NewLine => this.NewLine(),
-                        _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration()),
+                        _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration(featureProvider.ModuleExtensionConfigsEnabled)),
                     };
 
                     string? ValidateKeyword(string keyword) =>
@@ -128,20 +132,11 @@ namespace Bicep.Core.Parsing
 
         private ExtensionConfigAssignmentSyntax ExtensionConfigAssignment(IEnumerable<SyntaxBase> leadingNodes)
         {
-            var extKeyword = ExpectKeyword(LanguageConstants.ExtensionKeyword);
+            var extKeyword = ExpectKeyword(LanguageConstants.ExtensionConfigKeyword);
+            var aliasSyntax = this.IdentifierWithRecovery(b => b.ExpectedExtensionAliasName(), RecoveryFlags.None, TokenType.Identifier, TokenType.NewLine);
+            var withClause = this.WithRecovery(this.ExtensionWithClause, GetSuppressionFlag(aliasSyntax), TokenType.NewLine);
 
-            var specificationSyntax = reader.Peek().Type switch
-            {
-                TokenType.Identifier => new IdentifierSyntax(reader.Read()),
-                _ => this.WithRecovery(
-                    () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedExtensionSpecification()),
-                    RecoveryFlags.None,
-                    TokenType.NewLine)
-            };
-
-            var withClause = this.WithRecovery(this.ExtensionWithClause, GetSuppressionFlag(specificationSyntax), TokenType.NewLine);
-
-            return new(leadingNodes, extKeyword, specificationSyntax, withClause);
+            return new(leadingNodes, extKeyword, aliasSyntax, withClause);
         }
 
         private ExtensionWithClauseSyntax ExtensionWithClause()

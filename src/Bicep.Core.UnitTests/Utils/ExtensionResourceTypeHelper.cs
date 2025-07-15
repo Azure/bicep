@@ -331,4 +331,89 @@ public static class ExtensionResourceTypeHelper
             entry.DataStream.CopyTo(fileStream);
         }
     }
+
+    public static BinaryData CreateTypesTgzBytesForCustomExtension(string extName, string extVersion, CustomExtensionTypeFactoryDelegates customExtensionTypeFactoryDelegates)
+    {
+        var typesJsonTypeFactory = new TypeFactory([]);
+
+        var typesJsonTypeContext = new CreateCustomExtensionTypeContext(typesJsonTypeFactory);
+
+        // core types
+        customExtensionTypeFactoryDelegates.CreateCoreTypes?.Invoke(typesJsonTypeContext, typesJsonTypeContext.TypeFactory);
+
+        // additional shared types
+        customExtensionTypeFactoryDelegates.CreateSharedTypes?.Invoke(typesJsonTypeContext, typesJsonTypeContext.TypeFactory);
+
+        // configuration type
+        var configurationType = customExtensionTypeFactoryDelegates.CreateConfigurationType?.Invoke(typesJsonTypeContext, typesJsonTypeContext.TypeFactory);
+
+        var settings = new TypeSettings(
+            name: extName,
+            version: extVersion,
+            isSingleton: false,
+            configurationType: configurationType is not null
+                ? new CrossFileTypeReference("types.json", typesJsonTypeFactory.GetIndex(configurationType))
+                : null!);
+
+        // resource types
+        var resourceTypes = customExtensionTypeFactoryDelegates.CreateResourceTypes?.Invoke(typesJsonTypeContext, typesJsonTypeContext.TypeFactory) ?? [];
+
+        var index = new TypeIndex(
+            resourceTypes.ToDictionary(x => x.Name, x => new CrossFileTypeReference("types.json", typesJsonTypeContext.TypeFactory.GetIndex(x))),
+            new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
+            settings,
+            null);
+
+        return GetTypesTgzBytesFromFiles(
+            ("index.json", StreamHelper.GetString(stream => TypeSerializer.SerializeIndex(stream, index))),
+            ("types.json", StreamHelper.GetString(stream => TypeSerializer.Serialize(stream, typesJsonTypeContext.TypeFactory.GetTypes()))));
+    }
+}
+
+public record CreateCustomExtensionTypeContext(TypeFactory TypeFactory)
+{
+    private Dictionary<string, ITypeReference> TaggedTypes { get; } = [];
+
+    public ITypeReference AddTaggedTypeRef(string tag, ITypeReference typeRef)
+    {
+        TaggedTypes.Add(tag, typeRef);
+
+        return typeRef;
+    }
+
+    public ITypeReference GetTaggedTypeRef(string tag) => TaggedTypes[tag];
+
+    public TType GetTaggedType<TType>(string tag) where TType : TypeBase => (TType)GetTaggedTypeRef(tag).Type;
+
+    public ITypeReference CoreStringTypeRef => GetTaggedTypeRef(nameof(String));
+
+    public ITypeReference CreateTypeGetRef(Func<TypeBase> typeFn, string? tag = null)
+        => TagIfSet(tag, TypeFactory.GetReference(TypeFactory.Create(typeFn)));
+
+    public ITypeReference CreateStringLiteralType(string value, string? tag = null)
+        => TagIfSet(tag, TypeFactory.GetReference(TypeFactory.Create(() => new StringLiteralType(value))));
+
+    public ITypeReference CreateObjectType(string name, Dictionary<string, ObjectTypeProperty> properties, string? tag = null)
+        => TagIfSet(tag, TypeFactory.GetReference(TypeFactory.Create(() => new ObjectType(name, properties, null))));
+
+    private ITypeReference TagIfSet(string? tag, ITypeReference typeRef)
+        => tag is not null ? AddTaggedTypeRef(tag, typeRef) : typeRef;
+}
+
+public record CustomExtensionTypeFactoryDelegates
+{
+    public static readonly CustomExtensionTypeFactoryDelegates NoTypes = new() { CreateCoreTypes = null };
+
+    public Action<CreateCustomExtensionTypeContext, TypeFactory>? CreateCoreTypes { get; init; } = CreateDefaultCoreTypes;
+
+    public Action<CreateCustomExtensionTypeContext, TypeFactory>? CreateSharedTypes { get; init; }
+
+    public Func<CreateCustomExtensionTypeContext, TypeFactory, TypeBase>? CreateConfigurationType { get; init; }
+
+    public Func<CreateCustomExtensionTypeContext, TypeFactory, IEnumerable<ResourceType>>? CreateResourceTypes { get; init; }
+
+    public static void CreateDefaultCoreTypes(CreateCustomExtensionTypeContext ctx, TypeFactory tf)
+    {
+        ctx.AddTaggedTypeRef(nameof(String), tf.GetReference(tf.Create(() => new StringType())));
+    }
 }

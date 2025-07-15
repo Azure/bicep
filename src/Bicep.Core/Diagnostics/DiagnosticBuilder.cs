@@ -16,7 +16,6 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.IO.Abstraction;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Diagnostics
 {
@@ -1574,7 +1573,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP335",
                 $"The provided value can have a length as large as {sourceMaxLength} and may be too long to assign to a target with a configured maximum length of {targetMaxLength}.");
 
-            public Diagnostic UnrecognizedParamsFileDeclaration()
+            public Diagnostic UnrecognizedParamsFileDeclaration(bool moduleExtensionConfigsEnabled)
             {
                 List<string> supportedDeclarations = [
                     LanguageConstants.UsingKeyword,
@@ -1583,6 +1582,11 @@ namespace Bicep.Core.Diagnostics
                     LanguageConstants.VariableKeyword,
                     LanguageConstants.TypeKeyword,
                 ];
+
+                if (moduleExtensionConfigsEnabled)
+                {
+                    supportedDeclarations.Add(LanguageConstants.ExtensionConfigKeyword);
+                }
 
                 return CoreError(
                     "BCP337",
@@ -1922,12 +1926,24 @@ namespace Bicep.Core.Diagnostics
                 with
             { Fixes = [AsNonNullable(expression)] };
 
-            public Diagnostic InlineMustNotHaveValueAssigned() => CoreError(
+            public Diagnostic ExtensionAliasMustBeDefinedForInlinedRegistryExtensionDeclaration() => CoreError(
                 "BCP423",
+                "An extension alias must be defined for an extension declaration with an inlined registry reference.");
+
+            public Diagnostic MissingExtensionConfigAssignments(IEnumerable<string> identifiers) => CoreError(
+                "BCP424",
+                $"The following extensions are declared in the Bicep file but are missing a configuration assignment in the params files: {ToQuotedString(identifiers)}.");
+
+            public Diagnostic ExtensionConfigAssignmentDoesNotMatchToExtension(string identifier) => CoreError(
+                "BCP425",
+                $"The extension configuration assignment for \"{identifier}\" does not match an extension in the Bicep file.");
+
+            public Diagnostic InlineMustNotHaveValueAssigned() => CoreError(
+                "BCP426",
                 $"A parameter marked with the \"@{LanguageConstants.ParameterInlinePropertyName}\" decorator shouldn't have a value assigned.");
 
             public Diagnostic MissingParameterValue(string identifier) => CoreError(
-                "BCP424",
+                "BCP427",
                 $"Parameter {identifier} is declared but missing a value assignment.");
         }
 

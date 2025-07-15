@@ -126,7 +126,7 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public async Task Decompile_WithNonExistentOutDir_ShouldFail_WithExpectedErrorMessage()
+        public async Task Decompile_WithNonExistentOutDir_ShouldCreateOutDir()
         {
             var (jsonPath, outputDir) = Setup(TestContext, ValidTemplate, outputDir: "outputDir");
 
@@ -135,8 +135,8 @@ namespace Bicep.Cli.IntegrationTests
             using (new AssertionScope())
             {
                 output.Should().BeEmpty();
-                error.Should().Contain($"The specified output directory \"{outputDir}\" does not exist.");
-                result.Should().Be(1);
+                error.AsLines().Should().Contain(DecompilationDisclaimer);
+                result.Should().Be(0);
             }
         }
 
@@ -254,37 +254,49 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [DataRow("DoesNotExist.json")]
-        [DataRow("WrongDir\\Fake.json")]
+        [DataRow("WrongDir/Fake.json")]
         [DataTestMethod]
         public async Task Decompile_InvalidInputPath_ShouldFail_WithExpectedErrorMessage(string badPath)
         {
-            var badUri = PathHelper.FilePathToFileUrl(Path.GetFullPath(badPath));
+            badPath = Path.GetFullPath(badPath);
 
-            var (output, error, result) = await Bicep("decompile", badUri.LocalPath);
+            var (output, error, result) = await Bicep("decompile", badPath);
 
             using (new AssertionScope())
             {
                 output.Should().BeEmpty();
                 error.AsLines().Should().Contain(DecompilationDisclaimer);
-                error.AsLines().Should().Contain($"{badUri.LocalPath}: Decompilation failed with fatal error \"Failed to read {badUri}\"");
+
+                var directoryExists = Directory.Exists(Path.GetDirectoryName(badPath));
+                var fatalError = directoryExists
+                    ? $"Could not find file '{badPath}'."
+                    : $"Could not find a part of the path '{badPath}'.";
+
+                error.AsLines().Should().Contain($@"{badPath}: Decompilation failed with fatal error ""{fatalError}""");
                 result.Should().Be(1);
             }
         }
 
         [DataRow("DoesNotExist.json")]
-        [DataRow("WrongDir\\Fake.json")]
+        [DataRow("WrongDir/Fake.json")]
         [DataTestMethod]
         public async Task Decompile_InvalidInputPath_ToStdout_ShouldFail_WithExpectedErrorMessage(string badPath)
         {
-            var badUri = PathHelper.FilePathToFileUrl(Path.GetFullPath(badPath));
+            badPath = Path.GetFullPath(badPath);
 
-            var (output, error, result) = await Bicep("decompile", "--stdout", badUri.LocalPath);
+            var (output, error, result) = await Bicep("decompile", "--stdout", badPath);
 
             using (new AssertionScope())
             {
                 output.Should().BeEmpty();
                 error.AsLines().Should().Contain(DecompilationDisclaimer);
-                error.AsLines().Should().Contain($"{badUri.LocalPath}: Decompilation failed with fatal error \"Failed to read {badUri}\"");
+
+                var directoryExists = Directory.Exists(Path.GetDirectoryName(badPath));
+                var fatalError = directoryExists
+                    ? $"Could not find file '{badPath}'."
+                    : $"Could not find a part of the path '{badPath}'.";
+
+                error.AsLines().Should().Contain($@"{badPath}: Decompilation failed with fatal error ""{fatalError}""");
                 result.Should().Be(1);
             }
         }
@@ -322,7 +334,7 @@ namespace Bicep.Cli.IntegrationTests
                 var (output, error, result) = await Bicep("decompile", jsonPath);
 
                 output.Should().BeEmpty();
-                error.AsLines().Should().ContainMatch($"The output path \"{bicepPath}\" already exists. Use --force to overwrite the existing file.");
+                error.AsLines().Should().ContainMatch($"The output file \"{bicepPath}\" already exists. Use --force to overwrite the existing file.");
                 result.Should().Be(1);
             }
         }

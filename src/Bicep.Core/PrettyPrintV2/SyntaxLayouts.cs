@@ -122,7 +122,7 @@ namespace Bicep.Core.PrettyPrintV2
                 .Concat(
                     this.Spread(
                         syntax.Keyword,
-                        syntax.SpecificationString,
+                        syntax.Alias,
                         syntax.WithClause));
 
         private IEnumerable<Document> LayoutExtensionWithClauseSyntax(ExtensionWithClauseSyntax syntax) =>

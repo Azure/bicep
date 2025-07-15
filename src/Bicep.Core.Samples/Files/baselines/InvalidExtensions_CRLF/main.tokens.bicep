@@ -17,27 +17,12 @@ extension az
 //@[000:009) Identifier |extension|
 //@[010:012) Identifier |az|
 //@[012:014) NewLine |\r\n|
-extension kubernetes with {
+extension kubernetes as k8s
 //@[000:009) Identifier |extension|
 //@[010:020) Identifier |kubernetes|
-//@[021:025) Identifier |with|
-//@[026:027) LeftBrace |{|
-//@[027:029) NewLine |\r\n|
-  kubeConfig: 'DELETE'
-//@[002:012) Identifier |kubeConfig|
-//@[012:013) Colon |:|
-//@[014:022) StringComplete |'DELETE'|
-//@[022:024) NewLine |\r\n|
-  namespace: 'DELETE'
-//@[002:011) Identifier |namespace|
-//@[011:012) Colon |:|
-//@[013:021) StringComplete |'DELETE'|
-//@[021:023) NewLine |\r\n|
-} as k8s
-//@[000:001) RightBrace |}|
-//@[002:004) Identifier |as|
-//@[005:008) Identifier |k8s|
-//@[008:012) NewLine |\r\n\r\n|
+//@[021:023) Identifier |as|
+//@[024:027) Identifier |k8s|
+//@[027:031) NewLine |\r\n\r\n|
 
 //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
 //@[094:098) NewLine |\r\n\r\n|
