@@ -8,6 +8,15 @@
         "resolved": "8.3.0",
         "contentHash": "iri1druxHPUAvaFqTUKJG7NOHwnOLmWwfDorgezZWpeBWBJmk2o8niI7jL7zW9TEFGnUpMJi/JLG6FXgr3cM3A=="
       },
+      "Grpc.Core.Testing": {
+        "type": "Direct",
+        "requested": "[2.46.6, )",
+        "resolved": "2.46.6",
+        "contentHash": "Tw6XLH0iKxrB68vYSI2eVTGsGDcy6e7OQ2ugTQeiWARxLaOtAqhLkrZCbgzSzNSxzV1jlgEYt+SkVmUI8/alJw==",
+        "dependencies": {
+          "Grpc.Core": "2.46.6"
+        }
+      },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
         "type": "Direct",
         "requested": "[3.3.4, )",

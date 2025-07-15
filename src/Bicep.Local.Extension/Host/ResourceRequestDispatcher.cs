@@ -21,38 +21,42 @@ public class ResourceRequestDispatcher
     : Rpc.BicepExtension.BicepExtensionBase
 {
     private readonly ILogger<ResourceRequestDispatcher> logger;
-    private readonly IResourceHandlerDispatcher resourceHandlerDispatcher;
-
+    
     public ResourceRequestDispatcher(IResourceHandlerDispatcher resourceHandlerDispatcher, ILogger<ResourceRequestDispatcher> logger)
     {
+        ArgumentNullException.ThrowIfNull(logger, nameof(logger));
+        ArgumentNullException.ThrowIfNull(resourceHandlerDispatcher, nameof(resourceHandlerDispatcher));
+
         this.logger = logger;
-        this.resourceHandlerDispatcher = resourceHandlerDispatcher ?? throw new ArgumentNullException(nameof(resourceHandlerDispatcher));
+        this.ResourceHandlerDispatcher = resourceHandlerDispatcher;
     }
 
-    public override Task<Rpc.LocalExtensibilityOperationResponse> CreateOrUpdate(Rpc.ResourceSpecification request, ServerCallContext context)
-        => WrapExceptions(async () =>
+    public IResourceHandlerDispatcher ResourceHandlerDispatcher { get; }
+
+    public override async Task<Rpc.LocalExtensibilityOperationResponse> CreateOrUpdate(Rpc.ResourceSpecification request, ServerCallContext context)
+        => await WrapExceptionsAsync(async () =>
         {
             var handlerRequest = GetHandlerAndHandlerRequest(request);
             return ToLocalOperationResponse(await handlerRequest.Handler.CreateOrUpdate(handlerRequest.Request, context.CancellationToken));
         });
 
 
-    public override Task<Rpc.LocalExtensibilityOperationResponse> Preview(Rpc.ResourceSpecification request, ServerCallContext context)
-        => WrapExceptions(async () =>
+    public override async Task<Rpc.LocalExtensibilityOperationResponse> Preview(Rpc.ResourceSpecification request, ServerCallContext context)
+        => await WrapExceptionsAsync(async () =>
         {
             var handlerRequest = GetHandlerAndHandlerRequest(request);
             return ToLocalOperationResponse(await handlerRequest.Handler.Preview(handlerRequest.Request, context.CancellationToken));
         });
 
-    public override Task<Rpc.LocalExtensibilityOperationResponse> Get(Rpc.ResourceReference request, ServerCallContext context)
-        => WrapExceptions(async () =>
+    public override async Task<Rpc.LocalExtensibilityOperationResponse> Get(Rpc.ResourceReference request, ServerCallContext context)
+        => await WrapExceptionsAsync(async () =>
         {
             var handlerRequest = GetHandlerAndHandlerRequest(request);
             return ToLocalOperationResponse(await handlerRequest.Handler.Get(handlerRequest.Request, context.CancellationToken));
         });
 
-    public override Task<Rpc.LocalExtensibilityOperationResponse> Delete(Rpc.ResourceReference request, ServerCallContext context)
-        => WrapExceptions(async () =>
+    public override async Task<Rpc.LocalExtensibilityOperationResponse> Delete(Rpc.ResourceReference request, ServerCallContext context)
+        => await WrapExceptionsAsync(async () =>
         {
             var handlerRequest = GetHandlerAndHandlerRequest(request);
             return ToLocalOperationResponse(await handlerRequest.Handler.Delete(handlerRequest.Request, context.CancellationToken));
@@ -93,11 +97,11 @@ public class ResourceRequestDispatcher
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(resourceType, nameof(resourceType));
 
-        if (!resourceHandlerDispatcher.TryGetTypedResourceHandler(resourceType, out TypedResourceHandler? typedResourceHandler))
+        if (!ResourceHandlerDispatcher.TryGetTypedResourceHandler(resourceType, out TypedResourceHandler? typedResourceHandler))
         {
             // If no specific handler is found, validate a generic handler exists.
             // If a generic handler is available create a generic HandlerRequest.
-            var genericHandler = resourceHandlerDispatcher.GenericResourceHandler;
+            var genericHandler = ResourceHandlerDispatcher.GenericResourceHandler;
             if (genericHandler is null)
             {
                 throw new InvalidOperationException($"No handler found for resource type `{resourceType}`. Ensure a handler is registered for this type or provide a generic handler.");
@@ -183,7 +187,7 @@ public class ResourceRequestDispatcher
         return resource;
     }
 
-    protected virtual async Task<Rpc.LocalExtensibilityOperationResponse> WrapExceptions(Func<Task<Rpc.LocalExtensibilityOperationResponse>> func)
+    protected virtual async Task<Rpc.LocalExtensibilityOperationResponse> WrapExceptionsAsync(Func<Task<Rpc.LocalExtensibilityOperationResponse>> func)
     {
         try
         {
