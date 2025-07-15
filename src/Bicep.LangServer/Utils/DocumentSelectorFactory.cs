@@ -42,4 +42,3 @@ namespace Bicep.LanguageServer.Utils
               ]);
     }
 }
-

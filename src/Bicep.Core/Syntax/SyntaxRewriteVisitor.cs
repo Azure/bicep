@@ -170,8 +170,8 @@ namespace Bicep.Core.Syntax
         {
             var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
             hasChanges |= TryRewriteStrict(syntax.Name, out var name);
-            hasChanges |= TryRewriteStrict(syntax.AssignmentClause.Assignment, out var assignment);
-            hasChanges |= TryRewriteStrict(syntax.AssignmentClause.Value, out var value);
+            hasChanges |= TryRewriteStrict(syntax.AssignmentClause?.Assignment, out var assignment);
+            hasChanges |= TryRewriteStrict(syntax.AssignmentClause?.Value, out var value);
 
             if (!hasChanges)
             {

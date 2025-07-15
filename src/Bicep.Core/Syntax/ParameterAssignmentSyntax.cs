@@ -17,31 +17,34 @@ namespace Bicep.Core.Syntax
 
             this.Keyword = keyword;
             this.Name = name;
-            this.AssignmentClause = new AssignmentClauseSyntax(assignment, value);
+            if (assignment is not null && value is not null)
+            {
+                this.AssignmentClause = new AssignmentClauseSyntax(assignment, value);
+            }
         }
 
         public Token Keyword { get; }
 
         public IdentifierSyntax Name { get; }
 
-        public AssignmentClauseSyntax AssignmentClause { get; }
+        public AssignmentClauseSyntax? AssignmentClause { get; }
 
         public override void Accept(ISyntaxVisitor visitor)
             => visitor.VisitParameterAssignmentSyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(this.Keyword, this.AssignmentClause.Value ?? this.Keyword);
+        public override TextSpan Span => TextSpan.Between(this.Keyword, this.AssignmentClause?.Value ?? this.Keyword);
     }
 
     public class AssignmentClauseSyntax
     {
-        public AssignmentClauseSyntax(SyntaxBase? assignment, SyntaxBase? value)
+        public AssignmentClauseSyntax(SyntaxBase assignment, SyntaxBase value)
         {
             this.Assignment = assignment;
             this.Value = value;
         }
 
-        public SyntaxBase? Assignment { get; }
+        public SyntaxBase Assignment { get; }
 
-        public SyntaxBase? Value { get; }
+        public SyntaxBase Value { get; }
     }
 }

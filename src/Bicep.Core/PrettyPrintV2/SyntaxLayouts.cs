@@ -261,7 +261,7 @@ namespace Bicep.Core.PrettyPrintV2
                     syntax.Value));
 
         private IEnumerable<Document> LayoutParameterAssignmentSyntax(ParameterAssignmentSyntax syntax) =>
-            (syntax.AssignmentClause.Assignment is null || syntax.AssignmentClause.Value is null)
+            (syntax.AssignmentClause is null)
                 ? this.Spread(syntax.Keyword, syntax.Name)
                 : this.Spread(syntax.Keyword, syntax.Name, syntax.AssignmentClause.Assignment, syntax.AssignmentClause.Value);
 

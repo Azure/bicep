@@ -1087,8 +1087,8 @@ namespace Bicep.LanguageServer.Completions
                 case ParameterAssignmentSyntax paramAssignment:
                     // is the cursor after the equals sign in the param assignment?
                     return !paramAssignment.Name.Span.ContainsInclusive(offset) &&
-                           (paramAssignment.AssignmentClause.Assignment ?? SyntaxFactory.CreateNullLiteral()).Span.ContainsInclusive(offset) &&
-                            paramAssignment.AssignmentClause.Value is SkippedTriviaSyntax && offset == paramAssignment.AssignmentClause.Value.Span.Position;
+                           (paramAssignment.AssignmentClause?.Assignment ?? SyntaxFactory.CreateNullLiteral()).Span.ContainsInclusive(offset) &&
+                            paramAssignment.AssignmentClause?.Value is SkippedTriviaSyntax && offset == paramAssignment.AssignmentClause.Value.Span.Position;
 
                 case OutputDeclarationSyntax output:
                     // is the cursor after the equals sign in the output?
@@ -1107,7 +1107,7 @@ namespace Bicep.LanguageServer.Completions
                             return ReferenceEquals(outputDeclaration.Value, variableAccess);
 
                         case ParameterAssignmentSyntax paramAssignment:
-                            return ReferenceEquals(paramAssignment.AssignmentClause.Value, variableAccess);
+                            return ReferenceEquals(paramAssignment.AssignmentClause?.Value, variableAccess);
                     }
 
                     break;
@@ -1294,9 +1294,9 @@ namespace Bicep.LanguageServer.Completions
         private static bool IsParameterValueContext(List<SyntaxBase> matchingNodes, int offset) =>
             // | below indicates cursor position
             // param foo = |
-            SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax>(matchingNodes, variable => variable.AssignmentClause.Assignment is not SkippedTriviaSyntax && offset >= (variable.AssignmentClause.Assignment ?? SyntaxFactory.CreateNullLiteral()).GetEndPosition()) ||
+            SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax>(matchingNodes, variable => variable.AssignmentClause?.Assignment is not SkippedTriviaSyntax && offset >= (variable.AssignmentClause?.Assignment ?? SyntaxFactory.CreateNullLiteral()).GetEndPosition()) ||
             // param foo =|
-            SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax, Token>(matchingNodes, (variable, token) => variable.AssignmentClause.Assignment == token && token.Type == TokenType.Assignment && offset == token.GetEndPosition()) ||
+            SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax, Token>(matchingNodes, (variable, token) => variable.AssignmentClause?.Assignment == token && token.Type == TokenType.Assignment && offset == token.GetEndPosition()) ||
             // param foo = a|
             SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier) ||
             // param foo = 'o|'

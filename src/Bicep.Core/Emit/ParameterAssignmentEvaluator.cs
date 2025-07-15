@@ -184,7 +184,7 @@ public class ParameterAssignmentEvaluator
 
                 var declaringParam = parameter.DeclaringParameterAssignment;
 
-                if (declaringParam.AssignmentClause.Value is null)
+                if (declaringParam.AssignmentClause?.Value is null)
                 {
                     return Result.For(DiagnosticBuilder.ForPosition(declaringParam.Name).FailedToEvaluateParameter(parameter.Name, "Parameter value is null"));
                 }

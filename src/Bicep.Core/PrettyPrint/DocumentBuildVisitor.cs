@@ -225,8 +225,8 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.Keyword);
                 this.documentStack.Push(Nil);
                 this.Visit(syntax.Name);
-                this.Visit(syntax.AssignmentClause.Assignment);
-                this.Visit(syntax.AssignmentClause.Value);
+                this.Visit(syntax.AssignmentClause?.Assignment);
+                this.Visit(syntax.AssignmentClause?.Value);
             });
 
         public override void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax) =>

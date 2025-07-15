@@ -355,7 +355,7 @@ namespace Bicep.Core.Syntax
         {
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Name);
-            this.Visit(syntax.AssignmentClause.Value);
+            this.Visit(syntax.AssignmentClause?.Value);
         }
 
         public override void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax)
