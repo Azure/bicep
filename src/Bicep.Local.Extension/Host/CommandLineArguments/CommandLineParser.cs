@@ -4,28 +4,35 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using CommandLine;
+using Microsoft.Extensions.Logging;
+
 
 namespace Bicep.Local.Extension.Host.CommandLineArguments;
 
 public class CommandLineParser
 {
     private readonly Parser? parser;
-
-    public CommandLineParser(string[] args)
+    private readonly ILogger<CommandLineParser> logger;
+    public CommandLineParser(string[] args, ILogger<CommandLineParser> logger)
     {
+        ArgumentNullException.ThrowIfNull(logger, nameof(logger));
+        this.logger = logger;
+
+        parser = new Parser(settings =>
+        {
+            settings.HelpWriter = Console.Out;
+        });
+
         if (args is null || args.Length == 0)
         {
-            ShowHelpAndExit();
+            parser.ParseArguments<CommandLineOptions>(new[] { "--help" });
+
+            ShouldExit = true;
+            ExitCode = 1;
         }
         else
         {
-            parser = new Parser(settings =>
-            {
-                settings.IgnoreUnknownArguments = true;
-                settings.HelpWriter = Console.Error;
-            });
-
-            ParserResult = parser.ParseArguments<CommandLineOptions>(args)
+            Result = parser.ParseArguments<CommandLineOptions>(args)
                                  .WithNotParsed(errors =>
                                  {
                                      var x = args;
@@ -33,37 +40,28 @@ public class CommandLineParser
                                          e.Tag == ErrorType.HelpRequestedError ||
                                          e.Tag == ErrorType.VersionRequestedError);
 
+                                     logger.LogError("Command line parsing failed with errors: {Errors}", errors);
+                                     Errors = errors.ToList();
                                      ShouldExit = true;
                                      ExitCode = isHelpOrVersion ? 0 : 1;
                                  })
                                  .WithParsed(options =>
                                  {
-                                     // add code to validate the options, or add validate method to options that is called here to
-                                     // ensure behavior is correct
+                                     Options = options;
                                  });
-
-            Options = ParserResult.Value;
         }
     }
 
-    
+
     public CommandLineOptions? Options { get; private set; }
 
-    public ParserResult<CommandLineOptions>? ParserResult { get; }
+    public ParserResult<CommandLineOptions>? Result { get; }
+
+    public List<Error>? Errors { get; private set; }
 
     [MemberNotNullWhen(false, nameof(Options))]
-    [MemberNotNullWhen(false, nameof(ParserResult))]
+    [MemberNotNullWhen(false, nameof(Result))]
     public bool ShouldExit { get; private set; } = false;
 
     public int ExitCode { get; private set; } = 0;
-
-    private void ShowHelpAndExit()
-    {
-        // Let the library generate help by parsing --help
-        var helpParser = new Parser(settings => { settings.HelpWriter = Console.Error; });
-        helpParser.ParseArguments<CommandLineOptions>(new[] { "--help" });
-
-        ShouldExit = true;
-        ExitCode = 1;
-    }
 }

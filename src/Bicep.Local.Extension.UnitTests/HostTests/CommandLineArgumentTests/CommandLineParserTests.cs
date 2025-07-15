@@ -2,15 +2,45 @@
 // Licensed under the MIT License.
 
 using System;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Local.Extension.Host.CommandLineArguments;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Bicep.Local.Extension.UnitTests.HostTests.CommandLineArgumentTests;
 
 [TestClass]
 public class CommandLineParserTests
 {
+    private readonly Mock<ILogger<CommandLineParser>> loggerMock;
+
+    public CommandLineParserTests()
+    {
+        // Set up the logger mock
+        loggerMock = StrictMock.Of<ILogger<CommandLineParser>>();
+        loggerMock
+            .Setup(x => x.Log<It.IsAnyType>(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+                ));
+    }
+
+    [TestMethod]
+    public void Constructor_WithNullLogger_ShouldThrowArgumentNullException()
+    {
+        // Arrange
+        string[] args = [];
+        // Act
+        Action act = () => new CommandLineParser(args, null!);
+        // Assert
+        act.Should().Throw<ArgumentNullException>();
+    }
+
     [TestMethod]
     public void Constructor_WithNullArgs_ShouldShowHelpAndExitWithCode1()
     {
@@ -18,7 +48,7 @@ public class CommandLineParserTests
         string[] args = null!;
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeTrue();
@@ -33,7 +63,7 @@ public class CommandLineParserTests
         var args = Array.Empty<string>();
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeTrue();
@@ -48,7 +78,7 @@ public class CommandLineParserTests
         var args = new[] { "--help" };
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeTrue();
@@ -63,7 +93,7 @@ public class CommandLineParserTests
         var args = new[] { "--version" };
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeTrue();
@@ -72,18 +102,20 @@ public class CommandLineParserTests
     }
 
     [TestMethod]
-    public void Constructor_WithInvalidArgs_ShouldExitWithCode1()
+    public void Constructor_WithInvalidArg_ShouldExitWithCode1()
     {
-        // Arrange - Missing required value for --socket
-        var args = new[] { "--socket" };
+        // Arrange - pass unknown argument to trigger error
+        var args = new[] { "--sockt" };
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeTrue();
         parser.ExitCode.Should().Be(1);
         parser.Options.Should().BeNull();
+        parser.Errors.Should().NotBeNull();
+        parser.Errors.Should().ContainSingle(e => e.Tag == CommandLine.ErrorType.UnknownOptionError);
     }
 
     [TestMethod]
@@ -93,18 +125,17 @@ public class CommandLineParserTests
         var args = new[] { "--socket", "/tmp/test.sock" };
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeFalse();
         parser.ExitCode.Should().Be(0);
         parser.Should().NotBeNull();
         parser.Options.Should().NotBeNull();
-        parser.ParserResult.Should().NotBeNull();
+        parser.Result.Should().NotBeNull();
         parser.Options.Socket.Should().Be("/tmp/test.sock");
         parser.Options.Pipe.Should().BeNull();
         parser.Options.Http.Should().BeNull();
-        parser.Options.WaitForDebugger.Should().BeFalse();
         parser.Options.Describe.Should().BeFalse();
     }
 
@@ -116,18 +147,17 @@ public class CommandLineParserTests
         var args = new[] { "--pipe", pipeName };
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeFalse();
         parser.ExitCode.Should().Be(0);
         parser.Should().NotBeNull();
         parser.Options.Should().NotBeNull();
-        parser.ParserResult.Should().NotBeNull();
+        parser.Result.Should().NotBeNull();
         parser.Options.Pipe.Should().Be(pipeName);
         parser.Options.Socket.Should().BeNull();
         parser.Options.Http.Should().BeNull();
-        parser.Options.WaitForDebugger.Should().BeFalse();
         parser.Options.Describe.Should().BeFalse();
     }
 
@@ -139,39 +169,17 @@ public class CommandLineParserTests
         var args = new[] { "--http", httpPort.ToString() };
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeFalse();
         parser.ExitCode.Should().Be(0);
         parser.Should().NotBeNull();
         parser.Options.Should().NotBeNull();
-        parser.ParserResult.Should().NotBeNull();
+        parser.Result.Should().NotBeNull();
         parser.Options.Http.Should().Be(httpPort);
         parser.Options.Socket.Should().BeNull();
         parser.Options.Pipe.Should().BeNull();
-        parser.Options.WaitForDebugger.Should().BeFalse();
-        parser.Options.Describe.Should().BeFalse();
-    }
-
-    [TestMethod]
-    public void Constructor_WithWaitForDebuggerArg_ShouldNotExitAndParseWaitForDebuggerCorrectly()
-    {
-        // Arrange
-        var args = new[] { "--wait-for-debugger" };
-
-        // Act
-        var parser = new CommandLineParser(args);
-
-        // Assert
-        parser.ShouldExit.Should().BeFalse();
-        parser.ExitCode.Should().Be(0);
-        parser.Should().NotBeNull();
-        parser.Options.Should().NotBeNull();
-        parser.Options.WaitForDebugger.Should().BeTrue();
-        parser.Options.Socket.Should().BeNull();
-        parser.Options.Pipe.Should().BeNull();
-        parser.Options.Http.Should().BeNull();
         parser.Options.Describe.Should().BeFalse();
     }
 
@@ -182,7 +190,7 @@ public class CommandLineParserTests
         var args = new[] { "--describe" };
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeFalse();
@@ -193,7 +201,6 @@ public class CommandLineParserTests
         parser.Options.Socket.Should().BeNull();
         parser.Options.Pipe.Should().BeNull();
         parser.Options.Http.Should().BeNull();
-        parser.Options.WaitForDebugger.Should().BeFalse();
     }
 
     [TestMethod]
@@ -201,10 +208,10 @@ public class CommandLineParserTests
     {
         // Arrange
         var socketPath = "/tmp/test.sock";
-        var args = new[] { "--socket", socketPath, "--wait-for-debugger", "--describe" };
+        var args = new[] { "--socket", socketPath, "--describe" };
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeFalse();
@@ -212,7 +219,6 @@ public class CommandLineParserTests
         parser.Should().NotBeNull();
         parser.Options.Should().NotBeNull();
         parser.Options.Socket.Should().Be(socketPath);
-        parser.Options.WaitForDebugger.Should().BeTrue();
         parser.Options.Describe.Should().BeTrue();
         parser.Options.Pipe.Should().BeNull();
         parser.Options.Http.Should().BeNull();
@@ -227,7 +233,7 @@ public class CommandLineParserTests
         var args = new[] { "--pipe", pipeName, "--http", httpPort.ToString() };
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeFalse();
@@ -237,7 +243,6 @@ public class CommandLineParserTests
         parser.Options.Pipe.Should().Be(pipeName);
         parser.Options.Http.Should().Be(httpPort);
         parser.Options.Socket.Should().BeNull();
-        parser.Options.WaitForDebugger.Should().BeFalse();
         parser.Options.Describe.Should().BeFalse();
     }
 
@@ -248,10 +253,10 @@ public class CommandLineParserTests
         var socketPath = "/tmp/test.sock";
         var pipeName = "testpipe";
         var httpPort = 8080;
-        var args = new[] { "--socket", socketPath, "--pipe", pipeName, "--http", httpPort.ToString(), "--wait-for-debugger", "--describe" };
+        var args = new[] { "--socket", socketPath, "--pipe", pipeName, "--http", httpPort.ToString(), "--describe" };
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeFalse();
@@ -261,7 +266,6 @@ public class CommandLineParserTests
         parser.Options.Socket.Should().Be(socketPath);
         parser.Options.Pipe.Should().Be(pipeName);
         parser.Options.Http.Should().Be(httpPort);
-        parser.Options.WaitForDebugger.Should().BeTrue();
         parser.Options.Describe.Should().BeTrue();
     }
 
@@ -270,21 +274,17 @@ public class CommandLineParserTests
     {
         // Arrange
         var socketPath = "/tmp/test.sock";
-        var args = new[] { "--socket", socketPath, "--unknown-arg", "value", "--wait-for-debugger" };
+        var args = new[] { "--socket", socketPath, "--unknown-arg", "value" };
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
-        parser.ShouldExit.Should().BeFalse();
-        parser.ExitCode.Should().Be(0);
+        parser.ShouldExit.Should().BeTrue();
+        parser.ExitCode.Should().Be(1);
         parser.Should().NotBeNull();
-        parser.Options.Should().NotBeNull();
-        parser.Options.Socket.Should().Be(socketPath);
-        parser.Options.WaitForDebugger.Should().BeTrue();
-        parser.Options.Pipe.Should().BeNull();
-        parser.Options.Http.Should().BeNull();
-        parser.Options.Describe.Should().BeFalse();
+        parser.Errors.Should().NotBeNull();
+        parser.Options.Should().BeNull();
     }
 
     [TestMethod]
@@ -296,13 +296,13 @@ public class CommandLineParserTests
         var args = new[] { "--socket", firstSocket, "--socket", secondSocket };
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeTrue();
         parser.ExitCode.Should().Be(1);
         parser.Should().NotBeNull();
-        parser.Options.Should().NotBeNull();
+        parser.Options.Should().BeNull();
     }
 
     [TestMethod]
@@ -314,12 +314,13 @@ public class CommandLineParserTests
         var args = new[] { "--pipe", firstPipe, "--pipe", secondPipe };
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeTrue();
         parser.ExitCode.Should().Be(1);
         parser.Should().NotBeNull();
+        parser.Result.Should().NotBeNull();
         parser.Options.Should().BeNull();
     }
 
@@ -332,7 +333,7 @@ public class CommandLineParserTests
         var args = new[] { "--http", firstPort.ToString(), "--http", secondPort.ToString() };
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeTrue();
@@ -348,7 +349,7 @@ public class CommandLineParserTests
         var args = new[] { "--wait-for-debugger", "--wait-for-debugger" };
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeTrue();
@@ -364,7 +365,7 @@ public class CommandLineParserTests
         var args = new[] { "--describe", "--describe" };
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeTrue();
@@ -381,7 +382,7 @@ public class CommandLineParserTests
         var args = new[] { "--socket", socketPath };
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeFalse();
@@ -398,7 +399,7 @@ public class CommandLineParserTests
         var args = new[] { "--socket", "" };
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeFalse();
@@ -408,7 +409,6 @@ public class CommandLineParserTests
         parser.Options.Socket.Should().Be("");
         parser.Options.Pipe.Should().BeNull();
         parser.Options.Http.Should().BeNull();
-        parser.Options.WaitForDebugger.Should().BeFalse();
         parser.Options.Describe.Should().BeFalse();
     }
 
@@ -421,7 +421,7 @@ public class CommandLineParserTests
         var args = new[] { "--socket", socketPath, "--pipe", pipeName };
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeFalse();
@@ -441,7 +441,7 @@ public class CommandLineParserTests
         var args = new[] { "--socket", socketPath, "--pipe", pipeName };
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeFalse();
@@ -458,10 +458,10 @@ public class CommandLineParserTests
         // Arrange
         var longSocketPath = "/very/long/path/to/socket/that/might/be/used/in/production/environments/test.sock";
         var longPipeName = "very_long_pipe_name_that_might_be_used_in_production_environments_with_descriptive_names";
-        var args = new[] { "--socket", longSocketPath, "--pipe", longPipeName, "--wait-for-debugger" };
+        var args = new[] { "--socket", longSocketPath, "--pipe", longPipeName };
 
         // Act
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Assert
         parser.ShouldExit.Should().BeFalse();
@@ -470,7 +470,6 @@ public class CommandLineParserTests
         parser.Options.Should().NotBeNull();
         parser.Options.Socket.Should().Be(longSocketPath);
         parser.Options.Pipe.Should().Be(longPipeName);
-        parser.Options.WaitForDebugger.Should().BeTrue();
     }
 
     [TestMethod]
@@ -478,7 +477,7 @@ public class CommandLineParserTests
     {
         // Arrange
         var args = new[] { "--socket", "/tmp/test.sock" };
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Act
         var options1 = parser.Options;
@@ -493,11 +492,11 @@ public class CommandLineParserTests
     {
         // Arrange
         var args = new[] { "--socket", "/tmp/test.sock" };
-        var parser = new CommandLineParser(args);
+        var parser = new CommandLineParser(args, loggerMock.Object);
 
         // Act
-        var parserResult1 = parser.ParserResult;
-        var parserResult2 = parser.ParserResult;
+        var parserResult1 = parser.Result;
+        var parserResult2 = parser.Result;
 
         // Assert
         parserResult1.Should().BeSameAs(parserResult2);
@@ -509,22 +508,19 @@ public class CommandLineParserTests
     public void ExitConditions_WithValidArguments_ShouldNotRequireExit()
     {
         // Arrange & Act
-#pragma warning disable IDE0300, IDE0301 // Collection initialization can be simplified
         var validArgSets = new string[][]
         {
-            new[] { "--socket", "/tmp/test.sock" },
-            new[] { "--pipe", "testpipe" },
-            new[] { "--http", "8080" },
-            new[] { "--describe" },
-            new[] { "--wait-for-debugger" },
-            new[] { "--socket", "/tmp/test.sock", "--describe" },
-            new[] { "--pipe", "testpipe", "--wait-for-debugger" }
+            ["--socket", "/tmp/test.sock" ],
+            ["--pipe", "testpipe" ],      
+            ["--http", "8080" ],         
+            ["--describe" ],
+            ["--socket", "/tmp/test.sock"],
+            ["--pipe", "testpipe"]
         };
-#pragma warning restore IDE0300, IDE0301
 
         foreach (var args in validArgSets)
         {
-            var parser = new CommandLineParser(args);
+            var parser = new CommandLineParser(args, loggerMock.Object);
 
             // Assert
             parser.ShouldExit.Should().BeFalse($"Valid arguments {string.Join(" ", args)} should not require exit");
@@ -537,48 +533,20 @@ public class CommandLineParserTests
     public void ExitConditions_WithHelpRequestArguments_ShouldRequireExitCode0()
     {
         // Arrange & Act
-#pragma warning disable IDE0300, IDE0301 // Collection initialization can be simplified
         var helpArgSets = new string[][]
         {
-            new[] { "--help" },
-            new[] { "--version" }
+            ["--help" ],
+            ["--version"]
         };
-#pragma warning restore IDE0300, IDE0301
 
         foreach (var args in helpArgSets)
         {
-            var parser = new CommandLineParser(args);
+            var parser = new CommandLineParser(args, loggerMock.Object);
 
             // Assert
             parser.ShouldExit.Should().BeTrue($"Help arguments {string.Join(" ", args)} should require exit");
             parser.ExitCode.Should().Be(0, $"Help arguments {string.Join(" ", args)} should have exit code 0");
             parser.Options.Should().BeNull($"Help arguments {string.Join(" ", args)} should not produce options");
-        }
-    }
-
-    [TestMethod]
-    public void ExitConditions_WithErrorArguments_ShouldRequireExitCode1()
-    {
-        // Arrange & Act
-#pragma warning disable IDE0300, IDE0301 // Collection initialization can be simplified
-        var errorArgSets = new string[][]
-        {
-            Array.Empty<string>(), // No arguments
-            new[] { "--socket" }, // Missing value for socket
-            new[] { "--pipe" }, // Missing value for pipe
-            new[] { "--http" }, // Missing value for http
-            new[] { "--http", "invalid-port" } // Invalid port value
-        };
-#pragma warning restore IDE0300, IDE0301
-
-        foreach (var args in errorArgSets)
-        {
-            var parser = new CommandLineParser(args);
-
-            // Assert
-            parser.ShouldExit.Should().BeTrue($"Error arguments {string.Join(" ", args)} should require exit");
-            parser.ExitCode.Should().Be(1, $"Error arguments {string.Join(" ", args)} should have exit code 1");
-            parser.Options.Should().BeNull($"Error arguments {string.Join(" ", args)} should not produce options");
         }
     }
 

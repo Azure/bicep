@@ -27,13 +27,11 @@ public class CommandLineOptions
     [Option(BicepExtensionCommandLineArgument.PipeOption, Required = false, HelpText = "The named pipe to connect on")]
     public string? Pipe { get; set; }
 
-    [Option(BicepExtensionCommandLineArgument.DescribeOption, Required = false, Default = false, HelpText = "The named pipe to connect on")]
+    [Option(BicepExtensionCommandLineArgument.DescribeOption, Required = false, Default = false, HelpText = "Emits index and type definitions to std out")]
     public bool Describe { get; set; }
 
-    [Option(BicepExtensionCommandLineArgument.HttpOption, Required = false, HelpText = "If set, wait for a dotnet debugger to be attached before starting the server")]
+    [Option(BicepExtensionCommandLineArgument.HttpOption, Required = false, HelpText = "The port to expose extension on in HTTP mode")]
     public int? Http { get; set; }
 
-    [Option(BicepExtensionCommandLineArgument.WaitForDebuggerOption, Required = false, HelpText = "If set, wait for a dotnet debugger to be attached before starting the server")]
-    public bool WaitForDebugger { get; set; }
 }
 
