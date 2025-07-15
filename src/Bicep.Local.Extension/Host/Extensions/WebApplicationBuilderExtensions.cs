@@ -19,6 +19,8 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using static System.Net.WebRequestMethods;
 
 namespace Bicep.Local.Extension.Host.Extensions;
 
@@ -36,7 +38,7 @@ public static class WebApplicationBuilderExtensions
             Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
         }
 
-        builder.Services.AddSingleton(new CommandLineParser(args));
+        builder.Services.AddSingleton(serviceProvider => new CommandLineParser(args, serviceProvider.GetRequiredService<ILogger<CommandLineParser>>()));
 
         builder.WebHost.ConfigureKestrel((context, options) =>
         {
@@ -53,15 +55,21 @@ public static class WebApplicationBuilderExtensions
 
             switch (connectionOptions)
             {
-                case { Socket: { }, Pipe: null }:
+                case { Socket: { }, Pipe: null, Http: null }:
                     options.ListenUnixSocket(connectionOptions.Socket, listenOptions => listenOptions.Protocols = HttpProtocols.Http2);
                     break;
-                case { Socket: null, Pipe: { } }:
+                case { Socket: null, Pipe: { }, Http: null }:
                     options.ListenNamedPipe(connectionOptions.Pipe, listenOptions => listenOptions.Protocols = HttpProtocols.Http2);
                     break;
-                default:
-                    options.ListenLocalhost(connectionOptions.Http ?? throw new ArgumentNullException(nameof(commandLindParser.Options.Http)), listenOptions => listenOptions.Protocols = HttpProtocols.Http2);
+                case { Socket: null, Pipe: null, Http: { } }:
+                    if(connectionOptions.Http <= 0 || connectionOptions.Http > 65535)
+                    {
+                        throw new ArgumentOutOfRangeException(nameof(connectionOptions.Socket), "HTTP port must be between 1 and 65535.");
+                    }
+                    options.ListenLocalhost(connectionOptions.Http.Value, listenOptions => listenOptions.Protocols = HttpProtocols.Http2);
                     break;
+                default:
+                    throw new InvalidOperationException("You must specify exactly one valid value for a member of the mutual exclusion set socket, pipe, or http options.");
             }
         });
 
