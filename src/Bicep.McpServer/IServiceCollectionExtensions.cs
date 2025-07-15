@@ -47,6 +47,7 @@ public static class IServiceCollectionExtensions
         {
             clientBuilder.AddArmClient("00000000-0000-0000-0000-000000000000");
             clientBuilder.UseCredential(new ChainedTokenCredential(
+                new VisualStudioCodeCredential(),
                 new AzureCliCredential(),
                 new AzurePowerShellCredential()));
         });
