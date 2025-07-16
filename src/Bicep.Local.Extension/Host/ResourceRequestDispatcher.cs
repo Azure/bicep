@@ -40,7 +40,6 @@ public class ResourceRequestDispatcher
             return ToLocalOperationResponse(await handlerRequest.Handler.CreateOrUpdate(handlerRequest.Request, context.CancellationToken));
         });
 
-
     public override async Task<Rpc.LocalExtensibilityOperationResponse> Preview(Rpc.ResourceSpecification request, ServerCallContext context)
         => await WrapExceptionsAsync(async () =>
         {
@@ -153,7 +152,7 @@ public class ResourceRequestDispatcher
     protected virtual JsonObject? GetExtensionConfig(string extensionConfig)
     {
         JsonObject? config = null;
-        if (!string.IsNullOrEmpty(extensionConfig))
+        if (!string.IsNullOrWhiteSpace(extensionConfig))
         {
             config = ToJsonObject(extensionConfig, "Parsing extension config failed. Please ensure is a valid JSON object.");
         }
