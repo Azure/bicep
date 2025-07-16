@@ -13,30 +13,20 @@ namespace Bicep.Local.Extension.Host.Handlers;
 public class HandlerRequest
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="HandlerRequest"/> class with the specified resource type and API version.
-    /// </summary>
-    /// <param name="type">The resource type identifier.</param>
-    /// <param name="apiVersion">The API version to use for the request.</param>
-    public HandlerRequest(string type, string? apiVersion)
-        : this(type, apiVersion, [], [], [], [])
-    { }
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="HandlerRequest"/> class with the specified parameters.
     /// </summary>
     /// <param name="type">The resource type identifier. Cannot be null or whitespace.</param>
     /// <param name="apiVersion">The API version to use for the request. Can be null.</param>
     /// <param name="config">Additional settings for the extension processing the request. If null, an empty object is used.</param>
-    /// <param name="resourceJson">The JSON representation of the resource. If null, an empty object is used.</param>
     /// <exception cref="ArgumentException">Thrown when <paramref name="type"/> is null or whitespace.</exception>
-    public HandlerRequest(string type, string? apiVersion, JsonObject? config, JsonObject? resourceJson, JsonObject identifiers, JsonObject properties)
+    public HandlerRequest(string type, JsonObject properties, JsonObject config,  JsonObject identifiers, string? apiVersion)
     {
         Type = string.IsNullOrWhiteSpace(type) ? throw new ArgumentException(nameof(type)) : type;
         ApiVersion = apiVersion;
-        Config = config ?? [];
-        ResourceJson = resourceJson ?? [];
-        Identifiers = identifiers;
+        Config = config;
         Properties = properties;
+        Identifiers = identifiers;
+        
     }
 
     /// <summary>
@@ -54,12 +44,6 @@ public class HandlerRequest
     /// Never null; defaults to an empty object if not provided.
     /// </summary>
     public JsonObject Config { get; }
-
-    /// <summary>
-    /// Gets the JSON representation of the resource.
-    /// Never null; defaults to an empty object if not provided.
-    /// </summary>
-    public JsonObject ResourceJson { get; protected set; }
 
     public JsonObject Identifiers { get; protected set; }
 
@@ -84,13 +68,12 @@ public class HandlerRequest<TResource>
     /// <remarks>
     /// The resource type identifier is derived from the runtime type name of the provided resource instance.
     /// </remarks>
-    public HandlerRequest(TResource resource, string? apiVersion, JsonObject? config, JsonObject? resourceJson, JsonObject identifiers, JsonObject properties)
-        : base(resource?.GetType().Name ?? throw new ArgumentNullException(nameof(resource))
-            , apiVersion
+    public HandlerRequest(TResource resource, string resourceType, JsonObject properties, JsonObject config, JsonObject identifiers, string? apiVersion)
+        : base(resourceType
+            , properties
             , config
-            , resourceJson
             , identifiers
-            , properties)
+            , apiVersion)
     {
         Resource = resource;
     }

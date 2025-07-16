@@ -73,7 +73,7 @@ public class TypeDefinitionBuilderTests
         var typeProvider = StrictMock.Of<ITypeProvider>().Object;
 
         Action act = () => new TypeDefinitionBuilder(settings, typeFactory, typeProvider, null!);
-        act.Should().Throw<ArgumentNullException>();
+        act.Should().Throw<ArgumentException>();
     }
 
     [TestMethod]
@@ -85,7 +85,7 @@ public class TypeDefinitionBuilderTests
         var emptyMap = new Dictionary<Type, Func<TypeBase>>();
 
         Action act = () => new TypeDefinitionBuilder(settings, typeFactory, typeProvider, emptyMap);
-        act.Should().Throw<ArgumentNullException>();
+        act.Should().Throw<ArgumentException>();
     }
 
     [TestMethod]

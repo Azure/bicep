@@ -69,30 +69,35 @@ public class ResourceRequestDispatcher
         ArgumentNullException.ThrowIfNull(resourceSpecification, nameof(resourceSpecification));
         ArgumentNullException.ThrowIfNullOrWhiteSpace(resourceSpecification.Type, nameof(resourceSpecification.Type));
 
-        var resourceJson = ToJsonObject(resourceSpecification.Properties, "Parsing requested resource properties failed.");
+        var properties = ToJsonObject(resourceSpecification.Properties, "Parsing requested resource properties failed.");
         var config = resourceSpecification.HasConfig ? GetExtensionConfig(resourceSpecification.Config) : [];
         var apiVersion = resourceSpecification.HasApiVersion ? resourceSpecification.ApiVersion : null;
 
-        return InternalGetHandlerAndHandlerRequest(resourceSpecification.Type, apiVersion, config, resourceJson, [], []);
+        return InternalGetHandlerAndHandlerRequest(resourceType: resourceSpecification.Type
+                                                 , apiVersion: apiVersion
+                                                 , config: config
+                                                 , properties: properties
+                                                 , identifiers: []);
     }
 
     protected virtual (IResourceHandler Handler, HandlerRequest Request) GetHandlerAndHandlerRequest(Rpc.ResourceReference resourceReference)
     {
         ArgumentNullException.ThrowIfNull(resourceReference, nameof(resourceReference));
         ArgumentNullException.ThrowIfNullOrWhiteSpace(resourceReference.Type, nameof(resourceReference.Type));
-        
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(resourceReference.Identifiers, nameof(resourceReference.Identifiers));
+
         var config = resourceReference.HasConfig ? GetExtensionConfig(resourceReference.Config) : [];
         var apiVersion = resourceReference.HasApiVersion ? resourceReference.ApiVersion : null;
+        var identifiers = ToJsonObject(resourceReference.Identifiers, "Parsing resource identifiers failed.");        
 
-        return InternalGetHandlerAndHandlerRequest(resourceReference.Type
-                                                 , apiVersion
-                                                 , config
-                                                 , []
-                                                 , []
-                                                 , []);
+        return InternalGetHandlerAndHandlerRequest(resourceType: resourceReference.Type
+                                                 , apiVersion: apiVersion
+                                                 , config: config ?? []
+                                                 , properties: []
+                                                 , identifiers: identifiers);
     }
 
-    private (IResourceHandler Handler, HandlerRequest Request) InternalGetHandlerAndHandlerRequest(string resourceType, string? apiVersion, JsonObject? config, JsonObject resourceJson, JsonObject identifiers, JsonObject properties)
+    private (IResourceHandler Handler, HandlerRequest Request) InternalGetHandlerAndHandlerRequest(string resourceType, string? apiVersion, JsonObject config, JsonObject properties, JsonObject identifiers)
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(resourceType, nameof(resourceType));
 
@@ -106,18 +111,22 @@ public class ResourceRequestDispatcher
                 throw new InvalidOperationException($"No handler found for resource type `{resourceType}`. Ensure a handler is registered for this type or provide a generic handler.");
             }
 
-            return (genericHandler, new HandlerRequest(resourceType, apiVersion, config, resourceJson, [], []));
+            return (genericHandler, new HandlerRequest(type: resourceType
+                                                     , properties: properties
+                                                     , config: config
+                                                     , identifiers: identifiers
+                                                     , apiVersion: apiVersion));
         }
 
-        var resource = DeserializeJson(resourceType, resourceJson, typedResourceHandler);
-        var type = typeof(HandlerRequest<>).MakeGenericType(typedResourceHandler.Type);
+        var resource = DeserializeJson(resourceType, properties, typedResourceHandler);
+        var typedRequest = typeof(HandlerRequest<>).MakeGenericType(typedResourceHandler.Type);
 
-        if (type is null)
+        if (typedRequest is null)
         {
-            throw new InvalidOperationException($"Failed to generate request for {type}");
+            throw new InvalidOperationException($"Failed to generate request for {resourceType}");
         }
 
-        var handlerRequest = Activator.CreateInstance(type, resource, apiVersion, config, resourceJson, identifiers, properties) as HandlerRequest;
+        var handlerRequest = Activator.CreateInstance(typedRequest, resource, resourceType, properties, config, identifiers, apiVersion) as HandlerRequest;
 
         ArgumentNullException.ThrowIfNull(handlerRequest, $"Failed to create handler request for resource type `{resourceType}`. Ensure the resource type is registered with a handler that supports it.");
 
@@ -145,22 +154,31 @@ public class ResourceRequestDispatcher
                                 Type = handlerResponse.Type,
                                 ApiVersion = handlerResponse.ApiVersion,
                                 Properties = handlerResponse.Properties?.ToJsonString(),
-                                Identifiers = string.Empty
+                                Identifiers = handlerResponse.Identifiers?.ToJsonString(),
                             } : null
         } : throw new ArgumentNullException("Failed to process handler response. No response was provided.");
 
-    protected virtual JsonObject? GetExtensionConfig(string extensionConfig)
+    protected virtual JsonObject GetExtensionConfig(string extensionConfig)
     {
         JsonObject? config = null;
         if (!string.IsNullOrWhiteSpace(extensionConfig))
         {
             config = ToJsonObject(extensionConfig, "Parsing extension config failed. Please ensure is a valid JSON object.");
         }
-        return config;
+        return config ?? [];
     }
 
     protected virtual JsonObject ToJsonObject(string json, string errorMessage)
-        => JsonNode.Parse(json)?.AsObject() ?? throw new ArgumentNullException(errorMessage);
+    {
+        try
+        {
+            return JsonNode.Parse(json)?.AsObject() ?? throw new ArgumentNullException(errorMessage);
+        }
+        catch (Exception ex)
+        {
+            throw new ArgumentException(errorMessage, ex); // New stack trace here
+        }
+    }
 
     protected virtual object? DeserializeJson(string bicepType, JsonObject resourceJson, TypedResourceHandler handler)
     {

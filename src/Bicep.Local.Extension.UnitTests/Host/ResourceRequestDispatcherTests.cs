@@ -61,19 +61,19 @@ public class ResourceRequestDispatcherTests
     {
         public Task<HandlerResponse> CreateOrUpdate(HandlerRequest request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(new HandlerResponse(request.Type, request.ApiVersion, HandlerResponseStatus.Succeeded, request.Identifiers));
+            return Task.FromResult(new HandlerResponse(request.Type, HandlerResponseStatus.Succeeded, request.Properties, request.Identifiers, request.ApiVersion));
         }
         public Task<HandlerResponse> Preview(HandlerRequest request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(new HandlerResponse(request.Type, request.ApiVersion, HandlerResponseStatus.Succeeded, request.Identifiers));
+            return Task.FromResult(new HandlerResponse(request.Type, HandlerResponseStatus.Succeeded, request.Properties, request.Identifiers, request.ApiVersion));
         }
         public Task<HandlerResponse> Delete(HandlerRequest request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(new HandlerResponse(request.Type, request.ApiVersion, HandlerResponseStatus.Succeeded, request.Identifiers));
+            return Task.FromResult(new HandlerResponse(request.Type, HandlerResponseStatus.Succeeded, request.Properties, request.Identifiers, request.ApiVersion));
         }
         public Task<HandlerResponse> Get(HandlerRequest request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(new HandlerResponse(request.Type, request.ApiVersion, HandlerResponseStatus.Succeeded, request.Identifiers));
+            return Task.FromResult(new HandlerResponse(request.Type, HandlerResponseStatus.Succeeded, request.Properties, request.Identifiers, request.ApiVersion));
         }
     }
 
@@ -82,23 +82,20 @@ public class ResourceRequestDispatcherTests
     {
         public Task<HandlerResponse> CreateOrUpdate(HandlerRequest<FakeResource> request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(new HandlerResponse(request.Type, request.ApiVersion, HandlerResponseStatus.Succeeded, request.Identifiers));
+            return Task.FromResult(new HandlerResponse(request.Type, HandlerResponseStatus.Succeeded, request.Properties, request.Identifiers, request.ApiVersion));
         }
         public Task<HandlerResponse> Preview(HandlerRequest<FakeResource> request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(new HandlerResponse(request.Type, request.ApiVersion, HandlerResponseStatus.Succeeded, request.Identifiers));
+            return Task.FromResult(new HandlerResponse(request.Type, HandlerResponseStatus.Succeeded, request.Properties, request.Identifiers, request.ApiVersion));
         }
-
         public Task<HandlerResponse> Delete(HandlerRequest request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(new HandlerResponse(request.Type, request.ApiVersion, HandlerResponseStatus.Succeeded, request.Identifiers));
+            return Task.FromResult(new HandlerResponse(request.Type, HandlerResponseStatus.Succeeded, request.Properties, request.Identifiers, request.ApiVersion));
         }
         public Task<HandlerResponse> Get(HandlerRequest request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(new HandlerResponse(request.Type, request.ApiVersion, HandlerResponseStatus.Succeeded, request.Identifiers));
+            return Task.FromResult(new HandlerResponse(request.Type, HandlerResponseStatus.Succeeded, request.Properties, request.Identifiers, request.ApiVersion));
         }
-
-
     }
 
     #endregion Fake Handlers
@@ -133,7 +130,7 @@ public class ResourceRequestDispatcherTests
         response.Should().NotBeNull();
         response.ErrorData.Should().NotBeNull();
         response.ErrorData.Error.Code.Should().Be("RpcException");
-        response.ErrorData.Error.Message.Should().Contain("Resource specification cannot be null.");
+        response.ErrorData.Error.Message.Should().Contain("ArgumentNullException");
     }
 
     [DataTestMethod]
@@ -167,33 +164,192 @@ public class ResourceRequestDispatcherTests
     }
 
     [DataTestMethod]
-    [DataRow("")]
-    //[DataRow(" ")]
-    //[DataRow(null)]
-    public async Task When_CreateOrUpdate_ResourceSpecification_Config_IsEmptyOrWhiteSpace_Succeeds(string config)
+    [DataRow(false)]
+    [DataRow(true)]
+    public async Task When_CreateOrUpdate_ResourceSpecification_IsValid_StatusIsSucceeded(bool useTypedHandler)
     {
-        var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
-        requestHandlerDispatcher.Setup(x => x.TryGetTypedResourceHandler(It.IsAny<string>(), out It.Ref<TypedResourceHandler?>.IsAny))
-            .Returns(false);
+        var handlerDispatcher = GetHandlerDispatcherWithFakeResourceHandler(useTypedHandler);
+        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher, loggerMock.Object);
+        var resourceType = "Microsoft.Test/Test";
+        var properties = "{\"key\":\"value\"}"; // valid JSON properties
+        var config = "{\"setting\":\"value\"}"; // valid JSON config
+        var apiVersion = "2023-01-01";
+        
+        var (resourceSpec, _) = GetTestResourceSpecAndRef(resourceType: resourceType, apiVersion: apiVersion, properties: properties, config: config);
 
-        requestHandlerDispatcher.Setup(x => x.GenericResourceHandler).Returns(new FakeGenericResourceHandler());
-        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
-        var resourceType = "ConfigTest";
-        var properties = "{ \"key\": \"value\" }"; // valid JSON properties
-        var (resourceSpec, _) = GetTestResourceSpecAndRef(resourceType: resourceType, properties: properties, config: config);
         var response = await dispatcher.CreateOrUpdate(resourceSpec, GetTestServerCallContext("CreateOrUpdate"));
 
         response.Should().NotBeNull();
-        response.Resource.Type.Should().Be(resourceType);
-        response.Resource.Properties.Should().Contain(properties);
+        response.Resource.Type.Should().Be(resourceSpec.Type);
+        response.Resource.Properties.Should().Contain(resourceSpec.Properties);
+        response.Resource.HasApiVersion.Should().BeTrue();
+        response.Resource.ApiVersion.Should().Be(resourceSpec.ApiVersion);
+        response.Resource.HasStatus.Should().BeTrue();
+        response.Resource.Status.Should().Be(HandlerResponseStatus.Succeeded.ToString());
+        
         response.ErrorData.Should().BeNull();
     }
 
     #endregion CreateOrUpdate Tests
 
-    #region Invalid RessourceRef Tests
+
+    #region Preview Tests
+
     [TestMethod]
-    public async Task When_ResourceReference_Is_Null_ReturnsError()
+    public async Task When_Preview_ResourceSpecification_Is_Null_ReturnsError()
+    {
+        var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var response = await dispatcher.Preview(null!, GetTestServerCallContext("Preview"));
+        response.Should().NotBeNull();
+        response.ErrorData.Should().NotBeNull();
+        response.ErrorData.Error.Code.Should().Be("RpcException");
+        response.ErrorData.Error.Message.Should().Contain("ArgumentNullException");
+    }
+
+    [DataTestMethod]
+    [DataRow("")]
+    [DataRow(" ")]
+    public async Task When_Preview_ResourceSpecification_ResourceType_IsEmptyOrWhiteSpace_ReturnsError(string resourceType)
+    {
+        var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var (resourceSpec, _) = GetTestResourceSpecAndRef(resourceType: resourceType);
+        var response = await dispatcher.Preview(resourceSpec, GetTestServerCallContext("Preview"));
+        response.Should().NotBeNull();
+        response.ErrorData.Should().NotBeNull();
+        response.ErrorData.Error.Code.Should().Be("RpcException");
+        response.ErrorData.Error.Message.Should().Contain("Rpc request failed: System.ArgumentException");
+    }
+
+    [DataTestMethod]
+    [DataRow("")]
+    [DataRow(" ")]
+    public async Task When_Preview_ResourceSpecification_Properties_IsEmptyOrWhiteSpace_ReturnsError(string properties)
+    {
+        var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var (resourceSpec, _) = GetTestResourceSpecAndRef(properties: properties);
+        var response = await dispatcher.Preview(resourceSpec, GetTestServerCallContext("Preview"));
+        response.Should().NotBeNull();
+        response.ErrorData.Should().NotBeNull();
+        response.ErrorData.Error.Code.Should().Be("RpcException");
+        response.ErrorData.Error.Message.Should().Contain("Rpc request failed: System.ArgumentException");
+    }
+
+    [DataTestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public async Task When_Preview_ResourceSpecification_IsValid_StatusIsSucceeded(bool useTypedHandler)
+    {
+        var handlerDispatcher = GetHandlerDispatcherWithFakeResourceHandler(useTypedHandler);
+        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher, loggerMock.Object);
+
+        var resourceType = "Microsoft.Test/Test";
+        var properties = "{\"key\":\"value\"}"; // valid JSON properties
+        var config = "{\"setting\":\"value\"}"; // valid JSON config
+        var apiVersion = "2023-01-01";
+
+        var (resourceSpec, _) = GetTestResourceSpecAndRef(resourceType: resourceType, apiVersion: apiVersion, properties: properties, config: config);
+
+        var response = await dispatcher.Preview(resourceSpec, GetTestServerCallContext("Preview"));
+
+        response.Should().NotBeNull();
+        response.Resource.Type.Should().Be(resourceSpec.Type);
+        response.Resource.Identifiers.Should().Be("{}"); // empty json
+        response.Resource.Properties.Should().Contain(resourceSpec.Properties);
+        response.Resource.HasApiVersion.Should().BeTrue();
+        response.Resource.ApiVersion.Should().Be(resourceSpec.ApiVersion);
+        response.Resource.HasStatus.Should().BeTrue();
+        response.Resource.Status.Should().Be(HandlerResponseStatus.Succeeded.ToString());
+
+        response.ErrorData.Should().BeNull();
+    }
+
+
+    #endregion Preview Tests
+
+
+    #region Get Tests
+
+    [TestMethod]
+    public async Task When_Get_ResourceSpecification_Is_Null_ReturnsError()
+    {
+        var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var response = await dispatcher.Get(null!, GetTestServerCallContext("Get"));
+        response.Should().NotBeNull();
+        response.ErrorData.Should().NotBeNull();
+        response.ErrorData.Error.Code.Should().Be("RpcException");
+        response.ErrorData.Error.Message.Should().Contain("ArgumentNullException");
+    }
+
+    [DataTestMethod]
+    [DataRow("")]
+    [DataRow(" ")]
+    public async Task When_Get_ResourceSpecification_ResourceType_IsEmptyOrWhiteSpace_ReturnsError(string resourceType)
+    {
+        var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var (_, resourceRef) = GetTestResourceSpecAndRef(resourceType: resourceType);
+        var response = await dispatcher.Get(resourceRef, GetTestServerCallContext("Get"));
+        response.Should().NotBeNull();
+        response.ErrorData.Should().NotBeNull();
+        response.ErrorData.Error.Code.Should().Be("RpcException");
+        response.ErrorData.Error.Message.Should().Contain("Rpc request failed: System.ArgumentException");
+    }
+
+    [DataTestMethod]
+    [DataRow("")]
+    [DataRow(" ")]
+    public async Task When_Get_ResourceSpecification_Properties_IsEmptyOrWhiteSpace_ReturnsError(string properties)
+    {
+        var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var (_, resourceRef) = GetTestResourceSpecAndRef(properties: properties);
+        var response = await dispatcher.Get(resourceRef, GetTestServerCallContext("Get"));
+        response.Should().NotBeNull();
+        response.ErrorData.Should().NotBeNull();
+        response.ErrorData.Error.Code.Should().Be("RpcException");
+        response.ErrorData.Error.Message.Should().Contain("Rpc request failed: System.ArgumentException");
+    }
+
+    [DataTestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public async Task When_Get_ResourceSpecification_IsValid_StatusIsSucceeded(bool useTypedHandler)
+    {
+        var handlerDispatcher = GetHandlerDispatcherWithFakeResourceHandler(useTypedHandler);
+        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher, loggerMock.Object);
+
+        var resourceType = "Microsoft.Test/Test";
+        var properties = "{\"key\":\"value\"}"; // valid JSON properties
+        var config = "{\"setting\":\"value\"}"; // valid JSON config
+        var identifiers = "{\"id\":\"12345\"}"; // valid JSON identifiers
+        var apiVersion = "2023-01-01";
+
+        var (_, resourceRef) = GetTestResourceSpecAndRef(resourceType: resourceType, apiVersion: apiVersion, properties: properties, config: config, identifiers: identifiers);
+
+        var response = await dispatcher.Get(resourceRef, GetTestServerCallContext("Get"));
+
+        response.Should().NotBeNull();
+        response.Resource.Type.Should().Be(resourceRef.Type);
+        response.Resource.Properties.Should().Be("{}"); // empty json
+        response.Resource.Identifiers.Should().Be(resourceRef.Identifiers);
+        response.Resource.HasApiVersion.Should().BeTrue();
+        response.Resource.ApiVersion.Should().Be(resourceRef.ApiVersion);
+        response.Resource.HasStatus.Should().BeTrue();
+        response.Resource.Status.Should().Be(HandlerResponseStatus.Succeeded.ToString());
+
+        response.ErrorData.Should().BeNull();
+    }
+
+    #endregion Get Tests
+
+    #region Delete Tests
+
+    [TestMethod]
+    public async Task When_Delete_ResourceSpecification_Is_Null_ReturnsError()
     {
         var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
         var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
@@ -201,49 +357,80 @@ public class ResourceRequestDispatcherTests
         response.Should().NotBeNull();
         response.ErrorData.Should().NotBeNull();
         response.ErrorData.Error.Code.Should().Be("RpcException");
-        response.ErrorData.Error.Message.Should().Contain("Resource reference cannot be null.");
+        response.ErrorData.Error.Message.Should().Contain("ArgumentNullException");
     }
-
-
 
     [DataTestMethod]
     [DataRow("")]
     [DataRow(" ")]
-    public async Task When_ResourceReference_ResourceType_IsNullOrEmpty_ReturnsError(string resourceType)
+    public async Task When_Delete_ResourceSpecification_ResourceType_IsEmptyOrWhiteSpace_ReturnsError(string resourceType)
     {
         var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
         var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
-        var (resourceSpec, _) = GetTestResourceSpecAndRef(resourceType: resourceType);
-        var response = await dispatcher.CreateOrUpdate(resourceSpec, GetTestServerCallContext("CreateOrUpdate"));
+        var (_, resourceRef) = GetTestResourceSpecAndRef(resourceType: resourceType);
+        var response = await dispatcher.Delete(resourceRef, GetTestServerCallContext("Delete"));
         response.Should().NotBeNull();
         response.ErrorData.Should().NotBeNull();
         response.ErrorData.Error.Code.Should().Be("RpcException");
-        response.ErrorData.Error.Message.Should().Contain("Rpc request failed: System.ArgumentException:");
+        response.ErrorData.Error.Message.Should().Contain("Rpc request failed: System.ArgumentException");
     }
 
-    #endregion Invalid RessourceRef Tests
-
-
-
-    #region Handlers Tests
-    private ResourceRequestDispatcher GetResourceRequestDispatcher_WithNoHandlers()
+    [DataTestMethod]
+    [DataRow("")]
+    [DataRow(" ")]
+    public async Task When_Delete_ResourceSpecification_Properties_IsEmptyOrWhiteSpace_ReturnsError(string properties)
     {
         var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
-        requestHandlerDispatcher
-            .Setup(x => x.TryGetTypedResourceHandler(It.IsAny<string>(), out It.Ref<TypedResourceHandler?>.IsAny))
-            .Returns(false);
-        requestHandlerDispatcher
-            .Setup(x => x.GenericResourceHandler)
-            .Returns<IResourceHandler?>(null!);
-        return new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var (_, resourceRef) = GetTestResourceSpecAndRef(properties: properties);
+        var response = await dispatcher.Delete(resourceRef, GetTestServerCallContext("Delete"));
+        response.Should().NotBeNull();
+        response.ErrorData.Should().NotBeNull();
+        response.ErrorData.Error.Code.Should().Be("RpcException");
+        response.ErrorData.Error.Message.Should().Contain("Rpc request failed: System.ArgumentException");
     }
+
+    [DataTestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public async Task When_Delete_ResourceSpecification_IsValid_StatusIsSucceeded(bool useTypedHandler)
+    {
+        var handlerDispatcher = GetHandlerDispatcherWithFakeResourceHandler(useTypedHandler);
+        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher, loggerMock.Object);
+
+        var resourceType = "Microsoft.Test/Test";
+        var properties = "{\"key\":\"value\"}"; // valid JSON properties
+        var config = "{\"setting\":\"value\"}"; // valid JSON config
+        var identifiers = "{\"id\":\"12345\"}"; // valid JSON identifiers
+        var apiVersion = "2023-01-01";
+
+        var (_, resourceRef) = GetTestResourceSpecAndRef(resourceType: resourceType, apiVersion: apiVersion, properties: properties, config: config, identifiers: identifiers);
+
+        var response = await dispatcher.Delete(resourceRef, GetTestServerCallContext("Delete"));
+
+        response.Should().NotBeNull();
+        response.Resource.Type.Should().Be(resourceRef.Type);
+        response.Resource.Properties.Should().Be("{}"); // empty json
+        response.Resource.Identifiers.Should().Be(resourceRef.Identifiers);
+        response.Resource.HasApiVersion.Should().BeTrue();
+        response.Resource.ApiVersion.Should().Be(resourceRef.ApiVersion);
+        response.Resource.HasStatus.Should().BeTrue();
+        response.Resource.Status.Should().Be(HandlerResponseStatus.Succeeded.ToString());
+
+        response.ErrorData.Should().BeNull();
+    }
+
+    #endregion Delete Tests
+
+    #region Handlers Tests
 
     [TestMethod]
     public async Task When_NoRequestHandlers_CreateOrUpdate_ReturnsError()
     {
         var dispatcher = GetResourceRequestDispatcher_WithNoHandlers();
         string resourceType = "Microsoft.Test/Test";
-        var (resourceSpec, _) = GetTestResourceSpecAndRef(resourceType, "2023-01-01");
+        var properties = "{\"key\":\"value\"}"; // valid JSON properties
+        var (resourceSpec, _) = GetTestResourceSpecAndRef(resourceType: resourceType, properties: properties, apiVersion: "2023-01-01");
 
         var response = await dispatcher.CreateOrUpdate(resourceSpec, GetTestServerCallContext("CreateOrUpdate"));
 
@@ -258,9 +445,10 @@ public class ResourceRequestDispatcherTests
     {
         var dispatcher = GetResourceRequestDispatcher_WithNoHandlers();
         string resourceType = "Microsoft.Test/Test";
-        var (resourceSpec, _) = GetTestResourceSpecAndRef(resourceType, "2023-01-01");
+        var properties = "{\"key\":\"value\"}"; // valid JSON properties
+        var (resourceSpec, _) = GetTestResourceSpecAndRef(resourceType: resourceType, properties: properties, apiVersion: "2023-01-01");
 
-        var response = await dispatcher.Preview(resourceSpec, GetTestServerCallContext("CreateOrUpdate"));
+        var response = await dispatcher.Preview(resourceSpec, GetTestServerCallContext("Preview"));
 
         response.Resource.Should().BeNull();
         response.ErrorData.Should().NotBeNull();
@@ -273,9 +461,11 @@ public class ResourceRequestDispatcherTests
     {
         var dispatcher = GetResourceRequestDispatcher_WithNoHandlers();
         string resourceType = "Microsoft.Test/Test";
-        var (_, resourceRef) = GetTestResourceSpecAndRef(resourceType, "2023-01-01");
+        var properties = "{\"key\":\"value\"}"; // valid JSON properties
+        var identifiers = "{\"id\":\"12345\"}"; // valid JSON identifiers
+        var (_, resourceRef) = GetTestResourceSpecAndRef(resourceType: resourceType, properties: properties, apiVersion: "2023-01-01", identifiers: identifiers);
 
-        var response = await dispatcher.Get(resourceRef, GetTestServerCallContext("CreateOrUpdate"));
+        var response = await dispatcher.Get(resourceRef, GetTestServerCallContext("Get"));
 
         response.Resource.Should().BeNull();
         response.ErrorData.Should().NotBeNull();
@@ -284,13 +474,15 @@ public class ResourceRequestDispatcherTests
     }
 
     [TestMethod]
-    public async Task When_NoRequestHandlers_Dispatcher_ReturnsError()
+    public async Task When_NoRequestHandlers_Delete_ReturnsError()
     {
         var dispatcher = GetResourceRequestDispatcher_WithNoHandlers();
-        string resourceType = "Microsoft.Test/Test";
-        var (_, resourceRef) = GetTestResourceSpecAndRef(resourceType, "2023-01-01");
+        string resourceType = "Microsoft.Test/Test";        
+        var properties = "{\"key\":\"value\"}"; // valid JSON properties
+        var identifiers = "{\"id\":\"12345\"}"; // valid JSON identifiers
+        var (_ , resourceRef) = GetTestResourceSpecAndRef(resourceType: resourceType, properties: properties, apiVersion: "2023-01-01", identifiers: identifiers);
 
-        var response = await dispatcher.Delete(resourceRef, GetTestServerCallContext("CreateOrUpdate"));
+        var response = await dispatcher.Delete(resourceRef, GetTestServerCallContext("Delete"));
 
         response.Resource.Should().BeNull();
         response.ErrorData.Should().NotBeNull();
@@ -300,25 +492,69 @@ public class ResourceRequestDispatcherTests
 
     #endregion Handlers Tests
 
+    #region Helpers
+    private ResourceRequestDispatcher GetResourceRequestDispatcher_WithNoHandlers()
+    {
+        var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
+        requestHandlerDispatcher
+            .Setup(x => x.TryGetTypedResourceHandler(It.IsAny<string>(), out It.Ref<TypedResourceHandler?>.IsAny))
+            .Returns(false);
+        requestHandlerDispatcher
+            .Setup(x => x.GenericResourceHandler)
+            .Returns<IResourceHandler?>(null!);
+        return new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+    }
+
     private (ResourceSpecification ResourceSpec, ResourceReference ResourceRef) GetTestResourceSpecAndRef(
                 string? resourceType = ""
               , string? apiVersion = ""
               , string? properties = ""
-              , string? config = "")
+              , string? config = ""
+              , string? identifiers = "")
     {
-        var resourceSpec = new Rpc.ResourceSpecification();
-        resourceSpec.Type = resourceType;
-        resourceSpec.ApiVersion = apiVersion;
-        resourceSpec.Properties = properties;
-        resourceSpec.Config = config;
+        var resourceSpec = new Rpc.ResourceSpecification()
+        {
+            Type = resourceType,
+            ApiVersion = apiVersion,
+            Properties = properties,
+            Config = config        
+        };
         
         var resourceRef = new Rpc.ResourceReference()
         {
             Type = resourceType,
             ApiVersion = apiVersion,
-            Config = config
+            Config = config,
+            Identifiers = identifiers
         };
+        
 
         return (resourceSpec, resourceRef);
     }
+
+    public IResourceHandlerDispatcher GetHandlerDispatcherWithFakeResourceHandler(bool useTypedHandler = false)
+    {
+        var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
+        if (useTypedHandler)
+        {
+            requestHandlerDispatcher.Setup(x => x.TryGetTypedResourceHandler(It.IsAny<string>(), out It.Ref<TypedResourceHandler?>.IsAny))
+                .Returns((string type, ref TypedResourceHandler handler) =>
+                {
+                    handler = new TypedResourceHandler(typeof(FakeResource), new FakeTypedResourceHandler());
+                    return true;
+                });
+        }
+        else
+        {
+            requestHandlerDispatcher.Setup(x => x.TryGetTypedResourceHandler(It.IsAny<string>(), out It.Ref<TypedResourceHandler?>.IsAny))
+                .Returns(false);
+            requestHandlerDispatcher.Setup(x => x.GenericResourceHandler)
+                .Returns(new FakeGenericResourceHandler());
+        }
+
+
+        return requestHandlerDispatcher.Object;
+    }
+
+    #endregion Helpers
 }
