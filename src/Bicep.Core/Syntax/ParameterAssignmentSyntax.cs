@@ -32,7 +32,7 @@ namespace Bicep.Core.Syntax
         public override void Accept(ISyntaxVisitor visitor)
             => visitor.VisitParameterAssignmentSyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(this.Keyword, this.AssignmentClause?.Value ?? this.Keyword);
+        public override TextSpan Span => TextSpan.Between(this.Keyword, this.AssignmentClause?.Value ?? this.Name);
     }
 
     public class AssignmentClauseSyntax

@@ -188,6 +188,44 @@ param three = []
                 });
         }
 
+        [TestMethod]
+        public async Task RequestDocumentSymbol_should_handle_inline_decorated_parameters_correctly()
+        {
+            var helper = await DefaultServer.GetAsync();
+
+            var documentUri = DocumentUri.From("/param.bicepparam");
+            await helper.OpenFileOnceAsync(TestContext, @"
+using none;
+
+@inline()
+param one
+
+param two string = 'paramtwo'
+", documentUri);
+
+            var client = helper.Client;
+
+            var symbols = await RequestSymbols(client, documentUri);
+
+            symbols.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.DocumentSymbol!.Name.Should().Be("one");
+                    x.DocumentSymbol.Kind.Should().Be(SymbolKind.Constant);
+                    x.DocumentSymbol.Children.Should().BeEmpty();
+                    x.DocumentSymbol.Detail.Should().Be("null");
+
+                    x.DocumentSymbol.Range.Should().NotBeNull();
+                    x.DocumentSymbol.Range.Start.Line.Should().Be(4);
+                    x.DocumentSymbol.Range.End.Line.Should().Be(4);
+
+                    x.DocumentSymbol.SelectionRange.Should().NotBeNull();
+                    x.DocumentSymbol.SelectionRange.Start.Line.Should().Be(4);
+                    x.DocumentSymbol.SelectionRange.End.Line.Should().Be(4);
+                }
+            );
+        }
+
         private static async Task<SymbolInformationOrDocumentSymbolContainer> RequestSymbols(ILanguageClient client, DocumentUri documentUri) =>
             await client.TextDocument.RequestDocumentSymbol(new DocumentSymbolParams
             {
