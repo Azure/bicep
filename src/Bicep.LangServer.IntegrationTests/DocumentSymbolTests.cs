@@ -193,7 +193,7 @@ param three = []
         {
             var helper = await DefaultServer.GetAsync();
 
-            var documentUri = DocumentUri.From("/param.bicepparam");
+            var documentUri = DocumentUri.From("/inline-decorated-param.bicepparam");
             await helper.OpenFileOnceAsync(TestContext, @"
 using none;
 
