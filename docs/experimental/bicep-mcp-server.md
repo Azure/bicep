@@ -46,7 +46,9 @@ There is no way to definitively guarantee whether the agent orchestrator will us
 ## Contributing and providing feedack 
 These tools are early on and we value and welcome feedback to improve them. 
 
-In particular, we are looking to crowd source community wisdom on the `get_bicep_best_practices` tool. You can view the details of the tool here [TODO] and submit contributions with rationale here [TODO]. 
+[TODO: Point people towards the contributions guide for all tools] 
+
+In particular, we are looking to crowd source community wisdom on the `get_bicep_best_practices` tool. You can contribute to our forum on bicep best practices on this GitHub Issue [TODO Link and Post]. 
 
 ## Raising bugs or feature requests 
 Please raise bug reports or feature requests under [Bicep Issues](https://github.com/Azure/bicep/issues) and tag with "story: bicep MCP". 
