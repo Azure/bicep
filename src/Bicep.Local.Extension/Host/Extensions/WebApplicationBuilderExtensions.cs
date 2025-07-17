@@ -131,6 +131,27 @@ public static class WebApplicationBuilderExtensions
     }
 
     /// <summary>
+    /// Maps the default Bicep resource dispatcher to handle gRPC requests for the extension.
+    /// </summary>
+    /// <param name="app">The web application to configure.</param>
+    /// <returns>The configured web application for method chaining.</returns>
+    /// <remarks>
+    /// This method is a convenience overload that registers the default <see cref="ResourceRequestDispatcher"/>
+    /// as a gRPC service without requiring explicit type specification. It automatically enables gRPC reflection
+    /// in development environments for easier debugging with tools like grpcurl or Postman. Use this method when
+    /// you don't need a custom dispatcher implementation and want to use the built-in resource handling infrastructure.
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// var app = builder.Build();
+    /// app.MapBicepDispatcher(); // Uses default ResourceRequestDispatcher
+    /// await app.RunBicepExtensionAsync();
+    /// </code>
+    /// </example>
+    public static WebApplication MapBicepDispatcher(this WebApplication app)
+        => app.MapBicepDispatcher<ResourceRequestDispatcher>();
+
+    /// <summary>
     /// Starts the Bicep extension application, handling the --describe option or running the gRPC server.
     /// </summary>
     /// <param name="app">The configured web application to run.</param>
