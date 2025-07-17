@@ -21,7 +21,7 @@ public class ResourceRequestDispatcher
     : Rpc.BicepExtension.BicepExtensionBase
 {
     private readonly ILogger<ResourceRequestDispatcher> logger;
-    
+
     public ResourceRequestDispatcher(IResourceHandlerDispatcher resourceHandlerDispatcher, ILogger<ResourceRequestDispatcher> logger)
     {
         ArgumentNullException.ThrowIfNull(logger, nameof(logger));
@@ -88,7 +88,7 @@ public class ResourceRequestDispatcher
 
         var config = resourceReference.HasConfig ? GetExtensionConfig(resourceReference.Config) : [];
         var apiVersion = resourceReference.HasApiVersion ? resourceReference.ApiVersion : null;
-        var identifiers = ToJsonObject(resourceReference.Identifiers, "Parsing resource identifiers failed.");        
+        var identifiers = ToJsonObject(resourceReference.Identifiers, "Parsing resource identifiers failed.");
 
         return InternalGetHandlerAndHandlerRequest(resourceType: resourceReference.Type
                                                  , apiVersion: apiVersion
@@ -136,26 +136,25 @@ public class ResourceRequestDispatcher
     protected virtual Rpc.LocalExtensibilityOperationResponse ToLocalOperationResponse(HandlerResponse? handlerResponse)
         => handlerResponse is not null ? new Rpc.LocalExtensibilityOperationResponse()
         {
-            ErrorData = handlerResponse.Status == HandlerResponseStatus.Failed && handlerResponse.Error is not null ?
-                            new Rpc.ErrorData
-                            {
-                                Error = new Rpc.Error()
-                                {
-                                    Code = handlerResponse.Error.Code,
-                                    Message = handlerResponse.Message,
-                                    InnerError = handlerResponse.Error.Message,
-                                    Target = handlerResponse.Error.Target,
-                                }
-                            } : null,
-            Resource = handlerResponse.Status != HandlerResponseStatus.Failed ?
-                            new Rpc.Resource()
-                            {
-                                Status = handlerResponse.Status.ToString(),
-                                Type = handlerResponse.Type,
-                                ApiVersion = handlerResponse.ApiVersion,
-                                Properties = handlerResponse.Properties?.ToJsonString(),
-                                Identifiers = handlerResponse.Identifiers?.ToJsonString(),
-                            } : null
+            ErrorData = handlerResponse.Error is not null ?
+            new Rpc.ErrorData
+            {
+                Error = new Rpc.Error()
+                {
+                    Code = handlerResponse.Error.Code,
+                    Message = handlerResponse.Error.Message,
+                    InnerError = handlerResponse.Error.InnerError?.Message,
+                    Target = handlerResponse.Error.Target,
+                }
+            } : null,
+            Resource = new Rpc.Resource()
+            {
+                Status = handlerResponse.Status.ToString(),
+                Type = handlerResponse.Type,
+                ApiVersion = handlerResponse.ApiVersion,
+                Properties = handlerResponse.Properties?.ToJsonString(),
+                Identifiers = handlerResponse.Identifiers?.ToJsonString(),
+            }
         } : throw new ArgumentNullException("Failed to process handler response. No response was provided.");
 
     protected virtual JsonObject GetExtensionConfig(string extensionConfig)
