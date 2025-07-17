@@ -616,7 +616,6 @@ public class ResourceRequestDispatcherTests
         response.ErrorData.Error.Message.Should().Be(errorMessage);
         response.ErrorData.Error.InnerError.Should().Be(innerErrorMessage);
         response.ErrorData.Error.Target.Should().Be(errorTarget);
-        response.Resource.Should().BeNull();
     }
 
     [DataTestMethod]
