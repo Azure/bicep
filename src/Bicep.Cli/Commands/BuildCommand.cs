@@ -52,7 +52,7 @@ public class BuildCommand(
             }
             else
             {
-                writer.TemplateToFile(compilation, outputUri);
+                await writer.TemplateToFileAsync(compilation, outputUri);
             }
         }
 

@@ -7,18 +7,9 @@ using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Core;
-using Bicep.Core.Configuration;
-using Bicep.Core.Extensions;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Auth;
-using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Types;
-using Bicep.IO.Abstraction;
 using Bicep.Local.Deploy;
 using Bicep.Local.Deploy.Extensibility;
-using Bicep.Local.Extension.Rpc;
-using Json.Patch;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -29,16 +20,15 @@ public class LocalDeployCommand(
     ILogger logger,
     DiagnosticLogger diagnosticLogger,
     BicepCompiler compiler,
-    LocalExtensionDispatcherFactory dispatcherFactory) : ICommand
+    LocalExtensionDispatcherFactory dispatcherFactory,
+    InputOutputArgumentsResolver inputOutputArgumentsResolver) : ICommand
 {
     public async Task<int> RunAsync(LocalDeployArguments args, CancellationToken cancellationToken)
     {
-        var paramsFileUri = ArgumentHelper.GetFileUri(args.ParamsFile);
+        var paramsFileUri = inputOutputArgumentsResolver.PathToUri(args.ParamsFile);
         ArgumentHelper.ValidateBicepParamFile(paramsFileUri);
 
-        var compilation = await compiler.CreateCompilation(
-            paramsFileUri,
-            skipRestore: args.NoRestore);
+        var compilation = await compiler.CreateCompilation(paramsFileUri.ToUri(), skipRestore: args.NoRestore);
 
         var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, compilation);
         var parameters = compilation.Emitter.Parameters();

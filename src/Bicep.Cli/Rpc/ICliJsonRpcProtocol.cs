@@ -122,6 +122,12 @@ public record GetDeploymentGraphResponse(
         string Target);
 }
 
+public record FormatRequest(
+    string Path);
+
+public record FormatResponse(
+    string Contents);
+
 /// <summary>
 /// The definition for the Bicep CLI JSONRPC interface.
 /// </summary>
@@ -171,4 +177,10 @@ public interface ICliJsonRpcProtocol
     /// </summary>
     [JsonRpcMethod("bicep/getSnapshot", UseSingleObjectParameterDeserialization = true)]
     Task<GetSnapshotResponse> GetSnapshot(GetSnapshotRequest request, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Formats a specified .bicep file.
+    /// </summary>
+    [JsonRpcMethod("bicep/format", UseSingleObjectParameterDeserialization = true)]
+    Task<FormatResponse> Format(FormatRequest request, CancellationToken cancellationToken);
 }

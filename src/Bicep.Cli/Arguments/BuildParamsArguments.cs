@@ -3,10 +3,12 @@
 
 using System.Collections.Immutable;
 using Bicep.Cli.Helpers;
+using Bicep.Core;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Cli.Arguments;
 
-public class BuildParamsArguments : ArgumentsBase
+public class BuildParamsArguments : ArgumentsBase, IFilePatternInputOutputArguments<BuildParamsArguments>
 {
     public BuildParamsArguments(string[] args) : base(Constants.Command.BuildParams)
     {
@@ -121,6 +123,8 @@ public class BuildParamsArguments : ArgumentsBase
             DiagnosticsFormat = Arguments.DiagnosticsFormat.Default;
         }
     }
+
+    public static Func<BuildParamsArguments, IOUri, string> OutputFileExtensionResolver => (_, _) => LanguageConstants.JsonFileExtension;
 
     public bool OutputToStdOut { get; }
 

@@ -11,6 +11,8 @@ namespace Bicep.IO.Abstraction
 {
     public static class IOUriExtensions
     {
+        public static string GetFileName(this IOUri uri) => uri.PathSegments.LastOrDefault() ?? "";
+
         public static ReadOnlySpan<char> GetFileNameWithoutExtension(this IOUri uri)
         {
             var fileName = uri.PathSegments.LastOrDefault() ?? "";
