@@ -2,8 +2,11 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Azure.Deployments.Core.Extensions;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Parsing
 {
@@ -62,7 +65,7 @@ namespace Bicep.Core.Parsing
                         {
                             LanguageConstants.UsingKeyword => this.UsingDeclaration(),
                             LanguageConstants.ExtendsKeyword => this.ExtendsDeclaration(),
-                            LanguageConstants.ParameterKeyword => this.ParameterAssignment(),
+                            LanguageConstants.ParameterKeyword => this.ParameterAssignment(leadingNodes),
                             LanguageConstants.VariableKeyword => this.VariableDeclaration(leadingNodes),
                             LanguageConstants.ImportKeyword => this.CompileTimeImportDeclaration(ExpectKeyword(LanguageConstants.ImportKeyword), leadingNodes),
                             LanguageConstants.ExtensionConfigKeyword => this.ExtensionConfigAssignment(leadingNodes),
@@ -104,14 +107,27 @@ namespace Bicep.Core.Parsing
             return new ExtendsDeclarationSyntax(keyword, path);
         }
 
-        private SyntaxBase ParameterAssignment()
+        private SyntaxBase ParameterAssignment(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.ParameterKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedParameterIdentifier(), RecoveryFlags.None, TokenType.Identifier, TokenType.NewLine);
-            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
-            var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
+            var assignment = this.reader.Peek().Type switch
+            {
+                TokenType.NewLine => null,
+                _ => this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine),
+            };
+            var value = this.reader.Peek().Type switch
+            {
+                TokenType.NewLine => null,
+                _ => this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(name), TokenType.NewLine),
+            };
 
-            return new ParameterAssignmentSyntax(keyword, name, assignment, value);
+            if (assignment is not null && value is null)
+            {
+                throw new ExpectedTokenException(keyword, b => b.MissingParameterValue(name.IdentifierName));
+            }
+
+            return new ParameterAssignmentSyntax(keyword, name, assignment, value, leadingNodes);
         }
 
         private ExtensionConfigAssignmentSyntax ExtensionConfigAssignment(IEnumerable<SyntaxBase> leadingNodes)

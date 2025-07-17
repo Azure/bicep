@@ -1937,6 +1937,14 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic ExtensionConfigAssignmentDoesNotMatchToExtension(string identifier) => CoreError(
                 "BCP425",
                 $"The extension configuration assignment for \"{identifier}\" does not match an extension in the Bicep file.");
+
+            public Diagnostic InlineMustNotHaveValueAssigned() => CoreError(
+                "BCP426",
+                $"A parameter marked with the \"@{LanguageConstants.ParameterInlinePropertyName}\" decorator shouldn't have a value assigned.");
+
+            public Diagnostic MissingParameterValue(string identifier) => CoreError(
+                "BCP427",
+                $"Parameter {identifier} is declared but missing a value assignment.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
