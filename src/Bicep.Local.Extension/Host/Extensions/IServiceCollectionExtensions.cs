@@ -26,6 +26,35 @@ namespace Bicep.Local.Extension.Host.Extensions;
 
 public static class IServiceCollectionExtensions
 {
+    /// <summary>
+    /// Configures the dependency injection container with core Bicep extension services and type definitions.
+    /// </summary>
+    /// <param name="services">The service collection to configure.</param>
+    /// <param name="name">The unique name of your Bicep extension (e.g., "MyCompany.MyExtension").</param>
+    /// <param name="version">The semantic version of your extension (e.g., "1.0.0").</param>
+    /// <param name="isSingleton">True if this extension should be treated as a singleton; false for multiple instances.</param>
+    /// <param name="typeConfiguration">Optional callback to configure custom Bicep types and configuration schema for your extension.</param>
+    /// <returns>The configured service collection for method chaining.</returns>
+    /// <remarks>
+    /// This method sets up the foundation for your Bicep extension by registering core services including
+    /// type factories, resource dispatchers, gRPC services, and basic type mappings (string, bool, int).
+    /// Call this method once during startup before registering resource handlers.
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// services.AddBicepExtensionServices(
+    ///     name: "MyCompany.KubernetesExtension",
+    ///     version: "1.0.0",
+    ///     isSingleton: true,
+    ///     typeConfiguration: (typeFactory, config) => {
+    ///         var stringType = typeFactory.Create(() => new StringType());
+    ///         config["apiUrl"] = new ObjectTypeProperty(
+    ///             typeFactory.GetReference(stringType), 
+    ///             ObjectTypePropertyFlags.Required, 
+    ///             "The Kubernetes API server URL");
+    ///     });
+    /// </code>
+    /// </example>
     public static IServiceCollection AddBicepExtensionServices(this IServiceCollection services
                                                             , string name, string version, bool isSingleton
                                                             , Action<TypeFactory, Dictionary<string, ObjectTypeProperty>>? typeConfiguration = null)
@@ -35,13 +64,13 @@ public static class IServiceCollectionExtensions
                                 { typeof(string), () => new StringType() },
                                 { typeof(bool), () => new BooleanType() },
                                 { typeof(int), () => new IntegerType() }
-                            }.ToImmutableDictionary();
-
+                            }.ToImmutableDictionary();        
         var typeFactory = new TypeFactory([]);
+
         foreach (var type in typeDictionary)
         {
             typeFactory.Create(type.Value);
-        }
+        }        
 
         var configuration = new Dictionary<string, ObjectTypeProperty>();
 
@@ -70,6 +99,27 @@ public static class IServiceCollectionExtensions
         return services;
     }
 
+    /// <summary>
+    /// Registers a resource handler that manages a specific resource type in your Bicep extension.
+    /// </summary>
+    /// <typeparam name="T">The resource handler class that implements <see cref="IResourceHandler"/>.</typeparam>
+    /// <param name="services">The service collection to register the handler with.</param>
+    /// <returns>The service collection for method chaining.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when a handler is already registered for the same resource type.</exception>
+    /// <remarks>
+    /// Resource handlers define how your extension creates, updates, deletes, and retrieves resources.
+    /// Each resource type can only have one registered handler. For generic resource handling, 
+    /// implement <see cref="IResourceHandler"/> without a specific type parameter.
+    /// </remarks>
+    /// <example>
+    /// <code>
+    /// // Register a handler for Kubernetes Pod resources
+    /// services.AddBicepResourceHandler&lt;KubernetesPodHandler&gt;();
+    /// 
+    /// // Register a generic handler for all untyped resources
+    /// services.AddBicepResourceHandler&lt;GenericResourceHandler&gt;();
+    /// </code>
+    /// </example>
     public static IServiceCollection AddBicepResourceHandler<T>(this IServiceCollection services)
         where T : class, IResourceHandler
     {
