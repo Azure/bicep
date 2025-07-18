@@ -192,28 +192,29 @@ resource fooRes 'fooType@v1' = {
     {
         var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         var indexPath = FileHelper.SaveResultFile(TestContext, "index.json", """
-{
-  "resources": {
-    "Microsoft.Storage/storageAccounts@2022-05-01": {
-      "$ref": "v1/types.json#/179"
-    }
-  },
-  "resourceFunctions": {}
-}
-""", outputDirectory);
+            {
+              "resources": {
+                "Microsoft.Storage/storageAccounts@2022-05-01": {
+                  "$ref": "v1/types.json#/179"
+                }
+              },
+              "resourceFunctions": {}
+            }
+            """, outputDirectory);
+
         FileHelper.SaveResultFile(TestContext, "v1/types.json", """
-[
-  {
-    "$type": "StringType",
-    "minLength": 3,
-    "maxLength": 24
-  },
-  {
-    "$type": "StringLiteralType",
-    "value": "Microsoft.Storage/storageAccounts"
-  }
-]
-""", outputDirectory);
+            [
+              {
+                "$type": "StringType",
+                "minLength": 3,
+                "maxLength": 24
+              },
+              {
+                "$type": "StringLiteralType",
+                "value": "Microsoft.Storage/storageAccounts"
+              }
+            ]
+            """, outputDirectory);
 
         var result = await Bicep(InvocationSettings.Default, "publish-extension", indexPath, "--target", $"br:example.com/test/extension:0.0.1");
         result.Should().Fail().And.HaveStderrMatch("*Extension package creation failed: Index was outside the bounds of the array.*");

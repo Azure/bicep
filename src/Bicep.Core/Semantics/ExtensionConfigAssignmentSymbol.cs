@@ -12,7 +12,7 @@ namespace Bicep.Core.Semantics
         {
             public ExtensionConfigAssignmentNameSource(ExtensionConfigAssignmentSyntax syntax)
             {
-                this.Span = syntax.SpecificationString.Span;
+                this.Span = syntax.Alias.Span;
             }
 
             public TextSpan Span { get; }

@@ -3,7 +3,9 @@
 
 using System.Text.Json;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.Json;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Configuration;
 
@@ -27,4 +29,20 @@ public record ExperimentalFeaturesEnabled(
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();
 
     public void WriteTo(Utf8JsonWriter writer) => JsonElementFactory.CreateElement(this).WriteTo(writer);
+
+    public static readonly ExperimentalFeaturesEnabled AllDisabled = new(
+        SymbolicNameCodegen: false,
+        ExtendableParamFiles: false,
+        ResourceTypedParamsAndOutputs: false,
+        SourceMapping: false,
+        LegacyFormatter: false,
+        TestFramework: false,
+        Assertions: false,
+        WaitAndRetry: false,
+        LocalDeploy: false,
+        ResourceInfoCodegen: false,
+        ModuleExtensionConfigs: false,
+        DesiredStateConfiguration: false,
+        OnlyIfNotExists: false,
+        ModuleIdentity: false);
 }

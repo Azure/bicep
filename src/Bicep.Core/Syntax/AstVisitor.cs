@@ -337,7 +337,7 @@ namespace Bicep.Core.Syntax
         public override void VisitExtensionConfigAssignmentSyntax(ExtensionConfigAssignmentSyntax syntax)
         {
             this.VisitNodes(syntax.LeadingNodes);
-            this.Visit(syntax.SpecificationString);
+            this.Visit(syntax.Alias);
             this.Visit(syntax.WithClause);
         }
 

@@ -4,9 +4,9 @@
     "net8.0": {
       "FluentAssertions": {
         "type": "Direct",
-        "requested": "[7.0.0, )",
-        "resolved": "7.0.0",
-        "contentHash": "mTLbcU991EQ1SEmNbVBaGGGJy0YFzvGd1sYJGNZ07nlPKuyHSn1I22aeKzqQXgEiaKyRO6MSCto9eN9VxMwBdA==",
+        "requested": "[7.2.0, )",
+        "resolved": "7.2.0",
+        "contentHash": "k94gV49Otru4e9nKtj36KpA9UkjuAGKPmhfM0oqyI+rrtxhSrgaeEhILR0AbJ9iNaoagAeQtawPz6njQOC6WQA==",
         "dependencies": {
           "System.Configuration.ConfigurationManager": "6.0.0"
         }
@@ -1168,6 +1168,14 @@
           "TestableIO.System.IO.Abstractions.Wrappers": "21.3.1"
         }
       },
+      "System.IO.Abstractions.TestingHelpers": {
+        "type": "Transitive",
+        "resolved": "21.3.1",
+        "contentHash": "LsvGSS5XbvVonvWo1fb6X5T3WFAe59A9A+F+KiyXXDEw8FDDEvaoI+IbUzLPyjTZJ1sIFredoJCgppXjEESL4A==",
+        "dependencies": {
+          "TestableIO.System.IO.Abstractions.TestingHelpers": "21.3.1"
+        }
+      },
       "System.IO.FileSystem.Primitives": {
         "type": "Transitive",
         "resolved": "4.3.0",
@@ -1528,6 +1536,15 @@
         "resolved": "21.3.1",
         "contentHash": "B9USlBOZAiqXss7AI4BH6HVWs+HoHx38OadJjBO0VCzEWgP/u0u52bogmrzDHsyqRv8Yo/xtIMQXgpjLoaAUXw=="
       },
+      "TestableIO.System.IO.Abstractions.TestingHelpers": {
+        "type": "Transitive",
+        "resolved": "21.3.1",
+        "contentHash": "XP7tiKVtnOP+jXWsRqgc7WCV2tsoolVnxSNUJXwdWmHCpLMsVlZXRag7dMynnNEQQB9XEJx25RteqN5APCnjag==",
+        "dependencies": {
+          "TestableIO.System.IO.Abstractions": "21.3.1",
+          "TestableIO.System.IO.Abstractions.Wrappers": "21.3.1"
+        }
+      },
       "TestableIO.System.IO.Abstractions.Wrappers": {
         "type": "Transitive",
         "resolved": "21.3.1",
@@ -1604,6 +1621,18 @@
           "Microsoft.Extensions.Logging": "[9.0.1, )",
           "Sarif.Sdk": "[4.5.4, )",
           "StreamJsonRpc": "[2.20.20, )"
+        }
+      },
+      "bicep.textfixtures": {
+        "type": "Project",
+        "dependencies": {
+          "Azure.Bicep.Core": "[1.0.0, )",
+          "Azure.Bicep.Decompiler": "[1.0.0, )",
+          "Azure.Bicep.IO": "[1.0.0, )",
+          "FluentAssertions": "[7.2.0, )",
+          "JsonDiffPatch.Net": "[2.3.0, )",
+          "Moq": "[4.20.72, )",
+          "System.IO.Abstractions.TestingHelpers": "[21.3.1, )"
         }
       }
     },
