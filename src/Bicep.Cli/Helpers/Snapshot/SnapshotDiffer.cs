@@ -87,6 +87,8 @@ public class SnapshotDiffer
             Body = DeploymentWhatIfJob.CorrectResourceBodyIdentifiers(
                 resourceBody: resource.ToString().FromJson<JObject>(),
                 fullyQualifiedResourceId: id,
+                fullyQualifiedResourceType: resource.GetProperty("type").ToString(),
+                resourceName: resource.GetProperty("name").ToString(),
                 apiVersion: apiVersion),
         };
     }
