@@ -17,6 +17,8 @@ using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Handlers;
+using Bicep.TextFixtures.Dummies;
+using Bicep.TextFixtures.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
@@ -51,14 +53,15 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         // If entrypointSource is not null, then a source archive will be created with the given entrypointSource, otherwise no source archive will be created.
-        private SharedLanguageHelperManager CreateServer(Uri? bicepModuleEntrypoint, string? entrypointSource, string? sourceArchiveError = null)
+        private SharedLanguageHelperManager CreateServer(string? bicepModuleEntrypointPath, string? entrypointSource, string? sourceArchiveError = null)
         {
             var sourceTgzFileMock = StrictMock.Of<IFileHandle>();
             sourceTgzFileMock.Setup(x => x.Exists()).Returns(false);
 
-            if (bicepModuleEntrypoint is not null && entrypointSource is not null)
+            if (bicepModuleEntrypointPath is not null && entrypointSource is not null)
             {
-                var sourceArchive = new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).WithBicepFile(bicepModuleEntrypoint, entrypointSource).Build();
+                //var sourceArchive = new SourceArchiveBuilder(BicepTestConstants.SourceFileFactory).WithBicepFile(bicepModuleEntrypoint, entrypointSource).Build();
+                var sourceArchive = DummySourceArchive.Create(bicepModuleEntrypointPath);
                 sourceTgzFileMock.Setup(x => x.Exists()).Returns(true);
 
                 if (sourceArchiveError is not null)
@@ -119,13 +122,13 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task DisplayingExternalModuleSource_EntrypointFile_ShouldHaveCodeLens_ToShowModuleCompiledJson()
         {
             var uri = DocumentUri.From($"{ROOT}{this.TestContext.TestName}");
-            var moduleEntrypointUri = DocumentUri.From($"{ROOT}module entrypoint.bicep");
+            var moduleEntrypointFileName = "module entrypoint.bicep";
 
-            await using var server = CreateServer(moduleEntrypointUri.ToUriEncoded(), "// module entrypoint");
+            await using var server = CreateServer(moduleEntrypointFileName, "// module entrypoint");
             var helper = await server.GetAsync();
             await helper.OpenFileOnceAsync(this.TestContext, string.Empty, uri);
 
-            var externalSourceUri = new ExternalSourceReference("title", "br:myregistry.azurecr.io/myrepo/bicep/module1:v1", Path.GetFileName(moduleEntrypointUri.Path)).ToUri();
+            var externalSourceUri = new ExternalSourceReference("title", "br:myregistry.azurecr.io/myrepo/bicep/module1:v1", moduleEntrypointFileName).ToUri();
             var lenses = await GetExternalSourceCodeLenses(helper, externalSourceUri);
 
             lenses.Should().HaveCount(1);
@@ -141,9 +144,9 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task DisplayingExternalModuleSource_BicepButNotEntrypointFile_ShouldHaveCodeLens_ToShowModuleCompiledJson()
         {
             var uri = DocumentUri.From($"{ROOT}{this.TestContext.TestName}");
-            var moduleEntrypointUri = DocumentUri.From($"{ROOT}module entrypoint.bicep");
+            var moduleEntrypointFileName = "module entrypoint.bicep";
 
-            await using var server = CreateServer(moduleEntrypointUri.ToUriEncoded(), "// module entrypoint");
+            await using var server = CreateServer(moduleEntrypointFileName, "// module entrypoint");
             var helper = await server.GetAsync();
             await helper.OpenFileOnceAsync(this.TestContext, string.Empty, uri);
 
@@ -163,9 +166,9 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task DisplayingExternalModuleSource_JsonFileThatIsIncludedInSources_ShouldHaveCodeLens_ToShowCompiledJson_ForTheWholeModule()
         {
             var uri = DocumentUri.From($"{ROOT}{this.TestContext.TestName}");
-            var moduleEntrypointUri = DocumentUri.From($"{ROOT}module entrypoint.bicep");
+            var moduleEntrypointFileName = "module entrypoint.bicep";
 
-            await using var server = CreateServer(moduleEntrypointUri.ToUriEncoded(), "// module entrypoint");
+            await using var server = CreateServer(moduleEntrypointFileName, "// module entrypoint");
             var helper = await server.GetAsync();
             await helper.OpenFileOnceAsync(this.TestContext, string.Empty, uri);
 
@@ -185,9 +188,9 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task DisplayingModuleCompiledJsonFile_AndSourceIsAvailable_ShouldHaveCodeLens_ToShowBicepEntrypointFile()
         {
             var uri = DocumentUri.From($"{ROOT}{this.TestContext.TestName}");
-            var moduleEntrypointUri = DocumentUri.From($"{ROOT}module entrypoint.bicep");
+            var moduleEntrypointFileName = "module entrypoint.bicep";
 
-            await using var server = CreateServer(moduleEntrypointUri.ToUriEncoded(), "// module entrypoint");
+            await using var server = CreateServer(moduleEntrypointFileName, "// module entrypoint");
             var helper = await server.GetAsync();
             await helper.OpenFileOnceAsync(this.TestContext, string.Empty, uri);
 
@@ -201,16 +204,16 @@ namespace Bicep.LangServer.IntegrationTests
             lens.Should().HaveCommandTitle("Show Bicep source");
             var target = new ExternalSourceReference(lens.CommandArguments().Single());
             target.IsRequestingCompiledJson.Should().BeFalse();
-            target.RequestedFile.Should().Be(Path.GetFileName(moduleEntrypointUri.Path));
+            target.RequestedFile.Should().Be(moduleEntrypointFileName);
         }
 
         [TestMethod]
         public async Task DisplayingModuleCompiledJsonFile_AndSourceNotAvailable_ShouldHaveCodeLens_ToExplainWhyNoSources()
         {
             var uri = DocumentUri.From($"{ROOT}{this.TestContext.TestName}");
-            var moduleEntrypointUri = DocumentUri.From($"{ROOT}module entrypoint.bicep");
+            var moduleEntrypointFileName = "module entrypoint.bicep";
 
-            await using var server = CreateServer(moduleEntrypointUri.ToUriEncoded(), null);
+            await using var server = CreateServer(moduleEntrypointFileName, null);
             var helper = await server.GetAsync();
             await helper.OpenFileOnceAsync(this.TestContext, string.Empty, uri);
 
@@ -229,9 +232,9 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task HasBadUri_ShouldHaveCodeLens_ToExplainError()
         {
             var uri = DocumentUri.From($"{ROOT}{this.TestContext.TestName}");
-            var moduleEntrypointUri = DocumentUri.From($"{ROOT}module entrypoint.bicep");
+            var moduleEntrypointName = "module entrypoint.bicep";
 
-            await using var server = CreateServer(moduleEntrypointUri.ToUriEncoded(), "// module entrypoint");
+            await using var server = CreateServer(moduleEntrypointName, "// module entrypoint");
             var helper = await server.GetAsync();
             await helper.OpenFileOnceAsync(this.TestContext, string.Empty, uri);
 
@@ -250,9 +253,9 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task SourceArchiveHasError_ShouldHaveCodeLensWithError()
         {
             var uri = DocumentUri.From($"{ROOT}{this.TestContext.TestName}");
-            var moduleEntrypointUri = DocumentUri.From($"{ROOT}module entrypoint.bicep");
+            var moduleEntrypointName = "module entrypoint.bicep";
 
-            await using var server = CreateServer(moduleEntrypointUri.ToUriEncoded(), "// module entrypoint", sourceArchiveError: "Source archive is incompatible with this version of Bicep.");
+            await using var server = CreateServer(moduleEntrypointName, "// module entrypoint", sourceArchiveError: "Source archive is incompatible with this version of Bicep.");
             var helper = await server.GetAsync();
             await helper.OpenFileOnceAsync(this.TestContext, string.Empty, uri);
 

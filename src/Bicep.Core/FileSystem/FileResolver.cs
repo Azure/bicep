@@ -61,9 +61,6 @@ namespace Bicep.Core.FileSystem
             }
         }
 
-        public Uri? TryResolveFilePath(Uri parentFileUri, string childFilePath)
-            => PathHelper.TryResolveFilePath(parentFileUri, childFilePath);
-
         private static void ApplyWindowsConFileWorkaround(string localPath)
         {
             /*

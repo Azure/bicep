@@ -10,7 +10,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6101682224524996823"
+      "templateHash": "6407882912896869902"
     }
   },
   "parameters": {
@@ -27,21 +27,11 @@
   "extensions": {
     "az": {
       "name": "AzureResourceManager",
-      "version": "0.2.764"
+      "version": "0.2.784"
     },
     "k8s": {
       "name": "Kubernetes",
-      "version": "1.0.0",
-      "config": {
-        "kubeConfig": {
-          "type": "secureString",
-          "defaultValue": "DELETE"
-        },
-        "namespace": {
-          "type": "string",
-          "defaultValue": "DELETE"
-        }
-      }
+      "version": "1.0.0"
     }
   },
   "resources": {
@@ -86,10 +76,10 @@
         "extensionConfigs": {
           "k8s": {
             "kubeConfig": {
-              "value": "kubeConfig2FromModule"
+              "value": "kubeConfig2"
             },
             "namespace": {
-              "value": "ns2FromModule"
+              "value": "ns2"
             }
           }
         },
@@ -105,23 +95,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4478020682322669192"
+              "templateHash": "15850125793643788204"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
-              "version": "1.0.0",
-              "config": {
-                "kubeConfig": {
-                  "type": "secureString",
-                  "defaultValue": "DELETE"
-                },
-                "namespace": {
-                  "type": "string",
-                  "defaultValue": "DELETE"
-                }
-              }
+              "version": "1.0.0"
             }
           },
           "resources": {}
@@ -140,10 +120,7 @@
         "extensionConfigs": {
           "kubernetes": {
             "kubeConfig": {
-              "value": "kubeConfig2FromModule"
-            },
-            "namespace": {
-              "value": "ns2FromModule"
+              "value": "kubeConfig2"
             }
           }
         },
@@ -159,7 +136,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8431330143219269152"
+              "templateHash": "12485839995628084055"
             }
           },
           "extensions": {
@@ -167,13 +144,8 @@
               "name": "Kubernetes",
               "version": "1.0.0",
               "config": {
-                "kubeConfig": {
-                  "type": "secureString",
-                  "defaultValue": "DELETE"
-                },
                 "namespace": {
-                  "type": "string",
-                  "defaultValue": "DELETE"
+                  "defaultValue": "nsInsideModule"
                 }
               }
             }
@@ -209,23 +181,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4478020682322669192"
+              "templateHash": "15850125793643788204"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
-              "version": "1.0.0",
-              "config": {
-                "kubeConfig": {
-                  "type": "secureString",
-                  "defaultValue": "DELETE"
-                },
-                "namespace": {
-                  "type": "string",
-                  "defaultValue": "DELETE"
-                }
-              }
+              "version": "1.0.0"
             }
           },
           "resources": {}
@@ -268,23 +230,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4478020682322669192"
+              "templateHash": "15850125793643788204"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
-              "version": "1.0.0",
-              "config": {
-                "kubeConfig": {
-                  "type": "secureString",
-                  "defaultValue": "DELETE"
-                },
-                "namespace": {
-                  "type": "string",
-                  "defaultValue": "DELETE"
-                }
-              }
+              "version": "1.0.0"
             }
           },
           "resources": {}
@@ -322,23 +274,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4478020682322669192"
+              "templateHash": "15850125793643788204"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
-              "version": "1.0.0",
-              "config": {
-                "kubeConfig": {
-                  "type": "secureString",
-                  "defaultValue": "DELETE"
-                },
-                "namespace": {
-                  "type": "string",
-                  "defaultValue": "DELETE"
-                }
-              }
+              "version": "1.0.0"
             }
           },
           "resources": {}
@@ -373,23 +315,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4478020682322669192"
+              "templateHash": "15850125793643788204"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
-              "version": "1.0.0",
-              "config": {
-                "kubeConfig": {
-                  "type": "secureString",
-                  "defaultValue": "DELETE"
-                },
-                "namespace": {
-                  "type": "string",
-                  "defaultValue": "DELETE"
-                }
-              }
+              "version": "1.0.0"
             }
           },
           "resources": {}
@@ -423,23 +355,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4478020682322669192"
+              "templateHash": "15850125793643788204"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
-              "version": "1.0.0",
-              "config": {
-                "kubeConfig": {
-                  "type": "secureString",
-                  "defaultValue": "DELETE"
-                },
-                "namespace": {
-                  "type": "string",
-                  "defaultValue": "DELETE"
-                }
-              }
+              "version": "1.0.0"
             }
           },
           "resources": {}
@@ -477,23 +399,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4478020682322669192"
+              "templateHash": "15850125793643788204"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
-              "version": "1.0.0",
-              "config": {
-                "kubeConfig": {
-                  "type": "secureString",
-                  "defaultValue": "DELETE"
-                },
-                "namespace": {
-                  "type": "string",
-                  "defaultValue": "DELETE"
-                }
-              }
+              "version": "1.0.0"
             }
           },
           "resources": {}
@@ -527,23 +439,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4478020682322669192"
+              "templateHash": "15850125793643788204"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
-              "version": "1.0.0",
-              "config": {
-                "kubeConfig": {
-                  "type": "secureString",
-                  "defaultValue": "DELETE"
-                },
-                "namespace": {
-                  "type": "string",
-                  "defaultValue": "DELETE"
-                }
-              }
+              "version": "1.0.0"
             }
           },
           "resources": {}

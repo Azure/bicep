@@ -5,7 +5,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.IO.Abstraction;
 using Json.Patch;
 
 namespace Bicep.Cli.Helpers;
@@ -39,36 +41,27 @@ public class ArgumentHelper
         throw new CommandLineException($"Unrecognized value {value} for parameter {argName}");
     }
 
-    [return: NotNullIfNotNull(nameof(filePath))]
-    public static Uri? GetFileUri(string? filePath, IFileSystem? fileSystem = null)
-        => filePath is { } ? PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(filePath, fileSystem: fileSystem)) : null;
-
-    public static void ValidateBicepFile(Uri fileUri)
+    public static void ValidateBicepFile(IOUri fileUri)
     {
-        if (!PathHelper.HasBicepExtension(fileUri))
+        if (!fileUri.HasBicepExtension())
         {
-            throw new CommandLineException(string.Format(CliResources.UnrecognizedBicepFileExtensionMessage, fileUri.LocalPath));
+            throw new CommandLineException(string.Format(CliResources.UnrecognizedBicepFileExtensionMessage, fileUri.ToString()));
         }
     }
 
-    public static void ValidateBicepParamFile(Uri fileUri)
+    public static void ValidateBicepParamFile(IOUri fileUri)
     {
-        if (!PathHelper.HasBicepparamsExtension(fileUri))
+        if (!fileUri.HasBicepParamExtension())
         {
-            throw new CommandLineException(string.Format(CliResources.UnrecognizedBicepparamsFileExtensionMessage, fileUri.LocalPath));
-        }
-        if (!File.Exists(fileUri.LocalPath))
-        {
-            throw new CommandLineException(string.Format(CliResources.FileDoesNotExistFormat, fileUri.LocalPath));
+            throw new CommandLineException(string.Format(CliResources.UnrecognizedBicepparamsFileExtensionMessage, fileUri.ToString()));
         }
     }
 
-    public static void ValidateBicepOrBicepParamFile(Uri fileUri)
+    public static void ValidateBicepOrBicepParamFile(IOUri fileUri)
     {
-        if (!PathHelper.HasBicepExtension(fileUri) &&
-            !PathHelper.HasBicepparamsExtension(fileUri))
+        if (!fileUri.HasBicepExtension() && !fileUri.HasBicepParamExtension())
         {
-            throw new CommandLineException(string.Format(CliResources.UnrecognizedBicepOrBicepparamsFileExtensionMessage, fileUri.LocalPath));
+            throw new CommandLineException(string.Format(CliResources.UnrecognizedBicepOrBicepparamsFileExtensionMessage, fileUri.ToString()));
         }
     }
 
@@ -85,19 +78,6 @@ public class ArgumentHelper
         }
 
         return args[argPosition + 1];
-    }
-
-    public static string GetDirectoryPathValueWithValidation(string argName, string[] args, int argPosition)
-    {
-        var value = GetValueWithValidation(argName, args, argPosition);
-
-        var resolvedPath = PathHelper.ResolvePath(value);
-        if (!Directory.Exists(resolvedPath))
-        {
-            throw new CommandLineException($"The {argName} directory does not exist: {resolvedPath}");
-        }
-
-        return value;
     }
 
     public static void ValidateNotAlreadySet<T>(string argName, T? value)

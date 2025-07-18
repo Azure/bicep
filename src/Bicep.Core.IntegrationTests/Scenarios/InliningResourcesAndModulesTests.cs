@@ -144,7 +144,7 @@ resource storage2 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: 'Standard_LRS'
   }
   properties: {
-    allowBlobPublicAccess: refResource.properties.allowBlobPublicAccess
+    allowBlobPublicAccess: refResource!.properties.allowBlobPublicAccess
   }
 }
 ");
@@ -202,7 +202,7 @@ resource storage2 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: 'Standard_LRS'
   }
   properties: {
-    allowBlobPublicAccess: refResource.properties.allowBlobPublicAccess
+    allowBlobPublicAccess: refResource!.properties.allowBlobPublicAccess
   }
 }
 ");

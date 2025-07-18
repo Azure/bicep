@@ -21,9 +21,9 @@
       },
       "Microsoft.NET.ILLink.Tasks": {
         "type": "Direct",
-        "requested": "[8.0.15, )",
-        "resolved": "8.0.15",
-        "contentHash": "s4eXlcRGyHeCgFUGQnhq0e/SCHBPp0jOHgMqZg3fQ2OCHJSm1aOUhI6RFWuVIcEb9ig2WgI2kWukk8wu72EbUQ=="
+        "requested": "[8.0.18, )",
+        "resolved": "8.0.18",
+        "contentHash": "OiXqr2YIBEV9dsAWEtasK470ALyJ0VxJ9k4MotOxlWV6HeEgrJKYMW4HHj1OCCXvqE0/A25wEKPkpfiBARgDZA=="
       },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
@@ -57,8 +57,8 @@
       },
       "Azure.Bicep.Types.Az": {
         "type": "Transitive",
-        "resolved": "0.2.764",
-        "contentHash": "g+WXBCuNelIX5Co2ZUJ4Ak+aOLzd7AVj/melhG0jLYYFGUUsNlB7o6xRjI57Vjsb1OEDSFNHwh6PUOIQFq1AJA==",
+        "resolved": "0.2.784",
+        "contentHash": "ARXBJm7c6UBKmo3LGSd41cm7BAk9yr7MO+6dVhfKK+jJsQtPTOJSXbum2L1jLpxwodIA8vO15KNfsYfP/tpOUQ==",
         "dependencies": {
           "Azure.Bicep.Types": "0.5.110"
         }
@@ -97,8 +97,8 @@
       },
       "Azure.Deployments.Core": {
         "type": "Transitive",
-        "resolved": "1.364.0",
-        "contentHash": "4ylrVR8csYWceLCTX1lKZd4J5K7U3z4bdqQXK/1qcgGEPJbYmYZn5RSkxLxwxFhEsTCUPoun3IHNIWuTTqanWQ==",
+        "resolved": "1.393.0",
+        "contentHash": "BAh6CTnYGT8lldtbQvfKgCljBkFLhemqDhhRwpp7tmDwMR/7PoHkyhYPmaME/CjOBxvYaMLyadMYM+ahv/1z2Q==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
           "Microsoft.PowerPlatform.ResourceStack": "7.0.0.2070",
@@ -112,10 +112,10 @@
       },
       "Azure.Deployments.Expression": {
         "type": "Transitive",
-        "resolved": "1.364.0",
-        "contentHash": "2ORTapDJ1+lXVrmKDD5FDelDDi7B+RU+c3lkIAZtiGrdqMSJ8HDHrMgs+nmg8u8WX+woH4bRM4zpyJh8Z4IMRg==",
+        "resolved": "1.393.0",
+        "contentHash": "lwunHYEV/figvEf0g9ZcTQ+6atWEq8KY8tTbJQif0PWc40LuNxjxTqKFbdoqS/TIVTGmrju7qW0Q+olQ8z5YLg==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.364.0",
+          "Azure.Deployments.Core": "1.393.0",
           "IPNetwork2": "2.6.598",
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
           "Microsoft.PowerPlatform.ResourceStack": "7.0.0.2070",
@@ -129,12 +129,12 @@
       },
       "Azure.Deployments.Templates": {
         "type": "Transitive",
-        "resolved": "1.364.0",
-        "contentHash": "OYJfjHecg5Wx9lEE+oUuBafANdTTkBOYCkrie4L3A3EYiMhWG/Ei6NQmkdbJ6VMyrhTaoehesQlmoFWD6q+YVQ==",
+        "resolved": "1.393.0",
+        "contentHash": "CD544eMbLvJAbToMjQrl3P4RoMEdX17luYmQb2UxUWSt9xhs1TqlEZO44r3x5x5Gbo3z89pzonVRYuIhT7zy7Q==",
         "dependencies": {
           "Azure.Bicep.Types": "0.5.110",
-          "Azure.Deployments.Core": "1.364.0",
-          "Azure.Deployments.Expression": "1.364.0",
+          "Azure.Deployments.Core": "1.393.0",
+          "Azure.Deployments.Expression": "1.393.0",
           "IPNetwork2": "2.6.598",
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
           "Microsoft.PowerPlatform.ResourceStack": "7.0.0.2070",
@@ -1030,10 +1030,10 @@
         "dependencies": {
           "Azure.Bicep.IO": "[1.0.0, )",
           "Azure.Bicep.Types": "[0.5.110, )",
-          "Azure.Bicep.Types.Az": "[0.2.764, )",
+          "Azure.Bicep.Types.Az": "[0.2.784, )",
           "Azure.Bicep.Types.K8s": "[0.1.644, )",
           "Azure.Containers.ContainerRegistry": "[1.1.1, )",
-          "Azure.Deployments.Templates": "[1.364.0, )",
+          "Azure.Deployments.Templates": "[1.393.0, )",
           "Azure.Identity": "[1.13.2, )",
           "Azure.ResourceManager.Resources": "[1.9.0, )",
           "JsonPatch.Net": "[3.3.0, )",
@@ -1062,6 +1062,7 @@
       "Azure.Bicep.Local.Extension": {
         "type": "Project",
         "dependencies": {
+          "Azure.Bicep.Types": "[0.5.110, )",
           "CommandLineParser": "[2.9.1, )",
           "Google.Protobuf": "[3.29.2, )",
           "Grpc.Net.Client": "[2.70.0, )"

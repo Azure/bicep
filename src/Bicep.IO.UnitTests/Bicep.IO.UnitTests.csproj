@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="7.0.0" />
+    <PackageReference Include="FluentAssertions" Version="$(FluentAssertionsVersion)" />
     <PackageReference Include="MSTest" Version="$(MSTestVersion)" />
     <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="21.3.1" />
   </ItemGroup>

@@ -16,12 +16,12 @@ namespace Bicep.Cli.Commands;
 public class JsonRpcCommand : ICommand
 {
     private readonly BicepCompiler compiler;
-    private readonly IOContext io;
+    private readonly InputOutputArgumentsResolver inputOutputArgumentsResolver;
 
-    public JsonRpcCommand(BicepCompiler compiler, IOContext io)
+    public JsonRpcCommand(BicepCompiler compiler, InputOutputArgumentsResolver inputOutputArgumentsResolver)
     {
         this.compiler = compiler;
-        this.io = io;
+        this.inputOutputArgumentsResolver = inputOutputArgumentsResolver;
     }
 
     public async Task<int> RunAsync(JsonRpcArguments args, CancellationToken cancellationToken)
@@ -63,7 +63,7 @@ public class JsonRpcCommand : ICommand
             jsonRpc.TraceSource.Listeners.AddRange(Trace.Listeners);
         }
 
-        var server = new CliJsonRpcServer(compiler);
+        var server = new CliJsonRpcServer(this.compiler, this.inputOutputArgumentsResolver);
         jsonRpc.AddLocalRpcTarget<ICliJsonRpcProtocol>(server, null);
 
         jsonRpc.StartListening();

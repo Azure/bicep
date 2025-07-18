@@ -2,13 +2,16 @@
 // Licensed under the MIT License.
 
 using Bicep.Core;
+using Bicep.Core.Features;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Snippets;
 using FluentAssertions;
@@ -506,6 +509,119 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
 	name: $1
 	location: $2
 }$0");
+                });
+        }
+
+        [TestMethod]
+        public void GetIdentitySnippets_ForModule_ShouldReturnAllModuleIdentitySnippets()
+        {
+            var provider = CreateSnippetsProvider();
+
+            // isResource: false for module
+            var identitySnippets = provider.GetIdentitySnippets(isResource: false);
+
+            identitySnippets.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Prefix.Should().Be("user-assigned-identity");
+                    x.Detail.Should().Be("User assigned identity");
+                    x.CompletionPriority.Should().Be(CompletionPriority.High);
+                    x.Text.Should().Be(
+        @"{
+  type: 'UserAssigned'
+  userAssignedIdentities: {
+    '${${0:identityId}}': {}
+  }
+}");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("user-assigned-identity-array");
+                    x.Detail.Should().Be("User assigned identity array");
+                    x.CompletionPriority.Should().Be(CompletionPriority.High);
+                    x.Text.Should().Be(
+        @"{
+  type: 'UserAssigned'
+  userAssignedIdentities: toObject(${0:identityIdArray}, x => x, x => {})
+}");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("none-identity");
+                    x.Detail.Should().Be("None identity");
+                    x.CompletionPriority.Should().Be(CompletionPriority.High);
+                    x.Text.Should().Be(
+        @"{
+  type: 'None'
+}");
+                });
+        }
+
+        [TestMethod]
+        public void GetIdentitySnippets_ForResource_ShouldReturnAllResourceIdentitySnippets()
+        {
+            var provider = CreateSnippetsProvider();
+
+            // isResource: true for resource
+            var identitySnippets = provider.GetIdentitySnippets(isResource: true);
+
+            identitySnippets.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Prefix.Should().Be("user-assigned-identity");
+                    x.Detail.Should().Be("User assigned identity");
+                    x.CompletionPriority.Should().Be(CompletionPriority.High);
+                    x.Text.Should().Be(
+        @"{
+  type: 'UserAssigned'
+  userAssignedIdentities: {
+    '${${0:identityId}}': {}
+  }
+}");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("user-assigned-identity-array");
+                    x.Detail.Should().Be("User assigned identity array");
+                    x.CompletionPriority.Should().Be(CompletionPriority.High);
+                    x.Text.Should().Be(
+        @"{
+  type: 'UserAssigned'
+  userAssignedIdentities: toObject(${0:identityIdArray}, x => x, x => {})
+}");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("none-identity");
+                    x.Detail.Should().Be("None identity");
+                    x.CompletionPriority.Should().Be(CompletionPriority.High);
+                    x.Text.Should().Be(
+        @"{
+  type: 'None'
+}");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("system-assigned-identity");
+                    x.Detail.Should().Be("System assigned identity");
+                    x.CompletionPriority.Should().Be(CompletionPriority.High);
+                    x.Text.Should().Be(
+        @"{
+  type: 'SystemAssigned'
+}");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("user-and-system-assigned-identity");
+                    x.Detail.Should().Be("User and system assigned identity");
+                    x.CompletionPriority.Should().Be(CompletionPriority.High);
+                    x.Text.Should().Be(
+        @"{
+  type: 'SystemAssigned,UserAssigned'
+  userAssignedIdentities: {
+    '${${0:identityId}}': {}
+  }
+}");
                 });
         }
 

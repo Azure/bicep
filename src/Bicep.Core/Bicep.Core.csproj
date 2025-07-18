@@ -39,9 +39,9 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Semver" Version="3.0.0" />
     <PackageReference Include="SharpYaml" Version="2.1.1" />
-    <PackageReference Include="Azure.Deployments.Templates" Version="1.364.0" />
+    <PackageReference Include="Azure.Deployments.Templates" Version="1.393.0" />
     <PackageReference Include="Azure.Bicep.Types" Version="0.5.110" />
-    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.764" />
+    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.784" />
     <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.644" />
     <PackageReference Include="System.IO.Abstractions" Version="21.3.1" />
     <PackageReference Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.45" PrivateAssets="all" />

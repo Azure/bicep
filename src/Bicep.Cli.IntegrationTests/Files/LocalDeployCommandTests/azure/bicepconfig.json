@@ -1,0 +1,8 @@
+{
+  "experimentalFeaturesEnabled": {
+    "localDeploy": true
+  },
+  "extensions": {
+    "http": "br:example.azurecr.io/extensions/foo:1.2.3"
+  }
+}

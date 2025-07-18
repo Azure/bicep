@@ -28,6 +28,8 @@ using Bicep.LanguageServer.Settings;
 using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
+using Bicep.Local.Deploy.Azure;
+using Bicep.Local.Deploy.Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
@@ -59,12 +61,18 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection AddBicepDecompiler(this IServiceCollection services) => services
         .AddSingleton<BicepDecompiler>();
 
+    public static IServiceCollection AddLocalDeploy(this IServiceCollection services) => services
+        .AddSingleton<LocalExtensionDispatcherFactory>()
+        .AddSingleton<IArmDeploymentProvider, ArmDeploymentProvider>()
+        .AddSingleton<ILocalExtensionFactory, GrpcLocalExtensionFactory>();
+
     public static IServiceCollection AddServerDependencies(
         this IServiceCollection services,
         BicepLangServerOptions bicepLangServerOptions
     ) => services
         .AddBicepCore()
         .AddBicepDecompiler()
+        .AddLocalDeploy()
         .AddSingleton<IWorkspace, Workspace>()
         .AddSingleton<ISnippetsProvider, SnippetsProvider>()
         .AddSingleton<ITelemetryProvider, TelemetryProvider>()

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.Bicep.Types.Concrete;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.IntegrationTests.Extensibility;
@@ -8,8 +9,10 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Utils;
+using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using ITypeReference = Azure.Bicep.Types.Concrete.ITypeReference;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -18,6 +21,8 @@ namespace Bicep.Core.IntegrationTests
     {
         private const string MockSubscriptionId = "00000000-0000-0000-0000-000000000001";
         private const string MockResourceGroupName = "mock-rg";
+
+        #region Tests
 
         [TestMethod]
         public void Bar_import_bad_config_is_blocked()
@@ -66,6 +71,31 @@ extension bar with {
                base64Content: base64('sadfasdfd')
             }
             """);
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void Baz_import_bad_config_is_blocked()
+        {
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), @"
+extension baz with {
+  kind: 'Three'
+}
+");
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP036", DiagnosticLevel.Error, @"The property ""kind"" expected a value of type ""'One' | 'Two'"" but the provided value is of type ""'Three'"".")
+            });
+        }
+
+        [TestMethod]
+        public void Baz_import_valid_config_succeeds()
+        {
+            var result = CompilationHelper.Compile(CreateServiceBuilder(), @"
+extension baz with {
+  kind: 'One'
+  connectionStringOne: '******'
+}
+");
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
 
@@ -502,8 +532,6 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             var paramsUri = new Uri("file:///main.bicepparam");
             var mainUri = new Uri("file:///main.bicep");
             var moduleAUri = new Uri("file:///modulea.bicep");
-
-            // TODO(kylealbert): Remove 'with' clause in template when that's removed
             var files = new Dictionary<Uri, string>
             {
                 [paramsUri] =
@@ -512,18 +540,15 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 
                       param inputa = 'abc'
 
-                      extension k8s with {{paramsKubeExtConfig ?? moduleKubeExtConfig}}
+                      extensionConfig k8s with {{paramsKubeExtConfig ?? moduleKubeExtConfig}}
                       """,
                 [mainUri] =
                     $$"""
                       param inputa string
 
-                      extension kubernetes with {
-                        kubeConfig: 'DELETE'
-                        namespace: 'DELETE'
-                      } as k8s
+                      extension kubernetes as k8s
 
-                      extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3'
+                      extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
 
                       resource kv 'Microsoft.KeyVault/vaults@2021-06-01-preview' existing = {
                         name: 'kv'
@@ -545,10 +570,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                     """
                     param inputa string
 
-                    extension kubernetes with {
-                      kubeConfig: 'DELETE'
-                      namespace: 'DELETE'
-                    }
+                    extension kubernetes
 
                     extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
 
@@ -564,37 +586,62 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 
         [DataTestMethod]
         [DataRow(
-            "MissingExtensionConfigsDeclaration",
+            "MissingExtensionConfigs",
+            "extension kubernetes",
             "",
             "BCP035",
             """The specified "module" declaration is missing the following required properties: "extensionConfigs".""")]
         [DataRow(
             "MissingRequiredExtensionConfig",
+            "extension kubernetes",
             "extensionConfigs: {}",
             "BCP035",
             """The specified "object" declaration is missing the following required properties: "kubernetes".""")]
         [DataRow(
             "MissingRequiredConfigProperty",
+            "extension kubernetes",
             "extensionConfigs: { kubernetes: { namespace: 'other' } }",
             "BCP035",
             """The specified "object" declaration is missing the following required properties: "kubeConfig".""")]
         [DataRow(
+            "MissingRequiredConfigProperties",
+            "extension kubernetes",
+            "extensionConfigs: { kubernetes: { } }",
+            "BCP035",
+            """The specified "object" declaration is missing the following required properties: "kubeConfig", "namespace".""")]
+        [DataRow(
             "PropertyIsNotDefinedInSchema",
+            "extension kubernetes",
             "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other', extra: 'extra' } }",
             "BCP037",
             """The property "extra" is not allowed on objects of type "configuration". Permissible properties include "context".""")]
         [DataRow(
             "ConfigProvidedForExtensionThatDoesNotAcceptConfig",
-            "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other' }, graph: { } }",
+            "extension kubernetes",
+            "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other' }, noConfig: { } }",
             "BCP037",
-            """The property "graph" is not allowed on objects of type "extensionConfigs". No other properties are allowed.""")]
+            """The property "noConfig" is not allowed on objects of type "extensionConfigs". No other properties are allowed.""")]
         [DataRow(
             "ConfigProvidedForNonExistentExtension",
+            "extension kubernetes",
             "extensionConfigs: { kubernetes: { kubeConfig: 'test', namespace: 'other' }, nonExistent: { } }",
             "BCP037",
             """The property "nonExistent" is not allowed on objects of type "extensionConfigs". No other properties are allowed.""")]
+        [DataRow(
+            "MissingRequiredConfigProperty",
+            "extension kubernetes with { namespace: 'default' }",
+            "extensionConfigs: { kubernetes: { } }",
+            "BCP035",
+            """The specified "object" declaration is missing the following required properties: "kubeConfig".""")]
+        [DataRow(
+            "DiscriminatedType_AssignmentMissingProperties",
+            "extension 'br:mcr.microsoft.com/bicep/extensions/configdiscrimobj/v1:1.2.3' with { discrim: 'a' } as mockExt",
+            "extensionConfigs: { mockExt: { a2: 'a1 not defined' } }",
+            "BCP035",
+            "The specified \"object\" declaration is missing the following required properties: \"a1\".")]
         public async Task Module_with_invalid_extension_config_produces_diagnostic(
             string scenarioName,
+            string extensionDeclStr,
             string moduleExtensionConfigsStr,
             string expectedDiagnosticCode,
             string expectedDiagnosticMessage)
@@ -602,7 +649,6 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             var mainUri = new Uri("file:///main.bicep");
             var moduleAUri = new Uri("file:///modulea.bicep");
 
-            // TODO(kylealbert): Remove 'with' clause in template when that's removed
             var files = new Dictionary<Uri, string>
             {
                 [mainUri] =
@@ -620,21 +666,21 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                       output outputa string = modulea.outputs.outputa
                       """,
                 [moduleAUri] =
-                    """
-                    param inputa string
+                    $$"""
+                      param inputa string
 
-                    extension kubernetes with {
-                      kubeConfig: ''
-                      namespace: 'default'
-                    }
+                      {{extensionDeclStr}}
 
-                    extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
+                      extension 'br:mcr.microsoft.com/bicep/extensions/noconfig/v1:1.2.3' as noConfig
 
-                    output outputa string = inputa
-                    """
+                      output outputa string = inputa
+                      """
             };
 
-            var services = await CreateServiceBuilderWithMockMsGraph(moduleExtensionConfigsEnabled: true);
+            var services = CreateServiceBuilder(moduleExtensionConfigsEnabled: true);
+
+            await ExtensionTestHelper.AddMockExtensions(services, TestContext, CreateMockExtWithNoConfigType(), CreateMockExtWithDiscriminatedConfigType());
+
             var compilation = await services.BuildCompilationWithRestore(files, mainUri);
 
             compilation.Should().ContainSingleDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
@@ -644,7 +690,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
         [DataRow(
             "ParamsFile",
             "BCP337",
-            $"""This declaration type is not valid for a Bicep Parameters file. Supported declarations: "using", "extends", "param", "var", "type".""")]
+            """This declaration type is not valid for a Bicep Parameters file. Supported declarations: "using", "extends", "param", "var", "type".""")]
         [DataRow(
             "MainFile",
             "BCP037",
@@ -655,7 +701,6 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             var mainUri = new Uri("file:///main.bicep");
             var moduleAUri = new Uri("file:///modulea.bicep");
 
-            // TODO(kylealbert): Remove 'with' clause in template when that's removed
             var files = new Dictionary<Uri, string>
             {
                 [paramsUri] =
@@ -664,7 +709,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 
                     param inputa = 'abc'
 
-                    extension k8s with {
+                    extensionConfig k8s with {
                       kubeConfig: 'abc'
                       namespace: 'other'
                     }
@@ -673,10 +718,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                     """
                     param inputa string
 
-                    extension kubernetes with {
-                      kubeConfig: 'DELETE'
-                      namespace: 'DELETE'
-                    } as k8s
+                    extension kubernetes as k8s
 
                     module modulea 'modulea.bicep' = {
                       name: 'modulea'
@@ -698,10 +740,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                     """
                     param inputa string
 
-                    extension kubernetes with {
-                      kubeConfig: 'DELETE'
-                      namespace: 'DELETE'
-                    }
+                    extension kubernetes
 
                     output outputa string = inputa
                     """
@@ -746,7 +785,6 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             var mainUri = new Uri("file:///main.bicep");
             var moduleAUri = new Uri("file:///modulea.bicep");
 
-            // TODO(kylealbert): Remove 'with' clause in template when that's removed
             var files = new Dictionary<Uri, string>
             {
                 [paramsUri] =
@@ -755,7 +793,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 
                     param inputa = 'abc'
 
-                    extension k8s with {
+                    extensionConfig k8s with {
                       kubeConfig: 'abc'
                       namespace: 'other'
                     }
@@ -764,10 +802,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                     $$"""
                       param inputa string
 
-                      extension kubernetes with {
-                        kubeConfig: 'DELETE'
-                        namespace: 'DELETE'
-                      } as k8s
+                      extension kubernetes as k8s
 
                       module modulea 'modulea.bicep' = {
                         name: 'modulea'
@@ -783,10 +818,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                     """
                     param inputa string
 
-                    extension kubernetes with {
-                      kubeConfig: 'DELETE'
-                      namespace: 'DELETE'
-                    }
+                    extension kubernetes
 
                     output outputa string = inputa
                     """
@@ -804,6 +836,203 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                 .DeepEqual(JToken.Parse(expectedExtConfigJson));
         }
 
+        [DataTestMethod]
+        [DataRow(
+            "NoneRequired",
+            "",
+            "extension kubernetes with { kubeConfig: 'templateKubeConfig', namespace: 'templateNs' } as k8s")]
+        [DataRow(
+            "PartiallyRequired",
+            "extensionConfig k8s with { kubeConfig: 'paramsKubeConfig' }",
+            "extension kubernetes with { namespace: 'templateNs' } as k8s")]
+        [DataRow(
+            "AllRequired",
+            "extensionConfig k8s with { kubeConfig: 'paramsKubeConfig', namespace: 'paramsNs'}",
+            "extension kubernetes as k8s")]
+        [DataRow(
+            "DiscriminatedType_DeclHasDiscriminator",
+            "extensionConfig mockExt with { a1: 'foo' }",
+            "extension 'br:mcr.microsoft.com/bicep/extensions/configdiscrimobj/v1:1.2.3' with { discrim: 'a' } as mockExt")]
+        [DataRow(
+            "DiscriminatedType_NoDefaults",
+            "extensionConfig mockExt with { discrim: 'b', b1: 'fooo' }",
+            "extension 'br:mcr.microsoft.com/bicep/extensions/configdiscrimobj/v1:1.2.3' as mockExt")]
+        [DataRow(
+            "AssignmentEmpty",
+            "extensionConfig k8s with {}",
+            "extension kubernetes with { kubeConfig: 'templateKubeConfig', namespace: 'templateNs' } as k8s")]
+        public async Task Extension_config_assignment_type_checks_are_cross_module_aware(
+            string scenarioName,
+            string paramsFileExtensionConfigAssignment,
+            string bicepFileExtensionDeclaration)
+        {
+            var paramsUri = new Uri("file:///main.bicepparam");
+            var mainUri = new Uri("file:///main.bicep");
+
+            var files = new Dictionary<Uri, string>
+            {
+                [paramsUri] =
+                    $$"""
+                      using 'main.bicep'
+
+                      param inputa = 'abc'
+
+                      {{paramsFileExtensionConfigAssignment}}
+                      """,
+                [mainUri] =
+                    $$"""
+                      param inputa string
+
+                      {{bicepFileExtensionDeclaration}}
+                      """
+            };
+
+            var services = CreateServiceBuilder(moduleExtensionConfigsEnabled: true);
+
+            await ExtensionTestHelper.AddMockExtensions(services, TestContext, CreateMockExtWithDiscriminatedConfigType());
+
+            var compilation = await services.BuildCompilationWithRestore(files, paramsUri);
+
+            compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
+        }
+
+        [DataTestMethod]
+        [DataRow(
+            "IncompleteSyntax_ToAlias",
+            "extensionConfig k8s",
+            "extension kubernetes as k8s",
+            "BCP206",
+            "Extension \"k8s\" requires configuration, but none was provided.")]
+        [DataRow(
+            "RequiredAssignmentMissing",
+            "",
+            "extension kubernetes as k8s",
+            "BCP424",
+            "The following extensions are declared in the Bicep file but are missing a configuration assignment in the params files: \"k8s\".")]
+        [DataRow(
+            "AssignmentDoesNotMatch",
+            "extensionConfig k8s with { kubeConfig: '' }",
+            "",
+            "BCP425",
+            "The extension configuration assignment for \"k8s\" does not match an extension in the Bicep file.")]
+        [DataRow(
+            "DiscriminatedType_AssignmentMissingProperties",
+            "extensionConfig mockExt with { a2: 'a1 not defined' }",
+            "extension 'br:mcr.microsoft.com/bicep/extensions/configdiscrimobj/v1:1.2.3' with { discrim: 'a' } as mockExt",
+            "BCP035",
+            "The specified \"object\" declaration is missing the following required properties: \"a1\".")]
+        [DataRow(
+            "DiscriminatedType_DiscrimReassignment",
+            "extensionConfig mockExt with { discrim: 'a', b1: 'here to suppress diag because b type is selected' }",
+            "extension 'br:mcr.microsoft.com/bicep/extensions/configdiscrimobj/v1:1.2.3' with { discrim: 'b' } as mockExt",
+            "BCP037",
+            "The property \"discrim\" is not allowed on objects of type \"b\". Permissible properties include \"z1\".")]
+        [DataRow(
+            "DiscriminatedType_BicepLimitationForSharedPropertiesWithoutDiscrim",
+            "extensionConfig mockExt with { discrim: 'b' }",
+            "extension 'br:mcr.microsoft.com/bicep/extensions/configdiscrimobj/v1:1.2.3' with { z1: 'shared property' } as mockExt",
+            "BCP078",
+            "The property \"discrim\" requires a value of type \"'a' | 'b'\", but none was supplied.")]
+        public async Task Invalid_extension_config_assignments_should_raise_error_diagnostic(string scenario, string paramsFileExtensionConfigAssignment, string bicepFileExtensionDeclaration, string expectedDiagnosticCode, string expectedDiagnosticMessage)
+        {
+            var paramsUri = new Uri("file:///main.bicepparam");
+            var mainUri = new Uri("file:///main.bicep");
+
+            var files = new Dictionary<Uri, string>
+            {
+                [paramsUri] =
+                    $$"""
+                      using 'main.bicep'
+
+                      {{paramsFileExtensionConfigAssignment}}
+                      """,
+                [mainUri] = bicepFileExtensionDeclaration
+            };
+
+            var services = CreateServiceBuilder(moduleExtensionConfigsEnabled: true);
+
+            await ExtensionTestHelper.AddMockExtensions(services, TestContext, CreateMockExtWithDiscriminatedConfigType());
+
+            var compilation = await services.BuildCompilationWithRestore(files, paramsUri);
+
+            var diagByFileUri = compilation.GetAllDiagnosticsByBicepFileUri();
+
+            if (scenario is "DiscriminatedType_BicepLimitationForSharedPropertiesWithoutDiscrim")
+            {
+                diagByFileUri[mainUri].Should().ContainSingleDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
+                diagByFileUri[paramsUri].Should().ContainDiagnostic("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"b1\".");
+
+                return;
+            }
+
+            diagByFileUri[mainUri].ExcludingLinterDiagnostics().Should().BeEmpty();
+            diagByFileUri[paramsUri].Should().ContainSingleDiagnostic(expectedDiagnosticCode, DiagnosticLevel.Error, expectedDiagnosticMessage);
+        }
+
+        [TestMethod]
+        public async Task Missing_extension_configs_should_have_code_fix()
+        {
+            var paramsUri = new Uri("file:///main.bicepparam");
+            var mainUri = new Uri("file:///main.bicep");
+
+            var files = new Dictionary<Uri, string>
+            {
+                [paramsUri] =
+                    """
+                    using 'main.bicep'
+                    """,
+                [mainUri] =
+                    """
+                    extension 'br:mcr.microsoft.com/bicep/extensions/noconfig/v1:1.2.3' as mockExtNoConfig
+                    extension 'br:mcr.microsoft.com/bicep/extensions/configobj/v1:1.2.3' as mockExtObj
+                    extension 'br:mcr.microsoft.com/bicep/extensions/configdiscrimobj/v1:1.2.3' as mockExtDiscrim
+                    extension 'br:mcr.microsoft.com/bicep/extensions/configdiscrimobj/v1:1.2.3' with { discrim: 'b' } as mockExtDiscrim2
+                    """
+            };
+
+            var services = CreateServiceBuilder(moduleExtensionConfigsEnabled: true);
+
+            await ExtensionTestHelper.AddMockExtensions(
+                services,
+                TestContext,
+                CreateMockExtWithNoConfigType(),
+                CreateMockExtWithObjectConfigType(),
+                CreateMockExtWithDiscriminatedConfigType());
+
+            var compilation = await services.BuildCompilationWithRestore(files, paramsUri);
+
+            var diagByFileUri = compilation.GetAllDiagnosticsByBicepFileUri();
+            diagByFileUri[mainUri].ExcludingLinterDiagnostics().Should().BeEmpty();
+            diagByFileUri[paramsUri].Should().ContainSingleDiagnostic("BCP424", DiagnosticLevel.Error, "The following extensions are declared in the Bicep file but are missing a configuration assignment in the params files: \"mockExtDiscrim\", \"mockExtDiscrim2\", \"mockExtObj\".");
+
+            var paramsCompilationResult = CompilationHelper.CompileParams(compilation);
+
+            var codeFixDiag = diagByFileUri[paramsUri].Single(d => d.Code == "BCP424");
+
+            paramsCompilationResult.ApplyCodeFix(codeFixDiag)
+                .Should()
+                .EqualIgnoringNewlines(
+                    """
+                    using 'main.bicep'
+
+                    extensionConfig mockExtDiscrim with {
+                      discrim:
+                    }
+
+                    extensionConfig mockExtDiscrim2 with {
+                      b1:
+                    }
+
+                    extensionConfig mockExtObj with {
+                      requiredString:
+                    }
+                    """);
+        }
+
+        #endregion
+
+        #region Helpers
+
         private ServiceBuilder CreateServiceBuilder(bool moduleExtensionConfigsEnabled = false) =>
             new ServiceBuilder()
                 .WithConfigurationPatch(
@@ -813,7 +1042,8 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                           "az": "builtin:",
                           "kubernetes": "builtin:",
                           "foo": "builtin:",
-                          "bar": "builtin:"
+                          "bar": "builtin:",
+                          "baz": "builtin:"
                         }
                         """))
                 .WithNamespaceProvider(TestExtensionsNamespaceProvider.CreateWithDefaults())
@@ -827,5 +1057,55 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 
             return services;
         }
+
+        private static RegistrySourcedExtensionMockData CreateMockExtWithNoConfigType(string extName = "noconfig") =>
+            ExtensionTestHelper.CreateMockExtensionMockData(
+                extName, "1.2.3", "v1", CustomExtensionTypeFactoryDelegates.NoTypes);
+
+        private static RegistrySourcedExtensionMockData CreateMockExtWithObjectConfigType(string extName = "configobj") =>
+            ExtensionTestHelper.CreateMockExtensionMockData(
+                extName, "1.2.3", "v1", new CustomExtensionTypeFactoryDelegates
+                {
+                    CreateConfigurationType = (ctx, tf) => tf.Create(() => new ObjectType(
+                        "config",
+                        new Dictionary<string, ObjectTypeProperty>
+                        {
+                            ["requiredString"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.Required, null),
+                            ["optionalString"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.None, null)
+                        },
+                        null))
+                });
+
+        private static RegistrySourcedExtensionMockData CreateMockExtWithDiscriminatedConfigType(string extName = "configdiscrimobj") =>
+            ExtensionTestHelper.CreateMockExtensionMockData(
+                extName, "1.2.3", "v1", new CustomExtensionTypeFactoryDelegates
+                {
+                    CreateConfigurationType = (ctx, tf) => tf.Create(() => new DiscriminatedObjectType(
+                        "config",
+                        "discrim",
+                        new Dictionary<string, ObjectTypeProperty>
+                        {
+                            ["z1"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.None, null)
+                        },
+                        new Dictionary<string, ITypeReference>
+                        {
+                            ["a"] = ctx.CreateObjectType(
+                                "aType", new Dictionary<string, ObjectTypeProperty>
+                                {
+                                    ["discrim"] = new(ctx.CreateStringLiteralType("a"), ObjectTypePropertyFlags.Required, null),
+                                    ["a1"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.Required, null),
+                                    ["a2"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.None, null)
+                                }),
+                            ["b"] = ctx.CreateObjectType(
+                                "bType", new Dictionary<string, ObjectTypeProperty>
+                                {
+                                    ["discrim"] = new(ctx.CreateStringLiteralType("b"), ObjectTypePropertyFlags.Required, null),
+                                    ["b1"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.Required, null)
+                                })
+                        }))
+                });
+
+        #endregion
+
     }
 }

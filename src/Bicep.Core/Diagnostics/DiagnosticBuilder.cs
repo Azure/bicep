@@ -16,7 +16,6 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.IO.Abstraction;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Diagnostics
 {
@@ -1574,7 +1573,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP335",
                 $"The provided value can have a length as large as {sourceMaxLength} and may be too long to assign to a target with a configured maximum length of {targetMaxLength}.");
 
-            public Diagnostic UnrecognizedParamsFileDeclaration()
+            public Diagnostic UnrecognizedParamsFileDeclaration(bool moduleExtensionConfigsEnabled)
             {
                 List<string> supportedDeclarations = [
                     LanguageConstants.UsingKeyword,
@@ -1583,6 +1582,11 @@ namespace Bicep.Core.Diagnostics
                     LanguageConstants.VariableKeyword,
                     LanguageConstants.TypeKeyword,
                 ];
+
+                if (moduleExtensionConfigsEnabled)
+                {
+                    supportedDeclarations.Add(LanguageConstants.ExtensionConfigKeyword);
+                }
 
                 return CoreError(
                     "BCP337",
@@ -1907,6 +1911,32 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic InvalidReservedImplicitExtensionNamespace(string name) => CoreError(
                 "BCP419",
                 $"Namespace name \"{name}\", and cannot be used an extension name.");
+
+            public Diagnostic ScopeKindUnresolvableAtCompileTime() => CoreError(
+                "BCP420",
+                "The scope could not be resolved at compile time because the supplied expression is ambiguous or too complex. Scoping expressions must be reducible to a specific kind of scope without knowledge of parameter values.");
+
+            public Diagnostic SecureOutputsNotSupportedWithLocalDeploy(string moduleName) => CoreError(
+                "BCP421",
+                $"""Module "{moduleName}" contains one or more secure outputs, which are not supported with "{LanguageConstants.TargetScopeKeyword}" set to "{LanguageConstants.TargetScopeTypeLocal}".""");
+
+            public Diagnostic InstanceFunctionCallOnPossiblyNullBase(TypeSymbol baseType, SyntaxBase expression) => CoreWarning(
+                "BCP422",
+                $"A resource of type \"{baseType}\" may or may not exist when this function is called, which could cause the deployment to fail.")
+                with
+            { Fixes = [AsNonNullable(expression)] };
+
+            public Diagnostic ExtensionAliasMustBeDefinedForInlinedRegistryExtensionDeclaration() => CoreError(
+                "BCP423",
+                "An extension alias must be defined for an extension declaration with an inlined registry reference.");
+
+            public Diagnostic MissingExtensionConfigAssignments(IEnumerable<string> identifiers) => CoreError(
+                "BCP424",
+                $"The following extensions are declared in the Bicep file but are missing a configuration assignment in the params files: {ToQuotedString(identifiers)}.");
+
+            public Diagnostic ExtensionConfigAssignmentDoesNotMatchToExtension(string identifier) => CoreError(
+                "BCP425",
+                $"The extension configuration assignment for \"{identifier}\" does not match an extension in the Bicep file.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

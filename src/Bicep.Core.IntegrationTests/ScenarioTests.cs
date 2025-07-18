@@ -2402,8 +2402,8 @@ output deployedTopics array = [for (topicName, i) in topics: {
         result.Template!.Should().HaveValueAtPath("$.outputs.deployedTopics.copy.input", new JObject
         {
             ["name"] = "[variables('topics')[copyIndex()]]",
-            ["accessKey1"] = "[listKeys('testR', '2021-06-01-preview').key1]",
-            ["accessKey2"] = "[listKeys(format('eventGridTopics[{0}]', copyIndex()), '2021-06-01-preview').key1]"
+            ["accessKey1"] = "[listKeys(resourceId('Microsoft.EventGrid/topics', 'myExistingEventGridTopic'), '2021-06-01-preview').key1]",
+            ["accessKey2"] = "[listKeys(resourceId('Microsoft.EventGrid/topics', format('{0}-ZZZ', variables('topics')[copyIndex()])), '2021-06-01-preview').key1]"
         });
     }
 
@@ -2954,7 +2954,7 @@ output badResult object = {
 
         result.Template.Should().HaveValueAtPath("$.outputs['badResult'].value", new JObject
         {
-            ["value"] = "[listAnything('stg', '2021-04-01').keys[0].value]",
+            ["value"] = "[listAnything(resourceId('Microsoft.Storage/storageAccounts', parameters('storageName')), '2021-04-01').keys[0].value]",
         });
     }
 
@@ -5079,6 +5079,69 @@ output modDetails array = ([for (mod, index) in modOptions: {
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
+    // https://github.com/Azure/bicep/issues/17192
+    [TestMethod]
+    public void Test_Issue17192()
+    {
+        var result = CompilationHelper.Compile(
+          ("main.bicep",
+"""
+import { Location } from 'test.bicep'
+var location = 2
+output output_of_location int = location
+"""),
+          ("test.bicep",
+"""
+@export()
+var Location = 1
+""")
+        );
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The variables \"location\", \"Location\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The variables \"location\", \"Location\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+
+        result = CompilationHelper.Compile(
+        ("main.bicep",
+"""
+import { MyFunc } from 'test.bicep'
+func myFunc() string => 'bar'
+"""),
+        ("test.bicep",
+"""
+@export()
+func MyFunc() string => 'foo'
+""")
+        );
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The functions \"myFunc\", \"MyFunc\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The functions \"myFunc\", \"MyFunc\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+
+        result = CompilationHelper.Compile(
+        ("main.bicep",
+"""
+import { MyType } from 'test.bicep'
+type myType = { foo: string }
+"""),
+        ("test.bicep",
+"""
+@export()
+type MyType = { foo: string }
+""")
+        );
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The types \"myType\", \"MyType\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The types \"myType\", \"MyType\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+    }
+
     // https://github.com/Azure/bicep/issues/10343
     [TestMethod]
     public void Test_Issue10343()
@@ -6367,7 +6430,10 @@ param p invalidRecursiveObjectType = {}
             }
             """);
 
-        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP420", DiagnosticLevel.Error, "The scope could not be resolved at compile time because the supplied expression is ambiguous or too complex. Scoping expressions must be reducible to a specific kind of scope without knowledge of parameter values."),
+        });
     }
 
     [TestMethod]
@@ -6432,7 +6498,7 @@ param p invalidRecursiveObjectType = {}
 
             resource memberServicePrincipals 'Microsoft.Graph/servicePrincipals@v1.0' existing = [
               for (member, i) in entraGroup.members: if (member.type =~ 'Application') {
-                appId: memberApplications[i].appId
+                appId: memberApplications[i]!.appId
               }
             ]
 
@@ -6467,7 +6533,7 @@ param p invalidRecursiveObjectType = {}
 
             resource ownerServicePrincipals 'Microsoft.Graph/servicePrincipals@v1.0' existing = [
               for (owner, i) in entraGroup.owners: if (owner.type =~ 'Application') {
-                appId: ownerApplications[i].appId
+                appId: ownerApplications[i]!.appId
               }
             ]
 
@@ -6486,19 +6552,19 @@ param p invalidRecursiveObjectType = {}
               securityEnabled: true
               members: [
                 for (member, i) in entraGroup.members: member.type =~ 'UserAssignedManagedIdentity'
-                  ? memberManagedIdentities[i].properties.principalId
+                  ? memberManagedIdentities[i]!.properties.principalId
                   : member.type =~ 'Application'
-                      ? memberServicePrincipals[i].id
+                      ? memberServicePrincipals[i]!.id
                       : member.type =~ 'ServicePrincipal'
-                          ? memberServicePrincipalsStandalone[i].id
-                          : member.type =~ 'Group' ? memberGroups[i].id : member.type =~ 'PrincipalId' ? member.principalId : ''
+                          ? memberServicePrincipalsStandalone[i]!.id
+                          : member.type =~ 'Group' ? memberGroups[i]!.id : member.type =~ 'PrincipalId' ? member.principalId : ''
               ]
               owners: [
                 for (owner, i) in entraGroup.owners: owner.type =~ 'UserAssignedManagedIdentity'
-                  ? ownerManagedIdentities[i].properties.principalId
+                  ? ownerManagedIdentities[i]!.properties.principalId
                   : owner.type =~ 'Application'
-                      ? ownerServicePrincipals[i].id
-                      : owner.type =~ 'ServicePrincipal' ? ownerServicePrincipalsStandalone[i].id : owner.type =~ 'PrincipalId' ? owner.principalId : ''
+                      ? ownerServicePrincipals[i]!.id
+                      : owner.type =~ 'ServicePrincipal' ? ownerServicePrincipalsStandalone[i]!.id : owner.type =~ 'PrincipalId' ? owner.principalId : ''
               ]
             }
             """);
@@ -7229,5 +7295,137 @@ var subnetId = vNet::subnets[0].id
             """);
 
         result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue17035()
+    {
+        var result = CompilationHelper.Compile(
+            ("empty.bicep", string.Empty),
+            ("main.bicep", """
+                var list = []
+                module example2 'empty.bicep' = [for (item, index) in list: {
+                  name: 'networkSecurityPerimeterProfileAssociations-${uniqueString('test1', 'test2', 'test2')}-${index}'
+                }]
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue17157()
+    {
+        var result = CompilationHelper.Compile("""
+            param resourceName string = 'example'
+            param serverFarmId string
+            param someIdentityObjectId string
+            param shouldDeploy bool
+
+            resource deployAppService 'Microsoft.Web/sites@2022-03-01' = if (shouldDeploy) {
+              name: resourceName
+              location: resourceGroup().location
+              properties: {
+                serverFarmId: serverFarmId
+              }
+            }
+
+            resource existingAppService 'Microsoft.Web/sites@2022-03-01' existing = {
+              name: resourceName
+            }
+
+            resource contributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
+              name: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
+            }
+
+            var appServiceId = shouldDeploy ? deployAppService.id : existingAppService.id
+            resource contributorRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = if (shouldDeploy) {
+              name: guid(appServiceId, someIdentityObjectId, 'contributor')
+              scope: shouldDeploy ? deployAppService : existingAppService
+              properties: {
+                roleDefinitionId: contributorRoleDefinition.id
+                principalId: someIdentityObjectId
+                principalType: 'ServicePrincipal'
+              }
+            }
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP420", DiagnosticLevel.Error, "The scope could not be resolved at compile time because the supplied expression is ambiguous or too complex. Scoping expressions must be reducible to a specific kind of scope without knowledge of parameter values."),
+        });
+    }
+
+    [TestMethod]
+    public void Local_deploy_cannot_be_used_with_secure_outputs()
+    {
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(LocalDeployEnabled: true)), ("main.bicep", """
+targetScope = 'local'
+
+module mod 'mod.bicep' = {
+  scope: resourceGroup('00000000-0000-0000-0000-000000000000', 'foo')
+  params: {
+    secret: 'blah'
+  }
+}
+"""), ("mod.bicep", """
+@secure()
+param secret string
+
+@secure()
+output secret string = secret
+"""));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP421", DiagnosticLevel.Error, """Module "mod" contains one or more secure outputs, which are not supported with "targetScope" set to "local"."""),
+        ]);
+    }
+
+    [TestMethod]
+    public async Task Test_Issue16748()
+    {
+        // https://github.com/Azure/bicep/issues/16748
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ExtensionResourceTypeHelper.GetTestTypesTgz(), new());
+
+        var result = await CompilationHelper.RestoreAndCompile(
+            services,
+"""
+extension 'br:example.azurecr.io/extensions/foo:1.2.3'
+
+param uniqueNames string[]
+
+resource groups 'fooType@v1' existing = [for uniqueName in uniqueNames: {
+  identifier: uniqueName
+}]
+
+resource databases 'Microsoft.DocumentDb/databaseAccounts@2023-04-15' existing = [for uniqueName in uniqueNames: {
+  name: uniqueName
+}]
+
+output memberIds array = flatten(map(groups, group => [group.properties.readonly]))
+output locations array = flatten(map(databases, database => database.properties.locations))
+""");
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("$.outputs['memberIds'].value", "[flatten(map(references('groups'), lambda('group', createArray(lambdaVariables('group').properties.readonly))))]");
+        result.Template.Should().HaveValueAtPath("$.outputs['locations'].value", "[flatten(map(references('databases', 'full'), lambda('database', lambdaVariables('database').properties.locations)))]");
+    }
+
+    [TestMethod]
+    public void Diagnostic_should_be_raised_when_instance_method_is_called_on_conditional_resource()
+    {
+        var result = CompilationHelper.Compile("""
+            param condition bool
+            resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = if (condition) {
+              name: 'storage'
+            }
+
+            @secure()
+            output out object = sa.listKeys()
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP422", DiagnosticLevel.Warning, "A resource of type \"Microsoft.Storage/storageAccounts | null\" may or may not exist when this function is called, which could cause the deployment to fail."),
+        });
     }
 }

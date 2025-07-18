@@ -149,7 +149,7 @@ public static class RegistryHelper
             throw new InvalidOperationException($"Module {module.ModuleName} failed to produce a template.");
         }
 
-        BinaryData? sourcesStream = module.WithSource ? SourceArchive.CreateFor(result.Compilation.SourceFileGrouping).PackIntoBinaryData() : null;
+        BinaryData? sourcesStream = module.WithSource ? SourceArchive.CreateFrom(result.Compilation.SourceFileGrouping).PackIntoBinaryData() : null;
         await dispatcher.PublishModule(targetReference, BinaryData.FromString(result.Template.ToString()), sourcesStream, module.DocumentationUri);
     }
 
@@ -204,10 +204,14 @@ public static class RegistryHelper
     public static async Task PublishExtensionToRegistryAsync(IDependencyHelper services, string target, BinaryData tgzData, Uri? bicepFileUri = null)
         => await PublishExtensionToRegistryAsync(services, target, new ExtensionPackage(tgzData, false, []), bicepFileUri);
 
-    public static async Task PublishExtensionToRegistryAsync(IDependencyHelper services, string target, ExtensionPackage package, Uri? bicepFileUri = null)
-    {
-        var dispatcher = services.Construct<IModuleDispatcher>();
+    public static Task PublishExtensionToRegistryAsync(IDependencyHelper services, string target, ExtensionPackage package, Uri? bicepFileUri = null)
+        => PublishExtensionToRegistryAsync(services.Construct<IModuleDispatcher>(), services.Construct<ISourceFileFactory>(), target, package, bicepFileUri);
 
+    public static Task PublishExtensionToRegistryAsync(IServiceProvider services, string target, ExtensionPackage package, Uri? bicepFileUri = null)
+        => PublishExtensionToRegistryAsync(services.GetRequiredService<IModuleDispatcher>(), services.GetRequiredService<ISourceFileFactory>(), target, package, bicepFileUri);
+
+    private static async Task PublishExtensionToRegistryAsync(IModuleDispatcher dispatcher, ISourceFileFactory sourceFileFactory, string target, ExtensionPackage package, Uri? bicepFileUri = null)
+    {
         if (!target.StartsWith("br:"))
         {
             // convert to a relative path, as this is the only format supported for the local filesystem
@@ -215,7 +219,6 @@ public static class RegistryHelper
             target = Path.GetFileName(targetUri.LocalPath);
         }
 
-        var sourceFileFactory = services.Construct<ISourceFileFactory>();
         var bicepFile = bicepFileUri is not null ? sourceFileFactory.CreateBicepFile(bicepFileUri, "") : BicepTestConstants.DummyBicepFile;
 
         if (!dispatcher.TryGetArtifactReference(bicepFile, ArtifactType.Extension, target).IsSuccess(out var targetReference, out var errorBuilder))

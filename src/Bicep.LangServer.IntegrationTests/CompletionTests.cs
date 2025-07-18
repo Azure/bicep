@@ -2713,7 +2713,7 @@ var foo = sort([123], (foo, bar) => |)
         }
 
         [TestMethod]
-        public async Task Func_definition_lambda_completions_do_not_suggest_outer_variables()
+        public async Task Func_definition_lambda_completions_suggest_outer_variables()
         {
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
 var outerVar = 'asdf'
@@ -2724,12 +2724,51 @@ func foo(innerVar string) string => '${|}'
             var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
 
             var completions = await file.RequestAndResolveCompletions(cursor);
-            completions.Should().NotContain(x => x.Label == "outerVar");
-            var updatedFile = file.ApplyCompletion(completions, "innerVar");
+            completions.Should().Contain(x => x.Label == "innerVar");
+            completions.Should().Contain(x => x.Label == "outerVar");
+            var updatedFile = file.ApplyCompletion(completions, "outerVar");
             updatedFile.Should().HaveSourceText("""
 var outerVar = 'asdf'
 
-func foo(innerVar string) string => '${innerVar|}'
+func foo(innerVar string) string => '${outerVar|}'
+""");
+        }
+
+        [TestMethod]
+        public async Task Func_definition_lambda_completions_suggest_imported_variables()
+        {
+            var exportContent = """              
+@export()
+var whatsup = 'Whatsup?'
+""";
+            var mainContent = """
+import { whatsup } from './exports.bicep'
+func greet(name string) string => '${|}'
+""";
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(mainContent, '|');
+            DocumentUri mainUri = "file:///main.bicep";
+            var files = new Dictionary<DocumentUri, string>
+            {
+                ["file:///exports.bicep"] = exportContent,
+                [mainUri] = text
+            };
+
+            var bicepFile = new LanguageClientFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.Uri);
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+
+            var completions = await file.RequestAndResolveCompletions(cursor);
+            completions.Should().Contain(c => c.Label == "whatsup");
+
+            var updatedFile = file.ApplyCompletion(completions, "whatsup");
+            updatedFile.Should().HaveSourceText("""
+import { whatsup } from './exports.bicep'
+func greet(name string) string => '${whatsup|}'
 """);
         }
 
@@ -5738,6 +5777,79 @@ output people Person[] = [{
 
             var completionItems = completions.Where(x => x.Kind == CompletionItemKind.File).OrderBy(x => x.SortText);
             completionItems.Should().SatisfyRespectively(x => x.Label.Should().Be("json1.json"));
+        }
+
+        [TestMethod]
+        public async Task Identity_property_completions_are_offered_for_resource()
+        {
+            // Resource identity property completion
+            var resourceFileWithCursor = """
+resource myRes 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: 'myRes'
+  identity: |
+}
+""";
+            await RunCompletionScenarioTest(
+                this.TestContext,
+                ServerWithNamespaceProvider,
+                resourceFileWithCursor,
+                completionLists =>
+                {
+                    completionLists.Count().Should().Be(1);
+                    var identitySnippets = completionLists.First().Items
+                        .Where(x => x.Kind == CompletionItemKind.Snippet)
+                        .Select(x => x.Label)
+                        .ToList();
+
+                    identitySnippets.Should().Contain("user-assigned-identity");
+                    identitySnippets.Should().Contain("system-assigned-identity");
+                    identitySnippets.Should().Contain("user-and-system-assigned-identity");
+                    identitySnippets.Should().Contain("none-identity");
+                    identitySnippets.Should().Contain("user-assigned-identity-array");
+                },
+                '|');
+        }
+
+        [TestMethod]
+        public async Task Identity_property_completions_are_offered_for_module()
+        {
+            // Module identity property completion (when feature is enabled)
+            var moduleFileWithCursor = """
+module myMod './mod.bicep' = {
+  name: 'myMod'
+  identity: |
+}
+""";
+            var (text, cursors) = ParserHelper.GetFileWithCursors(moduleFileWithCursor, '|');
+            DocumentUri mainUri = DocumentUri.From("file:///main.bicep");
+            var files = new Dictionary<DocumentUri, string>
+            {
+                [DocumentUri.From("file:///mod.bicep")] = """
+param foo string = 'bar'
+""",
+                [mainUri] = text
+            };
+
+            var bicepFile = new LanguageClientFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.Uri,
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()).WithFeatureOverrides(new(this.TestContext, ModuleIdentityEnabled: true))
+            );
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletions(cursors);
+
+            completions.Count().Should().Be(1);
+            var identitySnippets = completions.First().Items
+                .Where(x => x.Kind == CompletionItemKind.Snippet)
+                .Select(x => x.Label)
+                .ToList();
+
+            identitySnippets.Should().Contain("user-assigned-identity");
+            identitySnippets.Should().Contain("none-identity");
+            identitySnippets.Should().Contain("user-assigned-identity-array");
         }
     }
 }

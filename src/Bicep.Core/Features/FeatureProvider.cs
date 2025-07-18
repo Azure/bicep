@@ -36,9 +36,13 @@ namespace Bicep.Core.Features
 
         public bool AssertsEnabled => configuration.ExperimentalFeaturesEnabled.Assertions;
 
-        public static bool TracingEnabled => ReadBooleanEnvVar("BICEP_TRACING_ENABLED", defaultValue: false);
+        public static readonly bool TracingEnabled = ReadBooleanEnvVar("BICEP_TRACING_ENABLED", defaultValue: false);
 
-        public static TraceVerbosity TracingVerbosity => ReadEnumEnvVar("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);
+        public static readonly bool ExtensionTracingEnabled = ReadBooleanEnvVar("BICEP_EXTENSION_TRACING_ENABLED", defaultValue: false);
+
+        public static readonly TraceVerbosity TracingVerbosity = ReadEnumEnvVar("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);
+
+        public static bool HasTracingVerbosity(TraceVerbosity verbosity) => TracingVerbosity >= verbosity;
 
         public bool WaitAndRetryEnabled => configuration.ExperimentalFeaturesEnabled.WaitAndRetry;
 
@@ -51,8 +55,6 @@ namespace Bicep.Core.Features
         public bool ModuleExtensionConfigsEnabled => configuration.ExperimentalFeaturesEnabled.ModuleExtensionConfigs;
 
         public bool DesiredStateConfigurationEnabled => configuration.ExperimentalFeaturesEnabled.DesiredStateConfiguration;
-
-        public bool ExternalInputFunctionEnabled => configuration.ExperimentalFeaturesEnabled.ExternalInputFunction;
 
         public bool ModuleIdentityEnabled => configuration.ExperimentalFeaturesEnabled.ModuleIdentity;
 

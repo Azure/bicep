@@ -7,7 +7,8 @@ namespace Bicep.Cli.Arguments
 {
     public class PublishExtensionArguments : ArgumentsBase
     {
-        public PublishExtensionArguments(string[] args, string commandName, IOContext io) : base(commandName)
+        public PublishExtensionArguments(string[] args)
+            : base(Constants.Command.PublishExtension)
         {
             for (int i = 0; i < args.Length; i++)
             {

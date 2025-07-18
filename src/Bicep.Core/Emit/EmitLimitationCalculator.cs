@@ -56,6 +56,7 @@ namespace Bicep.Core.Emit
             BlockNamesDistinguishedOnlyByCase(model, diagnostics);
             BlockResourceDerivedTypesThatDoNotDereferenceProperties(model, diagnostics);
             BlockSpreadInUnsupportedLocations(model, diagnostics);
+            BlockSecureOutputsWithLocalDeploy(model, diagnostics);
             BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
 
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
@@ -883,10 +884,11 @@ namespace Bicep.Core.Emit
             foreach (var (symbolTypePluralName, symbolsOfType) in new (string, IEnumerable<DeclaredSymbol>)[]
             {
                 ("parameters", model.Root.ParameterDeclarations),
-                ("variables", model.Root.VariableDeclarations),
+                ("variables", model.Root.VariableDeclarations.Concat<DeclaredSymbol>(model.Root.ImportedVariables)),
                 ("outputs", model.Root.OutputDeclarations),
-                ("types", model.Root.TypeDeclarations),
+                ("types", model.Root.TypeDeclarations.Concat<DeclaredSymbol>(model.Root.ImportedTypes)),
                 ("asserts", model.Root.AssertDeclarations),
+                ("functions", model.Root.FunctionDeclarations.Concat<DeclaredSymbol>(model.Root.ImportedFunctions))
             })
             {
                 BlockCaseInsensitiveNameClashes(symbolTypePluralName, symbolsOfType, s => s.Name, s => s.NameSource, diagnostics);
@@ -983,6 +985,23 @@ namespace Bicep.Core.Emit
                 if (parentObject.Properties.Any(x => x.Value is ForSyntax))
                 {
                     diagnostics.Write(spread, x => x.SpreadOperatorCannotBeUsedWithForLoop(spread));
+                }
+            }
+        }
+
+        private static void BlockSecureOutputsWithLocalDeploy(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            if (model.TargetScope != ResourceScope.Local)
+            {
+                return;
+            }
+
+            foreach (var module in model.Root.ModuleDeclarations)
+            {
+                if (module.TryGetSemanticModel().TryUnwrap() is { } moduleModel &&
+                    moduleModel.Outputs.Any(output => output.IsSecure))
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(module.NameSource).SecureOutputsNotSupportedWithLocalDeploy(module.Name));
                 }
             }
         }

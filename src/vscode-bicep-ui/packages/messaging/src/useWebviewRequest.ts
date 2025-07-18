@@ -22,5 +22,5 @@ export function useWebviewRequest<TResult>(method: string, params?: unknown) {
     invokeRequest();
   }, [method, params, messageChannel]);
 
-  return [result, error];
+  return [result, error] as const;
 }

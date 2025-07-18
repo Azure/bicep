@@ -72,6 +72,7 @@ public static class SnapshotHelper
             template,
             parameters: ResolveParameters(parameters, externalInputs),
             rootDeploymentMetadata: GetDeploymentMetadata(tenantId, subscriptionId, resourceGroup, deploymentName, location, scope, template),
+            referenceFunctionPreflightEnabled: true,
             cancellationToken: cancellationToken);
 
         return new(
@@ -126,8 +127,7 @@ public static class SnapshotHelper
             return rewriteVisitor.Rewrite(ExpressionParser.ParseLanguageExpression(parameter.Expression));
         }
 
-        throw new InvalidOperationException(
-            $"Parameters compilation produced an invalid object for parameter '{parameterName}'.");
+        return new NullExpression(position: null);
     }
 
     private class ParametersRewriteVisitor : ExpressionRewriteVisitor
@@ -141,7 +141,7 @@ public static class SnapshotHelper
             this.tryResolveExternalInput = tryResolveExternalInput;
         }
 
-        protected override ITemplateLanguageExpression ReplaceFunctionExpression(FunctionExpression expression)
+        public override ITemplateLanguageExpression MapFunctionExpression(FunctionExpression expression, ISet<ITemplateLanguageExpression>? expressionsToSkip)
         {
             if (expression.Name.Equals(LanguageConstants.ExternalInputsArmFunctionName, StringComparison.OrdinalIgnoreCase))
             {
@@ -167,7 +167,7 @@ public static class SnapshotHelper
                 };
             }
 
-            return base.ReplaceFunctionExpression(expression);
+            return base.MapFunctionExpression(expression, expressionsToSkip);
         }
     }
 

@@ -103,12 +103,15 @@ namespace Bicep.Core.Semantics
                 }
 
                 return [.. this.SourceFile.Template.Outputs
-                    .Select(outputProperty => new OutputMetadata(
+                    .Select(outputProperty =>
+                    {
+                        var type = GetType(outputProperty.Value);
+                        return new OutputMetadata(
                             outputProperty.Key,
-                            GetType(outputProperty.Value),
+                            type,
                             TryGetMetadataDescription(outputProperty.Value.Metadata),
-                            GetType(outputProperty.Value).Type.IsSecureType())
-                     )];
+                            TypeHelper.IsOrContainsSecureType(type.Type));
+                    })];
             });
         }
 
@@ -236,7 +239,7 @@ namespace Bicep.Core.Semantics
                     ext =>
                     {
                         // TODO(kylealbert): Get namespace type.
-                        return new ExtensionMetadata(ext.Key, ext.Value.Name.Value, ext.Value.Version.Value, null);
+                        return new ExtensionMetadata(ext.Key, ext.Value.Name.Value, ext.Value.Version.Value, null, null);
                     });
         }
 

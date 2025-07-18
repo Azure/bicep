@@ -25,5 +25,5 @@ resource ai_appInsights 'Microsoft.Insights/components@2020-02-02' = {
 }
 
 output appInsightsInstrumentationKey string = reference(ai_appInsights.id, '2020-02-02').InstrumentationKey
-//@[46:88) [use-resource-symbol-reference (Warning)] Use a resource reference instead of invoking function "reference". This simplifies the syntax and allows Bicep to better understand your deployment dependency graph. (bicep core linter https://aka.ms/bicep/linter/use-resource-symbol-reference) |reference(ai_appInsights.id, '2020-02-02')|
+//@[46:88) [use-resource-symbol-reference (Warning)] Use a resource reference instead of invoking function "reference". This simplifies the syntax and allows Bicep to better understand your deployment dependency graph. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-resource-symbol-reference) |reference(ai_appInsights.id, '2020-02-02')|
 

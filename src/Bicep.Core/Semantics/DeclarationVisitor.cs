@@ -178,9 +178,8 @@ namespace Bicep.Core.Semantics
         {
             base.VisitExtensionConfigAssignmentSyntax(syntax);
 
-            if (syntax.TryGetSymbolName() is not { } extAlias)
+            if (syntax.TryGetAlias() is not { } extAlias)
             {
-                // TODO(kylealbert): Figure out specifics for spec strings vs alias.
                 return;
             }
 
@@ -213,7 +212,7 @@ namespace Bicep.Core.Semantics
         public override void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax)
         {
             // create new scope without any descendants
-            var scope = new LocalScope(string.Empty, syntax, syntax.Body, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.InheritFunctionsOnly);
+            var scope = new LocalScope(string.Empty, syntax, syntax.Body, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.InheritFunctionsAndVariablesOnly);
             this.PushScope(scope);
 
             /*

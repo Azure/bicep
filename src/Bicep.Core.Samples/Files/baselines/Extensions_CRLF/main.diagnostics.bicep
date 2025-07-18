@@ -12,10 +12,7 @@ param boolParam1 bool
 // BEGIN: Extension declarations
 
 extension az
-extension kubernetes with {
-  kubeConfig: 'DELETE'
-  namespace: 'DELETE'
-} as k8s
+extension kubernetes as k8s
 
 //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
 
@@ -28,7 +25,7 @@ resource kv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 }
 
 resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
-//@[09:18) [no-unused-existing-resources (Warning)] Existing resource "scopedKv1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-existing-resources) |scopedKv1|
+//@[09:18) [no-unused-existing-resources (Warning)] Existing resource "scopedKv1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-existing-resources) |scopedKv1|
   name: 'scopedKv1'
   scope: az.resourceGroup('otherGroup')
 }
@@ -56,8 +53,8 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
   name: 'moduleWithExtsWithAliases'
   extensionConfigs: {
     k8s: {
-      kubeConfig: 'kubeConfig2FromModule'
-      namespace: 'ns2FromModule'
+      kubeConfig: 'kubeConfig2'
+      namespace: 'ns2'
     }
   }
 }
@@ -66,8 +63,7 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
   name: 'moduleWithExtsWithoutAliases'
   extensionConfigs: {
     kubernetes: {
-      kubeConfig: 'kubeConfig2FromModule'
-      namespace: 'ns2FromModule'
+      kubeConfig: 'kubeConfig2'
     }
   }
 }

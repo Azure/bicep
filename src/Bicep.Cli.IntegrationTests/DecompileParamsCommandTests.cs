@@ -174,7 +174,7 @@ namespace Bicep.Cli.IntegrationTests
             {
                 output.Should().BeEmpty();
                 error.AsLines().Should().Contain(DecompilationDisclaimer);
-                error.AsLines().Should().Contain($"{jsonPath}: Decompilation failed with fatal error \"No value found parameter foo\"");
+                error.AsLines().Should().Contain($"{jsonPath}: Decompilation failed with fatal error \"[5:10]: No value found parameter foo\"");
                 result.Should().Be(1);
             }
         }

@@ -222,14 +222,16 @@ resource baz 'My.Rp/foo@2020-01-01' = {
             async (client, token) =>
             {
                 var response = await client.GetFileReferences(new("/main.bicepparam"), token);
+                var expectedFilePaths = new[]
+                    {
+                        "/bicepconfig.json",
+                        "/invalid.txt",
+                        "/main.bicep",
+                        "/main.bicepparam",
+                        "/valid.txt",
+                    }.Select(fileSystem.Path.GetFullPath);
 
-                response.FilePaths.Should().BeEquivalentTo([
-                    "/bicepconfig.json",
-                    "/invalid.txt",
-                    "/main.bicep",
-                    "/main.bicepparam",
-                    "/valid.txt",
-                ]);
+                response.FilePaths.Should().BeEquivalentTo(expectedFilePaths);
             });
     }
 
@@ -263,13 +265,6 @@ resource baz 'My.Rp/foo@2020-01-01' = {
                       }
                       kind: 'StorageV2'
                       properties: {}
-                    }
-                    """,
-                ["/bicepconfig.json"] = """
-                    {
-                      "experimentalFeaturesEnabled": {
-                        "externalInputFunction": true
-                      }
                     }
                     """,
             });
@@ -401,13 +396,6 @@ resource baz 'My.Rp/foo@2020-01-01' = {
                       properties: {}
                     }
                     """,
-                ["/bicepconfig.json"] = """
-                    {
-                      "experimentalFeaturesEnabled": {
-                        "externalInputFunction": true
-                      }
-                    }
-                    """,
             });
 
         await RunServerTest(
@@ -445,6 +433,40 @@ resource baz 'My.Rp/foo@2020-01-01' = {
                       "diagnostics": []
                     }
                     """));
+            });
+    }
+
+    [TestMethod]
+    public async Task Format_returns_formatted_content()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/main.bicep"] = """
+param foo string
+param bar int = 42
+
+resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+name: 'mystorageaccount'
+location: 'East US'
+sku: {
+name: 'Standard_LRS'
+}
+kind: 'StorageV2'
+}
+""",
+        });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var response = await client.Format(new("/main.bicep"), token);
+                response.Contents.Should().NotBeNull();
+                response.Contents.Should().Contain("param foo string");
+                response.Contents.Should().Contain("param bar int = 42");
+                // The formatted content should have proper indentation
+                response.Contents.Should().Contain("  name: 'mystorageaccount'");
+                response.Contents.Should().Contain("  location: 'East US'");
             });
     }
 }

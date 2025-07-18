@@ -314,7 +314,7 @@ var myRef = [
 ]
 var runtimeLoop5 = [for (item, index) in myRef: 's']
 //@[25:29) Local item. Type: string. Declaration start char: 25, length: 4
-//@[31:36) Local index. Type: int. Declaration start char: 31, length: 5
+//@[31:36) Local index. Type: 0. Declaration start char: 31, length: 5
 //@[04:16) Variable runtimeLoop5. Type: 's'[]. Declaration start char: 0, length: 52
 
 // cannot use loops in expressions

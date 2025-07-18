@@ -1116,60 +1116,13 @@ namespace Bicep.Core.Emit
                     // Type checking should have validated that the config name is not an expression (e.g. string interpolation), if we get a null value it means something
                     // was wrong with type checking validation.
                     var extensionConfigName = configProperty.TryGetKeyText() ?? throw new UnreachableException("Expressions are not allowed as config names.");
-                    var configType = extension.Settings.ConfigurationType ?? throw new UnreachableException("Config type must be specified.");
-                    var extensionConfigType = GetExtensionConfigType(extensionConfigName, configType);
 
                     emitter.EmitObjectProperty(extensionConfigName, () =>
                     {
-                        switch (extensionConfigType)
-                        {
-                            case StringType:
-                                if (extensionConfigType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
-                                {
-                                    emitter.EmitProperty("type", "secureString");
-                                }
-                                else
-                                {
-                                    emitter.EmitProperty("type", "string");
-                                }
-                                break;
-                            case IntegerType:
-                                emitter.EmitProperty("type", "int");
-                                break;
-                            case BooleanType:
-                                emitter.EmitProperty("type", "bool");
-                                break;
-                            case ArrayType:
-                                emitter.EmitProperty("type", "array");
-                                break;
-                            case ObjectType:
-                                if (extensionConfigType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
-                                {
-                                    emitter.EmitProperty("type", "secureObject");
-                                }
-                                else
-                                {
-                                    emitter.EmitProperty("type", "object");
-                                }
-                                break;
-                            default:
-                                throw new ArgumentException($"Config name: '{extensionConfigName}' specified an unsupported type: '{extensionConfigType}'. Supported types are: 'string', 'secureString', 'int', 'bool', 'array', 'secureObject', 'object'.");
-                        }
-
                         emitter.EmitProperty("defaultValue", configProperty.Value);
                     });
                 }
             });
-        }
-
-        private static TypeSymbol GetExtensionConfigType(string configName, ObjectType configType)
-        {
-            if (configType.Properties.TryGetValue(configName) is { } configItem)
-            {
-                return configItem.TypeReference.Type;
-            }
-
-            throw new UnreachableException($"Configuration name: '{configName}' does not exist as part of extension configuration.");
         }
 
         private ExtensionExpression GetExtensionForLocalDeploy()
@@ -1232,6 +1185,18 @@ namespace Bicep.Core.Emit
             }
         }
 
+        private void EmitResourceExtensionReference(ExpressionEmitter emitter, string extensionAlias)
+        {
+            if (this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
+            {
+                emitter.EmitProperty("extension", extensionAlias);
+            }
+            else
+            {
+                emitter.EmitProperty("import", extensionAlias);
+            }
+        }
+
         private void EmitResource(ExpressionEmitter emitter, ImmutableArray<ExtensionExpression> extensions, DeclaredResourceExpression resource)
         {
             var metadata = resource.ResourceMetadata;
@@ -1258,15 +1223,7 @@ namespace Bicep.Core.Emit
                 var extensionSymbol = extensions.FirstOrDefault(i => metadata.Type.DeclaringNamespace.AliasNameEquals(i.Name));
                 if (extensionSymbol is not null)
                 {
-                    if (this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
-                    {
-                        emitter.EmitProperty("extension", extensionSymbol.Name);
-                    }
-                    else
-                    {
-                        // TODO(extensibility): Consider removing this
-                        emitter.EmitProperty("import", extensionSymbol.Name);
-                    }
+                    EmitResourceExtensionReference(emitter, extensionSymbol.Name);
                 }
 
                 // Emit the options property if there are entries in the DecoratorConfig dictionary
@@ -1446,16 +1403,6 @@ namespace Bicep.Core.Emit
                                                     // write a single property copy loop
                                                     emitter.EmitObjectProperty(extConfigPropertyName, () => { emitter.EmitCopyProperty(() => { emitter.EmitArray(() => { emitter.EmitCopyObject("value", @for.Expression, @for.Body, "value"); }, @for.SourceSyntax); }); });
                                                 }
-                                                else if (extConfigPropertyExpr.Value is ResourceReferenceExpression resource &&
-                                                    module.Symbol.TryGetModuleType() is ModuleType moduleType &&
-                                                    moduleType.TryGetExtensionConfigPropertyType(extAlias, extConfigPropertyName) is ResourceParameterType)
-                                                {
-                                                    // TODO(kylealbert): verify this
-                                                    // This is a resource being passed into a module, we actually want to pass in its id
-                                                    // rather than the whole resource.
-                                                    var idExpression = new PropertyAccessExpression(resource.SourceSyntax, resource, "id", AccessExpressionFlags.None);
-                                                    emitter.EmitProperty(extConfigPropertyName, ExpressionEmitter.ConvertModuleExtensionConfig(idExpression));
-                                                }
                                                 else
                                                 {
                                                     // the value is not a for-expression - can emit normally
@@ -1481,7 +1428,7 @@ namespace Bicep.Core.Emit
         {
             emitter.EmitObject(() =>
             {
-                emitter.EmitProperty("extension", "az0synthesized");
+                EmitResourceExtensionReference(emitter, "az0synthesized");
 
                 var body = module.Body;
                 if (body is ForLoopExpression forLoop)

@@ -12,6 +12,7 @@ using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Expression.Intermediate;
 using Azure.Deployments.Expression.Intermediate.Extensions;
 using Azure.Deployments.Templates.Engines;
+using Azure.Deployments.Templates.Exceptions;
 using Azure.Deployments.Templates.ParsedEntities;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
@@ -37,7 +38,8 @@ public class SnapshotCommand(
     ILogger logger,
     IFileExplorer fileExplorer,
     BicepCompiler compiler,
-    DiagnosticLogger diagnosticLogger) : ICommand
+    DiagnosticLogger diagnosticLogger,
+    InputOutputArgumentsResolver inputOutputArgumentsResolver) : ICommand
 {
     public async Task<int> RunAsync(SnapshotArguments args, CancellationToken cancellationToken)
     {
@@ -45,11 +47,11 @@ public class SnapshotCommand(
 
         var snapshotMode = args.Mode ?? SnapshotArguments.SnapshotMode.Overwrite;
 
-        var inputUri = ArgumentHelper.GetFileUri(args.InputFile);
+        var inputUri = inputOutputArgumentsResolver.ResolveInputArguments(args);
         ArgumentHelper.ValidateBicepParamFile(inputUri);
 
         var newSnapshot = await GetSnapshot(args, inputUri, noRestore: false, cancellationToken)
-            ?? throw new CommandLineException($"Failed to generate snapshot for file {inputUri.LocalPath}");
+            ?? throw new CommandLineException($"Failed to generate snapshot for file {inputUri}");
 
         if (newSnapshot.Diagnostics.Length > 0)
         {
@@ -60,7 +62,7 @@ public class SnapshotCommand(
             }
         }
 
-        var outputUri = PathHelper.ChangeExtension(inputUri, ".snapshot.json").ToIOUri();
+        var outputUri =  inputUri.WithExtension(".snapshot.json");
         switch (snapshotMode)
         {
             case SnapshotArguments.SnapshotMode.Overwrite:
@@ -86,9 +88,9 @@ public class SnapshotCommand(
         }
     }
 
-    private async Task<Snapshot?> GetSnapshot(SnapshotArguments arguments, Uri inputUri, bool noRestore, CancellationToken cancellationToken)
+    private async Task<Snapshot?> GetSnapshot(SnapshotArguments arguments, IOUri inputUri, bool noRestore, CancellationToken cancellationToken)
     {
-        var compilation = await compiler.CreateCompilation(inputUri, skipRestore: noRestore);
+        var compilation = await compiler.CreateCompilation(inputUri.ToUri(), skipRestore: noRestore);
         CommandHelper.LogExperimentalWarning(logger, compilation);
 
         var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, compilation);
@@ -101,18 +103,27 @@ public class SnapshotCommand(
             return null;
         }
 
-        return await SnapshotHelper.GetSnapshot(
-            targetScope: compilation.GetEntrypointSemanticModel().TargetScope,
-            templateContent: templateContent,
-            parametersContent: parametersContent,
-            tenantId: arguments.TenantId,
-            subscriptionId: arguments.SubscriptionId,
-            resourceGroup: arguments.ResourceGroup,
-            location: arguments.Location,
-            deploymentName: arguments.DeploymentName,
-            cancellationToken: cancellationToken,
-            // TODO: Add support for external input values
-            externalInputs: []);
+        try
+        {
+            return await SnapshotHelper.GetSnapshot(
+                targetScope: compilation.GetEntrypointSemanticModel().TargetScope,
+                templateContent: templateContent,
+                parametersContent: parametersContent,
+                tenantId: arguments.TenantId,
+                subscriptionId: arguments.SubscriptionId,
+                resourceGroup: arguments.ResourceGroup,
+                location: arguments.Location,
+                deploymentName: arguments.DeploymentName,
+                cancellationToken: cancellationToken,
+                // TODO: Add support for external input values
+                externalInputs: []);
+        }
+        catch (TemplateValidationException e)
+        {
+            throw new CommandLineException(
+                $"Template snapshotting could not be completed for the following reason: '{e.Message}'.",
+                e);
+        }
     }
 
     private Snapshot ReadSnapshot(IOUri uri)

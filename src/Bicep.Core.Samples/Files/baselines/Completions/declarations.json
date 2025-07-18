@@ -1987,37 +1987,6 @@
     }
   },
   {
-    "label": "res-media",
-    "kind": "snippet",
-    "detail": "Media Services account",
-    "documentation": {
-      "kind": "markdown",
-      "value": "```bicep\nresource mediaServices 'Microsoft.Media/mediaServices@2020-05-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    storageAccounts: [\n      {\n        id: 'storageAccount.id'\n        type: 'Primary'\n      }\n    ]\n  }\n}\n\n```  \n"
-    },
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_res-media",
-    "filterText": "res-media Media Services account Microsoft.Media/mediaServices",
-    "insertTextFormat": "snippet",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "resource ${1:mediaServices} 'Microsoft.Media/mediaServices@2020-05-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    storageAccounts: [\n      {\n        id: ${4:'storageAccount.id'}\n        type: '${5|Primary,Secondary|}'\n      }\n    ]\n  }\n}\n"
-    },
-    "command": {
-      "title": "top level snippet completion",
-      "command": "bicep.Telemetry",
-      "arguments": [
-        {
-          "EventName": "snippet/toplevel",
-          "Properties": {
-            "name": "res-media"
-          }
-        }
-      ]
-    }
-  },
-  {
     "label": "res-mg",
     "kind": "snippet",
     "detail": "Management Group(for tenant scope)",
