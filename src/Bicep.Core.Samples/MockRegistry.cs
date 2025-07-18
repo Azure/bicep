@@ -22,9 +22,9 @@ public static class MockRegistry
         ImmutableDictionary<string, string> modules
     );
 
-    public static async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager()
+    public static async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager(TestCompiler? compiler = null)
     {
-        var manager = new TestExternalArtifactManager();
+        var manager = new TestExternalArtifactManager(compiler);
 
         manager.UpsertTemplateSpecs(CreateDefaultMockTemplateSpecs());
         await manager.PublishRegistryModules(CreateDefaultMockModules());

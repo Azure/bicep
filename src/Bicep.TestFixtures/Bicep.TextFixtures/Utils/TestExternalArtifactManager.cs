@@ -19,13 +19,11 @@ namespace Bicep.TextFixtures.Utils
         private readonly FakeTemplateSpecRepository templateSpecRepository;
         private readonly TestCompiler compiler;
 
-        public TestExternalArtifactManager()
+        public TestExternalArtifactManager(TestCompiler? compiler = null)
         {
             this.containerRegistryClientFactory = new();
             this.templateSpecRepository = new();
-            this.compiler = TestCompiler
-                .ForMockFileSystemCompilation()
-                .ConfigureServices(services => services.AddExternalArtifactManager(this));
+            this.compiler = (compiler ?? TestCompiler.ForMockFileSystemCompilation()).ConfigureServices(services => services.AddExternalArtifactManager(this));
         }
 
         public async Task PublishRegistryModule(string moduleArtifactId, string moduleContent, bool withSource = false, string? documentationUri = null)

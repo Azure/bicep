@@ -4,6 +4,7 @@
 using Bicep.Cli.UnitTests;
 using Bicep.Core;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Catalog.Implementation;
@@ -66,14 +67,6 @@ namespace Bicep.Cli.IntegrationTests
 
                 this.ModuleMetadataClient = ModuleMetadataClient ?? new MockPublicModuleIndexHttpClient(new());
             }
-
-            public InvocationSettings WithArtifactManager(TestExternalArtifactManager manager) =>
-                this with
-                {
-                    FeatureOverrides = (this.FeatureOverrides ?? new()) with { RegistryEnabled = true },
-                    ClientFactory = manager.ContainerRegistryClientFactory,
-                    TemplateSpecRepositoryFactory = manager.TemplateSpecRepositoryFactory
-                };
         }
 
         protected static Task<CliResult> Bicep(InvocationSettings settings, Action<IServiceCollection>? registerAction, CancellationToken cancellationToken, params string?[] args /*null args are ignored*/)
@@ -156,14 +149,34 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         protected async Task<InvocationSettings> CreateDefaultSettingsWithDefaultMockRegistry()
-            => CreateDefaultSettings().WithArtifactManager(await MockRegistry.CreateDefaultExternalArtifactManager());
+        {
+            var settings = CreateDefaultSettings(featureOverrides: f => f with { RegistryEnabled = true });
 
-        protected InvocationSettings CreateDefaultSettings() =>
+            var artifactCompiler = TestCompiler.ForMockFileSystemCompilation()
+                .ConfigureServices(acs =>
+                {
+                    acs.AddSingleton((FeatureProviderFactory)acs.Get<IFeatureProviderFactory>()); // register the impl as a singleton directly.
+                    acs.AddSingleton(settings.FeatureOverrides!);
+                    acs.AddSingleton<IFeatureProviderFactory, OverriddenFeatureProviderFactory>();
+                });
+
+            var artifactManager = await MockRegistry.CreateDefaultExternalArtifactManager(artifactCompiler);
+
+            return settings with
+            {
+                ClientFactory = artifactManager.ContainerRegistryClientFactory,
+                TemplateSpecRepositoryFactory = artifactManager.TemplateSpecRepositoryFactory
+            };
+        }
+
+        protected InvocationSettings CreateDefaultSettings(Func<FeatureProviderOverrides, FeatureProviderOverrides>? featureOverrides = null) =>
             new()
             {
-                FeatureOverrides = new(TestContext),
+                FeatureOverrides = featureOverrides?.Invoke(CreateDefaultFeatureProviderOverrides()) ?? CreateDefaultFeatureProviderOverrides(),
                 Environment = CreateDefaultEnvironment()
             };
+
+        protected FeatureProviderOverrides CreateDefaultFeatureProviderOverrides() => new(TestContext);
 
         protected static IEnvironment CreateDefaultEnvironment() => TestEnvironment.Default.WithVariables(
             ("stringEnvVariableName", "test"),
