@@ -2,66 +2,55 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using Bicep.Core.Registry;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.TextFixtures.Mocks;
+using Bicep.TextFixtures.Utils;
 using FluentAssertions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Samples;
 
-public class MockRegistry
+public static class MockRegistry
 {
     private record MockRegistryCatalog(
         ImmutableDictionary<string, string> modules
     );
 
-    public record ClientFactories(
-        IContainerRegistryClientFactory ContainerRegistry,
-        ITemplateSpecRepositoryFactory TemplateSpec
-    );
+    public static async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager()
+    {
+        var manager = new TestExternalArtifactManager();
 
-    public static async Task<ClientFactories> Build(bool publishSource = false)
-        => new(
-            await CreateMockBicepRegistry(publishSource),
-            CreateMockTemplateSpecRegistry());
+        manager.UpsertTemplateSpecs(CreateDefaultMockTemplateSpecs());
+        await manager.PublishRegistryModules(CreateDefaultMockModules());
+        await manager.PublishExtensions(CreateDefaultMockExtensions());
 
-    private static async Task<IContainerRegistryClientFactory> CreateMockBicepRegistry(bool publishSource)
+        return manager;
+    }
+
+    public static IEnumerable<TestExternalArtifactManager.RegistryModulePublishArguments> CreateDefaultMockModules()
     {
         var registryFiles = EmbeddedFile.LoadAll(typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly, "mockregistry", _ => true).ToArray();
         var index = registryFiles.First(x => x.StreamPath == "Files/mockregistry/index.json").Contents.FromJson<MockRegistryCatalog>();
 
-        var modules = new Dictionary<string, DataSet.ExternalModuleInfo>();
         foreach (var (registryPath, filePath) in index.modules.Where(x => x.Key.StartsWith(OciArtifactReferenceFacts.SchemeWithColon)))
         {
             var sourceFile = registryFiles.First(x => x.StreamPath == $"Files/mockregistry/{filePath}");
 
-            modules[registryPath] = new(sourceFile.Contents, new(registryPath));
+            yield return new TestExternalArtifactManager.RegistryModulePublishArguments(registryPath, sourceFile.Contents);
         }
-
-        var clientFactory = DataSetsExtensions.CreateMockRegistryClients(modules.ToImmutableDictionary(), DefaultMockExtensions.Select(ext => ext.ToRepoDescriptor()).ToArray());
-        await DataSetsExtensions.PublishModulesToRegistryAsync(modules.ToImmutableDictionary(), clientFactory, publishSource);
-
-        var extServiceBuilder = new ServiceBuilder()
-            .WithContainerRegistryClientFactory(clientFactory);
-
-        foreach (var mockExt in DefaultMockExtensions)
-        {
-            await ExtensionTestHelper.AddMockExtension(extServiceBuilder, mockExt);
-        }
-
-        return clientFactory;
     }
 
-    private static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRegistry()
+    public static IEnumerable<MockTemplateSpecData> CreateDefaultMockTemplateSpecs()
     {
         var registryFiles = EmbeddedFile.LoadAll(typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly, "mockregistry", _ => true).ToArray();
         var index = registryFiles.First(x => x.StreamPath == "Files/mockregistry/index.json").Contents.FromJson<MockRegistryCatalog>();
 
-        var modules = new Dictionary<string, DataSet.ExternalModuleInfo>();
         foreach (var (registryPath, filePath) in index.modules.Where(x => x.Key.StartsWith("ts:")))
         {
             var sourceFile = registryFiles.First(x => x.StreamPath == $"Files/mockregistry/{filePath}");
@@ -69,26 +58,33 @@ public class MockRegistry
             var compilationResult = CompilationHelper.Compile(sourceFile.Contents);
             compilationResult.Template.Should().NotBeNull();
 
+            var referenceStr = registryPath[3..];
+
+            if (!TemplateSpecModuleReference.TryParse(BicepTestConstants.DummyBicepFile, null, referenceStr).IsSuccess(out var specReference, out var error))
+            {
+                throw new InvalidOperationException($"Failed to parse template spec reference from {registryPath} ({filePath}): {error(DiagnosticBuilder.ForDocumentStart())}");
+            }
+
             var templateSpec = new JObject
             {
-                ["id"] = "/subscriptions/<todo_fill_in>/resourceGroups/<todo_fill_in>/providers/Microsoft.Resources/templateSpecs/<todo_fill_in>/versions/<todo_fill_in>",
+                ["id"] = specReference.TemplateSpecResourceId,
                 ["properties"] = new JObject
                 {
                     ["mainTemplate"] = compilationResult.Template,
                 },
             };
 
-            modules[registryPath] = new(templateSpec.ToJson(), new(registryPath));
+            yield return new(
+                Id: specReference.TemplateSpecResourceId,
+                Content: templateSpec.ToString());
         }
-
-        return DataSetsExtensions.CreateMockTemplateSpecRepositoryFactory(modules.ToImmutableDictionary());
     }
 
-    private static RegistrySourcedExtensionMockData[] DefaultMockExtensions =>
-    [
-        MockExtensionFactory.CreateMockExtWithNoConfigType("noconfig"),
-        MockExtensionFactory.CreateMockExtWithObjectConfigType("hasconfig"),
-        MockExtensionFactory.CreateMockExtWithSecureConfigType("hassecureconfig"),
-        MockExtensionFactory.CreateMockExtWithDiscriminatedConfigType("hasdiscrimconfig")
-    ];
+    public static IEnumerable<MockExtensionData> CreateDefaultMockExtensions()
+    {
+        yield return MockExtensionFactory.CreateMockExtWithNoConfigType("noconfig");
+        yield return MockExtensionFactory.CreateMockExtWithObjectConfigType("hasconfig");
+        yield return MockExtensionFactory.CreateMockExtWithSecureConfigType("hassecureconfig");
+        yield return MockExtensionFactory.CreateMockExtWithDiscriminatedConfigType("hasdiscrimconfig");
+    }
 }

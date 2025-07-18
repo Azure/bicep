@@ -9,6 +9,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.TextFixtures.Mocks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -1065,11 +1066,11 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             return services;
         }
 
-        private static RegistrySourcedExtensionMockData CreateMockExtWithNoConfigType(string extName = "noconfig") =>
+        private static MockExtensionData CreateMockExtWithNoConfigType(string extName = "noconfig") =>
             ExtensionTestHelper.CreateMockExtensionMockData(
                 extName, "1.2.3", "v1", CustomExtensionTypeFactoryDelegates.NoTypes);
 
-        private static RegistrySourcedExtensionMockData CreateMockExtWithObjectConfigType(string extName = "configobj") =>
+        private static MockExtensionData CreateMockExtWithObjectConfigType(string extName = "configobj") =>
             ExtensionTestHelper.CreateMockExtensionMockData(
                 extName, "1.2.3", "v1", new CustomExtensionTypeFactoryDelegates
                 {
@@ -1083,7 +1084,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                         null))
                 });
 
-        private static RegistrySourcedExtensionMockData CreateMockExtWithSecureConfigType(string extName = "secureconfig") =>
+        private static MockExtensionData CreateMockExtWithSecureConfigType(string extName = "secureconfig") =>
             ExtensionTestHelper.CreateMockExtensionMockData(
                 extName, "1.2.3", "v1", new CustomExtensionTypeFactoryDelegates
                 {
@@ -1096,7 +1097,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                         null))
                 });
 
-        private static RegistrySourcedExtensionMockData CreateMockExtWithDiscriminatedConfigType(string extName = "configdiscrimobj") =>
+        private static MockExtensionData CreateMockExtWithDiscriminatedConfigType(string extName = "configdiscrimobj") =>
             ExtensionTestHelper.CreateMockExtensionMockData(
                 extName, "1.2.3", "v1", new CustomExtensionTypeFactoryDelegates
                 {

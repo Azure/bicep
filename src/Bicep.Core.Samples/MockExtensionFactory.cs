@@ -3,16 +3,17 @@
 
 using Azure.Bicep.Types.Concrete;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.TextFixtures.Mocks;
 
 namespace Bicep.Core.Samples;
 
 public static class MockExtensionFactory
 {
-    public static RegistrySourcedExtensionMockData CreateMockExtWithNoConfigType(string extName) =>
+    public static MockExtensionData CreateMockExtWithNoConfigType(string extName) =>
         ExtensionTestHelper.CreateMockExtensionMockData(
             extName, "1.2.3", "v1", CustomExtensionTypeFactoryDelegates.NoTypes);
 
-    public static RegistrySourcedExtensionMockData CreateMockExtWithObjectConfigType(string extName) =>
+    public static MockExtensionData CreateMockExtWithObjectConfigType(string extName) =>
         ExtensionTestHelper.CreateMockExtensionMockData(
             extName, "1.2.3", "v1", new CustomExtensionTypeFactoryDelegates
             {
@@ -26,7 +27,7 @@ public static class MockExtensionFactory
                     null))
             });
 
-    public static RegistrySourcedExtensionMockData CreateMockExtWithSecureConfigType(string extName) =>
+    public static MockExtensionData CreateMockExtWithSecureConfigType(string extName) =>
         ExtensionTestHelper.CreateMockExtensionMockData(
             extName, "1.2.3", "v1", new CustomExtensionTypeFactoryDelegates
             {
@@ -40,7 +41,7 @@ public static class MockExtensionFactory
                     null))
             });
 
-    public static RegistrySourcedExtensionMockData CreateMockExtWithDiscriminatedConfigType(string extName) =>
+    public static MockExtensionData CreateMockExtWithDiscriminatedConfigType(string extName) =>
         ExtensionTestHelper.CreateMockExtensionMockData(
             extName, "1.2.3", "v1", new CustomExtensionTypeFactoryDelegates
             {

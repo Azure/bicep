@@ -6,6 +6,7 @@ using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.TextFixtures.Mocks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
@@ -136,7 +137,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         private static ServiceBuilder CreateServiceBuilder() => new ServiceBuilder()
             .WithFeaturesOverridden(f => f with { ModuleExtensionConfigsEnabled = true });
 
-        private static RegistrySourcedExtensionMockData CreateMockExt(string extName = "mockext") =>
+        private static MockExtensionData CreateMockExt(string extName = "mockext") =>
             ExtensionTestHelper.CreateMockExtensionMockData(
                 extName, "1.2.3", "v1", new CustomExtensionTypeFactoryDelegates
                 {

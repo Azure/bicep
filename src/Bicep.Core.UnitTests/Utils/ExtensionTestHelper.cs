@@ -7,27 +7,11 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Features;
 using Bicep.IO.Abstraction;
+using Bicep.TextFixtures.Mocks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 
 namespace Bicep.Core.UnitTests.Utils;
-
-public record RegistrySourcedExtensionMockData(
-    string Name,
-    string Version,
-    string RepoVersion,
-    BinaryData TypesTgzData)
-{
-    public string RegistryScheme => "br";
-
-    public string Registry => LanguageConstants.BicepPublicMcrRegistry;
-
-    public string RepoPath => $"bicep/extensions/{Name}/{RepoVersion}";
-
-    public string ExtensionRepoReference => $"{RegistryScheme}:{Registry}/{RepoPath}:{Version}";
-
-    public RepoDescriptor ToRepoDescriptor() => new(Registry, RepoPath, ["tag"]);
-}
 
 public static class ExtensionTestHelper
 {
@@ -63,20 +47,20 @@ public static class ExtensionTestHelper
         return services;
     }
 
-    public static RegistrySourcedExtensionMockData CreateMockExtensionMockData(string name, string version, string repoVersion, CustomExtensionTypeFactoryDelegates typeFactoryDelegates)
+    public static MockExtensionData CreateMockExtensionMockData(string name, string version, string repoVersion, CustomExtensionTypeFactoryDelegates typeFactoryDelegates)
         => new(name, version, repoVersion, ExtensionResourceTypeHelper.CreateTypesTgzBytesForCustomExtension(name, version, typeFactoryDelegates));
 
-    public static async Task<ServiceBuilder> AddMockExtension(ServiceBuilder services, RegistrySourcedExtensionMockData registrySourcedExtensionMockData)
+    public static async Task<ServiceBuilder> AddMockExtension(ServiceBuilder services, MockExtensionData MockExtensionData)
     {
-        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), registrySourcedExtensionMockData.ExtensionRepoReference, registrySourcedExtensionMockData.TypesTgzData);
+        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), MockExtensionData.ExtensionRepoReference, MockExtensionData.TypesTgzData);
 
         return services;
     }
 
-    public static async Task<ServiceBuilder> AddMockExtensions(ServiceBuilder services, TestContext testContext, params RegistrySourcedExtensionMockData[] extensionMocks)
+    public static async Task<ServiceBuilder> AddMockExtensions(ServiceBuilder services, TestContext testContext, params MockExtensionData[] extensionMocks)
     {
         var clientFactory = RegistryHelper.CreateMockRegistryClient(
-            extensionMocks.Select(ext => ext.ToRepoDescriptor()).ToArray());
+            extensionMocks.Select(ext => new RepoDescriptor(ext.Registry, ext.RepoPath, ext.Tags)).ToArray());
 
         services = services
             .WithFeaturesOverridden(f => f with { CacheRootDirectory = ExtensionTestHelper.GetCacheRootDirectory(testContext) })

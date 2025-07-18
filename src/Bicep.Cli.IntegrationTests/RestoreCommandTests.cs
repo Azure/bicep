@@ -1,14 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO.Abstractions;
 using Azure;
 using Azure.Containers.ContainerRegistry;
 using Azure.Identity;
 using Bicep.Cli.UnitTests.Assertions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
-using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Samples;
@@ -18,8 +16,6 @@ using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.IO.Abstraction;
-using Bicep.IO.FileSystem;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -135,8 +131,7 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
         {
             var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
 
-            var clients = await MockRegistry.Build();
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clients.ContainerRegistry, clients.TemplateSpec);
+            var settings = await CreateDefaultSettingsWithDefaultMockRegistry();
 
             var result = await Bicep(settings, "restore", baselineFolder.EntryFile.OutputFilePath);
             result.Should().Succeed().And.NotHaveStdout().And.NotHaveStderr();

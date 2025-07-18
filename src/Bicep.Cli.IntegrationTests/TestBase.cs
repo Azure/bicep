@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
 using Bicep.Cli.UnitTests;
 using Bicep.Core;
 using Bicep.Core.Extensions;
@@ -9,16 +8,17 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
+using Bicep.Core.Samples;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
+using Bicep.TextFixtures.Utils;
 using FluentAssertions;
-using FluentAssertions.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using TestEnvironment = Bicep.Core.UnitTests.Utils.TestEnvironment;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -66,6 +66,14 @@ namespace Bicep.Cli.IntegrationTests
 
                 this.ModuleMetadataClient = ModuleMetadataClient ?? new MockPublicModuleIndexHttpClient(new());
             }
+
+            public InvocationSettings WithArtifactManager(TestExternalArtifactManager manager) =>
+                this with
+                {
+                    FeatureOverrides = (this.FeatureOverrides ?? new()) with { RegistryEnabled = true },
+                    ClientFactory = manager.ContainerRegistryClientFactory,
+                    TemplateSpecRepositoryFactory = manager.TemplateSpecRepositoryFactory
+                };
         }
 
         protected static Task<CliResult> Bicep(InvocationSettings settings, Action<IServiceCollection>? registerAction, CancellationToken cancellationToken, params string?[] args /*null args are ignored*/)
@@ -146,5 +154,21 @@ namespace Bicep.Cli.IntegrationTests
 
             return output;
         }
+
+        protected async Task<InvocationSettings> CreateDefaultSettingsWithDefaultMockRegistry()
+            => CreateDefaultSettings().WithArtifactManager(await MockRegistry.CreateDefaultExternalArtifactManager());
+
+        protected InvocationSettings CreateDefaultSettings() =>
+            new()
+            {
+                FeatureOverrides = new(TestContext),
+                Environment = CreateDefaultEnvironment()
+            };
+
+        protected static IEnvironment CreateDefaultEnvironment() => TestEnvironment.Default.WithVariables(
+            ("stringEnvVariableName", "test"),
+            ("intEnvVariableName", "100"),
+            ("boolEnvironmentVariable", "true")
+        );
     }
 }
