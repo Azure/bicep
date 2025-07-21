@@ -8,9 +8,9 @@
     "secureStrParam1": {
       "reference": {
         "keyVault": {
-          "id": "/subscriptions/p/resourceGroups/r/providers/Microsoft.KeyVault/vaults/a"
+          "id": "/subscriptions/a/resourceGroups/b/providers/Microsoft.KeyVault/vaults/c"
         },
-        "secretName": "m"
+        "secretName": "param"
       }
     }
   },
@@ -52,10 +52,10 @@
     "hasObjConfig3": {},
     "hasObjConfig5": {
       "optionalString": {
-        "value": "strVar1Value"
+        "value": "inlineVal2"
       },
       "requiredString": {
-        "value": "strVar1Value"
+        "value": "asdf"
       }
     },
     "hasSecureConfig1": {
@@ -74,19 +74,6 @@
       },
       "requiredSecureString": {
         "value": "Inlined"
-      }
-    },
-    "hasSecureConfig3": {
-      "requiredSecureString": {
-        "value": "strVar1Value"
-      }
-    },
-    "hasSecureConfig4": {
-      "optionalString": {
-        "value": "strParam1Value"
-      },
-      "requiredSecureString": {
-        "value": "strParam1Value"
       }
     }
   }

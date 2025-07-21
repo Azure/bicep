@@ -6,8 +6,6 @@ extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' as hasObjCo
 
 extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' as hasSecureConfig1
 extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' with { optionalString: 'defaultValue' } as hasSecureConfig2
-extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' as hasSecureConfig3
-extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' as hasSecureConfig4
 
 extension 'br:mcr.microsoft.com/bicep/extensions/hasdiscrimconfig/v1:1.2.3' as hasDiscrimConfig1
 extension 'br:mcr.microsoft.com/bicep/extensions/hasdiscrimconfig/v1:1.2.3' with { discrim: 'a' } as hasDiscrimConfig2

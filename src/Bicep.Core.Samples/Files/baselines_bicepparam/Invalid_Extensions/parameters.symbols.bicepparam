@@ -2,9 +2,14 @@ using 'main.bicep'
 
 var emptyObjVar = {}
 //@[04:15) Variable emptyObjVar. Type: object. Declaration start char: 0, length: 20
-
 param strParam1 = 'strParam1Value'
 //@[06:15) ParameterAssignment strParam1. Type: 'strParam1Value'. Declaration start char: 0, length: 34
+var strVar1 = 'strVar1Value'
+//@[04:11) Variable strVar1. Type: 'strVar1Value'. Declaration start char: 0, length: 28
+param secureStrParam1 = az.getSecret('a', 'b', 'c', 'param')
+//@[06:21) ParameterAssignment secureStrParam1. Type: string. Declaration start char: 0, length: 60
+var secureStrVar1 = az.getSecret('a', 'b', 'c', 'var')
+//@[04:17) Variable secureStrVar1. Type: string. Declaration start char: 0, length: 54
 
 extensionConfig validAssignment1 with {
 //@[16:32) ExtensionConfigAssignment validAssignment1. Type: config. Declaration start char: 0, length: 67
@@ -46,9 +51,26 @@ extensionConfig invalidAssignment1 with {
   requiredString: strParam1
 }
 
+extensionConfig invalidAssignment2 with {
+//@[16:34) ExtensionConfigAssignment invalidAssignment2. Type: config. Declaration start char: 0, length: 69
+  requiredString: strVar1
+}
+
 extensionConfig invalidSecretAssignment1 with {
 //@[16:40) ExtensionConfigAssignment invalidSecretAssignment1. Type: config. Declaration start char: 0, length: 189
   requiredSecureString: bool(readEnvironmentVariable('xyz', 'false')) ? az.getSecret('a', 'b', 'c', 'd') : az.getSecret('w', 'x', 'y', 'z')
+}
+
+extensionConfig invalidSecretAssignment2 with {
+//@[16:40) ExtensionConfigAssignment invalidSecretAssignment2. Type: config. Declaration start char: 0, length: 123
+  requiredSecureString: secureStrParam1
+  optionalString: secureStrParam1
+}
+
+extensionConfig invalidSecretAssignment3 with {
+//@[16:40) ExtensionConfigAssignment invalidSecretAssignment3. Type: config. Declaration start char: 0, length: 119
+  requiredSecureString: secureStrVar1
+  optionalString: secureStrVar1
 }
 
 extensionConfig invalidDiscrimAssignment1 with {

@@ -1,20 +1,11 @@
 using 'main.bicep'
-//@[000:1293) ProgramSyntax
+//@[000:1092) ProgramSyntax
 //@[000:0018) ├─UsingDeclarationSyntax
 //@[000:0005) | ├─Token(Identifier) |using|
 //@[006:0018) | └─StringSyntax
 //@[006:0018) |   └─Token(StringComplete) |'main.bicep'|
 //@[018:0020) ├─Token(NewLine) |\n\n|
 
-var strVar1 = 'strVar1Value'
-//@[000:0028) ├─VariableDeclarationSyntax
-//@[000:0003) | ├─Token(Identifier) |var|
-//@[004:0011) | ├─IdentifierSyntax
-//@[004:0011) | | └─Token(Identifier) |strVar1|
-//@[012:0013) | ├─Token(Assignment) |=|
-//@[014:0028) | └─StringSyntax
-//@[014:0028) |   └─Token(StringComplete) |'strVar1Value'|
-//@[028:0029) ├─Token(NewLine) |\n|
 param strParam1 = 'strParam1Value'
 //@[000:0034) ├─ParameterAssignmentSyntax
 //@[000:0005) | ├─Token(Identifier) |param|
@@ -24,13 +15,13 @@ param strParam1 = 'strParam1Value'
 //@[018:0034) | └─StringSyntax
 //@[018:0034) |   └─Token(StringComplete) |'strParam1Value'|
 //@[034:0035) ├─Token(NewLine) |\n|
-param secureStrParam1 = az.getSecret('p', 'r', 'a', 'm')
-//@[000:0056) ├─ParameterAssignmentSyntax
+param secureStrParam1 = az.getSecret('a', 'b', 'c', 'param')
+//@[000:0060) ├─ParameterAssignmentSyntax
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0021) | ├─IdentifierSyntax
 //@[006:0021) | | └─Token(Identifier) |secureStrParam1|
 //@[022:0023) | ├─Token(Assignment) |=|
-//@[024:0056) | └─InstanceFunctionCallSyntax
+//@[024:0060) | └─InstanceFunctionCallSyntax
 //@[024:0026) |   ├─VariableAccessSyntax
 //@[024:0026) |   | └─IdentifierSyntax
 //@[024:0026) |   |   └─Token(Identifier) |az|
@@ -40,21 +31,21 @@ param secureStrParam1 = az.getSecret('p', 'r', 'a', 'm')
 //@[036:0037) |   ├─Token(LeftParen) |(|
 //@[037:0040) |   ├─FunctionArgumentSyntax
 //@[037:0040) |   | └─StringSyntax
-//@[037:0040) |   |   └─Token(StringComplete) |'p'|
+//@[037:0040) |   |   └─Token(StringComplete) |'a'|
 //@[040:0041) |   ├─Token(Comma) |,|
 //@[042:0045) |   ├─FunctionArgumentSyntax
 //@[042:0045) |   | └─StringSyntax
-//@[042:0045) |   |   └─Token(StringComplete) |'r'|
+//@[042:0045) |   |   └─Token(StringComplete) |'b'|
 //@[045:0046) |   ├─Token(Comma) |,|
 //@[047:0050) |   ├─FunctionArgumentSyntax
 //@[047:0050) |   | └─StringSyntax
-//@[047:0050) |   |   └─Token(StringComplete) |'a'|
+//@[047:0050) |   |   └─Token(StringComplete) |'c'|
 //@[050:0051) |   ├─Token(Comma) |,|
-//@[052:0055) |   ├─FunctionArgumentSyntax
-//@[052:0055) |   | └─StringSyntax
-//@[052:0055) |   |   └─Token(StringComplete) |'m'|
-//@[055:0056) |   └─Token(RightParen) |)|
-//@[056:0058) ├─Token(NewLine) |\n\n|
+//@[052:0059) |   ├─FunctionArgumentSyntax
+//@[052:0059) |   | └─StringSyntax
+//@[052:0059) |   |   └─Token(StringComplete) |'param'|
+//@[059:0060) |   └─Token(RightParen) |)|
+//@[060:0062) ├─Token(NewLine) |\n\n|
 
 extensionConfig hasObjConfig1 with {
 //@[000:0074) ├─ExtensionConfigAssignmentSyntax
@@ -116,30 +107,29 @@ extensionConfig hasObjConfig3 with {}
 //@[096:0098) ├─Token(NewLine) |\n\n|
 
 extensionConfig hasObjConfig5 with {
-//@[000:0152) ├─ExtensionConfigAssignmentSyntax
+//@[000:0157) ├─ExtensionConfigAssignmentSyntax
 //@[000:0015) | ├─Token(Identifier) |extensionConfig|
 //@[016:0029) | ├─IdentifierSyntax
 //@[016:0029) | | └─Token(Identifier) |hasObjConfig5|
-//@[030:0152) | └─ExtensionWithClauseSyntax
+//@[030:0157) | └─ExtensionWithClauseSyntax
 //@[030:0034) |   ├─Token(Identifier) |with|
-//@[035:0152) |   └─ObjectSyntax
+//@[035:0157) |   └─ObjectSyntax
 //@[035:0036) |     ├─Token(LeftBrace) |{|
 //@[036:0037) |     ├─Token(NewLine) |\n|
-  requiredString: strVar1
-//@[002:0025) |     ├─ObjectPropertySyntax
+  requiredString: 'asdf'
+//@[002:0024) |     ├─ObjectPropertySyntax
 //@[002:0016) |     | ├─IdentifierSyntax
 //@[002:0016) |     | | └─Token(Identifier) |requiredString|
 //@[016:0017) |     | ├─Token(Colon) |:|
-//@[018:0025) |     | └─VariableAccessSyntax
-//@[018:0025) |     |   └─IdentifierSyntax
-//@[018:0025) |     |     └─Token(Identifier) |strVar1|
-//@[025:0026) |     ├─Token(NewLine) |\n|
-  optionalString: bool(readEnvironmentVariable('xyz', 'false')) ? 'inlineVal' : strVar1
-//@[002:0087) |     ├─ObjectPropertySyntax
+//@[018:0024) |     | └─StringSyntax
+//@[018:0024) |     |   └─Token(StringComplete) |'asdf'|
+//@[024:0025) |     ├─Token(NewLine) |\n|
+  optionalString: bool(readEnvironmentVariable('xyz', 'false')) ? 'inlineVal1' : 'inlineVal2'
+//@[002:0093) |     ├─ObjectPropertySyntax
 //@[002:0016) |     | ├─IdentifierSyntax
 //@[002:0016) |     | | └─Token(Identifier) |optionalString|
 //@[016:0017) |     | ├─Token(Colon) |:|
-//@[018:0087) |     | └─TernaryOperationSyntax
+//@[018:0093) |     | └─TernaryOperationSyntax
 //@[018:0063) |     |   ├─FunctionCallSyntax
 //@[018:0022) |     |   | ├─IdentifierSyntax
 //@[018:0022) |     |   | | └─Token(Identifier) |bool|
@@ -159,17 +149,15 @@ extensionConfig hasObjConfig5 with {
 //@[061:0062) |     |   | |   └─Token(RightParen) |)|
 //@[062:0063) |     |   | └─Token(RightParen) |)|
 //@[064:0065) |     |   ├─Token(Question) |?|
-//@[066:0077) |     |   ├─StringSyntax
-//@[066:0077) |     |   | └─Token(StringComplete) |'inlineVal'|
-//@[078:0079) |     |   ├─Token(Colon) |:|
-//@[080:0087) |     |   └─VariableAccessSyntax
-//@[080:0087) |     |     └─IdentifierSyntax
-//@[080:0087) |     |       └─Token(Identifier) |strVar1|
-//@[087:0088) |     ├─Token(NewLine) |\n|
+//@[066:0078) |     |   ├─StringSyntax
+//@[066:0078) |     |   | └─Token(StringComplete) |'inlineVal1'|
+//@[079:0080) |     |   ├─Token(Colon) |:|
+//@[081:0093) |     |   └─StringSyntax
+//@[081:0093) |     |     └─Token(StringComplete) |'inlineVal2'|
+//@[093:0094) |     ├─Token(NewLine) |\n|
 }
 //@[000:0001) |     └─Token(RightBrace) |}|
-//@[001:0004) ├─Token(NewLine) |\n\n\n|
-
+//@[001:0003) ├─Token(NewLine) |\n\n|
 
 extensionConfig hasSecureConfig1 with {
 //@[000:0147) ├─ExtensionConfigAssignmentSyntax
@@ -241,61 +229,6 @@ extensionConfig hasSecureConfig2 with {
 //@[018:0035) |     | └─StringSyntax
 //@[018:0035) |     |   └─Token(StringComplete) |'valueFromParams'|
 //@[035:0036) |     ├─Token(NewLine) |\n|
-}
-//@[000:0001) |     └─Token(RightBrace) |}|
-//@[001:0003) ├─Token(NewLine) |\n\n|
-
-extensionConfig hasSecureConfig3 with {
-//@[000:0073) ├─ExtensionConfigAssignmentSyntax
-//@[000:0015) | ├─Token(Identifier) |extensionConfig|
-//@[016:0032) | ├─IdentifierSyntax
-//@[016:0032) | | └─Token(Identifier) |hasSecureConfig3|
-//@[033:0073) | └─ExtensionWithClauseSyntax
-//@[033:0037) |   ├─Token(Identifier) |with|
-//@[038:0073) |   └─ObjectSyntax
-//@[038:0039) |     ├─Token(LeftBrace) |{|
-//@[039:0040) |     ├─Token(NewLine) |\n|
-  requiredSecureString: strVar1
-//@[002:0031) |     ├─ObjectPropertySyntax
-//@[002:0022) |     | ├─IdentifierSyntax
-//@[002:0022) |     | | └─Token(Identifier) |requiredSecureString|
-//@[022:0023) |     | ├─Token(Colon) |:|
-//@[024:0031) |     | └─VariableAccessSyntax
-//@[024:0031) |     |   └─IdentifierSyntax
-//@[024:0031) |     |     └─Token(Identifier) |strVar1|
-//@[031:0032) |     ├─Token(NewLine) |\n|
-}
-//@[000:0001) |     └─Token(RightBrace) |}|
-//@[001:0003) ├─Token(NewLine) |\n\n|
-
-extensionConfig hasSecureConfig4 with {
-//@[000:0103) ├─ExtensionConfigAssignmentSyntax
-//@[000:0015) | ├─Token(Identifier) |extensionConfig|
-//@[016:0032) | ├─IdentifierSyntax
-//@[016:0032) | | └─Token(Identifier) |hasSecureConfig4|
-//@[033:0103) | └─ExtensionWithClauseSyntax
-//@[033:0037) |   ├─Token(Identifier) |with|
-//@[038:0103) |   └─ObjectSyntax
-//@[038:0039) |     ├─Token(LeftBrace) |{|
-//@[039:0040) |     ├─Token(NewLine) |\n|
-  requiredSecureString: strParam1
-//@[002:0033) |     ├─ObjectPropertySyntax
-//@[002:0022) |     | ├─IdentifierSyntax
-//@[002:0022) |     | | └─Token(Identifier) |requiredSecureString|
-//@[022:0023) |     | ├─Token(Colon) |:|
-//@[024:0033) |     | └─VariableAccessSyntax
-//@[024:0033) |     |   └─IdentifierSyntax
-//@[024:0033) |     |     └─Token(Identifier) |strParam1|
-//@[033:0034) |     ├─Token(NewLine) |\n|
-  optionalString: strParam1
-//@[002:0027) |     ├─ObjectPropertySyntax
-//@[002:0016) |     | ├─IdentifierSyntax
-//@[002:0016) |     | | └─Token(Identifier) |optionalString|
-//@[016:0017) |     | ├─Token(Colon) |:|
-//@[018:0027) |     | └─VariableAccessSyntax
-//@[018:0027) |     |   └─IdentifierSyntax
-//@[018:0027) |     |     └─Token(Identifier) |strParam1|
-//@[027:0028) |     ├─Token(NewLine) |\n|
 }
 //@[000:0001) |     └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\n\n|

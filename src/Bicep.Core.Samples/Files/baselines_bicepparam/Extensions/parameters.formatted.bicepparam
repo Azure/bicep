@@ -1,8 +1,7 @@
 using 'main.bicep'
 
-var strVar1 = 'strVar1Value'
 param strParam1 = 'strParam1Value'
-param secureStrParam1 = az.getSecret('p', 'r', 'a', 'm')
+param secureStrParam1 = az.getSecret('a', 'b', 'c', 'param')
 
 extensionConfig hasObjConfig1 with {
   requiredString: 'valueFromParams'
@@ -17,8 +16,8 @@ extensionConfig hasObjConfig3 with {}
 // hasObjConfig4 not here to test assignment is not required because required field is defaulted
 
 extensionConfig hasObjConfig5 with {
-  requiredString: strVar1
-  optionalString: bool(readEnvironmentVariable('xyz', 'false')) ? 'inlineVal' : strVar1
+  requiredString: 'asdf'
+  optionalString: bool(readEnvironmentVariable('xyz', 'false')) ? 'inlineVal1' : 'inlineVal2'
 }
 
 extensionConfig hasSecureConfig1 with {
@@ -28,15 +27,6 @@ extensionConfig hasSecureConfig1 with {
 extensionConfig hasSecureConfig2 with {
   requiredSecureString: 'Inlined'
   optionalString: 'valueFromParams'
-}
-
-extensionConfig hasSecureConfig3 with {
-  requiredSecureString: strVar1
-}
-
-extensionConfig hasSecureConfig4 with {
-  requiredSecureString: strParam1
-  optionalString: strParam1
 }
 
 extensionConfig hasDiscrimConfig1 with {

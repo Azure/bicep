@@ -9,14 +9,53 @@ var emptyObjVar = {}
 //@[016:017) Assignment |=|
 //@[018:019) LeftBrace |{|
 //@[019:020) RightBrace |}|
-//@[020:022) NewLine |\n\n|
-
+//@[020:021) NewLine |\n|
 param strParam1 = 'strParam1Value'
 //@[000:005) Identifier |param|
 //@[006:015) Identifier |strParam1|
 //@[016:017) Assignment |=|
 //@[018:034) StringComplete |'strParam1Value'|
-//@[034:036) NewLine |\n\n|
+//@[034:035) NewLine |\n|
+var strVar1 = 'strVar1Value'
+//@[000:003) Identifier |var|
+//@[004:011) Identifier |strVar1|
+//@[012:013) Assignment |=|
+//@[014:028) StringComplete |'strVar1Value'|
+//@[028:029) NewLine |\n|
+param secureStrParam1 = az.getSecret('a', 'b', 'c', 'param')
+//@[000:005) Identifier |param|
+//@[006:021) Identifier |secureStrParam1|
+//@[022:023) Assignment |=|
+//@[024:026) Identifier |az|
+//@[026:027) Dot |.|
+//@[027:036) Identifier |getSecret|
+//@[036:037) LeftParen |(|
+//@[037:040) StringComplete |'a'|
+//@[040:041) Comma |,|
+//@[042:045) StringComplete |'b'|
+//@[045:046) Comma |,|
+//@[047:050) StringComplete |'c'|
+//@[050:051) Comma |,|
+//@[052:059) StringComplete |'param'|
+//@[059:060) RightParen |)|
+//@[060:061) NewLine |\n|
+var secureStrVar1 = az.getSecret('a', 'b', 'c', 'var')
+//@[000:003) Identifier |var|
+//@[004:017) Identifier |secureStrVar1|
+//@[018:019) Assignment |=|
+//@[020:022) Identifier |az|
+//@[022:023) Dot |.|
+//@[023:032) Identifier |getSecret|
+//@[032:033) LeftParen |(|
+//@[033:036) StringComplete |'a'|
+//@[036:037) Comma |,|
+//@[038:041) StringComplete |'b'|
+//@[041:042) Comma |,|
+//@[043:046) StringComplete |'c'|
+//@[046:047) Comma |,|
+//@[048:053) StringComplete |'var'|
+//@[053:054) RightParen |)|
+//@[054:056) NewLine |\n\n|
 
 extensionConfig validAssignment1 with {
 //@[000:015) Identifier |extensionConfig|
@@ -127,6 +166,21 @@ extensionConfig invalidAssignment1 with {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
+extensionConfig invalidAssignment2 with {
+//@[000:015) Identifier |extensionConfig|
+//@[016:034) Identifier |invalidAssignment2|
+//@[035:039) Identifier |with|
+//@[040:041) LeftBrace |{|
+//@[041:042) NewLine |\n|
+  requiredString: strVar1
+//@[002:016) Identifier |requiredString|
+//@[016:017) Colon |:|
+//@[018:025) Identifier |strVar1|
+//@[025:026) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
 extensionConfig invalidSecretAssignment1 with {
 //@[000:015) Identifier |extensionConfig|
 //@[016:040) Identifier |invalidSecretAssignment1|
@@ -172,6 +226,46 @@ extensionConfig invalidSecretAssignment1 with {
 //@[135:138) StringComplete |'z'|
 //@[138:139) RightParen |)|
 //@[139:140) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
+extensionConfig invalidSecretAssignment2 with {
+//@[000:015) Identifier |extensionConfig|
+//@[016:040) Identifier |invalidSecretAssignment2|
+//@[041:045) Identifier |with|
+//@[046:047) LeftBrace |{|
+//@[047:048) NewLine |\n|
+  requiredSecureString: secureStrParam1
+//@[002:022) Identifier |requiredSecureString|
+//@[022:023) Colon |:|
+//@[024:039) Identifier |secureStrParam1|
+//@[039:040) NewLine |\n|
+  optionalString: secureStrParam1
+//@[002:016) Identifier |optionalString|
+//@[016:017) Colon |:|
+//@[018:033) Identifier |secureStrParam1|
+//@[033:034) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
+extensionConfig invalidSecretAssignment3 with {
+//@[000:015) Identifier |extensionConfig|
+//@[016:040) Identifier |invalidSecretAssignment3|
+//@[041:045) Identifier |with|
+//@[046:047) LeftBrace |{|
+//@[047:048) NewLine |\n|
+  requiredSecureString: secureStrVar1
+//@[002:022) Identifier |requiredSecureString|
+//@[022:023) Colon |:|
+//@[024:037) Identifier |secureStrVar1|
+//@[037:038) NewLine |\n|
+  optionalString: secureStrVar1
+//@[002:016) Identifier |optionalString|
+//@[016:017) Colon |:|
+//@[018:031) Identifier |secureStrVar1|
+//@[031:032) NewLine |\n|
 }
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
