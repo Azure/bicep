@@ -79,7 +79,6 @@ namespace Bicep.Core.IntegrationTests.Semantics
 
         private static async Task<ServiceBuilder> CreateServicesAsync()
             => new ServiceBuilder()
-                .WithEmptyAzResources()
                 .WithEnvironmentVariables(
                     ("stringEnvVariableName", "test"),
                     ("intEnvVariableName", "100"),
