@@ -1,7 +1,19 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
-  "parameters": {},
+  "parameters": {
+    "strParam1": {
+      "value": "strParam1Value"
+    },
+    "secureStrParam1": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/p/resourceGroups/r/providers/Microsoft.KeyVault/vaults/a"
+        },
+        "secretName": "m"
+      }
+    }
+  },
   "extensionConfigs": {
     "hasDiscrimConfig1": {
       "a1": {
@@ -38,6 +50,14 @@
       }
     },
     "hasObjConfig3": {},
+    "hasObjConfig5": {
+      "optionalString": {
+        "value": "strVar1Value"
+      },
+      "requiredString": {
+        "value": "strVar1Value"
+      }
+    },
     "hasSecureConfig1": {
       "requiredSecureString": {
         "keyVaultReference": {
@@ -54,6 +74,19 @@
       },
       "requiredSecureString": {
         "value": "Inlined"
+      }
+    },
+    "hasSecureConfig3": {
+      "requiredSecureString": {
+        "value": "strVar1Value"
+      }
+    },
+    "hasSecureConfig4": {
+      "optionalString": {
+        "value": "strParam1Value"
+      },
+      "requiredSecureString": {
+        "value": "strParam1Value"
       }
     }
   }
