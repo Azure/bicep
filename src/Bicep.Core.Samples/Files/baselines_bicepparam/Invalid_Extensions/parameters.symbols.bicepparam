@@ -51,3 +51,8 @@ extensionConfig invalidSecretAssignment1 with {
   requiredSecureString: bool(readEnvironmentVariable('xyz', 'false')) ? az.getSecret('a', 'b', 'c', 'd') : az.getSecret('w', 'x', 'y', 'z')
 }
 
+extensionConfig invalidDiscrimAssignment1 with {
+//@[16:41) ExtensionConfigAssignment invalidDiscrimAssignment1. Type: b. Declaration start char: 0, length: 103
+  discrim: 'a' // this property cannot be reassigned
+}
+

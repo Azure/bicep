@@ -34,3 +34,7 @@ extensionConfig invalidSecretAssignment1 with {
     ? az.getSecret('a', 'b', 'c', 'd')
     : az.getSecret('w', 'x', 'y', 'z')
 }
+
+extensionConfig invalidDiscrimAssignment1 with {
+  discrim: 'a' // this property cannot be reassigned
+}

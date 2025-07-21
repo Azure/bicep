@@ -174,6 +174,21 @@ extensionConfig invalidSecretAssignment1 with {
 //@[139:140) NewLine |\n|
 }
 //@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
+extensionConfig invalidDiscrimAssignment1 with {
+//@[000:015) Identifier |extensionConfig|
+//@[016:041) Identifier |invalidDiscrimAssignment1|
+//@[042:046) Identifier |with|
+//@[047:048) LeftBrace |{|
+//@[048:049) NewLine |\n|
+  discrim: 'a' // this property cannot be reassigned
+//@[002:009) Identifier |discrim|
+//@[009:010) Colon |:|
+//@[011:014) StringComplete |'a'|
+//@[052:053) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
 //@[001:002) NewLine |\n|
 
 //@[000:000) EndOfFile ||

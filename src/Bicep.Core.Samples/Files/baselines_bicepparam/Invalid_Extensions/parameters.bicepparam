@@ -36,3 +36,7 @@ extensionConfig invalidAssignment1 with {
 extensionConfig invalidSecretAssignment1 with {
   requiredSecureString: bool(readEnvironmentVariable('xyz', 'false')) ? az.getSecret('a', 'b', 'c', 'd') : az.getSecret('w', 'x', 'y', 'z')
 }
+
+extensionConfig invalidDiscrimAssignment1 with {
+  discrim: 'a' // this property cannot be reassigned
+}

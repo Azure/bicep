@@ -51,3 +51,9 @@ extensionConfig invalidSecretAssignment1 with {
 //@[24:139) [stacks-extensibility-compat (Info)] Secure config property values must be a key vault reference to be valid for Deployment stack deployments. (bicep core linter https://aka.ms/bicep/linter-diagnostics#stacks-extensibility-compat) |bool(readEnvironmentVariable('xyz', 'false')) ? az.getSecret('a', 'b', 'c', 'd') : az.getSecret('w', 'x', 'y', 'z')|
 }
 
+extensionConfig invalidDiscrimAssignment1 with {
+//@[47:103) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "b1". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |{\n  discrim: 'a' // this property cannot be reassigned\n}|
+  discrim: 'a' // this property cannot be reassigned
+//@[02:009) [BCP037 (Error)] The property "discrim" is not allowed on objects of type "b". Permissible properties include "b1", "z1". (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |discrim|
+}
+

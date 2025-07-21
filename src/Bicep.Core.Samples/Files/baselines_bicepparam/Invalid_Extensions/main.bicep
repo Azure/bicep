@@ -17,4 +17,6 @@ extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' as invalidA
 
 extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' as invalidSecretAssignment1
 
+extension 'br:mcr.microsoft.com/bicep/extensions/hasdiscrimconfig/v1:1.2.3' with { discrim: 'b' } as invalidDiscrimAssignment1
+
 param strParam1 string

@@ -1,5 +1,5 @@
 using 'main.bicep'
-//@[000:851) ProgramSyntax
+//@[000:956) ProgramSyntax
 //@[000:018) ├─UsingDeclarationSyntax
 //@[000:005) | ├─Token(Identifier) |using|
 //@[006:018) | └─StringSyntax
@@ -282,6 +282,28 @@ extensionConfig invalidSecretAssignment1 with {
 //@[135:138) |     |     |   └─Token(StringComplete) |'z'|
 //@[138:139) |     |     └─Token(RightParen) |)|
 //@[139:140) |     ├─Token(NewLine) |\n|
+}
+//@[000:001) |     └─Token(RightBrace) |}|
+//@[001:003) ├─Token(NewLine) |\n\n|
+
+extensionConfig invalidDiscrimAssignment1 with {
+//@[000:103) ├─ExtensionConfigAssignmentSyntax
+//@[000:015) | ├─Token(Identifier) |extensionConfig|
+//@[016:041) | ├─IdentifierSyntax
+//@[016:041) | | └─Token(Identifier) |invalidDiscrimAssignment1|
+//@[042:103) | └─ExtensionWithClauseSyntax
+//@[042:046) |   ├─Token(Identifier) |with|
+//@[047:103) |   └─ObjectSyntax
+//@[047:048) |     ├─Token(LeftBrace) |{|
+//@[048:049) |     ├─Token(NewLine) |\n|
+  discrim: 'a' // this property cannot be reassigned
+//@[002:014) |     ├─ObjectPropertySyntax
+//@[002:009) |     | ├─IdentifierSyntax
+//@[002:009) |     | | └─Token(Identifier) |discrim|
+//@[009:010) |     | ├─Token(Colon) |:|
+//@[011:014) |     | └─StringSyntax
+//@[011:014) |     |   └─Token(StringComplete) |'a'|
+//@[052:053) |     ├─Token(NewLine) |\n|
 }
 //@[000:001) |     └─Token(RightBrace) |}|
 //@[001:002) ├─Token(NewLine) |\n|
