@@ -39,8 +39,8 @@ extensionConfig hasDiscrimConfig2 with {
 }
 
 extensionConfig hasDiscrimConfig3 with {
-//@[16:33) ExtensionConfigAssignment hasDiscrimConfig3. Type: error. Declaration start char: 0, length: 69
+//@[16:33) ExtensionConfigAssignment hasDiscrimConfig3. Type: error. Declaration start char: 0, length: 132
   discrim: 'b'
-  b1: 'b1v'
+  b1: bool(readEnvironmentVariable('xyz', 'false')) ? 'b1True' : 'b1False'
 }
 

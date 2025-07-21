@@ -48,9 +48,9 @@ extensionConfig hasDiscrimConfig2 with {
 }
 
 extensionConfig hasDiscrimConfig3 with {
-//@[00:069) [BCP425 (Error)] The extension configuration assignment for "hasDiscrimConfig3" does not match an extension in the Bicep file. (bicep https://aka.ms/bicep/core-diagnostics#BCP425) |extensionConfig hasDiscrimConfig3 with {\n  discrim: 'b'\n  b1: 'b1v'\n}|
+//@[00:132) [BCP425 (Error)] The extension configuration assignment for "hasDiscrimConfig3" does not match an extension in the Bicep file. (bicep https://aka.ms/bicep/core-diagnostics#BCP425) |extensionConfig hasDiscrimConfig3 with {\n  discrim: 'b'\n  b1: bool(readEnvironmentVariable('xyz', 'false')) ? 'b1True' : 'b1False'\n}|
 //@[16:033) [BCP205 (Error)] Extension "hasDiscrimConfig3" does not support configuration. (bicep https://aka.ms/bicep/core-diagnostics#BCP205) |hasDiscrimConfig3|
   discrim: 'b'
-  b1: 'b1v'
+  b1: bool(readEnvironmentVariable('xyz', 'false')) ? 'b1True' : 'b1False'
 }
 

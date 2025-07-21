@@ -141,11 +141,23 @@ extensionConfig hasDiscrimConfig3 with {
 //@[009:010) Colon |:|
 //@[011:014) StringComplete |'b'|
 //@[014:015) NewLine |\n|
-  b1: 'b1v'
+  b1: bool(readEnvironmentVariable('xyz', 'false')) ? 'b1True' : 'b1False'
 //@[002:004) Identifier |b1|
 //@[004:005) Colon |:|
-//@[006:011) StringComplete |'b1v'|
-//@[011:012) NewLine |\n|
+//@[006:010) Identifier |bool|
+//@[010:011) LeftParen |(|
+//@[011:034) Identifier |readEnvironmentVariable|
+//@[034:035) LeftParen |(|
+//@[035:040) StringComplete |'xyz'|
+//@[040:041) Comma |,|
+//@[042:049) StringComplete |'false'|
+//@[049:050) RightParen |)|
+//@[050:051) RightParen |)|
+//@[052:053) Question |?|
+//@[054:062) StringComplete |'b1True'|
+//@[063:064) Colon |:|
+//@[065:074) StringComplete |'b1False'|
+//@[074:075) NewLine |\n|
 }
 //@[000:001) RightBrace |}|
 //@[001:002) NewLine |\n|

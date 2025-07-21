@@ -33,5 +33,5 @@ extensionConfig hasDiscrimConfig2 with {
 
 extensionConfig hasDiscrimConfig3 with {
   discrim: 'b'
-  b1: 'b1v'
+  b1: bool(readEnvironmentVariable('xyz', 'false')) ? 'b1True' : 'b1False'
 }

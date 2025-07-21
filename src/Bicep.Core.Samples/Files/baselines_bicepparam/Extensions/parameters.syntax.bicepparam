@@ -1,5 +1,5 @@
 using 'main.bicep'
-//@[000:773) ProgramSyntax
+//@[000:836) ProgramSyntax
 //@[000:018) ├─UsingDeclarationSyntax
 //@[000:005) | ├─Token(Identifier) |using|
 //@[006:018) | └─StringSyntax
@@ -200,13 +200,13 @@ extensionConfig hasDiscrimConfig2 with {
 //@[001:003) ├─Token(NewLine) |\n\n|
 
 extensionConfig hasDiscrimConfig3 with {
-//@[000:069) ├─ExtensionConfigAssignmentSyntax
+//@[000:132) ├─ExtensionConfigAssignmentSyntax
 //@[000:015) | ├─Token(Identifier) |extensionConfig|
 //@[016:033) | ├─IdentifierSyntax
 //@[016:033) | | └─Token(Identifier) |hasDiscrimConfig3|
-//@[034:069) | └─ExtensionWithClauseSyntax
+//@[034:132) | └─ExtensionWithClauseSyntax
 //@[034:038) |   ├─Token(Identifier) |with|
-//@[039:069) |   └─ObjectSyntax
+//@[039:132) |   └─ObjectSyntax
 //@[039:040) |     ├─Token(LeftBrace) |{|
 //@[040:041) |     ├─Token(NewLine) |\n|
   discrim: 'b'
@@ -217,14 +217,37 @@ extensionConfig hasDiscrimConfig3 with {
 //@[011:014) |     | └─StringSyntax
 //@[011:014) |     |   └─Token(StringComplete) |'b'|
 //@[014:015) |     ├─Token(NewLine) |\n|
-  b1: 'b1v'
-//@[002:011) |     ├─ObjectPropertySyntax
+  b1: bool(readEnvironmentVariable('xyz', 'false')) ? 'b1True' : 'b1False'
+//@[002:074) |     ├─ObjectPropertySyntax
 //@[002:004) |     | ├─IdentifierSyntax
 //@[002:004) |     | | └─Token(Identifier) |b1|
 //@[004:005) |     | ├─Token(Colon) |:|
-//@[006:011) |     | └─StringSyntax
-//@[006:011) |     |   └─Token(StringComplete) |'b1v'|
-//@[011:012) |     ├─Token(NewLine) |\n|
+//@[006:074) |     | └─TernaryOperationSyntax
+//@[006:051) |     |   ├─FunctionCallSyntax
+//@[006:010) |     |   | ├─IdentifierSyntax
+//@[006:010) |     |   | | └─Token(Identifier) |bool|
+//@[010:011) |     |   | ├─Token(LeftParen) |(|
+//@[011:050) |     |   | ├─FunctionArgumentSyntax
+//@[011:050) |     |   | | └─FunctionCallSyntax
+//@[011:034) |     |   | |   ├─IdentifierSyntax
+//@[011:034) |     |   | |   | └─Token(Identifier) |readEnvironmentVariable|
+//@[034:035) |     |   | |   ├─Token(LeftParen) |(|
+//@[035:040) |     |   | |   ├─FunctionArgumentSyntax
+//@[035:040) |     |   | |   | └─StringSyntax
+//@[035:040) |     |   | |   |   └─Token(StringComplete) |'xyz'|
+//@[040:041) |     |   | |   ├─Token(Comma) |,|
+//@[042:049) |     |   | |   ├─FunctionArgumentSyntax
+//@[042:049) |     |   | |   | └─StringSyntax
+//@[042:049) |     |   | |   |   └─Token(StringComplete) |'false'|
+//@[049:050) |     |   | |   └─Token(RightParen) |)|
+//@[050:051) |     |   | └─Token(RightParen) |)|
+//@[052:053) |     |   ├─Token(Question) |?|
+//@[054:062) |     |   ├─StringSyntax
+//@[054:062) |     |   | └─Token(StringComplete) |'b1True'|
+//@[063:064) |     |   ├─Token(Colon) |:|
+//@[065:074) |     |   └─StringSyntax
+//@[065:074) |     |     └─Token(StringComplete) |'b1False'|
+//@[074:075) |     ├─Token(NewLine) |\n|
 }
 //@[000:001) |     └─Token(RightBrace) |}|
 //@[001:002) ├─Token(NewLine) |\n|
