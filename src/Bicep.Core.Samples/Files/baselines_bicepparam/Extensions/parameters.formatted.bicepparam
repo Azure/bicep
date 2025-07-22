@@ -25,7 +25,7 @@ extensionConfig hasSecureConfig1 with {
 }
 
 extensionConfig hasSecureConfig2 with {
-  requiredSecureString: 'Inlined'
+  requiredSecureString: readEnvironmentVariable('KUBE_CONFIG', 'Inlined')
   optionalString: 'valueFromParams'
 }
 

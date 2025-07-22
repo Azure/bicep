@@ -32,8 +32,8 @@ extensionConfig hasSecureConfig1 with {
 }
 
 extensionConfig hasSecureConfig2 with {
-//@[16:32) ExtensionConfigAssignment hasSecureConfig2. Type: config. Declaration start char: 0, length: 111
-  requiredSecureString: 'Inlined'
+//@[16:32) ExtensionConfigAssignment hasSecureConfig2. Type: config. Declaration start char: 0, length: 151
+  requiredSecureString: readEnvironmentVariable('KUBE_CONFIG', 'Inlined')
   optionalString: 'valueFromParams'
 }
 

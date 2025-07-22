@@ -16,6 +16,25 @@ extensionConfig validAssignment1 with {
   requiredString: 'value'
 }
 
+extensionConfig validSecretAssignment1 with {
+//@[16:38) ExtensionConfigAssignment validSecretAssignment1. Type: config. Declaration start char: 0, length: 108
+  requiredSecureString: az.getSecret('a', 'b', 'c', 'valid')
+}
+
+param invalidParamAssignment1 = validAssignment1.requiredString
+//@[06:29) ParameterAssignment invalidParamAssignment1. Type: error. Declaration start char: 0, length: 63
+param invalidParamAssignment2 = validAssignment1
+//@[06:29) ParameterAssignment invalidParamAssignment2. Type: error. Declaration start char: 0, length: 48
+param invalidParamAssignment3 = validSecretAssignment1.requiredSecureString
+//@[06:29) ParameterAssignment invalidParamAssignment3. Type: error. Declaration start char: 0, length: 75
+
+var invalidVarAssignment1 = validAssignment1.requiredString
+//@[04:25) Variable invalidVarAssignment1. Type: error. Declaration start char: 0, length: 59
+var invalidVarAssignment2 = validAssignment1
+//@[04:25) Variable invalidVarAssignment2. Type: error. Declaration start char: 0, length: 44
+var invalidVarAssignment3 = validSecretAssignment1.requiredSecureString
+//@[04:25) Variable invalidVarAssignment3. Type: error. Declaration start char: 0, length: 71
+
 extensionConfig
 //@[15:15) ExtensionConfigAssignment <missing>. Type: error. Declaration start char: 0, length: 15
 

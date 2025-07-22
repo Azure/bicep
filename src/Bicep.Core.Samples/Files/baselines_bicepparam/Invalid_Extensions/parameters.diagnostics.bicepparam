@@ -11,6 +11,27 @@ extensionConfig validAssignment1 with {
   requiredString: 'value'
 }
 
+extensionConfig validSecretAssignment1 with {
+  requiredSecureString: az.getSecret('a', 'b', 'c', 'valid')
+}
+
+param invalidParamAssignment1 = validAssignment1.requiredString
+//@[32:048) [BCP063 (Error)] The name "validAssignment1" is not a parameter, variable, resource or module. (bicep https://aka.ms/bicep/core-diagnostics#BCP063) |validAssignment1|
+param invalidParamAssignment2 = validAssignment1
+//@[32:048) [BCP063 (Error)] The name "validAssignment1" is not a parameter, variable, resource or module. (bicep https://aka.ms/bicep/core-diagnostics#BCP063) |validAssignment1|
+param invalidParamAssignment3 = validSecretAssignment1.requiredSecureString
+//@[32:054) [BCP063 (Error)] The name "validSecretAssignment1" is not a parameter, variable, resource or module. (bicep https://aka.ms/bicep/core-diagnostics#BCP063) |validSecretAssignment1|
+
+var invalidVarAssignment1 = validAssignment1.requiredString
+//@[04:025) [no-unused-vars (Warning)] Variable "invalidVarAssignment1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |invalidVarAssignment1|
+//@[28:044) [BCP063 (Error)] The name "validAssignment1" is not a parameter, variable, resource or module. (bicep https://aka.ms/bicep/core-diagnostics#BCP063) |validAssignment1|
+var invalidVarAssignment2 = validAssignment1
+//@[04:025) [no-unused-vars (Warning)] Variable "invalidVarAssignment2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |invalidVarAssignment2|
+//@[28:044) [BCP063 (Error)] The name "validAssignment1" is not a parameter, variable, resource or module. (bicep https://aka.ms/bicep/core-diagnostics#BCP063) |validAssignment1|
+var invalidVarAssignment3 = validSecretAssignment1.requiredSecureString
+//@[04:025) [no-unused-vars (Warning)] Variable "invalidVarAssignment3" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |invalidVarAssignment3|
+//@[28:050) [BCP063 (Error)] The name "validSecretAssignment1" is not a parameter, variable, resource or module. (bicep https://aka.ms/bicep/core-diagnostics#BCP063) |validSecretAssignment1|
+
 extensionConfig
 //@[00:015) [BCP425 (Error)] The extension configuration assignment for "<missing>" does not match an extension in the Bicep file. (bicep https://aka.ms/bicep/core-diagnostics#BCP425) |extensionConfig|
 //@[15:015) [BCP202 (Error)] Expected an extension alias name at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP202) ||

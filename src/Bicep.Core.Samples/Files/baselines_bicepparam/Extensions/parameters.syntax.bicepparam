@@ -1,5 +1,5 @@
 using 'main.bicep'
-//@[000:1092) ProgramSyntax
+//@[000:1132) ProgramSyntax
 //@[000:0018) ├─UsingDeclarationSyntax
 //@[000:0005) | ├─Token(Identifier) |using|
 //@[006:0018) | └─StringSyntax
@@ -204,23 +204,33 @@ extensionConfig hasSecureConfig1 with {
 //@[001:0003) ├─Token(NewLine) |\n\n|
 
 extensionConfig hasSecureConfig2 with {
-//@[000:0111) ├─ExtensionConfigAssignmentSyntax
+//@[000:0151) ├─ExtensionConfigAssignmentSyntax
 //@[000:0015) | ├─Token(Identifier) |extensionConfig|
 //@[016:0032) | ├─IdentifierSyntax
 //@[016:0032) | | └─Token(Identifier) |hasSecureConfig2|
-//@[033:0111) | └─ExtensionWithClauseSyntax
+//@[033:0151) | └─ExtensionWithClauseSyntax
 //@[033:0037) |   ├─Token(Identifier) |with|
-//@[038:0111) |   └─ObjectSyntax
+//@[038:0151) |   └─ObjectSyntax
 //@[038:0039) |     ├─Token(LeftBrace) |{|
 //@[039:0040) |     ├─Token(NewLine) |\n|
-  requiredSecureString: 'Inlined'
-//@[002:0033) |     ├─ObjectPropertySyntax
+  requiredSecureString: readEnvironmentVariable('KUBE_CONFIG', 'Inlined')
+//@[002:0073) |     ├─ObjectPropertySyntax
 //@[002:0022) |     | ├─IdentifierSyntax
 //@[002:0022) |     | | └─Token(Identifier) |requiredSecureString|
 //@[022:0023) |     | ├─Token(Colon) |:|
-//@[024:0033) |     | └─StringSyntax
-//@[024:0033) |     |   └─Token(StringComplete) |'Inlined'|
-//@[033:0034) |     ├─Token(NewLine) |\n|
+//@[024:0073) |     | └─FunctionCallSyntax
+//@[024:0047) |     |   ├─IdentifierSyntax
+//@[024:0047) |     |   | └─Token(Identifier) |readEnvironmentVariable|
+//@[047:0048) |     |   ├─Token(LeftParen) |(|
+//@[048:0061) |     |   ├─FunctionArgumentSyntax
+//@[048:0061) |     |   | └─StringSyntax
+//@[048:0061) |     |   |   └─Token(StringComplete) |'KUBE_CONFIG'|
+//@[061:0062) |     |   ├─Token(Comma) |,|
+//@[063:0072) |     |   ├─FunctionArgumentSyntax
+//@[063:0072) |     |   | └─StringSyntax
+//@[063:0072) |     |   |   └─Token(StringComplete) |'Inlined'|
+//@[072:0073) |     |   └─Token(RightParen) |)|
+//@[073:0074) |     ├─Token(NewLine) |\n|
   optionalString: 'valueFromParams'
 //@[002:0035) |     ├─ObjectPropertySyntax
 //@[002:0016) |     | ├─IdentifierSyntax

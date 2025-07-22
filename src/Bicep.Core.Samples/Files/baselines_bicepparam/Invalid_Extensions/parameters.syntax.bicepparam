@@ -1,5 +1,5 @@
 using 'main.bicep'
-//@[000:1417) ProgramSyntax
+//@[000:1895) ProgramSyntax
 //@[000:0018) ├─UsingDeclarationSyntax
 //@[000:0005) | ├─Token(Identifier) |using|
 //@[006:0018) | └─StringSyntax
@@ -118,6 +118,128 @@ extensionConfig validAssignment1 with {
 }
 //@[000:0001) |     └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\n\n|
+
+extensionConfig validSecretAssignment1 with {
+//@[000:0108) ├─ExtensionConfigAssignmentSyntax
+//@[000:0015) | ├─Token(Identifier) |extensionConfig|
+//@[016:0038) | ├─IdentifierSyntax
+//@[016:0038) | | └─Token(Identifier) |validSecretAssignment1|
+//@[039:0108) | └─ExtensionWithClauseSyntax
+//@[039:0043) |   ├─Token(Identifier) |with|
+//@[044:0108) |   └─ObjectSyntax
+//@[044:0045) |     ├─Token(LeftBrace) |{|
+//@[045:0046) |     ├─Token(NewLine) |\n|
+  requiredSecureString: az.getSecret('a', 'b', 'c', 'valid')
+//@[002:0060) |     ├─ObjectPropertySyntax
+//@[002:0022) |     | ├─IdentifierSyntax
+//@[002:0022) |     | | └─Token(Identifier) |requiredSecureString|
+//@[022:0023) |     | ├─Token(Colon) |:|
+//@[024:0060) |     | └─InstanceFunctionCallSyntax
+//@[024:0026) |     |   ├─VariableAccessSyntax
+//@[024:0026) |     |   | └─IdentifierSyntax
+//@[024:0026) |     |   |   └─Token(Identifier) |az|
+//@[026:0027) |     |   ├─Token(Dot) |.|
+//@[027:0036) |     |   ├─IdentifierSyntax
+//@[027:0036) |     |   | └─Token(Identifier) |getSecret|
+//@[036:0037) |     |   ├─Token(LeftParen) |(|
+//@[037:0040) |     |   ├─FunctionArgumentSyntax
+//@[037:0040) |     |   | └─StringSyntax
+//@[037:0040) |     |   |   └─Token(StringComplete) |'a'|
+//@[040:0041) |     |   ├─Token(Comma) |,|
+//@[042:0045) |     |   ├─FunctionArgumentSyntax
+//@[042:0045) |     |   | └─StringSyntax
+//@[042:0045) |     |   |   └─Token(StringComplete) |'b'|
+//@[045:0046) |     |   ├─Token(Comma) |,|
+//@[047:0050) |     |   ├─FunctionArgumentSyntax
+//@[047:0050) |     |   | └─StringSyntax
+//@[047:0050) |     |   |   └─Token(StringComplete) |'c'|
+//@[050:0051) |     |   ├─Token(Comma) |,|
+//@[052:0059) |     |   ├─FunctionArgumentSyntax
+//@[052:0059) |     |   | └─StringSyntax
+//@[052:0059) |     |   |   └─Token(StringComplete) |'valid'|
+//@[059:0060) |     |   └─Token(RightParen) |)|
+//@[060:0061) |     ├─Token(NewLine) |\n|
+}
+//@[000:0001) |     └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\n\n|
+
+param invalidParamAssignment1 = validAssignment1.requiredString
+//@[000:0063) ├─ParameterAssignmentSyntax
+//@[000:0005) | ├─Token(Identifier) |param|
+//@[006:0029) | ├─IdentifierSyntax
+//@[006:0029) | | └─Token(Identifier) |invalidParamAssignment1|
+//@[030:0031) | ├─Token(Assignment) |=|
+//@[032:0063) | └─PropertyAccessSyntax
+//@[032:0048) |   ├─VariableAccessSyntax
+//@[032:0048) |   | └─IdentifierSyntax
+//@[032:0048) |   |   └─Token(Identifier) |validAssignment1|
+//@[048:0049) |   ├─Token(Dot) |.|
+//@[049:0063) |   └─IdentifierSyntax
+//@[049:0063) |     └─Token(Identifier) |requiredString|
+//@[063:0064) ├─Token(NewLine) |\n|
+param invalidParamAssignment2 = validAssignment1
+//@[000:0048) ├─ParameterAssignmentSyntax
+//@[000:0005) | ├─Token(Identifier) |param|
+//@[006:0029) | ├─IdentifierSyntax
+//@[006:0029) | | └─Token(Identifier) |invalidParamAssignment2|
+//@[030:0031) | ├─Token(Assignment) |=|
+//@[032:0048) | └─VariableAccessSyntax
+//@[032:0048) |   └─IdentifierSyntax
+//@[032:0048) |     └─Token(Identifier) |validAssignment1|
+//@[048:0049) ├─Token(NewLine) |\n|
+param invalidParamAssignment3 = validSecretAssignment1.requiredSecureString
+//@[000:0075) ├─ParameterAssignmentSyntax
+//@[000:0005) | ├─Token(Identifier) |param|
+//@[006:0029) | ├─IdentifierSyntax
+//@[006:0029) | | └─Token(Identifier) |invalidParamAssignment3|
+//@[030:0031) | ├─Token(Assignment) |=|
+//@[032:0075) | └─PropertyAccessSyntax
+//@[032:0054) |   ├─VariableAccessSyntax
+//@[032:0054) |   | └─IdentifierSyntax
+//@[032:0054) |   |   └─Token(Identifier) |validSecretAssignment1|
+//@[054:0055) |   ├─Token(Dot) |.|
+//@[055:0075) |   └─IdentifierSyntax
+//@[055:0075) |     └─Token(Identifier) |requiredSecureString|
+//@[075:0077) ├─Token(NewLine) |\n\n|
+
+var invalidVarAssignment1 = validAssignment1.requiredString
+//@[000:0059) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0025) | ├─IdentifierSyntax
+//@[004:0025) | | └─Token(Identifier) |invalidVarAssignment1|
+//@[026:0027) | ├─Token(Assignment) |=|
+//@[028:0059) | └─PropertyAccessSyntax
+//@[028:0044) |   ├─VariableAccessSyntax
+//@[028:0044) |   | └─IdentifierSyntax
+//@[028:0044) |   |   └─Token(Identifier) |validAssignment1|
+//@[044:0045) |   ├─Token(Dot) |.|
+//@[045:0059) |   └─IdentifierSyntax
+//@[045:0059) |     └─Token(Identifier) |requiredString|
+//@[059:0060) ├─Token(NewLine) |\n|
+var invalidVarAssignment2 = validAssignment1
+//@[000:0044) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0025) | ├─IdentifierSyntax
+//@[004:0025) | | └─Token(Identifier) |invalidVarAssignment2|
+//@[026:0027) | ├─Token(Assignment) |=|
+//@[028:0044) | └─VariableAccessSyntax
+//@[028:0044) |   └─IdentifierSyntax
+//@[028:0044) |     └─Token(Identifier) |validAssignment1|
+//@[044:0045) ├─Token(NewLine) |\n|
+var invalidVarAssignment3 = validSecretAssignment1.requiredSecureString
+//@[000:0071) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0025) | ├─IdentifierSyntax
+//@[004:0025) | | └─Token(Identifier) |invalidVarAssignment3|
+//@[026:0027) | ├─Token(Assignment) |=|
+//@[028:0071) | └─PropertyAccessSyntax
+//@[028:0050) |   ├─VariableAccessSyntax
+//@[028:0050) |   | └─IdentifierSyntax
+//@[028:0050) |   |   └─Token(Identifier) |validSecretAssignment1|
+//@[050:0051) |   ├─Token(Dot) |.|
+//@[051:0071) |   └─IdentifierSyntax
+//@[051:0071) |     └─Token(Identifier) |requiredSecureString|
+//@[071:0073) ├─Token(NewLine) |\n\n|
 
 extensionConfig
 //@[000:0015) ├─ExtensionConfigAssignmentSyntax

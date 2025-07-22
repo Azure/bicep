@@ -72,6 +72,78 @@ extensionConfig validAssignment1 with {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
+extensionConfig validSecretAssignment1 with {
+//@[000:015) Identifier |extensionConfig|
+//@[016:038) Identifier |validSecretAssignment1|
+//@[039:043) Identifier |with|
+//@[044:045) LeftBrace |{|
+//@[045:046) NewLine |\n|
+  requiredSecureString: az.getSecret('a', 'b', 'c', 'valid')
+//@[002:022) Identifier |requiredSecureString|
+//@[022:023) Colon |:|
+//@[024:026) Identifier |az|
+//@[026:027) Dot |.|
+//@[027:036) Identifier |getSecret|
+//@[036:037) LeftParen |(|
+//@[037:040) StringComplete |'a'|
+//@[040:041) Comma |,|
+//@[042:045) StringComplete |'b'|
+//@[045:046) Comma |,|
+//@[047:050) StringComplete |'c'|
+//@[050:051) Comma |,|
+//@[052:059) StringComplete |'valid'|
+//@[059:060) RightParen |)|
+//@[060:061) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
+param invalidParamAssignment1 = validAssignment1.requiredString
+//@[000:005) Identifier |param|
+//@[006:029) Identifier |invalidParamAssignment1|
+//@[030:031) Assignment |=|
+//@[032:048) Identifier |validAssignment1|
+//@[048:049) Dot |.|
+//@[049:063) Identifier |requiredString|
+//@[063:064) NewLine |\n|
+param invalidParamAssignment2 = validAssignment1
+//@[000:005) Identifier |param|
+//@[006:029) Identifier |invalidParamAssignment2|
+//@[030:031) Assignment |=|
+//@[032:048) Identifier |validAssignment1|
+//@[048:049) NewLine |\n|
+param invalidParamAssignment3 = validSecretAssignment1.requiredSecureString
+//@[000:005) Identifier |param|
+//@[006:029) Identifier |invalidParamAssignment3|
+//@[030:031) Assignment |=|
+//@[032:054) Identifier |validSecretAssignment1|
+//@[054:055) Dot |.|
+//@[055:075) Identifier |requiredSecureString|
+//@[075:077) NewLine |\n\n|
+
+var invalidVarAssignment1 = validAssignment1.requiredString
+//@[000:003) Identifier |var|
+//@[004:025) Identifier |invalidVarAssignment1|
+//@[026:027) Assignment |=|
+//@[028:044) Identifier |validAssignment1|
+//@[044:045) Dot |.|
+//@[045:059) Identifier |requiredString|
+//@[059:060) NewLine |\n|
+var invalidVarAssignment2 = validAssignment1
+//@[000:003) Identifier |var|
+//@[004:025) Identifier |invalidVarAssignment2|
+//@[026:027) Assignment |=|
+//@[028:044) Identifier |validAssignment1|
+//@[044:045) NewLine |\n|
+var invalidVarAssignment3 = validSecretAssignment1.requiredSecureString
+//@[000:003) Identifier |var|
+//@[004:025) Identifier |invalidVarAssignment3|
+//@[026:027) Assignment |=|
+//@[028:050) Identifier |validSecretAssignment1|
+//@[050:051) Dot |.|
+//@[051:071) Identifier |requiredSecureString|
+//@[071:073) NewLine |\n\n|
+
 extensionConfig
 //@[000:015) Identifier |extensionConfig|
 //@[015:017) NewLine |\n\n|

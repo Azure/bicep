@@ -25,8 +25,8 @@ extensionConfig hasSecureConfig1 with {
 }
 
 extensionConfig hasSecureConfig2 with {
-  requiredSecureString: 'Inlined'
-//@[24:33) [stacks-extensibility-compat (Info)] Secure config property values must be a key vault reference to be valid for Deployment stack deployments. (bicep core linter https://aka.ms/bicep/linter-diagnostics#stacks-extensibility-compat) |'Inlined'|
+  requiredSecureString: readEnvironmentVariable('KUBE_CONFIG', 'Inlined')
+//@[24:73) [stacks-extensibility-compat (Info)] Secure config property values must be a key vault reference to be valid for Deployment stack deployments. (bicep core linter https://aka.ms/bicep/linter-diagnostics#stacks-extensibility-compat) |readEnvironmentVariable('KUBE_CONFIG', 'Inlined')|
   optionalString: 'valueFromParams'
 }
 

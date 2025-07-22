@@ -132,11 +132,16 @@ extensionConfig hasSecureConfig2 with {
 //@[033:037) Identifier |with|
 //@[038:039) LeftBrace |{|
 //@[039:040) NewLine |\n|
-  requiredSecureString: 'Inlined'
+  requiredSecureString: readEnvironmentVariable('KUBE_CONFIG', 'Inlined')
 //@[002:022) Identifier |requiredSecureString|
 //@[022:023) Colon |:|
-//@[024:033) StringComplete |'Inlined'|
-//@[033:034) NewLine |\n|
+//@[024:047) Identifier |readEnvironmentVariable|
+//@[047:048) LeftParen |(|
+//@[048:061) StringComplete |'KUBE_CONFIG'|
+//@[061:062) Comma |,|
+//@[063:072) StringComplete |'Inlined'|
+//@[072:073) RightParen |)|
+//@[073:074) NewLine |\n|
   optionalString: 'valueFromParams'
 //@[002:016) Identifier |optionalString|
 //@[016:017) Colon |:|

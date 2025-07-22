@@ -10,6 +10,18 @@ extensionConfig validAssignment1 with {
   requiredString: 'value'
 }
 
+extensionConfig validSecretAssignment1 with {
+  requiredSecureString: az.getSecret('a', 'b', 'c', 'valid')
+}
+
+param invalidParamAssignment1 = validAssignment1.requiredString
+param invalidParamAssignment2 = validAssignment1
+param invalidParamAssignment3 = validSecretAssignment1.requiredSecureString
+
+var invalidVarAssignment1 = validAssignment1.requiredString
+var invalidVarAssignment2 = validAssignment1
+var invalidVarAssignment3 = validSecretAssignment1.requiredSecureString
+
 extensionConfig
 
 extensionConfig incompleteAssignment1

@@ -16,6 +16,8 @@ extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' with { requ
 extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' with { requiredString: 'defaultValue' } as invalidAssignment1
 extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' with { requiredString: 'defaultValue' } as invalidAssignment2
 
+extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' as validSecretAssignment1
+
 extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' as invalidSecretAssignment1
 extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' as invalidSecretAssignment2
 extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' as invalidSecretAssignment3
@@ -25,3 +27,8 @@ extension 'br:mcr.microsoft.com/bicep/extensions/hasdiscrimconfig/v1:1.2.3' with
 param strParam1 string
 @secure()
 param secureStrParam1 string
+
+param invalidParamAssignment1 string
+param invalidParamAssignment2 object
+@secure()
+param invalidParamAssignment3 string
