@@ -3,7 +3,17 @@
 
 import { registerAzureUtilsExtensionVariables } from "@microsoft/vscode-azext-azureutils";
 import { registerUIExtensionVariables } from "@microsoft/vscode-azext-utils";
-import { ExtensionContext, ProgressLocation, TextDocument, TextEditor, Uri, window, workspace, lm, McpStdioServerDefinition } from "vscode";
+import {
+  ExtensionContext,
+  lm,
+  McpStdioServerDefinition,
+  ProgressLocation,
+  TextDocument,
+  TextEditor,
+  Uri,
+  window,
+  workspace,
+} from "vscode";
 import * as lsp from "vscode-languageclient/node";
 import { AzureUiManager } from "./azure/AzureUiManager";
 import { BuildCommand } from "./commands/build";
@@ -29,7 +39,12 @@ import { ShowVisualizerCommand, ShowVisualizerToSideCommand } from "./commands/s
 import { SuppressedWarningsManager } from "./commands/SuppressedWarningsManager";
 import * as surveys from "./feedback/surveys";
 import { setGlobalStateKeysToSyncBetweenMachines } from "./globalState";
-import { BicepExternalSourceContentProvider, createLanguageService, ensureDotnetRuntimeInstalled, ensureMcpServerExists } from "./language";
+import {
+  BicepExternalSourceContentProvider,
+  createLanguageService,
+  ensureDotnetRuntimeInstalled,
+  ensureMcpServerExists,
+} from "./language";
 import { bicepConfigurationPrefix, bicepLanguageId } from "./language/constants";
 import { BicepExternalSourceScheme } from "./language/decodeExternalSourceUri";
 import { DeployPaneViewManager } from "./panes/deploy";
@@ -189,14 +204,10 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
           lm.registerMcpServerDefinitionProvider("bicep", {
             provideMcpServerDefinitions: async () => {
               const mcpServerPath = await ensureMcpServerExists(extensionContext);
-              return [
-                new McpStdioServerDefinition(
-                  'Bicep (PREVIEW)',
-                  dotnetCommandPath,
-                  [mcpServerPath]),
-              ];
+              return [new McpStdioServerDefinition("Bicep (PREVIEW)", dotnetCommandPath, [mcpServerPath])];
             },
-        }));
+          }),
+        );
 
         // Set initial UI context
         await updateUiContext(window.activeTextEditor?.document);

@@ -25,5 +25,5 @@ public record Diagnostic(
 
     IEnumerable<CodeFix> IFixable.Fixes => Fixes;
 
-    public Diagnostic WithAppendedFixes(params CodeFix[] fixes) => this with { Fixes = [..this.Fixes, ..fixes] };
+    public Diagnostic WithAppendedFixes(params CodeFix[] fixes) => this with { Fixes = [.. this.Fixes, .. fixes] };
 }

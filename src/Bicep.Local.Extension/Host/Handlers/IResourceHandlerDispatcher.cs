@@ -28,7 +28,7 @@ public interface IResourceHandlerDispatcher
     /// This dictionary contains handlers for strongly-typed resources that implement <see cref="IResourceHandler{TResource}"/>.
     /// </remarks>
     FrozenDictionary<string, TypeResourceHandler>? TypedResourceHandlers { get; }
-    
+
     /// <summary>
     /// Gets the untyped resource handler that can process any resource type if available.
     /// </summary>
