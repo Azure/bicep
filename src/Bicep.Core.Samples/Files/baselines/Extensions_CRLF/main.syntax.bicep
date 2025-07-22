@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:3483) ProgramSyntax
+//@[000:3557) ProgramSyntax
 //@[020:0024) ├─Token(NewLine) |\r\n\r\n|
 
 param strParam1 string
@@ -43,6 +43,22 @@ param boolParam1 bool
 
 // END: Parameters
 //@[018:0022) ├─Token(NewLine) |\r\n\r\n|
+
+// BEGIN: Variables
+//@[019:0023) ├─Token(NewLine) |\r\n\r\n|
+
+var strVar1 = 'strVar1Value'
+//@[000:0028) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0011) | ├─IdentifierSyntax
+//@[004:0011) | | └─Token(Identifier) |strVar1|
+//@[012:0013) | ├─Token(Assignment) |=|
+//@[014:0028) | └─StringSyntax
+//@[014:0028) |   └─Token(StringComplete) |'strVar1Value'|
+//@[028:0032) ├─Token(NewLine) |\r\n\r\n|
+
+// END: Variables
+//@[017:0021) ├─Token(NewLine) |\r\n\r\n|
 
 // BEGIN: Extension declarations
 //@[032:0036) ├─Token(NewLine) |\r\n\r\n|
@@ -423,14 +439,14 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
 //@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[000:0267) ├─ModuleDeclarationSyntax
+//@[000:0265) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
 //@[007:0043) | ├─IdentifierSyntax
 //@[007:0043) | | └─Token(Identifier) |moduleExtConfigFromKeyVaultReference|
 //@[044:0092) | ├─StringSyntax
 //@[044:0092) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
 //@[093:0094) | ├─Token(Assignment) |=|
-//@[095:0267) | └─ObjectSyntax
+//@[095:0265) | └─ObjectSyntax
 //@[095:0096) |   ├─Token(LeftBrace) |{|
 //@[096:0098) |   ├─Token(NewLine) |\r\n|
   name: 'moduleExtConfigKeyVaultReference'
@@ -442,19 +458,19 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
 //@[008:0042) |   |   └─Token(StringComplete) |'moduleExtConfigKeyVaultReference'|
 //@[042:0044) |   ├─Token(NewLine) |\r\n|
   extensionConfigs: {
-//@[002:0122) |   ├─ObjectPropertySyntax
+//@[002:0120) |   ├─ObjectPropertySyntax
 //@[002:0018) |   | ├─IdentifierSyntax
 //@[002:0018) |   | | └─Token(Identifier) |extensionConfigs|
 //@[018:0019) |   | ├─Token(Colon) |:|
-//@[020:0122) |   | └─ObjectSyntax
+//@[020:0120) |   | └─ObjectSyntax
 //@[020:0021) |   |   ├─Token(LeftBrace) |{|
 //@[021:0023) |   |   ├─Token(NewLine) |\r\n|
     k8s: {
-//@[004:0094) |   |   ├─ObjectPropertySyntax
+//@[004:0092) |   |   ├─ObjectPropertySyntax
 //@[004:0007) |   |   | ├─IdentifierSyntax
 //@[004:0007) |   |   | | └─Token(Identifier) |k8s|
 //@[007:0008) |   |   | ├─Token(Colon) |:|
-//@[009:0094) |   |   | └─ObjectSyntax
+//@[009:0092) |   |   | └─ObjectSyntax
 //@[009:0010) |   |   |   ├─Token(LeftBrace) |{|
 //@[010:0012) |   |   |   ├─Token(NewLine) |\r\n|
       kubeConfig: kv1.getSecret('myKubeConfig')
@@ -475,14 +491,15 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
 //@[032:0046) |   |   |   |   |   └─Token(StringComplete) |'myKubeConfig'|
 //@[046:0047) |   |   |   |   └─Token(RightParen) |)|
 //@[047:0049) |   |   |   ├─Token(NewLine) |\r\n|
-      namespace: 'default'
-//@[006:0026) |   |   |   ├─ObjectPropertySyntax
+      namespace: strVar1
+//@[006:0024) |   |   |   ├─ObjectPropertySyntax
 //@[006:0015) |   |   |   | ├─IdentifierSyntax
 //@[006:0015) |   |   |   | | └─Token(Identifier) |namespace|
 //@[015:0016) |   |   |   | ├─Token(Colon) |:|
-//@[017:0026) |   |   |   | └─StringSyntax
-//@[017:0026) |   |   |   |   └─Token(StringComplete) |'default'|
-//@[026:0028) |   |   |   ├─Token(NewLine) |\r\n|
+//@[017:0024) |   |   |   | └─VariableAccessSyntax
+//@[017:0024) |   |   |   |   └─IdentifierSyntax
+//@[017:0024) |   |   |   |     └─Token(Identifier) |strVar1|
+//@[024:0026) |   |   |   ├─Token(NewLine) |\r\n|
     }
 //@[004:0005) |   |   |   └─Token(RightBrace) |}|
 //@[005:0007) |   |   ├─Token(NewLine) |\r\n|

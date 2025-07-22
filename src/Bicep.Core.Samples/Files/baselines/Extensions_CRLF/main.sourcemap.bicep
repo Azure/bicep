@@ -18,6 +18,13 @@ param boolParam1 bool
 
 // END: Parameters
 
+// BEGIN: Variables
+
+var strVar1 = 'strVar1Value'
+//@    "strVar1": "strVar1Value"
+
+// END: Variables
+
 // BEGIN: Extension declarations
 
 extension az
@@ -303,9 +310,9 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
 //@                "secretName": "myKubeConfig"
 //@              }
 //@            },
-      namespace: 'default'
+      namespace: strVar1
 //@            "namespace": {
-//@              "value": "default"
+//@              "value": "[variables('strVar1')]"
 //@            }
     }
   }

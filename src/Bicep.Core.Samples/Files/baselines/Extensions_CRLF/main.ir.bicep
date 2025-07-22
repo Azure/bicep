@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:3483) ProgramExpression
+//@[000:3557) ProgramExpression
 //@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
 //@[000:0000) | | └─ResourceReferenceExpression [UNPARENTED]
 //@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
@@ -20,6 +20,14 @@ param boolParam1 bool
 //@[017:0021) | └─AmbientTypeReferenceExpression { Name = bool }
 
 // END: Parameters
+
+// BEGIN: Variables
+
+var strVar1 = 'strVar1Value'
+//@[000:0028) ├─DeclaredVariableExpression { Name = strVar1 }
+//@[014:0028) | └─StringLiteralExpression { Value = strVar1Value }
+
+// END: Variables
 
 // BEGIN: Extension declarations
 
@@ -154,28 +162,28 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
 }
 
 module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[000:0267) ├─DeclaredModuleExpression
-//@[095:0267) | ├─ObjectExpression
+//@[000:0265) ├─DeclaredModuleExpression
+//@[095:0265) | ├─ObjectExpression
   name: 'moduleExtConfigKeyVaultReference'
 //@[002:0042) | | └─ObjectPropertyExpression
 //@[002:0006) | |   ├─StringLiteralExpression { Value = name }
 //@[008:0042) | |   └─StringLiteralExpression { Value = moduleExtConfigKeyVaultReference }
   extensionConfigs: {
-//@[020:0122) | └─ObjectExpression
+//@[020:0120) | └─ObjectExpression
     k8s: {
-//@[004:0094) |   └─ObjectPropertyExpression
+//@[004:0092) |   └─ObjectPropertyExpression
 //@[004:0007) |     ├─StringLiteralExpression { Value = k8s }
-//@[009:0094) |     └─ObjectExpression
+//@[009:0092) |     └─ObjectExpression
       kubeConfig: kv1.getSecret('myKubeConfig')
 //@[006:0047) |       ├─ObjectPropertyExpression
 //@[006:0016) |       | ├─StringLiteralExpression { Value = kubeConfig }
 //@[018:0047) |       | └─ResourceFunctionCallExpression { Name = getSecret }
 //@[018:0021) |       |   ├─ResourceReferenceExpression
 //@[032:0046) |       |   └─StringLiteralExpression { Value = myKubeConfig }
-      namespace: 'default'
-//@[006:0026) |       └─ObjectPropertyExpression
+      namespace: strVar1
+//@[006:0024) |       └─ObjectPropertyExpression
 //@[006:0015) |         ├─StringLiteralExpression { Value = namespace }
-//@[017:0026) |         └─StringLiteralExpression { Value = default }
+//@[017:0024) |         └─VariableReferenceExpression { Variable = strVar1 }
     }
   }
 }

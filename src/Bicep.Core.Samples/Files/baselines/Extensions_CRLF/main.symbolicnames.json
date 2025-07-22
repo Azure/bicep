@@ -10,7 +10,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6407882912896869902"
+      "templateHash": "16518217165093679332"
     }
   },
   "parameters": {
@@ -23,6 +23,9 @@
     "boolParam1": {
       "type": "bool"
     }
+  },
+  "variables": {
+    "strVar1": "strVar1Value"
   },
   "extensions": {
     "az": {
@@ -214,7 +217,7 @@
               }
             },
             "namespace": {
-              "value": "default"
+              "value": "[variables('strVar1')]"
             }
           }
         },

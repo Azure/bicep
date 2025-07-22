@@ -28,6 +28,19 @@ param boolParam1 bool
 // END: Parameters
 //@[018:022) NewLine |\r\n\r\n|
 
+// BEGIN: Variables
+//@[019:023) NewLine |\r\n\r\n|
+
+var strVar1 = 'strVar1Value'
+//@[000:003) Identifier |var|
+//@[004:011) Identifier |strVar1|
+//@[012:013) Assignment |=|
+//@[014:028) StringComplete |'strVar1Value'|
+//@[028:032) NewLine |\r\n\r\n|
+
+// END: Variables
+//@[017:021) NewLine |\r\n\r\n|
+
 // BEGIN: Extension declarations
 //@[032:036) NewLine |\r\n\r\n|
 
@@ -317,11 +330,11 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
 //@[032:046) StringComplete |'myKubeConfig'|
 //@[046:047) RightParen |)|
 //@[047:049) NewLine |\r\n|
-      namespace: 'default'
+      namespace: strVar1
 //@[006:015) Identifier |namespace|
 //@[015:016) Colon |:|
-//@[017:026) StringComplete |'default'|
-//@[026:028) NewLine |\r\n|
+//@[017:024) Identifier |strVar1|
+//@[024:026) NewLine |\r\n|
     }
 //@[004:005) RightBrace |}|
 //@[005:007) NewLine |\r\n|

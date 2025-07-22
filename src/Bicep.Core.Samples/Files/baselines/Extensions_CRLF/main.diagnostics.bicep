@@ -9,6 +9,12 @@ param boolParam1 bool
 
 // END: Parameters
 
+// BEGIN: Variables
+
+var strVar1 = 'strVar1Value'
+
+// END: Variables
+
 // BEGIN: Extension declarations
 
 extension az
@@ -86,7 +92,7 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
   extensionConfigs: {
     k8s: {
       kubeConfig: kv1.getSecret('myKubeConfig')
-      namespace: 'default'
+      namespace: strVar1
     }
   }
 }
