@@ -14,6 +14,7 @@ using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.IO.Abstraction;
+using Bicep.IO.InMemory;
 using Bicep.IO.Utils;
 
 namespace Bicep.Core.Registry.Extensions;

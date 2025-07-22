@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Bicep.Local.Extension.Host.Handlers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Bicep.Local.Extension.Types.Attributes;
 
 namespace Bicep.Local.Extension.UnitTests.Host.Handlers;
 
@@ -17,7 +18,10 @@ namespace Bicep.Local.Extension.UnitTests.Host.Handlers;
 public class ResourceHandlerDispatcherTests
 {
     // Test resource types
+    [ResourceType("TestResource")]
     private class TestResource { }
+
+    [ResourceType("AnotherResource")]
     private class AnotherResource { }
 
     // Generic resource handler (implements only IResourceHandler)
@@ -60,33 +64,6 @@ public class ResourceHandlerDispatcherTests
     }
 
     #region Constructor Tests
-
-    [TestMethod]
-
-    public void Constructor_WithNullResourceHandlers_ThrowsArgumentException()
-    {
-        // Arrange
-        IEnumerable<IResourceHandler>? handlers = null;
-
-        // Act
-        var action = () => new ResourceHandlerDispatcher(handlers!);
-
-        // Assert
-        action.Should().Throw<ArgumentException>();
-    }
-
-    [TestMethod]
-    public void Constructor_WithEmptyResourceHandlers_ThrowsArgumentException()
-    {
-        // Arrange
-        IEnumerable<IResourceHandler> handlers = [];
-
-        // Act
-        var action = () => new ResourceHandlerDispatcher(handlers);
-
-        // Assert
-        action.Should().Throw<ArgumentException>();
-    }
 
     [TestMethod]
     public void Constructor_WithOnlyGenericResourceHandler_InitializesCorrectly()

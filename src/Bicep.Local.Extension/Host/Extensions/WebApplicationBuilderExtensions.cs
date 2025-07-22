@@ -48,9 +48,9 @@ public static class WebApplicationBuilderExtensions
     /// <code>
     /// var builder = WebApplication.CreateBuilder();
     /// builder.AddBicepExtensionHost(args);
-    /// builder.Services.AddBicepExtensionServices("MyExtension", "1.0.0", true);
+    /// builder.Services.AddBicepExtension("MyExtension", "1.0.0", true);
     /// var app = builder.Build();
-    /// app.MapBicepDispatcher&lt;MyResourceDispatcher&gt;();
+    /// app.MapBicepExtension&lt;MyResourceDispatcher&gt;();
     /// await app.RunBicepExtensionAsync();
     /// </code>
     /// </example>
@@ -100,36 +100,6 @@ public static class WebApplicationBuilderExtensions
     }
 
     /// <summary>
-    /// Maps the specified Bicep resource dispatcher to handle gRPC requests for the extension.
-    /// </summary>
-    /// <typeparam name="TDispatcher">The resource dispatcher type that inherits from BicepExtensionBase and handles resource operations.</typeparam>
-    /// <param name="app">The web application to configure.</param>
-    /// <returns>The configured web application for method chaining.</returns>
-    /// <remarks>
-    /// This method registers the dispatcher as a gRPC service and enables gRPC reflection in development environments
-    /// for easier debugging with tools like grpcurl or Postman. The dispatcher handles all CRUD operations for resources
-    /// managed by your extension.
-    /// </remarks>
-    /// <example>
-    /// <code>
-    /// app.MapBicepDispatcher&lt;MyResourceRequestDispatcher&gt;();
-    /// </code>
-    /// </example>
-    public static WebApplication MapBicepDispatcher<TDispatcher>(this WebApplication app)
-        where TDispatcher : Rpc.BicepExtension.BicepExtensionBase
-    {
-        app.MapGrpcService<TDispatcher>();
-
-        var env = app.Environment;
-        if (env.IsDevelopment())
-        {
-            app.MapGrpcReflectionService();
-        }
-
-        return app;
-    }
-
-    /// <summary>
     /// Maps the default Bicep resource dispatcher to handle gRPC requests for the extension.
     /// </summary>
     /// <param name="app">The web application to configure.</param>
@@ -143,66 +113,21 @@ public static class WebApplicationBuilderExtensions
     /// <example>
     /// <code>
     /// var app = builder.Build();
-    /// app.MapBicepDispatcher(); // Uses default ResourceRequestDispatcher
+    /// app.MapBicepExtension(); // Uses default ResourceRequestDispatcher
     /// await app.RunBicepExtensionAsync();
     /// </code>
     /// </example>
-    public static WebApplication MapBicepDispatcher(this WebApplication app)
-        => app.MapBicepDispatcher<ResourceRequestDispatcher>();
-
-    /// <summary>
-    /// Starts the Bicep extension application, handling the --describe option or running the gRPC server.
-    /// </summary>
-    /// <param name="app">The configured web application to run.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    /// <remarks>
-    /// This method checks command-line options to determine the execution mode:
-    /// - If --describe is specified, outputs JSON type definitions to stdout and exits
-    /// - If other exit conditions are met, exits with the appropriate code
-    /// - Otherwise, starts the gRPC server to handle resource requests
-    /// Call this method as the final step in your application startup.
-    /// </remarks>
-    /// <exception cref="ArgumentNullException">Thrown when the app parameter is null.</exception>
-    /// <example>
-    /// <code>
-    /// var app = builder.Build();
-    /// app.MapBicepDispatcher&lt;MyResourceDispatcher&gt;();
-    /// await app.RunBicepExtensionAsync();
-    /// </code>
-    /// </example>
-    public static async Task RunBicepExtensionAsync(this WebApplication app)
+    public static WebApplication MapBicepExtension(this WebApplication app)
     {
-        ArgumentNullException.ThrowIfNull(app);
+        app.MapGrpcService<ResourceRequestDispatcher>();
 
-        var commandLineParser = GetCommandLineParserService(app.Services);
-
-        if (commandLineParser.ShouldExit)
+        var env = app.Environment;
+        if (env.IsDevelopment())
         {
-            Environment.Exit(commandLineParser.ExitCode);
+            app.MapGrpcReflectionService();
         }
-        else if (commandLineParser.Options.Describe)
-        {
-            var typeDefinitionBuilder = app.Services.GetRequiredService<ITypeDefinitionBuilder>();
-            var typeDefinition = typeDefinitionBuilder.GenerateBicepResourceTypes();
 
-            var jsonOptions = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                Converters =
-                    {
-                        new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
-                    }
-            };
-
-            var stdout = Console.Out;
-            await stdout.WriteLineAsync(JsonSerializer.Serialize(
-                typeDefinition,
-                jsonOptions));
-        }
-        else
-        {
-            await app.RunAsync();
-        }
+        return app;
     }
 
     private static CommandLineParser GetCommandLineParserService(IServiceProvider serviceProvider)

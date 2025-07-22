@@ -10,6 +10,8 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Bicep.Local.Extension.Host.Handlers;
+using Bicep.Local.Extension.Types;
+using Bicep.Local.Rpc;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
 
@@ -17,15 +19,14 @@ namespace Bicep.Local.Extension.Host;
 
 public class ResourceRequestDispatcher : Rpc.BicepExtension.BicepExtensionBase
 {
+    private readonly ITypeDefinitionBuilder typeDefinitionBuilder;
     private readonly ILogger<ResourceRequestDispatcher> logger;
 
-    public ResourceRequestDispatcher(IResourceHandlerDispatcher resourceHandlerDispatcher, ILogger<ResourceRequestDispatcher> logger)
+    public ResourceRequestDispatcher(IResourceHandlerDispatcher resourceHandlerDispatcher, ITypeDefinitionBuilder typeDefinitionBuilder, ILogger<ResourceRequestDispatcher> logger)
     {
-        ArgumentNullException.ThrowIfNull(logger, nameof(logger));
-        ArgumentNullException.ThrowIfNull(resourceHandlerDispatcher, nameof(resourceHandlerDispatcher));
-
-        this.logger = logger;
         this.ResourceHandlerDispatcher = resourceHandlerDispatcher;
+        this.typeDefinitionBuilder = typeDefinitionBuilder;
+        this.logger = logger;
     }
 
     public IResourceHandlerDispatcher ResourceHandlerDispatcher { get; }
@@ -60,6 +61,24 @@ public class ResourceRequestDispatcher : Rpc.BicepExtension.BicepExtensionBase
 
     public override Task<Rpc.Empty> Ping(Rpc.Empty request, ServerCallContext context)
         => Task.FromResult(new Rpc.Empty());
+
+    public override async Task<TypeFilesResponse> GetTypeFiles(Empty request, ServerCallContext context)
+    {
+        await Task.CompletedTask;
+        var types = typeDefinitionBuilder.GenerateTypeDefinition();
+
+        TypeFilesResponse response = new()
+        {
+            IndexFile = types.IndexFileContent,
+        };
+
+        foreach (var kvp in types.TypeFileContents)
+        {
+            response.TypeFiles.Add(kvp.Key, kvp.Value);
+        }
+
+        return response;
+    }
 
     protected virtual (IResourceHandler Handler, HandlerRequest Request) GetHandlerAndHandlerRequest(Rpc.ResourceSpecification resourceSpecification)
     {
@@ -131,28 +150,61 @@ public class ResourceRequestDispatcher : Rpc.BicepExtension.BicepExtensionBase
     }
 
     protected virtual Rpc.LocalExtensibilityOperationResponse ToLocalOperationResponse(HandlerResponse? handlerResponse)
-        => handlerResponse is not null ? new Rpc.LocalExtensibilityOperationResponse()
+    {
+        if (handlerResponse is null)
         {
-            ErrorData = handlerResponse.Error is not null ?
-            new Rpc.ErrorData
+            throw new ArgumentNullException("Failed to process handler response. No response was provided.");
+        }
+
+        Rpc.Resource resource = new()
+        {
+            Status = handlerResponse.Status.ToString(),
+            Type = handlerResponse.Type,
+        };
+
+        // This pattern with null checks is necessary, because the gRPC generated code throws on null value assignment, even if the field is optional.
+        if (handlerResponse.ApiVersion is { } apiVersion)
+        {
+            resource.ApiVersion = apiVersion;
+        }
+
+        if (handlerResponse.Properties is { } properties)
+        {
+            resource.Properties = properties.ToJsonString();
+        }
+
+        if (handlerResponse.Identifiers is { } identifiers)
+        {
+            resource.Identifiers = identifiers.ToJsonString();
+        }
+
+        Rpc.Error? error = null;
+        if (handlerResponse.Error is { } handlerError)
+        {
+            error = new()
             {
-                Error = new Rpc.Error()
+                Code = handlerError.Code,
+                Message = handlerError.Message,
+                Target = handlerError.Target,
+            };
+
+            foreach (var detail in handlerError.Details ?? [])
+            {
+                error.Details.Add(new Rpc.ErrorDetail
                 {
-                    Code = handlerResponse.Error.Code,
-                    Message = handlerResponse.Error.Message,
-                    InnerError = handlerResponse.Error.InnerError?.Message,
-                    Target = handlerResponse.Error.Target,
-                }
-            } : null,
-            Resource = new Rpc.Resource()
-            {
-                Status = handlerResponse.Status.ToString(),
-                Type = handlerResponse.Type,
-                ApiVersion = handlerResponse.ApiVersion,
-                Properties = handlerResponse.Properties?.ToJsonString(),
-                Identifiers = handlerResponse.Identifiers?.ToJsonString(),
+                    Code = detail.Code,
+                    Message = detail.Message,
+                    Target = detail.Target,
+                });
             }
-        } : throw new ArgumentNullException("Failed to process handler response. No response was provided.");
+        }
+
+        return new()
+        {
+            ErrorData = error is { } ? new() { Error = error } : null,
+            Resource = resource,
+        };
+    }
 
     protected virtual JsonObject GetExtensionConfig(string extensionConfig)
     {

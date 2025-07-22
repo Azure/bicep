@@ -2,6 +2,12 @@
   "version": 1,
   "dependencies": {
     "net8.0": {
+      "Azure.Deployments.Internal.GenerateNotice": {
+        "type": "Direct",
+        "requested": "[0.1.45, )",
+        "resolved": "0.1.45",
+        "contentHash": "q2beLPQVvqyTU0hzQrW1b9rO0nlOiTN18c5xpr/HycmGdLXfaFleayi9gDAzGQHD5cOnrLISlwyUxJIa4HC+fQ=="
+      },
       "Google.Protobuf": {
         "type": "Direct",
         "requested": "[3.30.2, )",

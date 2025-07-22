@@ -2,7 +2,6 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <RootNamespace>Bicep.Local.Extension.Mock</RootNamespace>
-    <StartupObject>Bicep.Local.Extension.Mock.Program</StartupObject>
     <AssemblyName>bicep-ext-mock</AssemblyName>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <PublishSingleFile>true</PublishSingleFile>

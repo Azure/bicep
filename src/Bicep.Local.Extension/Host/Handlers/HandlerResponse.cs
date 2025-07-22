@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Text.Json.Nodes;
 
 namespace Bicep.Local.Extension.Host.Handlers;
@@ -31,14 +32,16 @@ public enum HandlerResponseStatus
     TimedOut
 }
 
+public record ErrorDetail(string Code, string Target, string Message);
+
 /// <summary>
 /// Represents an error that occurred during a resource handler operation.
 /// </summary>
 /// <param name="Code">The error code that identifies the error type.</param>
 /// <param name="Target">The target of the error (e.g., resource name, property name).</param>
 /// <param name="Message">A human-readable description of the error.</param>
-/// <param name="InnerError">An optional inner error that provides additional details about the root cause.</param>
-public record Error(string Code, string Target, string Message, Error? InnerError = null);
+/// <param name="Details">Optional inner errors that provide additional details about the root cause.</param>
+public record Error(string Code, string Target, string Message, ImmutableArray<ErrorDetail>? Details = null);
 
 /// <summary>
 /// Represents the response from a resource handler operation.

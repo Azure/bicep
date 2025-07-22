@@ -1,17 +1,27 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Local.Extension.Protocol;
+using Bicep.Local.Extension.Host;
+using Bicep.Local.Extension.Host.Handlers;
 using Moq;
-using Protocol = Bicep.Local.Extension.Protocol;
 
 namespace Bicep.Local.Deploy.IntegrationTests;
 
 public static class MockExtensions
 {
-    public static void SetupCreateOrUpdate<THandler>(this Mock<THandler> handlerMock, Func<Protocol.ResourceSpecification, Protocol.LocalExtensionOperationResponse> responseFunc)
-        where THandler : class, IGenericResourceHandler
-        => handlerMock.Setup(x => x.CreateOrUpdate(It.IsAny<Protocol.ResourceSpecification>(), It.IsAny<CancellationToken>()))
-            .Returns<Protocol.ResourceSpecification, CancellationToken>((req, _) =>
+    public static void SetupCreateOrUpdate<TResource>(this Mock<IResourceHandler<TResource>> handlerMock, Func<HandlerRequest<TResource>, HandlerResponse> responseFunc)
+        where TResource : class
+    {
+        handlerMock.Setup(req => req.CreateOrUpdate(It.IsAny<HandlerRequest<TResource>>(), It.IsAny<CancellationToken>()))
+            .Returns<HandlerRequest<TResource>, CancellationToken>((req, token) =>
+                Task.FromResult(responseFunc(req)));
+
+        handlerMock.Setup(req => req.CreateOrUpdate(It.IsAny<HandlerRequest>(), It.IsAny<CancellationToken>()))
+            .Returns<HandlerRequest, CancellationToken>((req, token) => handlerMock.Object.CreateOrUpdate((HandlerRequest<TResource>)req, token));
+    }
+
+    public static void SetupCreateOrUpdate(this Mock<IResourceHandler> handlerMock, Func<HandlerRequest, HandlerResponse> responseFunc)
+        => handlerMock.Setup(req => req.CreateOrUpdate(It.IsAny<HandlerRequest>(), It.IsAny<CancellationToken>()))
+            .Returns<HandlerRequest, CancellationToken>((req, token) =>
                 Task.FromResult(responseFunc(req)));
 }
