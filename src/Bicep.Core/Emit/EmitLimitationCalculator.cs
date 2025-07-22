@@ -697,8 +697,7 @@ namespace Bicep.Core.Emit
 
         private static ImmutableDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>> CalculateExtensionConfigAssignments(SemanticModel model, IDiagnosticWriter diagnostics)
         {
-            if (model.Root.ExtensionConfigAssignments.IsEmpty ||
-                model.HasParsingErrors())
+            if (model.Root.ExtensionConfigAssignments.IsEmpty)
             {
                 return ImmutableDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>>.Empty;
             }
