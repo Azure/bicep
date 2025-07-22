@@ -11,7 +11,7 @@
     "@types/node": "^24.0.10",
     "@typescript-eslint/eslint-plugin": "^8.31.1",
     "@typescript-eslint/parser": "^8.32.1",
-    "babel-jest": "^29.6.4",
+    "babel-jest": "^30.0.5",
     "eslint": "^9.29.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jest": "^29.0.1",
