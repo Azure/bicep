@@ -1,6 +1,7 @@
 // BEGIN: Parameters
 
 param boolParam1 bool
+param strParam1 string
 
 // END: Parameters
 
@@ -51,7 +52,6 @@ resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
 // BEGIN: Extension configs for modules
 
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-  name: 'moduleWithExtsFullInheritance'
   extensionConfigs: {
     k8s: k8s // must use k8s.config
 //@[09:012) [BCP036 (Error)] The property "k8s" expected a value of type "configuration" but the provided value is of type "k8s". (bicep https://aka.ms/bicep/core-diagnostics#BCP036) |k8s|
@@ -59,7 +59,6 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 }
 
 module moduleInvalidPropertyAccess 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-  name: 'moduleInvalidPropertyAccess'
   extensionConfigs: {
     k8s: {
       kubeConfig: k8s.config.kubeConfig.keyVaultReference
@@ -72,7 +71,6 @@ module moduleInvalidPropertyAccess 'child/hasConfigurableExtensionsWithAlias.bic
 }
 
 module moduleComplexKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-  name: 'moduleComplexKeyVaultReference'
   extensionConfigs: {
     k8s: {
       kubeConfig: boolParam1 ? kv1.getSecret('myKubeConfig') : scopedKv1.getSecret('myOtherKubeConfig')
@@ -84,19 +82,50 @@ module moduleComplexKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.
   }
 }
 
-// TODO(kylealbert): Figure out if this can be made allowable easily, potentially by inlining.
-var k8sConfigDeployTime = {
-  kubeConfig: k8s.config.kubeConfig
-//@[14:017) [BCP418 (Error)] Extensions cannot be referenced here. Extensions can only be referenced by module extension configurations. (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |k8s|
-  namespace: strParam1
-//@[13:022) [BCP057 (Error)] The name "strParam1" does not exist in the current context. (bicep https://aka.ms/bicep/core-diagnostics#BCP057) |strParam1|
+var invalidVarAssignment1 = k8s.config.namespace
+//@[04:025) [no-unused-vars (Warning)] Variable "invalidVarAssignment1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |invalidVarAssignment1|
+//@[28:031) [BCP418 (Error)] Extensions cannot be referenced here. Extensions can only be referenced by module extension configurations. (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |k8s|
+var invalidVarAssignment2 = k8s.config.kubeConfig
+//@[04:025) [no-unused-vars (Warning)] Variable "invalidVarAssignment2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |invalidVarAssignment2|
+//@[28:031) [BCP418 (Error)] Extensions cannot be referenced here. Extensions can only be referenced by module extension configurations. (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |k8s|
+
+var extensionConfigsVar = {
+  k8s: {
+    kubeConfig: 'inlined',
+//@[26:026) [BCP238 (Error)] Unexpected new line character after a comma. (bicep https://aka.ms/bicep/core-diagnostics#BCP238) ||
+    namespace: 'inlined'
+  }
 }
 
-module moduleWithExtsUsingVar 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-  name: 'moduleWithExtsUsingVar'
+var k8sConfigDeployTime = {
+  kubeConfig: strParam1
+  namespace: strParam1
+}
+
+module moduleWithExtsUsingVar1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  extensionConfigs: extensionConfigsVar
+//@[20:039) [BCP183 (Error)] The value of the module "extensionConfigs" property must be an object literal. (bicep https://aka.ms/bicep/core-diagnostics#BCP183) |extensionConfigsVar|
+}
+
+module moduleWithExtsUsingVar2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
   extensionConfigs: {
     k8s: k8sConfigDeployTime
-//@[09:028) [BCP062 (Error)] The referenced declaration with name "k8sConfigDeployTime" is not valid. (bicep https://aka.ms/bicep/core-diagnostics#BCP062) |k8sConfigDeployTime|
+  }
+}
+
+module moduleInvalidSpread1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  extensionConfigs: {
+    ...extensionConfigsVar
+//@[04:026) [BCP401 (Error)] The spread operator "..." is not permitted in this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP401) |...extensionConfigsVar|
+  }
+}
+
+module moduleInvalidSpread2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  extensionConfigs: {
+    k8s: {
+      ...k8sConfigDeployTime
+//@[06:028) [BCP401 (Error)] The spread operator "..." is not permitted in this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP401) |...k8sConfigDeployTime|
+    }
   }
 }
 
