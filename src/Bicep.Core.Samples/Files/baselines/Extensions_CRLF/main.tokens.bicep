@@ -176,11 +176,6 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
 //@[082:083) Assignment |=|
 //@[084:085) LeftBrace |{|
 //@[085:087) NewLine |\r\n|
-  name: 'moduleWithExtsWithAliases'
-//@[002:006) Identifier |name|
-//@[006:007) Colon |:|
-//@[008:035) StringComplete |'moduleWithExtsWithAliases'|
-//@[035:037) NewLine |\r\n|
   extensionConfigs: {
 //@[002:018) Identifier |extensionConfigs|
 //@[018:019) Colon |:|
@@ -218,11 +213,6 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
 //@[088:089) Assignment |=|
 //@[090:091) LeftBrace |{|
 //@[091:093) NewLine |\r\n|
-  name: 'moduleWithExtsWithoutAliases'
-//@[002:006) Identifier |name|
-//@[006:007) Colon |:|
-//@[008:038) StringComplete |'moduleWithExtsWithoutAliases'|
-//@[038:040) NewLine |\r\n|
   extensionConfigs: {
 //@[002:018) Identifier |extensionConfigs|
 //@[018:019) Colon |:|
@@ -255,11 +245,6 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
 //@[083:084) Assignment |=|
 //@[085:086) LeftBrace |{|
 //@[086:088) NewLine |\r\n|
-  name: 'moduleExtConfigsFromParams'
-//@[002:006) Identifier |name|
-//@[006:007) Colon |:|
-//@[008:036) StringComplete |'moduleExtConfigsFromParams'|
-//@[036:038) NewLine |\r\n|
   extensionConfigs: {
 //@[002:018) Identifier |extensionConfigs|
 //@[018:019) Colon |:|
@@ -305,11 +290,6 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
 //@[093:094) Assignment |=|
 //@[095:096) LeftBrace |{|
 //@[096:098) NewLine |\r\n|
-  name: 'moduleExtConfigKeyVaultReference'
-//@[002:006) Identifier |name|
-//@[006:007) Colon |:|
-//@[008:042) StringComplete |'moduleExtConfigKeyVaultReference'|
-//@[042:044) NewLine |\r\n|
   extensionConfigs: {
 //@[002:018) Identifier |extensionConfigs|
 //@[018:019) Colon |:|
@@ -352,11 +332,6 @@ module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.b
 //@[086:087) Assignment |=|
 //@[088:089) LeftBrace |{|
 //@[089:091) NewLine |\r\n|
-  name: 'moduleExtConfigFromReferences'
-//@[002:006) Identifier |name|
-//@[006:007) Colon |:|
-//@[008:039) StringComplete |'moduleExtConfigFromReferences'|
-//@[039:041) NewLine |\r\n|
   extensionConfigs: {
 //@[002:018) Identifier |extensionConfigs|
 //@[018:019) Colon |:|
@@ -409,11 +384,6 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 //@[091:092) Assignment |=|
 //@[093:094) LeftBrace |{|
 //@[094:096) NewLine |\r\n|
-  name: 'moduleWithExtsFullInheritance'
-//@[002:006) Identifier |name|
-//@[006:007) Colon |:|
-//@[008:039) StringComplete |'moduleWithExtsFullInheritance'|
-//@[039:041) NewLine |\r\n|
   extensionConfigs: {
 //@[002:018) Identifier |extensionConfigs|
 //@[018:019) Colon |:|
@@ -440,11 +410,6 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 //@[096:097) Assignment |=|
 //@[098:099) LeftBrace |{|
 //@[099:101) NewLine |\r\n|
-  name: 'moduleWithExtsPiecemealInheritance'
-//@[002:006) Identifier |name|
-//@[006:007) Colon |:|
-//@[008:044) StringComplete |'moduleWithExtsPiecemealInheritance'|
-//@[044:046) NewLine |\r\n|
   extensionConfigs: {
 //@[002:018) Identifier |extensionConfigs|
 //@[018:019) Colon |:|
@@ -554,11 +519,6 @@ module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlia
 //@[089:090) Assignment |=|
 //@[091:092) LeftBrace |{|
 //@[092:094) NewLine |\r\n|
-  name: 'moduleExtConfigsConditionalMixedValueAndInheritance'
-//@[002:006) Identifier |name|
-//@[006:007) Colon |:|
-//@[008:061) StringComplete |'moduleExtConfigsConditionalMixedValueAndInheritance'|
-//@[061:063) NewLine |\r\n|
   extensionConfigs: {
 //@[002:018) Identifier |extensionConfigs|
 //@[018:019) Colon |:|

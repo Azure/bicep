@@ -56,7 +56,6 @@ resource aks 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
 // BEGIN: Extension configs for modules
 
 module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-  name: 'moduleWithExtsWithAliases'
   extensionConfigs: {
     k8s: {
       kubeConfig: 'kubeConfig2'
@@ -67,7 +66,6 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
 }
 
 module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias.bicep' = {
-  name: 'moduleWithExtsWithoutAliases'
   extensionConfigs: {
     kubernetes: {
       kubeConfig: 'kubeConfig2'
@@ -77,7 +75,6 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
 }
 
 module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-  name: 'moduleExtConfigsFromParams'
   extensionConfigs: {
     k8s: {
       kubeConfig: boolParam1 ? secureStrParam1 : strParam1
@@ -88,7 +85,6 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
 }
 
 module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-  name: 'moduleExtConfigKeyVaultReference'
   extensionConfigs: {
     k8s: {
       kubeConfig: kv1.getSecret('myKubeConfig')
@@ -98,7 +94,6 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
 }
 
 module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-  name: 'moduleExtConfigFromReferences'
   extensionConfigs: {
     k8s: {
       kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
@@ -109,14 +104,12 @@ module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.b
 }
 
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-  name: 'moduleWithExtsFullInheritance'
   extensionConfigs: {
     k8s: k8s.config
   }
 }
 
 module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-  name: 'moduleWithExtsPiecemealInheritance'
   extensionConfigs: {
     k8s: {
       kubeConfig: k8s.config.kubeConfig
@@ -138,7 +131,6 @@ module moduleWithExtsUsingPiecemealInheritanceLooped 'child/hasConfigurableExten
 }]
 
 module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-  name: 'moduleExtConfigsConditionalMixedValueAndInheritance'
   extensionConfigs: {
     k8s: {
       kubeConfig: boolParam1 ? secureStrParam1 : k8s.config.kubeConfig

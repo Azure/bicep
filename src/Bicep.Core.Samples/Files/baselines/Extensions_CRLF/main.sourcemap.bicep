@@ -104,6 +104,7 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
 //@    "moduleWithExtsWithAliases": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-03-01",
+//@      "name": "[format('moduleWithExtsWithAliases-{0}', uniqueString('moduleWithExtsWithAliases', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -134,8 +135,6 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
 //@        }
 //@      }
 //@    },
-  name: 'moduleWithExtsWithAliases'
-//@      "name": "moduleWithExtsWithAliases",
   extensionConfigs: {
 //@        "extensionConfigs": {
 //@        },
@@ -158,6 +157,7 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
 //@    "moduleWithExtsWithoutAliases": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-03-01",
+//@      "name": "[format('moduleWithExtsWithoutAliases-{0}', uniqueString('moduleWithExtsWithoutAliases', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -193,8 +193,6 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
 //@        }
 //@      }
 //@    },
-  name: 'moduleWithExtsWithoutAliases'
-//@      "name": "moduleWithExtsWithoutAliases",
   extensionConfigs: {
 //@        "extensionConfigs": {
 //@        },
@@ -213,6 +211,7 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
 //@    "moduleExtConfigsFromParams": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-03-01",
+//@      "name": "[format('moduleExtConfigsFromParams-{0}', uniqueString('moduleExtConfigsFromParams', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -243,8 +242,6 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
 //@        }
 //@      }
 //@    },
-  name: 'moduleExtConfigsFromParams'
-//@      "name": "moduleExtConfigsFromParams",
   extensionConfigs: {
 //@        "extensionConfigs": {
 //@        },
@@ -263,6 +260,7 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
 //@    "moduleExtConfigFromKeyVaultReference": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-03-01",
+//@      "name": "[format('moduleExtConfigFromKeyVaultReference-{0}', uniqueString('moduleExtConfigFromKeyVaultReference', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -293,8 +291,6 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
 //@        }
 //@      }
 //@    },
-  name: 'moduleExtConfigKeyVaultReference'
-//@      "name": "moduleExtConfigKeyVaultReference",
   extensionConfigs: {
 //@        "extensionConfigs": {
 //@        },
@@ -322,6 +318,7 @@ module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.b
 //@    "moduleExtConfigFromReferences": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-03-01",
+//@      "name": "[format('moduleExtConfigFromReferences-{0}', uniqueString('moduleExtConfigFromReferences', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -356,8 +353,6 @@ module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.b
 //@        "testResource1"
 //@      ]
 //@    },
-  name: 'moduleExtConfigFromReferences'
-//@      "name": "moduleExtConfigFromReferences",
   extensionConfigs: {
 //@        "extensionConfigs": {
 //@        },
@@ -380,6 +375,7 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 //@    "moduleWithExtsUsingFullInheritance": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-03-01",
+//@      "name": "[format('moduleWithExtsUsingFullInheritance-{0}', uniqueString('moduleWithExtsUsingFullInheritance', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -410,8 +406,6 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 //@        }
 //@      }
 //@    },
-  name: 'moduleWithExtsFullInheritance'
-//@      "name": "moduleWithExtsFullInheritance",
   extensionConfigs: {
 //@        "extensionConfigs": {
 //@        },
@@ -424,6 +418,7 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 //@    "moduleWithExtsUsingPiecemealInheritance": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-03-01",
+//@      "name": "[format('moduleWithExtsUsingPiecemealInheritance-{0}', uniqueString('moduleWithExtsUsingPiecemealInheritance', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -454,8 +449,6 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 //@        }
 //@      }
 //@    },
-  name: 'moduleWithExtsPiecemealInheritance'
-//@      "name": "moduleWithExtsPiecemealInheritance",
   extensionConfigs: {
 //@        "extensionConfigs": {
 //@        },
@@ -528,6 +521,7 @@ module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlia
 //@    "moduleExtConfigsConditionalMixed": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-03-01",
+//@      "name": "[format('moduleExtConfigsConditionalMixed-{0}', uniqueString('moduleExtConfigsConditionalMixed', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -558,8 +552,6 @@ module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlia
 //@        }
 //@      }
 //@    }
-  name: 'moduleExtConfigsConditionalMixedValueAndInheritance'
-//@      "name": "moduleExtConfigsConditionalMixedValueAndInheritance",
   extensionConfigs: {
 //@        "extensionConfigs": {
 //@        },

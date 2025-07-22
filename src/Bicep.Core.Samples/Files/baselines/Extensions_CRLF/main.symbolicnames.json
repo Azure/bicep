@@ -10,7 +10,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16518217165093679332"
+      "templateHash": "7406773427041319138"
     }
   },
   "parameters": {
@@ -70,7 +70,7 @@
     "moduleWithExtsWithAliases": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-03-01",
-      "name": "moduleWithExtsWithAliases",
+      "name": "[format('moduleWithExtsWithAliases-{0}', uniqueString('moduleWithExtsWithAliases', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -114,7 +114,7 @@
     "moduleWithExtsWithoutAliases": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-03-01",
-      "name": "moduleWithExtsWithoutAliases",
+      "name": "[format('moduleWithExtsWithoutAliases-{0}', uniqueString('moduleWithExtsWithoutAliases', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -160,7 +160,7 @@
     "moduleExtConfigsFromParams": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-03-01",
-      "name": "moduleExtConfigsFromParams",
+      "name": "[format('moduleExtConfigsFromParams-{0}', uniqueString('moduleExtConfigsFromParams', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -200,7 +200,7 @@
     "moduleExtConfigFromKeyVaultReference": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-03-01",
-      "name": "moduleExtConfigKeyVaultReference",
+      "name": "[format('moduleExtConfigFromKeyVaultReference-{0}', uniqueString('moduleExtConfigFromKeyVaultReference', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -249,7 +249,7 @@
     "moduleExtConfigFromReferences": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-03-01",
-      "name": "moduleExtConfigFromReferences",
+      "name": "[format('moduleExtConfigFromReferences-{0}', uniqueString('moduleExtConfigFromReferences', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -297,7 +297,7 @@
     "moduleWithExtsUsingFullInheritance": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-03-01",
-      "name": "moduleWithExtsFullInheritance",
+      "name": "[format('moduleWithExtsUsingFullInheritance-{0}', uniqueString('moduleWithExtsUsingFullInheritance', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -334,7 +334,7 @@
     "moduleWithExtsUsingPiecemealInheritance": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-03-01",
-      "name": "moduleWithExtsPiecemealInheritance",
+      "name": "[format('moduleWithExtsUsingPiecemealInheritance-{0}', uniqueString('moduleWithExtsUsingPiecemealInheritance', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -418,7 +418,7 @@
     "moduleExtConfigsConditionalMixed": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-03-01",
-      "name": "moduleExtConfigsConditionalMixedValueAndInheritance",
+      "name": "[format('moduleExtConfigsConditionalMixed-{0}', uniqueString('moduleExtConfigsConditionalMixed', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"

@@ -64,8 +64,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
 // BEGIN: Extension configs for modules
 
 module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[007:032) Module moduleWithExtsWithAliases. Type: module. Declaration start char: 0, length: 229
-  name: 'moduleWithExtsWithAliases'
+//@[007:032) Module moduleWithExtsWithAliases. Type: module. Declaration start char: 0, length: 192
   extensionConfigs: {
     k8s: {
       kubeConfig: 'kubeConfig2'
@@ -75,8 +74,7 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
 }
 
 module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias.bicep' = {
-//@[007:035) Module moduleWithExtsWithoutAliases. Type: module. Declaration start char: 0, length: 221
-  name: 'moduleWithExtsWithoutAliases'
+//@[007:035) Module moduleWithExtsWithoutAliases. Type: module. Declaration start char: 0, length: 181
   extensionConfigs: {
     kubernetes: {
       kubeConfig: 'kubeConfig2'
@@ -85,8 +83,7 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
 }
 
 module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[007:033) Module moduleExtConfigsFromParams. Type: module. Declaration start char: 0, length: 289
-  name: 'moduleExtConfigsFromParams'
+//@[007:033) Module moduleExtConfigsFromParams. Type: module. Declaration start char: 0, length: 251
   extensionConfigs: {
     k8s: {
       kubeConfig: boolParam1 ? secureStrParam1 : strParam1
@@ -96,8 +93,7 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
 }
 
 module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[007:043) Module moduleExtConfigFromKeyVaultReference. Type: module. Declaration start char: 0, length: 265
-  name: 'moduleExtConfigKeyVaultReference'
+//@[007:043) Module moduleExtConfigFromKeyVaultReference. Type: module. Declaration start char: 0, length: 221
   extensionConfigs: {
     k8s: {
       kubeConfig: kv1.getSecret('myKubeConfig')
@@ -107,8 +103,7 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
 }
 
 module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[007:036) Module moduleExtConfigFromReferences. Type: module. Declaration start char: 0, length: 306
-  name: 'moduleExtConfigFromReferences'
+//@[007:036) Module moduleExtConfigFromReferences. Type: module. Declaration start char: 0, length: 265
   extensionConfigs: {
     k8s: {
       kubeConfig: aks.listClusterAdminCredential().kubeconfigs[0].value
@@ -118,16 +113,14 @@ module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.b
 }
 
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[007:041) Module moduleWithExtsUsingFullInheritance. Type: module. Declaration start char: 0, length: 187
-  name: 'moduleWithExtsFullInheritance'
+//@[007:041) Module moduleWithExtsUsingFullInheritance. Type: module. Declaration start char: 0, length: 146
   extensionConfigs: {
     k8s: k8s.config
   }
 }
 
 module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[007:046) Module moduleWithExtsUsingPiecemealInheritance. Type: module. Declaration start char: 0, length: 275
-  name: 'moduleWithExtsPiecemealInheritance'
+//@[007:046) Module moduleWithExtsUsingPiecemealInheritance. Type: module. Declaration start char: 0, length: 229
   extensionConfigs: {
     k8s: {
       kubeConfig: k8s.config.kubeConfig
@@ -149,8 +142,7 @@ module moduleWithExtsUsingPiecemealInheritanceLooped 'child/hasConfigurableExten
 }]
 
 module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[007:039) Module moduleExtConfigsConditionalMixed. Type: module. Declaration start char: 0, length: 359
-  name: 'moduleExtConfigsConditionalMixedValueAndInheritance'
+//@[007:039) Module moduleExtConfigsConditionalMixed. Type: module. Declaration start char: 0, length: 296
   extensionConfigs: {
     k8s: {
       kubeConfig: boolParam1 ? secureStrParam1 : k8s.config.kubeConfig
