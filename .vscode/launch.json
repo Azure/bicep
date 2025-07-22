@@ -43,6 +43,20 @@
             "stopAtEntry": false
         },
         {
+            "name": "Mock Extension",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "Build Mock Extension",
+            "program": "${workspaceFolder}/src/Bicep.Local.Extension.Mock/bin/Debug/net8.0/bicep-ext-mock",
+            "args": [
+                "--describe",
+            ],
+            "env": {},
+            "cwd": "${workspaceFolder}/src/Bicep.Local.Extension.Mock",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
             "name": "Playground",
             "type": "node",
             "request": "launch",

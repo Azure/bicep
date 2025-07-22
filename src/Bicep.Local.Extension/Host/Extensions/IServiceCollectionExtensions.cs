@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -55,9 +56,13 @@ public static class IServiceCollectionExtensions
     ///     });
     /// </code>
     /// </example>
-    public static IServiceCollection AddBicepExtensionServices(this IServiceCollection services
-                                                            , string name, string version, bool isSingleton
-                                                            , Action<TypeFactory, Dictionary<string, ObjectTypeProperty>>? typeConfiguration = null)
+    public static IServiceCollection AddBicepExtensionServices(
+        this IServiceCollection services,
+        string name,
+        string version,
+        bool isSingleton,
+        Assembly typeAssembly,
+        Action<TypeFactory, Dictionary<string, ObjectTypeProperty>>? typeConfiguration = null)
     {
         var typeDictionary = new Dictionary<Type, Func<TypeBase>>
                             {
@@ -88,11 +93,13 @@ public static class IServiceCollectionExtensions
                 new CrossFileTypeReference("types.json", typeFactory.GetIndex(configurationType))
             );
 
-        services.AddSingleton(typeSettings)
-            .AddSingleton(typeFactory)
-            .AddSingleton<IResourceHandlerDispatcher, ResourceHandlerDispatcher>()
-            .AddSingleton<ITypeDefinitionBuilder, TypeDefinitionBuilder>()
-            .AddSingleton(sp => typeDictionary);
+        services.AddSingleton<ITypeDefinitionBuilder>(new TypeDefinitionBuilder(
+            typeSettings,
+            typeFactory,
+            new TypeProvider([typeAssembly]),
+            typeDictionary));
+
+        services.AddSingleton<IResourceHandlerDispatcher, ResourceHandlerDispatcher>();
 
         services.AddGrpc();
         services.AddGrpcReflection();

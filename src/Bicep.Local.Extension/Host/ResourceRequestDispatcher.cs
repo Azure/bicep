@@ -134,28 +134,55 @@ public class ResourceRequestDispatcher
     }
 
     protected virtual Rpc.LocalExtensibilityOperationResponse ToLocalOperationResponse(HandlerResponse? handlerResponse)
-        => handlerResponse is not null ? new Rpc.LocalExtensibilityOperationResponse()
+    {
+        if (handlerResponse is null)
         {
-            ErrorData = handlerResponse.Error is not null ?
-            new Rpc.ErrorData
+            throw new ArgumentNullException("Failed to process handler response. No response was provided.");
+        }
+
+        Rpc.Resource resource = new()
+        {
+            Status = handlerResponse.Status.ToString(),
+            Type = handlerResponse.Type,
+        };
+
+        if (handlerResponse.ApiVersion is { })
+        {
+            resource.ApiVersion = handlerResponse.ApiVersion;
+        }
+
+        if (handlerResponse.Properties is { })
+        {
+            resource.Properties = handlerResponse.Properties?.ToJsonString();
+        }
+
+        if (handlerResponse.Identifiers is { })
+        {
+            resource.Identifiers = handlerResponse.Identifiers?.ToJsonString();
+        }
+
+        Rpc.Error? error = null;
+        if (handlerResponse.Error is { } handlerError)
+        {
+            error = new()
             {
-                Error = new Rpc.Error()
-                {
-                    Code = handlerResponse.Error.Code,
-                    Message = handlerResponse.Error.Message,
-                    InnerError = handlerResponse.Error.InnerError?.Message,
-                    Target = handlerResponse.Error.Target,
-                }
-            } : null,
-            Resource = new Rpc.Resource()
+                Code = handlerError.Code,
+                Message = handlerError.Message,
+                Target = handlerError.Target,
+            };
+
+            if (handlerError.InnerError is { })
             {
-                Status = handlerResponse.Status.ToString(),
-                Type = handlerResponse.Type,
-                ApiVersion = handlerResponse.ApiVersion,
-                Properties = handlerResponse.Properties?.ToJsonString(),
-                Identifiers = handlerResponse.Identifiers?.ToJsonString(),
+                error.InnerError = handlerError.InnerError?.Message;
             }
-        } : throw new ArgumentNullException("Failed to process handler response. No response was provided.");
+        }
+
+        return new()
+        {
+            ErrorData = error is { } ? new() { Error = error } : null,
+            Resource = resource,
+        };
+    }
 
     protected virtual JsonObject GetExtensionConfig(string extensionConfig)
     {

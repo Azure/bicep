@@ -3,7 +3,9 @@
 
 using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using Bicep.Local.Extension.Host.Extensions;
+using Bicep.Local.Extension.Types.Attributes;
 
 namespace Bicep.Local.Extension.Host.Handlers;
 
@@ -120,10 +122,14 @@ public class ResourceHandlerDispatcher : IResourceHandlerDispatcher
                 }
 
                 Type resourceType = baseInterface.GetGenericArguments()[0];
-
-                if (!handlerDictionary.TryAdd(resourceType.Name, new(resourceType, resourceHandler)))
+                if (resourceType.GetCustomAttribute<ResourceTypeAttribute>(true) is not { } bicepType)
                 {
-                    throw new InvalidOperationException($"A resource handler for {resourceType.Name} has already been registered.");
+                    throw new InvalidOperationException($"Resource type {resourceType.FullName} does not have a {nameof(ResourceTypeAttribute)}.");
+                }
+
+                if (!handlerDictionary.TryAdd(bicepType.Name, new(resourceType, resourceHandler)))
+                {
+                    throw new InvalidOperationException($"A resource handler for {bicepType.Name} has already been registered.");
                 }
             }
             else if (resourceHandlerType.IsGenericTypedResourceHandler())

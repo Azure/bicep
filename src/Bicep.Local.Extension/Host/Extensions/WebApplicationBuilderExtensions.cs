@@ -73,6 +73,12 @@ public static class WebApplicationBuilderExtensions
                 Environment.Exit(commandLindParser.ExitCode);
             }
 
+            if (commandLindParser.Options.Describe)
+            {
+                // If --describe is specified, we don't start the server, just output the type definitions
+                return;
+            }
+
             var connectionOptions = (commandLindParser.Options.Socket,
                                      commandLindParser.Options.Pipe,
                                      commandLindParser.Options.Http);
@@ -186,19 +192,9 @@ public static class WebApplicationBuilderExtensions
             var typeDefinitionBuilder = app.Services.GetRequiredService<ITypeDefinitionBuilder>();
             var typeDefinition = typeDefinitionBuilder.GenerateBicepResourceTypes();
 
-            var jsonOptions = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                Converters =
-                    {
-                        new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
-                    }
-            };
-
             var stdout = Console.Out;
-            await stdout.WriteLineAsync(JsonSerializer.Serialize(
-                typeDefinition,
-                jsonOptions));
+            await stdout.WriteLineAsync(
+                JsonSerializer.Serialize(typeDefinition, TypeDefinitionSerializationContext.Default.TypeDefinition));
         }
         else
         {

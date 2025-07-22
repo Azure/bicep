@@ -113,6 +113,18 @@
                 "SetBaseLine=true",
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Build Mock Extension",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/Bicep.Local.Extension.Mock/Bicep.Local.Extension.Mock.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
         }
     ]
 }

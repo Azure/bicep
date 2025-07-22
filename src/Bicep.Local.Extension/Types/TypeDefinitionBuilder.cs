@@ -75,22 +75,28 @@ public class TypeDefinitionBuilder
     /// </remarks>
     public virtual TypeDefinition GenerateBicepResourceTypes()
     {
+        var typesJsonPath = "types.json";
         var resourceTypes = typeProvider.GetResourceTypes()
-                                .Select(rt => GenerateResource(factory, typeCache, rt))
-                                .ToDictionary(rt => rt.Name, rt => new CrossFileTypeReference("types.json", factory.GetIndex(rt)));
+            .Select(x => GenerateResource(factory, typeCache, x.type, x.attribute))
+            .ToDictionary(rt => rt.Name, rt => new CrossFileTypeReference(typesJsonPath, factory.GetIndex(rt)));
 
-        var index = new TypeIndex(resourceTypes
-                    , new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>()
-                    , Settings
-                    , null);
+        var index = new TypeIndex(
+            resourceTypes,
+            new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
+            Settings,
+            null);
 
-        return new(TypesJson: GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes())),
-                   IndexJson: GetString(stream => TypeSerializer.SerializeIndex(stream, index)));
+        return new(
+            IndexJson: GetString(stream => TypeSerializer.SerializeIndex(stream, index)),
+            TypesJsons: new Dictionary<string, string>
+            {
+                [typesJsonPath] = GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes())),
+            }.ToImmutableDictionary());
     }
 
-    protected virtual ResourceType GenerateResource(TypeFactory typeFactory, ConcurrentDictionary<Type, TypeBase> typeCache, Type type)
+    protected virtual ResourceType GenerateResource(TypeFactory typeFactory, ConcurrentDictionary<Type, TypeBase> typeCache, Type type, ResourceTypeAttribute attribute)
         => typeFactory.Create(() => new ResourceType(
-            name: $"{type.Name}",
+            name: attribute.ApiVersion is { } ? $"{attribute.Name}@{attribute.ApiVersion}" : attribute.Name,
             scopeType: ScopeType.Unknown,
             readOnlyScopes: null,
             body: typeFactory.GetReference(typeFactory.Create(() => GenerateForRecord(typeFactory, typeCache, type))),

@@ -121,8 +121,8 @@ public class TypeDefinitionBuilderTests
 
         result.Should().NotBeNull();        
         result.IndexJson.Should().NotBeNullOrEmpty();
-        result.TypesJson.Should().NotBeNullOrEmpty();
-        result.TypesJson.Should().Contain("[]", because: "the types JSON should be and empty array '[]' when no resource types are generated");        
+        result.TypesJsons.Values.Single().Should().NotBeNullOrEmpty();
+        result.TypesJsons.Values.Single().Should().Contain("[]", because: "the types JSON should be and empty array '[]' when no resource types are generated");        
     }
 
     [TestMethod]
@@ -131,7 +131,7 @@ public class TypeDefinitionBuilderTests
         var settings = CreateTypeSettings();
         var factory = CreateTypeFactory();
         var typeProviderMock = StrictMock.Of<ITypeProvider>();
-        typeProviderMock.Setup(tp => tp.GetResourceTypes()).Returns([typeof(SimpleResource)]);
+        typeProviderMock.Setup(tp => tp.GetResourceTypes()).Returns([(typeof(SimpleResource), new("SimpleResource"))]);
         var map = new Dictionary<Type, Func<TypeBase>> { { typeof(string), () => new StringType() } };
 
         var builder = new TypeDefinitionBuilder(settings, factory, typeProviderMock.Object, map);
@@ -140,8 +140,8 @@ public class TypeDefinitionBuilderTests
 
         result.Should().NotBeNull();
         result.IndexJson.Should().Contain("SimpleResource");
-        result.TypesJson.Should().Contain("SimpleResource");
-        result.TypesJson.Should().Contain("name", because: "the property should be present in the resource type definition");        
+        result.TypesJsons.Values.Single().Should().Contain("SimpleResource");
+        result.TypesJsons.Values.Single().Should().Contain("name", because: "the property should be present in the resource type definition");        
     }
 
     [TestMethod]
@@ -155,7 +155,7 @@ public class TypeDefinitionBuilderTests
         var settings = CreateTypeSettings();
         var factory = CreateTypeFactory();
         var typeProviderMock = StrictMock.Of<ITypeProvider>();
-        typeProviderMock.Setup(tp => tp.GetResourceTypes()).Returns([typeof(TestUnsupportedProperty)]);
+        typeProviderMock.Setup(tp => tp.GetResourceTypes()).Returns([(typeof(TestUnsupportedProperty), new("TestUnsupportedProperty"))]);
 
         var builder = new TypeDefinitionBuilder(settings, factory, typeProviderMock.Object, map);
 
@@ -173,7 +173,7 @@ public class TypeDefinitionBuilderTests
         var settings = CreateTypeSettings();
         var factory = CreateTypeFactory();
         var typeProviderMock = StrictMock.Of<ITypeProvider>();
-        typeProviderMock.Setup(tp => tp.GetResourceTypes()).Returns([typeof(ArrayResource)]);
+        typeProviderMock.Setup(tp => tp.GetResourceTypes()).Returns([(typeof(ArrayResource), new("ArrayResource"))]);
         var map = new Dictionary<Type, Func<TypeBase>> { { typeof(string), () => new StringType() } };
 
         var builder = new TypeDefinitionBuilder(settings, factory, typeProviderMock.Object, map);
@@ -181,8 +181,8 @@ public class TypeDefinitionBuilderTests
         var result = builder.GenerateBicepResourceTypes();
 
         result.Should().NotBeNull();
-        result.TypesJson.Should().Contain("ArrayResource");
-        result.TypesJson.Should().Contain("items", because: "the array property should be present in the resource type definition");
+        result.TypesJsons.Values.Single().Should().Contain("ArrayResource");
+        result.TypesJsons.Values.Single().Should().Contain("items", because: "the array property should be present in the resource type definition");
     }
 
     [TestMethod]
@@ -191,7 +191,7 @@ public class TypeDefinitionBuilderTests
         var settings = CreateTypeSettings();
         var factory = CreateTypeFactory();
         var typeProviderMock = StrictMock.Of<ITypeProvider>();
-        typeProviderMock.Setup(tp => tp.GetResourceTypes()).Returns([typeof(EnumerableResource)]);
+        typeProviderMock.Setup(tp => tp.GetResourceTypes()).Returns([(typeof(EnumerableResource), new("EnumerableResource"))]);
         var map = new Dictionary<Type, Func<TypeBase>> { { typeof(string), () => new StringType() } };
 
         var builder = new TypeDefinitionBuilder(settings, factory, typeProviderMock.Object, map);
@@ -199,7 +199,7 @@ public class TypeDefinitionBuilderTests
         var result = builder.GenerateBicepResourceTypes();
 
         result.Should().NotBeNull();
-        result.TypesJson.Should().Contain("EnumerableResource");
-        result.TypesJson.Should().Contain("items", because: "the enumerable property should be present in the resource type definition");
+        result.TypesJsons.Values.Single().Should().Contain("EnumerableResource");
+        result.TypesJsons.Values.Single().Should().Contain("items", because: "the enumerable property should be present in the resource type definition");
     }
 }
