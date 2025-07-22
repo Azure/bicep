@@ -32,23 +32,24 @@ public class CommandLineParser
         }
         else
         {
-            Result = parser.ParseArguments<CommandLineOptions>(args)
-                                 .WithNotParsed(errors =>
-                                 {
-                                     var x = args;
-                                     var isHelpOrVersion = errors.Any(e =>
-                                         e.Tag == ErrorType.HelpRequestedError ||
-                                         e.Tag == ErrorType.VersionRequestedError);
+            Result = parser
+                .ParseArguments<CommandLineOptions>(args)
+                .WithNotParsed(errors =>
+                {
+                    var x = args;
+                    var isHelpOrVersion = errors.Any(e =>
+                        e.Tag == ErrorType.HelpRequestedError ||
+                        e.Tag == ErrorType.VersionRequestedError);
 
-                                     logger.LogError("Command line parsing failed with errors: {Errors}", errors);
-                                     Errors = errors.ToList();
-                                     ShouldExit = true;
-                                     ExitCode = isHelpOrVersion ? 0 : 1;
-                                 })
-                                 .WithParsed(options =>
-                                 {
-                                     Options = options;
-                                 });
+                    logger.LogError("Command line parsing failed with errors: {Errors}", errors);
+                    Errors = errors.ToList();
+                    ShouldExit = true;
+                    ExitCode = isHelpOrVersion ? 0 : 1;
+                })
+                .WithParsed(options =>
+                {
+                    Options = options;
+                });
         }
     }
 

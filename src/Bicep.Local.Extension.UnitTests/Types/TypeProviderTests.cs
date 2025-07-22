@@ -14,45 +14,45 @@ using FluentAssertions;
 namespace Bicep.Local.Extension.UnitTests.TypesTests.Types_A
 
 {
-    [BicepType]
+    [ResourceType("ActiveResource")]
     public class ActiveResource { }
 
     public class NoAttributeResource { }
 
-    [BicepType]
+    [ResourceType("InternalActiveResource")]
     internal class InternalActiveResource { }
 }
 
 namespace Bicep.Local.Extension.UnitTests.TypesTests.Types_B
 {
-    [BicepType]
+    [ResourceType("ActiveResource")]
     public class ActiveResource { }
 
     public class NoAttributeResource { }
 
-    [BicepType]
+    [ResourceType("InternalActiveResource")]
     internal class InternalActiveResource { }
 }
 
 namespace Bicep.Local.Extension.UnitTests.TypesTests
 {
-    [BicepType]
+    [ResourceType("ActiveResource")]
     public class ActiveResource { }
 
     public class NoAttributeResource { }
 
-    [BicepType]
+    [ResourceType("InternalActiveResource")]
     internal class InternalActiveResource { }
 
     [TestClass]
     public class TypeProviderTests
     {
-        [BicepType]
+        [ResourceType("NestedActiveResource")]
         public class NestedActiveResource { }
 
         public class NestedNoAttributeResource { }
 
-        [BicepType]
+        [ResourceType("PrivateNestedActiveResource")]
         private class PrivateNestedActiveResource { }
 
 
@@ -61,7 +61,7 @@ namespace Bicep.Local.Extension.UnitTests.TypesTests
         {
             var provider = new TypeProvider([typeof(TypeProviderTests).Assembly]);
 
-            var types = provider.GetResourceTypes();
+            var types = provider.GetResourceTypes(throwOnDuplicate: false).Select(x => x.type).ToList();
 
             types.Should().HaveCount(2, "only public types in the same namespaces should be returned");
 
@@ -88,6 +88,15 @@ namespace Bicep.Local.Extension.UnitTests.TypesTests
             types.Should().NotContain(typeof(NestedNoAttributeResource));
 
         }
+
+
+        [TestMethod]
+        public void GetResourceTypes_Throws_If_DuplicateResourceTypesFound()
+        {
+            var provider = new TypeProvider([typeof(TypeProviderTests).Assembly]);
+
+            FluentActions.Invoking(() => provider.GetResourceTypes(throwOnDuplicate: true).ToList())
+                .Should().Throw<InvalidOperationException>();
+        }
     }
 }
-

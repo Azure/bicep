@@ -7,15 +7,21 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Azure.Deployments.Expression.Expressions;
+using Bicep.Core.Parsing;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Local.Deploy.Helpers;
 using Bicep.Local.Extension;
-using Bicep.Local.Extension.Protocol;
+using Bicep.Local.Extension.Host.Extensions;
+using Bicep.Local.Extension.Host.Handlers;
+using Bicep.Local.Extension.Types.Attributes;
 using FluentAssertions;
 using Grpc.Core;
 using Grpc.Net.Client;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Moq;
@@ -23,7 +29,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc;
-using Protocol = Bicep.Local.Extension.Protocol;
+using Handlers = Bicep.Local.Extension.Host.Handlers;
 
 namespace Bicep.Local.Deploy.IntegrationTests;
 
@@ -36,7 +42,7 @@ public class ProviderExtensionTests : TestBase
         NamedPipe,
     }
 
-    private async Task RunExtensionTest(string[] processArgs, Func<GrpcChannel> channelBuilder, Action<ResourceDispatcherBuilder> registerHandlers, Func<Rpc.BicepExtension.BicepExtensionClient, CancellationToken, Task> testFunc)
+    private async Task RunExtensionTest(string[] processArgs, Func<GrpcChannel> channelBuilder, Action<IBicepExtensionBuilder> registerHandlers, Func<Rpc.BicepExtension.BicepExtensionClient, CancellationToken, Task> testFunc)
     {
         var testTimeout = TimeSpan.FromMinutes(1);
         var cts = new CancellationTokenSource(testTimeout);
@@ -44,9 +50,21 @@ public class ProviderExtensionTests : TestBase
         await Task.WhenAll(
             Task.Run(async () =>
             {
-                var extension = new KestrelProviderExtension();
+                var builder = WebApplication.CreateBuilder();
 
-                await extension.RunAsync(processArgs, registerHandlers, cts.Token);
+                builder.AddBicepExtensionHost(processArgs);
+                registerHandlers(builder.Services
+                    .AddBicepExtension(
+                        name: "MockExtension",
+                        version: "0.0.1",
+                        isSingleton: true,
+                        typeAssembly: typeof(ProviderExtensionTests).Assembly));
+
+                var app = builder.Build();
+
+                app.MapBicepExtension();
+
+                await app.RunAsync(cts.Token);
             }),
             Task.Run(async () =>
             {
@@ -65,15 +83,15 @@ public class ProviderExtensionTests : TestBase
             }, cts.Token));
     }
 
-    private async Task RunExtensionTest(Func<Mock<IGenericResourceHandler>, Rpc.BicepExtension.BicepExtensionClient, CancellationToken, Task> testFunc)
+    private async Task RunExtensionTest(Func<Mock<IResourceHandler>, Rpc.BicepExtension.BicepExtensionClient, CancellationToken, Task> testFunc)
     {
         var socketPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.tmp");
-        var mockHandler = StrictMock.Of<IGenericResourceHandler>();
+        var mockHandler = StrictMock.Of<IResourceHandler>();
 
         await RunExtensionTest(
             ["--socket", socketPath],
             () => GrpcChannelHelper.CreateDomainSocketChannel(socketPath),
-            builder => builder.AddGenericHandler(mockHandler.Object),
+            builder => builder.WithResourceHandler(mockHandler.Object),
             (client, token) => testFunc(mockHandler, client, token));
     }
 
@@ -85,6 +103,12 @@ public class ProviderExtensionTests : TestBase
             // Kestrel only supports named pipes on Windows
             yield return new object[] { ChannelMode.NamedPipe };
         }
+    }
+
+    [ResourceType("apps/Deployment")]
+    public class AppsDeploymentResource
+    {
+
     }
 
     [TestMethod]
@@ -115,16 +139,13 @@ public class ProviderExtensionTests : TestBase
                     { "namespace", "someNamespace" }
                 };
 
-        var handlerMock = StrictMock.Of<IResourceHandler>();
-        handlerMock.SetupGet(x => x.ResourceType).Returns("apps/Deployment");
-        handlerMock.SetupCreateOrUpdate(req => new(
-                new(req.Type, req.ApiVersion, "Succeeded", identifiers, req.Config, req.Properties),
-                null));
+        var handlerMock = StrictMock.Of<IResourceHandler<AppsDeploymentResource>>();
+        handlerMock.SetupCreateOrUpdate(req => HandlerResponse.Success(req.Type, req.Properties, identifiers, req.ApiVersion));
 
         await RunExtensionTest(
             processArgs,
             channelBuilder,
-            builder => builder.AddHandler(handlerMock.Object),
+            builder => builder.WithResourceHandler(handlerMock.Object),
             async (client, token) =>
             {
                 var request = new Rpc.ResourceSpecification
@@ -198,8 +219,8 @@ public class ProviderExtensionTests : TestBase
     [TestMethod]
     public Task Error_details_and_inner_error_can_be_null() => RunExtensionTest(async (handlerMock, client, token) =>
     {
-        Protocol.Error error = new("SomeErrorCode", "SomeTarget", "SomeMessage", null, null);
-        handlerMock.SetupCreateOrUpdate(req => new(null, new(error)));
+        Handlers.Error error = new("SomeErrorCode", "SomeTarget", "SomeMessage");
+        handlerMock.SetupCreateOrUpdate(req => HandlerResponse.Failed(req.Type, req.Properties, req.Identifiers, error, req.ApiVersion));
 
         var response = await client.CreateOrUpdateAsync(new()
         {

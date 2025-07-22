@@ -5,7 +5,7 @@ import os from "os";
 import { describe, it } from "vitest";
 import { BicepRegistryReferenceBuilder } from "../utils/br";
 import { invokingBicepCommand } from "../utils/command";
-import { copyToTempFile, pathToExampleFile, pathToTempFile } from "../utils/fs";
+import { copyToTempFile, pathToExampleFile } from "../utils/fs";
 import { getEnvironment } from "../utils/liveTestEnvironments";
 import { platformSupportsLocalDeploy, publishExtension } from "../utils/localdeploy";
 
@@ -29,8 +29,7 @@ describe("bicep local-deploy", () => {
       }),
     };
 
-    const typesIndexPath = pathToTempFile(testArea, "types", "index.json");
-    publishExtension(typesIndexPath, target).shouldSucceed().withEmptyStdout();
+    publishExtension(target).shouldSucceed().withEmptyStdout();
 
     invokingBicepCommand("local-deploy", files.bicepparam)
       .shouldSucceed()
