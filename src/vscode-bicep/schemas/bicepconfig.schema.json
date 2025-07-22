@@ -48,6 +48,20 @@
         "level"
       ]
     },
+    "rule-def-level-info": {
+      "type": "object",
+      "default": {
+        "level": "info"
+      },
+      "properties": {
+        "level": {
+          "$ref": "#/definitions/level"
+        }
+      },
+      "required": [
+        "level"
+      ]
+    },
     "rule-def-level-off": {
       "type": "object",
       "default": {
@@ -660,10 +674,10 @@
                 "stacks-extensibility-compat": {
                   "allOf": [
                     {
-                      "description": "Extensibility for deployments has additional constraints for Deployment stack deployments. See https://aka.ms/bicep/linter-diagnostics#stacks-extensibility-compat"
+                      "description": "Extensibility for deployments has additional constraints for Deployment stack deployments. Defaults to 'Info'. See https://aka.ms/bicep/linter-diagnostics#stacks-extensibility-compat"
                     },
                     {
-                      "$ref": "#/definitions/rule-def-level-warning"
+                      "$ref": "#/definitions/rule-def-level-info"
                     }
                   ]
                 },
