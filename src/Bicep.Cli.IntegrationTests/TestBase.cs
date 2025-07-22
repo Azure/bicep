@@ -4,7 +4,6 @@
 using Bicep.Cli.UnitTests;
 using Bicep.Core;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Catalog.Implementation;
@@ -12,12 +11,14 @@ using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.Samples;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.Utils;
 using Bicep.TextFixtures.Utils;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using TestEnvironment = Bicep.Core.UnitTests.Utils.TestEnvironment;
 
@@ -67,6 +68,14 @@ namespace Bicep.Cli.IntegrationTests
 
                 this.ModuleMetadataClient = ModuleMetadataClient ?? new MockPublicModuleIndexHttpClient(new());
             }
+
+            public InvocationSettings WithArtifactManager(TestExternalArtifactManager artifactManager, TestContext testContext) =>
+                this with
+                {
+                    FeatureOverrides = (this.FeatureOverrides ?? new(testContext)) with { RegistryEnabled = true },
+                    ClientFactory = artifactManager.ContainerRegistryClientFactory,
+                    TemplateSpecRepositoryFactory = artifactManager.TemplateSpecRepositoryFactory
+                };
         }
 
         protected static Task<CliResult> Bicep(InvocationSettings settings, Action<IServiceCollection>? registerAction, CancellationToken cancellationToken, params string?[] args /*null args are ignored*/)
@@ -152,13 +161,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             var settings = CreateDefaultSettings(featureOverrides: f => f with { RegistryEnabled = true });
 
-            var artifactCompiler = TestCompiler.ForMockFileSystemCompilation()
-                .ConfigureServices(acs =>
-                {
-                    acs.AddSingleton((FeatureProviderFactory)acs.Get<IFeatureProviderFactory>()); // register the impl as a singleton directly.
-                    acs.AddSingleton(settings.FeatureOverrides!);
-                    acs.AddSingleton<IFeatureProviderFactory, OverriddenFeatureProviderFactory>();
-                });
+            var artifactCompiler = TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(settings.FeatureOverrides!);
 
             var artifactManager = await MockRegistry.CreateDefaultExternalArtifactManager(artifactCompiler);
 

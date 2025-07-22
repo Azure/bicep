@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
@@ -58,11 +59,9 @@ public static class MockRegistry
             var compilationResult = CompilationHelper.Compile(sourceFile.Contents);
             compilationResult.Template.Should().NotBeNull();
 
-            var referenceStr = registryPath[3..];
-
-            if (!TemplateSpecModuleReference.TryParse(BicepTestConstants.DummyBicepFile, null, referenceStr).IsSuccess(out var specReference, out var error))
+            if (!TryParseTemplateSpecReference(registryPath, out var specReference, out var errorDiagnostic))
             {
-                throw new InvalidOperationException($"Failed to parse template spec reference from {registryPath} ({filePath}): {error(DiagnosticBuilder.ForDocumentStart())}");
+                throw new InvalidOperationException($"Failed to parse template spec reference from {registryPath} ({filePath}): {errorDiagnostic}");
             }
 
             var templateSpec = new JObject
@@ -78,6 +77,41 @@ public static class MockRegistry
                 Id: specReference.TemplateSpecResourceId,
                 Content: templateSpec.ToString());
         }
+    }
+
+    public static bool TryParseTemplateSpecReference(
+        string referenceStr,
+        [NotNullWhen(true)] out TemplateSpecModuleReference? reference,
+        [NotNullWhen(false)] out IDiagnostic? diagnostic)
+    {
+        reference = null;
+        diagnostic = null;
+
+        if (referenceStr.StartsWith("ts:"))
+        {
+            referenceStr = referenceStr[3..];
+        }
+
+        if (!TemplateSpecModuleReference.TryParse(BicepTestConstants.DummyBicepFile, null, referenceStr).IsSuccess(out var specReference, out var errorBuilder))
+        {
+            diagnostic = errorBuilder(DiagnosticBuilder.ForDocumentStart());
+
+            return false;
+        }
+
+        reference = specReference;
+
+        return true;
+    }
+
+    public static MockTemplateSpecData ConvertExternalModuleInfoToMockTemplateSpecData(DataSet.ExternalModuleInfo templateSpecModule)
+    {
+        if (!MockRegistry.TryParseTemplateSpecReference(templateSpecModule.Metadata.Target, out var specReference, out var errorBuilder))
+        {
+            throw new InvalidOperationException($"Failed to parse template spec reference from {templateSpecModule.Metadata.Target}: {errorBuilder}");
+        }
+
+        return new MockTemplateSpecData(specReference.TemplateSpecResourceId, templateSpecModule.ModuleSource);
     }
 
     public static IEnumerable<MockExtensionData> CreateDefaultMockExtensions()

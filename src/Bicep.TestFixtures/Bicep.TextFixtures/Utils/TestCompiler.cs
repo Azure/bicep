@@ -6,7 +6,6 @@ using Bicep.Core;
 using Bicep.Core.FileSystem;
 using Bicep.IO.FileSystem;
 using Bicep.TextFixtures.IO;
-using FluentAssertions.Common;
 
 namespace Bicep.TextFixtures.Utils
 {

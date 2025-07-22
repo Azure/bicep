@@ -11,8 +11,10 @@ using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
+using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.TextFixtures.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -39,16 +41,16 @@ namespace Bicep.Core.IntegrationTests.Emit
             features = features with { CacheRootDirectory = FileHelper.GetCacheRootDirectory(TestContext) };
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients();
-            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory);
+
+            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(features));
+            await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
+
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
             var bicepFileUri = PathHelper.FilePathToFileUrl(bicepFilePath);
 
             var compiler = Services
-                .WithContainerRegistryClientFactory(clientFactory)
-                .WithTemplateSpecRepositoryFactory(templateSpecRepositoryFactory)
                 .WithFeatureOverrides(features)
+                .WithTestArtifactManager(artifactManager)
                 .Build()
                 .GetCompiler();
 
@@ -61,7 +63,7 @@ namespace Bicep.Core.IntegrationTests.Emit
         public async Task ValidBicep_TemplateEmiterShouldProduceExpectedTemplate(DataSet dataSet)
         {
             var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled));
-            var compilation = await GetCompilation(dataSet, new());
+            var compilation = await GetCompilation(dataSet, new(TestContext));
 
             var result = EmitTemplate(compilation, compiledFilePath);
             result.Diagnostics.Should().NotHaveErrors();
@@ -87,7 +89,7 @@ namespace Bicep.Core.IntegrationTests.Emit
         public async Task ValidBicep_EmitTemplate_should_produce_expected_symbolicname_template(DataSet dataSet)
         {
             var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiledWithSymbolicNames));
-            var compilation = await GetCompilation(dataSet, new(SymbolicNameCodegenEnabled: true));
+            var compilation = await GetCompilation(dataSet, new(TestContext, SymbolicNameCodegenEnabled: true));
 
             var result = EmitTemplate(compilation, compiledFilePath);
             result.Diagnostics.Should().NotHaveErrors();
@@ -139,7 +141,7 @@ namespace Bicep.Core.IntegrationTests.Emit
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task SourceMap_maps_json_to_bicep_lines(DataSet dataSet)
         {
-            var features = new FeatureProviderOverrides(TestContext, RegistryEnabled: dataSet.HasExternalModules, SourceMappingEnabled: true);
+            var features = new FeatureProviderOverrides(TestContext, SourceMappingEnabled: true);
             var (compilation, outputDirectory, _) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext, features);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
             using var memoryStream = new MemoryStream();
@@ -188,7 +190,7 @@ namespace Bicep.Core.IntegrationTests.Emit
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task ValidBicepTextWriter_TemplateEmiterShouldProduceExpectedTemplate(DataSet dataSet)
         {
-            var compilation = await GetCompilation(dataSet, new());
+            var compilation = await GetCompilation(dataSet, new(TestContext));
 
             var memoryStream = new MemoryStream();
             var result = this.EmitTemplate(compilation, memoryStream);
@@ -211,7 +213,7 @@ namespace Bicep.Core.IntegrationTests.Emit
         [DynamicData(nameof(GetInvalidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task InvalidBicep_TemplateEmiterShouldNotProduceAnyTemplate(DataSet dataSet)
         {
-            var compilation = await GetCompilation(dataSet, new());
+            var compilation = await GetCompilation(dataSet, new(TestContext));
             string filePath = FileHelper.GetResultFilePath(this.TestContext, $"{dataSet.Name}_Compiled_Original.json");
 
             // emitting the template should fail

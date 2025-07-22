@@ -3,20 +3,18 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Configuration;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
-using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.IO.Abstraction;
+using Bicep.TextFixtures.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -36,20 +34,34 @@ namespace Bicep.Core.Samples
         public static string SaveFilesToTestDirectory(this DataSet dataSet, TestContext testContext)
             => FileHelper.SaveEmbeddedResourcesWithPathPrefix(testContext, typeof(DataSet).Assembly, dataSet.GetStreamPrefix());
 
-        public static async Task<(Compilation compilation, string outputDirectory, Uri fileUri)> SetupPrerequisitesAndCreateCompilation(this DataSet dataSet, TestContext testContext, FeatureProviderOverrides? features = null)
+        public static async Task<(Compilation compilation, string outputDirectory, Uri fileUri)> SetupPrerequisitesAndCreateCompilation(
+            this DataSet dataSet,
+            TestContext testContext,
+            FeatureProviderOverrides? features = null)
         {
-            features ??= new(testContext, RegistryEnabled: dataSet.HasExternalModules);
+            features ??= new(testContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(testContext);
-            var clientFactory = dataSet.CreateMockRegistryClients();
-            await dataSet.PublishModulesToRegistryAsync(clientFactory);
-            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(testContext);
+            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(features));
+            await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
 
-            var compiler = ServiceBuilder.Create(s => s.AddSingleton(templateSpecRepositoryFactory).AddSingleton(clientFactory).WithFeatureOverrides(features).WithAnalyzersCodesToDisableConfiguration(BicepTestConstants.TestAnalyzersToSkip)).GetCompiler();
+            var compiler = new ServiceBuilder()
+                .WithFeatureOverrides(features)
+                .WithRegistration(s => s.WithAnalyzersCodesToDisableConfiguration(BicepTestConstants.TestAnalyzersToSkip))
+                .WithTestArtifactManager(artifactManager)
+                .Build()
+                .GetCompiler();
 
             var fileUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, DataSet.TestFileMain));
             var compilation = await compiler.CreateCompilation(fileUri);
 
             return (compilation, outputDirectory, fileUri);
+        }
+
+        public static async Task PublishAllDataSetArtifacts(this DataSet dataSet, TestExternalArtifactManager manager, bool publishSource = true)
+        {
+            manager.UpsertTemplateSpecs(dataSet.TemplateSpecs.Select(kvp => MockRegistry.ConvertExternalModuleInfoToMockTemplateSpecData(kvp.Value)));
+            await manager.PublishRegistryModules(dataSet.RegistryModules.Select(m => new TestExternalArtifactManager.RegistryModulePublishArguments(m.Value.Metadata.Target, m.Value.ModuleSource, publishSource)));
+            await manager.PublishExtensions(MockRegistry.CreateDefaultMockExtensions());
         }
 
         public static IContainerRegistryClientFactory CreateMockRegistryClients(

@@ -10,8 +10,10 @@ using Bicep.Core.Samples;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Extensions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.IO.Abstraction;
+using Bicep.TextFixtures.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -34,9 +36,6 @@ namespace Bicep.Core.IntegrationTests
             var dataSet = DataSets.Registry_LF;
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients();
-            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory);
 
             var fileUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, DataSet.TestFileMain));
 
@@ -51,12 +50,13 @@ namespace Bicep.Core.IntegrationTests
                 RegistryEnabled = true,
                 CacheRootDirectory = badCacheDirectory,
             };
-            var featuresFactory = BicepTestConstants.CreateFeatureProviderFactory(featureOverrides);
+
+            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(featureOverrides));
+            await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
 
             var services = Services
-                .WithFeatureOverrides(new(RegistryEnabled: true, CacheRootDirectory: badCacheDirectory))
-                .WithContainerRegistryClientFactory(clientFactory)
-                .WithTemplateSpecRepositoryFactory(templateSpecRepositoryFactory)
+                .WithFeatureOverrides(featureOverrides)
+                .WithTestArtifactManager(artifactManager)
                 .Build();
 
             var compiler = services.GetCompiler();
@@ -152,17 +152,16 @@ namespace Bicep.Core.IntegrationTests
         {
             var dataSet = DataSets.Registry_LF;
 
-            var publishSource = true;
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients();
-            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory, publishSource);
-
             var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+            var features = new FeatureProviderOverrides(CacheRootDirectory: cacheDirectory);
+
+            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(features));
+            await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
+
             var services = Services
-                .WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory))
-                .WithContainerRegistryClientFactory(clientFactory)
-                .WithTemplateSpecRepositoryFactory(templateSpecRepositoryFactory)
+                .WithFeatureOverrides(features)
+                .WithTestArtifactManager(artifactManager)
                 .Build();
 
             var dispatcher = services.Construct<IModuleDispatcher>();
@@ -207,16 +206,18 @@ namespace Bicep.Core.IntegrationTests
             var dataSet = DataSets.Registry_LF;
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients();
-            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory, publishSource: publishSource);
 
             var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+            var features = new FeatureProviderOverrides(CacheRootDirectory: cacheDirectory);
+
+            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(features));
+            await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
+
             var fileResolver = BicepTestConstants.FileResolver;
+
             var services = Services
-                .WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory))
-                .WithContainerRegistryClientFactory(clientFactory)
-                .WithTemplateSpecRepositoryFactory(templateSpecRepositoryFactory)
+                .WithFeatureOverrides(features)
+                .WithTestArtifactManager(artifactManager)
                 .WithFileResolver(fileResolver)
                 .Build();
 
@@ -272,16 +273,17 @@ namespace Bicep.Core.IntegrationTests
             var dataSet = DataSets.Registry_LF;
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients();
-            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory);
-
             var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+            var features = new FeatureProviderOverrides(CacheRootDirectory: cacheDirectory);
+
+            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(features));
+            await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
+
             var fileResolver = BicepTestConstants.FileResolver;
+
             var services = Services
-                .WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory))
-                .WithContainerRegistryClientFactory(clientFactory)
-                .WithTemplateSpecRepositoryFactory(templateSpecRepositoryFactory)
+                .WithFeatureOverrides(features)
+                .WithTestArtifactManager(artifactManager)
                 .WithFileResolver(fileResolver)
                 .Build();
 
@@ -344,16 +346,18 @@ namespace Bicep.Core.IntegrationTests
             var dataSet = DataSets.Registry_LF;
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients();
-            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory, publishSource);
 
             var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+            var features = new FeatureProviderOverrides(CacheRootDirectory: cacheDirectory);
+
+            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(features));
+            await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
+
             var fileResolver = BicepTestConstants.FileResolver;
+
             var services = Services
                 .WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory))
-                .WithContainerRegistryClientFactory(clientFactory)
-                .WithTemplateSpecRepositoryFactory(templateSpecRepositoryFactory)
+                .WithTestArtifactManager(artifactManager)
                 .WithFileResolver(fileResolver)
                 .Build();
 
