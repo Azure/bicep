@@ -539,7 +539,7 @@
     <value>Import "{0}" is declared but never used.</value>
   </data>
   <data name="StacksExtensibilityCompatibilityRuleDescription" xml:space="preserve">
-    <value>Extension configurations have additional constraints for Deployment stack deployments.</value>
+    <value>Extensibility for deployments has additional constraints for Deployment stack deployments.</value>
   </data>
   <data name="StacksExtensibilityCompatibilityRule_SecurePropertyValueIsNotReference" xml:space="preserve">
     <value>Secure config property values must be a key vault reference to be valid for Deployment stack deployments.</value>

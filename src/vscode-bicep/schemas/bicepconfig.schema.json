@@ -657,6 +657,16 @@
                     }
                   ]
                 },
+                "stacks-extensibility-compat": {
+                  "allOf": [
+                    {
+                      "description": "Extensibility for deployments has additional constraints for Deployment stack deployments. See https://aka.ms/bicep/linter-diagnostics#stacks-extensibility-compat"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "use-parent-property": {
                   "allOf": [
                     {

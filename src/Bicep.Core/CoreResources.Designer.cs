@@ -825,7 +825,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Extension configurations have additional constraints for Deployment stack deployments..
+        ///   Looks up a localized string similar to Extensibility for deployments has additional constraints for Deployment stack deployments..
         /// </summary>
         internal static string StacksExtensibilityCompatibilityRuleDescription {
             get {
