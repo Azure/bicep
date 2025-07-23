@@ -183,9 +183,39 @@ namespace Bicep.Core.TypeSystem
                     isSafeAccess,
                     shouldWarn,
                     diagnostics),
+                null when TryGetModuleUnionBodyType(unionType) is UnionType bodyUnion
+                    => GetNamedPropertyType(
+                        bodyUnion,
+                        propertyExpressionPositionable,
+                        propertyName,
+                        isSafeAccess,
+                        shouldWarn,
+                        diagnostics),
                 // TODO improve later here if necessary - we should be able to block stuff that is obviously wrong
                 _ => LanguageConstants.Any,
             };
+
+        private static UnionType? TryGetModuleUnionBodyType(UnionType union)
+        {
+            if (union.Members.Length < 2)
+            {
+                return null;
+            }
+
+            var memberModuleBodies = ImmutableArray.CreateBuilder<ITypeReference>(union.Members.Length);
+
+            foreach (var member in union.Members)
+            {
+                if (member.Type is not ModuleType moduleType)
+                {
+                    return null;
+                }
+
+                memberModuleBodies.Add(moduleType.Body.Type);
+            }
+
+            return new(string.Empty, memberModuleBodies.ToImmutable());
+        }
 
         public static TypeSymbol GetNamedPropertyType(
             DiscriminatedObjectType discriminatedObjectType,
