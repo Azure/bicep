@@ -34,7 +34,7 @@ module modDTwo 'moduled.bicep' = {
   name: 'modDTwo'
   params: {
     input: modDOne.outputs.storageAccountName
-//@[011:045) [what-if-short-circuiting (Warning)] Runtime value 'modDOne.outputs.storageAccountName' will reduce the precision of what-if analysis for module 'modDTwo' (bicep core linter https://aka.ms/bicep/linter-diagnostics#what-if-short-circuiting) |modDOne.outputs.storageAccountName|
+//@[011:045) [what-if-short-circuiting (Warning)] Parameter 'input' is used as a resource identifier, API version, or condition in the module 'modDTwo'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If. (bicep core linter https://aka.ms/bicep/linter-diagnostics#what-if-short-circuiting) |modDOne.outputs.storageAccountName|
   }
 }
 
