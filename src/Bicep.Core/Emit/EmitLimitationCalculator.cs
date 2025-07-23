@@ -57,6 +57,7 @@ namespace Bicep.Core.Emit
             BlockResourceDerivedTypesThatDoNotDereferenceProperties(model, diagnostics);
             BlockSpreadInUnsupportedLocations(model, diagnostics);
             BlockSecureOutputsWithLocalDeploy(model, diagnostics);
+            BlockSecureOutputAccessOnIndirectReference(model, diagnostics);
             BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
 
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
@@ -990,6 +991,38 @@ namespace Bicep.Core.Emit
                     moduleModel.Outputs.Any(output => output.IsSecure))
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(module.NameSource).SecureOutputsNotSupportedWithLocalDeploy(module.Name));
+                }
+            }
+        }
+
+        private static void BlockSecureOutputAccessOnIndirectReference(
+            SemanticModel model,
+            IDiagnosticWriter diagnostics)
+        {
+            // we're looking for access expressions...
+            foreach (var accessExpr in SyntaxAggregator.AggregateByType<AccessExpressionSyntax>(model.Root.Syntax))
+            {
+                // ... whose base expression is a match for `<something>.outputs`
+                if (accessExpr.BaseExpression is AccessExpressionSyntax baseAccessExpr &&
+                    baseAccessExpr.AccessExpressionMatches(
+                        SyntaxFactory.CreateStringLiteral(LanguageConstants.ModuleOutputsPropertyName)) &&
+                    // ... and whose base expression is a module...
+                    TypeHelper.SatisfiesCondition(model.GetTypeInfo(baseAccessExpr.BaseExpression), t => t is ModuleType) &&
+                    // ... when the type of the output dereferenced would trigger the use of `listOutputsWithSecureValues`
+                    TypeHelper.IsOrContainsSecureType(model.GetTypeInfo(accessExpr)))
+                {
+                    if (model.GetSymbolInfo(baseAccessExpr.BaseExpression) is ModuleSymbol ||
+                        (baseAccessExpr.BaseExpression is ArrayAccessSyntax grandBaseArrayAccess &&
+                            model.GetSymbolInfo(grandBaseArrayAccess.BaseExpression) is ModuleSymbol greatGrandBaseModule &&
+                            greatGrandBaseModule.IsCollection))
+                    {
+                        // if the module reference is **direct** (e.g., `mod.outputs.sensitive` or
+                        // `mod[0].outputs.sensitive`, don't raise a diagnostic
+                        continue;
+                    }
+
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(accessExpr.IndexExpression)
+                        .SecureOutputsOnlyAllowedOnDirectModuleReference());
                 }
             }
         }

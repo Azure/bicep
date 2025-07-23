@@ -12,6 +12,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Types;
 using Newtonsoft.Json.Linq;
@@ -183,9 +184,39 @@ namespace Bicep.Core.TypeSystem
                     isSafeAccess,
                     shouldWarn,
                     diagnostics),
+                null when TryGetModuleUnionBodyType(unionType) is UnionType bodyUnion
+                    => GetNamedPropertyType(
+                        bodyUnion,
+                        propertyExpressionPositionable,
+                        propertyName,
+                        isSafeAccess,
+                        shouldWarn,
+                        diagnostics),
                 // TODO improve later here if necessary - we should be able to block stuff that is obviously wrong
                 _ => LanguageConstants.Any,
             };
+
+        private static UnionType? TryGetModuleUnionBodyType(UnionType union)
+        {
+            if (union.Members.Length < 2)
+            {
+                return null;
+            }
+
+            var memberModuleBodies = ImmutableArray.CreateBuilder<ITypeReference>(union.Members.Length);
+
+            foreach (var member in union.Members)
+            {
+                if (member.Type is not ModuleType moduleType)
+                {
+                    return null;
+                }
+
+                memberModuleBodies.Add(moduleType.Body.Type);
+            }
+
+            return new(string.Empty, memberModuleBodies.ToImmutable());
+        }
 
         public static TypeSymbol GetNamedPropertyType(
             DiscriminatedObjectType discriminatedObjectType,
@@ -885,5 +916,20 @@ namespace Bicep.Core.TypeSystem
                 _ => configType
             };
         }
+
+        public static TypeSymbol? TryGetArmPrimitiveType(TypeSymbol type) => type switch
+        {
+            BooleanLiteralType or BooleanType => LanguageConstants.Bool,
+            IntegerLiteralType or IntegerType => LanguageConstants.Int,
+            StringLiteralType or StringType => LanguageConstants.String,
+            ObjectType or DiscriminatedObjectType => LanguageConstants.Object,
+            TupleType or ArrayType => LanguageConstants.Array,
+            UnionType when TryRemoveNullability(type) is { } nonNull => TryGetArmPrimitiveType(nonNull),
+            UnionType union when union.Members.Select(m => TryGetArmPrimitiveType(m.Type)).ToArray() is { } mTypes &&
+                !mTypes.Any(t => t is null) &&
+                mTypes.ToHashSet() is { } mUniqueTypes &&
+                mUniqueTypes.Count == 1 => mUniqueTypes.Single(),
+            _ => null,
+        };
     }
 }
