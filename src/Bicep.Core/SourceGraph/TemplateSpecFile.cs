@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
+using Bicep.Core.Features;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.SourceGraph
@@ -27,5 +29,11 @@ namespace Bicep.Core.SourceGraph
         public ArmTemplateFile MainTemplateFile { get; }
 
         public bool HasErrors() => this.TemplateSpecId is null;
+
+        public RootConfiguration Configuration => MainTemplateFile.Configuration;
+
+        public IFeatureProvider Features => MainTemplateFile.Features;
+
+        public BicepSourceFileKind FileKind => BicepSourceFileKind.ArmTemplateFile;
     }
 }

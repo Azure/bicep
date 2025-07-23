@@ -129,7 +129,7 @@ namespace Bicep.Core.Semantics
 
         public ImmutableArray<OutputMetadata> Outputs => this.outputsLazy.Value;
 
-        public IFeatureProvider Features => this.SourceFile.FeatureProvider;
+        public IFeatureProvider Features => this.SourceFile.Features;
 
         public bool HasErrors()
         {
@@ -228,7 +228,7 @@ namespace Bicep.Core.Semantics
 
         private ImmutableSortedDictionary<string, ExtensionMetadata> FindExtensions()
         {
-            if (this.SourceFile.FeatureProvider is not { ModuleExtensionConfigsEnabled: true } || this.SourceFile.Template?.Extensions is null)
+            if (this.SourceFile.Features is not { ModuleExtensionConfigsEnabled: true } || this.SourceFile.Template?.Extensions is null)
             {
                 return ImmutableSortedDictionary<string, ExtensionMetadata>.Empty;
             }
