@@ -668,18 +668,6 @@ namespace Bicep.Core.Emit
                     }
                 }
 
-                // TypeValidator.NarrowTypeAndCollectDiagnostics(model.TypeManager, model.Binder, model.SourceFile.ParsingErrorLookup, diagnostics, symbol.DeclaringSyntax, paramDefinitionFromBicepFile.Value.TypeReference.Type);
-                var bicepFile = model.SourceFileGrouping.SourceFiles.FirstOrDefault(sourceFile => sourceFile is BicepFile);
-                if (bicepFile is not null)
-                {
-                    var paramDefinitionFromBicepFile = model.ModelLookup.GetSemanticModel(bicepFile).Parameters.FirstOrDefault(e => e.Key == symbol.Name);
-
-                    if (paramDefinitionFromBicepFile.Value is not null && !TypeValidator.AreTypesAssignable(paramDefinitionFromBicepFile.Value.TypeReference.Type, symbol.Type))
-                    {
-                        diagnostics.WriteMultiple(DiagnosticBuilder.ForPosition(symbol.NameSource).ExpectedValueTypeMismatch(false, paramDefinitionFromBicepFile.Value.TypeReference.Type, symbol.Type));
-                    }
-                }
-
                 if (referencedValueHasError)
                 {
                     erroredSymbols.Add(symbol);
