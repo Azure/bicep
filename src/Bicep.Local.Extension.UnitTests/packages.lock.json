@@ -1694,20 +1694,27 @@
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )",
-          "Azure.Bicep.Local.Extension": "[1.0.0, )",
+          "Azure.Bicep.Local.Rpc": "[1.0.0, )",
           "Azure.Deployments.Engine": "[1.393.0, )",
           "Azure.Deployments.Extensibility.Core": "[0.1.67, )",
-          "Microsoft.AspNet.WebApi.Client": "[6.0.0, )"
+          "Grpc.Net.Client": "[2.71.0, )"
         }
       },
       "Azure.Bicep.Local.Extension": {
         "type": "Project",
         "dependencies": {
+          "Azure.Bicep.Local.Rpc": "[1.0.0, )",
           "Azure.Bicep.Types": "[0.5.110, )",
           "CommandLineParser": "[2.9.1, )",
           "Grpc.AspNetCore": "[2.71.0, )",
-          "Grpc.AspNetCore.Server.Reflection": "[2.71.0, )",
-          "Grpc.Core": "[2.46.6, )"
+          "Grpc.AspNetCore.Server.Reflection": "[2.71.0, )"
+        }
+      },
+      "Azure.Bicep.Local.Rpc": {
+        "type": "Project",
+        "dependencies": {
+          "Google.Protobuf": "[3.30.2, )",
+          "Grpc.Net.Client": "[2.71.0, )"
         }
       },
       "bicep.core.unittests": {

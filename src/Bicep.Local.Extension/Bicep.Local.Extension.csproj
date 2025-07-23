@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Protobuf Include="extension.proto" GrpcServices="Both" />
+    <ProjectReference Include="../Bicep.Local.Rpc/Bicep.Local.Rpc.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,7 +19,6 @@
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
     <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.71.0" />
-    <PackageReference Include="Grpc.Core" Version="2.46.6" />
   </ItemGroup>
 
   <ItemGroup>

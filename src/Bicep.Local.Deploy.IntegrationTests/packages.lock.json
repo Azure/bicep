@@ -349,15 +349,6 @@
           "Grpc.Reflection": "2.71.0"
         }
       },
-      "Grpc.Core": {
-        "type": "Transitive",
-        "resolved": "2.46.6",
-        "contentHash": "ZoRg3KmOJ2urTF4+u3H0b1Yv10xzz2Y/flFWS2tnRmj8dbKLeiJaSRqu4LOBD3ova90evqLkVZ85kUkC4JT4lw==",
-        "dependencies": {
-          "Grpc.Core.Api": "2.46.6",
-          "System.Memory": "4.5.3"
-        }
-      },
       "Grpc.Core.Api": {
         "type": "Transitive",
         "resolved": "2.71.0",
@@ -1683,20 +1674,27 @@
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )",
-          "Azure.Bicep.Local.Extension": "[1.0.0, )",
+          "Azure.Bicep.Local.Rpc": "[1.0.0, )",
           "Azure.Deployments.Engine": "[1.393.0, )",
           "Azure.Deployments.Extensibility.Core": "[0.1.67, )",
-          "Microsoft.AspNet.WebApi.Client": "[6.0.0, )"
+          "Grpc.Net.Client": "[2.71.0, )"
         }
       },
       "Azure.Bicep.Local.Extension": {
         "type": "Project",
         "dependencies": {
+          "Azure.Bicep.Local.Rpc": "[1.0.0, )",
           "Azure.Bicep.Types": "[0.5.110, )",
           "CommandLineParser": "[2.9.1, )",
           "Grpc.AspNetCore": "[2.71.0, )",
-          "Grpc.AspNetCore.Server.Reflection": "[2.71.0, )",
-          "Grpc.Core": "[2.46.6, )"
+          "Grpc.AspNetCore.Server.Reflection": "[2.71.0, )"
+        }
+      },
+      "Azure.Bicep.Local.Rpc": {
+        "type": "Project",
+        "dependencies": {
+          "Google.Protobuf": "[3.30.2, )",
+          "Grpc.Net.Client": "[2.71.0, )"
         }
       },
       "bicep.core.unittests": {
@@ -1742,15 +1740,6 @@
       }
     },
     "net8.0/linux-arm64": {
-      "Grpc.Core": {
-        "type": "Transitive",
-        "resolved": "2.46.6",
-        "contentHash": "ZoRg3KmOJ2urTF4+u3H0b1Yv10xzz2Y/flFWS2tnRmj8dbKLeiJaSRqu4LOBD3ova90evqLkVZ85kUkC4JT4lw==",
-        "dependencies": {
-          "Grpc.Core.Api": "2.46.6",
-          "System.Memory": "4.5.3"
-        }
-      },
       "Microsoft.Testing.Extensions.CodeCoverage": {
         "type": "Transitive",
         "resolved": "17.13.1",
@@ -2246,15 +2235,6 @@
       }
     },
     "net8.0/linux-musl-x64": {
-      "Grpc.Core": {
-        "type": "Transitive",
-        "resolved": "2.46.6",
-        "contentHash": "ZoRg3KmOJ2urTF4+u3H0b1Yv10xzz2Y/flFWS2tnRmj8dbKLeiJaSRqu4LOBD3ova90evqLkVZ85kUkC4JT4lw==",
-        "dependencies": {
-          "Grpc.Core.Api": "2.46.6",
-          "System.Memory": "4.5.3"
-        }
-      },
       "Microsoft.Testing.Extensions.CodeCoverage": {
         "type": "Transitive",
         "resolved": "17.13.1",
@@ -2750,15 +2730,6 @@
       }
     },
     "net8.0/linux-x64": {
-      "Grpc.Core": {
-        "type": "Transitive",
-        "resolved": "2.46.6",
-        "contentHash": "ZoRg3KmOJ2urTF4+u3H0b1Yv10xzz2Y/flFWS2tnRmj8dbKLeiJaSRqu4LOBD3ova90evqLkVZ85kUkC4JT4lw==",
-        "dependencies": {
-          "Grpc.Core.Api": "2.46.6",
-          "System.Memory": "4.5.3"
-        }
-      },
       "Microsoft.Testing.Extensions.CodeCoverage": {
         "type": "Transitive",
         "resolved": "17.13.1",
@@ -3254,15 +3225,6 @@
       }
     },
     "net8.0/osx-arm64": {
-      "Grpc.Core": {
-        "type": "Transitive",
-        "resolved": "2.46.6",
-        "contentHash": "ZoRg3KmOJ2urTF4+u3H0b1Yv10xzz2Y/flFWS2tnRmj8dbKLeiJaSRqu4LOBD3ova90evqLkVZ85kUkC4JT4lw==",
-        "dependencies": {
-          "Grpc.Core.Api": "2.46.6",
-          "System.Memory": "4.5.3"
-        }
-      },
       "Microsoft.Testing.Extensions.CodeCoverage": {
         "type": "Transitive",
         "resolved": "17.13.1",
@@ -3758,15 +3720,6 @@
       }
     },
     "net8.0/osx-x64": {
-      "Grpc.Core": {
-        "type": "Transitive",
-        "resolved": "2.46.6",
-        "contentHash": "ZoRg3KmOJ2urTF4+u3H0b1Yv10xzz2Y/flFWS2tnRmj8dbKLeiJaSRqu4LOBD3ova90evqLkVZ85kUkC4JT4lw==",
-        "dependencies": {
-          "Grpc.Core.Api": "2.46.6",
-          "System.Memory": "4.5.3"
-        }
-      },
       "Microsoft.Testing.Extensions.CodeCoverage": {
         "type": "Transitive",
         "resolved": "17.13.1",
@@ -4262,15 +4215,6 @@
       }
     },
     "net8.0/win-arm64": {
-      "Grpc.Core": {
-        "type": "Transitive",
-        "resolved": "2.46.6",
-        "contentHash": "ZoRg3KmOJ2urTF4+u3H0b1Yv10xzz2Y/flFWS2tnRmj8dbKLeiJaSRqu4LOBD3ova90evqLkVZ85kUkC4JT4lw==",
-        "dependencies": {
-          "Grpc.Core.Api": "2.46.6",
-          "System.Memory": "4.5.3"
-        }
-      },
       "Microsoft.Testing.Extensions.CodeCoverage": {
         "type": "Transitive",
         "resolved": "17.13.1",
@@ -4667,15 +4611,6 @@
       }
     },
     "net8.0/win-x64": {
-      "Grpc.Core": {
-        "type": "Transitive",
-        "resolved": "2.46.6",
-        "contentHash": "ZoRg3KmOJ2urTF4+u3H0b1Yv10xzz2Y/flFWS2tnRmj8dbKLeiJaSRqu4LOBD3ova90evqLkVZ85kUkC4JT4lw==",
-        "dependencies": {
-          "Grpc.Core.Api": "2.46.6",
-          "System.Memory": "4.5.3"
-        }
-      },
       "Microsoft.Testing.Extensions.CodeCoverage": {
         "type": "Transitive",
         "resolved": "17.13.1",

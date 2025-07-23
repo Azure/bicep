@@ -10,7 +10,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Bicep.Local.Extension.Host.CommandLineArguments;
-using Bicep.Local.Extension.Rpc;
 using Bicep.Local.Extension.Types;
 using CommandLine;
 using Microsoft.AspNetCore.Builder;
@@ -117,7 +116,7 @@ public static class WebApplicationBuilderExtensions
     /// </code>
     /// </example>
     public static WebApplication MapBicepDispatcher<TDispatcher>(this WebApplication app)
-        where TDispatcher : BicepExtension.BicepExtensionBase
+        where TDispatcher : Rpc.BicepExtension.BicepExtensionBase
     {
         app.MapGrpcService<TDispatcher>();
 

@@ -14,7 +14,6 @@ using Azure.Bicep.Types;
 using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
 using Bicep.Local.Extension.Host.Handlers;
-using Bicep.Local.Extension.Rpc;
 using Bicep.Local.Extension.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

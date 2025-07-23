@@ -15,10 +15,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Bicep.Local.Extension.Host;
 
-
-
-public class ResourceRequestDispatcher
-    : Rpc.BicepExtension.BicepExtensionBase
+public class ResourceRequestDispatcher : Rpc.BicepExtension.BicepExtensionBase
 {
     private readonly ILogger<ResourceRequestDispatcher> logger;
 

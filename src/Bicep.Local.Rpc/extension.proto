@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option csharp_namespace = "Bicep.Local.Extension.Rpc";
+option csharp_namespace = "Bicep.Local.Rpc";
 
 package extension;
 

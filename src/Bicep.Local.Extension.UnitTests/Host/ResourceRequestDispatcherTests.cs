@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Local.Extension.Host;
 using Bicep.Local.Extension.Host.Handlers;
-using Bicep.Local.Extension.Rpc;
+using Bicep.Local.Rpc;
 using FluentAssertions;
 using Grpc.Core;
 using Grpc.Core.Testing;

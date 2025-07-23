@@ -10,9 +10,9 @@ using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.Local.Deploy.Helpers;
 using Bicep.Local.Extension;
 using Bicep.Local.Extension.Protocol;
-using Bicep.Local.Extension.Rpc;
 using FluentAssertions;
 using Grpc.Core;
 using Grpc.Net.Client;
@@ -36,7 +36,7 @@ public class ProviderExtensionTests : TestBase
         NamedPipe,
     }
 
-    private async Task RunExtensionTest(string[] processArgs, Func<GrpcChannel> channelBuilder, Action<ResourceDispatcherBuilder> registerHandlers, Func<BicepExtension.BicepExtensionClient, CancellationToken, Task> testFunc)
+    private async Task RunExtensionTest(string[] processArgs, Func<GrpcChannel> channelBuilder, Action<ResourceDispatcherBuilder> registerHandlers, Func<Rpc.BicepExtension.BicepExtensionClient, CancellationToken, Task> testFunc)
     {
         var testTimeout = TimeSpan.FromMinutes(1);
         var cts = new CancellationTokenSource(testTimeout);
@@ -52,7 +52,7 @@ public class ProviderExtensionTests : TestBase
             {
                 try
                 {
-                    var client = new BicepExtension.BicepExtensionClient(channelBuilder());
+                    var client = new Rpc.BicepExtension.BicepExtensionClient(channelBuilder());
 
                     await GrpcChannelHelper.WaitForConnectionAsync(client, cts.Token);
 
@@ -65,7 +65,7 @@ public class ProviderExtensionTests : TestBase
             }, cts.Token));
     }
 
-    private async Task RunExtensionTest(Func<Mock<IGenericResourceHandler>, BicepExtension.BicepExtensionClient, CancellationToken, Task> testFunc)
+    private async Task RunExtensionTest(Func<Mock<IGenericResourceHandler>, Rpc.BicepExtension.BicepExtensionClient, CancellationToken, Task> testFunc)
     {
         var socketPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.tmp");
         var mockHandler = StrictMock.Of<IGenericResourceHandler>();
@@ -127,7 +127,7 @@ public class ProviderExtensionTests : TestBase
             builder => builder.AddHandler(handlerMock.Object),
             async (client, token) =>
             {
-                var request = new Extension.Rpc.ResourceSpecification
+                var request = new Rpc.ResourceSpecification
                 {
                     ApiVersion = "v1",
                     Type = "apps/Deployment",

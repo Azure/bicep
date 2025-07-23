@@ -4,7 +4,6 @@
 using System.Collections.Immutable;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization.Metadata;
-using Bicep.Local.Extension.Rpc;
 
 namespace Bicep.Local.Extension.Protocol;
 
