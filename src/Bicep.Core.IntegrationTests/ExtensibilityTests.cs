@@ -938,7 +938,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             "TernaryLimitation",
             "extensionConfig mockExt with { requiredSecureString: bool(readEnvironmentVariable('xyz', 'false')) ? az.getSecret('a', 'b', 'c', 'd') : az.getSecret('w', 'x', 'y', 'z') }",
             "extension 'br:mcr.microsoft.com/bicep/extensions/secureconfig/v1:1.2.3' as mockExt",
-            "BCP426",
+            "BCP427",
             """Failed to evaluate extension config "mockExt": Cannot emit unexpected expression of type ParameterKeyVaultReferenceExpression"""
         )]
         public async Task Invalid_extension_config_assignments_should_raise_error_diagnostic(string scenario, string paramsFileExtensionConfigAssignment, string bicepFileExtensionDeclaration, string expectedDiagnosticCode, string expectedDiagnosticMessage)

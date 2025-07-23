@@ -57,7 +57,7 @@ extensionConfig invalidSyntax3 with {
 extensionConfig invalidSyntax4 with {
   requiredString: validAssignment1.requiredString
 //@[18:034) [BCP063 (Error)] The name "validAssignment1" is not a parameter, variable, resource or module. (bicep https://aka.ms/bicep/core-diagnostics#BCP063) |validAssignment1|
-//@[18:049) [BCP426 (Error)] Failed to evaluate extension config "invalidSyntax4": Cannot emit unexpected expression of type ExtensionConfigAssignmentReferenceExpression (bicep https://aka.ms/bicep/core-diagnostics#BCP426) |validAssignment1.requiredString|
+//@[18:049) [BCP427 (Error)] Failed to evaluate extension config "invalidSyntax4": Cannot emit unexpected expression of type ExtensionConfigAssignmentReferenceExpression (bicep https://aka.ms/bicep/core-diagnostics#BCP427) |validAssignment1.requiredString|
 }
 
 extensionConfig invalidSyntax5 with {
@@ -76,24 +76,24 @@ extensionConfig invalidAssignment2 with {
 
 extensionConfig invalidSecretAssignment1 with {
   requiredSecureString: bool(readEnvironmentVariable('xyz', 'false')) ? az.getSecret('a', 'b', 'c', 'd') : az.getSecret('w', 'x', 'y', 'z')
-//@[24:139) [BCP426 (Error)] Failed to evaluate extension config "invalidSecretAssignment1": Cannot emit unexpected expression of type ParameterKeyVaultReferenceExpression (bicep https://aka.ms/bicep/core-diagnostics#BCP426) |bool(readEnvironmentVariable('xyz', 'false')) ? az.getSecret('a', 'b', 'c', 'd') : az.getSecret('w', 'x', 'y', 'z')|
+//@[24:139) [BCP427 (Error)] Failed to evaluate extension config "invalidSecretAssignment1": Cannot emit unexpected expression of type ParameterKeyVaultReferenceExpression (bicep https://aka.ms/bicep/core-diagnostics#BCP427) |bool(readEnvironmentVariable('xyz', 'false')) ? az.getSecret('a', 'b', 'c', 'd') : az.getSecret('w', 'x', 'y', 'z')|
 //@[24:139) [stacks-extensibility-compat (Info)] Secure config property values must be a key vault reference to be valid for Deployment stack deployments. (bicep core linter https://aka.ms/bicep/linter-diagnostics#stacks-extensibility-compat) |bool(readEnvironmentVariable('xyz', 'false')) ? az.getSecret('a', 'b', 'c', 'd') : az.getSecret('w', 'x', 'y', 'z')|
 }
 
 extensionConfig invalidSecretAssignment2 with {
   requiredSecureString: secureStrParam1
-//@[24:039) [BCP426 (Error)] Failed to evaluate extension config "invalidSecretAssignment2": Unhandled exception during evaluating template language function 'parameters' is not handled. (bicep https://aka.ms/bicep/core-diagnostics#BCP426) |secureStrParam1|
+//@[24:039) [BCP427 (Error)] Failed to evaluate extension config "invalidSecretAssignment2": Unhandled exception during evaluating template language function 'parameters' is not handled. (bicep https://aka.ms/bicep/core-diagnostics#BCP427) |secureStrParam1|
 //@[24:039) [stacks-extensibility-compat (Info)] Secure config property values must be a key vault reference to be valid for Deployment stack deployments. (bicep core linter https://aka.ms/bicep/linter-diagnostics#stacks-extensibility-compat) |secureStrParam1|
   optionalString: secureStrParam1
-//@[18:033) [BCP426 (Error)] Failed to evaluate extension config "invalidSecretAssignment2": Unhandled exception during evaluating template language function 'parameters' is not handled. (bicep https://aka.ms/bicep/core-diagnostics#BCP426) |secureStrParam1|
+//@[18:033) [BCP427 (Error)] Failed to evaluate extension config "invalidSecretAssignment2": Unhandled exception during evaluating template language function 'parameters' is not handled. (bicep https://aka.ms/bicep/core-diagnostics#BCP427) |secureStrParam1|
 }
 
 extensionConfig invalidSecretAssignment3 with {
   requiredSecureString: secureStrVar1
-//@[24:037) [BCP426 (Error)] Failed to evaluate extension config "invalidSecretAssignment3": Unhandled exception during evaluating template language function 'variables' is not handled. (bicep https://aka.ms/bicep/core-diagnostics#BCP426) |secureStrVar1|
+//@[24:037) [BCP427 (Error)] Failed to evaluate extension config "invalidSecretAssignment3": Unhandled exception during evaluating template language function 'variables' is not handled. (bicep https://aka.ms/bicep/core-diagnostics#BCP427) |secureStrVar1|
 //@[24:037) [stacks-extensibility-compat (Info)] Secure config property values must be a key vault reference to be valid for Deployment stack deployments. (bicep core linter https://aka.ms/bicep/linter-diagnostics#stacks-extensibility-compat) |secureStrVar1|
   optionalString: secureStrVar1
-//@[18:031) [BCP426 (Error)] Failed to evaluate extension config "invalidSecretAssignment3": Unhandled exception during evaluating template language function 'variables' is not handled. (bicep https://aka.ms/bicep/core-diagnostics#BCP426) |secureStrVar1|
+//@[18:031) [BCP427 (Error)] Failed to evaluate extension config "invalidSecretAssignment3": Unhandled exception during evaluating template language function 'variables' is not handled. (bicep https://aka.ms/bicep/core-diagnostics#BCP427) |secureStrVar1|
 }
 
 extensionConfig invalidDiscrimAssignment1 with {

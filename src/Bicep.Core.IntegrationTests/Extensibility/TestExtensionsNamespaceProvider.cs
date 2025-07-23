@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.Configuration;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Features;
+
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
@@ -39,7 +37,7 @@ public class TestExtensionsNamespaceProvider : NamespaceProvider
 
     private readonly NamespaceTypeCreator namespaceCreatorFunc;
 
-    protected override TypeSymbol GetNamespaceTypeForConfigManagedExtension(BicepSourceFile sourceFile, ResourceScope targetScope, ArtifactResolutionInfo? artifact, ExtensionDeclarationSyntax? syntax, string extensionName)
+    protected override TypeSymbol GetNamespaceTypeForConfigManagedExtension(ISourceFile sourceFile, ResourceScope targetScope, ArtifactResolutionInfo? artifact, ExtensionDeclarationSyntax? syntax, string extensionName)
     {
         var aliasName = syntax?.TryGetSymbolName() ?? extensionName;
         if (namespaceCreatorFunc(extensionName, aliasName) is { } namespaceType)
