@@ -484,7 +484,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic ResourceTypesUnavailable(ResourceTypeReference resourceTypeReference) => CoreWarning(
                 "BCP081",
-                $"Resource type \"{resourceTypeReference.FormatName()}\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed.");
+                $"Resource type \"{resourceTypeReference.FormatName()}\" does not have types available. Either the type or version does not exist, or Bicep does not yet know about it. This does not prevent attempting deployment, but does mean Bicep may not be able to provide IntelliSense or detect potential errors.");
 
             public Diagnostic SymbolicNameDoesNotExistWithSuggestion(string name, string suggestedName) => CoreError(
                 "BCP082",
@@ -1164,7 +1164,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic ModuleParamOrOutputResourceTypeUnavailable(ResourceTypeReference resourceTypeReference) => CoreWarning(
                 "BCP230",
-                $"The referenced module uses resource type \"{resourceTypeReference.FormatName()}\" which does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed.");
+                $"The referenced module uses resource type \"{resourceTypeReference.FormatName()}\" which does not have types available. Either the type or version does not exist, or Bicep does not yet know about it. This does not prevent attempting deployment, but does mean Bicep may not be able to provide IntelliSense or detect potential errors.");
 
             public Diagnostic ParamOrOutputResourceTypeUnsupported() => CoreError(
                 "BCP231",
