@@ -349,9 +349,17 @@ output foo string = foo
         {
             var data = baselineData.GetData(TestContext);
 
-            var diagnostics = await GetAllParamDiagnostics(data.Parameters.OutputFilePath);
+            var artifactManager = await CreateDefaultExternalArtifactManager();
 
-            var (output, error, result) = await Bicep(await CreateDefaultSettingsWithDefaultMockRegistry(), "build-params", data.Parameters.OutputFilePath, "--bicep-file", data.Bicep.OutputFilePath);
+            var serviceBuilder = new ServiceBuilder()
+                .WithFeatureOverrides(CreateDefaultFeatureProviderOverrides())
+                .WithTestArtifactManager(artifactManager);
+
+            var diagnostics = await GetAllParamDiagnostics(serviceBuilder, data.Parameters.OutputFilePath);
+
+            var settings = CreateDefaultSettings().WithArtifactManager(artifactManager, TestContext);
+
+            var (output, error, result) = await Bicep(settings, "build-params", data.Parameters.OutputFilePath, "--bicep-file", data.Bicep.OutputFilePath);
 
             using (new AssertionScope())
             {

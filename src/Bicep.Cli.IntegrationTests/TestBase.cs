@@ -138,9 +138,9 @@ namespace Bicep.Cli.IntegrationTests
             return output;
         }
 
-        protected static async Task<IEnumerable<string>> GetAllParamDiagnostics(string paramFilePath)
+        protected static async Task<IEnumerable<string>> GetAllParamDiagnostics(ServiceBuilder serviceBuilder, string paramFilePath)
         {
-            var compiler = new ServiceBuilder().Build().GetCompiler();
+            var compiler = serviceBuilder.Build().GetCompiler();
 
             var compilation = await compiler.CreateCompilation(PathHelper.FilePathToFileUrl(paramFilePath));
 
@@ -158,19 +158,7 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         protected async Task<InvocationSettings> CreateDefaultSettingsWithDefaultMockRegistry()
-        {
-            var settings = CreateDefaultSettings(featureOverrides: f => f with { RegistryEnabled = true });
-
-            var artifactCompiler = TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(settings.FeatureOverrides!);
-
-            var artifactManager = await MockRegistry.CreateDefaultExternalArtifactManager(artifactCompiler);
-
-            return settings with
-            {
-                ClientFactory = artifactManager.ContainerRegistryClientFactory,
-                TemplateSpecRepositoryFactory = artifactManager.TemplateSpecRepositoryFactory
-            };
-        }
+            => CreateDefaultSettings().WithArtifactManager(await CreateDefaultExternalArtifactManager(), TestContext);
 
         protected InvocationSettings CreateDefaultSettings(Func<FeatureProviderOverrides, FeatureProviderOverrides>? featureOverrides = null) =>
             new()
@@ -180,6 +168,9 @@ namespace Bicep.Cli.IntegrationTests
             };
 
         protected FeatureProviderOverrides CreateDefaultFeatureProviderOverrides() => new(TestContext);
+
+        protected async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager()
+            => await MockRegistry.CreateDefaultExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(CreateDefaultFeatureProviderOverrides()));
 
         protected static IEnvironment CreateDefaultEnvironment() => TestEnvironment.Default.WithVariables(
             ("stringEnvVariableName", "test"),
