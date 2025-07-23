@@ -13,6 +13,7 @@ using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
 using Bicep.TextFixtures.Utils;
 using FluentAssertions;
@@ -169,7 +170,11 @@ namespace Bicep.Cli.IntegrationTests
         protected FeatureProviderOverrides CreateDefaultFeatureProviderOverrides() => new(TestContext);
 
         protected async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager()
-            => await MockRegistry.CreateDefaultExternalArtifactManager(CreateDefaultFeatureProviderOverrides());
+        {
+            FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+
+            return await MockRegistry.CreateDefaultExternalArtifactManager(TestContext);
+        }
 
         protected static IEnvironment CreateDefaultEnvironment() => TestEnvironment.Default.WithVariables(
             ("stringEnvVariableName", "test"),

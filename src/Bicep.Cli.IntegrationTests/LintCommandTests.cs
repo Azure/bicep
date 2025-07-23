@@ -61,6 +61,7 @@ public class LintCommandTests : TestBase
     {
         var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
         var features = new FeatureProviderOverrides(TestContext);
+        FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
 
         var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(features));
         await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);

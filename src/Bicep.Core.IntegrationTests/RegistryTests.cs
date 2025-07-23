@@ -153,8 +153,7 @@ namespace Bicep.Core.IntegrationTests
             var dataSet = DataSets.Registry_LF;
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
-            var features = new FeatureProviderOverrides(CacheRootDirectory: cacheDirectory);
+            var features = new FeatureProviderOverrides(TestContext);
 
             var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(features));
             await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);

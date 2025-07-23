@@ -79,6 +79,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
 
         private async Task<ServiceBuilder> CreateServicesAsync()
             => new ServiceBuilder()
+                .WithFeatureOverrides(new(TestContext))
                 .WithEnvironmentVariables(
                     ("stringEnvVariableName", "test"),
                     ("intEnvVariableName", "100"),

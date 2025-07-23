@@ -26,20 +26,6 @@ public static class MockRegistry
         ImmutableDictionary<string, string> modules
     );
 
-    public static async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager(TestCompiler compiler)
-    {
-        var manager = new TestExternalArtifactManager(compiler);
-
-        manager.UpsertTemplateSpecs(CreateDefaultMockTemplateSpecs());
-        await manager.PublishRegistryModules(CreateDefaultMockModules());
-        await manager.PublishExtensions(CreateDefaultMockExtensions());
-
-        return manager;
-    }
-
-    public static async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager(FeatureProviderOverrides overrides)
-        => await CreateDefaultExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(overrides));
-
     public static async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager(TestContext testContext)
         => await CreateDefaultExternalArtifactManager(new FeatureProviderOverrides(testContext));
 
@@ -130,4 +116,18 @@ public static class MockRegistry
         yield return MockExtensionFactory.CreateMockExtWithSecureConfigType("hassecureconfig");
         yield return MockExtensionFactory.CreateMockExtWithDiscriminatedConfigType("hasdiscrimconfig");
     }
+
+    private static async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager(TestCompiler compiler)
+    {
+        var manager = new TestExternalArtifactManager(compiler);
+
+        manager.UpsertTemplateSpecs(CreateDefaultMockTemplateSpecs());
+        await manager.PublishRegistryModules(CreateDefaultMockModules());
+        await manager.PublishExtensions(CreateDefaultMockExtensions());
+
+        return manager;
+    }
+
+    private static async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager(FeatureProviderOverrides overrides)
+        => await CreateDefaultExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(overrides));
 }

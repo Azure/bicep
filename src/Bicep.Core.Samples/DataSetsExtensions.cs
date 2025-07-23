@@ -40,6 +40,8 @@ namespace Bicep.Core.Samples
             FeatureProviderOverrides? features = null)
         {
             features ??= new(testContext);
+            FileHelper.GetCacheRootDirectory(testContext).EnsureExists();
+
             var outputDirectory = dataSet.SaveFilesToTestDirectory(testContext);
             var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(features));
             await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);

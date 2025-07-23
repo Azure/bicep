@@ -61,8 +61,8 @@ namespace Bicep.Cli.IntegrationTests
         public async Task Build_Valid_SingleFile_WithTemplateSpecReference_ShouldSucceed(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-
             var features = new FeatureProviderOverrides(TestContext);
+            FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
 
             var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(features));
             await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
@@ -108,6 +108,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var features = new FeatureProviderOverrides(TestContext);
+            FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
 
             var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(features));
             await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
@@ -151,6 +152,7 @@ namespace Bicep.Cli.IntegrationTests
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
 
             var features = new FeatureProviderOverrides(TestContext);
+            FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
 
             var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(features));
             await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);

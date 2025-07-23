@@ -38,6 +38,7 @@ namespace Bicep.Core.IntegrationTests.Emit
         private async Task<Compilation> GetCompilation(DataSet dataSet, FeatureProviderOverrides features)
         {
             // Use a unique cache root directory for each test run to avoid conflicts
+            FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
             features = features with { CacheRootDirectory = FileHelper.GetCacheRootDirectory(TestContext) };
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
@@ -55,6 +56,23 @@ namespace Bicep.Core.IntegrationTests.Emit
                 .GetCompiler();
 
             return await compiler.CreateCompilation(bicepFileUri);
+        }
+
+        private async Task<Compilation> GetCompilation(BaselineData_Bicepparam baseline, FeatureProviderOverrides? features = null)
+        {
+            // Use a unique cache root directory for each test run to avoid conflicts
+            FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+            features = (features ?? CreateDefaultFeatureProviderOverrides()) with { CacheRootDirectory = FileHelper.GetCacheRootDirectory(TestContext) };
+
+            var artifactManager = await CreateDefaultExternalArtifactManager();
+
+            var compiler = Services
+                .WithFeatureOverrides(features)
+                .WithTestArtifactManager(artifactManager)
+                .Build()
+                .GetCompiler();
+
+            return await compiler.CreateCompilation(baseline.GetData(TestContext).Parameters.OutputFileUri);
         }
 
         [DataTestMethod]
@@ -230,8 +248,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             var data = baselineData.GetData(TestContext);
             data.Compiled.Should().NotBeNull();
 
-            var compiler = Services.Build().GetCompiler();
-            var compilation = await compiler.CreateCompilation(data.Parameters.OutputFileUri);
+            var compilation = await GetCompilation(baselineData);
 
             var result = this.EmitParam(compilation, data.Compiled!.OutputFilePath);
 
@@ -248,8 +265,7 @@ namespace Bicep.Core.IntegrationTests.Emit
         {
             var data = baselineData.GetData(TestContext);
 
-            var compiler = Services.Build().GetCompiler();
-            var compilation = await compiler.CreateCompilation(data.Parameters.OutputFileUri);
+            var compilation = await GetCompilation(baselineData);
 
             var result = this.EmitParam(compilation, Path.ChangeExtension(data.Parameters.OutputFilePath, ".json"));
 
@@ -315,6 +331,15 @@ this
             using var stream = new FileStream(outputFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
             return emitter.Emit(stream);
         }
+
+        protected async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager()
+        {
+            FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+
+            return await MockRegistry.CreateDefaultExternalArtifactManager(TestContext);
+        }
+
+        protected FeatureProviderOverrides CreateDefaultFeatureProviderOverrides() => new(TestContext);
 
         private static IEnumerable<object[]> GetValidDataSets() => DataSets
             .AllDataSets
