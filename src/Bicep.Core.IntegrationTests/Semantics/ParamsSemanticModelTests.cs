@@ -77,13 +77,13 @@ namespace Bicep.Core.IntegrationTests.Semantics
             data.Symbols.ShouldHaveExpectedValue();
         }
 
-        private static async Task<ServiceBuilder> CreateServicesAsync()
+        private async Task<ServiceBuilder> CreateServicesAsync()
             => new ServiceBuilder()
                 .WithEnvironmentVariables(
                     ("stringEnvVariableName", "test"),
                     ("intEnvVariableName", "100"),
                     ("boolEnvironmentVariable", "true")
                 )
-                .WithTestArtifactManager(await MockRegistry.CreateDefaultExternalArtifactManager());
+                .WithTestArtifactManager(await MockRegistry.CreateDefaultExternalArtifactManager(TestContext));
     }
 }

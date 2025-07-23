@@ -8,10 +8,13 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Baselines;
+using Bicep.Core.UnitTests.Extensions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.TextFixtures.Mocks;
 using Bicep.TextFixtures.Utils;
 using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
@@ -23,7 +26,7 @@ public static class MockRegistry
         ImmutableDictionary<string, string> modules
     );
 
-    public static async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager(TestCompiler? compiler = null)
+    public static async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager(TestCompiler compiler)
     {
         var manager = new TestExternalArtifactManager(compiler);
 
@@ -33,6 +36,12 @@ public static class MockRegistry
 
         return manager;
     }
+
+    public static async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager(FeatureProviderOverrides overrides)
+        => await CreateDefaultExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(overrides));
+
+    public static async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager(TestContext testContext)
+        => await CreateDefaultExternalArtifactManager(new FeatureProviderOverrides(testContext));
 
     public static IEnumerable<TestExternalArtifactManager.RegistryModulePublishArguments> CreateDefaultMockModules()
     {

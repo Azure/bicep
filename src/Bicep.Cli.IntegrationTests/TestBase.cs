@@ -11,7 +11,6 @@ using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.Samples;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
-using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.Utils;
@@ -170,7 +169,7 @@ namespace Bicep.Cli.IntegrationTests
         protected FeatureProviderOverrides CreateDefaultFeatureProviderOverrides() => new(TestContext);
 
         protected async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager()
-            => await MockRegistry.CreateDefaultExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(CreateDefaultFeatureProviderOverrides()));
+            => await MockRegistry.CreateDefaultExternalArtifactManager(CreateDefaultFeatureProviderOverrides());
 
         protected static IEnvironment CreateDefaultEnvironment() => TestEnvironment.Default.WithVariables(
             ("stringEnvVariableName", "test"),
