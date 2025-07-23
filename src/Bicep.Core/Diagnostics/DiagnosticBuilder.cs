@@ -1938,8 +1938,12 @@ namespace Bicep.Core.Diagnostics
                 "BCP425",
                 $"The extension configuration assignment for \"{identifier}\" does not match an extension in the Bicep file.");
 
-            public Diagnostic FailedToEvaluateExtensionConfig(string extAlias, string message) => CoreError(
+            public Diagnostic SecureOutputsOnlyAllowedOnDirectModuleReference() => CoreError(
                 "BCP426",
+                "Secure outputs may only be accessed via a direct module reference. Only non-sensitive outputs are supported when dereferencing a module indirectly via a variable or lambda.");
+
+            public Diagnostic FailedToEvaluateExtensionConfig(string extAlias, string message) => CoreError(
+                "BCP427",
                 $"Failed to evaluate extension config \"{extAlias}\": {message}");
         }
 
