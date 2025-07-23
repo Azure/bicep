@@ -58,8 +58,9 @@ namespace Bicep.Core.Emit
             BlockSecureOutputsWithLocalDeploy(model, diagnostics);
             BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
 
-            var paramAssignments = CalculateParameterAssignments(model, diagnostics);
-            var extConfigAssignments = CalculateExtensionConfigAssignments(model, diagnostics);
+            var paramAssignmentEvaluator = new ParameterAssignmentEvaluator(model);
+            var paramAssignments = CalculateParameterAssignments(model, paramAssignmentEvaluator, diagnostics);
+            var extConfigAssignments = CalculateExtensionConfigAssignments(model, paramAssignmentEvaluator, diagnostics);
 
             return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments, extConfigAssignments);
         }
@@ -602,7 +603,10 @@ namespace Bicep.Core.Emit
                 .WhereNotNull()
                 .Select(forbiddenSafeAccessMarker => DiagnosticBuilder.ForPosition(forbiddenSafeAccessMarker).SafeDereferenceNotPermittedOnResourceCollections()));
 
-        private static ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue> CalculateParameterAssignments(SemanticModel model, IDiagnosticWriter diagnostics)
+        private static ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue> CalculateParameterAssignments(
+            SemanticModel model,
+            ParameterAssignmentEvaluator evaluator,
+            IDiagnosticWriter diagnostics)
         {
             if (model.Root.ParameterAssignments.IsEmpty ||
                 model.HasParsingErrors())
@@ -634,7 +638,6 @@ namespace Bicep.Core.Emit
                 }
             }
 
-            var evaluator = new ParameterAssignmentEvaluator(model);
             HashSet<Symbol> erroredSymbols = new();
 
             foreach (var symbol in GetTopologicallySortedSymbols(referencesInValues))
@@ -695,16 +698,15 @@ namespace Bicep.Core.Emit
             return generated.ToImmutableDictionary();
         }
 
-        private static ImmutableDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>> CalculateExtensionConfigAssignments(SemanticModel model, IDiagnosticWriter diagnostics)
+        private static ImmutableDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>> CalculateExtensionConfigAssignments(
+            SemanticModel model,
+            ParameterAssignmentEvaluator evaluator,
+            IDiagnosticWriter diagnostics)
         {
             if (model.Root.ExtensionConfigAssignments.IsEmpty)
             {
                 return ImmutableDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>>.Empty;
             }
-
-            var referencesInValues = model.Binder.Bindings.Values.OfType<DeclaredSymbol>()
-                .Distinct()
-                .ToImmutableDictionary(p => p, p => SymbolicReferenceCollector.CollectSymbolsReferenced(model.Binder, p.DeclaringSyntax));
 
             var generated = ImmutableDictionary.CreateBuilder<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>>();
 
@@ -729,62 +731,10 @@ namespace Bicep.Core.Emit
                 }
             }
 
-            var evaluator = new ParameterAssignmentEvaluator(model);
-            HashSet<Symbol> erroredSymbols = new();
+            var extensionConfigAssignmentSymbols = model.Binder.Bindings.Values.OfType<ExtensionConfigAssignmentSymbol>();
 
-            // TODO(kylealbert): verify the below logic actually applies here, if not, get rid of it
-
-            foreach (var symbol in GetTopologicallySortedSymbols(referencesInValues))
+            foreach (var extConfigAssignment in extensionConfigAssignmentSymbols)
             {
-                if (symbol.Type is ErrorType)
-                {
-                    // no point evaluating if we're already reporting an error
-                    erroredSymbols.Add(symbol);
-
-                    continue;
-                }
-
-                var referencedValueHasError = false;
-
-                foreach (var referenced in referencesInValues[symbol])
-                {
-                    if (erroredSymbols.Contains(referenced.Key))
-                    {
-                        referencedValueHasError = true;
-                    }
-                    else if (referenced.Key is ExtensionConfigAssignmentSymbol referencedExtConfigAsgmt)
-                    {
-                        foreach (var configPropertyName in generated[referencedExtConfigAsgmt].Keys)
-                        {
-                            var configValue = generated[referencedExtConfigAsgmt][configPropertyName];
-
-                            if (configValue.KeyVaultReferenceExpression is not null)
-                            {
-                                diagnostics.WriteMultiple(referenced.Value.Select(syntax => DiagnosticBuilder.ForPosition(syntax).ParameterReferencesKeyVaultSuppliedParameter(referencedExtConfigAsgmt.Name)));
-                                referencedValueHasError = true;
-                            }
-
-                            if (configValue.Value is JToken evaluated && evaluated.Type == JTokenType.Null)
-                            {
-                                diagnostics.WriteMultiple(referenced.Value.Select(syntax => DiagnosticBuilder.ForPosition(syntax).ParameterReferencesDefaultedParameter(referencedExtConfigAsgmt.Name)));
-                                referencedValueHasError = true;
-                            }
-                        }
-                    }
-                }
-
-                if (referencedValueHasError)
-                {
-                    erroredSymbols.Add(symbol);
-
-                    continue;
-                }
-
-                if (symbol is not ExtensionConfigAssignmentSymbol extConfigAssignment)
-                {
-                    continue;
-                }
-
                 var assignmentProperties = ImmutableDictionary.CreateBuilder<string, ExtensionConfigAssignmentValue>();
 
                 foreach (var (propertyName, result) in evaluator.EvaluateExtensionConfigAssignment(extConfigAssignment))
