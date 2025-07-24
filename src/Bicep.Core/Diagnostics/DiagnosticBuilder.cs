@@ -963,9 +963,9 @@ namespace Bicep.Core.Diagnostics
                     $"This expression is being used in the for-body of the variable \"{variableName}\", which requires values that can be calculated at the start of the deployment.{variableDependencyChainClause}{violatingPropertyNameClause}{accessiblePropertiesClause}");
             }
 
-            public Diagnostic ModuleParametersPropertyRequiresObjectLiteral() => CoreError(
+            public Diagnostic ModulePropertyRequiresObjectLiteral(string propertyName) => CoreError(
                 "BCP183",
-                $"The value of the module \"{LanguageConstants.ModuleParamsPropertyName}\" property must be an object literal.");
+                $"The value of the module \"{propertyName}\" property must be an object literal.");
 
             public Diagnostic FileExceedsMaximumSize(string filePath, long maxSize, string unit) => CoreError(
                 "BCP184",
@@ -1941,6 +1941,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic SecureOutputsOnlyAllowedOnDirectModuleReference() => CoreError(
                 "BCP426",
                 "Secure outputs may only be accessed via a direct module reference. Only non-sensitive outputs are supported when dereferencing a module indirectly via a variable or lambda.");
+
+            public Diagnostic FailedToEvaluateExtensionConfig(string extAlias, string message) => CoreError(
+                "BCP427",
+                $"Failed to evaluate extension config \"{extAlias}\": {message}");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

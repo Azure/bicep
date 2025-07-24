@@ -1,5 +1,5 @@
 {
   "parametersJson": "{\n  \"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#\",\n  \"contentVersion\": \"1.0.0.0\",\n  \"parameters\": {\n    \"stringParam\": {\n      \"value\": \"foo\"\n    },\n    \"intParam\": {\n      \"value\": 123\n    },\n    \"boolParam\": {\n      \"value\": false\n    },\n    \"objectParam\": {\n      \"value\": {\n        \"abc\": \"def\"\n      }\n    },\n    \"arrayParam\": {\n      \"value\": [\n        \"abc\",\n        \"def\"\n      ]\n    }\n  }\n}",
   "templateJson": null,
-  "templateSpecId": "/subscriptions/<todo_fill_in>/resourceGroups/<todo_fill_in>/providers/Microsoft.Resources/templateSpecs/<todo_fill_in>/versions/<todo_fill_in>"
+  "templateSpecId": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/prod-rg/providers/Microsoft.Resources/templateSpecs/parameters-basic/versions/v1"
 }

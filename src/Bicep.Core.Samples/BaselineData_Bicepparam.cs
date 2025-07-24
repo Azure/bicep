@@ -103,6 +103,7 @@ namespace Bicep.Core.Samples
                 "Files/baselines_bicepparam/Imports/parameters.bicepparam",
                 "Files/baselines_bicepparam/Extends/parameters.bicepparam",
                 "Files/baselines_bicepparam/Invalid_Expressions/parameters.bicepparam",
+                "Files/baselines_bicepparam/Invalid_Extensions/parameters.bicepparam",
                 "Files/baselines_bicepparam/Invalid_Imports/parameters.bicepparam",
                 "Files/baselines_bicepparam/Invalid_Parameters/parameters.bicepparam",
                 "Files/baselines_bicepparam/Invalid_Variables/parameters.bicepparam",

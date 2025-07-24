@@ -5,7 +5,6 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit;
@@ -106,14 +105,14 @@ public class ParametersJsonWriter
         emitter.EmitObjectProperty(
             "extensionConfigs", () =>
             {
-                foreach (var extension in this.Context.SemanticModel.Root.ExtensionConfigAssignments)
+                foreach (var extension in this.Context.SemanticModel.Root.ExtensionConfigAssignments.OrderBy(a => a.Name))
                 {
                     emitter.EmitObjectProperty(
                         extension.Name, () =>
                         {
                             var configProperties = this.Context.SemanticModel.EmitLimitationInfo.ExtensionConfigAssignments[extension];
 
-                            foreach (var configProperty in configProperties)
+                            foreach (var configProperty in configProperties.OrderBy(p => p.Key))
                             {
                                 emitter.EmitObjectProperty(
                                     configProperty.Key, () =>

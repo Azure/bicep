@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
 using Bicep.Cli.UnitTests;
 using Bicep.Core;
 using Bicep.Core.Extensions;
@@ -9,16 +8,19 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
+using Bicep.Core.Samples;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
+using Bicep.TextFixtures.Utils;
 using FluentAssertions;
-using FluentAssertions.Common;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using TestEnvironment = Bicep.Core.UnitTests.Utils.TestEnvironment;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -66,6 +68,14 @@ namespace Bicep.Cli.IntegrationTests
 
                 this.ModuleMetadataClient = ModuleMetadataClient ?? new MockPublicModuleIndexHttpClient(new());
             }
+
+            public InvocationSettings WithArtifactManager(TestExternalArtifactManager artifactManager, TestContext testContext) =>
+                this with
+                {
+                    FeatureOverrides = (this.FeatureOverrides ?? new(testContext)) with { RegistryEnabled = true },
+                    ClientFactory = artifactManager.ContainerRegistryClientFactory,
+                    TemplateSpecRepositoryFactory = artifactManager.TemplateSpecRepositoryFactory
+                };
         }
 
         protected static Task<CliResult> Bicep(InvocationSettings settings, Action<IServiceCollection>? registerAction, CancellationToken cancellationToken, params string?[] args /*null args are ignored*/)
@@ -128,9 +138,9 @@ namespace Bicep.Cli.IntegrationTests
             return output;
         }
 
-        protected static async Task<IEnumerable<string>> GetAllParamDiagnostics(string paramFilePath)
+        protected static async Task<IEnumerable<string>> GetAllParamDiagnostics(ServiceBuilder serviceBuilder, string paramFilePath)
         {
-            var compiler = new ServiceBuilder().Build().GetCompiler();
+            var compiler = serviceBuilder.Build().GetCompiler();
 
             var compilation = await compiler.CreateCompilation(PathHelper.FilePathToFileUrl(paramFilePath));
 
@@ -146,5 +156,30 @@ namespace Bicep.Cli.IntegrationTests
 
             return output;
         }
+
+        protected async Task<InvocationSettings> CreateDefaultSettingsWithDefaultMockRegistry()
+            => CreateDefaultSettings().WithArtifactManager(await CreateDefaultExternalArtifactManager(), TestContext);
+
+        protected InvocationSettings CreateDefaultSettings(Func<FeatureProviderOverrides, FeatureProviderOverrides>? featureOverrides = null) =>
+            new()
+            {
+                FeatureOverrides = featureOverrides?.Invoke(CreateDefaultFeatureProviderOverrides()) ?? CreateDefaultFeatureProviderOverrides(),
+                Environment = CreateDefaultEnvironment()
+            };
+
+        protected FeatureProviderOverrides CreateDefaultFeatureProviderOverrides() => new(TestContext);
+
+        protected async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager()
+        {
+            FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+
+            return await MockRegistry.CreateDefaultExternalArtifactManager(TestContext);
+        }
+
+        protected static IEnvironment CreateDefaultEnvironment() => TestEnvironment.Default.WithVariables(
+            ("stringEnvVariableName", "test"),
+            ("intEnvVariableName", "100"),
+            ("boolEnvironmentVariable", "true")
+        );
     }
 }

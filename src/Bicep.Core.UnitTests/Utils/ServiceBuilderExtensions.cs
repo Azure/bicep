@@ -14,6 +14,7 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.IO.Abstraction;
+using Bicep.TextFixtures.Utils;
 
 namespace Bicep.Core.UnitTests.Utils;
 
@@ -33,6 +34,12 @@ public static class ServiceBuilderExtensions
 
     public static ServiceBuilder WithTemplateSpecRepositoryFactory(this ServiceBuilder serviceBuilder, ITemplateSpecRepositoryFactory factory)
         => serviceBuilder.WithRegistration(x => x.WithTemplateSpecRepositoryFactory(factory));
+
+    public static ServiceBuilder WithTestArtifactManager(this ServiceBuilder serviceBuilder, TestExternalArtifactManager manager)
+        => serviceBuilder
+            .WithFeaturesOverridden(f => f with { RegistryEnabled = true })
+            .WithContainerRegistryClientFactory(manager.ContainerRegistryClientFactory)
+            .WithTemplateSpecRepositoryFactory(manager.TemplateSpecRepositoryFactory);
 
     public static ServiceBuilder WithFeatureProviderFactory(this ServiceBuilder serviceBuilder, IFeatureProviderFactory featureProviderFactory)
         => serviceBuilder.WithRegistration(x => x.WithFeatureProviderFactory(featureProviderFactory));

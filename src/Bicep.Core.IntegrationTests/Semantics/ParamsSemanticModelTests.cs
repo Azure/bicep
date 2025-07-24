@@ -16,14 +16,6 @@ namespace Bicep.Core.IntegrationTests.Semantics
     [TestClass]
     public class ParamsSemanticModelTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder()
-            .WithEmptyAzResources()
-            .WithEnvironmentVariables(
-                ("stringEnvVariableName", "test"),
-                ("intEnvVariableName", "100"),
-                ("boolEnvironmentVariable", "true")
-            );
-
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -42,7 +34,8 @@ namespace Bicep.Core.IntegrationTests.Semantics
         {
             var data = baselineData.GetData(TestContext);
 
-            var model = await CreateSemanticModel(Services, data.Parameters.OutputFilePath);
+            var services = await CreateServicesAsync();
+            var model = await CreateSemanticModel(services, data.Parameters.OutputFilePath);
 
             // use a deterministic order
             var diagnostics = model.GetAllDiagnostics()
@@ -64,7 +57,8 @@ namespace Bicep.Core.IntegrationTests.Semantics
         {
             var data = baselineData.GetData(TestContext);
 
-            var model = await CreateSemanticModel(Services, data.Parameters.OutputFilePath);
+            var services = await CreateServicesAsync();
+            var model = await CreateSemanticModel(services, data.Parameters.OutputFilePath);
 
             var symbols = SymbolCollector
                 .CollectSymbols(model)
@@ -82,5 +76,15 @@ namespace Bicep.Core.IntegrationTests.Semantics
             data.Symbols.WriteToOutputFolder(sourceTextWithDiags);
             data.Symbols.ShouldHaveExpectedValue();
         }
+
+        private async Task<ServiceBuilder> CreateServicesAsync()
+            => new ServiceBuilder()
+                .WithFeatureOverrides(new(TestContext))
+                .WithEnvironmentVariables(
+                    ("stringEnvVariableName", "test"),
+                    ("intEnvVariableName", "100"),
+                    ("boolEnvironmentVariable", "true")
+                )
+                .WithTestArtifactManager(await MockRegistry.CreateDefaultExternalArtifactManager(TestContext));
     }
 }

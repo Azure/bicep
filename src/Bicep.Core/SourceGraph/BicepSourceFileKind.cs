@@ -17,5 +17,11 @@ namespace Bicep.Core.SourceGraph
         /// also set values of the parameters declared in the referenced Bicep file.
         /// </summary>
         ParamsFile,
+
+        /// <summary>
+        /// A file representing an Azure Resource Manager (ARM) template in JSON format.
+        /// This file is the output of a Bicep file compilation.
+        /// </summary>
+        ArmTemplateFile
     }
 }

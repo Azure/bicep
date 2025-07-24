@@ -2,13 +2,11 @@
 // Licensed under the MIT License.
 
 using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Registry.Catalog.Implementation;
@@ -18,7 +16,6 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
 using Bicep.Decompiler;
 using Bicep.IO.Abstraction;
-using Bicep.IO.FileSystem;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.TextFixtures.Utils
@@ -59,6 +56,16 @@ namespace Bicep.TextFixtures.Utils
             where TService : class
         {
             this.services.AddSingleton<TService>(implementationInstance);
+            this.dirty = true;
+
+            return this;
+        }
+
+        public TestServices AddSingleton<TInterface, TImpl>()
+            where TInterface : class
+            where TImpl : class, TInterface
+        {
+            this.services.AddSingleton<TInterface, TImpl>();
             this.dirty = true;
 
             return this;

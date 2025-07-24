@@ -87,7 +87,7 @@ public class NamespaceProvider : INamespaceProvider
 
     private TypeSymbol GetNamespaceType(
         IArtifactFileLookup artifactFileLookup,
-        BicepSourceFile sourceFile,
+        ISourceFile sourceFile,
         ResourceScope targetScope,
         ExtensionDeclarationSyntax syntax)
     {
@@ -117,7 +117,7 @@ public class NamespaceProvider : INamespaceProvider
     }
 
     protected virtual TypeSymbol GetNamespaceTypeForConfigManagedExtension(
-        BicepSourceFile sourceFile,
+        ISourceFile sourceFile,
         ResourceScope targetScope,
         ArtifactResolutionInfo? artifact,
         ExtensionDeclarationSyntax? syntax,
@@ -168,7 +168,7 @@ public class NamespaceProvider : INamespaceProvider
         return ErrorType.Create(diagBuilder.InvalidExtension_NotABuiltInExtension(sourceFile.Configuration.ConfigFileUri, extensionName));
     }
 
-    private ResultWithDiagnosticBuilder<NamespaceType> GetNamespaceTypeForArtifact(ArtifactResolutionInfo artifact, BicepSourceFile sourceFile, ResourceScope targetScope, string? aliasName)
+    private ResultWithDiagnosticBuilder<NamespaceType> GetNamespaceTypeForArtifact(ArtifactResolutionInfo artifact, ISourceFile sourceFile, ResourceScope targetScope, string? aliasName)
     {
         if (!artifact.Result.IsSuccess(out var typesTgzFileHandle, out var errorBuilder))
         {

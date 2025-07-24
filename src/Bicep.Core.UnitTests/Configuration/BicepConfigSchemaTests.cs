@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
-using Bicep.Core.Extensions;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -219,7 +218,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 var lastAllOf = allOf[allOf.Count() - 1];
                 var refString = lastAllOf?.SelectToken("$ref")?.ToString();
                 Assert.IsNotNull(refString, "each rule's last allOf should be a ref to the definition of a rule");
-                refString.Should().MatchRegex("^#/definitions/rule-def-level-(warning|error|off)$", "each rule's last allOf should be a ref to the definition of a rule, one of '#/definitions/rule-def-level-warning', '#/definitions/rule-def-level-error' or '#/definitions/rule-def-error-off'");
+                refString.Should().MatchRegex("^#/definitions/rule-def-level-(warning|error|info|off)$", "each rule's last allOf should be a ref to the definition of a rule, one of '#/definitions/rule-def-level-warning', '#/definitions/rule-def-level-error', ''#/definitions/rule-def-level-info', or '#/definitions/rule-def-error-off'");
             }
         }
 

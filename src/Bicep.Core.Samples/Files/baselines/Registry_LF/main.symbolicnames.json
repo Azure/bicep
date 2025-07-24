@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14078799282284441707"
+      "templateHash": "15249920248347181756"
     }
   },
   "variables": {
@@ -55,12 +55,13 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15019246960605065046"
+              "templateHash": "13508561622047952911"
             }
           },
           "parameters": {
@@ -72,8 +73,8 @@
               "defaultValue": "B1"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "appPlan": {
               "type": "Microsoft.Web/serverfarms",
               "apiVersion": "2020-06-01",
               "name": "[format('{0}appPlan', parameters('namePrefix'))]",
@@ -86,7 +87,7 @@
                 "reserved": true
               }
             }
-          ],
+          },
           "outputs": {
             "planId": {
               "type": "string",
@@ -116,12 +117,13 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15019246960605065046"
+              "templateHash": "13508561622047952911"
             }
           },
           "parameters": {
@@ -133,8 +135,8 @@
               "defaultValue": "B1"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "appPlan": {
               "type": "Microsoft.Web/serverfarms",
               "apiVersion": "2020-06-01",
               "name": "[format('{0}appPlan', parameters('namePrefix'))]",
@@ -147,7 +149,7 @@
                 "reserved": true
               }
             }
-          ],
+          },
           "outputs": {
             "planId": {
               "type": "string",
@@ -190,12 +192,13 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15188988612540889945"
+              "templateHash": "1727609956407115618"
             }
           },
           "parameters": {
@@ -216,8 +219,8 @@
               "type": "string"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "namePrefix_site": {
               "type": "Microsoft.Web/sites",
               "apiVersion": "2020-06-01",
               "name": "[format('{0}site', parameters('namePrefix'))]",
@@ -247,11 +250,11 @@
                 "serverFarmId": "[parameters('appPlanId')]"
               }
             }
-          ],
+          },
           "outputs": {
             "siteUrl": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Web/sites', format('{0}site', parameters('namePrefix'))), '2020-06-01').hostNames[0]]"
+              "value": "[reference('namePrefix_site').hostNames[0]]"
             }
           }
         }
@@ -291,12 +294,13 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15188988612540889945"
+              "templateHash": "1727609956407115618"
             }
           },
           "parameters": {
@@ -317,8 +321,8 @@
               "type": "string"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "namePrefix_site": {
               "type": "Microsoft.Web/sites",
               "apiVersion": "2020-06-01",
               "name": "[format('{0}site', parameters('namePrefix'))]",
@@ -348,11 +352,11 @@
                 "serverFarmId": "[parameters('appPlanId')]"
               }
             }
-          ],
+          },
           "outputs": {
             "siteUrl": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Web/sites', format('{0}site', parameters('namePrefix'))), '2020-06-01').hostNames[0]]"
+              "value": "[reference('namePrefix_site').hostNames[0]]"
             }
           }
         }
@@ -455,12 +459,13 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "14234608298281212658"
+              "templateHash": "12637581361478699703"
             },
             "description": "passthrough port description"
           },
@@ -469,7 +474,7 @@
               "type": "string"
             }
           },
-          "resources": [],
+          "resources": {},
           "outputs": {
             "port": {
               "type": "string",
@@ -499,12 +504,13 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12121705673191614943"
+              "templateHash": "12188041680342237967"
             }
           },
           "parameters": {
@@ -512,7 +518,7 @@
               "type": "string"
             }
           },
-          "resources": [],
+          "resources": {},
           "outputs": {
             "ipv4": {
               "type": "string",
@@ -542,12 +548,13 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7823936554124086035"
+              "templateHash": "17325092776868319638"
             }
           },
           "parameters": {
@@ -555,7 +562,7 @@
               "type": "string"
             }
           },
-          "resources": [],
+          "resources": {},
           "outputs": {
             "ipv4port": {
               "type": "string",
@@ -585,12 +592,13 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5093140793351809054"
+              "templateHash": "17176322610714411030"
             }
           },
           "parameters": {
@@ -598,7 +606,7 @@
               "type": "string"
             }
           },
-          "resources": [],
+          "resources": {},
           "outputs": {
             "ipv6": {
               "type": "string",
@@ -628,12 +636,13 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.0",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "969477156678070948"
+              "templateHash": "16741717896674901525"
             }
           },
           "parameters": {
@@ -641,7 +650,7 @@
               "type": "string"
             }
           },
-          "resources": [],
+          "resources": {},
           "outputs": {
             "ipv6port": {
               "type": "string",

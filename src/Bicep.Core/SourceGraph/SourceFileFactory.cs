@@ -138,7 +138,7 @@ namespace Bicep.Core.SourceGraph
             }
         }
 
-        private static ArmTemplateFile CreateArmTemplateFile(Uri fileUri, IFileHandle fileHandle, string fileContents, IFeatureProviderFactory featureProviderFactory)
+        private ArmTemplateFile CreateArmTemplateFile(Uri fileUri, IFileHandle fileHandle, string fileContents, IFeatureProviderFactory featureFactory)
         {
             try
             {
@@ -148,11 +148,11 @@ namespace Bicep.Core.SourceGraph
 
                 var templateObject = ParseObject(fileContents);
 
-                return new(fileUri, fileHandle, fileContents, template, templateObject, featureProviderFactory.GetFeatureProvider(fileUri));
+                return new(fileUri, fileHandle, fileContents, template, templateObject, this.configurationManager, featureFactory.GetFeatureProvider(fileUri));
             }
             catch (Exception)
             {
-                return new(fileUri, fileHandle, fileContents, null, null, featureProviderFactory.GetFeatureProvider(fileUri));
+                return new(fileUri, fileHandle, fileContents, null, null, this.configurationManager, featureFactory.GetFeatureProvider(fileUri));
             }
         }
 
