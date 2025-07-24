@@ -57,7 +57,7 @@ namespace Bicep.Local.Extension.UnitTests.TypesTests
 
 
         [TestMethod]
-        public void GetResourceTypes_Only_Returns_Public_Active_Types()
+        public void GetResourceTypes_Only_Returns_ClassesWithBicepTypeAttribute()
         {
             var provider = new TypeProvider([typeof(TypeProviderTests).Assembly]);
 
@@ -71,8 +71,7 @@ namespace Bicep.Local.Extension.UnitTests.TypesTests
             // although these are unique types in .net for bicep this would cause
             // a type conflict resolution. To handle such scenarios
             // users will have to implement their own ITypeProvider to handle
-            // such scenarios. The default TypeProvider will only accept the first
-            // occurrence of the class name
+            // such scenarios. The default TypeProvider is FIFR (First In First Registered)
             types.Should().NotContain(typeof(Types_A.ActiveResource));
             types.Should().NotContain(typeof(Types_B.ActiveResource));
 

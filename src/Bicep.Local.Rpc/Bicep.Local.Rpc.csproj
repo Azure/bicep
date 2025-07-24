@@ -1,20 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyName>Azure.Bicep.Local.Deploy</AssemblyName>
-    <RootNamespace>Bicep.Local.Deploy</RootNamespace>
+    <AssemblyName>Azure.Bicep.Local.Rpc</AssemblyName>
+    <RootNamespace>Bicep.Local.Rpc</RootNamespace>
     <!-- enable trimmer warnings for Bicep CLI and projects it references -->
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Bicep.Core/Bicep.Core.csproj" />
-    <ProjectReference Include="../Bicep.Local.Rpc/Bicep.Local.Rpc.csproj" />
+    <Protobuf Include="extension.proto" GrpcServices="Both" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Deployments.Engine" Version="1.424.0" />
-    <PackageReference Include="Azure.Deployments.Extensibility.Core" Version="0.1.67" />
     <PackageReference Include="Grpc.Net.Client" Version="2.71.0" />
+    <PackageReference Include="Google.Protobuf" Version="3.30.2" />
+    <PackageReference Include="Grpc.Tools" Version="2.72.0">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

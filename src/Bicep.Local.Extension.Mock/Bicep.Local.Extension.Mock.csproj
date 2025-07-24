@@ -12,7 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="../Bicep.Local.Extension/Bicep.Local.Extension.csproj" />
     <ProjectReference Include="../Bicep.Core/Bicep.Core.csproj" />
-    <PackageReference Include="Grpc.AspNetCore" Version="2.67.0" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
   </ItemGroup>
 
   <ItemGroup>

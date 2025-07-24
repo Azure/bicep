@@ -10,20 +10,18 @@ using Azure.Deployments.Extensibility.Core.V2.Json;
 using Azure.Deployments.Extensibility.Core.V2.Models;
 using Bicep.Core.Features;
 using Bicep.IO.Abstraction;
-using Bicep.Local.Extension.Rpc;
-using Google.Protobuf.Collections;
+using Bicep.Local.Deploy.Helpers;
 using Grpc.Net.Client;
 using Json.Pointer;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 using ExtensibilityV2 = Azure.Deployments.Extensibility.Core.V2.Models;
-using Rpc = Bicep.Local.Extension.Rpc;
 
 namespace Bicep.Local.Deploy.Extensibility;
 
 internal class GrpcLocalExtension : ILocalExtension
 {
-    private readonly BicepExtension.BicepExtensionClient client;
+    private readonly Rpc.BicepExtension.BicepExtensionClient client;
     private readonly Process process;
     private readonly GrpcChannel channel;
     private readonly IOUri binaryUri;
@@ -36,7 +34,7 @@ internal class GrpcLocalExtension : ILocalExtension
         }
     }
 
-    private GrpcLocalExtension(BicepExtension.BicepExtensionClient client, Process process, GrpcChannel channel, IOUri binaryUri)
+    private GrpcLocalExtension(Rpc.BicepExtension.BicepExtensionClient client, Process process, GrpcChannel channel, IOUri binaryUri)
     {
         this.client = client;
         this.process = process;
@@ -111,7 +109,7 @@ internal class GrpcLocalExtension : ILocalExtension
             process.BeginOutputReadLine();
 
             channel = channelBuilder();
-            var client = new BicepExtension.BicepExtensionClient(channel);
+            var client = new Rpc.BicepExtension.BicepExtensionClient(channel);
 
             await GrpcChannelHelper.WaitForConnectionAsync(client, cts.Token);
 
@@ -211,7 +209,7 @@ internal class GrpcLocalExtension : ILocalExtension
     private static ExtensibilityV2.ErrorData Convert(Rpc.ErrorData errorData)
         => new(new ExtensibilityV2.Error(errorData.Error.Code, errorData.Error.Message, JsonPointer.Empty, Convert(errorData.Error.Details), ConvertInnerError(errorData.Error.InnerError)));
 
-    private static ExtensibilityV2.ErrorDetail[]? Convert(RepeatedField<Rpc.ErrorDetail>? details)
+    private static ExtensibilityV2.ErrorDetail[]? Convert(IEnumerable<Rpc.ErrorDetail>? details)
         => details is not null ? details.Select(Convert).ToArray() : null;
 
     private static ExtensibilityV2.ErrorDetail Convert(Rpc.ErrorDetail detail)

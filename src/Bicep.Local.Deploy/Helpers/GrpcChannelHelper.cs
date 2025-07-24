@@ -11,7 +11,7 @@ using System.Security.Principal;
 using Grpc.Core;
 using Grpc.Net.Client;
 
-namespace Bicep.Local.Extension.Rpc;
+namespace Bicep.Local.Deploy.Helpers;
 
 public static class GrpcChannelHelper
 {
@@ -92,7 +92,7 @@ public static class GrpcChannelHelper
         });
     }
 
-    public static async Task WaitForConnectionAsync(BicepExtension.BicepExtensionClient client, CancellationToken cancellationToken)
+    public static async Task WaitForConnectionAsync(Rpc.BicepExtension.BicepExtensionClient client, CancellationToken cancellationToken)
     {
         var connected = false;
         while (!connected)

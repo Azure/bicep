@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text.Json;
 using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
 using Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
@@ -23,13 +24,14 @@ public class TypeDefinitionBuilderTests
 {
     private record TestUnsupportedProperty(DateTime When);
 
-    private record SimpleResource(string Name = "");
+    private record SimpleResource(string Name = "", string AnotherString = "");
 
     private static TypeSettings CreateTypeSettings() =>
         new("TestSettings", "2025-01-01", true, new Azure.Bicep.Types.CrossFileTypeReference("index.json", 0));
 
     private TypeFactory CreateTypeFactory() => new([]);
 
+    #region Constructor Tests
     [TestMethod]
     public void Constructor_Throws_On_Null_TypeSettings()
     {
@@ -71,7 +73,7 @@ public class TypeDefinitionBuilderTests
         var typeProvider = StrictMock.Of<ITypeProvider>().Object;
 
         Action act = () => new TypeDefinitionBuilder(settings, typeFactory, typeProvider, null!);
-        act.Should().Throw<ArgumentNullException>();
+        act.Should().Throw<ArgumentException>();
     }
 
     [TestMethod]
@@ -83,7 +85,7 @@ public class TypeDefinitionBuilderTests
         var emptyMap = new Dictionary<Type, Func<TypeBase>>();
 
         Action act = () => new TypeDefinitionBuilder(settings, typeFactory, typeProvider, emptyMap);
-        act.Should().Throw<ArgumentNullException>();
+        act.Should().Throw<ArgumentException>();
     }
 
     [TestMethod]
@@ -99,6 +101,9 @@ public class TypeDefinitionBuilderTests
         generator.Should().NotBeNull();
     }
 
+    #endregion Constructor Tests
+
+
     [TestMethod]
     public void GenerateBicepResourceTypes_Returns_Empty_When_TypeProvider_Has_No_Types()
     {
@@ -106,17 +111,18 @@ public class TypeDefinitionBuilderTests
         var factory = CreateTypeFactory();
         var typeProviderMock = StrictMock.Of<ITypeProvider>();
         typeProviderMock.Setup(tp => tp.GetResourceTypes()).Returns([]);
+
         var map = new Dictionary<Type, Func<TypeBase>> { { typeof(string), () => new StringType() } };
 
         var builder = new TypeDefinitionBuilder(settings, factory, typeProviderMock.Object, map);
 
         var result = builder.GenerateBicepResourceTypes();
+        
 
-        result.Should().NotBeNull();
-        result.TypesJson.Should().NotBeNullOrEmpty();
+        result.Should().NotBeNull();        
         result.IndexJson.Should().NotBeNullOrEmpty();
-        // Should not contain any resource type definitions
-        result.TypesJson.Should().NotContain("SimpleResource");
+        result.TypesJson.Should().NotBeNullOrEmpty();
+        result.TypesJson.Should().Contain("[]", because: "the types JSON should be and empty array '[]' when no resource types are generated");        
     }
 
     [TestMethod]
@@ -133,9 +139,9 @@ public class TypeDefinitionBuilderTests
         var result = builder.GenerateBicepResourceTypes();
 
         result.Should().NotBeNull();
-        result.TypesJson.Should().Contain("SimpleResource");
-        result.TypesJson.Should().Contain("name", because: "the property should be present in the resource type definition");
         result.IndexJson.Should().Contain("SimpleResource");
+        result.TypesJson.Should().Contain("SimpleResource");
+        result.TypesJson.Should().Contain("name", because: "the property should be present in the resource type definition");        
     }
 
     [TestMethod]
@@ -152,7 +158,6 @@ public class TypeDefinitionBuilderTests
         typeProviderMock.Setup(tp => tp.GetResourceTypes()).Returns([typeof(TestUnsupportedProperty)]);
 
         var builder = new TypeDefinitionBuilder(settings, factory, typeProviderMock.Object, map);
-
 
         Action act = () => builder.GenerateBicepResourceTypes();
         act.Should().Throw<NotImplementedException>();

@@ -16,7 +16,6 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Auth;
 using Bicep.Local.Deploy.Azure;
 using Bicep.Local.Deploy.Engine;
-using Google.Protobuf.WellKnownTypes;
 using Json.More;
 using Json.Pointer;
 using Microsoft.WindowsAzure.ResourceStack.Common.Algorithms;
