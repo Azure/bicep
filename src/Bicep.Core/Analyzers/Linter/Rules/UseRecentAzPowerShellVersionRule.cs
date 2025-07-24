@@ -91,21 +91,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 if (syntax.Value is ObjectSyntax objectSyntax)
                 {
-                    var properties = objectSyntax.Properties;
-                    var propertiesProperty = properties.FirstOrDefault(p =>
+                    // Look for 'kind' at the top level of the resource declaration object
+                    var kindProperty = objectSyntax.Properties.FirstOrDefault(p =>
                         p.Key is IdentifierSyntax identifier &&
-                        identifier.IdentifierName == "properties");
+                        string.Equals(identifier.IdentifierName, "kind", StringComparison.OrdinalIgnoreCase));
 
-                    if (propertiesProperty?.Value is ObjectSyntax propertiesObject)
+                    if (kindProperty?.Value is StringSyntax stringSyntax)
                     {
-                        var kindProperty = propertiesObject.Properties.FirstOrDefault(p =>
-                            p.Key is IdentifierSyntax identifier &&
-                            string.Equals(identifier.IdentifierName, "kind", StringComparison.OrdinalIgnoreCase));
-
-                        if (kindProperty?.Value is StringSyntax stringSyntax)
-                        {
-                            return stringSyntax.TryGetLiteralValue();
-                        }
+                        return stringSyntax.TryGetLiteralValue();
                     }
                 }
                 return null;
