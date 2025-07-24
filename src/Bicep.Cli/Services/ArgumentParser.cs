@@ -31,7 +31,7 @@ namespace Bicep.Cli.Services
                 Constants.Command.Build => new BuildArguments(args[1..]),
                 Constants.Command.Test => new TestArguments(args[1..]),
                 Constants.Command.BuildParams => new BuildParamsArguments(args[1..]),
-                Constants.Command.Format => new FormatArguments(args[1..], fileSystem),
+                Constants.Command.Format => new FormatArguments(args[1..]),
                 Constants.Command.GenerateParamsFile => new GenerateParametersFileArguments(args[1..]),
                 Constants.Command.Decompile => new DecompileArguments(args[1..]),
                 Constants.Command.DecompileParams => new DecompileParamsArguments(args[1..]),
