@@ -20,6 +20,8 @@ namespace Bicep.Core.Syntax
 
         public IdentifierSyntax PropertyName { get; }
 
+        public override SyntaxBase IndexExpression => PropertyName;
+
         public override PropertyAccessSyntax AsSafeAccess() => SafeAccessMarker is null
             ? new(BaseExpression, Dot, SyntaxFactory.QuestionToken, PropertyName)
             : this;

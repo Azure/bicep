@@ -75,7 +75,7 @@ param testPadLeft = padLeft(13, 'foo')
 param testRange = range(0, 'foo')
 //@[27:32) [BCP070 (Error)] Argument of type "'foo'" is not assignable to parameter of type "int". (bicep https://aka.ms/bicep/core-diagnostics#BCP070) |'foo'|
 param testReduce = reduce(['a', 'b', 'c'], '', (a, b) => '${toObject(a)}-${b}')
-//@[47:78) [BCP070 (Error)] Argument of type "(('a' | 'b' | 'c'), ('a' | 'b' | 'c')) => error" is not assignable to parameter of type "(any, any[, int]) => any". (bicep https://aka.ms/bicep/core-diagnostics#BCP070) |(a, b) => '${toObject(a)}-${b}'|
+//@[47:78) [BCP070 (Error)] Argument of type "(string, ('a' | 'b' | 'c')) => error" is not assignable to parameter of type "(any, any[, int]) => any". (bicep https://aka.ms/bicep/core-diagnostics#BCP070) |(a, b) => '${toObject(a)}-${b}'|
 param testReplace = replace('abc', 'b', {})
 //@[40:42) [BCP070 (Error)] Argument of type "object" is not assignable to parameter of type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP070) |{}|
 param testSkip = skip([1, 2, 3], '1')
