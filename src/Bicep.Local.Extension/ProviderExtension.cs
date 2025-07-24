@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System.Diagnostics;
 using Bicep.Local.Extension.Protocol;
-using Bicep.Local.Extension.Rpc;
 using CommandLine;
 
 namespace Bicep.Local.Extension;
