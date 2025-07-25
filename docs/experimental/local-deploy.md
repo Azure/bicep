@@ -104,12 +104,10 @@ Note that this can include sensitive data, and should only be used for local deb
 1. (Mac/Linux) Run the following:
    ```sh
    export BICEP_TRACING_ENABLED=true
-   export BICEP_EXTENSION_TRACING_ENABLED=true
    ```
 1. (Windows) Run the following in a PowerShell window:
    ```powershell
    $env:BICEP_TRACING_ENABLED = $true
-   $env:BICEP_EXTENSION_TRACING_ENABLED = $true
    ```
 
 ## Limitations

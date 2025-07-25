@@ -86,32 +86,13 @@ public class ResourceRequestDispatcherTests
 
     #endregion Fake Handlers
 
-    #region Constructor Tests
-    [TestMethod]
-    public void Constructor_Throws_On_Null_ResourceRequestHandler()
-    {
-        Action act = () => new ResourceRequestDispatcher(null!, loggerMock.Object);
-        act.Should().Throw<ArgumentNullException>().WithParameterName("resourceHandlerDispatcher");
-    }
-
-
-    [TestMethod]
-    public void Constructor_Throws_On_Null_Logger()
-    {
-        Action act = () => new ResourceRequestDispatcher(StrictMock.Of<IResourceHandlerDispatcher>().Object, null!);
-
-        act.Should().Throw<ArgumentNullException>().WithParameterName("logger");
-    }
-
-    #endregion Constructor Tests
-
     #region CreateOrUpdate Tests
 
     [TestMethod]
     public async Task When_CreateOrUpdate_ResourceSpecification_Is_Null_ReturnsError()
     {
         var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
-        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, null!, loggerMock.Object);
         var response = await dispatcher.CreateOrUpdate(null!, GetTestServerCallContext("CreateOrUpdate"));
         response.Should().NotBeNull();
         response.ErrorData.Should().NotBeNull();
@@ -125,7 +106,7 @@ public class ResourceRequestDispatcherTests
     public async Task When_CreateOrUpdate_ResourceSpecification_ResourceType_IsEmptyOrWhiteSpace_ReturnsError(string resourceType)
     {
         var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
-        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, null!, loggerMock.Object);
         var (resourceSpec, _) = GetTestResourceSpecAndRef(resourceType: resourceType);
         var response = await dispatcher.CreateOrUpdate(resourceSpec, GetTestServerCallContext("CreateOrUpdate"));
         response.Should().NotBeNull();
@@ -140,7 +121,7 @@ public class ResourceRequestDispatcherTests
     public async Task When_CreateOrUpdate_ResourceSpecification_Properties_IsEmptyOrWhiteSpace_ReturnsError(string properties)
     {
         var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
-        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, null!, loggerMock.Object);
         var (resourceSpec, _) = GetTestResourceSpecAndRef(properties: properties);
         var response = await dispatcher.CreateOrUpdate(resourceSpec, GetTestServerCallContext("CreateOrUpdate"));
         response.Should().NotBeNull();
@@ -155,7 +136,7 @@ public class ResourceRequestDispatcherTests
     public async Task When_CreateOrUpdate_ResourceSpecification_IsValid_StatusIsSucceeded(bool useTypedHandler)
     {
         var handlerDispatcher = GetHandlerDispatcherWithFakeResourceHandler(useTypedHandler);
-        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher, null!, loggerMock.Object);
         var resourceType = "Microsoft.Test/Test";
         var properties = "{\"key\":\"value\"}"; // valid JSON properties
         var config = "{\"setting\":\"value\"}"; // valid JSON config
@@ -185,7 +166,7 @@ public class ResourceRequestDispatcherTests
     public async Task When_Preview_ResourceSpecification_Is_Null_ReturnsError()
     {
         var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
-        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, null!, loggerMock.Object);
         var response = await dispatcher.Preview(null!, GetTestServerCallContext("Preview"));
         response.Should().NotBeNull();
         response.ErrorData.Should().NotBeNull();
@@ -199,7 +180,7 @@ public class ResourceRequestDispatcherTests
     public async Task When_Preview_ResourceSpecification_ResourceType_IsEmptyOrWhiteSpace_ReturnsError(string resourceType)
     {
         var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
-        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, null!, loggerMock.Object);
         var (resourceSpec, _) = GetTestResourceSpecAndRef(resourceType: resourceType);
         var response = await dispatcher.Preview(resourceSpec, GetTestServerCallContext("Preview"));
         response.Should().NotBeNull();
@@ -214,7 +195,7 @@ public class ResourceRequestDispatcherTests
     public async Task When_Preview_ResourceSpecification_Properties_IsEmptyOrWhiteSpace_ReturnsError(string properties)
     {
         var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
-        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, null!, loggerMock.Object);
         var (resourceSpec, _) = GetTestResourceSpecAndRef(properties: properties);
         var response = await dispatcher.Preview(resourceSpec, GetTestServerCallContext("Preview"));
         response.Should().NotBeNull();
@@ -229,7 +210,7 @@ public class ResourceRequestDispatcherTests
     public async Task When_Preview_ResourceSpecification_IsValid_StatusIsSucceeded(bool useTypedHandler)
     {
         var handlerDispatcher = GetHandlerDispatcherWithFakeResourceHandler(useTypedHandler);
-        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher, null!, loggerMock.Object);
 
         var resourceType = "Microsoft.Test/Test";
         var properties = "{\"key\":\"value\"}"; // valid JSON properties
@@ -262,7 +243,7 @@ public class ResourceRequestDispatcherTests
     public async Task When_Get_ResourceSpecification_Is_Null_ReturnsError()
     {
         var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
-        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, null!, loggerMock.Object);
         var response = await dispatcher.Get(null!, GetTestServerCallContext("Get"));
         response.Should().NotBeNull();
         response.ErrorData.Should().NotBeNull();
@@ -276,7 +257,7 @@ public class ResourceRequestDispatcherTests
     public async Task When_Get_ResourceSpecification_ResourceType_IsEmptyOrWhiteSpace_ReturnsError(string resourceType)
     {
         var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
-        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, null!, loggerMock.Object);
         var (_, resourceRef) = GetTestResourceSpecAndRef(resourceType: resourceType);
         var response = await dispatcher.Get(resourceRef, GetTestServerCallContext("Get"));
         response.Should().NotBeNull();
@@ -291,7 +272,7 @@ public class ResourceRequestDispatcherTests
     public async Task When_Get_ResourceSpecification_IsValid_StatusIsSucceeded(bool useTypedHandler)
     {
         var handlerDispatcher = GetHandlerDispatcherWithFakeResourceHandler(useTypedHandler);
-        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher, null!, loggerMock.Object);
 
         var resourceType = "Microsoft.Test/Test";
         var properties = "{\"key\":\"value\"}"; // valid JSON properties
@@ -323,7 +304,7 @@ public class ResourceRequestDispatcherTests
     public async Task When_Delete_ResourceSpecification_Is_Null_ReturnsError()
     {
         var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
-        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, null!, loggerMock.Object);
         var response = await dispatcher.Delete(null!, GetTestServerCallContext("Delete"));
         response.Should().NotBeNull();
         response.ErrorData.Should().NotBeNull();
@@ -337,7 +318,7 @@ public class ResourceRequestDispatcherTests
     public async Task When_Delete_ResourceSpecification_ResourceType_IsEmptyOrWhiteSpace_ReturnsError(string resourceType)
     {
         var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
-        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, null!, loggerMock.Object);
         var (_, resourceRef) = GetTestResourceSpecAndRef(resourceType: resourceType);
         var response = await dispatcher.Delete(resourceRef, GetTestServerCallContext("Delete"));
         response.Should().NotBeNull();
@@ -352,7 +333,7 @@ public class ResourceRequestDispatcherTests
     public async Task When_Delete_ResourceSpecification_IsValid_StatusIsSucceeded(bool useTypedHandler)
     {
         var handlerDispatcher = GetHandlerDispatcherWithFakeResourceHandler(useTypedHandler);
-        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher, null!, loggerMock.Object);
 
         var resourceType = "Microsoft.Test/Test";
         var properties = "{\"key\":\"value\"}"; // valid JSON properties
@@ -453,7 +434,7 @@ public class ResourceRequestDispatcherTests
     public async Task Ping_ReturnsEmptyResponse()
     {
         var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
-        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, null!, loggerMock.Object);
 
         var response = await dispatcher.Ping(new Rpc.Empty(), GetTestServerCallContext("Ping"));
 
@@ -473,7 +454,7 @@ public class ResourceRequestDispatcherTests
     public async Task When_CreateOrUpdate_InvalidJsonProperties_ReturnsError(string invalidJson)
     {
         var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
-        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, null!, loggerMock.Object);
         var (resourceSpec, _) = GetTestResourceSpecAndRef(properties: invalidJson);
 
         var response = await dispatcher.CreateOrUpdate(resourceSpec, GetTestServerCallContext("CreateOrUpdate"));
@@ -494,7 +475,7 @@ public class ResourceRequestDispatcherTests
     public async Task When_CreateOrUpdate_InvalidJsonConfig_ReturnsError(string invalidJson)
     {
         var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
-        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, null!, loggerMock.Object);
         var (resourceSpec, _) = GetTestResourceSpecAndRef(config: invalidJson);
 
         var response = await dispatcher.CreateOrUpdate(resourceSpec, GetTestServerCallContext("CreateOrUpdate"));
@@ -515,7 +496,7 @@ public class ResourceRequestDispatcherTests
     public async Task When_Get_InvalidJsonIdentifiers_ReturnsError(string invalidJson)
     {
         var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
-        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, null!, loggerMock.Object);
         var (_, resourceRef) = GetTestResourceSpecAndRef(identifiers: invalidJson);
 
         var response = await dispatcher.Get(resourceRef, GetTestServerCallContext("Get"));
@@ -545,7 +526,7 @@ public class ResourceRequestDispatcherTests
                 return true;
             });
 
-        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, null!, loggerMock.Object);
         var (resourceSpec, _) = GetTestResourceSpecAndRef(properties: "{\"name\": \"test\", \"description\": \"test desc\"}");
 
         var response = await dispatcher.CreateOrUpdate(resourceSpec, GetTestServerCallContext("CreateOrUpdate"));
@@ -570,7 +551,7 @@ public class ResourceRequestDispatcherTests
         handlerDispatcher.Setup(x => x.GenericResourceHandler)
             .Returns(handler.Object);
 
-        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher.Object, null!, loggerMock.Object);
         var (resourceSpec, _) = GetTestResourceSpecAndRef(properties: "{\"key\": \"value\"}");
 
         var response = await dispatcher.CreateOrUpdate(resourceSpec, GetTestServerCallContext("CreateOrUpdate"));
@@ -587,10 +568,12 @@ public class ResourceRequestDispatcherTests
         var errorCode = "ErrorCode";
         var errorMessage = "ErrorMessage";
         var errorTarget = "ErrorTarget";
+        var innerErrorCode = "InnerErrorCode";
         var innerErrorMessage = "InnerErrorMessage";
+        var innerErrorTarget = "InnerErrorTarget";
 
         var error = new Error(Code: errorCode, Target: errorTarget, Message: errorMessage,
-                            InnerError: new(Code: errorCode, Target: errorTarget, Message: innerErrorMessage));
+                            Details: [new(Code: innerErrorCode, Target: innerErrorTarget, Message: innerErrorMessage)]);
 
         var handlerResponse = new HandlerResponse("Microsoft.Test/Test", HandlerResponseStatus.Failed,
             new JsonObject(), new JsonObject(), "2023-01-01", error);
@@ -605,7 +588,7 @@ public class ResourceRequestDispatcherTests
         handlerDispatcher.Setup(x => x.GenericResourceHandler)
             .Returns(handler.Object);
 
-        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher.Object, null!, loggerMock.Object);
         var (resourceSpec, _) = GetTestResourceSpecAndRef(properties: "{\"key\": \"value\"}");
 
         var response = await dispatcher.CreateOrUpdate(resourceSpec, GetTestServerCallContext("CreateOrUpdate"));
@@ -614,8 +597,10 @@ public class ResourceRequestDispatcherTests
         response.ErrorData.Should().NotBeNull();
         response.ErrorData.Error.Code.Should().Be(errorCode);
         response.ErrorData.Error.Message.Should().Be(errorMessage);
-        response.ErrorData.Error.InnerError.Should().Be(innerErrorMessage);
         response.ErrorData.Error.Target.Should().Be(errorTarget);
+        response.ErrorData.Error.Details[0].Code.Should().Be(innerErrorCode);
+        response.ErrorData.Error.Details[0].Message.Should().Be(innerErrorMessage);
+        response.ErrorData.Error.Details[0].Target.Should().Be(innerErrorTarget);
     }
 
     [DataTestMethod]
@@ -637,7 +622,7 @@ public class ResourceRequestDispatcherTests
         handlerDispatcher.Setup(x => x.GenericResourceHandler)
             .Returns(handler.Object);
 
-        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher.Object, null!, loggerMock.Object);
         var (resourceSpec, _) = GetTestResourceSpecAndRef(properties: "{\"key\": \"value\"}");
 
         var response = await dispatcher.CreateOrUpdate(resourceSpec, GetTestServerCallContext("CreateOrUpdate"));
@@ -667,7 +652,7 @@ public class ResourceRequestDispatcherTests
         handlerDispatcher.Setup(x => x.GenericResourceHandler)
             .Returns(handler.Object);
 
-        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher.Object, null!, loggerMock.Object);
         var (resourceSpec, _) = GetTestResourceSpecAndRef(properties: "{\"key\": \"value\"}");
 
         var response = await dispatcher.CreateOrUpdate(resourceSpec, GetTestServerCallContext("CreateOrUpdate"));
@@ -707,7 +692,7 @@ public class ResourceRequestDispatcherTests
         handlerDispatcher.Setup(x => x.GenericResourceHandler)
             .Returns(handler.Object);
 
-        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher.Object, null!, loggerMock.Object);
         var resourceSpec = new Rpc.ResourceSpecification
         {
             Type = "Microsoft.Test/Test",
@@ -737,7 +722,7 @@ public class ResourceRequestDispatcherTests
         handlerDispatcher.Setup(x => x.GenericResourceHandler)
             .Returns(handler.Object);
 
-        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher.Object, null!, loggerMock.Object);
         var resourceSpec = new Rpc.ResourceSpecification
         {
             Type = "Microsoft.Test/Test",
@@ -757,7 +742,7 @@ public class ResourceRequestDispatcherTests
     public async Task When_ResourceReference_HasNoIdentifiers_ReturnsError()
     {
         var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
-        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, null!, loggerMock.Object);
 
         var resourceRef = new Rpc.ResourceReference
         {
@@ -798,7 +783,7 @@ public class ResourceRequestDispatcherTests
         mockDispatcher.Setup(x => x.GenericResourceHandler)
             .Returns(handler.Object);
 
-        var dispatcher = new ResourceRequestDispatcher(mockDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(mockDispatcher.Object, null!, loggerMock.Object);
         var (resourceSpec, _) = GetTestResourceSpecAndRef(properties: "{\"key\": \"value\"}");
 
         var context = TestServerCallContext.Create(
@@ -838,7 +823,7 @@ public class ResourceRequestDispatcherTests
         handlerDispatcher.Setup(x => x.GenericResourceHandler)
             .Returns(handler.Object);
 
-        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(handlerDispatcher.Object, null!, loggerMock.Object);
 
         var complexProperties = """
         {
@@ -875,7 +860,7 @@ public class ResourceRequestDispatcherTests
     public async Task When_ResourceReference_Identifiers_IsEmptyOrWhiteSpace_ReturnsError(string identifiers)
     {
         var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
-        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, null!, loggerMock.Object);
         var (_, resourceRef) = GetTestResourceSpecAndRef(identifiers: identifiers);
 
         var response = await dispatcher.Delete(resourceRef, GetTestServerCallContext("Delete"));
@@ -890,7 +875,7 @@ public class ResourceRequestDispatcherTests
     public async Task When_ResourceReference_Identifiers_IsNull_ReturnsError()
     {
         var requestHandlerDispatcher = StrictMock.Of<IResourceHandlerDispatcher>();
-        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        var dispatcher = new ResourceRequestDispatcher(requestHandlerDispatcher.Object, null!, loggerMock.Object);
 
         var resourceRef = new Rpc.ResourceReference
         {
@@ -918,7 +903,7 @@ public class ResourceRequestDispatcherTests
         requestHandlerDispatcher
             .Setup(x => x.GenericResourceHandler)
             .Returns<IResourceHandler?>(null!);
-        return new ResourceRequestDispatcher(requestHandlerDispatcher.Object, loggerMock.Object);
+        return new ResourceRequestDispatcher(requestHandlerDispatcher.Object, null!, loggerMock.Object);
     }
 
     private (ResourceSpecification ResourceSpec, ResourceReference ResourceRef) GetTestResourceSpecAndRef(

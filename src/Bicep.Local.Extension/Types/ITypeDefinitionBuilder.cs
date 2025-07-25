@@ -1,14 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
+using System.Text.Json.Serialization;
 using Azure.Bicep.Types.Index;
 
 namespace Bicep.Local.Extension.Types;
 
-public record TypeDefinition(string TypesJson, string IndexJson);
+public record TypeDefinition(string IndexFileContent, ImmutableDictionary<string, string> TypeFileContents);
 
 public interface ITypeDefinitionBuilder
 {
-    TypeSettings Settings { get; }
-    TypeDefinition GenerateBicepResourceTypes();
+    TypeDefinition GenerateTypeDefinition();
 }

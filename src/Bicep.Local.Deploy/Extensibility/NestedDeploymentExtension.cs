@@ -16,6 +16,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Auth;
 using Bicep.Local.Deploy.Azure;
 using Bicep.Local.Deploy.Engine;
+using Bicep.Local.Deploy.Types;
 using Json.More;
 using Json.Pointer;
 using Microsoft.WindowsAzure.ResourceStack.Common.Algorithms;
@@ -191,4 +192,7 @@ internal class NestedDeploymentExtension(
 
     public ValueTask DisposeAsync()
         => ValueTask.CompletedTask;
+
+    public Task<TypeFiles> GetTypeFiles(CancellationToken cancellationToken)
+        => throw new InvalidOperationException($"Extension {nameof(NestedDeploymentExtension)} does not support type files.");
 }

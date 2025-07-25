@@ -27,8 +27,7 @@ describe("bicep local-deploy", () => {
         }),
       };
 
-      const typesIndexPath = pathToTempFile(testArea, "types", "index.json");
-      publishExtension(typesIndexPath, target).shouldSucceed().withEmptyStdout();
+      publishExtension(target).shouldSucceed().withEmptyStdout();
 
       invokingBicepCommand("local-deploy", files.bicepparam)
         .shouldSucceed()
