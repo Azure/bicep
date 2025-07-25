@@ -11,6 +11,7 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
