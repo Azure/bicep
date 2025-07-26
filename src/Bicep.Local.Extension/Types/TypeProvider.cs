@@ -45,7 +45,7 @@ public class TypeProvider : ITypeProvider
     {
         var result = assemblies
             .SelectMany(assembly => assembly.GetTypes())
-            .Where(x => x.IsPublic || x.IsNestedPublic)
+            .Where(x => x.IsVisible)
             .Select(x => (type: x, attribute: x.GetCustomAttribute<ResourceTypeAttribute>(true)!))
             .Where(x => x.attribute is not null)
             .ToImmutableArray();

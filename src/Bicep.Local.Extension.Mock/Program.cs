@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Configuration;
 using Bicep.Local.Extension.Host.Extensions;
+using Bicep.Local.Extension.Mock;
 using Bicep.Local.Extension.Mock.Handlers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +21,7 @@ builder.Services
     .WithResourceHandler<EchoResourceHandler>();
 
 var app = builder.Build();
+
 app.MapBicepExtension();
 
 await app.RunAsync();

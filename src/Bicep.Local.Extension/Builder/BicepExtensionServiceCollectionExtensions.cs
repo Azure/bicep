@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Azure.Bicep.Types;
 using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
+using Bicep.Local.Extension.Host;
 using Bicep.Local.Extension.Host.Handlers;
 using Bicep.Local.Extension.Types;
 using Microsoft.AspNetCore.Builder;
@@ -29,17 +30,6 @@ public static class BicepExtensionServiceCollectionExtensions
     /// <summary>
     /// Configures the dependency injection container with core Bicep extension services and type definitions.
     /// </summary>
-    /// <param name="services">The service collection to configure.</param>
-    /// <param name="name">The unique name of your Bicep extension (e.g., "MyCompany.MyExtension").</param>
-    /// <param name="version">The semantic version of your extension (e.g., "1.0.0").</param>
-    /// <param name="isSingleton">True if this extension should be treated as a singleton; false for multiple instances.</param>
-    /// <param name="configurationType">Configuration type for your extension.</param>
-    /// <returns>The configured service collection for method chaining.</returns>
-    /// <remarks>
-    /// This method sets up the foundation for your Bicep extension by registering core services including
-    /// type factories, resource dispatchers, gRPC services, and basic type mappings (string, bool, int).
-    /// Call this method once during startup before registering resource handlers.
-    /// </remarks>
     /// <example>
     /// <code>
     /// services.AddBicepExtension(
@@ -87,7 +77,7 @@ public static class BicepExtensionServiceCollectionExtensions
             new TypeProvider([typeAssembly]),
             typeDictionary));
 
-        services.AddSingleton<IResourceHandlerDispatcher, ResourceHandlerDispatcher>();
+        services.AddSingleton<IResourceHandlerCollection, ResourceHandlerCollection>();
 
         services.AddGrpc(options =>
         {

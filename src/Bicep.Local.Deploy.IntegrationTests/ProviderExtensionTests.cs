@@ -83,15 +83,15 @@ public class ProviderExtensionTests : TestBase
             }, cts.Token));
     }
 
-    private async Task RunExtensionTest(Func<Mock<IResourceHandler>, Rpc.BicepExtension.BicepExtensionClient, CancellationToken, Task> testFunc)
+    private async Task RunExtensionTest(Func<MockResourceHandler, Rpc.BicepExtension.BicepExtensionClient, CancellationToken, Task> testFunc)
     {
         var socketPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.tmp");
-        var mockHandler = StrictMock.Of<IResourceHandler>();
+        var mockHandler = new MockResourceHandler();
 
         await RunExtensionTest(
             ["--socket", socketPath],
             () => GrpcChannelHelper.CreateDomainSocketChannel(socketPath),
-            builder => builder.WithResourceHandler(mockHandler.Object),
+            builder => builder.WithResourceHandler(mockHandler),
             (client, token) => testFunc(mockHandler, client, token));
     }
 
@@ -133,37 +133,45 @@ public class ProviderExtensionTests : TestBase
                 throw new NotImplementedException();
         }
 
-        JsonObject identifiers = new()
+        var handler = new MockResourceHandler
+        {
+            OnCreateOrUpdate = (req, _) =>
+            {
+                req.Type.Should().Be("apps/Deployment");
+                req.ApiVersion.Should().Be("v1");
+                req.Properties.Should().NotBeNull();
+                req.Config.KubeConfig.Should().Be("redacted");
+                req.Config.Namespace.Should().Be("default");
+                
+                return new MockResourceHandler.ResourceResponse
                 {
-                    { "name", "someName" },
-                    { "namespace", "someNamespace" }
+                    Type = req.Type,
+                    ApiVersion = req.ApiVersion,
+                    Identifiers = new()
+                    {
+                        Metadata = req.Properties.Metadata,
+                    },
+                    Properties = req.Properties,
                 };
-
-        var handlerMock = StrictMock.Of<IResourceHandler<AppsDeploymentResource>>();
-        handlerMock.SetupCreateOrUpdate(req => HandlerResponse.Success(req.Type, req.Properties, identifiers, req.ApiVersion));
+            }
+        };
 
         await RunExtensionTest(
             processArgs,
             channelBuilder,
-            builder => builder.WithResourceHandler(handlerMock.Object),
+            builder => builder.WithResourceHandler(handler),
             async (client, token) =>
             {
                 var request = new Rpc.ResourceSpecification
                 {
-                    ApiVersion = "v1",
-                    Type = "apps/Deployment",
+                    ApiVersion = handler.ApiVersion,
+                    Type = handler.Type,
                     Config = """
                         {
-                            "kubeConfig": {
-                                "type": "string",
-                                "defaultValue": "redacted"
-                            },
-                            "namespace": {
-                                "type": "string",
-                                "defaultValue": "default"
-                            }
+                            "kubeConfig": "redacted",
+                            "namespace": "default"
                         }
-                    """,
+                        """,
                     Properties = """
                         {
                           "metadata": {
@@ -205,36 +213,47 @@ public class ProviderExtensionTests : TestBase
 
                 var response = await client.CreateOrUpdateAsync(request, cancellationToken: token);
 
-                response.Should().NotBeNull();
-                response.Resource.Should().NotBeNull();
                 response.Resource.Type.Should().Be("apps/Deployment");
-                response.Resource.Identifiers.Should().NotBeNullOrEmpty();
-                var responseIdentifiers = JsonObject.Parse(response.Resource.Identifiers)!.AsObject();
-                responseIdentifiers.Should().NotBeNullOrEmpty();
-                responseIdentifiers["name"]!.GetValue<string>().Should().Be(identifiers["name"]!.GetValue<string>());
-                responseIdentifiers["namespace"]!.GetValue<string>().Should().Be(identifiers["namespace"]!.GetValue<string>());
+                response.Resource.Identifiers.FromJson<JToken>().Should().DeepEqual(JObject.Parse("""
+                {
+                    "metadata": {
+                        "name": "echo-server"
+                    }
+                }
+                """));
             });
     }
 
     [TestMethod]
-    public Task Error_details_and_inner_error_can_be_null() => RunExtensionTest(async (handlerMock, client, token) =>
+    public Task Error_details_and_inner_error_can_be_null() => RunExtensionTest(async (handler, client, token) =>
     {
-        Handlers.Error error = new("SomeErrorCode", "SomeTarget", "SomeMessage");
-        handlerMock.SetupCreateOrUpdate(req => HandlerResponse.Failed(req.Type, req.Properties, req.Identifiers, error, req.ApiVersion));
+        handler.OnCreateOrUpdate = (req, _) => throw new MockResourceHandler.ResourceErrorException("SomeErrorCode", "SomeMessage", "SomeTarget");
 
         var response = await client.CreateOrUpdateAsync(new()
         {
-            Type = "mockResource",
+            Type = handler.Type,
+            ApiVersion = handler.ApiVersion,
             Properties = """
-{}
-""",
+            {
+                "metadata": {
+                    "name": "echo-server"
+                },
+                "spec": {}
+            }
+            """,
+            Config = """
+            {
+                "kubeConfig": "redacted",
+                "namespace": "default"
+            }
+            """
         }, cancellationToken: token);
 
         response.Should().NotBeNull();
         response.ErrorData.Should().NotBeNull();
-        response.ErrorData.Error.Code.Should().Be(error.Code);
-        response.ErrorData.Error.Target.Should().Be(error.Target);
-        response.ErrorData.Error.Message.Should().Be(error.Message);
+        response.ErrorData.Error.Code.Should().Be("SomeErrorCode");
+        response.ErrorData.Error.Target.Should().Be("SomeTarget");
+        response.ErrorData.Error.Message.Should().Be("SomeMessage");
         response.ErrorData.Error.Details.Should().BeNullOrEmpty();
         response.ErrorData.Error.InnerError.Should().BeNullOrEmpty();
     });
