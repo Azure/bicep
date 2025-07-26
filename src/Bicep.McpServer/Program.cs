@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.McpServer;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Bicep.McpServer;
+using Azure.Identity;
 
 var builder = Host.CreateEmptyApplicationBuilder(settings: null);
 
