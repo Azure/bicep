@@ -29,7 +29,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@azure/arm-resources": "^5.2.0",
+    "@azure/arm-resources": "^7.0.0",
     "@azure/identity": "^4.9.1",
     "@microsoft/vscode-azext-utils": "^3.0.4",
     "@vscode-bicep-ui/components": "^0.0.0",
