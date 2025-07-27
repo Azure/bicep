@@ -63,13 +63,13 @@ public static class IServiceCollectionExtensions
                                 { typeof(string), () => new StringType() },
                                 { typeof(bool), () => new BooleanType() },
                                 { typeof(int), () => new IntegerType() }
-                            }.ToImmutableDictionary();        
+                            }.ToImmutableDictionary();
         var typeFactory = new TypeFactory([]);
 
         foreach (var type in typeDictionary)
         {
             typeFactory.Create(type.Value);
-        }        
+        }
 
         var configuration = new Dictionary<string, ObjectTypeProperty>();
 

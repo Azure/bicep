@@ -67,7 +67,7 @@ public static class WebApplicationBuilderExtensions
         {
             var commandLindParser = GetCommandLineParserService(options.ApplicationServices);
 
-            if(commandLindParser.ShouldExit)
+            if (commandLindParser.ShouldExit)
             {
                 Environment.Exit(commandLindParser.ExitCode);
             }
@@ -85,7 +85,7 @@ public static class WebApplicationBuilderExtensions
                     options.ListenNamedPipe(connectionOptions.Pipe, listenOptions => listenOptions.Protocols = HttpProtocols.Http2);
                     break;
                 case { Socket: null, Pipe: null, Http: { } }:
-                    if(connectionOptions.Http <= 0 || connectionOptions.Http > 65535)
+                    if (connectionOptions.Http <= 0 || connectionOptions.Http > 65535)
                     {
                         throw new ArgumentOutOfRangeException(nameof(connectionOptions.Socket), "HTTP port must be between 1 and 65535.");
                     }

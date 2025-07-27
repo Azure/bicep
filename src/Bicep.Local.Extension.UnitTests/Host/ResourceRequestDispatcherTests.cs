@@ -160,7 +160,7 @@ public class ResourceRequestDispatcherTests
         var properties = "{\"key\":\"value\"}"; // valid JSON properties
         var config = "{\"setting\":\"value\"}"; // valid JSON config
         var apiVersion = "2023-01-01";
-        
+
         var (resourceSpec, _) = GetTestResourceSpecAndRef(resourceType: resourceType, apiVersion: apiVersion, properties: properties, config: config);
 
         var response = await dispatcher.CreateOrUpdate(resourceSpec, GetTestServerCallContext("CreateOrUpdate"));
@@ -172,7 +172,7 @@ public class ResourceRequestDispatcherTests
         response.Resource.ApiVersion.Should().Be(resourceSpec.ApiVersion);
         response.Resource.HasStatus.Should().BeTrue();
         response.Resource.Status.Should().Be(HandlerResponseStatus.Succeeded.ToString());
-        
+
         response.ErrorData.Should().BeNull();
     }
 
@@ -433,10 +433,10 @@ public class ResourceRequestDispatcherTests
     public async Task When_NoRequestHandlers_Delete_ReturnsError()
     {
         var dispatcher = GetResourceRequestDispatcher_WithNoHandlers();
-        string resourceType = "Microsoft.Test/Test";        
+        string resourceType = "Microsoft.Test/Test";
         var properties = "{\"key\":\"value\"}"; // valid JSON properties
         var identifiers = "{\"id\":\"12345\"}"; // valid JSON identifiers
-        var (_ , resourceRef) = GetTestResourceSpecAndRef(resourceType: resourceType, properties: properties, apiVersion: "2023-01-01", identifiers: identifiers);
+        var (_, resourceRef) = GetTestResourceSpecAndRef(resourceType: resourceType, properties: properties, apiVersion: "2023-01-01", identifiers: identifiers);
 
         var response = await dispatcher.Delete(resourceRef, GetTestServerCallContext("Delete"));
 

@@ -37,7 +37,7 @@ public interface IResourceHandlerDispatcher
     /// Can be null if no typed handlers are registered.
     /// </remarks>
     FrozenDictionary<string, TypedResourceHandler>? TypedResourceHandlers { get; }
-    
+
     /// <summary>
     /// Gets the generic resource handler that can process any resource type if available.
     /// </summary>
