@@ -31,7 +31,7 @@
     "styled-components": "^6.1.11"
   },
   "devDependencies": {
-    "@storybook/addon-docs": "^9.0.15",
+    "@storybook/addon-docs": "^9.0.18",
     "@storybook/addon-links": "^9.0.14",
     "@storybook/addon-themes": "^9.0.14",
     "@storybook/react-vite": "^9.0.14",
