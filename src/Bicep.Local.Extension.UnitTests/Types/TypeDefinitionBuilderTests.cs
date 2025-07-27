@@ -117,12 +117,12 @@ public class TypeDefinitionBuilderTests
         var builder = new TypeDefinitionBuilder(settings, factory, typeProviderMock.Object, map);
 
         var result = builder.GenerateBicepResourceTypes();
-        
 
-        result.Should().NotBeNull();        
+
+        result.Should().NotBeNull();
         result.IndexJson.Should().NotBeNullOrEmpty();
         result.TypesJson.Should().NotBeNullOrEmpty();
-        result.TypesJson.Should().Contain("[]", because: "the types JSON should be and empty array '[]' when no resource types are generated");        
+        result.TypesJson.Should().Contain("[]", because: "the types JSON should be and empty array '[]' when no resource types are generated");
     }
 
     [TestMethod]
@@ -141,7 +141,7 @@ public class TypeDefinitionBuilderTests
         result.Should().NotBeNull();
         result.IndexJson.Should().Contain("SimpleResource");
         result.TypesJson.Should().Contain("SimpleResource");
-        result.TypesJson.Should().Contain("name", because: "the property should be present in the resource type definition");        
+        result.TypesJson.Should().Contain("name", because: "the property should be present in the resource type definition");
     }
 
     [TestMethod]

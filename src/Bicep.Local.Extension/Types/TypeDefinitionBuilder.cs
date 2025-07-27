@@ -138,8 +138,8 @@ public class TypeDefinitionBuilder
 
                     if (!TryResolveTypeReference(elementType, annotation, out var elementTypeReference))
                     {
-                        elementTypeReference = typeCache.GetOrAdd(elementType, _ => factory.Create(() => GenerateForRecord(factory, typeCache, elementType)));                      
-                    }                    
+                        elementTypeReference = typeCache.GetOrAdd(elementType, _ => factory.Create(() => GenerateForRecord(factory, typeCache, elementType)));
+                    }
 
                     typeReference = typeCache.GetOrAdd(propertyType, _ => factory.Create(() => new ArrayType(factory.GetReference(elementTypeReference))));
                 }

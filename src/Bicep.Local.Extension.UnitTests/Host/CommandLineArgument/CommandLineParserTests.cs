@@ -511,8 +511,8 @@ public class CommandLineParserTests
         var validArgSets = new string[][]
         {
             ["--socket", "/tmp/test.sock" ],
-            ["--pipe", "testpipe" ],      
-            ["--http", "8080" ],         
+            ["--pipe", "testpipe" ],
+            ["--http", "8080" ],
             ["--describe" ],
             ["--socket", "/tmp/test.sock"],
             ["--pipe", "testpipe"]

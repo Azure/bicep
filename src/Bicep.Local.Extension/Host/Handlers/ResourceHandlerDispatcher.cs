@@ -100,7 +100,7 @@ public class ResourceHandlerDispatcher : IResourceHandlerDispatcher
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(resourceType, nameof(resourceType));
 
-        return TypedResourceHandlers.TryGetValue(resourceType, out typedResourceHandler);        
+        return TypedResourceHandlers.TryGetValue(resourceType, out typedResourceHandler);
     }
 
     private static (TypedResourceHandler? Generic, FrozenDictionary<string, TypedResourceHandler> Typed) BuildResourceHandlerTypeMap(IEnumerable<IResourceHandler> resourceHandlers)

@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Globalization;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
-using System.Globalization;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -147,4 +147,4 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
     }
-} 
+}
