@@ -9,6 +9,7 @@ service BicepExtension {
   rpc Preview (ResourceSpecification) returns (LocalExtensibilityOperationResponse);
   rpc Get (ResourceReference) returns (LocalExtensibilityOperationResponse);
   rpc Delete (ResourceReference) returns (LocalExtensibilityOperationResponse);
+  rpc GetTypeFiles(Empty) returns (TypeFilesResponse);
   rpc Ping(Empty) returns (Empty);
 }
 
@@ -57,4 +58,9 @@ message ErrorDetail {
   string code = 1;
   optional string target = 2;
   string message = 3;
+}
+
+message TypeFilesResponse {
+  string indexFile = 1;
+  map<string, string> typeFiles = 2;
 }
