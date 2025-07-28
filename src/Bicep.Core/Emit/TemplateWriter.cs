@@ -123,11 +123,6 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty(LanguageVersionPropertyName, "2.1-experimental");
                 }
             }
-            // TODO remove this condition once the ARM 2025w21 release has been deployed
-            else if (Context.SemanticModel.Root.ExtensionDeclarations.Any())
-            {
-                emitter.EmitProperty(LanguageVersionPropertyName, "2.1-experimental");
-            }
             else if (Context.Settings.EnableSymbolicNames)
             {
                 emitter.EmitProperty(LanguageVersionPropertyName, "2.0");
