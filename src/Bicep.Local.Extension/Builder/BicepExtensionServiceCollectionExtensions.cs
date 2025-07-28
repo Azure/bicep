@@ -68,13 +68,14 @@ public static class BicepExtensionServiceCollectionExtensions
 
         var configuration = new Dictionary<string, ObjectTypeProperty>();
 
-        services.AddSingleton<ITypeDefinitionBuilder>(new TypeDefinitionBuilder(
+        services.AddSingleton<ITypeProvider>(new TypeProvider([typeAssembly]));
+        services.AddSingleton<ITypeDefinitionBuilder>(sp => new TypeDefinitionBuilder(
             name,
             version,
             isSingleton,
             configurationType,
             typeFactory,
-            new TypeProvider([typeAssembly]),
+            sp.GetRequiredService<ITypeProvider>(),
             typeDictionary));
 
         services.AddSingleton<IResourceHandlerCollection, ResourceHandlerCollection>();
