@@ -69,7 +69,7 @@ param testPadLeft = padLeft(13, 'foo')
 param testRange = range(0, 'foo')
 //@[06:15) ParameterAssignment testRange. Type: error. Declaration start char: 0, length: 33
 param testReduce = reduce(['a', 'b', 'c'], '', (a, b) => '${toObject(a)}-${b}')
-//@[48:49) Local a. Type: 'a' | 'b' | 'c'. Declaration start char: 48, length: 1
+//@[48:49) Local a. Type: string. Declaration start char: 48, length: 1
 //@[51:52) Local b. Type: 'a' | 'b' | 'c'. Declaration start char: 51, length: 1
 //@[06:16) ParameterAssignment testReduce. Type: error. Declaration start char: 0, length: 79
 param testReplace = replace('abc', 'b', {})

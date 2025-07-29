@@ -1938,12 +1938,16 @@ namespace Bicep.Core.Diagnostics
                 "BCP425",
                 $"The extension configuration assignment for \"{identifier}\" does not match an extension in the Bicep file.");
 
-            public Diagnostic InlineMustNotHaveValueAssigned() => CoreError(
+            public Diagnostic SecureOutputsOnlyAllowedOnDirectModuleReference() => CoreError(
                 "BCP426",
+                "Secure outputs may only be accessed via a direct module reference. Only non-sensitive outputs are supported when dereferencing a module indirectly via a variable or lambda.");
+
+            public Diagnostic InlineMustNotHaveValueAssigned() => CoreError(
+                "BCP427",
                 $"A parameter marked with the \"@{LanguageConstants.ParameterInlinePropertyName}\" decorator shouldn't have a value assigned.");
 
             public Diagnostic MissingParameterValue(string identifier) => CoreError(
-                "BCP427",
+                "BCP428",
                 $"Parameter {identifier} is declared but missing a value assignment.");
         }
 

@@ -526,7 +526,7 @@
     <value>Runtime values should not be used to determine resource IDs</value>
   </data>
   <data name="WhatIfShortCircuitingRuleMessageFormat" xml:space="preserve">
-    <value>Runtime value '{0}' will reduce the precision of what-if analysis for module '{1}'</value>
+    <value>Parameter '{0}' is used as a resource identifier, API version, or condition in the module '{1}'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If.</value>
     <comment>{0} Parameter name</comment>
   </data>
   <data name="ExperimentalFeatureNames_OnlyIfNotExists" xml:space="preserve">
@@ -537,5 +537,11 @@
   </data>
   <data name="ImportMustBeUsedRuleMessageFormat" xml:space="preserve">
     <value>Import "{0}" is declared but never used.</value>
+  </data>
+  <data name="UseRecentAzPowerShellVersionRuleDescription" xml:space="preserve">
+    <value>Use AzPowerShell version 11.0 or higher in deployment scripts to avoid EOL Ubuntu 20.04 LTS</value>
+  </data>
+  <data name="UseRecentAzPowerShellVersionRuleMessageFormat" xml:space="preserve">
+    <value>Deployment script is using AzPowerShell version '{0}' which is below the recommended minimum version '{1}'. Consider upgrading to version 11.0 or higher to avoid EOL Ubuntu 20.04 LTS.</value>
   </data>
 </root>

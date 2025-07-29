@@ -2654,19 +2654,9 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol? TryGetArmPrimitiveType(TypeSymbol type, SyntaxBase syntax) => type switch
         {
-            BooleanLiteralType or BooleanType => LanguageConstants.Bool,
-            IntegerLiteralType or IntegerType => LanguageConstants.Int,
-            StringLiteralType or StringType => LanguageConstants.String,
             ResourceType when features.ResourceTypedParamsAndOutputsEnabled => LanguageConstants.String,
-            ObjectType or DiscriminatedObjectType => LanguageConstants.Object,
-            TupleType or ArrayType => LanguageConstants.Array,
-            UnionType when TypeHelper.TryRemoveNullability(type) is { } nonNull => TryGetArmPrimitiveType(nonNull, syntax),
             UnionType when IsExplicitUnion(syntax) => LanguageConstants.Any,
-            UnionType union when union.Members.Select(m => TryGetArmPrimitiveType(m.Type, syntax)).ToArray() is { } mTypes &&
-                !mTypes.Any(t => t is null) &&
-                mTypes.ToHashSet() is { } mUniqueTypes &&
-                mUniqueTypes.Count == 1 => mUniqueTypes.Single(),
-            _ => null,
+            _ => TypeHelper.TryGetArmPrimitiveType(type),
         };
 
         private static bool IsExplicitUnion(SyntaxBase syntax) => syntax switch

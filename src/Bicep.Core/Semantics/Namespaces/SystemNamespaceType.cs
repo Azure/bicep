@@ -1145,7 +1145,37 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("array", LanguageConstants.Array, "The array to reduce.")
                     .WithRequiredParameter("initialValue", LanguageConstants.Any, "The initial value.")
                     .WithRequiredParameter("predicate", TypeHelper.CreateLambdaType([LanguageConstants.Any, LanguageConstants.Any], [LanguageConstants.Int], LanguageConstants.Any), "The predicate used to aggregate the current value and the next value. ",
-                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TypeHelper.CreateLambdaType([t, t], [LanguageConstants.Int], LanguageConstants.Any)))
+                        calculator: getArgumentType =>
+                        {
+                            var toReduceType = getArgumentType(0);
+
+                            var elementType = toReduceType switch
+                            {
+                                ArrayType array => array.Item.Type,
+                                AnyType => LanguageConstants.Any,
+                                _ => null,
+                            };
+
+                            var seedType = getArgumentType(1);
+
+                            if (elementType is null || elementType is ErrorType || seedType is ErrorType)
+                            {
+                                return null;
+                            }
+
+                            var accumulationType = seedType switch
+                            {
+                                ErrorType error => error,
+                                _ when TypeHelper.TryGetArmPrimitiveType(seedType) is TypeSymbol armPrimitive => armPrimitive,
+                                _ => LanguageConstants.Any,
+                            };
+                            var firstArgType = toReduceType is ArrayType { MaxLength: <= 1 } ? seedType : accumulationType;
+
+                            return TypeHelper.CreateLambdaType(
+                                argumentTypes: [firstArgType, elementType],
+                                optionalArgumentTypes: [CalculateIndexTypeOfArray(toReduceType)],
+                                returnType: accumulationType);
+                        })
                     .WithReturnType(LanguageConstants.Any)
                     .WithReturnResultBuilder((_, _, _, argumentTypes) => argumentTypes[2] switch
                     {
@@ -1321,6 +1351,11 @@ namespace Bicep.Core.Semantics.Namespaces
             var itemType = arrayType.Item;
             return lambdaBuilder(itemType.Type);
         }
+
+        private static TypeSymbol CalculateIndexTypeOfArray(TypeSymbol arrayType) => TypeFactory.CreateIntegerType(
+            minValue: 0,
+            maxValue: (arrayType as ArrayType)?.MaxLength,
+            validationFlags: arrayType.ValidationFlags);
 
         private static TypeSymbol? CalculateLambdaFromObjectValues(GetFunctionArgumentType getArgumentType, int arrayIndex, Func<TypeSymbol, LambdaType> lambdaBuilder)
         {

@@ -11,25 +11,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Protobuf Include="extension.proto" GrpcServices="Both" />
+    <ProjectReference Include="../Bicep.Local.Rpc/Bicep.Local.Rpc.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Azure.Bicep.Types" Version="0.5.110" />
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
-    <PackageReference Include="Google.Protobuf" Version="3.29.2" />
-    <PackageReference Include="Grpc.Tools" Version="2.69.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Grpc.Net.Client" Version="2.70.0" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
+    <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.71.0" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Update="Nerdbank.GitVersioning" Version="3.7.112" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Host\" />
   </ItemGroup>
 </Project>
