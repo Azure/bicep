@@ -1087,7 +1087,7 @@ namespace Bicep.LanguageServer.Completions
                 case ParameterAssignmentSyntax paramAssignment:
                     // is the cursor after the equals sign in the param assignment?
                     return !paramAssignment.Name.Span.ContainsInclusive(offset) &&
-                           (paramAssignment.AssignmentClause?.Assignment ?? SyntaxFactory.CreateNullLiteral()).Span.ContainsInclusive(offset) &&
+                           paramAssignment.AssignmentClause?.Assignment.Span.ContainsInclusive(offset) is true &&
                             paramAssignment.AssignmentClause?.Value is SkippedTriviaSyntax && offset == paramAssignment.AssignmentClause.Value.Span.Position;
 
                 case OutputDeclarationSyntax output:
