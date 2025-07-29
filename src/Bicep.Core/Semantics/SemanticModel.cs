@@ -680,8 +680,10 @@ namespace Bicep.Core.Semantics
                     TypeManager.GetDeclaredType(assignmentSymbol.DeclaringSyntax) is { } declaredType)
                 {
                     var diagnostics = ToListDiagnosticWriter.Create();
-                    var value = assignmentSymbol.DeclaringParameterAssignment.AssignmentClause?.Value ?? SyntaxFactory.CreateNullLiteral();
-                    TypeValidator.NarrowTypeAndCollectDiagnostics(TypeManager, Binder, ParsingErrorLookup, diagnostics, value, declaredType);
+                    if (assignmentSymbol.DeclaringParameterAssignment.AssignmentClause?.Value is {} value)
+                    {
+                        TypeValidator.NarrowTypeAndCollectDiagnostics(TypeManager, Binder, ParsingErrorLookup, diagnostics, value, declaredType);
+                    }
                     foreach (var diagnostic in diagnostics.GetDiagnostics())
                     {
                         yield return diagnostic;
