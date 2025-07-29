@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Numerics;
 using System.Text.RegularExpressions;
+using Azure.Deployments.Expression.Intermediate;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
@@ -160,6 +161,63 @@ namespace Bicep.Core.TypeSystem
             }
 
             return new TupleType(nameBuilder.ToString(), [.. convertedItems], TypeSymbolValidationFlags.Default);
+        }
+
+        /// <summary>
+        /// Attempt to create a type symbol for an ARM expression.
+        /// </summary>
+        /// <param name="expr">The value (expressed in ARM IR)</param>
+        public static TypeSymbol? TryCreateTypeLiteral(ITemplateLanguageExpression expr) => expr switch
+        {
+            ArrayExpression array => TryCreateTypeLiteral(array),
+            BooleanExpression @bool => @bool.Value ? LanguageConstants.True : LanguageConstants.False,
+            IntegerExpression @int when long.MinValue <= @int.Value && @int.Value <= long.MaxValue
+                => TypeFactory.CreateIntegerLiteralType((long)@int.Value),
+            NullExpression => LanguageConstants.Null,
+            ObjectExpression @object => TryCreateTypeLiteral(@object),
+            StringExpression @string => TypeFactory.CreateStringLiteralType(@string.Value),
+            _ => null,
+        };
+
+        private static ObjectType? TryCreateTypeLiteral(ObjectExpression @object)
+        {
+            List<NamedTypeProperty> convertedProperties = new();
+            ObjectTypeNameBuilder nameBuilder = new();
+            foreach (var prop in @object)
+            {
+                if (prop.Key is StringExpression { Value: string propName } &&
+                    TryCreateTypeLiteral(prop.Value) is TypeSymbol propType)
+                {
+                    convertedProperties.Add(new(propName, propType, TypePropertyFlags.Required | TypePropertyFlags.DisallowAny));
+                    nameBuilder.AppendProperty(propName, propType.Name);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            return new(nameBuilder.ToString(), TypeSymbolValidationFlags.Default, convertedProperties);
+        }
+
+        private static TupleType? TryCreateTypeLiteral(ArrayExpression array)
+        {
+            var convertedItems = ImmutableArray.CreateBuilder<ITypeReference>();
+            TupleTypeNameBuilder nameBuilder = new();
+            foreach (var item in array.Items)
+            {
+                if (TryCreateTypeLiteral(item) is TypeSymbol itemType)
+                {
+                    convertedItems.Add(itemType);
+                    nameBuilder.AppendItem(itemType.Name);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            return new(nameBuilder.ToString(), convertedItems.ToImmutable(), TypeSymbolValidationFlags.Default);
         }
 
         public static TypeSymbol GetNamedPropertyType(

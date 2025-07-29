@@ -4,46 +4,45 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Azure.Deployments.Expression.Expressions;
+using Azure.Deployments.Expression.Intermediate;
+using Azure.Deployments.Expression.Intermediate.Extensions;
 using Azure.Deployments.Templates.Expressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.TypeSystem.Types;
 using Newtonsoft.Json.Linq;
 
+using ExpressionEvaluationContext = Azure.Deployments.Expression.Intermediate.ExpressionEvaluationContext;
+
 namespace Bicep.Core.TypeSystem;
 
 public static class ArmFunctionReturnTypeEvaluator
 {
+    private static readonly PositionalMetadata UnknownPosition = new();
+    private static readonly ExpressionEvaluationContext BuiltInsOnly = new([ExpressionBuiltInFunctions.Functions]);
+
     public static TypeSymbol? TryEvaluate(
         string armFunctionName,
         out IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate> diagnosticBuilders,
-        IEnumerable<TypeSymbol> operandTypes,
-        IEnumerable<FunctionArgument>? prefixArgs = default)
+        IEnumerable<TypeSymbol> operandTypes)
     {
-        var operandTypesArray = operandTypes.ToImmutableArray();
-        var prefixArgsArray = prefixArgs?.ToImmutableArray() ?? [];
-
         List<DiagnosticBuilder.DiagnosticBuilderDelegate> builderDelegates = new();
         diagnosticBuilders = builderDelegates;
 
-        var args = new FunctionArgument[prefixArgsArray.Length + operandTypesArray.Length];
-        for (int i = 0; i < prefixArgsArray.Length; i++)
-        {
-            args[i] = prefixArgsArray[i];
-        }
+        var argsBuilder = ImmutableArray.CreateBuilder<ITemplateLanguageExpression>();
 
-        for (int i = 0; i < operandTypesArray.Length; i++)
+        foreach (var operandType in operandTypes)
         {
-            if (ToJToken(operandTypesArray[i]) is not JToken converted)
+            if (ToLanguageExpression(operandType) is not ITemplateLanguageExpression converted)
             {
                 // if any of the input types is non-literal, we can't produce a literal return type
                 return null;
             }
 
-            args[i + prefixArgsArray.Length] = new(converted);
+            argsBuilder.Add(converted);
         }
 
-        if (EvaluateOperatorAsArmFunction(armFunctionName, out var result, out var builderFunc, args))
+        if (EvaluateOperatorAsArmFunction(armFunctionName, argsBuilder.ToImmutable(), out var result, out var builderFunc))
         {
             if (TypeHelper.TryCreateTypeLiteral(result) is { } literalType)
             {
@@ -58,14 +57,14 @@ public static class ArmFunctionReturnTypeEvaluator
         return null;
     }
 
-    private static JToken? ToJToken(TypeSymbol typeSymbol) => typeSymbol switch
+    private static ITemplateLanguageExpression? ToLanguageExpression(TypeSymbol typeSymbol) => typeSymbol switch
     {
-        BooleanLiteralType booleanLiteral => booleanLiteral.Value,
-        IntegerLiteralType integerLiteral => integerLiteral.Value,
-        StringLiteralType stringLiteral => stringLiteral.RawStringValue,
-        NullType => JValue.CreateNull(),
-        ObjectType objectType => ToJToken(objectType),
-        TupleType tupleType => ToJToken(tupleType),
+        BooleanLiteralType booleanLiteral => new BooleanExpression(booleanLiteral.Value, position: null),
+        IntegerLiteralType integerLiteral => new IntegerExpression(integerLiteral.Value, position: null),
+        StringLiteralType stringLiteral => stringLiteral.RawStringValue.AsExpression(),
+        NullType => new NullExpression(position: null),
+        ObjectType objectType => ToLanguageExpression(objectType),
+        TupleType tupleType => ToLanguageExpression(tupleType),
         // This converter does not handle union types, as a union conversion will take m^n times as many computations,
         // where m == the average number of union type members defined for each function argument and n == the number of
         // function arguments. E.g, the return type of concat('foo'|'bar', 'fizz'|'buzz', 'snap'|'crackle') should be a
@@ -75,7 +74,7 @@ public static class ArmFunctionReturnTypeEvaluator
         _ => null,
     };
 
-    private static JToken? ToJToken(ObjectType objectType)
+    private static ObjectExpression? ToLanguageExpression(ObjectType objectType)
     {
         // If an object allows additional properties, then it cannot be cast to a literal
         if (objectType.AdditionalProperties is not null)
@@ -83,45 +82,48 @@ public static class ArmFunctionReturnTypeEvaluator
             return null;
         }
 
-        var target = new JObject();
+        var properties = new KeyValuePair<ITemplateLanguageExpression, ITemplateLanguageExpression>[objectType.Properties.Count];
+        int i = 0;
         foreach (var (key, property) in objectType.Properties)
         {
-            if (ToJToken(property.TypeReference.Type) is not JToken converted)
+            if (ToLanguageExpression(property.TypeReference.Type) is not ITemplateLanguageExpression converted)
             {
                 return null;
             }
 
-            target[key] = converted;
+            properties[i++] = new(key.AsExpression(), converted);
         }
 
-        return target;
+        return new(properties, position: null);
     }
 
-    private static JToken? ToJToken(TupleType tupleType)
+    private static ArrayExpression? ToLanguageExpression(TupleType tupleType)
     {
-        var target = new JArray();
+        var items = ImmutableArray.CreateBuilder<ITemplateLanguageExpression>(tupleType.Items.Length);
         foreach (var item in tupleType.Items)
         {
-            if (ToJToken(item.Type) is not JToken converted)
+            if (ToLanguageExpression(item.Type) is not ITemplateLanguageExpression converted)
             {
                 return null;
             }
 
-            target.Add(converted);
+            items.Add(converted);
         }
 
-        return target;
+        return new(items.ToImmutable(), position: null);
     }
 
-    private static bool EvaluateOperatorAsArmFunction(string armFunctionName,
-        [NotNullWhen(true)] out JToken? result,
-        [NotNullWhen(false)] out DiagnosticBuilder.DiagnosticBuilderDelegate? builderFunc,
-        params FunctionArgument[] arguments)
+    private static bool EvaluateOperatorAsArmFunction(
+        string armFunctionName,
+        ImmutableArray<ITemplateLanguageExpression> arguments,
+        [NotNullWhen(true)] out ITemplateLanguageExpression? result,
+        [NotNullWhen(false)] out DiagnosticBuilder.DiagnosticBuilderDelegate? builderFunc)
     {
         try
         {
-            result = ExpressionBuiltInFunctions.Functions.EvaluateFunction(armFunctionName, arguments, new TemplateExpressionEvaluationHelper().EvaluationContext);
-            builderFunc = default;
+            result = BuiltInsOnly.GetEvaluator(armFunctionName, UnknownPosition)
+                .Invoke(BuiltInsOnly, armFunctionName, arguments, UnknownPosition);
+            builderFunc = null;
             return true;
         }
         catch (Exception e)
@@ -130,10 +132,10 @@ public static class ArmFunctionReturnTypeEvaluator
             // deployed to ARM since this version of Bicep was released. Given that context, this failure will only
             // be reported as a warning, and the fallback type will be used.
             builderFunc = b => b.ArmFunctionLiteralTypeConversionFailedWithMessage(
-                string.Join(", ", arguments.Select(a => a.TryGetToken()?.ToString())),
+                string.Join(", ", arguments.Select(a => a.SerializeToJToken().ToString())),
                 armFunctionName,
                 e.Message);
-            result = default;
+            result = null;
             return false;
         }
     }
