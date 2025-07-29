@@ -1294,7 +1294,7 @@ namespace Bicep.LanguageServer.Completions
         private static bool IsParameterValueContext(List<SyntaxBase> matchingNodes, int offset) =>
             // | below indicates cursor position
             // param foo = |
-            SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax>(matchingNodes, variable => variable.AssignmentClause?.Assignment is not SkippedTriviaSyntax && offset >= (variable.AssignmentClause?.Assignment ?? SyntaxFactory.CreateNullLiteral()).GetEndPosition()) ||
+            SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax>(matchingNodes, variable => variable.AssignmentClause?.Assignment is not SkippedTriviaSyntax && offset >= variable.AssignmentClause?.Assignment.GetEndPosition()) ||
             // param foo =|
             SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax, Token>(matchingNodes, (variable, token) => variable.AssignmentClause?.Assignment == token && token.Type == TokenType.Assignment && offset == token.GetEndPosition()) ||
             // param foo = a|
