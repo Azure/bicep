@@ -25,7 +25,8 @@
 
   <Target Name="PrepareForNoticeGeneration" BeforeTargets="GenerateNotice">
     <ItemGroup>
-      <GenerateNoticeAssetFile Include="$(MSBuildProjectDirectory)\inputs\project.assets.json" />
+      <GenerateNoticeAssetFile Include="$(MSBuildProjectDirectory)\inputs\langserver.assets.json" />
+      <GenerateNoticeAssetFile Include="$(MSBuildProjectDirectory)\inputs\mcpserver.assets.json" />
       <GenerateNoticeNpmListJsonFile Include="$(MSBuildProjectDirectory)\inputs\npm-list.json" />
     </ItemGroup>
     <PropertyGroup>

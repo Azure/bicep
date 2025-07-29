@@ -62,7 +62,10 @@ jobs:
         run: dotnet build --configuration Release /p:RuntimeSuffix=win-x64 ./src/Bicep.Cli.Nuget/nuget.proj
 
       - name: VSIX Notice prerequisites
-        run:  mkdir ./src/vscode-bicep-notice/inputs && copy ./src/Bicep.LangServer/obj/project.assets.json ./src/vscode-bicep-notice/inputs/
+        run: |
+          mkdir ./src/vscode-bicep-notice/inputs
+          copy ./src/Bicep.LangServer/obj/project.assets.json ./src/vscode-bicep-notice/inputs/langserver.assets.json
+          copy ./src/Bicep.McpServer/obj/project.assets.json ./src/vscode-bicep-notice/inputs/mcpserver.assets.json
 
       - name: npm ci
         run: npm ci
