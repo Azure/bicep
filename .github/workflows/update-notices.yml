@@ -48,6 +48,9 @@ jobs:
       - name: Publish Language Server
         run: dotnet publish --configuration Release ./src/Bicep.LangServer/Bicep.LangServer.csproj
 
+      - name: Publish MCP Server
+        run: dotnet publish --configuration Release ./src/Bicep.McpServer/Bicep.McpServer.csproj
+
       # this command is not correct for releasing the binaries but is sufficient for the purposes of this job
       - name: Windows Installer prerequisites
         run: mkdir ./src/installer-win/bicep && copy ./src/Bicep.Cli/obj/project.assets.json ./src/installer-win/bicep/ && copy ./src/Bicep.Cli/bin/Release/net8.0/bicep.* ./src/installer-win/bicep/
