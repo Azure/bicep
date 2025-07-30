@@ -315,6 +315,7 @@ namespace Bicep.Core.Semantics
                 .Concat(GetAdditionalParamsSemanticDiagnostics())
                 .Distinct()
                 .OrderBy(diag => diag.Span.Position);
+
             var filteredDiagnostics = new List<IDiagnostic>();
 
             var disabledDiagnosticsCache = SourceFile.DisabledDiagnosticsCache;
@@ -679,7 +680,10 @@ namespace Bicep.Core.Semantics
                     TypeManager.GetDeclaredType(assignmentSymbol.DeclaringSyntax) is { } declaredType)
                 {
                     var diagnostics = ToListDiagnosticWriter.Create();
-                    TypeValidator.NarrowTypeAndCollectDiagnostics(TypeManager, Binder, ParsingErrorLookup, diagnostics, assignmentSymbol.DeclaringParameterAssignment.Value, declaredType);
+                    if (assignmentSymbol.DeclaringParameterAssignment.AssignmentClause?.Value is {} value)
+                    {
+                        TypeValidator.NarrowTypeAndCollectDiagnostics(TypeManager, Binder, ParsingErrorLookup, diagnostics, value, declaredType);
+                    }
                     foreach (var diagnostic in diagnostics.GetDiagnostics())
                     {
                         yield return diagnostic;

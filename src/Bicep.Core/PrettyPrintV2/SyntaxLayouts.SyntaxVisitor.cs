@@ -94,6 +94,8 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax) => this.Apply(syntax, this.LayoutParameterAssignmentSyntax);
 
+        public void VisitAssignmentClauseSyntax(AssignmentClauseSyntax syntax) => this.Apply(syntax, this.LayoutAssignmentClauseSyntax);
+
         public void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax) => this.Apply(syntax, this.LayoutParameterDeclarationSyntax);
 
         public void VisitParameterDefaultValueSyntax(ParameterDefaultValueSyntax syntax) => this.Apply(syntax, this.LayoutParameterDefaultValueSyntax);
