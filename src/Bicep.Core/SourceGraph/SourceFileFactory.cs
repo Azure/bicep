@@ -148,11 +148,11 @@ namespace Bicep.Core.SourceGraph
 
                 var templateObject = ParseObject(fileContents);
 
-                return new(fileUri, fileHandle, fileContents, template, templateObject, this.configurationManager, featureFactory.GetFeatureProvider(fileUri));
+                return new(fileUri, fileHandle, fileContents, template, templateObject, featureFactory.GetFeatureProvider(fileUri));
             }
             catch (Exception)
             {
-                return new(fileUri, fileHandle, fileContents, null, null, this.configurationManager, featureFactory.GetFeatureProvider(fileUri));
+                return new(fileUri, fileHandle, fileContents, null, null, featureFactory.GetFeatureProvider(fileUri));
             }
         }
 

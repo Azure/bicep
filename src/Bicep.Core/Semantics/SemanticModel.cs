@@ -562,7 +562,7 @@ namespace Bicep.Core.Semantics
             return
                 // get diagnostics relating to missing parameter assignments or declarations
                 GatherParameterMismatchDiagnostics(semanticModel)
-                    .Concat(GatherMissingRequiredExtensionConfigAssignmentDiagnostics(semanticModel))
+                    .Concat(semanticModel is SemanticModel semanticModelImpl ? GatherMissingRequiredExtensionConfigAssignmentDiagnostics(semanticModelImpl) : [])
                     // get diagnostics relating to type mismatch of params between Bicep and params files
                     .Concat(GatherTypeMismatchDiagnostics())
                     // get diagnostics on whether the module referenced in the using statement is valid
@@ -631,7 +631,7 @@ namespace Bicep.Core.Semantics
             }
         }
 
-        private IEnumerable<IDiagnostic> GatherMissingRequiredExtensionConfigAssignmentDiagnostics(ISemanticModel usingModel)
+        private IEnumerable<IDiagnostic> GatherMissingRequiredExtensionConfigAssignmentDiagnostics(SemanticModel usingModel)
         {
             if (!usingModel.Features.ModuleExtensionConfigsEnabled)
             {

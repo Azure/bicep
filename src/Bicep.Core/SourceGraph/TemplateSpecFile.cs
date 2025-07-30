@@ -29,11 +29,5 @@ namespace Bicep.Core.SourceGraph
         public ArmTemplateFile MainTemplateFile { get; }
 
         public bool HasErrors() => this.TemplateSpecId is null;
-
-        public RootConfiguration Configuration => MainTemplateFile.Configuration;
-
-        public IFeatureProvider Features => MainTemplateFile.Features;
-
-        public BicepSourceFileKind FileKind => BicepSourceFileKind.ArmTemplateFile;
     }
 }

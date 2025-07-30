@@ -37,7 +37,7 @@ public class TestExtensionsNamespaceProvider : NamespaceProvider
 
     private readonly NamespaceTypeCreator namespaceCreatorFunc;
 
-    protected override TypeSymbol GetNamespaceTypeForConfigManagedExtension(ISourceFile sourceFile, ResourceScope targetScope, ArtifactResolutionInfo? artifact, ExtensionDeclarationSyntax? syntax, string extensionName)
+    protected override TypeSymbol GetNamespaceTypeForConfigManagedExtension(BicepSourceFile sourceFile, ResourceScope targetScope, ArtifactResolutionInfo? artifact, ExtensionDeclarationSyntax? syntax, string extensionName)
     {
         var aliasName = syntax?.TryGetSymbolName() ?? extensionName;
         if (namespaceCreatorFunc(extensionName, aliasName) is { } namespaceType)
