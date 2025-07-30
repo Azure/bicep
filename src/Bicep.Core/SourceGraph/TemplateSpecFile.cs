@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Configuration;
-using Bicep.Core.Features;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.SourceGraph
