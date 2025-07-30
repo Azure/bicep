@@ -110,8 +110,7 @@ namespace Bicep.Core.SourceGraph
             CreateArmTemplateFile(
                 fileUri,
                 fileUri.IsFile ? this.fileExplorer.GetFile(fileUri.ToIOUri()) : DummyFileHandle.Instance,
-                fileContents,
-                this.featureProviderFactory);
+                fileContents);
 
         public TemplateSpecFile CreateTemplateSpecFile(Uri fileUri, string fileContents)
         {
@@ -138,7 +137,7 @@ namespace Bicep.Core.SourceGraph
             }
         }
 
-        private ArmTemplateFile CreateArmTemplateFile(Uri fileUri, IFileHandle fileHandle, string fileContents, IFeatureProviderFactory featureFactory)
+        private ArmTemplateFile CreateArmTemplateFile(Uri fileUri, IFileHandle fileHandle, string fileContents)
         {
             try
             {
@@ -148,15 +147,15 @@ namespace Bicep.Core.SourceGraph
 
                 var templateObject = ParseObject(fileContents);
 
-                return new(fileUri, fileHandle, fileContents, template, templateObject, featureFactory.GetFeatureProvider(fileUri));
+                return new(fileUri, fileHandle, fileContents, template, templateObject);
             }
             catch (Exception)
             {
-                return new(fileUri, fileHandle, fileContents, null, null, featureFactory.GetFeatureProvider(fileUri));
+                return new(fileUri, fileHandle, fileContents, null, null);
             }
         }
 
-        private ArmTemplateFile CreateDummyArmTemplateFile(string content) => CreateArmTemplateFile(InMemoryMainTemplateUri, DummyFileHandle.Instance, content, this.featureProviderFactory);
+        private ArmTemplateFile CreateDummyArmTemplateFile(string content) => CreateArmTemplateFile(InMemoryMainTemplateUri, DummyFileHandle.Instance, content);
 
         private static void ValidateTemplate(Template template)
         {
