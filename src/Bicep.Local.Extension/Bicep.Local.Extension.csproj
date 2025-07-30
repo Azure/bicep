@@ -15,13 +15,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Bicep.Types" Version="0.5.110" />
-    <PackageReference Include="CommandLineParser" Version="2.9.1" />
-    <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
-    <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.71.0" />
+    <PackageReference Include="Azure.Bicep.Types" />
+    <PackageReference Include="CommandLineParser" />
+    <PackageReference Include="Grpc.AspNetCore" />
+    <PackageReference Include="Grpc.AspNetCore.Server.Reflection" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.7.112" />
+    <PackageReference Update="Nerdbank.GitVersioning" />
   </ItemGroup>
 </Project>

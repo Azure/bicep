@@ -29,11 +29,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NuGet.CommandLine" Version="6.6.2">
+    <PackageReference Include="NuGet.CommandLine">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Azure.Deployments.Internal.GenerateNotice" Version="$(GenerateNoticePackageVersion)" />
+    <PackageReference Include="Azure.Deployments.Internal.GenerateNotice" />
   </ItemGroup>
 
   <ItemGroup>

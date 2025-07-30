@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Deployments.Internal.GenerateNotice" Version="$(GenerateNoticePackageVersion)" />
+    <PackageReference Include="Azure.Deployments.Internal.GenerateNotice" />
   </ItemGroup>
 
   <ItemGroup>

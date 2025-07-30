@@ -12,7 +12,7 @@
     Intentionally skipping the CLI package to force the failure and assert on error message.
   -->
   <ItemGroup>
-    <PackageReference Include="Azure.Bicep.MSBuild" Version="*-*" />
+    <PackageReference Include="Azure.Bicep.MSBuild" />
   </ItemGroup>
 
   <ItemGroup>

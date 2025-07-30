@@ -1,0 +1,109 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+  <ItemGroup>
+    <GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.7.115" PrivateAssets="All" />
+    <GlobalPackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4"  PrivateAssets="All" />
+    <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+    <GlobalPackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.13.2" PrivateAssets="All"/>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageVersion Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.45" />
+    <PackageVersion Include="Azure.Bicep.MSBuild" Version="*-*" />
+    <PackageVersion Include="Azure.Bicep.Types" Version="0.5.110" />
+    <PackageVersion Include="Azure.Bicep.Types.Az" Version="0.2.789" />
+    <PackageVersion Include="Azure.Bicep.Types.K8s" Version="0.1.644" />
+    <PackageVersion Include="Azure.Containers.ContainerRegistry" Version="1.1.1" />
+    <PackageVersion Include="Azure.Deployments.ClientTools" Version="1.384.0" />
+    <PackageVersion Include="Azure.Deployments.Engine" Version="1.424.0" />
+    <PackageVersion Include="Azure.Deployments.Extensibility.Core" Version="0.1.67" />
+    <PackageVersion Include="Azure.Deployments.Internal.GenerateNotice" Version="0.1.45" />
+    <PackageVersion Include="Azure.Deployments.Templates" Version="1.424.0" />
+    <PackageVersion Include="Azure.Identity" Version="1.13.2" />
+    <PackageVersion Include="Azure.ResourceManager.ResourceGraph" Version="1.0.1" />
+    <PackageVersion Include="Azure.ResourceManager.Resources" Version="1.9.0" />
+    <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
+    <PackageVersion Include="CommandLineParser" Version="2.9.1" />
+    <PackageVersion Include="DiffPlex" Version="1.7.2" />
+    <!-- Version 8 or above are no longer fully open-source -->
+    <PackageVersion Include="FluentAssertions" Version="7.2.0" />
+    <PackageVersion Include="Google.Protobuf" Version="3.30.2" />
+    <PackageVersion Include="Grpc.AspNetCore" Version="2.71.0" />
+    <PackageVersion Include="Grpc.AspNetCore.Server" Version="2.71.0" />
+    <PackageVersion Include="Grpc.AspNetCore.Server.Reflection" Version="2.71.0" />
+    <PackageVersion Include="Grpc.Core.Testing" Version="2.46.6" />
+    <PackageVersion Include="Grpc.Net.Client" Version="2.71.0" />
+    <PackageVersion Include="Grpc.Tools" Version="2.72.0">
+    <PackageVersion Include="JetBrains.Annotations" Version="2024.3.0">
+    <PackageVersion Include="JsonDiffPatch.Net" Version="2.3.0" />
+    <PackageVersion Include="JsonPatch.Net" Version="3.3.0" />
+    <PackageVersion Include="JsonPath.Net" Version="2.1.1" />
+    <PackageVersion Include="JsonSchema.Net" Version="7.3.3" />
+    <PackageVersion Include="MSTest" Version="3.8.2" />
+    <PackageVersion Include="MSTest" Version="3.9.2" />
+    <PackageVersion Include="Markdig" Version="0.40.0" />
+    <PackageVersion Include="MessagePack" Version="3.1.3" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.15" />
+    <PackageVersion Include="Microsoft.Build.Framework" Version="17.13.9" />
+    <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="17.13.9" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="4.11.0">
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.CodeStyle">
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="8.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.1" />
+    <PackageVersion Include="Microsoft.IO.Redist" Version="6.1.0" />
+    <PackageVersion Include="Microsoft.NET.Sdk.WebAssembly.Pack" Version="8.0.11" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="Microsoft.Net.Compilers.Toolset" Version="4.12.0" />
+    <PackageVersion Include="Microsoft.PowerPlatform.ResourceStack" Version="7.0.0.2080" />
+    <PackageVersion Include="Microsoft.Test.Apex.VisualStudio" Version="17.11.35222.181" />
+    <PackageVersion Include="Microsoft.VSSDK.BuildTools" Version="17.12.2069">
+    <PackageVersion Include="Microsoft.VisualStudio.Composition" Version="17.12.18" />
+    <PackageVersion Include="Microsoft.VisualStudio.CoreUtility" Version="17.12.215" />
+    <PackageVersion Include="Microsoft.VisualStudio.Editor" Version="17.12.215" />
+    <PackageVersion Include="Microsoft.VisualStudio.LanguageServer.Client" Version="17.12.48" />
+    <PackageVersion Include="Microsoft.VisualStudio.LanguageServer.Protocol" Version="17.2.8" />
+    <PackageVersion Include="Microsoft.VisualStudio.SDK" Version="17.11.40262" />
+    <PackageVersion Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="3.12.2149" />
+    <PackageVersion Include="Microsoft.VisualStudio.Shell.Framework" Version="17.12.40391" />
+    <PackageVersion Include="Microsoft.VisualStudio.Shell.Interop" Version="17.12.40391" />
+    <PackageVersion Include="Microsoft.VisualStudio.Threading" Version="17.12.19" />
+    <PackageVersion Include="Microsoft.VisualStudio.Utilities" Version="17.12.40391" />
+    <PackageVersion Include="Microsoft.VisualStudio.Workspace" Version="17.1.11-preview-0002" />
+    <PackageVersion Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="17.1.11-preview-0002" />
+    <PackageVersion Include="Microsoft.Visualstudio.Telemetry" Version="17.12.48" />
+    <PackageVersion Include="ModelContextProtocol" Version="0.3.0-preview.2" />
+    <PackageVersion Include="Moq" Version="4.20.72" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="Newtonsoft.Json.Schema" Version="4.0.1" />
+    <PackageVersion Include="NuGet.CommandLine" Version="6.6.2">
+    <PackageVersion Include="OmniSharp.Extensions.LanguageClient" Version="0.19.9" />
+    <PackageVersion Include="OmniSharp.Extensions.LanguageServer" Version="0.19.9" />
+    <PackageVersion Include="RichardSzalay.MockHttp" Version="7.0.0" />
+    <PackageVersion Include="Sarif.Sdk" Version="4.5.4" />
+    <PackageVersion Include="Semver" Version="3.0.0" />
+    <PackageVersion Include="Serilog.Extensions.Hosting" Version="8.0.0" />
+    <PackageVersion Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageVersion Include="Serilog.Sinks.TextWriter" Version="3.0.0" />
+    <PackageVersion Include="SharpYaml" Version="2.1.1" />
+    <PackageVersion Include="StreamJsonRpc" Version="2.20.20" />
+    <PackageVersion Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <PackageVersion Include="System.CommandLine.Hosting" Version="0.4.0-alpha.22272.1" />
+    <PackageVersion Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta4.22272.1" />
+    <PackageVersion Include="System.CommandLine.Rendering" Version="0.4.0-alpha.22272.1" />
+    <PackageVersion Include="System.IO.Abstractions" Version="21.3.1" />
+    <PackageVersion Include="System.IO.Abstractions.TestingHelpers" Version="21.3.1" />
+    <PackageVersion Include="System.Linq.Async" Version="6.0.1" />
+    <PackageVersion Include="System.Memory.Data" Version="9.0.2" />
+    <!-- force an upgrade of this dependency as it seems to cause build flakiness for unknown reasons -->
+    <PackageVersion Include="System.Private.Uri" Version="4.3.2" />
+    <PackageVersion Include="System.Text.Json" Version="9.0.1" />
+    <PackageVersion Include="Tools.InnoSetup" Version="6.0.5" />
+  </ItemGroup>
+</Project>

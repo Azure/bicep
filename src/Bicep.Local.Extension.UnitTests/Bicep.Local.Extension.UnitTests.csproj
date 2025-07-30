@@ -7,10 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="$(FluentAssertionsVersion)" />
-    <PackageReference Include="MSTest" Version="$(MSTestVersion)" />
-    <PackageReference Include="Grpc.Core.Testing" Version="2.46.6" />
-    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="MSTest" />
+    <PackageReference Include="Grpc.Core.Testing" />
+    <PackageReference Include="Moq" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.7.112" />
+    <PackageReference Update="Nerdbank.GitVersioning" />
   </ItemGroup>
 
   <ItemGroup>
