@@ -82,8 +82,8 @@
       },
       "Azure.Bicep.Types.Az": {
         "type": "Transitive",
-        "resolved": "0.2.784",
-        "contentHash": "ARXBJm7c6UBKmo3LGSd41cm7BAk9yr7MO+6dVhfKK+jJsQtPTOJSXbum2L1jLpxwodIA8vO15KNfsYfP/tpOUQ==",
+        "resolved": "0.2.789",
+        "contentHash": "ytFs+ki/lWw1Lv3XlfNj3+bu7JmiWvI/G4+Fr1gSiTFDeZK1vk5XoHy230EVuqK1wkgWAvOE/DzEKy6LkfjAag==",
         "dependencies": {
           "Azure.Bicep.Types": "0.5.110"
         }
@@ -318,29 +318,29 @@
       },
       "Google.Protobuf": {
         "type": "Transitive",
-        "resolved": "3.29.2",
-        "contentHash": "98gc5v6WTfvfo6nXXUFyXOwwfehUGVn4tIis3AnCZabur8t6Eq0lo4eloWEYpdxPH9MrhnbAzHcMwPCS8lCWoQ=="
+        "resolved": "3.30.2",
+        "contentHash": "Y2aOVLIt75yeeEWigg9V9YnjsEm53sADtLGq0gLhwaXpk3iu8tYSoauolyhenagA2sWno2TQ2WujI0HQd6s1Vw=="
       },
       "Grpc.Core.Api": {
         "type": "Transitive",
-        "resolved": "2.70.0",
-        "contentHash": "66UotvWcSIq41oiQhLWcQACyKPM4umxXNiht5DQTLZJfNwEswWOcS7Z0xIEHyNIBE7ZpjotH22bEjTkvhPxmVw=="
+        "resolved": "2.71.0",
+        "contentHash": "QquqUC37yxsDzd1QaDRsH2+uuznWPTS8CVE2Yzwl3CvU4geTNkolQXoVN812M2IwT6zpv3jsZRc9ExJFNFslTg=="
       },
       "Grpc.Net.Client": {
         "type": "Transitive",
-        "resolved": "2.70.0",
-        "contentHash": "xNv0FFCVJa5S1beUtye82WFCxKThuE1jbN8DO1x1Rj8VSIWXLBUmfSID5a1fGzsU2R/EMfwPoWclJ2RMfQuGXw==",
+        "resolved": "2.71.0",
+        "contentHash": "U1vr20r5ngoT9nlb7wejF28EKN+taMhJsV9XtK9MkiepTZwnKxxiarriiMfCHuDAfPUm9XUjFMn/RIuJ4YY61w==",
         "dependencies": {
-          "Grpc.Net.Common": "2.70.0",
+          "Grpc.Net.Common": "2.71.0",
           "Microsoft.Extensions.Logging.Abstractions": "6.0.0"
         }
       },
       "Grpc.Net.Common": {
         "type": "Transitive",
-        "resolved": "2.70.0",
-        "contentHash": "rBdEUMyCwa+iB8mqC6JKyPbj3SBHHkReJj/yy/XKJI63GcG6w9DJMMGTVcYHqq4Ci2W4m0HT4jt2pFfFscar8g==",
+        "resolved": "2.71.0",
+        "contentHash": "v0c8R97TwRYwNXlC8GyRXwYTCNufpDfUtj9la+wUrZFzVWkFJuNAltU+c0yI3zu0jl54k7en6u2WKgZgd57r2Q==",
         "dependencies": {
-          "Grpc.Core.Api": "2.70.0"
+          "Grpc.Core.Api": "2.71.0"
         }
       },
       "Humanizer.Core": {
@@ -1641,7 +1641,7 @@
         "dependencies": {
           "Azure.Bicep.IO": "[1.0.0, )",
           "Azure.Bicep.Types": "[0.5.110, )",
-          "Azure.Bicep.Types.Az": "[0.2.784, )",
+          "Azure.Bicep.Types.Az": "[0.2.789, )",
           "Azure.Bicep.Types.K8s": "[0.1.644, )",
           "Azure.Containers.ContainerRegistry": "[1.1.1, )",
           "Azure.Deployments.Templates": "[1.424.0, )",
@@ -1680,19 +1680,17 @@
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )",
-          "Azure.Bicep.Local.Extension": "[1.0.0, )",
+          "Azure.Bicep.Local.Rpc": "[1.0.0, )",
           "Azure.Deployments.Engine": "[1.424.0, )",
           "Azure.Deployments.Extensibility.Core": "[0.1.67, )",
-          "Microsoft.AspNet.WebApi.Client": "[6.0.0, )"
+          "Grpc.Net.Client": "[2.71.0, )"
         }
       },
-      "Azure.Bicep.Local.Extension": {
+      "Azure.Bicep.Local.Rpc": {
         "type": "Project",
         "dependencies": {
-          "Azure.Bicep.Types": "[0.5.110, )",
-          "CommandLineParser": "[2.9.1, )",
-          "Google.Protobuf": "[3.29.2, )",
-          "Grpc.Net.Client": "[2.70.0, )"
+          "Google.Protobuf": "[3.30.2, )",
+          "Grpc.Net.Client": "[2.71.0, )"
         }
       },
       "bicep.core.samples": {

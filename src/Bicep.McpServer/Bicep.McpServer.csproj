@@ -5,6 +5,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- generates a NOTICE file in the publish output using our custom targets -->
+    <EnableNoticeInPublishOutput>true</EnableNoticeInPublishOutput>
   </PropertyGroup>
 
   <ItemGroup>
