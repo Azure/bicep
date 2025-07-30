@@ -178,9 +178,23 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ParameterAssignmentSyntax(keyword, name, assignment, value, []);
+            return new ParameterAssignmentSyntax([], keyword, name, assignment, value);
         }
         void ISyntaxVisitor.VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax) => ReplaceCurrent(syntax, VisitParameterAssignmentSyntax);
+
+        protected virtual SyntaxBase VisitAssignmentClauseSyntax(AssignmentClauseSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Assignment, out var assignment);
+            hasChanges |= TryRewriteStrict(syntax.Value, out var value);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new AssignmentClauseSyntax(assignment, value);
+        }
+        void ISyntaxVisitor.VisitAssignmentClauseSyntax(AssignmentClauseSyntax syntax) => ReplaceCurrent(syntax, VisitAssignmentClauseSyntax);
 
         protected virtual SyntaxBase VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax)
         {

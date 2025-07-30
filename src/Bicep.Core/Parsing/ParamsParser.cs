@@ -127,7 +127,7 @@ namespace Bicep.Core.Parsing
                 throw new ExpectedTokenException(keyword, b => b.MissingParameterValue(name.IdentifierName));
             }
 
-            return new ParameterAssignmentSyntax(keyword, name, assignment, value, leadingNodes);
+            return new ParameterAssignmentSyntax(leadingNodes, keyword, name, assignment, value);
         }
 
         private ExtensionConfigAssignmentSyntax ExtensionConfigAssignment(IEnumerable<SyntaxBase> leadingNodes)

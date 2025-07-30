@@ -9,7 +9,7 @@ namespace Bicep.Core.Syntax
 {
     public class ParameterAssignmentSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
     {
-        public ParameterAssignmentSyntax(Token keyword, IdentifierSyntax name, SyntaxBase? assignment, SyntaxBase? value, IEnumerable<SyntaxBase> leadingNodes)
+        public ParameterAssignmentSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase? assignment, SyntaxBase? value)
             : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ParameterKeyword);
@@ -35,7 +35,7 @@ namespace Bicep.Core.Syntax
         public override TextSpan Span => TextSpan.Between(this.Keyword, this.AssignmentClause?.Value ?? this.Name);
     }
 
-    public class AssignmentClauseSyntax
+    public class AssignmentClauseSyntax: SyntaxBase
     {
         public AssignmentClauseSyntax(SyntaxBase assignment, SyntaxBase value)
         {
@@ -46,5 +46,9 @@ namespace Bicep.Core.Syntax
         public SyntaxBase Assignment { get; }
 
         public SyntaxBase Value { get; }
+
+        public override TextSpan Span => TextSpan.Between(this.Assignment, this.Value);
+
+        public override void Accept(ISyntaxVisitor visitor) => visitor.VisitAssignmentClauseSyntax(this);
     }
 }

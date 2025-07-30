@@ -358,6 +358,12 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.AssignmentClause?.Value);
         }
 
+        public override void VisitAssignmentClauseSyntax(AssignmentClauseSyntax syntax)
+        {
+            this.Visit(syntax.Assignment);
+            this.Visit(syntax.Value);
+        }
+
         public override void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax)
         {
             this.VisitNodes(syntax.LeadingNodes);

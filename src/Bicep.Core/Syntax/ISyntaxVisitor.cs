@@ -49,6 +49,8 @@ namespace Bicep.Core.Syntax
 
         void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax);
 
+        void VisitAssignmentClauseSyntax(AssignmentClauseSyntax syntax);
+
         void VisitParameterDefaultValueSyntax(ParameterDefaultValueSyntax syntax);
 
         void VisitParenthesizedExpressionSyntax(ParenthesizedExpressionSyntax syntax);

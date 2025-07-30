@@ -49,11 +49,11 @@ public static class ParamsFileHelper
                 var replacementValue = ConvertJsonToBicepSyntax(overrideValue);
 
                 return new ParameterAssignmentSyntax(
+                    [],
                     paramSyntax.Keyword,
                     paramSyntax.Name,
                     paramSyntax.AssignmentClause?.Assignment ?? SyntaxFactory.AssignmentToken,
-                    replacementValue,
-                    []
+                    replacementValue
                 );
             }
 

@@ -86,6 +86,8 @@ namespace Bicep.Core.Syntax
 
         public abstract void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax);
 
+        public abstract void VisitAssignmentClauseSyntax(AssignmentClauseSyntax syntax);
+
         public abstract void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax);
 
         public abstract void VisitParameterDefaultValueSyntax(ParameterDefaultValueSyntax syntax);

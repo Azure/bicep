@@ -31,7 +31,7 @@ namespace Bicep.Core.Emit
 
             var result = filteredParameterDeclarations
                             .OfType<ParameterDeclarationSyntax>()
-                            .Select(e => new ParameterAssignmentSyntax(e.Keyword, e.Name, SyntaxFactory.AssignmentToken, this.GetValueForParameter(e), []))
+                            .Select(e => new ParameterAssignmentSyntax([], e.Keyword, e.Name, SyntaxFactory.AssignmentToken, this.GetValueForParameter(e)))
                             .SelectMany(e => new List<SyntaxBase>() { e, SyntaxFactory.NewlineToken });
 
             var processedSyntaxList = new List<SyntaxBase>()

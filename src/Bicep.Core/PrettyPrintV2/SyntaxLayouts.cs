@@ -266,6 +266,9 @@ namespace Bicep.Core.PrettyPrintV2
                     ? this.Spread(syntax.Keyword, syntax.Name)
                     : this.Spread(syntax.Keyword, syntax.Name, syntax.AssignmentClause.Assignment, syntax.AssignmentClause.Value));
 
+        private IEnumerable<Document> LayoutAssignmentClauseSyntax(AssignmentClauseSyntax syntax) =>
+                this.Spread(syntax.Assignment);
+
         private IEnumerable<Document> LayoutParameterDeclarationSyntax(ParameterDeclarationSyntax syntax) =>
             this.LayoutLeadingNodes(syntax.LeadingNodes)
                 .Concat(syntax.Modifier is not null

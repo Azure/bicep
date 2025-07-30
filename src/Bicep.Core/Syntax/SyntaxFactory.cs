@@ -409,11 +409,11 @@ namespace Bicep.Core.Syntax
 
         public static ParameterAssignmentSyntax CreateParameterAssignmentSyntax(string name, SyntaxBase value)
             => new(
+                [],
                 ParameterKeywordToken,
                 CreateIdentifierWithTrailingSpace(name),
                 AssignmentToken,
-                value,
-                []);
+                value);
 
         public static ExtensionConfigAssignmentSyntax CreateExtensionConfigAssignmentSyntax(string name, ObjectSyntax value)
             => new(
