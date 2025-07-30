@@ -10,7 +10,6 @@ using Bicep.Core.Samples;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.TextFixtures.Utils;
@@ -51,7 +50,7 @@ namespace Bicep.Core.IntegrationTests
                 CacheRootDirectory = badCacheDirectory,
             };
 
-            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(featureOverrides));
+            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(featureOverrides));
             await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
 
             var services = Services
@@ -155,7 +154,7 @@ namespace Bicep.Core.IntegrationTests
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var features = new FeatureProviderOverrides(TestContext);
 
-            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(features));
+            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(features));
             await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
 
             var services = Services
@@ -209,7 +208,7 @@ namespace Bicep.Core.IntegrationTests
             var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
             var features = new FeatureProviderOverrides(CacheRootDirectory: cacheDirectory);
 
-            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(features));
+            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(features));
             await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
 
             var fileResolver = BicepTestConstants.FileResolver;
@@ -275,7 +274,7 @@ namespace Bicep.Core.IntegrationTests
             var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
             var features = new FeatureProviderOverrides(CacheRootDirectory: cacheDirectory);
 
-            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(features));
+            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(features));
             await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
 
             var fileResolver = BicepTestConstants.FileResolver;
@@ -349,7 +348,7 @@ namespace Bicep.Core.IntegrationTests
             var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
             var features = new FeatureProviderOverrides(CacheRootDirectory: cacheDirectory);
 
-            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(features));
+            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(features));
             await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
 
             var fileResolver = BicepTestConstants.FileResolver;

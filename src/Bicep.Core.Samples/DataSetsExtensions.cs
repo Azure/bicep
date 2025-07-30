@@ -10,7 +10,6 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
-using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
@@ -43,7 +42,7 @@ namespace Bicep.Core.Samples
             FileHelper.GetCacheRootDirectory(testContext).EnsureExists();
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(testContext);
-            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(features));
+            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(features));
             await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
 
             var compiler = new ServiceBuilder()

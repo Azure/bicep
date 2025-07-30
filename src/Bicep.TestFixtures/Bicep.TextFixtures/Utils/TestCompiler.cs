@@ -3,6 +3,7 @@
 
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.IO.FileSystem;
 using Bicep.TextFixtures.IO;
@@ -79,6 +80,16 @@ namespace Bicep.TextFixtures.Utils
 
             return TestCompilationResult.FromCompilation(compilation);
         }
+
+        // NOTE(kylealbert): Remove type params once the necessary types are migrated to this package.
+        public TestCompiler WithFeatureOverrides<TOverrides, TFeatureProviderFactory>(TOverrides overrides)
+            where TOverrides : class where TFeatureProviderFactory : class, IFeatureProviderFactory =>
+            ConfigureServices(svc =>
+            {
+                svc.AddSingleton((FeatureProviderFactory)svc.Get<IFeatureProviderFactory>()); // register the impl as a singleton directly.
+                svc.AddSingleton(overrides);
+                svc.AddSingleton<IFeatureProviderFactory, TFeatureProviderFactory>();
+            });
 
         private TestFileSetScope CreateFileSetScope(params (string FilePath, TestFileData FileData)[] files)
         {

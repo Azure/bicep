@@ -5,7 +5,6 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
-using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Mock.Registry;
@@ -63,7 +62,7 @@ public class LintCommandTests : TestBase
         var features = new FeatureProviderOverrides(TestContext);
         FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
 
-        var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(features));
+        var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(features));
         await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
 
         var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);

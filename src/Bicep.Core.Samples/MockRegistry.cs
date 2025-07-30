@@ -8,7 +8,6 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Baselines;
-using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.TextFixtures.Mocks;
@@ -129,5 +128,5 @@ public static class MockRegistry
     }
 
     private static async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager(FeatureProviderOverrides overrides)
-        => await CreateDefaultExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(overrides));
+        => await CreateDefaultExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(overrides));
 }

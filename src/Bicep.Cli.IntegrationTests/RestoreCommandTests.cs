@@ -14,7 +14,6 @@ using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
-using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
@@ -56,7 +55,7 @@ namespace Bicep.Cli.IntegrationTests
             var features = new FeatureProviderOverrides(TestContext);
             FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
 
-            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides(features));
+            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(features));
             await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: publishSource);
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
