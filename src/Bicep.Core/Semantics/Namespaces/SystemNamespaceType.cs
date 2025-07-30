@@ -1447,27 +1447,10 @@ namespace Bicep.Core.Semantics.Namespaces
                     }
 
                     //error to fail the build-param with clear message of the missing env var name
-                    var paramAssignmentDefinition = model.Root.ParameterAssignments.FirstOrDefault(p => p.DeclaringParameterAssignment.Value.Span.Position == functionCall.Span.Position);
-
-                    IDiagnostic? errorDiagnostic = null;
-
-                    if (paramAssignmentDefinition is not null)
-                    {
-                        errorDiagnostic = DiagnosticBuilder.ForPosition(arguments[0])
-                            .FailedToEvaluateParameter(paramAssignmentDefinition.Name, $"Environment variable \"{envVariableName}\" does not exist, and no default value set.{suggestion}");
-                    }
-                    else if (model.Root.ExtensionConfigAssignments.FirstOrDefault(a => a.DeclaringExtensionConfigAssignment.Config is not null && TextSpan.AreOverlapping(a.DeclaringExtensionConfigAssignment.Config.Span, functionCall.Span)) is { } extConfigAssignment)
-                    {
-                        errorDiagnostic = DiagnosticBuilder.ForPosition(arguments[0])
-                            .FailedToEvaluateExtensionConfig(extConfigAssignment.Name, $"Environment variable \"{envVariableName}\" does not exist, and no default value set.{suggestion}");
-                    }
-
-                    errorDiagnostic ??= DiagnosticBuilder.ForPosition(arguments[0])
-                        .FailedToEvaluateParameter(
-                            string.Empty,
-                            $"Environment variable \"{envVariableName}\" does not exist, and no default value set.{suggestion}");
-
-                    return new(ErrorType.Create(errorDiagnostic));
+                    return new(
+                        ErrorType.Create(
+                            DiagnosticBuilder.ForPosition(arguments[0])
+                                .EnvironmentVariableDoesNotExist(envVariableName, suggestion)));
                 }
             }
             return new(TypeFactory.CreateStringLiteralType(envVariableValue),

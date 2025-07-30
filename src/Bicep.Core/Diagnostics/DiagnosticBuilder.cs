@@ -1593,9 +1593,9 @@ namespace Bicep.Core.Diagnostics
                     $@"This declaration type is not valid for a Bicep Parameters file. Supported declarations: {ToQuotedString(supportedDeclarations)}.");
             }
 
-            public Diagnostic FailedToEvaluateParameter(string parameterName, string message) => CoreError(
+            public Diagnostic FailedToEvaluateSubject(string subjectType, string subjectName, string message) => CoreError(
                 "BCP338",
-                $"Failed to evaluate parameter \"{parameterName}\": {message}");
+                $"Failed to evaluate {subjectType} \"{subjectName}\": {message}");
 
             public Diagnostic ArrayIndexOutOfBounds(long indexSought) => CoreError(
                 "BCP339",
@@ -1942,9 +1942,9 @@ namespace Bicep.Core.Diagnostics
                 "BCP426",
                 "Secure outputs may only be accessed via a direct module reference. Only non-sensitive outputs are supported when dereferencing a module indirectly via a variable or lambda.");
 
-            public Diagnostic FailedToEvaluateExtensionConfig(string extAlias, string message) => CoreError(
+            public Diagnostic EnvironmentVariableDoesNotExist(string name, string? suggestion) => CoreError(
                 "BCP427",
-                $"Failed to evaluate extension config \"{extAlias}\": {message}");
+                $"Environment variable \"{name}\" does not exist and there's no default value set.{suggestion}");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
