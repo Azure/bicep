@@ -10,7 +10,6 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
-using Bicep.Core.SourceGraph;
 using Bicep.Core.Text;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
@@ -91,7 +90,7 @@ namespace Bicep.Core.SourceGraph
 
         public BicepParamFile CreateBicepParamFile(Uri fileUri, string fileContents)
         {
-            var parser = new ParamsParser(fileContents);
+            var parser = new ParamsParser(fileContents, this.featureProviderFactory.GetFeatureProvider(fileUri));
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
             var fileHandle = this.fileExplorer.GetFile(fileUri.ToIOUri());
 
@@ -111,8 +110,7 @@ namespace Bicep.Core.SourceGraph
             CreateArmTemplateFile(
                 fileUri,
                 fileUri.IsFile ? this.fileExplorer.GetFile(fileUri.ToIOUri()) : DummyFileHandle.Instance,
-                fileContents,
-                this.featureProviderFactory);
+                fileContents);
 
         public TemplateSpecFile CreateTemplateSpecFile(Uri fileUri, string fileContents)
         {
@@ -139,7 +137,7 @@ namespace Bicep.Core.SourceGraph
             }
         }
 
-        private static ArmTemplateFile CreateArmTemplateFile(Uri fileUri, IFileHandle fileHandle, string fileContents, IFeatureProviderFactory featureProviderFactory)
+        private ArmTemplateFile CreateArmTemplateFile(Uri fileUri, IFileHandle fileHandle, string fileContents)
         {
             try
             {
@@ -149,15 +147,15 @@ namespace Bicep.Core.SourceGraph
 
                 var templateObject = ParseObject(fileContents);
 
-                return new(fileUri, fileHandle, fileContents, template, templateObject, featureProviderFactory.GetFeatureProvider(fileUri));
+                return new(fileUri, fileHandle, fileContents, template, templateObject);
             }
             catch (Exception)
             {
-                return new(fileUri, fileHandle, fileContents, null, null, featureProviderFactory.GetFeatureProvider(fileUri));
+                return new(fileUri, fileHandle, fileContents, null, null);
             }
         }
 
-        private ArmTemplateFile CreateDummyArmTemplateFile(string content) => CreateArmTemplateFile(InMemoryMainTemplateUri, DummyFileHandle.Instance, content, this.featureProviderFactory);
+        private ArmTemplateFile CreateDummyArmTemplateFile(string content) => CreateArmTemplateFile(InMemoryMainTemplateUri, DummyFileHandle.Instance, content);
 
         private static void ValidateTemplate(Template template)
         {

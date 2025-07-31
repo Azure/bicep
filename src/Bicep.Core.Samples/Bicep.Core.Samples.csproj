@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <None Remove="./Files/**/*.*" />
-    <!-- 
+    <!--
       .net 7 has a regression on Linux and Mac that assumes that if a file is named <name>.<something>.json that <something> is a culture
       this causes some of our *.metadata.json files to be stripped out of the main assembly and placed in a satellite assembly for the metadata culture
     -->
@@ -15,8 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="7.0.0" />
-    <PackageReference Include="MSTest" Version="$(MSTestVersion)" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="MSTest" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,6 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.7.112" />
+    <PackageReference Update="Nerdbank.GitVersioning" />
   </ItemGroup>
 </Project>

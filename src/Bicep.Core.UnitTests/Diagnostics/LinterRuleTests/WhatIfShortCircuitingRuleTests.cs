@@ -22,20 +22,20 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     .WithAllAnalyzers())));
 
         private readonly string SAModuleContent = """
-                        param test string
+            param test string
 
-                        resource storageAccountModule 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-                            name: test
-                            location: 'eastus'
-                            sku: {
-                                name: 'Standard_LRS'
-                            }
-                            kind: 'StorageV2'
-                            properties: {
-                                accessTier: 'Hot'
-                            }
-                        }
-                    """;
+            resource storageAccountModule 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+                name: test
+                location: 'eastus'
+                sku: {
+                    name: 'Standard_LRS'
+                }
+                kind: 'StorageV2'
+                properties: {
+                    accessTier: 'Hot'
+                }
+            }
+            """;
 
         [TestMethod]
         public void WhatIfShortCircuiting_Condition()
@@ -68,7 +68,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         }
                      """)]);
 
-            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Runtime value 'sa.properties.allowBlobPublicAccess' will reduce the precision of what-if analysis for module 'mod'");
+            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'condition' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If.");
         }
 
         [TestMethod]
@@ -123,7 +123,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         }
                     """)]);
 
-            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Runtime value 'storageAccount.properties.dnsEndpointType' will reduce the precision of what-if analysis for module 'mod'");
+            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'test' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If.");
         }
 
         [TestMethod]
@@ -152,7 +152,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         }
                     """)]);
 
-            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Runtime value 'createOutput.outputs.nameParam' will reduce the precision of what-if analysis for module 'createSA'");
+            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'test' is used as a resource identifier, API version, or condition in the module 'createSA'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If.");
         }
 
         [TestMethod]
@@ -206,7 +206,186 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         }
                     """)]);
 
-            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Runtime value 'storageAccount.properties.dnsEndpointType' will reduce the precision of what-if analysis for module 'mod'");
+            result.Diagnostics.Should().ContainSingleDiagnostic("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'test' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If.");
+        }
+
+        [TestMethod]
+        public void Should_detect_transitive_usage()
+        {
+            var result = CompilationHelper.Compile(
+                Services,
+                ("main.bicep", """
+                    resource sa 'Microsoft.Storage/storageAccounts@2024-01-01' existing = {
+                       name: 'acct'
+                    }
+                    module mod 'mod.bicep' = {
+                       name: 'mod'
+                       params: {
+                           condition: sa.properties.allowBlobPublicAccess
+                           name: sa.properties.dnsEndpointType
+                       }
+                    }
+                    """),
+                ("mod.bicep", """
+                    param condition bool
+                    param name string
+
+                    module mod2 'mod2.bicep' = {
+                        name: 'mod2'
+                        params: {
+                            condition: condition
+                        }
+                    }
+
+                    module mod3 'mod3.bicep' = {
+                        name: 'mod3'
+                        params: {
+                            name: name
+                        }
+                    }
+                    """),
+                ("mod2.bicep", """
+                    param condition bool
+
+                    resource vnet 'Microsoft.Network/virtualNetworks@2024-07-01' = if (condition) {
+                      name: 'vnet'
+                    }
+                    """),
+                ("mod3.bicep", """
+                    param name string 
+                    
+                    resource vnet 'Microsoft.Network/virtualNetworks@2024-07-01' = {
+                      name: name
+                    }
+                    """));
+
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'condition' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
+                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'name' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
+            });
+        }
+
+        [TestMethod]
+        public void Should_detect_problematic_parameter_usage_in_json_template_modules()
+        {
+            var result = CompilationHelper.Compile(
+                Services,
+                ("main.bicep", """
+                    resource sa 'Microsoft.Storage/storageAccounts@2024-01-01' existing = {
+                       name: 'acct'
+                    }
+                    module mod 'mod.json' = {
+                       name: 'mod'
+                       params: {
+                           condition: sa.properties.allowBlobPublicAccess
+                           nestedCondition: sa.properties.allowBlobPublicAccess
+                           name: sa.properties.dnsEndpointType
+                           nestedName: sa.properties.dnsEndpointType
+                           nestedDeploymentName: sa.properties.dnsEndpointType
+                           apiVersion: sa.properties.dnsEndpointType
+                           nestedApiVersion: sa.properties.dnsEndpointType
+                       }
+                    }
+                    """),
+                ("mod.json", """
+                    {
+                        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                        "contentVersion": "1.0.0.0",
+                        "parameters": {
+                            "condition": {"type": "bool"},
+                            "nestedCondition": {"type": "bool"},
+                            "name": {"type": "string"},
+                            "nestedName": {"type": "string"},
+                            "nestedDeploymentName": {"type": "string"},
+                            "apiVersion": {"type": "string"},
+                            "nestedApiVersion": {"type": "string"},
+                        },
+                        "resources": [
+                            {
+                                "type": "Microsoft.Network/virtualNetworks",
+                                "apiVersion": "[parameters('apiVersion')]",
+                                "name": "[parameters('name')]",
+                                "condition": "[parameters('condition')]"
+                            },
+                            {
+                                "type": "Microsoft.Resources/deployments",
+                                "apiVersion": "2022-09-01",
+                                "name": "[parameters('nestedDeploymentName')]",
+                                "properties": {
+                                    "mode": "Incremental",
+                                    "expressionEvaluationOptions": {
+                                        "scope": "Inner"
+                                    },
+                                    "parameters": {
+                                        "condition": {"value": "[parameters('nestedCondition')]"},
+                                        "name": {"value": "[parameters('nestedName')]"},
+                                        "apiVersion": {"value": "[parameters('nestedApiVersion')]"}
+                                    },
+                                    "template": {
+                                        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                                        "contentVersion": "1.0.0.0",
+                                        "parameters": {
+                                            "condition": {"type": "bool"},
+                                            "name": {"type": "string"},
+                                            "apiVersion": {"type": "string"}
+                                        },
+                                        "resources": [
+                                            {
+                                                "type": "Microsoft.Network/virtualNetworks",
+                                                "apiVersion": "[parameters('apiVersion')]",
+                                                "name": "[parameters('name')]",
+                                                "condition": "[parameters('condition')]"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                    """));
+
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'condition' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
+                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'nestedCondition' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
+                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'name' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
+                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'nestedName' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
+                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'apiVersion' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
+                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'nestedApiVersion' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
+            });
+        }
+
+        [TestMethod]
+        public void Should_detect_usage_via_parameter_default_values()
+        {
+            var result = CompilationHelper.Compile(
+                Services,
+                ("main.bicep", """
+                    resource sa 'Microsoft.Storage/storageAccounts@2024-01-01' existing = {
+                       name: 'acct'
+                    }
+                    module mod 'mod.bicep' = {
+                       name: 'mod'
+                       params: {
+                           condition: sa.properties.allowBlobPublicAccess
+                       }
+                    }
+                    """),
+                ("mod.bicep", """
+                    param condition bool
+                    param modCondition bool = !condition
+
+                    module empty 'empty.bicep' = if (modCondition) {
+                        name: 'mod2'
+                    }
+                    """),
+                ("empty.bicep", string.Empty));
+
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'condition' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
+            });
         }
     }
 }

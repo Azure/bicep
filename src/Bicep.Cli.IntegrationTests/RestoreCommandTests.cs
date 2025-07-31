@@ -1,25 +1,26 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using Azure;
 using Azure.Containers.ContainerRegistry;
 using Azure.Identity;
 using Bicep.Cli.UnitTests.Assertions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
-using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
+using Bicep.TextFixtures.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -51,15 +52,19 @@ namespace Bicep.Cli.IntegrationTests
         {
             TestContext.WriteLine(testName);
 
-            var clientFactory = dataSet.CreateMockRegistryClients();
-            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory, publishSource);
+            var features = new FeatureProviderOverrides(TestContext);
+            FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
 
+            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(features));
+            await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: publishSource);
+
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
+
+            var settings = new InvocationSettings(features).WithArtifactManager(artifactManager, TestContext);
+
+            TestContext.WriteLine($"Cache root = {settings.FeatureOverrides!.CacheRootDirectory}");
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
-            TestContext.WriteLine($"Cache root = {settings.FeatureOverrides!.CacheRootDirectory}");
             var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
 
             using (new AssertionScope())
@@ -82,16 +87,16 @@ namespace Bicep.Cli.IntegrationTests
         [DataRow(true)]
         public async Task Restore_should_succeed_for_files_matching_pattern(bool useRootPath)
         {
+            var fileSystem = new MockFileSystem();
+            var fileExplorer = new FileSystemFileExplorer(fileSystem);
             var clientFactory = RegistryHelper.CreateMockRegistryClient(new RegistryHelper.RepoDescriptor("mockregistry.io", "test/foo", ["v1"]));
             await RegistryHelper.PublishModuleToRegistryAsync(
                 new ServiceBuilder(),
                 clientFactory,
-                BicepTestConstants.FileSystem,
+                fileSystem,
                 new("br:mockregistry.io/test/foo:1.1", """
 output myOutput string = 'hello!'
 """, WithSource: false));
-
-            var cacheRoot = FileHelper.GetCacheRootDirectory(TestContext);
 
             var contents = """
 module mod 'br:mockregistry.io/test/foo:1.1' = {
@@ -108,14 +113,23 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
 
             foreach (var (input, _) in fileResults)
             {
+                fileSystem.AddFile($"{outputPath}/{input}", contents);
                 FileHelper.SaveResultFile(TestContext, input, contents, outputPath);
             }
+
+            if (!useRootPath)
+            {
+                fileSystem.Directory.SetCurrentDirectory(outputPath);
+            }
+
+            var cacheRoot = fileExplorer.GetDirectory(IOUri.FromLocalFilePath(outputPath));
 
             var (output, error, result) = await Bicep(
                 services => services
                     .WithFeatureOverrides(new(CacheRootDirectory: cacheRoot, RegistryEnabled: true))
                     .WithContainerRegistryClientFactory(clientFactory)
-                    .WithEnvironment(useRootPath ? TestEnvironment.Default : TestEnvironment.Default with { CurrentDirectory = outputPath }),
+                    .WithFileSystem(fileSystem)
+                    .WithFileExplorer(fileExplorer),
                 ["restore",
                     "--pattern",
                     useRootPath ? $"{outputPath}/file*.bicep" : "file*.bicep"]);
@@ -125,7 +139,7 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
             output.Should().BeEmpty();
 
             // ensure something got restored
-            CachedModules.GetCachedModules(BicepTestConstants.FileSystem, cacheRoot).Should().HaveCountGreaterThan(0);
+            CachedModules.GetCachedModules(fileSystem, cacheRoot).Should().HaveCountGreaterThan(0);
         }
 
         [TestMethod]
@@ -135,8 +149,7 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
         {
             var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
 
-            var clients = await MockRegistry.Build();
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clients.ContainerRegistry, clients.TemplateSpec);
+            var settings = await CreateDefaultSettingsWithDefaultMockRegistry();
 
             var result = await Bicep(settings, "restore", baselineFolder.EntryFile.OutputFilePath);
             result.Should().Succeed().And.NotHaveStdout().And.NotHaveStderr();

@@ -6,6 +6,8 @@ using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Features;
+using Bicep.IO.Abstraction;
+using Bicep.TextFixtures.Mocks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 
@@ -45,15 +47,40 @@ public static class ExtensionTestHelper
         return services;
     }
 
+    public static MockExtensionData CreateMockExtensionMockData(string name, string version, string repoVersion, CustomExtensionTypeFactoryDelegates typeFactoryDelegates)
+        => new(name, version, repoVersion, ExtensionResourceTypeHelper.CreateTypesTgzBytesForCustomExtension(name, version, typeFactoryDelegates));
+
+    public static async Task<ServiceBuilder> AddMockExtension(ServiceBuilder services, MockExtensionData MockExtensionData)
+    {
+        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), MockExtensionData.ExtensionRepoReference, MockExtensionData.TypesTgzData);
+
+        return services;
+    }
+
+    public static async Task<ServiceBuilder> AddMockExtensions(ServiceBuilder services, TestContext testContext, params MockExtensionData[] extensionMocks)
+    {
+        var clientFactory = RegistryHelper.CreateMockRegistryClient(
+            extensionMocks.Select(ext => new RepoDescriptor(ext.Registry, ext.RepoPath, ext.Tags)).ToArray());
+
+        services = services
+            .WithFeaturesOverridden(f => f with { CacheRootDirectory = ExtensionTestHelper.GetCacheRootDirectory(testContext) })
+            .WithContainerRegistryClientFactory(clientFactory);
+
+        foreach (var ext in extensionMocks)
+        {
+            await ExtensionTestHelper.AddMockExtension(services, ext);
+        }
+
+        return services;
+    }
+
     public static async Task<ServiceBuilder> AddMockMsGraphExtension(ServiceBuilder services, TestContext testContext)
     {
         var indexJsonBeta = FileHelper.SaveResultFile(testContext, "types/index-beta.json", BicepTestConstants.GetMsGraphIndexJson(BicepTestConstants.MsGraphVersionBeta));
         var indexJsonV10 = FileHelper.SaveResultFile(testContext, "types/index-v1.0.json", BicepTestConstants.GetMsGraphIndexJson(BicepTestConstants.MsGraphVersionV10));
 
-        var cacheRoot = FileHelper.GetCacheRootDirectory(testContext).EnsureExists();
-
         services = services
-            .WithFeaturesOverridden(f => f with { CacheRootDirectory = cacheRoot })
+            .WithFeaturesOverridden(f => f with { CacheRootDirectory = GetCacheRootDirectory(testContext) })
             .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForMsGraphExtension());
 
         await RegistryHelper.PublishMsGraphExtension(services.Build(), indexJsonBeta, "beta", BicepTestConstants.MsGraphVersionBeta);
@@ -61,4 +88,6 @@ public static class ExtensionTestHelper
 
         return services;
     }
+
+    public static IDirectoryHandle GetCacheRootDirectory(TestContext testContext) => FileHelper.GetCacheRootDirectory(testContext).EnsureExists();
 }

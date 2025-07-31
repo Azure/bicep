@@ -607,7 +607,6 @@ var fileObj = loadJsonContent('file.json')
         [DataRow(".propArrayFloat[0]")]
         [DataRow(".propObject.subObjectPropString")]
         [DataRow(".propObject.subObjectPropFloat")]
-        [DataRow(".propObject.subObjectPropFloat")]
         [DataRow(".propObject.subObjectPropArrayInt[0]")]
         public void LoadJsonFunction_withPath(string path)
         {
@@ -953,7 +952,6 @@ var fileObj = loadYamlContent('file.yaml')
         [DataRow(".propObject")]
         [DataRow(".propArrayFloat[0]")]
         [DataRow(".propObject.subObjectPropString")]
-        [DataRow(".propObject.subObjectPropFloat")]
         [DataRow(".propObject.subObjectPropFloat")]
         [DataRow(".propObject.subObjectPropArrayInt[0]")]
         public void LoadYamlFunction_withPath(string path)

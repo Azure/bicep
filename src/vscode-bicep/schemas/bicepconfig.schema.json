@@ -48,6 +48,20 @@
         "level"
       ]
     },
+    "rule-def-level-info": {
+      "type": "object",
+      "default": {
+        "level": "info"
+      },
+      "properties": {
+        "level": {
+          "$ref": "#/definitions/level"
+        }
+      },
+      "required": [
+        "level"
+      ]
+    },
     "rule-def-level-off": {
       "type": "object",
       "default": {
@@ -657,6 +671,16 @@
                     }
                   ]
                 },
+                "stacks-extensibility-compat": {
+                  "allOf": [
+                    {
+                      "description": "Extensibility for deployments has additional constraints for Deployment stack deployments. Defaults to 'Info'. See https://aka.ms/bicep/linter-diagnostics#stacks-extensibility-compat"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-info"
+                    }
+                  ]
+                },
                 "use-parent-property": {
                   "allOf": [
                     {
@@ -776,6 +800,25 @@
                       "$ref": "#/definitions/rule-def-level-off"
                     }
                   ]
+                },
+                "use-recent-az-powershell-version": {
+                  "allOf": [
+                    {
+                      "description": "Use AzPowerShell version 11.0 or higher in deployment scripts to avoid EOL Ubuntu 20.04 LTS. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#use-recent-az-powershell-version",
+                      "type": "object",
+                      "properties": {
+                        "level": { "$ref": "#/definitions/level" },
+                        "minimumVersion": {
+                          "type": "string",
+                          "description": "Minimum required AzPowerShell version (default: 11.0)",
+                          "default": "11.0"
+                        }
+                      }
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
                 }
               }
             }
@@ -801,7 +844,7 @@
         },
         "moduleExtensionConfigs": {
           "type": "boolean",
-          "description": "Moves defining extension configurations to the module level rather than from within a template. The feature also includes enhancements for Deployment stacks extensibility integration. This feature is not ready for use. See https://aka.ms/bicep/experimental-features#moduleextensionconfigs"
+          "description": "Moves defining extension configurations to the module level rather than from within a template. The feature also includes enhancements for Deployment stacks extensibility integration. See https://aka.ms/bicep/experimental-features#moduleextensionconfigs"
         },
         "resourceTypedParamsAndOutputs": {
           "type": "boolean",
@@ -831,10 +874,6 @@
           "type": "boolean",
           "description": "Allows to enable wait and retry feature on resource type. See https://aka.ms/bicep/experimental-features#waitandretry"
         },
-        "resourceDerivedTypes": {
-          "type": "boolean",
-          "description": "If enabled, templates can reuse resource types wherever a type is expected. See https://aka.ms/bicep/experimental-features#resourcederivedtypes"
-        },
         "resourceInfoCodegen": {
             "type": "boolean",
             "description": "Enables the 'resourceInfo' function for simplified code generation. See https://aka.ms/bicep/experimental-features#resourceinfocodegen"
@@ -842,10 +881,6 @@
         "desiredStateConfiguration": {
           "type": "boolean",
           "description": "Allows you to author Desired State Configuration documents using the target scope 'dsc'. See https://aka.ms/bicep/experimental-features#desiredstateconfiguration"
-        },
-        "externalInputFunction": {
-          "type": "boolean",
-          "description": "Enables the 'externalInput' function for reading input that will be resolved later by external tooling. See https://aka.ms/bicep/experimental-features#externalinputfunction"
         },
         "onlyIfNotExists": {
           "type": "boolean",

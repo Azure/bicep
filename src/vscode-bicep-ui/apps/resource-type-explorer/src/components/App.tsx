@@ -9,7 +9,7 @@ import { ResourceTypeGroupList } from "./ResourceTypeGroupList";
 export type ResourceTypes = {
   resourceType: string;
   apiVersion: string;
-}
+};
 
 type ResourceTypeCatalog = Array<{
   group: string;
@@ -35,7 +35,7 @@ export function App() {
                   <ResourceTypeGroupHeader group={group} />
                 </Accordion.ItemCollapse>
                 <Accordion.ItemContent>
-                  <ResourceTypeGroupList group={group} resourceTypes={resourceTypes}/>
+                  <ResourceTypeGroupList group={group} resourceTypes={resourceTypes} />
                 </Accordion.ItemContent>
               </Accordion.Item>
             ))}

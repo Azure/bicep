@@ -6,7 +6,7 @@ using Bicep.Cli.Helpers;
 
 namespace Bicep.Cli.Arguments;
 
-public class SnapshotArguments : ArgumentsBase
+public class SnapshotArguments : ArgumentsBase, IInputArguments
 {
     private const string TenantIdArgument = "--tenant-id";
     private const string SubscriptionIdArgument = "--subscription-id";

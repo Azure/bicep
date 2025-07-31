@@ -16,7 +16,6 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.IO.Abstraction;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Diagnostics
 {
@@ -964,9 +963,9 @@ namespace Bicep.Core.Diagnostics
                     $"This expression is being used in the for-body of the variable \"{variableName}\", which requires values that can be calculated at the start of the deployment.{variableDependencyChainClause}{violatingPropertyNameClause}{accessiblePropertiesClause}");
             }
 
-            public Diagnostic ModuleParametersPropertyRequiresObjectLiteral() => CoreError(
+            public Diagnostic ModulePropertyRequiresObjectLiteral(string propertyName) => CoreError(
                 "BCP183",
-                $"The value of the module \"{LanguageConstants.ModuleParamsPropertyName}\" property must be an object literal.");
+                $"The value of the module \"{propertyName}\" property must be an object literal.");
 
             public Diagnostic FileExceedsMaximumSize(string filePath, long maxSize, string unit) => CoreError(
                 "BCP184",
@@ -1574,7 +1573,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP335",
                 $"The provided value can have a length as large as {sourceMaxLength} and may be too long to assign to a target with a configured maximum length of {targetMaxLength}.");
 
-            public Diagnostic UnrecognizedParamsFileDeclaration()
+            public Diagnostic UnrecognizedParamsFileDeclaration(bool moduleExtensionConfigsEnabled)
             {
                 List<string> supportedDeclarations = [
                     LanguageConstants.UsingKeyword,
@@ -1584,14 +1583,19 @@ namespace Bicep.Core.Diagnostics
                     LanguageConstants.TypeKeyword,
                 ];
 
+                if (moduleExtensionConfigsEnabled)
+                {
+                    supportedDeclarations.Add(LanguageConstants.ExtensionConfigKeyword);
+                }
+
                 return CoreError(
                     "BCP337",
                     $@"This declaration type is not valid for a Bicep Parameters file. Supported declarations: {ToQuotedString(supportedDeclarations)}.");
             }
 
-            public Diagnostic FailedToEvaluateParameter(string parameterName, string message) => CoreError(
+            public Diagnostic FailedToEvaluateSubject(string subjectType, string subjectName, string message) => CoreError(
                 "BCP338",
-                $"Failed to evaluate parameter \"{parameterName}\": {message}");
+                $"Failed to evaluate {subjectType} \"{subjectName}\": {message}");
 
             public Diagnostic ArrayIndexOutOfBounds(long indexSought) => CoreError(
                 "BCP339",
@@ -1923,8 +1927,28 @@ namespace Bicep.Core.Diagnostics
                 with
             { Fixes = [AsNonNullable(expression)] };
 
-            public Diagnostic ErrorOccuredBrowsingDirectory(string failureMessage) => CoreError(
+            public Diagnostic ExtensionAliasMustBeDefinedForInlinedRegistryExtensionDeclaration() => CoreError(
                 "BCP423",
+                "An extension alias must be defined for an extension declaration with an inlined registry reference.");
+
+            public Diagnostic MissingExtensionConfigAssignments(IEnumerable<string> identifiers) => CoreError(
+                "BCP424",
+                $"The following extensions are declared in the Bicep file but are missing a configuration assignment in the params files: {ToQuotedString(identifiers)}.");
+
+            public Diagnostic ExtensionConfigAssignmentDoesNotMatchToExtension(string identifier) => CoreError(
+                "BCP425",
+                $"The extension configuration assignment for \"{identifier}\" does not match an extension in the Bicep file.");
+
+            public Diagnostic SecureOutputsOnlyAllowedOnDirectModuleReference() => CoreError(
+                "BCP426",
+                "Secure outputs may only be accessed via a direct module reference. Only non-sensitive outputs are supported when dereferencing a module indirectly via a variable or lambda.");
+
+            public Diagnostic EnvironmentVariableDoesNotExist(string name, string? suggestion) => CoreError(
+                "BCP427",
+                $"Environment variable \"{name}\" does not exist and there's no default value set.{suggestion}");
+
+            public Diagnostic ErrorOccuredBrowsingDirectory(string failureMessage) => CoreError(
+                "BCP428",
                 $"An error occured browsing directory. {failureMessage}"
             );
         }

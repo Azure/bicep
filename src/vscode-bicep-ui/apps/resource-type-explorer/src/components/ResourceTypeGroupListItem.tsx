@@ -21,7 +21,7 @@ const $ResourceTypeListItem = styled(List.Item)`
 `;
 
 const $ApiVersionItem = styled.span`
-  color: var(--vscode-descriptionForeground)
+  color: var(--vscode-descriptionForeground);
 `;
 
 export function ResourceTypeGroupListItem({ group, resourceType, apiVersion }: ResourceTypeListItemProps) {
@@ -32,7 +32,8 @@ export function ResourceTypeGroupListItem({ group, resourceType, apiVersion }: R
   return (
     <$ResourceTypeListItem draggable onDragStart={handleDragStart}>
       <AzureIcon resourceType={`${group}/${resourceType}`} size={16} />
-      <span>{`${resourceType}`}</span><$ApiVersionItem>{`${apiVersion}`}</$ApiVersionItem>
+      <span>{`${resourceType}`}</span>
+      <$ApiVersionItem>{`${apiVersion}`}</$ApiVersionItem>
     </$ResourceTypeListItem>
   );
 }

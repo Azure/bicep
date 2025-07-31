@@ -36,14 +36,14 @@ export default defineConfig({
     server: {
       deps: {
         inline: ["@vscode-elements/react-elements"],
-      }
+      },
     },
     deps: {
       optimizer: {
         web: {
-          include: ["@vscode-elements/react-elements"]
-        }
-      }
+          include: ["@vscode-elements/react-elements"],
+        },
+      },
     },
   },
 });

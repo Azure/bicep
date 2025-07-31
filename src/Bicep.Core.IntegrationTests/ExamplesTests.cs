@@ -26,7 +26,8 @@ namespace Bicep.Core.IntegrationTests
 
         public static async Task RunExampleTest(TestContext testContext, EmbeddedFile embeddedBicep, FeatureProviderOverrides? features = null, string jsonFileExtension = ".json")
         {
-            features ??= new();
+            features ??= new(testContext);
+            FileHelper.GetCacheRootDirectory(testContext).EnsureExists();
             var baselineFolder = BaselineFolder.BuildOutputFolder(testContext, embeddedBicep);
             var bicepFile = baselineFolder.EntryFile;
             var jsonFile = baselineFolder.GetFileOrEnsureCheckedIn(Path.ChangeExtension(embeddedBicep.FileName, jsonFileExtension));
@@ -71,13 +72,13 @@ namespace Bicep.Core.IntegrationTests
         [DynamicData(nameof(GetAllExampleData), DynamicDataSourceType.Method)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public Task ExampleIsValid(EmbeddedFile embeddedBicep)
-            => RunExampleTest(TestContext, embeddedBicep, new(), ".json");
+            => RunExampleTest(TestContext, embeddedBicep, new(TestContext), ".json");
 
         [DataTestMethod]
         [DynamicData(nameof(GetAllExampleData), DynamicDataSourceType.Method)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public Task ExampleIsValid_using_experimental_symbolic_names(EmbeddedFile embeddedBicep)
-            => RunExampleTest(TestContext, embeddedBicep, new(SymbolicNameCodegenEnabled: true), ".symbolicnames.json");
+            => RunExampleTest(TestContext, embeddedBicep, new(TestContext, SymbolicNameCodegenEnabled: true), ".symbolicnames.json");
 
         [DataTestMethod]
         [DynamicData(nameof(GetAllExampleData), DynamicDataSourceType.Method)]

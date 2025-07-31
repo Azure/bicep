@@ -43,6 +43,8 @@ If you have an existing ARM Template or set of resources that you would like to 
 
 Also, there is a rich library of examples in the [azure-quickstart-templates](https://github.com/Azure/azure-quickstart-templates) repo to help you get started.
 
+If you're looking for production-ready and tested Bicep templates, you can find them in the [bicep-registry-modules](https://github.com/Azure/bicep-registry-modules) repo. Learn more about these templates on the Azure Verified Modules website: [https://aka.ms/avm](https://aka.ms/avm).
+
 ## How does Bicep work?
 
 First, author your Bicep code using the Bicep language service as part of the [Bicep VS Code extension](https://docs.microsoft.com/azure/azure-resource-manager/bicep/install#vs-code-and-bicep-extension)

@@ -21,8 +21,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Tools.InnoSetup" Version="6.0.5" />
-    <PackageReference Include="Azure.Deployments.Internal.GenerateNotice" Version="$(GenerateNoticePackageVersion)" />
+    <PackageReference Include="Tools.InnoSetup" />
+    <PackageReference Include="Azure.Deployments.Internal.GenerateNotice" />
   </ItemGroup>
 
   <ItemGroup>

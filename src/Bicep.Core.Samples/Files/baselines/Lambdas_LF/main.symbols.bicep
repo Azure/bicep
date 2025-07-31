@@ -100,11 +100,11 @@ var sortEmpty = sort([], (x, y) => int(x) < int(y))
 //@[004:013) Variable sortEmpty. Type: never[]. Declaration start char: 0, length: 51
 
 var reduceStringConcat = reduce(['abc', 'def', 'ghi'], '', (cur, next) => concat(cur, next))
-//@[060:063) Local cur. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 60, length: 3
+//@[060:063) Local cur. Type: string. Declaration start char: 60, length: 3
 //@[065:069) Local next. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 65, length: 4
 //@[004:022) Variable reduceStringConcat. Type: string. Declaration start char: 0, length: 92
 var reduceStringConcatEven = reduce(['abc', 'def', 'ghi'], '', (cur, next, i) => isEven(i) ? concat(cur, next) : cur)
-//@[064:067) Local cur. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 64, length: 3
+//@[064:067) Local cur. Type: string. Declaration start char: 64, length: 3
 //@[069:073) Local next. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 69, length: 4
 //@[075:076) Local i. Type: int. Declaration start char: 75, length: 1
 //@[004:026) Variable reduceStringConcatEven. Type: string. Declaration start char: 0, length: 117
@@ -118,12 +118,12 @@ var reduceObjectUnion = reduce([
   { bar: 456 }
   { baz: 789 }
 ], {}, (cur, next) => union(cur, next))
-//@[008:011) Local cur. Type: object | object | object. Declaration start char: 8, length: 3
+//@[008:011) Local cur. Type: object. Declaration start char: 8, length: 3
 //@[013:017) Local next. Type: object | object | object. Declaration start char: 13, length: 4
 var reduceEmpty = reduce([], 0, (cur, next) => cur)
-//@[033:036) Local cur. Type: never. Declaration start char: 33, length: 3
+//@[033:036) Local cur. Type: 0. Declaration start char: 33, length: 3
 //@[038:042) Local next. Type: never. Declaration start char: 38, length: 4
-//@[004:015) Variable reduceEmpty. Type: never. Declaration start char: 0, length: 51
+//@[004:015) Variable reduceEmpty. Type: 0. Declaration start char: 0, length: 51
 
 var itemForLoop = [for item in range(0, 10): item]
 //@[023:027) Local item. Type: int. Declaration start char: 23, length: 4
@@ -193,7 +193,7 @@ var objectMap6 = toObject(range(0, 10), i => '${i}', i => // comment
 var multiLine = reduce(['abc', 'def', 'ghi'], '', (
 //@[004:013) Variable multiLine. Type: string. Declaration start char: 0, length: 89
   cur,
-//@[002:005) Local cur. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 2, length: 3
+//@[002:005) Local cur. Type: string. Declaration start char: 2, length: 3
   next
 //@[002:006) Local next. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 2, length: 4
 ) => concat(cur, next))
@@ -202,7 +202,7 @@ var multiLineWithComment = reduce(['abc', 'def', 'ghi'], '', (
 //@[004:024) Variable multiLineWithComment. Type: string. Declaration start char: 0, length: 113
   // comment
   cur,
-//@[002:005) Local cur. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 2, length: 3
+//@[002:005) Local cur. Type: string. Declaration start char: 2, length: 3
   next
 //@[002:006) Local next. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 2, length: 4
 ) => concat(cur, next))

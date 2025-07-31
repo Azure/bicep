@@ -3,9 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -17,10 +15,6 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class ParameterFileTests
 {
-    private ServiceBuilder ServicesWithExternalInputFunctionEnabled =>
-        new ServiceBuilder()
-            .WithFeatureOverrides(new FeatureProviderOverrides(TestContext, ExternalInputFunctionEnabled: true));
-
     [NotNull]
     public TestContext? TestContext { get; set; }
 
@@ -103,8 +97,9 @@ param fromEnv=readEnvironmentVariable('stringEnvVariable')
 ("foo.bicep", @"param fromEnv string"));
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]{
-                ("BCP338", DiagnosticLevel.Error,
-                "Failed to evaluate parameter \"fromEnv\": Environment variable \"stringEnvVariable\" does not exist, and no default value set.")});
+            ("BCP427", DiagnosticLevel.Error,
+                "Environment variable \"stringEnvVariable\" does not exist and there's no default value set.")
+        });
     }
 
     [TestMethod]
@@ -128,7 +123,7 @@ param fromEnv=readEnvironmentVariable('stringEnvVariable')
 "),
 ("foo.bicep", @"param fromEnv string"));
 
-        result.Should().ContainDiagnostic("BCP338", DiagnosticLevel.Error, "Failed to evaluate parameter \"fromEnv\": Environment variable \"stringEnvVariable\" does not exist, and no default value set.");
+        result.Should().ContainDiagnostic("BCP427", DiagnosticLevel.Error, "Environment variable \"stringEnvVariable\" does not exist and there's no default value set.");
         result.Should().ContainDiagnostic("Bicepparam ReadEnvironmentVariable function", DiagnosticLevel.Info, "Available environment variables are: ");
     }
     [TestMethod]
@@ -249,7 +244,6 @@ invalid file
     public void ExternalInput_assigned_to_parameter_without_config()
     {
         var result = CompilationHelper.CompileParams(
-            ServicesWithExternalInputFunctionEnabled,
 ("parameters.bicepparam", @"
 using none
 param foo = externalInput('my.param.provider')
@@ -271,7 +265,6 @@ param foo = externalInput('my.param.provider')
     public void ExternalInput_assigned_to_parameter_with_config()
     {
         var result = CompilationHelper.CompileParams(
-            ServicesWithExternalInputFunctionEnabled,
 ("parameters.bicepparam", @"
 using none
 param foo = externalInput('sys.cli', 'foo')
@@ -294,7 +287,6 @@ param foo = externalInput('sys.cli', 'foo')
     public void ExternalInput_parameter_with_variable_references()
     {
         var result = CompilationHelper.CompileParams(
-            ServicesWithExternalInputFunctionEnabled,
 ("parameters.bicepparam", @"
 using none
 var foo = externalInput('sys.cli', 'foo')
@@ -324,7 +316,6 @@ param foo3 = foo2
     public void No_parameters_containing_external_input_should_not_generate_external_input_definitions()
     {
         var result = CompilationHelper.CompileParams(
-            ServicesWithExternalInputFunctionEnabled,
 ("parameters.bicepparam", @"
 using none
 param foo = 'foo'
@@ -342,7 +333,6 @@ var baz = externalInput('sys.cli', 'baz')
     public void ExternalInput_parameter_with_param_references()
     {
         var result = CompilationHelper.CompileParams(
-            ServicesWithExternalInputFunctionEnabled,
 ("parameters.bicepparam", @"
 using none
 param foo = externalInput('sys.cli', 'foo')
@@ -373,7 +363,6 @@ param foo3 = foo2
     public void ExternalInput_parameter_with_cyclic_references()
     {
         var result = CompilationHelper.CompileParams(
-            ServicesWithExternalInputFunctionEnabled,
 ("parameters.bicepparam", @"
 using none
 param a = '${b}-${externalInput('sys.cli', 'a')}'
@@ -395,7 +384,6 @@ param c = b
     public void ExternalInput_non_compile_time_constant_is_blocked()
     {
         var result = CompilationHelper.CompileParams(
-            ServicesWithExternalInputFunctionEnabled,
 ("parameters.bicepparam", @"
 using none
 var myVar = 2 + 3
@@ -413,7 +401,6 @@ param foo = externalInput('sys.cli', myVar)
     public void ExternalInput_emits_top_level_expression()
     {
         var result = CompilationHelper.CompileParams(
-            ServicesWithExternalInputFunctionEnabled,
 ("parameters.bicepparam", @"
 using none
 param foo = {

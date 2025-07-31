@@ -69,10 +69,6 @@ namespace Bicep.Core.UnitTests.Extensions
             "br:mockregistry.io/test/module1:v1",
             "^br:(?<registry>.+?)/(?<repo>.+?)[:@](?<tag>.+?)$",
             new string[] { "mockregistry.io", "test/module1", "v1" })]
-        [DataRow(
-            "br:mockregistry.io/test/module1:v1",
-            "^br:(?<registry>.+?)/(?<repo>.+?)[:@](?<tag>.+?)$",
-            new string[] { "mockregistry.io", "test/module1", "v1" })]
         [DataTestMethod]
         public void ExtractRegexGroups_AllGroups_Valid(string s, string regex, string[] expected)
         {

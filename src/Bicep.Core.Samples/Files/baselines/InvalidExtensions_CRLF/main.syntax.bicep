@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:2822) ProgramSyntax
+//@[000:3170) ProgramSyntax
 //@[020:0024) ├─Token(NewLine) |\r\n\r\n|
 
 param boolParam1 bool
@@ -10,7 +10,16 @@ param boolParam1 bool
 //@[017:0021) | └─TypeVariableAccessSyntax
 //@[017:0021) |   └─IdentifierSyntax
 //@[017:0021) |     └─Token(Identifier) |bool|
-//@[021:0025) ├─Token(NewLine) |\r\n\r\n|
+//@[021:0023) ├─Token(NewLine) |\r\n|
+param strParam1 string
+//@[000:0022) ├─ParameterDeclarationSyntax
+//@[000:0005) | ├─Token(Identifier) |param|
+//@[006:0015) | ├─IdentifierSyntax
+//@[006:0015) | | └─Token(Identifier) |strParam1|
+//@[016:0022) | └─TypeVariableAccessSyntax
+//@[016:0022) |   └─IdentifierSyntax
+//@[016:0022) |     └─Token(Identifier) |string|
+//@[022:0026) ├─Token(NewLine) |\r\n\r\n|
 
 // END: Parameters
 //@[018:0022) ├─Token(NewLine) |\r\n\r\n|
@@ -26,39 +35,17 @@ extension az
 //@[012:0012) | ├─SkippedTriviaSyntax
 //@[012:0012) | └─SkippedTriviaSyntax
 //@[012:0014) ├─Token(NewLine) |\r\n|
-extension kubernetes with {
-//@[000:0084) ├─ExtensionDeclarationSyntax
+extension kubernetes as k8s
+//@[000:0027) ├─ExtensionDeclarationSyntax
 //@[000:0009) | ├─Token(Identifier) |extension|
 //@[010:0020) | ├─IdentifierSyntax
 //@[010:0020) | | └─Token(Identifier) |kubernetes|
-//@[021:0077) | ├─ExtensionWithClauseSyntax
-//@[021:0025) | | ├─Token(Identifier) |with|
-//@[026:0077) | | └─ObjectSyntax
-//@[026:0027) | |   ├─Token(LeftBrace) |{|
-//@[027:0029) | |   ├─Token(NewLine) |\r\n|
-  kubeConfig: 'DELETE'
-//@[002:0022) | |   ├─ObjectPropertySyntax
-//@[002:0012) | |   | ├─IdentifierSyntax
-//@[002:0012) | |   | | └─Token(Identifier) |kubeConfig|
-//@[012:0013) | |   | ├─Token(Colon) |:|
-//@[014:0022) | |   | └─StringSyntax
-//@[014:0022) | |   |   └─Token(StringComplete) |'DELETE'|
-//@[022:0024) | |   ├─Token(NewLine) |\r\n|
-  namespace: 'DELETE'
-//@[002:0021) | |   ├─ObjectPropertySyntax
-//@[002:0011) | |   | ├─IdentifierSyntax
-//@[002:0011) | |   | | └─Token(Identifier) |namespace|
-//@[011:0012) | |   | ├─Token(Colon) |:|
-//@[013:0021) | |   | └─StringSyntax
-//@[013:0021) | |   |   └─Token(StringComplete) |'DELETE'|
-//@[021:0023) | |   ├─Token(NewLine) |\r\n|
-} as k8s
-//@[000:0001) | |   └─Token(RightBrace) |}|
-//@[002:0008) | └─AliasAsClauseSyntax
-//@[002:0004) |   ├─Token(Identifier) |as|
-//@[005:0008) |   └─IdentifierSyntax
-//@[005:0008) |     └─Token(Identifier) |k8s|
-//@[008:0012) ├─Token(NewLine) |\r\n\r\n|
+//@[021:0021) | ├─SkippedTriviaSyntax
+//@[021:0027) | └─AliasAsClauseSyntax
+//@[021:0023) |   ├─Token(Identifier) |as|
+//@[024:0027) |   └─IdentifierSyntax
+//@[024:0027) |     └─Token(Identifier) |k8s|
+//@[027:0031) ├─Token(NewLine) |\r\n\r\n|
 
 //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
 //@[094:0098) ├─Token(NewLine) |\r\n\r\n|
@@ -268,24 +255,16 @@ resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
 //@[039:0043) ├─Token(NewLine) |\r\n\r\n|
 
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[000:0203) ├─ModuleDeclarationSyntax
+//@[000:0162) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
 //@[007:0041) | ├─IdentifierSyntax
 //@[007:0041) | | └─Token(Identifier) |moduleWithExtsUsingFullInheritance|
 //@[042:0090) | ├─StringSyntax
 //@[042:0090) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
 //@[091:0092) | ├─Token(Assignment) |=|
-//@[093:0203) | └─ObjectSyntax
+//@[093:0162) | └─ObjectSyntax
 //@[093:0094) |   ├─Token(LeftBrace) |{|
 //@[094:0096) |   ├─Token(NewLine) |\r\n|
-  name: 'moduleWithExtsFullInheritance'
-//@[002:0039) |   ├─ObjectPropertySyntax
-//@[002:0006) |   | ├─IdentifierSyntax
-//@[002:0006) |   | | └─Token(Identifier) |name|
-//@[006:0007) |   | ├─Token(Colon) |:|
-//@[008:0039) |   | └─StringSyntax
-//@[008:0039) |   |   └─Token(StringComplete) |'moduleWithExtsFullInheritance'|
-//@[039:0041) |   ├─Token(NewLine) |\r\n|
   extensionConfigs: {
 //@[002:0063) |   ├─ObjectPropertySyntax
 //@[002:0018) |   | ├─IdentifierSyntax
@@ -311,24 +290,16 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 //@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 module moduleInvalidPropertyAccess 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[000:0280) ├─ModuleDeclarationSyntax
+//@[000:0241) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
 //@[007:0034) | ├─IdentifierSyntax
 //@[007:0034) | | └─Token(Identifier) |moduleInvalidPropertyAccess|
 //@[035:0083) | ├─StringSyntax
 //@[035:0083) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
 //@[084:0085) | ├─Token(Assignment) |=|
-//@[086:0280) | └─ObjectSyntax
+//@[086:0241) | └─ObjectSyntax
 //@[086:0087) |   ├─Token(LeftBrace) |{|
 //@[087:0089) |   ├─Token(NewLine) |\r\n|
-  name: 'moduleInvalidPropertyAccess'
-//@[002:0037) |   ├─ObjectPropertySyntax
-//@[002:0006) |   | ├─IdentifierSyntax
-//@[002:0006) |   | | └─Token(Identifier) |name|
-//@[006:0007) |   | ├─Token(Colon) |:|
-//@[008:0037) |   | └─StringSyntax
-//@[008:0037) |   |   └─Token(StringComplete) |'moduleInvalidPropertyAccess'|
-//@[037:0039) |   ├─Token(NewLine) |\r\n|
   extensionConfigs: {
 //@[002:0149) |   ├─ObjectPropertySyntax
 //@[002:0018) |   | ├─IdentifierSyntax
@@ -398,24 +369,16 @@ module moduleInvalidPropertyAccess 'child/hasConfigurableExtensionsWithAlias.bic
 //@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 module moduleComplexKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[000:0385) ├─ModuleDeclarationSyntax
+//@[000:0343) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
 //@[007:0037) | ├─IdentifierSyntax
 //@[007:0037) | | └─Token(Identifier) |moduleComplexKeyVaultReference|
 //@[038:0086) | ├─StringSyntax
 //@[038:0086) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
 //@[087:0088) | ├─Token(Assignment) |=|
-//@[089:0385) | └─ObjectSyntax
+//@[089:0343) | └─ObjectSyntax
 //@[089:0090) |   ├─Token(LeftBrace) |{|
 //@[090:0092) |   ├─Token(NewLine) |\r\n|
-  name: 'moduleComplexKeyVaultReference'
-//@[002:0040) |   ├─ObjectPropertySyntax
-//@[002:0006) |   | ├─IdentifierSyntax
-//@[002:0006) |   | | └─Token(Identifier) |name|
-//@[006:0007) |   | ├─Token(Colon) |:|
-//@[008:0040) |   | └─StringSyntax
-//@[008:0040) |   |   └─Token(StringComplete) |'moduleComplexKeyVaultReference'|
-//@[040:0042) |   ├─Token(NewLine) |\r\n|
   extensionConfigs: {
 //@[002:0248) |   ├─ObjectPropertySyntax
 //@[002:0018) |   | ├─IdentifierSyntax
@@ -514,34 +477,103 @@ module moduleComplexKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
-// TODO(kylealbert): Figure out if this can be made allowable easily, potentially by inlining.
-//@[094:0096) ├─Token(NewLine) |\r\n|
+var invalidVarAssignment1 = k8s.config.namespace
+//@[000:0048) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0025) | ├─IdentifierSyntax
+//@[004:0025) | | └─Token(Identifier) |invalidVarAssignment1|
+//@[026:0027) | ├─Token(Assignment) |=|
+//@[028:0048) | └─PropertyAccessSyntax
+//@[028:0038) |   ├─PropertyAccessSyntax
+//@[028:0031) |   | ├─VariableAccessSyntax
+//@[028:0031) |   | | └─IdentifierSyntax
+//@[028:0031) |   | |   └─Token(Identifier) |k8s|
+//@[031:0032) |   | ├─Token(Dot) |.|
+//@[032:0038) |   | └─IdentifierSyntax
+//@[032:0038) |   |   └─Token(Identifier) |config|
+//@[038:0039) |   ├─Token(Dot) |.|
+//@[039:0048) |   └─IdentifierSyntax
+//@[039:0048) |     └─Token(Identifier) |namespace|
+//@[048:0050) ├─Token(NewLine) |\r\n|
+var invalidVarAssignment2 = k8s.config.kubeConfig
+//@[000:0049) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0025) | ├─IdentifierSyntax
+//@[004:0025) | | └─Token(Identifier) |invalidVarAssignment2|
+//@[026:0027) | ├─Token(Assignment) |=|
+//@[028:0049) | └─PropertyAccessSyntax
+//@[028:0038) |   ├─PropertyAccessSyntax
+//@[028:0031) |   | ├─VariableAccessSyntax
+//@[028:0031) |   | | └─IdentifierSyntax
+//@[028:0031) |   | |   └─Token(Identifier) |k8s|
+//@[031:0032) |   | ├─Token(Dot) |.|
+//@[032:0038) |   | └─IdentifierSyntax
+//@[032:0038) |   |   └─Token(Identifier) |config|
+//@[038:0039) |   ├─Token(Dot) |.|
+//@[039:0049) |   └─IdentifierSyntax
+//@[039:0049) |     └─Token(Identifier) |kubeConfig|
+//@[049:0053) ├─Token(NewLine) |\r\n\r\n|
+
+var extensionConfigsVar = {
+//@[000:0099) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0023) | ├─IdentifierSyntax
+//@[004:0023) | | └─Token(Identifier) |extensionConfigsVar|
+//@[024:0025) | ├─Token(Assignment) |=|
+//@[026:0099) | └─ObjectSyntax
+//@[026:0027) |   ├─Token(LeftBrace) |{|
+//@[027:0029) |   ├─Token(NewLine) |\r\n|
+  k8s: {
+//@[002:0067) |   ├─ObjectPropertySyntax
+//@[002:0005) |   | ├─IdentifierSyntax
+//@[002:0005) |   | | └─Token(Identifier) |k8s|
+//@[005:0006) |   | ├─Token(Colon) |:|
+//@[007:0067) |   | └─ObjectSyntax
+//@[007:0008) |   |   ├─Token(LeftBrace) |{|
+//@[008:0010) |   |   ├─Token(NewLine) |\r\n|
+    kubeConfig: 'inlined',
+//@[004:0025) |   |   ├─ObjectPropertySyntax
+//@[004:0014) |   |   | ├─IdentifierSyntax
+//@[004:0014) |   |   | | └─Token(Identifier) |kubeConfig|
+//@[014:0015) |   |   | ├─Token(Colon) |:|
+//@[016:0025) |   |   | └─StringSyntax
+//@[016:0025) |   |   |   └─Token(StringComplete) |'inlined'|
+//@[025:0026) |   |   ├─Token(Comma) |,|
+//@[026:0026) |   |   ├─SkippedTriviaSyntax
+//@[026:0028) |   |   ├─Token(NewLine) |\r\n|
+    namespace: 'inlined'
+//@[004:0024) |   |   ├─ObjectPropertySyntax
+//@[004:0013) |   |   | ├─IdentifierSyntax
+//@[004:0013) |   |   | | └─Token(Identifier) |namespace|
+//@[013:0014) |   |   | ├─Token(Colon) |:|
+//@[015:0024) |   |   | └─StringSyntax
+//@[015:0024) |   |   |   └─Token(StringComplete) |'inlined'|
+//@[024:0026) |   |   ├─Token(NewLine) |\r\n|
+  }
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
+
 var k8sConfigDeployTime = {
-//@[000:0091) ├─VariableDeclarationSyntax
+//@[000:0079) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
 //@[004:0023) | ├─IdentifierSyntax
 //@[004:0023) | | └─Token(Identifier) |k8sConfigDeployTime|
 //@[024:0025) | ├─Token(Assignment) |=|
-//@[026:0091) | └─ObjectSyntax
+//@[026:0079) | └─ObjectSyntax
 //@[026:0027) |   ├─Token(LeftBrace) |{|
 //@[027:0029) |   ├─Token(NewLine) |\r\n|
-  kubeConfig: k8s.config.kubeConfig
-//@[002:0035) |   ├─ObjectPropertySyntax
+  kubeConfig: strParam1
+//@[002:0023) |   ├─ObjectPropertySyntax
 //@[002:0012) |   | ├─IdentifierSyntax
 //@[002:0012) |   | | └─Token(Identifier) |kubeConfig|
 //@[012:0013) |   | ├─Token(Colon) |:|
-//@[014:0035) |   | └─PropertyAccessSyntax
-//@[014:0024) |   |   ├─PropertyAccessSyntax
-//@[014:0017) |   |   | ├─VariableAccessSyntax
-//@[014:0017) |   |   | | └─IdentifierSyntax
-//@[014:0017) |   |   | |   └─Token(Identifier) |k8s|
-//@[017:0018) |   |   | ├─Token(Dot) |.|
-//@[018:0024) |   |   | └─IdentifierSyntax
-//@[018:0024) |   |   |   └─Token(Identifier) |config|
-//@[024:0025) |   |   ├─Token(Dot) |.|
-//@[025:0035) |   |   └─IdentifierSyntax
-//@[025:0035) |   |     └─Token(Identifier) |kubeConfig|
-//@[035:0037) |   ├─Token(NewLine) |\r\n|
+//@[014:0023) |   | └─VariableAccessSyntax
+//@[014:0023) |   |   └─IdentifierSyntax
+//@[014:0023) |   |     └─Token(Identifier) |strParam1|
+//@[023:0025) |   ├─Token(NewLine) |\r\n|
   namespace: strParam1
 //@[002:0022) |   ├─ObjectPropertySyntax
 //@[002:0011) |   | ├─IdentifierSyntax
@@ -555,25 +587,41 @@ var k8sConfigDeployTime = {
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
-module moduleWithExtsUsingVar 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[000:0177) ├─ModuleDeclarationSyntax
+module moduleWithExtsUsingVar1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:0127) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
-//@[007:0029) | ├─IdentifierSyntax
-//@[007:0029) | | └─Token(Identifier) |moduleWithExtsUsingVar|
-//@[030:0078) | ├─StringSyntax
-//@[030:0078) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
-//@[079:0080) | ├─Token(Assignment) |=|
-//@[081:0177) | └─ObjectSyntax
-//@[081:0082) |   ├─Token(LeftBrace) |{|
-//@[082:0084) |   ├─Token(NewLine) |\r\n|
-  name: 'moduleWithExtsUsingVar'
-//@[002:0032) |   ├─ObjectPropertySyntax
-//@[002:0006) |   | ├─IdentifierSyntax
-//@[002:0006) |   | | └─Token(Identifier) |name|
-//@[006:0007) |   | ├─Token(Colon) |:|
-//@[008:0032) |   | └─StringSyntax
-//@[008:0032) |   |   └─Token(StringComplete) |'moduleWithExtsUsingVar'|
-//@[032:0034) |   ├─Token(NewLine) |\r\n|
+//@[007:0030) | ├─IdentifierSyntax
+//@[007:0030) | | └─Token(Identifier) |moduleWithExtsUsingVar1|
+//@[031:0079) | ├─StringSyntax
+//@[031:0079) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[080:0081) | ├─Token(Assignment) |=|
+//@[082:0127) | └─ObjectSyntax
+//@[082:0083) |   ├─Token(LeftBrace) |{|
+//@[083:0085) |   ├─Token(NewLine) |\r\n|
+  extensionConfigs: extensionConfigsVar
+//@[002:0039) |   ├─ObjectPropertySyntax
+//@[002:0018) |   | ├─IdentifierSyntax
+//@[002:0018) |   | | └─Token(Identifier) |extensionConfigs|
+//@[018:0019) |   | ├─Token(Colon) |:|
+//@[020:0039) |   | └─VariableAccessSyntax
+//@[020:0039) |   |   └─IdentifierSyntax
+//@[020:0039) |   |     └─Token(Identifier) |extensionConfigsVar|
+//@[039:0041) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
+
+module moduleWithExtsUsingVar2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:0144) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0030) | ├─IdentifierSyntax
+//@[007:0030) | | └─Token(Identifier) |moduleWithExtsUsingVar2|
+//@[031:0079) | ├─StringSyntax
+//@[031:0079) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[080:0081) | ├─Token(Assignment) |=|
+//@[082:0144) | └─ObjectSyntax
+//@[082:0083) |   ├─Token(LeftBrace) |{|
+//@[083:0085) |   ├─Token(NewLine) |\r\n|
   extensionConfigs: {
 //@[002:0056) |   ├─ObjectPropertySyntax
 //@[002:0018) |   | ├─IdentifierSyntax
@@ -591,6 +639,83 @@ module moduleWithExtsUsingVar 'child/hasConfigurableExtensionsWithAlias.bicep' =
 //@[009:0028) |   |   |   └─IdentifierSyntax
 //@[009:0028) |   |   |     └─Token(Identifier) |k8sConfigDeployTime|
 //@[028:0030) |   |   ├─Token(NewLine) |\r\n|
+  }
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
+
+module moduleInvalidSpread1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:0139) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0027) | ├─IdentifierSyntax
+//@[007:0027) | | └─Token(Identifier) |moduleInvalidSpread1|
+//@[028:0076) | ├─StringSyntax
+//@[028:0076) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[077:0078) | ├─Token(Assignment) |=|
+//@[079:0139) | └─ObjectSyntax
+//@[079:0080) |   ├─Token(LeftBrace) |{|
+//@[080:0082) |   ├─Token(NewLine) |\r\n|
+  extensionConfigs: {
+//@[002:0054) |   ├─ObjectPropertySyntax
+//@[002:0018) |   | ├─IdentifierSyntax
+//@[002:0018) |   | | └─Token(Identifier) |extensionConfigs|
+//@[018:0019) |   | ├─Token(Colon) |:|
+//@[020:0054) |   | └─ObjectSyntax
+//@[020:0021) |   |   ├─Token(LeftBrace) |{|
+//@[021:0023) |   |   ├─Token(NewLine) |\r\n|
+    ...extensionConfigsVar
+//@[004:0026) |   |   ├─SpreadExpressionSyntax
+//@[004:0007) |   |   | ├─Token(Ellipsis) |...|
+//@[007:0026) |   |   | └─VariableAccessSyntax
+//@[007:0026) |   |   |   └─IdentifierSyntax
+//@[007:0026) |   |   |     └─Token(Identifier) |extensionConfigsVar|
+//@[026:0028) |   |   ├─Token(NewLine) |\r\n|
+  }
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
+
+module moduleInvalidSpread2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:0160) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0027) | ├─IdentifierSyntax
+//@[007:0027) | | └─Token(Identifier) |moduleInvalidSpread2|
+//@[028:0076) | ├─StringSyntax
+//@[028:0076) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[077:0078) | ├─Token(Assignment) |=|
+//@[079:0160) | └─ObjectSyntax
+//@[079:0080) |   ├─Token(LeftBrace) |{|
+//@[080:0082) |   ├─Token(NewLine) |\r\n|
+  extensionConfigs: {
+//@[002:0075) |   ├─ObjectPropertySyntax
+//@[002:0018) |   | ├─IdentifierSyntax
+//@[002:0018) |   | | └─Token(Identifier) |extensionConfigs|
+//@[018:0019) |   | ├─Token(Colon) |:|
+//@[020:0075) |   | └─ObjectSyntax
+//@[020:0021) |   |   ├─Token(LeftBrace) |{|
+//@[021:0023) |   |   ├─Token(NewLine) |\r\n|
+    k8s: {
+//@[004:0047) |   |   ├─ObjectPropertySyntax
+//@[004:0007) |   |   | ├─IdentifierSyntax
+//@[004:0007) |   |   | | └─Token(Identifier) |k8s|
+//@[007:0008) |   |   | ├─Token(Colon) |:|
+//@[009:0047) |   |   | └─ObjectSyntax
+//@[009:0010) |   |   |   ├─Token(LeftBrace) |{|
+//@[010:0012) |   |   |   ├─Token(NewLine) |\r\n|
+      ...k8sConfigDeployTime
+//@[006:0028) |   |   |   ├─SpreadExpressionSyntax
+//@[006:0009) |   |   |   | ├─Token(Ellipsis) |...|
+//@[009:0028) |   |   |   | └─VariableAccessSyntax
+//@[009:0028) |   |   |   |   └─IdentifierSyntax
+//@[009:0028) |   |   |   |     └─Token(Identifier) |k8sConfigDeployTime|
+//@[028:0030) |   |   |   ├─Token(NewLine) |\r\n|
+    }
+//@[004:0005) |   |   |   └─Token(RightBrace) |}|
+//@[005:0007) |   |   ├─Token(NewLine) |\r\n|
   }
 //@[002:0003) |   |   └─Token(RightBrace) |}|
 //@[003:0005) |   ├─Token(NewLine) |\r\n|

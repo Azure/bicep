@@ -12,6 +12,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Types;
 using Newtonsoft.Json.Linq;
@@ -183,9 +184,39 @@ namespace Bicep.Core.TypeSystem
                     isSafeAccess,
                     shouldWarn,
                     diagnostics),
+                null when TryGetModuleUnionBodyType(unionType) is UnionType bodyUnion
+                    => GetNamedPropertyType(
+                        bodyUnion,
+                        propertyExpressionPositionable,
+                        propertyName,
+                        isSafeAccess,
+                        shouldWarn,
+                        diagnostics),
                 // TODO improve later here if necessary - we should be able to block stuff that is obviously wrong
                 _ => LanguageConstants.Any,
             };
+
+        private static UnionType? TryGetModuleUnionBodyType(UnionType union)
+        {
+            if (union.Members.Length < 2)
+            {
+                return null;
+            }
+
+            var memberModuleBodies = ImmutableArray.CreateBuilder<ITypeReference>(union.Members.Length);
+
+            foreach (var member in union.Members)
+            {
+                if (member.Type is not ModuleType moduleType)
+                {
+                    return null;
+                }
+
+                memberModuleBodies.Add(moduleType.Body.Type);
+            }
+
+            return new(string.Empty, memberModuleBodies.ToImmutable());
+        }
 
         public static TypeSymbol GetNamedPropertyType(
             DiscriminatedObjectType discriminatedObjectType,
@@ -681,19 +712,6 @@ namespace Bicep.Core.TypeSystem
             return new(ResourceTypeReference.Combine(parentResourceType.TypeReference, typeReference));
         }
 
-        private static ObjectType TransformProperties(ObjectType input, Func<NamedTypeProperty, NamedTypeProperty> transformFunc)
-        {
-            return new ObjectType(
-                input.Name,
-                input.ValidationFlags,
-                input.Properties.Values.Select(transformFunc),
-                input.AdditionalProperties,
-                input.MethodResolver.functionOverloads);
-        }
-
-        public static ObjectType MakeRequiredPropertiesOptional(ObjectType input)
-            => TransformProperties(input, p => p with { Flags = p.Flags & ~TypePropertyFlags.Required });
-
         public static TypeSymbol RemovePropertyFlagsRecursively(TypeSymbol type, TypePropertyFlags flagsToRemove)
             => ModifyPropertyFlagsRecursively(type, f => f & ~flagsToRemove, new());
 
@@ -712,7 +730,7 @@ namespace Bicep.Core.TypeSystem
         private static ObjectType ModifyPropertyFlagsRecursively(
             ObjectType @object,
             Func<TypePropertyFlags, TypePropertyFlags> transformFlags,
-            ConcurrentDictionary<ObjectType, ObjectType> cache) => TransformProperties(@object, property => new(
+            ConcurrentDictionary<ObjectType, ObjectType> cache) => @object.WithModifiedProperties(property => new(
                 property.Name,
                 new DeferredTypeReference(
                     () => ModifyPropertyFlagsRecursively(
@@ -866,5 +884,52 @@ namespace Bicep.Core.TypeSystem
 
             currentlyProcessing.Remove(type);
         }
+
+        public static ObjectLikeType CreateExtensionConfigAssignmentType(ObjectLikeType configType, ObjectType? userAssignedDefaultConfigType)
+        {
+            var defaultConfigAssignedPropertyNames = userAssignedDefaultConfigType?.Properties.Select(p => p.Key).ToImmutableHashSet();
+
+            if (defaultConfigAssignedPropertyNames?.Count is not > 0)
+            {
+                return configType;
+            }
+
+            if (configType is DiscriminatedObjectType discrimObjType)
+            {
+                if (!userAssignedDefaultConfigType!.Properties.TryGetValue(discrimObjType.DiscriminatorKey, out var userAssignedDiscrimProperty)
+                    || userAssignedDiscrimProperty.TypeReference.Type is not StringLiteralType { Name: { } userAssignedDiscrimKey })
+                {
+                    return configType;
+                }
+
+                // return the selected member type modified based on the user assigned type and with the discriminator property removed.
+                return discrimObjType.UnionMembersByKey[userAssignedDiscrimKey]
+                    .WithProperties(props => props
+                        .Where(p => !LanguageConstants.IdentifierComparer.Equals(p.Name, discrimObjType.DiscriminatorKey))
+                        .Select(p => defaultConfigAssignedPropertyNames.Contains(p.Name) ? p.WithoutFlags(TypePropertyFlags.Required) : p));
+            }
+
+            return configType switch
+            {
+                ObjectType asObjType => asObjType
+                    .WithModifiedProperties(p => defaultConfigAssignedPropertyNames.Contains(p.Name) ? p.WithoutFlags(TypePropertyFlags.Required) : p),
+                _ => configType
+            };
+        }
+
+        public static TypeSymbol? TryGetArmPrimitiveType(TypeSymbol type) => type switch
+        {
+            BooleanLiteralType or BooleanType => LanguageConstants.Bool,
+            IntegerLiteralType or IntegerType => LanguageConstants.Int,
+            StringLiteralType or StringType => LanguageConstants.String,
+            ObjectType or DiscriminatedObjectType => LanguageConstants.Object,
+            TupleType or ArrayType => LanguageConstants.Array,
+            UnionType when TryRemoveNullability(type) is { } nonNull => TryGetArmPrimitiveType(nonNull),
+            UnionType union when union.Members.Select(m => TryGetArmPrimitiveType(m.Type)).ToArray() is { } mTypes &&
+                !mTypes.Any(t => t is null) &&
+                mTypes.ToHashSet() is { } mUniqueTypes &&
+                mUniqueTypes.Count == 1 => mUniqueTypes.Single(),
+            _ => null,
+        };
     }
 }

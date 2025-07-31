@@ -75,6 +75,7 @@ namespace Bicep.Core
         public const string ExistingKeyword = "existing";
         public const string ImportKeyword = "import";
         public const string ExtensionKeyword = "extension";
+        public const string ExtensionConfigKeyword = "extensionConfig";
         public const string AssertKeyword = "assert";
         public const string WithKeyword = "with";
         public const string AsKeyword = "as";
@@ -209,6 +210,9 @@ namespace Bicep.Core
 
         public static readonly StringComparer ResourceTypeComparer = StringComparer.OrdinalIgnoreCase;
         public static readonly StringComparison ResourceTypeComparison = StringComparison.OrdinalIgnoreCase;
+
+        public static readonly StringComparer ExtensionNameComparer = StringComparer.Ordinal;
+        public static readonly StringComparison ExtensionNameComparison = StringComparison.Ordinal;
 
         public const string StringDelimiter = "'";
         public const string StringHoleOpen = "${";

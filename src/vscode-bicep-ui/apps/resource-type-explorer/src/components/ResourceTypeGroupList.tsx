@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { ResourceTypes } from "./App";
+
 import { List } from "@vscode-bicep-ui/components";
 import { styled } from "styled-components";
 import { ResourceTypeGroupListItem } from "./ResourceTypeGroupListItem";
-import type { ResourceTypes } from "./App";
 
 interface ResourceTypeListProps {
   group: string;

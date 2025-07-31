@@ -100,7 +100,7 @@ namespace Bicep.LanguageServer.Handlers
                         var moduleRelativePath = moduleSymbol.DeclaringModule.TryGetPath()?.TryGetLiteralValue();
                         var moduleFileUri = moduleRelativePath is not null
                             ? directoryUri.Resolve(moduleRelativePath)
-                            : (IOUri?)null;
+                            : null;
 
                         var isCollection = moduleSymbol.IsCollection;
                         var moduleSpan = moduleSymbol.DeclaringModule.Span;
@@ -109,13 +109,13 @@ namespace Bicep.LanguageServer.Handlers
 
                         var hasChildren = false;
 
-                        if (moduleFileUri.HasValue &&
+                        if (moduleFileUri is not null &&
                             moduleSymbol.TryGetSemanticModel().IsSuccess(out var moduleSemanticModel, out var _) &&
                             moduleSemanticModel is SemanticModel bicepModel &&
                             (bicepModel.Root.ResourceDeclarations.Any() || bicepModel.Root.ModuleDeclarations.Any()))
                         {
                             hasChildren = true;
-                            queue.Enqueue((bicepModel, moduleFileUri.Value, id));
+                            queue.Enqueue((bicepModel, moduleFileUri, id));
                         }
 
                         nodesBySymbol[symbol] = new BicepDeploymentGraphNode(id, "<module>", isCollection, range, hasChildren, moduleHasError, fileUri);

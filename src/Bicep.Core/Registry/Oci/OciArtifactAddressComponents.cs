@@ -7,7 +7,7 @@ using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.Registry.Oci
 {
-    public readonly struct OciArtifactAddressComponents : IOciArtifactAddressComponents
+    public class OciArtifactAddressComponents : IOciArtifactAddressComponents, IEquatable<OciArtifactAddressComponents>
     {
         public OciArtifactAddressComponents(string registry, string repository, string? tag, string? digest)
         {
@@ -52,20 +52,14 @@ namespace Bicep.Core.Registry.Oci
             ? $"{this.Registry}/{this.Repository}:{this.Tag}"
             : $"{this.Registry}/{this.Repository}@{this.Digest}";
 
+        public bool Equals(OciArtifactAddressComponents? other) =>
+            other is not null &&
+            OciArtifactReferenceFacts.RegistryComparer.Equals(this.Registry, other.Registry) &&
+            OciArtifactReferenceFacts.RepositoryComparer.Equals(this.Repository, other.Repository) &&
+            OciArtifactReferenceFacts.TagComparer.Equals(this.Tag, other.Tag) &&
+            OciArtifactReferenceFacts.DigestComparer.Equals(this.Digest, other.Digest);
 
-        public override bool Equals(object? obj)
-        {
-            if (obj is not OciArtifactAddressComponents other)
-            {
-                return false;
-            }
-
-            return
-                OciArtifactReferenceFacts.RegistryComparer.Equals(this.Registry, other.Registry) &&
-                OciArtifactReferenceFacts.RepositoryComparer.Equals(this.Repository, other.Repository) &&
-                OciArtifactReferenceFacts.TagComparer.Equals(this.Tag, other.Tag) &&
-                OciArtifactReferenceFacts.DigestComparer.Equals(this.Digest, other.Digest);
-        }
+        public override bool Equals(object? obj) => this.Equals(obj as OciArtifactAddressComponents);
 
         public override int GetHashCode()
         {

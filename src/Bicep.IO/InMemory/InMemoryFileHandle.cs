@@ -39,12 +39,29 @@ namespace Bicep.IO.InMemory
 
         public Stream OpenRead()
         {
-            var text = this.FileStore.ReadFile(this);
+            var text = this.FileStore.ReadFile(this).ToString();
 
             return new MemoryStream(Encoding.UTF8.GetBytes(text));
         }
 
-        public Stream OpenWrite() => new InMemoryFileStream(text => this.FileStore.WriteFile(this, text));
+        public Stream OpenAsyncRead() => this.OpenRead();
+
+        public Stream OpenWrite() => new InMemoryFileStream(data => this.FileStore.WriteFile(this, data));
+
+        public Stream OpenAsyncWrite() => this.OpenWrite();
+
+        public string ReadAllText() => this.FileStore.ReadFile(this).ToString();
+
+        public Task<string> ReadAllTextAsync() => Task.FromResult(this.ReadAllText());
+
+        public void WriteAllText(string text) => this.FileStore.WriteFile(this, text);
+
+        public Task WriteAllTextAsync(string text)
+        {
+            this.WriteAllText(text);
+
+            return Task.CompletedTask;
+        }
 
         public IFileLock? TryLock() => DummyFileLock.Instance;
 
@@ -60,9 +77,9 @@ namespace Bicep.IO.InMemory
 
         private class InMemoryFileStream : MemoryStream
         {
-            private readonly Action<string> onDisposing;
+            private readonly Action<BinaryData> onDisposing;
 
-            public InMemoryFileStream(Action<string> onDisposing)
+            public InMemoryFileStream(Action<BinaryData> onDisposing)
             {
                 this.onDisposing = onDisposing;
             }
@@ -71,7 +88,7 @@ namespace Bicep.IO.InMemory
             {
                 if (disposing)
                 {
-                    this.onDisposing(Encoding.UTF8.GetString(this.ToArray()));
+                    this.onDisposing(BinaryData.FromBytes(this.ToArray()));
                 }
 
                 base.Dispose(disposing);

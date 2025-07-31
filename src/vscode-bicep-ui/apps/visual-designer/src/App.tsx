@@ -1,27 +1,35 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { ComponentType, MouseEvent } from "react";
-import type { NodeKind } from "./features/graph/atoms";
+import type { ComponentType } from "react";
+import type { NodeKind } from "./features/graph-engine/atoms";
 
 import { PanZoomProvider } from "@vscode-bicep-ui/components";
 import { getDefaultStore, useSetAtom } from "jotai";
-import { useAtomCallback } from "jotai/utils";
-import { useCallback, useEffect } from "react";
-import { ModuleDeclaration } from "./features/declarations/components/ModuleDeclaration";
-import { ResourceDeclaration } from "./features/declarations/components/ResourceDeclaration";
+import { useEffect } from "react";
+import { styled } from "styled-components";
+import { GraphControlBar } from "./features/design-view/components/GraphControlBar";
+import { ModuleDeclaration } from "./features/design-view/components/ModuleDeclaration";
+import { ResourceDeclaration } from "./features/design-view/components/ResourceDeclaration";
 import {
+  addAtomicNodeAtom,
   addCompoundNodeAtom,
   addEdgeAtom,
-  addAtomicNodeAtom,
   edgesAtom,
   nodeConfigAtom,
   nodesAtom,
-} from "./features/graph/atoms";
-import { Canvas, Graph } from "./features/graph/components";
+} from "./features/graph-engine/atoms";
+import { Canvas, Graph } from "./features/graph-engine/components";
 
 const store = getDefaultStore();
 const nodeConfig = store.get(nodeConfigAtom);
+
+const $ControlBarContainer = styled.div`
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 100;
+`;
 
 store.set(nodeConfigAtom, {
   ...nodeConfig,
@@ -40,19 +48,6 @@ export function App() {
   const addCompoundNode = useSetAtom(addCompoundNodeAtom);
   const addEdge = useSetAtom(addEdgeAtom);
 
-  const layout = useAtomCallback(
-    useCallback((get, set, event: MouseEvent<HTMLButtonElement>) => {
-      event.stopPropagation();
-
-      const nodes = get(nodesAtom);
-      for (const node of Object.values(nodes)) {
-        if (node.kind === "atomic") {
-          set(node.originAtom, { ...get(node.originAtom) });
-        }
-      }
-    }, []),
-  );
-
   useEffect(() => {
     addAtomicNode(
       "A",
@@ -62,7 +57,10 @@ export function App() {
     addAtomicNode("B", { x: 500, y: 200 }, { symbolicName: "bar", resourceType: "Foo" });
     addAtomicNode("C", { x: 800, y: 500 }, { symbolicName: "someRandomStorage", resourceType: "Foo" });
     addAtomicNode("D", { x: 1200, y: 700 }, { symbolicName: "Tricep", resourceType: "Foo" });
-    addCompoundNode("E", ["A", "C"], { symbolicName: "myMod", path: "modules/foooooooooooooooooooooooooooooooooooooobar.bicep" });
+    addCompoundNode("E", ["A", "C"], {
+      symbolicName: "myMod",
+      path: "modules/foooooooooooooooooooooooooooooooooooooobar.bicep",
+    });
 
     addEdge("A->B", "A", "B");
     addEdge("E->D", "E", "D");
@@ -76,11 +74,11 @@ export function App() {
 
   return (
     <PanZoomProvider>
+      <$ControlBarContainer>
+        <GraphControlBar />
+      </$ControlBarContainer>
       <Canvas>
         <Graph />
-        <button style={{ position: "absolute", zIndex: 100, left: 10, top: 10 }} onClick={layout}>
-          Layout
-        </button>
       </Canvas>
     </PanZoomProvider>
   );

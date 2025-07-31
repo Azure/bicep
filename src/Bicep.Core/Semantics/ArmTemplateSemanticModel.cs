@@ -11,7 +11,6 @@ using Azure.Deployments.Templates.Exceptions;
 using Bicep.Core.ArmHelpers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
-using Bicep.Core.Features;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
@@ -129,8 +128,6 @@ namespace Bicep.Core.Semantics
 
         public ImmutableArray<OutputMetadata> Outputs => this.outputsLazy.Value;
 
-        public IFeatureProvider Features => this.SourceFile.FeatureProvider;
-
         public bool HasErrors()
         {
             if (this.SourceFile.HasErrors())
@@ -228,7 +225,7 @@ namespace Bicep.Core.Semantics
 
         private ImmutableSortedDictionary<string, ExtensionMetadata> FindExtensions()
         {
-            if (this.SourceFile.FeatureProvider is not { ModuleExtensionConfigsEnabled: true } || this.SourceFile.Template?.Extensions is null)
+            if (this.SourceFile.Template?.Extensions is null)
             {
                 return ImmutableSortedDictionary<string, ExtensionMetadata>.Empty;
             }
@@ -239,7 +236,7 @@ namespace Bicep.Core.Semantics
                     ext =>
                     {
                         // TODO(kylealbert): Get namespace type.
-                        return new ExtensionMetadata(ext.Key, ext.Value.Name.Value, ext.Value.Version.Value, null);
+                        return new ExtensionMetadata(ext.Key, ext.Value.Name.Value, ext.Value.Version.Value, null, null);
                     });
         }
 

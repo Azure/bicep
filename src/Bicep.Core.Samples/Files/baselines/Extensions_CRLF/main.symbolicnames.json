@@ -10,7 +10,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9917811382712767337"
+      "templateHash": "17678764987383836251"
     }
   },
   "parameters": {
@@ -24,22 +24,17 @@
       "type": "bool"
     }
   },
+  "variables": {
+    "strVar1": "strVar1Value"
+  },
   "extensions": {
     "az": {
       "name": "AzureResourceManager",
-      "version": "0.2.771"
+      "version": "0.2.789"
     },
     "k8s": {
       "name": "Kubernetes",
-      "version": "1.0.0",
-      "config": {
-        "kubeConfig": {
-          "defaultValue": "DELETE"
-        },
-        "namespace": {
-          "defaultValue": "DELETE"
-        }
-      }
+      "version": "1.0.0"
     }
   },
   "resources": {
@@ -75,7 +70,7 @@
     "moduleWithExtsWithAliases": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-03-01",
-      "name": "moduleWithExtsWithAliases",
+      "name": "[format('moduleWithExtsWithAliases-{0}', uniqueString('moduleWithExtsWithAliases', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -84,10 +79,10 @@
         "extensionConfigs": {
           "k8s": {
             "kubeConfig": {
-              "value": "kubeConfig2FromModule"
+              "value": "kubeConfig2"
             },
             "namespace": {
-              "value": "ns2FromModule"
+              "value": "ns2"
             }
           }
         },
@@ -103,21 +98,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "9956339962035221962"
+              "templateHash": "15850125793643788204"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
-              "version": "1.0.0",
-              "config": {
-                "kubeConfig": {
-                  "defaultValue": "DELETE"
-                },
-                "namespace": {
-                  "defaultValue": "DELETE"
-                }
-              }
+              "version": "1.0.0"
             }
           },
           "resources": {}
@@ -127,7 +114,7 @@
     "moduleWithExtsWithoutAliases": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-03-01",
-      "name": "moduleWithExtsWithoutAliases",
+      "name": "[format('moduleWithExtsWithoutAliases-{0}', uniqueString('moduleWithExtsWithoutAliases', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -136,10 +123,7 @@
         "extensionConfigs": {
           "kubernetes": {
             "kubeConfig": {
-              "value": "kubeConfig2FromModule"
-            },
-            "namespace": {
-              "value": "ns2FromModule"
+              "value": "kubeConfig2"
             }
           }
         },
@@ -155,7 +139,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "14917334107033963301"
+              "templateHash": "12485839995628084055"
             }
           },
           "extensions": {
@@ -163,11 +147,8 @@
               "name": "Kubernetes",
               "version": "1.0.0",
               "config": {
-                "kubeConfig": {
-                  "defaultValue": "DELETE"
-                },
                 "namespace": {
-                  "defaultValue": "DELETE"
+                  "defaultValue": "nsInsideModule"
                 }
               }
             }
@@ -179,7 +160,7 @@
     "moduleExtConfigsFromParams": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-03-01",
-      "name": "moduleExtConfigsFromParams",
+      "name": "[format('moduleExtConfigsFromParams-{0}', uniqueString('moduleExtConfigsFromParams', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -203,21 +184,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "9956339962035221962"
+              "templateHash": "15850125793643788204"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
-              "version": "1.0.0",
-              "config": {
-                "kubeConfig": {
-                  "defaultValue": "DELETE"
-                },
-                "namespace": {
-                  "defaultValue": "DELETE"
-                }
-              }
+              "version": "1.0.0"
             }
           },
           "resources": {}
@@ -227,7 +200,7 @@
     "moduleExtConfigFromKeyVaultReference": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-03-01",
-      "name": "moduleExtConfigKeyVaultReference",
+      "name": "[format('moduleExtConfigFromKeyVaultReference-{0}', uniqueString('moduleExtConfigFromKeyVaultReference', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -244,7 +217,7 @@
               }
             },
             "namespace": {
-              "value": "default"
+              "value": "[variables('strVar1')]"
             }
           }
         },
@@ -260,21 +233,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "9956339962035221962"
+              "templateHash": "15850125793643788204"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
-              "version": "1.0.0",
-              "config": {
-                "kubeConfig": {
-                  "defaultValue": "DELETE"
-                },
-                "namespace": {
-                  "defaultValue": "DELETE"
-                }
-              }
+              "version": "1.0.0"
             }
           },
           "resources": {}
@@ -284,7 +249,7 @@
     "moduleExtConfigFromReferences": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-03-01",
-      "name": "moduleExtConfigFromReferences",
+      "name": "[format('moduleExtConfigFromReferences-{0}', uniqueString('moduleExtConfigFromReferences', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -312,21 +277,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "9956339962035221962"
+              "templateHash": "15850125793643788204"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
-              "version": "1.0.0",
-              "config": {
-                "kubeConfig": {
-                  "defaultValue": "DELETE"
-                },
-                "namespace": {
-                  "defaultValue": "DELETE"
-                }
-              }
+              "version": "1.0.0"
             }
           },
           "resources": {}
@@ -340,7 +297,7 @@
     "moduleWithExtsUsingFullInheritance": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-03-01",
-      "name": "moduleWithExtsFullInheritance",
+      "name": "[format('moduleWithExtsUsingFullInheritance-{0}', uniqueString('moduleWithExtsUsingFullInheritance', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -361,21 +318,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "9956339962035221962"
+              "templateHash": "15850125793643788204"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
-              "version": "1.0.0",
-              "config": {
-                "kubeConfig": {
-                  "defaultValue": "DELETE"
-                },
-                "namespace": {
-                  "defaultValue": "DELETE"
-                }
-              }
+              "version": "1.0.0"
             }
           },
           "resources": {}
@@ -385,7 +334,7 @@
     "moduleWithExtsUsingPiecemealInheritance": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-03-01",
-      "name": "moduleWithExtsPiecemealInheritance",
+      "name": "[format('moduleWithExtsUsingPiecemealInheritance-{0}', uniqueString('moduleWithExtsUsingPiecemealInheritance', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -409,21 +358,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "9956339962035221962"
+              "templateHash": "15850125793643788204"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
-              "version": "1.0.0",
-              "config": {
-                "kubeConfig": {
-                  "defaultValue": "DELETE"
-                },
-                "namespace": {
-                  "defaultValue": "DELETE"
-                }
-              }
+              "version": "1.0.0"
             }
           },
           "resources": {}
@@ -461,21 +402,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "9956339962035221962"
+              "templateHash": "15850125793643788204"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
-              "version": "1.0.0",
-              "config": {
-                "kubeConfig": {
-                  "defaultValue": "DELETE"
-                },
-                "namespace": {
-                  "defaultValue": "DELETE"
-                }
-              }
+              "version": "1.0.0"
             }
           },
           "resources": {}
@@ -485,7 +418,7 @@
     "moduleExtConfigsConditionalMixed": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-03-01",
-      "name": "moduleExtConfigsConditionalMixedValueAndInheritance",
+      "name": "[format('moduleExtConfigsConditionalMixed-{0}', uniqueString('moduleExtConfigsConditionalMixed', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -509,21 +442,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "9956339962035221962"
+              "templateHash": "15850125793643788204"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
-              "version": "1.0.0",
-              "config": {
-                "kubeConfig": {
-                  "defaultValue": "DELETE"
-                },
-                "namespace": {
-                  "defaultValue": "DELETE"
-                }
-              }
+              "version": "1.0.0"
             }
           },
           "resources": {}

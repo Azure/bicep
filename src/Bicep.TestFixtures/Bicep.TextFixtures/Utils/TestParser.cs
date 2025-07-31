@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Features;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 
@@ -31,25 +32,25 @@ namespace Bicep.TextFixtures.Utils
             return program;
         }
 
-        public static ProgramSyntax ParamsParse(string text)
+        public static ProgramSyntax ParamsParse(string text, IFeatureProvider featureProvider)
         {
-            var parser = new ParamsParser(text);
+            var parser = new ParamsParser(text, featureProvider);
 
             return parser.Program();
         }
 
-        public static ProgramSyntax ParamsParse(string text, out IEnumerable<IDiagnostic> syntaxErrors)
+        public static ProgramSyntax ParamsParse(string text, IFeatureProvider featureProvider, out IEnumerable<IDiagnostic> syntaxErrors)
         {
-            var program = ParamsParse(text, out var lexingErrorLookup, out var parsingErrorLookup);
+            var program = ParamsParse(text, featureProvider, out var lexingErrorLookup, out var parsingErrorLookup);
 
             syntaxErrors = lexingErrorLookup.Concat(parsingErrorLookup);
 
             return program;
         }
 
-        public static ProgramSyntax ParamsParse(string text, out IDiagnosticLookup lexingErrorLookup, out IDiagnosticLookup parsingErrorLookup)
+        public static ProgramSyntax ParamsParse(string text, IFeatureProvider featureProvider, out IDiagnosticLookup lexingErrorLookup, out IDiagnosticLookup parsingErrorLookup)
         {
-            var parser = new ParamsParser(text);
+            var parser = new ParamsParser(text, featureProvider);
             var program = parser.Program();
 
             lexingErrorLookup = parser.LexingErrorLookup;
