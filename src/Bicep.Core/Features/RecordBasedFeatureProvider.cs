@@ -26,5 +26,6 @@ namespace Bicep.Core.Features
         public bool ModuleExtensionConfigsEnabled => features.ModuleExtensionConfigs;
         public bool DesiredStateConfigurationEnabled => features.DesiredStateConfiguration;
         public bool ModuleIdentityEnabled => features.ModuleIdentity;
+        public bool ThisExistsFunctionEnabled => features.ThisExistsFunction;
     }
 }

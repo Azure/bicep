@@ -7,6 +7,7 @@ using Azure.Bicep.Types.Az;
 using Azure.Deployments.Core.Definitions.Identifiers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.Intermediate;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
@@ -335,6 +336,38 @@ namespace Bicep.Core.Semantics.Namespaces
                 ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
         }
 
+        private static FunctionResult GetThisReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        {
+            // Check if we're within a resource property context
+            if (!IsWithinResourcePropertyContext(model.Binder, functionCall))
+            {
+                diagnostics.Write(DiagnosticBuilder.ForPosition(functionCall).ThisFunctionOnlyAllowedInResourceProperties());
+                return new(ErrorType.Create(DiagnosticBuilder.ForPosition(functionCall).ThisFunctionOnlyAllowedInResourceProperties()));
+            }
+
+            return new(GetThisReturnType(), new ThisFunctionExpression(functionCall));
+        }
+
+        private static bool IsWithinResourcePropertyContext(IBinder binder, SyntaxBase syntax)
+        {
+            // Walk up the syntax tree to find if we're within a resource declaration's body
+            var resourceDeclaration = binder.GetNearestAncestor<ResourceDeclarationSyntax>(syntax);
+            if (resourceDeclaration == null)
+            {
+                return false;
+            }
+
+            // Check if we're within the resource body (not in the resource identifier or type)
+            var resourceBody = resourceDeclaration.TryGetBody();
+            if (resourceBody == null)
+            {
+                return false;
+            }
+
+            // Check if the function call is a descendant of the resource body
+            return binder.IsDescendant(syntax, resourceBody);
+        }
+
         private static IEnumerable<NamespaceValue<FunctionOverload>> GetAzOverloads()
         {
             static IEnumerable<FunctionOverload> GetParamsFilePermittedOverloads()
@@ -576,13 +609,38 @@ namespace Bicep.Core.Semantics.Namespaces
             }
         }
 
-        public static NamespaceType Create(string? aliasName, ResourceScope scope, IResourceTypeProvider resourceTypeProvider, BicepSourceFileKind sourceFileKind)
+        private static ObjectType GetThisReturnType()
         {
+
+            IEnumerable<NamedTypeProperty> properties = new[]
+            {
+                new NamedTypeProperty("exists", LanguageConstants.Bool),
+            };
+
+            return new ObjectType("this", TypeSymbolValidationFlags.Default, properties, null);
+        }
+
+        public static NamespaceType Create(string? aliasName, ResourceScope scope, IResourceTypeProvider resourceTypeProvider, BicepSourceFileKind sourceFileKind, IFeatureProvider? featureProvider = null)
+        {
+            var overloads = Overloads.Where(x => x.IsVisible(scope, sourceFileKind)).Select(x => x.Value);
+            
+            // Conditionally add the this() function if the feature is enabled
+            if (featureProvider?.ThisExistsFunctionEnabled == true)
+            {
+                var thisFunction = new FunctionOverloadBuilder("this")
+                    .WithReturnResultBuilder(GetThisReturnResult, GetThisReturnType())
+                    .WithGenericDescription("Returns an object representing the current resource with property exists().")
+                    .WithFlags(FunctionFlags.RequiresInlining)
+                    .Build();
+                
+                overloads = overloads.Concat([thisFunction]);
+            }
+
             return new NamespaceType(
                 aliasName ?? BuiltInName,
                 Settings,
                 ImmutableArray<NamedTypeProperty>.Empty,
-                Overloads.Where(x => x.IsVisible(scope, sourceFileKind)).Select(x => x.Value),
+                overloads,
                 ImmutableArray<BannedFunction>.Empty,
                 ImmutableArray<Decorator>.Empty,
                 resourceTypeProvider);

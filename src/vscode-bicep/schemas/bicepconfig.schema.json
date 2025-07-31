@@ -851,8 +851,8 @@
           "description": "Allows to enable wait and retry feature on resource type. See https://aka.ms/bicep/experimental-features#waitandretry"
         },
         "resourceInfoCodegen": {
-            "type": "boolean",
-            "description": "Enables the 'resourceInfo' function for simplified code generation. See https://aka.ms/bicep/experimental-features#resourceinfocodegen"
+          "type": "boolean",
+          "description": "Enables the 'resourceInfo' function for simplified code generation. See https://aka.ms/bicep/experimental-features#resourceinfocodegen"
         },
         "desiredStateConfiguration": {
           "type": "boolean",
@@ -865,6 +865,10 @@
         "moduleIdentity": {
           "type": "boolean",
           "description": "Allows you to add an identity property to a module. See https://aka.ms/bicep/experimental-features#moduleidentity"
+        },
+        "thisExistsFunction": {
+          "type": "boolean",
+          "description": "Allows you to add an identity property to a module. See https://aka.ms/bicep/experimental-features#thisexistsfunction"
         }
       },
       "additionalProperties": false

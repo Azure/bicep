@@ -89,7 +89,7 @@ namespace Bicep.Core.UnitTests
         public static IModuleDispatcher CreateModuleDispatcher(IServiceProvider services) => new ModuleDispatcher(CreateRegistryProvider(services));
 
         public static readonly NamespaceResolver DefaultNamespaceResolver = NamespaceResolver.Create([
-            new("az", AzNamespaceType.Create("az", ResourceScope.ResourceGroup, AzNamespaceType.BuiltInTypeProvider, BicepSourceFileKind.BicepFile), null),
+            new("az", AzNamespaceType.Create("az", ResourceScope.ResourceGroup, AzNamespaceType.BuiltInTypeProvider, BicepSourceFileKind.BicepFile, Features), null),
             new("sys", SystemNamespaceType.Create("sys", Features, BicepSourceFileKind.BicepFile), null),
         ]);
 

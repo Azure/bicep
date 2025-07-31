@@ -108,7 +108,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "desiredStateConfiguration": false,
           "onlyIfNotExists": false,
-          "moduleIdentity": false
+          "moduleIdentity": false,
+          "thisExistsFunction": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -190,7 +191,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "moduleExtensionConfigs": false,
           "desiredStateConfiguration": false,
           "onlyIfNotExists": false,
-          "moduleIdentity": false
+          "moduleIdentity": false,
+          "thisExistsFunction": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -294,7 +296,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "moduleExtensionConfigs": false,
           "desiredStateConfiguration": false,
           "onlyIfNotExists": false,
-          "moduleIdentity": false
+          "moduleIdentity": false,
+          "thisExistsFunction": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -387,7 +390,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 ModuleExtensionConfigs: false,
                 DesiredStateConfiguration: false,
                 OnlyIfNotExists: false,
-                ModuleIdentity: false);
+                ModuleIdentity: false,
+                ThisExistsFunction: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -470,7 +474,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 "moduleExtensionConfigs": false,
                 "desiredStateConfiguration": false,
                 "onlyIfNotExists": false,
-                "moduleIdentity": false
+                "moduleIdentity": false,
+                "thisExistsFunction": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -837,7 +842,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "moduleExtensionConfigs": false,
           "desiredStateConfiguration": false,
           "onlyIfNotExists": false,
-          "moduleIdentity": false
+          "moduleIdentity": false,
+          "thisExistsFunction": false
         },
         "formatting": {
           "indentKind": "Space",

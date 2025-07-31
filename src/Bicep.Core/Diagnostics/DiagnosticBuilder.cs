@@ -1941,6 +1941,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic SecureOutputsOnlyAllowedOnDirectModuleReference() => CoreError(
                 "BCP426",
                 "Secure outputs may only be accessed via a direct module reference. Only non-sensitive outputs are supported when dereferencing a module indirectly via a variable or lambda.");
+
+            public Diagnostic ThisFunctionOnlyAllowedInResourceProperties() => CoreError(
+                "BCP427",
+                "The \"this()\" function can only be used within resource property expressions.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
