@@ -11,8 +11,6 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <!-- Bubble up all unused usings https://github.com/dotnet/roslyn/issues/41640#issuecomment-985780130 -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-    <RestoreLockedMode Condition="'$(CI)' == 'true'">true</RestoreLockedMode>
     <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <!-- disable nuget packing on all projects by default -->
