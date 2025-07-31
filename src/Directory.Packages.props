@@ -11,7 +11,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.45" />
-    <!-- <PackageVersion Include="Azure.Bicep.MSBuild" Version="*-*" /> -->
     <PackageVersion Include="Azure.Bicep.Types" Version="0.5.110" />
     <PackageVersion Include="Azure.Bicep.Types.Az" Version="0.2.789" />
     <PackageVersion Include="Azure.Bicep.Types.K8s" Version="0.1.644" />
