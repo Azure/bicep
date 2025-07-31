@@ -1,0 +1,6 @@
+<!--
+  This project prevents the vs-bicep solution from inheriting our repo build settings.
+  This is necessary because the solution's feed configuration is incompatible with Central Package Management.
+-->
+<Project>
+</Project>

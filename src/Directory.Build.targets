@@ -55,7 +55,7 @@
       projects that conditionally depend on this package must always reference it in order for the lock files to be predictable
       the package is harmless until the target it provides is executed via AfterTargets or BeforeTargets.
     -->
-    <PackageReference Include="Azure.Deployments.Internal.GenerateNotice" Version="$(GenerateNoticePackageVersion)" PrivateAssets="All" Condition="'$(EnableNuget)' == 'true' or '$(EnableNoticeInPublishOutput)' == 'true' or '$(AddNoticeAsEmbeddedResource)' == 'true'" />
+    <PackageReference Include="Azure.Deployments.Internal.GenerateNotice" PrivateAssets="All" Condition="'$(EnableNuget)' == 'true' or '$(EnableNoticeInPublishOutput)' == 'true' or '$(AddNoticeAsEmbeddedResource)' == 'true'" />
   </ItemGroup>
   <PropertyGroup>
     <!-- configure the preamble for the generated notice file - if file not generated, this is harmless -->

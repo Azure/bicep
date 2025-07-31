@@ -39,7 +39,7 @@ resource roleDefinition 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
     roleDefinitionId: roleDefinitionId
     principalId: identity.properties.principalId
     scope: resourceGroup().id
-//@[4:9) [BCP073 (Warning)] The property "scope" is read-only. Expressions cannot be assigned to read-only properties. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP073) |scope|
+//@[4:009) [BCP073 (Warning)] The property "scope" is read-only. Expressions cannot be assigned to read-only properties. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP073) |scope|
     principalType: 'ServicePrincipal'
   }
 }
@@ -58,6 +58,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 }
 
 resource script 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
+//@[0:971) [use-recent-az-powershell-version (Warning)] Deployment script is using AzPowerShell version '3.0' which is below the recommended minimum version '11.0'. Consider upgrading to version 11.0 or higher to avoid EOL Ubuntu 20.04 LTS. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-recent-az-powershell-version) |resource script 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {\n  name: scriptName\n  location: location\n  kind: 'AzurePowerShell'\n  identity: {\n    type: 'userAssigned'\n    userAssignedIdentities: {\n      '${identity.id}': {}\n    }\n  }\n  properties: {\n    forceUpdateTag: '1'\n    azPowerShellVersion: '3.0'\n    arguments: ' -storageAccountName ${storageAccountName} -fileShareName ${fileShareName} -resourceGroupName ${resourceGroup().name}'\n    scriptContent: '\n                param(\n                    [string] $storageAccountName,\n                    [string] $fileShareName,\n                    [string] $resourceGroupName\n                )\n                Get-AzStorageAccount -StorageAccountName $storageAccountName -ResourceGroupName $resourceGroupName | New-AzStorageShare -Name $fileShareName\n                '\n    timeout: 'PT5M'\n    cleanupPreference: 'OnSuccess'\n    retentionInterval: 'P1D'\n  }\n  dependsOn: [\n    storageAccount\n  ]\n}|
   name: scriptName
   location: location
   kind: 'AzurePowerShell'

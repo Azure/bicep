@@ -253,26 +253,6 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
         "p3")]
     [DataRow(
         @"
-        import { p1, p2, p|3 } from './mod.bicep'
-        var used1 = p1
-        var used2 = p2
-        ",
-        @"
-        @export()
-        var p1 = 'prefix'
-        @export()
-        var p2 = 'eastus'
-        @export()
-        var p3 = 'param'
-        ",
-        @"
-        import { p1, p2 } from './mod.bicep'
-        var used1 = p1
-        var used2 = p2
-        ",
-        "p3")]
-    [DataRow(
-        @"
         import { p1, p|2, p3 } from './mod.bicep'
         var used1 = p1
         var used2 = p3

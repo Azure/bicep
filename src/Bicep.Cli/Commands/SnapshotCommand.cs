@@ -62,7 +62,7 @@ public class SnapshotCommand(
             }
         }
 
-        var outputUri =  inputUri.WithExtension(".snapshot.json");
+        var outputUri = inputUri.WithExtension(".snapshot.json");
         switch (snapshotMode)
         {
             case SnapshotArguments.SnapshotMode.Overwrite:

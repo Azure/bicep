@@ -1,7 +1,7 @@
 // $1 = script
 // $2 = 'inlinePS'
 // $3 = location
-// $4 = '10.0'
+// $4 = '11.0'
 // $5 = 'Write-Output "Hello world"'
 // $6 = 'PT1H'
 
@@ -12,7 +12,7 @@ resource script 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
   location: location
   kind: 'AzurePowerShell'
   properties: {
-    azPowerShellVersion: '10.0'
+    azPowerShellVersion: '11.0'
     scriptContent: 'Write-Output "Hello world"'
     retentionInterval: 'PT1H'
   }

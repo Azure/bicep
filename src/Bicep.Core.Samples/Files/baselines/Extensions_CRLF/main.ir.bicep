@@ -1,9 +1,73 @@
 // BEGIN: Parameters
-//@[000:3483) ProgramExpression
+//@[000:3207) ProgramExpression
+//@[000:0000) | | └─ObjectPropertyExpression [UNPARENTED]
+//@[000:0000) | |   ├─StringLiteralExpression { Value = name } [UNPARENTED]
+//@[000:0000) | |   └─FunctionCallExpression { Name = format } [UNPARENTED]
+//@[000:0000) | |     ├─StringLiteralExpression { Value = moduleWithExtsWithAliases-{0} } [UNPARENTED]
+//@[000:0000) | |     └─FunctionCallExpression { Name = uniqueString } [UNPARENTED]
+//@[000:0000) | |       ├─StringLiteralExpression { Value = moduleWithExtsWithAliases } [UNPARENTED]
+//@[000:0000) | |       └─PropertyAccessExpression { PropertyName = name } [UNPARENTED]
+//@[000:0000) | |         └─FunctionCallExpression { Name = deployment } [UNPARENTED]
+//@[000:0000) | | └─ObjectPropertyExpression [UNPARENTED]
+//@[000:0000) | |   ├─StringLiteralExpression { Value = name } [UNPARENTED]
+//@[000:0000) | |   └─FunctionCallExpression { Name = format } [UNPARENTED]
+//@[000:0000) | |     ├─StringLiteralExpression { Value = moduleWithExtsWithoutAliases-{0} } [UNPARENTED]
+//@[000:0000) | |     └─FunctionCallExpression { Name = uniqueString } [UNPARENTED]
+//@[000:0000) | |       ├─StringLiteralExpression { Value = moduleWithExtsWithoutAliases } [UNPARENTED]
+//@[000:0000) | |       └─PropertyAccessExpression { PropertyName = name } [UNPARENTED]
+//@[000:0000) | |         └─FunctionCallExpression { Name = deployment } [UNPARENTED]
+//@[000:0000) | | └─ObjectPropertyExpression [UNPARENTED]
+//@[000:0000) | |   ├─StringLiteralExpression { Value = name } [UNPARENTED]
+//@[000:0000) | |   └─FunctionCallExpression { Name = format } [UNPARENTED]
+//@[000:0000) | |     ├─StringLiteralExpression { Value = moduleExtConfigsFromParams-{0} } [UNPARENTED]
+//@[000:0000) | |     └─FunctionCallExpression { Name = uniqueString } [UNPARENTED]
+//@[000:0000) | |       ├─StringLiteralExpression { Value = moduleExtConfigsFromParams } [UNPARENTED]
+//@[000:0000) | |       └─PropertyAccessExpression { PropertyName = name } [UNPARENTED]
+//@[000:0000) | |         └─FunctionCallExpression { Name = deployment } [UNPARENTED]
+//@[000:0000) | | └─ObjectPropertyExpression [UNPARENTED]
+//@[000:0000) | |   ├─StringLiteralExpression { Value = name } [UNPARENTED]
+//@[000:0000) | |   └─FunctionCallExpression { Name = format } [UNPARENTED]
+//@[000:0000) | |     ├─StringLiteralExpression { Value = moduleExtConfigFromKeyVaultReference-{0} } [UNPARENTED]
+//@[000:0000) | |     └─FunctionCallExpression { Name = uniqueString } [UNPARENTED]
+//@[000:0000) | |       ├─StringLiteralExpression { Value = moduleExtConfigFromKeyVaultReference } [UNPARENTED]
+//@[000:0000) | |       └─PropertyAccessExpression { PropertyName = name } [UNPARENTED]
+//@[000:0000) | |         └─FunctionCallExpression { Name = deployment } [UNPARENTED]
+//@[000:0000) | | └─ObjectPropertyExpression [UNPARENTED]
+//@[000:0000) | |   ├─StringLiteralExpression { Value = name } [UNPARENTED]
+//@[000:0000) | |   └─FunctionCallExpression { Name = format } [UNPARENTED]
+//@[000:0000) | |     ├─StringLiteralExpression { Value = moduleExtConfigFromReferences-{0} } [UNPARENTED]
+//@[000:0000) | |     └─FunctionCallExpression { Name = uniqueString } [UNPARENTED]
+//@[000:0000) | |       ├─StringLiteralExpression { Value = moduleExtConfigFromReferences } [UNPARENTED]
+//@[000:0000) | |       └─PropertyAccessExpression { PropertyName = name } [UNPARENTED]
+//@[000:0000) | |         └─FunctionCallExpression { Name = deployment } [UNPARENTED]
 //@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
 //@[000:0000) | | └─ResourceReferenceExpression [UNPARENTED]
 //@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
 //@[000:0000) | | └─ResourceReferenceExpression [UNPARENTED]
+//@[000:0000) | | └─ObjectPropertyExpression [UNPARENTED]
+//@[000:0000) | |   ├─StringLiteralExpression { Value = name } [UNPARENTED]
+//@[000:0000) | |   └─FunctionCallExpression { Name = format } [UNPARENTED]
+//@[000:0000) | |     ├─StringLiteralExpression { Value = moduleWithExtsUsingFullInheritance-{0} } [UNPARENTED]
+//@[000:0000) | |     └─FunctionCallExpression { Name = uniqueString } [UNPARENTED]
+//@[000:0000) | |       ├─StringLiteralExpression { Value = moduleWithExtsUsingFullInheritance } [UNPARENTED]
+//@[000:0000) | |       └─PropertyAccessExpression { PropertyName = name } [UNPARENTED]
+//@[000:0000) | |         └─FunctionCallExpression { Name = deployment } [UNPARENTED]
+//@[000:0000) | | └─ObjectPropertyExpression [UNPARENTED]
+//@[000:0000) | |   ├─StringLiteralExpression { Value = name } [UNPARENTED]
+//@[000:0000) | |   └─FunctionCallExpression { Name = format } [UNPARENTED]
+//@[000:0000) | |     ├─StringLiteralExpression { Value = moduleWithExtsUsingPiecemealInheritance-{0} } [UNPARENTED]
+//@[000:0000) | |     └─FunctionCallExpression { Name = uniqueString } [UNPARENTED]
+//@[000:0000) | |       ├─StringLiteralExpression { Value = moduleWithExtsUsingPiecemealInheritance } [UNPARENTED]
+//@[000:0000) | |       └─PropertyAccessExpression { PropertyName = name } [UNPARENTED]
+//@[000:0000) | |         └─FunctionCallExpression { Name = deployment } [UNPARENTED]
+//@[000:0000)   | └─ObjectPropertyExpression [UNPARENTED]
+//@[000:0000)   |   ├─StringLiteralExpression { Value = name } [UNPARENTED]
+//@[000:0000)   |   └─FunctionCallExpression { Name = format } [UNPARENTED]
+//@[000:0000)   |     ├─StringLiteralExpression { Value = moduleExtConfigsConditionalMixed-{0} } [UNPARENTED]
+//@[000:0000)   |     └─FunctionCallExpression { Name = uniqueString } [UNPARENTED]
+//@[000:0000)   |       ├─StringLiteralExpression { Value = moduleExtConfigsConditionalMixed } [UNPARENTED]
+//@[000:0000)   |       └─PropertyAccessExpression { PropertyName = name } [UNPARENTED]
+//@[000:0000)   |         └─FunctionCallExpression { Name = deployment } [UNPARENTED]
 
 param strParam1 string
 //@[000:0022) ├─DeclaredParameterExpression { Name = strParam1 }
@@ -20,6 +84,14 @@ param boolParam1 bool
 //@[017:0021) | └─AmbientTypeReferenceExpression { Name = bool }
 
 // END: Parameters
+
+// BEGIN: Variables
+
+var strVar1 = 'strVar1Value'
+//@[000:0028) ├─DeclaredVariableExpression { Name = strVar1 }
+//@[014:0028) | └─StringLiteralExpression { Value = strVar1Value }
+
+// END: Variables
 
 // BEGIN: Extension declarations
 
@@ -77,12 +149,8 @@ resource aks 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
 // BEGIN: Extension configs for modules
 
 module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[000:0229) ├─DeclaredModuleExpression
-//@[084:0229) | ├─ObjectExpression
-  name: 'moduleWithExtsWithAliases'
-//@[002:0035) | | └─ObjectPropertyExpression
-//@[002:0006) | |   ├─StringLiteralExpression { Value = name }
-//@[008:0035) | |   └─StringLiteralExpression { Value = moduleWithExtsWithAliases }
+//@[000:0192) ├─DeclaredModuleExpression
+//@[084:0192) | ├─ObjectExpression
   extensionConfigs: {
 //@[020:0102) | └─ObjectExpression
     k8s: {
@@ -102,12 +170,8 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
 }
 
 module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias.bicep' = {
-//@[000:0221) ├─DeclaredModuleExpression
-//@[090:0221) | ├─ObjectExpression
-  name: 'moduleWithExtsWithoutAliases'
-//@[002:0038) | | └─ObjectPropertyExpression
-//@[002:0006) | |   ├─StringLiteralExpression { Value = name }
-//@[008:0038) | |   └─StringLiteralExpression { Value = moduleWithExtsWithoutAliases }
+//@[000:0181) ├─DeclaredModuleExpression
+//@[090:0181) | ├─ObjectExpression
   extensionConfigs: {
 //@[020:0085) | └─ObjectExpression
     kubernetes: {
@@ -123,12 +187,8 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
 }
 
 module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[000:0289) ├─DeclaredModuleExpression
-//@[085:0289) | ├─ObjectExpression
-  name: 'moduleExtConfigsFromParams'
-//@[002:0036) | | └─ObjectPropertyExpression
-//@[002:0006) | |   ├─StringLiteralExpression { Value = name }
-//@[008:0036) | |   └─StringLiteralExpression { Value = moduleExtConfigsFromParams }
+//@[000:0251) ├─DeclaredModuleExpression
+//@[085:0251) | ├─ObjectExpression
   extensionConfigs: {
 //@[020:0160) | └─ObjectExpression
     k8s: {
@@ -154,39 +214,31 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
 }
 
 module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[000:0267) ├─DeclaredModuleExpression
-//@[095:0267) | ├─ObjectExpression
-  name: 'moduleExtConfigKeyVaultReference'
-//@[002:0042) | | └─ObjectPropertyExpression
-//@[002:0006) | |   ├─StringLiteralExpression { Value = name }
-//@[008:0042) | |   └─StringLiteralExpression { Value = moduleExtConfigKeyVaultReference }
+//@[000:0221) ├─DeclaredModuleExpression
+//@[095:0221) | ├─ObjectExpression
   extensionConfigs: {
-//@[020:0122) | └─ObjectExpression
+//@[020:0120) | └─ObjectExpression
     k8s: {
-//@[004:0094) |   └─ObjectPropertyExpression
+//@[004:0092) |   └─ObjectPropertyExpression
 //@[004:0007) |     ├─StringLiteralExpression { Value = k8s }
-//@[009:0094) |     └─ObjectExpression
+//@[009:0092) |     └─ObjectExpression
       kubeConfig: kv1.getSecret('myKubeConfig')
 //@[006:0047) |       ├─ObjectPropertyExpression
 //@[006:0016) |       | ├─StringLiteralExpression { Value = kubeConfig }
 //@[018:0047) |       | └─ResourceFunctionCallExpression { Name = getSecret }
 //@[018:0021) |       |   ├─ResourceReferenceExpression
 //@[032:0046) |       |   └─StringLiteralExpression { Value = myKubeConfig }
-      namespace: 'default'
-//@[006:0026) |       └─ObjectPropertyExpression
+      namespace: strVar1
+//@[006:0024) |       └─ObjectPropertyExpression
 //@[006:0015) |         ├─StringLiteralExpression { Value = namespace }
-//@[017:0026) |         └─StringLiteralExpression { Value = default }
+//@[017:0024) |         └─VariableReferenceExpression { Variable = strVar1 }
     }
   }
 }
 
 module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[000:0306) ├─DeclaredModuleExpression
-//@[088:0306) | ├─ObjectExpression
-  name: 'moduleExtConfigFromReferences'
-//@[002:0039) | | └─ObjectPropertyExpression
-//@[002:0006) | |   ├─StringLiteralExpression { Value = name }
-//@[008:0039) | |   └─StringLiteralExpression { Value = moduleExtConfigFromReferences }
+//@[000:0265) ├─DeclaredModuleExpression
+//@[088:0265) | ├─ObjectExpression
   extensionConfigs: {
 //@[020:0171) | └─ObjectExpression
     k8s: {
@@ -213,12 +265,8 @@ module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.b
 }
 
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[000:0187) ├─DeclaredModuleExpression
-//@[093:0187) | ├─ObjectExpression
-  name: 'moduleWithExtsFullInheritance'
-//@[002:0039) | | └─ObjectPropertyExpression
-//@[002:0006) | |   ├─StringLiteralExpression { Value = name }
-//@[008:0039) | |   └─StringLiteralExpression { Value = moduleWithExtsFullInheritance }
+//@[000:0146) ├─DeclaredModuleExpression
+//@[093:0146) | ├─ObjectExpression
   extensionConfigs: {
 //@[020:0047) | └─ObjectExpression
     k8s: k8s.config
@@ -230,12 +278,8 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 }
 
 module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[000:0275) ├─DeclaredModuleExpression
-//@[098:0275) | ├─ObjectExpression
-  name: 'moduleWithExtsPiecemealInheritance'
-//@[002:0044) | | └─ObjectPropertyExpression
-//@[002:0006) | |   ├─StringLiteralExpression { Value = name }
-//@[008:0044) | |   └─StringLiteralExpression { Value = moduleWithExtsPiecemealInheritance }
+//@[000:0229) ├─DeclaredModuleExpression
+//@[098:0229) | ├─ObjectExpression
   extensionConfigs: {
 //@[020:0125) | └─ObjectExpression
     k8s: {
@@ -297,12 +341,8 @@ module moduleWithExtsUsingPiecemealInheritanceLooped 'child/hasConfigurableExten
 }]
 
 module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[000:0359) └─DeclaredModuleExpression
-//@[091:0359)   ├─ObjectExpression
-  name: 'moduleExtConfigsConditionalMixedValueAndInheritance'
-//@[002:0061)   | └─ObjectPropertyExpression
-//@[002:0006)   |   ├─StringLiteralExpression { Value = name }
-//@[008:0061)   |   └─StringLiteralExpression { Value = moduleExtConfigsConditionalMixedValueAndInheritance }
+//@[000:0296) └─DeclaredModuleExpression
+//@[091:0296)   ├─ObjectExpression
   extensionConfigs: {
 //@[020:0199)   └─ObjectExpression
     k8s: {

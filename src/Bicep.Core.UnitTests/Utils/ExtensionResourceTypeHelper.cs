@@ -372,6 +372,9 @@ public static class ExtensionResourceTypeHelper
 
 public record CreateCustomExtensionTypeContext(TypeFactory TypeFactory)
 {
+    public const string Tag_CoreString = nameof(String);
+    public const string Tag_CoreSecureString = $"Secure{nameof(String)}";
+
     private Dictionary<string, ITypeReference> TaggedTypes { get; } = [];
 
     public ITypeReference AddTaggedTypeRef(string tag, ITypeReference typeRef)
@@ -385,7 +388,9 @@ public record CreateCustomExtensionTypeContext(TypeFactory TypeFactory)
 
     public TType GetTaggedType<TType>(string tag) where TType : TypeBase => (TType)GetTaggedTypeRef(tag).Type;
 
-    public ITypeReference CoreStringTypeRef => GetTaggedTypeRef(nameof(String));
+    public ITypeReference CoreStringTypeRef => GetTaggedTypeRef(Tag_CoreString);
+
+    public ITypeReference CoreSecureStringTypeRef => GetTaggedTypeRef(Tag_CoreSecureString);
 
     public ITypeReference CreateTypeGetRef(Func<TypeBase> typeFn, string? tag = null)
         => TagIfSet(tag, TypeFactory.GetReference(TypeFactory.Create(typeFn)));
@@ -414,6 +419,7 @@ public record CustomExtensionTypeFactoryDelegates
 
     public static void CreateDefaultCoreTypes(CreateCustomExtensionTypeContext ctx, TypeFactory tf)
     {
-        ctx.AddTaggedTypeRef(nameof(String), tf.GetReference(tf.Create(() => new StringType())));
+        ctx.AddTaggedTypeRef(CreateCustomExtensionTypeContext.Tag_CoreString, tf.GetReference(tf.Create(() => new StringType())));
+        ctx.AddTaggedTypeRef(CreateCustomExtensionTypeContext.Tag_CoreSecureString, tf.GetReference(tf.Create(() => new StringType(sensitive: true))));
     }
 }

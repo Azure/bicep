@@ -193,13 +193,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ",
             "'${v1}${v2}'"
         )]
-        [DataRow(@"
-                var v1 = 'abc'
-                var v2 = 'def'
-                var v3 = concat(v1, v2)
-            ",
-            "'${v1}${v2}'"
-        )]
         [DataRow(
             @"
                 var a = [

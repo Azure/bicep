@@ -16,11 +16,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.ResourceManager.ResourceGraph" Version="1.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
-    <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.9" />
-    <PackageReference Include="CommandLineParser" Version="2.9.1" />
-    <PackageReference Include="SharpYaml" Version="2.1.1" />
+    <PackageReference Include="Azure.ResourceManager.ResourceGraph" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="OmniSharp.Extensions.LanguageServer" />
+    <PackageReference Include="CommandLineParser" />
+    <PackageReference Include="SharpYaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,6 +44,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.7.112" />
+    <PackageReference Update="Nerdbank.GitVersioning" />
   </ItemGroup>
 </Project>

@@ -22,6 +22,8 @@ public abstract class AccessExpressionSyntax : ExpressionSyntax
 
     public Token? SafeAccessMarker { get; }
 
+    public abstract SyntaxBase IndexExpression { get; }
+
     public bool IsSafeAccess => SafeAccessMarker is not null;
 
     public abstract AccessExpressionSyntax AsSafeAccess();

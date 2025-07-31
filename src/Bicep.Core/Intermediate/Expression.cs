@@ -413,6 +413,17 @@ public record ExtensionReferenceExpression(
     protected override object? GetDebugAttributes() => new { ExtensionAlias = ExtensionNamespace.Name };
 }
 
+public record ExtensionConfigAssignmentReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    ExtensionConfigAssignmentSymbol ExtensionConfigAssignment
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitExtensionConfigAssignmentReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { ExtensionAlias = ExtensionConfigAssignment.Name };
+}
+
 public abstract record TypeDeclaringExpression(
     SyntaxBase? SourceSyntax,
     Expression? Description,

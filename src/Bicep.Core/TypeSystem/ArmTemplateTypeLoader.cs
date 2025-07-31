@@ -47,7 +47,7 @@ public static class ArmTemplateTypeLoader
             return resourceDerivedType;
         }
 
-        return withResolvedRefs.Type.Value switch
+        return withResolvedRefs.Type?.Value switch
         {
             TemplateParameterType.String => GetStringType(withResolvedRefs, flags),
             TemplateParameterType.SecureString => GetStringType(withResolvedRefs, flags | TypeSymbolValidationFlags.IsSecure),
@@ -345,36 +345,38 @@ public static class ArmTemplateTypeLoader
 
         TemplateGenericProperty<JToken>? ITemplateSchemaNode.Metadata => null;
 
-        TemplateGenericProperty<TemplateParameterType> ITemplateSchemaNode.Type => decorated.Type;
+        TemplateGenericProperty<TemplateParameterType>? ITemplateSchemaNode.Type => decorated.Type;
 
-        TemplateGenericProperty<string> ITemplateSchemaNode.Ref => decorated.Ref;
+        TemplateGenericProperty<string>? ITemplateSchemaNode.Ref => decorated.Ref;
 
-        TemplateGenericProperty<JArray> ITemplateSchemaNode.AllowedValues => decorated.AllowedValues;
+        TemplateGenericProperty<JArray>? ITemplateSchemaNode.AllowedValues => decorated.AllowedValues;
 
-        TemplateGenericProperty<bool?> ITemplateSchemaNode.Nullable => decorated.Nullable;
+        TemplateGenericProperty<bool>? ITemplateSchemaNode.Nullable => decorated.Nullable;
 
-        TemplateGenericProperty<long?> ITemplateSchemaNode.MinValue => decorated.MinValue;
+        TemplateGenericProperty<long>? ITemplateSchemaNode.MinValue => decorated.MinValue;
 
-        TemplateGenericProperty<long?> ITemplateSchemaNode.MaxValue => decorated.MaxValue;
+        TemplateGenericProperty<long>? ITemplateSchemaNode.MaxValue => decorated.MaxValue;
 
-        TemplateGenericProperty<string> ITemplateSchemaNode.Pattern => decorated.Pattern;
+        TemplateGenericProperty<string>? ITemplateSchemaNode.Pattern => decorated.Pattern;
 
-        TemplateGenericProperty<long?> ITemplateSchemaNode.MinLength => decorated.MinLength;
+        TemplateGenericProperty<long>? ITemplateSchemaNode.MinLength => decorated.MinLength;
 
-        TemplateGenericProperty<long?> ITemplateSchemaNode.MaxLength => decorated.MaxLength;
+        TemplateGenericProperty<long>? ITemplateSchemaNode.MaxLength => decorated.MaxLength;
 
-        TemplateTypeDefinition[] ITemplateSchemaNode.PrefixItems => decorated.PrefixItems;
+        TemplateTypeDefinition[]? ITemplateSchemaNode.PrefixItems => decorated.PrefixItems;
 
-        TemplateBooleanOrSchemaNode ITemplateSchemaNode.Items => decorated.Items;
+        TemplateBooleanOrSchemaNode? ITemplateSchemaNode.Items => decorated.Items;
 
-        InsensitiveDictionary<TemplateTypeDefinition> ITemplateSchemaNode.Properties => decorated.Properties;
+        InsensitiveDictionary<TemplateTypeDefinition>? ITemplateSchemaNode.Properties => decorated.Properties;
 
-        TemplateGenericProperty<string[]> ITemplateSchemaNode.Required => decorated.Required;
+        TemplateGenericProperty<string[]>? ITemplateSchemaNode.Required => decorated.Required;
 
-        TemplateBooleanOrSchemaNode ITemplateSchemaNode.AdditionalProperties => decorated.AdditionalProperties;
+        TemplateBooleanOrSchemaNode? ITemplateSchemaNode.AdditionalProperties => decorated.AdditionalProperties;
 
-        TemplateGenericProperty<bool?> ITemplateSchemaNode.Sealed => decorated.Sealed;
+        TemplateGenericProperty<bool>? ITemplateSchemaNode.Sealed => decorated.Sealed;
 
-        DiscriminatorConstraintDefinition ITemplateSchemaNode.Discriminator => decorated.Discriminator;
+        DiscriminatorConstraintDefinition? ITemplateSchemaNode.Discriminator => decorated.Discriminator;
+
+        TemplateGenericProperty<string>[]? ITemplateSchemaNode.Validate => decorated.Validate;
     }
 }
