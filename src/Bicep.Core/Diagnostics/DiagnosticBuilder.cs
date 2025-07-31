@@ -1912,6 +1912,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP419",
                 $"Namespace name \"{name}\", and cannot be used an extension name.");
 
+
             public Diagnostic ScopeKindUnresolvableAtCompileTime() => CoreError(
                 "BCP420",
                 "The scope could not be resolved at compile time because the supplied expression is ambiguous or too complex. Scoping expressions must be reducible to a specific kind of scope without knowledge of parameter values.");
@@ -1945,6 +1946,11 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic EnvironmentVariableDoesNotExist(string name, string? suggestion) => CoreError(
                 "BCP427",
                 $"Environment variable \"{name}\" does not exist and there's no default value set.{suggestion}");
+
+            public Diagnostic ErrorOccuredBrowsingDirectory(string failureMessage) => CoreError(
+                "BCP428",
+                $"An error occured browsing directory. {failureMessage}"
+            );
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

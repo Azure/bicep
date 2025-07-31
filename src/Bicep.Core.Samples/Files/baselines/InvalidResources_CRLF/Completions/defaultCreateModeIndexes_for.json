@@ -3675,6 +3675,27 @@
     }
   },
   {
+    "label": "loadDirectoryFileInformation",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nloadDirectoryFileInformation(directoryPath: string, [searchPattern: string]): any\n\n```  \nLoads basic information about a directory's files as bicep object. File loading occurs during compilation, not at runtime.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_loadDirectoryFileInformation",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "loadDirectoryFileInformation($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "loadFileAsBase64",
     "kind": "function",
     "documentation": {

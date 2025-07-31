@@ -28,6 +28,7 @@ namespace Bicep.Core.Semantics.Namespaces
     public static class SystemNamespaceType
     {
         private record LoadTextContentResult(IOUri FileUri, string Content);
+        private record struct LoadDirectoryFileInformationResult(string BaseName, string FullName, string Extension, string ParentDirectoryName);
 
         public const string BuiltInName = "sys";
         public const long UniqueStringHashLength = 13;
@@ -1249,6 +1250,14 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("message", LanguageConstants.String, "The error message to use.")
                     .WithReturnType(LanguageConstants.Never)
                     .Build();
+
+                yield return new FunctionOverloadBuilder("loadDirectoryFileInformation")
+                    .WithGenericDescription($"Loads basic information about a directory's files as bicep object. File loading occurs during compilation, not at runtime.")
+                    .WithRequiredParameter("directoryPath", LanguageConstants.StringDirectoryPath, "The path to the directory that will be loaded.")
+                    .WithOptionalParameter("searchPattern", LanguageConstants.String, "The searchPattern is a glob pattern to narrow down the loaded files. If not provided, all files are loaded. Supports both any number of characters '*' and any single character '?' wildcards.")
+                    .WithReturnResultBuilder(LoadDirectoryFileInformationResultBuilder, LanguageConstants.Any)
+                    .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
+                    .Build();
             }
 
             static IEnumerable<FunctionOverload> GetParamsFilePermittedOverloads(IFeatureProvider featureProvider)
@@ -2243,6 +2252,68 @@ namespace Bicep.Core.Semantics.Namespaces
                 };
             }
             return decorated;
+        }
+
+        private static FunctionResult LoadDirectoryFileInformationResultBuilder(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+            => LoadDirectoryFileInformationResultBuilder(new JsonObjectParser(), model, diagnostics, functionCall, argumentTypes);
+        private static FunctionResult LoadDirectoryFileInformationResultBuilder(ObjectParser objectParser, SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        {
+            var arguments = functionCall.Arguments;
+            var pathSearchPattern = string.Empty;
+            IPositionable[] positionables = arguments.Length > 1 ? [arguments[0], arguments[1]] : [arguments[0]];
+            if (arguments.Length > 1)
+            {
+                if (argumentTypes[1] is not StringLiteralType tokenSelectorType)
+                {
+                    return new FunctionResult(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).CompileTimeConstantRequired()));
+                }
+                pathSearchPattern = tokenSelectorType.RawStringValue;
+            }
+
+            if (TryLoadFilesFromDirectoryPath(model, diagnostics, (arguments[0], argumentTypes[0]), pathSearchPattern)
+                    .IsSuccess(out var result, out var errorDiagnostic))
+            {
+                objectParser.TryExtractFromObject(
+                    result.ToJson(),
+                    null, positionables, out errorDiagnostic, out var token);
+                if (token is null)
+                {
+                    return new FunctionResult(ErrorType.Create(errorDiagnostic!));
+                }
+                return new FunctionResult(ConvertJsonToBicepType(token),
+                    ConvertJsonToExpression(token));
+            }
+
+            return new FunctionResult(ErrorType.Create(errorDiagnostic));
+        }
+
+         private static ResultWithDiagnostic<IEnumerable<LoadDirectoryFileInformationResult>> TryLoadFilesFromDirectoryPath(SemanticModel model, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) directoryPathArgument, string pathSearchPattern)
+        {
+            if (directoryPathArgument.typeSymbol is not StringLiteralType directoryPathType)
+            {
+                return new(DiagnosticBuilder.ForPosition(directoryPathArgument.syntax).CompileTimeConstantRequired());
+            }
+
+
+            var auxiliaryFileLoadResult = RelativePath.TryCreate(directoryPathType.RawStringValue).Transform(path => model.SourceFile.TryGetAuxiliaryFiles(path, pathSearchPattern));
+
+            if (!auxiliaryFileLoadResult.IsSuccess(out var auxiliaryFiles, out var errorBuilder))
+            {
+                return new(errorBuilder(DiagnosticBuilder.ForPosition(directoryPathArgument.syntax)));
+            }
+
+            var isWindows = OperatingSystem.IsWindows();
+
+            return new (auxiliaryFiles.Select(file =>
+            {
+                var baseName = file.Uri.PathSegments[^1];
+                var fullname = isWindows ? file.Uri.ToString().Replace('\\', '/') : file.Uri.ToString();
+                var extension = Path.GetExtension(baseName);
+                var parentDirectoryName = Path.GetDirectoryName(fullname) ?? Path.GetPathRoot(fullname);
+                //Fullname should never be null or empty so we can enforce that parentDirectory is not null
+                parentDirectoryName = isWindows ? parentDirectoryName!.Replace('\\', '/') : parentDirectoryName;
+                return new LoadDirectoryFileInformationResult(baseName, fullname, extension, parentDirectoryName!);
+            }));
         }
     }
 }
