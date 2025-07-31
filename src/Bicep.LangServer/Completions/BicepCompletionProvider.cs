@@ -1455,7 +1455,7 @@ namespace Bicep.LanguageServer.Completions
 
             if (argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringDirectoryPath))
             {
-                return CreateDirectoryCompletionItems(context.ReplacementRange, fileCompletionInfo,CompletionPriority.VeryHigh);
+                return CreateDirectoryCompletionItems(context.ReplacementRange, fileCompletionInfo, CompletionPriority.High);
             }
 
             IEnumerable<CompletionItem> fileItems;
