@@ -6,14 +6,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="$(FluentAssertionsVersion)" />
-    <PackageReference Include="JsonDiffPatch.Net" Version="2.3.0" />
-    <PackageReference Include="DiffPlex" Version="1.7.2" />
-    <PackageReference Include="Moq" Version="4.20.72" />
-    <PackageReference Include="MSTest" Version="$(MSTestVersion)" />
-    <PackageReference Include="Newtonsoft.Json.Schema" Version="4.0.1" />
-    <PackageReference Include="RichardSzalay.MockHttp" Version="7.0.0" />
-    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="21.3.1" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="JsonDiffPatch.Net" />
+    <PackageReference Include="DiffPlex" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="MSTest" />
+    <PackageReference Include="Newtonsoft.Json.Schema" />
+    <PackageReference Include="RichardSzalay.MockHttp" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" />
   </ItemGroup>
 
   <ItemGroup>
@@ -40,6 +40,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.7.112" />
+    <PackageReference Update="Nerdbank.GitVersioning" />
   </ItemGroup>
 </Project>

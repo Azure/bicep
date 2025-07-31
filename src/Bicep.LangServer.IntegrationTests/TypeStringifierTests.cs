@@ -438,11 +438,6 @@ public class TypeStringifierTests
         "type medium = string?",
         "type strict = string?")]
     [DataRow(
-        "type testType = string?",
-        "type loose = string?",
-        "type medium = string?",
-        "type strict = string?")]
-    [DataRow(
         "type testType = null|true",
         "type loose = bool?",
         "type medium = bool?",
