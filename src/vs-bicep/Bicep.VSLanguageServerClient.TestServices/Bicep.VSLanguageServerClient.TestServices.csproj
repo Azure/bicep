@@ -6,19 +6,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle">
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="4.11.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.IO.Redist" />
-    <PackageReference Include="Microsoft.Net.Compilers.Toolset" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Test.Apex.VisualStudio" />
-    <PackageReference Include="Microsoft.VisualStudio.Composition" />
-    <PackageReference Include="Microsoft.VisualStudio.Editor" />
-    <PackageReference Include="Microsoft.VisualStudio.Shell.Framework" />
-    <PackageReference Include="Microsoft.VisualStudio.Utilities" />
-    <PackageReference Include="Microsoft.VisualStudio.Workspace" />
-    <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" />
+    <PackageReference Include="Microsoft.IO.Redist" Version="6.1.0" />
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.12.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Test.Apex.VisualStudio" Version="17.11.35222.181" />
+    <PackageReference Include="Microsoft.VisualStudio.Composition" Version="17.12.18" />
+    <PackageReference Include="Microsoft.VisualStudio.Editor" Version="17.12.215" />
+    <PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="17.12.40391" />
+    <PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.12.40391" />
+    <PackageReference Include="Microsoft.VisualStudio.Workspace" Version="17.1.11-preview-0002" />
+    <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="17.1.11-preview-0002" />
 
   </ItemGroup>
 

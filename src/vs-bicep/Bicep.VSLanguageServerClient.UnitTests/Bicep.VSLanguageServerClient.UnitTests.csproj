@@ -7,17 +7,17 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="FluentAssertions" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle">
+		<PackageReference Include="FluentAssertions" Version="$(FluentAssertionsVersion)" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="4.11.0">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.IO.Redist" />
-		<PackageReference Include="Microsoft.Net.Compilers.Toolset" PrivateAssets="all" />
-		<PackageReference Include="Microsoft.VisualStudio.LanguageServer.Protocol" />
-		<PackageReference Include="Microsoft.VisualStudio.Utilities" />
-		<PackageReference Include="Moq" />
-		<PackageReference Include="MSTest" />
+		<PackageReference Include="Microsoft.IO.Redist" Version="6.1.0" />
+		<PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.12.0" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.VisualStudio.LanguageServer.Protocol" Version="17.2.8" />
+		<PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.12.40391" />
+		<PackageReference Include="Moq" Version="4.20.72" />
+		<PackageReference Include="MSTest" Version="$(MSTestVersion)" />
 	</ItemGroup>
 
 	<ItemGroup>
