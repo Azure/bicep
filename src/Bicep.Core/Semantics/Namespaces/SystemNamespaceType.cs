@@ -2295,19 +2295,19 @@ namespace Bicep.Core.Semantics.Namespaces
             }
 
 
-            var auxiliaryFileLoadResult = RelativePath.TryCreate(directoryPathType.RawStringValue).Transform(path => model.SourceFile.TryGetAuxiliaryFiles(path, pathSearchPattern));
+            var directoryFileLoadResult = RelativePath.TryCreate(directoryPathType.RawStringValue).Transform(path => model.SourceFile.TryListFilesInDirectory(path, pathSearchPattern));
 
-            if (!auxiliaryFileLoadResult.IsSuccess(out var auxiliaryFiles, out var errorBuilder))
+            if (!directoryFileLoadResult.IsSuccess(out var directoryFiles, out var errorBuilder))
             {
                 return new(errorBuilder(DiagnosticBuilder.ForPosition(directoryPathArgument.syntax)));
             }
 
             var isWindows = OperatingSystem.IsWindows();
 
-            return new (auxiliaryFiles.Select(file =>
+            return new (directoryFiles.Select(file =>
             {
-                var baseName = file.Uri.PathSegments[^1];
-                var fullname = isWindows ? file.Uri.ToString().Replace('\\', '/') : file.Uri.ToString();
+                var baseName = file.PathSegments[^1];
+                var fullname = isWindows ? file.ToString().Replace('\\', '/') : file.ToString();
                 var extension = Path.GetExtension(baseName);
                 var parentDirectoryName = Path.GetDirectoryName(fullname) ?? Path.GetPathRoot(fullname);
                 //Fullname should never be null or empty so we can enforce that parentDirectory is not null

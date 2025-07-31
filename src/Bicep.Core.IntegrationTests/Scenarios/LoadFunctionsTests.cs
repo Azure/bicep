@@ -1175,14 +1175,15 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
         [TestMethod]
         public void LoadDirectoryFileInformationErrorWhenFileDoesNotExist()
         {
+            var directoryPath = "./nonExistingDirectory";
             var (template, diags, _) = CompilationHelper.Compile(
-                ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('./nonExistingDirectory')"),
+                ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('{directoryPath}')"),
                 ("File.json", ""));
 
             using (new AssertionScope())
             {
                 template!.Should().BeNull();
-                diags.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] { ("BCP422", DiagnosticLevel.Error, $"An error occured browsing directory. Directory ./nonExistingDirectory does not exist or additional permissions are necessary to access it") });
+                diags.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] { ("BCP428", DiagnosticLevel.Error, $"Directory {directoryPath} does not exist or additional permissions are necessary to access it.") });
             }
         }
 

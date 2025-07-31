@@ -1947,9 +1947,14 @@ namespace Bicep.Core.Diagnostics
                 "BCP427",
                 $"Environment variable \"{name}\" does not exist and there's no default value set.{suggestion}");
 
-            public Diagnostic ErrorOccuredBrowsingDirectory(string failureMessage) => CoreError(
+            public Diagnostic DirectoryDoesNotExist(string relativePath) => CoreError(
                 "BCP428",
-                $"An error occured browsing directory. {failureMessage}"
+                $"Directory {relativePath} does not exist or additional permissions are necessary to access it."
+            );
+
+            public Diagnostic ErrorOccuredBrowsingDirectory(string relativePath, string exceptionMessage) => CoreError(
+                "BCP429",
+                $"An error occured browsing directory. {exceptionMessage}"
             );
         }
 

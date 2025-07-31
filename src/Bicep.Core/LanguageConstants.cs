@@ -261,7 +261,7 @@ namespace Bicep.Core
         public static readonly TypeSymbol StringFilePath = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.IsStringFilePath);
         public static readonly TypeSymbol StringJsonFilePath = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.IsStringFilePath | TypeSymbolValidationFlags.IsStringJsonFilePath);
         public static readonly TypeSymbol StringYamlFilePath = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.IsStringFilePath | TypeSymbolValidationFlags.IsStringYamlFilePath);
-        public static readonly TypeSymbol StringDirectoryPath = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.IsStringFilePath | TypeSymbolValidationFlags.IsStringDirectoryPath);
+        public static readonly TypeSymbol StringDirectoryPath = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.IsStringDirectoryPath);
         public static readonly TypeSymbol StringResourceIdentifier = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.IsResourceTypeIdentifier);
 
         //Type for available loadTextContent encoding

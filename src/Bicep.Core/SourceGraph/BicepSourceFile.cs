@@ -110,7 +110,7 @@ namespace Bicep.Core.SourceGraph
                 });
         }
 
-        public ResultWithDiagnosticBuilder<IEnumerable<AuxiliaryFile>> TryGetAuxiliaryFiles(RelativePath relativePath, string searchPattern = "")
+        public ResultWithDiagnosticBuilder<IEnumerable<IOUri>> TryListFilesInDirectory(RelativePath relativePath, string searchPattern = "")
         {
             if (this.FileHandle is DummyFileHandle)
             {
@@ -121,18 +121,18 @@ namespace Bicep.Core.SourceGraph
             var directoryHandle = this.FileHandle.GetParent().GetDirectory(relativePath);
             if (!directoryHandle.Exists())
             {
-                return new (x => x.ErrorOccuredBrowsingDirectory($"Directory {relativePath} does not exist or additional permissions are necessary to access it"));
-            }
-            var handles = directoryHandle.EnumerateFiles(searchPattern);
-            var auxiliaryFiles = new List<AuxiliaryFile>();
-            foreach (var handle in handles)
-            {
-                this.referencedAuxiliaryFileUris.Add(handle.Uri);
-                var result = new AuxiliaryFile(handle.Uri, BinaryData.Empty);
-                auxiliaryFiles.Add(result);
+                return new (x => x.DirectoryDoesNotExist(relativePath));
             }
 
-            return new(auxiliaryFiles);
+            try
+            {
+                var handles = directoryHandle.EnumerateFiles(searchPattern);
+                return new(handles.Select(x => x.Uri));
+            }
+            catch(Exception ex)
+            {
+                return new (x => x.ErrorOccuredBrowsingDirectory(relativePath, ex.Message));
+            }
         }
 
         public FrozenSet<IOUri> GetReferencedAuxiliaryFileUris() => this.referencedAuxiliaryFileUris.ToFrozenSet();
