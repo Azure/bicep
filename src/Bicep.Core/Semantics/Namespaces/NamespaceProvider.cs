@@ -151,7 +151,7 @@ public class NamespaceProvider : INamespaceProvider
                 _ => resourceTypeProviderFactory.GetBuiltInAzResourceTypesProvider(),
             };
 
-            return AzNamespaceType.Create(aliasName, targetScope, typeProvider, sourceFile.FileKind);
+            return AzNamespaceType.Create(aliasName, targetScope, typeProvider, sourceFile.FileKind, sourceFile.Features);
         }
 
         if (LanguageConstants.IdentifierComparer.Equals(extensionName, K8sNamespaceType.BuiltInName))
@@ -182,7 +182,7 @@ public class NamespaceProvider : INamespaceProvider
 
         return typeProvider switch
         {
-            AzResourceTypeProvider => new(AzNamespaceType.Create(aliasName, targetScope, typeProvider, sourceFile.FileKind)),
+            AzResourceTypeProvider => new(AzNamespaceType.Create(aliasName, targetScope, typeProvider, sourceFile.FileKind, sourceFile.Features)),
             ExtensionResourceTypeProvider extensionResourceTypeProvider => new(ExtensionNamespaceType.Create(aliasName, extensionResourceTypeProvider, artifact.Reference, sourceFile.Features)),
             _ => throw new InvalidOperationException($"Unexpected resource type provider type: {typeProvider.GetType().Name}."),
         };

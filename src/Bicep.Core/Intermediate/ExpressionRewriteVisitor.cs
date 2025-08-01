@@ -89,6 +89,9 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return hasChanges ? expression with { Parameters = parameters } : expression;
     }
 
+    void IExpressionVisitor.VisitThisFunctionExpression(ThisFunctionExpression expression) => ReplaceCurrent(expression, ReplaceThisFunctionExpression);
+    public virtual Expression ReplaceThisFunctionExpression(ThisFunctionExpression expression) => expression;
+
     void IExpressionVisitor.VisitResourceFunctionCallExpression(ResourceFunctionCallExpression expression) => ReplaceCurrent(expression, ReplaceResourceFunctionCallExpression);
     public virtual Expression ReplaceResourceFunctionCallExpression(ResourceFunctionCallExpression expression)
     {

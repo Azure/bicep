@@ -55,6 +55,11 @@ public abstract class ExpressionVisitor : IExpressionVisitor
         Visit(expression.Parameters);
     }
 
+
+    public virtual void VisitThisFunctionExpression(ThisFunctionExpression expression)
+    {
+    }
+
     public virtual void VisitResourceFunctionCallExpression(ResourceFunctionCallExpression expression)
     {
         Visit(expression.Resource);

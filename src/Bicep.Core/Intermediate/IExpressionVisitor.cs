@@ -29,6 +29,8 @@ public interface IExpressionVisitor
 
     void VisitFunctionCallExpression(FunctionCallExpression expression);
 
+    void VisitThisFunctionExpression(ThisFunctionExpression expression);
+
     void VisitResourceFunctionCallExpression(ResourceFunctionCallExpression expression);
 
     void VisitArrayAccessExpression(ArrayAccessExpression expression);

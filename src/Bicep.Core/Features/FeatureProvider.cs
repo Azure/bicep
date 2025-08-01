@@ -56,6 +56,8 @@ namespace Bicep.Core.Features
 
         public bool ModuleIdentityEnabled => configuration.ExperimentalFeaturesEnabled.ModuleIdentity;
 
+        public bool ThisExistsFunctionEnabled => configuration.ExperimentalFeaturesEnabled.ThisExistsFunction;
+
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
             => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;
 

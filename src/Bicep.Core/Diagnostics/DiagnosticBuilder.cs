@@ -1945,6 +1945,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic EnvironmentVariableDoesNotExist(string name, string? suggestion) => CoreError(
                 "BCP427",
                 $"Environment variable \"{name}\" does not exist and there's no default value set.{suggestion}");
+
+            public Diagnostic ThisFunctionOnlyAllowedInResourceProperties() => CoreError(
+                "BCP428",
+                "The \"this()\" function can only be used within resource property expressions.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
