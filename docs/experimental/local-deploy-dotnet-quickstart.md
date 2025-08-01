@@ -1,6 +1,6 @@
 # Creating a Local Extension with .NET
 
-A quickstart guide to creating your own Bicep Local Extension using .NET. This guide assumes you have the .NET 9 SDK installed locally.
+A quickstart guide to creating your own Bicep Local Extension using .NET. This guide assumes you have the [.NET 9 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0) installed locally.
 
 ## Project Scaffolding
 
