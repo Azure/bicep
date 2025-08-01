@@ -15,8 +15,7 @@
   },
   "required": [
     "$schema",
-    "version",
-    "pathFilters"
+    "version"
   ],
   "additionalProperties": false
 }

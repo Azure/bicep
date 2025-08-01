@@ -71,7 +71,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
                 """,
                 $"""
                 The file "{fileSystem.Path.GetFullPath(VersionFile.FileName)}" is invalid:
-                  - #: Required properties ["$schema","version","pathFilters"] are not present.
+                  - #: Required properties ["$schema","version"] are not present.
                   - The file is modified or outdated. Please run "brm generate" to regenerate it.
 
                 """);
