@@ -1,6 +1,8 @@
 # Creating a Local Extension with .NET
 
-A quickstart guide to creating your own Bicep Local Extension using .NET. This guide assumes you have the [.NET 9 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0) installed locally.
+A quickstart guide to creating your own Bicep Local Extension using .NET.
+
+This guide assumes you have the [.NET 9 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0) installed locally, and the Bicep [0.37.4](https://github.com/Azure/bicep/releases/tag/v0.37.4) (or higher) CLI and VSCode extension installed.
 
 ## Project Scaffolding
 
@@ -21,7 +23,7 @@ A quickstart guide to creating your own Bicep Local Extension using .NET. This g
       </PropertyGroup>
     
       <ItemGroup>
-        <PackageReference Include="Azure.Bicep.Local.Extension" Version="0.36.273-g0bea750dce" />
+        <PackageReference Include="Azure.Bicep.Local.Extension" Version="0.37.4" />
       </ItemGroup>
     </Project>
     ```
