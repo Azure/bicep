@@ -17,6 +17,9 @@ These extensions can be combined as you wish - for example, you could:
 * Read kubernetes config using a bash script and deploy Kubernetes resources with the kubernetes extension
 * Fetch secrets from KeyVault and upload them as GitHub secrets.
 
+## Extension Quickstart
+For a .NET-based quickstart guide for creating your own extension, see [Creating a Local Extension with .NET](./local-deploy-dotnet-quickstart.md).
+
 ## How to use it?
 
 To try out a particular extension, follow the README instructions from one of sample extensions linked above.
