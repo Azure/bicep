@@ -42,8 +42,6 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [DataRow(0, 40)]
         [DataRow(4, 10)]
         [DataRow(4, 11)]
-        [DataRow(5, 5)]
-        [DataRow(10, 10)]
         [DataRow(5, 11)]
         [DataRow(21, 25)]
         [DataRow(22, 26)]

@@ -136,7 +136,6 @@ public class CommandLineParserTests
         parser.Options.Socket.Should().Be("/tmp/test.sock");
         parser.Options.Pipe.Should().BeNull();
         parser.Options.Http.Should().BeNull();
-        parser.Options.Describe.Should().BeFalse();
     }
 
     [TestMethod]
@@ -158,7 +157,6 @@ public class CommandLineParserTests
         parser.Options.Pipe.Should().Be(pipeName);
         parser.Options.Socket.Should().BeNull();
         parser.Options.Http.Should().BeNull();
-        parser.Options.Describe.Should().BeFalse();
     }
 
     [TestMethod]
@@ -180,48 +178,6 @@ public class CommandLineParserTests
         parser.Options.Http.Should().Be(httpPort);
         parser.Options.Socket.Should().BeNull();
         parser.Options.Pipe.Should().BeNull();
-        parser.Options.Describe.Should().BeFalse();
-    }
-
-    [TestMethod]
-    public void Constructor_WithDescribeArg_ShouldNotExitAndParseDescribeCorrectly()
-    {
-        // Arrange
-        var args = new[] { "--describe" };
-
-        // Act
-        var parser = new CommandLineParser(args, loggerMock.Object);
-
-        // Assert
-        parser.ShouldExit.Should().BeFalse();
-        parser.ExitCode.Should().Be(0);
-        parser.Should().NotBeNull();
-        parser.Options.Should().NotBeNull();
-        parser.Options.Describe.Should().BeTrue();
-        parser.Options.Socket.Should().BeNull();
-        parser.Options.Pipe.Should().BeNull();
-        parser.Options.Http.Should().BeNull();
-    }
-
-    [TestMethod]
-    public void Constructor_WithMultipleArgs_ShouldNotExitAndParseAllCorrectly()
-    {
-        // Arrange
-        var socketPath = "/tmp/test.sock";
-        var args = new[] { "--socket", socketPath, "--describe" };
-
-        // Act
-        var parser = new CommandLineParser(args, loggerMock.Object);
-
-        // Assert
-        parser.ShouldExit.Should().BeFalse();
-        parser.ExitCode.Should().Be(0);
-        parser.Should().NotBeNull();
-        parser.Options.Should().NotBeNull();
-        parser.Options.Socket.Should().Be(socketPath);
-        parser.Options.Describe.Should().BeTrue();
-        parser.Options.Pipe.Should().BeNull();
-        parser.Options.Http.Should().BeNull();
     }
 
     [TestMethod]
@@ -243,7 +199,6 @@ public class CommandLineParserTests
         parser.Options.Pipe.Should().Be(pipeName);
         parser.Options.Http.Should().Be(httpPort);
         parser.Options.Socket.Should().BeNull();
-        parser.Options.Describe.Should().BeFalse();
     }
 
     [TestMethod]
@@ -253,7 +208,7 @@ public class CommandLineParserTests
         var socketPath = "/tmp/test.sock";
         var pipeName = "testpipe";
         var httpPort = 8080;
-        var args = new[] { "--socket", socketPath, "--pipe", pipeName, "--http", httpPort.ToString(), "--describe" };
+        var args = new[] { "--socket", socketPath, "--pipe", pipeName, "--http", httpPort.ToString() };
 
         // Act
         var parser = new CommandLineParser(args, loggerMock.Object);
@@ -266,7 +221,6 @@ public class CommandLineParserTests
         parser.Options.Socket.Should().Be(socketPath);
         parser.Options.Pipe.Should().Be(pipeName);
         parser.Options.Http.Should().Be(httpPort);
-        parser.Options.Describe.Should().BeTrue();
     }
 
     [TestMethod]
@@ -359,22 +313,6 @@ public class CommandLineParserTests
     }
 
     [TestMethod]
-    public void Constructor_WithDuplicateDescribeArgs_ShouldExit()
-    {
-        // Arrange
-        var args = new[] { "--describe", "--describe" };
-
-        // Act
-        var parser = new CommandLineParser(args, loggerMock.Object);
-
-        // Assert
-        parser.ShouldExit.Should().BeTrue();
-        parser.ExitCode.Should().Be(1);
-        parser.Should().NotBeNull();
-        parser.Options.Should().BeNull();
-    }
-
-    [TestMethod]
     public void Constructor_WithArgumentsContainingSpaces_ShouldNotExitAndParseCorrectly()
     {
         // Arrange - Arguments with spaces should be properly quoted when passed to the application
@@ -409,7 +347,6 @@ public class CommandLineParserTests
         parser.Options.Socket.Should().Be("");
         parser.Options.Pipe.Should().BeNull();
         parser.Options.Http.Should().BeNull();
-        parser.Options.Describe.Should().BeFalse();
     }
 
     [TestMethod]
@@ -512,8 +449,7 @@ public class CommandLineParserTests
         {
             ["--socket", "/tmp/test.sock" ],
             ["--pipe", "testpipe" ],      
-            ["--http", "8080" ],         
-            ["--describe" ],
+            ["--http", "8080" ],        
             ["--socket", "/tmp/test.sock"],
             ["--pipe", "testpipe"]
         };

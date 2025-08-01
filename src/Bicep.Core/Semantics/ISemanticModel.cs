@@ -21,7 +21,5 @@ namespace Bicep.Core.Semantics
         ImmutableArray<OutputMetadata> Outputs { get; }
 
         bool HasErrors();
-
-        IFeatureProvider Features { get; }
     }
 }

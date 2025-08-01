@@ -388,13 +388,13 @@ extension 'br:example.azurecr.io/test/extension/http:1.2.3'
         result.Template.Should().DeepEqual(JToken.Parse("""
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "2.1-experimental",
+  "languageVersion": "2.0",
   "contentVersion": "1.0.0.0",
   "metadata": {
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15182588323302093073"
+      "templateHash": "9550648641475979632"
     }
   },
   "imports": {

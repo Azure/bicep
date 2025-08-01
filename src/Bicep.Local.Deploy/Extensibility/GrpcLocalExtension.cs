@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Net.Sockets;
@@ -11,6 +12,7 @@ using Azure.Deployments.Extensibility.Core.V2.Models;
 using Bicep.Core.Features;
 using Bicep.IO.Abstraction;
 using Bicep.Local.Deploy.Helpers;
+using Bicep.Local.Deploy.Types;
 using Grpc.Net.Client;
 using Json.Pointer;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
@@ -19,28 +21,14 @@ using ExtensibilityV2 = Azure.Deployments.Extensibility.Core.V2.Models;
 
 namespace Bicep.Local.Deploy.Extensibility;
 
-internal class GrpcLocalExtension : ILocalExtension
+internal class GrpcLocalExtension(
+    Rpc.BicepExtension.BicepExtensionClient client,
+    Process process,
+    GrpcChannel channel,
+    IOUri binaryUri) : ILocalExtension
 {
-    private readonly Rpc.BicepExtension.BicepExtensionClient client;
-    private readonly Process process;
-    private readonly GrpcChannel channel;
-    private readonly IOUri binaryUri;
-
     private static void WriteTrace(IOUri binaryUri, Func<string> getMessage)
-    {
-        if (FeatureProvider.ExtensionTracingEnabled && getMessage() is { } message)
-        {
-            Trace.WriteLine($"[{binaryUri}] {message}");
-        }
-    }
-
-    private GrpcLocalExtension(Rpc.BicepExtension.BicepExtensionClient client, Process process, GrpcChannel channel, IOUri binaryUri)
-    {
-        this.client = client;
-        this.process = process;
-        this.channel = channel;
-        this.binaryUri = binaryUri;
-    }
+        => Trace.WriteLine($"[{binaryUri}] {getMessage()}");
 
     public static async Task<ILocalExtension> Start(IOUri binaryUri)
     {
@@ -164,6 +152,19 @@ internal class GrpcLocalExtension : ILocalExtension
         WriteTrace(binaryUri, () => $"{nameof(Preview)} gRPC response: {JsonSerializer.Serialize(response, LocalExtensionOperationResponseJsonDefaults.SerializerContext.LocalExtensionOperationResponse)}");
 
         return response;
+    }
+
+    public async Task<TypeFiles> GetTypeFiles(CancellationToken cancellationToken)
+    {
+        WriteTrace(binaryUri, () => $"{nameof(GetTypeFiles)} gRPC request: <empty>");
+
+        var response = await client.GetTypeFilesAsync(new(), cancellationToken: cancellationToken);
+
+        WriteTrace(binaryUri, () => $"{nameof(GetTypeFiles)} gRPC response: {response.ToJson()}");
+
+        return new(
+            response.IndexFile,
+            response.TypeFiles.ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Value));
     }
 
     private static Rpc.ResourceReference Convert(ExtensibilityV2.ResourceReference request)

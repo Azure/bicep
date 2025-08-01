@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Configuration;
@@ -136,6 +135,20 @@ namespace Bicep.Core.Analyzers.Linter
             Styling = DiagnosticStyling
         };
 
+        /// <summary>
+        /// Create a diagnostic message for a span that has a customized string.
+        /// </summary>
+        protected Diagnostic CreateDiagnostic(TextSpan span, string message) => new(
+            span,
+            DefaultDiagnosticLevel,
+            DiagnosticSource.CoreLinter,
+            Code,
+            message)
+        {
+            Uri = Uri,
+            Styling = DiagnosticStyling
+        };
+
         protected virtual Diagnostic CreateFixableDiagnosticForSpan(DiagnosticLevel level, TextSpan span, CodeFix fix, params object[] values) =>
             CreateFixableDiagnosticForSpan(level, span, [fix], values);
 
@@ -155,6 +168,8 @@ namespace Bicep.Core.Analyzers.Linter
 
                 // This is an exception to the "Warning" or "Off" only rule - these will cause actual deployment errors, so default level is Error
                 LinterRuleCategory.DeploymentError => DiagnosticLevel.Error,
+                // For stacks incompatibilities, the default level is Info so we can inform but not disrupt users who are not exclusively Deployment stack users.
+                LinterRuleCategory.DeploymentStackIncompatibility => DiagnosticLevel.Info,
 
                 // Unexpected values
                 _ => throw new ArgumentOutOfRangeException($"LinterRuleCategory (unexpected value \"{category}\")")

@@ -631,9 +631,9 @@ namespace Bicep.Core.Semantics
             }
         }
 
-        private IEnumerable<IDiagnostic> GatherMissingRequiredExtensionConfigAssignmentDiagnostics(ISemanticModel usingModel)
+        private IEnumerable<IDiagnostic> GatherMissingRequiredExtensionConfigAssignmentDiagnostics(ISemanticModel model)
         {
-            if (!usingModel.Features.ModuleExtensionConfigsEnabled)
+            if (model is not SemanticModel usingModel || !usingModel.Features.ModuleExtensionConfigsEnabled)
             {
                 yield break;
             }

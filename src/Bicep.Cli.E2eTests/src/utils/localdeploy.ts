@@ -11,7 +11,6 @@ import path from "path";
 import spawn from "cross-spawn";
 import { expect } from "vitest";
 import { invokingBicepCommand } from "./command";
-import { ensureParentDirExists } from "./fs";
 
 const mockExtensionExeName = "bicep-ext-mock";
 const mockExtensionProjPath = path.resolve(__dirname, "../../../Bicep.Local.Extension.Mock");
@@ -65,7 +64,7 @@ export function platformSupportsLocalDeploy() {
   return !cliDotnetRid || supportedConfigurations.map((x) => x.dotnetRid).includes(cliDotnetRid);
 }
 
-export function publishExtension(typesIndexPath: string, target: string) {
+export function publishExtension(target: string) {
   // build the binary in different flavors
   for (const config of supportedConfigurations) {
     execDotnet([
@@ -82,18 +81,9 @@ export function publishExtension(typesIndexPath: string, target: string) {
     ]);
   }
 
-  const typesDir = path.dirname(typesIndexPath);
-  ensureParentDirExists(typesIndexPath);
-
-  // generate types on disk
-  execDotnet(["run", "--verbosity", "quiet", "--project", mockExtensionProjPath], {
-    MOCK_TYPES_OUTPUT_PATH: typesDir,
-  });
-
   // run the bicep command to publish it
   return invokingBicepCommand(
     "publish-extension",
-    typesIndexPath,
     "--target",
     target,
     ...supportedConfigurations.flatMap((c) => [c.bicepCliPublishArg, c.dotnetPublishPath]),

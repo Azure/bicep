@@ -100,3 +100,7 @@ Command that allows the publishing of extensions to container registries. For mo
 ### `snapshot` CLI Command
 
 Generate a normalized list of resources to file, which can then be used to generate a visual diff for changes. For more information, see [Using the Snapshot Command](./experimental/snapshot-command.md).
+
+### Bicep MCP Server
+
+See [Using Bicep MCP Server in VS Code (Preview!)](./experimental/mcp-tools.md).

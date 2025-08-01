@@ -67,11 +67,6 @@ namespace Bicep.Cli.Arguments
                 }
             }
 
-            if (IndexFile is null)
-            {
-                throw new CommandLineException($"The input file path was not specified.");
-            }
-
             if (TargetExtensionReference is null)
             {
                 throw new CommandLineException("The target extension was not specified.");
@@ -80,7 +75,7 @@ namespace Bicep.Cli.Arguments
 
         public Dictionary<string, string> Binaries { get; } = new();
 
-        public string IndexFile { get; }
+        public string? IndexFile { get; }
 
         public string TargetExtensionReference { get; }
 

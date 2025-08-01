@@ -3,9 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -99,8 +97,9 @@ param fromEnv=readEnvironmentVariable('stringEnvVariable')
 ("foo.bicep", @"param fromEnv string"));
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]{
-                ("BCP338", DiagnosticLevel.Error,
-                "Failed to evaluate parameter \"fromEnv\": Environment variable \"stringEnvVariable\" does not exist, and no default value set.")});
+            ("BCP427", DiagnosticLevel.Error,
+                "Environment variable \"stringEnvVariable\" does not exist and there's no default value set.")
+        });
     }
 
     [TestMethod]
@@ -124,7 +123,7 @@ param fromEnv=readEnvironmentVariable('stringEnvVariable')
 "),
 ("foo.bicep", @"param fromEnv string"));
 
-        result.Should().ContainDiagnostic("BCP338", DiagnosticLevel.Error, "Failed to evaluate parameter \"fromEnv\": Environment variable \"stringEnvVariable\" does not exist, and no default value set.");
+        result.Should().ContainDiagnostic("BCP427", DiagnosticLevel.Error, "Environment variable \"stringEnvVariable\" does not exist and there's no default value set.");
         result.Should().ContainDiagnostic("Bicepparam ReadEnvironmentVariable function", DiagnosticLevel.Info, "Available environment variables are: ");
     }
     [TestMethod]

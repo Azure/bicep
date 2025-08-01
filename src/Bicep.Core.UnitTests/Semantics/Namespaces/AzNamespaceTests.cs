@@ -73,7 +73,7 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
                 ");
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP427", DiagnosticLevel.Error, "The \"this()\" function can only be used within resource property expressions.")
+                ("BCP428", DiagnosticLevel.Error, "The \"this()\" function can only be used within resource property expressions.")
             });
 
             // Test that this() function works inside resource properties when feature is enabled
@@ -92,7 +92,7 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
                   }
                 }
                 ");
-            // Should not have the BCP427 error when used inside resource properties
+            // Should not have the BCP428 error when used inside resource properties
             result2.Should().NotHaveAnyDiagnostics();
         }
 
@@ -203,7 +203,7 @@ output sto bool = storageExists
 
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP427", DiagnosticLevel.Error, "The \"this()\" function can only be used within resource property expressions.")
+                ("BCP428", DiagnosticLevel.Error, "The \"this()\" function can only be used within resource property expressions.")
             });
         }
 

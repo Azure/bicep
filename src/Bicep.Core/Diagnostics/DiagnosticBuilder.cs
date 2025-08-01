@@ -963,9 +963,9 @@ namespace Bicep.Core.Diagnostics
                     $"This expression is being used in the for-body of the variable \"{variableName}\", which requires values that can be calculated at the start of the deployment.{variableDependencyChainClause}{violatingPropertyNameClause}{accessiblePropertiesClause}");
             }
 
-            public Diagnostic ModuleParametersPropertyRequiresObjectLiteral() => CoreError(
+            public Diagnostic ModulePropertyRequiresObjectLiteral(string propertyName) => CoreError(
                 "BCP183",
-                $"The value of the module \"{LanguageConstants.ModuleParamsPropertyName}\" property must be an object literal.");
+                $"The value of the module \"{propertyName}\" property must be an object literal.");
 
             public Diagnostic FileExceedsMaximumSize(string filePath, long maxSize, string unit) => CoreError(
                 "BCP184",
@@ -1593,9 +1593,9 @@ namespace Bicep.Core.Diagnostics
                     $@"This declaration type is not valid for a Bicep Parameters file. Supported declarations: {ToQuotedString(supportedDeclarations)}.");
             }
 
-            public Diagnostic FailedToEvaluateParameter(string parameterName, string message) => CoreError(
+            public Diagnostic FailedToEvaluateSubject(string subjectType, string subjectName, string message) => CoreError(
                 "BCP338",
-                $"Failed to evaluate parameter \"{parameterName}\": {message}");
+                $"Failed to evaluate {subjectType} \"{subjectName}\": {message}");
 
             public Diagnostic ArrayIndexOutOfBounds(long indexSought) => CoreError(
                 "BCP339",
@@ -1942,8 +1942,12 @@ namespace Bicep.Core.Diagnostics
                 "BCP426",
                 "Secure outputs may only be accessed via a direct module reference. Only non-sensitive outputs are supported when dereferencing a module indirectly via a variable or lambda.");
 
-            public Diagnostic ThisFunctionOnlyAllowedInResourceProperties() => CoreError(
+            public Diagnostic EnvironmentVariableDoesNotExist(string name, string? suggestion) => CoreError(
                 "BCP427",
+                $"Environment variable \"{name}\" does not exist and there's no default value set.{suggestion}");
+
+            public Diagnostic ThisFunctionOnlyAllowedInResourceProperties() => CoreError(
+                "BCP428",
                 "The \"this()\" function can only be used within resource property expressions.");
         }
 

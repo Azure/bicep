@@ -5,4 +5,11 @@
 
 $ENV:BICEP_LANGUAGE_SERVER_PATH=[System.IO.Path]::Join($PSScriptRoot,"..\src\Bicep.LangServer\bin\Debug\net8.0\Bicep.LangServer.dll")
 $ENV:Path=[System.IO.Path]::Join($PSScriptRoot,"..\src\Bicep.Cli\bin\Debug\net8.0") + ";" + $ENV:Path
-& Start-Process -FilePath "code" -WindowStyle hidden -ArgumentList $args
+if ($IsWindows)
+{
+  & Start-Process -FilePath "code" -WindowStyle hidden -ArgumentList $args
+}
+else
+{
+  & Start-Process -FilePath "code" -ArgumentList $args
+}
