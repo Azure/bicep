@@ -73,19 +73,16 @@ Should be enabled in tandem with `assertions` experimental feature flag for expe
 
 ### `thisExistsFunction`
 
-Enables the `this()` function for accessing the current resource instance. This function can only be used within resource property expressions and provides access to the current resource being evaluated. For example:
-resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
-  name: 'mystorageaccount'
+Enables the `this()` function for accessing the current resource instance. This function can only be used within resource property expressions. Currently, only `this().exists` is available for usage. For example:
+```
+resource usingThis 'Microsoft...' = {
+  name: 'example'
   location: 'eastus'
-  sku: {
-    name: 'Standard_LRS'
-  }
-  kind: 'StorageV2'
   properties: {
-    minimumTlsVersion: 'TLS1_2'
-    publicNetworkAccess: this().exists ? 'Enabled' : 'Disabled'
+    property1: this().exists ? 'resource exists' : 'resource does not exist'
   }
 }
+```
 
 ### `waitAndRetry`
 

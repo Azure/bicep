@@ -629,7 +629,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 var thisFunction = new FunctionOverloadBuilder("this")
                     .WithReturnResultBuilder(GetThisReturnResult, GetThisReturnType())
-                    .WithGenericDescription("Returns an object representing the current resource with property exists().")
+                    .WithGenericDescription("Returns an object representing the current resource with property exists.")
                     .WithFlags(FunctionFlags.RequiresInlining)
                     .Build();
                 
