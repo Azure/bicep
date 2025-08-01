@@ -201,5 +201,35 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             });
         }
+
+        [DataRow(0, @"
+        @description('Required. The full uri for the encrypt key from key vault. Example: https://<keyvaultname>.vault.azure.net/keys/<keyname>/<version>.')
+        param keyVaultUri string
+        ")]
+        [DataRow(0, @"
+        @sys.description('Required. The full uri for the encrypt key from key vault. Example: https://<keyvaultname>.vault.azure.net/keys/<keyname>/<version>.')
+        param keyVaultUri string
+        ")]
+        [DataRow(0, @"
+        @metadata({
+          description: 'Required. The full uri for the encrypt key from key vault. Example: https://<keyvaultname>.vault.azure.net/keys/<keyname>/<version>.'
+        })
+        param keyVaultUri string
+        ")]
+        [DataRow(0, @"
+        @metadata({
+          description: 'Required. The full uri for the encrypt key from key vault. Example: https://<keyvaultname>.vault.azure.net/keys/<keyname>/<version>.',
+          otherProperty: 'some other value'
+        })
+        param keyVaultUri string
+        ")]
+        [DataRow(1, @"
+        param keyVaultUri string = 'https://<keyvaultname>.vault.azure.net/keys/<keyname>/<version>'
+        ")]
+        [DataTestMethod]
+        public void ShouldSkipDescriptionAndMetadataDecorators(int diagnosticCount, string text)
+        {
+            AssertLinterRuleDiagnostics(NoHardcodedEnvironmentUrlsRule.Code, text, diagnosticCount, new Options(OnCompileErrors.Ignore));
+        }
     }
 }
