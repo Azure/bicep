@@ -18,6 +18,8 @@ This guide assumes you have the [.NET 9 SDK](https://dotnet.microsoft.com/en-us/
         <SelfContained>true</SelfContained>
         <InvariantGlobalization>true</InvariantGlobalization>
         <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
       </PropertyGroup>
