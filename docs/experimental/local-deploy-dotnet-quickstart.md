@@ -124,7 +124,7 @@ This guide assumes you have the [.NET 9 SDK](https://dotnet.microsoft.com/en-us/
     dotnet publish --configuration release -r linux-x64 .
     dotnet publish --configuration release -r win-x64 .
     
-    bicep publish-extension --bin-osx-arm64 ./bin/release/osx-arm64/publish/my-extension --bin-linux-x64 ./bin/release/linux-x64/publish/my-extension --bin-win-x64 ./bin/release/win-x64/publish/my-extension --target ./bin/my-extension --force
+    bicep publish-extension --bin-osx-arm64 ./bin/release/osx-arm64/publish/my-extension --bin-linux-x64 ./bin/release/linux-x64/publish/my-extension --bin-win-x64 ./bin/release/win-x64/publish/my-extension.exe --target ./bin/my-extension --force
     ```
 
 ## Running your extension
