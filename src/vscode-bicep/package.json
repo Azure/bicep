@@ -807,7 +807,7 @@
     "@azure/identity": "^4.10.0",
     "@microsoft/vscode-azext-azureauth": "^4.1.1",
     "@microsoft/vscode-azext-azureutils": "^3.1.3",
-    "@microsoft/vscode-azext-utils": "^2.6.6",
+    "@microsoft/vscode-azext-utils": "^3.3.3",
     "@vscode/codicons": "^0.0.36",
     "cytoscape": "^3.30.4",
     "cytoscape-elk": "^2.3.0",
