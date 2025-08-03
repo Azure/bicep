@@ -2,20 +2,20 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Frozen;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
-using Bicep.Local.Extension.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Local.Extension.Host.Handlers;
+using Bicep.Local.Extension.Types.Attributes;
+using Bicep.Local.Extension.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Bicep.Local.Extension.Types.Attributes;
-using Bicep.Core.UnitTests.Mock;
-using System.Diagnostics;
-using System.Text.Json.Nodes;
-using System.Text.Json;
 
 namespace Bicep.Local.Extension.UnitTests.Host.Handlers;
 
