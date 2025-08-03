@@ -3,31 +3,30 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Local.Extension.Host;
 using Bicep.Local.Extension.Host.Handlers;
 using Bicep.Local.Extension.Types;
 using Bicep.Local.Extension.UnitTests.Assertions;
 using Bicep.Local.Rpc;
 using FluentAssertions;
+using Google.Protobuf;
 using Grpc.Core;
 using Grpc.Core.Testing;
 using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Moq;
-using BicepExtension = Bicep.Local.Extension.Host.BicepExtension;
 using Newtonsoft.Json.Linq;
-using Google.Protobuf;
-using System.Diagnostics;
-using System.Collections.Immutable;
+using BicepExtension = Bicep.Local.Extension.Host.BicepExtension;
 
 namespace Bicep.Local.Extension.UnitTests.Host;
 
@@ -51,7 +50,7 @@ public class BicepExtensionTests
     {
         var handlerCollectionMock = StrictMock.Of<IResourceHandlerCollection>();
         var typeDefinitionBuilderMock = StrictMock.Of<ITypeDefinitionBuilder>();
-        
+
         TypeDefinition dummyTypes = new(
             IndexFileContent: "index content",
             TypeFileContents: new Dictionary<string, string>

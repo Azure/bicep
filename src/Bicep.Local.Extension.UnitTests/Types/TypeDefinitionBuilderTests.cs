@@ -72,11 +72,11 @@ public class TypeDefinitionBuilderTests
         var builder = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, factory, typeProviderMock.Object, map);
 
         var result = builder.GenerateTypeDefinition();
-        
-        result.Should().NotBeNull();        
+
+        result.Should().NotBeNull();
         result.IndexFileContent.Should().NotBeNullOrEmpty();
         result.TypeFileContents.Values.Single().Should().NotBeNullOrEmpty();
-        result.TypeFileContents.Values.Single().Should().Contain("[]", because: "the types JSON should be and empty array '[]' when no resource types are generated");        
+        result.TypeFileContents.Values.Single().Should().Contain("[]", because: "the types JSON should be and empty array '[]' when no resource types are generated");
     }
 
     [TestMethod]
@@ -95,7 +95,7 @@ public class TypeDefinitionBuilderTests
         result.Should().NotBeNull();
         result.IndexFileContent.Should().Contain("SimpleResource");
         result.TypeFileContents.Values.Single().Should().Contain("SimpleResource");
-        result.TypeFileContents.Values.Single().Should().Contain("name", because: "the property should be present in the resource type definition");        
+        result.TypeFileContents.Values.Single().Should().Contain("name", because: "the property should be present in the resource type definition");
     }
 
     [TestMethod]

@@ -142,7 +142,7 @@ public class ProviderExtensionTests : TestBase
                 req.Properties.Should().NotBeNull();
                 req.Config.KubeConfig.Should().Be("redacted");
                 req.Config.Namespace.Should().Be("default");
-                
+
                 return new MockResourceHandler.ResourceResponse
                 {
                     Type = req.Type,
