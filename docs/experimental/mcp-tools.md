@@ -1,4 +1,4 @@
-# Using Bicep MCP Server in VS Code (Preview!)
+# Using Bicep MCP Server in VS Code (Experimental!)
 
 > [!NOTE]
 > This feature is currently in Preview while we collect feedback.
