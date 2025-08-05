@@ -1,19 +1,79 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
-  "parameters": {},
+  "parameters": {
+    "strParam1": {
+      "value": "strParam1Value"
+    },
+    "secureStrParam1": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/a/resourceGroups/b/providers/Microsoft.KeyVault/vaults/c"
+        },
+        "secretName": "param"
+      }
+    }
+  },
   "extensionConfigs": {
-    "k8s": {
-      "kubeConfig": {
+    "hasDiscrimConfig1": {
+      "a1": {
+        "value": "a1v"
+      },
+      "discrim": {
+        "value": "a"
+      },
+      "z1": {
+        "value": "z1v"
+      }
+    },
+    "hasDiscrimConfig2": {
+      "a1": {
+        "value": "a1v"
+      }
+    },
+    "hasDiscrimConfig3": {
+      "b1": {
+        "value": "b1False"
+      },
+      "discrim": {
+        "value": "b"
+      }
+    },
+    "hasObjConfig1": {
+      "requiredString": {
+        "value": "valueFromParams"
+      }
+    },
+    "hasObjConfig2": {
+      "optionalString": {
+        "value": "optional"
+      }
+    },
+    "hasObjConfig3": {},
+    "hasObjConfig5": {
+      "optionalString": {
+        "value": "inlineVal2"
+      },
+      "requiredString": {
+        "value": "asdf"
+      }
+    },
+    "hasSecureConfig1": {
+      "requiredSecureString": {
         "keyVaultReference": {
           "keyVault": {
             "id": "/subscriptions/00000000-0000-0000-0000-000000000001/resourceGroups/mock-rg/providers/Microsoft.KeyVault/vaults/kv"
           },
-          "secretName": "myKubeConfig"
+          "secretName": "mySecret"
         }
+      }
+    },
+    "hasSecureConfig2": {
+      "optionalString": {
+        "value": "valueFromParams"
       },
-      "namespace": {
-        "value": "nsFromParamFile"
+      "requiredSecureString": {
+        "value": "Inlined"
       }
     }
   }

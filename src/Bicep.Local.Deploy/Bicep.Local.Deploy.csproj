@@ -8,16 +8,16 @@
 
   <ItemGroup>
     <ProjectReference Include="../Bicep.Core/Bicep.Core.csproj" />
-    <ProjectReference Include="../Bicep.Local.Extension/Bicep.Local.Extension.csproj" />
+    <ProjectReference Include="../Bicep.Local.Rpc/Bicep.Local.Rpc.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Deployments.Engine" Version="1.424.0" />
-    <PackageReference Include="Azure.Deployments.Extensibility.Core" Version="0.1.67" />
-    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
+    <PackageReference Include="Azure.Deployments.Engine" />
+    <PackageReference Include="Azure.Deployments.Extensibility.Core" />
+    <PackageReference Include="Grpc.Net.Client" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.7.112" />
+    <PackageReference Update="Nerdbank.GitVersioning" />
   </ItemGroup>
 </Project>

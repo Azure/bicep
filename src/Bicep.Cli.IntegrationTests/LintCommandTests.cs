@@ -1,27 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
-using System.Diagnostics;
-using Bicep.Cli.UnitTests;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Mock.Registry;
-using Bicep.Core.UnitTests.Mock.Registry.Catalog;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.TextFixtures.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.CodeAnalysis.Sarif;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Moq;
-using FileSystem = System.IO.Abstractions.FileSystem;
+using TestEnvironment = Bicep.Core.UnitTests.Utils.TestEnvironment;
 
 namespace Bicep.Cli.IntegrationTests;
 
@@ -63,12 +59,15 @@ public class LintCommandTests : TestBase
     public async Task Lint_Valid_SingleFile_WithTemplateSpecReference_ShouldSucceed(DataSet dataSet)
     {
         var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-        var clientFactory = dataSet.CreateMockRegistryClients();
-        var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-        await dataSet.PublishModulesToRegistryAsync(clientFactory);
+        var features = new FeatureProviderOverrides(TestContext);
+        FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+
+        var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(features));
+        await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
+
         var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-        var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
+        var settings = new InvocationSettings(features).WithArtifactManager(artifactManager, TestContext);
         var (output, error, result) = await Bicep(settings, "lint", bicepFilePath);
 
         using (new AssertionScope())

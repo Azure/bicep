@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Net.Sockets;
@@ -10,39 +11,24 @@ using Azure.Deployments.Extensibility.Core.V2.Json;
 using Azure.Deployments.Extensibility.Core.V2.Models;
 using Bicep.Core.Features;
 using Bicep.IO.Abstraction;
-using Bicep.Local.Extension.Rpc;
-using Google.Protobuf.Collections;
+using Bicep.Local.Deploy.Helpers;
+using Bicep.Local.Deploy.Types;
 using Grpc.Net.Client;
 using Json.Pointer;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 using ExtensibilityV2 = Azure.Deployments.Extensibility.Core.V2.Models;
-using Rpc = Bicep.Local.Extension.Rpc;
 
 namespace Bicep.Local.Deploy.Extensibility;
 
-internal class GrpcLocalExtension : ILocalExtension
+internal class GrpcLocalExtension(
+    Rpc.BicepExtension.BicepExtensionClient client,
+    Process process,
+    GrpcChannel channel,
+    IOUri binaryUri) : ILocalExtension
 {
-    private readonly BicepExtension.BicepExtensionClient client;
-    private readonly Process process;
-    private readonly GrpcChannel channel;
-    private readonly IOUri binaryUri;
-
     private static void WriteTrace(IOUri binaryUri, Func<string> getMessage)
-    {
-        if (FeatureProvider.ExtensionTracingEnabled && getMessage() is { } message)
-        {
-            Trace.WriteLine($"[{binaryUri}] {message}");
-        }
-    }
-
-    private GrpcLocalExtension(BicepExtension.BicepExtensionClient client, Process process, GrpcChannel channel, IOUri binaryUri)
-    {
-        this.client = client;
-        this.process = process;
-        this.channel = channel;
-        this.binaryUri = binaryUri;
-    }
+        => Trace.WriteLine($"[{binaryUri}] {getMessage()}");
 
     public static async Task<ILocalExtension> Start(IOUri binaryUri)
     {
@@ -111,7 +97,7 @@ internal class GrpcLocalExtension : ILocalExtension
             process.BeginOutputReadLine();
 
             channel = channelBuilder();
-            var client = new BicepExtension.BicepExtensionClient(channel);
+            var client = new Rpc.BicepExtension.BicepExtensionClient(channel);
 
             await GrpcChannelHelper.WaitForConnectionAsync(client, cts.Token);
 
@@ -168,6 +154,19 @@ internal class GrpcLocalExtension : ILocalExtension
         return response;
     }
 
+    public async Task<TypeFiles> GetTypeFiles(CancellationToken cancellationToken)
+    {
+        WriteTrace(binaryUri, () => $"{nameof(GetTypeFiles)} gRPC request: <empty>");
+
+        var response = await client.GetTypeFilesAsync(new(), cancellationToken: cancellationToken);
+
+        WriteTrace(binaryUri, () => $"{nameof(GetTypeFiles)} gRPC response: {response.ToJson()}");
+
+        return new(
+            response.IndexFile,
+            response.TypeFiles.ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Value));
+    }
+
     private static Rpc.ResourceReference Convert(ExtensibilityV2.ResourceReference request)
     {
         Rpc.ResourceReference output = new()
@@ -211,7 +210,7 @@ internal class GrpcLocalExtension : ILocalExtension
     private static ExtensibilityV2.ErrorData Convert(Rpc.ErrorData errorData)
         => new(new ExtensibilityV2.Error(errorData.Error.Code, errorData.Error.Message, JsonPointer.Empty, Convert(errorData.Error.Details), ConvertInnerError(errorData.Error.InnerError)));
 
-    private static ExtensibilityV2.ErrorDetail[]? Convert(RepeatedField<Rpc.ErrorDetail>? details)
+    private static ExtensibilityV2.ErrorDetail[]? Convert(IEnumerable<Rpc.ErrorDetail>? details)
         => details is not null ? details.Select(Convert).ToArray() : null;
 
     private static ExtensibilityV2.ErrorDetail Convert(Rpc.ErrorDetail detail)

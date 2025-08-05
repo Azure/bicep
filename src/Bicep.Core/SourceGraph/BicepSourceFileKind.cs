@@ -16,6 +16,6 @@ namespace Bicep.Core.SourceGraph
         /// A Bicep parameters file that may contain a reference to a Bicep file and may
         /// also set values of the parameters declared in the referenced Bicep file.
         /// </summary>
-        ParamsFile,
+        ParamsFile
     }
 }

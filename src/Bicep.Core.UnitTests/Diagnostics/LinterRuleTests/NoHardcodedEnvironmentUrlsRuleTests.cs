@@ -57,11 +57,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         output sub int = sum
         ")]
         [DataRow(1, @"
-        param param1 string
-        var location = 'http://MANAGEMENT.core.windows.net'
-        output sub int = sum
-        ")]
-        [DataRow(1, @"
         resource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {
           name: 'name'
           location: resourceGroup().location

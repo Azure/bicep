@@ -5,7 +5,12 @@ param boolParam1 bool
 //@[000:005) Identifier |param|
 //@[006:016) Identifier |boolParam1|
 //@[017:021) Identifier |bool|
-//@[021:025) NewLine |\r\n\r\n|
+//@[021:023) NewLine |\r\n|
+param strParam1 string
+//@[000:005) Identifier |param|
+//@[006:015) Identifier |strParam1|
+//@[016:022) Identifier |string|
+//@[022:026) NewLine |\r\n\r\n|
 
 // END: Parameters
 //@[018:022) NewLine |\r\n\r\n|
@@ -168,11 +173,6 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 //@[091:092) Assignment |=|
 //@[093:094) LeftBrace |{|
 //@[094:096) NewLine |\r\n|
-  name: 'moduleWithExtsFullInheritance'
-//@[002:006) Identifier |name|
-//@[006:007) Colon |:|
-//@[008:039) StringComplete |'moduleWithExtsFullInheritance'|
-//@[039:041) NewLine |\r\n|
   extensionConfigs: {
 //@[002:018) Identifier |extensionConfigs|
 //@[018:019) Colon |:|
@@ -197,11 +197,6 @@ module moduleInvalidPropertyAccess 'child/hasConfigurableExtensionsWithAlias.bic
 //@[084:085) Assignment |=|
 //@[086:087) LeftBrace |{|
 //@[087:089) NewLine |\r\n|
-  name: 'moduleInvalidPropertyAccess'
-//@[002:006) Identifier |name|
-//@[006:007) Colon |:|
-//@[008:037) StringComplete |'moduleInvalidPropertyAccess'|
-//@[037:039) NewLine |\r\n|
   extensionConfigs: {
 //@[002:018) Identifier |extensionConfigs|
 //@[018:019) Colon |:|
@@ -251,11 +246,6 @@ module moduleComplexKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.
 //@[087:088) Assignment |=|
 //@[089:090) LeftBrace |{|
 //@[090:092) NewLine |\r\n|
-  name: 'moduleComplexKeyVaultReference'
-//@[002:006) Identifier |name|
-//@[006:007) Colon |:|
-//@[008:040) StringComplete |'moduleComplexKeyVaultReference'|
-//@[040:042) NewLine |\r\n|
   extensionConfigs: {
 //@[002:018) Identifier |extensionConfigs|
 //@[018:019) Colon |:|
@@ -314,23 +304,67 @@ module moduleComplexKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.
 //@[000:001) RightBrace |}|
 //@[001:005) NewLine |\r\n\r\n|
 
-// TODO(kylealbert): Figure out if this can be made allowable easily, potentially by inlining.
-//@[094:096) NewLine |\r\n|
+var invalidVarAssignment1 = k8s.config.namespace
+//@[000:003) Identifier |var|
+//@[004:025) Identifier |invalidVarAssignment1|
+//@[026:027) Assignment |=|
+//@[028:031) Identifier |k8s|
+//@[031:032) Dot |.|
+//@[032:038) Identifier |config|
+//@[038:039) Dot |.|
+//@[039:048) Identifier |namespace|
+//@[048:050) NewLine |\r\n|
+var invalidVarAssignment2 = k8s.config.kubeConfig
+//@[000:003) Identifier |var|
+//@[004:025) Identifier |invalidVarAssignment2|
+//@[026:027) Assignment |=|
+//@[028:031) Identifier |k8s|
+//@[031:032) Dot |.|
+//@[032:038) Identifier |config|
+//@[038:039) Dot |.|
+//@[039:049) Identifier |kubeConfig|
+//@[049:053) NewLine |\r\n\r\n|
+
+var extensionConfigsVar = {
+//@[000:003) Identifier |var|
+//@[004:023) Identifier |extensionConfigsVar|
+//@[024:025) Assignment |=|
+//@[026:027) LeftBrace |{|
+//@[027:029) NewLine |\r\n|
+  k8s: {
+//@[002:005) Identifier |k8s|
+//@[005:006) Colon |:|
+//@[007:008) LeftBrace |{|
+//@[008:010) NewLine |\r\n|
+    kubeConfig: 'inlined',
+//@[004:014) Identifier |kubeConfig|
+//@[014:015) Colon |:|
+//@[016:025) StringComplete |'inlined'|
+//@[025:026) Comma |,|
+//@[026:028) NewLine |\r\n|
+    namespace: 'inlined'
+//@[004:013) Identifier |namespace|
+//@[013:014) Colon |:|
+//@[015:024) StringComplete |'inlined'|
+//@[024:026) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
 var k8sConfigDeployTime = {
 //@[000:003) Identifier |var|
 //@[004:023) Identifier |k8sConfigDeployTime|
 //@[024:025) Assignment |=|
 //@[026:027) LeftBrace |{|
 //@[027:029) NewLine |\r\n|
-  kubeConfig: k8s.config.kubeConfig
+  kubeConfig: strParam1
 //@[002:012) Identifier |kubeConfig|
 //@[012:013) Colon |:|
-//@[014:017) Identifier |k8s|
-//@[017:018) Dot |.|
-//@[018:024) Identifier |config|
-//@[024:025) Dot |.|
-//@[025:035) Identifier |kubeConfig|
-//@[035:037) NewLine |\r\n|
+//@[014:023) Identifier |strParam1|
+//@[023:025) NewLine |\r\n|
   namespace: strParam1
 //@[002:011) Identifier |namespace|
 //@[011:012) Colon |:|
@@ -340,18 +374,29 @@ var k8sConfigDeployTime = {
 //@[000:001) RightBrace |}|
 //@[001:005) NewLine |\r\n\r\n|
 
-module moduleWithExtsUsingVar 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+module moduleWithExtsUsingVar1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@[000:006) Identifier |module|
-//@[007:029) Identifier |moduleWithExtsUsingVar|
-//@[030:078) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
-//@[079:080) Assignment |=|
-//@[081:082) LeftBrace |{|
-//@[082:084) NewLine |\r\n|
-  name: 'moduleWithExtsUsingVar'
-//@[002:006) Identifier |name|
-//@[006:007) Colon |:|
-//@[008:032) StringComplete |'moduleWithExtsUsingVar'|
-//@[032:034) NewLine |\r\n|
+//@[007:030) Identifier |moduleWithExtsUsingVar1|
+//@[031:079) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[080:081) Assignment |=|
+//@[082:083) LeftBrace |{|
+//@[083:085) NewLine |\r\n|
+  extensionConfigs: extensionConfigsVar
+//@[002:018) Identifier |extensionConfigs|
+//@[018:019) Colon |:|
+//@[020:039) Identifier |extensionConfigsVar|
+//@[039:041) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
+module moduleWithExtsUsingVar2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:006) Identifier |module|
+//@[007:030) Identifier |moduleWithExtsUsingVar2|
+//@[031:079) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[080:081) Assignment |=|
+//@[082:083) LeftBrace |{|
+//@[083:085) NewLine |\r\n|
   extensionConfigs: {
 //@[002:018) Identifier |extensionConfigs|
 //@[018:019) Colon |:|
@@ -362,6 +407,60 @@ module moduleWithExtsUsingVar 'child/hasConfigurableExtensionsWithAlias.bicep' =
 //@[007:008) Colon |:|
 //@[009:028) Identifier |k8sConfigDeployTime|
 //@[028:030) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
+module moduleInvalidSpread1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:006) Identifier |module|
+//@[007:027) Identifier |moduleInvalidSpread1|
+//@[028:076) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[077:078) Assignment |=|
+//@[079:080) LeftBrace |{|
+//@[080:082) NewLine |\r\n|
+  extensionConfigs: {
+//@[002:018) Identifier |extensionConfigs|
+//@[018:019) Colon |:|
+//@[020:021) LeftBrace |{|
+//@[021:023) NewLine |\r\n|
+    ...extensionConfigsVar
+//@[004:007) Ellipsis |...|
+//@[007:026) Identifier |extensionConfigsVar|
+//@[026:028) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
+module moduleInvalidSpread2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:006) Identifier |module|
+//@[007:027) Identifier |moduleInvalidSpread2|
+//@[028:076) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[077:078) Assignment |=|
+//@[079:080) LeftBrace |{|
+//@[080:082) NewLine |\r\n|
+  extensionConfigs: {
+//@[002:018) Identifier |extensionConfigs|
+//@[018:019) Colon |:|
+//@[020:021) LeftBrace |{|
+//@[021:023) NewLine |\r\n|
+    k8s: {
+//@[004:007) Identifier |k8s|
+//@[007:008) Colon |:|
+//@[009:010) LeftBrace |{|
+//@[010:012) NewLine |\r\n|
+      ...k8sConfigDeployTime
+//@[006:009) Ellipsis |...|
+//@[009:028) Identifier |k8sConfigDeployTime|
+//@[028:030) NewLine |\r\n|
+    }
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
   }
 //@[002:003) RightBrace |}|
 //@[003:005) NewLine |\r\n|
