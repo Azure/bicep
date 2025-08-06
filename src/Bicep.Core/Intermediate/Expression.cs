@@ -164,14 +164,6 @@ public record FunctionCallExpression(
     protected override object? GetDebugAttributes() => new { Name };
 }
 
-public record ThisFunctionExpression(
-    SyntaxBase? SourceSyntax
-) : Expression(SourceSyntax)
-{
-    public override void Accept(IExpressionVisitor visitor)
-        => visitor.VisitThisFunctionExpression(this);
-}
-
 public record ResourceFunctionCallExpression(
     SyntaxBase? SourceSyntax,
     ResourceReferenceExpression Resource,

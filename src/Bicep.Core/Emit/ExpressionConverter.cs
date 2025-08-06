@@ -209,18 +209,9 @@ namespace Bicep.Core.Emit
                         ? CreateFunction("copyIndex")
                         : CreateFunction("copyIndex", new JTokenExpression(exp.Name));
 
-                case ThisFunctionExpression exp:
-                    return ConvertThisFunctionExpression(exp);
-
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {expression.GetType().Name}");
             }
-        }
-
-        private LanguageExpression ConvertThisFunctionExpression(ThisFunctionExpression expression)
-        {
-            // This should not be called directly - it should be handled by property access
-            throw new InvalidOperationException("The this() function cannot be used directly. It must be used with property access like this().exists.");
         }
 
         public ExpressionConverter GetConverter(IndexReplacementContext? replacementContext)
@@ -235,24 +226,12 @@ namespace Bicep.Core.Emit
 
         private LanguageExpression ConvertPropertyAccessExpression(PropertyAccessExpression exp) => exp.Base switch
         {
-            ThisFunctionExpression thisFuncExpr => ConvertThisFunctionPropertyAccess(thisFuncExpr, exp),
             ResourceReferenceExpression resource
                 => GetConverter(resource.IndexContext).ConvertResourcePropertyAccess(resource, exp),
             ModuleReferenceExpression module
                 => GetConverter(module.IndexContext).ConvertModulePropertyAccess(module, exp),
             _ => ConvertAccessExpression(exp),
         };
-
-        private LanguageExpression ConvertThisFunctionPropertyAccess(ThisFunctionExpression thisFuncExpr, PropertyAccessExpression exp)
-        {
-            return exp.PropertyName switch
-            {
-                // Note: Currently only want to support this().exists, can extend to other properties in the future once self() is GA
-                // "id" => AppendProperties(CreateFunction("self", new JTokenExpression("Full")), new JTokenExpression("ResourceId")),
-                "exists" => CreateFunction("targetExists"),
-                _ => throw new InvalidOperationException($"Property '{exp.PropertyName}' is not available on this(). Only 'exists' is supported.")
-            };
-        }
 
         private LanguageExpression ConvertModuleOutputPropertyAccessExpression(ModuleOutputPropertyAccessExpression exp)
         {
