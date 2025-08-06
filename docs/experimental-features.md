@@ -73,13 +73,13 @@ Should be enabled in tandem with `assertions` experimental feature flag for expe
 
 ### `thisExistsFunction`
 
-Enables the `this()` function for accessing the current resource instance. This function can only be used within resource property expressions. Currently, only `this().exists` is available for usage. For example:
+Enables the `this.exists()` function for accessing the current resource instance. This function can only be used within resource property expressions. Currently, only `this.exists()` is available for usage. For example:
 ```
 resource usingThis 'Microsoft...' = {
   name: 'example'
   location: 'eastus'
   properties: {
-    property1: this().exists ? 'resource exists' : 'resource does not exist'
+    property1: this.exists() ? 'resource exists' : 'resource does not exist'
   }
 }
 ```

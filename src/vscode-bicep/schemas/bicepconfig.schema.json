@@ -892,7 +892,7 @@
         },
         "thisExistsFunction": {
           "type": "boolean",
-          "description": "Allows you to use this().exists to modify resource properties based on whether the resource already exists. See https://aka.ms/bicep/experimental-features#thisexistsfunction"
+          "description": "Allows you to use this.exists() to modify resource properties based on whether the resource already exists. See https://aka.ms/bicep/experimental-features#thisexistsfunction"
         }
       },
       "additionalProperties": false
