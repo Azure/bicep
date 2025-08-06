@@ -11,7 +11,12 @@ namespace Bicep.Core.Semantics
     {
         public delegate TypeSymbol GetFunctionArgumentType(int argIndex);
 
-        public delegate TypeSymbol? FunctionArgumentTypeCalculator(GetFunctionArgumentType getArgumentTypeFunc);
+        /// <summary>
+        /// Gets the type of the statement targeted by this decorator. Throws if called for a non-decorator function.
+        /// </summary>
+        public delegate TypeSymbol GetAttachedType();
+
+        public delegate TypeSymbol? FunctionArgumentTypeCalculator(GetFunctionArgumentType getArgumentTypeFunc, GetAttachedType getAttachedType);
 
         public FunctionOverloadBuilder(string name)
         {

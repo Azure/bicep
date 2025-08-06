@@ -110,13 +110,15 @@ namespace Bicep.Core.Semantics
 
         public TypeSymbol GetArgumentType(
             int index,
-            FunctionOverloadBuilder.GetFunctionArgumentType? getFunctionArgumentType = null)
+            FunctionOverloadBuilder.GetFunctionArgumentType? getFunctionArgumentType = null,
+            FunctionOverloadBuilder.GetAttachedType? getAttachedType = null)
         {
             if (index < this.FixedParameters.Length)
             {
                 if (FixedParameters[index].Calculator is { } calculator &&
                     getFunctionArgumentType is not null &&
-                    calculator(getFunctionArgumentType) is { } calculatedType)
+                    getAttachedType is not null &&
+                    calculator(getFunctionArgumentType, getAttachedType) is { } calculatedType)
                 {
                     return calculatedType;
                 }

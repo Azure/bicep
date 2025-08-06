@@ -1,18 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.TypeSystem;
+using static Bicep.Core.Semantics.FunctionOverloadBuilder;
 
 namespace Bicep.Core.Semantics
 {
     public class DecoratorBuilder
     {
         private readonly FunctionOverloadBuilder functionOverloadBuilder;
-
         private TypeSymbol attachableType;
-
         private DecoratorValidator? validator;
-
         private DecoratorEvaluator? evaluator;
+        private DecoratorFlags flags = DecoratorFlags.None;
 
         public DecoratorBuilder(string name)
         {
@@ -27,16 +26,16 @@ namespace Bicep.Core.Semantics
             return this;
         }
 
-        public DecoratorBuilder WithRequiredParameter(string name, TypeSymbol type, string description)
+        public DecoratorBuilder WithRequiredParameter(string name, TypeSymbol type, string description, FunctionArgumentTypeCalculator? calculator = null)
         {
-            this.functionOverloadBuilder.WithRequiredParameter(name, type, description);
+            this.functionOverloadBuilder.WithRequiredParameter(name, type, description, calculator);
 
             return this;
         }
 
-        public DecoratorBuilder WithOptionalParameter(string name, TypeSymbol type, string description)
+        public DecoratorBuilder WithOptionalParameter(string name, TypeSymbol type, string description, FunctionArgumentTypeCalculator? calculator = null)
         {
-            this.functionOverloadBuilder.WithOptionalParameter(name, type, description);
+            this.functionOverloadBuilder.WithOptionalParameter(name, type, description, calculator);
 
             return this;
         }
@@ -57,6 +56,13 @@ namespace Bicep.Core.Semantics
             }
 
             this.functionOverloadBuilder.WithFlags(flags);
+
+            return this;
+        }
+
+        public DecoratorBuilder WithFlags(DecoratorFlags flags)
+        {
+            this.flags = flags;
 
             return this;
         }
@@ -82,6 +88,6 @@ namespace Bicep.Core.Semantics
             return this;
         }
 
-        public Decorator Build() => new(this.functionOverloadBuilder.Build(), this.attachableType, this.validator, this.evaluator);
+        public Decorator Build() => new(functionOverloadBuilder.Build(), attachableType, validator, evaluator, flags);
     }
 }

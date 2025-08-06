@@ -25,20 +25,26 @@ namespace Bicep.Core.Semantics
     public class Decorator
     {
         private readonly TypeSymbol attachableType;
-
         private readonly DecoratorValidator? validator;
-
         private readonly DecoratorEvaluator? evaluator;
 
-        public Decorator(FunctionOverload overload, TypeSymbol attachableType, DecoratorValidator? validator, DecoratorEvaluator? evaluator)
+        public Decorator(
+            FunctionOverload overload,
+            TypeSymbol attachableType,
+            DecoratorValidator? validator,
+            DecoratorEvaluator? evaluator,
+            DecoratorFlags flags)
         {
             this.Overload = overload;
             this.attachableType = attachableType;
             this.validator = validator;
             this.evaluator = evaluator;
+            Flags = flags;
         }
 
         public FunctionOverload Overload { get; }
+
+        public DecoratorFlags Flags { get; }
 
         public bool CanAttachTo(TypeSymbol targetType) => TypeValidator.AreTypesAssignable(targetType, attachableType);
 
@@ -75,5 +81,12 @@ namespace Bicep.Core.Semantics
         }
 
         private static TypeSymbol RemoveImplicitNull(TypeSymbol type) => TypeHelper.TryRemoveNullability(type) ?? type;
+    }
+
+    [Flags]
+    public enum DecoratorFlags
+    {
+        None = 0,
+        AllowExpressionsInArguments = 1,
     }
 }

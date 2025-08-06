@@ -1889,4 +1889,29 @@ param myParam string
 
         result.Should().NotHaveAnyDiagnostics();
     }
+
+    [TestMethod]
+    public void User_defined_validator_can_be_attached_to_a_parameter_statement()
+    {
+        var result = CompilationHelper.Compile("""
+            @validate(x => startsWith(x, 'foo'))
+            param foo string
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void User_defined_validator_checks_lambda_type_against_declared_type()
+    {
+        var result = CompilationHelper.Compile("""
+            @validate(x => startsWith(x, 'foo'))
+            param foo int
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
+            ("BCP070", DiagnosticLevel.Error, "Argument of type \"int => error\" is not assignable to parameter of type \"any => bool\"."),
+        ]);
+    }
 }
