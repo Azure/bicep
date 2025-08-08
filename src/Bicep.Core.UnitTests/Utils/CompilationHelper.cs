@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
@@ -116,7 +117,7 @@ namespace Bicep.Core.UnitTests.Utils
         public static IWorkspace CreateWorkspace(ISourceFileFactory sourceFileFactory, IReadOnlyDictionary<Uri, string> uriDictionary)
         {
             var workspace = new Workspace();
-            var sourceFiles = uriDictionary.Select(kvp => sourceFileFactory.CreateSourceFile(kvp.Key, kvp.Value));
+            var sourceFiles = uriDictionary.Select(kvp => sourceFileFactory.CreateSourceFile(kvp.Key.ToIOUri(), kvp.Value));
             workspace.UpsertSourceFiles(sourceFiles);
 
             return workspace;

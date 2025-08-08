@@ -5,6 +5,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
+using Bicep.IO.InMemory;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -670,5 +671,5 @@ public class ArmTemplateSemanticModelTests
     }
 
     private static ArmTemplateSemanticModel LoadModel(string jsonTemplate)
-        => new(BicepTestConstants.SourceFileFactory.CreateArmTemplateFile(new("inmemory://template.json"), jsonTemplate));
+        => new(BicepTestConstants.SourceFileFactory.CreateArmTemplateFile(DummyFileHandle.Instance, jsonTemplate));
 }

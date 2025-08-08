@@ -53,7 +53,6 @@ namespace Bicep.LanguageServer
             IModuleRestoreScheduler scheduler,
             ITelemetryProvider telemetryProvider,
             ILinterRulesProvider LinterRulesProvider,
-            IFileResolver fileResolver,
             ISourceFileFactory sourceFileFactory,
             IAuxiliaryFileCache auxiliaryFileCache)
         {
@@ -114,7 +113,7 @@ namespace Bicep.LanguageServer
         {
             if (this.ShouldUpsertCompilation(documentUri, languageId, out var sourceFileType))
             {
-                var newFile = this.sourceFileFactory.CreateSourceFile(documentUri.ToUriEncoded(), fileContents, sourceFileType);
+                var newFile = this.sourceFileFactory.CreateSourceFile(documentUri.ToIOUri(), fileContents, sourceFileType);
                 UpsertCompilationInternal(documentUri, version, newFile, triggeredByFileOpenEvent: true);
             }
         }
@@ -123,7 +122,7 @@ namespace Bicep.LanguageServer
         {
             if (this.ShouldUpsertCompilation(documentUri, languageId: null, out var sourceFileType))
             {
-                var newFile = this.sourceFileFactory.CreateSourceFile(documentUri.ToUriEncoded(), fileContents, sourceFileType);
+                var newFile = this.sourceFileFactory.CreateSourceFile(documentUri.ToIOUri(), fileContents, sourceFileType);
                 UpsertCompilationInternal(documentUri, version, newFile, triggeredByFileOpenEvent: false);
             }
         }

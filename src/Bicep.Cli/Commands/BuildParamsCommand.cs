@@ -116,7 +116,7 @@ public class BuildParamsCommand(
             return null;
         }
 
-        var sourceFile = sourceFileFactory.CreateBicepParamFile(paramsFileUri.ToUri(), paramsFileText);
+        var sourceFile = sourceFileFactory.CreateBicepParamFile(paramsFileUri, paramsFileText);
         var parameterOverrides = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(parameterOverridesJson, new JsonSerializerSettings()
         {
             DateParseHandling = DateParseHandling.None,

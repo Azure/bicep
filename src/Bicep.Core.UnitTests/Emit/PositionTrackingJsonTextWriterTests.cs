@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Emit;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests.Utils;
@@ -29,7 +30,7 @@ namespace Bicep.Core.UnitTests.Emit
             var rawSourceMap = new RawSourceMap([]);
             var jsonWriter = new PositionTrackingJsonTextWriter(
                 new StringWriter(),
-                compilation.SourceFileFactory.CreateBicepFile(FileUri, Text),
+                compilation.SourceFileFactory.CreateBicepFile(FileUri.ToIOUri(), Text),
                 rawSourceMap);
             jsonWriter.WritePropertyWithPosition(parameterSymbol.DeclaringParameter, parameterSymbol.Name, () => { });
 

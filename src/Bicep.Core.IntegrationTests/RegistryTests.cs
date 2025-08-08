@@ -12,6 +12,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.InMemory;
 using Bicep.TextFixtures.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -400,7 +401,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var sourceFileFactory = dependencyHelper.Construct<ISourceFileFactory>();
 
-            return sourceFileFactory.CreateBicepFile(new Uri("inmemory:///main.bicep"), "");
+            return sourceFileFactory.CreateBicepFile(DummyFileHandle.Instance, "");
         }
 
         private static ResultWithDiagnosticBuilder<ArtifactReference> TryGetModuleReference(IModuleDispatcher moduleDispatcher, BicepSourceFile referencingFile, string reference) =>

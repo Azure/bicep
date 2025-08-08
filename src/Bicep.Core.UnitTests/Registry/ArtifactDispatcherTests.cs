@@ -222,7 +222,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         private static ModuleDeclarationSyntax CreateModule(string reference)
         {
-            var file = BicepTestConstants.SourceFileFactory.CreateBicepFile(new Uri("untitled://hello"), $"module foo '{reference}' = {{}}");
+            var file = BicepTestConstants.SourceFileFactory.CreateBicepFile(DummyFileHandle.Instance, $"module foo '{reference}' = {{}}");
             return file.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Single();
         }
 
