@@ -12,7 +12,7 @@ This guide assumes you have the [.NET 9 SDK](https://dotnet.microsoft.com/en-us/
       <PropertyGroup>
         <OutputType>Exe</OutputType>
         <RootNamespace>MyExtension</RootNamespace>
-        <AssemblyName>my-extension</AssemblyName>
+        <AssemblyName>bicep-ext-myextension</AssemblyName>
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
         <PublishSingleFile>true</PublishSingleFile>
         <SelfContained>true</SelfContained>
@@ -20,8 +20,6 @@ This guide assumes you have the [.NET 9 SDK](https://dotnet.microsoft.com/en-us/
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
       </PropertyGroup>
     
       <ItemGroup>
@@ -124,7 +122,7 @@ This guide assumes you have the [.NET 9 SDK](https://dotnet.microsoft.com/en-us/
     dotnet publish --configuration release -r linux-x64 .
     dotnet publish --configuration release -r win-x64 .
     
-    bicep publish-extension --bin-osx-arm64 ./bin/release/osx-arm64/publish/my-extension --bin-linux-x64 ./bin/release/linux-x64/publish/my-extension --bin-win-x64 ./bin/release/win-x64/publish/my-extension.exe --target ./bin/my-extension --force
+    bicep publish-extension --bin-osx-arm64 ./bin/release/osx-arm64/publish/bicep-ext-myextension --bin-linux-x64 ./bin/release/linux-x64/publish/bicep-ext-myextension --bin-win-x64 ./bin/release/win-x64/publish/bicep-ext-myextension.exe --target ./bin/bicep-ext-myextension --force
     ```
 
 ## Running your extension
@@ -135,7 +133,7 @@ This guide assumes you have the [.NET 9 SDK](https://dotnet.microsoft.com/en-us/
         "localDeploy": true
       },
       "extensions": {
-        "myextension": "./bin/my-extension"
+        "myextension": "./bin/bicep-ext-myextension"
       },
       "implicitExtensions": []
     }
