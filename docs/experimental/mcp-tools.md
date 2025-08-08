@@ -38,7 +38,7 @@ The Bicep server may not appear in your list of MCP servers and tools in VS Code
 
 3. Start using Agent Mode to help with your Bicep tasks!
 
-![Bicep MCP Usage Example](../images\use-agent-mode-with-bicep.png)
+![Bicep MCP Usage Example](../images/use-agent-mode-with-bicep.png)
 
 ## Limitations
 > [!NOTE]
