@@ -212,12 +212,9 @@ namespace Bicep.Core.IntegrationTests
             var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(features));
             await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
 
-            var fileResolver = BicepTestConstants.FileResolver;
-
             var services = Services
                 .WithFeatureOverrides(features)
                 .WithTestArtifactManager(artifactManager)
-                .WithFileResolver(fileResolver)
                 .Build();
 
             var dispatcher = services.Construct<IModuleDispatcher>();
@@ -278,12 +275,9 @@ namespace Bicep.Core.IntegrationTests
             var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(features));
             await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
 
-            var fileResolver = BicepTestConstants.FileResolver;
-
             var services = Services
                 .WithFeatureOverrides(features)
                 .WithTestArtifactManager(artifactManager)
-                .WithFileResolver(fileResolver)
                 .Build();
 
             var dispatcher = services.Construct<IModuleDispatcher>();
@@ -352,12 +346,9 @@ namespace Bicep.Core.IntegrationTests
             var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(features));
             await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
 
-            var fileResolver = BicepTestConstants.FileResolver;
-
             var services = Services
                 .WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory))
                 .WithTestArtifactManager(artifactManager)
-                .WithFileResolver(fileResolver)
                 .Build();
 
             var dispatcher = services.Construct<IModuleDispatcher>();

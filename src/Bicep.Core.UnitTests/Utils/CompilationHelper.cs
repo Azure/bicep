@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.IO.Abstractions.TestingHelpers;
+using System.IO.Enumeration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
@@ -12,6 +14,9 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.UnitTests.FileSystem;
+using Bicep.IO.Abstraction;
+using Bicep.IO.InMemory;
+using Bicep.TextFixtures.IO;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 
@@ -126,22 +131,21 @@ namespace Bicep.Core.UnitTests.Utils
         public static CompilationResult Compile(ServiceBuilder services, params (string fileName, string fileContents)[] files)
         {
             files.Select(x => x.fileName).Should().Contain("main.bicep");
-            var filesToAppend = files.Select(file => ("/path/to", file.fileName, file.fileContents));
 
-            var (uriDictionary, entryUri) = CreateFileDictionary(filesToAppend, "main.bicep");
-            var fileResolver = new InMemoryFileResolver(uriDictionary);
+            var fileSet = new MockFileSystemTestFileSet();
+            foreach (var (fileName, fileContents) in files)
+            {
+                fileSet.AddFile(fileName, fileContents);
+            }
 
-            return Compile(services, fileResolver, uriDictionary.Keys, entryUri);
+            return Compile(services, fileSet, fileSet.GetUri("main.bicep"));
         }
 
-        public static CompilationResult Compile(ServiceBuilder services, InMemoryFileResolver fileResolver, IEnumerable<Uri> sourceFiles, Uri entryUri)
+        public static CompilationResult Compile(ServiceBuilder services, MockFileSystemTestFileSet fileSet, IOUri entryUri)
         {
-            var compiler = services.WithFileResolver(fileResolver).WithFileSystem(fileResolver.MockFileSystem).Build().GetCompiler();
-            var sourceFileDict = sourceFiles
-                .Where(x => PathHelper.HasBicepExtension(x) || PathHelper.HasArmTemplateLikeExtension(x))
-                .ToDictionary(x => x, x => fileResolver.TryRead(x).IsSuccess(out var fileContents) ? fileContents : throw new InvalidOperationException($"Failed to find file {x}"));
+            var compiler = services.WithFileExplorer(fileSet.FileExplorer).WithFileSystem(fileSet.FileSystem).Build().GetCompiler();
+            var compilation = compiler.CreateCompilationWithoutRestore(entryUri.ToUri());
 
-            var compilation = compiler.CreateCompilationWithoutRestore(entryUri);
             return GetCompilationResult(compilation);
         }
 

@@ -19,8 +19,7 @@ namespace Bicep.Decompiler.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private static BicepDecompiler CreateDecompiler(IFileResolver fileResolver)
-          => ServiceBuilder.Create(s => s.WithFileResolver(fileResolver)).GetDecompiler();
+        private static BicepDecompiler CreateDecompiler() => ServiceBuilder.Create().GetDecompiler();
 
         [TestMethod]
         public void Decompiler_Decompiles_ValidParametersFile()
@@ -74,12 +73,7 @@ namespace Bicep.Decompiler.IntegrationTests
 
             var paramFileUri = new Uri("file:///path/to/main.json");
 
-            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
-            {
-                [paramFileUri] = jsonParametersFile
-            });
-
-            var decompiler = CreateDecompiler(fileResolver);
+            var decompiler = CreateDecompiler();
 
             var (entryPointUri, filesToSave) = decompiler.DecompileParameters(
                 jsonParametersFile,
@@ -124,12 +118,7 @@ namespace Bicep.Decompiler.IntegrationTests
             var paramFileUri = new Uri("file:///path/to/main.json");
             var bicepFileUri = new Uri("file:///path/to/dir/main.bicep");
 
-            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
-            {
-                [paramFileUri] = jsonParametersFile
-            });
-
-            var decompiler = CreateDecompiler(fileResolver);
+            var decompiler = CreateDecompiler();
 
             var (entryPointUri, filesToSave) = decompiler.DecompileParameters(
               jsonParametersFile,
@@ -181,12 +170,7 @@ namespace Bicep.Decompiler.IntegrationTests
 
             var paramFileUri = new Uri("file:///path/to/main.json");
 
-            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
-            {
-                [paramFileUri] = jsonParametersFile
-            });
-
-            var decompiler = CreateDecompiler(fileResolver);
+            var decompiler = CreateDecompiler();
 
             var (entryPointUri, filesToSave) = decompiler.DecompileParameters(
               jsonParametersFile,
@@ -241,12 +225,7 @@ namespace Bicep.Decompiler.IntegrationTests
 
             var paramFileUri = new Uri("file:///path/to/main.json");
 
-            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
-            {
-                [paramFileUri] = jsonParametersFile
-            });
-
-            var decompiler = CreateDecompiler(fileResolver);
+            var decompiler = CreateDecompiler();
 
             var (entryPointUri, filesToSave) = decompiler.DecompileParameters(
               jsonParametersFile,

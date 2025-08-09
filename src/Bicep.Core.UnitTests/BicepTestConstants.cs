@@ -42,8 +42,6 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IFileSystem FileSystem = new OnDiskFileSystem();
 
-        public static readonly FileResolver FileResolver = new(FileSystem);
-
         public static readonly IFileExplorer FileExplorer = new FileSystemFileExplorer(FileSystem);
 
         public static readonly FeatureProviderOverrides FeatureOverrides = new();
