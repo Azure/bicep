@@ -41,7 +41,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             if (disallowedHosts.Any())
             {
-                var visitor = new Visitor(disallowedHosts, disallowedHosts.Min(h => h.Length), excludedHosts);
+                var visitor = new Visitor(disallowedHosts, disallowedHosts.Min(h => h.Length), excludedHosts, model.SourceFile.Hierarchy);
                 visitor.Visit(model.SourceFile.ProgramSyntax);
 
                 return visitor.DisallowedHostSpans.Select(entry => CreateDiagnosticForSpan(diagnosticLevel, entry.Key, entry.Value));
@@ -102,12 +102,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             private readonly ImmutableArray<string> disallowedHosts;
             private readonly int minHostLen;
             private readonly ImmutableArray<string> excludedHosts;
+            private readonly ISyntaxHierarchy syntaxHierarchy;
 
-            public Visitor(ImmutableArray<string> disallowedHosts, int minHostLen, ImmutableArray<string> excludedHosts)
+            public Visitor(ImmutableArray<string> disallowedHosts, int minHostLen, ImmutableArray<string> excludedHosts, ISyntaxHierarchy syntaxHierarchy)
             {
                 this.disallowedHosts = disallowedHosts;
                 this.minHostLen = minHostLen;
                 this.excludedHosts = excludedHosts;
+                this.syntaxHierarchy = syntaxHierarchy;
             }
 
             public static IEnumerable<(TextSpan RelativeSpan, string Value)> RemoveOverlapping(IEnumerable<(TextSpan RelativeSpan, string Value)> matches)
@@ -126,8 +128,59 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 }
             }
 
+            private bool IsStringInDescriptionOrMetadataDecorator(StringSyntax syntax)
+            {
+                // Check if this StringSyntax is part of a @description or @metadata decorator
+                var current = syntaxHierarchy.GetParent(syntax);
+                while (current is not null)
+                {
+                    if (current is DecoratorSyntax decoratorSyntax)
+                    {
+                        // Check if it's a @description decorator
+                        if (decoratorSyntax.Expression is FunctionCallSyntax functionCall)
+                        {
+                            if (functionCall.NameEquals("description"))
+                            {
+                                return true;
+                            }
+                        }
+                        else if (decoratorSyntax.Expression is InstanceFunctionCallSyntax instanceFunctionCall)
+                        {
+                            // Check for @sys.description
+                            if (instanceFunctionCall.NameEquals("description") && 
+                                instanceFunctionCall.BaseExpression is VariableAccessSyntax variableAccess &&
+                                variableAccess.NameEquals("sys"))
+                            {
+                                return true;
+                            }
+                        }
+
+                        // Check if it's a @metadata decorator
+                        if (decoratorSyntax.Expression is FunctionCallSyntax metadataFunctionCall)
+                        {
+                            if (metadataFunctionCall.NameEquals("metadata"))
+                            {
+                                return true;
+                            }
+                        }
+
+                        break;
+                    }
+
+                    current = syntaxHierarchy.GetParent(current);
+                }
+
+                return false;
+            }
+
             public override void VisitStringSyntax(StringSyntax syntax)
             {
+                // Skip strings that are part of @description or @metadata decorators
+                if (IsStringInDescriptionOrMetadataDecorator(syntax))
+                {
+                    return;
+                }
+
                 // shortcut check by testing length of full span
                 if (syntax.Span.Length > minHostLen)
                 {
