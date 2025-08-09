@@ -71,7 +71,6 @@ public static class ServiceCollectionExtensions
         .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
         .AddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>()
         .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
-        .AddSingleton<IFileResolver, FileResolver>()
         .AddSingleton<IEnvironment, Environment>()
         .AddSingleton<IFileSystem, LocalFileSystem>()
         .AddSingleton<IFileExplorer, FileSystemFileExplorer>()

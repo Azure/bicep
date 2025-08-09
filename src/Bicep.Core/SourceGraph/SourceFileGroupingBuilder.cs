@@ -144,8 +144,8 @@ namespace Bicep.Core.SourceGraph
 
 
             sourceFile = moduleReference is TemplateSpecModuleReference
-                ? this.sourceFileFactory.CreateSourceFile(fileUri, fileContents, typeof(TemplateSpecFile))
-                : this.sourceFileFactory.CreateSourceFile(fileUri, fileContents);
+                ? this.sourceFileFactory.CreateTemplateSpecFile(fileUri.ToIOUri(), fileContents)
+                : this.sourceFileFactory.CreateSourceFile(fileUri.ToIOUri(), fileContents);
 
             return new(sourceFile);
         }

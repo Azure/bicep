@@ -35,7 +35,6 @@ namespace Bicep.RegistryModuleTool.Extensions
             .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
             .AddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>()
             .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
-            .AddSingleton<IFileResolver, FileResolver>()
             .AddSingleton<IEnvironment, Environment>()
             .AddSingleton<IConfigurationManager, ConfigurationManager>()
             .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()

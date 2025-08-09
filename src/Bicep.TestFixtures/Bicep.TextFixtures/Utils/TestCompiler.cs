@@ -39,7 +39,6 @@ namespace Bicep.TextFixtures.Utils
 
             return new TestCompiler(fileSet).ConfigureServices(services => services
                 .AddFileSystem(fileSystem)
-                .AddSingleton<IFileResolver>(new FileResolver(fileSystem))
                 .AddFileExplorer(fileExplorer));
         }
 

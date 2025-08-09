@@ -120,7 +120,7 @@ namespace Bicep.Cli.Commands
 
         private ArtifactReference ValidateReference(string targetModuleReference, IOUri targetModuleUri)
         {
-            var dummyReferencingFile = this.sourceFileFactory.CreateBicepFile(targetModuleUri.ToUri(), string.Empty);
+            var dummyReferencingFile = this.sourceFileFactory.CreateBicepFile(targetModuleUri, string.Empty);
 
             if (!this.moduleDispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Module, targetModuleReference).IsSuccess(out var moduleReference, out var failureBuilder))
             {

@@ -256,7 +256,6 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object,
                 new LinterRulesProvider(),
-                BicepTestConstants.FileResolver,
                 sourceFileFactory,
                 BicepTestConstants.AuxiliaryFileCache);
             bicepCompilationManager.OpenCompilation(DocumentUri.From(InMemoryFileResolver.GetFileUri(bicepFilePath)), null, bicepFileContents, LanguageConstants.LanguageId);

@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Text;
+
 namespace Bicep.TextFixtures.IO
 {
     public record TestFileData
@@ -12,6 +14,8 @@ namespace Bicep.TextFixtures.IO
         public TestFileData(BinaryData data) => this.data = data;
 
         public TestFileData(string text) => this.data = BinaryData.FromString(text);
+
+        public TestFileData(string text, Encoding encoding) => this.data = BinaryData.FromBytes([.. encoding.GetPreamble(), .. encoding.GetBytes(text)]);
 
         private TestFileData(bool _) => this.data = null;
 

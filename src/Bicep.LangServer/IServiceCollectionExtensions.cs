@@ -45,7 +45,6 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
         .AddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>()
         .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
-        .AddSingleton<IFileResolver, FileResolver>()
         .AddSingleton<IEnvironment, Core.Utils.Environment>()
         .AddSingleton<IFileSystem, LocalFileSystem>()
         .AddSingleton<IFileExplorer, FileSystemFileExplorer>()

@@ -4,8 +4,11 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text;
+using Bicep.Core;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Decompiler;
+using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Telemetry;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OmniSharp.Extensions.JsonRpc;
@@ -74,7 +77,7 @@ namespace Bicep.LanguageServer.Handlers
     /// </summary>
     public class BicepDecompileCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDecompileCommandParams, BicepDecompileCommandResult>
     {
-        private readonly IFileResolver fileResolver;
+        private readonly IFileExplorer fileExplorer;
         private readonly BicepDecompiler bicepDecompiler;
         private readonly TelemetryAndErrorHandlingHelper<BicepDecompileCommandResult> telemetryHelper;
 
@@ -82,12 +85,12 @@ namespace Bicep.LanguageServer.Handlers
             ISerializer serializer,
             ILanguageServerFacade server,
             ITelemetryProvider telemetryProvider,
-            IFileResolver fileResolver,
+            IFileExplorer fileExplorer,
             BicepDecompiler bicepDecompiler)
             : base(LangServerConstants.DecompileCommand, serializer)
         {
             this.telemetryHelper = new TelemetryAndErrorHandlingHelper<BicepDecompileCommandResult>(server.Window, telemetryProvider);
-            this.fileResolver = fileResolver;
+            this.fileExplorer = fileExplorer;
             this.bicepDecompiler = bicepDecompiler;
         }
 
@@ -95,29 +98,27 @@ namespace Bicep.LanguageServer.Handlers
         {
             return telemetryHelper.ExecuteWithTelemetryAndErrorHandling(() =>
             {
-                return Decompile(parameters.jsonUri.GetFileSystemPath());
+                return Decompile(parameters.jsonUri.ToIOUri());
             });
         }
 
-        private async Task<(BicepDecompileCommandResult result, BicepTelemetryEvent? successTelemetry)> Decompile(string jsonPath)
+        private async Task<(BicepDecompileCommandResult result, BicepTelemetryEvent? successTelemetry)> Decompile(IOUri jsonUri)
         {
             StringBuilder output = new();
             string decompileId = Guid.NewGuid().ToString();
-
-            Uri jsonUri = new(jsonPath, UriKind.Absolute);
 
             Uri? bicepUri;
             ImmutableDictionary<Uri, string>? filesToSave;
             try
             {
                 // Decompile
-                Log(output, String.Format(LangServerResources.Decompile_DecompilationStartMsg, jsonPath));
-                if (!fileResolver.TryRead(jsonUri).IsSuccess(out var jsonContents, out _))
+                Log(output, String.Format(LangServerResources.Decompile_DecompilationStartMsg, jsonUri));
+                if (!this.fileExplorer.GetFile(jsonUri).TryReadAllText().IsSuccess(out var jsonContents, out _))
                 {
                     throw new InvalidOperationException($"Failed to read {jsonUri}");
                 }
 
-                (bicepUri, filesToSave) = await bicepDecompiler.Decompile(PathHelper.ChangeToBicepExtension(jsonUri), jsonContents);
+                (bicepUri, filesToSave) = await bicepDecompiler.Decompile(jsonUri.WithExtension(LanguageConstants.LanguageFileExtension).ToUri(), jsonContents);
             }
             catch (Exception ex)
             {

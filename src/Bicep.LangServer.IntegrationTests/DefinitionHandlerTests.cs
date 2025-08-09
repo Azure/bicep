@@ -786,8 +786,7 @@ param |foo| string
             var server = new SharedLanguageHelperManager();
             var fileResolver = new InMemoryFileResolver(additionalFiles.ToDictionary(x => new Uri($"file:///{testContext.TestName}/path/to/{x.fileName}"), x => x.fileBody));
             var fileExplorer = new FileSystemFileExplorer(fileResolver.MockFileSystem);
-            server.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services =>
-                services.WithFileResolver(fileResolver).WithFileExplorer(fileExplorer)));
+            server.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithFileExplorer(fileExplorer)));
 
             var helper = await server.GetAsync();
             await helper.OpenFileOnceAsync(testContext, file, bicepFile.Uri);

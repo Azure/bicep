@@ -4139,7 +4139,7 @@ var file = " + functionName + @"(templ|)
                 [InMemoryFileResolver.GetFileUri("/path2/to/main.bicep")] = "",
             });
 
-            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFileResolver(fileResolver).WithFileExplorer(new FileSystemFileExplorer(fileResolver.MockFileSystem)));
+            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFileExplorer(new FileSystemFileExplorer(fileResolver.MockFileSystem)));
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, text);
@@ -4176,9 +4176,7 @@ var file = " + functionName + @"(templ|)
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
-                services => services
-                .AddSingleton<ISettingsProvider>(settingsProvider.Object)
-                .WithFileResolver(new FileResolver(new LocalFileSystem())));
+                services => services.AddSingleton<ISettingsProvider>(settingsProvider.Object));
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
             var completions = await file.RequestAndResolveCompletions(cursor);
@@ -4206,8 +4204,7 @@ var file = " + functionName + @"(templ|)
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
                 services => services
-                .AddSingleton<ISettingsProvider>(settingsProvider.Object)
-                .WithFileResolver(new FileResolver(new LocalFileSystem())));
+                .AddSingleton<ISettingsProvider>(settingsProvider.Object));
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
             var completions = await file.RequestAndResolveCompletions(cursor);

@@ -42,8 +42,6 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IFileSystem FileSystem = new OnDiskFileSystem();
 
-        public static readonly FileResolver FileResolver = new(FileSystem);
-
         public static readonly IFileExplorer FileExplorer = new FileSystemFileExplorer(FileSystem);
 
         public static readonly FeatureProviderOverrides FeatureOverrides = new();
@@ -186,7 +184,6 @@ namespace Bicep.Core.UnitTests
         public static BicepFile CreateDummyBicepFile(IConfigurationManager configurationManager, IFeatureProviderFactory? featureProviderFactory = null)
         {
             return new(
-                new Uri($"inmemory:///main.bicep"),
                 DummyFileHandle.Instance,
                 [],
                 SyntaxFactory.EmptyProgram,

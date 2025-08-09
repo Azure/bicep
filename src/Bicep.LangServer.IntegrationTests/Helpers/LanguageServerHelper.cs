@@ -90,7 +90,6 @@ namespace Bicep.LangServer.IntegrationTests
                 services =>
                 {
                     onRegisterServices?.Invoke(services);
-                    services.WithFileResolver(fileResolver);
                     services.WithFileExplorer(fileExplorer);
                 });
 

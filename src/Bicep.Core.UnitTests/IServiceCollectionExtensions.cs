@@ -43,7 +43,6 @@ public static class IServiceCollectionExtensions
             .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
             .AddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>()
             .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
-            .AddSingleton<IFileResolver, FileResolver>()
             .AddSingleton<IEnvironment>(TestEnvironment.Default)
             .AddSingleton<IFileSystem, LocalFileSystem>()
             .AddSingleton<IFileExplorer, FileSystemFileExplorer>()
@@ -67,9 +66,6 @@ public static class IServiceCollectionExtensions
     private static IServiceCollection Register<TService>(IServiceCollection services, TService service)
         where TService : class
         => services.AddSingleton(service);
-
-    public static IServiceCollection WithFileResolver(this IServiceCollection services, IFileResolver fileResolver)
-        => Register(services, fileResolver);
 
     public static IServiceCollection WithFileExplorer(this IServiceCollection services, IFileExplorer fileExplorer)
         => Register(services, fileExplorer);

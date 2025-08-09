@@ -4,6 +4,7 @@
 using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
+using Bicep.IO.InMemory;
 using Bicep.TextFixtures.Fakes.ContainerRegistry;
 using Bicep.TextFixtures.Fakes.TemplateSpec;
 using Bicep.TextFixtures.IO;
@@ -30,7 +31,7 @@ namespace Bicep.TextFixtures.Utils
         {
             var dispatcher = this.compiler.GetService<IModuleDispatcher>();
             var sourceFileFactory = compiler.GetService<ISourceFileFactory>();
-            var dummyFile = sourceFileFactory.CreateBicepFile(DummyBicepFileUri, "");
+            var dummyFile = sourceFileFactory.CreateBicepFile(DummyFileHandle.Instance, "");
             var targetReference = dispatcher.TryGetArtifactReference(dummyFile, ArtifactType.Module, moduleArtifactId).Unwrap();
             var compilationResult = await compiler.CompileInline(moduleContent);
 
@@ -74,7 +75,7 @@ namespace Bicep.TextFixtures.Utils
         {
             var dispatcher = this.compiler.GetService<IModuleDispatcher>();
             var sourceFileFactory = compiler.GetService<ISourceFileFactory>();
-            var dummyFile = sourceFileFactory.CreateBicepFile(DummyBicepFileUri, "");
+            var dummyFile = sourceFileFactory.CreateBicepFile(DummyFileHandle.Instance, "");
             var extensionReference = dispatcher.TryGetArtifactReference(dummyFile, ArtifactType.Extension, extension.ExtensionRepoReference).Unwrap();
             var extensionPackage = new ExtensionPackage(extension.TypesTgzData, false, []);
 
@@ -100,7 +101,5 @@ namespace Bicep.TextFixtures.Utils
         public IContainerRegistryClientFactory ContainerRegistryClientFactory => this.containerRegistryClientFactory;
 
         public ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory => new FakeTemplateSpecRepositoryFactory(this.templateSpecRepository);
-
-        private static Uri DummyBicepFileUri => TestFileUri.FromMockFileSystemPath("dummy.bicep").ToUri();
     }
 }
