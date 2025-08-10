@@ -39,7 +39,7 @@
     <PackageVersion Include="JsonDiffPatch.Net" Version="2.3.0" />
     <PackageVersion Include="JsonPatch.Net" Version="3.3.0" />
     <PackageVersion Include="JsonPath.Net" Version="2.1.1" />
-    <PackageVersion Include="JsonSchema.Net" Version="7.3.3" />
+    <PackageVersion Include="JsonSchema.Net" Version="7.4.0" />
     <PackageVersion Include="MSTest" Version="3.9.2" />
     <PackageVersion Include="Markdig" Version="0.40.0" />
     <PackageVersion Include="MessagePack" Version="3.1.3" />
