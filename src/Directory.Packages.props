@@ -20,7 +20,7 @@
     <PackageVersion Include="Azure.Deployments.Extensibility.Core" Version="0.1.67" />
     <PackageVersion Include="Azure.Deployments.Internal.GenerateNotice" Version="0.1.45" />
     <PackageVersion Include="Azure.Deployments.Templates" Version="1.424.0" />
-    <PackageVersion Include="Azure.Identity" Version="1.13.2" />
+    <PackageVersion Include="Azure.Identity" Version="1.14.2" />
     <PackageVersion Include="Azure.ResourceManager.ResourceGraph" Version="1.0.1" />
     <PackageVersion Include="Azure.ResourceManager.Resources" Version="1.9.0" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
