@@ -14,7 +14,7 @@
     <PackageVersion Include="Azure.Bicep.Types" Version="0.5.110" />
     <PackageVersion Include="Azure.Bicep.Types.Az" Version="0.2.789" />
     <PackageVersion Include="Azure.Bicep.Types.K8s" Version="0.1.644" />
-    <PackageVersion Include="Azure.Containers.ContainerRegistry" Version="1.1.1" />
+    <PackageVersion Include="Azure.Containers.ContainerRegistry" Version="1.2.0" />
     <PackageVersion Include="Azure.Deployments.ClientTools" Version="1.384.0" />
     <PackageVersion Include="Azure.Deployments.Engine" Version="1.424.0" />
     <PackageVersion Include="Azure.Deployments.Extensibility.Core" Version="0.1.67" />
