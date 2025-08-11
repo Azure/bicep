@@ -7,7 +7,7 @@
     <GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.7.115" PrivateAssets="All" />
     <GlobalPackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4"  PrivateAssets="All" />
     <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
-    <GlobalPackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.13.2" PrivateAssets="All"/>
+    <GlobalPackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.14.15" PrivateAssets="All"/>
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.45" />
@@ -70,7 +70,7 @@
     <PackageVersion Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="3.12.2149" />
     <PackageVersion Include="Microsoft.VisualStudio.Shell.Framework" Version="17.12.40391" />
     <PackageVersion Include="Microsoft.VisualStudio.Shell.Interop" Version="17.12.40391" />
-    <PackageVersion Include="Microsoft.VisualStudio.Threading" Version="17.12.19" />
+    <PackageVersion Include="Microsoft.VisualStudio.Threading" Version="17.14.15" />
     <PackageVersion Include="Microsoft.VisualStudio.Utilities" Version="17.12.40391" />
     <PackageVersion Include="Microsoft.VisualStudio.Workspace" Version="17.1.11-preview-0002" />
     <PackageVersion Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="17.1.11-preview-0002" />
