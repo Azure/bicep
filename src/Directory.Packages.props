@@ -50,7 +50,7 @@
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.5" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Http" Version="8.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.5" />
