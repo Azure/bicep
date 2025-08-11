@@ -90,9 +90,9 @@
     <PackageVersion Include="Serilog.Sinks.TextWriter" Version="3.0.0" />
     <PackageVersion Include="SharpYaml" Version="2.1.1" />
     <PackageVersion Include="StreamJsonRpc" Version="2.20.20" />
-    <PackageVersion Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
-    <PackageVersion Include="System.CommandLine.Hosting" Version="0.4.0-alpha.22272.1" />
-    <PackageVersion Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta4.22272.1" />
+    <PackageVersion Include="System.CommandLine" Version="2.0.0-beta5.25306.1" />
+    <PackageVersion Include="System.CommandLine.Hosting" Version="0.4.0-alpha.25306.1" />
+    <PackageVersion Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta5.25306.1" />
     <PackageVersion Include="System.CommandLine.Rendering" Version="0.4.0-alpha.22272.1" />
     <PackageVersion Include="System.IO.Abstractions" Version="21.3.1" />
     <PackageVersion Include="System.IO.Abstractions.TestingHelpers" Version="21.3.1" />
