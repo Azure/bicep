@@ -31,7 +31,7 @@ namespace Bicep.TextFixtures.Utils
         {
             var dispatcher = this.compiler.GetService<IModuleDispatcher>();
             var sourceFileFactory = compiler.GetService<ISourceFileFactory>();
-            var dummyFile = sourceFileFactory.CreateBicepFile(DummyFileHandle.Instance, "");
+            var dummyFile = sourceFileFactory.CreateBicepFile(DummyFileHandle.Default, "");
             var targetReference = dispatcher.TryGetArtifactReference(dummyFile, ArtifactType.Module, moduleArtifactId).Unwrap();
             var compilationResult = await compiler.CompileInline(moduleContent);
 
@@ -75,7 +75,7 @@ namespace Bicep.TextFixtures.Utils
         {
             var dispatcher = this.compiler.GetService<IModuleDispatcher>();
             var sourceFileFactory = compiler.GetService<ISourceFileFactory>();
-            var dummyFile = sourceFileFactory.CreateBicepFile(DummyFileHandle.Instance, "");
+            var dummyFile = sourceFileFactory.CreateBicepFile(DummyFileHandle.Default, "");
             var extensionReference = dispatcher.TryGetArtifactReference(dummyFile, ArtifactType.Extension, extension.ExtensionRepoReference).Unwrap();
             var extensionPackage = new ExtensionPackage(extension.TypesTgzData, false, []);
 

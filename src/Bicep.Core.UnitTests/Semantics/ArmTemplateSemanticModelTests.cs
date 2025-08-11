@@ -671,5 +671,5 @@ public class ArmTemplateSemanticModelTests
     }
 
     private static ArmTemplateSemanticModel LoadModel(string jsonTemplate)
-        => new(BicepTestConstants.SourceFileFactory.CreateArmTemplateFile(DummyFileHandle.Instance, jsonTemplate));
+        => new(BicepTestConstants.SourceFileFactory.CreateArmTemplateFile(DummyFileHandle.Default, jsonTemplate));
 }

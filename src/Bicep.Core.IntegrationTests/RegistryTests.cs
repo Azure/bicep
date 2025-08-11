@@ -392,7 +392,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var sourceFileFactory = dependencyHelper.Construct<ISourceFileFactory>();
 
-            return sourceFileFactory.CreateBicepFile(DummyFileHandle.Instance, "");
+            return sourceFileFactory.CreateBicepFile(DummyFileHandle.Default, "");
         }
 
         private static ResultWithDiagnosticBuilder<ArtifactReference> TryGetModuleReference(IModuleDispatcher moduleDispatcher, BicepSourceFile referencingFile, string reference) =>

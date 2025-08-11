@@ -467,7 +467,7 @@ namespace Bicep.LanguageServer.Handlers
                 // But for this purpose, doing a compilation of the source entrypoint file should be enough to find the definition for most scenarios, even if the source file
                 // does not compile error-free (which is likely). We will compile the entrypoint file only, not any of its dependencies or referenced modules.
                 var importedSourceBicep = sourceArchive.FindSourceFile(sourceArchive.EntrypointRelativePath).Contents;
-                var bicepFile = sourceFileFactory.CreateBicepFile(DummyFileHandle.Instance, importedSourceBicep);
+                var bicepFile = sourceFileFactory.CreateBicepFile(DummyFileHandle.Default, importedSourceBicep);
 
                 var workspace = new Workspace();
                 workspace.UpsertSourceFile(bicepFile);

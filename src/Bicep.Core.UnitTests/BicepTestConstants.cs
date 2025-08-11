@@ -184,7 +184,7 @@ namespace Bicep.Core.UnitTests
         public static BicepFile CreateDummyBicepFile(IConfigurationManager configurationManager, IFeatureProviderFactory? featureProviderFactory = null)
         {
             return new(
-                DummyFileHandle.Instance,
+                DummyFileHandle.Default,
                 [],
                 SyntaxFactory.EmptyProgram,
                 configurationManager,

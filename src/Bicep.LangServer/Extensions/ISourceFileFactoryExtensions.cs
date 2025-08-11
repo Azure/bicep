@@ -13,6 +13,6 @@ namespace Bicep.LanguageServer.Extensions
 {
     public static class ISourceFileFactoryExtensions
     {
-        public static BicepFile CreateDummyArtifactReferencingFile(this ISourceFileFactory sourceFileFactory) => sourceFileFactory.CreateBicepFile(DummyFileHandle.Instance, "");
+        public static BicepFile CreateDummyArtifactReferencingFile(this ISourceFileFactory sourceFileFactory) => sourceFileFactory.CreateBicepFile(DummyFileHandle.Default, "");
     }
 }

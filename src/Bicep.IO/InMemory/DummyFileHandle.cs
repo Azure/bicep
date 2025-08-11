@@ -8,13 +8,14 @@ namespace Bicep.IO.InMemory
 {
     public class DummyFileHandle : IFileHandle
     {
-        public static readonly DummyFileHandle Instance = new();
+        public static readonly DummyFileHandle Default = new(new IOUri("dummy", "", "/DUMMY"));
 
-        private DummyFileHandle()
+        public DummyFileHandle(IOUri uri)
         {
+            this.Uri = uri;
         }
 
-        public IOUri Uri { get; } = new IOUri("dummy", "", "/DUMMY");
+        public IOUri Uri { get; }
 
         public void Delete() => throw new UnreachableException();
 

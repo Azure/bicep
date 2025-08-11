@@ -196,7 +196,7 @@ namespace Bicep.LanguageServer.Handlers
                 [resourceDeclaration],
                 SyntaxFactory.EndOfFileToken);
 
-            BicepSourceFile bicepFile = compiler.SourceFileFactory.CreateBicepFile(DummyFileHandle.Instance, program.ToString());
+            BicepSourceFile bicepFile = compiler.SourceFileFactory.CreateBicepFile(DummyFileHandle.Default, program.ToString());
 
             var workspace = new Workspace();
             workspace.UpsertSourceFile(bicepFile);

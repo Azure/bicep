@@ -24,11 +24,13 @@ namespace Bicep.LangServer.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        [TestMethod]
-        public async Task DidOpenTextDocument_should_trigger_PublishDiagnostics()
+        [DataTestMethod]
+        [DataRow("/template.bicep")]
+        [DataRow("untitled:Untitled-1")]
+        public async Task DidOpenTextDocument_should_trigger_PublishDiagnostics(string uri)
         {
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
-            var documentUri = DocumentUri.From("/template.bicep");
+            var documentUri = DocumentUri.From(uri);
 
             using var helper = await LanguageServerHelper.StartServer(
                 this.TestContext,

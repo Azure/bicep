@@ -17,7 +17,7 @@ namespace Bicep.Core.UnitTests.Modules
     [TestClass]
     public class TemplateSpecModuleReferenceTests
     {
-        private static readonly BicepFile DummyReferencingFile = BicepTestConstants.SourceFileFactory.CreateBicepFile(DummyFileHandle.Instance, "");
+        private static readonly BicepFile DummyReferencingFile = BicepTestConstants.SourceFileFactory.CreateBicepFile(DummyFileHandle.Default, "");
 
         [DataTestMethod]
         [DynamicData(nameof(GetEqualData), DynamicDataSourceType.Method)]

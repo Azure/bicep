@@ -90,7 +90,7 @@ namespace Bicep.Core.SourceGraph
         {
             var parser = new ParamsParser(fileContents, this.featureProviderFactory.GetFeatureProvider(fileUri.ToUri()));
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
-            var fileHandle = this.fileExplorer.GetFile(fileUri);
+            var fileHandle = this.CreateFileHandle(fileUri);
 
             return new(fileHandle, lineStarts, parser.Program(), this.configurationManager, this.featureProviderFactory, this.auxiliaryFileCache, parser.LexingErrorLookup, parser.ParsingErrorLookup);
         }
@@ -99,7 +99,7 @@ namespace Bicep.Core.SourceGraph
         {
             var parser = new Parser(fileContents);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
-            var fileHandle = this.fileExplorer.GetFile(fileUri);
+            var fileHandle = this.CreateFileHandle(fileUri);
 
             return new(fileHandle, lineStarts, parser.Program(), this.configurationManager, this.featureProviderFactory, this.auxiliaryFileCache, parser.LexingErrorLookup, parser.ParsingErrorLookup);
         }
@@ -113,11 +113,11 @@ namespace Bicep.Core.SourceGraph
         }
 
         public ArmTemplateFile CreateArmTemplateFile(IOUri fileUri, string fileContents) =>
-            CreateArmTemplateFile(this.fileExplorer.GetFile(fileUri), fileContents);
+            CreateArmTemplateFile(this.CreateFileHandle(fileUri), fileContents);
 
         public TemplateSpecFile CreateTemplateSpecFile(IOUri fileUri, string fileContents)
         {
-            TemplateSpecFile CreateErrorFile() => new(this.fileExplorer.GetFile(fileUri), fileContents, null, CreateDummyArmTemplateFile(""));
+            TemplateSpecFile CreateErrorFile() => new(this.CreateFileHandle(fileUri), fileContents, null, CreateDummyArmTemplateFile(""));
 
             try
             {
@@ -130,7 +130,7 @@ namespace Bicep.Core.SourceGraph
                 }
 
                 var mainTemplateFile = CreateDummyArmTemplateFile(mainTemplateObject.ToString());
-                var fileHandle = this.fileExplorer.GetFile(fileUri);
+                var fileHandle = this.CreateFileHandle(fileUri);
 
                 return new(fileHandle, fileContents, templateSpecId, mainTemplateFile);
             }
@@ -158,7 +158,7 @@ namespace Bicep.Core.SourceGraph
             }
         }
 
-        private ArmTemplateFile CreateDummyArmTemplateFile(string content) => CreateArmTemplateFile(DummyFileHandle.Instance, content);
+        private ArmTemplateFile CreateDummyArmTemplateFile(string content) => CreateArmTemplateFile(DummyFileHandle.Default, content);
 
         private static void ValidateTemplate(Template template)
         {
@@ -174,5 +174,9 @@ namespace Bicep.Core.SourceGraph
         }
 
         private static JObject ParseObject(string fileContents) => JObject.Parse(fileContents, JsonLoadSettings);
+
+        // TODO: it might be better to use a language server sepcific file explorer to handle untitled files.
+        // Will get this done when removing Workspace.
+        private IFileHandle CreateFileHandle(IOUri uri) => uri.Scheme.IsUntitled ? new DummyFileHandle(uri) : this.fileExplorer.GetFile(uri);
     }
 }
