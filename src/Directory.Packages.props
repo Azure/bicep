@@ -85,7 +85,7 @@
     <PackageVersion Include="RichardSzalay.MockHttp" Version="7.0.0" />
     <PackageVersion Include="Sarif.Sdk" Version="4.5.4" />
     <PackageVersion Include="Semver" Version="3.0.0" />
-    <PackageVersion Include="Serilog.Extensions.Hosting" Version="8.0.0" />
+    <PackageVersion Include="Serilog.Extensions.Hosting" Version="9.0.0" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageVersion Include="Serilog.Sinks.TextWriter" Version="3.0.0" />
     <PackageVersion Include="SharpYaml" Version="2.1.1" />
