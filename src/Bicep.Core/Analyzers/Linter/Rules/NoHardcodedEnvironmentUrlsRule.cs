@@ -4,9 +4,12 @@
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -41,7 +44,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             if (disallowedHosts.Any())
             {
-                var visitor = new Visitor(disallowedHosts, disallowedHosts.Min(h => h.Length), excludedHosts, model.SourceFile.Hierarchy);
+                var visitor = new Visitor(disallowedHosts, disallowedHosts.Min(h => h.Length), excludedHosts, model);
                 visitor.Visit(model.SourceFile.ProgramSyntax);
 
                 return visitor.DisallowedHostSpans.Select(entry => CreateDiagnosticForSpan(diagnosticLevel, entry.Key, entry.Value));
@@ -102,14 +105,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             private readonly ImmutableArray<string> disallowedHosts;
             private readonly int minHostLen;
             private readonly ImmutableArray<string> excludedHosts;
-            private readonly ISyntaxHierarchy syntaxHierarchy;
+            private readonly SemanticModel model;
 
-            public Visitor(ImmutableArray<string> disallowedHosts, int minHostLen, ImmutableArray<string> excludedHosts, ISyntaxHierarchy syntaxHierarchy)
+            public Visitor(ImmutableArray<string> disallowedHosts, int minHostLen, ImmutableArray<string> excludedHosts, SemanticModel model)
             {
                 this.disallowedHosts = disallowedHosts;
                 this.minHostLen = minHostLen;
                 this.excludedHosts = excludedHosts;
-                this.syntaxHierarchy = syntaxHierarchy;
+                this.model = model;
             }
 
             public static IEnumerable<(TextSpan RelativeSpan, string Value)> RemoveOverlapping(IEnumerable<(TextSpan RelativeSpan, string Value)> matches)
@@ -128,58 +131,23 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 }
             }
 
-            private bool IsStringInDescriptionOrMetadataDecorator(StringSyntax syntax)
+            public override void VisitDecoratorSyntax(DecoratorSyntax syntax)
             {
-                // Check if this StringSyntax is part of a @description or @metadata decorator
-                var current = syntaxHierarchy.GetParent(syntax);
-                while (current is not null)
+                // Skip @description and @metadata decorators entirely
+                if (model.GetSymbolInfo(syntax.Expression) is FunctionSymbol functionSymbol &&
+                    functionSymbol.DeclaringObject is NamespaceType namespaceType &&
+                    LanguageConstants.IdentifierComparer.Equals(namespaceType.ExtensionName, SystemNamespaceType.BuiltInName) &&
+                    (LanguageConstants.IdentifierComparer.Equals(functionSymbol.Name, LanguageConstants.MetadataDescriptionPropertyName) ||
+                     LanguageConstants.IdentifierComparer.Equals(functionSymbol.Name, LanguageConstants.ParameterMetadataPropertyName)))
                 {
-                    if (current is DecoratorSyntax decoratorSyntax)
-                    {
-                        // Check if it's a @description decorator
-                        if (decoratorSyntax.Expression is FunctionCallSyntax functionCall)
-                        {
-                            if (functionCall.NameEquals("description"))
-                            {
-                                return true;
-                            }
-                        }
-                        else if (decoratorSyntax.Expression is InstanceFunctionCallSyntax instanceFunctionCall)
-                        {
-                            // Check for @sys.description
-                            if (instanceFunctionCall.NameEquals("description") && 
-                                instanceFunctionCall.BaseExpression is VariableAccessSyntax variableAccess &&
-                                variableAccess.NameEquals("sys"))
-                            {
-                                return true;
-                            }
-                        }
-
-                        // Check if it's a @metadata decorator
-                        if (decoratorSyntax.Expression is FunctionCallSyntax metadataFunctionCall)
-                        {
-                            if (metadataFunctionCall.NameEquals("metadata"))
-                            {
-                                return true;
-                            }
-                        }
-
-                        break;
-                    }
-
-                    current = syntaxHierarchy.GetParent(current);
+                    return;
                 }
 
-                return false;
+                base.VisitDecoratorSyntax(syntax);
             }
 
             public override void VisitStringSyntax(StringSyntax syntax)
             {
-                // Skip strings that are part of @description or @metadata decorators
-                if (IsStringInDescriptionOrMetadataDecorator(syntax))
-                {
-                    return;
-                }
 
                 // shortcut check by testing length of full span
                 if (syntax.Span.Length > minHostLen)
