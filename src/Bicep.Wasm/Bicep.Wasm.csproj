@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <RazorLangVersion>3.0</RazorLangVersion>
+    <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

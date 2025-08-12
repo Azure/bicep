@@ -16,8 +16,6 @@ namespace Bicep.Core.IntegrationTests.Scenarios;
 [TestClass]
 public class NullabilityTests
 {
-    private static ServiceBuilder Services => new();
-
     [DataTestMethod]
     [DynamicData(nameof(GetTemplatesWithSingleUnexpectedlyNullableValue), DynamicDataSourceType.Method)]
     public void Unexpectedly_nullable_types_raise_fixable_warning(string templateWithNullablyTypedValue, string templateWithNonNullAssertion, TypeSymbol expectedType, TypeSymbol actualType)
