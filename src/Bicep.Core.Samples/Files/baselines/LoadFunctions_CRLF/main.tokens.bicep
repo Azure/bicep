@@ -619,6 +619,27 @@ var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.product
 //@[103:104) RightParen |)|
 //@[104:108) NewLine |\r\n\r\n|
 
+var directoryInfo = loadDirectoryFileInformation('./Assets')
+//@[000:003) Identifier |var|
+//@[004:017) Identifier |directoryInfo|
+//@[018:019) Assignment |=|
+//@[020:048) Identifier |loadDirectoryFileInformation|
+//@[048:049) LeftParen |(|
+//@[049:059) StringComplete |'./Assets'|
+//@[059:060) RightParen |)|
+//@[060:062) NewLine |\r\n|
+var directoryInfoWildcard = loadDirectoryFileInformation('./Assets', '*.txt')
+//@[000:003) Identifier |var|
+//@[004:025) Identifier |directoryInfoWildcard|
+//@[026:027) Assignment |=|
+//@[028:056) Identifier |loadDirectoryFileInformation|
+//@[056:057) LeftParen |(|
+//@[057:067) StringComplete |'./Assets'|
+//@[067:068) Comma |,|
+//@[069:076) StringComplete |'*.txt'|
+//@[076:077) RightParen |)|
+//@[077:081) NewLine |\r\n\r\n|
+
 var testYaml = loadYamlContent('./Assets/test.yaml.txt')
 //@[000:003) Identifier |var|
 //@[004:012) Identifier |testYaml|

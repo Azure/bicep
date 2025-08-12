@@ -1055,41 +1055,20 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
             }
         }
 
-        private const string TEST_FILES_ARM_WINDOWS = """
-                                              [
-                                                {
-                                                  "baseName": "main.bicep",
-                                                  "fullName": "C:/path/to/main.bicep",
-                                                  "extension": ".bicep",
-                                                  "parentDirectoryName": "C:/path/to"
-                                                },
-                                                {
-                                                  "baseName": "File.json",
-                                                  "fullName": "C:/path/to/File.json",
-                                                  "extension": ".json",
-                                                  "parentDirectoryName": "C:/path/to"
-                                                }
-                                              ]
-                                              """;
-
-        private const string TEST_FILES_ARM_LINUX = """
+        private readonly  string  TEST_FILES_ARM = """
                                                       [
                                                         {
+                                                          "relativePath": "main.bicep",
                                                           "baseName": "main.bicep",
-                                                          "fullName": "/path/to/main.bicep",
                                                           "extension": ".bicep",
-                                                          "parentDirectoryName": "/path/to"
                                                         },
                                                         {
+                                                          "relativePath": "File.json",
                                                           "baseName": "File.json",
-                                                          "fullName": "/path/to/File.json",
-                                                          "extension": ".json",
-                                                          "parentDirectoryName": "/path/to"
+                                                          "extension": ".json"
                                                         }
                                                       ]
                                                       """;
-
-        private readonly  string  TEST_FILES_ARM = OperatingSystem.IsWindows() ? TEST_FILES_ARM_WINDOWS : TEST_FILES_ARM_LINUX;
 
 
         // Users are likely to use "*" instead of "" as a wildcard so we test that "" and "*" behave similarly
