@@ -1952,7 +1952,7 @@ namespace Bicep.Core.Diagnostics
                 $"Directory {relativePath} does not exist or additional permissions are necessary to access it."
             );
 
-            public Diagnostic ErrorOccuredBrowsingDirectory(string relativePath, string exceptionMessage) => CoreError(
+            public Diagnostic ErrorOccuredBrowsingDirectory(string exceptionMessage) => CoreError(
                 "BCP429",
                 $"An error occured browsing directory. {exceptionMessage}"
             );

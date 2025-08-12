@@ -131,7 +131,7 @@ namespace Bicep.Core.SourceGraph
             }
             catch(Exception ex)
             {
-                return new (x => x.ErrorOccuredBrowsingDirectory(relativePath, ex.Message));
+                return new (x => x.ErrorOccuredBrowsingDirectory(ex.Message));
             }
         }
 

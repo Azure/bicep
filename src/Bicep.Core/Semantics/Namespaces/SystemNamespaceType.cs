@@ -20,6 +20,7 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 using static Bicep.Core.Semantics.FunctionOverloadBuilder;
@@ -2256,8 +2257,6 @@ namespace Bicep.Core.Semantics.Namespaces
         }
 
         private static FunctionResult LoadDirectoryFileInformationResultBuilder(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
-            => LoadDirectoryFileInformationResultBuilder(new JsonObjectParser(), model, diagnostics, functionCall, argumentTypes);
-        private static FunctionResult LoadDirectoryFileInformationResultBuilder(ObjectParser objectParser, SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
             var arguments = functionCall.Arguments;
             var pathSearchPattern = string.Empty;
@@ -2270,10 +2269,13 @@ namespace Bicep.Core.Semantics.Namespaces
                 pathSearchPattern = tokenSelectorType.RawStringValue;
             }
 
-            if (TryLoadFilesFromDirectoryPath(model, diagnostics, (arguments[0], argumentTypes[0]), pathSearchPattern)
+            if (TryLoadFilesFromDirectoryPath(model, (arguments[0], argumentTypes[0]), pathSearchPattern)
                     .IsSuccess(out var result, out var errorDiagnostic))
             {
-                var token = result.ToJToken();
+                var token = result
+                    // ensure determinism by ordering the results
+                    .OrderByAscending(x => x.RelativePath, StringComparer.OrdinalIgnoreCase)
+                    .ToJToken();
                 
                 return new FunctionResult(ConvertJsonToBicepType(token), ConvertJsonToExpression(token));
             }
@@ -2281,7 +2283,7 @@ namespace Bicep.Core.Semantics.Namespaces
             return new FunctionResult(ErrorType.Create(errorDiagnostic));
         }
 
-        private static ResultWithDiagnostic<IEnumerable<LoadDirectoryFileInformationResult>> TryLoadFilesFromDirectoryPath(SemanticModel model, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) directoryPathArgument, string pathSearchPattern)
+        private static ResultWithDiagnostic<IEnumerable<LoadDirectoryFileInformationResult>> TryLoadFilesFromDirectoryPath(SemanticModel model, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) directoryPathArgument, string pathSearchPattern)
         {
             if (directoryPathArgument.typeSymbol is not StringLiteralType directoryPathType)
             {

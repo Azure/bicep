@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10949986351775246839"
+      "templateHash": "13823975289242998726"
     }
   },
   "variables": {
@@ -43,56 +43,26 @@
     ],
     "$fxv#23": [
       {
-        "relativePath": "Assets/encoding-utf16.txt",
-        "baseName": "encoding-utf16.txt",
-        "extension": ".txt"
-      },
-      {
-        "relativePath": "Assets/encoding-utf8.txt",
-        "baseName": "encoding-utf8.txt",
-        "extension": ".txt"
-      },
-      {
-        "relativePath": "Assets/test.json.txt",
-        "baseName": "test.json.txt",
-        "extension": ".txt"
-      },
-      {
-        "relativePath": "Assets/encoding-iso.txt",
-        "baseName": "encoding-iso.txt",
-        "extension": ".txt"
-      },
-      {
-        "relativePath": "Assets/test2.json.txt",
-        "baseName": "test2.json.txt",
-        "extension": ".txt"
-      },
-      {
-        "relativePath": "Assets/TextFile.CRLF.txt",
-        "baseName": "TextFile.CRLF.txt",
-        "extension": ".txt"
-      },
-      {
-        "relativePath": "Assets/TextFile.LF.txt",
-        "baseName": "TextFile.LF.txt",
-        "extension": ".txt"
-      },
-      {
-        "relativePath": "Assets/encoding-ascii.txt",
-        "baseName": "encoding-ascii.txt",
-        "extension": ".txt"
-      },
-      {
-        "relativePath": "Assets/test.yaml.txt",
-        "baseName": "test.yaml.txt",
-        "extension": ".txt"
-      },
-      {
         "relativePath": "Assets/binary",
         "baseName": "binary",
         "extension": ""
       },
       {
+        "relativePath": "Assets/encoding-ascii.txt",
+        "baseName": "encoding-ascii.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/encoding-iso.txt",
+        "baseName": "encoding-iso.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/encoding-utf16.txt",
+        "baseName": "encoding-utf16.txt",
+        "extension": ".txt"
+      },
+      {
         "relativePath": "Assets/encoding-utf16be.txt",
         "baseName": "encoding-utf16be.txt",
         "extension": ".txt"
@@ -100,13 +70,6 @@
       {
         "relativePath": "Assets/encoding-utf8-bom.txt",
         "baseName": "encoding-utf8-bom.txt",
-        "extension": ".txt"
-      }
-    ],
-    "$fxv#24": [
-      {
-        "relativePath": "Assets/encoding-utf16.txt",
-        "baseName": "encoding-utf16.txt",
         "extension": ".txt"
       },
       {
@@ -120,8 +83,8 @@
         "extension": ".txt"
       },
       {
-        "relativePath": "Assets/encoding-iso.txt",
-        "baseName": "encoding-iso.txt",
+        "relativePath": "Assets/test.yaml.txt",
+        "baseName": "test.yaml.txt",
         "extension": ".txt"
       },
       {
@@ -138,15 +101,22 @@
         "relativePath": "Assets/TextFile.LF.txt",
         "baseName": "TextFile.LF.txt",
         "extension": ".txt"
-      },
+      }
+    ],
+    "$fxv#24": [
       {
         "relativePath": "Assets/encoding-ascii.txt",
         "baseName": "encoding-ascii.txt",
         "extension": ".txt"
       },
       {
-        "relativePath": "Assets/test.yaml.txt",
-        "baseName": "test.yaml.txt",
+        "relativePath": "Assets/encoding-iso.txt",
+        "baseName": "encoding-iso.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/encoding-utf16.txt",
+        "baseName": "encoding-utf16.txt",
         "extension": ".txt"
       },
       {
@@ -157,6 +127,36 @@
       {
         "relativePath": "Assets/encoding-utf8-bom.txt",
         "baseName": "encoding-utf8-bom.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/encoding-utf8.txt",
+        "baseName": "encoding-utf8.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/test.json.txt",
+        "baseName": "test.json.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/test.yaml.txt",
+        "baseName": "test.yaml.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/test2.json.txt",
+        "baseName": "test2.json.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/TextFile.CRLF.txt",
+        "baseName": "TextFile.CRLF.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/TextFile.LF.txt",
+        "baseName": "TextFile.LF.txt",
         "extension": ".txt"
       }
     ],
