@@ -1442,7 +1442,9 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetFileCompletionPaths(SemanticModel model, BicepCompletionContext context, TypeSymbol argType)
         {
-            if (context.FunctionArgument is not { } functionArgument || !argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath))
+            if (context.FunctionArgument is not { } functionArgument ||
+                !argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath) &&
+                !argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringDirectoryPath))
             {
                 return [];
             }
@@ -1498,7 +1500,8 @@ namespace Bicep.LanguageServer.Completions
 
                     break;
 
-                case StringType when type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath):
+                case StringType when type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath) ||
+                    type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringDirectoryPath):
                     foreach (var completion in GetFileCompletionPaths(model, context, type))
                     {
                         yield return completion;
