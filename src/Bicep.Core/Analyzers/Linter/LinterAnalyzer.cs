@@ -15,11 +15,13 @@ namespace Bicep.Core.Analyzers.Linter
 {
     public class LinterAnalyzer : IBicepAnalyzer
     {
-        public const string AnalyzerName = "core";
+        public const string Name = "core";
 
-        public static string LinterEnabledSetting => $"{AnalyzerName}.enabled";
+        public string AnalyzerName => Name;
 
-        public static string LinterVerboseSetting => $"{AnalyzerName}.verbose";
+        public static string LinterEnabledSetting => $"{Name}.enabled";
+
+        public static string LinterVerboseSetting => $"{Name}.verbose";
 
         private readonly LinterRulesProvider linterRulesProvider;
 
@@ -34,9 +36,9 @@ namespace Bicep.Core.Analyzers.Linter
             this.serviceProvider = serviceProvider;
         }
 
-        private bool LinterEnabled(SemanticModel model) => model.Configuration.Analyzers.GetValue(LinterEnabledSetting, false); // defaults to true in base bicepconfig.json file
+        public bool IsEnabled(AnalyzersConfiguration configuration) => configuration.GetValue(LinterEnabledSetting, false); // defaults to true in base bicepconfig.json file
 
-        private bool LinterVerbose(SemanticModel model) => model.Configuration.Analyzers.GetValue(LinterVerboseSetting, false);
+        private bool IsVerbose(AnalyzersConfiguration configuration) => configuration.GetValue(LinterVerboseSetting, false);
 
 
         [UnconditionalSuppressMessage("Trimming", "IL2072:Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.", Justification = "List of types comes from a source generator.")]
@@ -60,10 +62,10 @@ namespace Bicep.Core.Analyzers.Linter
         {
             var diagnostics = new List<IDiagnostic>();
 
-            if (this.LinterEnabled(semanticModel))
+            if (this.IsEnabled(semanticModel.Configuration.Analyzers))
             {
                 // add an info diagnostic for local configuration reporting
-                if (this.LinterVerbose(semanticModel))
+                if (this.IsVerbose(semanticModel.Configuration.Analyzers))
                 {
                     diagnostics.Add(GetConfigurationDiagnostic(semanticModel));
                 }
@@ -72,7 +74,7 @@ namespace Bicep.Core.Analyzers.Linter
             }
             else
             {
-                if (this.LinterVerbose(semanticModel))
+                if (this.IsVerbose(semanticModel.Configuration.Analyzers))
                 {
                     diagnostics.Add(new Diagnostic(
                         TextSpan.TextDocumentStart,
