@@ -1030,12 +1030,6 @@ namespace Bicep.Core.TypeSystem
                     continue;
                 }
 
-                foreach (var argumentSyntax in decoratorSyntax.Arguments)
-                {
-                    var decoratorName = decoratorSyntax.Expression is FunctionCallSyntax decoratorFunctionExpression ? decoratorFunctionExpression.Name.IdentifierName : null;
-                    TypeValidator.GetCompileTimeConstantViolation(argumentSyntax, diagnostics, decoratorName: decoratorName);
-                }
-
                 var symbol = this.binder.GetSymbolInfo(decoratorSyntax.Expression);
 
                 if (symbol is DeclaredSymbol or INamespaceSymbol)
@@ -1056,6 +1050,18 @@ namespace Bicep.Core.TypeSystem
 
                     if (decorator is not null)
                     {
+                        for (int i = 0; i < decoratorSyntax.Arguments.Length; i++)
+                        {
+                            var parameterFlags = decorator.Overload.FixedParameters.Length < i
+                                ? decorator.Overload.FixedParameters[i].Flags
+                                : decorator.Overload.VariableParameter?.Flags ?? FunctionParameterFlags.None;
+
+                            if (parameterFlags.HasFlag(FunctionParameterFlags.Constant))
+                            {
+                                TypeValidator.GetCompileTimeConstantViolation(decoratorSyntax.Arguments[i], diagnostics);
+                            }
+                        }
+
                         if (decoratorSyntaxesByMatchingDecorator.TryGetValue(decorator, out var duplicateDecoratorSyntaxes))
                         {
                             duplicateDecoratorSyntaxes.Add(decoratorSyntax);
@@ -2536,7 +2542,22 @@ namespace Bicep.Core.TypeSystem
                 for (var i = 0; i < syntax.Arguments.Length; i++)
                 {
                     var argumentSyntax = syntax.Arguments[i];
-                    var targetType = matchedOverload.GetArgumentType(i, getFunctionArgumentType: i => GetTypeInfo(syntax.Arguments[i]));
+
+                    var parameterFlags = matchedOverload.FixedParameters.Length > i
+                        ? matchedOverload.FixedParameters[i].Flags
+                        : matchedOverload.VariableParameter?.Flags ?? FunctionParameterFlags.None;
+
+                    if (parameterFlags.HasFlag(FunctionParameterFlags.Constant))
+                    {
+                        TypeValidator.GetCompileTimeConstantViolation(argumentSyntax, diagnosticWriter);
+                    }
+
+                    var targetType = matchedOverload.GetArgumentType(
+                        index: i,
+                        getFunctionArgumentType: i => GetTypeInfo(syntax.Arguments[i]),
+                        getAttachedType: () => binder.GetParent(syntax) is DecoratorSyntax decorator && binder.GetParent(decorator) is DecorableSyntax target
+                            ? typeManager.GetDeclaredType(target) ?? ErrorType.Empty()
+                            : throw new InvalidOperationException("Cannot get attached type of function that is not used as a decorator"));
 
                     TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, argumentSyntax, targetType);
                 }

@@ -121,5 +121,26 @@
       "title": "symbol completion",
       "command": "editor.action.triggerSuggest"
     }
+  },
+  {
+    "label": "validate",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nvalidate(predicate: any => bool, [errorMessage: string]): any\n\n```  \n  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_validate",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "validate($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
   }
 ]
