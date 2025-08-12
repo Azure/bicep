@@ -140,4 +140,23 @@ resource script 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
     [TestMethod]
     public void Linter_validation_should_not_warn_for_chained_values(string text)
         => CompileAndTest(text, 0);
+
+    // https://github.com/Azure/bicep/issues/17371
+    [DataRow("""
+param sqlLogicalServer object
+@secure()
+param password string
+
+resource sqlLogicalServerRes 'Microsoft.Sql/servers@2024-05-01-preview' = {
+  name: sqlLogicalServer.name
+  location: resourceGroup().location
+  properties: {
+    administratorLogin: null
+    administratorLoginPassword: sqlLogicalServer.login =~ 'Entra' ? null : password
+  }
+}
+""")]
+    [TestMethod]
+    public void Linter_validation_should_not_warn_for_conditional_null_assignment(string text)
+          => CompileAndTest(text, 0);
 }

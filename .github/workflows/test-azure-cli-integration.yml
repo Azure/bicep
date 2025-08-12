@@ -1,0 +1,109 @@
+name: Test Azure CLI Integration
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/test-azure-cli-integration.yml
+      - src/Bicep.Cli/**
+      - src/Bicep.Core/**
+      - src/Bicep.Decompiler/**
+      - src/Bicep.IO/**
+      - src/Bicep.Local.Deploy/**
+  workflow_dispatch:
+
+jobs:
+  publish-bicep-cli:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+
+      - name: Publish Bicep CLI
+        run: dotnet publish --configuration release --self-contained true -r linux-x64 ./src/Bicep.Cli/Bicep.Cli.csproj
+
+      - name: Upload Bicep
+        uses: actions/upload-artifact@v4
+        with:
+          name: bicep-release-linux-x64
+          path: ./src/Bicep.Cli/bin/release/net8.0/linux-x64/publish/*
+          if-no-files-found: error
+
+
+  test-azure-cli-integration:
+    runs-on: ubuntu-latest
+    needs: publish-bicep-cli
+    steps:
+      - name: Install Azure CLI Edge Build
+        run: |
+          set -e
+
+          echo "Downloading Azure CLI Edge build..."
+          curl --location --silent --output azure-cli_jammy.deb https://aka.ms/InstallAzureCliJammyEdge
+
+          echo "Installing Azure CLI Edge build..."
+          sudo dpkg -i azure-cli_jammy.deb
+
+          echo "Verifying Azure CLI Edge build version..."
+          az version
+
+      - name: Test Azure CLI Edge Build with Pre-installed Bicep CLI
+        run: |
+          set -e
+
+          az config set bicep.use_binary_from_path=true
+          az config get bicep.use_binary_from_path
+          az bicep version
+
+          echo "var message = 'Hello, world!'" > hello-world.bicep
+          az bicep build --file hello-world.bicep --debug
+
+      - name: Test Azure CLI Edge Build with the Latest Published Bicep CLI Version
+        run: |
+          set -e
+
+          az config set bicep.use_binary_from_path=false
+          az config get bicep.use_binary_from_path
+
+          az bicep install
+          az bicep version
+
+          echo "var message = 'Hello, world!'" > hello-world.bicep
+          az bicep build --file hello-world.bicep --debug
+
+      - name: Uninstall Bicep CLI
+        run: |
+          az bicep uninstall
+
+
+      - name: Download Current Bicep CLI Build
+        uses: actions/download-artifact@v4
+        with:
+          name: bicep-release-linux-x64
+          path: ~/.azure/bin
+
+      - name: Set Bicep CLI executable permissions
+        run: chmod +x ~/.azure/bin/bicep
+
+      - name: Test Azure CLI Edge Build with the Current Bicep CLI Build
+        run: |
+          set -e
+
+          az config set bicep.use_binary_from_path=false
+          az config get bicep.use_binary_from_path
+
+          az bicep version
+
+          echo "var message = 'Hello, world!'" > hello-world.bicep
+          az bicep build --file hello-world.bicep --debug
+
+
+
+

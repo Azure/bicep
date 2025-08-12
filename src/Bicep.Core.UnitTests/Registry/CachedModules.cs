@@ -96,7 +96,7 @@ public record CachedModule(
             var sourceTgzFileMock = StrictMock.Of<IFileHandle>();
             sourceTgzFileMock.Setup(x => x.Exists()).Returns(true);
             sourceTgzFileMock.Setup(x => x.OpenRead()).Returns(FileSystem.File.OpenRead(sourceArchivePath));
-            return SourceArchive.TryUnpackFromFile(new(sourceTgzFileMock.Object));
+            return SourceArchive.TryUnpackFromFile(sourceTgzFileMock.Object);
         }
 
         return new(new SourceNotAvailableException());

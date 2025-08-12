@@ -7,7 +7,8 @@ namespace Bicep.Cli.Arguments
 {
     public class PublishExtensionArguments : ArgumentsBase
     {
-        public PublishExtensionArguments(string[] args, string commandName, IOContext io) : base(commandName)
+        public PublishExtensionArguments(string[] args)
+            : base(Constants.Command.PublishExtension)
         {
             for (int i = 0; i < args.Length; i++)
             {
@@ -66,11 +67,6 @@ namespace Bicep.Cli.Arguments
                 }
             }
 
-            if (IndexFile is null)
-            {
-                throw new CommandLineException($"The input file path was not specified.");
-            }
-
             if (TargetExtensionReference is null)
             {
                 throw new CommandLineException("The target extension was not specified.");
@@ -79,7 +75,7 @@ namespace Bicep.Cli.Arguments
 
         public Dictionary<string, string> Binaries { get; } = new();
 
-        public string IndexFile { get; }
+        public string? IndexFile { get; }
 
         public string TargetExtensionReference { get; }
 

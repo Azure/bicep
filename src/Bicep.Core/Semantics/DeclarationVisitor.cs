@@ -178,9 +178,8 @@ namespace Bicep.Core.Semantics
         {
             base.VisitExtensionConfigAssignmentSyntax(syntax);
 
-            if (syntax.TryGetSymbolName() is not { } extAlias)
+            if (syntax.TryGetAlias() is not { } extAlias)
             {
-                // TODO(kylealbert): Figure out specifics for spec strings vs alias.
                 return;
             }
 

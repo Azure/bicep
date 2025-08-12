@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Net.Sockets;
@@ -9,41 +10,27 @@ using System.Text.Json.Nodes;
 using Azure.Deployments.Extensibility.Core.V2.Json;
 using Azure.Deployments.Extensibility.Core.V2.Models;
 using Bicep.Core.Features;
-using Bicep.Local.Extension.Rpc;
-using Google.Protobuf.Collections;
+using Bicep.IO.Abstraction;
+using Bicep.Local.Deploy.Helpers;
+using Bicep.Local.Deploy.Types;
 using Grpc.Net.Client;
 using Json.Pointer;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 using ExtensibilityV2 = Azure.Deployments.Extensibility.Core.V2.Models;
-using Rpc = Bicep.Local.Extension.Rpc;
 
 namespace Bicep.Local.Deploy.Extensibility;
 
-internal class GrpcLocalExtension : ILocalExtension
+internal class GrpcLocalExtension(
+    Rpc.BicepExtension.BicepExtensionClient client,
+    Process process,
+    GrpcChannel channel,
+    IOUri binaryUri) : ILocalExtension
 {
-    private readonly BicepExtension.BicepExtensionClient client;
-    private readonly Process process;
-    private readonly GrpcChannel channel;
-    private readonly Uri pathToBinary;
+    private static void WriteTrace(IOUri binaryUri, Func<string> getMessage)
+        => Trace.WriteLine($"[{binaryUri}] {getMessage()}");
 
-    private static void WriteTrace(Uri pathToBinary, Func<string> getMessage)
-    {
-        if (FeatureProvider.ExtensionTracingEnabled && getMessage() is { } message)
-        {
-            Trace.WriteLine($"[{pathToBinary.LocalPath}] {message}");
-        }
-    }
-
-    private GrpcLocalExtension(BicepExtension.BicepExtensionClient client, Process process, GrpcChannel channel, Uri pathToBinary)
-    {
-        this.client = client;
-        this.process = process;
-        this.channel = channel;
-        this.pathToBinary = pathToBinary;
-    }
-
-    public static async Task<ILocalExtension> Start(Uri pathToBinary)
+    public static async Task<ILocalExtension> Start(IOUri binaryUri)
     {
         string processArgs;
         Func<GrpcChannel> channelBuilder;
@@ -74,7 +61,7 @@ internal class GrpcLocalExtension : ILocalExtension
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = pathToBinary.LocalPath,
+                FileName = binaryUri.GetLocalFilePath(),
                 Arguments = processArgs,
                 UseShellExecute = false,
                 RedirectStandardError = true,
@@ -93,14 +80,14 @@ internal class GrpcLocalExtension : ILocalExtension
             {
                 if (!string.IsNullOrEmpty(e.Data))
                 {
-                    WriteTrace(pathToBinary, () => $"stdout: {e.Data}");
+                    WriteTrace(binaryUri, () => $"stdout: {e.Data}");
                 }
             };
             process.ErrorDataReceived += (sender, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
                 {
-                    WriteTrace(pathToBinary, () => $"stderr: {e.Data}");
+                    WriteTrace(binaryUri, () => $"stderr: {e.Data}");
                 }
             };
 
@@ -110,61 +97,74 @@ internal class GrpcLocalExtension : ILocalExtension
             process.BeginOutputReadLine();
 
             channel = channelBuilder();
-            var client = new BicepExtension.BicepExtensionClient(channel);
+            var client = new Rpc.BicepExtension.BicepExtensionClient(channel);
 
             await GrpcChannelHelper.WaitForConnectionAsync(client, cts.Token);
 
-            return new GrpcLocalExtension(client, process, channel, pathToBinary);
+            return new GrpcLocalExtension(client, process, channel, binaryUri);
         }
         catch (Exception ex)
         {
-            await TerminateProcess(pathToBinary, process, channel);
-            throw new InvalidOperationException($"Failed to connect to extension {pathToBinary.LocalPath}", ex);
+            await TerminateProcess(binaryUri, process, channel);
+            throw new InvalidOperationException($"Failed to connect to extension {binaryUri}", ex);
         }
     }
 
     public async Task<LocalExtensionOperationResponse> CreateOrUpdate(ExtensibilityV2.ResourceSpecification request, CancellationToken cancellationToken)
     {
-        WriteTrace(pathToBinary, () => $"{nameof(CreateOrUpdate)} gRPC request: {JsonSerializer.Serialize(request, JsonDefaults.SerializerContext.ResourceSpecification)}");
+        WriteTrace(binaryUri, () => $"{nameof(CreateOrUpdate)} gRPC request: {JsonSerializer.Serialize(request, JsonDefaults.SerializerContext.ResourceSpecification)}");
 
         var response = Convert(await client.CreateOrUpdateAsync(Convert(request), cancellationToken: cancellationToken));
 
-        WriteTrace(pathToBinary, () => $"{nameof(CreateOrUpdate)} gRPC response: {JsonSerializer.Serialize(response, LocalExtensionOperationResponseJsonDefaults.SerializerContext.LocalExtensionOperationResponse)}");
+        WriteTrace(binaryUri, () => $"{nameof(CreateOrUpdate)} gRPC response: {JsonSerializer.Serialize(response, LocalExtensionOperationResponseJsonDefaults.SerializerContext.LocalExtensionOperationResponse)}");
 
         return response;
     }
 
     public async Task<LocalExtensionOperationResponse> Delete(ExtensibilityV2.ResourceReference request, CancellationToken cancellationToken)
     {
-        WriteTrace(pathToBinary, () => $"{nameof(Delete)} gRPC request: {JsonSerializer.Serialize(request, JsonDefaults.SerializerContext.ResourceReference)}");
+        WriteTrace(binaryUri, () => $"{nameof(Delete)} gRPC request: {JsonSerializer.Serialize(request, JsonDefaults.SerializerContext.ResourceReference)}");
 
         var response = Convert(await client.DeleteAsync(Convert(request), cancellationToken: cancellationToken));
 
-        WriteTrace(pathToBinary, () => $"{nameof(Delete)} gRPC response: {JsonSerializer.Serialize(response, LocalExtensionOperationResponseJsonDefaults.SerializerContext.LocalExtensionOperationResponse)}");
+        WriteTrace(binaryUri, () => $"{nameof(Delete)} gRPC response: {JsonSerializer.Serialize(response, LocalExtensionOperationResponseJsonDefaults.SerializerContext.LocalExtensionOperationResponse)}");
 
         return response;
     }
 
     public async Task<LocalExtensionOperationResponse> Get(ExtensibilityV2.ResourceReference request, CancellationToken cancellationToken)
     {
-        WriteTrace(pathToBinary, () => $"{nameof(Get)} gRPC request: {JsonSerializer.Serialize(request, JsonDefaults.SerializerContext.ResourceReference)}");
+        WriteTrace(binaryUri, () => $"{nameof(Get)} gRPC request: {JsonSerializer.Serialize(request, JsonDefaults.SerializerContext.ResourceReference)}");
 
         var response = Convert(await client.GetAsync(Convert(request), cancellationToken: cancellationToken));
 
-        WriteTrace(pathToBinary, () => $"{nameof(Get)} gRPC response: {JsonSerializer.Serialize(response, LocalExtensionOperationResponseJsonDefaults.SerializerContext.LocalExtensionOperationResponse)}");
+        WriteTrace(binaryUri, () => $"{nameof(Get)} gRPC response: {JsonSerializer.Serialize(response, LocalExtensionOperationResponseJsonDefaults.SerializerContext.LocalExtensionOperationResponse)}");
 
         return response;
     }
 
     public async Task<LocalExtensionOperationResponse> Preview(ExtensibilityV2.ResourceSpecification request, CancellationToken cancellationToken)
     {
-        WriteTrace(pathToBinary, () => $"{nameof(Preview)} gRPC request: {JsonSerializer.Serialize(request, JsonDefaults.SerializerContext.ResourceSpecification)}");
+        WriteTrace(binaryUri, () => $"{nameof(Preview)} gRPC request: {JsonSerializer.Serialize(request, JsonDefaults.SerializerContext.ResourceSpecification)}");
 
         var response = Convert(await client.PreviewAsync(Convert(request), cancellationToken: cancellationToken));
 
-        WriteTrace(pathToBinary, () => $"{nameof(Preview)} gRPC response: {JsonSerializer.Serialize(response, LocalExtensionOperationResponseJsonDefaults.SerializerContext.LocalExtensionOperationResponse)}");
+        WriteTrace(binaryUri, () => $"{nameof(Preview)} gRPC response: {JsonSerializer.Serialize(response, LocalExtensionOperationResponseJsonDefaults.SerializerContext.LocalExtensionOperationResponse)}");
 
         return response;
+    }
+
+    public async Task<TypeFiles> GetTypeFiles(CancellationToken cancellationToken)
+    {
+        WriteTrace(binaryUri, () => $"{nameof(GetTypeFiles)} gRPC request: <empty>");
+
+        var response = await client.GetTypeFilesAsync(new(), cancellationToken: cancellationToken);
+
+        WriteTrace(binaryUri, () => $"{nameof(GetTypeFiles)} gRPC response: {response.ToJson()}");
+
+        return new(
+            response.IndexFile,
+            response.TypeFiles.ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Value));
     }
 
     private static Rpc.ResourceReference Convert(ExtensibilityV2.ResourceReference request)
@@ -210,7 +210,7 @@ internal class GrpcLocalExtension : ILocalExtension
     private static ExtensibilityV2.ErrorData Convert(Rpc.ErrorData errorData)
         => new(new ExtensibilityV2.Error(errorData.Error.Code, errorData.Error.Message, JsonPointer.Empty, Convert(errorData.Error.Details), ConvertInnerError(errorData.Error.InnerError)));
 
-    private static ExtensibilityV2.ErrorDetail[]? Convert(RepeatedField<Rpc.ErrorDetail>? details)
+    private static ExtensibilityV2.ErrorDetail[]? Convert(IEnumerable<Rpc.ErrorDetail>? details)
         => details is not null ? details.Select(Convert).ToArray() : null;
 
     private static ExtensibilityV2.ErrorDetail Convert(Rpc.ErrorDetail detail)
@@ -229,10 +229,10 @@ internal class GrpcLocalExtension : ILocalExtension
 
     public async ValueTask DisposeAsync()
     {
-        await TerminateProcess(pathToBinary, process, channel);
+        await TerminateProcess(binaryUri, process, channel);
     }
 
-    private static async Task TerminateProcess(Uri pathToBinary, Process process, GrpcChannel? channel)
+    private static async Task TerminateProcess(IOUri binaryUri, Process process, GrpcChannel? channel)
     {
         try
         {
@@ -248,7 +248,7 @@ internal class GrpcLocalExtension : ILocalExtension
         }
         catch (Exception ex)
         {
-            WriteTrace(pathToBinary, () => $"Failed to terminate process: {ex}");
+            WriteTrace(binaryUri, () => $"Failed to terminate process: {ex}");
             // ignore exceptions - this is best-effort, and we want to avoid an exception from
             // process.Kill() bubbling up and masking the original exception that was thrown
         }

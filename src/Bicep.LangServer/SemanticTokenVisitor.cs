@@ -369,7 +369,7 @@ namespace Bicep.LanguageServer
         public override void VisitExtensionConfigAssignmentSyntax(ExtensionConfigAssignmentSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
-            this.Visit(syntax.SpecificationString);
+            this.Visit(syntax.Alias);
             this.Visit(syntax.WithClause);
         }
 

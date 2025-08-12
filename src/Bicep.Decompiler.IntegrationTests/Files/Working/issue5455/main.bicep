@@ -30,7 +30,7 @@ param storageRoleUniqueId string = newGuid()
 param isNewStorageAccount bool = false
 param isNewFileSystemOnly bool = false
 param adlaResourceId string = ''
-//@[06:020) [no-unused-params (Warning)] Parameter "adlaResourceId" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-params) |adlaResourceId|
+//@[06:020) [no-unused-params (Warning)] Parameter "adlaResourceId" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |adlaResourceId|
 param managedResourceGroupName string = ''
 param storageAccessTier string
 param storageAccountType string
@@ -46,7 +46,7 @@ param managedVirtualNetworkSettings object
 
 var storageBlobDataContributorRoleID = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 var defaultDataLakeStorageAccountUrl = 'https://${defaultDataLakeStorageAccountName}.dfs.core.windows.net'
-//@[89:105) [no-hardcoded-env-urls (Warning)] Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds. Found this disallowed host: "core.windows.net" (bicep core linter https://aka.ms/bicep/linter/no-hardcoded-env-urls) |core.windows.net|
+//@[89:105) [no-hardcoded-env-urls (Warning)] Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds. Found this disallowed host: "core.windows.net" (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-hardcoded-env-urls) |core.windows.net|
 
 resource name_resource 'Microsoft.Synapse/workspaces@2021-06-01' = {
   name: name

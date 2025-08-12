@@ -13,12 +13,9 @@ configuration:
           - payloadType: Pull_Request
           - hasLabel:
               label: dependencies
-          - not:
-              hasLabel:
-                label: auto-merge
           - isActivitySender:
               user: dependabot[bot]
-              issueAuthor: False
+              issueAuthor: True
         then:
           - approvePullRequest:
               comment: ":shipit:"

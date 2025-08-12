@@ -9,7 +9,7 @@ namespace Bicep.Core.TypeSystem.Types
     /// <summary>
     /// Represents an object with any property of any type.
     /// </summary>
-    public class ObjectType : TypeSymbol
+    public class ObjectType : ObjectLikeType
     {
         public ObjectType(string name, TypeSymbolValidationFlags validationFlags, IEnumerable<NamedTypeProperty> properties, TypeProperty? additionalProperties = null, IEnumerable<FunctionOverload>? functions = null)
             : this(name, validationFlags, properties, additionalProperties, owner => new FunctionResolver(owner, functions ?? ImmutableArray<FunctionOverload>.Empty))
@@ -17,17 +17,14 @@ namespace Bicep.Core.TypeSystem.Types
         }
 
         public ObjectType(string name, TypeSymbolValidationFlags validationFlags, IEnumerable<NamedTypeProperty> properties, TypeProperty? additionalProperties, Func<ObjectType, FunctionResolver> methodResolverBuilder)
-            : base(name)
+            : base(name, validationFlags)
         {
-            ValidationFlags = validationFlags;
             Properties = properties.ToImmutableSortedDictionary(property => property.Name, property => property, LanguageConstants.IdentifierComparer);
             MethodResolver = methodResolverBuilder(this);
             AdditionalProperties = additionalProperties;
         }
 
         public override TypeKind TypeKind => TypeKind.Object;
-
-        public override TypeSymbolValidationFlags ValidationFlags { get; }
 
         public ImmutableSortedDictionary<string, NamedTypeProperty> Properties { get; }
 
@@ -48,5 +45,16 @@ namespace Bicep.Core.TypeSystem.Types
                 properties ?? Properties.Values,
                 additionalProperties ?? AdditionalProperties,
                 methodResolverBuilder ?? MethodResolver.CopyToObject);
+
+        public ObjectType WithProperties(Func<IEnumerable<NamedTypeProperty>, IEnumerable<NamedTypeProperty>> propertiesModifier)
+            => new(
+                Name,
+                ValidationFlags,
+                propertiesModifier(Properties.Values),
+                AdditionalProperties,
+                MethodResolver.functionOverloads);
+
+        public ObjectType WithModifiedProperties(Func<NamedTypeProperty, NamedTypeProperty> propertyModifier)
+            => WithProperties(props => props.Select(propertyModifier));
     }
 }

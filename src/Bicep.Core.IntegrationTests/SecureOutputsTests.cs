@@ -215,16 +215,16 @@ public class SecureOutputsTests
         result.Diagnostics.Should().NotHaveAnyDiagnostics();
 
         // Verify referencing secure output in a resource property will be translated to listOutputsWithSecureValues function
-        result.Template.Should().HaveValueAtPath("$.resources['key'].properties.value", "[listOutputsWithSecureValues(resourceId('Microsoft.Resources/deployments', 'secureOuputs'), '2022-09-01').secureOutput]");
+        result.Template.Should().HaveValueAtPath("$.resources['key'].properties.value", "[listOutputsWithSecureValues('secureOuputs', '2022-09-01').secureOutput]");
 
         // Verify referencing implicit secure output in a resource property will be translated to listOutputsWithSecureValues function
-        result.Template.Should().HaveValueAtPath("$.resources['key2'].properties.value", "[listOutputsWithSecureValues(resourceId('Microsoft.Resources/deployments', 'implicitSecureOuputWithoutDecorator'), '2022-09-01').secureObjectOutput.foo]");
+        result.Template.Should().HaveValueAtPath("$.resources['key2'].properties.value", "[listOutputsWithSecureValues('implicitSecureOuputWithoutDecorator', '2022-09-01').secureObjectOutput.foo]");
 
         // Verify referencing secure output will be translated to listOutputsWithSecureValues function
-        result.Template.Should().HaveValueAtPath("$.outputs['outputSecureVal'].value", "[listOutputsWithSecureValues(resourceId('Microsoft.Resources/deployments', 'secureOuputs'), '2022-09-01').secureOutput]");
+        result.Template.Should().HaveValueAtPath("$.outputs['outputSecureVal'].value", "[listOutputsWithSecureValues('secureOuputs', '2022-09-01').secureOutput]");
 
-        // Verify referencing normal value from a deployment which contains secure outputs will be translated to listOutputsWithSecureValues function
-        result.Template.Should().HaveValueAtPath("$.outputs['outputNormalVal'].value", "[listOutputsWithSecureValues(resourceId('Microsoft.Resources/deployments', 'secureOuputs'), '2022-09-01').normalOutput]");
+        // Verify referencing normal value from a deployment which contains secure outputs will be translated to reference function
+        result.Template.Should().HaveValueAtPath("$.outputs['outputNormalVal'].value", "[reference('secureOuputs').outputs.normalOutput.value]");
 
         // Verify referencing normal value from a deployment which does NOT contain any secure outputs will be translated to normal reference function
         result.Template.Should().HaveValueAtPath("$.outputs['outputNormalVal2'].value", "[reference('noSecureOutput').outputs.normalOutput.value]");
@@ -233,13 +233,13 @@ public class SecureOutputsTests
         result.Template.Should().HaveValueAtPath("$.outputs['outputNormalVal3'].value", "[reference('noSecureOutputWithSecureParam').outputs.normalOutput.value]");
 
         // Verify referencing secure output in a resource property will be translated to listOutputsWithSecureValues function
-        result.Template.Should().HaveValueAtPath("$.outputs['outputSecureVal'].value", "[listOutputsWithSecureValues(resourceId('Microsoft.Resources/deployments', 'secureOuputs'), '2022-09-01').secureOutput]");
+        result.Template.Should().HaveValueAtPath("$.outputs['outputSecureVal'].value", "[listOutputsWithSecureValues('secureOuputs', '2022-09-01').secureOutput]");
 
         // Verify referencing a normal string in an implicit secure output object will be translated to listOutputsWithSecureValues function
-        result.Template.Should().HaveValueAtPath("$.outputs['outputImplicitSecureObject_normalString'].value", "[listOutputsWithSecureValues(resourceId('Microsoft.Resources/deployments', 'implicitSecureOuputWithoutDecorator'), '2022-09-01').secureObjectOutput.bar]");
+        result.Template.Should().HaveValueAtPath("$.outputs['outputImplicitSecureObject_normalString'].value", "[listOutputsWithSecureValues('implicitSecureOuputWithoutDecorator', '2022-09-01').secureObjectOutput.bar]");
 
         // Verify referencing a secure string in an implicit secure output object will be translated to listOutputsWithSecureValues function
-        result.Template.Should().HaveValueAtPath("$.outputs['outputImplicitSecureObject_secureString'].value", "[listOutputsWithSecureValues(resourceId('Microsoft.Resources/deployments', 'implicitSecureOuputWithoutDecorator'), '2022-09-01').secureObjectOutput.foo]");
+        result.Template.Should().HaveValueAtPath("$.outputs['outputImplicitSecureObject_secureString'].value", "[listOutputsWithSecureValues('implicitSecureOuputWithoutDecorator', '2022-09-01').secureObjectOutput.foo]");
 
     }
 
@@ -297,5 +297,103 @@ public class SecureOutputsTests
             ")
         );
         result.Template?.Root.ToString().Should().Contain("\"languageVersion\": \"2.0\"");
+    }
+
+    [TestMethod]
+    public void Non_sensitive_outputs_of_module_with_secure_outputs_should_use_reference_function()
+    {
+        var result = CompilationHelper.Compile(
+            ("mod.bicep", """
+                @secure()
+                output sensitive string = 'foo'
+
+                output notSensitive string = 'bar'
+                """),
+            ("main.bicep", """
+                module mod 'mod.bicep' = {}
+
+                @secure()
+                output sensitive string = mod.outputs.sensitive
+                output notSensitive string = mod.outputs.notSensitive
+                """));
+
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("$.outputs.sensitive.value", "[listOutputsWithSecureValues('mod', '2022-09-01').sensitive]");
+        result.Template.Should().HaveValueAtPath("$.outputs.notSensitive.value", "[reference('mod').outputs.notSensitive.value]");
+    }
+
+    [TestMethod]
+    public void Non_sensitive_outputs_of_collection_module_with_secure_outputs_should_use_reference_function()
+    {
+        var result = CompilationHelper.Compile(
+            ("mod.bicep", """
+                @secure()
+                output sensitive string = 'foo'
+
+                output notSensitive string = 'bar'
+                """),
+            ("main.bicep", """
+                module mod 'mod.bicep' = [for i in range(0, 1): {}]
+
+                @secure()
+                output sensitive string = mod[0].outputs.sensitive
+                output notSensitive string = mod[0].outputs.notSensitive
+                """));
+
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("$.outputs.sensitive.value", "[listOutputsWithSecureValues(format('mod[{0}]', 0), '2022-09-01').sensitive]");
+        result.Template.Should().HaveValueAtPath("$.outputs.notSensitive.value", "[reference(format('mod[{0}]', 0)).outputs.notSensitive.value]");
+    }
+
+    [TestMethod]
+    public void Secure_output_access_should_be_blocked_on_reference_via_inlined_variable()
+    {
+        var result = CompilationHelper.Compile(
+            ("mod.bicep", """
+                @secure()
+                output sensitive string = 'foo'
+
+                output notSensitive string = 'bar'
+                """),
+            ("main.bicep", """
+                param condition bool
+
+                module mod 'mod.bicep' = {}
+                module mod2 'mod.bicep' = {}
+
+                var modToUse = condition ? mod : mod2
+
+                @secure()
+                output sensitive string = modToUse.outputs.sensitive
+                output notSensitive string = modToUse.outputs.notSensitive
+                """));
+
+        result.Should().HaveDiagnostics(
+        [
+            ("BCP426", DiagnosticLevel.Error, "Secure outputs may only be accessed via a direct module reference. Only non-sensitive outputs are supported when dereferencing a module indirectly via a variable or lambda."),
+        ]);
+    }
+
+    [TestMethod]
+    public void Secure_output_access_should_be_blocked_on_reference_via_lambda_variable()
+    {
+        var result = CompilationHelper.Compile(
+            ("mod.bicep", """
+                @secure()
+                output sensitive string = 'foo'
+
+                output notSensitive string = 'bar'
+                """),
+            ("main.bicep", """
+                module mod 'mod.bicep' = [for i in range(0, 1): {}]
+
+                output out1 array = map(mod, m => m.outputs.sensitive)
+                output out2 array = map(mod, m => m.outputs.notSensitive)
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
+            ("BCP426", DiagnosticLevel.Error, "Secure outputs may only be accessed via a direct module reference. Only non-sensitive outputs are supported when dereferencing a module indirectly via a variable or lambda."),
+        ]);
     }
 }

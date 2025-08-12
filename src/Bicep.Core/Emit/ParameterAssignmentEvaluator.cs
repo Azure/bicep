@@ -205,7 +205,7 @@ public class ParameterAssignmentEvaluator
                 catch (Exception ex)
                 {
                     return Result.For(DiagnosticBuilder.ForPosition(declaringParam.Value)
-                        .FailedToEvaluateParameter(parameter.Name, ex.Message));
+                        .FailedToEvaluateSubject("parameter", parameter.Name, ex.Message));
                 }
             });
 
@@ -251,7 +251,7 @@ public class ParameterAssignmentEvaluator
                         {
                             propertyResult = Result.For(
                                 DiagnosticBuilder.ForPosition(property.Value)
-                                    .FailedToEvaluateParameter(extConfigAssignment.Name, ex.Message));
+                                    .FailedToEvaluateSubject("extension config", extConfigAssignment.Name, ex.Message));
                         }
                     }
 

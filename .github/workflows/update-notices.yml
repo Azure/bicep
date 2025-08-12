@@ -48,6 +48,9 @@ jobs:
       - name: Publish Language Server
         run: dotnet publish --configuration Release ./src/Bicep.LangServer/Bicep.LangServer.csproj
 
+      - name: Publish MCP Server
+        run: dotnet publish --configuration Release ./src/Bicep.McpServer/Bicep.McpServer.csproj
+
       # this command is not correct for releasing the binaries but is sufficient for the purposes of this job
       - name: Windows Installer prerequisites
         run: mkdir ./src/installer-win/bicep && copy ./src/Bicep.Cli/obj/project.assets.json ./src/installer-win/bicep/ && copy ./src/Bicep.Cli/bin/Release/net8.0/bicep.* ./src/installer-win/bicep/
@@ -62,7 +65,10 @@ jobs:
         run: dotnet build --configuration Release /p:RuntimeSuffix=win-x64 ./src/Bicep.Cli.Nuget/nuget.proj
 
       - name: VSIX Notice prerequisites
-        run:  mkdir ./src/vscode-bicep-notice/inputs && copy ./src/Bicep.LangServer/obj/project.assets.json ./src/vscode-bicep-notice/inputs/
+        run: |
+          mkdir ./src/vscode-bicep-notice/inputs
+          copy ./src/Bicep.LangServer/obj/project.assets.json ./src/vscode-bicep-notice/inputs/langserver.assets.json
+          copy ./src/Bicep.McpServer/obj/project.assets.json ./src/vscode-bicep-notice/inputs/mcpserver.assets.json
 
       - name: npm ci
         run: npm ci
@@ -79,7 +85,7 @@ jobs:
         run: msbuild src/vs-bicep/BicepInVisualStudio.sln /restore -property:Configuration=Release /v:m
 
       - name: Create branch and force push
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v6
         with:
           commit_message: Update Local TPN Files
           commit_user_name: ${{ github.actor }}

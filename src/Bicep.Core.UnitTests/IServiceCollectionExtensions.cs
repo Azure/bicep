@@ -13,7 +13,6 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
-using Bicep.Core.TypeSystem.Providers.MicrosoftGraph;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Features;
@@ -44,7 +43,6 @@ public static class IServiceCollectionExtensions
             .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
             .AddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>()
             .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
-            .AddSingleton<IFileResolver, FileResolver>()
             .AddSingleton<IEnvironment>(TestEnvironment.Default)
             .AddSingleton<IFileSystem, LocalFileSystem>()
             .AddSingleton<IFileExplorer, FileSystemFileExplorer>()
@@ -68,9 +66,6 @@ public static class IServiceCollectionExtensions
     private static IServiceCollection Register<TService>(IServiceCollection services, TService service)
         where TService : class
         => services.AddSingleton(service);
-
-    public static IServiceCollection WithFileResolver(this IServiceCollection services, IFileResolver fileResolver)
-        => Register(services, fileResolver);
 
     public static IServiceCollection WithFileExplorer(this IServiceCollection services, IFileExplorer fileExplorer)
         => Register(services, fileExplorer);
@@ -141,12 +136,6 @@ public static class IServiceCollectionExtensions
 
     public static IServiceCollection WithAzResourceProvider(this IServiceCollection services, IAzResourceProvider azResourceProvider)
         => Register(services, azResourceProvider);
-
-    public static IServiceCollection WithMsGraphResourceTypeLoaderFactory(this IServiceCollection services, MicrosoftGraphResourceTypeLoader loader)
-    {
-        var provider = new MicrosoftGraphResourceTypeProvider(loader);
-        return Register(services, TestTypeHelper.CreateResourceTypeLoaderFactory(provider));
-    }
 
     public static IServiceCollection WithArmClientProvider(this IServiceCollection services, IArmClientProvider armClientProvider)
         => Register(services, armClientProvider);

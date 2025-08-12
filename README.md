@@ -1,5 +1,5 @@
 [![Build](https://github.com/Azure/bicep/actions/workflows/build.yml/badge.svg)](https://github.com/Azure/bicep/actions/workflows/build.yml)
-[![codecov](https://codecov.io/gh/Azure/bicep/branch/main/graph/badge.svg)](https://app.codecov.io/gh/Azure/bicep/tree/main)
+[![Test Azure CLI Integration](https://github.com/Azure/bicep/actions/workflows/test-azure-cli-integration.yml/badge.svg?branch=main)](https://github.com/Azure/bicep/actions/workflows/test-azure-cli-integration.yml)
 [![Needs Upvote](https://img.shields.io/github/issues/Azure/Bicep/Needs%3A%20Upvote?color=green&label=Needs%3A%20Upvote&style=flat)](https://github.com/Azure/bicep/issues?q=is%3Aopen+is%3Aissue+label%3A%22Needs%3A+Upvote%22+sort%3Areactions-%2B1-asc)
 [![Good First Issues](https://img.shields.io/github/issues/Azure/Bicep/good%20first%20issue?color=blue&label=good%20first%20issue&style=flat)](https://github.com/Azure/Bicep/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 
@@ -24,6 +24,8 @@ To get going with Bicep:
 If you have an existing ARM Template or set of Azure resources that you would like to convert to `.bicep` format, see the [recommended workflow for migrating resources to Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/migrate) and [Decompiling an ARM Template](https://learn.microsoft.com/azure/azure-resource-manager/bicep/decompile).
 
 Also, there is a rich library of [Bicep modules in Azure Verified Modules](https://azure.github.io/Azure-Verified-Modules/indexes/bicep/), and examples in the [azure-quickstart-templates](https://github.com/Azure/azure-quickstart-templates) repo to help you get started. You can also use the [Bicep Playground](https://azure.github.io/bicep/) to try out Bicep in your browser.
+
+If you're looking for production-ready and tested Bicep templates, you can find them in the [bicep-registry-modules](https://github.com/Azure/bicep-registry-modules) repo. Learn more about these templates on the Azure Verified Modules website: [https://aka.ms/avm](https://aka.ms/avm).
 
 ## How does Bicep work?
 

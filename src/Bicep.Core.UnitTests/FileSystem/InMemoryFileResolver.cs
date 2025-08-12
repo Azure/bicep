@@ -6,23 +6,17 @@ using FluentAssertions;
 
 namespace Bicep.Core.UnitTests.FileSystem
 {
-    public class InMemoryFileResolver : FileResolver
+    public class InMemoryFileResolver
     {
         public MockFileSystem MockFileSystem { get; }
 
         public InMemoryFileResolver(MockFileSystem fileSystem)
-            : base(fileSystem)
         {
             MockFileSystem = fileSystem;
         }
 
         public InMemoryFileResolver(IReadOnlyDictionary<Uri, string> fileLookup)
             : this(new MockFileSystem(fileLookup.ToDictionary(x => x.Key.LocalPath, x => new MockFileData(x.Value))))
-        {
-        }
-
-        public InMemoryFileResolver(IReadOnlyDictionary<Uri, MockFileData> fileLookup)
-            : this(new MockFileSystem(fileLookup.ToDictionary(x => x.Key.LocalPath, x => x.Value)))
         {
         }
 

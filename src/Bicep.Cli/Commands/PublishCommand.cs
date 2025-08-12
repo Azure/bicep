@@ -9,11 +9,13 @@ using Bicep.Cli.Logging;
 using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
+using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
+using Bicep.IO.Abstraction;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
@@ -23,9 +25,10 @@ namespace Bicep.Cli.Commands
         private readonly DiagnosticLogger diagnosticLogger;
         private readonly BicepCompiler compiler;
         private readonly IModuleDispatcher moduleDispatcher;
-        private readonly IFileSystem fileSystem;
+        private readonly IFileExplorer fileExplorer;
         private readonly ISourceFileFactory sourceFileFactory;
         private readonly IOContext ioContext;
+        private readonly InputOutputArgumentsResolver inputOutputArgumentsResolver;
 
         public PublishCommand(
             DiagnosticLogger diagnosticLogger,
@@ -33,25 +36,27 @@ namespace Bicep.Cli.Commands
             IOContext ioContext,
             IModuleDispatcher moduleDispatcher,
             ISourceFileFactory sourceFileFactory,
-            IFileSystem fileSystem)
+            IFileExplorer fileExplorer,
+            InputOutputArgumentsResolver inputOutputArgumentsResolver)
         {
             this.diagnosticLogger = diagnosticLogger;
             this.compiler = compiler;
             this.moduleDispatcher = moduleDispatcher;
-            this.fileSystem = fileSystem;
+            this.fileExplorer = fileExplorer;
             this.sourceFileFactory = sourceFileFactory;
             this.ioContext = ioContext;
+            this.inputOutputArgumentsResolver = inputOutputArgumentsResolver;
         }
 
         public async Task<int> RunAsync(PublishArguments args)
         {
-            var inputUri = ArgumentHelper.GetFileUri(args.InputFile);
+            var inputUri = inputOutputArgumentsResolver.ResolveInputArguments(args);
             var documentationUri = args.DocumentationUri;
             var moduleReference = ValidateReference(args.TargetModuleReference, inputUri);
             var overwriteIfExists = args.Force;
             var publishSource = args.WithSource;
 
-            if (PathHelper.HasArmTemplateLikeExtension(inputUri))
+            if (inputUri.HasArmTemplateLikeExtension())
             {
                 if (publishSource)
                 {
@@ -60,13 +65,17 @@ namespace Bicep.Cli.Commands
                 }
 
                 // Publishing an ARM template file.
-                using var armTemplateStream = this.fileSystem.FileStream.New(inputUri.LocalPath, FileMode.Open, FileAccess.Read);
-                await this.PublishModuleAsync(moduleReference, BinaryData.FromStream(armTemplateStream), null, documentationUri, overwriteIfExists);
+                if (!this.fileExplorer.GetFile(inputUri).TryReadBinaryData().IsSuccess(out var templateData, out var diagnosticBuilder))
+                {
+                    var diagnostic = diagnosticBuilder(DiagnosticBuilder.ForDocumentStart());
+                    throw new DiagnosticException(diagnostic);
+                }
 
+                await this.PublishModuleAsync(moduleReference, templateData, null, documentationUri, overwriteIfExists);
                 return 0;
             }
 
-            var compilation = await compiler.CreateCompilation(inputUri, skipRestore: args.NoRestore);
+            var compilation = await compiler.CreateCompilation(inputUri.ToUri(), skipRestore: args.NoRestore);
             var result = compilation.Emitter.Template();
 
             var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, result.Diagnostics);
@@ -81,7 +90,7 @@ namespace Bicep.Cli.Commands
             SourceArchive? sourceArchive = null;
             if (publishSource)
             {
-                sourceArchive = SourceArchive.CreateFor(compilation.SourceFileGrouping);
+                sourceArchive = SourceArchive.CreateFrom(compilation.SourceFileGrouping);
                 Trace.WriteLine("Publishing Bicep module with source");
             }
 
@@ -109,7 +118,7 @@ namespace Bicep.Cli.Commands
             }
         }
 
-        private ArtifactReference ValidateReference(string targetModuleReference, Uri targetModuleUri)
+        private ArtifactReference ValidateReference(string targetModuleReference, IOUri targetModuleUri)
         {
             var dummyReferencingFile = this.sourceFileFactory.CreateBicepFile(targetModuleUri, string.Empty);
 

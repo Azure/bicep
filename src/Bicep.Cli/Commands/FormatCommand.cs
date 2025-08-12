@@ -6,6 +6,7 @@ using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
@@ -14,38 +15,33 @@ using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Text;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Cli.Commands;
 
 public class FormatCommand(
     IOContext io,
-    IEnvironment environment,
-    IFileResolver fileResolver,
-    IFileSystem fileSystem,
-    ISourceFileFactory sourceFileFactory) : ICommand
+    IFileExplorer fileExplorer,
+    ISourceFileFactory sourceFileFactory,
+    InputOutputArgumentsResolver inputOutputArgumentsResolver) : ICommand
 {
     public int Run(FormatArguments args)
     {
-        if (args.InputFile is null)
+        foreach (var (inputUri, outputUri) in inputOutputArgumentsResolver.ResolveFilePatternInputOutputArguments(args))
         {
-            FormatMultiple(args);
-            return 0;
+            ArgumentHelper.ValidateBicepOrBicepParamFile(inputUri);
+
+            this.Format(args, inputUri, outputUri, args.OutputToStdOut);
         }
 
-        var inputUri = ArgumentHelper.GetFileUri(args.InputFile, fileSystem);
-        ArgumentHelper.ValidateBicepOrBicepParamFile(inputUri);
-
-        var outputUri = GetOutputUri(inputUri, args.OutputDir, args.OutputFile);
-
-        Format(args, inputUri, outputUri, args.OutputToStdOut);
         return 0;
     }
 
-    public void Format(FormatArguments args, Uri inputUri, Uri outputUri, bool outputToStdOut)
+    public void Format(FormatArguments args, IOUri inputUri, IOUri outputUri, bool outputToStdOut)
     {
-        if (!fileResolver.TryRead(inputUri).IsSuccess(out var fileContents, out var failureBuilder))
+        if (!fileExplorer.GetFile(inputUri).TryReadAllText().IsSuccess(out var fileContents, out var diagnosticBuilder))
         {
-            var diagnostic = failureBuilder(DiagnosticBuilder.ForPosition(new TextSpan(0, 0)));
+            var diagnostic = diagnosticBuilder(DiagnosticBuilder.ForPosition(TextSpan.TextDocumentStart));
             throw new DiagnosticException(diagnostic);
         }
 
@@ -67,7 +63,7 @@ public class FormatCommand(
             }
             else
             {
-                fileSystem.File.WriteAllText(outputUri.LocalPath, output);
+                fileExplorer.GetFile(outputUri).WriteAllText(output);
             }
 
             return;
@@ -83,27 +79,15 @@ public class FormatCommand(
         }
         else
         {
-            using var fileStream = fileSystem.File.Open(outputUri.LocalPath, FileMode.Create, FileAccess.Write, FileShare.Read);
-            using var writer = new StreamWriter(fileStream);
+
+            using var stream = fileExplorer.GetFile(outputUri).OpenWrite();
+            using var writer = new StreamWriter(stream);
 
 
             PrettyPrinterV2.PrintTo(writer, sourceFile.ProgramSyntax, context);
         }
 
         return;
-    }
-
-    public void FormatMultiple(FormatArguments args)
-    {
-        foreach (var inputUri in CommandHelper.GetInputFilesForPattern(environment, args.FilePattern))
-        {
-            ArgumentHelper.ValidateBicepOrBicepParamFile(inputUri);
-
-            // only allow in-place formatting
-            var outputUri = inputUri;
-
-            Format(args, inputUri, outputUri, false);
-        }
     }
 
     private static PrettyPrinterV2Options GetPrettyPrinterOptions(BicepSourceFile sourceFile, FormatArguments args)
@@ -131,11 +115,5 @@ public class FormatCommand(
         }
 
         return options;
-    }
-
-    private Uri GetOutputUri(Uri inputUri, string? outputDir, string? outputFile)
-    {
-        var outputPath = PathHelper.ResolveOutputPath(inputUri.LocalPath, outputDir, outputFile, path => path, fileSystem);
-        return PathHelper.FilePathToFileUrl(outputPath);
     }
 }

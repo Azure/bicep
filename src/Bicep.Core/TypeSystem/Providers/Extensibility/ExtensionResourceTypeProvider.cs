@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
+using NamedTypeProperties = System.Collections.Immutable.ImmutableSortedDictionary<string, Bicep.Core.TypeSystem.Types.NamedTypeProperty>;
 
 namespace Bicep.Core.TypeSystem.Providers.Extensibility
 {
     public class ExtensionResourceTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
     {
-        public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, [], new TypeProperty(LanguageConstants.String));
-
         private readonly ExtensionResourceTypeLoader resourceTypeLoader;
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
@@ -22,18 +22,18 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             generatedTypeCache = new ResourceTypeCache();
         }
 
-        private static ResourceTypeComponents SetBicepResourceProperties(ResourceTypeComponents resourceType, ResourceTypeGenerationFlags flags)
+        private static ResourceTypeComponents SetBicepResourceProperties(NamespaceType namespaceType, ResourceTypeComponents resourceType, ResourceTypeGenerationFlags flags)
         {
             var bodyType = resourceType.Body.Type;
 
             switch (bodyType)
             {
                 case ObjectType bodyObjectType:
-                    bodyType = SetBicepResourceProperties(bodyObjectType, flags);
+                    bodyType = SetBicepResourceProperties(namespaceType, resourceType, bodyObjectType, flags);
                     break;
 
                 case DiscriminatedObjectType bodyDiscriminatedType:
-                    bodyType = SetBicepResourceProperties(bodyDiscriminatedType, flags);
+                    bodyType = SetBicepResourceProperties(namespaceType, resourceType, bodyDiscriminatedType, flags);
                     break;
 
                 default:
@@ -43,15 +43,26 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             return resourceType with { Body = bodyType };
         }
 
-        private static ObjectType SetBicepResourceProperties(ObjectType objectType, ResourceTypeGenerationFlags flags)
+        private static ObjectType SetBicepResourceProperties(NamespaceType namespaceType, ResourceTypeComponents resourceType, ObjectType objectType, ResourceTypeGenerationFlags flags)
         {
             var properties = objectType.Properties;
             var isExistingResource = flags.HasFlag(ResourceTypeGenerationFlags.ExistingResource);
+
+            properties = MicrosoftGraphExtensionCompatibilityManager.PatchResourceProperties(namespaceType, resourceType, properties);
 
             if (!isExistingResource)
             {
                 // TODO: Support "dependsOn" for "existing" resources
                 properties = properties.Add(LanguageConstants.ResourceDependsOnPropertyName, new NamedTypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny));
+            }
+
+            foreach (var (propertyName, propertyType) in properties)
+            {
+                if (propertyType.Flags.HasFlag(TypePropertyFlags.ResourceIdentifier | TypePropertyFlags.Required))
+                {
+                    // Add LoopVariant flag to required identifier properties.
+                    properties = properties.SetItem(propertyName, UpdateFlags(propertyType, propertyType.Flags | TypePropertyFlags.SystemProperty | TypePropertyFlags.LoopVariant));
+                }
             }
 
             return new ObjectType(
@@ -64,10 +75,10 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                 functions: objectType.MethodResolver.functionOverloads);
         }
 
-        private static DiscriminatedObjectType SetBicepResourceProperties(DiscriminatedObjectType objectType, ResourceTypeGenerationFlags flags)
+        private static DiscriminatedObjectType SetBicepResourceProperties(NamespaceType namespaceType, ResourceTypeComponents resourceType, DiscriminatedObjectType objectType, ResourceTypeGenerationFlags flags)
         {
             var unionMembersByKey = objectType.UnionMembersByKey
-                .ToDictionary(x => x.Key, x => SetBicepResourceProperties(x.Value, flags));
+                .ToDictionary(x => x.Key, x => SetBicepResourceProperties(namespaceType, resourceType, x.Value, flags));
 
             return new DiscriminatedObjectType(
                 objectType.Name,
@@ -123,7 +134,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             {
                 var resourceType = resourceTypeLoader.LoadType(typeReference);
 
-                return SetBicepResourceProperties(resourceType, flags);
+                return SetBicepResourceProperties(declaringNamespace, resourceType, flags);
             });
 
             return new(
@@ -133,7 +144,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                 resourceType.ReadOnlyScopes,
                 resourceType.Flags,
                 resourceType.Body,
-                []);
+                resourceType.GetUniqueIdentifierPropertyNames());
         }
 
         public ResourceType? TryGenerateFallbackType(NamespaceType declaringNamespace, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
@@ -172,10 +183,79 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             return resourceTypeLoader.LoadNamespaceConfiguration();
         }
 
+        public NamespaceSettings GetNamespaceSettings()
+        {
+            var namespaceConfiguration = resourceTypeLoader.LoadNamespaceConfiguration();
+            var namespaceSettings = new NamespaceSettings(
+                IsSingleton: namespaceConfiguration.IsSingleton,
+                BicepExtensionName: namespaceConfiguration.Name,
+                ConfigurationType: namespaceConfiguration.ConfigurationType,
+                TemplateExtensionName: namespaceConfiguration.Name,
+                TemplateExtensionVersion: namespaceConfiguration.Version);
+
+            return MicrosoftGraphExtensionCompatibilityManager.PatchNamespaceSettings(namespaceSettings);
+        }
+
         public bool HasDefinedType(ResourceTypeReference typeReference)
             => availableResourceTypes.Contains(typeReference);
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableResourceTypes;
+
+        private static NamedTypeProperty UpdateFlags(NamedTypeProperty typeProperty, TypePropertyFlags flags) => new(typeProperty.Name, typeProperty.TypeReference, flags, typeProperty.Description);
+
+        private static class MicrosoftGraphExtensionCompatibilityManager
+        {
+            private const string BackwardCompatibleExtensionVersion = "0.1.8-preview";
+            private const string UniqueNamePropertyName = "uniqueName";
+            private const string NamePropertyName = "name";
+            private const string AppIdPropertyName = "appId";
+
+            public static NamedTypeProperties PatchResourceProperties(NamespaceType namespaceType, ResourceTypeComponents resourceType, NamedTypeProperties properties)
+            {
+                if (!namespaceType.Settings.TemplateExtensionName.Equals(MicrosoftGraphExtensionFacts.TemplateExtensionName, StringComparison.Ordinal))
+                {
+                    return properties;
+                }
+
+                // 0.1.8-preview is the first Microsoft Graph extension version. Flags such as Identifier were not added until later versions.
+                if (namespaceType.Settings.TemplateExtensionVersion.Equals(BackwardCompatibleExtensionVersion, StringComparison.Ordinal))
+                {
+                    if (properties.TryGetValue(UniqueNamePropertyName, out var uniqueNameProperty))
+                    {
+                        properties = properties.SetItem(UniqueNamePropertyName, UpdateFlags(uniqueNameProperty, uniqueNameProperty.Flags | TypePropertyFlags.ResourceIdentifier));
+                    }
+
+                    if (resourceType.TypeReference.Type.Equals("Microsoft.Graph/applications/federatedIdentityCredentials", StringComparison.Ordinal) &&
+                        properties.TryGetValue(NamePropertyName, out var nameProperty))
+                    {
+                        properties = properties.SetItem(NamePropertyName, UpdateFlags(nameProperty, nameProperty.Flags | TypePropertyFlags.ResourceIdentifier));
+                    }
+
+                    if (resourceType.TypeReference.Type.Equals("Microsoft.Graph/servicePrincipals", StringComparison.Ordinal) &&
+                        properties.TryGetValue(AppIdPropertyName, out var appIdProperty))
+                    {
+                        properties = properties.SetItem(AppIdPropertyName, UpdateFlags(appIdProperty, appIdProperty.Flags | TypePropertyFlags.ResourceIdentifier));
+                    }
+                }
+
+                return properties;
+            }
+
+            public static NamespaceSettings PatchNamespaceSettings(NamespaceSettings namespaceSettings)
+            {
+                if (namespaceSettings.TemplateExtensionName.Equals(MicrosoftGraphExtensionFacts.BicepExtensionBetaName) ||
+                    namespaceSettings.TemplateExtensionName.Equals(MicrosoftGraphExtensionFacts.BicepExtensionV1Name))
+                {
+                    return namespaceSettings with
+                    {
+                        TemplateExtensionName = MicrosoftGraphExtensionFacts.TemplateExtensionName,
+                    };
+                }
+
+                return namespaceSettings;
+            }
+        }
+
     }
 }

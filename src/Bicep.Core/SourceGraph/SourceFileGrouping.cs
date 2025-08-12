@@ -19,10 +19,10 @@ public record ImplicitExtension(
     ArtifactResolutionInfo? Artifact);
 
 public record ArtifactResolutionInfo(
-    BicepSourceFile Origin,
+    BicepSourceFile ReferencingFile,
     IArtifactReferenceSyntax? Syntax,
     ArtifactReference? Reference,
-    ResultWithDiagnosticBuilder<Uri> Result,
+    ResultWithDiagnosticBuilder<IFileHandle> Result,
     bool RequiresRestore);
 
 public record SourceFileGrouping(
@@ -56,12 +56,12 @@ public record SourceFileGrouping(
 
     public ResultWithDiagnosticBuilder<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax reference)
     {
-        if (!ArtifactLookup[reference].Result.IsSuccess(out var fileUri, out var errorBuilder))
+        if (!ArtifactLookup[reference].Result.IsSuccess(out var fileHandle, out var errorBuilder))
         {
             return new(errorBuilder);
         }
 
-        return SourceFileLookup[fileUri];
+        return SourceFileLookup[fileHandle.Uri.ToUri()];
     }
 
     public FrozenSet<ISourceFile> GetSourceFilesDependingOn(ISourceFile sourceFile)

@@ -13,7 +13,7 @@ interface CodiconProps {
   /**
    * Size of the icon in pixels.
    */
-  size: number;
+  size?: number;
 }
 
 const $Codicon = styled.div.attrs<{ $name: string; $size: number }>((props) => ({
@@ -29,6 +29,6 @@ const $Codicon = styled.div.attrs<{ $name: string; $size: number }>((props) => (
 /**
  * UI component for rendering a VS Code icon.
  */
-export function Codicon({ name, size }: CodiconProps) {
+export function Codicon({ name, size = 12 }: CodiconProps) {
   return <$Codicon $name={name} $size={size} aria-hidden={true} data-testid={`${name}-codicon`} />;
 }

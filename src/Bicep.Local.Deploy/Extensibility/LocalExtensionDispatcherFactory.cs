@@ -28,16 +28,12 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 namespace Bicep.Local.Deploy.Extensibility;
 
 public class LocalExtensionDispatcherFactory(
-    IFileExplorer fileExplorer,
-    IModuleDispatcher moduleDispatcher,
     IConfigurationManager configurationManager,
     ILocalExtensionFactory localExtensionFactory,
     IArmDeploymentProvider armDeploymentProvider)
 {
     public LocalExtensionDispatcher Create()
         => new(
-            fileExplorer,
-            moduleDispatcher,
             configurationManager,
             localExtensionFactory,
             armDeploymentProvider);

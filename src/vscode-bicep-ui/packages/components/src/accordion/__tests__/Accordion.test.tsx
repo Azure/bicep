@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { MotionGlobalConfig } from "framer-motion";
+import { MotionGlobalConfig } from "motion/react";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Accordion } from "..";
 

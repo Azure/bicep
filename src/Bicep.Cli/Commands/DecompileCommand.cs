@@ -8,6 +8,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.SourceGraph;
 using Bicep.Decompiler;
+using Bicep.IO.Abstraction;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
@@ -17,53 +18,57 @@ namespace Bicep.Cli.Commands
         private readonly ILogger logger;
         private readonly DiagnosticLogger diagnosticLogger;
         private readonly IOContext io;
-        private readonly IFileResolver fileResolver;
         private readonly BicepDecompiler decompiler;
         private readonly BicepCompiler compiler;
         private readonly OutputWriter writer;
         private readonly ISourceFileFactory sourceFileFactory;
+        private readonly InputOutputArgumentsResolver inputOutputArgumentsResolver;
+        private readonly IFileExplorer fileExplorer;
 
         public DecompileCommand(
             ILogger logger,
             DiagnosticLogger diagnosticLogger,
             IOContext io,
-            IFileResolver fileResolver,
             BicepDecompiler decompiler,
             BicepCompiler compiler,
             OutputWriter writer,
-            ISourceFileFactory sourceFileFactory)
+            ISourceFileFactory sourceFileFactory,
+            InputOutputArgumentsResolver inputOutputArgumentsResolver,
+            IFileExplorer fileExplorer)
         {
             this.logger = logger;
             this.diagnosticLogger = diagnosticLogger;
             this.io = io;
-            this.fileResolver = fileResolver;
             this.decompiler = decompiler;
             this.compiler = compiler;
             this.writer = writer;
             this.sourceFileFactory = sourceFileFactory;
+            this.inputOutputArgumentsResolver = inputOutputArgumentsResolver;
+            this.fileExplorer = fileExplorer;
         }
 
         public async Task<int> RunAsync(DecompileArguments args)
         {
             logger.LogWarning(BicepDecompiler.DecompilerDisclaimerMessage);
 
-            var inputUri = PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(args.InputFile));
-            var outputPath = PathHelper.ResolveOutputPath(inputUri.LocalPath, args.OutputDir, args.OutputFile, PathHelper.GetBicepOutputPath);
-            var outputUri = PathHelper.FilePathToFileUrl(outputPath);
+            var (inputUri, outputUri) = inputOutputArgumentsResolver.ResolveInputOutputArguments(args);
+
+            if (!args.OutputToStdOut && !args.AllowOverwrite && this.fileExplorer.GetFile(outputUri).Exists())
+            {
+                throw new CommandLineException($"The output file \"{outputUri}\" already exists. Use --force to overwrite the existing file.");
+            }
 
             try
             {
-                if (!fileResolver.TryRead(inputUri).IsSuccess(out var jsonContents))
-                {
-                    throw new InvalidOperationException($"Failed to read {inputUri}");
-                }
+                var jsonContents = await this.fileExplorer.GetFile(inputUri).ReadAllTextAsync();
+                var decompilation = await decompiler.Decompile(outputUri.ToUri(), jsonContents);
 
-                var decompilation = await decompiler.Decompile(outputUri, jsonContents);
-
+                // TODO(low-priority): It would be ideal to remove Workspace and use InMemoryFileExplorer instead.
+                // This is something that should be done after the core part of file I/O abstraction migration is complete.
                 var workspace = new Workspace();
                 foreach (var (fileUri, bicepOutput) in decompilation.FilesToSave)
                 {
-                    workspace.UpsertSourceFile(this.sourceFileFactory.CreateBicepFile(fileUri, bicepOutput));
+                    workspace.UpsertSourceFile(this.sourceFileFactory.CreateBicepFile(fileUri.ToIOUri(), bicepOutput));
                 }
 
                 // to verify success we recompile and check for syntax errors.
@@ -76,7 +81,7 @@ namespace Bicep.Cli.Commands
                 }
                 else
                 {
-                    writer.DecompileResultToFile(decompilation);
+                    await writer.DecompileResultToFileAsync(decompilation);
                 }
 
                 // return non-zero exit code on errors

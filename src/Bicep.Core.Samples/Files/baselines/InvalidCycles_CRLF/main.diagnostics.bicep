@@ -51,7 +51,7 @@ var two = one.f
 //@[10:13) [BCP080 (Error)] The expression is involved in a cycle ("one" -> "two"). (bicep https://aka.ms/bicep/core-diagnostics#BCP080) |one|
 // #completionTest(17) -> empty
 var twotwo = one.
-//@[04:10) [no-unused-vars (Warning)] Variable "twotwo" is declared but never used. (bicep core linter https://aka.ms/bicep/linter/no-unused-vars) |twotwo|
+//@[04:10) [no-unused-vars (Warning)] Variable "twotwo" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |twotwo|
 //@[13:16) [BCP062 (Error)] The referenced declaration with name "one" is not valid. (bicep https://aka.ms/bicep/core-diagnostics#BCP062) |one|
 //@[17:17) [BCP020 (Error)] Expected a function or property name at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP020) ||
 

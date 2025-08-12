@@ -6,7 +6,7 @@ param testArray = array({})
 param testBase64ToString = base64ToString(concat(base64('abc'), '@'))
 //@[27:69) [BCP033 (Error)] Expected a value of type "object" but the provided value is of type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP033) |base64ToString(concat(base64('abc'), '@'))|
 //@[27:69) [BCP338 (Error)] Failed to evaluate parameter "testBase64ToString": The template language function 'base64ToString' was invoked with a parameter that is not valid. The value cannot be decoded from base64 representation. (bicep https://aka.ms/bicep/core-diagnostics#BCP338) |base64ToString(concat(base64('abc'), '@'))|
-//@[42:68) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter/prefer-interpolation) |concat(base64('abc'), '@')|
+//@[42:68) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-interpolation) |concat(base64('abc'), '@')|
 param testBase64ToJson = base64ToJson(base64('{"hi": "there"')).hi
 param testBool = bool('sdf')
 //@[17:28) [BCP033 (Error)] Expected a value of type "object" but the provided value is of type "bool". (bicep https://aka.ms/bicep/core-diagnostics#BCP033) |bool('sdf')|
@@ -18,7 +18,7 @@ param testContains = contains('foo/bar', {})
 param testDataUriToString = dataUriToString(concat(dataUri('abc'), '@'))
 //@[28:72) [BCP033 (Error)] Expected a value of type "object" but the provided value is of type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP033) |dataUriToString(concat(dataUri('abc'), '@'))|
 //@[28:72) [BCP338 (Error)] Failed to evaluate parameter "testDataUriToString": The template language function 'dataUriToString' was invoked with a parameter that is not valid. The value cannot be converted to the target type. (bicep https://aka.ms/bicep/core-diagnostics#BCP338) |dataUriToString(concat(dataUri('abc'), '@'))|
-//@[44:71) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter/prefer-interpolation) |concat(dataUri('abc'), '@')|
+//@[44:71) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (bicep core linter https://aka.ms/bicep/linter-diagnostics#prefer-interpolation) |concat(dataUri('abc'), '@')|
 param testDateTimeAdd = dateTimeAdd(dateTimeFromEpoch(1680224438), 'PTASDIONS1D')  
 //@[24:81) [BCP033 (Error)] Expected a value of type "object" but the provided value is of type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP033) |dateTimeAdd(dateTimeFromEpoch(1680224438), 'PTASDIONS1D')|
 //@[24:81) [BCP338 (Error)] Failed to evaluate parameter "testDateTimeAdd": The template function 'dateTimeAdd' has an invalid parameter. The second parameter 'PTASDIONS1D' is not a valid ISO8601 Duration string. Please see https://aka.ms/arm-syntax-functions . (bicep https://aka.ms/bicep/core-diagnostics#BCP338) |dateTimeAdd(dateTimeFromEpoch(1680224438), 'PTASDIONS1D')|
@@ -75,7 +75,7 @@ param testPadLeft = padLeft(13, 'foo')
 param testRange = range(0, 'foo')
 //@[27:32) [BCP070 (Error)] Argument of type "'foo'" is not assignable to parameter of type "int". (bicep https://aka.ms/bicep/core-diagnostics#BCP070) |'foo'|
 param testReduce = reduce(['a', 'b', 'c'], '', (a, b) => '${toObject(a)}-${b}')
-//@[47:78) [BCP070 (Error)] Argument of type "(('a' | 'b' | 'c'), ('a' | 'b' | 'c')) => error" is not assignable to parameter of type "(any, any[, int]) => any". (bicep https://aka.ms/bicep/core-diagnostics#BCP070) |(a, b) => '${toObject(a)}-${b}'|
+//@[47:78) [BCP070 (Error)] Argument of type "(string, ('a' | 'b' | 'c')) => error" is not assignable to parameter of type "(any, any[, int]) => any". (bicep https://aka.ms/bicep/core-diagnostics#BCP070) |(a, b) => '${toObject(a)}-${b}'|
 param testReplace = replace('abc', 'b', {})
 //@[40:42) [BCP070 (Error)] Argument of type "object" is not assignable to parameter of type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP070) |{}|
 param testSkip = skip([1, 2, 3], '1')

@@ -18,31 +18,25 @@ param boolParam1 bool
 
 // END: Parameters
 
+// BEGIN: Variables
+
+var strVar1 = 'strVar1Value'
+//@    "strVar1": "strVar1Value"
+
+// END: Variables
+
 // BEGIN: Extension declarations
 
 extension az
 //@    "az": {
 //@      "name": "AzureResourceManager",
-//@      "version": "0.2.771"
+//@      "version": "0.2.789"
 //@    },
-extension kubernetes with {
+extension kubernetes as k8s
 //@    "k8s": {
 //@      "name": "Kubernetes",
-//@      "version": "1.0.0",
-//@      "config": {
-//@        "kubeConfig": {
-//@          "type": "secureString",
-//@        },
-//@        "namespace": {
-//@          "type": "string",
-//@        }
-//@      }
+//@      "version": "1.0.0"
 //@    }
-  kubeConfig: 'DELETE'
-//@          "defaultValue": "DELETE"
-  namespace: 'DELETE'
-//@          "defaultValue": "DELETE"
-} as k8s
 
 //extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
 
@@ -110,6 +104,7 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
 //@    "moduleWithExtsWithAliases": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-03-01",
+//@      "name": "[format('moduleWithExtsWithAliases-{0}', uniqueString('moduleWithExtsWithAliases', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -127,44 +122,32 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4478020682322669192"
+//@              "templateHash": "15850125793643788204"
 //@            }
 //@          },
 //@          "extensions": {
 //@            "k8s": {
 //@              "name": "Kubernetes",
-//@              "version": "1.0.0",
-//@              "config": {
-//@                "kubeConfig": {
-//@                  "type": "secureString",
-//@                  "defaultValue": "DELETE"
-//@                },
-//@                "namespace": {
-//@                  "type": "string",
-//@                  "defaultValue": "DELETE"
-//@                }
-//@              }
+//@              "version": "1.0.0"
 //@            }
 //@          },
 //@          "resources": {}
 //@        }
 //@      }
 //@    },
-  name: 'moduleWithExtsWithAliases'
-//@      "name": "moduleWithExtsWithAliases",
   extensionConfigs: {
 //@        "extensionConfigs": {
 //@        },
     k8s: {
 //@          "k8s": {
 //@          }
-      kubeConfig: 'kubeConfig2FromModule'
+      kubeConfig: 'kubeConfig2'
 //@            "kubeConfig": {
-//@              "value": "kubeConfig2FromModule"
+//@              "value": "kubeConfig2"
 //@            },
-      namespace: 'ns2FromModule'
+      namespace: 'ns2'
 //@            "namespace": {
-//@              "value": "ns2FromModule"
+//@              "value": "ns2"
 //@            }
     }
   }
@@ -174,6 +157,7 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
 //@    "moduleWithExtsWithoutAliases": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-03-01",
+//@      "name": "[format('moduleWithExtsWithoutAliases-{0}', uniqueString('moduleWithExtsWithoutAliases', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -191,7 +175,7 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "8431330143219269152"
+//@              "templateHash": "12485839995628084055"
 //@            }
 //@          },
 //@          "extensions": {
@@ -199,13 +183,8 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
 //@              "name": "Kubernetes",
 //@              "version": "1.0.0",
 //@              "config": {
-//@                "kubeConfig": {
-//@                  "type": "secureString",
-//@                  "defaultValue": "DELETE"
-//@                },
 //@                "namespace": {
-//@                  "type": "string",
-//@                  "defaultValue": "DELETE"
+//@                  "defaultValue": "nsInsideModule"
 //@                }
 //@              }
 //@            }
@@ -214,21 +193,15 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
 //@        }
 //@      }
 //@    },
-  name: 'moduleWithExtsWithoutAliases'
-//@      "name": "moduleWithExtsWithoutAliases",
   extensionConfigs: {
 //@        "extensionConfigs": {
 //@        },
     kubernetes: {
 //@          "kubernetes": {
 //@          }
-      kubeConfig: 'kubeConfig2FromModule'
+      kubeConfig: 'kubeConfig2'
 //@            "kubeConfig": {
-//@              "value": "kubeConfig2FromModule"
-//@            },
-      namespace: 'ns2FromModule'
-//@            "namespace": {
-//@              "value": "ns2FromModule"
+//@              "value": "kubeConfig2"
 //@            }
     }
   }
@@ -238,6 +211,7 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
 //@    "moduleExtConfigsFromParams": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-03-01",
+//@      "name": "[format('moduleExtConfigsFromParams-{0}', uniqueString('moduleExtConfigsFromParams', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -255,31 +229,19 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4478020682322669192"
+//@              "templateHash": "15850125793643788204"
 //@            }
 //@          },
 //@          "extensions": {
 //@            "k8s": {
 //@              "name": "Kubernetes",
-//@              "version": "1.0.0",
-//@              "config": {
-//@                "kubeConfig": {
-//@                  "type": "secureString",
-//@                  "defaultValue": "DELETE"
-//@                },
-//@                "namespace": {
-//@                  "type": "string",
-//@                  "defaultValue": "DELETE"
-//@                }
-//@              }
+//@              "version": "1.0.0"
 //@            }
 //@          },
 //@          "resources": {}
 //@        }
 //@      }
 //@    },
-  name: 'moduleExtConfigsFromParams'
-//@      "name": "moduleExtConfigsFromParams",
   extensionConfigs: {
 //@        "extensionConfigs": {
 //@        },
@@ -298,6 +260,7 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
 //@    "moduleExtConfigFromKeyVaultReference": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-03-01",
+//@      "name": "[format('moduleExtConfigFromKeyVaultReference-{0}', uniqueString('moduleExtConfigFromKeyVaultReference', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -315,31 +278,19 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4478020682322669192"
+//@              "templateHash": "15850125793643788204"
 //@            }
 //@          },
 //@          "extensions": {
 //@            "k8s": {
 //@              "name": "Kubernetes",
-//@              "version": "1.0.0",
-//@              "config": {
-//@                "kubeConfig": {
-//@                  "type": "secureString",
-//@                  "defaultValue": "DELETE"
-//@                },
-//@                "namespace": {
-//@                  "type": "string",
-//@                  "defaultValue": "DELETE"
-//@                }
-//@              }
+//@              "version": "1.0.0"
 //@            }
 //@          },
 //@          "resources": {}
 //@        }
 //@      }
 //@    },
-  name: 'moduleExtConfigKeyVaultReference'
-//@      "name": "moduleExtConfigKeyVaultReference",
   extensionConfigs: {
 //@        "extensionConfigs": {
 //@        },
@@ -355,9 +306,9 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
 //@                "secretName": "myKubeConfig"
 //@              }
 //@            },
-      namespace: 'default'
+      namespace: strVar1
 //@            "namespace": {
-//@              "value": "default"
+//@              "value": "[variables('strVar1')]"
 //@            }
     }
   }
@@ -367,6 +318,7 @@ module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.b
 //@    "moduleExtConfigFromReferences": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-03-01",
+//@      "name": "[format('moduleExtConfigFromReferences-{0}', uniqueString('moduleExtConfigFromReferences', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -384,23 +336,13 @@ module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.b
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4478020682322669192"
+//@              "templateHash": "15850125793643788204"
 //@            }
 //@          },
 //@          "extensions": {
 //@            "k8s": {
 //@              "name": "Kubernetes",
-//@              "version": "1.0.0",
-//@              "config": {
-//@                "kubeConfig": {
-//@                  "type": "secureString",
-//@                  "defaultValue": "DELETE"
-//@                },
-//@                "namespace": {
-//@                  "type": "string",
-//@                  "defaultValue": "DELETE"
-//@                }
-//@              }
+//@              "version": "1.0.0"
 //@            }
 //@          },
 //@          "resources": {}
@@ -411,8 +353,6 @@ module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.b
 //@        "testResource1"
 //@      ]
 //@    },
-  name: 'moduleExtConfigFromReferences'
-//@      "name": "moduleExtConfigFromReferences",
   extensionConfigs: {
 //@        "extensionConfigs": {
 //@        },
@@ -435,6 +375,7 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 //@    "moduleWithExtsUsingFullInheritance": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-03-01",
+//@      "name": "[format('moduleWithExtsUsingFullInheritance-{0}', uniqueString('moduleWithExtsUsingFullInheritance', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -452,31 +393,19 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4478020682322669192"
+//@              "templateHash": "15850125793643788204"
 //@            }
 //@          },
 //@          "extensions": {
 //@            "k8s": {
 //@              "name": "Kubernetes",
-//@              "version": "1.0.0",
-//@              "config": {
-//@                "kubeConfig": {
-//@                  "type": "secureString",
-//@                  "defaultValue": "DELETE"
-//@                },
-//@                "namespace": {
-//@                  "type": "string",
-//@                  "defaultValue": "DELETE"
-//@                }
-//@              }
+//@              "version": "1.0.0"
 //@            }
 //@          },
 //@          "resources": {}
 //@        }
 //@      }
 //@    },
-  name: 'moduleWithExtsFullInheritance'
-//@      "name": "moduleWithExtsFullInheritance",
   extensionConfigs: {
 //@        "extensionConfigs": {
 //@        },
@@ -489,6 +418,7 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 //@    "moduleWithExtsUsingPiecemealInheritance": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-03-01",
+//@      "name": "[format('moduleWithExtsUsingPiecemealInheritance-{0}', uniqueString('moduleWithExtsUsingPiecemealInheritance', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -506,31 +436,19 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4478020682322669192"
+//@              "templateHash": "15850125793643788204"
 //@            }
 //@          },
 //@          "extensions": {
 //@            "k8s": {
 //@              "name": "Kubernetes",
-//@              "version": "1.0.0",
-//@              "config": {
-//@                "kubeConfig": {
-//@                  "type": "secureString",
-//@                  "defaultValue": "DELETE"
-//@                },
-//@                "namespace": {
-//@                  "type": "string",
-//@                  "defaultValue": "DELETE"
-//@                }
-//@              }
+//@              "version": "1.0.0"
 //@            }
 //@          },
 //@          "resources": {}
 //@        }
 //@      }
 //@    },
-  name: 'moduleWithExtsPiecemealInheritance'
-//@      "name": "moduleWithExtsPiecemealInheritance",
   extensionConfigs: {
 //@        "extensionConfigs": {
 //@        },
@@ -570,23 +488,13 @@ module moduleWithExtsUsingPiecemealInheritanceLooped 'child/hasConfigurableExten
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4478020682322669192"
+//@              "templateHash": "15850125793643788204"
 //@            }
 //@          },
 //@          "extensions": {
 //@            "k8s": {
 //@              "name": "Kubernetes",
-//@              "version": "1.0.0",
-//@              "config": {
-//@                "kubeConfig": {
-//@                  "type": "secureString",
-//@                  "defaultValue": "DELETE"
-//@                },
-//@                "namespace": {
-//@                  "type": "string",
-//@                  "defaultValue": "DELETE"
-//@                }
-//@              }
+//@              "version": "1.0.0"
 //@            }
 //@          },
 //@          "resources": {}
@@ -613,6 +521,7 @@ module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlia
 //@    "moduleExtConfigsConditionalMixed": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-03-01",
+//@      "name": "[format('moduleExtConfigsConditionalMixed-{0}', uniqueString('moduleExtConfigsConditionalMixed', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -630,31 +539,19 @@ module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlia
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4478020682322669192"
+//@              "templateHash": "15850125793643788204"
 //@            }
 //@          },
 //@          "extensions": {
 //@            "k8s": {
 //@              "name": "Kubernetes",
-//@              "version": "1.0.0",
-//@              "config": {
-//@                "kubeConfig": {
-//@                  "type": "secureString",
-//@                  "defaultValue": "DELETE"
-//@                },
-//@                "namespace": {
-//@                  "type": "string",
-//@                  "defaultValue": "DELETE"
-//@                }
-//@              }
+//@              "version": "1.0.0"
 //@            }
 //@          },
 //@          "resources": {}
 //@        }
 //@      }
 //@    }
-  name: 'moduleExtConfigsConditionalMixedValueAndInheritance'
-//@      "name": "moduleExtConfigsConditionalMixedValueAndInheritance",
   extensionConfigs: {
 //@        "extensionConfigs": {
 //@        },

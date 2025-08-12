@@ -1,8 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Decompiler;
+using Bicep.IO.Abstraction;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
@@ -26,16 +29,16 @@ namespace Bicep.LanguageServer.Handlers
     /// </summary>
     public class BicepDecompileParamsCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDecompileParamsCommandParams, BicepDecompileParamsCommandResult>
     {
-        private readonly IFileResolver fileResolver;
+        private readonly IFileExplorer fileExplorer;
         private readonly BicepDecompiler decompiler;
 
         public BicepDecompileParamsCommandHandler(
-            IFileResolver fileResolver,
+            IFileExplorer fileExplorer,
             ISerializer serializer,
             BicepDecompiler decompiler)
             : base(LangServerConstants.DecompileParamsCommand, serializer)
         {
-            this.fileResolver = fileResolver;
+            this.fileExplorer = fileExplorer;
             this.decompiler = decompiler;
         }
 
@@ -44,14 +47,14 @@ namespace Bicep.LanguageServer.Handlers
             await Task.Yield();
             try
             {
-                var jsonUri = parameters.jsonUri.ToUriEncoded();
+                var jsonUri = parameters.jsonUri.ToIOUri();
                 var bicepUri = parameters.bicepUri?.ToUriEncoded();
-                if (!fileResolver.TryRead(jsonUri).IsSuccess(out var jsonContents))
+                if (!this.fileExplorer.GetFile(jsonUri).TryReadAllText().IsSuccess(out var jsonContents))
                 {
                     throw new InvalidOperationException($"Failed to read {jsonUri}");
                 }
 
-                var (entryUri, filesToSave) = decompiler.DecompileParameters(jsonContents, PathHelper.ChangeToBicepparamExtension(jsonUri), bicepUri);
+                var (entryUri, filesToSave) = decompiler.DecompileParameters(jsonContents, jsonUri.WithExtension(LanguageConstants.ParamsFileExtension).ToUri(), bicepUri);
 
                 return new(new(filesToSave[entryUri], entryUri), null);
             }

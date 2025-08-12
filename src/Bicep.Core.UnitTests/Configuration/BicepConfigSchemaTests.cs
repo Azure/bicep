@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
-using Bicep.Core.Extensions;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -193,7 +192,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "no-unused-params": {
                         "allOf": [
                             {
-                                "description": "No unused parameters. See https://aka.ms/bicep/linter/no-unused-params",
+                                "description": "No unused parameters. See https://aka.ms/bicep/linter-diagnostics#no-unused-params",
                                 ...
                             },
                             {
@@ -210,7 +209,7 @@ namespace Bicep.Core.UnitTests.Configuration
 
                 var description = allOf[0]?.SelectToken("description")?.ToString();
                 Assert.IsNotNull(description);
-                description.Should().EndWith($" See https://aka.ms/bicep/linter/{configKey}", "each rule's description should end with 'See <help-link>' using the link to the rule's docs");
+                description.Should().EndWith($" See https://aka.ms/bicep/linter-diagnostics#{configKey}", "each rule's description should end with 'See <help-link>' using the link to the rule's docs");
 
                 var matchingRule = AllRules.SingleOrDefault(r => r.Code == configKey);
                 matchingRule.Should().NotBeNull("Rule's key in config does not match any linter rule's code");
@@ -219,7 +218,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 var lastAllOf = allOf[allOf.Count() - 1];
                 var refString = lastAllOf?.SelectToken("$ref")?.ToString();
                 Assert.IsNotNull(refString, "each rule's last allOf should be a ref to the definition of a rule");
-                refString.Should().MatchRegex("^#/definitions/rule-def-level-(warning|error|off)$", "each rule's last allOf should be a ref to the definition of a rule, one of '#/definitions/rule-def-level-warning', '#/definitions/rule-def-level-error' or '#/definitions/rule-def-error-off'");
+                refString.Should().MatchRegex("^#/definitions/rule-def-level-(warning|error|info|off)$", "each rule's last allOf should be a ref to the definition of a rule, one of '#/definitions/rule-def-level-warning', '#/definitions/rule-def-level-error', ''#/definitions/rule-def-level-info', or '#/definitions/rule-def-error-off'");
             }
         }
 

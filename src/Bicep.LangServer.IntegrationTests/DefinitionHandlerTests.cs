@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core;
 using Bicep.Core.Emit;
+using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
@@ -16,11 +17,14 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
+using Bicep.IO.InMemory;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Utils;
+using Bicep.TextFixtures.IO;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -456,21 +460,19 @@ param |foo| string
                 }
                 """);
 
+            var fileSet = InMemoryTestFileSet.Create(("mod.json", moduleContents));
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
-                .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
-                {
-                    {new("file:///mod.json"), moduleContents},
-                })));
+                .WithFileExplorer(fileSet.FileExplorer));
             var helper = new ServerRequestHelper(TestContext, server);
 
-            var file = await helper.OpenFile("/main.bicep", contents);
+            var file = await helper.OpenFile("/path/to/main.bicep", contents);
 
             foreach (var cursor in cursors)
             {
                 var response = await file.GotoDefinition(cursor);
 
                 var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(moduleContents), moduleCursors[0], moduleCursors[1]);
-                response.TargetUri.Path.Should().Be("/mod.json");
+                response.TargetUri.Path.Should().Be("/path/to/mod.json");
                 response.TargetRange.Should().Be(expectedRange);
             }
         }
@@ -506,21 +508,18 @@ param |foo| string
                 }
                 """);
 
-            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
-                .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
-                {
-                    {new("file:///mod.json"), moduleContents},
-                })));
+            var fileSet = InMemoryTestFileSet.Create(("mod.json", moduleContents));
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFileExplorer(fileSet.FileExplorer));
             var helper = new ServerRequestHelper(TestContext, server);
 
-            var file = await helper.OpenFile("/main.bicep", contents);
+            var file = await helper.OpenFile("/path/to/main.bicep", contents);
 
             foreach (var cursor in cursors)
             {
                 var response = await file.GotoDefinition(cursor);
 
                 var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(moduleContents), moduleCursors[0], moduleCursors[1]);
-                response.TargetUri.Path.Should().Be("/mod.json");
+                response.TargetUri.Path.Should().Be("/path/to/mod.json");
                 response.TargetRange.Should().Be(expectedRange);
             }
         }
@@ -551,21 +550,18 @@ param |foo| string
                 }
                 """);
 
-            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
-                .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
-                {
-                    {new("file:///mod.json"), moduleContents},
-                })));
+            var fileSet = InMemoryTestFileSet.Create(("mod.json", moduleContents));
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFileExplorer(fileSet.FileExplorer));
             var helper = new ServerRequestHelper(TestContext, server);
 
-            var file = await helper.OpenFile("/main.bicep", contents);
+            var file = await helper.OpenFile("/path/to/main.bicep", contents);
 
             foreach (var cursor in cursors)
             {
                 var response = await file.GotoDefinition(cursor);
 
                 var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(moduleContents), moduleCursors[0], moduleCursors[1]);
-                response.TargetUri.Path.Should().Be("/mod.json");
+                response.TargetUri.Path.Should().Be("/path/to/mod.json");
                 response.TargetRange.Should().Be(expectedRange);
             }
         }
@@ -602,21 +598,18 @@ param |foo| string
                 }
                 """);
 
-            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
-                .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
-                {
-                    {new("file:///mod.json"), moduleContents},
-                })));
+            var fileSet = InMemoryTestFileSet.Create(("mod.json", moduleContents));
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFileExplorer(fileSet.FileExplorer));
             var helper = new ServerRequestHelper(TestContext, server);
 
-            var file = await helper.OpenFile("/main.bicep", contents);
+            var file = await helper.OpenFile("/path/to/main.bicep", contents);
 
             foreach (var cursor in cursors)
             {
                 var response = await file.GotoDefinition(cursor);
 
                 var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(moduleContents), moduleCursors[0], moduleCursors[1]);
-                response.TargetUri.Path.Should().Be("/mod.json");
+                response.TargetUri.Path.Should().Be("/path/to/mod.json");
                 response.TargetRange.Should().Be(expectedRange);
             }
         }
@@ -653,21 +646,18 @@ param |foo| string
                 }
                 """);
 
-            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
-                .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
-                {
-                    {new("file:///mod.json"), moduleContents},
-                })));
+            var fileSet = InMemoryTestFileSet.Create(("mod.json", moduleContents));
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFileExplorer(fileSet.FileExplorer));
             var helper = new ServerRequestHelper(TestContext, server);
 
-            var file = await helper.OpenFile("/main.bicep", contents);
+            var file = await helper.OpenFile("/path/to/main.bicep", contents);
 
             foreach (var cursor in cursors)
             {
                 var response = await file.GotoDefinition(cursor);
 
                 var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(moduleContents), moduleCursors[0], moduleCursors[1]);
-                response.TargetUri.Path.Should().Be("/mod.json");
+                response.TargetUri.Path.Should().Be("/path/to/mod.json");
                 response.TargetRange.Should().Be(expectedRange);
             }
         }
@@ -705,21 +695,18 @@ param |foo| string
                 }
                 """);
 
-            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
-                .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
-                {
-                    {new("file:///mod.json"), moduleContents},
-                })));
+            var fileSet = InMemoryTestFileSet.Create(("mod.json", moduleContents));
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFileExplorer(fileSet.FileExplorer));
             var helper = new ServerRequestHelper(TestContext, server);
 
-            var file = await helper.OpenFile("/main.bicep", contents);
+            var file = await helper.OpenFile("/path/to/main.bicep", contents);
 
             foreach (var cursor in cursors)
             {
                 var response = await file.GotoDefinition(cursor);
 
                 var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(moduleContents), moduleCursors[0], moduleCursors[1]);
-                response.TargetUri.Path.Should().Be("/mod.json");
+                response.TargetUri.Path.Should().Be("/path/to/mod.json");
                 response.TargetRange.Should().Be(expectedRange);
             }
         }
@@ -757,21 +744,18 @@ param |foo| string
                 }
                 """);
 
-            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
-                .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
-                {
-                    {new("file:///mod.json"), moduleContents},
-                })));
+            var fileSet = InMemoryTestFileSet.Create(("mod.json", moduleContents));
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFileExplorer(fileSet.FileExplorer));
             var helper = new ServerRequestHelper(TestContext, server);
 
-            var file = await helper.OpenFile("/main.bicep", contents);
+            var file = await helper.OpenFile("/path/to/main.bicep", contents);
 
             foreach (var cursor in cursors)
             {
                 var response = await file.GotoDefinition(cursor);
 
                 var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(moduleContents), moduleCursors[0], moduleCursors[1]);
-                response.TargetUri.Path.Should().Be("/mod.json");
+                response.TargetUri.Path.Should().Be("/path/to/mod.json");
                 response.TargetRange.Should().Be(expectedRange);
             }
         }
@@ -802,8 +786,7 @@ param |foo| string
             var server = new SharedLanguageHelperManager();
             var fileResolver = new InMemoryFileResolver(additionalFiles.ToDictionary(x => new Uri($"file:///{testContext.TestName}/path/to/{x.fileName}"), x => x.fileBody));
             var fileExplorer = new FileSystemFileExplorer(fileResolver.MockFileSystem);
-            server.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services =>
-                services.WithFileResolver(fileResolver).WithFileExplorer(fileExplorer)));
+            server.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithFileExplorer(fileExplorer)));
 
             var helper = await server.GetAsync();
             await helper.OpenFileOnceAsync(testContext, file, bicepFile.Uri);

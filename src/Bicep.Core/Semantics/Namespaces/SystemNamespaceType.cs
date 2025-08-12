@@ -2,21 +2,13 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
-using Azure.Deployments.Core.Diagnostics;
-using Azure.Deployments.Expression.Expressions;
-using Azure.Deployments.Templates.Extensions;
-using Azure.Identity;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Intermediate;
-using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.SourceGraph;
@@ -35,7 +27,7 @@ namespace Bicep.Core.Semantics.Namespaces
 {
     public static class SystemNamespaceType
     {
-        private readonly record struct LoadTextContentResult(IOUri FileUri, string Content);
+        private record LoadTextContentResult(IOUri FileUri, string Content);
 
         public const string BuiltInName = "sys";
         public const long UniqueStringHashLength = 13;
@@ -1145,7 +1137,37 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("array", LanguageConstants.Array, "The array to reduce.")
                     .WithRequiredParameter("initialValue", LanguageConstants.Any, "The initial value.")
                     .WithRequiredParameter("predicate", TypeHelper.CreateLambdaType([LanguageConstants.Any, LanguageConstants.Any], [LanguageConstants.Int], LanguageConstants.Any), "The predicate used to aggregate the current value and the next value. ",
-                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TypeHelper.CreateLambdaType([t, t], [LanguageConstants.Int], LanguageConstants.Any)))
+                        calculator: getArgumentType =>
+                        {
+                            var toReduceType = getArgumentType(0);
+
+                            var elementType = toReduceType switch
+                            {
+                                ArrayType array => array.Item.Type,
+                                AnyType => LanguageConstants.Any,
+                                _ => null,
+                            };
+
+                            var seedType = getArgumentType(1);
+
+                            if (elementType is null || elementType is ErrorType || seedType is ErrorType)
+                            {
+                                return null;
+                            }
+
+                            var accumulationType = seedType switch
+                            {
+                                ErrorType error => error,
+                                _ when TypeHelper.TryGetArmPrimitiveType(seedType) is TypeSymbol armPrimitive => armPrimitive,
+                                _ => LanguageConstants.Any,
+                            };
+                            var firstArgType = toReduceType is ArrayType { MaxLength: <= 1 } ? seedType : accumulationType;
+
+                            return TypeHelper.CreateLambdaType(
+                                argumentTypes: [firstArgType, elementType],
+                                optionalArgumentTypes: [CalculateIndexTypeOfArray(toReduceType)],
+                                returnType: accumulationType);
+                        })
                     .WithReturnType(LanguageConstants.Any)
                     .WithReturnResultBuilder((_, _, _, argumentTypes) => argumentTypes[2] switch
                     {
@@ -1239,25 +1261,22 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithOptionalParameter("default", LanguageConstants.String, "Default value to return if environment variable is not found.")
                     .Build();
 
-                if (featureProvider.ExternalInputFunctionEnabled)
-                {
-                    yield return new FunctionOverloadBuilder(LanguageConstants.ExternalInputBicepFunctionName)
-                        .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
-                        .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.")
-                        .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.")
-                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, exp.Parameters))
-                        .WithReturnResultBuilder((model, diagnostics, functionCall, argumentTypes) =>
+                yield return new FunctionOverloadBuilder(LanguageConstants.ExternalInputBicepFunctionName)
+                    .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
+                    .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.")
+                    .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.")
+                    .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, exp.Parameters))
+                    .WithReturnResultBuilder((model, diagnostics, functionCall, argumentTypes) =>
+                    {
+                        var visitor = new CompileTimeConstantVisitor(diagnostics);
+                        foreach (var arg in functionCall.Arguments)
                         {
-                            var visitor = new CompileTimeConstantVisitor(diagnostics);
-                            foreach (var arg in functionCall.Arguments)
-                            {
-                                arg.Accept(visitor);
-                            }
+                            arg.Accept(visitor);
+                        }
 
-                            return new(LanguageConstants.Any);
-                        }, LanguageConstants.Any)
-                        .Build();
-                }
+                        return new(LanguageConstants.Any);
+                    }, LanguageConstants.Any)
+                    .Build();
             }
 
             foreach (var overload in GetAlwaysPermittedOverloads())
@@ -1325,6 +1344,11 @@ namespace Bicep.Core.Semantics.Namespaces
             return lambdaBuilder(itemType.Type);
         }
 
+        private static TypeSymbol CalculateIndexTypeOfArray(TypeSymbol arrayType) => TypeFactory.CreateIntegerType(
+            minValue: 0,
+            maxValue: (arrayType as ArrayType)?.MaxLength,
+            validationFlags: arrayType.ValidationFlags);
+
         private static TypeSymbol? CalculateLambdaFromObjectValues(GetFunctionArgumentType getArgumentType, int arrayIndex, Func<TypeSymbol, LambdaType> lambdaBuilder)
         {
             if (getArgumentType(arrayIndex) is not ObjectType objectType)
@@ -1371,7 +1395,9 @@ namespace Bicep.Core.Semantics.Namespaces
                 tokenSelectorPath = tokenSelectorType.RawStringValue;
             }
 
-            if (TryLoadTextContentFromFile(model, diagnostics, (arguments[0], argumentTypes[0]), arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null, LanguageConstants.MaxJsonFileCharacterLimit)
+            int? characterLimit = model.Features.LocalDeployEnabled ? null : LanguageConstants.MaxJsonFileCharacterLimit;
+
+            if (TryLoadTextContentFromFile(model, diagnostics, (arguments[0], argumentTypes[0]), arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null, characterLimit)
                 .IsSuccess(out var result, out var errorDiagnostic) &&
                 objectParser.TryExtractFromObject(result.Content, tokenSelectorPath, positionables, out errorDiagnostic, out var token))
             {
@@ -1421,19 +1447,17 @@ namespace Bicep.Core.Semantics.Namespaces
                     }
 
                     //error to fail the build-param with clear message of the missing env var name
-                    var paramAssignmentDefinition = model.Root.ParameterAssignments.Where(
-                        p => p.DeclaringParameterAssignment.Value.Span.Position == functionCall.Span.Position
-                    ).FirstOrDefault();
-                    var paramName = paramAssignmentDefinition?.Name ?? "";
-                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).FailedToEvaluateParameter(paramName,
-                    $"Environment variable \"{envVariableName}\" does not exist, and no default value set.{suggestion}")));
+                    return new(
+                        ErrorType.Create(
+                            DiagnosticBuilder.ForPosition(arguments[0])
+                                .EnvironmentVariableDoesNotExist(envVariableName, suggestion)));
                 }
             }
             return new(TypeFactory.CreateStringLiteralType(envVariableValue),
                 new StringLiteralExpression(null, envVariableValue));
         }
 
-        private static ResultWithDiagnostic<LoadTextContentResult> TryLoadTextContentFromFile(SemanticModel model, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, int maxCharacters)
+        private static ResultWithDiagnostic<LoadTextContentResult> TryLoadTextContentFromFile(SemanticModel model, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, int? maxCharacters)
         {
             if (filePathArgument.typeSymbol is not StringLiteralType filePathType)
             {

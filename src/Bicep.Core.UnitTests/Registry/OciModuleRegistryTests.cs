@@ -16,6 +16,9 @@ using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
+using Bicep.TextFixtures.Assertions;
+using Bicep.TextFixtures.Dummies;
+using Bicep.TextFixtures.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -23,6 +26,7 @@ using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.Core.UnitTests.Registry
 {
+    // TODO: These should be integration tests.
     [TestClass]
     public class OciArtifactRegistryTests
     {
@@ -666,22 +670,18 @@ namespace Bicep.Core.UnitTests.Registry
             var featureProviderFactoryMock = StrictMock.Of<IFeatureProviderFactory>();
             featureProviderFactoryMock.Setup(x => x.GetFeatureProvider(bicepFile.Uri)).Returns(bicepFile.Features);
 
-            BinaryData? sources = null;
+            SourceArchive? sourceArchive = null;
             if (publishSource)
             {
-                var uri = InMemoryFileResolver.GetFileUri("/path/to/bicep.bicep");
-                var sourceFileFactory = new SourceFileFactory(BicepTestConstants.ConfigurationManager, featureProviderFactoryMock.Object, BicepTestConstants.AuxiliaryFileCache, BicepTestConstants.FileExplorer);
-                sources = new SourceArchiveBuilder(sourceFileFactory)
-                    .WithBicepFile(uri, "// contents")
-                    .Build()
-                    .PackIntoBinaryData();
+                sourceArchive = DummySourceArchive.Default;
             }
 
-            await ociRegistry.PublishModule(moduleReference, template, sources, "http://documentation", "description");
+            var sourceArchiveData = sourceArchive?.PackIntoBinaryData();
+            await ociRegistry.PublishModule(moduleReference, template, sourceArchiveData, "http://documentation", "description");
 
             if (publishSource)
             {
-                blobClient.Should().HaveModuleWithSource("v1", template, sources);
+                blobClient.Should().HaveModuleWithSource("v1", template, sourceArchiveData);
             }
             else
             {
@@ -700,9 +700,9 @@ namespace Bicep.Core.UnitTests.Registry
 
             var actualSourceResult = moduleReference.TryLoadSourceArchive();
 
-            if (sources is { })
+            if (sourceArchive is { })
             {
-                actualSourceResult.UnwrapOrThrow().Should().HaveData(sources);
+                actualSourceResult.UnwrapOrThrow().Should().BeEquivalentTo(sourceArchive);
             }
             else
             {
@@ -749,7 +749,6 @@ namespace Bicep.Core.UnitTests.Registry
             featureProviderFactoryMock.Setup(m => m.GetFeatureProvider(parentModuleUri)).Returns(featureProviderMock.Object);
 
             var parentModuleFile = new BicepFile(
-                parentModuleUri,
                 BicepTestConstants.FileExplorer.GetFile(parentModuleUri.ToIOUri()),
                 [],
                 SyntaxFactory.EmptyProgram,

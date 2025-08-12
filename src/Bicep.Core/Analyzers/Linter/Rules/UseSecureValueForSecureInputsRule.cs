@@ -21,8 +21,7 @@ public sealed class UseSecureValueForSecureInputsRule : LinterRuleBase
     public UseSecureValueForSecureInputsRule() : base(
         code: Code,
         description: CoreResources.UseSecureValueForSecureInputsRule_Description,
-        LinterRuleCategory.Security,
-        docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
+        LinterRuleCategory.Security)
     {
     }
 
@@ -70,11 +69,7 @@ public sealed class UseSecureValueForSecureInputsRule : LinterRuleBase
                 continue;
             }
 
-            if (model.GetTypeInfo(property.Value) is { } type &&
-                type is not ErrorType &&
-                type is not NullType &&
-                type is not StringLiteralType { RawStringValue: "" } &&
-                !type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
+            if (model.GetTypeInfo(property.Value) is { } type && IsPotentiallyInsecure(type))
             {
                 yield return CreateDiagnosticForSpan(
                     diagnosticLevel,
@@ -83,6 +78,16 @@ public sealed class UseSecureValueForSecureInputsRule : LinterRuleBase
             }
         }
     }
+
+    private static bool IsPotentiallyInsecure(TypeSymbol type)
+        => type switch
+        {
+            ErrorType => false,
+            NullType => false,
+            StringLiteralType { RawStringValue: "" } => false,
+            UnionType unionType => unionType.Members.Any(x => IsPotentiallyInsecure(x.Type)),
+            _ => !type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure),
+        };
 
     private static bool IsDeployTimeConstant(ObjectPropertySyntax syntax, SemanticModel model, ResourceTypeResolver resolver)
     {

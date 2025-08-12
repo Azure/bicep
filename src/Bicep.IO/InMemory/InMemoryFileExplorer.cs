@@ -15,11 +15,11 @@ namespace Bicep.IO.InMemory
     {
         private readonly FileStore fileStore = new();
 
-        public IDirectoryHandle GetDirectory(IOUri uri) => new InMemoryDirectoryHandle(this.fileStore, EnsureInLocalFileUri(uri));
+        public IDirectoryHandle GetDirectory(IOUri uri) => new InMemoryDirectoryHandle(this.fileStore, EnsureLocalFileUri(uri));
 
-        public IFileHandle GetFile(IOUri uri) => new InMemoryFileHandle(this.fileStore, EnsureInLocalFileUri(uri));
+        public IFileHandle GetFile(IOUri uri) => new InMemoryFileHandle(this.fileStore, EnsureLocalFileUri(uri));
 
-        private static IOUri EnsureInLocalFileUri(IOUri uri)
+        private static IOUri EnsureLocalFileUri(IOUri uri)
         {
             if (!uri.IsLocalFile)
             {
@@ -32,7 +32,7 @@ namespace Bicep.IO.InMemory
         public class FileStore
         {
             private readonly ConcurrentDictionary<InMemoryDirectoryHandle, bool> directoryEntries = new();
-            private readonly ConcurrentDictionary<InMemoryFileHandle, string?> fileEntries = new();
+            private readonly ConcurrentDictionary<InMemoryFileHandle, BinaryData?> fileEntries = new();
 
             public bool DirectoryExists(InMemoryDirectoryHandle directory) => this.directoryEntries.GetValueOrDefault(directory);
 
@@ -58,7 +58,7 @@ namespace Bicep.IO.InMemory
 
             public bool FileExists(InMemoryFileHandle file) => this.fileEntries.GetValueOrDefault(file) is not null;
 
-            public void CreateFileIfNotExists(InMemoryFileHandle file) => this.fileEntries.TryAdd(file, "");
+            public void CreateFileIfNotExists(InMemoryFileHandle file) => this.fileEntries.TryAdd(file, BinaryData.Empty);
 
             public void DeleteFile(InMemoryFileHandle file) => this.fileEntries.TryRemove(file, out _);
 
@@ -78,9 +78,11 @@ namespace Bicep.IO.InMemory
                 }
             }
 
-            public void WriteFile(InMemoryFileHandle file, string text) => this.fileEntries.AddOrUpdate(file, text, (_, _) => text);
+            public void WriteFile(InMemoryFileHandle file, string text) => this.WriteFile(file, BinaryData.FromString(text));
 
-            public string ReadFile(InMemoryFileHandle file) => this.fileEntries.GetValueOrDefault(file) ?? throw new InvalidOperationException($"File '{file.Uri}' does not exist.");
+            public void WriteFile(InMemoryFileHandle file, BinaryData data) => this.fileEntries.AddOrUpdate(file, data, (_, _) => data);
+
+            public BinaryData ReadFile(InMemoryFileHandle file) => this.fileEntries.GetValueOrDefault(file) ?? throw new FileNotFoundException($"File '{file.Uri}' does not exist.");
         }
     }
 }

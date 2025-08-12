@@ -137,6 +137,163 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
         snapshotFile.ShouldHaveExpectedJsonValue();
     }
 
+    [TestMethod]
+    public async Task Snapshot_command_injects_appropriate_metadata_for_scope()
+    {
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var bicepparamPath = FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicepparam",
+            """
+                using './main.bicep'
+
+                param rgName = 'myRg'
+                """,
+            testOutputPath: outputPath);
+
+        FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicep",
+            """
+                targetScope = 'subscription'
+
+                param rgName string
+
+                resource rg 'Microsoft.Resources/resourceGroups@2024-11-01' = {
+                  name: rgName
+                  location: deployment().location
+                }
+                """,
+            testOutputPath: outputPath);
+
+        var outputFilePath = FileHelper.GetResultFilePath(TestContext, "main.snapshot.json", testOutputPath: outputPath);
+
+        var subscriptionId = new Guid().ToString();
+
+        var result = await Bicep("snapshot", bicepparamPath, "--mode", "overwrite", "--subscription-id", subscriptionId, "--location", "westeurope");
+
+        result.Should().Succeed();
+
+        var snapshotContents = File.ReadAllText(outputFilePath).FromJson<JToken>();
+        snapshotContents.Should().DeepEqual(JObject.Parse("""
+            {
+              "predictedResources": [
+                {
+                  "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg",
+                  "type": "Microsoft.Resources/resourceGroups",
+                  "name": "myRg",
+                  "apiVersion": "2024-11-01",
+                  "location": "westeurope"
+                }
+              ],
+              "diagnostics": []
+            }
+            """));
+    }
+
+    [TestMethod]
+    public async Task Snapshot_surfaces_validation_errors_as_message()
+    {
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var bicepparamPath = FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicepparam",
+            """
+                using './main.bicep'
+
+                param condition = true
+                """,
+            testOutputPath: outputPath);
+
+        FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicep",
+            """
+                param condition bool
+
+                var foo = condition ? fail('condition must be false') : 'foo'
+                """,
+            testOutputPath: outputPath);
+
+        var outputFilePath = FileHelper.GetResultFilePath(TestContext, "main.snapshot.json", testOutputPath: outputPath);
+
+        var subscriptionId = new Guid().ToString();
+
+        var result = await Bicep("snapshot", bicepparamPath, "--mode", "overwrite");
+
+        result.Should().Fail();
+        result.Stderr.Should().Contain("""Template snapshotting could not be completed for the following reason: 'The template variable 'foo' is not valid: condition must be false.""");
+        result.Stderr.Should().NotContain("Unhandled exception");
+    }
+
+    [TestMethod]
+    public async Task Snapshot_speculatively_evaluates_references()
+    {
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var bicepparamPath = FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicepparam",
+            """
+                using './main.bicep'
+                """,
+            testOutputPath: outputPath);
+
+        FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicep",
+            """
+                module mod 'mod.bicep' = {}
+                                
+                module mod2 'mod2.bicep' = {
+                  params: {
+                    vnetName: mod.outputs.static
+                  }
+                }
+                """,
+            testOutputPath: outputPath);
+
+        FileHelper.SaveResultFile(
+            TestContext,
+            "mod.bicep",
+            """output static string = 'foo'""",
+            testOutputPath: outputPath);
+
+        FileHelper.SaveResultFile(
+            TestContext,
+            "mod2.bicep",
+            """
+                param vnetName string
+                                
+                resource vnet 'Microsoft.Network/virtualNetworks@2024-07-01' = {
+                  name: vnetName
+                }
+                """,
+            testOutputPath: outputPath);
+
+        var outputFilePath = FileHelper.GetResultFilePath(TestContext, "main.snapshot.json", testOutputPath: outputPath);
+
+        var subscriptionId = new Guid().ToString();
+
+        var result = await Bicep("snapshot", bicepparamPath, "--mode", "overwrite", "--subscription-id", subscriptionId, "--resource-group", "myRg", "--deployment-name", "deployment");
+
+        result.Should().Succeed();
+
+        var snapshotContents = File.ReadAllText(outputFilePath).FromJson<JToken>();
+        snapshotContents.Should().DeepEqual(JObject.Parse("""
+            {
+              "predictedResources": [
+                {
+                  "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg/providers/Microsoft.Network/virtualNetworks/foo",
+                  "type": "Microsoft.Network/virtualNetworks",
+                  "name": "foo",
+                  "apiVersion": "2024-07-01"
+                }
+              ],
+              "diagnostics": []
+            }
+            """));
+    }
+
     private static string ReplaceColorCodes(string input)
     {
         var namesByColor = new Dictionary<Color, string>

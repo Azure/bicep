@@ -1,18 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure.Deployments.Core.Helpers;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -25,36 +23,40 @@ public class BuildParamsCommand(
     DiagnosticLogger diagnosticLogger,
     BicepCompiler compiler,
     OutputWriter writer,
-    ISourceFileFactory sourceFileFactory) : ICommand
+    ISourceFileFactory sourceFileFactory,
+    IFileExplorer fileExplorer,
+    InputOutputArgumentsResolver inputOutputArgumentsResolver) : ICommand
 {
     public async Task<int> RunAsync(BuildParamsArguments args)
     {
-        if (args.InputFile is null)
+        var inputOutputUriPairs = inputOutputArgumentsResolver.ResolveFilePatternInputOutputArguments(args);
+
+        if (inputOutputUriPairs.Count != 1)
         {
-            var summaryMultiple = await CompileMultiple(args);
+            var summaryMultiple = await CompileMultiple(args, inputOutputUriPairs);
             return CommandHelper.GetExitCode(summaryMultiple);
         }
 
-        var inputUri = ArgumentHelper.GetFileUri(args.InputFile);
+        var inputUri = inputOutputUriPairs[0].InputUri;
         ArgumentHelper.ValidateBicepParamFile(inputUri);
 
-        var outputUri = CommandHelper.GetJsonOutputUri(inputUri, args.OutputDir, args.OutputFile);
+        var outputUri = inputOutputUriPairs[0].OutputUri;
 
-        var bicepFileUri = ArgumentHelper.GetFileUri(args.BicepFile);
-        if (bicepFileUri != null)
+        var bicepFileUri = args.BicepFile is not null ? inputOutputArgumentsResolver.PathToUri(args.BicepFile) : null;
+        if (bicepFileUri is not null)
         {
             ArgumentHelper.ValidateBicepFile(bicepFileUri);
         }
 
-        var workspace = await CreateWorkspaceWithParamOverrides(inputUri);
+        var workspace = await CreateWorkspaceWithParameterOverridesIfPresent(inputUri);
         var summary = await Compile(workspace, inputUri, bicepFileUri, outputUri, args.NoRestore, args.DiagnosticsFormat, args.OutputToStdOut);
         return CommandHelper.GetExitCode(summary);
     }
 
-    private async Task<DiagnosticSummary> Compile(Workspace? workspace, Uri inputUri, Uri? bicepFileUri, Uri outputUri, bool noRestore, DiagnosticsFormat? diagnosticsFormat, bool outputToStdOut)
+    private async Task<DiagnosticSummary> Compile(Workspace? workspace, IOUri inputUri, IOUri? bicepFileUri, IOUri outputUri, bool noRestore, DiagnosticsFormat? diagnosticsFormat, bool outputToStdOut)
     {
         var compilation = await compiler.CreateCompilation(
-            inputUri,
+            inputUri.ToUri(),
             workspace,
             skipRestore: noRestore);
 
@@ -71,42 +73,61 @@ public class BuildParamsCommand(
             }
             else
             {
-                writer.ParametersToFile(compilation, outputUri);
+                await writer.ParametersToFileAsync(compilation, outputUri);
             }
         }
 
         return summary;
     }
 
-    public async Task<DiagnosticSummary> CompileMultiple(BuildParamsArguments args)
+    public async Task<DiagnosticSummary> CompileMultiple(BuildParamsArguments args, IEnumerable<(IOUri, IOUri)> inputOuputPairs)
     {
         var hasErrors = false;
 
-        foreach (var (inputUri, outputUri) in CommandHelper.GetInputAndOutputFilesForPattern(environment, args.FilePattern, args.OutputDir, PathHelper.GetJsonOutputPath))
+        foreach (var (inputUri, outputUri) in inputOuputPairs)
         {
             ArgumentHelper.ValidateBicepParamFile(inputUri);
 
-            var result = await Compile(null, inputUri, null, outputUri, args.NoRestore, args.DiagnosticsFormat, false);
+            var result = await Compile(null, inputUri, null, outputUri, args.NoRestore, args.DiagnosticsFormat, outputToStdOut: false);
             hasErrors |= result.HasErrors;
         }
 
         return new(hasErrors);
     }
 
-    private async Task<Workspace> CreateWorkspaceWithParamOverrides(Uri paramsFileUri)
+    private async Task<Workspace?> CreateWorkspaceWithParameterOverridesIfPresent(IOUri paramsFileUri)
     {
-        var fileContents = await File.ReadAllTextAsync(paramsFileUri.LocalPath);
-        var sourceFile = sourceFileFactory.CreateBicepParamFile(paramsFileUri, fileContents);
-        var paramsOverridesJson = environment.GetVariable("BICEP_PARAMETERS_OVERRIDES") ?? "";
+        var parameterOverridesJson = environment.GetVariable("BICEP_PARAMETERS_OVERRIDES");
 
-        var parameters = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(
-            paramsOverridesJson,
-            new JsonSerializerSettings()
-            {
-                DateParseHandling = DateParseHandling.None,
-            });
+        if (string.IsNullOrEmpty(parameterOverridesJson))
+        {
+            return null;
+        }
 
-        sourceFile = ParamsFileHelper.ApplyParameterOverrides(sourceFileFactory, sourceFile, parameters ?? []);
+        string paramsFileText;
+
+        try
+        {
+            paramsFileText = await fileExplorer.GetFile(paramsFileUri).ReadAllTextAsync();
+        }
+        catch
+        {
+            // We cannot read the input file. Returning null to let Bicep.Core handle the error later.
+            return null;
+        }
+
+        var sourceFile = sourceFileFactory.CreateBicepParamFile(paramsFileUri, paramsFileText);
+        var parameterOverrides = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(parameterOverridesJson, new JsonSerializerSettings()
+        {
+            DateParseHandling = DateParseHandling.None,
+        });
+
+        if (parameterOverrides is null || parameterOverrides.Count == 0)
+        {
+            return null;
+        }
+
+        sourceFile = ParamsFileHelper.ApplyParameterOverrides(sourceFileFactory, sourceFile, parameterOverrides);
 
         var workspace = new Workspace();
         workspace.UpsertSourceFile(sourceFile);
@@ -114,7 +135,7 @@ public class BuildParamsCommand(
         return workspace;
     }
 
-    private static void ValidateBicepFile(Compilation compilation, Uri? bicepFileUri)
+    private static void ValidateBicepFile(Compilation compilation, IOUri? bicepFileUri)
     {
         if (bicepFileUri is not null &&
             compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var usingModel))
@@ -127,12 +148,12 @@ public class BuildParamsCommand(
 
             if (usingModel is not SemanticModel bicepSemanticModel)
             {
-                throw new CommandLineException($"Bicep file {bicepFileUri.LocalPath} provided with --bicep-file can only be used if the Bicep parameters \"using\" declaration refers to a Bicep file on disk.");
+                throw new CommandLineException($"Bicep file {bicepFileUri} provided with --bicep-file can only be used if the Bicep parameters \"using\" declaration refers to a Bicep file on disk.");
             }
 
-            if (!bicepSemanticModel.SourceFile.Uri.Equals(bicepFileUri))
+            if (!bicepSemanticModel.SourceFile.FileHandle.Uri.Equals(bicepFileUri))
             {
-                throw new CommandLineException($"Bicep file {bicepFileUri.LocalPath} provided with --bicep-file option doesn't match the Bicep file {bicepSemanticModel.Root.Name} referenced by the \"using\" declaration in the parameters file.");
+                throw new CommandLineException($"Bicep file {bicepFileUri} provided with --bicep-file option doesn't match the Bicep file {bicepSemanticModel.Root.Name} referenced by the \"using\" declaration in the parameters file.");
             }
         }
     }

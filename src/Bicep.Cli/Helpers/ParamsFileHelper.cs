@@ -85,6 +85,6 @@ public static class ParamsFileHelper
             return sourceFile;
         }
 
-        return sourceFileFactory.CreateBicepParamFile(sourceFile.Uri, newProgramSyntax.ToString());
+        return sourceFileFactory.CreateBicepParamFile(sourceFile.FileHandle.Uri, newProgramSyntax.ToString());
     }
 }

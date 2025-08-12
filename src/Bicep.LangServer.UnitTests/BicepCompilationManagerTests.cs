@@ -13,6 +13,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.FileSystem;
+using Bicep.IO.InMemory;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
@@ -46,7 +47,6 @@ namespace Bicep.LangServer.UnitTests
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object,
                 linterRulesProvider,
-                BicepTestConstants.FileResolver,
                 BicepTestConstants.SourceFileFactory,
                 BicepTestConstants.AuxiliaryFileCache);
         }
@@ -96,7 +96,7 @@ namespace Bicep.LangServer.UnitTests
             var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
             var uri = DocumentUri.File(this.TestContext.TestName + fileExtension).ToUriEncoded();
 
-            var originalFile = BicepTestConstants.SourceFileFactory.CreateArmTemplateFile(uri, "{}");
+            var originalFile = BicepTestConstants.SourceFileFactory.CreateArmTemplateFile(uri.ToIOUri(), "{}");
             var workspace = new Workspace();
             workspace.UpsertSourceFile(originalFile);
 
@@ -302,7 +302,6 @@ namespace Bicep.LangServer.UnitTests
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object,
                 linterRulesProvider,
-                BicepTestConstants.FileResolver,
                 BicepTestConstants.SourceFileFactory,
                 BicepTestConstants.AuxiliaryFileCache);
 
@@ -363,7 +362,6 @@ namespace Bicep.LangServer.UnitTests
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object,
                 linterRulesProvider,
-                BicepTestConstants.FileResolver,
                 BicepTestConstants.SourceFileFactory,
                 BicepTestConstants.AuxiliaryFileCache);
 
@@ -436,7 +434,6 @@ namespace Bicep.LangServer.UnitTests
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object,
                 linterRulesProvider,
-                BicepTestConstants.FileResolver,
                 BicepTestConstants.SourceFileFactory,
                 BicepTestConstants.AuxiliaryFileCache);
 
@@ -515,19 +512,25 @@ module moduleB './moduleB.bicep' = {
 ",
             };
 
+            var fileExplorer = new InMemoryFileExplorer();
+
+            foreach (var (uri, content) in fileDict)
+            {
+                fileExplorer.GetFile(uri.ToIOUri()).Write(content);
+            }
+
             var diagsReceived = new List<PublishDiagnosticsParams>();
             var document = BicepCompilationManagerHelper.CreateMockDocument(p => diagsReceived.Add(p));
             var server = BicepCompilationManagerHelper.CreateMockServer(document);
 
-            var fileResolver = new InMemoryFileResolver(fileDict);
             var services = new ServiceBuilder()
-                .WithFileResolver(fileResolver)
+                .WithFileExplorer(fileExplorer)
                 .Build();
 
             var compilationProvider = new BicepCompilationProvider(
                 BicepTestConstants.EmptyEnvironment,
                 TestTypeHelper.CreateEmptyNamespaceProvider(),
-                fileResolver,
+                fileExplorer,
                 services.Construct<IModuleDispatcher>(),
                 BicepTestConstants.LinterAnalyzer,
                 BicepTestConstants.SourceFileFactory);
@@ -539,7 +542,6 @@ module moduleB './moduleB.bicep' = {
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object,
                 linterRulesProvider,
-                BicepTestConstants.FileResolver,
                 BicepTestConstants.SourceFileFactory,
                 BicepTestConstants.AuxiliaryFileCache);
 
@@ -926,7 +928,6 @@ param location string = 'testLocation'");
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object,
                 linterRulesProvider,
-                BicepTestConstants.FileResolver,
                 BicepTestConstants.SourceFileFactory,
                 BicepTestConstants.AuxiliaryFileCache);
         }

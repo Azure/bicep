@@ -3,11 +3,12 @@
 
 using Bicep.Cli.Helpers;
 using Bicep.Core.FileSystem;
+using Bicep.IO.Abstraction;
 using LanguageConstants = Bicep.Core.LanguageConstants;
 
 namespace Bicep.Cli.Arguments
 {
-    public class DecompileParamsArguments : ArgumentsBase
+    public class DecompileParamsArguments : ArgumentsBase, IInputOutputArguments<DecompileParamsArguments>
     {
         public DecompileParamsArguments(string[] args) : base(Constants.Command.DecompileParams)
         {
@@ -77,27 +78,9 @@ namespace Bicep.Cli.Arguments
             {
                 throw new CommandLineException($"The --outdir and --outfile parameters cannot both be used");
             }
-
-            if (OutputDir is not null)
-            {
-                var outputDir = PathHelper.ResolvePath(OutputDir);
-
-                if (!Directory.Exists(outputDir))
-                {
-                    throw new CommandLineException(string.Format(CliResources.DirectoryDoesNotExistFormat, outputDir));
-                }
-            }
-
-            if (!OutputToStdOut && !AllowOverwrite)
-            {
-                string outputFilePath = Path.ChangeExtension(PathHelper.ResolvePath(InputFile), LanguageConstants.ParamsFileExtension);
-                if (File.Exists(outputFilePath))
-                {
-                    throw new CommandLineException($"The output path \"{outputFilePath}\" already exists. Use --force to overwrite the existing file.");
-                }
-
-            }
         }
+
+        public static Func<DecompileParamsArguments, IOUri, string> OutputFileExtensionResolver { get; } = (_, _) => LanguageConstants.ParamsFileExtension;
 
         public bool OutputToStdOut { get; }
 

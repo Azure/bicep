@@ -4139,7 +4139,7 @@ var file = " + functionName + @"(templ|)
                 [InMemoryFileResolver.GetFileUri("/path2/to/main.bicep")] = "",
             });
 
-            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFileResolver(fileResolver).WithFileExplorer(new FileSystemFileExplorer(fileResolver.MockFileSystem)));
+            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFileExplorer(new FileSystemFileExplorer(fileResolver.MockFileSystem)));
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, text);
@@ -4176,9 +4176,7 @@ var file = " + functionName + @"(templ|)
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
-                services => services
-                .AddSingleton<ISettingsProvider>(settingsProvider.Object)
-                .WithFileResolver(new FileResolver(new LocalFileSystem())));
+                services => services.AddSingleton<ISettingsProvider>(settingsProvider.Object));
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
             var completions = await file.RequestAndResolveCompletions(cursor);
@@ -4206,8 +4204,7 @@ var file = " + functionName + @"(templ|)
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
                 services => services
-                .AddSingleton<ISettingsProvider>(settingsProvider.Object)
-                .WithFileResolver(new FileResolver(new LocalFileSystem())));
+                .AddSingleton<ISettingsProvider>(settingsProvider.Object));
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
             var completions = await file.RequestAndResolveCompletions(cursor);
@@ -5777,6 +5774,79 @@ output people Person[] = [{
 
             var completionItems = completions.Where(x => x.Kind == CompletionItemKind.File).OrderBy(x => x.SortText);
             completionItems.Should().SatisfyRespectively(x => x.Label.Should().Be("json1.json"));
+        }
+
+        [TestMethod]
+        public async Task Identity_property_completions_are_offered_for_resource()
+        {
+            // Resource identity property completion
+            var resourceFileWithCursor = """
+resource myRes 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: 'myRes'
+  identity: |
+}
+""";
+            await RunCompletionScenarioTest(
+                this.TestContext,
+                ServerWithNamespaceProvider,
+                resourceFileWithCursor,
+                completionLists =>
+                {
+                    completionLists.Count().Should().Be(1);
+                    var identitySnippets = completionLists.First().Items
+                        .Where(x => x.Kind == CompletionItemKind.Snippet)
+                        .Select(x => x.Label)
+                        .ToList();
+
+                    identitySnippets.Should().Contain("user-assigned-identity");
+                    identitySnippets.Should().Contain("system-assigned-identity");
+                    identitySnippets.Should().Contain("user-and-system-assigned-identity");
+                    identitySnippets.Should().Contain("none-identity");
+                    identitySnippets.Should().Contain("user-assigned-identity-array");
+                },
+                '|');
+        }
+
+        [TestMethod]
+        public async Task Identity_property_completions_are_offered_for_module()
+        {
+            // Module identity property completion (when feature is enabled)
+            var moduleFileWithCursor = """
+module myMod './mod.bicep' = {
+  name: 'myMod'
+  identity: |
+}
+""";
+            var (text, cursors) = ParserHelper.GetFileWithCursors(moduleFileWithCursor, '|');
+            DocumentUri mainUri = DocumentUri.From("file:///main.bicep");
+            var files = new Dictionary<DocumentUri, string>
+            {
+                [DocumentUri.From("file:///mod.bicep")] = """
+param foo string = 'bar'
+""",
+                [mainUri] = text
+            };
+
+            var bicepFile = new LanguageClientFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.Uri,
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()).WithFeatureOverrides(new(this.TestContext, ModuleIdentityEnabled: true))
+            );
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletions(cursors);
+
+            completions.Count().Should().Be(1);
+            var identitySnippets = completions.First().Items
+                .Where(x => x.Kind == CompletionItemKind.Snippet)
+                .Select(x => x.Label)
+                .ToList();
+
+            identitySnippets.Should().Contain("user-assigned-identity");
+            identitySnippets.Should().Contain("none-identity");
+            identitySnippets.Should().Contain("user-assigned-identity-array");
         }
     }
 }
