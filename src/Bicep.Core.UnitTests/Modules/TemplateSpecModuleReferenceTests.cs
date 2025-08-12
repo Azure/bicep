@@ -8,6 +8,7 @@ using Bicep.Core.Modules;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.IO.InMemory;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -16,7 +17,7 @@ namespace Bicep.Core.UnitTests.Modules
     [TestClass]
     public class TemplateSpecModuleReferenceTests
     {
-        private static readonly BicepFile DummyReferencingFile = BicepTestConstants.SourceFileFactory.CreateBicepFile(new Uri("inmemory:///main.bicep"), "");
+        private static readonly BicepFile DummyReferencingFile = BicepTestConstants.SourceFileFactory.CreateBicepFile(DummyFileHandle.Default, "");
 
         [DataTestMethod]
         [DynamicData(nameof(GetEqualData), DynamicDataSourceType.Method)]

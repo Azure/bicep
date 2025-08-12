@@ -7,7 +7,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public static class DocumentUriExtensions
     {
-        public static IOUri ToIOUri(this DocumentUri documentUri) => new(documentUri.Scheme ?? "", documentUri.Authority, documentUri.Path, documentUri.Query, documentUri.Fragment);
+        public static IOUri ToIOUri(this DocumentUri documentUri)
+        {
+            var scheme = new IOUriScheme(documentUri.Scheme ?? "");
+
+            if (scheme.IsUntitled && documentUri.Authority.Length == 0)
+            {
+                // For untitled documents with no authority (e.g., DocumentUri = untitled:Untitled-<number>),
+                // Omnisharp sets the authority to an empty string, which may be incorrect.
+                // IOUri distinguishes between null and empty authority, and requires an absolute path when the authority is empty.
+                // To avoid validation issues, we set the authority to null for untitled documents.
+                return new(scheme, null, documentUri.Path, documentUri.Query, documentUri.Fragment);
+            }
+
+            return new(scheme, documentUri.Authority, documentUri.Path, documentUri.Query, documentUri.Fragment);
+        }
 
         public static Uri ToUriEncoded(this DocumentUri documentUri)
         {

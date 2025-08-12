@@ -13,6 +13,6 @@ namespace Bicep.LanguageServer.Extensions
 {
     public static class IOUriExtensions
     {
-        public static DocumentUri ToDocumentUri(this IOUri uri) => new(uri.Scheme, uri.Authority, uri.Path, uri.Query, uri.Fragment);
+        public static DocumentUri ToDocumentUri(this IOUri uri) => new(uri.Scheme, uri.Authority ?? "", uri.Path, uri.Query, uri.Fragment);
     }
 }

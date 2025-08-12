@@ -129,7 +129,7 @@ namespace Bicep.Cli.Commands
                 dummyReferencingFileUri = new IOUri("file", "", "/dummy");
             }
 
-            var dummyReferencingFile = sourceFileFactory.CreateBicepFile(dummyReferencingFileUri.ToUri(), "");
+            var dummyReferencingFile = sourceFileFactory.CreateBicepFile(dummyReferencingFileUri, "");
 
             if (!moduleDispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Extension, targetReference).IsSuccess(out var extensionReference, out var failureBuilder))
             {
