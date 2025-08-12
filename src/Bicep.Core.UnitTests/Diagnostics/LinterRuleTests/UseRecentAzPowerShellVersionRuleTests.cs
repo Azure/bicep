@@ -56,4 +56,4 @@ public class UseRecentAzPowerShellVersionRuleTests : LinterRuleTestsBase
     [TestMethod]
     public void Linter_validation_should_not_warn_for_new_or_irrelevant_cases(string text)
         => CompileAndTest(text, 0);
-} 
+}

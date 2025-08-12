@@ -162,8 +162,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             using var helper = await LanguageServerHelper.StartServer(
                 TestContext,
-                options => options.OnTelemetryEvent<BicepTelemetryEvent>(telemetryEventsListener.AddMessage),
-                services => services.WithFileResolver(new InMemoryFileResolver(files)));
+                options => options.OnTelemetryEvent<BicepTelemetryEvent>(telemetryEventsListener.AddMessage));
             var client = helper.Client;
 
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, files[uri], 1));
@@ -518,8 +517,7 @@ resource apimGroup 'Microsoft.ApiManagement/service/groups@2020-06-01-preview' =
 
             using var helper = await LanguageServerHelper.StartServer(
                 TestContext,
-                options => options.OnTelemetryEvent<BicepTelemetryEvent>(telemetryEventsListener.AddMessage),
-                services => services.WithFileResolver(new InMemoryFileResolver(fileSystemDict)));
+                options => options.OnTelemetryEvent<BicepTelemetryEvent>(telemetryEventsListener.AddMessage));
             var client = helper.Client;
 
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUriEncoded()], 1));
@@ -544,8 +542,7 @@ resource apimGroup 'Microsoft.ApiManagement/service/groups@2020-06-01-preview' =
 
             using var helper = await LanguageServerHelper.StartServer(
                 TestContext,
-                options => options.OnTelemetryEvent<BicepTelemetryEvent>(telemetryEventsListener.AddMessage),
-                services => services.WithFileResolver(new InMemoryFileResolver(fileSystemDict)));
+                options => options.OnTelemetryEvent<BicepTelemetryEvent>(telemetryEventsListener.AddMessage));
             var client = helper.Client;
 
             var mainUri = DocumentUri.FromFileSystemPath("/main.bicep");

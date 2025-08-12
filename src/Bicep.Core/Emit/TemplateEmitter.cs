@@ -11,7 +11,7 @@ namespace Bicep.Core.Emit;
 
 public class TemplateEmitter
 {
-    private readonly ISemanticModel model;
+    private readonly SemanticModel model;
 
     public TemplateEmitter(SemanticModel model)
     {

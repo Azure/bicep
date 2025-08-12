@@ -11,21 +11,11 @@
       "type": "string",
       "pattern": "^v?(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-(?:[\\da-z\\-]+)(?:\\.(?:[\\da-z\\-]+))*)?$",
       "description": "The major.minor-pre version to use as the basis for version calculations."
-    },
-    "pathFilters": {
-      "type": "array",
-      "items": {
-        "type": "string",
-        "pattern": "^(:\\^|:!|:/|[^:])"
-      },
-      "uniqueItems": true,
-      "description": "An array of pathspec-like strings that are used to filter commits when calculating the version height. A commit will not increment the version height if its changed files are not included by these filters.\nPaths are relative to this file."
     }
   },
   "required": [
     "$schema",
-    "version",
-    "pathFilters"
+    "version"
   ],
   "additionalProperties": false
 }

@@ -6,10 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="$(FluentAssertionsVersion)" />
-    <PackageReference Include="MSTest" Version="$(MSTestVersion)" />
-    <PackageReference Include="Moq" Version="4.20.72" />
-    <PackageReference Include="Grpc.AspNetCore.Server" Version="2.71.0" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="MSTest" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="Grpc.AspNetCore.Server" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.7.112" />
+    <PackageReference Update="Nerdbank.GitVersioning" />
   </ItemGroup>
 </Project>

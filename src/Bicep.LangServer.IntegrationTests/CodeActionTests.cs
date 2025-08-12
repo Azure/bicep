@@ -540,25 +540,6 @@ param foo2 string", "param foo2 string")]
         ")]
         [DataRow(
         @"
-        import { p1, p2, p|3 } from '../mod.bicep'
-        var used1 = p1
-        var used2 = p2
-        ",
-        @"
-        @export()
-        var p1 = 'prefix'
-        @export()
-        var p2 = 'eastus'
-        @export()
-        var p3 = 'param'
-        ",
-        @"
-        import { p1, p2 } from '../mod.bicep'
-        var used1 = p1
-        var used2 = p2
-        ")]
-        [DataRow(
-        @"
         import { p1, p|2, p3 } from '../mod.bicep'
         var used1 = p1
         var used2 = p3
@@ -631,8 +612,7 @@ param foo2 string", "param foo2 string")]
             });
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
-                services => services.WithFileResolver(fileResolver)
-                                                                    .WithFileExplorer(new FileSystemFileExplorer(fileResolver.MockFileSystem)));
+                services => services.WithFileExplorer(new FileSystemFileExplorer(fileResolver.MockFileSystem)));
 
             await helper.OpenFileOnceAsync(TestContext, importFile);
 
@@ -670,8 +650,7 @@ param foo2 string", "param foo2 string")]
             });
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
-                services => services.WithFileResolver(fileResolver)
-                    .WithFileExplorer(new FileSystemFileExplorer(fileResolver.MockFileSystem)));
+                services => services.WithFileExplorer(new FileSystemFileExplorer(fileResolver.MockFileSystem)));
 
             await helper.OpenFileOnceAsync(TestContext, importFile);
 

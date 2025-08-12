@@ -17,11 +17,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         private static readonly JsonElement DefaultRootElement = JsonElementFactory.CreateElement(new Dictionary<string, object>
         {
             ["$schema"] = "https://aka.ms/bicep-registry-module-version-file-schema#",
-            ["version"] = "",
-            ["pathFilters"] = new[]
-            {
-                "./main.json",
-            },
+            ["version"] = ""
         });
 
         private static readonly JsonElement DefaultRootElementWithoutVersion = DefaultRootElement.Patch(JsonPatchOperations.Remove("/version"));
@@ -46,7 +42,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             {
                 var existingFile = await OpenAsync(fileSystem);
 
-                // Merge DefaultRootElementWithoutVersion in case the author changed $schema or pathFilter.
+                // Merge DefaultRootElementWithoutVersion in case the author changed $schema.
                 rootElement = rootElement
                     .Merge(existingFile.RootElement)
                     .Merge(DefaultRootElementWithoutVersion);

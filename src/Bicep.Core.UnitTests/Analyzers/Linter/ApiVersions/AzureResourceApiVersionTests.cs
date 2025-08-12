@@ -18,7 +18,6 @@ namespace Bicep.Core.UnitTests.Analyzers.Linter.ApiVersions
         [DataRow("9999-12-31-preview", "9999-12-31", "-preview")]
         [DataRow("9999-12-31-privatepreview", "9999-12-31", "-privatepreview")]
         [DataRow("9999-12-31-beta", "9999-12-31", "-beta")]
-        [DataRow("9999-12-31-alpha", "9999-12-31", "-alpha")]
         [DataRow("9999-12-31-rc", "9999-12-31", "-rc")]
         public void TryParse_ValidApiVersion_ReturnsTrueAndParsedApiVersion(string value, string expectedDate, string suffix)
         {

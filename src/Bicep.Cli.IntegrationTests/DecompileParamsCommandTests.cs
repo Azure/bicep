@@ -179,6 +179,119 @@ namespace Bicep.Cli.IntegrationTests
             }
         }
 
+        [TestMethod]
+        public async Task Decompile_ValidParamFileWithCustomOutFile_ShouldSucceed()
+        {
+            var paramFile =
+                """
+                {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+                  "contentVersion": "1.0.0.0",
+                  "parameters": {
+                    "location": {
+                      "value": "eastus"
+                    }
+                  }
+                }
+                """;
+
+            var expectedOutput =
+                """
+                using '' /*TODO: Provide a path to a bicep template*/
+
+                param location = 'eastus'
+
+                """;
+
+            var (jsonPath, _) = Setup(TestContext, paramFile);
+            var customOutputPath = FileHelper.GetResultFilePath(TestContext, "custom-name.bicepparam");
+
+            var (output, error, result) = await Bicep("decompile-params", jsonPath, "--outfile", customOutputPath);
+
+            using (new AssertionScope())
+            {
+                output.Should().BeEmpty();
+                error.AsLines().Should().Contain(DecompilationDisclaimer);
+                result.Should().Be(0);
+                File.Exists(customOutputPath).Should().BeTrue();
+                File.ReadAllText(customOutputPath).Should().BeEquivalentToIgnoringNewlines(expectedOutput);
+            }
+        }
+
+        [TestMethod]
+        public async Task Decompile_CustomOutFileAlreadyExists_ShouldFailWithoutForce()
+        {
+            var paramFile =
+                """
+                {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+                  "contentVersion": "1.0.0.0",
+                  "parameters": {
+                    "location": {
+                      "value": "eastus"
+                    }
+                  }
+                }
+                """;
+
+            var (jsonPath, _) = Setup(TestContext, paramFile);
+            var customOutputPath = FileHelper.GetResultFilePath(TestContext, "existing-file.bicepparam");
+            
+            // Create the file that already exists
+            File.WriteAllText(customOutputPath, "existing content");
+
+            var (output, error, result) = await Bicep("decompile-params", jsonPath, "--outfile", customOutputPath);
+
+            using (new AssertionScope())
+            {
+                output.Should().BeEmpty();
+                error.Should().Contain($"The output file \"{customOutputPath}\" already exists. Use --force to overwrite the existing file.");
+                result.Should().Be(1);
+                File.ReadAllText(customOutputPath).Should().Be("existing content"); // Should not be overwritten
+            }
+        }
+
+        [TestMethod]
+        public async Task Decompile_CustomOutFileAlreadyExists_ShouldSucceedWithForce()
+        {
+            var paramFile =
+                """
+                {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+                  "contentVersion": "1.0.0.0",
+                  "parameters": {
+                    "location": {
+                      "value": "eastus"
+                    }
+                  }
+                }
+                """;
+
+            var expectedOutput =
+                """
+                using '' /*TODO: Provide a path to a bicep template*/
+
+                param location = 'eastus'
+
+                """;
+
+            var (jsonPath, _) = Setup(TestContext, paramFile);
+            var customOutputPath = FileHelper.GetResultFilePath(TestContext, "force-overwrite.bicepparam");
+            
+            // Create the file that already exists
+            File.WriteAllText(customOutputPath, "existing content");
+
+            var (output, error, result) = await Bicep("decompile-params", jsonPath, "--outfile", customOutputPath, "--force");
+
+            using (new AssertionScope())
+            {
+                output.Should().BeEmpty();
+                error.AsLines().Should().Contain(DecompilationDisclaimer);
+                result.Should().Be(0);
+                File.ReadAllText(customOutputPath).Should().BeEquivalentToIgnoringNewlines(expectedOutput); // Should be overwritten
+            }
+        }
+
         private static (string jsonPath, string bicepparamPath) Setup(TestContext context, string template, string? inputFile = null, string? outputDir = null)
         {
             var jsonPath = FileHelper.SaveResultFile(context, inputFile ?? "param.json", template);

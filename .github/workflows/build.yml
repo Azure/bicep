@@ -137,7 +137,8 @@ jobs:
         run: |
           mkdir -p ./src/vscode-bicep-notice/inputs
           npm --prefix ./src/vscode-bicep list -a --json > ./src/vscode-bicep-notice/inputs/npm-list.json
-          cp ./src/Bicep.LangServer/obj/project.assets.json ./src/vscode-bicep-notice/inputs/project.assets.json
+          cp ./src/Bicep.LangServer/obj/project.assets.json ./src/vscode-bicep-notice/inputs/langserver.assets.json
+          cp ./src/Bicep.McpServer/obj/project.assets.json ./src/vscode-bicep-notice/inputs/mcpserver.assets.json
           dotnet build --configuration Release ./src/vscode-bicep-notice/vscode-bicep-notice.proj
 
       - name: Create VSIX
@@ -286,12 +287,6 @@ jobs:
         run: cat ./bicep-e2e.log
         if: always()
         working-directory: ./src/vscode-bicep
-
-      - name: Upload Code Coverage
-        uses: codecov/codecov-action@v5
-        with:
-          flags: typescript
-          directory: ./src/vscode-bicep/coverage
 
   build-vs-ext:
     name: Build Visual Studio Extension

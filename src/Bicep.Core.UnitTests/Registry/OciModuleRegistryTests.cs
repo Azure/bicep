@@ -749,7 +749,6 @@ namespace Bicep.Core.UnitTests.Registry
             featureProviderFactoryMock.Setup(m => m.GetFeatureProvider(parentModuleUri)).Returns(featureProviderMock.Object);
 
             var parentModuleFile = new BicepFile(
-                parentModuleUri,
                 BicepTestConstants.FileExplorer.GetFile(parentModuleUri.ToIOUri()),
                 [],
                 SyntaxFactory.EmptyProgram,

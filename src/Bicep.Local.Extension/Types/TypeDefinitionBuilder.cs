@@ -23,9 +23,11 @@ public class TypeDefinitionBuilder
     private readonly IDictionary<Type, Func<TypeBase>> typeToTypeBaseMap;
 
     protected readonly ConcurrentDictionary<Type, TypeBase> typeCache;
+    private readonly string name;
+    private readonly string version;
+    private readonly bool isSingleton;
+    private readonly Type? configurationType;
     protected readonly TypeFactory factory;
-
-    public TypeSettings Settings { get; }
 
 
     /// <summary>
@@ -43,15 +45,21 @@ public class TypeDefinitionBuilder
     /// If a property type cannot be mapped to a supported Bicep type, a <see cref="NotImplementedException"/> is thrown.
     /// </para>
     /// </remarks>
-    public TypeDefinitionBuilder(TypeSettings typeSettings
-                            , TypeFactory factory
-                            , ITypeProvider typeProvider
-                            , IDictionary<Type, Func<TypeBase>> typeToTypeBaseMap)
+    public TypeDefinitionBuilder(
+        string name,
+        string version,
+        bool isSingleton,
+        Type? configurationType,
+        TypeFactory factory,
+        ITypeProvider typeProvider,
+        IDictionary<Type, Func<TypeBase>> typeToTypeBaseMap)
     {
-        Settings = typeSettings ?? throw new ArgumentNullException(nameof(typeSettings));
-
-        this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
-        this.typeProvider = typeProvider ?? throw new ArgumentNullException(nameof(typeProvider));
+        this.name = name;
+        this.version = version;
+        this.isSingleton = isSingleton;
+        this.configurationType = configurationType;
+        this.factory = factory;
+        this.typeProvider = typeProvider;
 
         this.typeToTypeBaseMap = typeToTypeBaseMap is null || typeToTypeBaseMap.Count == 0
                 ? throw new ArgumentException(nameof(typeToTypeBaseMap))
@@ -73,24 +81,37 @@ public class TypeDefinitionBuilder
     /// This method will throw a <see cref="NotImplementedException"/> if a property type is encountered that cannot be mapped
     /// to a supported Bicep type (e.g., unsupported primitives or collections).
     /// </remarks>
-    public virtual TypeDefinition GenerateBicepResourceTypes()
+    public virtual TypeDefinition GenerateTypeDefinition()
     {
+        var typesJsonPath = "types.json";
         var resourceTypes = typeProvider.GetResourceTypes()
-                                .Select(rt => GenerateResource(factory, typeCache, rt))
-                                .ToDictionary(rt => rt.Name, rt => new CrossFileTypeReference("types.json", factory.GetIndex(rt)));
+            .Select(x => GenerateResource(factory, typeCache, x.type, x.attribute))
+            .ToDictionary(rt => rt.Name, rt => new CrossFileTypeReference(typesJsonPath, factory.GetIndex(rt)));
 
-        var index = new TypeIndex(resourceTypes
-                    , new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>()
-                    , Settings
-                    , null);
+        CrossFileTypeReference? config = null;
+        if (configurationType is not null)
+        {
+            var configReference = factory.Create(() => GenerateForRecord(factory, typeCache, configurationType));
+            config = new CrossFileTypeReference(typesJsonPath, factory.GetIndex(configReference));
+        }
 
-        return new(TypesJson: GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes())),
-                   IndexJson: GetString(stream => TypeSerializer.SerializeIndex(stream, index)));
+        var index = new TypeIndex(
+            resourceTypes,
+            new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
+            new(name, version, isSingleton, config!),
+            null);
+
+        return new(
+            IndexFileContent: GetString(stream => TypeSerializer.SerializeIndex(stream, index)),
+            TypeFileContents: new Dictionary<string, string>
+            {
+                [typesJsonPath] = GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes())),
+            }.ToImmutableDictionary());
     }
 
-    protected virtual ResourceType GenerateResource(TypeFactory typeFactory, ConcurrentDictionary<Type, TypeBase> typeCache, Type type)
+    protected virtual ResourceType GenerateResource(TypeFactory typeFactory, ConcurrentDictionary<Type, TypeBase> typeCache, Type type, ResourceTypeAttribute attribute)
         => typeFactory.Create(() => new ResourceType(
-            name: $"{type.Name}",
+            name: attribute.FullName,
             scopeType: ScopeType.Unknown,
             readOnlyScopes: null,
             body: typeFactory.GetReference(typeFactory.Create(() => GenerateForRecord(typeFactory, typeCache, type))),
@@ -138,8 +159,8 @@ public class TypeDefinitionBuilder
 
                     if (!TryResolveTypeReference(elementType, annotation, out var elementTypeReference))
                     {
-                        elementTypeReference = typeCache.GetOrAdd(elementType, _ => factory.Create(() => GenerateForRecord(factory, typeCache, elementType)));                      
-                    }                    
+                        elementTypeReference = typeCache.GetOrAdd(elementType, _ => factory.Create(() => GenerateForRecord(factory, typeCache, elementType)));
+                    }
 
                     typeReference = typeCache.GetOrAdd(propertyType, _ => factory.Create(() => new ArrayType(factory.GetReference(elementTypeReference))));
                 }

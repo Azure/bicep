@@ -2,22 +2,22 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using System.IO.Abstractions;
+using System.Diagnostics;
+using System.Text.Json;
 using Bicep.Cli.Arguments;
-using Bicep.Cli.Logging;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Extensions;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem;
 using Bicep.IO.Abstraction;
+using Bicep.IO.InMemory;
+using Bicep.Local.Deploy.Extensibility;
+using Bicep.Local.Deploy.Helpers;
+using Bicep.Local.Deploy.Types;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
@@ -26,10 +26,11 @@ namespace Bicep.Cli.Commands
         IModuleDispatcher moduleDispatcher,
         ISourceFileFactory sourceFileFactory,
         IFileExplorer fileExplorer,
-        ILogger logger,
-        InputOutputArgumentsResolver inputOutputArgumentsResolver) : ICommand
+        InputOutputArgumentsResolver inputOutputArgumentsResolver,
+        ILocalExtensionFactory localExtensionFactory,
+        ILogger logger) : ICommand
     {
-        public async Task<int> RunAsync(PublishExtensionArguments args)
+        public async Task<int> RunAsync(PublishExtensionArguments args, CancellationToken cancellationToken)
         {
             ExtensionBinary? TryGetBinary(SupportedArchitecture architecture)
             {
@@ -43,25 +44,17 @@ namespace Bicep.Cli.Commands
                 return new(architecture, BinaryData.FromStream(binaryStream));
             }
 
-            logger.LogWarning($"WARNING: The '{args.CommandName}' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
+            if (args.IndexFile is null && args.Binaries.Count == 0)
+            {
+                throw new CommandLineException($"The input file path was not specified.");
+            }
 
-            var indexUri = inputOutputArgumentsResolver.PathToUri(args.IndexFile);
-            var indexFile = fileExplorer.GetFile(indexUri);
+            logger.LogWarning($"WARNING: The '{args.CommandName}' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
             var reference = ValidateReference(args.TargetExtensionReference);
             var overwriteIfExists = args.Force;
 
-            BinaryData tarPayload;
-            try
-            {
-                tarPayload = await TypesV1Archive.PackIntoBinaryData(indexFile);
-                ValidateExtension(tarPayload);
-            }
-            catch (Exception exception)
-            {
-                throw new BicepException($"Extension package creation failed: {exception.Message}");
-            }
-
             var binaries = SupportedArchitectures.All.Select(TryGetBinary).WhereNotNull().ToImmutableArray();
+            var tarPayload = await GetTypesTarPayload(args, binaries, cancellationToken);
 
             var package = new ExtensionPackage(
                 Types: tarPayload,
@@ -70,6 +63,36 @@ namespace Bicep.Cli.Commands
 
             await this.PublishExtensionAsync(reference, package, overwriteIfExists);
             return 0;
+        }
+
+        private async Task<BinaryData> GetTypesTarPayload(PublishExtensionArguments args, ImmutableArray<ExtensionBinary> binaries, CancellationToken cancellationToken)
+        {
+            if (args.IndexFile is { })
+            {
+                var indexUri = inputOutputArgumentsResolver.PathToUri(args.IndexFile);
+                var indexFile = fileExplorer.GetFile(indexUri);
+
+                return await CreateTypesTar(indexFile);
+            }
+
+            if (!binaries.Any())
+            {
+                throw new CommandLineException($"The input file path was not specified.");
+            }
+
+            if (SupportedArchitectures.TryGetCurrent() is not { } architecture)
+            {
+                throw new BicepException($"Failed to load type information: Unable to determine the current architecture and OS platform.");
+            }
+
+            if (args.Binaries.TryGetValue(architecture.Name) is not { } binaryPath ||
+                inputOutputArgumentsResolver.PathToUri(binaryPath) is not { } binaryUri)
+            {
+                throw new BicepException($"Failed to load type information: Unable to find a binary for the current architecture ({architecture.Name}).");
+            }
+
+            var indexHandle = await GetTypesFromExtension(binaryUri, cancellationToken);
+            return await CreateTypesTar(indexHandle);
         }
 
         private async Task PublishExtensionAsync(ArtifactReference target, ExtensionPackage package, bool overwriteIfExists)
@@ -106,7 +129,7 @@ namespace Bicep.Cli.Commands
                 dummyReferencingFileUri = new IOUri("file", "", "/dummy");
             }
 
-            var dummyReferencingFile = sourceFileFactory.CreateBicepFile(dummyReferencingFileUri.ToUri(), "");
+            var dummyReferencingFile = sourceFileFactory.CreateBicepFile(dummyReferencingFileUri, "");
 
             if (!moduleDispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Extension, targetReference).IsSuccess(out var extensionReference, out var failureBuilder))
             {
@@ -134,6 +157,42 @@ namespace Bicep.Cli.Commands
             {
                 typeLoader.LoadResourceType(typeLocation);
             }
+        }
+
+        private static async Task<BinaryData> CreateTypesTar(IFileHandle indexHandle)
+        {
+            try
+            {
+                var tarPayload = await TypesV1Archive.PackIntoBinaryData(indexHandle);
+                ValidateExtension(tarPayload);
+
+                return tarPayload;
+            }
+            catch (Exception exception)
+            {
+                throw new BicepException($"Extension package creation failed: {exception.Message}");
+            }
+        }
+
+        private async Task<IFileHandle> GetTypesFromExtension(IOUri binaryUri, CancellationToken cancellationToken)
+        {
+            await using var extension = await localExtensionFactory.Start(binaryUri);
+
+            var typeFiles = await extension.GetTypeFiles(cancellationToken);
+
+            var fileExplorer = new InMemoryFileExplorer();
+
+            var indexUri = IOUri.FromLocalFilePath("/index.json");
+            var indexHandle = fileExplorer.GetFile(indexUri);
+            indexHandle.Write(typeFiles.IndexFileContent);
+
+            foreach (var (path, content) in typeFiles.TypeFileContents)
+            {
+                var fileUri = IOUri.FromLocalFilePath($"/{path}");
+                fileExplorer.GetFile(fileUri).Write(content);
+            }
+
+            return indexHandle;
         }
     }
 }

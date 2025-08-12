@@ -1,26 +1,21 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
-using System.Text.RegularExpressions;
-using Bicep.Cli.UnitTests;
 using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Baselines;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.IO.FileSystem;
+using Bicep.TextFixtures.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Newtonsoft.Json.Linq;
@@ -65,12 +60,15 @@ namespace Bicep.Cli.IntegrationTests
         public async Task Build_Valid_SingleFile_WithTemplateSpecReference_ShouldSucceed(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients();
-            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory);
-            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
+            var features = new FeatureProviderOverrides(TestContext);
+            FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
+            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(features));
+            await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
+
+            var settings = new InvocationSettings(features).WithArtifactManager(artifactManager, TestContext);
+
+            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
             var (output, error, result) = await Bicep(settings, "build", bicepFilePath);
 
             using (new AssertionScope())
@@ -108,12 +106,15 @@ namespace Bicep.Cli.IntegrationTests
         public async Task Build_Valid_SingleFile_WithTemplateSpecReference_ToStdOut_ShouldSucceed(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients();
-            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory);
-            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
+            var features = new FeatureProviderOverrides(TestContext);
+            FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
+            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(features));
+            await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
+
+            var settings = new InvocationSettings(features).WithArtifactManager(artifactManager, TestContext);
+
+            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
             var (output, error, result) = await Bicep(settings, "build", "--stdout", bicepFilePath);
 
@@ -148,12 +149,16 @@ namespace Bicep.Cli.IntegrationTests
         public async Task Build_Valid_SingleFile_After_Restore_Should_Succeed(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients();
-            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory);
-            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
+            var features = new FeatureProviderOverrides(TestContext);
+            FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+
+            var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(features));
+            await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
+
+            var settings = new InvocationSettings(features).WithArtifactManager(artifactManager, TestContext);
+
+            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
             var (restoreOutput, restoreError, restoreResult) = await Bicep(settings, "restore", bicepFilePath);
             using (new AssertionScope())
