@@ -202,6 +202,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 this.VisitNodes(syntax.LeadingNodes);
                 this.Visit(syntax.Value);
             }
+
+            public override void VisitMetadataDeclarationSyntax(MetadataDeclarationSyntax syntax)
+            {
+                // Skip metadata declarations entirely - URLs in metadata should be allowed
+                return;
+            }
         }
     }
 }
