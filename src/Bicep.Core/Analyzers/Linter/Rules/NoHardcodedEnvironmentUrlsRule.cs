@@ -4,9 +4,12 @@
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -41,7 +44,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             if (disallowedHosts.Any())
             {
-                var visitor = new Visitor(disallowedHosts, disallowedHosts.Min(h => h.Length), excludedHosts);
+                var visitor = new Visitor(disallowedHosts, disallowedHosts.Min(h => h.Length), excludedHosts, model);
                 visitor.Visit(model.SourceFile.ProgramSyntax);
 
                 return visitor.DisallowedHostSpans.Select(entry => CreateDiagnosticForSpan(diagnosticLevel, entry.Key, entry.Value));
@@ -102,12 +105,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             private readonly ImmutableArray<string> disallowedHosts;
             private readonly int minHostLen;
             private readonly ImmutableArray<string> excludedHosts;
+            private readonly SemanticModel model;
 
-            public Visitor(ImmutableArray<string> disallowedHosts, int minHostLen, ImmutableArray<string> excludedHosts)
+            public Visitor(ImmutableArray<string> disallowedHosts, int minHostLen, ImmutableArray<string> excludedHosts, SemanticModel model)
             {
                 this.disallowedHosts = disallowedHosts;
                 this.minHostLen = minHostLen;
                 this.excludedHosts = excludedHosts;
+                this.model = model;
             }
 
             public static IEnumerable<(TextSpan RelativeSpan, string Value)> RemoveOverlapping(IEnumerable<(TextSpan RelativeSpan, string Value)> matches)
@@ -126,8 +131,24 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 }
             }
 
+            public override void VisitDecoratorSyntax(DecoratorSyntax syntax)
+            {
+                // Skip @description and @metadata decorators entirely
+                if (model.GetSymbolInfo(syntax.Expression) is FunctionSymbol functionSymbol &&
+                    functionSymbol.DeclaringObject is NamespaceType namespaceType &&
+                    LanguageConstants.IdentifierComparer.Equals(namespaceType.ExtensionName, SystemNamespaceType.BuiltInName) &&
+                    (LanguageConstants.IdentifierComparer.Equals(functionSymbol.Name, LanguageConstants.MetadataDescriptionPropertyName) ||
+                     LanguageConstants.IdentifierComparer.Equals(functionSymbol.Name, LanguageConstants.ParameterMetadataPropertyName)))
+                {
+                    return;
+                }
+
+                base.VisitDecoratorSyntax(syntax);
+            }
+
             public override void VisitStringSyntax(StringSyntax syntax)
             {
+
                 // shortcut check by testing length of full span
                 if (syntax.Span.Length > minHostLen)
                 {
@@ -180,6 +201,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 // Skip resource 'path' strings - there's no reason to perform analysis on them
                 this.VisitNodes(syntax.LeadingNodes);
                 this.Visit(syntax.Value);
+            }
+
+            public override void VisitMetadataDeclarationSyntax(MetadataDeclarationSyntax syntax)
+            {
+                // Skip metadata declarations entirely - URLs in metadata should be allowed
+                return;
             }
         }
     }
