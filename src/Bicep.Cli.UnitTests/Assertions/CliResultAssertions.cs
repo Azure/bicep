@@ -49,7 +49,11 @@ public class CliResultAssertions : ReferenceTypeAssertions<CliResult, CliResultA
     }
 
     public AndConstraint<CliResultAssertions> NotHaveStdout(string because = "", params object[] becauseArgs)
-        => HaveStdout("", because, becauseArgs);
+    {
+        Subject.Stdout.Should().BeEmpty(because, becauseArgs);
+
+        return new(this);
+    }
 
     public AndConstraint<CliResultAssertions> HaveStderr(string stderr, string because = "", params object[] becauseArgs)
     {
@@ -73,7 +77,11 @@ public class CliResultAssertions : ReferenceTypeAssertions<CliResult, CliResultA
     }
 
     public AndConstraint<CliResultAssertions> NotHaveStderr(string because = "", params object[] becauseArgs)
-        => HaveStderr("", because, becauseArgs);
+    {
+        Subject.Stderr.Should().BeEmpty(because, becauseArgs);
+
+        return new(this);
+    }
 
     public AndConstraint<CliResultAssertions> HaveCompileError(string? errorCode = null, string because = "", params object[] becauseArgs)
     {
