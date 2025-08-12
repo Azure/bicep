@@ -288,12 +288,6 @@ jobs:
         if: always()
         working-directory: ./src/vscode-bicep
 
-      - name: Upload Code Coverage
-        uses: codecov/codecov-action@v5
-        with:
-          flags: typescript
-          directory: ./src/vscode-bicep/coverage
-
   build-vs-ext:
     name: Build Visual Studio Extension
     runs-on: windows-latest
