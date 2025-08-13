@@ -672,7 +672,7 @@ namespace Bicep.Core.Semantics
 
         private IEnumerable<IDiagnostic> GatherTypeMismatchDiagnostics()
         {
-            foreach (var assignmentSymbol in Root.ParameterAssignments.Where(x => x.Context.SourceFile == Root.Context.SourceFile))
+            foreach (var assignmentSymbol in Root.ParameterAssignments)
             {
                 if (assignmentSymbol.Type is not ErrorType &&
                     assignmentSymbol.Type is not NullType && // `param x = null` is equivalent to skipping the assignment altogether
