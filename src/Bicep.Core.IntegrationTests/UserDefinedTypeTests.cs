@@ -1891,9 +1891,25 @@ param myParam string
     }
 
     [TestMethod]
-    public void User_defined_validator_can_be_attached_to_a_parameter_statement()
+    public void User_defined_validators_are_blocked_if_feature_flag_is_not_enabled()
     {
         var result = CompilationHelper.Compile("""
+            @validate(x => startsWith(x, 'foo'))
+            param foo string
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
+            ("BCP057", DiagnosticLevel.Error, "The name \"validate\" does not exist in the current context."),
+        ]);
+    }
+
+    [TestMethod]
+    public void User_defined_validator_can_be_attached_to_a_parameter_statement()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, UserDefinedConstraintsEnabled: true)),
+            """
             @validate(x => startsWith(x, 'foo'))
             param foo string
             """);
@@ -1904,7 +1920,9 @@ param myParam string
     [TestMethod]
     public void User_defined_validator_checks_lambda_type_against_declared_type()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, UserDefinedConstraintsEnabled: true)),
+            """
             @validate(x => startsWith(x, 'foo'))
             param foo int
             """);

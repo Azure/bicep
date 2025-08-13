@@ -2091,21 +2091,24 @@ namespace Bicep.Core.Semantics.Namespaces
                     })
                     .Build();
 
-                yield return new DecoratorBuilder("validate")
-                    .WithDescription("Applies a custom validation lambda to a type")
-                    .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
-                    .WithParameter(
-                        name: "predicate",
-                        type: OneParamLambda(LanguageConstants.Any, LanguageConstants.Bool),
-                        description: "Validation predicate. Return true for valid values.",
-                        flags: FunctionParameterFlags.Required,
-                        calculator: static (_, getAttachedType) => OneParamLambda(getAttachedType(), LanguageConstants.Bool))
-                    .WithParameter(
-                        name: "errorMessage",
-                        type: LanguageConstants.String,
-                        description: "Error message to use when the value is not valid according to the predicate.",
-                        flags: FunctionParameterFlags.Constant)
-                    .Build();
+                if (featureProvider.UserDefinedConstraintsEnabled)
+                {
+                    yield return new DecoratorBuilder("validate")
+                        .WithDescription("Applies a custom validation lambda to a type")
+                        .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
+                        .WithParameter(
+                            name: "predicate",
+                            type: OneParamLambda(LanguageConstants.Any, LanguageConstants.Bool),
+                            description: "Validation predicate. Return true for valid values.",
+                            flags: FunctionParameterFlags.Required,
+                            calculator: static (_, getAttachedType) => OneParamLambda(getAttachedType(), LanguageConstants.Bool))
+                        .WithParameter(
+                            name: "errorMessage",
+                            type: LanguageConstants.String,
+                            description: "Error message to use when the value is not valid according to the predicate.",
+                            flags: FunctionParameterFlags.Constant)
+                        .Build();
+                }
             }
 
             foreach (var decorator in GetAlwaysPermittedDecorators())
