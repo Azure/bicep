@@ -1058,14 +1058,14 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
         private readonly  string  TEST_FILES_ARM = """
                                                       [
                                                         {
-                                                          "relativePath": "main.bicep",
-                                                          "baseName": "main.bicep",
-                                                          "extension": ".bicep",
-                                                        },
-                                                        {
                                                           "relativePath": "File.json",
                                                           "baseName": "File.json",
                                                           "extension": ".json"
+                                                        },
+                                                        {
+                                                          "relativePath": "main.bicep",
+                                                          "baseName": "main.bicep",
+                                                          "extension": ".bicep",
                                                         }
                                                       ]
                                                       """;
