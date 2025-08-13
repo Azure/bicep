@@ -30,7 +30,7 @@ namespace Bicep.Core.Semantics.Namespaces
     public static class SystemNamespaceType
     {
         private record LoadTextContentResult(IOUri FileUri, string Content);
-        private record struct LoadDirectoryFileInformationResult(string RelativePath, string BaseName, string Extension);
+        private record struct LoadDirectoryFileInfoResult(string RelativePath, string BaseName, string Extension);
 
         public const string BuiltInName = "sys";
         public const long UniqueStringHashLength = 13;
@@ -1253,11 +1253,11 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithReturnType(LanguageConstants.Never)
                     .Build();
 
-                yield return new FunctionOverloadBuilder("loadDirectoryFileInformation")
+                yield return new FunctionOverloadBuilder("loadDirectoryFileInfo")
                     .WithGenericDescription($"Loads basic information about a directory's files as bicep object. File loading occurs during compilation, not at runtime.")
                     .WithRequiredParameter("directoryPath", LanguageConstants.StringDirectoryPath, "The path to the directory that will be loaded.")
                     .WithOptionalParameter("searchPattern", LanguageConstants.String, "The searchPattern is a glob pattern to narrow down the loaded files. If not provided, all files are loaded. Supports both any number of characters '*' and any single character '?' wildcards.")
-                    .WithReturnResultBuilder(LoadDirectoryFileInformationResultBuilder, LanguageConstants.Any)
+                    .WithReturnResultBuilder(LoadDirectoryFileInfoResultBuilder, LanguageConstants.Any)
                     .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
                     .Build();
             }
@@ -2256,7 +2256,7 @@ namespace Bicep.Core.Semantics.Namespaces
             return decorated;
         }
 
-        private static FunctionResult LoadDirectoryFileInformationResultBuilder(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult LoadDirectoryFileInfoResultBuilder(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
             var arguments = functionCall.Arguments;
             var pathSearchPattern = string.Empty;
@@ -2283,7 +2283,7 @@ namespace Bicep.Core.Semantics.Namespaces
             return new FunctionResult(ErrorType.Create(errorDiagnostic));
         }
 
-        private static ResultWithDiagnostic<IEnumerable<LoadDirectoryFileInformationResult>> TryLoadFilesFromDirectoryPath(SemanticModel model, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) directoryPathArgument, string pathSearchPattern)
+        private static ResultWithDiagnostic<IEnumerable<LoadDirectoryFileInfoResult>> TryLoadFilesFromDirectoryPath(SemanticModel model, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) directoryPathArgument, string pathSearchPattern)
         {
             if (directoryPathArgument.typeSymbol is not StringLiteralType directoryPathType)
             {
@@ -2305,7 +2305,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 // avoid returning "" if the file is the same as the current file
                 var relativePath = uri == thisFileUri ? baseName : uri.GetPathRelativeTo(thisFileUri);
 
-                return new LoadDirectoryFileInformationResult(
+                return new LoadDirectoryFileInfoResult(
                     RelativePath: relativePath,
                     BaseName: baseName,
                     Extension: extension);

@@ -30,7 +30,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 ";
         private static readonly string B64_TEXT_CONTENT = Convert.ToBase64String(Encoding.UTF8.GetBytes(TEXT_CONTENT));
-        public enum FunctionCase { loadTextContent, loadFileAsBase64, loadJsonContent, loadYamlContent, loadDirectoryFileInformation }
+        public enum FunctionCase { loadTextContent, loadFileAsBase64, loadJsonContent, loadYamlContent, loadDirectoryFileInfo }
         private static string ExpectedResult(FunctionCase function) => function switch
         {
             FunctionCase.loadTextContent => TEXT_CONTENT,
@@ -292,13 +292,13 @@ output out string = message
                 encoding: encoding
             }
         ]", "files[0].name", "'$'", "files[0].encoding", DisplayName = "loadYamlContent: encoding param as object property in array")]
-        [DataRow(FunctionCase.loadDirectoryFileInformation, @"param searchPattern string = '*')
+        [DataRow(FunctionCase.loadDirectoryFileInfo, @"param searchPattern string = '*')
         var directories = [
             {
                 path: './'
                 searchPattern: searchPattern
             }
-        ]", "directories[0].path", "directories[0].searchPattern", DisplayName = "loadDirectoryFileInformation: searchPattern param as object property in array")]
+        ]", "directories[0].path", "directories[0].searchPattern", DisplayName = "loadDirectoryFileInfo: searchPattern param as object property in array")]
         public void LoadFunction_RequiresCompileTimeConstantArguments_Invalid(FunctionCase function, string declaration, params string[] args)
         {
             //notice - here we will not test actual loading file with given encoding - just the fact that bicep function accepts all .NET available encodings
@@ -1075,10 +1075,10 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
         [DataRow(true)]
         [DataRow(false)]
         [DataTestMethod]
-        public void LoadDirectoryFileInformationFunction(bool withWildCard)
+        public void LoadDirectoryFileInfoFunction(bool withWildCard)
         {
             var (template, diags, _) = CompilationHelper.Compile(
-                ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('./'{(withWildCard ? ", '*'" : "")})"),
+                ("main.bicep", $"var fileObjs = loadDirectoryFileInfo('./'{(withWildCard ? ", '*'" : "")})"),
                 ("File.json", ""));
 
 
@@ -1106,7 +1106,7 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
         [DataRow("*n.bi*", "File.json")]
         [DataRow("main?bicep", "File.json")]
         [DataTestMethod]
-        public void LoadDirectoryFileInformationWithPattern(string searchPattern, string fileToExclude)
+        public void LoadDirectoryFileInfoWithPattern(string searchPattern, string fileToExclude)
         {
             var fullContent = TEST_FILES_ARM;
             var loadedContent = JToken.Parse(fullContent);
@@ -1116,7 +1116,7 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
             tokenToRemove!.Parent.Should().NotBeNull();
             tokenToRemove!.Remove();
             var (template, diags, _) = CompilationHelper.Compile(
-                ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('./', '{searchPattern}')"),
+                ("main.bicep", $"var fileObjs = loadDirectoryFileInfo('./', '{searchPattern}')"),
                 ("File.json", ""));
 
             using (new AssertionScope())
@@ -1132,10 +1132,10 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
         }
 
         [TestMethod]
-        public void LoadDirectoryFileInformationShouldReturnNothingWhenDirIsEmpty()
+        public void LoadDirectoryFileInfoShouldReturnNothingWhenDirIsEmpty()
         {
             var (template, diags, _) = CompilationHelper.Compile(
-                ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('../../')"),
+                ("main.bicep", $"var fileObjs = loadDirectoryFileInfo('../../')"),
                 ("File.json", ""));
 
             using (new AssertionScope())
@@ -1152,11 +1152,11 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
 
 
         [TestMethod]
-        public void LoadDirectoryFileInformationErrorWhenFileDoesNotExist()
+        public void LoadDirectoryFileInfoErrorWhenFileDoesNotExist()
         {
             var directoryPath = "./nonExistingDirectory";
             var (template, diags, _) = CompilationHelper.Compile(
-                ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('{directoryPath}')"),
+                ("main.bicep", $"var fileObjs = loadDirectoryFileInfo('{directoryPath}')"),
                 ("File.json", ""));
 
             using (new AssertionScope())
@@ -1170,10 +1170,10 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
         [DataRow("/helloWorld")]
         [DataRow("/path/to")]
         [DataTestMethod]
-        public void LoadDirectoryFileInformationErrorWhenRootedPath(string rootedPath)
+        public void LoadDirectoryFileInfoErrorWhenRootedPath(string rootedPath)
         {
             var (template, diags, _) = CompilationHelper.Compile(
-                ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('{rootedPath}')"),
+                ("main.bicep", $"var fileObjs = loadDirectoryFileInfo('{rootedPath}')"),
                 ("File.json", ""));
 
             using (new AssertionScope())
@@ -1187,10 +1187,10 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
         [DataRow("C:/helloworld")]
         [DataRow("C:/path/to")]
         [DataTestMethod]
-        public void LoadDirectoryFileInformationErrorWhenRootedPathWindows(string rootedPath)
+        public void LoadDirectoryFileInfoErrorWhenRootedPathWindows(string rootedPath)
         {
             var (template, diags, _) = CompilationHelper.Compile(
-                ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('{rootedPath}')"),
+                ("main.bicep", $"var fileObjs = loadDirectoryFileInfo('{rootedPath}')"),
                 ("File.json", ""));
 
             using (new AssertionScope())
@@ -1203,10 +1203,10 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
         [DataRow(" ")]
         [DataRow(".")]
         [DataTestMethod]
-        public void LoadDirectoryFileInformationErrorWhenPathIsDotOrEmpty(string path)
+        public void LoadDirectoryFileInfoErrorWhenPathIsDotOrEmpty(string path)
         {
             var (template, diags, _) = CompilationHelper.Compile(
-                ("main.bicep", $"var fileObjs = loadDirectoryFileInformation('{path}')"),
+                ("main.bicep", $"var fileObjs = loadDirectoryFileInfo('{path}')"),
                 ("File.json", ""));
 
             using (new AssertionScope())

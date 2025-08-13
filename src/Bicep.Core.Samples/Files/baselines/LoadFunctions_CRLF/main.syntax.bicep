@@ -1,5 +1,5 @@
 var loadedText1 = loadTextContent('Assets/TextFile.CRLF.txt')
-//@[000:5305) ProgramSyntax
+//@[000:5291) ProgramSyntax
 //@[000:0061) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
 //@[004:0015) | ├─IdentifierSyntax
@@ -1029,40 +1029,40 @@ var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.product
 //@[103:0104) |   └─Token(RightParen) |)|
 //@[104:0108) ├─Token(NewLine) |\r\n\r\n|
 
-var directoryInfo = loadDirectoryFileInformation('./Assets')
-//@[000:0060) ├─VariableDeclarationSyntax
+var directoryInfo = loadDirectoryFileInfo('./Assets')
+//@[000:0053) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
 //@[004:0017) | ├─IdentifierSyntax
 //@[004:0017) | | └─Token(Identifier) |directoryInfo|
 //@[018:0019) | ├─Token(Assignment) |=|
-//@[020:0060) | └─FunctionCallSyntax
-//@[020:0048) |   ├─IdentifierSyntax
-//@[020:0048) |   | └─Token(Identifier) |loadDirectoryFileInformation|
-//@[048:0049) |   ├─Token(LeftParen) |(|
-//@[049:0059) |   ├─FunctionArgumentSyntax
-//@[049:0059) |   | └─StringSyntax
-//@[049:0059) |   |   └─Token(StringComplete) |'./Assets'|
-//@[059:0060) |   └─Token(RightParen) |)|
-//@[060:0062) ├─Token(NewLine) |\r\n|
-var directoryInfoWildcard = loadDirectoryFileInformation('./Assets', '*.txt')
-//@[000:0077) ├─VariableDeclarationSyntax
+//@[020:0053) | └─FunctionCallSyntax
+//@[020:0041) |   ├─IdentifierSyntax
+//@[020:0041) |   | └─Token(Identifier) |loadDirectoryFileInfo|
+//@[041:0042) |   ├─Token(LeftParen) |(|
+//@[042:0052) |   ├─FunctionArgumentSyntax
+//@[042:0052) |   | └─StringSyntax
+//@[042:0052) |   |   └─Token(StringComplete) |'./Assets'|
+//@[052:0053) |   └─Token(RightParen) |)|
+//@[053:0055) ├─Token(NewLine) |\r\n|
+var directoryInfoWildcard = loadDirectoryFileInfo('./Assets', '*.txt')
+//@[000:0070) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
 //@[004:0025) | ├─IdentifierSyntax
 //@[004:0025) | | └─Token(Identifier) |directoryInfoWildcard|
 //@[026:0027) | ├─Token(Assignment) |=|
-//@[028:0077) | └─FunctionCallSyntax
-//@[028:0056) |   ├─IdentifierSyntax
-//@[028:0056) |   | └─Token(Identifier) |loadDirectoryFileInformation|
-//@[056:0057) |   ├─Token(LeftParen) |(|
-//@[057:0067) |   ├─FunctionArgumentSyntax
-//@[057:0067) |   | └─StringSyntax
-//@[057:0067) |   |   └─Token(StringComplete) |'./Assets'|
-//@[067:0068) |   ├─Token(Comma) |,|
-//@[069:0076) |   ├─FunctionArgumentSyntax
-//@[069:0076) |   | └─StringSyntax
-//@[069:0076) |   |   └─Token(StringComplete) |'*.txt'|
-//@[076:0077) |   └─Token(RightParen) |)|
-//@[077:0081) ├─Token(NewLine) |\r\n\r\n|
+//@[028:0070) | └─FunctionCallSyntax
+//@[028:0049) |   ├─IdentifierSyntax
+//@[028:0049) |   | └─Token(Identifier) |loadDirectoryFileInfo|
+//@[049:0050) |   ├─Token(LeftParen) |(|
+//@[050:0060) |   ├─FunctionArgumentSyntax
+//@[050:0060) |   | └─StringSyntax
+//@[050:0060) |   |   └─Token(StringComplete) |'./Assets'|
+//@[060:0061) |   ├─Token(Comma) |,|
+//@[062:0069) |   ├─FunctionArgumentSyntax
+//@[062:0069) |   | └─StringSyntax
+//@[062:0069) |   |   └─Token(StringComplete) |'*.txt'|
+//@[069:0070) |   └─Token(RightParen) |)|
+//@[070:0074) ├─Token(NewLine) |\r\n\r\n|
 
 var testYaml = loadYamlContent('./Assets/test.yaml.txt')
 //@[000:0056) ├─VariableDeclarationSyntax

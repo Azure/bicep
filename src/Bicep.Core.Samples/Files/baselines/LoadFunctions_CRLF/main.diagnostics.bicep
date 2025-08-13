@@ -136,9 +136,9 @@ var testJsonNestedString2_2 = loadJsonContent('./Assets/test.json.txt', '.object
 var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.products[?(@.price > 3)].name')
 //@[04:25) [no-unused-vars (Warning)] Variable "testJsonTokensAsArray" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |testJsonTokensAsArray|
 
-var directoryInfo = loadDirectoryFileInformation('./Assets')
+var directoryInfo = loadDirectoryFileInfo('./Assets')
 //@[04:17) [no-unused-vars (Warning)] Variable "directoryInfo" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |directoryInfo|
-var directoryInfoWildcard = loadDirectoryFileInformation('./Assets', '*.txt')
+var directoryInfoWildcard = loadDirectoryFileInfo('./Assets', '*.txt')
 //@[04:25) [no-unused-vars (Warning)] Variable "directoryInfoWildcard" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |directoryInfoWildcard|
 
 var testYaml = loadYamlContent('./Assets/test.yaml.txt')

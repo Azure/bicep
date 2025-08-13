@@ -90,8 +90,8 @@ var testJsonNestedString2_2 = loadJsonContent('./Assets/test.json.txt', '.object
 
 var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.products[?(@.price > 3)].name')
 
-var directoryInfo = loadDirectoryFileInformation('./Assets')
-var directoryInfoWildcard = loadDirectoryFileInformation('./Assets', '*.txt')
+var directoryInfo = loadDirectoryFileInfo('./Assets')
+var directoryInfoWildcard = loadDirectoryFileInfo('./Assets', '*.txt')
 
 var testYaml = loadYamlContent('./Assets/test.yaml.txt')
 var testYamlString = testYaml.string

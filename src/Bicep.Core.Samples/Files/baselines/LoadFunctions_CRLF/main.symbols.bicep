@@ -136,10 +136,10 @@ var testJsonNestedString2_2 = loadJsonContent('./Assets/test.json.txt', '.object
 var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.products[?(@.price > 3)].name')
 //@[4:25) Variable testJsonTokensAsArray. Type: ('pizza' | 'salad')[]. Declaration start char: 0, length: 104
 
-var directoryInfo = loadDirectoryFileInformation('./Assets')
-//@[4:17) Variable directoryInfo. Type: (object | object | object | object | object | object | object | object | object | object | object | object)[]. Declaration start char: 0, length: 60
-var directoryInfoWildcard = loadDirectoryFileInformation('./Assets', '*.txt')
-//@[4:25) Variable directoryInfoWildcard. Type: (object | object | object | object | object | object | object | object | object | object | object)[]. Declaration start char: 0, length: 77
+var directoryInfo = loadDirectoryFileInfo('./Assets')
+//@[4:17) Variable directoryInfo. Type: (object | object | object | object | object | object | object | object | object | object | object | object)[]. Declaration start char: 0, length: 53
+var directoryInfoWildcard = loadDirectoryFileInfo('./Assets', '*.txt')
+//@[4:25) Variable directoryInfoWildcard. Type: (object | object | object | object | object | object | object | object | object | object | object)[]. Declaration start char: 0, length: 70
 
 var testYaml = loadYamlContent('./Assets/test.yaml.txt')
 //@[4:12) Variable testYaml. Type: object. Declaration start char: 0, length: 56

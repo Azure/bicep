@@ -1,5 +1,5 @@
 var loadedText1 = loadTextContent('Assets/TextFile.CRLF.txt')
-//@[00:5305) ProgramExpression
+//@[00:5291) ProgramExpression
 //@[00:0000) | └─ObjectExpression [UNPARENTED]
 //@[00:0000) |   ├─ObjectPropertyExpression [UNPARENTED]
 //@[00:0000) |   | ├─StringLiteralExpression { Value = string } [UNPARENTED]
@@ -581,14 +581,14 @@ var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.product
 //@[00:0104) ├─DeclaredVariableExpression { Name = testJsonTokensAsArray }
 //@[28:0104) | └─SynthesizedVariableReferenceExpression { Name = $fxv#22 }
 
-var directoryInfo = loadDirectoryFileInformation('./Assets')
-//@[20:0060) ├─DeclaredVariableExpression { Name = $fxv#23 }
-//@[00:0060) ├─DeclaredVariableExpression { Name = directoryInfo }
-//@[20:0060) | └─SynthesizedVariableReferenceExpression { Name = $fxv#23 }
-var directoryInfoWildcard = loadDirectoryFileInformation('./Assets', '*.txt')
-//@[28:0077) ├─DeclaredVariableExpression { Name = $fxv#24 }
-//@[00:0077) ├─DeclaredVariableExpression { Name = directoryInfoWildcard }
-//@[28:0077) | └─SynthesizedVariableReferenceExpression { Name = $fxv#24 }
+var directoryInfo = loadDirectoryFileInfo('./Assets')
+//@[20:0053) ├─DeclaredVariableExpression { Name = $fxv#23 }
+//@[00:0053) ├─DeclaredVariableExpression { Name = directoryInfo }
+//@[20:0053) | └─SynthesizedVariableReferenceExpression { Name = $fxv#23 }
+var directoryInfoWildcard = loadDirectoryFileInfo('./Assets', '*.txt')
+//@[28:0070) ├─DeclaredVariableExpression { Name = $fxv#24 }
+//@[00:0070) ├─DeclaredVariableExpression { Name = directoryInfoWildcard }
+//@[28:0070) | └─SynthesizedVariableReferenceExpression { Name = $fxv#24 }
 
 var testYaml = loadYamlContent('./Assets/test.yaml.txt')
 //@[15:0056) ├─DeclaredVariableExpression { Name = $fxv#25 }

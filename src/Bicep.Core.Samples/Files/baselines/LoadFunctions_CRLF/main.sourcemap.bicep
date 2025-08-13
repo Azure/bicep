@@ -237,9 +237,9 @@ var testJsonNestedString2_2 = loadJsonContent('./Assets/test.json.txt', '.object
 var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.products[?(@.price > 3)].name')
 //@    "testJsonTokensAsArray": "[variables('$fxv#22')]",
 
-var directoryInfo = loadDirectoryFileInformation('./Assets')
+var directoryInfo = loadDirectoryFileInfo('./Assets')
 //@    "directoryInfo": "[variables('$fxv#23')]",
-var directoryInfoWildcard = loadDirectoryFileInformation('./Assets', '*.txt')
+var directoryInfoWildcard = loadDirectoryFileInfo('./Assets', '*.txt')
 //@    "directoryInfoWildcard": "[variables('$fxv#24')]",
 
 var testYaml = loadYamlContent('./Assets/test.yaml.txt')

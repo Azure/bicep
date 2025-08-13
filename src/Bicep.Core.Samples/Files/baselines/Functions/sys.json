@@ -932,7 +932,7 @@
     ]
   },
   {
-    "name": "loadDirectoryFileInformation",
+    "name": "loadDirectoryFileInfo",
     "description": "Loads basic information about a directory's files as bicep object. File loading occurs during compilation, not at runtime.",
     "fixedParameters": [
       {

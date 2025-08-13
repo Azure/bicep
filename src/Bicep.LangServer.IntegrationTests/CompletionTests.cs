@@ -3905,7 +3905,7 @@ module foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
         [DataRow("loadFileAsBase64")]
         [DataRow("loadJsonContent", true)]
         [DataRow("loadYamlContent", false, true)]
-        [DataRow("loadDirectoryFileInformation", false, false, true)]
+        [DataRow("loadDirectoryFileInfo", false, false, true)]
         public async Task LoadFunctionsPathArgument_returnsFilesInCompletions(string functionName, bool jsonOnTop = false, bool yamlOnTop = false, bool directoryOnTop = false)
         {
             var mainUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
@@ -4039,7 +4039,7 @@ var file = " + functionName + @"('|')
         [DataRow("loadFileAsBase64")]
         [DataRow("loadJsonContent", true)]
         [DataRow("loadYamlContent", false, true)]
-        [DataRow("loadDirectoryFileInformation", false, false, true)]
+        [DataRow("loadDirectoryFileInfo", false, false, true)]
         public async Task LoadFunctionsPathArgument_returnsSymbolsAndFilePathsInCompletions(string functionName, bool jsonOnTop = false, bool yamlOnTop = false, bool directoryOnTop = false)
         {
             var mainUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
