@@ -59,11 +59,13 @@ namespace Bicep.Core.TypeSystem
                 ForSyntax => diagnosticBuilder.RuntimeValueNotAllowedInForExpression(accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
                 FunctionCallSyntaxBase functionCallSyntaxBase => diagnosticBuilder.RuntimeValueNotAllowedInRunTimeFunctionArguments(functionCallSyntaxBase.Name.IdentifierName, accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
                 FunctionDeclarationSyntax => diagnosticBuilder.RuntimeValueNotAllowedInFunctionDeclaration(accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
-                FunctionArgumentSyntax arg => diagnosticBuilder.RuntimeValueNotAllowedInFunctionArgument(
-                    GetFunctionAndParameterName(arg),
-                    accessedSymbolName,
-                    accessiblePropertyNames,
-                    variableDependencyChain),
+                FunctionArgumentSyntax arg when GetFunctionAndParameterName(arg) is { } parameterMetadata
+                    => diagnosticBuilder.RuntimeValueNotAllowedInFunctionArgument(
+                        parameterMetadata.functionName,
+                        parameterMetadata.parameterName,
+                        accessedSymbolName,
+                        accessiblePropertyNames,
+                        variableDependencyChain),
                 _ => throw new ArgumentOutOfRangeException(nameof(this.DeployTimeConstantContainer), "Expected an ObjectPropertySyntax with a propertyName, an IfConditionSyntax, a ForSyntax, a FunctionCallSyntaxBase, or a FunctionDeclarationSyntax."),
             };
 

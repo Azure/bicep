@@ -1946,11 +1946,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP427",
                 $"Environment variable \"{name}\" does not exist and there's no default value set.{suggestion}");
 
-            public Diagnostic RuntimeValueNotAllowedInFunctionArgument((string?, string?) parameterMetadata, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
+            public Diagnostic RuntimeValueNotAllowedInFunctionArgument(string? functionName, string? parameterName, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
             {
                 var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
                 var accessiblePropertiesClause = BuildAccessiblePropertiesClause(accessedSymbolName, accessiblePropertyNames);
-                var (functionName, parameterName) = parameterMetadata;
 
                 return CoreError(
                     "BCP428",
