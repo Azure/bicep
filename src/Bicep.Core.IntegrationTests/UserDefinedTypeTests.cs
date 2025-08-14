@@ -1932,4 +1932,26 @@ param myParam string
             ("BCP070", DiagnosticLevel.Error, "Argument of type \"int => error\" is not assignable to parameter of type \"any => bool\"."),
         ]);
     }
+
+    [TestMethod]
+    public void User_defined_validator_disallows_runtime_expressions()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, UserDefinedConstraintsEnabled: true)),
+            """
+            resource sa 'Microsoft.Storage/storageAccounts@2025-01-01' existing = {
+              name: 'acct'
+            }
+
+            var indirection = sa.properties.allowBlobPublicAccess
+
+            @validate(x => x == !indirection)
+            param foo bool
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
+            ("BCP428", DiagnosticLevel.Error, "This expression is being used in parameter \"predicate\" of the function \"validate\", which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start (\"indirection\" -> \"sa\"). Properties of sa which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
+        ]);
+    }
 }

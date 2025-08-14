@@ -2100,7 +2100,7 @@ namespace Bicep.Core.Semantics.Namespaces
                             name: "predicate",
                             type: OneParamLambda(LanguageConstants.Any, LanguageConstants.Bool),
                             description: "Validation predicate. Return true for valid values.",
-                            flags: FunctionParameterFlags.Required,
+                            flags: FunctionParameterFlags.Required | FunctionParameterFlags.DeployTimeConstant,
                             calculator: static (_, getAttachedType) => OneParamLambda(getAttachedType(), LanguageConstants.Bool))
                         .WithParameter(
                             name: "errorMessage",

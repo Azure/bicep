@@ -1945,6 +1945,17 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic EnvironmentVariableDoesNotExist(string name, string? suggestion) => CoreError(
                 "BCP427",
                 $"Environment variable \"{name}\" does not exist and there's no default value set.{suggestion}");
+
+            public Diagnostic RuntimeValueNotAllowedInFunctionArgument((string?, string?) parameterMetadata, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
+            {
+                var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
+                var accessiblePropertiesClause = BuildAccessiblePropertiesClause(accessedSymbolName, accessiblePropertyNames);
+                var (functionName, parameterName) = parameterMetadata;
+
+                return CoreError(
+                    "BCP428",
+                    $"This expression is being used in parameter \"{parameterName ?? "unknown"}\" of the function \"{functionName ?? "unknown"}\", which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
+            }
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
