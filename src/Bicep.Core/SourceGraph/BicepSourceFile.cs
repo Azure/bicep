@@ -121,7 +121,12 @@ namespace Bicep.Core.SourceGraph
             var directoryHandle = this.FileHandle.GetParent().GetDirectory(relativePath);
             if (!directoryHandle.Exists())
             {
-                return new (x => x.DirectoryDoesNotExist(relativePath));
+                if (this.FileHandle.GetParent().GetFile(relativePath).Exists())
+                {
+                    return new(x => x.FoundFileInsteadOfDirectory(relativePath));
+                }
+                
+                return new(x => x.DirectoryDoesNotExist(relativePath));
             }
 
             try
@@ -129,9 +134,9 @@ namespace Bicep.Core.SourceGraph
                 var handles = directoryHandle.EnumerateFiles(searchPattern);
                 return new(handles.Select(x => x.Uri));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return new (x => x.ErrorOccuredBrowsingDirectory(ex.Message));
+                return new(x => x.ErrorOccuredBrowsingDirectory(ex.Message));
             }
         }
 

@@ -1162,7 +1162,26 @@ var fileObj = loadYamlContent('file.yaml', '$', '" + encodingName + @"')
             using (new AssertionScope())
             {
                 template!.Should().BeNull();
-                diags.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] { ("BCP428", DiagnosticLevel.Error, $"Directory {directoryPath} does not exist or additional permissions are necessary to access it.") });
+                diags.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+                    ("BCP428", DiagnosticLevel.Error, $"Directory \"{directoryPath}\" does not exist or additional permissions are necessary to access it.")
+                ]);
+            }
+        }
+
+        [TestMethod]
+        public void LoadDirectoryFileInfo_returns_error_if_file_path_used_instead_of_dir()
+        {
+            var directoryPath = "./File.json";
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", $"var fileObjs = loadDirectoryFileInfo('{directoryPath}')"),
+                ("File.json", ""));
+
+            using (new AssertionScope())
+            {
+                template.Should().BeNull();
+                diags.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+                    ("BCP430", DiagnosticLevel.Error, $"Unable to open directory at path \"{directoryPath}\". Found a file instead.")
+                ]);
             }
         }
 

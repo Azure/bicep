@@ -1949,13 +1949,15 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic DirectoryDoesNotExist(string relativePath) => CoreError(
                 "BCP428",
-                $"Directory {relativePath} does not exist or additional permissions are necessary to access it."
-            );
+                $"Directory \"{relativePath}\" does not exist or additional permissions are necessary to access it.");
 
             public Diagnostic ErrorOccuredBrowsingDirectory(string exceptionMessage) => CoreError(
                 "BCP429",
-                $"An error occured browsing directory. {exceptionMessage}"
-            );
+                $"An error occured browsing directory. {exceptionMessage}");
+
+            public Diagnostic FoundFileInsteadOfDirectory(string filePath) => CoreError(
+                "BCP430",
+                $"Unable to open directory at path \"{filePath}\". Found a file instead.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
