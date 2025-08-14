@@ -149,6 +149,7 @@ namespace Bicep.Core
         public const string ParameterMaxValuePropertyName = "maxValue";
         public const string ParameterMinLengthPropertyName = "minLength";
         public const string ParameterMaxLengthPropertyName = "maxLength";
+        public const string ParameterUserDefinedConstraintPropertyName = "validate";
         public const string ParameterMetadataPropertyName = "metadata";
         public const string ParameterSealedPropertyName = "sealed";
         public const string MetadataDescriptionPropertyName = "description";

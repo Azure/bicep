@@ -1910,11 +1910,14 @@ param myParam string
         var result = CompilationHelper.Compile(
             new ServiceBuilder().WithFeatureOverrides(new(TestContext, UserDefinedConstraintsEnabled: true)),
             """
-            @validate(x => startsWith(x, 'foo'))
+            @validate(x => startsWith(x, 'foo'), 'Should have started with \'foo\'')
             param foo string
             """);
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveJsonAtPath("$.parameters.foo.validate",
+            """["[lambda('x', startsWith(lambdaVariables('x'), 'foo'))]", "Should have started with 'foo'"]""");
     }
 
     [TestMethod]

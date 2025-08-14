@@ -2107,6 +2107,18 @@ namespace Bicep.Core.Semantics.Namespaces
                             type: LanguageConstants.String,
                             description: "Error message to use when the value is not valid according to the predicate.",
                             flags: FunctionParameterFlags.Constant)
+                        .WithEvaluator(static (functionCall, decorated) =>
+                        {
+                            if (decorated is TypeDeclaringExpression typeDeclaringExpression)
+                            {
+                                return typeDeclaringExpression with
+                                {
+                                    UserDefinedConstraint = new ArrayExpression(functionCall.SourceSyntax, functionCall.Parameters),
+                                };
+                            }
+
+                            return decorated;
+                        })
                         .Build();
                 }
             }
