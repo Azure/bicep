@@ -609,6 +609,11 @@ namespace Bicep.Core.Emit
             ParameterAssignmentEvaluator evaluator,
             IDiagnosticWriter diagnostics)
         {
+            if (model.HasParsingErrors())
+            {
+                return ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue>.Empty;
+            }
+
             var referencesInValues = model.Binder.Bindings.Values.OfType<DeclaredSymbol>().Distinct()
                 .ToImmutableDictionary(p => p, p => SymbolicReferenceCollector.CollectSymbolsReferenced(model.Binder, p.DeclaringSyntax));
             var generated = ImmutableDictionary.CreateBuilder<ParameterAssignmentSymbol, ParameterAssignmentValue>();
