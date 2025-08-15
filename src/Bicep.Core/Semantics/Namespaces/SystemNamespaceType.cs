@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Text;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Navigation;
@@ -19,6 +20,7 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 using static Bicep.Core.Semantics.FunctionOverloadBuilder;
@@ -28,6 +30,7 @@ namespace Bicep.Core.Semantics.Namespaces
     public static class SystemNamespaceType
     {
         private record LoadTextContentResult(IOUri FileUri, string Content);
+        private record struct LoadDirectoryFileInfoResult(string RelativePath, string BaseName, string Extension);
 
         public const string BuiltInName = "sys";
         public const long UniqueStringHashLength = 13;
@@ -1249,6 +1252,14 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("message", LanguageConstants.String, "The error message to use.")
                     .WithReturnType(LanguageConstants.Never)
                     .Build();
+
+                yield return new FunctionOverloadBuilder("loadDirectoryFileInfo")
+                    .WithGenericDescription($"Loads basic information about a directory's files as bicep object. File loading occurs during compilation, not at runtime.")
+                    .WithRequiredParameter("directoryPath", LanguageConstants.StringDirectoryPath, "The path to the directory that will be loaded.")
+                    .WithOptionalParameter("searchPattern", LanguageConstants.String, "The searchPattern is a glob pattern to narrow down the loaded files. If not provided, all files are loaded. Supports both any number of characters '*' and any single character '?' wildcards.")
+                    .WithReturnResultBuilder(LoadDirectoryFileInfoResultBuilder, LanguageConstants.Any)
+                    .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
+                    .Build();
             }
 
             static IEnumerable<FunctionOverload> GetParamsFilePermittedOverloads(IFeatureProvider featureProvider)
@@ -2243,6 +2254,62 @@ namespace Bicep.Core.Semantics.Namespaces
                 };
             }
             return decorated;
+        }
+
+        private static FunctionResult LoadDirectoryFileInfoResultBuilder(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        {
+            var arguments = functionCall.Arguments;
+            var pathSearchPattern = string.Empty;
+            if (arguments.Length > 1)
+            {
+                if (argumentTypes[1] is not StringLiteralType tokenSelectorType)
+                {
+                    return new FunctionResult(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).CompileTimeConstantRequired()));
+                }
+                pathSearchPattern = tokenSelectorType.RawStringValue;
+            }
+
+            if (TryLoadFilesFromDirectoryPath(model, (arguments[0], argumentTypes[0]), pathSearchPattern)
+                    .IsSuccess(out var result, out var errorDiagnostic))
+            {
+                var token = result
+                    // ensure determinism by ordering the results
+                    .OrderByAscending(x => x.RelativePath, StringComparer.OrdinalIgnoreCase)
+                    .ToJToken();
+                
+                return new FunctionResult(ConvertJsonToBicepType(token), ConvertJsonToExpression(token));
+            }
+
+            return new FunctionResult(ErrorType.Create(errorDiagnostic));
+        }
+
+        private static ResultWithDiagnostic<IEnumerable<LoadDirectoryFileInfoResult>> TryLoadFilesFromDirectoryPath(SemanticModel model, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) directoryPathArgument, string pathSearchPattern)
+        {
+            if (directoryPathArgument.typeSymbol is not StringLiteralType directoryPathType)
+            {
+                return new(DiagnosticBuilder.ForPosition(directoryPathArgument.syntax).CompileTimeConstantRequired());
+            }
+
+            var directoryFileLoadResult = RelativePath.TryCreate(directoryPathType.RawStringValue).Transform(path => model.SourceFile.TryListFilesInDirectory(path, pathSearchPattern));
+
+            if (!directoryFileLoadResult.IsSuccess(out var directoryFiles, out var errorBuilder))
+            {
+                return new(errorBuilder(DiagnosticBuilder.ForPosition(directoryPathArgument.syntax)));
+            }
+            
+            var thisFileUri = model.SourceFile.Uri.ToIOUri();
+            return new (directoryFiles.Select(uri =>
+            {
+                var baseName = uri.GetFileName();
+                var extension = uri.GetExtension().ToString();
+                // avoid returning "" if the file is the same as the current file
+                var relativePath = uri == thisFileUri ? baseName : uri.GetPathRelativeTo(thisFileUri);
+
+                return new LoadDirectoryFileInfoResult(
+                    RelativePath: relativePath,
+                    BaseName: baseName,
+                    Extension: extension);
+            }));
         }
     }
 }

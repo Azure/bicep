@@ -1442,7 +1442,9 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetFileCompletionPaths(SemanticModel model, BicepCompletionContext context, TypeSymbol argType)
         {
-            if (context.FunctionArgument is not { } functionArgument || !argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath))
+            if (context.FunctionArgument is not { } functionArgument ||
+                !argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath) &&
+                !argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringDirectoryPath))
             {
                 return [];
             }
@@ -1455,6 +1457,11 @@ namespace Bicep.LanguageServer.Completions
             if (TryGetFilesForPathCompletions(model.SourceFile.FileHandle, entered) is not { } fileCompletionInfo)
             {
                 return [];
+            }
+
+            if (argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringDirectoryPath))
+            {
+                return CreateDirectoryCompletionItems(context.ReplacementRange, fileCompletionInfo, CompletionPriority.High);
             }
 
             IEnumerable<CompletionItem> fileItems;
@@ -1477,7 +1484,7 @@ namespace Bicep.LanguageServer.Completions
                 fileItems = CreateFileCompletionItems(model.SourceFile.FileHandle, context.ReplacementRange, fileCompletionInfo, (_) => true, CompletionPriority.High);
             }
 
-            var dirItems = CreateDirectoryCompletionItems(context.ReplacementRange, fileCompletionInfo, CompletionPriority.Medium);
+            var dirItems = CreateDirectoryCompletionItems(context.ReplacementRange, fileCompletionInfo,CompletionPriority.Medium);
 
             return fileItems.Concat(dirItems);
         }
@@ -1493,7 +1500,8 @@ namespace Bicep.LanguageServer.Completions
 
                     break;
 
-                case StringType when type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath):
+                case StringType when type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath) ||
+                    type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringDirectoryPath):
                     foreach (var completion in GetFileCompletionPaths(model, context, type))
                     {
                         yield return completion;
