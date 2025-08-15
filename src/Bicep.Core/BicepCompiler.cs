@@ -47,7 +47,7 @@ public class BicepCompiler
     public Compilation CreateCompilationWithoutRestore(Uri bicepUri, IReadOnlyWorkspace? workspace = null, bool markAllForRestore = false)
     {
         workspace ??= new Workspace();
-        var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileExplorer, moduleDispatcher, workspace, this.SourceFileFactory, bicepUri, markAllForRestore);
+        var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileExplorer, moduleDispatcher, workspace, this.SourceFileFactory, bicepUri.ToIOUri(), markAllForRestore);
 
         return Create(sourceFileGrouping);
     }

@@ -192,13 +192,13 @@ module main 'main.bicep' = {
         [TestMethod]
         public void SourceFileGroupingBuilder_build_should_throw_diagnostic_exception_if_entrypoint_file_read_fails()
         {
-            var fileUri = new Uri("file:///path/to/main.bicep");
+            var fileUri = new IOUri("file", "", "/path/to/main.bicep");
 
             var fileHandleMock = StrictMock.Of<IFileHandle>();
             fileHandleMock.Setup(x => x.OpenRead()).Throws(new IOException("Mock read failure!"));
 
             var fileExplorerMock = StrictMock.Of<IFileExplorer>();
-            fileExplorerMock.Setup(x => x.GetFile(fileUri.ToIOUri())).Returns(fileHandleMock.Object);
+            fileExplorerMock.Setup(x => x.GetFile(fileUri)).Returns(fileHandleMock.Object);
 
             var mockDispatcher = StrictMock.Of<IModuleDispatcher>().Object;
 

@@ -31,7 +31,7 @@ public record SourceFileGrouping(
     ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup,
     ImmutableDictionary<IArtifactReferenceSyntax, ArtifactResolutionInfo> ArtifactLookup,
     ImmutableDictionary<ISourceFile, ImmutableHashSet<ImplicitExtension>> ImplicitExtensions,
-    ImmutableDictionary<Uri, ResultWithDiagnosticBuilder<ISourceFile>> SourceFileLookup) : IArtifactFileLookup
+    ImmutableDictionary<IOUri, ResultWithDiagnosticBuilder<ISourceFile>> SourceFileLookup) : IArtifactFileLookup
 {
     public IEnumerable<ArtifactResolutionInfo> GetArtifactsToRestore(bool force = false)
     {
@@ -61,7 +61,7 @@ public record SourceFileGrouping(
             return new(errorBuilder);
         }
 
-        return SourceFileLookup[fileHandle.Uri.ToUri()];
+        return SourceFileLookup[fileHandle.Uri];
     }
 
     public FrozenSet<ISourceFile> GetSourceFilesDependingOn(ISourceFile sourceFile)

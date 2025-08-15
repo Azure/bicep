@@ -127,7 +127,7 @@ namespace Bicep.Core.SourceLink
                 {
                     if (artifactResolutionInfo.Syntax is { Path: { } path } &&
                         artifactResolutionInfo.Result.TryUnwrap() is { } fileHandle &&
-                        sourceFileGrouping.SourceFileLookup[fileHandle.Uri.ToUri()].IsSuccess(out var referencedFile) &&
+                        sourceFileGrouping.SourceFileLookup[fileHandle.Uri].IsSuccess(out var referencedFile) &&
                         ShouldArchiveSourceFile(referencedFile))
                     {
                         var start = new TextPosition(TextCoordinateConverter.GetPosition(referencingFile.LineStarts, path.Span.Position));
