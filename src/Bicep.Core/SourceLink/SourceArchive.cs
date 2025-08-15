@@ -127,7 +127,7 @@ namespace Bicep.Core.SourceLink
                 {
                     if (artifactResolutionInfo.Syntax is { Path: { } path } &&
                         artifactResolutionInfo.Result.TryUnwrap() is { } fileHandle &&
-                        sourceFileGrouping.SourceFileLookup.TryGetValue(fileHandle.Uri.ToUri(), out var sourceFileResult) &&
+                        sourceFileGrouping.SourceFileLookup.TryGetValue(fileHandle.Uri, out var sourceFileResult) &&
                         sourceFileResult.IsSuccess(out var referencedFile) &&
                         ShouldArchiveSourceFile(referencedFile))
                     {
