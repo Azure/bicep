@@ -75,7 +75,7 @@ namespace Bicep.Cli.Commands
                 return 0;
             }
 
-            var compilation = await compiler.CreateCompilation(inputUri.ToUri(), skipRestore: args.NoRestore);
+            var compilation = await compiler.CreateCompilation(inputUri, skipRestore: args.NoRestore);
             var result = compilation.Emitter.Template();
 
             var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, result.Diagnostics);

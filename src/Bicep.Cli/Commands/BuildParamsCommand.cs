@@ -56,7 +56,7 @@ public class BuildParamsCommand(
     private async Task<DiagnosticSummary> Compile(Workspace? workspace, IOUri inputUri, IOUri? bicepFileUri, IOUri outputUri, bool noRestore, DiagnosticsFormat? diagnosticsFormat, bool outputToStdOut)
     {
         var compilation = await compiler.CreateCompilation(
-            inputUri.ToUri(),
+            inputUri,
             workspace,
             skipRestore: noRestore);
 

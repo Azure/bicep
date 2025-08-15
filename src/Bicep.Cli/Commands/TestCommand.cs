@@ -55,7 +55,7 @@ namespace Bicep.Cli.Commands
 
             logger.LogWarning(string.Format(CliResources.ExperimentalFeaturesDisclaimerMessage, "TestFramework"));
 
-            var compilation = await compiler.CreateCompilation(inputUri.ToUri(), skipRestore: args.NoRestore);
+            var compilation = await compiler.CreateCompilation(inputUri, skipRestore: args.NoRestore);
 
             var summary = diagnosticLogger.LogDiagnostics(GetDiagnosticOptions(args), compilation);
 

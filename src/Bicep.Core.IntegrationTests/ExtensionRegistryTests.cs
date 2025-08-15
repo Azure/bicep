@@ -3,6 +3,7 @@
 
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry.Extensions;
 using Bicep.Core.UnitTests;
@@ -128,7 +129,7 @@ public class ExtensionRegistryTests : TestBase
 
 
         var compiler = services.Build().GetCompiler();
-        var compilation = await compiler.CreateCompilation(bicepUri);
+        var compilation = await compiler.CreateCompilation(bicepUri.ToIOUri());
 
         var result = CompilationHelper.GetCompilationResult(compilation);
 

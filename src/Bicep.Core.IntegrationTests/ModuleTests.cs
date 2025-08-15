@@ -362,7 +362,7 @@ module modulea 'modulea.bicep' = {
             fileExplorer.GetFile(mainUri.ToIOUri()).Write(mainFileContents);
 
             var compiler = ServiceBuilder.Create(s => s.WithFileExplorer(fileExplorer).WithDisabledAnalyzersConfiguration()).GetCompiler();
-            var compilation = await compiler.CreateCompilation(mainUri);
+            var compilation = await compiler.CreateCompilation(mainUri.ToIOUri());
 
             var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {

@@ -81,7 +81,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
 
         var workspace = new Workspace();
         workspace.UpsertSourceFile(paramFile);
-        compilation = await compiler.CreateCompilation(paramFile.Uri, workspace);
+        compilation = await compiler.CreateCompilation(paramFile.FileHandle.Uri, workspace);
         var paramsResult = compilation.Emitter.Parameters();
 
         return new(
@@ -281,7 +281,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
             throw new InvalidOperationException($"Invalid file path: {fileUri}");
         }
 
-        var compilation = await compiler.CreateCompilation(fileUri.ToUri());
+        var compilation = await compiler.CreateCompilation(fileUri);
 
         return compilation;
     }
