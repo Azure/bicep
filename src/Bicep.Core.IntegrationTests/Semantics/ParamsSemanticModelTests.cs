@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
@@ -22,7 +23,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         private async Task<SemanticModel> CreateSemanticModel(ServiceBuilder services, string paramsFilePath)
         {
             var compiler = services.Build().GetCompiler();
-            var compilation = await compiler.CreateCompilation(PathHelper.FilePathToFileUrl(paramsFilePath));
+            var compilation = await compiler.CreateCompilation(PathHelper.FilePathToFileUrl(paramsFilePath).ToIOUri());
 
             return compilation.GetEntrypointSemanticModel();
         }

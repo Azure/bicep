@@ -35,7 +35,7 @@ public class LintCommand(
 
     private async Task<DiagnosticSummary> Lint(IOUri inputUri, bool noRestore, DiagnosticsFormat? diagnosticsFormat)
     {
-        var compilation = await compiler.CreateCompilation(inputUri.ToUri(), skipRestore: noRestore);
+        var compilation = await compiler.CreateCompilation(inputUri, skipRestore: noRestore);
         CommandHelper.LogExperimentalWarning(logger, compilation);
 
         var summary = diagnosticLogger.LogDiagnostics(ArgumentHelper.GetDiagnosticOptions(diagnosticsFormat) with { SarifToStdout = true }, compilation);

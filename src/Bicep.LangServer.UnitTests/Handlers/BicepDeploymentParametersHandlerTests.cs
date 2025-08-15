@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -778,7 +779,7 @@ param test foo", ParameterType.Array)]
             var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, outputPath);
             var compiler = new ServiceBuilder().Build().GetCompiler();
-            var compilation = await compiler.CreateCompilation(PathHelper.FilePathToFileUrl(bicepFilePath));
+            var compilation = await compiler.CreateCompilation(PathHelper.FilePathToFileUrl(bicepFilePath).ToIOUri());
             var parameterSymbol = compilation.GetEntrypointSemanticModel().Binder.FileSymbol.ParameterDeclarations.Single();
 
             var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, string.Empty);

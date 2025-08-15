@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
@@ -60,7 +61,7 @@ namespace Bicep.Core.IntegrationTests
                 .Build();
 
             var compiler = services.GetCompiler();
-            var compilation = await compiler.CreateCompilation(fileUri);
+            var compilation = await compiler.CreateCompilation(fileUri.ToIOUri());
 
             var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
             diagnostics.Should().HaveCount(1);

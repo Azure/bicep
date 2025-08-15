@@ -31,7 +31,7 @@ public class RestoreCommand(
 
     private async Task<DiagnosticSummary> Restore(IOUri inputUri, bool force)
     {
-        var compilation = compiler.CreateCompilationWithoutRestore(inputUri.ToUri(), markAllForRestore: force);
+        var compilation = compiler.CreateCompilationWithoutRestore(inputUri, markAllForRestore: force);
         var restoreDiagnostics = await compiler.Restore(compilation, forceRestore: force);
 
         var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, restoreDiagnostics);

@@ -3,6 +3,7 @@
 using System.Collections.Immutable;
 using BenchmarkDotNet.Attributes;
 using Bicep.Core;
+using Bicep.Core.Extensions;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
@@ -47,7 +48,7 @@ public class PrettyPrint
 
         foreach (var dataSet in dataSets)
         {
-            var compilation = await compiler.CreateCompilation(new Uri($"file:///{dataSet.Name}/main.bicep"), skipRestore: true);
+            var compilation = await compiler.CreateCompilation(new Uri($"file:///{dataSet.Name}/main.bicep").ToIOUri(), skipRestore: true);
             var semanticModel = compilation.GetEntrypointSemanticModel();
             var context = PrettyPrinterV2Context.From(semanticModel);
 

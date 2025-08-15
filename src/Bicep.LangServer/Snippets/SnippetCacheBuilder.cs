@@ -183,7 +183,7 @@ public class SnippetCacheBuilder
         var workspace = new Workspace();
         workspace.UpsertSourceFiles(bicepFile.AsEnumerable());
 
-        var compilation = await bicepCompiler.CreateCompilation(bicepFile.Uri, workspace, skipRestore: true);
+        var compilation = await bicepCompiler.CreateCompilation(bicepFile.FileHandle.Uri, workspace, skipRestore: true);
         var semanticModel = compilation.GetEntrypointSemanticModel();
 
         return ResourceDependencyVisitor.GetResourceDependencies(semanticModel);

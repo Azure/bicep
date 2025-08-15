@@ -90,7 +90,7 @@ public class SnapshotCommand(
 
     private async Task<Snapshot?> GetSnapshot(SnapshotArguments arguments, IOUri inputUri, bool noRestore, CancellationToken cancellationToken)
     {
-        var compilation = await compiler.CreateCompilation(inputUri.ToUri(), skipRestore: noRestore);
+        var compilation = await compiler.CreateCompilation(inputUri, skipRestore: noRestore);
         CommandHelper.LogExperimentalWarning(logger, compilation);
 
         var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, compilation);

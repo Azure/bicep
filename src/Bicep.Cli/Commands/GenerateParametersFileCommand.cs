@@ -43,7 +43,7 @@ namespace Bicep.Cli.Commands
             var (inputUri, outputUri) = this.inputOutputArgumentsResolver.ResolveInputOutputArguments(args);
             ArgumentHelper.ValidateBicepFile(inputUri);
 
-            var compilation = await compiler.CreateCompilation(inputUri.ToUri(), forceRestore: args.NoRestore);
+            var compilation = await compiler.CreateCompilation(inputUri, forceRestore: args.NoRestore);
             CommandHelper.LogExperimentalWarning(logger, compilation);
 
             var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, compilation);
