@@ -5,7 +5,9 @@ using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Emit.Options;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Json;
 using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Utils;
@@ -23,85 +25,73 @@ namespace Bicep.LanguageServer.Handlers
     public class BicepBuildParamsCommandHandler : ExecuteTypedResponseCommandHandlerBase<DocumentUri, string>
     {
         private readonly ICompilationManager compilationManager;
+        private readonly IFileExplorer fileExplorer;
         private readonly BicepCompiler bicepCompiler;
 
-        public BicepBuildParamsCommandHandler(ICompilationManager compilationManager, BicepCompiler bicepCompiler, ISerializer serializer)
+        public BicepBuildParamsCommandHandler(ICompilationManager compilationManager, IFileExplorer fileExplorer, BicepCompiler bicepCompiler, ISerializer serializer)
             : base(LangServerConstants.BuildParamsCommand, serializer)
         {
             this.compilationManager = compilationManager;
+            this.fileExplorer = fileExplorer;
             this.bicepCompiler = bicepCompiler;
         }
 
         public override async Task<string> Handle(DocumentUri documentUri, CancellationToken cancellationToken)
         {
-            var filePath = HandlerHelper.ValidateLocalFilePath(documentUri);
-            string output = await GenerateCompiledParametersFileAndReturnOutputMessage(filePath, documentUri);
+            string output = await GenerateCompiledParametersFileAndReturnOutputMessage(documentUri);
 
             return output;
         }
 
-        private async Task<string> GenerateCompiledParametersFileAndReturnOutputMessage(string bicepParamsFilePath, DocumentUri documentUri)
+        private async Task<string> GenerateCompiledParametersFileAndReturnOutputMessage(DocumentUri documentUri)
         {
-            var compiledFilePath = PathHelper.ResolveParametersFileOutputPath(bicepParamsFilePath, OutputFormatOption.Json);
-            var compiledFile = Path.GetFileName(compiledFilePath);
+            var bicepParamFileUri = documentUri.ToIOUri();
+            var jsonParamFileUri = bicepParamFileUri.WithExtension(".parameters.json");
+            var jsonParamFile = this.fileExplorer.GetFile(jsonParamFileUri);
 
             // If the template exists and has a .json extension and contains the Bicep metadata, fail the build params.
             // If not, continue to update the file.
-            if (PathHelper.HasArmTemplateLikeExtension(new Uri(compiledFilePath)) && File.Exists(compiledFilePath) && !TemplateIsParametersFile(File.ReadAllText(compiledFilePath)))
+            if (jsonParamFile.Exists() && !ContainsDeploymentParametersSchema(jsonParamFile))
             {
-                return "Building parameters file failed. The file \"" + compiledFile + "\" already exists. If overwriting the file is intended, delete it manually and retry the Build Parameters command.";
+                return $@"Building parameters file failed. The file ""{jsonParamFileUri}"" already exists. If overwriting the file is intended, delete it manually and retry the Build Parameters command.";
             }
 
             var compilation = await new CompilationHelper(bicepCompiler, compilationManager).GetRefreshedCompilation(documentUri);
-            var fileUri = documentUri.ToIOUri();
+            var paramSemanticModel = compilation.GetEntrypointSemanticModel();
 
-            var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().FirstOrDefault(x => x.Key.FileHandle.Uri == fileUri);
-
-            if (diagnosticsByFile.Value.Any(x => x.IsError()))
+            if (paramSemanticModel.HasErrors())
             {
+                var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().FirstOrDefault(x => x.Key.FileHandle.Uri.Equals(bicepParamFileUri));
+
                 return "Building parameters file failed. Please fix below errors:\n" + DiagnosticsHelper.GetDiagnosticsMessage(diagnosticsByFile);
             }
 
-            var paramsSemanticModel = compilation.GetEntrypointSemanticModel();
+            var emitter = new TemplateEmitter(paramSemanticModel);
+            using var fileStream = jsonParamFile.OpenWrite();
+            var result = new ParametersEmitter(paramSemanticModel).Emit(fileStream);
 
-            if (paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess())
-            {
-                static string DefaultOutputPath(string path) => PathHelper.GetJsonOutputPath(path);
-                var paramsOutputPath = PathHelper.ResolveOutputPath(bicepParamsFilePath, null, compiledFilePath, DefaultOutputPath);
-
-                var model = compilation.GetEntrypointSemanticModel();
-                var emitter = new TemplateEmitter(model);
-
-                using var fileStream = new FileStream(compiledFilePath, FileMode.Create, FileAccess.Write);
-
-                var result = new ParametersEmitter(model).Emit(fileStream);
-            }
-
-            return "Building parameters file succeeded. Processed file " + compiledFile;
+            return $"Building parameters file succeeded. Processed file {jsonParamFileUri}";
         }
 
         // Returns true if the template contains the parameters file schema, false otherwise
-        public bool TemplateIsParametersFile(string template)
+        private static bool ContainsDeploymentParametersSchema(IFileHandle parametersFile)
         {
             try
             {
-                if (!string.IsNullOrEmpty(template))
-                {
-                    JToken jtoken = template.FromJson<JToken>();
-                    var schema = jtoken.SelectToken("$schema")?.ToString();
 
-                    if (schema != null && schema.ContainsInsensitively("deploymentParameters.json"))
-                    {
-                        return true;
-                    }
-                }
+                var parametersText = parametersFile.ReadAllText();
+                var parametersElement = JsonElementFactory.CreateElement(parametersText);
+
+                return
+                    parametersElement.TryGetProperty("$schema", out var schemaElement) &&
+                    schemaElement.GetString() is { } schema &&
+                    schema.Contains("deploymentParameters.json", StringComparison.OrdinalIgnoreCase);
+
             }
             catch (Exception)
             {
                 return false;
             }
-
-            return false;
         }
     }
 }
