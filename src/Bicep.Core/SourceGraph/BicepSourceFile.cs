@@ -125,7 +125,7 @@ namespace Bicep.Core.SourceGraph
                 {
                     return new(x => x.FoundFileInsteadOfDirectory(relativePath));
                 }
-                
+
                 return new(x => x.DirectoryDoesNotExist(relativePath));
             }
 
