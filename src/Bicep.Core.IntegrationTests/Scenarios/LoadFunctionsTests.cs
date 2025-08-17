@@ -1050,7 +1050,7 @@ var fileObj = loadYamlContent('file.yaml', '" + path + @"')
             }
         }
 
-        private readonly  string  TEST_FILES_ARM = """
+        private readonly string TEST_FILES_ARM = """
                                                       [
                                                         {
                                                           "relativePath": "File.json",

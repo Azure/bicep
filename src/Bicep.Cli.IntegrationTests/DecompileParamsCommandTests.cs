@@ -236,7 +236,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var (jsonPath, _) = Setup(TestContext, paramFile);
             var customOutputPath = FileHelper.GetResultFilePath(TestContext, "existing-file.bicepparam");
-            
+
             // Create the file that already exists
             File.WriteAllText(customOutputPath, "existing content");
 
@@ -277,7 +277,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var (jsonPath, _) = Setup(TestContext, paramFile);
             var customOutputPath = FileHelper.GetResultFilePath(TestContext, "force-overwrite.bicepparam");
-            
+
             // Create the file that already exists
             File.WriteAllText(customOutputPath, "existing content");
 

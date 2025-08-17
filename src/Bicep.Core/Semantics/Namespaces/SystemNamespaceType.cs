@@ -2276,7 +2276,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     // ensure determinism by ordering the results
                     .OrderByAscending(x => x.RelativePath, StringComparer.OrdinalIgnoreCase)
                     .ToJToken();
-                
+
                 return new FunctionResult(ConvertJsonToBicepType(token), ConvertJsonToExpression(token));
             }
 
@@ -2296,9 +2296,9 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 return new(errorBuilder(DiagnosticBuilder.ForPosition(directoryPathArgument.syntax)));
             }
-            
+
             var thisFileUri = model.SourceFile.Uri.ToIOUri();
-            return new (directoryFiles.Select(uri =>
+            return new(directoryFiles.Select(uri =>
             {
                 var baseName = uri.GetFileName();
                 var extension = uri.GetExtension().ToString();
