@@ -110,6 +110,36 @@ namespace Bicep.Core.SourceGraph
                 });
         }
 
+        public ResultWithDiagnosticBuilder<IEnumerable<IOUri>> TryListFilesInDirectory(RelativePath relativePath, string searchPattern = "")
+        {
+            if (this.FileHandle is DummyFileHandle)
+            {
+                // This is only invoked when building SnippetCache. The error is swallowed.
+                return new(x => x.ErrorOccurredReadingFile("Cannot load auxiliary file from dummy file handle"));
+            }
+
+            var directoryHandle = this.FileHandle.GetParent().GetDirectory(relativePath);
+            if (!directoryHandle.Exists())
+            {
+                if (this.FileHandle.GetParent().GetFile(relativePath).Exists())
+                {
+                    return new(x => x.FoundFileInsteadOfDirectory(relativePath));
+                }
+
+                return new(x => x.DirectoryDoesNotExist(relativePath));
+            }
+
+            try
+            {
+                var handles = directoryHandle.EnumerateFiles(searchPattern);
+                return new(handles.Select(x => x.Uri));
+            }
+            catch (Exception ex)
+            {
+                return new(x => x.ErrorOccuredBrowsingDirectory(ex.Message));
+            }
+        }
+
         public FrozenSet<IOUri> GetReferencedAuxiliaryFileUris() => this.referencedAuxiliaryFileUris.ToFrozenSet();
 
         public bool IsReferencingAuxiliaryFile(IOUri uri) => this.referencedAuxiliaryFileUris.Contains(uri);

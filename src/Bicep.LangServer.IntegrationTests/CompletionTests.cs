@@ -2929,7 +2929,7 @@ var test = getPath({path:|})
         [TestMethod]
         public async Task Imported_func_usage_param_property_completions_are_offered()
         {
-            var modContent = """              
+            var modContent = """
 type PathExtension = {
 path: string
 }
@@ -3905,7 +3905,8 @@ module foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
         [DataRow("loadFileAsBase64")]
         [DataRow("loadJsonContent", true)]
         [DataRow("loadYamlContent", false, true)]
-        public async Task LoadFunctionsPathArgument_returnsFilesInCompletions(string functionName, bool jsonOnTop = false, bool ymalOnTop = false)
+        [DataRow("loadDirectoryFileInfo", false, false, true)]
+        public async Task LoadFunctionsPathArgument_returnsFilesInCompletions(string functionName, bool jsonOnTop = false, bool yamlOnTop = false, bool directoryOnTop = false)
         {
             var mainUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
 
@@ -3935,6 +3936,12 @@ var file = " + functionName + @"('|')
                 [InMemoryFileResolver.GetFileUri("/path/to/module1.txt")] = "param foo string",
                 [InMemoryFileResolver.GetFileUri("/path/to/module2.bicep")] = "param bar bool",
                 [InMemoryFileResolver.GetFileUri("/path/to/module3.bicep")] = "",
+                [InMemoryFileResolver.GetFileUri("/path/to/moduleFolder1/module.bicep")] = "",
+                [InMemoryFileResolver.GetFileUri("/path/to/moduleFolder2/module.bicep")] = "",
+                [InMemoryFileResolver.GetFileUri("/path/to/moduleFolder3/module.bicep")] = "",
+                [InMemoryFileResolver.GetFileUri("/path/to/moduleFolder4/module.bicep")] = "",
+                [InMemoryFileResolver.GetFileUri("/path/to/moduleFolder5/module.bicep")] = "",
+                [InMemoryFileResolver.GetFileUri("/path/to/moduleFolder6/module.bicep")] = "",
             };
 
             using var helper = await LanguageServerHelper.StartServerWithText(
@@ -3947,7 +3954,7 @@ var file = " + functionName + @"('|')
 
             var completions = await file.RequestAndResolveCompletions(cursor);
 
-            var completionItems = completions.Where(x => x.Kind == CompletionItemKind.File).OrderBy(x => x.SortText);
+            var completionItems = completions.Where(x => !directoryOnTop ? x.Kind == CompletionItemKind.File : x.Kind == CompletionItemKind.Folder).OrderBy(x => x.SortText);
             if (jsonOnTop)
             {
                 completionItems.Should().SatisfyRespectively(
@@ -3969,7 +3976,7 @@ var file = " + functionName + @"('|')
                     x => x.Label.Should().Be("yaml2.yaml")
                 );
             }
-            else if (ymalOnTop)
+            else if (yamlOnTop)
             {
                 completionItems.Should().SatisfyRespectively(
                     x => x.Label.Should().Be("template6.yaml"),
@@ -3989,6 +3996,20 @@ var file = " + functionName + @"('|')
                     x => x.Label.Should().Be("template4.json"),
                     x => x.Label.Should().Be("template5.json")
                 );
+            }
+            else if (directoryOnTop)
+            {
+                completionItems.Should().SatisfyRespectively(
+                    x => x.Label.Should().Be("../"),
+                    x => x.Label.Should().Be("moduleFolder1/"),
+                        x => x.Label.Should().Be("moduleFolder2/"),
+                        x => x.Label.Should().Be("moduleFolder3/"),
+                        x => x.Label.Should().Be("moduleFolder4/"),
+                        x => x.Label.Should().Be("moduleFolder5/"),
+                        x => x.Label.Should().Be("moduleFolder6/"),
+                        x => x.Label.Should().Be("az"),
+                        x => x.Label.Should().Be("sys")
+                    );
             }
             else
             {
@@ -4018,7 +4039,8 @@ var file = " + functionName + @"('|')
         [DataRow("loadFileAsBase64")]
         [DataRow("loadJsonContent", true)]
         [DataRow("loadYamlContent", false, true)]
-        public async Task LoadFunctionsPathArgument_returnsSymbolsAndFilePathsInCompletions(string functionName, bool jsonOnTop = false, bool ymalOnTop = false)
+        [DataRow("loadDirectoryFileInfo", false, false, true)]
+        public async Task LoadFunctionsPathArgument_returnsSymbolsAndFilePathsInCompletions(string functionName, bool jsonOnTop = false, bool yamlOnTop = false, bool directoryOnTop = false)
         {
             var mainUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
 
@@ -4049,6 +4071,12 @@ var file = " + functionName + @"(templ|)
                 [InMemoryFileResolver.GetFileUri("/path/to/module1.txt")] = "param foo string",
                 [InMemoryFileResolver.GetFileUri("/path/to/module2.bicep")] = "param bar bool",
                 [InMemoryFileResolver.GetFileUri("/path/to/module3.bicep")] = "",
+                [InMemoryFileResolver.GetFileUri("/path/to/moduleFolder1/module.bicep")] = "",
+                [InMemoryFileResolver.GetFileUri("/path/to/moduleFolder2/module.bicep")] = "",
+                [InMemoryFileResolver.GetFileUri("/path/to/moduleFolder3/module.bicep")] = "",
+                [InMemoryFileResolver.GetFileUri("/path/to/moduleFolder4/module.bicep")] = "",
+                [InMemoryFileResolver.GetFileUri("/path/to/moduleFolder5/module.bicep")] = "",
+                [InMemoryFileResolver.GetFileUri("/path/to/moduleFolder6/module.bicep")] = "",
             };
 
             using var helper = await LanguageServerHelper.StartServerWithText(
@@ -4060,7 +4088,8 @@ var file = " + functionName + @"(templ|)
 
             var completions = await file.RequestAndResolveCompletions(cursor);
 
-            var completionItems = completions.OrderBy(x => x.SortText).Where(x => x.Label.StartsWith("templ"));
+            var completionItems = !directoryOnTop ? completions.OrderBy(x => x.SortText).Where(x => x.Label.StartsWith("templ"))
+                    : completions.OrderBy(x => x.SortText).Where(x => x.Label.StartsWith("moduleFol"));
             if (jsonOnTop)
             {
                 completionItems.Should().SatisfyRespectively(
@@ -4076,7 +4105,7 @@ var file = " + functionName + @"(templ|)
                     x => x.Label.Should().Be("template9.yaml")
                 );
             }
-            else if (ymalOnTop)
+            else if (yamlOnTop)
             {
                 completionItems.Should().SatisfyRespectively(
                     x => x.Label.Should().Be("template6.yaml"),
@@ -4090,6 +4119,17 @@ var file = " + functionName + @"(templ|)
                     x => x.Label.Should().Be("template4.json"),
                     x => x.Label.Should().Be("template5.json")
 
+                );
+            }
+            else if (directoryOnTop)
+            {
+                completionItems.Should().SatisfyRespectively(
+                    x => x.Label.Should().Be("moduleFolder1/"),
+                    x => x.Label.Should().Be("moduleFolder2/"),
+                    x => x.Label.Should().Be("moduleFolder3/"),
+                    x => x.Label.Should().Be("moduleFolder4/"),
+                    x => x.Label.Should().Be("moduleFolder5/"),
+                    x => x.Label.Should().Be("moduleFolder6/")
                 );
             }
             else
@@ -4139,7 +4179,7 @@ var file = " + functionName + @"(templ|)
                 [InMemoryFileResolver.GetFileUri("/path2/to/main.bicep")] = "",
             });
 
-            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFileResolver(fileResolver).WithFileExplorer(new FileSystemFileExplorer(fileResolver.MockFileSystem)));
+            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFileExplorer(new FileSystemFileExplorer(fileResolver.MockFileSystem)));
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, text);
@@ -4176,9 +4216,7 @@ var file = " + functionName + @"(templ|)
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
-                services => services
-                .AddSingleton<ISettingsProvider>(settingsProvider.Object)
-                .WithFileResolver(new FileResolver(new LocalFileSystem())));
+                services => services.AddSingleton<ISettingsProvider>(settingsProvider.Object));
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
             var completions = await file.RequestAndResolveCompletions(cursor);
@@ -4206,8 +4244,7 @@ var file = " + functionName + @"(templ|)
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
                 services => services
-                .AddSingleton<ISettingsProvider>(settingsProvider.Object)
-                .WithFileResolver(new FileResolver(new LocalFileSystem())));
+                .AddSingleton<ISettingsProvider>(settingsProvider.Object));
 
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
             var completions = await file.RequestAndResolveCompletions(cursor);
@@ -5546,7 +5583,7 @@ module mod 'mod.bicep' = {
   params: {
     foo: {
       |
-    } 
+    }
   }
 }
 """);

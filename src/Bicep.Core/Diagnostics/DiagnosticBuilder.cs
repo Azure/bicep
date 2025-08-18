@@ -1912,6 +1912,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP419",
                 $"Namespace name \"{name}\", and cannot be used an extension name.");
 
+
             public Diagnostic ScopeKindUnresolvableAtCompileTime() => CoreError(
                 "BCP420",
                 "The scope could not be resolved at compile time because the supplied expression is ambiguous or too complex. Scoping expressions must be reducible to a specific kind of scope without knowledge of parameter values.");
@@ -1946,13 +1947,25 @@ namespace Bicep.Core.Diagnostics
                 "BCP427",
                 $"Environment variable \"{name}\" does not exist and there's no default value set.{suggestion}");
 
+            public Diagnostic DirectoryDoesNotExist(string relativePath) => CoreError(
+                "BCP428",
+                $"Directory \"{relativePath}\" does not exist or additional permissions are necessary to access it.");
+
+            public Diagnostic ErrorOccuredBrowsingDirectory(string exceptionMessage) => CoreError(
+                "BCP429",
+                $"An error occured browsing directory. {exceptionMessage}");
+
+            public Diagnostic FoundFileInsteadOfDirectory(string filePath) => CoreError(
+                "BCP430",
+                $"Unable to open directory at path \"{filePath}\". Found a file instead.");
+
             public Diagnostic RuntimeValueNotAllowedInFunctionArgument(string? functionName, string? parameterName, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
             {
                 var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
                 var accessiblePropertiesClause = BuildAccessiblePropertiesClause(accessedSymbolName, accessiblePropertyNames);
 
                 return CoreError(
-                    "BCP428",
+                    "BCP431",
                     $"This expression is being used in parameter \"{parameterName ?? "unknown"}\" of the function \"{functionName ?? "unknown"}\", which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
         }

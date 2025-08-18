@@ -138,7 +138,7 @@ public static class RegistryHelper
         var services = serviceBuilder.Build();
         var dispatcher = services.Construct<IModuleDispatcher>();
         var sourceFileFactory = services.Construct<ISourceFileFactory>();
-        var dummyFile = sourceFileFactory.CreateBicepFile(PathHelper.FilePathToFileUrl(fileSystem.Path.GetFullPath("main.bicep")), "");
+        var dummyFile = sourceFileFactory.CreateBicepFile(PathHelper.FilePathToFileUrl(fileSystem.Path.GetFullPath("main.bicep")).ToIOUri(), "");
 
         var targetReference = dispatcher.TryGetArtifactReference(dummyFile, ArtifactType.Module, module.PublishTarget).IsSuccess(out var @ref) ? @ref
             : throw new InvalidOperationException($"Module '{module.ModuleName}' has an invalid target reference '{module.PublishTarget}'. Specify a reference to an OCI artifact.");
@@ -219,7 +219,7 @@ public static class RegistryHelper
             target = Path.GetFileName(targetUri.LocalPath);
         }
 
-        var bicepFile = bicepFileUri is not null ? sourceFileFactory.CreateBicepFile(bicepFileUri, "") : BicepTestConstants.DummyBicepFile;
+        var bicepFile = bicepFileUri is not null ? sourceFileFactory.CreateBicepFile(bicepFileUri.ToIOUri(), "") : BicepTestConstants.DummyBicepFile;
 
         if (!dispatcher.TryGetArtifactReference(bicepFile, ArtifactType.Extension, target).IsSuccess(out var targetReference, out var errorBuilder))
         {

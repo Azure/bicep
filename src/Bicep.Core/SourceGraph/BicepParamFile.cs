@@ -14,7 +14,6 @@ namespace Bicep.Core.SourceGraph
     public class BicepParamFile : BicepSourceFile
     {
         public BicepParamFile(
-            Uri fileUri,
             IFileHandle fileHandle,
             ImmutableArray<int> lineStarts,
             ProgramSyntax programSyntax,
@@ -24,7 +23,7 @@ namespace Bicep.Core.SourceGraph
             IDiagnosticLookup lexingErrorLookup,
             IDiagnosticLookup parsingErrorLookup)
             : base(
-                  fileUri,
+                  fileHandle.Uri.ToUri(),
                   fileHandle,
                   lineStarts,
                   programSyntax,
