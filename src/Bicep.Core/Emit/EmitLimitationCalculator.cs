@@ -609,8 +609,7 @@ namespace Bicep.Core.Emit
             ParameterAssignmentEvaluator evaluator,
             IDiagnosticWriter diagnostics)
         {
-            if (model.Root.ParameterAssignments.IsEmpty ||
-                model.HasParsingErrors())
+            if (model.HasParsingErrors())
             {
                 return ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue>.Empty;
             }
