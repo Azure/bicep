@@ -14,7 +14,7 @@
   "devDependencies": {
     "@eslint/js": "^9.30.0",
     "@types/node": "^24.2.1",
-    "@types/pako": "^2.0.3",
+    "@types/pako": "^2.0.4",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^4.7.0",
