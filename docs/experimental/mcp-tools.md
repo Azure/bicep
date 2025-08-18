@@ -1,7 +1,7 @@
-# Using Bicep MCP Server in VS Code (Preview!)
+# Using Bicep MCP Server in VS Code (Experimental!)
 
 > [!NOTE]
-> This feature is currently in Preview while we collect feedback.
+> This feature is currently Experimental while we collect feedback.
 
 ## What is it?
 The Bicep VS Code extension now includes a Bicep MCP server with agentic tools to support Bicep code generation for AI agents in VS Code. To find out more about MCP, see [Use MCP servers in VS Code](https://code.visualstudio.com/docs/copilot/chat/mcp-servers).
@@ -20,10 +20,12 @@ Please see below on how to contribute to the Bicep best practices tool.
 - Confirm access to [Copilot in VS Code](https://code.visualstudio.com/docs/copilot/overview)
 
 ### Installing
-[Install the "Nightly" build](https://github.com/Azure/bicep/blob/main/docs/installing-nightly.md) of the Bicep extension. You should then automatically have access to the Bicep MCP server and all published tools in VS Code.
+Ensure you have the latest version of the Bicep extension installed.
 
 ### Troubleshooting
-The Bicep server may not appear in your list of MCP servers and tools in VS Code until it has been triggered by a prompt. If you do not see the server, try providing a Bicep related-prompt in the Copilot chat window in "Agent" mode (as shown in Step #3 of the Viewing and Using Bicep Tools in the Bicep MCP Server section below).
+The Bicep server may not appear in your list of MCP servers and tools in VS Code until it has been triggered. If you do not see the server, try opening and saving a `.bicep` file and then try providing a Bicep related-prompt in the Copilot chat window in "Agent" mode (as shown in Step #3 of the Viewing and Using Bicep Tools in the Bicep MCP Server section below). You may also need to press the "Refresh" button in the Copilot chat box.
+
+![Refresh copilot tools](../images\refresh-mcp-tools.png)
 
 ## Viewing and Using Bicep Tools in the Bicep MCP Server
 1. Open the GitHub copilot extension window and select "Agent Mode".
@@ -32,11 +34,11 @@ The Bicep server may not appear in your list of MCP servers and tools in VS Code
 
 2. Click on the tool icon in the GitHub copilot chat window and search for "Bicep (PREVIEW)".
 
-![Bicep MCP Tool Selection](../images/mcp-tool-selection.png)
+![Bicep MCP Tool Selection](../images/mcp-tools-selection.png)
 
 3. Start using Agent Mode to help with your Bicep tasks!
 
-![Bicep MCP Usage Example](../images/mcp-usage-example.png)
+![Bicep MCP Usage Example](../images/use-agent-mode-with-bicep.png)
 
 ## Limitations
 > [!NOTE]

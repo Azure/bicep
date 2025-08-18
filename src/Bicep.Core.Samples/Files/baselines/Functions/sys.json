@@ -932,6 +932,32 @@
     ]
   },
   {
+    "name": "loadDirectoryFileInfo",
+    "description": "Loads basic information about a directory's files as bicep object. File loading occurs during compilation, not at runtime.",
+    "fixedParameters": [
+      {
+        "name": "directoryPath",
+        "description": "The path to the directory that will be loaded.",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "searchPattern",
+        "description": "The searchPattern is a glob pattern to narrow down the loaded files. If not provided, all files are loaded. Supports both any number of characters '*' and any single character '?' wildcards.",
+        "type": "string",
+        "required": false
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 2,
+    "flags": "generateIntermediateVariableAlways",
+    "typeSignature": "(directoryPath: string, [searchPattern: string]): any",
+    "parameterTypeSignatures": [
+      "directoryPath: string",
+      "[searchPattern: string]"
+    ]
+  },
+  {
     "name": "loadFileAsBase64",
     "description": "Loads the specified file as base64 string. File loading occurs during compilation, not at runtime. The maximum allowed size is 96 Kb.",
     "fixedParameters": [

@@ -38,7 +38,7 @@ function truncate(text: string, lengthLimit: number) {
 
 function createDataUri(svg: string) {
   const domParser = new DOMParser();
-  const svgElement = domParser.parseFromString(svg, "text/xml").documentElement;
+  const svgElement = domParser.parseFromString(svg, "text/xml").documentElement; // CodeQL [SM01525] svg is not from user input
 
   return "data:image/svg+xml;utf8," + encodeURIComponent(svgElement.outerHTML);
 }

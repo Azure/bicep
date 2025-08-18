@@ -1448,7 +1448,7 @@ namespace Bicep.Decompiler
 
                 var nestedOptions = this.options with { AllowMissingParamsAndVars = this.options.AllowMissingParamsAndVarsInNestedTemplates };
                 var nestedConverter = new TemplateConverter(this.sourceFileFactory, workspace, nestedModuleUri, nestedTemplateObject, this.jsonTemplateUrisByModule, nestedOptions);
-                var nestedBicepFile = this.sourceFileFactory.CreateBicepFile(nestedModuleUri, nestedConverter.Parse().ToString());
+                var nestedBicepFile = this.sourceFileFactory.CreateBicepFile(nestedModuleUri.ToIOUri(), nestedConverter.Parse().ToString());
                 workspace.UpsertSourceFile(nestedBicepFile);
 
                 return new ModuleDeclarationSyntax(
@@ -1784,6 +1784,11 @@ namespace Bicep.Decompiler
                         SyntaxFactory.TargetScopeKeywordToken,
                         SyntaxFactory.AssignmentToken,
                         SyntaxFactory.CreateStringLiteral("subscription"));
+                case "/dsc/schemas/v3/bundled/config/document.json":
+                    return new TargetScopeSyntax(
+                        SyntaxFactory.TargetScopeKeywordToken,
+                        SyntaxFactory.AssignmentToken,
+                        SyntaxFactory.CreateStringLiteral("desiredStateConfiguration"));
                 case "/schemas/2014-04-01-preview/deploymentTemplate.json":
                 case "/schemas/2015-01-01/deploymentTemplate.json":
                 case "/schemas/2019-04-01/deploymentTemplate.json":

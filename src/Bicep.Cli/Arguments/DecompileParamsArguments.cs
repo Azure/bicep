@@ -78,16 +78,6 @@ namespace Bicep.Cli.Arguments
             {
                 throw new CommandLineException($"The --outdir and --outfile parameters cannot both be used");
             }
-
-            if (!OutputToStdOut && !AllowOverwrite)
-            {
-                string outputFilePath = Path.ChangeExtension(PathHelper.ResolvePath(InputFile), LanguageConstants.ParamsFileExtension);
-                if (File.Exists(outputFilePath))
-                {
-                    throw new CommandLineException($"The output path \"{outputFilePath}\" already exists. Use --force to overwrite the existing file.");
-                }
-
-            }
         }
 
         public static Func<DecompileParamsArguments, IOUri, string> OutputFileExtensionResolver { get; } = (_, _) => LanguageConstants.ParamsFileExtension;

@@ -23,9 +23,6 @@ public static class ServiceBuilderExtensions
     public static ServiceBuilder WithFileExplorer(this ServiceBuilder serviceBuilder, IFileExplorer fileExplorer)
         => serviceBuilder.WithRegistration(x => x.WithFileExplorer(fileExplorer));
 
-    public static ServiceBuilder WithFileResolver(this ServiceBuilder serviceBuilder, IFileResolver fileResolver)
-        => serviceBuilder.WithRegistration(x => x.WithFileResolver(fileResolver));
-
     public static ServiceBuilder WithWorkspace(this ServiceBuilder serviceBuilder, IWorkspace workspace)
         => serviceBuilder.WithRegistration(x => x.WithWorkspace(workspace));
 

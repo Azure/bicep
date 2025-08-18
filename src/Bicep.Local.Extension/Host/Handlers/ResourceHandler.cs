@@ -89,7 +89,8 @@ public abstract class ResourceHandler<TProperties, TIdentifiers, TConfig> : IRes
         });
 
     public Task<Rpc.LocalExtensibilityOperationResponse> Preview(Rpc.ResourceSpecification rpcRequest, CancellationToken cancellationToken)
-        => WrapExceptionsAsync(async () => {
+        => WrapExceptionsAsync(async () =>
+        {
             var request = GetResourceRequest(rpcRequest);
             var response = await Preview(request, cancellationToken);
 
@@ -97,7 +98,8 @@ public abstract class ResourceHandler<TProperties, TIdentifiers, TConfig> : IRes
         });
 
     public Task<Rpc.LocalExtensibilityOperationResponse> Get(Rpc.ResourceReference rpcRequest, CancellationToken cancellationToken)
-        => WrapExceptionsAsync(async () => {
+        => WrapExceptionsAsync(async () =>
+        {
             var request = GetReferenceRequest(rpcRequest);
             var response = await Get(request, cancellationToken);
 
@@ -105,7 +107,8 @@ public abstract class ResourceHandler<TProperties, TIdentifiers, TConfig> : IRes
         });
 
     public Task<Rpc.LocalExtensibilityOperationResponse> Delete(Rpc.ResourceReference rpcRequest, CancellationToken cancellationToken)
-        => WrapExceptionsAsync(async () => {
+        => WrapExceptionsAsync(async () =>
+        {
             var request = GetReferenceRequest(rpcRequest);
             var response = await Delete(request, cancellationToken);
 
@@ -138,7 +141,7 @@ public abstract class ResourceHandler<TProperties, TIdentifiers, TConfig> : IRes
         },
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
-    
+
     private Rpc.LocalExtensibilityOperationResponse GetRpcResponse(ResourceResponse response)
     {
         return new()
@@ -152,7 +155,7 @@ public abstract class ResourceHandler<TProperties, TIdentifiers, TConfig> : IRes
             },
         };
     }
-    
+
     private ResourceRequest GetResourceRequest(Rpc.ResourceSpecification request)
     {
         var config = GetConfig(request.Config);
@@ -185,7 +188,7 @@ public abstract class ResourceHandler<TProperties, TIdentifiers, TConfig> : IRes
             Properties = properties,
             Identifiers = request.Identifiers,
         };
-    
+
     private ReferenceRequest GetReferenceRequest(Rpc.ResourceReference request)
     {
         var config = GetConfig(request.Config);
