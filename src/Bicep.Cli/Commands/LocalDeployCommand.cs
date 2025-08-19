@@ -28,7 +28,7 @@ public class LocalDeployCommand(
         var paramsFileUri = inputOutputArgumentsResolver.PathToUri(args.ParamsFile);
         ArgumentHelper.ValidateBicepParamFile(paramsFileUri);
 
-        var compilation = await compiler.CreateCompilation(paramsFileUri.ToUri(), skipRestore: args.NoRestore);
+        var compilation = await compiler.CreateCompilation(paramsFileUri, skipRestore: args.NoRestore);
 
         var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, compilation);
         var parameters = compilation.Emitter.Parameters();

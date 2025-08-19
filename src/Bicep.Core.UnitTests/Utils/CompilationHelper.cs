@@ -93,7 +93,7 @@ namespace Bicep.Core.UnitTests.Utils
         public static async Task<CompilationResult> RestoreAndCompile(ServiceBuilder services, IReadOnlyDictionary<Uri, string> uriDictionary, Uri entryUri)
         {
             var compiler = services.Build().GetCompiler();
-            var compilation = await compiler.CreateCompilation(entryUri, CreateWorkspace(compiler.SourceFileFactory, uriDictionary));
+            var compilation = await compiler.CreateCompilation(entryUri.ToIOUri(), CreateWorkspace(compiler.SourceFileFactory, uriDictionary));
 
             return GetCompilationResult(compilation);
         }
@@ -114,7 +114,7 @@ namespace Bicep.Core.UnitTests.Utils
         public static async Task<ParamsCompilationResult> RestoreAndCompileParams(ServiceBuilder services, IReadOnlyDictionary<Uri, string> uriDictionary, Uri entryUri)
         {
             var compiler = services.WithMockFileSystem(uriDictionary).Build().GetCompiler();
-            var compilation = await compiler.CreateCompilation(entryUri);
+            var compilation = await compiler.CreateCompilation(entryUri.ToIOUri());
 
             return CompileParams(compilation);
         }
@@ -144,7 +144,7 @@ namespace Bicep.Core.UnitTests.Utils
         public static CompilationResult Compile(ServiceBuilder services, MockFileSystemTestFileSet fileSet, IOUri entryUri)
         {
             var compiler = services.WithFileExplorer(fileSet.FileExplorer).WithFileSystem(fileSet.FileSystem).Build().GetCompiler();
-            var compilation = compiler.CreateCompilationWithoutRestore(entryUri.ToUri());
+            var compilation = compiler.CreateCompilationWithoutRestore(entryUri);
 
             return GetCompilationResult(compilation);
         }

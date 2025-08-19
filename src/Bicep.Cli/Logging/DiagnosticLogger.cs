@@ -136,7 +136,7 @@ public class DiagnosticLogger
                     {
                         ArtifactLocation = new ArtifactLocation
                         {
-                            Uri = sourceFile.Uri,
+                            Uri = sourceFile.FileHandle.Uri.ToUri(),
                         },
                         Region = new Region
                         {
