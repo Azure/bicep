@@ -35,7 +35,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 }
             }
 
-            return new ResourceTypeComponents(resourceTypeReference, ToResourceScope(resourceType.ScopeType), ToResourceScope(resourceType.ReadOnlyScopes), ToResourceFlags(resourceType.Flags), bodyType);
+            return new ResourceTypeComponents(resourceTypeReference, ToResourceScope(resourceType.WritableScopes), ToResourceScope(resourceType.ReadableScopes), ToResourceFlags(resourceType), bodyType);
         }
 
         public IEnumerable<FunctionOverload> GetResourceFunctionOverloads(Azure.Bicep.Types.Concrete.ResourceFunctionType resourceFunctionType)
@@ -234,10 +234,11 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             return flags;
         }
 
-        private static ResourceFlags ToResourceFlags(Azure.Bicep.Types.Concrete.ResourceFlags input)
+        private static ResourceFlags ToResourceFlags(Azure.Bicep.Types.Concrete.ResourceType resourceType)
         {
             var output = ResourceFlags.None;
-            if (input.HasFlag(Azure.Bicep.Types.Concrete.ResourceFlags.ReadOnly))
+            // In the new system, ReadOnly is represented by WritableScopes being None
+            if (resourceType.WritableScopes == Azure.Bicep.Types.Concrete.ScopeType.None)
             {
                 output |= ResourceFlags.ReadOnly;
             }
@@ -247,7 +248,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
 
         private static ResourceScope ToResourceScope(Azure.Bicep.Types.Concrete.ScopeType input)
         {
-            if (input == Azure.Bicep.Types.Concrete.ScopeType.Unknown)
+            if (input == Azure.Bicep.Types.Concrete.ScopeType.None)
             {
                 return ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource;
             }
@@ -260,8 +261,5 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             output |= input.HasFlag(Azure.Bicep.Types.Concrete.ScopeType.ResourceGroup) ? ResourceScope.ResourceGroup : ResourceScope.None;
             return output;
         }
-
-        private static ResourceScope ToResourceScope(Azure.Bicep.Types.Concrete.ScopeType? input)
-            => input.HasValue ? ToResourceScope(input.Value) : ResourceScope.None;
     }
 }

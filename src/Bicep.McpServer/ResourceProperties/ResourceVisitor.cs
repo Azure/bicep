@@ -173,9 +173,10 @@ public class ResourceVisitor
                 {
                     Name = resourceType.Name,
                     BodyType = WriteComplexType(resourceType.Body.Type),
-                    Flags = resourceType.Flags.ToString(),
-                    ScopeType = resourceType.ScopeType.ToString(),
-                    ReadOnlyScopes = resourceType.ReadOnlyScopes?.ToString()
+                    Flags = (resourceType.WritableScopes == Azure.Bicep.Types.Concrete.ScopeType.None ? "ReadOnly" : "None"),
+                    ScopeType = (resourceType.ReadableScopes & resourceType.WritableScopes).ToString(),
+                    // Calculate truly read only scopes: readable scopes minus writable scopes
+                    ReadOnlyScopes = (resourceType.ReadableScopes & ~resourceType.WritableScopes).ToString()
                 };
                 return rtEntity;
             case ResourceFunctionType resourceFunctionType:
