@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Bicep.McpServer;
@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 var builder = Host.CreateEmptyApplicationBuilder(settings: null);
 
 builder.Services
+    .WithAvmSupport()
     .AddBicepMcpServer()
     .WithStdioServerTransport();
 
