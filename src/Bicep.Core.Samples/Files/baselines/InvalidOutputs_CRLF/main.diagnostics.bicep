@@ -47,7 +47,7 @@ output spacesAfterCursor
 
 // partial type #completionTest(19, 20, 21, 22) -> outputTypes
 output partialType obj
-//@[19:22) [BCP302 (Error)] The name "obj" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "resourceInput", "resourceOutput", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP302) |obj|
+//@[19:22) [BCP302 (Error)] The name "obj" is not a valid type. Please specify one of the following types: "any", "array", "bool", "int", "object", "resourceInput", "resourceOutput", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP302) |obj|
 //@[22:22) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
 // malformed identifier
@@ -73,7 +73,7 @@ output lol 2 = true
 // wrong type + missing value
 output foo fluffy
 //@[07:10) [BCP145 (Error)] Output "foo" is declared multiple times. Remove or rename the duplicates. (bicep https://aka.ms/bicep/core-diagnostics#BCP145) |foo|
-//@[11:17) [BCP302 (Error)] The name "fluffy" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "resourceInput", "resourceOutput", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP302) |fluffy|
+//@[11:17) [BCP302 (Error)] The name "fluffy" is not a valid type. Please specify one of the following types: "any", "array", "bool", "int", "object", "resourceInput", "resourceOutput", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP302) |fluffy|
 //@[17:17) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
 // missing value
