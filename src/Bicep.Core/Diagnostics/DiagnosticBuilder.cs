@@ -1958,6 +1958,14 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic FoundFileInsteadOfDirectory(string filePath) => CoreError(
                 "BCP430",
                 $"Unable to open directory at path \"{filePath}\". Found a file instead.");
+
+            public Diagnostic BaseIdentifierNotAvailableWithoutExtends() => CoreError(
+                "BCP431",
+                $"The identifier '{LanguageConstants.BaseIdentifier}' is only available in parameter files that declare an '{LanguageConstants.ExtendsKeyword}' clause.");
+
+            public Diagnostic BaseIdentifierRedeclared() => CoreError(
+                "BCP432",
+                $"The identifier '{LanguageConstants.BaseIdentifier}' is reserved and cannot be declared.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

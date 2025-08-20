@@ -40,28 +40,43 @@ namespace Bicep.Core.Semantics
             this.NamespaceResolver = NamespaceResolver.Create(namespaceResults);
 
             var fileScope = DeclarationVisitor.GetDeclarations(namespaceResults, sourceFile, symbolContext);
-            this.Bindings = NameBindingVisitor.GetBindings(sourceFile.ProgramSyntax, NamespaceResolver, fileScope);
-            this.cyclesBySymbol = CyclicCheckVisitor.FindCycles(sourceFile.ProgramSyntax, this.Bindings);
 
-            var extendsDeclarations = sourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>();
+            // Process extends & synthesize 'base' BEFORE name binding so variable accesses to 'base' bind correctly.
+            var extendsDeclarations = sourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>().ToImmutableArray();
+            bool hasExtends = extendsDeclarations.Any();
+            var parentParameterAssignments = ImmutableArray<ParameterAssignmentSymbol>.Empty;
 
-            foreach (var extendsDeclaration in extendsDeclarations)
+            if (hasExtends)
             {
-                if (sourceFileLookup.TryGetSourceFile(extendsDeclaration).TryUnwrap() is { } extendedFile &&
-                    modelLookup.GetSemanticModel(extendedFile) is SemanticModel extendedModel)
+                foreach (var extendsDeclaration in extendsDeclarations)
                 {
-                    var parameterAssignments = ImmutableArray<ParameterAssignmentSymbol>.Empty;
-                    foreach (var assignment in extendedModel.Root.ParameterAssignments)
+                    if (!(sourceFileLookup.TryGetSourceFile(extendsDeclaration).TryUnwrap() is { } extendedFile &&
+                        modelLookup.GetSemanticModel(extendedFile) is SemanticModel extendedModel))
                     {
-                        if (!fileScope.Locals.Any(e => e.Name == assignment.Name))
-                        {
-                            parameterAssignments = parameterAssignments.Add(assignment);
-                        }
+                        continue;
                     }
 
-                    fileScope = fileScope.ReplaceLocals(fileScope.Locals.AddRange(parameterAssignments));
+                    var allParentAssignments = extendedModel.Root.ParameterAssignments;
+                    parentParameterAssignments = parentParameterAssignments.AddRange(allParentAssignments);
+
+                    var nonConflicting = allParentAssignments.Where(a => !fileScope.Locals.Any(e => string.Equals(e.Name, a.Name, LanguageConstants.IdentifierComparison)));
+                    fileScope = fileScope.ReplaceLocals(fileScope.Locals.AddRange(nonConflicting));
                 }
+
+                if (!fileScope.Locals.Any(l => string.Equals(l.Name, LanguageConstants.BaseIdentifier, LanguageConstants.IdentifierComparison)))
+                {
+                    var locals = fileScope.Locals;
+                    if (!locals.OfType<BaseParametersSymbol>().Any())
+                    {
+                        locals = locals.Add(new BaseParametersSymbol(symbolContext, parentParameterAssignments));
+                        fileScope = fileScope.ReplaceLocals(locals);
+                    }
+                }
+                fileScope = fileScope.ReplaceLocals(fileScope.Locals.Add(new BaseParametersSymbol(symbolContext, parentParameterAssignments)));
             }
+
+            this.Bindings = NameBindingVisitor.GetBindings(sourceFile.ProgramSyntax, NamespaceResolver, fileScope);
+            this.cyclesBySymbol = CyclicCheckVisitor.FindCycles(sourceFile.ProgramSyntax, this.Bindings);
 
             this.FileSymbol = new FileSymbol(
                 symbolContext,

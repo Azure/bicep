@@ -97,6 +97,53 @@ namespace Bicep.Core.Semantics
                     }
                 }
             }
+
+            if (symbol.FileKind == BicepSourceFileKind.ParamsFile)
+            {
+                var hasExtends = extendsSyntaxes.Length == 1;
+
+                if (!hasExtends)
+                {
+                    foreach (var access in FindVariableAccesses(symbol.Syntax, LanguageConstants.BaseIdentifier))
+                    {
+                        this.diagnosticWriter.Write(access.Name, x => x.BaseIdentifierNotAvailableWithoutExtends());
+                    }
+                }
+
+                foreach (var decl in symbol.Declarations.Where(d => string.Equals(d.Name, LanguageConstants.BaseIdentifier, LanguageConstants.IdentifierComparison) && d is not BaseParametersSymbol))
+                {
+                    this.diagnosticWriter.Write(decl.DeclaringSyntax, x => x.BaseIdentifierRedeclared());
+                }
+            }
+        }
+
+        private static IEnumerable<VariableAccessSyntax> FindVariableAccesses(SyntaxBase root, string identifier)
+        {
+            var results = new List<VariableAccessSyntax>();
+            var visitor = new VariableAccessCollector(identifier, results);
+            root.Accept(visitor);
+            return results;
+        }
+
+        private sealed class VariableAccessCollector : CstVisitor
+        {
+            private readonly string identifier;
+            private readonly IList<VariableAccessSyntax> results;
+
+            public VariableAccessCollector(string identifier, IList<VariableAccessSyntax> results)
+            {
+                this.identifier = identifier;
+                this.results = results;
+            }
+
+            public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
+            {
+                if (syntax.Name.IdentifierName == identifier)
+                {
+                    results.Add(syntax);
+                }
+                base.VisitVariableAccessSyntax(syntax);
+            }
         }
 
         public override void VisitVariableSymbol(VariableSymbol symbol)
