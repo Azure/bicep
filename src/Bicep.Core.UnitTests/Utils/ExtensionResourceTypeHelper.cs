@@ -103,7 +103,8 @@ public static class ExtensionResourceTypeHelper
             {
                 ["convertBarToBaz"] = new(factory.GetReference(barFunctionType), "Converts a bar into a baz!")
             },
-            ScopeType.None));
+            writableScopes_in: ScopeType.None,
+            readableScopes_in: ScopeType.None));
 
         var settings = new TypeSettings(name: "ThirdPartyExtension", version: "1.0.0", isSingleton: false, configurationType: null!);
 
@@ -144,7 +145,8 @@ public static class ExtensionResourceTypeHelper
             {
                 ["convertBarToBaz"] = new(factory.GetReference(barFunctionType), "Converts a bar into a baz!")
             },
-            ScopeType.None));
+            writableScopes_in: ScopeType.None,
+            readableScopes_in: ScopeType.None));
 
         //setup fallback resource
         var fallbackBodyType = rootFactory.Create(() => new ObjectType("fallback body", new Dictionary<string, ObjectTypeProperty>
@@ -156,7 +158,8 @@ public static class ExtensionResourceTypeHelper
             "fallback",
             rootFactory.GetReference(fallbackBodyType),
             null,
-            ScopeType.None));
+            writableScopes_in: ScopeType.None,
+            readableScopes_in: ScopeType.None));
 
         var fallbackResource = new CrossFileTypeReference("types.json", rootFactory.GetIndex(fallbackType));
 
@@ -205,7 +208,8 @@ public static class ExtensionResourceTypeHelper
             "AWS.S3/Bucket@default",
             factory.GetReference(awsBucketsBodyType),
             null,
-            ScopeType.None));
+            writableScopes_in: ScopeType.None,
+            readableScopes_in: ScopeType.None));
 
         var environmentsBodyType = factory.Create(() => new ObjectType("body", new Dictionary<string, ObjectTypeProperty>
         {
@@ -217,7 +221,8 @@ public static class ExtensionResourceTypeHelper
             "Applications.Core/environments@2023-10-01-preview",
             factory.GetReference(environmentsBodyType),
             null,
-            ScopeType.None));
+            writableScopes_in: ScopeType.None,
+            readableScopes_in: ScopeType.None));
 
         var applicationsBodyType = factory.Create(() => new ObjectType("body", new Dictionary<string, ObjectTypeProperty>
         {
@@ -229,7 +234,8 @@ public static class ExtensionResourceTypeHelper
             "Applications.Core/applications@2023-10-01-preview",
             factory.GetReference(applicationsBodyType),
             null,
-            ScopeType.None));
+            writableScopes_in: ScopeType.None,
+            readableScopes_in: ScopeType.None));
 
         var recipeType = factory.Create(() => new ObjectType("recipe", new Dictionary<string, ObjectTypeProperty>
         {
@@ -253,7 +259,8 @@ public static class ExtensionResourceTypeHelper
             "Applications.Core/extenders@2023-10-01-preview",
             factory.GetReference(extendersBodyType),
             null,
-            ScopeType.None));
+            writableScopes_in: ScopeType.None,
+            readableScopes_in: ScopeType.None));
 
         var settings = new TypeSettings(name: "Radius", version: "1.0.0", isSingleton: false, configurationType: null!);
 

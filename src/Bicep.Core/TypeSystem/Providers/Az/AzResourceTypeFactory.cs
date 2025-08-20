@@ -35,7 +35,11 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 }
             }
 
-            return new ResourceTypeComponents(resourceTypeReference, ToResourceScope(resourceType.WritableScopes), ToResourceScope(resourceType.ReadableScopes), ToResourceFlags(resourceType), bodyType);
+            var writableScopes = ToResourceScope(resourceType.WritableScopes);
+            var readableScopes = ToResourceScope(resourceType.ReadableScopes);
+            var readOnlyScopes = readableScopes & ~writableScopes;
+
+            return new ResourceTypeComponents(resourceTypeReference, writableScopes, readOnlyScopes, ToResourceFlags(resourceType), bodyType);
         }
 
         public IEnumerable<FunctionOverload> GetResourceFunctionOverloads(Azure.Bicep.Types.Concrete.ResourceFunctionType resourceFunctionType)
@@ -237,8 +241,10 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         private static ResourceFlags ToResourceFlags(Azure.Bicep.Types.Concrete.ResourceType resourceType)
         {
             var output = ResourceFlags.None;
-            // In the new system, ReadOnly is represented by WritableScopes being None
-            if (resourceType.WritableScopes == Azure.Bicep.Types.Concrete.ScopeType.None)
+            var readableScopes = ToResourceScope(resourceType.ReadableScopes);
+            var writableScopes = ToResourceScope(resourceType.WritableScopes);
+
+            if ((readableScopes & ~writableScopes) != ResourceScope.None)
             {
                 output |= ResourceFlags.ReadOnly;
             }
@@ -250,7 +256,13 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         {
             if (input == Azure.Bicep.Types.Concrete.ScopeType.None)
             {
+                // ScopeType.None is the renamed ScopeType.Unknown - it means "all scopes" not "no scopes"
                 return ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource;
+            }
+
+            if (input == Azure.Bicep.Types.Concrete.ScopeType.AllExceptExtension)
+            {
+                return ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup;
             }
 
             var output = ResourceScope.None;
