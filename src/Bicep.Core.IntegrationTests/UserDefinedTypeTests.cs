@@ -1889,4 +1889,46 @@ param myParam string
 
         result.Should().NotHaveAnyDiagnostics();
     }
+
+    [TestMethod]
+    public void Any_type_can_be_used_wherever_a_type_is_allowed()
+    {
+        var result = CompilationHelper.Compile("""
+            type myAny = any
+            type hasAnyProp = {
+              property: any
+            }
+            type dictStringAny = {
+              *: any
+            }
+            type untypedArray = any[]
+            type tupleWithAny = [string, bool, any]
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveJsonAtPath("$.definitions.myAny", "{}");
+        result.Template.Should().HaveJsonAtPath("$.definitions.hasAnyProp.properties.property", "{}");
+        result.Template.Should().HaveJsonAtPath("$.definitions.dictStringAny.additionalProperties", "{}");
+        result.Template.Should().HaveJsonAtPath("$.definitions.untypedArray.items", "{}");
+        result.Template.Should().HaveJsonAtPath("$.definitions.tupleWithAny.prefixItems[2]", "{}");
+    }
+
+    [TestMethod]
+    public void Secure_decorator_is_blocked_on_any_and_resource_derived_types()
+    {
+        var result = CompilationHelper.Compile("""
+            @secure()
+            type untyped = any
+
+            @secure()
+            type rdt = resourceInput<'Microsoft.Resources/deployments@2022-09-01'>.name
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
+            ("BCP431", DiagnosticLevel.Error, "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type."),
+            ("BCP431", DiagnosticLevel.Error, "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type."),
+        ]);
+    }
 }

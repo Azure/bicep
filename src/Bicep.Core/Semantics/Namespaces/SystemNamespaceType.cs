@@ -1811,11 +1811,38 @@ namespace Bicep.Core.Semantics.Namespaces
 
             static IEnumerable<Decorator> GetBicepTemplateDecorators(IFeatureProvider featureProvider)
             {
+                var secureAttachableType = TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object);
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSecurePropertyName)
                     .WithDescription("Makes the parameter a secure parameter.")
                     .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
-                    .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
-                    .WithValidator(ValidateNotTargetingAlias)
+                    .WithAttachableType(secureAttachableType)
+                    .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
+                    {
+                        if (!TypeValidator.AreTypesAssignable(targetType, secureAttachableType))
+                        {
+                            // skip further validation if we're already reporting an error
+                            return;
+                        }
+
+                        var targetTypeClause = GetDeclaredTypeSyntaxOfParent(decoratorSyntax, binder);
+                        if (IsLiteralSyntax(UnwrapNullableSyntax(targetTypeClause), typeManager))
+                        {
+                            // @secure() is allowed on literal string and object types
+                            return;
+                        }
+
+                        if (targetTypeClause is not null &&
+                            binder.GetSymbolInfo(targetTypeClause) is AmbientTypeSymbol ambientType &&
+                            ambientType.DeclaringNamespace.ExtensionName.Equals(BuiltInName) &&
+                            ambientType.Name is LanguageConstants.TypeNameString or LanguageConstants.ObjectType)
+                        {
+                            // @secure() is allowed if the target's type syntax is "string" or "object"
+                            return;
+                        }
+
+                        diagnosticWriter.Write(
+                            DiagnosticBuilder.ForPosition(decoratorSyntax).SecureDecoratorOnlyAllowedOnStringsAndObjects());
+                    })
                     .WithEvaluator((functionCall, decorated) =>
                     {
                         if (decorated is TypeDeclaringExpression typeDeclaringExpression)
@@ -2133,6 +2160,7 @@ namespace Bicep.Core.Semantics.Namespaces
             VariableDeclarationSyntax variableDeclaration => variableDeclaration.Type,
             TypeDeclarationSyntax typeDeclaration => typeDeclaration.Value,
             ObjectTypePropertySyntax objectTypeProperty => objectTypeProperty.Value,
+            TupleTypeItemSyntax tupleTypeItem => tupleTypeItem.Value,
             _ => null,
         };
 
@@ -2217,6 +2245,8 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 yield return new(typeProp, (features, sfk) => sfk == BicepSourceFileKind.BicepFile);
             }
+
+            yield return new(new("any", LanguageConstants.Any), (features, sfk) => true);
         }
 
         private static string? GetNameOfReturnValue(SyntaxBase syntax)

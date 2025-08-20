@@ -190,6 +190,7 @@ namespace Bicep.Core
         public const string TypeNameString = "string";
         public const string TypeNameBool = "bool";
         public const string TypeNameInt = "int";
+        public const string TypeNameAny = "any";
         public const string TypeNameModule = "module";
         public const string TypeNameTest = "test";
         public const string TypeNameResource = "resource";

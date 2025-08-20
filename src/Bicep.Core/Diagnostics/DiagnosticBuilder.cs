@@ -1958,6 +1958,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic FoundFileInsteadOfDirectory(string filePath) => CoreError(
                 "BCP430",
                 $"Unable to open directory at path \"{filePath}\". Found a file instead.");
+
+            public Diagnostic SecureDecoratorOnlyAllowedOnStringsAndObjects() => CoreError(
+                "BCP431",
+                "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
