@@ -1843,7 +1843,7 @@ namespace Bicep.Core.Diagnostics
 
                 return CoreError(
                 "BCP407",
-                $"Built-in extension \"microsoftGraph\" is retired. Use dynamic types instead. See https://aka.ms/graphBicepDynamicTypes")
+                $"Built-in extension \"microsoftGraph\" is retired. Use dynamic types instead. See https://aka.ms/graphbicep/dynamictypes")
                 with
                 {
                     Fixes = [codeFix]
