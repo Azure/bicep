@@ -2160,6 +2160,7 @@ namespace Bicep.Core.Semantics.Namespaces
             VariableDeclarationSyntax variableDeclaration => variableDeclaration.Type,
             TypeDeclarationSyntax typeDeclaration => typeDeclaration.Value,
             ObjectTypePropertySyntax objectTypeProperty => objectTypeProperty.Value,
+            ObjectTypeAdditionalPropertiesSyntax objectTypeAdditionalProperties => objectTypeAdditionalProperties.Value,
             TupleTypeItemSyntax tupleTypeItem => tupleTypeItem.Value,
             _ => null,
         };
@@ -2245,8 +2246,6 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 yield return new(typeProp, (features, sfk) => sfk == BicepSourceFileKind.BicepFile);
             }
-
-            yield return new(new("any", LanguageConstants.Any), (features, sfk) => true);
         }
 
         private static string? GetNameOfReturnValue(SyntaxBase syntax)

@@ -658,12 +658,9 @@ namespace Bicep.Core.TypeSystem
 
         private static TypeSymbol? GetNonLiteralType(TypeSymbol? type) => type switch
         {
-            StringLiteralType => LanguageConstants.String,
-            IntegerLiteralType => LanguageConstants.Int,
-            BooleanLiteralType => LanguageConstants.Bool,
-            BooleanType => LanguageConstants.Bool,
-            IntegerType => LanguageConstants.Int,
-            StringType => LanguageConstants.String,
+            StringLiteralType or StringType => LanguageConstants.String,
+            IntegerLiteralType or IntegerType => LanguageConstants.Int,
+            BooleanLiteralType or BooleanType => LanguageConstants.Bool,
             ObjectType => LanguageConstants.Object,
             TupleType => LanguageConstants.Array,
             NullType => LanguageConstants.Null,

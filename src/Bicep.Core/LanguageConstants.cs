@@ -282,7 +282,9 @@ namespace Bicep.Core
         public static readonly TypeSymbol ParameterModifierMetadata = new ObjectType(nameof(ParameterModifierMetadata), TypeSymbolValidationFlags.Default, CreateParameterModifierMetadataProperties(), new TypeProperty(Any, TypePropertyFlags.Constant));
 
         // types allowed to use in output and parameter declarations
-        public static readonly ImmutableSortedDictionary<string, TypeSymbol> DeclarationTypes = new[] { String, Object, Int, Bool, Array }.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
+        public static readonly ImmutableSortedDictionary<string, TypeSymbol> DeclarationTypes
+            = new[] { String, Object, Int, Bool, Array, Any }
+                .ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
 
         public static readonly ImmutableHashSet<string> ReservedTypeNames = ImmutableHashSet.Create<string>(IdentifierComparer, ResourceKeyword);
 
