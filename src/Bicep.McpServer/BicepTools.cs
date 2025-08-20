@@ -81,7 +81,7 @@ public sealed class BicepTools(
     """)]
     public string GetBicepBestPractices() => BestPracticesMarkdownLazy.Value.ToString();
 
-    [McpServerTool(Title = "List Azure Verified Modules (AVM)", Destructive = false, Idempotent = true, OpenWorld = false, ReadOnly = true)]
+    [McpServerTool(Title = "List Azure Verified Modules (AVM)", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true)]
     [Description("""
     Lists up-to-date metadata for all Azure Verified Modules (AVM).
     The return value is a newline-separated list of AVM metadata. Each line includes the module name, description, versions, and documentation URI for a specific module.
