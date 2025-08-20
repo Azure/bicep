@@ -173,7 +173,9 @@ public class ResourceVisitor
                 {
                     Name = resourceType.Name,
                     BodyType = WriteComplexType(resourceType.Body.Type),
+                    // Resource is ReadOnly if there are no writable scopes (matches legacy ReadOnly behavior)
                     Flags = (resourceType.WritableScopes == Azure.Bicep.Types.Concrete.ScopeType.None ? "ReadOnly" : "None"),
+                    // Use intersection of readable and writable scopes (where resource can be both read and deployed)
                     ScopeType = (resourceType.ReadableScopes & resourceType.WritableScopes).ToString(),
                     // Calculate truly read only scopes: readable scopes minus writable scopes
                     ReadOnlyScopes = (resourceType.ReadableScopes & ~resourceType.WritableScopes).ToString()
