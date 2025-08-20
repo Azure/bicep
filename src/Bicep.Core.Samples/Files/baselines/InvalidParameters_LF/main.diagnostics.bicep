@@ -14,7 +14,7 @@ param
 
 param 3
 //@[06:007) [BCP013 (Error)] Expected a parameter identifier at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP013) |3|
-//@[07:007) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
+//@[07:007) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
 param % string
 //@[06:007) [BCP013 (Error)] Expected a parameter identifier at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP013) |%|
 param % string 3 = 's'
@@ -26,22 +26,22 @@ param myBool bool
 
 param missingType
 //@[06:017) [no-unused-params (Warning)] Parameter "missingType" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |missingType|
-//@[17:017) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
+//@[17:017) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
 
 // space after identifier #completionTest(32) -> paramTypes
 param missingTypeWithSpaceAfter 
 //@[06:031) [no-unused-params (Warning)] Parameter "missingTypeWithSpaceAfter" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |missingTypeWithSpaceAfter|
-//@[32:032) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
+//@[32:032) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
 
 // tab after identifier #completionTest(30) -> paramTypes
 param missingTypeWithTabAfter	
 //@[06:029) [no-unused-params (Warning)] Parameter "missingTypeWithTabAfter" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |missingTypeWithTabAfter|
-//@[30:030) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
+//@[30:030) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
 
 // #completionTest(20) -> paramTypes
 param trailingSpace  
 //@[06:019) [no-unused-params (Warning)] Parameter "trailingSpace" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |trailingSpace|
-//@[21:021) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
+//@[21:021) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
 
 // partial type #completionTest(18, 19, 20, 21) -> paramTypes
 param partialType str
@@ -251,7 +251,7 @@ param wrongIntModifier int = true
 //@[09:015) [BCP032 (Error)] The value must be a compile-time constant. (bicep https://aka.ms/bicep/core-diagnostics#BCP032) |any(2)|
 param fatalErrorInIssue1713
 //@[06:027) [no-unused-params (Warning)] Parameter "fatalErrorInIssue1713" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |fatalErrorInIssue1713|
-//@[27:027) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
+//@[27:027) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
 
 // wrong metadata schema
 @metadata({

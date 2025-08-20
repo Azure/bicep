@@ -1824,8 +1824,8 @@ namespace Bicep.Core.Semantics.Namespaces
                             return;
                         }
 
-                        var targetTypeClause = GetDeclaredTypeSyntaxOfParent(decoratorSyntax, binder);
-                        if (IsLiteralSyntax(UnwrapNullableSyntax(targetTypeClause), typeManager))
+                        var targetTypeClause = UnwrapNullableSyntax(GetDeclaredTypeSyntaxOfParent(decoratorSyntax, binder));
+                        if (IsLiteralSyntax(targetTypeClause, typeManager))
                         {
                             // @secure() is allowed on literal string and object types
                             return;

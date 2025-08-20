@@ -5,7 +5,7 @@
     "detail": "any",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `any`  \n"
+      "value": "Type: `Type<any>`  \n"
     },
     "deprecated": false,
     "preselect": false,

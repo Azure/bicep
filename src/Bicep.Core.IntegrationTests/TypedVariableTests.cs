@@ -77,7 +77,7 @@ var foo invalid = 'foo'
         );
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
-            ("BCP302", DiagnosticLevel.Error, """The name "invalid" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "resourceInput", "resourceOutput", "string"."""),
+            ("BCP302", DiagnosticLevel.Error, """The name "invalid" is not a valid type. Please specify one of the following types: "any", "array", "bool", "int", "object", "resourceInput", "resourceOutput", "string"."""),
         ]);
     }
 
