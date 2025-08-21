@@ -44,7 +44,7 @@ namespace Bicep.IO.FileSystem
                 return false;
             }
 
-            return this.GetType() == other.GetType() && Uri == other.Uri;
+            return this.GetType() == other.GetType() && Uri.Equals(other.Uri);
         }
     }
 }
