@@ -113,55 +113,19 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
 
     private void VisitFunctionCallSyntaxInternal(FunctionCallSyntaxBase functionCallSyntax)
     {
+        // Handle externalInput(<kind>, <config>?)
         if (SemanticModelHelper.TryGetNamedFunction(
-                this.semanticModel,
-                SystemNamespaceType.BuiltInName,
-                LanguageConstants.ExternalInputBicepFunctionName,
-                functionCallSyntax) is { } functionCall)
+            this.semanticModel,
+            SystemNamespaceType.BuiltInName,
+            LanguageConstants.ExternalInputBicepFunctionName,
+            functionCallSyntax) is { } externalInputFunction)
         {
-            if (functionCallSyntax.Arguments.Length < 1 ||
-                this.semanticModel.GetTypeInfo(functionCallSyntax.Arguments[0]) is not StringLiteralType stringLiteral)
+            if (functionCallSyntax.Arguments.Length >= 1 &&
+                this.semanticModel.GetTypeInfo(functionCallSyntax.Arguments[0]) is StringLiteralType kindLiteral)
             {
-                return;
-            }
-
-            var index = this.externalInputReferences.Count;
-            var definitionKey = GetExternalInputDefinitionName(stringLiteral.RawStringValue, index);
-
-            this.externalInputReferences.TryAdd(functionCall, definitionKey);
-
-            if (this.targetParameterAssignment is not null)
-            {
-                this.parametersContainingExternalInput.Add(this.targetParameterAssignment);
-            }
-
-            if (this.targetVariableDeclaration is not null)
-            {
-                this.variablesContainingExternalInput.Add(this.targetVariableDeclaration);
-            }
-
-            // inline(): param X = inline()  ==> externalInput('sys.cli', 'X')
-            if (SemanticModelHelper.TryGetNamedFunction(
-                this.semanticModel,
-                SystemNamespaceType.BuiltInName,
-                LanguageConstants.InlineFunctionName,
-                functionCallSyntax) is { })
-            {
-                if (functionCallSyntax.Arguments.Length != 0)
-                {
-                    return;
-                }
-
-                var name = this.targetParameterAssignment?.Name ?? this.targetVariableDeclaration?.Name;
-                if (name is null)
-                {
-                    return;
-                }
-
-                var kind = "sys.cli";
-
-                this.externalInputReferences.TryAdd(functionCallSyntax, definitionKey);
-                this.inlineFunctions.TryAdd(functionCallSyntax, (kind, name));
+                var index = this.externalInputReferences.Count;
+                var definitionKey = GetExternalInputDefinitionName(kindLiteral.RawStringValue, index);
+                this.externalInputReferences.TryAdd(externalInputFunction, definitionKey);
 
                 if (this.targetParameterAssignment is not null)
                 {
@@ -171,6 +135,43 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
                 {
                     this.variablesContainingExternalInput.Add(this.targetVariableDeclaration);
                 }
+            }
+            return; // externalInput() and inline() are mutually exclusive for a single call node
+        }
+
+        // Handle inline(): param/var X = inline() ==> externalInput('sys.cli', 'X')
+        if (SemanticModelHelper.TryGetNamedFunction(
+            this.semanticModel,
+            SystemNamespaceType.BuiltInName,
+            LanguageConstants.InlineFunctionName,
+            functionCallSyntax) is { })
+        {
+            // inline() must not have arguments
+            if (functionCallSyntax.Arguments.Length != 0)
+            {
+                return;
+            }
+
+            var symbolName = this.targetParameterAssignment?.Name ?? this.targetVariableDeclaration?.Name;
+            if (symbolName is null)
+            {
+                return; // inline() used outside param/var assignment - ignore
+            }
+
+            var kind = "sys.cli";
+            var indexForInline = this.externalInputReferences.Count;
+            var definitionKey = GetExternalInputDefinitionName(kind, indexForInline);
+
+            this.externalInputReferences.TryAdd(functionCallSyntax, definitionKey);
+            this.inlineFunctions.TryAdd(functionCallSyntax, (kind, symbolName));
+
+            if (this.targetParameterAssignment is not null)
+            {
+                this.parametersContainingExternalInput.Add(this.targetParameterAssignment);
+            }
+            if (this.targetVariableDeclaration is not null)
+            {
+                this.variablesContainingExternalInput.Add(this.targetVariableDeclaration);
             }
         }
     }
