@@ -448,4 +448,84 @@ param foo = {
             ["kind"] = "my.param.provider",
         });
     }
+
+    [TestMethod]
+    public void InlineFunction_variable_not_referenced_by_parameter()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", @"
+                using none
+                var unused = inline()
+                param foo = 'bar'
+                "));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["foo"].Value.Should().DeepEqual("bar");
+        parameters["foo"].Expression.Should().BeNull();
+        result.Parameters.Should().NotHaveValueAtPath("$.externalInputDefinitions");
+    }
+
+    [TestMethod]
+    public void InlineFunction_multiple_calls_in_same_interpolated_string()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", @"
+                using none
+                var v = '${inline()}-${inline()}'
+                param p = v
+                "));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["p"].Value.Should().BeNull();
+        parameters["p"].Expression.Should().DeepEqual("""[format('{0}-{1}', externalInputs('sys_cli_0'), externalInputs('sys_cli_1'))]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["sys_cli_0"].Should().DeepEqual(new JObject { ["kind"] = "sys.cli", ["config"] = "v" });
+        externalInputs["sys_cli_1"].Should().DeepEqual(new JObject { ["kind"] = "sys.cli", ["config"] = "v" });
+    }
+
+    [TestMethod]
+    public void InlineFunction_reused_variable_in_multiple_parameters()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", @"
+                using none
+                var shared = inline()
+                param p1 = shared
+                param p2 = shared
+                "));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["p1"].Value.Should().BeNull();
+        parameters["p2"].Value.Should().BeNull();
+        parameters["p1"].Expression.Should().DeepEqual("""[externalInputs('sys_cli_0')]""");
+        parameters["p2"].Expression.Should().DeepEqual("""[externalInputs('sys_cli_0')]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["sys_cli_0"].Should().DeepEqual(new JObject { ["kind"] = "sys.cli", ["config"] = "shared" });
+    }
+
+    [TestMethod]
+    public void InlineFunction_duplicate_calls_across_variables()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", @"
+                using none
+                var v1 = inline()
+                var v2 = inline()
+                param p = '${v1}-${v2}'
+                "));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["p"].Value.Should().BeNull();
+        parameters["p"].Expression.Should().DeepEqual("""[format('{0}-{1}', externalInputs('sys_cli_0'), externalInputs('sys_cli_1'))]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["sys_cli_0"].Should().DeepEqual(new JObject { ["kind"] = "sys.cli", ["config"] = "v1" });
+        externalInputs["sys_cli_1"].Should().DeepEqual(new JObject { ["kind"] = "sys.cli", ["config"] = "v2" });
+    }
 }
