@@ -159,8 +159,6 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
                 }
 
                 var kind = "sys.cli";
-                var index = this.externalInputReferences.Count;
-                var definitionKey = GetExternalInputDefinitionName(kind, index);
 
                 this.externalInputReferences.TryAdd(functionCallSyntax, definitionKey);
                 this.inlineFunctions.TryAdd(functionCallSyntax, (kind, name));
