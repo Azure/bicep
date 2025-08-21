@@ -502,7 +502,10 @@ public class ParameterAssignmentEvaluator
 
         public override Expression ReplaceFunctionCallExpression(FunctionCallExpression expression)
         {
-            if (LanguageConstants.IdentifierComparer.Equals(expression.Name, LanguageConstants.ExternalInputsArmFunctionName) &&
+            var isExternalInputs = LanguageConstants.IdentifierComparer.Equals(expression.Name, LanguageConstants.ExternalInputsArmFunctionName);
+            var isInline = LanguageConstants.IdentifierComparer.Equals(expression.Name, LanguageConstants.InlineFunctionName);
+
+            if ((isExternalInputs || isInline) &&
                 expression.SourceSyntax is FunctionCallSyntaxBase functionCallSyntax &&
                 externalInputReferences.ExternalInputIndexMap.TryGetValue(functionCallSyntax, out var definitionKey))
             {

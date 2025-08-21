@@ -19,10 +19,13 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
     private readonly ImmutableHashSet<ParameterAssignmentSymbol>.Builder parametersContainingExternalInput;
     private readonly ImmutableHashSet<VariableSymbol>.Builder variablesContainingExternalInput;
     private readonly ImmutableDictionary<FunctionCallSyntaxBase, string>.Builder externalInputReferences;
+    private readonly ImmutableDictionary<FunctionCallSyntaxBase, (string Kind, string Config)>.Builder inlineFunctions;
+
     private ExternalInputFunctionReferenceVisitor(SemanticModel semanticModel)
     {
         this.semanticModel = semanticModel;
         this.externalInputReferences = ImmutableDictionary.CreateBuilder<FunctionCallSyntaxBase, string>();
+        this.inlineFunctions = ImmutableDictionary.CreateBuilder<FunctionCallSyntaxBase, (string Kind, string Config)>();
         this.parametersContainingExternalInput = ImmutableHashSet.CreateBuilder<ParameterAssignmentSymbol>();
         this.variablesContainingExternalInput = ImmutableHashSet.CreateBuilder<VariableSymbol>();
     }
@@ -100,11 +103,11 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
         ProcessSymbolClosures(visitor, model.Root.ParameterAssignments);
         ProcessSymbolClosures(visitor, model.Root.VariableDeclarations);
 
-
         return new ExternalInputReferences(
             ParametersReferences: visitor.parametersContainingExternalInput.ToImmutable(),
             VariablesReferences: visitor.variablesContainingExternalInput.ToImmutable(),
-            ExternalInputIndexMap: visitor.externalInputReferences.ToImmutable()
+            ExternalInputIndexMap: visitor.externalInputReferences.ToImmutable(),
+            InlineFunctions: visitor.inlineFunctions.ToImmutable()
         );
     }
 
@@ -136,6 +139,41 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
             {
                 this.variablesContainingExternalInput.Add(this.targetVariableDeclaration);
             }
+
+            // inline(): param X = inline()  ==> externalInput('sys.cli', 'X')
+            if (SemanticModelHelper.TryGetNamedFunction(
+                this.semanticModel,
+                SystemNamespaceType.BuiltInName,
+                LanguageConstants.InlineFunctionName,
+                functionCallSyntax) is { })
+            {
+                if (functionCallSyntax.Arguments.Length != 0)
+                {
+                    return;
+                }
+
+                var name = this.targetParameterAssignment?.Name ?? this.targetVariableDeclaration?.Name;
+                if (name is null)
+                {
+                    return;
+                }
+
+                var kind = "sys.cli";
+                var index = this.externalInputReferences.Count;
+                var definitionKey = GetExternalInputDefinitionName(kind, index);
+
+                this.externalInputReferences.TryAdd(functionCallSyntax, definitionKey);
+                this.inlineFunctions.TryAdd(functionCallSyntax, (kind, name));
+
+                if (this.targetParameterAssignment is not null)
+                {
+                    this.parametersContainingExternalInput.Add(this.targetParameterAssignment);
+                }
+                if (this.targetVariableDeclaration is not null)
+                {
+                    this.variablesContainingExternalInput.Add(this.targetVariableDeclaration);
+                }
+            }
         }
     }
 
@@ -158,5 +196,7 @@ public record ExternalInputReferences(
     // variables that contain external input function calls
     ImmutableHashSet<VariableSymbol> VariablesReferences,
     // map of external input function calls to unique keys to be used to construct externalInput definition in parameters.json
-    ImmutableDictionary<FunctionCallSyntaxBase, string> ExternalInputIndexMap
+    ImmutableDictionary<FunctionCallSyntaxBase, string> ExternalInputIndexMap,
+    // for inline() calls, convert to (kind, config) arguments
+    ImmutableDictionary<FunctionCallSyntaxBase, (string Kind, string Config)> InlineFunctions
 );
