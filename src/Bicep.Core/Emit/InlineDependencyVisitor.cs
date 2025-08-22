@@ -95,6 +95,12 @@ namespace Bicep.Core.Emit
                 return;
             }
 
+            if (shouldInlineCache.ContainsKey(variableSymbol))
+            {
+                // we've already analyzed this variable
+                return;
+            }
+
             // save previous declaration as we may call this recursively
             var prevDeclaration = this.currentDeclaration;
 
@@ -128,19 +134,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
-        {
-            VisitPropertyAccessSyntaxInternal(syntax);
-            base.VisitPropertyAccessSyntax(syntax);
-        }
-
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
-        {
-            VisitVariableAccessSyntaxInternal(syntax);
-            base.VisitVariableAccessSyntax(syntax);
-        }
-
-        private void VisitVariableAccessSyntaxInternal(VariableAccessSyntax syntax)
         {
             if (currentDeclaration == null)
             {
@@ -197,7 +191,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private void VisitPropertyAccessSyntaxInternal(PropertyAccessSyntax syntax)
+        public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
             // This solution works on the assumption that all deploy-time constants are top-level properties on
             // resources and modules (id, name, type, apiVersion). Once https://github.com/Azure/bicep/issues/1177 is fixed,
@@ -254,6 +248,9 @@ namespace Bicep.Core.Emit
                     return;
                 case ParameterSymbol parameterSymbol when parameterSymbol.TryGetBodyObjectType() is { } bodyObjectType:
                     SetSkipInlineCache(ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName));
+                    return;
+                default:
+                    base.VisitPropertyAccessSyntax(syntax);
                     return;
             }
         }
