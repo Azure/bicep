@@ -14,6 +14,13 @@ extensionConfig validSecretAssignment1 with {
   requiredSecureString: az.getSecret('a', 'b', 'c', 'valid')
 }
 
+extensionConfig duplicateAssignment1 with {
+  requiredString: 'value1'
+}
+extensionConfig duplicateAssignment1 with {
+  requiredString: 'value2'
+}
+
 param invalidParamAssignment1 = validAssignment1.requiredString
 param invalidParamAssignment2 = validAssignment1
 param invalidParamAssignment3 = validSecretAssignment1.requiredSecureString
