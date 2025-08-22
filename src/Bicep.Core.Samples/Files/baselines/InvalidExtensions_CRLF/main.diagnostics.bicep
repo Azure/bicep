@@ -54,6 +54,7 @@ resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
   extensionConfigs: {
     k8s: k8s // must use k8s.config
+//@[04:012) [BCP183 (Error)] The value of the "k8s" property must be an object literal. (bicep https://aka.ms/bicep/core-diagnostics#BCP183) |k8s: k8s|
 //@[09:012) [BCP036 (Error)] The property "k8s" expected a value of type "configuration" but the provided value is of type "k8s". (bicep https://aka.ms/bicep/core-diagnostics#BCP036) |k8s|
   }
 }
@@ -104,12 +105,13 @@ var k8sConfigDeployTime = {
 
 module moduleWithExtsUsingVar1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
   extensionConfigs: extensionConfigsVar
-//@[20:039) [BCP183 (Error)] The value of the module "extensionConfigs" property must be an object literal. (bicep https://aka.ms/bicep/core-diagnostics#BCP183) |extensionConfigsVar|
+//@[20:039) [BCP183 (Error)] The value of the "extensionConfigs" property must be an object literal. (bicep https://aka.ms/bicep/core-diagnostics#BCP183) |extensionConfigsVar|
 }
 
 module moduleWithExtsUsingVar2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
   extensionConfigs: {
     k8s: k8sConfigDeployTime
+//@[04:028) [BCP183 (Error)] The value of the "k8s" property must be an object literal. (bicep https://aka.ms/bicep/core-diagnostics#BCP183) |k8s: k8sConfigDeployTime|
   }
 }
 
