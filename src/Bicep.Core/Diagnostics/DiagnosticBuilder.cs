@@ -963,9 +963,9 @@ namespace Bicep.Core.Diagnostics
                     $"This expression is being used in the for-body of the variable \"{variableName}\", which requires values that can be calculated at the start of the deployment.{variableDependencyChainClause}{violatingPropertyNameClause}{accessiblePropertiesClause}");
             }
 
-            public Diagnostic ModulePropertyRequiresObjectLiteral(string propertyName) => CoreError(
+            public Diagnostic PropertyRequiresObjectLiteral(string propertyName) => CoreError(
                 "BCP183",
-                $"The value of the module \"{propertyName}\" property must be an object literal.");
+                $"The value of the \"{propertyName}\" property must be an object literal.");
 
             public Diagnostic FileExceedsMaximumSize(string filePath, long maxSize, string unit) => CoreError(
                 "BCP184",
