@@ -118,8 +118,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 {
                     Diagnostics.Add(Rule.CreateDiagnostic(valueSyntax.Span, CoreResources.StacksExtensibilityCompatibilityRule_SecurePropertyValueIsNotReference));
                 }
-
-                // NOTE(kylealbert): The non-secure key vault reference case is not flagged with this rule because this is handled by BCP180 already.
+                else if (!propertyType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure) && (IsKeyVaultReference(valueSyntax) || IsSecureExtConfigPropertyInheritance(valueSyntax)))
+                {
+                    Diagnostics.Add(Rule.CreateDiagnostic(valueSyntax.Span, CoreResources.StacksExtensibilityCompatibilityRule_NonSecurePropertyValueIsReference));
+                }
             }
 
             private bool IsKeyVaultReference(SyntaxBase valueSyntax) =>
