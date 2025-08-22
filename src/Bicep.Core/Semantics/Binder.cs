@@ -57,25 +57,187 @@ namespace Bicep.Core.Semantics
                     }
 
                     var allParentAssignments = extendedModel.Root.ParameterAssignments;
-                    parentParameterAssignments = parentParameterAssignments.AddRange(allParentAssignments);
+                    foreach (var assignment in allParentAssignments)
+                    {
+                        if (!parentParameterAssignments.Any(a => string.Equals(a.Name, assignment.Name, LanguageConstants.IdentifierComparison)))
+                        {
+                            parentParameterAssignments = parentParameterAssignments.Add(assignment);
+                        }
+                    }
+
+                    var parentVariables = extendedModel.Root.VariableDeclarations.OfType<VariableSymbol>().ToImmutableArray();
 
                     var nonConflicting = allParentAssignments.Where(a => !fileScope.Locals.Any(e => string.Equals(e.Name, a.Name, LanguageConstants.IdentifierComparison)));
                     fileScope = fileScope.ReplaceLocals(fileScope.Locals.AddRange(nonConflicting));
+
+                    var nonConflictingVars = parentVariables.Where(v => !fileScope.Locals.Any(e => string.Equals(e.Name, v.Name, LanguageConstants.IdentifierComparison)));
+                    fileScope = fileScope.ReplaceLocals(fileScope.Locals.AddRange(nonConflictingVars));
                 }
 
-                if (!fileScope.Locals.Any(l => string.Equals(l.Name, LanguageConstants.BaseIdentifier, LanguageConstants.IdentifierComparison)))
+                if (parentParameterAssignments.Any())
                 {
-                    var locals = fileScope.Locals;
-                    if (!locals.OfType<BaseParametersSymbol>().Any())
-                    {
-                        locals = locals.Add(new BaseParametersSymbol(symbolContext, parentParameterAssignments));
-                        fileScope = fileScope.ReplaceLocals(locals);
-                    }
+                    var localsWithoutOldBase = fileScope.Locals.Where(l => l is not BaseParametersSymbol).ToImmutableArray();
+                    fileScope = fileScope.ReplaceLocals(localsWithoutOldBase.Add(new BaseParametersSymbol(symbolContext, parentParameterAssignments)));
                 }
-                fileScope = fileScope.ReplaceLocals(fileScope.Locals.Add(new BaseParametersSymbol(symbolContext, parentParameterAssignments)));
             }
 
-            this.Bindings = NameBindingVisitor.GetBindings(sourceFile.ProgramSyntax, NamespaceResolver, fileScope);
+            var baseBindings = NameBindingVisitor.GetBindings(sourceFile.ProgramSyntax, NamespaceResolver, fileScope).ToBuilder();
+
+            if (hasExtends && parentParameterAssignments.Any())
+            {
+                foreach (var parentAssignment in parentParameterAssignments)
+                {
+                    var valueSyntax = parentAssignment.DeclaringParameterAssignment.Value;
+
+                    var stack = new Stack<SyntaxBase>();
+                    stack.Push(valueSyntax);
+                    while (stack.Count > 0)
+                    {
+                        var current = stack.Pop();
+
+                        if (current is VariableAccessSyntax || current == valueSyntax || current is PropertyAccessSyntax || current is ArrayAccessSyntax)
+                        {
+                            var parentSymbol = parentAssignment.Context.Binder.GetSymbolInfo(current);
+                            if (parentSymbol is not null && !baseBindings.ContainsKey(current))
+                            {
+                                baseBindings[current] = parentSymbol;
+                            }
+                        }
+
+                        if (current is ObjectSyntax obj)
+                        {
+                            foreach (var prop in obj.Properties)
+                            {
+                                stack.Push(prop.Value);
+                            }
+                        }
+                        else if (current is ArraySyntax arr)
+                        {
+                            foreach (var item in arr.Items)
+                            {
+                                stack.Push(item.Value);
+                            }
+                        }
+                        else if (current is PropertyAccessSyntax propAccess)
+                        {
+                            stack.Push(propAccess.BaseExpression);
+                        }
+                        else if (current is ArrayAccessSyntax arrayAccess)
+                        {
+                            stack.Push(arrayAccess.BaseExpression);
+                            stack.Push(arrayAccess.IndexExpression);
+                        }
+                        else if (current is FunctionCallSyntaxBase funcCall)
+                        {
+                            foreach (var argument in funcCall.Arguments)
+                            {
+                                stack.Push(argument.Expression);
+                            }
+                        }
+                        else if (current is ParenthesizedExpressionSyntax paren)
+                        {
+                            stack.Push(paren.Expression);
+                        }
+                        else if (current is TernaryOperationSyntax ternary)
+                        {
+                            stack.Push(ternary.FalseExpression);
+                            stack.Push(ternary.TrueExpression);
+                            stack.Push(ternary.ConditionExpression);
+                        }
+                        else if (current is BinaryOperationSyntax binary)
+                        {
+                            stack.Push(binary.RightExpression);
+                            stack.Push(binary.LeftExpression);
+                        }
+                        else if (current is UnaryOperationSyntax unary)
+                        {
+                            stack.Push(unary.Expression);
+                        }
+                        else if (current is NonNullAssertionSyntax nonNull)
+                        {
+                            stack.Push(nonNull.BaseExpression);
+                        }
+                    }
+                }
+
+                var inheritedVariables = fileScope.Locals.OfType<VariableSymbol>()
+                    .Where(v => !ReferenceEquals(v.Context.SourceFile, sourceFile))
+                    .ToImmutableArray();
+
+                foreach (var inheritedVar in inheritedVariables)
+                {
+                    var stack = new Stack<SyntaxBase>();
+                    stack.Push(inheritedVar.DeclaringVariable.Value);
+                    while (stack.Count > 0)
+                    {
+                        var current = stack.Pop();
+                        if (current is VariableAccessSyntax || current == inheritedVar.DeclaringVariable.Value || current is PropertyAccessSyntax || current is ArrayAccessSyntax)
+                        {
+                            var parentSymbol = inheritedVar.Context.Binder.GetSymbolInfo(current);
+                            if (parentSymbol is not null && !baseBindings.ContainsKey(current))
+                            {
+                                baseBindings[current] = parentSymbol;
+                            }
+                        }
+
+                        if (current is ObjectSyntax obj)
+                        {
+                            foreach (var prop in obj.Properties)
+                            {
+                                stack.Push(prop.Value);
+                            }
+                        }
+                        else if (current is ArraySyntax arr)
+                        {
+                            foreach (var item in arr.Items)
+                            {
+                                stack.Push(item.Value);
+                            }
+                        }
+                        else if (current is PropertyAccessSyntax propAccess)
+                        {
+                            stack.Push(propAccess.BaseExpression);
+                        }
+                        else if (current is ArrayAccessSyntax arrayAccess)
+                        {
+                            stack.Push(arrayAccess.BaseExpression);
+                            stack.Push(arrayAccess.IndexExpression);
+                        }
+                        else if (current is FunctionCallSyntaxBase funcCall)
+                        {
+                            foreach (var argument in funcCall.Arguments)
+                            {
+                                stack.Push(argument.Expression);
+                            }
+                        }
+                        else if (current is ParenthesizedExpressionSyntax paren)
+                        {
+                            stack.Push(paren.Expression);
+                        }
+                        else if (current is TernaryOperationSyntax ternary)
+                        {
+                            stack.Push(ternary.FalseExpression);
+                            stack.Push(ternary.TrueExpression);
+                            stack.Push(ternary.ConditionExpression);
+                        }
+                        else if (current is BinaryOperationSyntax binary)
+                        {
+                            stack.Push(binary.RightExpression);
+                            stack.Push(binary.LeftExpression);
+                        }
+                        else if (current is UnaryOperationSyntax unary)
+                        {
+                            stack.Push(unary.Expression);
+                        }
+                        else if (current is NonNullAssertionSyntax nonNull)
+                        {
+                            stack.Push(nonNull.BaseExpression);
+                        }
+                    }
+                }
+            }
+
+            this.Bindings = baseBindings.ToImmutable();
             this.cyclesBySymbol = CyclicCheckVisitor.FindCycles(sourceFile.ProgramSyntax, this.Bindings);
 
             this.FileSymbol = new FileSymbol(
