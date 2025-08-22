@@ -114,7 +114,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 propertyType = TypeHelper.TryRemoveNullability(propertyType) ?? propertyType;
 
-                if (propertyType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure) && !IsKeyVaultReference(valueSyntax))
+                if (propertyType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure) && !IsKeyVaultReference(valueSyntax) && !IsSecureExtConfigPropertyInheritance(valueSyntax))
                 {
                     Diagnostics.Add(Rule.CreateDiagnostic(valueSyntax.Span, CoreResources.StacksExtensibilityCompatibilityRule_SecurePropertyValueIsNotReference));
                 }
@@ -141,6 +141,28 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 Model.Binder.GetSymbolInfo(instCallSyntax.BaseExpression) is BuiltInNamespaceSymbol nsSymbol
                 && LanguageConstants.ExtensionNameComparer.Equals(nsSymbol.Name, AzNamespaceType.BuiltInName)
                 && LanguageConstants.IdentifierComparer.Equals(AzNamespaceType.GetSecretFunctionName, instCallSyntax.Name.IdentifierName);
+
+            private bool IsSecureExtConfigPropertyInheritance(SyntaxBase valueSyntax) =>
+                valueSyntax switch
+                {
+                    ParenthesizedExpressionSyntax parenSyntax => IsSecureExtConfigPropertyInheritance(parenSyntax.Expression),
+                    TernaryOperationSyntax ternarySyntax => IsSecureExtConfigPropertyInheritance(ternarySyntax.TrueExpression) && IsSecureExtConfigPropertyInheritance(ternarySyntax.FalseExpression),
+                    AccessExpressionSyntax accessSyntax => IsSecureExtConfigPropertyAccess(accessSyntax),
+                    _ => false,
+                };
+
+            private bool IsSecureExtConfigPropertyAccess(AccessExpressionSyntax accessSyntax)
+            {
+                if (Model.GetDeclaredType(accessSyntax) is not StringType { ValidationFlags: TypeSymbolValidationFlags.IsSecure })
+                {
+                    return false;
+                }
+
+                var baseExpressionChain = accessSyntax.GetBaseExpressionChain();
+
+                return baseExpressionChain.Count == 2 && Model.Binder.GetSymbolInfo(baseExpressionChain[0]) is ExtensionNamespaceSymbol
+                    && baseExpressionChain[1] is AccessExpressionSyntax middleAccessSyntax && string.Equals(middleAccessSyntax.TryGetPropertyName(), LanguageConstants.ExtensionConfigPropertyName, StringComparison.Ordinal);
+            }
 
             private enum VisitedElement
             {

@@ -22,6 +22,16 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             "extensionConfig mockExt with { secureStringRequiredProp: az.getSecret('a', 'b', 'c', 'd'), stringRequiredProp: 'value' }",
             "extensionConfigs: { mockExt: { secureStringRequiredProp: kv.getSecret('a'), stringRequiredProp: 'value' } }"
         )]
+        [DataRow(
+            "SecurePropertyInheritance",
+            "extensionConfig mockExt with { secureStringRequiredProp: az.getSecret('a', 'b', 'c', 'd'), stringRequiredProp: 'value' }",
+            "extensionConfigs: { mockExt: { secureStringRequiredProp: mockExt.config.secureStringRequiredProp, stringRequiredProp: 'value' } }"
+        )]
+        [DataRow(
+            "SecurePropertyInheritanceArrayVariant",
+            "extensionConfig mockExt with { secureStringRequiredProp: az.getSecret('a', 'b', 'c', 'd'), stringRequiredProp: 'value' }",
+            "extensionConfigs: { mockExt: { secureStringRequiredProp: mockExt['config']['secureStringRequiredProp'], stringRequiredProp: 'value' } }"
+        )]
         public async Task Does_not_flag_stack_compatible_assignments(string scenario, string extConfigAssignments, string moduleBody)
         {
             var paramsUri = new Uri("file:///main.bicepparam");
