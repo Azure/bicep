@@ -49,5 +49,12 @@ namespace Bicep.Core.Syntax
 
         public static bool IsEqualOrDescendent(this ISyntaxHierarchy hierarchy, SyntaxBase node, SyntaxBase potentialAncestor)
             => object.ReferenceEquals(node, potentialAncestor) || hierarchy.IsDescendant(node, potentialAncestor);
+
+        public static SyntaxBase? GetParentIgnoringParentheses(this ISyntaxHierarchy hierarchy, SyntaxBase syntax)
+            => hierarchy.EnumerateAncestorsUpwards(syntax).Where(x => x switch
+            {
+                ParenthesizedExpressionSyntax => false,
+                _ => true,
+            }).FirstOrDefault();
     }
 }

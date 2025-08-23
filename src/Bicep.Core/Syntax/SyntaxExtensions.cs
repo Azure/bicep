@@ -89,4 +89,7 @@ public static class SyntaxExtensions
     {
         return SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSecurePropertyName) is not null;
     }
+
+    public static bool HasPropertyName(this ObjectPropertySyntax syntax, string name)
+        => syntax.TryGetKeyText() is { } keyText && LanguageConstants.IdentifierComparer.Equals(keyText, name);
 }

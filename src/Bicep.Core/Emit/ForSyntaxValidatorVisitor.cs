@@ -303,23 +303,20 @@ namespace Bicep.Core.Emit
             if (symbol is ResourceSymbol { IsCollection: true } or ModuleSymbol { IsCollection: true })
             {
                 // we are inside a dependsOn property and the referenced symbol is a resource/module collection
-                var parent = this.semanticModel.Binder.GetParent(variableOrResourceAccessSyntax);
-                if (!this.insideTopLevelDependsOn && parent is not ArrayAccessSyntax)
+                var parent = this.semanticModel.Binder.GetParentIgnoringParentheses(variableOrResourceAccessSyntax);
+                if (!this.insideTopLevelDependsOn && parent is not AccessExpressionSyntax)
                 {
                     // the parent is not array access, which means that someone is doing a direct reference to the collection
                     // NOTE(kylealbert): Direct access to resource collections:
-                    //  1. Must be a symbolic resource template
                     //  1. Not allowed inside a loop
                     //  1. In a resource body, it must be in a top level depends on property or inside the properties property.
                     //  1. Allowed in a variable declaration value
                     //  1. Allowed in an output value
                     var isValidResourceCollectionDirectAccessLocation =
-                        (this.semanticModel.EmitterSettings.EnableSymbolicNames
-                         && this.loopLevel == 0
+                        this.loopLevel == 0
                          && (this.insideProperties
                              || this.currentOutputDeclarationSyntax != null
-                             || (this.currentVariableDeclarationSyntax != null && this.variableAccessForInlineCheck == null))
-                        );
+                             || (this.currentVariableDeclarationSyntax != null && this.variableAccessForInlineCheck == null));
 
                     if (!isValidResourceCollectionDirectAccessLocation)
                     {
