@@ -283,6 +283,19 @@ namespace Bicep.Core.Emit
                         parentResourceId,
                         fullyQualifiedType,
                         nameSegments);
+                case ResourceScope.DesiredStateConfiguration:
+                    // DSC resources don't have traditional ARM resource IDs
+                    var dscNameParts = new List<LanguageExpression>
+                    {
+                        new JTokenExpression(fullyQualifiedType)
+                    };
+                    dscNameParts.AddRange(nameSegments);
+                    
+                    return new FunctionExpression("concat", [.. dscNameParts.SelectMany(expr => new LanguageExpression[] 
+                    { 
+                        expr, 
+                        new JTokenExpression("/") 
+                    }).SkipLast(1)], []);
                 default:
                     throw new InvalidOperationException($"Cannot format resourceId for scope {scopeData.RequestedScope}");
             }
@@ -314,6 +327,19 @@ namespace Bicep.Core.Emit
                         parentResourceId,
                         fullyQualifiedType,
                         nameSegments);
+                case ResourceScope.DesiredStateConfiguration:
+                    // DSC resources use the same unqualified format as the qualified one
+                    var dscNameParts = new List<LanguageExpression>
+                    {
+                        new JTokenExpression(fullyQualifiedType)
+                    };
+                    dscNameParts.AddRange(nameSegments);
+                    
+                    return new FunctionExpression("concat", [.. dscNameParts.SelectMany(expr => new LanguageExpression[] 
+                    { 
+                        expr, 
+                        new JTokenExpression("/") 
+                    }).SkipLast(1)], []);
                 default:
                     throw new InvalidOperationException($"Cannot format resourceId for scope {scopeData.RequestedScope}");
             }
