@@ -15,6 +15,8 @@ param myBool bool
 //@    "myBool": {
 //@      "type": "bool"
 //@    },
+param myAny any
+//@    "myAny": {},
 
 // parameters with default value
 param myString2 string = 'string value'
@@ -41,6 +43,10 @@ param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 //@    "myEscapedString": {
 //@      "type": "string",
 //@      "defaultValue": "First line\r\nSecond\ttabbed\tline"
+//@    },
+param myAny2 any = myAny.property
+//@    "myAny2": {
+//@      "defaultValue": "[parameters('myAny').property]"
 //@    },
 
 // object default value
