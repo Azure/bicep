@@ -27,7 +27,7 @@ public class TypeDefinitionBuilderTests
     private record SimpleResource(string Name = "", string AnotherString = "");
 
     private static TypeSettings CreateTypeSettings() =>
-        new("TestSettings", "2025-01-01", true, new Azure.Bicep.Types.CrossFileTypeReference("index.json", 0));
+        new(name: "TestSettings", version: "2025-01-01", isSingleton: true, configurationType: new Azure.Bicep.Types.CrossFileTypeReference("index.json", 0));
 
     private TypeFactory CreateTypeFactory() => new([]);
 
