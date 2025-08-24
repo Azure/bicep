@@ -58,6 +58,7 @@ namespace Bicep.Core.TypeSystem
 
             FunctionCallSyntaxBase functionCallSyntaxBase => functionCallSyntaxBase.Arguments,
             FunctionDeclarationSyntax functionDeclaration => functionDeclaration.AsEnumerable(),
+            FunctionArgumentSyntax functionArgument => functionArgument.AsEnumerable(),
             _ => throw new ArgumentOutOfRangeException(nameof(deployTimeConstantContainer), "Expected an ObjectPropertySyntax, an IfConditionSyntax, a ForSyntax, a FunctionCallSyntaxBase, or a FunctionDeclarationSyntax."),
         };
 

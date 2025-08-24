@@ -1958,6 +1958,16 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic FoundFileInsteadOfDirectory(string filePath) => CoreError(
                 "BCP430",
                 $"Unable to open directory at path \"{filePath}\". Found a file instead.");
+
+            public Diagnostic RuntimeValueNotAllowedInFunctionArgument(string? functionName, string? parameterName, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
+            {
+                var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
+                var accessiblePropertiesClause = BuildAccessiblePropertiesClause(accessedSymbolName, accessiblePropertyNames);
+
+                return CoreError(
+                    "BCP431",
+                    $"This expression is being used in parameter \"{parameterName ?? "unknown"}\" of the function \"{functionName ?? "unknown"}\", which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
+            }
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
