@@ -56,7 +56,7 @@ namespace Bicep.Core.Emit
             if (syntax.Value is not ObjectSyntax && !ResolvesToExpectedExtensionConfigExpression(syntax.Value, model))
             {
                 var propertyName = syntax.TryGetKeyText() ?? "<unknown>";
-                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).PropertyRequiresObjectLiteral(propertyName));
+                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).InvalidModuleExtensionConfigAssignmentExpression(propertyName));
             }
         }
 

@@ -1958,6 +1958,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic FoundFileInsteadOfDirectory(string filePath) => CoreError(
                 "BCP430",
                 $"Unable to open directory at path \"{filePath}\". Found a file instead.");
+
+            public Diagnostic InvalidModuleExtensionConfigAssignmentExpression(string propertyName) => CoreError(
+                "BCP431",
+                $"The value of the \"{propertyName}\" property must be an object literal or a valid extension config inheritance expression.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
