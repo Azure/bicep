@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:3170) ProgramSyntax
+//@[000:3710) ProgramSyntax
 //@[020:0024) ├─Token(NewLine) |\r\n\r\n|
 
 param boolParam1 bool
@@ -19,6 +19,15 @@ param strParam1 string
 //@[016:0022) | └─TypeVariableAccessSyntax
 //@[016:0022) |   └─IdentifierSyntax
 //@[016:0022) |     └─Token(Identifier) |string|
+//@[022:0024) ├─Token(NewLine) |\r\n|
+param objParam1 object
+//@[000:0022) ├─ParameterDeclarationSyntax
+//@[000:0005) | ├─Token(Identifier) |param|
+//@[006:0015) | ├─IdentifierSyntax
+//@[006:0015) | | └─Token(Identifier) |objParam1|
+//@[016:0022) | └─TypeVariableAccessSyntax
+//@[016:0022) |   └─IdentifierSyntax
+//@[016:0022) |     └─Token(Identifier) |object|
 //@[022:0026) ├─Token(NewLine) |\r\n\r\n|
 
 // END: Parameters
@@ -45,10 +54,18 @@ extension kubernetes as k8s
 //@[021:0023) |   ├─Token(Identifier) |as|
 //@[024:0027) |   └─IdentifierSyntax
 //@[024:0027) |     └─Token(Identifier) |k8s|
-//@[027:0031) ├─Token(NewLine) |\r\n\r\n|
-
-//extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
-//@[094:0098) ├─Token(NewLine) |\r\n\r\n|
+//@[027:0029) ├─Token(NewLine) |\r\n|
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as extWithOptionalConfig1
+//@[000:0102) ├─ExtensionDeclarationSyntax
+//@[000:0009) | ├─Token(Identifier) |extension|
+//@[010:0076) | ├─StringSyntax
+//@[010:0076) | | └─Token(StringComplete) |'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3'|
+//@[077:0077) | ├─SkippedTriviaSyntax
+//@[077:0102) | └─AliasAsClauseSyntax
+//@[077:0079) |   ├─Token(Identifier) |as|
+//@[080:0102) |   └─IdentifierSyntax
+//@[080:0102) |     └─Token(Identifier) |extWithOptionalConfig1|
+//@[102:0106) ├─Token(NewLine) |\r\n\r\n|
 
 // END: Valid Extension declarations
 //@[036:0040) ├─Token(NewLine) |\r\n\r\n|
@@ -646,6 +663,80 @@ module moduleWithExtsUsingVar2 'child/hasConfigurableExtensionsWithAlias.bicep' 
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
+module moduleWithExtsUsingParam1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:0136) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0032) | ├─IdentifierSyntax
+//@[007:0032) | | └─Token(Identifier) |moduleWithExtsUsingParam1|
+//@[033:0081) | ├─StringSyntax
+//@[033:0081) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[082:0083) | ├─Token(Assignment) |=|
+//@[084:0136) | └─ObjectSyntax
+//@[084:0085) |   ├─Token(LeftBrace) |{|
+//@[085:0087) |   ├─Token(NewLine) |\r\n|
+  extensionConfigs: {
+//@[002:0046) |   ├─ObjectPropertySyntax
+//@[002:0018) |   | ├─IdentifierSyntax
+//@[002:0018) |   | | └─Token(Identifier) |extensionConfigs|
+//@[018:0019) |   | ├─Token(Colon) |:|
+//@[020:0046) |   | └─ObjectSyntax
+//@[020:0021) |   |   ├─Token(LeftBrace) |{|
+//@[021:0023) |   |   ├─Token(NewLine) |\r\n|
+    k8s: objParam1
+//@[004:0018) |   |   ├─ObjectPropertySyntax
+//@[004:0007) |   |   | ├─IdentifierSyntax
+//@[004:0007) |   |   | | └─Token(Identifier) |k8s|
+//@[007:0008) |   |   | ├─Token(Colon) |:|
+//@[009:0018) |   |   | └─VariableAccessSyntax
+//@[009:0018) |   |   |   └─IdentifierSyntax
+//@[009:0018) |   |   |     └─Token(Identifier) |objParam1|
+//@[018:0020) |   |   ├─Token(NewLine) |\r\n|
+  }
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
+
+module moduleWithExtsUsingReference1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:0155) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0036) | ├─IdentifierSyntax
+//@[007:0036) | | └─Token(Identifier) |moduleWithExtsUsingReference1|
+//@[037:0085) | ├─StringSyntax
+//@[037:0085) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[086:0087) | ├─Token(Assignment) |=|
+//@[088:0155) | └─ObjectSyntax
+//@[088:0089) |   ├─Token(LeftBrace) |{|
+//@[089:0091) |   ├─Token(NewLine) |\r\n|
+  extensionConfigs: {
+//@[002:0061) |   ├─ObjectPropertySyntax
+//@[002:0018) |   | ├─IdentifierSyntax
+//@[002:0018) |   | | └─Token(Identifier) |extensionConfigs|
+//@[018:0019) |   | ├─Token(Colon) |:|
+//@[020:0061) |   | └─ObjectSyntax
+//@[020:0021) |   |   ├─Token(LeftBrace) |{|
+//@[021:0023) |   |   ├─Token(NewLine) |\r\n|
+    k8s: testResource1.properties
+//@[004:0033) |   |   ├─ObjectPropertySyntax
+//@[004:0007) |   |   | ├─IdentifierSyntax
+//@[004:0007) |   |   | | └─Token(Identifier) |k8s|
+//@[007:0008) |   |   | ├─Token(Colon) |:|
+//@[009:0033) |   |   | └─PropertyAccessSyntax
+//@[009:0022) |   |   |   ├─VariableAccessSyntax
+//@[009:0022) |   |   |   | └─IdentifierSyntax
+//@[009:0022) |   |   |   |   └─Token(Identifier) |testResource1|
+//@[022:0023) |   |   |   ├─Token(Dot) |.|
+//@[023:0033) |   |   |   └─IdentifierSyntax
+//@[023:0033) |   |   |     └─Token(Identifier) |properties|
+//@[033:0035) |   |   ├─Token(NewLine) |\r\n|
+  }
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
+
 module moduleInvalidSpread1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@[000:0139) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
@@ -716,6 +807,58 @@ module moduleInvalidSpread2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
     }
 //@[004:0005) |   |   |   └─Token(RightBrace) |}|
 //@[005:0007) |   |   ├─Token(NewLine) |\r\n|
+  }
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
+
+module moduleInvalidInheritanceTernary 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:0207) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0038) | ├─IdentifierSyntax
+//@[007:0038) | | └─Token(Identifier) |moduleInvalidInheritanceTernary|
+//@[039:0087) | ├─StringSyntax
+//@[039:0087) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[088:0089) | ├─Token(Assignment) |=|
+//@[090:0207) | └─ObjectSyntax
+//@[090:0091) |   ├─Token(LeftBrace) |{|
+//@[091:0093) |   ├─Token(NewLine) |\r\n|
+  extensionConfigs: {
+//@[002:0111) |   ├─ObjectPropertySyntax
+//@[002:0018) |   | ├─IdentifierSyntax
+//@[002:0018) |   | | └─Token(Identifier) |extensionConfigs|
+//@[018:0019) |   | ├─Token(Colon) |:|
+//@[020:0111) |   | └─ObjectSyntax
+//@[020:0021) |   |   ├─Token(LeftBrace) |{|
+//@[021:0023) |   |   ├─Token(NewLine) |\r\n|
+    extWithOptionalConfig1: boolParam1 ? extWithOptionalConfig1.config : k8s.config
+//@[004:0083) |   |   ├─ObjectPropertySyntax
+//@[004:0026) |   |   | ├─IdentifierSyntax
+//@[004:0026) |   |   | | └─Token(Identifier) |extWithOptionalConfig1|
+//@[026:0027) |   |   | ├─Token(Colon) |:|
+//@[028:0083) |   |   | └─TernaryOperationSyntax
+//@[028:0038) |   |   |   ├─VariableAccessSyntax
+//@[028:0038) |   |   |   | └─IdentifierSyntax
+//@[028:0038) |   |   |   |   └─Token(Identifier) |boolParam1|
+//@[039:0040) |   |   |   ├─Token(Question) |?|
+//@[041:0070) |   |   |   ├─PropertyAccessSyntax
+//@[041:0063) |   |   |   | ├─VariableAccessSyntax
+//@[041:0063) |   |   |   | | └─IdentifierSyntax
+//@[041:0063) |   |   |   | |   └─Token(Identifier) |extWithOptionalConfig1|
+//@[063:0064) |   |   |   | ├─Token(Dot) |.|
+//@[064:0070) |   |   |   | └─IdentifierSyntax
+//@[064:0070) |   |   |   |   └─Token(Identifier) |config|
+//@[071:0072) |   |   |   ├─Token(Colon) |:|
+//@[073:0083) |   |   |   └─PropertyAccessSyntax
+//@[073:0076) |   |   |     ├─VariableAccessSyntax
+//@[073:0076) |   |   |     | └─IdentifierSyntax
+//@[073:0076) |   |   |     |   └─Token(Identifier) |k8s|
+//@[076:0077) |   |   |     ├─Token(Dot) |.|
+//@[077:0083) |   |   |     └─IdentifierSyntax
+//@[077:0083) |   |   |       └─Token(Identifier) |config|
+//@[083:0085) |   |   ├─Token(NewLine) |\r\n|
   }
 //@[002:0003) |   |   └─Token(RightBrace) |}|
 //@[003:0005) |   ├─Token(NewLine) |\r\n|

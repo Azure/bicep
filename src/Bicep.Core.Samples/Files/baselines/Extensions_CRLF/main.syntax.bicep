@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:3207) ProgramSyntax
+//@[000:3753) ProgramSyntax
 //@[020:0024) ├─Token(NewLine) |\r\n\r\n|
 
 param strParam1 string
@@ -81,10 +81,29 @@ extension kubernetes as k8s
 //@[021:0023) |   ├─Token(Identifier) |as|
 //@[024:0027) |   └─IdentifierSyntax
 //@[024:0027) |     └─Token(Identifier) |k8s|
-//@[027:0031) ├─Token(NewLine) |\r\n\r\n|
-
-//extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
-//@[084:0088) ├─Token(NewLine) |\r\n\r\n|
+//@[027:0029) ├─Token(NewLine) |\r\n|
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as extWithOptionalConfig1
+//@[000:0102) ├─ExtensionDeclarationSyntax
+//@[000:0009) | ├─Token(Identifier) |extension|
+//@[010:0076) | ├─StringSyntax
+//@[010:0076) | | └─Token(StringComplete) |'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3'|
+//@[077:0077) | ├─SkippedTriviaSyntax
+//@[077:0102) | └─AliasAsClauseSyntax
+//@[077:0079) |   ├─Token(Identifier) |as|
+//@[080:0102) |   └─IdentifierSyntax
+//@[080:0102) |     └─Token(Identifier) |extWithOptionalConfig1|
+//@[102:0104) ├─Token(NewLine) |\r\n|
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as extWithOptionalConfig2
+//@[000:0102) ├─ExtensionDeclarationSyntax
+//@[000:0009) | ├─Token(Identifier) |extension|
+//@[010:0076) | ├─StringSyntax
+//@[010:0076) | | └─Token(StringComplete) |'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3'|
+//@[077:0077) | ├─SkippedTriviaSyntax
+//@[077:0102) | └─AliasAsClauseSyntax
+//@[077:0079) |   ├─Token(Identifier) |as|
+//@[080:0102) |   └─IdentifierSyntax
+//@[080:0102) |     └─Token(Identifier) |extWithOptionalConfig2|
+//@[102:0106) ├─Token(NewLine) |\r\n\r\n|
 
 // END: Extension declarations
 //@[030:0034) ├─Token(NewLine) |\r\n\r\n|
@@ -599,6 +618,71 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
+module moduleWithExtsUsingFullInheritanceTernary 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:0256) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0048) | ├─IdentifierSyntax
+//@[007:0048) | | └─Token(Identifier) |moduleWithExtsUsingFullInheritanceTernary|
+//@[049:0097) | ├─StringSyntax
+//@[049:0097) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[098:0099) | ├─Token(Assignment) |=|
+//@[100:0256) | └─ObjectSyntax
+//@[100:0101) |   ├─Token(LeftBrace) |{|
+//@[101:0103) |   ├─Token(NewLine) |\r\n|
+  extensionConfigs: {
+//@[002:0150) |   ├─ObjectPropertySyntax
+//@[002:0018) |   | ├─IdentifierSyntax
+//@[002:0018) |   | | └─Token(Identifier) |extensionConfigs|
+//@[018:0019) |   | ├─Token(Colon) |:|
+//@[020:0150) |   | └─ObjectSyntax
+//@[020:0021) |   |   ├─Token(LeftBrace) |{|
+//@[021:0023) |   |   ├─Token(NewLine) |\r\n|
+    k8s: k8s.config
+//@[004:0019) |   |   ├─ObjectPropertySyntax
+//@[004:0007) |   |   | ├─IdentifierSyntax
+//@[004:0007) |   |   | | └─Token(Identifier) |k8s|
+//@[007:0008) |   |   | ├─Token(Colon) |:|
+//@[009:0019) |   |   | └─PropertyAccessSyntax
+//@[009:0012) |   |   |   ├─VariableAccessSyntax
+//@[009:0012) |   |   |   | └─IdentifierSyntax
+//@[009:0012) |   |   |   |   └─Token(Identifier) |k8s|
+//@[012:0013) |   |   |   ├─Token(Dot) |.|
+//@[013:0019) |   |   |   └─IdentifierSyntax
+//@[013:0019) |   |   |     └─Token(Identifier) |config|
+//@[019:0021) |   |   ├─Token(NewLine) |\r\n|
+    extWithOptionalConfig: boolParam1 ? extWithOptionalConfig1.config : extWithOptionalConfig2.config
+//@[004:0101) |   |   ├─ObjectPropertySyntax
+//@[004:0025) |   |   | ├─IdentifierSyntax
+//@[004:0025) |   |   | | └─Token(Identifier) |extWithOptionalConfig|
+//@[025:0026) |   |   | ├─Token(Colon) |:|
+//@[027:0101) |   |   | └─TernaryOperationSyntax
+//@[027:0037) |   |   |   ├─VariableAccessSyntax
+//@[027:0037) |   |   |   | └─IdentifierSyntax
+//@[027:0037) |   |   |   |   └─Token(Identifier) |boolParam1|
+//@[038:0039) |   |   |   ├─Token(Question) |?|
+//@[040:0069) |   |   |   ├─PropertyAccessSyntax
+//@[040:0062) |   |   |   | ├─VariableAccessSyntax
+//@[040:0062) |   |   |   | | └─IdentifierSyntax
+//@[040:0062) |   |   |   | |   └─Token(Identifier) |extWithOptionalConfig1|
+//@[062:0063) |   |   |   | ├─Token(Dot) |.|
+//@[063:0069) |   |   |   | └─IdentifierSyntax
+//@[063:0069) |   |   |   |   └─Token(Identifier) |config|
+//@[070:0071) |   |   |   ├─Token(Colon) |:|
+//@[072:0101) |   |   |   └─PropertyAccessSyntax
+//@[072:0094) |   |   |     ├─VariableAccessSyntax
+//@[072:0094) |   |   |     | └─IdentifierSyntax
+//@[072:0094) |   |   |     |   └─Token(Identifier) |extWithOptionalConfig2|
+//@[094:0095) |   |   |     ├─Token(Dot) |.|
+//@[095:0101) |   |   |     └─IdentifierSyntax
+//@[095:0101) |   |   |       └─Token(Identifier) |config|
+//@[101:0103) |   |   ├─Token(NewLine) |\r\n|
+  }
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
+
 module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@[000:0229) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
@@ -866,6 +950,54 @@ module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlia
     }
 //@[004:0005) |   |   |   └─Token(RightBrace) |}|
 //@[005:0007) |   |   ├─Token(NewLine) |\r\n|
+  }
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
+
+module moduleWithExtsEmpty 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:0162) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0026) | ├─IdentifierSyntax
+//@[007:0026) | | └─Token(Identifier) |moduleWithExtsEmpty|
+//@[027:0075) | ├─StringSyntax
+//@[027:0075) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[076:0077) | ├─Token(Assignment) |=|
+//@[078:0162) | └─ObjectSyntax
+//@[078:0079) |   ├─Token(LeftBrace) |{|
+//@[079:0081) |   ├─Token(NewLine) |\r\n|
+  extensionConfigs: {
+//@[002:0078) |   ├─ObjectPropertySyntax
+//@[002:0018) |   | ├─IdentifierSyntax
+//@[002:0018) |   | | └─Token(Identifier) |extensionConfigs|
+//@[018:0019) |   | ├─Token(Colon) |:|
+//@[020:0078) |   | └─ObjectSyntax
+//@[020:0021) |   |   ├─Token(LeftBrace) |{|
+//@[021:0023) |   |   ├─Token(NewLine) |\r\n|
+    k8s: k8s.config
+//@[004:0019) |   |   ├─ObjectPropertySyntax
+//@[004:0007) |   |   | ├─IdentifierSyntax
+//@[004:0007) |   |   | | └─Token(Identifier) |k8s|
+//@[007:0008) |   |   | ├─Token(Colon) |:|
+//@[009:0019) |   |   | └─PropertyAccessSyntax
+//@[009:0012) |   |   |   ├─VariableAccessSyntax
+//@[009:0012) |   |   |   | └─IdentifierSyntax
+//@[009:0012) |   |   |   |   └─Token(Identifier) |k8s|
+//@[012:0013) |   |   |   ├─Token(Dot) |.|
+//@[013:0019) |   |   |   └─IdentifierSyntax
+//@[013:0019) |   |   |     └─Token(Identifier) |config|
+//@[019:0021) |   |   ├─Token(NewLine) |\r\n|
+    extWithOptionalConfig: {}
+//@[004:0029) |   |   ├─ObjectPropertySyntax
+//@[004:0025) |   |   | ├─IdentifierSyntax
+//@[004:0025) |   |   | | └─Token(Identifier) |extWithOptionalConfig|
+//@[025:0026) |   |   | ├─Token(Colon) |:|
+//@[027:0029) |   |   | └─ObjectSyntax
+//@[027:0028) |   |   |   ├─Token(LeftBrace) |{|
+//@[028:0029) |   |   |   └─Token(RightBrace) |}|
+//@[029:0031) |   |   ├─Token(NewLine) |\r\n|
   }
 //@[002:0003) |   |   └─Token(RightBrace) |}|
 //@[003:0005) |   ├─Token(NewLine) |\r\n|

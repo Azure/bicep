@@ -2,6 +2,8 @@
 
 param boolParam1 bool
 param strParam1 string
+param objParam1 object
+//@[16:022) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |object|
 
 // END: Parameters
 
@@ -9,8 +11,7 @@ param strParam1 string
 
 extension az
 extension kubernetes as k8s
-
-//extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as extWithOptionalConfig1
 
 // END: Valid Extension declarations
 
@@ -54,7 +55,7 @@ resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
   extensionConfigs: {
     k8s: k8s // must use k8s.config
-//@[04:012) [BCP183 (Error)] The value of the "k8s" property must be an object literal. (bicep https://aka.ms/bicep/core-diagnostics#BCP183) |k8s: k8s|
+//@[04:012) [BCP431 (Error)] The value of the "k8s" property must be an object literal or a valid extension config inheritance expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP431) |k8s: k8s|
 //@[09:012) [BCP036 (Error)] The property "k8s" expected a value of type "configuration" but the provided value is of type "k8s". (bicep https://aka.ms/bicep/core-diagnostics#BCP036) |k8s|
   }
 }
@@ -111,7 +112,21 @@ module moduleWithExtsUsingVar1 'child/hasConfigurableExtensionsWithAlias.bicep' 
 module moduleWithExtsUsingVar2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
   extensionConfigs: {
     k8s: k8sConfigDeployTime
-//@[04:028) [BCP183 (Error)] The value of the "k8s" property must be an object literal. (bicep https://aka.ms/bicep/core-diagnostics#BCP183) |k8s: k8sConfigDeployTime|
+//@[04:028) [BCP431 (Error)] The value of the "k8s" property must be an object literal or a valid extension config inheritance expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP431) |k8s: k8sConfigDeployTime|
+  }
+}
+
+module moduleWithExtsUsingParam1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  extensionConfigs: {
+    k8s: objParam1
+//@[04:018) [BCP431 (Error)] The value of the "k8s" property must be an object literal or a valid extension config inheritance expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP431) |k8s: objParam1|
+  }
+}
+
+module moduleWithExtsUsingReference1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  extensionConfigs: {
+    k8s: testResource1.properties
+//@[04:033) [BCP431 (Error)] The value of the "k8s" property must be an object literal or a valid extension config inheritance expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP431) |k8s: testResource1.properties|
   }
 }
 
@@ -128,6 +143,16 @@ module moduleInvalidSpread2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
       ...k8sConfigDeployTime
 //@[06:028) [BCP401 (Error)] The spread operator "..." is not permitted in this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP401) |...k8sConfigDeployTime|
     }
+  }
+}
+
+module moduleInvalidInheritanceTernary 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  extensionConfigs: {
+//@[02:018) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "k8s". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |extensionConfigs|
+    extWithOptionalConfig1: boolParam1 ? extWithOptionalConfig1.config : k8s.config
+//@[28:083) [BCP037 (Error)] The property "context" is not allowed on objects of type "config". No other properties are allowed. (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |boolParam1 ? extWithOptionalConfig1.config : k8s.config|
+//@[28:083) [BCP037 (Error)] The property "kubeConfig" is not allowed on objects of type "config". No other properties are allowed. (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |boolParam1 ? extWithOptionalConfig1.config : k8s.config|
+//@[28:083) [BCP037 (Error)] The property "namespace" is not allowed on objects of type "config". No other properties are allowed. (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |boolParam1 ? extWithOptionalConfig1.config : k8s.config|
   }
 }
 

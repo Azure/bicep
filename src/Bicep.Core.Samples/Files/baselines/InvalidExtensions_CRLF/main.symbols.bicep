@@ -1,32 +1,34 @@
 // BEGIN: Parameters
 
 param boolParam1 bool
-//@[06:16) Parameter boolParam1. Type: bool. Declaration start char: 0, length: 21
+//@[06:016) Parameter boolParam1. Type: bool. Declaration start char: 0, length: 21
 param strParam1 string
-//@[06:15) Parameter strParam1. Type: string. Declaration start char: 0, length: 22
+//@[06:015) Parameter strParam1. Type: string. Declaration start char: 0, length: 22
+param objParam1 object
+//@[06:015) Parameter objParam1. Type: object. Declaration start char: 0, length: 22
 
 // END: Parameters
 
 // BEGIN: Valid Extension declarations
 
 extension az
-//@[10:12) ImportedNamespace az. Type: az. Declaration start char: 0, length: 12
+//@[10:012) ImportedNamespace az. Type: az. Declaration start char: 0, length: 12
 extension kubernetes as k8s
-//@[24:27) ImportedNamespace k8s. Type: k8s. Declaration start char: 0, length: 27
-
-//extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
+//@[24:027) ImportedNamespace k8s. Type: k8s. Declaration start char: 0, length: 27
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as extWithOptionalConfig1
+//@[80:102) ImportedNamespace extWithOptionalConfig1. Type: extWithOptionalConfig1. Declaration start char: 0, length: 102
 
 // END: Valid Extension declarations
 
 // BEGIN: Key vaults
 
 resource kv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
-//@[09:12) Resource kv1. Type: Microsoft.KeyVault/vaults@2019-09-01. Declaration start char: 0, length: 82
+//@[09:012) Resource kv1. Type: Microsoft.KeyVault/vaults@2019-09-01. Declaration start char: 0, length: 82
   name: 'kv1'
 }
 
 resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
-//@[09:18) Resource scopedKv1. Type: Microsoft.KeyVault/vaults@2019-09-01. Declaration start char: 0, length: 132
+//@[09:018) Resource scopedKv1. Type: Microsoft.KeyVault/vaults@2019-09-01. Declaration start char: 0, length: 132
   name: 'scopedKv1'
   scope: resourceGroup('otherGroup')
 }
@@ -36,12 +38,12 @@ resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 // BEGIN: Resources
 
 var configProp = 'config'
-//@[04:14) Variable configProp. Type: 'config'. Declaration start char: 0, length: 25
+//@[04:014) Variable configProp. Type: 'config'. Declaration start char: 0, length: 25
 
 // Extension symbols are blocked in resources because each config property returns an object { value, keyVaultReference } and "value" is not available when a reference is provided.
 // Users should use deployment parameters for this scenario.
 resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
-//@[09:22) Resource testResource1. Type: My.Rp/TestType@2020-01-01. Declaration start char: 0, length: 231
+//@[09:022) Resource testResource1. Type: My.Rp/TestType@2020-01-01. Declaration start char: 0, length: 231
   name: k8s.config.namespace
   properties: {
     secret: k8s.config.kubeConfig
@@ -55,14 +57,14 @@ resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
 // BEGIN: Extension configs for modules
 
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[07:41) Module moduleWithExtsUsingFullInheritance. Type: module. Declaration start char: 0, length: 162
+//@[07:041) Module moduleWithExtsUsingFullInheritance. Type: module. Declaration start char: 0, length: 162
   extensionConfigs: {
     k8s: k8s // must use k8s.config
   }
 }
 
 module moduleInvalidPropertyAccess 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[07:34) Module moduleInvalidPropertyAccess. Type: module. Declaration start char: 0, length: 241
+//@[07:034) Module moduleInvalidPropertyAccess. Type: module. Declaration start char: 0, length: 241
   extensionConfigs: {
     k8s: {
       kubeConfig: k8s.config.kubeConfig.keyVaultReference
@@ -72,7 +74,7 @@ module moduleInvalidPropertyAccess 'child/hasConfigurableExtensionsWithAlias.bic
 }
 
 module moduleComplexKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[07:37) Module moduleComplexKeyVaultReference. Type: module. Declaration start char: 0, length: 343
+//@[07:037) Module moduleComplexKeyVaultReference. Type: module. Declaration start char: 0, length: 343
   extensionConfigs: {
     k8s: {
       kubeConfig: boolParam1 ? kv1.getSecret('myKubeConfig') : scopedKv1.getSecret('myOtherKubeConfig')
@@ -82,12 +84,12 @@ module moduleComplexKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.
 }
 
 var invalidVarAssignment1 = k8s.config.namespace
-//@[04:25) Variable invalidVarAssignment1. Type: string. Declaration start char: 0, length: 48
+//@[04:025) Variable invalidVarAssignment1. Type: string. Declaration start char: 0, length: 48
 var invalidVarAssignment2 = k8s.config.kubeConfig
-//@[04:25) Variable invalidVarAssignment2. Type: string. Declaration start char: 0, length: 49
+//@[04:025) Variable invalidVarAssignment2. Type: string. Declaration start char: 0, length: 49
 
 var extensionConfigsVar = {
-//@[04:23) Variable extensionConfigsVar. Type: object. Declaration start char: 0, length: 99
+//@[04:023) Variable extensionConfigsVar. Type: object. Declaration start char: 0, length: 99
   k8s: {
     kubeConfig: 'inlined',
     namespace: 'inlined'
@@ -95,36 +97,57 @@ var extensionConfigsVar = {
 }
 
 var k8sConfigDeployTime = {
-//@[04:23) Variable k8sConfigDeployTime. Type: object. Declaration start char: 0, length: 79
+//@[04:023) Variable k8sConfigDeployTime. Type: object. Declaration start char: 0, length: 79
   kubeConfig: strParam1
   namespace: strParam1
 }
 
 module moduleWithExtsUsingVar1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[07:30) Module moduleWithExtsUsingVar1. Type: module. Declaration start char: 0, length: 127
+//@[07:030) Module moduleWithExtsUsingVar1. Type: module. Declaration start char: 0, length: 127
   extensionConfigs: extensionConfigsVar
 }
 
 module moduleWithExtsUsingVar2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[07:30) Module moduleWithExtsUsingVar2. Type: module. Declaration start char: 0, length: 144
+//@[07:030) Module moduleWithExtsUsingVar2. Type: module. Declaration start char: 0, length: 144
   extensionConfigs: {
     k8s: k8sConfigDeployTime
   }
 }
 
+module moduleWithExtsUsingParam1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[07:032) Module moduleWithExtsUsingParam1. Type: module. Declaration start char: 0, length: 136
+  extensionConfigs: {
+    k8s: objParam1
+  }
+}
+
+module moduleWithExtsUsingReference1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[07:036) Module moduleWithExtsUsingReference1. Type: module. Declaration start char: 0, length: 155
+  extensionConfigs: {
+    k8s: testResource1.properties
+  }
+}
+
 module moduleInvalidSpread1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[07:27) Module moduleInvalidSpread1. Type: module. Declaration start char: 0, length: 139
+//@[07:027) Module moduleInvalidSpread1. Type: module. Declaration start char: 0, length: 139
   extensionConfigs: {
     ...extensionConfigsVar
   }
 }
 
 module moduleInvalidSpread2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[07:27) Module moduleInvalidSpread2. Type: module. Declaration start char: 0, length: 160
+//@[07:027) Module moduleInvalidSpread2. Type: module. Declaration start char: 0, length: 160
   extensionConfigs: {
     k8s: {
       ...k8sConfigDeployTime
     }
+  }
+}
+
+module moduleInvalidInheritanceTernary 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[07:038) Module moduleInvalidInheritanceTernary. Type: module. Declaration start char: 0, length: 207
+  extensionConfigs: {
+    extWithOptionalConfig1: boolParam1 ? extWithOptionalConfig1.config : k8s.config
   }
 }
 
@@ -135,13 +158,13 @@ module moduleInvalidSpread2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 // Extension symbols are blocked for outputs for now. Users should use deployment parameters for this scenario.
 
 output k8sTheNamespace object = k8s // This is a namespace type
-//@[07:22) Output k8sTheNamespace. Type: object. Declaration start char: 0, length: 35
+//@[07:022) Output k8sTheNamespace. Type: object. Declaration start char: 0, length: 35
 
 output k8sConfig object = k8s.config
-//@[07:16) Output k8sConfig. Type: object. Declaration start char: 0, length: 36
+//@[07:016) Output k8sConfig. Type: object. Declaration start char: 0, length: 36
 
 output k8sNamespace string = k8s.config.namespace
-//@[07:19) Output k8sNamespace. Type: string. Declaration start char: 0, length: 49
+//@[07:019) Output k8sNamespace. Type: string. Declaration start char: 0, length: 49
 
 // END: Outputs
 
