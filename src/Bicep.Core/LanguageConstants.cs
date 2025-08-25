@@ -96,6 +96,7 @@ namespace Bicep.Core
         public const string TargetScopeTypeLocal = "local";
 
         public const string CopyLoopIdentifier = "copy";
+        public const string BaseIdentifier = "base";
 
         public const string BicepConfigurationFileName = "bicepconfig.json";
 

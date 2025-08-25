@@ -1126,6 +1126,16 @@ public class ExpressionBuilder
             case ExtensionConfigAssignmentSymbol extensionConfigAssignmentSymbol:
                 return new ExtensionConfigAssignmentReferenceExpression(variableAccessSyntax, extensionConfigAssignmentSymbol);
 
+            case BaseParametersSymbol baseParamsSymbol:
+                var objectProperties = baseParamsSymbol.ParentAssignments
+                    .Select(pa => new ObjectPropertyExpression(
+                        pa.DeclaringParameterAssignment,
+                        new StringLiteralExpression(pa.DeclaringParameterAssignment.Name, pa.Name),
+                        ConvertWithoutLowering(pa.DeclaringParameterAssignment.Value)))
+                    .ToImmutableArray();
+
+                return new ObjectExpression(variableAccessSyntax, objectProperties);
+
             default:
                 throw new NotImplementedException($"Encountered an unexpected symbol kind '{symbol?.Kind}' and type '{symbol?.GetType().Name}' when generating a variable access expression.");
 
