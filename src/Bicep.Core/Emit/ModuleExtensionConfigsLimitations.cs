@@ -64,6 +64,7 @@ namespace Bicep.Core.Emit
             expression switch
             {
                 ParenthesizedExpressionSyntax parenSyntax => ResolvesToExpectedExtensionConfigExpression(parenSyntax.Expression, model),
+                // NOTE: in ternaries, only allow config expressions and not object literals because the object literal must be specially emitted
                 TernaryOperationSyntax ternarySyntax => ResolvesToExpectedExtensionConfigExpression(ternarySyntax.TrueExpression, model)
                     && ResolvesToExpectedExtensionConfigExpression(ternarySyntax.FalseExpression, model),
                 AccessExpressionSyntax accessSyntax => IsExtConfigAccess(accessSyntax, model),
