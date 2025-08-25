@@ -106,7 +106,7 @@ var k8sConfigDeployTime = {
 
 module moduleWithExtsUsingVar1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
   extensionConfigs: extensionConfigsVar
-//@[20:039) [BCP183 (Error)] The value of the "extensionConfigs" property must be an object literal. (bicep https://aka.ms/bicep/core-diagnostics#BCP183) |extensionConfigsVar|
+//@[20:039) [BCP183 (Error)] The value of the module "extensionConfigs" property must be an object literal. (bicep https://aka.ms/bicep/core-diagnostics#BCP183) |extensionConfigsVar|
 }
 
 module moduleWithExtsUsingVar2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
