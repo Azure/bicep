@@ -155,7 +155,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             private bool IsSecureExtConfigPropertyAccess(AccessExpressionSyntax accessSyntax)
             {
-                if (Model.GetDeclaredType(accessSyntax) is not StringType { ValidationFlags: TypeSymbolValidationFlags.IsSecure })
+                if (Model.GetDeclaredType(accessSyntax) is not StringType strAccess || !strAccess.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
                 {
                     return false;
                 }
