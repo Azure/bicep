@@ -148,7 +148,7 @@ module moduleInvalidSpread2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 
 module moduleInvalidInheritanceTernary 'child/hasConfigurableExtensionsWithAlias.bicep' = {
   extensionConfigs: {
-//@[02:018) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "k8s". (bicep https://aka.ms/bicep/core-diagnostics#BCP035) |extensionConfigs|
+    k8s: k8s.config
     extWithOptionalConfig1: boolParam1 ? extWithOptionalConfig1.config : k8s.config
 //@[28:083) [BCP037 (Error)] The property "context" is not allowed on objects of type "config". No other properties are allowed. (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |boolParam1 ? extWithOptionalConfig1.config : k8s.config|
 //@[28:083) [BCP037 (Error)] The property "kubeConfig" is not allowed on objects of type "config". No other properties are allowed. (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |boolParam1 ? extWithOptionalConfig1.config : k8s.config|

@@ -145,8 +145,9 @@ module moduleInvalidSpread2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 }
 
 module moduleInvalidInheritanceTernary 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[07:038) Module moduleInvalidInheritanceTernary. Type: module. Declaration start char: 0, length: 207
+//@[07:038) Module moduleInvalidInheritanceTernary. Type: module. Declaration start char: 0, length: 228
   extensionConfigs: {
+    k8s: k8s.config
     extWithOptionalConfig1: boolParam1 ? extWithOptionalConfig1.config : k8s.config
   }
 }

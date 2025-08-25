@@ -538,6 +538,13 @@ module moduleInvalidInheritanceTernary 'child/hasConfigurableExtensionsWithAlias
 //@[018:019) Colon |:|
 //@[020:021) LeftBrace |{|
 //@[021:023) NewLine |\r\n|
+    k8s: k8s.config
+//@[004:007) Identifier |k8s|
+//@[007:008) Colon |:|
+//@[009:012) Identifier |k8s|
+//@[012:013) Dot |.|
+//@[013:019) Identifier |config|
+//@[019:021) NewLine |\r\n|
     extWithOptionalConfig1: boolParam1 ? extWithOptionalConfig1.config : k8s.config
 //@[004:026) Identifier |extWithOptionalConfig1|
 //@[026:027) Colon |:|

@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:3710) ProgramSyntax
+//@[000:3731) ProgramSyntax
 //@[020:0024) ├─Token(NewLine) |\r\n\r\n|
 
 param boolParam1 bool
@@ -815,24 +815,37 @@ module moduleInvalidSpread2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 module moduleInvalidInheritanceTernary 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[000:0207) ├─ModuleDeclarationSyntax
+//@[000:0228) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
 //@[007:0038) | ├─IdentifierSyntax
 //@[007:0038) | | └─Token(Identifier) |moduleInvalidInheritanceTernary|
 //@[039:0087) | ├─StringSyntax
 //@[039:0087) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
 //@[088:0089) | ├─Token(Assignment) |=|
-//@[090:0207) | └─ObjectSyntax
+//@[090:0228) | └─ObjectSyntax
 //@[090:0091) |   ├─Token(LeftBrace) |{|
 //@[091:0093) |   ├─Token(NewLine) |\r\n|
   extensionConfigs: {
-//@[002:0111) |   ├─ObjectPropertySyntax
+//@[002:0132) |   ├─ObjectPropertySyntax
 //@[002:0018) |   | ├─IdentifierSyntax
 //@[002:0018) |   | | └─Token(Identifier) |extensionConfigs|
 //@[018:0019) |   | ├─Token(Colon) |:|
-//@[020:0111) |   | └─ObjectSyntax
+//@[020:0132) |   | └─ObjectSyntax
 //@[020:0021) |   |   ├─Token(LeftBrace) |{|
 //@[021:0023) |   |   ├─Token(NewLine) |\r\n|
+    k8s: k8s.config
+//@[004:0019) |   |   ├─ObjectPropertySyntax
+//@[004:0007) |   |   | ├─IdentifierSyntax
+//@[004:0007) |   |   | | └─Token(Identifier) |k8s|
+//@[007:0008) |   |   | ├─Token(Colon) |:|
+//@[009:0019) |   |   | └─PropertyAccessSyntax
+//@[009:0012) |   |   |   ├─VariableAccessSyntax
+//@[009:0012) |   |   |   | └─IdentifierSyntax
+//@[009:0012) |   |   |   |   └─Token(Identifier) |k8s|
+//@[012:0013) |   |   |   ├─Token(Dot) |.|
+//@[013:0019) |   |   |   └─IdentifierSyntax
+//@[013:0019) |   |   |     └─Token(Identifier) |config|
+//@[019:0021) |   |   ├─Token(NewLine) |\r\n|
     extWithOptionalConfig1: boolParam1 ? extWithOptionalConfig1.config : k8s.config
 //@[004:0083) |   |   ├─ObjectPropertySyntax
 //@[004:0026) |   |   | ├─IdentifierSyntax

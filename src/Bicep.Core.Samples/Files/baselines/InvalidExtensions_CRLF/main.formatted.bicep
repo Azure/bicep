@@ -119,6 +119,7 @@ module moduleInvalidSpread2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 
 module moduleInvalidInheritanceTernary 'child/hasConfigurableExtensionsWithAlias.bicep' = {
   extensionConfigs: {
+    k8s: k8s.config
     extWithOptionalConfig1: boolParam1 ? extWithOptionalConfig1.config : k8s.config
   }
 }
