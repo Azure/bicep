@@ -6,11 +6,11 @@ using Bicep.Cli.Commands;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Auth;
 using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
@@ -61,6 +61,9 @@ public static class ServiceCollectionExtensions
             .AddSingleton<JsonRpcCommand>()
             .AddSingleton<LocalDeployCommand>()
             .AddSingleton<SnapshotCommand>()
+            .AddSingleton<DeployCommand>()
+            .AddSingleton<WhatIfCommand>()
+            .AddSingleton<DestroyCommand>()
             .AddSingleton<RootCommand>();
 
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
@@ -68,6 +71,7 @@ public static class ServiceCollectionExtensions
         .AddSingleton<IResourceTypeProviderFactory, ResourceTypeProviderFactory>()
         .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
         .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
+        .AddSingleton<IArmClientProvider, ArmClientProvider>()
         .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
         .AddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>()
         .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()

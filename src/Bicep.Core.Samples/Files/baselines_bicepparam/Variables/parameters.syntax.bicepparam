@@ -2,8 +2,9 @@ using 'main.bicep'
 //@[00:272) ProgramSyntax
 //@[00:018) ├─UsingDeclarationSyntax
 //@[00:005) | ├─Token(Identifier) |using|
-//@[06:018) | └─StringSyntax
-//@[06:018) |   └─Token(StringComplete) |'main.bicep'|
+//@[06:018) | ├─StringSyntax
+//@[06:018) | | └─Token(StringComplete) |'main.bicep'|
+//@[18:018) | └─SkippedTriviaSyntax
 //@[18:020) ├─Token(NewLine) |\n\n|
 
 @description('blah blah')

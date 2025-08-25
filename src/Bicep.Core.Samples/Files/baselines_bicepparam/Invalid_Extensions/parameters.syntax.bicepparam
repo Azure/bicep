@@ -2,8 +2,9 @@ using 'main.bicep'
 //@[000:1895) ProgramSyntax
 //@[000:0018) ├─UsingDeclarationSyntax
 //@[000:0005) | ├─Token(Identifier) |using|
-//@[006:0018) | └─StringSyntax
-//@[006:0018) |   └─Token(StringComplete) |'main.bicep'|
+//@[006:0018) | ├─StringSyntax
+//@[006:0018) | | └─Token(StringComplete) |'main.bicep'|
+//@[018:0018) | └─SkippedTriviaSyntax
 //@[018:0020) ├─Token(NewLine) |\n\n|
 
 var emptyObjVar = {}

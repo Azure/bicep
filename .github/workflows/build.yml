@@ -2,9 +2,9 @@ name: Build
 
 on:
   push:
-    branches: [main]
+    branches: [main, ant/poc_cli]
   pull_request:
-    branches: [main]
+    branches: [main ,ant/poc_cli]
   workflow_dispatch:
 
 permissions:
@@ -742,7 +742,7 @@ jobs:
     name: Check secret access
     runs-on: ubuntu-latest
     outputs:
-      access_verified: ${{ steps.check-access.outputs.verified && !(github.event_name == 'workflow_dispatch' && github.ref != 'refs/head/main') }}
+      access_verified: ${{ steps.check-access.outputs.verified && (github.base_ref == 'refs/head/main' || github.ref == 'refs/head/main') }}
 
     steps:
       - id: check-access

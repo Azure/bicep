@@ -36,7 +36,7 @@ namespace Bicep.Core.Emit
 
             var processedSyntaxList = new List<SyntaxBase>()
             {
-                new UsingDeclarationSyntax(SyntaxFactory.UsingKeywordToken, SyntaxFactory.CreateStringLiteral($"./{bicepFileName}")),
+                new UsingDeclarationSyntax(SyntaxFactory.UsingKeywordToken, SyntaxFactory.CreateStringLiteral($"./{bicepFileName}"), SyntaxFactory.EmptySkippedTrivia),
                 SyntaxFactory.NewlineToken,
                 SyntaxFactory.NewlineToken
             }.Concat(result);

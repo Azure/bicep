@@ -1822,6 +1822,18 @@ namespace Bicep.Core.TypeSystem
                     // the object is an item in an array
                     // use the item's type and propagate flags
                     return TryCreateAssignment(ResolveDiscriminatedObjects(configType.Type, syntax), syntax, extensionAssignment.Flags);
+                case UsingWithClauseSyntax:
+                    parent = this.binder.GetParent(parent) ?? throw new InvalidOperationException($"Expected {nameof(UsingWithClauseSyntax)} to have a parent.");
+                    if (!binder.FileSymbol.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var semanticModel))
+                    {
+                        // this error will have already been surfaced elsewhere
+                        return null;
+                    }
+
+                    var usingConfigType = LanguageConstants.CreateUsingConfigType();
+
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(usingConfigType, syntax), syntax);
+
                 case FunctionArgumentSyntax:
                 case OutputDeclarationSyntax parentOutput when syntax == parentOutput.Value:
                 case VariableDeclarationSyntax parentVariable when syntax == parentVariable.Value:
