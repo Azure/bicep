@@ -965,7 +965,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic PropertyRequiresObjectLiteral(string propertyName) => CoreError(
                 "BCP183",
-                $"The value of the \"{propertyName}\" property must be an object literal.");
+                $"The value of the module \"{propertyName}\" property must be an object literal.");
 
             public Diagnostic FileExceedsMaximumSize(string filePath, long maxSize, string unit) => CoreError(
                 "BCP184",
