@@ -2,7 +2,8 @@ using 'main.bicep'
 
 param config = {
   global: {
-    serviceTreeId: '...'
+    serviceTreeId: '67fa35d2-495a-4f32-aee6-9dac46f7ecce'
+    environment: 'test'
   }
   regional: {
     eastus: {

@@ -479,7 +479,13 @@ namespace Bicep.Core.PrettyPrintV2
         private IEnumerable<Document> LayoutUsingDeclarationSyntax(UsingDeclarationSyntax syntax) =>
             this.Spread(
                 syntax.Keyword,
-                syntax.Path);
+                syntax.Path,
+                syntax.WithClause);
+
+        private IEnumerable<Document> LayoutUsingWithClauseSyntax(UsingWithClauseSyntax syntax) =>
+            this.Spread(
+                syntax.Keyword,
+                syntax.Config);
 
         private IEnumerable<Document> LayoutExtendsDeclarationSyntax(ExtendsDeclarationSyntax syntax) =>
             this.Spread(

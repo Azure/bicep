@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Azure.ResourceManager;
+using Bicep.Core.AzureApi;
 using Bicep.Core;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
@@ -75,7 +76,7 @@ namespace Bicep.LanguageServer.Handlers
             options.Environment = new ArmEnvironment(new Uri(request.resourceManagerEndpointUrl), request.audience);
 
             var credential = new CredentialFromTokenAndTimeStamp(request.token, request.expiresOnTimestamp);
-            var armClient = armClientProvider.createArmClient(credential, default, options);
+            var armClient = armClientProvider.CreateArmClient(credential, default, options);
 
             //starting with empty valid json (that can be parsed) for deployments with no parameters
             string parametersFileJson = "{}";

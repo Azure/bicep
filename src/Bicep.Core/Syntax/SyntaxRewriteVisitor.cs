@@ -186,15 +186,30 @@ namespace Bicep.Core.Syntax
         {
             var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
             hasChanges |= TryRewriteStrict(syntax.Path, out var path);
+            hasChanges |= TryRewriteStrict(syntax.WithClause, out var withClause);
 
             if (!hasChanges)
             {
                 return syntax;
             }
 
-            return new UsingDeclarationSyntax(keyword, path);
+            return new UsingDeclarationSyntax(keyword, path, withClause);
         }
         void ISyntaxVisitor.VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax) => ReplaceCurrent(syntax, VisitUsingDeclarationSyntax);
+
+        protected virtual SyntaxBase ReplaceUsingWithClauseSyntax(UsingWithClauseSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Config, out var config);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new UsingWithClauseSyntax(keyword, config);
+        }
+        void ISyntaxVisitor.VisitUsingWithClauseSyntax(UsingWithClauseSyntax syntax) => ReplaceCurrent(syntax, ReplaceUsingWithClauseSyntax);
 
         protected virtual SyntaxBase ReplaceExtendsDeclarationSyntax(ExtendsDeclarationSyntax syntax)
         {

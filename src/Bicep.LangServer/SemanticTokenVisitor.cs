@@ -425,6 +425,12 @@ namespace Bicep.LanguageServer
             base.VisitUsingDeclarationSyntax(syntax);
         }
 
+        public override void VisitUsingWithClauseSyntax(UsingWithClauseSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            this.Visit(syntax.Config);
+        }
+
         public override void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);

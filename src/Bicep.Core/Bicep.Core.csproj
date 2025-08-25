@@ -37,6 +37,7 @@
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Semver" />
     <PackageReference Include="SharpYaml" />
+    <PackageReference Include="Azure.Deployments.ClientTools" />
     <PackageReference Include="Azure.Deployments.Templates" />
     <PackageReference Include="Azure.Bicep.Types" />
     <PackageReference Include="Azure.Bicep.Types.Az" />

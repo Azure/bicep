@@ -10,6 +10,7 @@ type GlobalConfigType = {
   regional: { *: RegionalConfigType }
   global: {
     serviceTreeId: string
+    environment: string
   }
   stageMappings: {
     name: string
