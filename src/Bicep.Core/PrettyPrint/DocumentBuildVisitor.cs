@@ -236,6 +236,7 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.Keyword);
                 this.documentStack.Push(Nil);
                 this.Visit(syntax.Path);
+                this.Visit(syntax.WithClause);
             });
 
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax) =>

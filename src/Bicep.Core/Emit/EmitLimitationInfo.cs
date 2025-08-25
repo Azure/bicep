@@ -20,4 +20,5 @@ public record EmitLimitationInfo(
     ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> ModuleScopeData,
     ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> ResourceScopeData,
     ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue> ParameterAssignments,
-    ImmutableDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>> ExtensionConfigAssignments);
+    ImmutableDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>> ExtensionConfigAssignments,
+    ParameterAssignmentValue? UsingConfig);

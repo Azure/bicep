@@ -13,8 +13,9 @@ multiline comment!
 using './main.bicep'
 //@[000:0020) ├─UsingDeclarationSyntax
 //@[000:0005) | ├─Token(Identifier) |using|
-//@[006:0020) | └─StringSyntax
-//@[006:0020) |   └─Token(StringComplete) |'./main.bicep'|
+//@[006:0020) | ├─StringSyntax
+//@[006:0020) | | └─Token(StringComplete) |'./main.bicep'|
+//@[020:0020) | └─SkippedTriviaSyntax
 //@[020:0022) ├─Token(NewLine) |\n\n|
 
 // parameter assignment to literals

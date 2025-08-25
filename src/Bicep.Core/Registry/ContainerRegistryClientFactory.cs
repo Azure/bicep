@@ -3,7 +3,7 @@
 
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
-using Bicep.Core.Registry.Auth;
+using Bicep.Core.AzureApi;
 using Bicep.Core.Tracing;
 
 namespace Bicep.Core.Registry

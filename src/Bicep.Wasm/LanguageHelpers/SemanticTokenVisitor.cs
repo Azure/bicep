@@ -358,6 +358,12 @@ namespace Bicep.Wasm.LanguageHelpers
             base.VisitUsingDeclarationSyntax(syntax);
         }
 
+        public override void VisitUsingWithClauseSyntax(UsingWithClauseSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            this.Visit(syntax.Config);
+        }
+
         public override void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);

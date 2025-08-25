@@ -2,8 +2,9 @@ using './main.bicep'
 //@[00:197) ProgramSyntax
 //@[00:020) ├─UsingDeclarationSyntax
 //@[00:005) | ├─Token(Identifier) |using|
-//@[06:020) | └─StringSyntax
-//@[06:020) |   └─Token(StringComplete) |'./main.bicep'|
+//@[06:020) | ├─StringSyntax
+//@[06:020) | | └─Token(StringComplete) |'./main.bicep'|
+//@[20:020) | └─SkippedTriviaSyntax
 //@[20:022) ├─Token(NewLine) |\n\n|
 
 param string = 123

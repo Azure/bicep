@@ -2,8 +2,9 @@ using 'main.bicep'
 //@[00:2208) ProgramSyntax
 //@[00:0018) ├─UsingDeclarationSyntax
 //@[00:0005) | ├─Token(Identifier) |using|
-//@[06:0018) | └─StringSyntax
-//@[06:0018) |   └─Token(StringComplete) |'main.bicep'|
+//@[06:0018) | ├─StringSyntax
+//@[06:0018) | | └─Token(StringComplete) |'main.bicep'|
+//@[18:0018) | └─SkippedTriviaSyntax
 //@[18:0020) ├─Token(NewLine) |\n\n|
 
 param myObject = {

@@ -400,5 +400,26 @@ namespace Bicep.Core
 
             return new ModuleType(typeName, moduleScope, moduleBody);
         }
+
+        public static TypeSymbol CreateUsingConfigType(ResourceScope moduleScope, string typeName)
+        {
+            var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant | TypePropertyFlags.Required;
+
+            // Taken from the official REST specs for Microsoft.Resources/deployments
+            var nameType = TypeFactory.CreateStringType(minLength: 1, maxLength: 64, pattern: @"^[-\w._()]+$");
+
+            // TODO support "stack" as an alternative
+            var modeType = TypeFactory.CreateStringLiteralType("deployment");
+
+            List<NamedTypeProperty> configProperties =
+            [
+                new("mode", modeType, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.LoopVariant),
+                new(ModuleNamePropertyName, nameType, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.LoopVariant),
+                // TODO model this properly as a scope, rather than a string
+                new(ResourceScopePropertyName, LanguageConstants.String, scopePropertyFlags),
+            ];
+
+            return new ObjectType(typeName, TypeSymbolValidationFlags.Default, configProperties, null);
+        }
     }
 }

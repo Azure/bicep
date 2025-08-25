@@ -10,7 +10,7 @@ namespace Bicep.Core.Syntax
 {
     public class UsingDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IArtifactReferenceSyntax
     {
-        public UsingDeclarationSyntax(Token keyword, SyntaxBase path)
+        public UsingDeclarationSyntax(Token keyword, SyntaxBase path, SyntaxBase withClause)
             : base([])
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.UsingKeyword);
@@ -18,19 +18,23 @@ namespace Bicep.Core.Syntax
 
             this.Keyword = keyword;
             this.Path = path;
-
+            this.WithClause = withClause;
         }
 
         public Token Keyword { get; }
 
         public SyntaxBase Path { get; }
 
+        public SyntaxBase WithClause { get; }
+
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitUsingDeclarationSyntax(this);
 
         public ArtifactType GetArtifactType() => ArtifactType.Module;
 
-        public override TextSpan Span => TextSpan.Between(this.Keyword, this.Path);
+        public override TextSpan Span => TextSpan.Between(this.Keyword, this.WithClause);
 
         SyntaxBase IArtifactReferenceSyntax.SourceSyntax => Path;
+
+        public ObjectSyntax? Config => (this.WithClause as UsingWithClauseSyntax)?.Config as ObjectSyntax;
     }
 }

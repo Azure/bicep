@@ -5,7 +5,7 @@ using Azure.Core;
 using Azure.Identity;
 using Bicep.Core.Configuration;
 
-namespace Bicep.Core.Registry.Auth
+namespace Bicep.Core.AzureApi
 {
     public class TokenCredentialFactory : ITokenCredentialFactory
     {

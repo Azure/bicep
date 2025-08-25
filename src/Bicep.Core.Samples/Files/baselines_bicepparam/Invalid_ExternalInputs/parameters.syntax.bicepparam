@@ -2,8 +2,9 @@ using none
 //@[00:573) ProgramSyntax
 //@[00:010) ├─UsingDeclarationSyntax
 //@[00:005) | ├─Token(Identifier) |using|
-//@[06:010) | └─NoneLiteralSyntax
-//@[06:010) |   └─Token(Identifier) |none|
+//@[06:010) | ├─NoneLiteralSyntax
+//@[06:010) | | └─Token(Identifier) |none|
+//@[10:010) | └─SkippedTriviaSyntax
 //@[10:014) ├─Token(NewLine) |\r\n\r\n|
 
 var myVar = 1 + 2

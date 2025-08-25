@@ -2,8 +2,9 @@ using 'main.bicep'
 //@[00:85) ProgramSyntax
 //@[00:18) ├─UsingDeclarationSyntax
 //@[00:05) | ├─Token(Identifier) |using|
-//@[06:18) | └─StringSyntax
-//@[06:18) |   └─Token(StringComplete) |'main.bicep'|
+//@[06:18) | ├─StringSyntax
+//@[06:18) | | └─Token(StringComplete) |'main.bicep'|
+//@[18:18) | └─SkippedTriviaSyntax
 //@[18:20) ├─Token(NewLine) |\n\n|
 
 import * as foo from 'foo.bicep'

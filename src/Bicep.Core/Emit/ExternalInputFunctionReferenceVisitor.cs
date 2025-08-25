@@ -100,6 +100,11 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
         ProcessSymbolClosures(visitor, model.Root.ParameterAssignments);
         ProcessSymbolClosures(visitor, model.Root.VariableDeclarations);
 
+        if (model.Root.UsingDeclarationSyntax?.Config is { } config)
+        {
+            // TODO update visitor to improve this
+            config.Accept(visitor);
+        }
 
         return new ExternalInputReferences(
             ParametersReferences: visitor.parametersContainingExternalInput.ToImmutable(),

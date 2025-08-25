@@ -5,6 +5,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Azure.Core;
 using Azure.ResourceManager;
+using Bicep.Core.AzureApi;
+using Bicep.Core.Configuration;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Mock;
@@ -26,12 +28,15 @@ namespace Bicep.LangServer.IntegrationTests
 {
     public class MockArmClientProvider : IArmClientProvider
     {
-        public ArmClient createArmClient(TokenCredential credential, string? defaultSubscriptionId, ArmClientOptions options)
+        public ArmClient CreateArmClient(TokenCredential credential, string? defaultSubscriptionId, ArmClientOptions options)
         {
             var clientMock = StrictMock.Of<ArmClient>();
 
             return clientMock.Object;
         }
+
+        public ArmClient CreateArmClient(RootConfiguration configuration, string? defaultSubscriptionId)
+            => throw new NotImplementedException();
     }
 
     [TestClass]

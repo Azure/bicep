@@ -7,7 +7,7 @@ using Azure.Deployments.Core.ErrorResponses;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Auth;
+using Bicep.Core.AzureApi;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.IO.Abstraction;

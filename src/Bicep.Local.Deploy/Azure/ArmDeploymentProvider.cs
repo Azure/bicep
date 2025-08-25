@@ -13,8 +13,8 @@ using Azure.Deployments.Core.Interfaces;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
+using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
-using Bicep.Core.Registry.Auth;
 using Bicep.Core.Tracing;
 using Bicep.Local.Deploy.Engine;
 using Bicep.Local.Deploy.Extensibility;
@@ -24,16 +24,11 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 namespace Bicep.Local.Deploy.Azure;
 
 public class ArmDeploymentProvider(
-    ITokenCredentialFactory credentialFactory) : IArmDeploymentProvider
+    IArmClientProvider armClientProvider) : IArmDeploymentProvider
 {
     private ArmDeploymentCollection GetDeploymentsClient(RootConfiguration configuration, DeploymentLocator deploymentLocator)
     {
-        var options = new ArmClientOptions();
-        options.Diagnostics.ApplySharedResourceManagerSettings();
-        options.Environment = new ArmEnvironment(configuration.Cloud.ResourceManagerEndpointUri, configuration.Cloud.AuthenticationScope);
-
-        var credential = credentialFactory.CreateChain(configuration.Cloud.CredentialPrecedence, configuration.Cloud.CredentialOptions, configuration.Cloud.ActiveDirectoryAuthorityUri);
-        var armClient = new ArmClient(credential, deploymentLocator.SubscriptionId, options);
+        var armClient = armClientProvider.CreateArmClient(configuration, deploymentLocator.SubscriptionId);
 
         if (deploymentLocator.SubscriptionId == null)
         {

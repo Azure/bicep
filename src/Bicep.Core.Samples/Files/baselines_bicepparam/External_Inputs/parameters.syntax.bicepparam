@@ -2,8 +2,9 @@ using none
 //@[00:1409) ProgramSyntax
 //@[00:0010) ├─UsingDeclarationSyntax
 //@[00:0005) | ├─Token(Identifier) |using|
-//@[06:0010) | └─NoneLiteralSyntax
-//@[06:0010) |   └─Token(Identifier) |none|
+//@[06:0010) | ├─NoneLiteralSyntax
+//@[06:0010) | | └─Token(Identifier) |none|
+//@[10:0010) | └─SkippedTriviaSyntax
 //@[10:0014) ├─Token(NewLine) |\r\n\r\n|
 
 // single parameter

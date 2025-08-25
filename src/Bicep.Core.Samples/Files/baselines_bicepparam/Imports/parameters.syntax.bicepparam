@@ -2,8 +2,9 @@ using 'main.bicep'
 //@[000:297) ProgramSyntax
 //@[000:018) ├─UsingDeclarationSyntax
 //@[000:005) | ├─Token(Identifier) |using|
-//@[006:018) | └─StringSyntax
-//@[006:018) |   └─Token(StringComplete) |'main.bicep'|
+//@[006:018) | ├─StringSyntax
+//@[006:018) | | └─Token(StringComplete) |'main.bicep'|
+//@[018:018) | └─SkippedTriviaSyntax
 //@[018:019) ├─Token(NewLine) |\n|
 import * as bicepconfig from 'bicepconfig.bicep'
 //@[000:048) ├─CompileTimeImportDeclarationSyntax

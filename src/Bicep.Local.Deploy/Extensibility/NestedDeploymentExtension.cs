@@ -13,7 +13,7 @@ using Azure.Deployments.Extensibility.Core.V2.Models;
 using Azure.Deployments.Extensibility.Data;
 using Azure.Deployments.Extensibility.Messages;
 using Bicep.Core.Configuration;
-using Bicep.Core.Registry.Auth;
+using Bicep.Core.AzureApi;
 using Bicep.Local.Deploy.Azure;
 using Bicep.Local.Deploy.Engine;
 using Bicep.Local.Deploy.Types;
