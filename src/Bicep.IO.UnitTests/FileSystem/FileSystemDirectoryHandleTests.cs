@@ -52,7 +52,7 @@ namespace Bicep.IO.UnitTests.FileSystem
             var childDirectory = directoryHandle.GetDirectory("child");
 
             // Assert.
-            childDirectory.Uri.GetLocalFilePath().Should().Be(fileSystem.Path.GetFullPath("/dir/child/"));
+            childDirectory.Uri.GetFilePath().Should().Be(fileSystem.Path.GetFullPath("/dir/child/"));
         }
 
         [TestMethod]
@@ -66,7 +66,7 @@ namespace Bicep.IO.UnitTests.FileSystem
             var childFile = directoryHandle.GetFile("child.txt");
 
             // Assert.
-            childFile.Uri.GetLocalFilePath().Should().Be(fileSystem.Path.GetFullPath("/dir/child.txt"));
+            childFile.Uri.GetFilePath().Should().Be(fileSystem.Path.GetFullPath("/dir/child.txt"));
         }
 
         [TestMethod]
@@ -95,7 +95,7 @@ namespace Bicep.IO.UnitTests.FileSystem
 
             // Assert.
             parentDirectory.Should().NotBeNull();
-            parentDirectory!.Uri.GetLocalFilePath().Should().Be(fileSystem.Path.GetFullPath("/dir/"));
+            parentDirectory!.Uri.GetFilePath().Should().Be(fileSystem.Path.GetFullPath("/dir/"));
         }
 
         [TestMethod]
@@ -144,7 +144,7 @@ namespace Bicep.IO.UnitTests.FileSystem
             // Assert.
 #if WINDOWS_BUILD
             subdirectories.Should().HaveCount(2);
-            subdirectories.Select(d => d.Uri.GetLocalFilePath()).Should().Contain(new[] { @"C:\dir\subdir1\", @"C:\dir\subdir2\" });
+            subdirectories.Select(d => d.Uri.GetFilePath()).Should().Contain(new[] { @"C:\dir\subdir1\", @"C:\dir\subdir2\" });
 #else
             subdirectories.Should().HaveCount(2);
             subdirectories.Select(d => d.Uri.GetLocalFilePath()).Should().Contain(new[] { "/dir/subdir1/", "/dir/subdir2/" });
@@ -168,7 +168,7 @@ namespace Bicep.IO.UnitTests.FileSystem
             // Assert.
 #if WINDOWS_BUILD
             subdirectories.Should().HaveCount(2);
-            subdirectories.Select(d => d.Uri.GetLocalFilePath()).Should().Contain(new[] { @"C:\dir\subdir1\", @"C:\dir\subdir2\" });
+            subdirectories.Select(d => d.Uri.GetFilePath()).Should().Contain(new[] { @"C:\dir\subdir1\", @"C:\dir\subdir2\" });
 #else
             subdirectories.Should().HaveCount(2);
             subdirectories.Select(d => d.Uri.GetLocalFilePath()).Should().Contain(new[] { "/dir/subdir1/", "/dir/subdir2/" });
@@ -207,7 +207,7 @@ namespace Bicep.IO.UnitTests.FileSystem
             // Assert.
 #if WINDOWS_BUILD
             files.Should().HaveCount(2);
-            files.Select(d => d.Uri.GetLocalFilePath()).Should().Contain(new[] { @"C:\dir\file1.txt", @"C:\dir\file2.txt" });
+            files.Select(d => d.Uri.GetFilePath()).Should().Contain(new[] { @"C:\dir\file1.txt", @"C:\dir\file2.txt" });
 #else
             files.Should().HaveCount(2);
             files.Select(d => d.Uri.GetLocalFilePath()).Should().Contain(new[] { "/dir/file1.txt", "/dir/file2.txt" });
@@ -231,7 +231,7 @@ namespace Bicep.IO.UnitTests.FileSystem
             // Assert.
 #if WINDOWS_BUILD
             files.Should().HaveCount(2);
-            files.Select(d => d.Uri.GetLocalFilePath()).Should().Contain(new[] { @"C:\dir\file1.txt", @"C:\dir\file3.txt" });
+            files.Select(d => d.Uri.GetFilePath()).Should().Contain(new[] { @"C:\dir\file1.txt", @"C:\dir\file3.txt" });
 #else
             files.Should().HaveCount(2);
             files.Select(d => d.Uri.GetLocalFilePath()).Should().Contain(new[] { "/dir/file1.txt", "/dir/file3.txt" });
@@ -242,7 +242,7 @@ namespace Bicep.IO.UnitTests.FileSystem
         {
             path = fileSystem.Path.GetFullPath(path);
 
-            return new(fileSystem, IOUri.FromLocalFilePath(path));
+            return new(fileSystem, IOUri.FromFilePath(path));
         }
     }
 }

@@ -50,7 +50,7 @@ namespace Bicep.IO.UnitTests.FileSystem
             var parentDirectory = fileHandle.GetParent();
 
             // Assert.
-            parentDirectory.Uri.GetLocalFilePath().Should().Be(fileSystem.Path.GetFullPath("/dir/"));
+            parentDirectory.Uri.GetFilePath().Should().Be(fileSystem.Path.GetFullPath("/dir/"));
         }
 
         [TestMethod]
@@ -77,7 +77,7 @@ namespace Bicep.IO.UnitTests.FileSystem
         {
             path = fileSystem.Path.GetFullPath(path);
 
-            return new FileSystemFileHandle(fileSystem, IOUri.FromLocalFilePath(path));
+            return new FileSystemFileHandle(fileSystem, IOUri.FromFilePath(path));
         }
     }
 }

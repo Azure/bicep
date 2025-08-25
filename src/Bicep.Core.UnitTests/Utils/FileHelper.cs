@@ -83,7 +83,7 @@ namespace Bicep.Core.UnitTests.Utils
         public static IDirectoryHandle GetCacheRootDirectory(TestContext testContext)
         {
             var path = GetUniqueTestOutputPath(testContext);
-            var uri = IOUri.FromLocalFilePath(path);
+            var uri = IOUri.FromFilePath(path);
 
             return BicepTestConstants.FileExplorer.GetDirectory(uri);
         }

@@ -13,7 +13,7 @@ public static class HandlerHelper
 {
     public static string ValidateLocalFilePath(DocumentUri documentUri)
     {
-        if (documentUri.ToIOUri().TryGetLocalFilePath() is not { } localPath)
+        if (documentUri.ToIOUri().TryGetFilePath() is not { } localPath)
         {
             throw new ArgumentException($"Invalid input URI: {documentUri}. Expected a file URI.");
         }
