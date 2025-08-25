@@ -15,6 +15,15 @@ extensionConfig validSecretAssignment1 with {
   requiredSecureString: az.getSecret('a', 'b', 'c', 'valid')
 }
 
+extensionConfig duplicateAssignment1 with {
+//@[16:036) [BCP028 (Error)] Identifier "duplicateAssignment1" is declared multiple times. Remove or rename the duplicates. (bicep https://aka.ms/bicep/core-diagnostics#BCP028) |duplicateAssignment1|
+  requiredString: 'value1'
+}
+extensionConfig duplicateAssignment1 with {
+//@[16:036) [BCP028 (Error)] Identifier "duplicateAssignment1" is declared multiple times. Remove or rename the duplicates. (bicep https://aka.ms/bicep/core-diagnostics#BCP028) |duplicateAssignment1|
+  requiredString: 'value2'
+}
+
 param invalidParamAssignment1 = validAssignment1.requiredString
 //@[32:048) [BCP063 (Error)] The name "validAssignment1" is not a parameter, variable, resource or module. (bicep https://aka.ms/bicep/core-diagnostics#BCP063) |validAssignment1|
 param invalidParamAssignment2 = validAssignment1

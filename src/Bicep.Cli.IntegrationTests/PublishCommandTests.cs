@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Data;
 using System.Reflection;
 using System.Text.Json;
 using Azure;
@@ -17,6 +16,7 @@ using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
@@ -142,9 +142,25 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClients(new RepoDescriptor(registryStr, repository, ["tag"]));
+            var defaultExtensions = MockRegistry.CreateDefaultMockExtensions().ToArray();
+
+            var clientFactory = dataSet.CreateMockRegistryClients(
+            [
+                new RepoDescriptor(registryStr, repository, ["tag"]),
+                ..defaultExtensions.Select(ext => new RepoDescriptor(ext.Registry, ext.RepoPath, ext.Tags))
+            ]);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
+
+            var services = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
+                .AddSingleton(clientFactory)
+                .AddSingleton(templateSpecRepositoryFactory));
+
+            foreach (var ext in defaultExtensions)
+            {
+                await RegistryHelper.PublishExtensionToRegistryAsync(services, ext.ExtensionRepoReference, ext.TypesTgzData);
+            }
+
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
 
@@ -167,9 +183,9 @@ namespace Bicep.Cli.IntegrationTests
             string[] args = [.. requiredArgs];
 
             var (output, error, result) = await Bicep(settings, args);
-            result.Should().Be(0);
-            output.Should().BeEmpty();
             AssertNoErrors(error);
+            output.Should().BeEmpty();
+            result.Should().Be(0);
 
             using var expectedCompiledStream = new FileStream(compiledFilePath, FileMode.Open, FileAccess.Read);
             var expectedCompiledPayload = BinaryData.FromStream(expectedCompiledStream);
@@ -190,9 +206,9 @@ namespace Bicep.Cli.IntegrationTests
 
             // publish the same content again without --force
             var (output2, error2, result2) = await Bicep(settings, args);
-            result2.Should().Be(1);
-            output2.Should().BeEmpty();
             error2.Should().MatchRegex($"The module \"br:{registryStr}/{repository}:v1\" already exists in registry\\. Use --force to overwrite the existing module\\.");
+            output2.Should().BeEmpty();
+            result2.Should().Be(1);
 
             testClient.Should().OnlyHaveModule("v1", expectedCompiledPayload);
             if (publishSource)
@@ -207,16 +223,16 @@ namespace Bicep.Cli.IntegrationTests
             // publish the same content again with --force
             requiredArgs.Add("--force");
             var (output3, error3, result3) = await Bicep(settings, [.. requiredArgs]);
-            result3.Should().Be(0);
-            output3.Should().BeEmpty();
             AssertNoErrors(error3);
+            output3.Should().BeEmpty();
+            result3.Should().Be(0);
 
             // compile to get what the new expected main.json should be
             List<string> buildArgs = new() { "build", bicepFilePath, "--outfile", $"{compiledFilePath}.modified" };
             var (output4, error4, result4) = await Bicep(settings, [.. buildArgs]);
-            result4.Should().Be(0);
-            output4.Should().BeEmpty();
             AssertNoErrors(error4);
+            output4.Should().BeEmpty();
+            result4.Should().Be(0);
             using var expectedModifiedCompiledStream = new FileStream($"{compiledFilePath}.modified", FileMode.Open, FileAccess.Read);
             var expectedModifiedCompiledPayload = BinaryData.FromStream(expectedModifiedCompiledStream);
 

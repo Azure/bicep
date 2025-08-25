@@ -21,6 +21,15 @@ extensionConfig validSecretAssignment1 with {
   requiredSecureString: az.getSecret('a', 'b', 'c', 'valid')
 }
 
+extensionConfig duplicateAssignment1 with {
+//@[16:36) ExtensionConfigAssignment duplicateAssignment1. Type: config. Declaration start char: 0, length: 72
+  requiredString: 'value1'
+}
+extensionConfig duplicateAssignment1 with {
+//@[16:36) ExtensionConfigAssignment duplicateAssignment1. Type: config. Declaration start char: 0, length: 72
+  requiredString: 'value2'
+}
+
 param invalidParamAssignment1 = validAssignment1.requiredString
 //@[06:29) ParameterAssignment invalidParamAssignment1. Type: error. Declaration start char: 0, length: 63
 param invalidParamAssignment2 = validAssignment1

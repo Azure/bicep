@@ -1406,12 +1406,13 @@ namespace Bicep.Core.Emit
                                             }
                                         }, extConfigObjExpr.SourceSyntax);
                                 }
-                                else if (extAliasPropertyExpr.Value is PropertyAccessExpression or TernaryExpression)
+                                else if (extAliasPropertyExpr.Value is PropertyAccessExpression or TernaryExpression) // covers extension inheritance cases
                                 {
                                     emitter.EmitLanguageExpression(extAliasPropertyExpr.Value);
                                 }
                                 else
                                 {
+                                    // There needs to be custom emission for the object within extension configs to handle the layer of value vs key vault reference, so diagnostics need to prevent this from happening.
                                     throw new NotImplementedException($"Expression emit is not handled for {extAliasPropertyExpr.Value.GetType().Name}");
                                 }
                             }, extAliasPropertyExpr.SourceSyntax);

@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using Bicep.Core.Parsing;
 using Bicep.Core.Text;
 
@@ -37,6 +38,8 @@ namespace Bicep.Core.Syntax
         public override ArrayAccessSyntax AsSafeAccess() => SafeAccessMarker is null
             ? new(BaseExpression, OpenSquare, SyntaxFactory.QuestionToken, FromEndMarker, IndexExpression, CloseSquare)
             : this;
+
+        public override string? TryGetPropertyName() => IndexExpression is StringSyntax stringSyntax ? stringSyntax.TryGetLiteralValue() : null;
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitArrayAccessSyntax(this);
 

@@ -2,6 +2,8 @@ extension 'br:mcr.microsoft.com/bicep/extensions/noconfig/v1:1.2.3' as hasNoConf
 
 extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' as validAssignment1
 
+extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' as duplicateAssignment1
+
 extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' as missingConfigAssignment1
 
 extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' with { requiredString: 'defaultValue' } as incompleteAssignment1

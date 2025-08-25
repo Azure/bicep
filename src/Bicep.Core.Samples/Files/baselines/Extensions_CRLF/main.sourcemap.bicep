@@ -36,9 +36,17 @@ extension kubernetes as k8s
 //@    "k8s": {
 //@      "name": "Kubernetes",
 //@      "version": "1.0.0"
+//@    },
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as extWithOptionalConfig1
+//@    "extWithOptionalConfig1": {
+//@      "name": "hasoptionalconfig",
+//@      "version": "1.2.3"
+//@    },
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as extWithOptionalConfig2
+//@    "extWithOptionalConfig2": {
+//@      "name": "hasoptionalconfig",
+//@      "version": "1.2.3"
 //@    }
-
-//extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
 
 // END: Extension declarations
 
@@ -122,13 +130,17 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "15850125793643788204"
+//@              "templateHash": "3264144588958898863"
 //@            }
 //@          },
 //@          "extensions": {
 //@            "k8s": {
 //@              "name": "Kubernetes",
 //@              "version": "1.0.0"
+//@            },
+//@            "extWithOptionalConfig": {
+//@              "name": "hasoptionalconfig",
+//@              "version": "1.2.3"
 //@            }
 //@          },
 //@          "resources": {}
@@ -229,13 +241,17 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "15850125793643788204"
+//@              "templateHash": "3264144588958898863"
 //@            }
 //@          },
 //@          "extensions": {
 //@            "k8s": {
 //@              "name": "Kubernetes",
 //@              "version": "1.0.0"
+//@            },
+//@            "extWithOptionalConfig": {
+//@              "name": "hasoptionalconfig",
+//@              "version": "1.2.3"
 //@            }
 //@          },
 //@          "resources": {}
@@ -278,13 +294,17 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "15850125793643788204"
+//@              "templateHash": "3264144588958898863"
 //@            }
 //@          },
 //@          "extensions": {
 //@            "k8s": {
 //@              "name": "Kubernetes",
 //@              "version": "1.0.0"
+//@            },
+//@            "extWithOptionalConfig": {
+//@              "name": "hasoptionalconfig",
+//@              "version": "1.2.3"
 //@            }
 //@          },
 //@          "resources": {}
@@ -336,13 +356,17 @@ module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.b
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "15850125793643788204"
+//@              "templateHash": "3264144588958898863"
 //@            }
 //@          },
 //@          "extensions": {
 //@            "k8s": {
 //@              "name": "Kubernetes",
 //@              "version": "1.0.0"
+//@            },
+//@            "extWithOptionalConfig": {
+//@              "name": "hasoptionalconfig",
+//@              "version": "1.2.3"
 //@            }
 //@          },
 //@          "resources": {}
@@ -393,13 +417,17 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "15850125793643788204"
+//@              "templateHash": "3264144588958898863"
 //@            }
 //@          },
 //@          "extensions": {
 //@            "k8s": {
 //@              "name": "Kubernetes",
 //@              "version": "1.0.0"
+//@            },
+//@            "extWithOptionalConfig": {
+//@              "name": "hasoptionalconfig",
+//@              "version": "1.2.3"
 //@            }
 //@          },
 //@          "resources": {}
@@ -411,6 +439,55 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 //@        },
     k8s: k8s.config
 //@          "k8s": "[extensions('k8s').config]"
+  }
+}
+
+module moduleWithExtsUsingFullInheritanceTernary 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@    "moduleWithExtsUsingFullInheritanceTernary": {
+//@      "type": "Microsoft.Resources/deployments",
+//@      "apiVersion": "2025-03-01",
+//@      "name": "[format('moduleWithExtsUsingFullInheritanceTernary-{0}', uniqueString('moduleWithExtsUsingFullInheritanceTernary', deployment().name))]",
+//@      "properties": {
+//@        "expressionEvaluationOptions": {
+//@          "scope": "inner"
+//@        },
+//@        "mode": "Incremental",
+//@        "template": {
+//@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.2-experimental",
+//@          "contentVersion": "1.0.0.0",
+//@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable defining extension configs for modules"
+//@            ],
+//@            "_generator": {
+//@              "name": "bicep",
+//@              "version": "dev",
+//@              "templateHash": "3264144588958898863"
+//@            }
+//@          },
+//@          "extensions": {
+//@            "k8s": {
+//@              "name": "Kubernetes",
+//@              "version": "1.0.0"
+//@            },
+//@            "extWithOptionalConfig": {
+//@              "name": "hasoptionalconfig",
+//@              "version": "1.2.3"
+//@            }
+//@          },
+//@          "resources": {}
+//@        }
+//@      }
+//@    },
+  extensionConfigs: {
+//@        "extensionConfigs": {
+//@        },
+    k8s: k8s.config
+//@          "k8s": "[extensions('k8s').config]",
+    extWithOptionalConfig: boolParam1 ? extWithOptionalConfig1.config : extWithOptionalConfig2.config
+//@          "extWithOptionalConfig": "[if(parameters('boolParam1'), extensions('extWithOptionalConfig1').config, extensions('extWithOptionalConfig2').config)]"
   }
 }
 
@@ -436,13 +513,17 @@ module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsW
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "15850125793643788204"
+//@              "templateHash": "3264144588958898863"
 //@            }
 //@          },
 //@          "extensions": {
 //@            "k8s": {
 //@              "name": "Kubernetes",
 //@              "version": "1.0.0"
+//@            },
+//@            "extWithOptionalConfig": {
+//@              "name": "hasoptionalconfig",
+//@              "version": "1.2.3"
 //@            }
 //@          },
 //@          "resources": {}
@@ -488,13 +569,17 @@ module moduleWithExtsUsingPiecemealInheritanceLooped 'child/hasConfigurableExten
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "15850125793643788204"
+//@              "templateHash": "3264144588958898863"
 //@            }
 //@          },
 //@          "extensions": {
 //@            "k8s": {
 //@              "name": "Kubernetes",
 //@              "version": "1.0.0"
+//@            },
+//@            "extWithOptionalConfig": {
+//@              "name": "hasoptionalconfig",
+//@              "version": "1.2.3"
 //@            }
 //@          },
 //@          "resources": {}
@@ -539,19 +624,23 @@ module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlia
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "15850125793643788204"
+//@              "templateHash": "3264144588958898863"
 //@            }
 //@          },
 //@          "extensions": {
 //@            "k8s": {
 //@              "name": "Kubernetes",
 //@              "version": "1.0.0"
+//@            },
+//@            "extWithOptionalConfig": {
+//@              "name": "hasoptionalconfig",
+//@              "version": "1.2.3"
 //@            }
 //@          },
 //@          "resources": {}
 //@        }
 //@      }
-//@    }
+//@    },
   extensionConfigs: {
 //@        "extensionConfigs": {
 //@        },
@@ -563,6 +652,55 @@ module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlia
       namespace: boolParam1 ? az.resourceGroup().location : k8s.config.namespace
 //@            "namespace": "[if(parameters('boolParam1'), createObject('value', resourceGroup().location), extensions('k8s').config.namespace)]"
     }
+  }
+}
+
+module moduleWithExtsEmpty 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@    "moduleWithExtsEmpty": {
+//@      "type": "Microsoft.Resources/deployments",
+//@      "apiVersion": "2025-03-01",
+//@      "name": "[format('moduleWithExtsEmpty-{0}', uniqueString('moduleWithExtsEmpty', deployment().name))]",
+//@      "properties": {
+//@        "expressionEvaluationOptions": {
+//@          "scope": "inner"
+//@        },
+//@        "mode": "Incremental",
+//@        "template": {
+//@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.2-experimental",
+//@          "contentVersion": "1.0.0.0",
+//@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable defining extension configs for modules"
+//@            ],
+//@            "_generator": {
+//@              "name": "bicep",
+//@              "version": "dev",
+//@              "templateHash": "3264144588958898863"
+//@            }
+//@          },
+//@          "extensions": {
+//@            "k8s": {
+//@              "name": "Kubernetes",
+//@              "version": "1.0.0"
+//@            },
+//@            "extWithOptionalConfig": {
+//@              "name": "hasoptionalconfig",
+//@              "version": "1.2.3"
+//@            }
+//@          },
+//@          "resources": {}
+//@        }
+//@      }
+//@    }
+  extensionConfigs: {
+//@        "extensionConfigs": {
+//@        },
+    k8s: k8s.config
+//@          "k8s": "[extensions('k8s').config]",
+    extWithOptionalConfig: {}
+//@          "extWithOptionalConfig": {}
   }
 }
 
