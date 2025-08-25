@@ -12,18 +12,18 @@ if ((Get-Command "gh" -ErrorAction SilentlyContinue) -eq $null) {
     throw "Please install the GitHub CLI: https://cli.github.com/"
 }
 
+$platform = [System.Environment]::OSVersion.Platform.ToString().ToLowerInvariant()
+switch ($platform) {
+    { ($_ -eq "win32nt") } { $platform = "win" }
+    default { throw "Unsupported platform '$platform'" }
+}
+
 $arch = $env:PROCESSOR_ARCHITECTURE.ToLowerInvariant()
 switch ($arch) {
     { ($_ -eq "x64") } { $arch = "x64" }
     { ($_ -eq "amd64") } { $arch = "x64" }
     { $_ -eq "arm64" } { $arch = "arm64" }
     default { throw "Unsupported architecture '$arch'" }
-}
-
-$platform = [System.Environment]::OSVersion.Platform.ToString().ToLowerInvariant()
-switch ($platform) {
-    { ($_ -eq "win32nt") } { $platform = "win" }
-    default { throw "Unsupported platform '$platform'" }
 }
 
 # Fetch
@@ -38,7 +38,10 @@ if (!$Branch) {
   $Branch = "main"
 }
 if (!$RunId) {
-    $RunId = & gh run list -R $Repo --branch $Branch --workflow build --status success -L 1 --json databaseId -q ".[0].databaseId"; if(!$?) { throw }
+  $RunId = & gh run list -R $Repo --branch $Branch --workflow build --status success -L 1 --json databaseId -q ".[0].databaseId"; if(!$?) { throw }
+  if (!$RunId) {
+    throw "Failed to find a successful build to install from"
+  }
 }
 $tmpDir = [System.IO.Path]::combine([System.IO.Path]::GetTempPath(), [System.IO.Path]::GetRandomFileName())
 & gh run download -R $Repo $RunId -n "bicep-release-$platform-$arch" --dir $tmpDir; if(!$?) { throw }

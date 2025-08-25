@@ -19,7 +19,10 @@ if (!$Branch) {
   $Branch = "main"
 }
 if (!$RunId) {
-    $RunId = & gh run list -R $Repo --branch $Branch --workflow build --status success -L 1 --json databaseId -q ".[0].databaseId"; if(!$?) { throw }
+  $RunId = & gh run list -R $Repo --branch $Branch --workflow build --status success -L 1 --json databaseId -q ".[0].databaseId"; if(!$?) { throw }
+  if (!$RunId) {
+    throw "Failed to find a successful build to install from"
+  }
 }
 $tmpDir = [System.IO.Path]::combine([System.IO.Path]::GetTempPath(), [System.IO.Path]::GetRandomFileName())
 & gh run download -R $Repo $RunId -n "vscode-bicep.vsix" --dir $tmpDir; if(!$?) { throw }
