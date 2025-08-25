@@ -412,13 +412,13 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 //@[000:001) RightBrace |}|
 //@[001:005) NewLine |\r\n\r\n|
 
-module moduleWithExtsUsingFullInheritanceTernary 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+module moduleWithExtsUsingFullInheritanceTernary1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@[000:006) Identifier |module|
-//@[007:048) Identifier |moduleWithExtsUsingFullInheritanceTernary|
-//@[049:097) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
-//@[098:099) Assignment |=|
-//@[100:101) LeftBrace |{|
-//@[101:103) NewLine |\r\n|
+//@[007:049) Identifier |moduleWithExtsUsingFullInheritanceTernary1|
+//@[050:098) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[099:100) Assignment |=|
+//@[101:102) LeftBrace |{|
+//@[102:104) NewLine |\r\n|
   extensionConfigs: {
 //@[002:018) Identifier |extensionConfigs|
 //@[018:019) Colon |:|

@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:3753) ProgramExpression
+//@[000:3754) ProgramExpression
 //@[000:0000) | | └─ObjectPropertyExpression [UNPARENTED]
 //@[000:0000) | |   ├─StringLiteralExpression { Value = name } [UNPARENTED]
 //@[000:0000) | |   └─FunctionCallExpression { Name = format } [UNPARENTED]
@@ -55,9 +55,9 @@
 //@[000:0000) | | └─ObjectPropertyExpression [UNPARENTED]
 //@[000:0000) | |   ├─StringLiteralExpression { Value = name } [UNPARENTED]
 //@[000:0000) | |   └─FunctionCallExpression { Name = format } [UNPARENTED]
-//@[000:0000) | |     ├─StringLiteralExpression { Value = moduleWithExtsUsingFullInheritanceTernary-{0} } [UNPARENTED]
+//@[000:0000) | |     ├─StringLiteralExpression { Value = moduleWithExtsUsingFullInheritanceTernary1-{0} } [UNPARENTED]
 //@[000:0000) | |     └─FunctionCallExpression { Name = uniqueString } [UNPARENTED]
-//@[000:0000) | |       ├─StringLiteralExpression { Value = moduleWithExtsUsingFullInheritanceTernary } [UNPARENTED]
+//@[000:0000) | |       ├─StringLiteralExpression { Value = moduleWithExtsUsingFullInheritanceTernary1 } [UNPARENTED]
 //@[000:0000) | |       └─PropertyAccessExpression { PropertyName = name } [UNPARENTED]
 //@[000:0000) | |         └─FunctionCallExpression { Name = deployment } [UNPARENTED]
 //@[000:0000) | | └─ObjectPropertyExpression [UNPARENTED]
@@ -295,9 +295,9 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
   }
 }
 
-module moduleWithExtsUsingFullInheritanceTernary 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[000:0256) ├─DeclaredModuleExpression
-//@[100:0256) | ├─ObjectExpression
+module moduleWithExtsUsingFullInheritanceTernary1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:0257) ├─DeclaredModuleExpression
+//@[101:0257) | ├─ObjectExpression
   extensionConfigs: {
 //@[020:0150) | └─ObjectExpression
     k8s: k8s.config

@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:3753) ProgramSyntax
+//@[000:3754) ProgramSyntax
 //@[020:0024) ├─Token(NewLine) |\r\n\r\n|
 
 param strParam1 string
@@ -618,17 +618,17 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
-module moduleWithExtsUsingFullInheritanceTernary 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[000:0256) ├─ModuleDeclarationSyntax
+module moduleWithExtsUsingFullInheritanceTernary1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:0257) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
-//@[007:0048) | ├─IdentifierSyntax
-//@[007:0048) | | └─Token(Identifier) |moduleWithExtsUsingFullInheritanceTernary|
-//@[049:0097) | ├─StringSyntax
-//@[049:0097) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
-//@[098:0099) | ├─Token(Assignment) |=|
-//@[100:0256) | └─ObjectSyntax
-//@[100:0101) |   ├─Token(LeftBrace) |{|
-//@[101:0103) |   ├─Token(NewLine) |\r\n|
+//@[007:0049) | ├─IdentifierSyntax
+//@[007:0049) | | └─Token(Identifier) |moduleWithExtsUsingFullInheritanceTernary1|
+//@[050:0098) | ├─StringSyntax
+//@[050:0098) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[099:0100) | ├─Token(Assignment) |=|
+//@[101:0257) | └─ObjectSyntax
+//@[101:0102) |   ├─Token(LeftBrace) |{|
+//@[102:0104) |   ├─Token(NewLine) |\r\n|
   extensionConfigs: {
 //@[002:0150) |   ├─ObjectPropertySyntax
 //@[002:0018) |   | ├─IdentifierSyntax

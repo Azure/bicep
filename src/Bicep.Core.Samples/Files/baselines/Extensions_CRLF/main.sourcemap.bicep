@@ -442,11 +442,11 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
   }
 }
 
-module moduleWithExtsUsingFullInheritanceTernary 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@    "moduleWithExtsUsingFullInheritanceTernary": {
+module moduleWithExtsUsingFullInheritanceTernary1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@    "moduleWithExtsUsingFullInheritanceTernary1": {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-03-01",
-//@      "name": "[format('moduleWithExtsUsingFullInheritanceTernary-{0}', uniqueString('moduleWithExtsUsingFullInheritanceTernary', deployment().name))]",
+//@      "name": "[format('moduleWithExtsUsingFullInheritanceTernary1-{0}', uniqueString('moduleWithExtsUsingFullInheritanceTernary1', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"

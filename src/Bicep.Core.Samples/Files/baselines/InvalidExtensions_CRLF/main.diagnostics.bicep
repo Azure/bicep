@@ -146,13 +146,21 @@ module moduleInvalidSpread2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
   }
 }
 
-module moduleInvalidInheritanceTernary 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+module moduleInvalidInheritanceTernary1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
   extensionConfigs: {
     k8s: k8s.config
     extWithOptionalConfig1: boolParam1 ? extWithOptionalConfig1.config : k8s.config
 //@[28:083) [BCP037 (Error)] The property "context" is not allowed on objects of type "config". No other properties are allowed. (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |boolParam1 ? extWithOptionalConfig1.config : k8s.config|
 //@[28:083) [BCP037 (Error)] The property "kubeConfig" is not allowed on objects of type "config". No other properties are allowed. (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |boolParam1 ? extWithOptionalConfig1.config : k8s.config|
 //@[28:083) [BCP037 (Error)] The property "namespace" is not allowed on objects of type "config". No other properties are allowed. (bicep https://aka.ms/bicep/core-diagnostics#BCP037) |boolParam1 ? extWithOptionalConfig1.config : k8s.config|
+  }
+}
+
+module moduleInvalidInheritanceTernary2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  extensionConfigs: {
+    k8s: k8s.config
+    extWithOptionalConfig1: boolParam1 ? extWithOptionalConfig1.config : { optionalString: 'value' } // limitation: cannot mix these currently due to special code gen needed for object literals
+//@[04:100) [BCP431 (Error)] The value of the "extWithOptionalConfig1" property must be an object literal or a valid extension config inheritance expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP431) |extWithOptionalConfig1: boolParam1 ? extWithOptionalConfig1.config : { optionalString: 'value' }|
   }
 }
 

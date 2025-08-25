@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:3731) ProgramSyntax
+//@[000:4075) ProgramSyntax
 //@[020:0024) ├─Token(NewLine) |\r\n\r\n|
 
 param boolParam1 bool
@@ -814,17 +814,17 @@ module moduleInvalidSpread2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
-module moduleInvalidInheritanceTernary 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[000:0228) ├─ModuleDeclarationSyntax
+module moduleInvalidInheritanceTernary1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:0229) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
-//@[007:0038) | ├─IdentifierSyntax
-//@[007:0038) | | └─Token(Identifier) |moduleInvalidInheritanceTernary|
-//@[039:0087) | ├─StringSyntax
-//@[039:0087) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
-//@[088:0089) | ├─Token(Assignment) |=|
-//@[090:0228) | └─ObjectSyntax
-//@[090:0091) |   ├─Token(LeftBrace) |{|
-//@[091:0093) |   ├─Token(NewLine) |\r\n|
+//@[007:0039) | ├─IdentifierSyntax
+//@[007:0039) | | └─Token(Identifier) |moduleInvalidInheritanceTernary1|
+//@[040:0088) | ├─StringSyntax
+//@[040:0088) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[089:0090) | ├─Token(Assignment) |=|
+//@[091:0229) | └─ObjectSyntax
+//@[091:0092) |   ├─Token(LeftBrace) |{|
+//@[092:0094) |   ├─Token(NewLine) |\r\n|
   extensionConfigs: {
 //@[002:0132) |   ├─ObjectPropertySyntax
 //@[002:0018) |   | ├─IdentifierSyntax
@@ -872,6 +872,73 @@ module moduleInvalidInheritanceTernary 'child/hasConfigurableExtensionsWithAlias
 //@[077:0083) |   |   |     └─IdentifierSyntax
 //@[077:0083) |   |   |       └─Token(Identifier) |config|
 //@[083:0085) |   |   ├─Token(NewLine) |\r\n|
+  }
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
+
+module moduleInvalidInheritanceTernary2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:0339) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0039) | ├─IdentifierSyntax
+//@[007:0039) | | └─Token(Identifier) |moduleInvalidInheritanceTernary2|
+//@[040:0088) | ├─StringSyntax
+//@[040:0088) | | └─Token(StringComplete) |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[089:0090) | ├─Token(Assignment) |=|
+//@[091:0339) | └─ObjectSyntax
+//@[091:0092) |   ├─Token(LeftBrace) |{|
+//@[092:0094) |   ├─Token(NewLine) |\r\n|
+  extensionConfigs: {
+//@[002:0242) |   ├─ObjectPropertySyntax
+//@[002:0018) |   | ├─IdentifierSyntax
+//@[002:0018) |   | | └─Token(Identifier) |extensionConfigs|
+//@[018:0019) |   | ├─Token(Colon) |:|
+//@[020:0242) |   | └─ObjectSyntax
+//@[020:0021) |   |   ├─Token(LeftBrace) |{|
+//@[021:0023) |   |   ├─Token(NewLine) |\r\n|
+    k8s: k8s.config
+//@[004:0019) |   |   ├─ObjectPropertySyntax
+//@[004:0007) |   |   | ├─IdentifierSyntax
+//@[004:0007) |   |   | | └─Token(Identifier) |k8s|
+//@[007:0008) |   |   | ├─Token(Colon) |:|
+//@[009:0019) |   |   | └─PropertyAccessSyntax
+//@[009:0012) |   |   |   ├─VariableAccessSyntax
+//@[009:0012) |   |   |   | └─IdentifierSyntax
+//@[009:0012) |   |   |   |   └─Token(Identifier) |k8s|
+//@[012:0013) |   |   |   ├─Token(Dot) |.|
+//@[013:0019) |   |   |   └─IdentifierSyntax
+//@[013:0019) |   |   |     └─Token(Identifier) |config|
+//@[019:0021) |   |   ├─Token(NewLine) |\r\n|
+    extWithOptionalConfig1: boolParam1 ? extWithOptionalConfig1.config : { optionalString: 'value' } // limitation: cannot mix these currently due to special code gen needed for object literals
+//@[004:0100) |   |   ├─ObjectPropertySyntax
+//@[004:0026) |   |   | ├─IdentifierSyntax
+//@[004:0026) |   |   | | └─Token(Identifier) |extWithOptionalConfig1|
+//@[026:0027) |   |   | ├─Token(Colon) |:|
+//@[028:0100) |   |   | └─TernaryOperationSyntax
+//@[028:0038) |   |   |   ├─VariableAccessSyntax
+//@[028:0038) |   |   |   | └─IdentifierSyntax
+//@[028:0038) |   |   |   |   └─Token(Identifier) |boolParam1|
+//@[039:0040) |   |   |   ├─Token(Question) |?|
+//@[041:0070) |   |   |   ├─PropertyAccessSyntax
+//@[041:0063) |   |   |   | ├─VariableAccessSyntax
+//@[041:0063) |   |   |   | | └─IdentifierSyntax
+//@[041:0063) |   |   |   | |   └─Token(Identifier) |extWithOptionalConfig1|
+//@[063:0064) |   |   |   | ├─Token(Dot) |.|
+//@[064:0070) |   |   |   | └─IdentifierSyntax
+//@[064:0070) |   |   |   |   └─Token(Identifier) |config|
+//@[071:0072) |   |   |   ├─Token(Colon) |:|
+//@[073:0100) |   |   |   └─ObjectSyntax
+//@[073:0074) |   |   |     ├─Token(LeftBrace) |{|
+//@[075:0098) |   |   |     ├─ObjectPropertySyntax
+//@[075:0089) |   |   |     | ├─IdentifierSyntax
+//@[075:0089) |   |   |     | | └─Token(Identifier) |optionalString|
+//@[089:0090) |   |   |     | ├─Token(Colon) |:|
+//@[091:0098) |   |   |     | └─StringSyntax
+//@[091:0098) |   |   |     |   └─Token(StringComplete) |'value'|
+//@[099:0100) |   |   |     └─Token(RightBrace) |}|
+//@[193:0195) |   |   ├─Token(NewLine) |\r\n|
   }
 //@[002:0003) |   |   └─Token(RightBrace) |}|
 //@[003:0005) |   ├─Token(NewLine) |\r\n|

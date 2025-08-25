@@ -144,11 +144,19 @@ module moduleInvalidSpread2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
   }
 }
 
-module moduleInvalidInheritanceTernary 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[07:038) Module moduleInvalidInheritanceTernary. Type: module. Declaration start char: 0, length: 228
+module moduleInvalidInheritanceTernary1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[07:039) Module moduleInvalidInheritanceTernary1. Type: module. Declaration start char: 0, length: 229
   extensionConfigs: {
     k8s: k8s.config
     extWithOptionalConfig1: boolParam1 ? extWithOptionalConfig1.config : k8s.config
+  }
+}
+
+module moduleInvalidInheritanceTernary2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[07:039) Module moduleInvalidInheritanceTernary2. Type: module. Declaration start char: 0, length: 339
+  extensionConfigs: {
+    k8s: k8s.config
+    extWithOptionalConfig1: boolParam1 ? extWithOptionalConfig1.config : { optionalString: 'value' } // limitation: cannot mix these currently due to special code gen needed for object literals
   }
 }
 

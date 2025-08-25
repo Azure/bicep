@@ -10,7 +10,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6477820951745809201"
+      "templateHash": "12220335514428943927"
     }
   },
   "parameters": {
@@ -359,10 +359,10 @@
         }
       }
     },
-    "moduleWithExtsUsingFullInheritanceTernary": {
+    "moduleWithExtsUsingFullInheritanceTernary1": {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2025-03-01",
-      "name": "[format('moduleWithExtsUsingFullInheritanceTernary-{0}', uniqueString('moduleWithExtsUsingFullInheritanceTernary', deployment().name))]",
+      "name": "[format('moduleWithExtsUsingFullInheritanceTernary1-{0}', uniqueString('moduleWithExtsUsingFullInheritanceTernary1', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"

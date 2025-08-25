@@ -121,8 +121,8 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
   }
 }
 
-module moduleWithExtsUsingFullInheritanceTernary 'child/hasConfigurableExtensionsWithAlias.bicep' = {
-//@[007:048) Module moduleWithExtsUsingFullInheritanceTernary. Type: module. Declaration start char: 0, length: 256
+module moduleWithExtsUsingFullInheritanceTernary1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[007:049) Module moduleWithExtsUsingFullInheritanceTernary1. Type: module. Declaration start char: 0, length: 257
   extensionConfigs: {
     k8s: k8s.config
     extWithOptionalConfig: boolParam1 ? extWithOptionalConfig1.config : extWithOptionalConfig2.config

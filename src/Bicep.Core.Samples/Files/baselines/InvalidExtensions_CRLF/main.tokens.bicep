@@ -526,13 +526,13 @@ module moduleInvalidSpread2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@[000:001) RightBrace |}|
 //@[001:005) NewLine |\r\n\r\n|
 
-module moduleInvalidInheritanceTernary 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+module moduleInvalidInheritanceTernary1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@[000:006) Identifier |module|
-//@[007:038) Identifier |moduleInvalidInheritanceTernary|
-//@[039:087) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
-//@[088:089) Assignment |=|
-//@[090:091) LeftBrace |{|
-//@[091:093) NewLine |\r\n|
+//@[007:039) Identifier |moduleInvalidInheritanceTernary1|
+//@[040:088) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[089:090) Assignment |=|
+//@[091:092) LeftBrace |{|
+//@[092:094) NewLine |\r\n|
   extensionConfigs: {
 //@[002:018) Identifier |extensionConfigs|
 //@[018:019) Colon |:|
@@ -558,6 +558,47 @@ module moduleInvalidInheritanceTernary 'child/hasConfigurableExtensionsWithAlias
 //@[076:077) Dot |.|
 //@[077:083) Identifier |config|
 //@[083:085) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
+module moduleInvalidInheritanceTernary2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:006) Identifier |module|
+//@[007:039) Identifier |moduleInvalidInheritanceTernary2|
+//@[040:088) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[089:090) Assignment |=|
+//@[091:092) LeftBrace |{|
+//@[092:094) NewLine |\r\n|
+  extensionConfigs: {
+//@[002:018) Identifier |extensionConfigs|
+//@[018:019) Colon |:|
+//@[020:021) LeftBrace |{|
+//@[021:023) NewLine |\r\n|
+    k8s: k8s.config
+//@[004:007) Identifier |k8s|
+//@[007:008) Colon |:|
+//@[009:012) Identifier |k8s|
+//@[012:013) Dot |.|
+//@[013:019) Identifier |config|
+//@[019:021) NewLine |\r\n|
+    extWithOptionalConfig1: boolParam1 ? extWithOptionalConfig1.config : { optionalString: 'value' } // limitation: cannot mix these currently due to special code gen needed for object literals
+//@[004:026) Identifier |extWithOptionalConfig1|
+//@[026:027) Colon |:|
+//@[028:038) Identifier |boolParam1|
+//@[039:040) Question |?|
+//@[041:063) Identifier |extWithOptionalConfig1|
+//@[063:064) Dot |.|
+//@[064:070) Identifier |config|
+//@[071:072) Colon |:|
+//@[073:074) LeftBrace |{|
+//@[075:089) Identifier |optionalString|
+//@[089:090) Colon |:|
+//@[091:098) StringComplete |'value'|
+//@[099:100) RightBrace |}|
+//@[193:195) NewLine |\r\n|
   }
 //@[002:003) RightBrace |}|
 //@[003:005) NewLine |\r\n|
