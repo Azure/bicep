@@ -38,19 +38,6 @@ includes enhancements for Deployment stacks extensibility integration. This feat
 
 Enables adding identity property to modules, which allows you to assign user-assigned identities to a module. The identity will currently only be used on the deployment for tenants on the allow list.
 
-### `onlyIfNotExists`
-The feature introduces the onlyIfNotExists decorator on a resource. The decorator will only deploy the resource if it does not exist. (Note: This feature will not work until the backend service support has been deployed)
-```
-@onlyIfNotExists()
-resource onlyDeployIfNotExists 'Microsoft...' = {
-  name: 'example'
-  location: 'eastus'
-  properties: {
-    ...
-  }
-}
-```
-
 ### `resourceInfoCodegen`
 
 Enables the 'resourceInfo' function for simplified code generation.

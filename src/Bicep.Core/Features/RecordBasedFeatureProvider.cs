@@ -19,7 +19,6 @@ namespace Bicep.Core.Features
         public bool TestFrameworkEnabled => features.TestFramework;
         public bool AssertsEnabled => features.Assertions;
         public bool WaitAndRetryEnabled => features.WaitAndRetry;
-        public bool OnlyIfNotExistsEnabled => features.OnlyIfNotExists;
         public bool LocalDeployEnabled => features.LocalDeploy;
         public bool ExtendableParamFilesEnabled => features.ExtendableParamFiles;
         public bool ResourceInfoCodegenEnabled => features.ResourceInfoCodegen;
