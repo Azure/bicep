@@ -1958,6 +1958,14 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic FoundFileInsteadOfDirectory(string filePath) => CoreError(
                 "BCP430",
                 $"Unable to open directory at path \"{filePath}\". Found a file instead.");
+
+            public Diagnostic InlinedResourcesCannotHaveExplicitDependencies(string symbolicName, IEnumerable<string> runtimePropertyNames) => CoreError(
+                "BCP431",
+                $"The resource \"{symbolicName}\" cannot declare explicit dependencies because its identifier properties including {ToQuotedString(runtimePropertyNames.OrderBy(x => x))} cannot be calculated at the start of the deployment.");
+
+            public Diagnostic CannotExplicitlyDependOnInlinedResource(string dependentName, string dependencyName, IEnumerable<string> runtimePropertyNames) => CoreError(
+                "BCP432",
+                $"The resource \"{dependentName}\" cannot declare an explicit dependency on \"{dependencyName}\" because the identifier properties of the latter including {ToQuotedString(runtimePropertyNames.OrderBy(x => x))} cannot be calculated at the start of the deployment.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

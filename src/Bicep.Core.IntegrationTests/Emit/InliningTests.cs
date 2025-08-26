@@ -289,4 +289,70 @@ public class InliningTests
             ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"parent\" property of the \"Microsoft.Storage/storageAccounts/blobServices\" type, which requires a value that can be calculated at the start of the deployment. Properties of sa2 which can be calculated at the start include \"apiVersion\", \"type\"."),
         ]);
     }
+
+    [TestMethod]
+    public void Existing_resources_with_runtime_names_cannot_declare_explicit_dependencies()
+    {
+        var result = CompilationHelper.Compile("""
+            resource sa 'Microsoft.Storage/storageAccounts@2025-01-01' = {
+              name: 'foo'
+              location: resourceGroup().location
+              sku: {
+                name: 'Standard_LRS'
+              }
+              kind: 'StorageV2'
+            }
+            
+            resource blobs 'Microsoft.Storage/storageAccounts/blobServices@2025-01-01' = {
+              name: 'default'
+              parent: sa
+            }
+
+            resource sa2 'Microsoft.Storage/storageAccounts@2025-01-01' existing = {
+              name: sa.properties.accessTier
+              dependsOn: [
+                blobs
+              ]
+            }
+            """);
+
+        result.Template.Should().BeNull();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
+            ("BCP431", DiagnosticLevel.Error, "The resource \"sa2\" cannot declare explicit dependencies because its identifier properties including \"name\" cannot be calculated at the start of the deployment."),
+        ]);
+    }
+
+    [TestMethod]
+    public void Existing_resources_with_runtime_names_cannot_be_depended_on()
+    {
+        var result = CompilationHelper.Compile("""
+            resource sa 'Microsoft.Storage/storageAccounts@2025-01-01' = {
+              name: 'foo'
+              location: resourceGroup().location
+              sku: {
+                name: 'Standard_LRS'
+              }
+              kind: 'StorageV2'
+            }
+
+            resource sa2 'Microsoft.Storage/storageAccounts@2025-01-01' existing = {
+              name: sa.properties.accessTier
+            }
+
+            resource blobs 'Microsoft.Storage/storageAccounts/blobServices@2025-01-01' = {
+              name: 'default'
+              parent: sa
+              dependsOn: [
+                sa2
+              ]
+            }
+            """);
+
+        result.Template.Should().BeNull();
+        result.Should().HaveDiagnostics(
+        [
+            ("BCP432", DiagnosticLevel.Error, "The resource \"blobs\" cannot declare an explicit dependency on \"sa2\" because the identifier properties of the latter including \"name\" cannot be calculated at the start of the deployment."),
+        ]);
+    }
 }

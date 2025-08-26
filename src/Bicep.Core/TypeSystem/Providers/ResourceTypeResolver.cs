@@ -69,6 +69,9 @@ namespace Bicep.Core.TypeSystem.Providers
             return TryResolveResourceOrModuleSymbolAndBodyType(syntaxToResolve, isCollection);
         }
 
+        public ObjectType? TryGetBodyObjectType(ResourceSymbol resource)
+            => existingResourceBodyTypeOverrides.GetValueOrDefault(resource) ?? resource.TryGetBodyObjectType();
+
         private (DeclaredSymbol?, ObjectType?) TryResolveResourceOrModuleSymbolAndBodyType(SyntaxBase syntax, bool isCollection) => semanticModel.GetSymbolInfo(syntax) switch
         {
             ResourceSymbol resourceSymbol when resourceSymbol.IsCollection == isCollection =>
