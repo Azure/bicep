@@ -5,6 +5,7 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
+using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -90,7 +91,7 @@ public static class ServiceBuilderExtensions
         var compiler = services.Build().GetCompiler();
         var workspace = CompilationHelper.CreateWorkspace(compiler.SourceFileFactory, fileContentsByUri);
 
-        return compiler.CreateCompilationWithoutRestore(entryFileUri, workspace);
+        return compiler.CreateCompilationWithoutRestore(entryFileUri.ToIOUri(), workspace);
     }
 
     public static async Task<Compilation> BuildCompilationWithRestore(this ServiceBuilder services, IReadOnlyDictionary<Uri, string> fileContentsByUri, Uri entryFileUri)
@@ -98,7 +99,7 @@ public static class ServiceBuilderExtensions
         var compiler = services.Build().GetCompiler();
         var workspace = CompilationHelper.CreateWorkspace(compiler.SourceFileFactory, fileContentsByUri);
 
-        return await compiler.CreateCompilation(entryFileUri, workspace);
+        return await compiler.CreateCompilation(entryFileUri.ToIOUri(), workspace);
     }
 
     public static Compilation BuildCompilation(this ServiceBuilder services, string text)

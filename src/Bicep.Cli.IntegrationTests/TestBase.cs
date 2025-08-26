@@ -122,7 +122,7 @@ namespace Bicep.Cli.IntegrationTests
 
         protected static async Task<IEnumerable<string>> GetAllDiagnostics(string bicepFilePath, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IPublicModuleIndexHttpClient? moduleMetadataClient = null)
         {
-            var compilation = await CreateCompiler(clientFactory, templateSpecRepositoryFactory, moduleMetadataClient).CreateCompilation(PathHelper.FilePathToFileUrl(bicepFilePath));
+            var compilation = await CreateCompiler(clientFactory, templateSpecRepositoryFactory, moduleMetadataClient).CreateCompilation(PathHelper.FilePathToFileUrl(bicepFilePath).ToIOUri());
 
             var output = new List<string>();
             foreach (var (bicepFile, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
@@ -142,7 +142,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             var compiler = serviceBuilder.Build().GetCompiler();
 
-            var compilation = await compiler.CreateCompilation(PathHelper.FilePathToFileUrl(paramFilePath));
+            var compilation = await compiler.CreateCompilation(PathHelper.FilePathToFileUrl(paramFilePath).ToIOUri());
 
             var semanticModel = compilation.GetEntrypointSemanticModel();
 

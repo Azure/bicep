@@ -1954,7 +1954,7 @@ param myParam string
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
         [
-            ("BCP431", DiagnosticLevel.Error, "This expression is being used in parameter \"predicate\" of the function \"validate\", which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start (\"indirection\" -> \"sa\"). Properties of sa which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
+            ("BCP432", DiagnosticLevel.Error, "This expression is being used in parameter \"predicate\" of the function \"validate\", which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start (\"indirection\" -> \"sa\"). Properties of sa which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
         ]);
     }
 }

@@ -23,6 +23,7 @@ namespace Bicep.IO.UnitTests.Abstraction
         [DataRow("file", "localhost", "")]
         [DataRow("file", "", "")]
         [DataRow("file", null, "")]
+        [DataRow("file", "server", "server")]
         public void IOUri_ByDefault_NormalizesAuthority(string scheme, string? authority, string expectedAuthority)
         {
             // Arrange & Act.
@@ -77,7 +78,8 @@ namespace Bicep.IO.UnitTests.Abstraction
         [DataRow("inmemory", null, "a/b/c", "inmemory:a/b/c")]
         [DataRow("inmemory", null, "a/b/../c", "inmemory:a/c")]
         [DataRow("file", "", "/a/b/c", "/a/b/c")]
-        public void ToString_ByDefault_ReturnsUriOrLocalFilePath(string scheme, string? authority, string path, string expectedOutput)
+        [DataRow("file", null, "/a/b/c", "/a/b/c")]
+        public void ToString_ByDefault_ReturnsUriOrFilePath(string scheme, string? authority, string path, string expectedOutput)
         {
             // Arrange & Act.
             var resourceIdentifier = new IOUri(scheme, authority, path);
@@ -264,39 +266,26 @@ namespace Bicep.IO.UnitTests.Abstraction
         }
 
         [TestMethod]
-        public void FromLocalFilePath_RelativePath_ThrowsIOException()
+        public void FromFilePath_RelativePath_ThrowsIOException()
         {
             // Arrange
             var filePath = "a/b/c";
 
             // Act
-            Action act = () => IOUri.FromLocalFilePath(filePath);
+            Action act = () => IOUri.FromFilePath(filePath);
 
             // Assert
             act.Should().Throw<IOException>().WithMessage("File path must be absolute.");
         }
 
         [TestMethod]
-        public void FromLocalFilePath_UncPath_ThrowsIOException()
-        {
-            // Arrange
-            var filePath = "//server/share";
-
-            // Act
-            Action act = () => IOUri.FromLocalFilePath(filePath);
-
-            // Assert
-            act.Should().Throw<IOException>().WithMessage("Unsupported UNC path.");
-        }
-
-        [TestMethod]
-        public void FromLocalFilePath_ValidAbsolutePath_ReturnsExpectedUri()
+        public void FromFilePath_ValidAbsolutePath_ReturnsExpectedUri()
         {
             // Arrange
             var filePath = "/a/b/c";
 
             // Act
-            var uri = IOUri.FromLocalFilePath(filePath);
+            var uri = IOUri.FromFilePath(filePath);
 
             // Assert
             uri.Scheme.Should().Be(IOUriScheme.File);
@@ -306,18 +295,66 @@ namespace Bicep.IO.UnitTests.Abstraction
 
 #if WINDOWS_BUILD
         [TestMethod]
-        public void FromLocalFilePath_WindowsAbsolutePath_ReturnsExpectedUri()
+        public void FromFilePath_WindowsAbsolutePath_ReturnsExpectedUri()
         {
             // Arrange
             var filePath = "C:\\a\\b\\c";
 
             // Act
-            var uri = IOUri.FromLocalFilePath(filePath);
+            var uri = IOUri.FromFilePath(filePath);
 
             // Assert
             uri.Scheme.Should().Be(IOUriScheme.File);
             uri.Authority.Should().Be("");
             uri.Path.Should().Be("/C:/a/b/c");
+        }
+
+        [DataTestMethod]
+        [DataRow(@"\\server\share\file.txt", "server", "/share/file.txt")]
+        [DataRow(@"\\myserver\documents\folder\file.bicep", "myserver", "/documents/folder/file.bicep")]
+        [DataRow(@"\\SERVER\SHARE\file.txt", "server", "/SHARE/file.txt")]
+        [DataRow(@"\\file-server\public\docs\readme.md", "file-server", "/public/docs/readme.md")]
+        public void FromFilePath_UncPath_ReturnsExpectedUri(string uncPath, string expectedAuthority, string expectedPath)
+        {
+            // Act
+            var uri = IOUri.FromFilePath(uncPath);
+
+            // Assert
+            uri.Scheme.Should().Be(IOUriScheme.File);
+            uri.Authority.Should().Be(expectedAuthority);
+            uri.Path.Should().Be(expectedPath);
+        }
+
+        [DataTestMethod]
+        [DataRow(@"\\server\share\file.txt")]
+        [DataRow(@"\\myserver\documents\folder\file.bicep")]
+        [DataRow(@"\\file-server\public\docs\readme.md")]
+        public void ToString_UncPath_ReturnsUncPath(string uncPath)
+        {
+            // Arrange
+            var uri = IOUri.FromFilePath(uncPath);
+
+            // Act
+            var result = uri.ToString();
+
+            // Assert
+            result.Should().Be(uncPath);
+        }
+
+        [DataTestMethod]
+        [DataRow(@"\\server\share\file.txt", @"\\server\share\file.txt")]
+        [DataRow(@"\\myserver\documents\folder\file.bicep", @"\\myserver\documents\folder\file.bicep")]
+        [DataRow(@"\\file-server\public\docs\readme.md", @"\\file-server\public\docs\readme.md")]
+        public void TryGetFilePath_UncPath_ReturnsCorrectLocalPath(string originalUncPath, string expectedLocalPath)
+        {
+            // Arrange
+            var uri = IOUri.FromFilePath(originalUncPath);
+
+            // Act
+            var localPath = uri.TryGetFilePath();
+
+            // Assert
+            localPath.Should().Be(expectedLocalPath);
         }
 #endif
     }

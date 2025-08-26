@@ -51,7 +51,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private async Task<string> ForceModulesRestoreAndGenerateOutputMessage(DocumentUri documentUri)
         {
-            var fileUri = documentUri.ToUriEncoded();
+            var fileUri = documentUri.ToIOUri();
 
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(
                 this.fileExplorer,

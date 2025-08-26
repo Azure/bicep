@@ -136,7 +136,7 @@ namespace Bicep.Wasm
             var fileUri = new Uri("file:///main.bicep");
             await fileSystem.File.WriteAllTextAsync(fileUri.LocalPath, fileContents);
 
-            return await compiler.CreateCompilation(fileUri);
+            return await compiler.CreateCompilation(fileUri.ToIOUri());
         }
 
         private static object ToMonacoDiagnostic(IDiagnostic diagnostic, IReadOnlyList<int> lineStarts)

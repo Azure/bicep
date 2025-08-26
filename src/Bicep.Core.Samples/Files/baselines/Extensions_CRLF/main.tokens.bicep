@@ -53,10 +53,19 @@ extension kubernetes as k8s
 //@[010:020) Identifier |kubernetes|
 //@[021:023) Identifier |as|
 //@[024:027) Identifier |k8s|
-//@[027:031) NewLine |\r\n\r\n|
-
-//extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
-//@[084:088) NewLine |\r\n\r\n|
+//@[027:029) NewLine |\r\n|
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as extWithOptionalConfig1
+//@[000:009) Identifier |extension|
+//@[010:076) StringComplete |'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3'|
+//@[077:079) Identifier |as|
+//@[080:102) Identifier |extWithOptionalConfig1|
+//@[102:104) NewLine |\r\n|
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as extWithOptionalConfig2
+//@[000:009) Identifier |extension|
+//@[010:076) StringComplete |'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3'|
+//@[077:079) Identifier |as|
+//@[080:102) Identifier |extWithOptionalConfig2|
+//@[102:106) NewLine |\r\n\r\n|
 
 // END: Extension declarations
 //@[030:034) NewLine |\r\n\r\n|
@@ -403,6 +412,45 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 //@[000:001) RightBrace |}|
 //@[001:005) NewLine |\r\n\r\n|
 
+module moduleWithExtsUsingFullInheritanceTernary1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:006) Identifier |module|
+//@[007:049) Identifier |moduleWithExtsUsingFullInheritanceTernary1|
+//@[050:098) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[099:100) Assignment |=|
+//@[101:102) LeftBrace |{|
+//@[102:104) NewLine |\r\n|
+  extensionConfigs: {
+//@[002:018) Identifier |extensionConfigs|
+//@[018:019) Colon |:|
+//@[020:021) LeftBrace |{|
+//@[021:023) NewLine |\r\n|
+    k8s: k8s.config
+//@[004:007) Identifier |k8s|
+//@[007:008) Colon |:|
+//@[009:012) Identifier |k8s|
+//@[012:013) Dot |.|
+//@[013:019) Identifier |config|
+//@[019:021) NewLine |\r\n|
+    extWithOptionalConfig: boolParam1 ? extWithOptionalConfig1.config : extWithOptionalConfig2.config
+//@[004:025) Identifier |extWithOptionalConfig|
+//@[025:026) Colon |:|
+//@[027:037) Identifier |boolParam1|
+//@[038:039) Question |?|
+//@[040:062) Identifier |extWithOptionalConfig1|
+//@[062:063) Dot |.|
+//@[063:069) Identifier |config|
+//@[070:071) Colon |:|
+//@[072:094) Identifier |extWithOptionalConfig2|
+//@[094:095) Dot |.|
+//@[095:101) Identifier |config|
+//@[101:103) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
 module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@[000:006) Identifier |module|
 //@[007:046) Identifier |moduleWithExtsUsingPiecemealInheritance|
@@ -564,6 +612,38 @@ module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlia
     }
 //@[004:005) RightBrace |}|
 //@[005:007) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
+module moduleWithExtsEmpty 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[000:006) Identifier |module|
+//@[007:026) Identifier |moduleWithExtsEmpty|
+//@[027:075) StringComplete |'child/hasConfigurableExtensionsWithAlias.bicep'|
+//@[076:077) Assignment |=|
+//@[078:079) LeftBrace |{|
+//@[079:081) NewLine |\r\n|
+  extensionConfigs: {
+//@[002:018) Identifier |extensionConfigs|
+//@[018:019) Colon |:|
+//@[020:021) LeftBrace |{|
+//@[021:023) NewLine |\r\n|
+    k8s: k8s.config
+//@[004:007) Identifier |k8s|
+//@[007:008) Colon |:|
+//@[009:012) Identifier |k8s|
+//@[012:013) Dot |.|
+//@[013:019) Identifier |config|
+//@[019:021) NewLine |\r\n|
+    extWithOptionalConfig: {}
+//@[004:025) Identifier |extWithOptionalConfig|
+//@[025:026) Colon |:|
+//@[027:028) LeftBrace |{|
+//@[028:029) RightBrace |}|
+//@[029:031) NewLine |\r\n|
   }
 //@[002:003) RightBrace |}|
 //@[003:005) NewLine |\r\n|

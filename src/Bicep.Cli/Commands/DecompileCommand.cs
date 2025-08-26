@@ -72,7 +72,7 @@ namespace Bicep.Cli.Commands
                 }
 
                 // to verify success we recompile and check for syntax errors.
-                var compilation = await compiler.CreateCompilation(decompilation.EntrypointUri, skipRestore: true, workspace: workspace);
+                var compilation = await compiler.CreateCompilation(decompilation.EntrypointUri.ToIOUri(), skipRestore: true, workspace: workspace);
                 var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, compilation);
 
                 if (args.OutputToStdOut)

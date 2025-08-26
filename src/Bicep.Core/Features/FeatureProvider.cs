@@ -76,6 +76,6 @@ namespace Bicep.Core.Features
                 : customPath);
 
         private IDirectoryHandle GetCacheRootDirectoryFromLocalPath(string localPath) =>
-            this.fileExplorer.GetDirectory(IOUri.FromLocalFilePath(localPath));
+            this.fileExplorer.GetDirectory(IOUri.FromFilePath(localPath));
     }
 }
