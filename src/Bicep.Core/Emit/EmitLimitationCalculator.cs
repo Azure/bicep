@@ -63,7 +63,7 @@ namespace Bicep.Core.Emit
             var paramAssignments = CalculateParameterAssignments(model, paramAssignmentEvaluator, diagnostics);
             var extConfigAssignments = CalculateExtensionConfigAssignments(model, paramAssignmentEvaluator, diagnostics);
 
-            return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments, extConfigAssignments);
+            return new(diagnostics.GetDiagnostics(), paramAssignments, extConfigAssignments);
         }
 
         private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
