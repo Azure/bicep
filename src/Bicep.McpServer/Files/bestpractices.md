@@ -4,14 +4,14 @@ This list of best-practices builds on top of information available at https://le
 ## Rules
 ### General
 1. Avoid setting the `name` field for `module` statements - it is no longer required.
-1. If you need to input or output a set of logically-grouped values, generate a single `param` or `output` statement with a User-Defined Type instead of emitting a `param` or `output` statement for each value.
+1. If you need to input or output a set of logically-grouped values, generate a single `param` or `output` statement with a User-defined type instead of emitting a `param` or `output` statement for each value.
 1. If generating parameters, default to generating Bicep parameters files (`*.bicepparam`), instead of ARM parameters files (`*.json`).
 
 ### Resources
-1. Do not add references from child resources to parent resources by using `/` charaters in the child resource `name` property. Instead, use the `parent` property with a symbolic reference to the parent resource.
-1. If you are generating a child resource type, Sometimes this may require you to add an `existing` resource for the parent if the parent is not already present in the file.
+1. Do not add references from child resources to parent resources by using `/` characters in the child resource `name` property. Instead, use the `parent` property with a symbolic reference to the parent resource.
+1. If you are generating a child resource type, sometimes this may require you to add an `existing` resource for the parent if the parent is not already present in the file.
 1. If you see diagnostic codes `BCP036`, `BCP037` or `BCP081`, this may indicate you have hallucinated resource types or resource type properties. You may need to double-check against available resource type schema to tune your output.
-1. Avoid using the multiple `resourceId()` functions and `reference()` function where possible. Instead use symbolic names to refer to ids or properties, creating `existing` resources if needed. For example, write `foo.id` or `foo.properties.id` instead of `resourceId('...')` or `reference('...').id`.
+1. Avoid using multiple `resourceId()` functions and `reference()` function where possible. Instead use symbolic names to refer to ids or properties, creating `existing` resources if needed. For example, write `foo.id` or `foo.properties.id`, instead of `resourceId('...')` or `reference('...').id`.
 
 ### Types
 1. Avoid using open types such as `array` or `object` when referencing types where possible (e.g. in `output` or `param` statements). Instead, use User-defined types to define a more precise type.
