@@ -89,15 +89,22 @@ namespace Bicep.Core.TypeSystem
                 .Where(kv => kv.Value.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime) && !kv.Value.Flags.HasFlag(TypePropertyFlags.WriteOnly))
                 .Select(kv => kv.Key);
 
-            if (accessedSymbol is ResourceSymbol { DeclaringResource: var declaringResource } &&
-                declaringResource.TryGetBody() is { } bodySyntax)
+            if (accessedSymbol is ResourceSymbol resourceSymbol)
             {
-                var declaredTopLevelPropertyNames = bodySyntax.ToNamedPropertyDictionary().Keys
-                    .Append(AzResourceTypeProvider.ResourceIdPropertyName)
-                    .Append(AzResourceTypeProvider.ResourceTypePropertyName)
-                    .Append(AzResourceTypeProvider.ResourceApiVersionPropertyName);
+                IEnumerable<string> alwaysPresentTopLevelPropertyNames
+                    = [AzResourceTypeProvider.ResourceTypePropertyName, AzResourceTypeProvider.ResourceApiVersionPropertyName];
 
-                accessiblePropertyNames = accessiblePropertyNames.Intersect(declaredTopLevelPropertyNames, LanguageConstants.IdentifierComparer);
+                if (resourceSymbol.TryGetResourceType()?.IsAzResource() is true)
+                {
+                    string[] azAlwaysPresentTopLevelPropertyNames
+                        = [AzResourceTypeProvider.ResourceIdPropertyName, AzResourceTypeProvider.ResourceNamePropertyName];
+                    alwaysPresentTopLevelPropertyNames = alwaysPresentTopLevelPropertyNames.Concat(azAlwaysPresentTopLevelPropertyNames);
+                }
+
+                var declaredTopLevelPropertyNames = resourceSymbol.DeclaringResource.TryGetBody()?.ToNamedPropertyDictionary().Keys ?? [];
+
+                accessiblePropertyNames = accessiblePropertyNames
+                    .Intersect(declaredTopLevelPropertyNames.Concat(alwaysPresentTopLevelPropertyNames), LanguageConstants.IdentifierComparer);
             }
 
             return accessiblePropertyNames;
