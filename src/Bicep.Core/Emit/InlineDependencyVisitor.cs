@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Frozen;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
@@ -20,9 +22,9 @@ namespace Bicep.Core.Emit
             SkipInline //decision to not inline, however it might be overridden if outer syntax requires inlining
         }
         private readonly SemanticModel model;
-        private readonly IDictionary<VariableSymbol, Decision> shouldInlineCache;
+        private readonly IDictionary<DeclaredSymbol, Decision> shouldInlineCache;
 
-        private VariableSymbol? currentDeclaration;
+        private DeclaredSymbol? currentDeclaration;
 
         // the following variables are only used when processing a single variable
         private readonly VariableDeclarationSyntax? targetVariable;
@@ -32,7 +34,7 @@ namespace Bicep.Core.Emit
         private InlineDependencyVisitor(SemanticModel model, VariableDeclarationSyntax? targetVariable)
         {
             this.model = model;
-            this.shouldInlineCache = new Dictionary<VariableSymbol, Decision>();
+            this.shouldInlineCache = new Dictionary<DeclaredSymbol, Decision>();
             this.targetVariable = targetVariable;
             this.currentDeclaration = null;
 
@@ -44,18 +46,40 @@ namespace Bicep.Core.Emit
             }
         }
 
+        public record SymbolsToInline(
+            IReadOnlySet<VariableSymbol> VariablesToInline,
+            IReadOnlySet<ResourceSymbol> ExistingResourcesToInline);
+
         /// <summary>
         /// Gets a set of variables that must be inlined due to runtime limitations.
         /// </summary>
         /// <param name="model">The semantic model</param>
-        public static ImmutableHashSet<VariableSymbol> GetVariablesToInline(SemanticModel model)
+        public static SymbolsToInline GetSymbolsToInline(SemanticModel model)
         {
             var visitor = new InlineDependencyVisitor(model, null);
-            visitor.Visit(model.Root.Syntax);
+            visitor.VisitNodes(model.Root.VariableDeclarations.Select(d => d.DeclaringSyntax)
+                .Concat(model.Root.ResourceDeclarations.Select(d => d.DeclaringSyntax)));
 
-            return [.. visitor.shouldInlineCache
-                .Where(kvp => kvp.Value == Decision.Inline)
-                .Select(kvp => kvp.Key)];
+            List<VariableSymbol> variablesToInline = new();
+            List<ResourceSymbol> existingResourcesToInline = new();
+
+            foreach (var kvp in visitor.shouldInlineCache.Where(kvp => kvp.Value == Decision.Inline))
+            {
+                switch (kvp.Key)
+                {
+                    case VariableSymbol variable:
+                        variablesToInline.Add(variable);
+                        break;
+                    case ResourceSymbol resource when resource.DeclaringResource.IsExistingResource():
+                        existingResourcesToInline.Add(resource);
+                        break;
+                    default:
+                        throw new InvalidOperationException(
+                            $"Only expected shouldInlineCache to contain variables and existing resources but found {kvp.Key.Type}");
+                }
+            }
+
+            return new(variablesToInline.ToFrozenSet(), existingResourcesToInline.ToFrozenSet());
         }
 
         /// <summary>
@@ -110,6 +134,90 @@ namespace Bicep.Core.Emit
 
             // restore previous declaration
             this.currentDeclaration = prevDeclaration;
+        }
+
+        public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
+        {
+            if (model.ResourceMetadata.TryLookup(syntax) is not DeclaredResourceMetadata resourceMetadata ||
+                model.GetSymbolInfo(syntax) is not ResourceSymbol resourceSymbol ||
+                shouldInlineCache.ContainsKey(resourceSymbol))
+            {
+                // if:
+                //   * the resource is not an `existing` resource, or
+                //   * errors prevent us from recognizing the statement as declaring a resource,
+                //   * errors prevent us from recognizing the statement as declaring a resource symbol, or
+                //   * we have already analyzed this symbol,
+                // then skip this part of the tree
+                return;
+            }
+
+            if (!syntax.IsExistingResource() ||
+                resourceSymbol.TryGetResourceType()?.IsAzResource() is not true)
+            {
+                // deployed and extensibility resources can never be inlined; only existing az resources can
+                shouldInlineCache[resourceSymbol] = Decision.SkipInline;
+            }
+            else
+            {
+                // here we know that the resource is an existing resource that can also be targeted directly by
+                // resource ID. We will need to "inline" (**not** emit an `"existing": true` resource in the ARM JSON)
+                // any resource whose `name` property contains runtime expressions or is scoped to- or a child of an
+                // inlined resource. 
+                var hasInlinedAncestor = false;
+                foreach (var ancestor in model.ResourceAncestors.GetAncestors(resourceMetadata))
+                {
+                    if (ancestor.Resource.IsExistingResource)
+                    {
+                        this.Visit(ancestor.Resource.Symbol.DeclaringSyntax);
+                        hasInlinedAncestor |= shouldInlineCache[ancestor.Resource.Symbol] == Decision.Inline;
+                    }
+                    else
+                    {
+                        hasInlinedAncestor = false;
+                    }
+                }
+
+                var scopedToInlinedResource = false;
+                if (model.ResourceScopeData.TryGetValue(resourceMetadata, out var resourceScope) &&
+                    resourceScope.ResourceScope is { } scopedToResource)
+                {
+                    this.Visit(scopedToResource.Symbol.DeclaringSyntax);
+                    scopedToInlinedResource = shouldInlineCache[scopedToResource.Symbol] == Decision.Inline;
+                }
+
+                if (hasInlinedAncestor || scopedToInlinedResource)
+                {
+                    shouldInlineCache[resourceSymbol] = Decision.Inline;
+                }
+                else
+                {
+                    var prevDeclaration = currentDeclaration;
+                    currentDeclaration = resourceSymbol;
+                    shouldInlineCache[resourceSymbol] = Decision.NotInline;
+                    foreach (var property in (syntax.Value as ObjectSyntax)?.Properties ?? [])
+                    {
+                        switch (property.TryGetKeyText())
+                        {
+                            // dependsOn has a different check performed in EmitLimitationCalculator
+                            case LanguageConstants.ResourceDependsOnPropertyName:
+                            // `parent` and `scope` were checked above
+                            case LanguageConstants.ResourceParentPropertyName:
+                            case LanguageConstants.ResourceScopePropertyName:
+                                continue;
+                            default:
+                                this.Visit(property);
+                                break;
+                        }
+                    }
+
+                    currentDeclaration = prevDeclaration;
+                }
+            }
+
+            foreach (var child in (syntax.Value as ObjectSyntax)?.Resources ?? [])
+            {
+                VisitResourceDeclarationSyntax(child);
+            }
         }
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
@@ -208,7 +316,7 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            static bool ShouldSkipInlining(ObjectType objectType, string propertyName, ResourceSymbol? resourceSymbol = null)
+            bool ShouldSkipInlining(ObjectType objectType, string propertyName, ResourceSymbol? resourceSymbol = null)
             {
                 if (!objectType.Properties.TryGetValue(propertyName, out var propertyType))
                 {
@@ -218,14 +326,17 @@ namespace Bicep.Core.Emit
 
                 if (propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                 {
-                    // TODO: Do we need to special case resource properties here?
-                    if (resourceSymbol is not null &&
-                        !AzResourceTypeProvider.ReadWriteDeployTimeConstantPropertyNames.Contains(propertyName, LanguageConstants.IdentifierComparer))
+                    if (resourceSymbol is not null && resourceSymbol.TryGetResourceType()?.IsAzResource() is true)
                     {
-                        // The property is not declared in the resource - we should inline event it is a deploy-time constant.
-                        // We skip standardized properties (id, name, type, and apiVersion) since their values are always known
-                        // and emitted if there are not syntactic and semantic errors (see ConvertResourcePropertyAccess in ExpressionConverter).
-                        return false;
+                        switch (propertyName)
+                        {
+                            case AzResourceTypeProvider.ResourceIdPropertyName:
+                            case AzResourceTypeProvider.ResourceNamePropertyName:
+                                this.Visit(resourceSymbol.DeclaringSyntax);
+                                return shouldInlineCache[resourceSymbol] != Decision.Inline;
+                            default:
+                                return AzResourceTypeProvider.ReadWriteDeployTimeConstantPropertyNames.Contains(propertyName, LanguageConstants.IdentifierComparer);
+                        }
                     }
 
                     return true;
@@ -242,7 +353,6 @@ namespace Bicep.Core.Emit
                 case ResourceSymbol resourceSymbol when resourceSymbol.TryGetBodyObjectType() is { } bodyObjectType:
                     SetSkipInlineCache(ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName, resourceSymbol));
                     return;
-
                 case ModuleSymbol moduleSymbol when moduleSymbol.TryGetBodyObjectType() is { } bodyObjectType:
                     SetSkipInlineCache(ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName));
                     return;
