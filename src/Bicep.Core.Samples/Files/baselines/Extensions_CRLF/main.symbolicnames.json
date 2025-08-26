@@ -10,7 +10,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17678764987383836251"
+      "templateHash": "12220335514428943927"
     }
   },
   "parameters": {
@@ -35,6 +35,14 @@
     "k8s": {
       "name": "Kubernetes",
       "version": "1.0.0"
+    },
+    "extWithOptionalConfig1": {
+      "name": "hasoptionalconfig",
+      "version": "1.2.3"
+    },
+    "extWithOptionalConfig2": {
+      "name": "hasoptionalconfig",
+      "version": "1.2.3"
     }
   },
   "resources": {
@@ -98,13 +106,17 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15850125793643788204"
+              "templateHash": "3264144588958898863"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
               "version": "1.0.0"
+            },
+            "extWithOptionalConfig": {
+              "name": "hasoptionalconfig",
+              "version": "1.2.3"
             }
           },
           "resources": {}
@@ -184,13 +196,17 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15850125793643788204"
+              "templateHash": "3264144588958898863"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
               "version": "1.0.0"
+            },
+            "extWithOptionalConfig": {
+              "name": "hasoptionalconfig",
+              "version": "1.2.3"
             }
           },
           "resources": {}
@@ -233,13 +249,17 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15850125793643788204"
+              "templateHash": "3264144588958898863"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
               "version": "1.0.0"
+            },
+            "extWithOptionalConfig": {
+              "name": "hasoptionalconfig",
+              "version": "1.2.3"
             }
           },
           "resources": {}
@@ -277,13 +297,17 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15850125793643788204"
+              "templateHash": "3264144588958898863"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
               "version": "1.0.0"
+            },
+            "extWithOptionalConfig": {
+              "name": "hasoptionalconfig",
+              "version": "1.2.3"
             }
           },
           "resources": {}
@@ -318,13 +342,59 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15850125793643788204"
+              "templateHash": "3264144588958898863"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
               "version": "1.0.0"
+            },
+            "extWithOptionalConfig": {
+              "name": "hasoptionalconfig",
+              "version": "1.2.3"
+            }
+          },
+          "resources": {}
+        }
+      }
+    },
+    "moduleWithExtsUsingFullInheritanceTernary1": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-03-01",
+      "name": "[format('moduleWithExtsUsingFullInheritanceTernary1-{0}', uniqueString('moduleWithExtsUsingFullInheritanceTernary1', deployment().name))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "k8s": "[extensions('k8s').config]",
+          "extWithOptionalConfig": "[if(parameters('boolParam1'), extensions('extWithOptionalConfig1').config, extensions('extWithOptionalConfig2').config)]"
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.2-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable defining extension configs for modules"
+            ],
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "3264144588958898863"
+            }
+          },
+          "extensions": {
+            "k8s": {
+              "name": "Kubernetes",
+              "version": "1.0.0"
+            },
+            "extWithOptionalConfig": {
+              "name": "hasoptionalconfig",
+              "version": "1.2.3"
             }
           },
           "resources": {}
@@ -358,13 +428,17 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15850125793643788204"
+              "templateHash": "3264144588958898863"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
               "version": "1.0.0"
+            },
+            "extWithOptionalConfig": {
+              "name": "hasoptionalconfig",
+              "version": "1.2.3"
             }
           },
           "resources": {}
@@ -402,13 +476,17 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15850125793643788204"
+              "templateHash": "3264144588958898863"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
               "version": "1.0.0"
+            },
+            "extWithOptionalConfig": {
+              "name": "hasoptionalconfig",
+              "version": "1.2.3"
             }
           },
           "resources": {}
@@ -442,13 +520,59 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15850125793643788204"
+              "templateHash": "3264144588958898863"
             }
           },
           "extensions": {
             "k8s": {
               "name": "Kubernetes",
               "version": "1.0.0"
+            },
+            "extWithOptionalConfig": {
+              "name": "hasoptionalconfig",
+              "version": "1.2.3"
+            }
+          },
+          "resources": {}
+        }
+      }
+    },
+    "moduleWithExtsEmpty": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-03-01",
+      "name": "[format('moduleWithExtsEmpty-{0}', uniqueString('moduleWithExtsEmpty', deployment().name))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "k8s": "[extensions('k8s').config]",
+          "extWithOptionalConfig": {}
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.2-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable defining extension configs for modules"
+            ],
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "3264144588958898863"
+            }
+          },
+          "extensions": {
+            "k8s": {
+              "name": "Kubernetes",
+              "version": "1.0.0"
+            },
+            "extWithOptionalConfig": {
+              "name": "hasoptionalconfig",
+              "version": "1.2.3"
             }
           },
           "resources": {}
