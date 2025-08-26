@@ -39,9 +39,11 @@ public abstract class AccessExpressionSyntax : ExpressionSyntax
 
         while (currentBaseExpression is not null)
         {
-            baseExpressions.Insert(0, currentBaseExpression);
+            baseExpressions.Add(currentBaseExpression);
             currentBaseExpression = currentBaseExpression is AccessExpressionSyntax accessSyntax ? accessSyntax.BaseExpression : null;
         }
+
+        baseExpressions.Reverse();
 
         return baseExpressions;
     }
