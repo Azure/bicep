@@ -132,7 +132,7 @@ public class InputOutputArgumentsResolverTests
 
         // Assert
         result.Should().NotBeNull();
-        result.IsLocalFile.Should().BeTrue();
+        result.IsFile.Should().BeTrue();
         mockPath.Verify(p => p.GetFullPath(windowsPath), Times.Once);
     }
 #endif
@@ -156,7 +156,7 @@ public class InputOutputArgumentsResolverTests
 
         // Assert
         result.Should().NotBeNull();
-        result.IsLocalFile.Should().BeTrue();
+        result.IsFile.Should().BeTrue();
         mockPath.Verify(p => p.GetFullPath(path), Times.Once);
     }
 }
