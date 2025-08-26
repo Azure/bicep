@@ -1050,18 +1050,6 @@ namespace Bicep.Core.TypeSystem
 
                     if (decorator is not null)
                     {
-                        for (int i = 0; i < decoratorSyntax.Arguments.Length; i++)
-                        {
-                            var parameterFlags = decorator.Overload.FixedParameters.Length < i
-                                ? decorator.Overload.FixedParameters[i].Flags
-                                : decorator.Overload.VariableParameter?.Flags ?? FunctionParameterFlags.None;
-
-                            if (parameterFlags.HasFlag(FunctionParameterFlags.Constant))
-                            {
-                                TypeValidator.GetCompileTimeConstantViolation(decoratorSyntax.Arguments[i], diagnostics);
-                            }
-                        }
-
                         if (decoratorSyntaxesByMatchingDecorator.TryGetValue(decorator, out var duplicateDecoratorSyntaxes))
                         {
                             duplicateDecoratorSyntaxes.Add(decoratorSyntax);
