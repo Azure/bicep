@@ -4321,7 +4321,6 @@ var file = " + functionName + @"(templ|)
         {
             var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
             var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
-            var fileUri = new Uri($"file:///{Guid.NewGuid():D}/{TestContext.TestName}/main.{extension}");
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
@@ -4338,17 +4337,18 @@ var file = " + functionName + @"(templ|)
 
             var configurationManager = StrictMock.Of<IConfigurationManager>();
             var moduleAliasesConfiguration = BicepTestConstants.BuiltInConfiguration.With(
-                    moduleAliases: RegistryCatalogMocks.ModuleAliases(
-                        """
-                        {
-                            "br": {
-                                "contoso": {
-                                    "registry": "private.contoso.com"
-                                }
+                moduleAliases: RegistryCatalogMocks.ModuleAliases(
+                    """
+                    {
+                        "br": {
+                            "contoso": {
+                                "registry": "private.contoso.com"
                             }
                         }
-                        """));
-            configurationManager.Setup(x => x.GetConfiguration(fileUri)).Returns(moduleAliasesConfiguration);
+                    }
+                    """));
+            var fileUri = DocumentUri.From($"file:///{Guid.NewGuid():D}/{TestContext.TestName}/main.{extension}");
+            configurationManager.Setup(x => x.GetConfiguration(fileUri.ToIOUri())).Returns(moduleAliasesConfiguration);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
@@ -4441,7 +4441,6 @@ var file = " + functionName + @"(templ|)
             var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
             var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(text, '|');
             var baseFolder = $"{Guid.NewGuid():D}";
-            var fileUri = new Uri($"file:///{baseFolder}/{TestContext.TestName}/main.{extension}");
 
             var configurationManager = StrictMock.Of<IConfigurationManager>();
             var moduleAliasesConfiguration = BicepTestConstants.BuiltInConfiguration.With(
@@ -4460,7 +4459,8 @@ var file = " + functionName + @"(templ|)
                     }
                     """),
                 null));
-            configurationManager.Setup(x => x.GetConfiguration(fileUri)).Returns(moduleAliasesConfiguration);
+            var fileUri = DocumentUri.From($"file:///{baseFolder}/{TestContext.TestName}/main.{extension}");
+            configurationManager.Setup(x => x.GetConfiguration(fileUri.ToIOUri())).Returns(moduleAliasesConfiguration);
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
@@ -4511,7 +4511,6 @@ var file = " + functionName + @"(templ|)
         {
             var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(text, '|');
             var baseFolder = $"{Guid.NewGuid():D}";
-            var fileUri = new Uri($"file:///{baseFolder}/{TestContext.TestName}/main.bicep");
 
             var configurationManager = StrictMock.Of<IConfigurationManager>();
             var moduleAliasesConfiguration = BicepTestConstants.BuiltInConfiguration.With(
@@ -4534,7 +4533,8 @@ var file = " + functionName + @"(templ|)
                       }
                     """),
                 null));
-            configurationManager.Setup(x => x.GetConfiguration(fileUri)).Returns(moduleAliasesConfiguration);
+            var fileUri = DocumentUri.From($"file:///{baseFolder}/{TestContext.TestName}/main.bicep");
+            configurationManager.Setup(x => x.GetConfiguration(fileUri.ToIOUri())).Returns(moduleAliasesConfiguration);
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);

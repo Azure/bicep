@@ -35,11 +35,11 @@ namespace Bicep.IO.InMemory
 
         public string ReadAllText() => throw new UnreachableException();
 
-        public Task<string> ReadAllTextAsync() => throw new UnreachableException();
+        public Task<string> ReadAllTextAsync(CancellationToken cancellationToken = default) => throw new UnreachableException();
 
         public void WriteAllText(string text) => throw new UnreachableException();
 
-        public Task WriteAllTextAsync(string text) => throw new UnreachableException();
+        public Task WriteAllTextAsync(string text, CancellationToken cancellationToken = default) => throw new UnreachableException();
 
         public IFileLock? TryLock() => throw new UnreachableException();
     }
