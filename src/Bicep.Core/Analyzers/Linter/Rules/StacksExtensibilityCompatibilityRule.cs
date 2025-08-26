@@ -163,7 +163,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 var baseExpressionChain = accessSyntax.GetBaseExpressionChain();
 
                 return baseExpressionChain.Count == 2 && Model.Binder.GetSymbolInfo(baseExpressionChain[0]) is ExtensionNamespaceSymbol
-                    && baseExpressionChain[1] is AccessExpressionSyntax middleAccessSyntax && string.Equals(middleAccessSyntax.TryGetPropertyName(), LanguageConstants.ExtensionConfigPropertyName, StringComparison.Ordinal);
+                    && baseExpressionChain[1] is AccessExpressionSyntax middleAccessSyntax && LanguageConstants.IdentifierComparer.Equals(middleAccessSyntax.TryGetPropertyName(), LanguageConstants.ExtensionConfigPropertyName);
             }
 
             private enum VisitedElement
