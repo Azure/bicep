@@ -39,6 +39,8 @@ public interface IFeatureProvider
 
     bool ModuleIdentityEnabled { get; }
 
+    bool UserDefinedConstraintsEnabled { get; }
+
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
         get
@@ -60,6 +62,7 @@ public interface IFeatureProvider
                 (ModuleExtensionConfigsEnabled, "Enable defining extension configs for modules", true, true),
                 (DesiredStateConfigurationEnabled, "Enable defining Desired State Configuration documents", true, false),
                 (ModuleIdentityEnabled, "Enable module identity support", true, true),
+                (UserDefinedConstraintsEnabled, "Enable @validate() decorator", true, true),
             })
             {
                 if (enabled)

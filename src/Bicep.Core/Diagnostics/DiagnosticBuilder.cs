@@ -1962,6 +1962,16 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic InvalidModuleExtensionConfigAssignmentExpression(string propertyName) => CoreError(
                 "BCP431",
                 $"The value of the \"{propertyName}\" property must be an object literal or a valid extension config inheritance expression.");
+
+            public Diagnostic RuntimeValueNotAllowedInFunctionArgument(string? functionName, string? parameterName, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
+            {
+                var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
+                var accessiblePropertiesClause = BuildAccessiblePropertiesClause(accessedSymbolName, accessiblePropertyNames);
+
+                return CoreError(
+                    "BCP432",
+                    $"This expression is being used in parameter \"{parameterName ?? "unknown"}\" of the function \"{functionName ?? "unknown"}\", which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
+            }
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
