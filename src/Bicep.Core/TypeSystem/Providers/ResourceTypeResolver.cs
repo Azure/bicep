@@ -95,13 +95,13 @@ namespace Bicep.Core.TypeSystem.Providers
                         yield break;
                     }
 
-                    foreach (var predecssor in binder.GetSymbolsReferencedInDeclarationOf(resource)
+                    foreach (var predecessor in binder.GetSymbolsReferencedInDeclarationOf(resource)
                         .OfType<ResourceSymbol>()
                         .SelectMany(YieldResourceAndUnprocessedPredecessors))
                     {
-                        if (resources.Contains(predecssor))
+                        if (resources.Contains(predecessor))
                         {
-                            yield return predecssor;
+                            yield return predecessor;
                         }
                     }
 
