@@ -108,6 +108,11 @@ namespace Bicep.Core.TypeSystem
         TypeVariableOrFunctionDecorator = TypeDecorator | VariableDecorator | FunctionDecorator,
 
         /// <summary>
+        /// The function can be used as a decorator anywhere except metadata.
+        /// </summary>
+        AnyDecoratorExceptMetadata = ParameterDecorator | VariableDecorator | FunctionDecorator | ResourceDecorator | ModuleDecorator | OutputDecorator | ExtensionDecorator | TypeDecorator,
+
+        /// <summary>
         /// The function can be used as a decorator anywhere.
         /// </summary>
         AnyDecorator = ParameterDecorator | VariableDecorator | FunctionDecorator | ResourceDecorator | ModuleDecorator | OutputDecorator | ExtensionDecorator | MetadataDecorator | TypeDecorator,
