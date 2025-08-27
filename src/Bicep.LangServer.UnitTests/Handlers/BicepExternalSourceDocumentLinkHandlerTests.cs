@@ -56,7 +56,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var mockConfigurationManager = new ConfigurationManager(mockFileExplorer);
             var featureProviderFactory = new FeatureProviderFactory(mockConfigurationManager, mockFileExplorer);
 
-            this.CacheRootDirectory = featureProviderFactory.GetFeatureProvider(new Uri("file:///no-file")).CacheRootDirectory;
+            this.CacheRootDirectory = featureProviderFactory.GetFeatureProvider(new IOUri("file", "", "/dummy.bicep")).CacheRootDirectory;
         }
 
         private void ResetModuleCache()

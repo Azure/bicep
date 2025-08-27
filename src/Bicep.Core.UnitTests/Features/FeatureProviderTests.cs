@@ -32,8 +32,8 @@ public class FeatureProviderTests
         var configuration = configManager.GetConfiguration(fileSet.GetUri("repo/main.bicep"));
         var fpm = new FeatureProviderFactory(configManager, fileSet.FileExplorer);
 
-        var control = fpm.GetFeatureProvider(fileSet.GetUri("main.bicep").ToUri());
-        var sut = fpm.GetFeatureProvider(fileSet.GetUri("repo/main.bicep").ToUri());
+        var control = fpm.GetFeatureProvider(fileSet.GetUri("main.bicep"));
+        var sut = fpm.GetFeatureProvider(fileSet.GetUri("repo/main.bicep"));
         sut.SymbolicNameCodegenEnabled.Should().Be(control.SymbolicNameCodegenEnabled);
     }
 
@@ -58,11 +58,11 @@ public class FeatureProviderTests
         var configuration = configManager.GetConfiguration(fileSet.GetUri("repo/main.bicep"));
         var fpm = new FeatureProviderFactory(configManager, fileSet.FileExplorer);
 
-        var control = fpm.GetFeatureProvider(fileSet.GetUri("main.bicep").ToUri());
+        var control = fpm.GetFeatureProvider(fileSet.GetUri("main.bicep"));
         control.SymbolicNameCodegenEnabled.Should().BeFalse();
-        var mainDirFeatures = fpm.GetFeatureProvider(fileSet.GetUri("repo/main.bicep").ToUri());
+        var mainDirFeatures = fpm.GetFeatureProvider(fileSet.GetUri("repo/main.bicep"));
         mainDirFeatures.SymbolicNameCodegenEnabled.Should().BeFalse();
-        var subDirFeatures = fpm.GetFeatureProvider(fileSet.GetUri("repo/subdir/module.bicep").ToUri());
+        var subDirFeatures = fpm.GetFeatureProvider(fileSet.GetUri("repo/subdir/module.bicep"));
         subDirFeatures.SymbolicNameCodegenEnabled.Should().BeTrue();
     }
 }

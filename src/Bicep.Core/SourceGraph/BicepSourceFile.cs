@@ -80,7 +80,7 @@ namespace Bicep.Core.SourceGraph
 
         public RootConfiguration Configuration => this.configurationManager.GetConfiguration(this.FileHandle.Uri);
 
-        public IFeatureProvider Features => this.featureProviderFactory.GetFeatureProvider(this.Uri);
+        public IFeatureProvider Features => this.featureProviderFactory.GetFeatureProvider(this.FileHandle.Uri);
 
         public IDiagnosticLookup LexingErrorLookup { get; }
 
