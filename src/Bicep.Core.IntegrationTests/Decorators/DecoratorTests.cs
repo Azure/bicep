@@ -343,5 +343,47 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
                 template.Should().BeNull();
             }
         }
+
+        [TestMethod]
+        public void Constant_decorator_arguments_must_be_block_expressions()
+        {
+            var result = CompilationHelper.Compile(
+                new ServiceBuilder().WithFeatureOverrides(new(TestContext, UserDefinedConstraintsEnabled: true)),
+                """
+                param env 'dev'|'prod'
+
+                @allowed([
+                  'f${'o'}o'
+                ])
+                @description(format('Le {0} est sur la {1}', 'singe', 'branche'))
+                @minLength(1 + 2)
+                @maxLength(2 + 1)
+                @validate(x => x == 'foo', 'Must be \'${'foo'}\'.')
+                @metadata({
+                  env: env
+                })
+                param foo string
+
+                @minValue(1 + 1)
+                @maxValue(2 + 2)
+                param bar int
+
+                @discriminator('k${'i'}n${'d'}')
+                param baz {kind: 'a', prop: string} | {kind: 'b', prop: int}
+                """);
+
+            result.ExcludingDiagnostics("no-unused-params").Should().HaveDiagnostics(
+            [
+                ("BCP032", DiagnosticLevel.Error, "The value must be a compile-time constant."),
+                ("BCP032", DiagnosticLevel.Error, "The value must be a compile-time constant."),
+                ("BCP032", DiagnosticLevel.Error, "The value must be a compile-time constant."),
+                ("BCP032", DiagnosticLevel.Error, "The value must be a compile-time constant."),
+                ("BCP032", DiagnosticLevel.Error, "The value must be a compile-time constant."),
+                ("BCP032", DiagnosticLevel.Error, "The value must be a compile-time constant."),
+                ("BCP032", DiagnosticLevel.Error, "The value must be a compile-time constant."),
+                ("BCP032", DiagnosticLevel.Error, "The value must be a compile-time constant."),
+                ("BCP032", DiagnosticLevel.Error, "The value must be a compile-time constant."),
+            ]);
+        }
     }
 }

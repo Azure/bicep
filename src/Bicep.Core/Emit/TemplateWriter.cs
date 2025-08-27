@@ -246,6 +246,7 @@ namespace Bicep.Core.Emit
                 (expression.MaxLength, LanguageConstants.ParameterMaxLengthPropertyName),
                 (expression.MinValue, LanguageConstants.ParameterMinValuePropertyName),
                 (expression.MaxValue, LanguageConstants.ParameterMaxValuePropertyName),
+                (expression.UserDefinedConstraint, LanguageConstants.ParameterUserDefinedConstraintPropertyName),
             })
             {
                 if (modifier is not null)
