@@ -8,7 +8,10 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
+using Bicep.IO.InMemory;
+using Bicep.TextFixtures.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -314,9 +317,9 @@ namespace Bicep.Core.UnitTests.Configuration
         public void GetConfiguration_CustomConfigurationNotFound_ReturnsBuiltInConfiguration()
         {
             // Arrange.
-            var fileExplorer = new FileSystemFileExplorer(new OnDiskFileSystem());
+            var fileExplorer = new InMemoryFileExplorer();
             var sut = new ConfigurationManager(fileExplorer);
-            var sourceFileUri = new Uri(this.CreatePath("foo/bar/main.bicep"));
+            var sourceFileUri = TestFileUri.FromInMemoryPath("path/to/nonexistent/main.bicep");
 
             // Act.
             var configuration = sut.GetConfiguration(sourceFileUri);
@@ -329,45 +332,38 @@ namespace Bicep.Core.UnitTests.Configuration
         public void GetConfiguration_InvalidCustomConfiguration_PropagatesFailedToParseConfigurationDiagnostic()
         {
             // Arrange.
-            var configurationPath = CreatePath("path/to/bicepconfig.json");
-            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-            {
-                [configurationPath] = "",
-            });
-            var fileExplorer = new FileSystemFileExplorer(fileSystem);
-            var sut = new ConfigurationManager(fileExplorer);
-            var sourceFileUri = new Uri(CreatePath("path/to/main.bicep"));
+            var fileSet = InMemoryTestFileSet.Create(("bicepconfig.json", ""));
+            var sut = new ConfigurationManager(fileSet.FileExplorer);
 
             // Act & Assert.
-            var diagnostics = sut.GetConfiguration(sourceFileUri).Diagnostics;
+            var diagnostics = sut.GetConfiguration(fileSet.GetUri("main.bicep")).Diagnostics;
             diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
-            diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.");
+            diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{fileSet.GetUri("bicepconfig.json")}\" as valid JSON: The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.");
         }
 
         [TestMethod]
         public void GetConfiguration_ConfigurationFileNotReadable_PropagatesCouldNotLoadConfigurationDiagnostic()
         {
             // Arrange.
-            var configurationPath = CreatePath("path/to/bicepconfig.json");
-            var configFileData = new MockFileData("")
-            {
-                AllowedFileShare = FileShare.None,
-            };
+            var configFileUri = TestFileUri.FromMockFileSystemPath("bicepconfig.json");
+            var mainFileUri = TestFileUri.FromMockFileSystemPath("main.bicep");
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                [configurationPath] = configFileData,
+                [configFileUri.GetFilePath()] = new MockFileData("")
+                {
+                    AllowedFileShare = FileShare.None,
+                },
             });
 
-            var fileExplorer = new FileSystemFileExplorer(fileSystem);
-            var sut = new ConfigurationManager(fileExplorer);
-            var sourceFileUri = new Uri(CreatePath("path/to/main.bicep"));
+            var fileSet = new MockFileSystemTestFileSet(fileSystem);
+            var sut = new ConfigurationManager(fileSet.FileExplorer);
 
             // Act & Assert.
-            var diagnostics = sut.GetConfiguration(sourceFileUri).Diagnostics;
+            var diagnostics = sut.GetConfiguration(mainFileUri).Diagnostics;
             diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
-            diagnostics[0].Message.Should().StartWith($"Could not load the Bicep configuration file \"{configurationPath}\":");
+            diagnostics[0].Message.Should().StartWith($"Could not load the Bicep configuration file \"{configFileUri}\":");
         }
 
         [TestMethod]
@@ -503,7 +499,7 @@ namespace Bicep.Core.UnitTests.Configuration
 
             var fileExplorer = new FileSystemFileExplorer(fileSystemMock.Object);
             var sut = new ConfigurationManager(fileExplorer);
-            var configuration = sut.GetConfiguration(new Uri("file:///foo/bar/main.bicep"));
+            var configuration = sut.GetConfiguration(new IOUri(IOUriScheme.File, "", "/foo/bar/main.bicep"));
 
             // Act & Assert.
             var diagnostics = configuration.Diagnostics;
@@ -515,148 +511,136 @@ namespace Bicep.Core.UnitTests.Configuration
 
         [DataTestMethod]
         [DataRow("""
-    {
-      "cloud": {
-        "currentProfile": "MyCloud"
-      }
-    }
-    """, @"The cloud profile ""MyCloud"" does not exist. Available profiles include ""AzureChinaCloud"", ""AzureCloud"", ""AzureUSGovernment"".")]
+            {
+              "cloud": {
+                "currentProfile": "MyCloud"
+              }
+            }
+            """, @"The cloud profile ""MyCloud"" does not exist. Available profiles include ""AzureChinaCloud"", ""AzureCloud"", ""AzureUSGovernment"".")]
         [DataRow("""
-    {
-      "cloud": {
-        "currentProfile": "MyCloud",
-        "profiles": {
-          "MyCloud": {
-          }
-        }
-      }
-    }
-    """, @"The cloud profile ""MyCloud"" is invalid. The ""resourceManagerEndpoint"" property cannot be null or undefined.")]
+            {
+              "cloud": {
+                "currentProfile": "MyCloud",
+                "profiles": {
+                  "MyCloud": {
+                  }
+                }
+              }
+            }
+            """, @"The cloud profile ""MyCloud"" is invalid. The ""resourceManagerEndpoint"" property cannot be null or undefined.")]
         [DataRow("""
-    {
-      "cloud": {
-        "currentProfile": "MyCloud",
-        "profiles": {
-          "MyCloud": {
-            "resourceManagerEndpoint": "Not and URL"
-          }
-        }
-      }
-    }
-    """, @"The cloud profile ""MyCloud"" is invalid. The value of the ""resourceManagerEndpoint"" property ""Not and URL"" is not a valid URL.")]
+            {
+              "cloud": {
+                "currentProfile": "MyCloud",
+                "profiles": {
+                  "MyCloud": {
+                    "resourceManagerEndpoint": "Not and URL"
+                  }
+                }
+              }
+            }
+            """, @"The cloud profile ""MyCloud"" is invalid. The value of the ""resourceManagerEndpoint"" property ""Not and URL"" is not a valid URL.")]
         [DataRow("""
-    {
-      "cloud": {
-        "currentProfile": "MyCloud",
-        "profiles": {
-          "MyCloud": {
-            "resourceManagerEndpoint": "https://example.invalid"
-          }
-        }
-      }
-    }
-    """, @"The cloud profile ""MyCloud"" is invalid. The ""activeDirectoryAuthority"" property cannot be null or undefined.")]
+            {
+              "cloud": {
+                "currentProfile": "MyCloud",
+                "profiles": {
+                  "MyCloud": {
+                    "resourceManagerEndpoint": "https://example.invalid"
+                  }
+                }
+              }
+            }
+            """, @"The cloud profile ""MyCloud"" is invalid. The ""activeDirectoryAuthority"" property cannot be null or undefined.")]
         [DataRow("""
-    {
-      "cloud": {
-        "currentProfile": "MyCloud",
-        "profiles": {
-          "MyCloud": {
-            "resourceManagerEndpoint": "https://example.invalid",
-            "activeDirectoryAuthority": "Not an URL"
-          }
-        }
-      }
-    }
-    """, @"The cloud profile ""MyCloud"" is invalid. The value of the ""activeDirectoryAuthority"" property ""Not an URL"" is not a valid URL.")]
+            {
+              "cloud": {
+                "currentProfile": "MyCloud",
+                "profiles": {
+                  "MyCloud": {
+                    "resourceManagerEndpoint": "https://example.invalid",
+                    "activeDirectoryAuthority": "Not an URL"
+                  }
+                }
+              }
+            }
+            """, @"The cloud profile ""MyCloud"" is invalid. The value of the ""activeDirectoryAuthority"" property ""Not an URL"" is not a valid URL.")]
         public void GetConfiguration_InvalidCurrentCloudProfile_PropagatesConfigurationDiagnostic(string configurationContents, string expectedExceptionMessage)
         {
             // Arrange.
-            var configurationPath = CreatePath("path/to/bicepconfig.json");
-            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-            {
-                [configurationPath] = configurationContents,
-            });
-
-            var fileExplorer = new FileSystemFileExplorer(fileSystem);
-            var sut = new ConfigurationManager(fileExplorer);
-            var sourceFileUri = new Uri(CreatePath("path/to/main.bicep"));
+            var fileSet = InMemoryTestFileSet.Create(("bicepconfig.json", configurationContents));
+            var sut = new ConfigurationManager(fileSet.FileExplorer);
 
             // Act & Assert.
-            var diagnostics = sut.GetConfiguration(sourceFileUri).Diagnostics;
+            var diagnostics = sut.GetConfiguration(fileSet.GetUri("main.bicep")).Diagnostics;
             diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
-            diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\": {expectedExceptionMessage}");
+            diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{fileSet.GetUri("bicepconfig.json")}\": {expectedExceptionMessage}");
         }
 
         [TestMethod]
         [DataRow("""
-    {
-      "cloud": {
-        "credentialOptions": {
-            "managedIdentity": {
-                "type": "UserAssigned"
+            {
+              "cloud": {
+                "credentialOptions": {
+                    "managedIdentity": {
+                        "type": "UserAssigned"
+                    }
+                }
+              }
             }
-        }
-      }
-    }
-    """, @"The managed-identity configuration is invalid. Either ""clientId"" or ""resourceId"" must be set for user-assigned identity.")]
+            """, @"The managed-identity configuration is invalid. Either ""clientId"" or ""resourceId"" must be set for user-assigned identity.")]
         [DataRow("""
-    {
-      "cloud": {
-        "credentialOptions": {
-            "managedIdentity": {
-                "type": "UserAssigned",
-                "clientId": "foo",
-                "resourceId": "bar"
+            {
+              "cloud": {
+                "credentialOptions": {
+                    "managedIdentity": {
+                        "type": "UserAssigned",
+                        "clientId": "foo",
+                        "resourceId": "bar"
+                    }
+                }
+              }
             }
-        }
-      }
-    }
-    """, @"The managed-identity configuration is invalid. ""clientId"" and ""resourceId"" cannot be set at the same time for user-assigned identity.")]
+            """, @"The managed-identity configuration is invalid. ""clientId"" and ""resourceId"" cannot be set at the same time for user-assigned identity.")]
         [DataRow("""
-    {
-      "cloud": {
-        "credentialOptions": {
-            "managedIdentity": {
-                "type": "UserAssigned",
-                "clientId": "foo"
+            {
+              "cloud": {
+                "credentialOptions": {
+                    "managedIdentity": {
+                        "type": "UserAssigned",
+                        "clientId": "foo"
+                    }
+                }
+              }
             }
-        }
-      }
-    }
-    """, @"The managed-identity configuration is invalid. ""clientId"" must be a GUID.")]
+            """, @"The managed-identity configuration is invalid. ""clientId"" must be a GUID.")]
         [DataRow("""
-    {
-      "cloud": {
-        "credentialOptions": {
-            "managedIdentity": {
-                "type": "UserAssigned",
-                "resourceId": "bar"
+            {
+              "cloud": {
+                "credentialOptions": {
+                    "managedIdentity": {
+                        "type": "UserAssigned",
+                        "resourceId": "bar"
+                    }
+                }
+              }
             }
-        }
-      }
-    }
-    """, @"The managed-identity configuration is invalid. ""resourceId"" must be a valid Azure resource identifier.")]
+            """, @"The managed-identity configuration is invalid. ""resourceId"" must be a valid Azure resource identifier.")]
         public void GetConfiguration_InvalidUserAssignedIdentityOptions_PropagatesConfigurationDiagnostic(string configurationContents, string expectedExceptionMessage)
         {
             // Arrange.
-            var configurationPath = CreatePath("path/to/bicepconfig.json");
-            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-            {
-                [configurationPath] = configurationContents,
-            });
-            var fileExplorer = new FileSystemFileExplorer(fileSystem);
-            var sut = new ConfigurationManager(fileExplorer);
-            var sourceFileUri = new Uri(CreatePath("path/to/main.bicep"));
+            var fileSet = InMemoryTestFileSet.Create(("bicepconfig.json", configurationContents));
+            var sut = new ConfigurationManager(fileSet.FileExplorer);
+
 
             // Act.
-            var diagnostics = sut.GetConfiguration(sourceFileUri).Diagnostics;
+            var diagnostics = sut.GetConfiguration(fileSet.GetUri("main.bicep")).Diagnostics;
 
             // Assert.
             diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
-            diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\": {expectedExceptionMessage}");
+            diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{fileSet.GetUri("bicepconfig.json")}\": {expectedExceptionMessage}");
         }
 
         [DataTestMethod]
@@ -665,195 +649,189 @@ namespace Bicep.Core.UnitTests.Configuration
         public void GetConfiguration_ValidCustomConfiguration_OverridesBuiltInConfiguration(string root)
         {
             // Arrange.
-            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-            {
-                [CreatePath(root)] = new MockDirectoryData(),
-                [CreatePath($"{root}/modules")] = new MockDirectoryData(),
-                [CreatePath($"{root}/bicepconfig.json")] = /*lang=json,strict*/ """
-        {
-          "cloud": {
-            "currentProfile": "MyCloud",
-            "profiles": {
-              "MyCloud": {
-                "resourceManagerEndpoint": "https://bicep.example.com",
-                "activeDirectoryAuthority": "https://login.bicep.example.com"
-              }
-            },
-            "credentialPrecedence": [
-                "AzurePowerShell",
-                "VisualStudioCode"
-            ],
-            "credentialOptions": {
-              "managedIdentity": {
-                "type": "UserAssigned",
-                "clientId": "00000000-0000-0000-0000-000000000000"
-              }
-            }
-          },
-          "moduleAliases": {
-            "ts": {
-              "mySpecPath": {
-                "subscription": "B34C8680-F688-48C2-A44F-E1EFF5E01173"
-              }
-            },
-            "br": {
-              "myRegistry": {
-                "registry": "localhost:8000"
-              },
-              "myModulePath": {
-                "registry": "test.invalid",
-                "modulePath": "root/modules"
-              }
-            }
-          },
-        "analyzers": {
-        "core": {
-            "enabled": false,
-            "rules": {
-            "no-hardcoded-env-urls": {
-                "level": "warning",
-                "disallowedhosts": [
-                "datalake.azure.net",
-                "azuredatalakestore.net",
-                "azuredatalakeanalytics.net",
-                "vault.azure.net",
-                "asazure.windows.net",
-                "batch.core.windows.net"
-                ]
-            }
-            }
-        }
-        },
-        "cacheRootDirectory": "/home/username/.bicep/cache",
-        "experimentalFeaturesEnabled": {
-        },
-        "formatting": {
-        "indentKind": "Space",
-        "newlineKind": "LF",
-        "insertFinalNewline": true,
-        "indentSize": 2,
-        "width": 80
-        }
-    }
-    """
-            });
-            var fileExplorer = new FileSystemFileExplorer(fileSystem);
-            var sut = new ConfigurationManager(fileExplorer);
-            var sourceFileUri = new Uri(this.CreatePath($"{root}/modules/vnet.bicep"));
+            var fileSet = InMemoryTestFileSet.Create(
+                ("modules", TestFileData.Directory),
+                ("bicepconfig.json", """
+                    {
+                      "cloud": {
+                        "currentProfile": "MyCloud",
+                        "profiles": {
+                          "MyCloud": {
+                            "resourceManagerEndpoint": "https://bicep.example.com",
+                            "activeDirectoryAuthority": "https://login.bicep.example.com"
+                          }
+                        },
+                        "credentialPrecedence": [
+                          "AzurePowerShell",
+                          "VisualStudioCode"
+                        ],
+                        "credentialOptions": {
+                          "managedIdentity": {
+                            "type": "UserAssigned",
+                            "clientId": "00000000-0000-0000-0000-000000000000"
+                          }
+                        }
+                      },
+                      "moduleAliases": {
+                        "ts": {
+                          "mySpecPath": {
+                            "subscription": "B34C8680-F688-48C2-A44F-E1EFF5E01173"
+                          }
+                        },
+                        "br": {
+                          "myRegistry": {
+                            "registry": "localhost:8000"
+                          },
+                          "myModulePath": {
+                            "registry": "test.invalid",
+                            "modulePath": "root/modules"
+                          }
+                        }
+                      },
+                      "analyzers": {
+                        "core": {
+                          "enabled": false,
+                          "rules": {
+                            "no-hardcoded-env-urls": {
+                              "level": "warning",
+                              "disallowedhosts": [
+                                "datalake.azure.net",
+                                "azuredatalakestore.net",
+                                "azuredatalakeanalytics.net",
+                                "vault.azure.net",
+                                "asazure.windows.net",
+                                "batch.core.windows.net"
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "cacheRootDirectory": "/home/username/.bicep/cache",
+                      "experimentalFeaturesEnabled": {},
+                      "formatting": {
+                        "indentKind": "Space",
+                        "newlineKind": "LF",
+                        "insertFinalNewline": true,
+                        "indentSize": 2,
+                        "width": 80
+                      }
+                    }
+                    """));
+            var sut = new ConfigurationManager(fileSet.FileExplorer);
 
             // Act.
-            var configuration = sut.GetConfiguration(sourceFileUri);
+            var configuration = sut.GetConfiguration(fileSet.GetUri("modules/vnet.bicep"));
 
             // Assert.
-            configuration.Should().HaveContents(/*lang=json,strict*/ """
-      {
-        "cloud": {
-          "currentProfile": "MyCloud",
-          "profiles": {
-            "AzureChinaCloud": {
-              "resourceManagerEndpoint": "https://management.chinacloudapi.cn",
-              "activeDirectoryAuthority": "https://login.chinacloudapi.cn"
-            },
-            "AzureCloud": {
-              "resourceManagerEndpoint": "https://management.azure.com",
-              "activeDirectoryAuthority": "https://login.microsoftonline.com"
-            },
-            "AzureUSGovernment": {
-              "resourceManagerEndpoint": "https://management.usgovcloudapi.net",
-              "activeDirectoryAuthority": "https://login.microsoftonline.us"
-            },
-            "MyCloud": {
-              "resourceManagerEndpoint": "https://bicep.example.com",
-              "activeDirectoryAuthority": "https://login.bicep.example.com"
-            }
-          },
-          "credentialPrecedence": [
-            "AzurePowerShell",
-            "VisualStudioCode"
-          ],
-          "credentialOptions": {
-            "managedIdentity": {
-              "type": "UserAssigned",
-              "clientId": "00000000-0000-0000-0000-000000000000"
-            }
-          }
-        },
-        "moduleAliases": {
-          "ts": {
-            "mySpecPath": {
-              "subscription": "B34C8680-F688-48C2-A44F-E1EFF5E01173"
-            }
-          },
-          "br": {
-            "myModulePath": {
-              "registry": "test.invalid",
-              "modulePath": "root/modules"
-            },
-            "myRegistry": {
-              "registry": "localhost:8000"
-            },
-            "public": {
-              "registry": "mcr.microsoft.com",
-              "modulePath": "bicep"
-            }
-          }
-        },
-        "extensions": {
-            "az": "builtin:",
-            "kubernetes": "builtin:"
-        },
-        "implicitExtensions": [
-            "az"
-        ],
-        "analyzers": {
-          "core": {
-            "verbose": false,
-            "enabled": false,
-            "rules": {
-              "no-hardcoded-env-urls": {
-                "level": "warning",
-                "disallowedhosts": [
-                  "datalake.azure.net",
-                  "azuredatalakestore.net",
-                  "azuredatalakeanalytics.net",
-                  "vault.azure.net",
-                  "asazure.windows.net",
-                  "batch.core.windows.net"
-                ],
-                "excludedhosts": [
-                  "schema.management.azure.com"
-                ]
-              }
-            }
-          }
-        },
-        "cacheRootDirectory": "/home/username/.bicep/cache",
-        "experimentalFeaturesEnabled": {
-          "extendableParamFiles": false,
-          "symbolicNameCodegen": false,
-          "resourceTypedParamsAndOutputs": false,
-          "sourceMapping": false,
-          "legacyFormatter": false,
-          "testFramework": false,
-          "assertions": false,
-          "waitAndRetry": false,
-          "localDeploy": false,
-          "resourceInfoCodegen": false,
-          "moduleExtensionConfigs": false,
-          "desiredStateConfiguration": false,
-          "onlyIfNotExists": false,
-          "moduleIdentity": false,
-          "userDefinedConstraints": false
-        },
-        "formatting": {
-          "indentKind": "Space",
-          "newlineKind": "LF",
-          "insertFinalNewline": true,
-          "indentSize": 2,
-          "width": 80
-        }
-      }
-      """);
+            configuration.Should().HaveContents("""
+                {
+                  "cloud": {
+                    "currentProfile": "MyCloud",
+                    "profiles": {
+                      "AzureChinaCloud": {
+                        "resourceManagerEndpoint": "https://management.chinacloudapi.cn",
+                        "activeDirectoryAuthority": "https://login.chinacloudapi.cn"
+                      },
+                      "AzureCloud": {
+                        "resourceManagerEndpoint": "https://management.azure.com",
+                        "activeDirectoryAuthority": "https://login.microsoftonline.com"
+                      },
+                      "AzureUSGovernment": {
+                        "resourceManagerEndpoint": "https://management.usgovcloudapi.net",
+                        "activeDirectoryAuthority": "https://login.microsoftonline.us"
+                      },
+                      "MyCloud": {
+                        "resourceManagerEndpoint": "https://bicep.example.com",
+                        "activeDirectoryAuthority": "https://login.bicep.example.com"
+                      }
+                    },
+                    "credentialPrecedence": [
+                      "AzurePowerShell",
+                      "VisualStudioCode"
+                    ],
+                    "credentialOptions": {
+                      "managedIdentity": {
+                        "type": "UserAssigned",
+                        "clientId": "00000000-0000-0000-0000-000000000000"
+                      }
+                    }
+                  },
+                  "moduleAliases": {
+                    "ts": {
+                      "mySpecPath": {
+                        "subscription": "B34C8680-F688-48C2-A44F-E1EFF5E01173"
+                      }
+                    },
+                    "br": {
+                      "myModulePath": {
+                        "registry": "test.invalid",
+                        "modulePath": "root/modules"
+                      },
+                      "myRegistry": {
+                        "registry": "localhost:8000"
+                      },
+                      "public": {
+                        "registry": "mcr.microsoft.com",
+                        "modulePath": "bicep"
+                      }
+                    }
+                  },
+                  "extensions": {
+                    "az": "builtin:",
+                    "kubernetes": "builtin:"
+                  },
+                  "implicitExtensions": [
+                    "az"
+                  ],
+                  "analyzers": {
+                    "core": {
+                      "verbose": false,
+                      "enabled": false,
+                      "rules": {
+                        "no-hardcoded-env-urls": {
+                          "level": "warning",
+                          "disallowedhosts": [
+                            "datalake.azure.net",
+                            "azuredatalakestore.net",
+                            "azuredatalakeanalytics.net",
+                            "vault.azure.net",
+                            "asazure.windows.net",
+                            "batch.core.windows.net"
+                          ],
+                          "excludedhosts": [
+                            "schema.management.azure.com"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "cacheRootDirectory": "/home/username/.bicep/cache",
+                  "experimentalFeaturesEnabled": {
+                    "extendableParamFiles": false,
+                    "symbolicNameCodegen": false,
+                    "resourceTypedParamsAndOutputs": false,
+                    "sourceMapping": false,
+                    "legacyFormatter": false,
+                    "testFramework": false,
+                    "assertions": false,
+                    "waitAndRetry": false,
+                    "localDeploy": false,
+                    "resourceInfoCodegen": false,
+                    "moduleExtensionConfigs": false,
+                    "desiredStateConfiguration": false,
+                    "onlyIfNotExists": false,
+                    "moduleIdentity": false,
+                    "userDefinedConstraints": false
+                  },
+                  "formatting": {
+                    "indentKind": "Space",
+                    "newlineKind": "LF",
+                    "insertFinalNewline": true,
+                    "indentSize": 2,
+                    "width": 80
+                  }
+                }
+                """);
         }
 
         [TestMethod]
@@ -863,39 +841,31 @@ namespace Bicep.Core.UnitTests.Configuration
             // > The configuration file closest to the Bicep file in the directory hierarchy is used.
 
             // Arrange.
-            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-            {
-                [CreatePath("repo")] = new MockDirectoryData(),
-                [CreatePath("repo/bicepconfig.json")] = """
-        {
-          "moduleAliases": {
-            "br": {
-              "public": {
-                "registry": "main.microsoft.com",
-                "modulePath": "bicep"
-              }
-            }
-          }
-        }
-        """,
-                [CreatePath("repo/modules")] = new MockDirectoryData(),
-                [CreatePath("repo/modules/bicepconfig.json")] = """
-        {
-        }
-        """
-            });
+            var fileSet = InMemoryTestFileSet.Create(
+                ("repo/modules/bicepconfig.json", """
+                    {}
+                    """),
+                ("repo/bicepconfig.json", """
+                    {
+                      "moduleAliases": {
+                        "br": {
+                          "public": {
+                            "registry": "main.microsoft.com",
+                            "modulePath": "bicep"
+                          }
+                        }
+                      }
+                    }
+                    """));
 
-            var fileExplorer = new FileSystemFileExplorer(fileSystem);
-            var sut = new ConfigurationManager(fileExplorer);
-            var sourceFileUri = new Uri(this.CreatePath("repo/modules/vnet.bicep"));
+            var sut = new ConfigurationManager(fileSet.FileExplorer);
 
             // Act.
-            var configuration = sut.GetConfiguration(sourceFileUri);
+            var configuration = sut.GetConfiguration(fileSet.GetUri("repo/modules/bicepconfig.json"));
 
             // Assert.
             configuration.ModuleAliases.TryGetOciArtifactModuleAlias("public").IsSuccess(out var moduleAlias).Should().BeTrue();
             moduleAlias!.Registry.Should().Be("mcr.microsoft.com");
         }
-        private string CreatePath(string path) => Path.Combine(this.TestContext.ResultsDirectory!, path.Replace('/', Path.DirectorySeparatorChar));
     }
 }

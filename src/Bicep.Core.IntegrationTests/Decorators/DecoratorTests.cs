@@ -6,6 +6,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.TextFixtures.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -39,6 +40,8 @@ namespace Bicep.Core.IntegrationTests.Decorators
         [TestMethod]
         public void ParameterDecorator_AttachedToOtherKindsOfDeclarations_CannotBeUsedAsDecoratorSpecificToTheDeclarations()
         {
+            var testCompiler = TestCompiler.ForMockFileSystemCompilation();
+
             var mainUri = new Uri("file:///main.bicep");
             var moduleUri = new Uri("file:///module.bicep");
 
