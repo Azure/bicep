@@ -25,6 +25,7 @@ public class ServerTests
         tools.OrderBy(x => x.Name).Should().SatisfyRespectively(
             x => x.Name.Should().Be("get_az_resource_type_schema"),
             x => x.Name.Should().Be("get_bicep_best_practices"),
+            x => x.Name.Should().Be("list_avm_metadata"),
             x => x.Name.Should().Be("list_az_resource_types_for_provider"));
     }
 

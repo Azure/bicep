@@ -1,10 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.McpServer.ResourceProperties;
 using Bicep.McpServer.ResourceProperties.Entities;
@@ -15,6 +18,7 @@ namespace Bicep.McpServer;
 [McpServerToolType]
 public sealed class BicepTools(
     AzResourceTypeLoader azResourceTypeLoader,
+    IPublicModuleIndexHttpClient publicModuleIndexHttpClient,
     ResourceVisitor resourceVisitor)
 {
     private static Lazy<BinaryData> BestPracticesMarkdownLazy { get; } = new(() =>
@@ -76,4 +80,25 @@ public sealed class BicepTools(
     This is helpful additional context if you've been asked to generate Bicep code.
     """)]
     public string GetBicepBestPractices() => BestPracticesMarkdownLazy.Value.ToString();
+
+    [McpServerTool(Title = "List Azure Verified Modules (AVM)", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true)]
+    [Description("""
+    Lists up-to-date metadata for all Azure Verified Modules (AVM).
+    The return value is a newline-separated list of AVM metadata. Each line includes the module name, description, versions, and documentation URI for a specific module.
+    """)]
+    public async Task<string> ListAvmMetadata()
+    {
+        var metadata = await publicModuleIndexHttpClient.GetModuleIndexAsync();
+
+        StringBuilder sb = new();
+        foreach (var entry in metadata)
+        {
+            var description = (entry.GetDescription() ?? "No description available").ReplaceLineEndings(" ");
+            var docUri = entry.GetDocumentationUri() ?? "No documentation URI available";
+            var allVersions = string.Join(", ", entry.Versions) ?? "No versions available";
+            sb.AppendLine($"Module: {entry.ModulePath}; Description: {description}; Versions: [{allVersions}]; Doc URI: {docUri}");
+        }
+
+        return sb.ToString();
+    }
 }

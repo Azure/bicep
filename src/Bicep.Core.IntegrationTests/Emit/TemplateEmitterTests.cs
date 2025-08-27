@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Bicep.Core.Emit;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
@@ -54,7 +55,7 @@ namespace Bicep.Core.IntegrationTests.Emit
                 .Build()
                 .GetCompiler();
 
-            return await compiler.CreateCompilation(bicepFileUri);
+            return await compiler.CreateCompilation(bicepFileUri.ToIOUri());
         }
 
         private async Task<Compilation> GetCompilation(BaselineData_Bicepparam baseline, FeatureProviderOverrides? features = null)
@@ -71,7 +72,7 @@ namespace Bicep.Core.IntegrationTests.Emit
                 .Build()
                 .GetCompiler();
 
-            return await compiler.CreateCompilation(baseline.GetData(TestContext).Parameters.OutputFileUri);
+            return await compiler.CreateCompilation(baseline.GetData(TestContext).Parameters.OutputFileUri.ToIOUri());
         }
 
         [DataTestMethod]
@@ -137,7 +138,7 @@ namespace Bicep.Core.IntegrationTests.Emit
 
             var features = new FeatureProviderOverrides(TestContext, SourceMappingEnabled: true);
             var compiler = ServiceBuilder.Create(s => s.WithFeatureOverrides(features)).GetCompiler();
-            var bicepUri = PathHelper.FilePathToFileUrl(bicepFile.OutputFilePath);
+            var bicepUri = PathHelper.FilePathToFileUrl(bicepFile.OutputFilePath).ToIOUri();
 
             var compilation = await compiler.CreateCompilation(bicepUri);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());

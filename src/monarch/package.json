@@ -2,21 +2,21 @@
   "version": "1.0.0",
   "private": true,
   "devDependencies": {
-    "@babel/core": "^7.28.0",
+    "@babel/core": "^7.28.3",
     "@babel/plugin-transform-modules-commonjs": "^7.27.1",
     "@eslint/eslintrc": "^3.3.0",
     "@eslint/js": "^9.31.0",
     "@types/html-escaper": "^3.0.4",
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.2.1",
+    "@types/node": "^24.3.0",
     "@typescript-eslint/eslint-plugin": "^8.39.0",
-    "@typescript-eslint/parser": "^8.39.0",
+    "@typescript-eslint/parser": "^8.39.1",
     "babel-jest": "^30.0.5",
-    "eslint": "^9.33.0",
+    "eslint": "^9.34.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jest": "^29.0.1",
     "eslint-plugin-notice": "^1.0.0",
-    "eslint-plugin-prettier": "^5.5.3",
+    "eslint-plugin-prettier": "^5.5.4",
     "globals": "^16.3.0",
     "html-escaper": "^3.0.3",
     "jest": "^30.0.5",
@@ -24,8 +24,8 @@
     "monaco-editor-core": "^0.52.2",
     "ts-jest": "^29.4.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.38.0"
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.40.0"
   },
   "engines": {
     "node": ">=14.0.0"

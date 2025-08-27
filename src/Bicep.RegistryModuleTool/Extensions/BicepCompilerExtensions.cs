@@ -5,6 +5,7 @@ using System.CommandLine;
 using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
 
@@ -15,7 +16,7 @@ namespace Bicep.RegistryModuleTool.Extensions
         public static async Task<Compilation> CompileAsync(this BicepCompiler compiler, string path, IConsole console, string? skipWritingDiagnosticsPath = null)
         {
             var hasError = false;
-            var uri = PathHelper.FilePathToFileUrl(path);
+            var uri = PathHelper.FilePathToFileUrl(path).ToIOUri();
             var compilation = await compiler.CreateCompilation(uri);
 
             foreach (var (file, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())

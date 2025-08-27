@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.Extensions;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -33,7 +34,7 @@ namespace Bicep.Core.IntegrationTests
             var jsonFile = baselineFolder.GetFileOrEnsureCheckedIn(Path.ChangeExtension(embeddedBicep.FileName, jsonFileExtension));
 
             var compiler = Services.WithFeatureOverrides(features).Build().GetCompiler();
-            var compilation = await compiler.CreateCompilation(bicepFile.OutputFileUri);
+            var compilation = await compiler.CreateCompilation(bicepFile.OutputFileUri.ToIOUri());
             var model = compilation.GetEntrypointSemanticModel();
 
             var emitter = new TemplateEmitter(model);

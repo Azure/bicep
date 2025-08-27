@@ -963,7 +963,7 @@ namespace Bicep.Core.Diagnostics
                     $"This expression is being used in the for-body of the variable \"{variableName}\", which requires values that can be calculated at the start of the deployment.{variableDependencyChainClause}{violatingPropertyNameClause}{accessiblePropertiesClause}");
             }
 
-            public Diagnostic ModulePropertyRequiresObjectLiteral(string propertyName) => CoreError(
+            public Diagnostic PropertyRequiresObjectLiteral(string propertyName) => CoreError(
                 "BCP183",
                 $"The value of the module \"{propertyName}\" property must be an object literal.");
 
@@ -1843,7 +1843,7 @@ namespace Bicep.Core.Diagnostics
 
                 return CoreError(
                 "BCP407",
-                $"Built-in extension \"microsoftGraph\" is retired. Use dynamic types instead. See https://aka.ms/graphBicepDynamicTypes")
+                $"Built-in extension \"microsoftGraph\" is retired. Use dynamic types instead. See https://aka.ms/graphbicep/dynamictypes")
                 with
                 {
                     Fixes = [codeFix]
@@ -1912,6 +1912,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP419",
                 $"Namespace name \"{name}\", and cannot be used an extension name.");
 
+
             public Diagnostic ScopeKindUnresolvableAtCompileTime() => CoreError(
                 "BCP420",
                 "The scope could not be resolved at compile time because the supplied expression is ambiguous or too complex. Scoping expressions must be reducible to a specific kind of scope without knowledge of parameter values.");
@@ -1945,6 +1946,22 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic EnvironmentVariableDoesNotExist(string name, string? suggestion) => CoreError(
                 "BCP427",
                 $"Environment variable \"{name}\" does not exist and there's no default value set.{suggestion}");
+
+            public Diagnostic DirectoryDoesNotExist(string relativePath) => CoreError(
+                "BCP428",
+                $"Directory \"{relativePath}\" does not exist or additional permissions are necessary to access it.");
+
+            public Diagnostic ErrorOccuredBrowsingDirectory(string exceptionMessage) => CoreError(
+                "BCP429",
+                $"An error occured browsing directory. {exceptionMessage}");
+
+            public Diagnostic FoundFileInsteadOfDirectory(string filePath) => CoreError(
+                "BCP430",
+                $"Unable to open directory at path \"{filePath}\". Found a file instead.");
+
+            public Diagnostic InvalidModuleExtensionConfigAssignmentExpression(string propertyName) => CoreError(
+                "BCP431",
+                $"The value of the \"{propertyName}\" property must be an object literal or a valid extension config inheritance expression.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

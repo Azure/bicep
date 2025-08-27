@@ -1,7 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Net;
 using Azure.Bicep.Types.Az;
+using Bicep.Core.Registry.Catalog;
+using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.McpServer.ResourceProperties;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,5 +30,19 @@ public static class IServiceCollectionExtensions
             options.ServerInstructions = Constants.ServerInstructions;
         })
         .WithTools<BicepTools>();
+    }
+
+    public static IServiceCollection WithAvmSupport(this IServiceCollection services)
+    {
+        // using type based registration for Http clients so dependencies can be injected automatically
+        // without manually constructing up the graph, see https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#typed-clients
+        services
+            .AddHttpClient<IPublicModuleIndexHttpClient, PublicModuleMetadataHttpClient>()
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            {
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+            });
+
+        return services;
     }
 }

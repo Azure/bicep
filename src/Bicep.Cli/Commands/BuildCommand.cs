@@ -39,7 +39,7 @@ public class BuildCommand(
 
     private async Task<DiagnosticSummary> Compile(IOUri inputUri, IOUri outputUri, bool noRestore, DiagnosticsFormat? diagnosticsFormat, bool outputToStdOut)
     {
-        var compilation = await compiler.CreateCompilation(inputUri.ToUri(), skipRestore: noRestore);
+        var compilation = await compiler.CreateCompilation(inputUri, skipRestore: noRestore);
         CommandHelper.LogExperimentalWarning(logger, compilation);
 
         var summary = diagnosticLogger.LogDiagnostics(ArgumentHelper.GetDiagnosticOptions(diagnosticsFormat), compilation);

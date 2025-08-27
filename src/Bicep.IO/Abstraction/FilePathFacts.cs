@@ -34,7 +34,7 @@ namespace Bicep.IO.Abstraction
         public static bool IsWindowsReservedFileName(string fileName) => WindowsReservedFileNames.Contains(fileName);
 
         public static bool IsWindowsDosDevicePath(string filePath) =>
-            filePath.StartsWith(@"\\.\", StringComparison.Ordinal) ||
+            filePath.StartsWith(@"\\?\", StringComparison.Ordinal) ||
             filePath.StartsWith(@"\\.\", StringComparison.Ordinal) ||
             filePath.StartsWith("//?/", StringComparison.Ordinal) ||
             filePath.StartsWith("//./", StringComparison.Ordinal);

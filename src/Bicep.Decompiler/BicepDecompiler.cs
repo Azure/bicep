@@ -282,7 +282,7 @@ Following metadata was not decompiled:
     private async Task<bool> RewriteSyntax(Workspace workspace, Uri entryUri, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
     {
         var hasChanges = false;
-        var compilation = await bicepCompiler.CreateCompilation(entryUri, workspace, skipRestore: true, forceRestore: false);
+        var compilation = await bicepCompiler.CreateCompilation(entryUri.ToIOUri(), workspace, skipRestore: true, forceRestore: false);
 
         // force enumeration here with .ToImmutableArray() as we're going to be modifying the sourceFileGrouping collection as we iterate
         var sourceFiles = compilation.SourceFileGrouping.SourceFiles.ToImmutableArray();
@@ -296,7 +296,7 @@ Following metadata was not decompiled:
                 var newFile = this.bicepCompiler.SourceFileFactory.CreateBicepFile(bicepFile.FileHandle.Uri, newProgramSyntax.ToString());
                 workspace.UpsertSourceFile(newFile);
 
-                compilation = await bicepCompiler.CreateCompilation(entryUri, workspace, skipRestore: true);
+                compilation = await bicepCompiler.CreateCompilation(entryUri.ToIOUri(), workspace, skipRestore: true);
             }
         }
 

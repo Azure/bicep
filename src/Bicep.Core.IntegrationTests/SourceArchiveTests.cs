@@ -23,12 +23,14 @@ using Bicep.IO.Utils;
 using Bicep.LanguageServer.Handlers;
 using Bicep.TextFixtures.Assertions;
 using Bicep.TextFixtures.IO;
+using Bicep.TextFixtures.Mocks;
 using Bicep.TextFixtures.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using static Bicep.TextFixtures.Utils.TestExternalArtifactManager;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -104,7 +106,7 @@ namespace Bicep.Core.IntegrationTests
             var packadData = original.PackIntoBinaryData();
 
             // Assert.
-            var fileHandleMock = StrictMock.Of<IFileHandle>();
+            var fileHandleMock = TextFixtures.Mocks.StrictMock.Of<IFileHandle>();
             fileHandleMock.Setup(x => x.Exists()).Returns(true);
             fileHandleMock.Setup(x => x.OpenRead()).Returns(packadData.ToStream());
 
@@ -213,6 +215,36 @@ namespace Bicep.Core.IntegrationTests
                 ("files/modules/arm-templates/arm-template.json", SampleData.ArmTemplateModuleText),
                 ("files/_cache_/br/mockregistry.io/test$module1/v1$/main.json", bicepRegistryModule1Template.ToString(Newtonsoft.Json.Formatting.Indented)),
                 ("files/_cache_/br/mockregistry.io/test$module2/v2$/main.json", bicepRegistryModule2Template.ToString(Newtonsoft.Json.Formatting.Indented)));
+        }
+
+        [TestMethod]
+        public async Task CreateFrom_WithExtension_IgnoresExtensionArtifact()
+        {
+            // Arrange.
+            await this.artifactManager.PublishExtension(Samples.MockExtensionFactory.CreateMockExtWithNoConfigType("foo"));
+            await this.artifactManager.PublishRegistryModules(new RegistryModulePublishArguments("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true));
+
+            var sourceFileGrouping = await this.CreateSourceFileGrouping(
+                ("main.bicep", """
+                    extension 'br:mcr.microsoft.com/extensions/foo/v1/1.2.3'
+
+                    module m1 'br:mockregistry.io/test/module1:v1' = {
+                        params: {
+                            p1: true
+                      }
+                    }
+                    """));
+
+            // Act.
+            var sourceArchive = SourceArchive.CreateFrom(sourceFileGrouping);
+
+            // Assert.
+            using (new AssertionScope())
+            {
+                sourceArchive.FindSourceFile("main.bicep").Metadata.SourceArtifactId.Should().BeNull();
+                sourceArchive.FindSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json").Metadata.SourceArtifactId.Should().Be("br:mockregistry.io/test/module1:v1");
+            }
+
         }
 
         [TestMethod]
@@ -618,7 +650,7 @@ namespace Bicep.Core.IntegrationTests
 
             stream.Seek(0, SeekOrigin.Begin);
 
-            var tgzFileHandleMock = StrictMock.Of<IFileHandle>();
+            var tgzFileHandleMock = TextFixtures.Mocks.StrictMock.Of<IFileHandle>();
             tgzFileHandleMock.Setup(x => x.Exists()).Returns(true);
             tgzFileHandleMock.Setup(x => x.OpenRead()).Returns(stream);
 

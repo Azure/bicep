@@ -75,7 +75,7 @@ namespace Bicep.TextFixtures.Utils
         public async Task<TestCompilationResult> Compile(string entryPointPath = DefaultEntryPointPath, bool skipRestore = false)
         {
             var compiler = this.services.Get<BicepCompiler>();
-            var compilation = await compiler.CreateCompilation(this.FileSet.GetUri(entryPointPath).ToUri(), skipRestore: skipRestore);
+            var compilation = await compiler.CreateCompilation(this.FileSet.GetUri(entryPointPath), skipRestore: skipRestore);
 
             return TestCompilationResult.FromCompilation(compilation);
         }

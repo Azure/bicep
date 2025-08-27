@@ -471,7 +471,7 @@ namespace Bicep.LanguageServer.Handlers
 
                 var workspace = new Workspace();
                 workspace.UpsertSourceFile(bicepFile);
-                var compilation = bicepCompiler.CreateCompilationWithoutRestore(bicepFile.Uri, workspace);
+                var compilation = bicepCompiler.CreateCompilationWithoutRestore(bicepFile.FileHandle.Uri, workspace);
 
                 bicepModel = compilation.GetEntrypointSemanticModel();
                 externalSourceUri = BicepExternalSourceRequestHandler.GetRegistryModuleSourceLinkUri(ociArtifactReference, sourceArchive);
