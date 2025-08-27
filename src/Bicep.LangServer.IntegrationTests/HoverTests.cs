@@ -1199,7 +1199,7 @@ AzureMetrics
         private IFeatureProviderFactory GetFeatureProviderFactory(Uri uri, string rootDirectoryPath)
         {
             var features = StrictMock.Of<IFeatureProvider>();
-            var rootDirectory = BicepTestConstants.FileExplorer.GetDirectory(IOUri.FromLocalFilePath(rootDirectoryPath));
+            var rootDirectory = BicepTestConstants.FileExplorer.GetDirectory(IOUri.FromFilePath(rootDirectoryPath));
             features.Setup(m => m.CacheRootDirectory).Returns(rootDirectory);
 
             var featureProviderFactory = StrictMock.Of<IFeatureProviderFactory>();

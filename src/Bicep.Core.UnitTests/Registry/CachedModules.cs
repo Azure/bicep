@@ -22,7 +22,7 @@ public static class CachedModules
     // Get all cached modules from the local on-disk registry cache
     public static ImmutableArray<CachedModule> GetCachedModules(IFileSystem fileSystem, IDirectoryHandle cacheRootDirectory)
     {
-        var cacheDir = fileSystem.DirectoryInfo.New(cacheRootDirectory.Uri.GetLocalFilePath());
+        var cacheDir = fileSystem.DirectoryInfo.New(cacheRootDirectory.Uri.GetFilePath());
         if (!cacheDir.Exists)
         {
             return [];

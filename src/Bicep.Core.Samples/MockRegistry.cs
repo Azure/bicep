@@ -111,6 +111,7 @@ public static class MockRegistry
     public static IEnumerable<MockExtensionData> CreateDefaultMockExtensions()
     {
         yield return MockExtensionFactory.CreateMockExtWithNoConfigType("noconfig");
+        yield return MockExtensionFactory.CreateMockExtWithOptionalObjectConfigType("hasoptionalconfig");
         yield return MockExtensionFactory.CreateMockExtWithObjectConfigType("hasconfig");
         yield return MockExtensionFactory.CreateMockExtWithSecureConfigType("hassecureconfig");
         yield return MockExtensionFactory.CreateMockExtWithDiscriminatedConfigType("hasdiscrimconfig");

@@ -25,8 +25,10 @@ extension az
 //@[010:012) ImportedNamespace az. Type: az. Declaration start char: 0, length: 12
 extension kubernetes as k8s
 //@[024:027) ImportedNamespace k8s. Type: k8s. Declaration start char: 0, length: 27
-
-//extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as extWithOptionalConfig1
+//@[080:102) ImportedNamespace extWithOptionalConfig1. Type: extWithOptionalConfig1. Declaration start char: 0, length: 102
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as extWithOptionalConfig2
+//@[080:102) ImportedNamespace extWithOptionalConfig2. Type: extWithOptionalConfig2. Declaration start char: 0, length: 102
 
 // END: Extension declarations
 
@@ -119,6 +121,14 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
   }
 }
 
+module moduleWithExtsUsingFullInheritanceTernary1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[007:049) Module moduleWithExtsUsingFullInheritanceTernary1. Type: module. Declaration start char: 0, length: 257
+  extensionConfigs: {
+    k8s: k8s.config
+    extWithOptionalConfig: boolParam1 ? extWithOptionalConfig1.config : extWithOptionalConfig2.config
+  }
+}
+
 module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@[007:046) Module moduleWithExtsUsingPiecemealInheritance. Type: module. Declaration start char: 0, length: 229
   extensionConfigs: {
@@ -148,6 +158,14 @@ module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlia
       kubeConfig: boolParam1 ? secureStrParam1 : k8s.config.kubeConfig
       namespace: boolParam1 ? az.resourceGroup().location : k8s.config.namespace
     }
+  }
+}
+
+module moduleWithExtsEmpty 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+//@[007:026) Module moduleWithExtsEmpty. Type: module. Declaration start char: 0, length: 162
+  extensionConfigs: {
+    k8s: k8s.config
+    extWithOptionalConfig: {}
   }
 }
 

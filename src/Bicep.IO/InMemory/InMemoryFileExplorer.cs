@@ -21,7 +21,7 @@ namespace Bicep.IO.InMemory
 
         private static IOUri EnsureLocalFileUri(IOUri uri)
         {
-            if (!uri.IsLocalFile)
+            if (!uri.IsFile)
             {
                 throw new ArgumentException($"The in-memory file explorer only supports local file URIs.");
             }

@@ -963,7 +963,7 @@ namespace Bicep.Core.Diagnostics
                     $"This expression is being used in the for-body of the variable \"{variableName}\", which requires values that can be calculated at the start of the deployment.{variableDependencyChainClause}{violatingPropertyNameClause}{accessiblePropertiesClause}");
             }
 
-            public Diagnostic ModulePropertyRequiresObjectLiteral(string propertyName) => CoreError(
+            public Diagnostic PropertyRequiresObjectLiteral(string propertyName) => CoreError(
                 "BCP183",
                 $"The value of the module \"{propertyName}\" property must be an object literal.");
 
@@ -1959,12 +1959,16 @@ namespace Bicep.Core.Diagnostics
                 "BCP430",
                 $"Unable to open directory at path \"{filePath}\". Found a file instead.");
 
-            public Diagnostic InlinedResourcesCannotHaveExplicitDependencies(string symbolicName, IEnumerable<string> runtimePropertyNames) => CoreError(
+            public Diagnostic InvalidModuleExtensionConfigAssignmentExpression(string propertyName) => CoreError(
                 "BCP431",
+                $"The value of the \"{propertyName}\" property must be an object literal or a valid extension config inheritance expression.");
+
+            public Diagnostic InlinedResourcesCannotHaveExplicitDependencies(string symbolicName, IEnumerable<string> runtimePropertyNames) => CoreError(
+                "BCP432",
                 $"The resource \"{symbolicName}\" cannot declare explicit dependencies because its identifier properties including {ToQuotedString(runtimePropertyNames.OrderBy(x => x))} cannot be calculated at the start of the deployment.");
 
             public Diagnostic CannotExplicitlyDependOnInlinedResource(string dependentName, string dependencyName, IEnumerable<string> runtimePropertyNames) => CoreError(
-                "BCP432",
+                "BCP433",
                 $"The resource \"{dependentName}\" cannot declare an explicit dependency on \"{dependencyName}\" because the identifier properties of the latter including {ToQuotedString(runtimePropertyNames.OrderBy(x => x))} cannot be calculated at the start of the deployment.");
         }
 

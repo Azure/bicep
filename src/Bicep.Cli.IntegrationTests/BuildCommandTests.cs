@@ -83,7 +83,7 @@ namespace Bicep.Cli.IntegrationTests
                 // ensure something got restored
 
                 settings.FeatureOverrides!.CacheRootDirectory!.Exists().Should().BeTrue();
-                Directory.EnumerateFiles(settings.FeatureOverrides.CacheRootDirectory!.Uri.GetLocalFilePath(), "*.json", SearchOption.AllDirectories).Should().NotBeEmpty();
+                Directory.EnumerateFiles(settings.FeatureOverrides.CacheRootDirectory!.Uri.GetFilePath(), "*.json", SearchOption.AllDirectories).Should().NotBeEmpty();
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);

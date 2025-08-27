@@ -61,7 +61,7 @@ internal class GrpcLocalExtension(
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = binaryUri.GetLocalFilePath(),
+                FileName = binaryUri.GetFilePath(),
                 Arguments = processArgs,
                 UseShellExecute = false,
                 RedirectStandardError = true,

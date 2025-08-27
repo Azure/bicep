@@ -434,18 +434,10 @@ namespace Bicep.Core.Emit
                     // unexpected type is assigned as the value of the "params" property
                     // we can't emit that directly because the parameters have to be converted into an object whose property values are objects with a "value" property
                     // ideally we would add a runtime function to take care of the conversion in these cases, but it doesn't exist yet
-                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(paramsValue).ModulePropertyRequiresObjectLiteral(LanguageConstants.ModuleParamsPropertyName));
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(paramsValue).PropertyRequiresObjectLiteral(LanguageConstants.ModuleParamsPropertyName));
                 }
 
-                if (semanticModel.Features.ModuleExtensionConfigsEnabled)
-                {
-                    var extensionConfigsValue = body.TryGetPropertyByName(LanguageConstants.ModuleExtensionConfigsPropertyName)?.Value;
-
-                    if (extensionConfigsValue is not (null or ObjectSyntax or SkippedTriviaSyntax))
-                    {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(extensionConfigsValue).ModulePropertyRequiresObjectLiteral(LanguageConstants.ModuleExtensionConfigsPropertyName));
-                    }
-                }
+                ModuleExtensionConfigsLimitations.Validate(body, semanticModel, diagnosticWriter);
             }
         }
 

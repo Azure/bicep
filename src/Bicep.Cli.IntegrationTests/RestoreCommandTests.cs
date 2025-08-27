@@ -122,7 +122,7 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
                 fileSystem.Directory.SetCurrentDirectory(outputPath);
             }
 
-            var cacheRoot = fileExplorer.GetDirectory(IOUri.FromLocalFilePath(outputPath));
+            var cacheRoot = fileExplorer.GetDirectory(IOUri.FromFilePath(outputPath));
 
             var (output, error, result) = await Bicep(
                 services => services
@@ -260,7 +260,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             var restoredFile = cacheRootDirectory.GetFile("restored.bicep");
             restoredFile.Write(bicep);
 
-            var restoredFilePath = restoredFile.Uri.GetLocalFilePath();
+            var restoredFilePath = restoredFile.Uri.GetFilePath();
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
 
             var (output, error, result) = await Bicep(settings, "restore", restoredFilePath);
@@ -340,7 +340,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             var restoredFile = cacheRootDirectory.GetFile("restored.bicep");
             restoredFile.Write(bicep);
 
-            var restoredFilePath = restoredFile.Uri.GetLocalFilePath();
+            var restoredFilePath = restoredFile.Uri.GetFilePath();
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
 
