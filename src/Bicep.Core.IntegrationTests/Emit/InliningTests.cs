@@ -319,7 +319,7 @@ public class InliningTests
         result.Template.Should().BeNull();
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
         [
-            ("BCP432", DiagnosticLevel.Error, "The resource \"sa2\" cannot declare explicit dependencies because its identifier properties including \"name\" cannot be calculated at the start of the deployment."),
+            ("BCP433", DiagnosticLevel.Error, "The resource \"sa2\" cannot declare explicit dependencies because its identifier properties including \"name\" cannot be calculated at the start of the deployment."),
         ]);
     }
 
@@ -352,7 +352,7 @@ public class InliningTests
         result.Template.Should().BeNull();
         result.Should().HaveDiagnostics(
         [
-            ("BCP433", DiagnosticLevel.Error, "The resource \"blobs\" cannot declare an explicit dependency on \"sa2\" because the identifier properties of the latter including \"name\" cannot be calculated at the start of the deployment."),
+            ("BCP434", DiagnosticLevel.Error, "The resource \"blobs\" cannot declare an explicit dependency on \"sa2\" because the identifier properties of the latter including \"name\" cannot be calculated at the start of the deployment."),
         ]);
     }
 }
