@@ -58,12 +58,13 @@ namespace Bicep.Core.Emit
             BlockSecureOutputsWithLocalDeploy(model, diagnostics);
             BlockSecureOutputAccessOnIndirectReference(model, diagnostics);
             BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
+            BlockExplicitDependenciesInOrOnInlinedExistingResources(model, resourceTypeResolver, diagnostics);
 
             var paramAssignmentEvaluator = new ParameterAssignmentEvaluator(model);
             var paramAssignments = CalculateParameterAssignments(model, paramAssignmentEvaluator, diagnostics);
             var extConfigAssignments = CalculateExtensionConfigAssignments(model, paramAssignmentEvaluator, diagnostics);
 
-            return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments, extConfigAssignments);
+            return new(diagnostics.GetDiagnostics(), paramAssignments, extConfigAssignments);
         }
 
         private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
@@ -947,6 +948,49 @@ namespace Bicep.Core.Emit
 
                     diagnostics.Write(DiagnosticBuilder.ForPosition(accessExpr.IndexExpression)
                         .SecureOutputsOnlyAllowedOnDirectModuleReference());
+                }
+            }
+        }
+
+        private static void BlockExplicitDependenciesInOrOnInlinedExistingResources(
+            SemanticModel model,
+            ResourceTypeResolver resolver,
+            IDiagnosticWriter diagnostics)
+        {
+            static IEnumerable<string> GetRuntimeIdentifierProperties(ResourceTypeResolver resolver, ResourceSymbol resource)
+                => resolver.TryGetBodyObjectType(resource)?.Properties
+                    .Where(kvp => AzResourceTypeProvider.UniqueIdentifierProperties.Contains(kvp.Key) &&
+                        !kvp.Value.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime))
+                    .Select(kvp => kvp.Key) ?? [];
+
+            foreach (var resourceDeclaration in model.Root.ResourceDeclarations)
+            {
+                if (resourceDeclaration.TryGetBodyProperty(LanguageConstants.ResourceDependsOnPropertyName)
+                    is { } explicitDependencies)
+                {
+                    if (model.SymbolsToInline.ExistingResourcesToInline.Contains(resourceDeclaration))
+                    {
+                        // inlined resources can't have explicit dependencies
+                        diagnostics.Write(DiagnosticBuilder.ForPosition(explicitDependencies)
+                            .InlinedResourcesCannotHaveExplicitDependencies(
+                                resourceDeclaration.Name,
+                                GetRuntimeIdentifierProperties(resolver, resourceDeclaration)));
+                    }
+                    else
+                    {
+                        foreach (var (inlinedResource, explicitDependency) in SymbolicReferenceCollector
+                            .CollectSymbolsReferenced(model.Binder, explicitDependencies.Value)
+                            .SelectMany(kvp => kvp.Key is ResourceSymbol r && model.SymbolsToInline.ExistingResourcesToInline.Contains(r)
+                                ? kvp.Value.Select(syntax => (r, syntax))
+                                : []))
+                        {
+                            diagnostics.Write(DiagnosticBuilder.ForPosition(explicitDependency)
+                                .CannotExplicitlyDependOnInlinedResource(
+                                    resourceDeclaration.Name,
+                                    inlinedResource.Name,
+                                    GetRuntimeIdentifierProperties(resolver, inlinedResource)));
+                        }
+                    }
                 }
             }
         }
