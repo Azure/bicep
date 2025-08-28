@@ -21,6 +21,7 @@ public class RootConfigurationTests
                 BicepTestConstants.BuiltInConfiguration.ImplicitExtensions,
                 BicepTestConstants.BuiltInConfiguration.Analyzers,
                 cacheRootDirectory,
+                BicepTestConstants.BuiltInConfiguration.ExperimentalFeaturesWarning,
                 BicepTestConstants.BuiltInConfiguration.ExperimentalFeaturesEnabled,
                 BicepTestConstants.BuiltInConfiguration.Formatting,
                 BicepTestConstants.BuiltInConfiguration.ConfigFileUri,
