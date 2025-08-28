@@ -23,7 +23,6 @@ public record ExperimentalFeaturesEnabled(
     bool ModuleExtensionConfigs,
     bool DesiredStateConfiguration,
     bool OnlyIfNotExists,
-    bool ModuleIdentity,
     bool UserDefinedConstraints)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
@@ -45,6 +44,5 @@ public record ExperimentalFeaturesEnabled(
         ModuleExtensionConfigs: false,
         DesiredStateConfiguration: false,
         OnlyIfNotExists: false,
-        ModuleIdentity: false,
         UserDefinedConstraints: false);
 }

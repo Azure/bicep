@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16716795212938447812"
+      "templateHash": "4928130070912924229"
     }
   },
   "parameters": {
@@ -273,7 +273,7 @@
         "count": "[length(parameters('sqlLogicalServer').firewallRules)]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('sqlFirewallRule-{0}-{1}', uniqueString(parameters('sqlLogicalServer').name), copyIndex())]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -336,7 +336,7 @@
         "count": "[length(parameters('sqlLogicalServer').databases)]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('sqlDb-{0}-{1}', uniqueString(parameters('sqlLogicalServer').name), copyIndex())]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -362,7 +362,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11469233179948538129"
+              "templateHash": "16102001105514122160"
             }
           },
           "parameters": {
@@ -518,7 +518,7 @@
             "shortTermBackup": {
               "condition": "[not(equals(parameters('sqlDatabase').shortTermBackupRetention, 0))]",
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2025-04-01",
               "name": "[format('shortTermBackup-{0}', uniqueString(parameters('sqlServerName'), parameters('sqlDatabase').name))]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -571,7 +571,7 @@
             },
             "azureDefender": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2025-04-01",
               "name": "[format('azureDefender-{0}', uniqueString(parameters('sqlServerName'), parameters('sqlDatabase').name))]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -627,7 +627,7 @@
             },
             "auditSettings": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2025-04-01",
               "name": "[format('auditSettings-{0}', uniqueString(parameters('sqlServerName'), parameters('sqlDatabase').name))]",
               "properties": {
                 "expressionEvaluationOptions": {

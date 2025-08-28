@@ -10,7 +10,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12220335514428943927"
+      "templateHash": "14300936452791949961"
     }
   },
   "parameters": {
@@ -77,7 +77,7 @@
     },
     "moduleWithExtsWithAliases": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2025-03-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('moduleWithExtsWithAliases-{0}', uniqueString('moduleWithExtsWithAliases', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -125,7 +125,7 @@
     },
     "moduleWithExtsWithoutAliases": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2025-03-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('moduleWithExtsWithoutAliases-{0}', uniqueString('moduleWithExtsWithoutAliases', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -171,7 +171,7 @@
     },
     "moduleExtConfigsFromParams": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2025-03-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('moduleExtConfigsFromParams-{0}', uniqueString('moduleExtConfigsFromParams', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -215,7 +215,7 @@
     },
     "moduleExtConfigFromKeyVaultReference": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2025-03-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('moduleExtConfigFromKeyVaultReference-{0}', uniqueString('moduleExtConfigFromKeyVaultReference', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -268,7 +268,7 @@
     },
     "moduleExtConfigFromReferences": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2025-03-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('moduleExtConfigFromReferences-{0}', uniqueString('moduleExtConfigFromReferences', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -320,7 +320,7 @@
     },
     "moduleWithExtsUsingFullInheritance": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2025-03-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('moduleWithExtsUsingFullInheritance-{0}', uniqueString('moduleWithExtsUsingFullInheritance', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -361,7 +361,7 @@
     },
     "moduleWithExtsUsingFullInheritanceTernary1": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2025-03-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('moduleWithExtsUsingFullInheritanceTernary1-{0}', uniqueString('moduleWithExtsUsingFullInheritanceTernary1', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -403,7 +403,7 @@
     },
     "moduleWithExtsUsingPiecemealInheritance": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2025-03-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('moduleWithExtsUsingPiecemealInheritance-{0}', uniqueString('moduleWithExtsUsingPiecemealInheritance', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -451,7 +451,7 @@
         "count": "[length(range(0, 4))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2025-03-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('moduleWithExtsPiecemealInheritanceLooped{0}', range(0, 4)[copyIndex()])]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -495,7 +495,7 @@
     },
     "moduleExtConfigsConditionalMixed": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2025-03-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('moduleExtConfigsConditionalMixed-{0}', uniqueString('moduleExtConfigsConditionalMixed', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -539,7 +539,7 @@
     },
     "moduleWithExtsEmpty": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2025-03-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('moduleWithExtsEmpty-{0}', uniqueString('moduleWithExtsEmpty', deployment().name))]",
       "properties": {
         "expressionEvaluationOptions": {

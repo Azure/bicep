@@ -714,7 +714,7 @@ namespace Bicep.Core.Emit
             return CreateFunction(
                 referenceFunctionName,
                 GetConverter(indexContext).GetFullyQualifiedResourceId(moduleSymbol, indexContext?.Index),
-                new JTokenExpression(EmitConstants.GetNestedDeploymentResourceApiVersion(context.SemanticModel.Features)));
+                new JTokenExpression(EmitConstants.NestedDeploymentResourceApiVersion));
         }
 
         public FunctionExpression GetReferenceExpression(ResourceMetadata resource, IndexReplacementContext? indexContext, bool full)

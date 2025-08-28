@@ -5872,7 +5872,7 @@ param foo string = 'bar'
                 this.TestContext,
                 files,
                 bicepFile.Uri,
-                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()).WithFeatureOverrides(new(this.TestContext, ModuleIdentityEnabled: true))
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create())
             );
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
