@@ -720,7 +720,6 @@ resource discriminatorKeyValueMissing_for 'Microsoft.Resources/deploymentScripts
 // cannot . access properties of a resource loop
 var resourceListIsNotSingleResource = discriminatorKeyValueMissing_for.kind
 //@[004:035) [no-unused-vars (Warning)] Variable "resourceListIsNotSingleResource" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |resourceListIsNotSingleResource|
-//@[038:070) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |discriminatorKeyValueMissing_for|
 //@[071:075) [BCP055 (Error)] Cannot access properties of type "Microsoft.Resources/deploymentScripts@2020-10-01[]". An "object" type is required. (bicep https://aka.ms/bicep/core-diagnostics#BCP055) |kind|
 
 // #completionTest(87) -> missingDiscriminatorPropertyAccess
@@ -748,7 +747,6 @@ resource discriminatorKeyValueMissing_for_if 'Microsoft.Resources/deploymentScri
 // cannot . access properties of a resource loop
 var resourceListIsNotSingleResource_if = discriminatorKeyValueMissing_for_if.kind
 //@[004:038) [no-unused-vars (Warning)] Variable "resourceListIsNotSingleResource_if" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |resourceListIsNotSingleResource_if|
-//@[041:076) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |discriminatorKeyValueMissing_for_if|
 //@[077:081) [BCP055 (Error)] Cannot access properties of type "Microsoft.Resources/deploymentScripts@2020-10-01[]". An "object" type is required. (bicep https://aka.ms/bicep/core-diagnostics#BCP055) |kind|
 
 // #completionTest(93) -> missingDiscriminatorPropertyAccess
@@ -1756,18 +1754,14 @@ resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for a
 
 var directRefViaVar = premiumStorages
 //@[004:019) [no-unused-vars (Warning)] Variable "directRefViaVar" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |directRefViaVar|
-//@[022:037) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |premiumStorages|
 output directRefViaOutput array = union(premiumStorages, stuffs)
 //@[026:031) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |array|
-//@[040:055) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |premiumStorages|
-//@[057:063) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |stuffs|
 
 resource directRefViaSingleResourceBody 'Microsoft.Network/dnszones@2018-05-01' = {
   name: 'myZone2'
   location: 'global'
   properties: {
     registrationVirtualNetworks: premiumStorages
-//@[033:048) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |premiumStorages|
   }
 }
 
@@ -1776,8 +1770,6 @@ resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2
   location: 'global'
   properties: {
     registrationVirtualNetworks: concat(premiumStorages, stuffs)
-//@[040:055) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |premiumStorages|
-//@[057:063) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression. (bicep https://aka.ms/bicep/core-diagnostics#BCP144) |stuffs|
   }
 }
 
