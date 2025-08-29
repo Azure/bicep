@@ -481,12 +481,13 @@ public class ExpressionBuilder
             .ToImmutableArray();
 
         var variables = Context.SemanticModel.Root.VariableDeclarations
-            .Where(x => !Context.VariablesToInline.Contains(x))
+            .Where(x => !Context.SemanticModel.SymbolsToInline.VariablesToInline.Contains(x))
             .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
             .OfType<DeclaredVariableExpression>()
             .ToImmutableArray();
 
         var resources = Context.SemanticModel.DeclaredResources
+            .Where(x => !Context.SemanticModel.SymbolsToInline.ExistingResourcesToInline.Contains(x.Symbol))
             .Select(x => ConvertWithoutLowering(x.Symbol.DeclaringSyntax))
             .OfType<DeclaredResourceExpression>()
             .ToImmutableArray();
@@ -590,7 +591,7 @@ public class ExpressionBuilder
         return new DeclaredModuleExpression(
             syntax,
             symbol,
-            Context.ModuleScopeData[symbol],
+            Context.SemanticModel.ModuleScopeData[symbol],
             body,
             bodyExpression,
             parameters is not null ? ConvertWithoutLowering(parameters.Value) : null,
@@ -719,7 +720,7 @@ public class ExpressionBuilder
         return new DeclaredResourceExpression(
             syntax,
             resource,
-            Context.ResourceScopeData[resource],
+            Context.SemanticModel.ResourceScopeData[resource],
             body,
             bodyExpression,
             BuildDependencyExpressions(resource.Symbol, body),
@@ -1101,7 +1102,7 @@ public class ExpressionBuilder
                 return new ParametersAssignmentReferenceExpression(variableAccessSyntax, parameterSymbol);
 
             case VariableSymbol variableSymbol:
-                if (Context.VariablesToInline.Contains(variableSymbol) ||
+                if (Context.SemanticModel.SymbolsToInline.VariablesToInline.Contains(variableSymbol) ||
                     Context.ExternalInputReferences.VariablesReferences.Contains(variableSymbol))
                 {
                     // we've got a runtime dependency, or we're evaluating a variable that has an external input function reference,
