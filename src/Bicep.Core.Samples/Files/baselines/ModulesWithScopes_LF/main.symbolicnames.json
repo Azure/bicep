@@ -6,13 +6,13 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3877811867069301524"
+      "templateHash": "2516085677755701340"
     }
   },
   "resources": {
     "myManagementGroupMod": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "myManagementGroupMod",
       "scope": "[format('Microsoft.Management/managementGroups/{0}', 'myManagementGroup')]",
       "location": "[deployment().location]",
@@ -29,13 +29,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7182497156539274335"
+              "templateHash": "15946422991610578996"
             }
           },
           "resources": {
             "myTenantMod": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2025-04-01",
               "name": "myTenantMod",
               "scope": "/",
               "location": "[deployment().location]",
@@ -67,7 +67,7 @@
             },
             "myManagementGroupModWithDuplicatedNameButInSeparateModule": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2025-04-01",
               "name": "myManagementGroupMod",
               "scope": "[format('Microsoft.Management/managementGroups/{0}', 'myManagementGroup2')]",
               "location": "[deployment().location]",
@@ -93,7 +93,7 @@
             },
             "mySubscriptionModWithDuplicatedNameButInSeparateModule": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2025-04-01",
               "name": "mySubscriptionMod",
               "subscriptionId": "1ad827ac-2669-4c2f-9970-282b93c3c550",
               "location": "[deployment().location]",
@@ -129,7 +129,7 @@
     },
     "myManagementGroupModWithDuplicatedNameButDifferentScope": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "myManagementGroupMod",
       "scope": "[format('Microsoft.Management/managementGroups/{0}', 'myManagementGroup2')]",
       "location": "[deployment().location]",
@@ -155,7 +155,7 @@
     },
     "mySubscriptionMod": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "mySubscriptionMod",
       "subscriptionId": "ee44cd78-68c6-43d9-874e-e684ec8d1191",
       "location": "[deployment().location]",
@@ -172,13 +172,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5023572346022967738"
+              "templateHash": "12730731191723913534"
             }
           },
           "resources": {
             "myResourceGroupMod": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2025-04-01",
               "name": "myResourceGroupMod",
               "resourceGroup": "myRg",
               "properties": {
@@ -194,13 +194,13 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "7614762937989510216"
+                      "templateHash": "4724830800321843427"
                     }
                   },
                   "resources": {
                     "myTenantMod": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "myTenantMod",
                       "scope": "/",
                       "location": "[resourceGroup().location]",
@@ -232,7 +232,7 @@
                     },
                     "myOtherResourceGroup": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "myOtherResourceGroup",
                       "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
                       "resourceGroup": "myOtherRg",
@@ -264,7 +264,7 @@
                     },
                     "mySubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "mySubscription",
                       "subscriptionId": "[subscription().subscriptionId]",
                       "location": "[resourceGroup().location]",
@@ -290,7 +290,7 @@
                     },
                     "otherSubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "otherSubscription",
                       "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
                       "location": "[resourceGroup().location]",
@@ -330,7 +330,7 @@
             },
             "myResourceGroupMod2": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2025-04-01",
               "name": "myResourceGroupMod2",
               "resourceGroup": "myRg",
               "properties": {
@@ -346,13 +346,13 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "7614762937989510216"
+                      "templateHash": "4724830800321843427"
                     }
                   },
                   "resources": {
                     "myTenantMod": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "myTenantMod",
                       "scope": "/",
                       "location": "[resourceGroup().location]",
@@ -384,7 +384,7 @@
                     },
                     "myOtherResourceGroup": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "myOtherResourceGroup",
                       "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
                       "resourceGroup": "myOtherRg",
@@ -416,7 +416,7 @@
                     },
                     "mySubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "mySubscription",
                       "subscriptionId": "[subscription().subscriptionId]",
                       "location": "[resourceGroup().location]",
@@ -442,7 +442,7 @@
                     },
                     "otherSubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "otherSubscription",
                       "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
                       "location": "[resourceGroup().location]",
@@ -482,7 +482,7 @@
             },
             "myResourceGroupMod3": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2025-04-01",
               "name": "myResourceGroupMod3",
               "subscriptionId": "subId",
               "resourceGroup": "myRg",
@@ -499,13 +499,13 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "7614762937989510216"
+                      "templateHash": "4724830800321843427"
                     }
                   },
                   "resources": {
                     "myTenantMod": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "myTenantMod",
                       "scope": "/",
                       "location": "[resourceGroup().location]",
@@ -537,7 +537,7 @@
                     },
                     "myOtherResourceGroup": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "myOtherResourceGroup",
                       "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
                       "resourceGroup": "myOtherRg",
@@ -569,7 +569,7 @@
                     },
                     "mySubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "mySubscription",
                       "subscriptionId": "[subscription().subscriptionId]",
                       "location": "[resourceGroup().location]",
@@ -595,7 +595,7 @@
                     },
                     "otherSubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "otherSubscription",
                       "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
                       "location": "[resourceGroup().location]",
@@ -635,7 +635,7 @@
             },
             "myTenantMod": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2025-04-01",
               "name": "myTenantMod",
               "scope": "/",
               "location": "[deployment().location]",
@@ -686,7 +686,7 @@
     "mySubscriptionModWithCondition": {
       "condition": "[equals(length('foo'), 3)]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "mySubscriptionModWithCondition",
       "subscriptionId": "ee44cd78-68c6-43d9-874e-e684ec8d1191",
       "location": "[deployment().location]",
@@ -703,13 +703,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5023572346022967738"
+              "templateHash": "12730731191723913534"
             }
           },
           "resources": {
             "myResourceGroupMod": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2025-04-01",
               "name": "myResourceGroupMod",
               "resourceGroup": "myRg",
               "properties": {
@@ -725,13 +725,13 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "7614762937989510216"
+                      "templateHash": "4724830800321843427"
                     }
                   },
                   "resources": {
                     "myTenantMod": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "myTenantMod",
                       "scope": "/",
                       "location": "[resourceGroup().location]",
@@ -763,7 +763,7 @@
                     },
                     "myOtherResourceGroup": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "myOtherResourceGroup",
                       "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
                       "resourceGroup": "myOtherRg",
@@ -795,7 +795,7 @@
                     },
                     "mySubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "mySubscription",
                       "subscriptionId": "[subscription().subscriptionId]",
                       "location": "[resourceGroup().location]",
@@ -821,7 +821,7 @@
                     },
                     "otherSubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "otherSubscription",
                       "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
                       "location": "[resourceGroup().location]",
@@ -861,7 +861,7 @@
             },
             "myResourceGroupMod2": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2025-04-01",
               "name": "myResourceGroupMod2",
               "resourceGroup": "myRg",
               "properties": {
@@ -877,13 +877,13 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "7614762937989510216"
+                      "templateHash": "4724830800321843427"
                     }
                   },
                   "resources": {
                     "myTenantMod": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "myTenantMod",
                       "scope": "/",
                       "location": "[resourceGroup().location]",
@@ -915,7 +915,7 @@
                     },
                     "myOtherResourceGroup": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "myOtherResourceGroup",
                       "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
                       "resourceGroup": "myOtherRg",
@@ -947,7 +947,7 @@
                     },
                     "mySubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "mySubscription",
                       "subscriptionId": "[subscription().subscriptionId]",
                       "location": "[resourceGroup().location]",
@@ -973,7 +973,7 @@
                     },
                     "otherSubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "otherSubscription",
                       "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
                       "location": "[resourceGroup().location]",
@@ -1013,7 +1013,7 @@
             },
             "myResourceGroupMod3": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2025-04-01",
               "name": "myResourceGroupMod3",
               "subscriptionId": "subId",
               "resourceGroup": "myRg",
@@ -1030,13 +1030,13 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "7614762937989510216"
+                      "templateHash": "4724830800321843427"
                     }
                   },
                   "resources": {
                     "myTenantMod": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "myTenantMod",
                       "scope": "/",
                       "location": "[resourceGroup().location]",
@@ -1068,7 +1068,7 @@
                     },
                     "myOtherResourceGroup": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "myOtherResourceGroup",
                       "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
                       "resourceGroup": "myOtherRg",
@@ -1100,7 +1100,7 @@
                     },
                     "mySubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "mySubscription",
                       "subscriptionId": "[subscription().subscriptionId]",
                       "location": "[resourceGroup().location]",
@@ -1126,7 +1126,7 @@
                     },
                     "otherSubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2022-09-01",
+                      "apiVersion": "2025-04-01",
                       "name": "otherSubscription",
                       "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
                       "location": "[resourceGroup().location]",
@@ -1166,7 +1166,7 @@
             },
             "myTenantMod": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2022-09-01",
+              "apiVersion": "2025-04-01",
               "name": "myTenantMod",
               "scope": "/",
               "location": "[deployment().location]",
@@ -1216,7 +1216,7 @@
     },
     "mySubscriptionModWithDuplicatedNameButDifferentScope": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "mySubscriptionMod",
       "subscriptionId": "1ad827ac-2669-4c2f-9970-282b93c3c550",
       "location": "[deployment().location]",

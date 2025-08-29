@@ -381,12 +381,8 @@ namespace Bicep.Core
                 new(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                 new(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
                 new(ResourceDependsOnPropertyName, ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny),
+                new(ModuleIdentityPropertyName, IdentityObject, TypePropertyFlags.DeployTimeConstant),
             ];
-
-            if (features.ModuleIdentityEnabled)
-            {
-                moduleProperties.Add(new(ModuleIdentityPropertyName, IdentityObject, TypePropertyFlags.DeployTimeConstant));
-            }
 
             if (features.ModuleExtensionConfigsEnabled)
             {

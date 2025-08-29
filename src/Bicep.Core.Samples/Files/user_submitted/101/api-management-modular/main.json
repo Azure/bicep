@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1060883810516541578"
+      "templateHash": "15505871189650591029"
     }
   },
   "parameters": {
@@ -28,42 +28,42 @@
     },
     "publisherEmail": {
       "type": "string",
+      "minLength": 1,
       "metadata": {
         "description": "The email address of the owner of the service"
-      },
-      "minLength": 1
+      }
     },
     "publisherName": {
       "type": "string",
+      "minLength": 1,
       "metadata": {
         "description": "The name of the owner of the service"
-      },
-      "minLength": 1
+      }
     },
     "sku": {
       "type": "string",
       "defaultValue": "Developer",
-      "metadata": {
-        "description": "The pricing tier of this API Management service"
-      },
       "allowedValues": [
         "Consumption",
         "Developer",
         "Basic",
         "Standard",
         "Premium"
-      ]
+      ],
+      "metadata": {
+        "description": "The pricing tier of this API Management service"
+      }
     },
     "skuCount": {
       "type": "int",
       "defaultValue": 1,
-      "metadata": {
-        "description": "The instance size of this API Management service."
-      },
       "allowedValues": [
         1,
         2
-      ]
+      ],
+      "metadata": {
+        "description": "The instance size of this API Management service."
+      }
     },
     "location": {
       "type": "string",
@@ -142,7 +142,7 @@
     {
       "condition": "[variables('deployGroups')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "apimGroups",
       "properties": {
         "expressionEvaluationOptions": {
@@ -220,7 +220,7 @@
     {
       "condition": "[variables('deployUsers')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "apimUsers",
       "properties": {
         "expressionEvaluationOptions": {
@@ -295,7 +295,7 @@
     {
       "condition": "[variables('deployNameValuePairs')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "apimNameValuePairs",
       "properties": {
         "expressionEvaluationOptions": {

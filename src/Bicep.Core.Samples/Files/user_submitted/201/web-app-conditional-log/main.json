@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17715572598508189663"
+      "templateHash": "1435446460312241654"
     }
   },
   "parameters": {
@@ -21,7 +21,7 @@
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "webAppPlanDeploy",
       "properties": {
         "expressionEvaluationOptions": {
@@ -142,7 +142,7 @@
     {
       "condition": "[parameters('logging')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "loggingDeploy",
       "properties": {
         "expressionEvaluationOptions": {
@@ -151,7 +151,7 @@
         "mode": "Incremental",
         "parameters": {
           "appName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'webAppPlanDeploy'), '2022-09-01').outputs.appServiceName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'webAppPlanDeploy'), '2025-04-01').outputs.appServiceName.value]"
           }
         },
         "template": {

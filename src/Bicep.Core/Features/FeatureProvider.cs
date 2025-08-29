@@ -54,8 +54,6 @@ namespace Bicep.Core.Features
 
         public bool DesiredStateConfigurationEnabled => configuration.ExperimentalFeaturesEnabled.DesiredStateConfiguration;
 
-        public bool ModuleIdentityEnabled => configuration.ExperimentalFeaturesEnabled.ModuleIdentity;
-
         public bool UserDefinedConstraintsEnabled => configuration.ExperimentalFeaturesEnabled.UserDefinedConstraints;
 
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)

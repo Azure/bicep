@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3808173352367324424"
+      "templateHash": "13242895701969448091"
     }
   },
   "parameters": {
@@ -31,7 +31,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "aks-deploy",
       "resourceGroup": "[parameters('baseName')]",
       "properties": {
@@ -138,7 +138,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "kubernetes-deploy",
       "resourceGroup": "[parameters('baseName')]",
       "properties": {
@@ -148,7 +148,7 @@
         "mode": "Incremental",
         "parameters": {
           "kubeConfig": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('baseName')), 'Microsoft.Resources/deployments', 'aks-deploy'), '2022-09-01').outputs.kubeConfig.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('baseName')), 'Microsoft.Resources/deployments', 'aks-deploy'), '2025-04-01').outputs.kubeConfig.value]"
           }
         },
         "template": {

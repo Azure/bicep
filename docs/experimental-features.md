@@ -34,10 +34,6 @@ Enables Bicep to run deployments locally, so that you can run Bicep extensions w
 Moves defining extension configurations to the module level rather than from within a template. The feature also
 includes enhancements for Deployment stacks extensibility integration. This feature is not ready for use.
 
-### `moduleIdentity`
-
-Enables adding identity property to modules, which allows you to assign user-assigned identities to a module. The identity will currently only be used on the deployment for tenants on the allow list.
-
 ### `onlyIfNotExists`
 The feature introduces the onlyIfNotExists decorator on a resource. The decorator will only deploy the resource if it does not exist. (Note: This feature will not work until the backend service support has been deployed)
 ```
