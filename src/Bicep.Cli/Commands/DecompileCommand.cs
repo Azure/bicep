@@ -68,11 +68,11 @@ namespace Bicep.Cli.Commands
                 var workspace = new Workspace();
                 foreach (var (fileUri, bicepOutput) in decompilation.FilesToSave)
                 {
-                    workspace.UpsertSourceFile(this.sourceFileFactory.CreateBicepFile(fileUri, bicepOutput));
+                    workspace.UpsertSourceFile(this.sourceFileFactory.CreateBicepFile(fileUri.ToIOUri(), bicepOutput));
                 }
 
                 // to verify success we recompile and check for syntax errors.
-                var compilation = await compiler.CreateCompilation(decompilation.EntrypointUri, skipRestore: true, workspace: workspace);
+                var compilation = await compiler.CreateCompilation(decompilation.EntrypointUri.ToIOUri(), skipRestore: true, workspace: workspace);
                 var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, compilation);
 
                 if (args.OutputToStdOut)

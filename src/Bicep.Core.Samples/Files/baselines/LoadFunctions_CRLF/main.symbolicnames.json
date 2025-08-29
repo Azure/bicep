@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2097118057076044843"
+      "templateHash": "13823975289242998726"
     }
   },
   "variables": {
@@ -41,7 +41,126 @@
       "pizza",
       "salad"
     ],
-    "$fxv#23": {
+    "$fxv#23": [
+      {
+        "relativePath": "Assets/binary",
+        "baseName": "binary",
+        "extension": ""
+      },
+      {
+        "relativePath": "Assets/encoding-ascii.txt",
+        "baseName": "encoding-ascii.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/encoding-iso.txt",
+        "baseName": "encoding-iso.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/encoding-utf16.txt",
+        "baseName": "encoding-utf16.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/encoding-utf16be.txt",
+        "baseName": "encoding-utf16be.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/encoding-utf8-bom.txt",
+        "baseName": "encoding-utf8-bom.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/encoding-utf8.txt",
+        "baseName": "encoding-utf8.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/test.json.txt",
+        "baseName": "test.json.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/test.yaml.txt",
+        "baseName": "test.yaml.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/test2.json.txt",
+        "baseName": "test2.json.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/TextFile.CRLF.txt",
+        "baseName": "TextFile.CRLF.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/TextFile.LF.txt",
+        "baseName": "TextFile.LF.txt",
+        "extension": ".txt"
+      }
+    ],
+    "$fxv#24": [
+      {
+        "relativePath": "Assets/encoding-ascii.txt",
+        "baseName": "encoding-ascii.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/encoding-iso.txt",
+        "baseName": "encoding-iso.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/encoding-utf16.txt",
+        "baseName": "encoding-utf16.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/encoding-utf16be.txt",
+        "baseName": "encoding-utf16be.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/encoding-utf8-bom.txt",
+        "baseName": "encoding-utf8-bom.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/encoding-utf8.txt",
+        "baseName": "encoding-utf8.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/test.json.txt",
+        "baseName": "test.json.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/test.yaml.txt",
+        "baseName": "test.yaml.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/test2.json.txt",
+        "baseName": "test2.json.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/TextFile.CRLF.txt",
+        "baseName": "TextFile.CRLF.txt",
+        "extension": ".txt"
+      },
+      {
+        "relativePath": "Assets/TextFile.LF.txt",
+        "baseName": "TextFile.LF.txt",
+        "extension": ".txt"
+      }
+    ],
+    "$fxv#25": {
       "string": "someVal",
       "int": 123,
       "bool": true,
@@ -135,7 +254,9 @@
     "testJsonNestedString2_1": "[variables('testJsonObject2_1').nestedString]",
     "testJsonNestedString2_2": "[variables('$fxv#21')]",
     "testJsonTokensAsArray": "[variables('$fxv#22')]",
-    "testYaml": "[variables('$fxv#23')]",
+    "directoryInfo": "[variables('$fxv#23')]",
+    "directoryInfoWildcard": "[variables('$fxv#24')]",
+    "testYaml": "[variables('$fxv#25')]",
     "testYamlString": "[variables('testYaml').string]",
     "testYamlInt": "[variables('testYaml').int]",
     "testYamlBool": "[variables('testYaml').bool]",

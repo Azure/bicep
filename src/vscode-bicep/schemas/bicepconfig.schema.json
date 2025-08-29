@@ -889,6 +889,10 @@
         "moduleIdentity": {
           "type": "boolean",
           "description": "Allows you to add an identity property to a module. See https://aka.ms/bicep/experimental-features#moduleidentity"
+        },
+        "userDefinedConstraints": {
+          "type": "boolean",
+          "description": "Allows you to use the `@validate()` decorator on types and parameters with a custom validation predicate. See https://aka.ms/bicep/experimental-features#userdefinedconstraints"
         }
       },
       "additionalProperties": false

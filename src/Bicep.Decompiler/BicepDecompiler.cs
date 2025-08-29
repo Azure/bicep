@@ -39,7 +39,7 @@ public class BicepDecompiler
         options ??= new DecompileOptions();
 
         var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(bicepCompiler.SourceFileFactory, workspace, bicepUri, jsonContent, options);
-        var bicepFile = this.bicepCompiler.SourceFileFactory.CreateBicepFile(bicepUri, program.ToString());
+        var bicepFile = this.bicepCompiler.SourceFileFactory.CreateBicepFile(bicepUri.ToIOUri(), program.ToString());
         workspace.UpsertSourceFile(bicepFile);
 
         await RewriteSyntax(workspace, bicepUri, semanticModel => new ParentChildResourceNameRewriter(semanticModel));
@@ -60,6 +60,7 @@ public class BicepDecompiler
             bicepUri,
             PrintFiles(workspace));
     }
+
     public DecompileResult DecompileParameters(string contents, Uri entryBicepparamUri, Uri? bicepFileUri, DecompileParamOptions? options = null)
     {
         options ??= new();
@@ -68,7 +69,7 @@ public class BicepDecompiler
 
         var program = DecompileParametersFile(contents, entryBicepparamUri, bicepFileUri, options);
 
-        var bicepparamFile = this.bicepCompiler.SourceFileFactory.CreateBicepParamFile(entryBicepparamUri, program.ToString());
+        var bicepparamFile = this.bicepCompiler.SourceFileFactory.CreateBicepParamFile(entryBicepparamUri.ToIOUri(), program.ToString());
 
         workspace.UpsertSourceFile(bicepparamFile);
 
@@ -281,7 +282,7 @@ Following metadata was not decompiled:
     private async Task<bool> RewriteSyntax(Workspace workspace, Uri entryUri, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
     {
         var hasChanges = false;
-        var compilation = await bicepCompiler.CreateCompilation(entryUri, workspace, skipRestore: true, forceRestore: false);
+        var compilation = await bicepCompiler.CreateCompilation(entryUri.ToIOUri(), workspace, skipRestore: true, forceRestore: false);
 
         // force enumeration here with .ToImmutableArray() as we're going to be modifying the sourceFileGrouping collection as we iterate
         var sourceFiles = compilation.SourceFileGrouping.SourceFiles.ToImmutableArray();
@@ -292,10 +293,10 @@ Following metadata was not decompiled:
             if (!object.ReferenceEquals(bicepFile.ProgramSyntax, newProgramSyntax))
             {
                 hasChanges = true;
-                var newFile = this.bicepCompiler.SourceFileFactory.CreateBicepFile(bicepFile.Uri, newProgramSyntax.ToString());
+                var newFile = this.bicepCompiler.SourceFileFactory.CreateBicepFile(bicepFile.FileHandle.Uri, newProgramSyntax.ToString());
                 workspace.UpsertSourceFile(newFile);
 
-                compilation = await bicepCompiler.CreateCompilation(entryUri, workspace, skipRestore: true);
+                compilation = await bicepCompiler.CreateCompilation(entryUri.ToIOUri(), workspace, skipRestore: true);
             }
         }
 

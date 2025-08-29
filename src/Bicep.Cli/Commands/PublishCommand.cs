@@ -75,7 +75,7 @@ namespace Bicep.Cli.Commands
                 return 0;
             }
 
-            var compilation = await compiler.CreateCompilation(inputUri.ToUri(), skipRestore: args.NoRestore);
+            var compilation = await compiler.CreateCompilation(inputUri, skipRestore: args.NoRestore);
             var result = compilation.Emitter.Template();
 
             var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, result.Diagnostics);
@@ -120,7 +120,7 @@ namespace Bicep.Cli.Commands
 
         private ArtifactReference ValidateReference(string targetModuleReference, IOUri targetModuleUri)
         {
-            var dummyReferencingFile = this.sourceFileFactory.CreateBicepFile(targetModuleUri.ToUri(), string.Empty);
+            var dummyReferencingFile = this.sourceFileFactory.CreateBicepFile(targetModuleUri, string.Empty);
 
             if (!this.moduleDispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Module, targetModuleReference).IsSuccess(out var moduleReference, out var failureBuilder))
             {

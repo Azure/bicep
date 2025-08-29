@@ -12,7 +12,7 @@ public static class RewriterHelper
 {
     private static (BicepSourceFile bicepFile, bool hasChanges) Rewrite(BicepCompiler compiler, Workspace workspace, BicepSourceFile bicepFile, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
     {
-        var compilation = compiler.CreateCompilationWithoutRestore(bicepFile.Uri, workspace);
+        var compilation = compiler.CreateCompilationWithoutRestore(bicepFile.FileHandle.Uri, workspace);
         var newProgramSyntax = rewriteVisitorBuilder(compilation.GetEntrypointSemanticModel()).Rewrite(bicepFile.ProgramSyntax);
 
         if (object.ReferenceEquals(bicepFile.ProgramSyntax, newProgramSyntax))
@@ -20,7 +20,7 @@ public static class RewriterHelper
             return (bicepFile, false);
         }
 
-        bicepFile = compilation.SourceFileFactory.CreateBicepFile(bicepFile.Uri, newProgramSyntax.ToString());
+        bicepFile = compilation.SourceFileFactory.CreateBicepFile(bicepFile.FileHandle, newProgramSyntax.ToString());
         return (bicepFile, true);
     }
 

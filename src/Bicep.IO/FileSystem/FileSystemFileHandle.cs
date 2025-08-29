@@ -45,7 +45,8 @@ namespace Bicep.IO.FileSystem
 
         public string ReadAllText() => this.FileSystem.File.ReadAllText(this.FilePath);
 
-        public Task<string> ReadAllTextAsync() => this.FileSystem.File.ReadAllTextAsync(this.FilePath);
+        public Task<string> ReadAllTextAsync(CancellationToken cancellationToken = default) =>
+            this.FileSystem.File.ReadAllTextAsync(this.FilePath, cancellationToken);
 
         public void WriteAllText(string text)
         {
@@ -53,11 +54,11 @@ namespace Bicep.IO.FileSystem
             this.FileSystem.File.WriteAllText(this.FilePath, text);
         }
 
-        public async Task WriteAllTextAsync(string text)
+        public async Task WriteAllTextAsync(string text, CancellationToken cancellationToken = default)
         {
             this.GetParent().EnsureExists();
 
-            await this.FileSystem.File.WriteAllTextAsync(this.FilePath, text);
+            await this.FileSystem.File.WriteAllTextAsync(this.FilePath, text, cancellationToken);
         }
 
         public void Delete() => this.FileSystem.File.Delete(this.FilePath);

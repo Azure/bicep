@@ -56,6 +56,8 @@ namespace Bicep.Core.Features
 
         public bool ModuleIdentityEnabled => configuration.ExperimentalFeaturesEnabled.ModuleIdentity;
 
+        public bool UserDefinedConstraintsEnabled => configuration.ExperimentalFeaturesEnabled.UserDefinedConstraints;
+
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
             => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;
 
@@ -74,6 +76,6 @@ namespace Bicep.Core.Features
                 : customPath);
 
         private IDirectoryHandle GetCacheRootDirectoryFromLocalPath(string localPath) =>
-            this.fileExplorer.GetDirectory(IOUri.FromLocalFilePath(localPath));
+            this.fileExplorer.GetDirectory(IOUri.FromFilePath(localPath));
     }
 }

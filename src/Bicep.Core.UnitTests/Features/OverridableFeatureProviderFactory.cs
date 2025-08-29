@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Features;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.UnitTests.Features;
 
@@ -16,6 +17,6 @@ public class OverriddenFeatureProviderFactory : IFeatureProviderFactory
         this.overrides = overrides;
     }
 
-    public IFeatureProvider GetFeatureProvider(Uri templateUri)
-        => new OverriddenFeatureProvider(factory.GetFeatureProvider(templateUri), overrides);
+    public IFeatureProvider GetFeatureProvider(IOUri sourceFileUri)
+        => new OverriddenFeatureProvider(factory.GetFeatureProvider(sourceFileUri), overrides);
 }

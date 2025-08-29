@@ -55,7 +55,7 @@ namespace Bicep.IO.FileSystem
 
             foreach (var directory in directories)
             {
-                var directoryUri = IOUri.FromLocalFilePath(directory);
+                var directoryUri = IOUri.FromFilePath(directory);
                 yield return new FileSystemDirectoryHandle(this.FileSystem, directoryUri);
             }
         }
@@ -66,7 +66,7 @@ namespace Bicep.IO.FileSystem
 
             foreach (var file in files)
             {
-                var fileUri = IOUri.FromLocalFilePath(file);
+                var fileUri = IOUri.FromFilePath(file);
                 yield return new FileSystemFileHandle(this.FileSystem, fileUri);
             }
         }

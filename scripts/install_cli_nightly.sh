@@ -42,6 +42,9 @@ if [ -z "$branch" ]; then
 fi
 if [ -z "$runId" ]; then
   runId=$(gh run list -R $repo --branch $branch --workflow build --status success -L 1 --json databaseId -q ".[0].databaseId")
+  if [ -z "$runId" ]; then
+    echo "Failed to find a successful build to install from"; exit 1;
+  fi
 fi
 tmpDir=$(mktemp -d)
 gh run download -R $repo $runId -n "bicep-release-$platform-$arch" --dir $tmpDir

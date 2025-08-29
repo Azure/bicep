@@ -3079,7 +3079,7 @@ resource foo 'Microsoft.Storage/storageAccounts@2021-04-01' = {
 ");
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"name\" property of the \"Microsoft.Storage/storageAccounts\" type, which requires a value that can be calculated at the start of the deployment. Properties of existingStg which can be calculated at the start include \"apiVersion\", \"id\", \"type\".")
+            ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"name\" property of the \"Microsoft.Storage/storageAccounts\" type, which requires a value that can be calculated at the start of the deployment. Properties of existingStg which can be calculated at the start include \"apiVersion\", \"type\".")
         });
     }
 

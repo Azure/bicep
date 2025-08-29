@@ -52,12 +52,19 @@ namespace Bicep.IO.InMemory
 
         public string ReadAllText() => this.FileStore.ReadFile(this).ToString();
 
-        public Task<string> ReadAllTextAsync() => Task.FromResult(this.ReadAllText());
+        public Task<string> ReadAllTextAsync(CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return Task.FromResult(this.ReadAllText());
+        }
 
         public void WriteAllText(string text) => this.FileStore.WriteFile(this, text);
 
-        public Task WriteAllTextAsync(string text)
+        public Task WriteAllTextAsync(string text, CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             this.WriteAllText(text);
 
             return Task.CompletedTask;

@@ -1581,11 +1581,14 @@ namespace Bicep.Core.TypeSystem
                 return null;
             }
 
-            var arguments = parentFunction.Arguments.ToImmutableArray();
+            var arguments = parentFunction.Arguments;
             var argIndex = arguments.IndexOf(syntax);
             var declaredType = functionSymbol.GetDeclaredArgumentType(
                 argIndex,
-                getAssignedArgumentType: i => typeManager.GetTypeInfo(parentFunction.Arguments[i]));
+                getAssignedArgumentType: i => typeManager.GetTypeInfo(parentFunction.Arguments[i]),
+                getAttachedType: () => binder.GetParent(parent) is DecoratorSyntax decorator && binder.GetParent(decorator) is DecorableSyntax decorated
+                    ? GetDeclaredType(decorated) ?? ErrorType.Empty()
+                    : throw new InvalidOperationException("Cannot get attached type of function not used as decorator."));
 
             return new DeclaredTypeAssignment(declaredType, declaringSyntax: null);
         }

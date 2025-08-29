@@ -8,6 +8,7 @@ using Bicep.Core.Json;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
+using Bicep.TextFixtures.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -66,23 +67,18 @@ public class ExtensionsConfigurationTests
     [TestMethod]
     public void ExtensionConfiguration_user_provided_configuration_overrides_default_configuration()
     {
-        var bicepConfigFileName = "bicepconfig.json";
-        var fs = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-            [bicepConfigFileName] = new("""
+        var fileSet = InMemoryTestFileSet.Create(("bicepconfig.json", """
             {
-                "extensions": {
-                    "foo": "br:example.azurecr.io/some/fake/path:1.0.0",
-                    "az": "br:mcr.microsoft.com/bicep/extensions/az:0.2.3"
-                }
+              "extensions": {
+                "foo": "br:example.azurecr.io/some/fake/path:1.0.0",
+                "az": "br:mcr.microsoft.com/bicep/extensions/az:0.2.3"
+              }
             }
-            """)
-        });
+            """));
 
-        var fileExplorer = new FileSystemFileExplorer(fs);
-        var configManager = new ConfigurationManager(fileExplorer);
-        var testFilePath = fs.Path.GetFullPath(bicepConfigFileName);
-        var config = configManager.GetConfiguration(PathHelper.FilePathToFileUrl(testFilePath));
+        var configManager = new ConfigurationManager(fileSet.FileExplorer);
+        var config = configManager.GetConfiguration(fileSet.GetUri("main.bicep"));
+
         config.Diagnostics.Should().BeEmpty();
         config.Should().NotBeNull();
         config!.Extensions.Should().NotBeNull();

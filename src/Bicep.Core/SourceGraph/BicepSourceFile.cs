@@ -78,9 +78,9 @@ namespace Bicep.Core.SourceGraph
 
         public ISyntaxHierarchy Hierarchy { get; }
 
-        public RootConfiguration Configuration => this.configurationManager.GetConfiguration(this.Uri);
+        public RootConfiguration Configuration => this.configurationManager.GetConfiguration(this.FileHandle.Uri);
 
-        public IFeatureProvider Features => this.featureProviderFactory.GetFeatureProvider(this.Uri);
+        public IFeatureProvider Features => this.featureProviderFactory.GetFeatureProvider(this.FileHandle.Uri);
 
         public IDiagnosticLookup LexingErrorLookup { get; }
 
@@ -108,6 +108,36 @@ namespace Bicep.Core.SourceGraph
                         .TryReadBinaryData()
                         .Transform(data => new AuxiliaryFile(fileHandle.Uri, data)));
                 });
+        }
+
+        public ResultWithDiagnosticBuilder<IEnumerable<IOUri>> TryListFilesInDirectory(RelativePath relativePath, string searchPattern = "")
+        {
+            if (this.FileHandle is DummyFileHandle)
+            {
+                // This is only invoked when building SnippetCache. The error is swallowed.
+                return new(x => x.ErrorOccurredReadingFile("Cannot load auxiliary file from dummy file handle"));
+            }
+
+            var directoryHandle = this.FileHandle.GetParent().GetDirectory(relativePath);
+            if (!directoryHandle.Exists())
+            {
+                if (this.FileHandle.GetParent().GetFile(relativePath).Exists())
+                {
+                    return new(x => x.FoundFileInsteadOfDirectory(relativePath));
+                }
+
+                return new(x => x.DirectoryDoesNotExist(relativePath));
+            }
+
+            try
+            {
+                var handles = directoryHandle.EnumerateFiles(searchPattern);
+                return new(handles.Select(x => x.Uri));
+            }
+            catch (Exception ex)
+            {
+                return new(x => x.ErrorOccuredBrowsingDirectory(ex.Message));
+            }
         }
 
         public FrozenSet<IOUri> GetReferencedAuxiliaryFileUris() => this.referencedAuxiliaryFileUris.ToFrozenSet();

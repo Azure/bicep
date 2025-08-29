@@ -144,7 +144,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             DiagnosticBuilder.DiagnosticBuilderDelegate? nullBuilder = null;
             dispatcher.Setup(m => m.GetArtifactRestoreStatus(moduleReference!, out nullBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
             dispatcher.Setup(m => m.TryGetArtifactReference(It.IsAny<BicepSourceFile>(), ArtifactType.Module, ModuleRefStr)).Returns(ResultHelper.Create((ArtifactReference)moduleReference, null));
-            dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointFileHandle(moduleReference!)).Returns(ResultHelper.Create(DummyFileHandle.Instance as IFileHandle, null));
+            dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointFileHandle(moduleReference!)).Returns(ResultHelper.Create(DummyFileHandle.Default as IFileHandle, null));
 
             var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, BicepTestConstants.CreateMockTelemetryProvider().Object, sourceFileFactory);
 
@@ -170,7 +170,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             DiagnosticBuilder.DiagnosticBuilderDelegate? nullBuilder = null;
             dispatcher.Setup(m => m.GetArtifactRestoreStatus(moduleReference!, out nullBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
             dispatcher.Setup(m => m.TryGetArtifactReference(It.IsAny<BicepSourceFile>(), ArtifactType.Module, ModuleRefStr)).Returns(ResultHelper.Create((ArtifactReference)moduleReference, null));
-            dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointFileHandle(moduleReference!)).Returns(ResultHelper.Create(DummyFileHandle.Instance as IFileHandle, null));
+            dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointFileHandle(moduleReference!)).Returns(ResultHelper.Create(DummyFileHandle.Default as IFileHandle, null));
 
             var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, telemetryProviderMock.Object, sourceFileFactory);
 
@@ -209,7 +209,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             DiagnosticBuilder.DiagnosticBuilderDelegate? nullBuilder = null;
             dispatcher.Setup(m => m.GetArtifactRestoreStatus(moduleReference!, out nullBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
             dispatcher.Setup(m => m.TryGetArtifactReference(It.IsAny<BicepSourceFile>(), ArtifactType.Module, ModuleRefStr)).Returns(ResultHelper.Create((ArtifactReference)moduleReference, null));
-            dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointFileHandle(moduleReference!)).Returns(ResultHelper.Create(DummyFileHandle.Instance as IFileHandle, null));
+            dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointFileHandle(moduleReference!)).Returns(ResultHelper.Create(DummyFileHandle.Default as IFileHandle, null));
 
             var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, telemetryProviderMock.Object, BicepTestConstants.SourceFileFactory);
 
@@ -247,7 +247,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             DiagnosticBuilder.DiagnosticBuilderDelegate? nullBuilder = null;
             dispatcher.Setup(m => m.GetArtifactRestoreStatus(moduleReference!, out nullBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
             dispatcher.Setup(m => m.TryGetArtifactReference(It.IsAny<BicepSourceFile>(), ArtifactType.Module, ModuleRefStr)).Returns(ResultHelper.Create((ArtifactReference)moduleReference, null));
-            dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointFileHandle(moduleReference!)).Returns(ResultHelper.Create(DummyFileHandle.Instance as IFileHandle, null));
+            dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointFileHandle(moduleReference!)).Returns(ResultHelper.Create(DummyFileHandle.Default as IFileHandle, null));
 
             var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, telemetryProviderMock.Object, BicepTestConstants.SourceFileFactory);
 
@@ -537,7 +537,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             featureProviderMock.Setup(x => x.CacheRootDirectory).Returns(cacheRootDirectoryMock.Object);
 
             var featureProviderFactoryMock = StrictMock.Of<IFeatureProviderFactory>();
-            featureProviderFactoryMock.Setup(x => x.GetFeatureProvider(It.IsAny<Uri>())).Returns(featureProviderMock.Object);
+            featureProviderFactoryMock.Setup(x => x.GetFeatureProvider(It.IsAny<IOUri>())).Returns(featureProviderMock.Object);
 
             var sourceFileFactory = new SourceFileFactory(BicepTestConstants.ConfigurationManager, featureProviderFactoryMock.Object, BicepTestConstants.AuxiliaryFileCache, BicepTestConstants.FileExplorer);
 

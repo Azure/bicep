@@ -138,7 +138,7 @@ namespace Bicep.Core.UnitTests.Registry
         {
             // Arrange.
             var configManagerMock = StrictMock.Of<IConfigurationManager>();
-            configManagerMock.SetupSequence(m => m.GetConfiguration(It.IsAny<Uri>()))
+            configManagerMock.SetupSequence(m => m.GetConfiguration(It.IsAny<IOUri>()))
                 .Returns(BicepTestConstants.CreateMockConfiguration())
                 .Returns(BicepTestConstants.CreateMockConfiguration())
                 .Returns(changedConfiguration);
@@ -222,7 +222,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         private static ModuleDeclarationSyntax CreateModule(string reference)
         {
-            var file = BicepTestConstants.SourceFileFactory.CreateBicepFile(new Uri("untitled://hello"), $"module foo '{reference}' = {{}}");
+            var file = BicepTestConstants.SourceFileFactory.CreateBicepFile(DummyFileHandle.Default, $"module foo '{reference}' = {{}}");
             return file.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Single();
         }
 
@@ -244,7 +244,7 @@ namespace Bicep.Core.UnitTests.Registry
 
             public override int GetHashCode() => this.Reference.GetHashCode();
 
-            public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle() => new(DummyFileHandle.Instance);
+            public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle() => new(DummyFileHandle.Default);
         }
 
         private class MockArtifactRegistryProvider(IEnumerable<IArtifactRegistry> registries) : ArtifactRegistryProvider(registries)

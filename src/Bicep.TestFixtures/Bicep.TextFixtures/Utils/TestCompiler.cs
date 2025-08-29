@@ -39,7 +39,6 @@ namespace Bicep.TextFixtures.Utils
 
             return new TestCompiler(fileSet).ConfigureServices(services => services
                 .AddFileSystem(fileSystem)
-                .AddSingleton<IFileResolver>(new FileResolver(fileSystem))
                 .AddFileExplorer(fileExplorer));
         }
 
@@ -76,7 +75,7 @@ namespace Bicep.TextFixtures.Utils
         public async Task<TestCompilationResult> Compile(string entryPointPath = DefaultEntryPointPath, bool skipRestore = false)
         {
             var compiler = this.services.Get<BicepCompiler>();
-            var compilation = await compiler.CreateCompilation(this.FileSet.GetUri(entryPointPath).ToUri(), skipRestore: skipRestore);
+            var compilation = await compiler.CreateCompilation(this.FileSet.GetUri(entryPointPath), skipRestore: skipRestore);
 
             return TestCompilationResult.FromCompilation(compilation);
         }

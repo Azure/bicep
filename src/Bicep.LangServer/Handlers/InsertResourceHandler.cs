@@ -20,6 +20,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
+using Bicep.IO.InMemory;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
@@ -195,11 +196,11 @@ namespace Bicep.LanguageServer.Handlers
                 [resourceDeclaration],
                 SyntaxFactory.EndOfFileToken);
 
-            BicepSourceFile bicepFile = compiler.SourceFileFactory.CreateBicepFile(new Uri("inmemory:///generated.bicep"), program.ToString());
+            BicepSourceFile bicepFile = compiler.SourceFileFactory.CreateBicepFile(DummyFileHandle.Default, program.ToString());
 
             var workspace = new Workspace();
             workspace.UpsertSourceFile(bicepFile);
-            var compilation = compiler.CreateCompilationWithoutRestore(bicepFile.Uri, workspace);
+            var compilation = compiler.CreateCompilationWithoutRestore(bicepFile.FileHandle.Uri, workspace);
 
             bicepFile = RewriterHelper.RewriteMultiple(
                 compiler,
