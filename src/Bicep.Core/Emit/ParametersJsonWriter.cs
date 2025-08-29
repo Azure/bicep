@@ -87,13 +87,22 @@ public class ParametersJsonWriter
             foreach (var reference in externalInputIndexMap.OrderBy(x => x.Value))
             {
                 var expression = (FunctionCallExpression)ExpressionBuilder.Convert(reference.Key);
+                var hasInline = this.Context.ExternalInputReferences.InlineFunctions.TryGetValue(reference.Key, out var inlineArgs);
 
                 emitter.EmitObjectProperty(reference.Value, () =>
                 {
-                    emitter.EmitProperty("kind", expression.Parameters[0]);
-                    if (expression.Parameters.Length > 1)
+                    if (hasInline && inlineArgs is { } ia)
                     {
-                        emitter.EmitProperty("config", expression.Parameters[1]);
+                        emitter.EmitProperty("kind", ia.Kind);
+                        emitter.EmitProperty("config", ia.Config);
+                    }
+                    else
+                    {
+                        emitter.EmitProperty("kind", expression.Parameters[0]);
+                        if (expression.Parameters.Length > 1)
+                        {
+                            emitter.EmitProperty("config", expression.Parameters[1]);
+                        }
                     }
                 });
             }

@@ -1288,6 +1288,15 @@ namespace Bicep.Core.Semantics.Namespaces
                         return new(LanguageConstants.Any);
                     }, LanguageConstants.Any)
                     .Build();
+
+                yield return new FunctionOverloadBuilder(LanguageConstants.InlineFunctionName)
+                    .WithGenericDescription("Resolves input from cli parameters. The input value is resolved during deployment, not at compile time.")
+                    .WithReturnResultBuilder((model, diagnostics, call, argumentTypes) =>
+                    {
+                        return new(new StringLiteralType("returnValue", TypeSymbolValidationFlags.Default));
+                    }, LanguageConstants.String)
+                    .WithFlags(FunctionFlags.IsArgumentValueIndependent)
+                    .Build();
             }
 
             foreach (var overload in GetAlwaysPermittedOverloads())
