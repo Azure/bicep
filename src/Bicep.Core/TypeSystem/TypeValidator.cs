@@ -1066,6 +1066,7 @@ namespace Bicep.Core.TypeSystem
                     // otherwise, look for required properties on the target for which there is no declared counterpart on the assigned value
                     : targetType.Properties.Values
                         .Where(p => p.Flags.HasFlag(TypePropertyFlags.Required) &&
+                            !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) &&
                             !AreTypesAssignable(LanguageConstants.Null, p.TypeReference.Type) &&
                             !expressionObjectType.Properties.ContainsKey(p.Name))
                         .OrderBy(p => p.Name)
