@@ -830,6 +830,10 @@
       "type": "string",
       "description": "The directory in which Bicep may cache templates downloaded from remote registries"
     },
+    "experimentalFeaturesWarning": {
+      "type": "boolean",
+      "description": "Controls whether the Bicep CLI displays a warning when experimental features are used. Defaults to true."
+    },
     "experimentalFeaturesEnabled": {
       "type": "object",
       "description": "The experimental Bicep features that should be enabled or disabled for templates using this configuration file. See https://aka.ms/bicep/experimental-features for more information.",

@@ -13,6 +13,7 @@ namespace Bicep.Core.Configuration
                 current.ImplicitExtensions,
                 current.Analyzers,
                 current.CacheRootDirectory,
+                current.ExperimentalFeaturesWarning,
                 featuresEnabled,
                 current.Formatting,
                 current.ConfigFileUri,
