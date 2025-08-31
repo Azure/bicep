@@ -63,5 +63,6 @@ public record FeatureProviderOverrides(
             ModuleExtensionConfigsEnabled,
             DesiredStateConfigurationEnabled,
             OnlyIfNotExistsEnabled,
-            UserDefinedConstraintsEnabled) { }
+            UserDefinedConstraintsEnabled)
+    { }
 }
