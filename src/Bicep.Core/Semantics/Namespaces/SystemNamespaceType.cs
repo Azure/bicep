@@ -1995,7 +1995,7 @@ namespace Bicep.Core.Semantics.Namespaces
                             description: "The predicate applied to the resource.",
                             flags: FunctionParameterFlags.Required)
                         .WithParameter(
-                            name:"maxWaitTime",
+                            name: "maxWaitTime",
                             type: LanguageConstants.String,
                             description: "Maximum time used to wait until the predicate is true. Please be cautious as max wait time adds to total deployment time. It cannot be a negative value. Use [ISO 8601 duration format](https://en.wikipedia.org/wiki/ISO_8601#Durations).",
                             flags: FunctionParameterFlags.Required | FunctionParameterFlags.Constant)
