@@ -112,7 +112,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "desiredStateConfiguration": false,
           "onlyIfNotExists": false,
-          "moduleIdentity": false,
           "userDefinedConstraints": false
         },
         "formatting": {
@@ -196,7 +195,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "moduleExtensionConfigs": false,
           "desiredStateConfiguration": false,
           "onlyIfNotExists": false,
-          "moduleIdentity": false,
           "userDefinedConstraints": false
         },
         "formatting": {
@@ -302,7 +300,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "moduleExtensionConfigs": false,
           "desiredStateConfiguration": false,
           "onlyIfNotExists": false,
-          "moduleIdentity": false,
           "userDefinedConstraints": false
         },
         "formatting": {
@@ -389,7 +386,6 @@ namespace Bicep.Core.UnitTests.Configuration
                 ModuleExtensionConfigs: false,
                 DesiredStateConfiguration: false,
                 OnlyIfNotExists: false,
-                ModuleIdentity: false,
                 UserDefinedConstraints: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
@@ -474,7 +470,6 @@ namespace Bicep.Core.UnitTests.Configuration
                 "moduleExtensionConfigs": false,
                 "desiredStateConfiguration": false,
                 "onlyIfNotExists": false,
-                "moduleIdentity": false,
                 "userDefinedConstraints": false
             },
             "formatting": {
@@ -826,7 +821,6 @@ namespace Bicep.Core.UnitTests.Configuration
                     "moduleExtensionConfigs": false,
                     "desiredStateConfiguration": false,
                     "onlyIfNotExists": false,
-                    "moduleIdentity": false,
                     "userDefinedConstraints": false
                   },
                   "formatting": {

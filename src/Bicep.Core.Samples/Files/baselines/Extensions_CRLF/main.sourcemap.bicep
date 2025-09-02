@@ -111,7 +111,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
 module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@    "moduleWithExtsWithAliases": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2025-03-01",
+//@      "apiVersion": "2025-04-01",
 //@      "name": "[format('moduleWithExtsWithAliases-{0}', uniqueString('moduleWithExtsWithAliases', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -168,7 +168,7 @@ module moduleWithExtsWithAliases 'child/hasConfigurableExtensionsWithAlias.bicep
 module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias.bicep' = {
 //@    "moduleWithExtsWithoutAliases": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2025-03-01",
+//@      "apiVersion": "2025-04-01",
 //@      "name": "[format('moduleWithExtsWithoutAliases-{0}', uniqueString('moduleWithExtsWithoutAliases', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -222,7 +222,7 @@ module moduleWithExtsWithoutAliases 'child/hasConfigurableExtensionsWithoutAlias
 module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@    "moduleExtConfigsFromParams": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2025-03-01",
+//@      "apiVersion": "2025-04-01",
 //@      "name": "[format('moduleExtConfigsFromParams-{0}', uniqueString('moduleExtConfigsFromParams', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -275,7 +275,7 @@ module moduleExtConfigsFromParams 'child/hasConfigurableExtensionsWithAlias.bice
 module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@    "moduleExtConfigFromKeyVaultReference": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2025-03-01",
+//@      "apiVersion": "2025-04-01",
 //@      "name": "[format('moduleExtConfigFromKeyVaultReference-{0}', uniqueString('moduleExtConfigFromKeyVaultReference', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -337,7 +337,7 @@ module moduleExtConfigFromKeyVaultReference 'child/hasConfigurableExtensionsWith
 module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@    "moduleExtConfigFromReferences": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2025-03-01",
+//@      "apiVersion": "2025-04-01",
 //@      "name": "[format('moduleExtConfigFromReferences-{0}', uniqueString('moduleExtConfigFromReferences', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -398,7 +398,7 @@ module moduleExtConfigFromReferences 'child/hasConfigurableExtensionsWithAlias.b
 module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@    "moduleWithExtsUsingFullInheritance": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2025-03-01",
+//@      "apiVersion": "2025-04-01",
 //@      "name": "[format('moduleWithExtsUsingFullInheritance-{0}', uniqueString('moduleWithExtsUsingFullInheritance', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -445,7 +445,7 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
 module moduleWithExtsUsingFullInheritanceTernary1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@    "moduleWithExtsUsingFullInheritanceTernary1": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2025-03-01",
+//@      "apiVersion": "2025-04-01",
 //@      "name": "[format('moduleWithExtsUsingFullInheritanceTernary1-{0}', uniqueString('moduleWithExtsUsingFullInheritanceTernary1', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -494,7 +494,7 @@ module moduleWithExtsUsingFullInheritanceTernary1 'child/hasConfigurableExtensio
 module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@    "moduleWithExtsUsingPiecemealInheritance": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2025-03-01",
+//@      "apiVersion": "2025-04-01",
 //@      "name": "[format('moduleWithExtsUsingPiecemealInheritance-{0}', uniqueString('moduleWithExtsUsingPiecemealInheritance', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -551,7 +551,7 @@ module moduleWithExtsUsingPiecemealInheritanceLooped 'child/hasConfigurableExten
 //@        "count": "[length(range(0, 4))]"
 //@      },
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2025-03-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -605,7 +605,7 @@ module moduleWithExtsUsingPiecemealInheritanceLooped 'child/hasConfigurableExten
 module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@    "moduleExtConfigsConditionalMixed": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2025-03-01",
+//@      "apiVersion": "2025-04-01",
 //@      "name": "[format('moduleExtConfigsConditionalMixed-{0}', uniqueString('moduleExtConfigsConditionalMixed', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -658,7 +658,7 @@ module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlia
 module moduleWithExtsEmpty 'child/hasConfigurableExtensionsWithAlias.bicep' = {
 //@    "moduleWithExtsEmpty": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2025-03-01",
+//@      "apiVersion": "2025-04-01",
 //@      "name": "[format('moduleWithExtsEmpty-{0}', uniqueString('moduleWithExtsEmpty', deployment().name))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {

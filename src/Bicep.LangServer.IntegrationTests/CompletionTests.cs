@@ -16,6 +16,8 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.Samples;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Text;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
@@ -5817,6 +5819,39 @@ output people Person[] = [{
         }
 
         [TestMethod]
+        public async Task Readonly_required_properties_are_not_offered_as_completions()
+        {
+            var customTypes = new[] {
+                TestTypeHelper.CreateCustomResourceTypeWithTopLevelProperties("My.Rp/myType", "2020-01-01", TypeSymbolValidationFlags.Default, [
+                    new NamedTypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required),
+                    new NamedTypeProperty("readOnlyRequired", LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.Required),
+                ]),
+            };
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+            resource myRes 'My.Rp/myType@2020-01-01' = {
+              name: 'foo'
+              |
+            }
+            
+            output readOnlyRequired string = myRes.readOnlyRequired
+            """);
+
+            var bicepFile = new LanguageClientFile(InMemoryFileResolver.GetFileUri("/path/to/main.bicep"), text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                TestContext,
+                text,
+                bicepFile.Uri,
+                services => services.WithAzResources(customTypes));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestAndResolveCompletions(cursor);
+
+            completions.Should().Contain(x => x.Label == "required");
+            completions.Should().NotContain(x => x.Label == "readOnlyRequired");
+        }
+
+        [TestMethod]
         public async Task Identity_property_completions_are_offered_for_resource()
         {
             // Resource identity property completion
@@ -5872,7 +5907,7 @@ param foo string = 'bar'
                 this.TestContext,
                 files,
                 bicepFile.Uri,
-                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()).WithFeatureOverrides(new(this.TestContext, ModuleIdentityEnabled: true))
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create())
             );
 
             var file = new FileRequestHelper(helper.Client, bicepFile);

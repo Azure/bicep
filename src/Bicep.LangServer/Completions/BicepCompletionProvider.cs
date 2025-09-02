@@ -1358,8 +1358,7 @@ namespace Bicep.LanguageServer.Completions
             IEnumerable<CompletionItem> snippetCompletions = [];
             if (context.Property is { } propertySyntax &&
                 propertySyntax.TryGetKeyText() is "identity" &&
-                (context.EnclosingDeclaration is ResourceDeclarationSyntax ||
-                 (context.EnclosingDeclaration is ModuleDeclarationSyntax && model.Features.ModuleIdentityEnabled)))
+                (context.EnclosingDeclaration is ResourceDeclarationSyntax or ModuleDeclarationSyntax))
             {
                 snippetCompletions = snippetsProvider.GetIdentitySnippets(context.EnclosingDeclaration is ResourceDeclarationSyntax)
                     .Select(snippet => CreateContextualSnippetCompletion(

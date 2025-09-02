@@ -98,7 +98,8 @@ namespace Bicep.Core.Semantics
                 return hierarchy;
             });
             this.resourceAncestorsLazy = new(() => ResourceAncestorGraph.Compute(this));
-            this.resourceScopeDataLazy = new(() => {
+            this.resourceScopeDataLazy = new(() =>
+            {
                 var diagnostics = ToListDiagnosticWriter.Create();
                 var scopeData = ScopeHelper.GetResourceScopeInfo(this, diagnostics);
                 return (scopeData, diagnostics.GetDiagnostics());
