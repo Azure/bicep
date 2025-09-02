@@ -25,6 +25,8 @@ namespace Bicep.Core.Configuration
 
         public const string CacheRootDirectoryKey = "cacheRootDirectory";
 
+        public const string ExperimentalFeaturesWarningKey = "experimentalFeaturesWarning";
+
         public const string ExperimentalFeaturesEnabledKey = "experimentalFeaturesEnabled";
 
         public const string FormattingKey = "formatting";
@@ -36,6 +38,7 @@ namespace Bicep.Core.Configuration
             ImplicitExtensionsConfiguration implicitExtensions,
             AnalyzersConfiguration analyzers,
             string? cacheRootDirectory,
+            bool experimentalFeaturesWarning,
             ExperimentalFeaturesEnabled experimentalFeaturesEnabled,
             FormattingConfiguration formatting,
             IOUri? configFileUri,
@@ -47,6 +50,7 @@ namespace Bicep.Core.Configuration
             this.ImplicitExtensions = implicitExtensions;
             this.Analyzers = analyzers;
             this.CacheRootDirectory = ExpandCacheRootDirectory(cacheRootDirectory);
+            this.ExperimentalFeaturesWarning = experimentalFeaturesWarning;
             this.ExperimentalFeaturesEnabled = experimentalFeaturesEnabled;
             this.Formatting = formatting;
             this.ConfigFileUri = configFileUri;
@@ -59,13 +63,14 @@ namespace Bicep.Core.Configuration
             var moduleAliases = ModuleAliasesConfiguration.Bind(element.GetProperty(ModuleAliasesKey), configFileUri);
             var analyzers = new AnalyzersConfiguration(element.GetProperty(AnalyzersKey));
             var cacheRootDirectory = element.TryGetProperty(CacheRootDirectoryKey, out var e) ? e.GetString() : default;
+            var experimentalFeaturesWarning = element.TryGetProperty(ExperimentalFeaturesWarningKey, out var value) && value.GetBoolean();
             var experimentalFeaturesEnabled = ExperimentalFeaturesEnabled.Bind(element.GetProperty(ExperimentalFeaturesEnabledKey));
             var formatting = FormattingConfiguration.Bind(element.GetProperty(FormattingKey));
 
             var extensions = ExtensionsConfiguration.Bind(element.GetProperty(ExtensionsKey));
             var implicitExtensions = ImplicitExtensionsConfiguration.Bind(element.GetProperty(ImplicitExtensionsKey));
 
-            return new(cloud, moduleAliases, extensions, implicitExtensions, analyzers, cacheRootDirectory, experimentalFeaturesEnabled, formatting, configFileUri, null);
+            return new(cloud, moduleAliases, extensions, implicitExtensions, analyzers, cacheRootDirectory, experimentalFeaturesWarning, experimentalFeaturesEnabled, formatting, configFileUri, null);
         }
 
         public CloudConfiguration Cloud { get; }
@@ -79,6 +84,8 @@ namespace Bicep.Core.Configuration
         public AnalyzersConfiguration Analyzers { get; }
 
         public string? CacheRootDirectory { get; }
+
+        public bool ExperimentalFeaturesWarning { get; }
 
         public ExperimentalFeaturesEnabled ExperimentalFeaturesEnabled { get; }
 
@@ -97,6 +104,7 @@ namespace Bicep.Core.Configuration
             ImplicitExtensionsConfiguration? implicitExtensions = null,
             AnalyzersConfiguration? analyzers = null,
             string? cacheRootDirectory = null,
+            bool? experimentalFeaturesWarning = null,
             ExperimentalFeaturesEnabled? experimentalFeaturesEnabled = null,
             FormattingConfiguration? formatting = null,
             IOUri? configFileIdentifier = null,
@@ -109,6 +117,7 @@ namespace Bicep.Core.Configuration
                 implicitExtensions ?? this.ImplicitExtensions,
                 analyzers ?? this.Analyzers,
                 cacheRootDirectory ?? this.CacheRootDirectory,
+                experimentalFeaturesWarning ?? this.ExperimentalFeaturesWarning,
                 experimentalFeaturesEnabled ?? this.ExperimentalFeaturesEnabled,
                 formatting ?? this.Formatting,
                 configFileIdentifier ?? this.ConfigFileUri,
@@ -141,6 +150,8 @@ namespace Bicep.Core.Configuration
                 {
                     writer.WriteString(CacheRootDirectoryKey, cacheRootDir);
                 }
+
+                writer.WriteBoolean(ExperimentalFeaturesWarningKey, this.ExperimentalFeaturesWarning);
 
                 writer.WritePropertyName(ExperimentalFeaturesEnabledKey);
                 this.ExperimentalFeaturesEnabled.WriteTo(writer);
