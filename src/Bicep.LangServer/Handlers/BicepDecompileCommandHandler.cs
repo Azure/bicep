@@ -107,8 +107,8 @@ namespace Bicep.LanguageServer.Handlers
             StringBuilder output = new();
             string decompileId = Guid.NewGuid().ToString();
 
-            Uri? bicepUri;
-            ImmutableDictionary<Uri, string>? filesToSave;
+            IOUri? bicepUri;
+            ImmutableDictionary<IOUri, string>? filesToSave;
             try
             {
                 // Decompile
@@ -118,7 +118,7 @@ namespace Bicep.LanguageServer.Handlers
                     throw new InvalidOperationException($"Failed to read {jsonUri}");
                 }
 
-                (bicepUri, filesToSave) = await bicepDecompiler.Decompile(jsonUri.WithExtension(LanguageConstants.LanguageFileExtension).ToUri(), jsonContents);
+                (bicepUri, filesToSave) = await bicepDecompiler.Decompile(jsonUri.WithExtension(LanguageConstants.LanguageFileExtension), jsonContents);
             }
             catch (Exception ex)
             {
@@ -132,23 +132,22 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             // Determine output files to save
-            Trace.TraceInformation($"Decompilation main output: {bicepUri.LocalPath}");
-            Trace.TraceInformation($"Decompilation all files to save: {string.Join(", ", filesToSave.Select(kvp => kvp.Key.LocalPath))}");
+            Trace.TraceInformation($"Decompilation main output: {bicepUri}");
+            Trace.TraceInformation($"Decompilation all files to save: {string.Join(", ", filesToSave.Select(kvp => kvp.Key))}");
 
-            (string path, string content)[] pathsToSave = filesToSave.Select(kvp => (kvp.Key.LocalPath, kvp.Value)).ToArray();
+            (IOUri Uri, string Content)[] filesToSaveArray = [.. filesToSave.Select(kvp => (kvp.Key, kvp.Value))];
 
             // Put main bicep file first in the array
-            pathsToSave = [.. pathsToSave.OrderByAscending(f => f.path == bicepUri.LocalPath ? "" : f.path)];
-            Debug.Assert(pathsToSave[0].path == bicepUri.LocalPath, "Expected Bicep URL to be in the files to save");
-            Debug.Assert(pathsToSave.Length >= 1, "No files to save?");
+            filesToSaveArray = [.. filesToSaveArray.OrderByAscending(f => f.Uri == bicepUri ? "" : f.Uri)];
+            Debug.Assert(filesToSaveArray[0].Uri == bicepUri, "Expected Bicep URL to be in the files to save");
+            Debug.Assert(filesToSaveArray.Length >= 1, "No files to save?");
 
             // Conflicts with any existing files?
-            string[] conflictingPaths = pathsToSave.Where(f => File.Exists(f.path)).Select(f => f.path).ToArray();
+            string[] conflictingPaths = [.. filesToSaveArray.Where(f => this.fileExplorer.GetFile(f.Uri).Exists()).Select(f => f.Uri.GetFilePath())];
 
-            string? outputFolder = Path.GetDirectoryName(bicepUri.LocalPath);
-            Debug.Assert(outputFolder is not null, "outputFolder should not be null");
-            DecompiledFile[] outputFiles =
-                pathsToSave.Select(pts => DetermineDecompiledPaths(outputFolder, pts.path, pts.content))
+            var outputDirectoryUri = this.fileExplorer.GetFile(bicepUri).GetParent().Uri;
+            DecompiledFile[] outputFiles = filesToSaveArray
+                .Select(pts => DetermineDecompiledPaths(outputDirectoryUri, pts.Uri, pts.Content))
                 .ToArray();
 
 
@@ -156,7 +155,7 @@ namespace Bicep.LanguageServer.Handlers
             Log(output, BicepDecompiler.DecompilerDisclaimerMessage);
 
             // Return result
-            string mainBicepPath = pathsToSave[0].path;
+            string mainBicepPath = filesToSaveArray[0].Uri.GetFilePath();
             var result = new BicepDecompileCommandResult(
                 decompileId,
                 output.ToString(),
@@ -165,14 +164,14 @@ namespace Bicep.LanguageServer.Handlers
                 conflictingPaths);
             return (
                 result,
-                successTelemetry: BicepTelemetryEvent.DecompileSuccess(result.decompileId, pathsToSave.Length, conflictingPaths.Length)
+                successTelemetry: BicepTelemetryEvent.DecompileSuccess(result.decompileId, filesToSaveArray.Length, conflictingPaths.Length)
                 );
         }
 
-        private DecompiledFile DetermineDecompiledPaths(string outputFolder, string absolutePath, string contents)
+        private DecompiledFile DetermineDecompiledPaths(IOUri outputDirectoryUri, IOUri outputFileUri, string contents)
         {
-            string relativePath = Path.GetRelativePath(outputFolder, absolutePath);
-            return new DecompiledFile(absolutePath, relativePath, contents);
+            string relativePath = outputFileUri.GetPathRelativeTo(outputDirectoryUri);
+            return new DecompiledFile(outputFileUri.GetFilePath(), relativePath, contents);
         }
 
         private static void Log(StringBuilder output, string message)
