@@ -49,7 +49,7 @@ namespace Bicep.Cli.Commands
             try
             {
                 var jsonContents = this.fileExplorer.GetFile(inputUri).ReadAllText();
-                var decompilation = decompiler.DecompileParameters(jsonContents, outputUri.ToUri(), bicepUri?.ToUri());
+                var decompilation = decompiler.DecompileParameters(jsonContents, outputUri, bicepUri);
 
                 if (args.OutputToStdOut)
                 {

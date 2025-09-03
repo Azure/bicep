@@ -6,6 +6,9 @@ using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.FileSystem
 {
+    // TODO(file-io-abstraction): Currently only used by Workspace and tests.
+    // After replacing Workspace with InMemoryFileExplorer, move this to
+    // Bicep.Core.UnitTests. It can be removed once the tests are migrated eventually.
     public static class PathHelper
     {
         private static readonly bool IsFileSystemCaseSensitive = CheckIfFileSystemIsCaseSensitive();
@@ -159,17 +162,6 @@ namespace Bicep.Core.FileSystem
             return uriBuilder.Uri;
         }
 
-        public static Uri ChangeExtension(Uri uri, string? newExtension)
-        {
-            var uriString = uri.ToString();
-            var finalDotIndex = uriString.LastIndexOf('.');
-
-            newExtension = newExtension is null ? "" : NormalizeExtension(newExtension);
-            uriString = (finalDotIndex >= 0 ? uriString.Substring(0, finalDotIndex) : uriString) + newExtension;
-
-            return new Uri(uriString);
-        }
-
         public static bool HasExtension(Uri uri, string extension)
         {
             var path = GetNormalizedPath(uri);
@@ -177,10 +169,6 @@ namespace Bicep.Core.FileSystem
 
             return path.EndsWith(extension, StringComparison.OrdinalIgnoreCase);
         }
-
-        public static Uri ChangeToBicepExtension(Uri uri) => ChangeExtension(uri, BicepExtension);
-
-        public static Uri ChangeToBicepparamExtension(Uri uri) => ChangeExtension(uri, BicepParamsExtension);
 
         public static bool HasBicepExtension(Uri uri) => HasExtension(uri, BicepExtension);
 

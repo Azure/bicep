@@ -94,6 +94,14 @@ public static class ServiceBuilderExtensions
         return compiler.CreateCompilationWithoutRestore(entryFileUri.ToIOUri(), workspace);
     }
 
+    public static Compilation BuildCompilation(this ServiceBuilder services, IReadOnlyDictionary<IOUri, string> fileContentsByUri, IOUri entryFileUri)
+    {
+        var compiler = services.Build().GetCompiler();
+        var workspace = CompilationHelper.CreateWorkspace(compiler.SourceFileFactory, fileContentsByUri.ToDictionary(x => x.Key.ToUri(), x => x.Value));
+
+        return compiler.CreateCompilationWithoutRestore(entryFileUri, workspace);
+    }
+
     public static async Task<Compilation> BuildCompilationWithRestore(this ServiceBuilder services, IReadOnlyDictionary<Uri, string> fileContentsByUri, Uri entryFileUri)
     {
         var compiler = services.Build().GetCompiler();
