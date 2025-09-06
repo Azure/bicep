@@ -447,6 +447,43 @@ namespace Bicep.Core.TypeSystem
                 return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Value, declaredType);
             });
 
+        public override void VisitComponentDeclarationSyntax(ComponentDeclarationSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax);
+                if (declaredType is null)
+                {
+                    return ErrorType.Empty();
+                }
+
+                var singleDeclaredType = declaredType.UnwrapArrayType();
+
+                this.ValidateDecorators(syntax.Decorators, declaredType, diagnostics);
+
+                if (singleDeclaredType is ErrorType)
+                {
+                    return singleDeclaredType;
+                }
+
+                if (this.binder.GetSymbolInfo(syntax) is ComponentSymbol symbol && symbol.TryGetSemanticModel().IsSuccess(out var linkedModel, out var _))
+                {
+                    if (linkedModel.HasErrors())
+                    {
+                        diagnostics.Write(linkedModel is ArmTemplateSemanticModel
+                            ? DiagnosticBuilder.ForPosition(syntax.Path).ReferencedArmTemplateHasErrors()
+                            : DiagnosticBuilder.ForPosition(syntax.Path).ReferencedModuleHasErrors());
+                    }
+
+                    diagnostics.WriteMultiple(linkedModel.Parameters.Values.Select(md => md.TypeReference)
+                        .Concat(linkedModel.Outputs.Select(md => md.TypeReference))
+                        .SelectMany(resourceDerivedTypeDiagnosticReporter.ReportResourceDerivedTypeDiagnostics)
+                        .Select(builder => builder(DiagnosticBuilder.ForPosition(syntax.Path))));
+                }
+
+
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Value, declaredType);
+            });
+
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {

@@ -63,6 +63,7 @@ namespace Bicep.Core.Parsing
                             LanguageConstants.ResourceKeyword => this.ResourceDeclaration(leadingNodes),
                             LanguageConstants.OutputKeyword => this.OutputDeclaration(leadingNodes),
                             LanguageConstants.ModuleKeyword => this.ModuleDeclaration(leadingNodes),
+                            LanguageConstants.ComponentKeyword => this.ComponentDeclaration(leadingNodes),
                             LanguageConstants.TestKeyword => this.TestDeclaration(leadingNodes),
                             LanguageConstants.ImportKeyword => this.ImportDeclaration(leadingNodes),
                             LanguageConstants.ExtensionKeyword => this.ExtensionDeclaration(ExpectKeyword(current.Text), leadingNodes),
@@ -227,6 +228,41 @@ namespace Bicep.Core.Parsing
 
             return new ModuleDeclarationSyntax(leadingNodes, keyword, name, path, assignment, newlines, value);
         }
+
+        private SyntaxBase ComponentDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+        {
+            // TODO: Add dedicated diagnostics instead of reusing modules
+            var keyword = ExpectKeyword(LanguageConstants.ComponentKeyword);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedModuleIdentifier(), RecoveryFlags.None, TokenType.StringComplete, TokenType.StringLeftPiece, TokenType.NewLine);
+
+            // TODO: Unify StringSyntax with TypeSyntax
+            var path = this.WithRecovery(
+                () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedModulePathString()),
+                GetSuppressionFlag(name),
+                TokenType.Assignment, TokenType.NewLine);
+
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(path), TokenType.LeftBrace, TokenType.NewLine);
+            var newlines = reader.Peek(skipNewlines: true).IsKeyword(LanguageConstants.IfKeyword)
+                ? this.NewLines().ToImmutableArray()
+                : [];
+
+            var value = this.WithRecovery(() =>
+                {
+                    var current = reader.Peek();
+                    return current.Type switch
+                    {
+                        TokenType.Identifier when current.Text == LanguageConstants.IfKeyword => this.IfCondition(ExpressionFlags.AllowComplexLiterals, insideForExpression: false),
+                        TokenType.LeftBrace => this.Object(ExpressionFlags.AllowComplexLiterals),
+                        TokenType.LeftSquare => this.ForExpression(ExpressionFlags.AllowComplexLiterals, isResourceOrModuleContext: true),
+                        _ => throw new ExpectedTokenException(current, b => b.ExpectBodyStartOrIfOrLoopStart())
+                    };
+                },
+                GetSuppressionFlag(assignment),
+                TokenType.NewLine);
+
+            return new ComponentDeclarationSyntax(leadingNodes, keyword, name, path, assignment, newlines, value);
+        }
+
         private SyntaxBase TestDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.TestKeyword);

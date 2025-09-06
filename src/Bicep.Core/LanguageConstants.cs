@@ -70,6 +70,7 @@ namespace Bicep.Core
         public const string VariableKeyword = "var";
         public const string ResourceKeyword = "resource";
         public const string ModuleKeyword = "module";
+        public const string ComponentKeyword = "component";
         public const string TestKeyword = "test";
         public const string FunctionKeyword = "func";
         public const string ExistingKeyword = "existing";
@@ -94,6 +95,7 @@ namespace Bicep.Core
         public const string TargetScopeTypeResourceGroup = "resourceGroup";
         public const string TargetScopeTypeDesiredStateConfiguration = "desiredStateConfiguration";
         public const string TargetScopeTypeLocal = "local";
+        public const string TargetScopeTypeOrchestrator = "orchestrator";
 
         public const string CopyLoopIdentifier = "copy";
 
@@ -396,6 +398,16 @@ namespace Bicep.Core
             var moduleBody = new ObjectType(typeName, TypeSymbolValidationFlags.Default, moduleProperties, null);
 
             return new ModuleType(typeName, moduleScope, moduleBody);
+        }
+
+        public static TypeSymbol CreateComponentType(string typeName)
+        {
+            List<NamedTypeProperty> properties =
+            [
+                // TODO add properties
+            ];
+
+            return new ObjectType(typeName, TypeSymbolValidationFlags.Default, properties, null);
         }
     }
 }

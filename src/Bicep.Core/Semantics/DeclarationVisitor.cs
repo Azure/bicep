@@ -135,6 +135,14 @@ namespace Bicep.Core.Semantics
             DeclareSymbol(symbol);
         }
 
+        public override void VisitComponentDeclarationSyntax(ComponentDeclarationSyntax syntax)
+        {
+            base.VisitComponentDeclarationSyntax(syntax);
+
+            var symbol = new ComponentSymbol(this.context, syntax.Name.IdentifierName, syntax);
+            DeclareSymbol(symbol);
+        }
+
         public override void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax)
         {
             base.VisitTestDeclarationSyntax(syntax);

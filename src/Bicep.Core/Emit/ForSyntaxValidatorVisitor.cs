@@ -143,6 +143,15 @@ namespace Bicep.Core.Emit
             this.activeLoopCapableTopLevelDeclaration = null;
         }
 
+        public override void VisitComponentDeclarationSyntax(ComponentDeclarationSyntax syntax)
+        {
+            this.activeLoopCapableTopLevelDeclaration = syntax;
+
+            base.VisitComponentDeclarationSyntax(syntax);
+
+            this.activeLoopCapableTopLevelDeclaration = null;
+        }
+
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
             if (this.inlineVariableVisitLevel == 0)
@@ -300,7 +309,7 @@ namespace Bicep.Core.Emit
         private void ValidateDirectAccessToResourceOrModuleCollection(SyntaxBase variableOrResourceAccessSyntax)
         {
             var symbol = this.semanticModel.GetSymbolInfo(variableOrResourceAccessSyntax);
-            if (symbol is ResourceSymbol { IsCollection: true } or ModuleSymbol { IsCollection: true })
+            if (symbol is ResourceSymbol { IsCollection: true } or ModuleSymbol { IsCollection: true } or ComponentSymbol { IsCollection: true })
             {
                 // we are inside a dependsOn property and the referenced symbol is a resource/module collection
                 var parent = this.semanticModel.Binder.GetParentIgnoringParentheses(variableOrResourceAccessSyntax);
@@ -449,6 +458,7 @@ namespace Bicep.Core.Emit
             {
                 case ResourceDeclarationSyntax resource when ReferenceEquals(resource.Value, syntax):
                 case ModuleDeclarationSyntax module when ReferenceEquals(module.Value, syntax):
+                case ComponentDeclarationSyntax component when ReferenceEquals(component.Value, syntax):
                 case OutputDeclarationSyntax output when ReferenceEquals(output.Value, syntax):
                 case VariableDeclarationSyntax variable when ReferenceEquals(variable.Value, syntax):
                     return true;

@@ -77,6 +77,7 @@ namespace Bicep.Core.Syntax
                 // The feature flag is checked during scope validation, so just handle it here.
                 LanguageConstants.TargetScopeTypeDesiredStateConfiguration => ResourceScope.DesiredStateConfiguration,
                 LanguageConstants.TargetScopeTypeLocal => ResourceScope.Local,
+                LanguageConstants.TargetScopeTypeOrchestrator => ResourceScope.Orchestrator,
                 _ => ResourceScope.None,
             };
         }

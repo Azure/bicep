@@ -48,6 +48,8 @@ namespace Bicep.Core.Features
 
         public bool LocalDeployEnabled => configuration.ExperimentalFeaturesEnabled.LocalDeploy;
 
+        public bool OrchestrationEnabled => configuration.ExperimentalFeaturesEnabled.Orchestration;
+
         public bool ResourceInfoCodegenEnabled => this.configuration.ExperimentalFeaturesEnabled.ResourceInfoCodegen;
 
         public bool ModuleExtensionConfigsEnabled => configuration.ExperimentalFeaturesEnabled.ModuleExtensionConfigs;

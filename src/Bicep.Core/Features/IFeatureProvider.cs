@@ -29,6 +29,8 @@ public interface IFeatureProvider
 
     bool LocalDeployEnabled { get; }
 
+    bool OrchestrationEnabled { get; }
+
     bool ExtendableParamFilesEnabled { get; }
 
     bool ResourceInfoCodegenEnabled { get; }

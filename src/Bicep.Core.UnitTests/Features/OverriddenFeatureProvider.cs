@@ -39,6 +39,8 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool LocalDeployEnabled => overrides.LocalDeployEnabled ?? features.LocalDeployEnabled;
 
+    public bool OrchestrationEnabled => overrides.OrchestrationEnabled ?? features.OrchestrationEnabled;
+
     public bool ResourceInfoCodegenEnabled => overrides.ResourceInfoCodegenEnabled ?? features.ResourceInfoCodegenEnabled;
 
     public bool ExtendableParamFilesEnabled => overrides.ExtendableParamFilesEnabled ?? features.ExtendableParamFilesEnabled;

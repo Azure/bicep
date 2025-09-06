@@ -158,6 +158,18 @@ namespace Bicep.LanguageServer.Handlers
                         new() { Start = new(0, 0), End = new(0, 0) });
                 }
             }
+            {
+                if (SyntaxMatcher.GetTailMatch<ComponentDeclarationSyntax, StringSyntax, Token>(matchingNodes) is (var component, var path, _) &&
+                    component.Path == path &&
+                    context.Compilation.SourceFileGrouping.TryGetSourceFile(component).IsSuccess(out var sourceFile))
+                {
+                    return GetFileDefinitionLocation(
+                        sourceFile.Uri,
+                        path,
+                        context,
+                        new() { Start = new(0, 0), End = new(0, 0) });
+                }
+            }
 
             // all other unbound syntax nodes return no
             return new();

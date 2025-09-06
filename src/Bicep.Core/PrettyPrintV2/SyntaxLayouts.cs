@@ -191,6 +191,17 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Newlines,
                 syntax.Value);
 
+        private IEnumerable<Document> LayoutComponentDeclarationSyntax(ComponentDeclarationSyntax syntax) =>
+            this.LayoutResourceOrModuleDeclarationSyntax(
+                syntax.LeadingNodes,
+                syntax.Keyword,
+                syntax.Name,
+                syntax.Path,
+                null,
+                syntax.Assignment,
+                syntax.Newlines,
+                syntax.Value);
+
         private IEnumerable<Document> LayoutTestDeclarationSyntax(TestDeclarationSyntax syntax)
         {
             return this.LayoutLeadingNodes(syntax.LeadingNodes)

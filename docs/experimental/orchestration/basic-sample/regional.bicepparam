@@ -1,0 +1,1 @@
+using 'regional.bicep'

@@ -40,6 +40,7 @@ namespace Bicep.Core.Semantics
             var functionDeclarations = ImmutableArray.CreateBuilder<DeclaredFunctionSymbol>();
             var resourceDeclarations = ImmutableArray.CreateBuilder<ResourceSymbol>();
             var moduleDeclarations = ImmutableArray.CreateBuilder<ModuleSymbol>();
+            var componentDeclarations = ImmutableArray.CreateBuilder<ComponentSymbol>();
             var outputDeclarations = ImmutableArray.CreateBuilder<OutputSymbol>();
             var assertDeclarations = ImmutableArray.CreateBuilder<AssertSymbol>();
             var parameterAssignments = ImmutableArray.CreateBuilder<ParameterAssignmentSymbol>();
@@ -85,6 +86,9 @@ namespace Bicep.Core.Semantics
                     case ModuleSymbol module:
                         moduleDeclarations.Add(module);
                         break;
+                    case ComponentSymbol component:
+                        componentDeclarations.Add(component);
+                        break;
                     case OutputSymbol output:
                         outputDeclarations.Add(output);
                         break;
@@ -125,6 +129,7 @@ namespace Bicep.Core.Semantics
             FunctionDeclarations = functionDeclarations.ToImmutable();
             ResourceDeclarations = resourceDeclarations.ToImmutable();
             ModuleDeclarations = moduleDeclarations.ToImmutable();
+            ComponentDeclarations = componentDeclarations.ToImmutable();
             OutputDeclarations = outputDeclarations.ToImmutable();
             AssertDeclarations = assertDeclarations.ToImmutable();
             ParameterAssignments = parameterAssignments.ToImmutable();
@@ -195,6 +200,8 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<ResourceSymbol> ResourceDeclarations { get; }
 
         public ImmutableArray<ModuleSymbol> ModuleDeclarations { get; }
+
+        public ImmutableArray<ComponentSymbol> ComponentDeclarations { get; }
 
         public ImmutableArray<OutputSymbol> OutputDeclarations { get; }
 

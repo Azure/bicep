@@ -3,6 +3,7 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -118,6 +119,9 @@ namespace Bicep.Core.TypeSystem
 
                 case ModuleDeclarationSyntax module:
                     return GetModuleType(module);
+
+                case ComponentDeclarationSyntax component:
+                    return GetComponentType(component);
 
                 case TestDeclarationSyntax test:
                     return GetTestType(test);
@@ -1248,6 +1252,16 @@ namespace Bicep.Core.TypeSystem
                 syntax);
         }
 
+        private DeclaredTypeAssignment GetComponentType(ComponentDeclarationSyntax syntax)
+        {
+            var declaredComponentType = GetDeclaredComponentType(syntax);
+
+            // if the value is a loop (not a condition or object), the type is an array of the declared component type
+            return new DeclaredTypeAssignment(
+                syntax.Value is ForSyntax ? new TypedArrayType(declaredComponentType, TypeSymbolValidationFlags.Default) : declaredComponentType,
+                syntax);
+        }
+
         private DeclaredTypeAssignment GetTestType(TestDeclarationSyntax syntax)
         {
             var declaredTestType = GetDeclaredTestType(syntax);
@@ -2191,6 +2205,23 @@ namespace Bicep.Core.TypeSystem
                 moduleSemanticModel.TargetScope,
                 binder.TargetScope,
                 LanguageConstants.TypeNameModule);
+        }
+
+        private TypeSymbol GetDeclaredComponentType(ComponentDeclarationSyntax syntax)
+        {
+            if (binder.GetSymbolInfo(syntax) is not ComponentSymbol symbol)
+            {
+                // TODO: Ideally we'd still be able to return a type here, but we'd need access to the compilation to get it.
+                return ErrorType.Empty();
+            }
+
+            if (!symbol.TryGetSemanticModel().IsSuccess(out var linkedModel, out var failureDiagnostic))
+            {
+                return ErrorType.Create(failureDiagnostic);
+            }
+
+            return LanguageConstants.CreateComponentType(
+                LanguageConstants.ComponentKeyword);
         }
 
         private TypeSymbol GetDeclaredTestType(TestDeclarationSyntax test)

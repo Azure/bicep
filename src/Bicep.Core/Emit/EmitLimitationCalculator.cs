@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.ClientModel.Primitives;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -9,6 +10,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Navigation;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
@@ -59,6 +61,7 @@ namespace Bicep.Core.Emit
             BlockSecureOutputAccessOnIndirectReference(model, diagnostics);
             BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
             BlockExplicitDependenciesInOrOnInlinedExistingResources(model, resourceTypeResolver, diagnostics);
+            ValidateSyntaxForOrchestrationMode(model, diagnostics);
 
             var paramAssignmentEvaluator = new ParameterAssignmentEvaluator(model);
             var paramAssignments = CalculateParameterAssignments(model, paramAssignmentEvaluator, diagnostics);
@@ -991,6 +994,36 @@ namespace Bicep.Core.Emit
                                     GetRuntimeIdentifierProperties(resolver, inlinedResource)));
                         }
                     }
+                }
+            }
+        }
+
+        private static void ValidateSyntaxForOrchestrationMode(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            if (model.TargetScope == ResourceScope.Orchestrator)
+            {
+                Token[] blockedKeywords = [
+                    ..model.Root.OutputDeclarations.Select(o => o.DeclaringOutput.Keyword),
+                    ..model.Root.ResourceDeclarations.Select(r => r.DeclaringResource.Keyword),
+                    ..model.Root.ModuleDeclarations.Select(m => m.DeclaringModule.Keyword),
+                ];
+
+                foreach (var keyword in blockedKeywords)
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(keyword)
+                        .SyntaxBlockedWithTargetScopeOrchestrator(keyword.Text));
+                }
+            }
+            else
+            {
+                Token[] blockedKeywords = [
+                    ..model.Root.ComponentDeclarations.Select(m => m.DeclaringComponent.Keyword),
+                ];
+
+                foreach (var keyword in blockedKeywords)
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(keyword)
+                        .SyntaxBlockedWithoutTargetScopeOrchestrator(keyword.Text));
                 }
             }
         }

@@ -217,7 +217,7 @@
         <key>name</key>
         <string>keyword.control.declaration.bicep</string>
         <key>match</key>
-        <string>\b(metadata|targetScope|resource|module|param|var|output|for|in|if|existing|import|as|type|with|using|extends|func|assert|extension)\b</string>
+        <string>\b(metadata|targetScope|resource|module|param|var|output|for|in|if|existing|import|as|type|with|using|extends|func|assert|extension|component)\b</string>
       </dict>
       <key>lambda-start</key>
       <dict>
