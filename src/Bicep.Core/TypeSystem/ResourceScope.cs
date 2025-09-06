@@ -23,5 +23,7 @@ namespace Bicep.Core.TypeSystem
         DesiredStateConfiguration = 1 << 6,
 
         Local = 1 << 7,
+
+        Orchestrator = 1 << 8,
     }
 }

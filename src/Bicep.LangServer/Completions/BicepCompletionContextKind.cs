@@ -263,5 +263,10 @@ namespace Bicep.LanguageServer.Completions
         /// The location immediately after a name in a variable declaration.
         /// </summary>
         VariableNameFollower = 1UL << 48,
+
+        /// <summary>
+        /// The current location needs a component path (local or remote)
+        /// </summary>
+        ComponentPath = 1UL << 49,
     }
 }

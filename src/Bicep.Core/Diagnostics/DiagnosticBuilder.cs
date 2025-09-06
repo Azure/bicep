@@ -1980,6 +1980,14 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic CannotExplicitlyDependOnInlinedResource(string dependentName, string dependencyName, IEnumerable<string> runtimePropertyNames) => CoreError(
                 "BCP434",
                 $"The resource \"{dependentName}\" cannot declare an explicit dependency on \"{dependencyName}\" because the identifier properties of the latter including {ToQuotedString(runtimePropertyNames.OrderBy(x => x))} cannot be calculated at the start of the deployment.");
+
+            public Diagnostic SyntaxBlockedWithTargetScopeOrchestrator(string keyword) => CoreError(
+                "BCP435",
+                $"""Usage of syntax with keyword "{keyword}" is not permitted if the target scope is set to "{LanguageConstants.TargetScopeTypeOrchestrator}".""");
+
+            public Diagnostic SyntaxBlockedWithoutTargetScopeOrchestrator(string keyword) => CoreError(
+                "BCP436",
+                $"""Usage of syntax with keyword "{keyword}" is only permitted if the target scope is set to "{LanguageConstants.TargetScopeTypeOrchestrator}".""");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

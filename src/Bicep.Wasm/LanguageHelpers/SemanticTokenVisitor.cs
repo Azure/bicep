@@ -149,6 +149,13 @@ namespace Bicep.Wasm.LanguageHelpers
             base.VisitModuleDeclarationSyntax(syntax);
         }
 
+        public override void VisitComponentDeclarationSyntax(ComponentDeclarationSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Name, SemanticTokenType.Variable);
+            base.VisitComponentDeclarationSyntax(syntax);
+        }
+
         public override void VisitIfConditionSyntax(IfConditionSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);

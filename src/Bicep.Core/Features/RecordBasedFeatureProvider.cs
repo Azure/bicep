@@ -21,6 +21,7 @@ namespace Bicep.Core.Features
         public bool WaitAndRetryEnabled => features.WaitAndRetry;
         public bool OnlyIfNotExistsEnabled => features.OnlyIfNotExists;
         public bool LocalDeployEnabled => features.LocalDeploy;
+        public bool OrchestrationEnabled => features.Orchestration;
         public bool ExtendableParamFilesEnabled => features.ExtendableParamFiles;
         public bool ResourceInfoCodegenEnabled => features.ResourceInfoCodegen;
         public bool ModuleExtensionConfigsEnabled => features.ModuleExtensionConfigs;

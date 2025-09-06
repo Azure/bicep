@@ -140,26 +140,34 @@ namespace Bicep.LanguageServer.Completions
                 {
                     case BicepSourceFileKind.BicepFile:
                         yield return CreateKeywordCompletion(LanguageConstants.MetadataKeyword, "Metadata keyword", context.ReplacementRange);
-                        yield return CreateKeywordCompletion(LanguageConstants.ParameterKeyword, "Parameter keyword", context.ReplacementRange);
                         yield return CreateKeywordCompletion(LanguageConstants.VariableKeyword, "Variable keyword", context.ReplacementRange);
-                        yield return CreateKeywordCompletion(LanguageConstants.ResourceKeyword, "Resource keyword", context.ReplacementRange, priority: CompletionPriority.High);
-                        yield return CreateKeywordCompletion(LanguageConstants.OutputKeyword, "Output keyword", context.ReplacementRange);
-                        yield return CreateKeywordCompletion(LanguageConstants.ModuleKeyword, "Module keyword", context.ReplacementRange);
                         yield return CreateKeywordCompletion(LanguageConstants.TargetScopeKeyword, "Target Scope keyword", context.ReplacementRange);
                         yield return CreateKeywordCompletion(LanguageConstants.TypeKeyword, "Type keyword", context.ReplacementRange);
                         yield return CreateKeywordCompletion(LanguageConstants.ImportKeyword, "Import keyword", context.ReplacementRange);
-                        yield return CreateKeywordCompletion(LanguageConstants.ExtensionKeyword, "Extension keyword", context.ReplacementRange);
 
                         if (model.Features.TestFrameworkEnabled)
                         {
                             yield return CreateKeywordCompletion(LanguageConstants.TestKeyword, "Test keyword", context.ReplacementRange);
                         }
 
+                        if (model.TargetScope == ResourceScope.Orchestrator)
+                        {
+                            yield return CreateKeywordCompletion(LanguageConstants.ComponentKeyword, "Component keyword", context.ReplacementRange, priority: CompletionPriority.High);
+                        }
+                        else
+                        {
+                            yield return CreateKeywordCompletion(LanguageConstants.ParameterKeyword, "Parameter keyword", context.ReplacementRange);
+                            yield return CreateKeywordCompletion(LanguageConstants.OutputKeyword, "Output keyword", context.ReplacementRange);
+                            yield return CreateKeywordCompletion(LanguageConstants.ResourceKeyword, "Resource keyword", context.ReplacementRange, priority: CompletionPriority.High);
+                            yield return CreateKeywordCompletion(LanguageConstants.ModuleKeyword, "Module keyword", context.ReplacementRange);
+                            yield return CreateKeywordCompletion(LanguageConstants.ExtensionKeyword, "Extension keyword", context.ReplacementRange);
+                        }
+
                         yield return CreateContextualSnippetCompletion(
-                            LanguageConstants.FunctionKeyword,
-                            "Function declaration",
-                            "func ${1:name}() ${2:outputType} => $0",
-                            context.ReplacementRange);
+                                LanguageConstants.FunctionKeyword,
+                                "Function declaration",
+                                "func ${1:name}() ${2:outputType} => $0",
+                                context.ReplacementRange);
 
                         if (model.Features.AssertsEnabled)
                         {
@@ -622,6 +630,7 @@ namespace Bicep.LanguageServer.Completions
         private IEnumerable<CompletionItem> GetLocalModulePathCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath) &&
+                !context.Kind.HasFlag(BicepCompletionContextKind.ComponentPath) &&
                 !context.Kind.HasFlag(BicepCompletionContextKind.TestPath) &&
                 !context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath) &&
                 !context.Kind.HasFlag(BicepCompletionContextKind.ExtendsFilePath))
@@ -655,7 +664,8 @@ namespace Bicep.LanguageServer.Completions
 
                 var dirItems = CreateDirectoryCompletionItems(replacementRange, fileCompletionInfo);
 
-                if (context.Kind.HasFlag(BicepCompletionContextKind.ExtendsFilePath))
+                if (context.Kind.HasFlag(BicepCompletionContextKind.ExtendsFilePath) ||
+                    context.Kind.HasFlag(BicepCompletionContextKind.ComponentPath))
                 {
                     var bicepParamFileItems = CreateFileCompletionItems(model.SourceFile.FileHandle, replacementRange, fileCompletionInfo, x => x.IsBicepParamFile(), CompletionPriority.High);
 

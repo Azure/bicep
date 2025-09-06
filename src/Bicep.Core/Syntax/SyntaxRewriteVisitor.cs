@@ -312,6 +312,25 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceModuleDeclarationSyntax);
 
+        protected virtual SyntaxBase ReplaceComponentDeclarationSyntax(ComponentDeclarationSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Name, out var name);
+            hasChanges |= TryRewrite(syntax.Path, out var path);
+            hasChanges |= TryRewrite(syntax.Assignment, out var assignment);
+            hasChanges |= TryRewrite(syntax.Newlines, out var newlines);
+            hasChanges |= TryRewrite(syntax.Value, out var value);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ComponentDeclarationSyntax(leadingNodes, keyword, name, path, assignment, newlines.Cast<Token>().ToImmutableArray(), value);
+        }
+        void ISyntaxVisitor.VisitComponentDeclarationSyntax(ComponentDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceComponentDeclarationSyntax);
+
         protected virtual SyntaxBase ReplaceTestDeclarationSyntax(TestDeclarationSyntax syntax)
         {
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);

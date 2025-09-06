@@ -148,6 +148,19 @@ namespace Bicep.Core.Semantics
             this.Visit(syntax.Value);
             allowedFlags = FunctionFlags.Default;
         }
+
+        public override void VisitComponentDeclarationSyntax(ComponentDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Path);
+            this.Visit(syntax.Assignment);
+            allowedFlags = FunctionFlags.RequiresInlining;
+            this.Visit(syntax.Value);
+            allowedFlags = FunctionFlags.Default;
+        }
+
         public override void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax)
         {
             this.VisitNodes(syntax.LeadingNodes);
