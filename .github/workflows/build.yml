@@ -46,7 +46,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Publish Bicep
         run: dotnet publish --configuration release --self-contained true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
@@ -76,7 +76,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Pack
         run: dotnet pack --configuration release
@@ -106,7 +106,7 @@ jobs:
           node-version: 20
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Publish Language Server
         run: |
@@ -225,7 +225,7 @@ jobs:
           node-version: 20
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Publish Language Server
         run: |
@@ -300,7 +300,7 @@ jobs:
 
       # needed by the GenerateNotice package
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
@@ -356,7 +356,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Download Bicep CLI
         uses: actions/download-artifact@v4
@@ -419,7 +419,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -498,7 +498,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -538,7 +538,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -594,7 +594,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -661,7 +661,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Run Tests
         run: dotnet test --configuration release -- --filter '${{ matrix.config.filter }}' --report-trx --results-directory ${{ github.workspace }}/TestResults
@@ -787,7 +787,7 @@ jobs:
           node-version: 20
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Download Bicep CLI
         uses: actions/download-artifact@v4
