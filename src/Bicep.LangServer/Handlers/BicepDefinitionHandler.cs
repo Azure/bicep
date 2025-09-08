@@ -159,9 +159,9 @@ namespace Bicep.LanguageServer.Handlers
                 }
             }
             {
-                if (SyntaxMatcher.GetTailMatch<ComponentDeclarationSyntax, StringSyntax, Token>(matchingNodes) is (var component, var path, _) &&
-                    component.Path == path &&
-                    context.Compilation.SourceFileGrouping.TryGetSourceFile(component).IsSuccess(out var sourceFile))
+                if (SyntaxMatcher.GetTailMatch<StackDeclarationSyntax, StringSyntax, Token>(matchingNodes) is (var stack, var path, _) &&
+                    stack.Path == path &&
+                    context.Compilation.SourceFileGrouping.TryGetSourceFile(stack).IsSuccess(out var sourceFile))
                 {
                     return GetFileDefinitionLocation(
                         sourceFile.Uri,

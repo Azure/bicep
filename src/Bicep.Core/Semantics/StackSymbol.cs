@@ -7,21 +7,21 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Semantics;
 
-public class ComponentSymbol : DeclaredSymbol
+public class StackSymbol : DeclaredSymbol
 {
-    public ComponentSymbol(ISymbolContext context, string name, ComponentDeclarationSyntax declaringSyntax)
+    public StackSymbol(ISymbolContext context, string name, StackDeclarationSyntax declaringSyntax)
         : base(context, name, declaringSyntax, declaringSyntax.Name)
     {
     }
 
-    public ComponentDeclarationSyntax DeclaringComponent => (ComponentDeclarationSyntax)this.DeclaringSyntax;
+    public StackDeclarationSyntax DeclaringStack => (StackDeclarationSyntax)this.DeclaringSyntax;
 
-    public override void Accept(SymbolVisitor visitor) => visitor.VisitComponentSymbol(this);
+    public override void Accept(SymbolVisitor visitor) => visitor.VisitStackSymbol(this);
 
-    public override SymbolKind Kind => SymbolKind.Component;
+    public override SymbolKind Kind => SymbolKind.Stack;
 
     public ResultWithDiagnostic<ISemanticModel> TryGetSemanticModel()
-        => DeclaringComponent.TryGetReferencedModel(Context.SourceFileLookup, Context.ModelLookup, b => b.ModuleDeclarationMustReferenceBicepModule());
+        => DeclaringStack.TryGetReferencedModel(Context.SourceFileLookup, Context.ModelLookup, b => b.ModuleDeclarationMustReferenceBicepModule());
 
     public override IEnumerable<Symbol> Descendants
     {

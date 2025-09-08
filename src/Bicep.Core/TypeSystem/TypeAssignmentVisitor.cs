@@ -447,7 +447,7 @@ namespace Bicep.Core.TypeSystem
                 return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Value, declaredType);
             });
 
-        public override void VisitComponentDeclarationSyntax(ComponentDeclarationSyntax syntax)
+        public override void VisitStackDeclarationSyntax(StackDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var declaredType = typeManager.GetDeclaredType(syntax);
@@ -465,7 +465,7 @@ namespace Bicep.Core.TypeSystem
                     return singleDeclaredType;
                 }
 
-                if (this.binder.GetSymbolInfo(syntax) is ComponentSymbol symbol && symbol.TryGetSemanticModel().IsSuccess(out var linkedModel, out var _))
+                if (this.binder.GetSymbolInfo(syntax) is StackSymbol symbol && symbol.TryGetSemanticModel().IsSuccess(out var linkedModel, out var _))
                 {
                     if (linkedModel.HasErrors())
                     {
@@ -482,6 +482,15 @@ namespace Bicep.Core.TypeSystem
 
 
                 return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Value, declaredType);
+            });
+
+        public override void VisitRuleDeclarationSyntax(RuleDeclarationSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnostics);
+                diagnostics.WriteMultiple(GetDeclarationAssignmentDiagnostics(declaredType, syntax.Value));
+
+                return declaredType;
             });
 
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)

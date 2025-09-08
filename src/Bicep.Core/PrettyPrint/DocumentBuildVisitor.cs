@@ -183,7 +183,7 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.Value);
             });
 
-        public override void VisitComponentDeclarationSyntax(ComponentDeclarationSyntax syntax) =>
+        public override void VisitStackDeclarationSyntax(StackDeclarationSyntax syntax) =>
             this.BuildStatement(syntax, () =>
             {
                 this.VisitNodes(syntax.LeadingNodes);
@@ -191,6 +191,18 @@ namespace Bicep.Core.PrettyPrint
                 this.documentStack.Push(Nil);
                 this.Visit(syntax.Name);
                 this.Visit(syntax.Path);
+                this.Visit(syntax.Assignment);
+                this.Visit(syntax.Value);
+            });
+
+        public override void VisitRuleDeclarationSyntax(RuleDeclarationSyntax syntax) =>
+            this.BuildStatement(syntax, () =>
+            {
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Keyword);
+                this.documentStack.Push(Nil);
+                this.Visit(syntax.Name);
+                this.Visit(syntax.Type);
                 this.Visit(syntax.Assignment);
                 this.Visit(syntax.Value);
             });

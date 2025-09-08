@@ -40,7 +40,8 @@ namespace Bicep.Core.Semantics
             var functionDeclarations = ImmutableArray.CreateBuilder<DeclaredFunctionSymbol>();
             var resourceDeclarations = ImmutableArray.CreateBuilder<ResourceSymbol>();
             var moduleDeclarations = ImmutableArray.CreateBuilder<ModuleSymbol>();
-            var componentDeclarations = ImmutableArray.CreateBuilder<ComponentSymbol>();
+            var stackDeclarations = ImmutableArray.CreateBuilder<StackSymbol>();
+            var ruleDeclarations = ImmutableArray.CreateBuilder<RuleSymbol>();
             var outputDeclarations = ImmutableArray.CreateBuilder<OutputSymbol>();
             var assertDeclarations = ImmutableArray.CreateBuilder<AssertSymbol>();
             var parameterAssignments = ImmutableArray.CreateBuilder<ParameterAssignmentSymbol>();
@@ -86,8 +87,11 @@ namespace Bicep.Core.Semantics
                     case ModuleSymbol module:
                         moduleDeclarations.Add(module);
                         break;
-                    case ComponentSymbol component:
-                        componentDeclarations.Add(component);
+                    case StackSymbol stack:
+                        stackDeclarations.Add(stack);
+                        break;
+                    case RuleSymbol rule:
+                        ruleDeclarations.Add(rule);
                         break;
                     case OutputSymbol output:
                         outputDeclarations.Add(output);
@@ -129,7 +133,8 @@ namespace Bicep.Core.Semantics
             FunctionDeclarations = functionDeclarations.ToImmutable();
             ResourceDeclarations = resourceDeclarations.ToImmutable();
             ModuleDeclarations = moduleDeclarations.ToImmutable();
-            ComponentDeclarations = componentDeclarations.ToImmutable();
+            StackDeclarations = stackDeclarations.ToImmutable();
+            RuleDeclarations = ruleDeclarations.ToImmutable();
             OutputDeclarations = outputDeclarations.ToImmutable();
             AssertDeclarations = assertDeclarations.ToImmutable();
             ParameterAssignments = parameterAssignments.ToImmutable();
@@ -201,7 +206,9 @@ namespace Bicep.Core.Semantics
 
         public ImmutableArray<ModuleSymbol> ModuleDeclarations { get; }
 
-        public ImmutableArray<ComponentSymbol> ComponentDeclarations { get; }
+        public ImmutableArray<StackSymbol> StackDeclarations { get; }
+
+        public ImmutableArray<RuleSymbol> RuleDeclarations { get; }
 
         public ImmutableArray<OutputSymbol> OutputDeclarations { get; }
 

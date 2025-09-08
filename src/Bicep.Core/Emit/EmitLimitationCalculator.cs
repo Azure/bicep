@@ -1017,7 +1017,8 @@ namespace Bicep.Core.Emit
             else
             {
                 Token[] blockedKeywords = [
-                    ..model.Root.ComponentDeclarations.Select(m => m.DeclaringComponent.Keyword),
+                    ..model.Root.StackDeclarations.Select(m => m.DeclaringStack.Keyword),
+                    ..model.Root.RuleDeclarations.Select(m => m.DeclaringRule.Keyword),
                 ];
 
                 foreach (var keyword in blockedKeywords)

@@ -152,7 +152,7 @@ namespace Bicep.LanguageServer.Completions
 
                         if (model.TargetScope == ResourceScope.Orchestrator)
                         {
-                            yield return CreateKeywordCompletion(LanguageConstants.ComponentKeyword, "Component keyword", context.ReplacementRange, priority: CompletionPriority.High);
+                            yield return CreateKeywordCompletion(LanguageConstants.StackKeyword, "Stack keyword", context.ReplacementRange, priority: CompletionPriority.High);
                         }
                         else
                         {
@@ -630,7 +630,7 @@ namespace Bicep.LanguageServer.Completions
         private IEnumerable<CompletionItem> GetLocalModulePathCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath) &&
-                !context.Kind.HasFlag(BicepCompletionContextKind.ComponentPath) &&
+                !context.Kind.HasFlag(BicepCompletionContextKind.StackPath) &&
                 !context.Kind.HasFlag(BicepCompletionContextKind.TestPath) &&
                 !context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath) &&
                 !context.Kind.HasFlag(BicepCompletionContextKind.ExtendsFilePath))
@@ -665,7 +665,7 @@ namespace Bicep.LanguageServer.Completions
                 var dirItems = CreateDirectoryCompletionItems(replacementRange, fileCompletionInfo);
 
                 if (context.Kind.HasFlag(BicepCompletionContextKind.ExtendsFilePath) ||
-                    context.Kind.HasFlag(BicepCompletionContextKind.ComponentPath))
+                    context.Kind.HasFlag(BicepCompletionContextKind.StackPath))
                 {
                     var bicepParamFileItems = CreateFileCompletionItems(model.SourceFile.FileHandle, replacementRange, fileCompletionInfo, x => x.IsBicepParamFile(), CompletionPriority.High);
 

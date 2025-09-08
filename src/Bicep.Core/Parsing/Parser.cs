@@ -63,7 +63,8 @@ namespace Bicep.Core.Parsing
                             LanguageConstants.ResourceKeyword => this.ResourceDeclaration(leadingNodes),
                             LanguageConstants.OutputKeyword => this.OutputDeclaration(leadingNodes),
                             LanguageConstants.ModuleKeyword => this.ModuleDeclaration(leadingNodes),
-                            LanguageConstants.ComponentKeyword => this.ComponentDeclaration(leadingNodes),
+                            LanguageConstants.StackKeyword => this.StackDeclaration(leadingNodes),
+                            LanguageConstants.RuleKeyword => this.RuleDeclaration(leadingNodes),
                             LanguageConstants.TestKeyword => this.TestDeclaration(leadingNodes),
                             LanguageConstants.ImportKeyword => this.ImportDeclaration(leadingNodes),
                             LanguageConstants.ExtensionKeyword => this.ExtensionDeclaration(ExpectKeyword(current.Text), leadingNodes),
@@ -229,10 +230,10 @@ namespace Bicep.Core.Parsing
             return new ModuleDeclarationSyntax(leadingNodes, keyword, name, path, assignment, newlines, value);
         }
 
-        private SyntaxBase ComponentDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+        private SyntaxBase StackDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             // TODO: Add dedicated diagnostics instead of reusing modules
-            var keyword = ExpectKeyword(LanguageConstants.ComponentKeyword);
+            var keyword = ExpectKeyword(LanguageConstants.StackKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedModuleIdentifier(), RecoveryFlags.None, TokenType.StringComplete, TokenType.StringLeftPiece, TokenType.NewLine);
 
             // TODO: Unify StringSyntax with TypeSyntax
@@ -260,7 +261,24 @@ namespace Bicep.Core.Parsing
                 GetSuppressionFlag(assignment),
                 TokenType.NewLine);
 
-            return new ComponentDeclarationSyntax(leadingNodes, keyword, name, path, assignment, newlines, value);
+            return new StackDeclarationSyntax(leadingNodes, keyword, name, path, assignment, newlines, value);
+        }
+
+        protected SyntaxBase RuleDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+        {
+            // TODO: Add dedicated diagnostics instead of reusing variables
+            var keyword = ExpectKeyword(LanguageConstants.RuleKeyword);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), RecoveryFlags.None, TokenType.Identifier, TokenType.NewLine);
+
+            var type = this.WithRecovery(
+                () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedResourceTypeString()),
+                GetSuppressionFlag(name),
+                TokenType.Assignment, TokenType.NewLine);
+
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.LeftBrace, TokenType.NewLine);
+            var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
+
+            return new RuleDeclarationSyntax(leadingNodes, keyword, name, type, assignment, value);
         }
 
         private SyntaxBase TestDeclaration(IEnumerable<SyntaxBase> leadingNodes)

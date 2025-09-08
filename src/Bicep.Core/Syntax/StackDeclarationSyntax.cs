@@ -9,12 +9,12 @@ using Bicep.Core.Text;
 
 namespace Bicep.Core.Syntax;
 
-public class ComponentDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax, IArtifactReferenceSyntax
+public class StackDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax, IArtifactReferenceSyntax
 {
-    public ComponentDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, ImmutableArray<Token> newlines, SyntaxBase value)
+    public StackDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, ImmutableArray<Token> newlines, SyntaxBase value)
         : base(leadingNodes)
     {
-        AssertKeyword(keyword, nameof(keyword), LanguageConstants.ComponentKeyword);
+        AssertKeyword(keyword, nameof(keyword), LanguageConstants.StackKeyword);
         AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
         AssertSyntaxType(path, nameof(path), typeof(StringSyntax), typeof(SkippedTriviaSyntax));
         AssertTokenType(keyword, nameof(keyword), TokenType.Identifier);
@@ -42,7 +42,7 @@ public class ComponentDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclara
 
     public SyntaxBase Value { get; }
 
-    public override void Accept(ISyntaxVisitor visitor) => visitor.VisitComponentDeclarationSyntax(this);
+    public override void Accept(ISyntaxVisitor visitor) => visitor.VisitStackDeclarationSyntax(this);
 
     public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? this.Keyword, this.Value);
 

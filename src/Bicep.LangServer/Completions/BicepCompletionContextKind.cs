@@ -265,8 +265,8 @@ namespace Bicep.LanguageServer.Completions
         VariableNameFollower = 1UL << 48,
 
         /// <summary>
-        /// The current location needs a component path (local or remote)
+        /// The current location needs a stack path (local or remote)
         /// </summary>
-        ComponentPath = 1UL << 49,
+        StackPath = 1UL << 49,
     }
 }

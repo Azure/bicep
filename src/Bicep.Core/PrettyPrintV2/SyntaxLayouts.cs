@@ -191,7 +191,7 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Newlines,
                 syntax.Value);
 
-        private IEnumerable<Document> LayoutComponentDeclarationSyntax(ComponentDeclarationSyntax syntax) =>
+        private IEnumerable<Document> LayoutStackDeclarationSyntax(StackDeclarationSyntax syntax) =>
             this.LayoutResourceOrModuleDeclarationSyntax(
                 syntax.LeadingNodes,
                 syntax.Keyword,
@@ -201,6 +201,10 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Assignment,
                 syntax.Newlines,
                 syntax.Value);
+
+        private IEnumerable<Document> LayoutRuleDeclarationSyntax(RuleDeclarationSyntax syntax) =>
+            this.LayoutLeadingNodes(syntax.LeadingNodes)
+                .Concat(Spread(syntax.Keyword, syntax.Name, syntax.Type, syntax.Assignment, syntax.Value));
 
         private IEnumerable<Document> LayoutTestDeclarationSyntax(TestDeclarationSyntax syntax)
         {

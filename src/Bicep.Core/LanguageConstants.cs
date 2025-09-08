@@ -70,7 +70,8 @@ namespace Bicep.Core
         public const string VariableKeyword = "var";
         public const string ResourceKeyword = "resource";
         public const string ModuleKeyword = "module";
-        public const string ComponentKeyword = "component";
+        public const string StackKeyword = "stack";
+        public const string RuleKeyword = "rule";
         public const string TestKeyword = "test";
         public const string FunctionKeyword = "func";
         public const string ExistingKeyword = "existing";
@@ -400,7 +401,17 @@ namespace Bicep.Core
             return new ModuleType(typeName, moduleScope, moduleBody);
         }
 
-        public static TypeSymbol CreateComponentType(string typeName)
+        public static TypeSymbol CreateStackType(string typeName)
+        {
+            List<NamedTypeProperty> properties =
+            [
+                // TODO add properties
+            ];
+
+            return new ObjectType(typeName, TypeSymbolValidationFlags.Default, properties, null);
+        }
+
+        public static TypeSymbol CreateRuleType(string typeName)
         {
             List<NamedTypeProperty> properties =
             [

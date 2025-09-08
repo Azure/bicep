@@ -44,17 +44,17 @@ public class OrchestrationTests
     {
         var result = CompilationHelper.Compile(Services,
             ("main.bicep", """
-                    targetScope = 'orchestrator'
+                targetScope = 'orchestrator'
 
-                    component foo './global.bicepparam' = {
-                    }
-                    """),
+                stack foo './global.bicepparam' = {
+                }
+                """),
             ("global.bicepparam", """
-                    using './global.bicep'
-                    """),
+                using './global.bicep'
+                """),
             ("global.bicep", """
 
-                    """));
+                """));
 
         result.Should().NotHaveAnyDiagnostics();
     }

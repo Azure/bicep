@@ -120,8 +120,11 @@ namespace Bicep.Core.TypeSystem
                 case ModuleDeclarationSyntax module:
                     return GetModuleType(module);
 
-                case ComponentDeclarationSyntax component:
-                    return GetComponentType(component);
+                case StackDeclarationSyntax stack:
+                    return GetStackType(stack);
+
+                case RuleDeclarationSyntax rule:
+                    return GetRuleType(rule);
 
                 case TestDeclarationSyntax test:
                     return GetTestType(test);
@@ -1252,13 +1255,23 @@ namespace Bicep.Core.TypeSystem
                 syntax);
         }
 
-        private DeclaredTypeAssignment GetComponentType(ComponentDeclarationSyntax syntax)
+        private DeclaredTypeAssignment GetStackType(StackDeclarationSyntax syntax)
         {
-            var declaredComponentType = GetDeclaredComponentType(syntax);
+            var declaredStackType = GetDeclaredStackType(syntax);
 
-            // if the value is a loop (not a condition or object), the type is an array of the declared component type
+            // if the value is a loop (not a condition or object), the type is an array of the declared stack type
             return new DeclaredTypeAssignment(
-                syntax.Value is ForSyntax ? new TypedArrayType(declaredComponentType, TypeSymbolValidationFlags.Default) : declaredComponentType,
+                syntax.Value is ForSyntax ? new TypedArrayType(declaredStackType, TypeSymbolValidationFlags.Default) : declaredStackType,
+                syntax);
+        }
+
+        private DeclaredTypeAssignment GetRuleType(RuleDeclarationSyntax syntax)
+        {
+            var declaredRuleType = GetDeclaredRuleType(syntax);
+
+            // if the value is a loop (not a condition or object), the type is an array of the declared rule type
+            return new DeclaredTypeAssignment(
+                syntax.Value is ForSyntax ? new TypedArrayType(declaredRuleType, TypeSymbolValidationFlags.Default) : declaredRuleType,
                 syntax);
         }
 
@@ -2207,9 +2220,9 @@ namespace Bicep.Core.TypeSystem
                 LanguageConstants.TypeNameModule);
         }
 
-        private TypeSymbol GetDeclaredComponentType(ComponentDeclarationSyntax syntax)
+        private TypeSymbol GetDeclaredStackType(StackDeclarationSyntax syntax)
         {
-            if (binder.GetSymbolInfo(syntax) is not ComponentSymbol symbol)
+            if (binder.GetSymbolInfo(syntax) is not StackSymbol symbol)
             {
                 // TODO: Ideally we'd still be able to return a type here, but we'd need access to the compilation to get it.
                 return ErrorType.Empty();
@@ -2220,8 +2233,19 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(failureDiagnostic);
             }
 
-            return LanguageConstants.CreateComponentType(
-                LanguageConstants.ComponentKeyword);
+            return LanguageConstants.CreateStackType(
+                LanguageConstants.StackKeyword);
+        }
+
+        private TypeSymbol GetDeclaredRuleType(RuleDeclarationSyntax syntax)
+        {
+            if (syntax.TypeString is { } typeString &&
+                typeString.TryGetLiteralValue() is { } typeName)
+            {
+                return LanguageConstants.CreateRuleType(typeName);
+            }
+
+            return ErrorType.Empty();
         }
 
         private TypeSymbol GetDeclaredTestType(TestDeclarationSyntax test)

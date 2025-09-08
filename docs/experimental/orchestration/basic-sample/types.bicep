@@ -11,4 +11,8 @@ type GlobalConfigType = {
   global: {
     serviceTreeId: string
   }
+  stageMappings: [{
+    name: string
+    regions: string[]
+  }]
 }

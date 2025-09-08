@@ -224,7 +224,7 @@ namespace Bicep.LanguageServer.Completions
                 ConvertFlag(IsExtendsPathContext(matchingNodes, offset), BicepCompletionContextKind.ExtendsFilePath) |
                 ConvertFlag(IsTestPathContext(matchingNodes, offset), BicepCompletionContextKind.TestPath) |
                 ConvertFlag(IsModulePathContext(matchingNodes, offset), BicepCompletionContextKind.ModulePath) |
-                ConvertFlag(IsComponentPathContext(matchingNodes, offset), BicepCompletionContextKind.ComponentPath) |
+                ConvertFlag(IsStackPathContext(matchingNodes, offset), BicepCompletionContextKind.StackPath) |
                 ConvertFlag(IsImportPathContext(matchingNodes, offset), BicepCompletionContextKind.ModulePath) |
                 ConvertFlag(IsParameterIdentifierContext(matchingNodes, offset), BicepCompletionContextKind.ParamIdentifier) |
                 ConvertFlag(IsParameterValueContext(matchingNodes, offset), BicepCompletionContextKind.ParamValue) |
@@ -875,13 +875,13 @@ namespace Bicep.LanguageServer.Completions
             // module foo fo|o
             SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (module, skipped, _) => module.Path == skipped);
 
-        private static bool IsComponentPathContext(IList<SyntaxBase> matchingNodes, int offset) =>
-            // component foo | =
-            SyntaxMatcher.IsTailMatch<ComponentDeclarationSyntax>(matchingNodes, component => IsBetweenNodes(offset, component.Name, component.Path)) ||
-            // component foo 'f|oo'
-            SyntaxMatcher.IsTailMatch<ComponentDeclarationSyntax, StringSyntax, Token>(matchingNodes, (component, @string, _) => component.Path == @string) ||
-            // component foo fo|o
-            SyntaxMatcher.IsTailMatch<ComponentDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (component, skipped, _) => component.Path == skipped);
+        private static bool IsStackPathContext(IList<SyntaxBase> matchingNodes, int offset) =>
+            // stack foo | =
+            SyntaxMatcher.IsTailMatch<StackDeclarationSyntax>(matchingNodes, stack => IsBetweenNodes(offset, stack.Name, stack.Path)) ||
+            // stack foo 'f|oo'
+            SyntaxMatcher.IsTailMatch<StackDeclarationSyntax, StringSyntax, Token>(matchingNodes, (stack, @string, _) => stack.Path == @string) ||
+            // stack foo fo|o
+            SyntaxMatcher.IsTailMatch<StackDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (stack, skipped, _) => stack.Path == skipped);
 
         private static bool IsResourceTypeContext(IList<SyntaxBase> matchingNodes, int offset) =>
             // resource foo | =
