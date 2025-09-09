@@ -1,4 +1,4 @@
-# Ideas - rough notes
+# Notes
 
 ## Rules about deploying
 Allow the developer to specify different rules for each stack:

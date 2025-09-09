@@ -49,7 +49,7 @@ resource onlyDeployIfNotExists 'Microsoft...' = {
 
 ### `orchestration`
 
-Enables Bicep to in orchestration mode. For more information, see [Using Orchestration](./experimental/orchestration.md).
+Enables Bicep to in orchestration mode. For more information, see [Using Orchestration](../orchestration/README.md).
 
 ### `resourceInfoCodegen`
 

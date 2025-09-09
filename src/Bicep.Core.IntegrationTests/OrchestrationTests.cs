@@ -11,6 +11,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.FileSystem;
@@ -40,21 +41,16 @@ public class OrchestrationTests
     public TestContext? TestContext { get; set; }
 
     [TestMethod]
-    public void Basic_example_can_be_compiled_successfully()
+    [EmbeddedFilesTestData(@"orchestration_samples/basic/main\.bicepparam")]
+    [TestCategory(BaselineHelper.BaselineTestCategory)]
+    public void Basic_example_can_be_compiled_successfully(EmbeddedFile file)
     {
-        var result = CompilationHelper.Compile(Services,
-            ("main.bicep", """
-                targetScope = 'orchestrator'
+        var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, file);
 
-                stack foo './global.bicepparam' = {
-                }
-                """),
-            ("global.bicepparam", """
-                using './global.bicep'
-                """),
-            ("global.bicep", """
+        var compiler = Services.Build().GetCompiler();
+        var compilation = compiler.CreateCompilationWithoutRestore(IOUri.FromFilePath(baselineFolder.EntryFile.OutputFilePath));
 
-                """));
+        var result = CompilationHelper.CompileParams(compilation);
 
         result.Should().NotHaveAnyDiagnostics();
     }

@@ -11,6 +11,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="./orchestration_samples/**/*.*" />
+    <EmbeddedResource Include="../../orchestration/samples/**/*.*" LogicalName="$([System.String]::new('orchestration_samples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" WithCulture="false" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="Utils\**" />
     <EmbeddedResource Remove="Utils\**" />
     <None Remove="Utils\**" />

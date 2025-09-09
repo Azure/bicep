@@ -403,22 +403,26 @@ namespace Bicep.Core
 
         public static TypeSymbol CreateStackType(string typeName)
         {
-            List<NamedTypeProperty> properties =
-            [
-                // TODO add properties
-            ];
+            // List<NamedTypeProperty> properties =
+            // [
+            //     // TODO add properties
+            // ];
 
-            return new ObjectType(typeName, TypeSymbolValidationFlags.Default, properties, null);
+            // return new ObjectType(typeName, TypeSymbolValidationFlags.Default, properties, null);
+
+            return Object;
         }
 
         public static TypeSymbol CreateRuleType(string typeName)
         {
-            List<NamedTypeProperty> properties =
-            [
-                // TODO add properties
-            ];
+            // List<NamedTypeProperty> properties =
+            // [
+            //     // TODO add properties
+            // ];
 
-            return new ObjectType(typeName, TypeSymbolValidationFlags.Default, properties, null);
+            // return new ObjectType(typeName, TypeSymbolValidationFlags.Default, properties, null);
+
+            return Object;
         }
     }
 }
