@@ -2,7 +2,7 @@
 
 ## Using this
 ### Nightly Builds
-To preview this, use the following scripts to install a nightly build:
+To preview this, use the following scripts to install a [nightly build](https://github.com/Azure/bicep/blob/main/docs/installing-nightly.md):
 
 * Mac/Linux
     ```sh
