@@ -343,9 +343,9 @@ namespace Bicep.Core.Diagnostics
                 "BCP050",
                 "The specified path is empty.");
 
-            public Diagnostic FilePathBeginsWithForwardSlash() => CoreError(
+            public Diagnostic FilePathIsAbsolute() => CoreError(
                 "BCP051",
-                "The specified path begins with \"/\". Files must be referenced using relative paths.");
+                "The specified path seems to reference an absolute path. Files must be referenced using relative paths.");
 
             public Diagnostic UnknownProperty(bool warnInsteadOfError, TypeSymbol type, string badProperty) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
