@@ -28,10 +28,10 @@ var binaryLoadInvalidCharactersPath1 = loadFileAsBase64('Assets\\binary')
 
 var textLoadInvalidCharactersPath2 = loadTextContent('/Assets/TextFile.txt')
 //@[04:34) [no-unused-vars (Warning)] Variable "textLoadInvalidCharactersPath2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |textLoadInvalidCharactersPath2|
-//@[53:75) [BCP051 (Error)] The specified path begins with "/". Files must be referenced using relative paths. (bicep https://aka.ms/bicep/core-diagnostics#BCP051) |'/Assets/TextFile.txt'|
+//@[53:75) [BCP051 (Error)] The specified path seems to reference an absolute path. Files must be referenced using relative paths. (bicep https://aka.ms/bicep/core-diagnostics#BCP051) |'/Assets/TextFile.txt'|
 var binaryLoadInvalidCharactersPath2 = loadFileAsBase64('/Assets/binary')
 //@[04:36) [no-unused-vars (Warning)] Variable "binaryLoadInvalidCharactersPath2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |binaryLoadInvalidCharactersPath2|
-//@[56:72) [BCP051 (Error)] The specified path begins with "/". Files must be referenced using relative paths. (bicep https://aka.ms/bicep/core-diagnostics#BCP051) |'/Assets/binary'|
+//@[56:72) [BCP051 (Error)] The specified path seems to reference an absolute path. Files must be referenced using relative paths. (bicep https://aka.ms/bicep/core-diagnostics#BCP051) |'/Assets/binary'|
 
 var textLoadInvalidCharactersPath3 = loadTextContent('file://Assets/TextFile.txt')
 //@[04:34) [no-unused-vars (Warning)] Variable "textLoadInvalidCharactersPath3" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |textLoadInvalidCharactersPath3|
