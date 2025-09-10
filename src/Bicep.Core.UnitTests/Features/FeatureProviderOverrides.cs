@@ -24,7 +24,7 @@ public record FeatureProviderOverrides(
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
     bool? ModuleExtensionConfigsEnabled = default,
     bool? DesiredStateConfigurationEnabled = default,
-    bool? ModuleIdentityEnabled = default)
+    bool? UserDefinedConstraintsEnabled = default)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
@@ -43,24 +43,23 @@ public record FeatureProviderOverrides(
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
         bool? ModuleExtensionConfigsEnabled = default,
         bool? DesiredStateConfigurationEnabled = default,
-        bool? ModuleIdentityEnabled = default
-    ) : this(
-        FileHelper.GetCacheRootDirectory(testContext),
-        RegistryEnabled,
-        SymbolicNameCodegenEnabled,
-        AdvancedListComprehensionEnabled,
-        ResourceTypedParamsAndOutputsEnabled,
-        SourceMappingEnabled,
-        LegacyFormatterEnabled,
-        TestFrameworkEnabled,
-        AssertsEnabled,
-        WaitAndRetryEnabled,
-        LocalDeployEnabled,
-        ResourceInfoCodegenEnabled,
-        ExtendableParamFilesEnabled,
-        AssemblyVersion,
-        ModuleExtensionConfigsEnabled,
-        DesiredStateConfigurationEnabled,
-        ModuleIdentityEnabled)
+        bool? UserDefinedConstraintsEnabled = default) : this(
+            FileHelper.GetCacheRootDirectory(testContext),
+            RegistryEnabled,
+            SymbolicNameCodegenEnabled,
+            AdvancedListComprehensionEnabled,
+            ResourceTypedParamsAndOutputsEnabled,
+            SourceMappingEnabled,
+            LegacyFormatterEnabled,
+            TestFrameworkEnabled,
+            AssertsEnabled,
+            WaitAndRetryEnabled,
+            LocalDeployEnabled,
+            ResourceInfoCodegenEnabled,
+            ExtendableParamFilesEnabled,
+            AssemblyVersion,
+            ModuleExtensionConfigsEnabled,
+            DesiredStateConfigurationEnabled,
+            UserDefinedConstraintsEnabled)
     { }
 }

@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.IO.Abstraction;
+
 namespace Bicep.Core.Features;
 
 public interface IFeatureProviderFactory
 {
-    IFeatureProvider GetFeatureProvider(Uri templateUri);
+    IFeatureProvider GetFeatureProvider(IOUri sourceFileUri);
 
     static IFeatureProviderFactory WithStaticFeatureProvider(IFeatureProvider featureProvider)
         => new ConstantFeatureProviderFactory(featureProvider);
@@ -18,6 +20,6 @@ public interface IFeatureProviderFactory
             this.features = features;
         }
 
-        public IFeatureProvider GetFeatureProvider(Uri templateUri) => features;
+        public IFeatureProvider GetFeatureProvider(IOUri sourceFileUri) => features;
     }
 }

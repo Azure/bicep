@@ -11,6 +11,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Telemetry;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
@@ -29,24 +30,26 @@ namespace Bicep.LanguageServer.Handlers
     public class ImportKubernetesManifestHandler(
         ILanguageServerFacade server,
         ITelemetryProvider telemetryProvider,
-        IConfigurationManager configurationManager) : IJsonRpcRequestHandler<ImportKubernetesManifestRequest, ImportKubernetesManifestResponse>
+        IConfigurationManager configurationManager,
+        IFileExplorer fileExplorer) : IJsonRpcRequestHandler<ImportKubernetesManifestRequest, ImportKubernetesManifestResponse>
     {
         private readonly TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse> helper = new(server.Window, telemetryProvider);
 
         public Task<ImportKubernetesManifestResponse> Handle(ImportKubernetesManifestRequest request, CancellationToken cancellationToken)
             => helper.ExecuteWithTelemetryAndErrorHandling(async () =>
             {
-                var bicepFilePath = Path.ChangeExtension(request.ManifestFilePath, ".bicep");
-                var manifestContents = await File.ReadAllTextAsync(request.ManifestFilePath);
+                var manifestFileUri = IOUri.FromFilePath(request.ManifestFilePath);
+                var manifestContents = await fileExplorer.GetFile(manifestFileUri).ReadAllTextAsync();
 
-                var bicepContents = this.Decompile(bicepFilePath, manifestContents, this.helper);
+                var bicepFileUri = manifestFileUri.WithExtension(LanguageConstants.LanguageFileExtension);
+                var bicepContents = this.Decompile(bicepFileUri, manifestContents, this.helper);
 
-                await File.WriteAllTextAsync(bicepFilePath, bicepContents, cancellationToken);
+                await fileExplorer.GetFile(bicepFileUri).WriteAllTextAsync(bicepContents, cancellationToken);
 
-                return new(new(bicepFilePath), BicepTelemetryEvent.ImportKubernetesManifestSuccess());
+                return new(new(bicepFileUri.GetFilePath()), BicepTelemetryEvent.ImportKubernetesManifestSuccess());
             });
 
-        public string Decompile(string bicepFilePath, string manifestContents, TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse> telemetryHelper)
+        private string Decompile(IOUri bicepFileUri, string manifestContents, TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse> telemetryHelper)
         {
             var declarations = new List<SyntaxBase>
             {
@@ -100,7 +103,7 @@ namespace Bicep.LanguageServer.Handlers
                 declarations.SelectMany(x => new SyntaxBase[] { x, SyntaxFactory.DoubleNewlineToken }),
                 SyntaxFactory.CreateToken(TokenType.EndOfFile));
 
-            var configuration = configurationManager.GetConfiguration(PathHelper.FilePathToFileUrl(bicepFilePath));
+            var configuration = configurationManager.GetConfiguration(bicepFileUri);
             var printerOptions = configuration.Formatting.Data;
             var printerContext = PrettyPrinterV2Context.Create(printerOptions, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
 

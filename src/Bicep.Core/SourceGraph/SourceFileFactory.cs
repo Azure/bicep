@@ -88,7 +88,7 @@ namespace Bicep.Core.SourceGraph
 
         public BicepParamFile CreateBicepParamFile(IOUri fileUri, string fileContents)
         {
-            var parser = new ParamsParser(fileContents, this.featureProviderFactory.GetFeatureProvider(fileUri.ToUri()));
+            var parser = new ParamsParser(fileContents, this.featureProviderFactory.GetFeatureProvider(fileUri));
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
             var fileHandle = this.CreateFileHandle(fileUri);
 

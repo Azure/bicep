@@ -45,5 +45,5 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool DesiredStateConfigurationEnabled => overrides.DesiredStateConfigurationEnabled ?? features.DesiredStateConfigurationEnabled;
 
-    public bool ModuleIdentityEnabled => overrides.ModuleIdentityEnabled ?? features.ModuleIdentityEnabled;
+    public bool UserDefinedConstraintsEnabled => overrides.UserDefinedConstraintsEnabled ?? features.UserDefinedConstraintsEnabled;
 }

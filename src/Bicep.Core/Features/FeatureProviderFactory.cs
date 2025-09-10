@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Configuration;
+using Bicep.Core.Extensions;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Features;
@@ -16,5 +17,5 @@ public class FeatureProviderFactory : IFeatureProviderFactory
         this.fileExplorer = fileExplorer;
     }
 
-    public IFeatureProvider GetFeatureProvider(Uri templateUri) => new FeatureProvider(configurationManager.GetConfiguration(templateUri), this.fileExplorer);
+    public IFeatureProvider GetFeatureProvider(IOUri sourceFileUri) => new FeatureProvider(configurationManager.GetConfiguration(sourceFileUri), this.fileExplorer);
 }

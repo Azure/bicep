@@ -43,7 +43,7 @@ module scopedToSymbolicName 'hello.bicep' = [for (name, i) in scripts: {
 //@        "count": "[length(variables('scripts'))]"
 //@      },
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "resourceGroup": "[format('{0}-{1}', parameters('prefix'), variables('groups')[copyIndex()])]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -111,7 +111,7 @@ module scopedToResourceGroupFunction 'hello.bicep' = [for (name, i) in scripts: 
 //@        "count": "[length(variables('scripts'))]"
 //@      },
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "resourceGroup": "[concat(variables('scripts')[copyIndex()], '-extra')]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {

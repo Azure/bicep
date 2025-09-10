@@ -114,7 +114,7 @@ namespace Bicep.Cli.Services
         {
             foreach (var (fileUri, bicepOutput) in decompilation.FilesToSave)
             {
-                await WriteToFileAsync(fileUri.ToIOUri(), bicepOutput);
+                await WriteToFileAsync(fileUri, bicepOutput);
             }
         }
 
@@ -140,6 +140,18 @@ namespace Bicep.Cli.Services
                 using var sw = new StreamWriter(fileStream, TemplateEmitter.UTF8EncodingWithoutBom, 4096, leaveOpen: true);
 
                 sw.Write(contents);
+            }
+            catch (Exception exception)
+            {
+                throw new BicepException(exception.Message, exception);
+            }
+        }
+
+        public void WriteToFile(IOUri fileUri, string contents)
+        {
+            try
+            {
+                this.fileExplorer.GetFile(fileUri).WriteAllText(contents);
             }
             catch (Exception exception)
             {

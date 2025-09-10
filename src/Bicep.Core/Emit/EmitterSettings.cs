@@ -43,6 +43,8 @@ namespace Bicep.Core.Emit
                 model.Outputs.Any(output => output.IsSecure) ||
                 // there are secure outputs in modules
                 model.Root.ModuleDeclarations.Any(module => module.TryGetSemanticModel().TryUnwrap()?.Outputs.Any(output => output.IsSecure) ?? false) ||
+                // direct access to a looped resource, requiring use of 'references()'
+                RequiresReferencesFunctionVisitor.RequiresReferencesFunction(model.Binder) ||
                 // any user-defined type declaration syntax is used (e.g., in a `param` or `output` statement)
                 SyntaxAggregator.Aggregate(model.SourceFile.ProgramSyntax,
                     seed: false,
