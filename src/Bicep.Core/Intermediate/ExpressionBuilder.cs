@@ -216,6 +216,9 @@ public class ExpressionBuilder
             case ModuleDeclarationSyntax module:
                 return EvaluateDecorators(module, ConvertModule(module));
 
+            case StackDeclarationSyntax stack:
+                return EvaluateDecorators(stack, ConvertStack(stack));
+
             case TypeDeclarationSyntax typeDeclaration:
                 return EvaluateDecorators(typeDeclaration, new DeclaredTypeExpression(typeDeclaration,
                     typeDeclaration.Name.IdentifierName,
@@ -497,6 +500,11 @@ public class ExpressionBuilder
             .OfType<DeclaredModuleExpression>()
             .ToImmutableArray();
 
+        var stacks = Context.SemanticModel.Root.StackDeclarations
+            .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
+            .OfType<DeclaredStackExpression>()
+            .ToImmutableArray();
+
         var outputs = Context.SemanticModel.Root.OutputDeclarations
             .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
             .OfType<DeclaredOutputExpression>()
@@ -522,6 +530,7 @@ public class ExpressionBuilder
             functions,
             resources,
             modules,
+            stacks,
             outputs,
             asserts);
     }
@@ -596,6 +605,55 @@ public class ExpressionBuilder
             bodyExpression,
             parameters is not null ? ConvertWithoutLowering(parameters.Value) : null,
             extensionConfigs is not null ? ConvertWithoutLowering(extensionConfigs.Value) : null,
+            BuildDependencyExpressions(symbol, body));
+    }
+
+    private DeclaredStackExpression ConvertStack(StackDeclarationSyntax syntax)
+    {
+        var symbol = GetDeclaredSymbol<StackSymbol>(syntax);
+        Expression? condition = null;
+        LoopExpressionContext? loop = null;
+
+        // Unwrap the 'real' body if there's a condition / for loop
+        var body = syntax.Value;
+        if (body is ForSyntax @for)
+        {
+            loop = new(symbol.Name, @for, ConvertWithoutLowering(@for.Expression));
+            body = @for.Body;
+        }
+
+        if (body is IfConditionSyntax @if)
+        {
+            condition = ConvertWithoutLowering(@if.ConditionExpression);
+            body = @if.Body;
+        }
+
+        var objectBody = (ObjectSyntax)body;
+
+        var properties = objectBody.Properties
+            .Where(x => x.TryGetKeyText() is not { } key || !ModulePropertiesToOmit.Contains(key))
+            .Select(ConvertObjectProperty);
+        Expression bodyExpression = new ObjectExpression(body, [.. properties]);
+
+        if (condition is not null)
+        {
+            bodyExpression = new ConditionExpression(condition.SourceSyntax, condition, bodyExpression);
+        }
+
+        if (loop is not null)
+        {
+            bodyExpression = new ForLoopExpression(
+                loop.SourceSyntax,
+                loop.LoopExpression,
+                bodyExpression,
+                loop.Name,
+                GetBatchSize(syntax));
+        }
+
+        return new(
+            syntax,
+            symbol,
+            bodyExpression,
             BuildDependencyExpressions(symbol, body));
     }
 
@@ -1111,9 +1169,12 @@ public class ExpressionBuilder
                 }
 
                 return new VariableReferenceExpression(variableAccessSyntax, variableSymbol);
-
+    
             case ModuleSymbol moduleSymbol:
                 return new ModuleReferenceExpression(variableAccessSyntax, moduleSymbol, null);
+
+            case StackSymbol stackSymbol:
+                return new StackReferenceExpression(variableAccessSyntax, stackSymbol, null);
 
             case LocalVariableSymbol localVariableSymbol:
                 return GetLocalVariableExpression(variableAccessSyntax, localVariableSymbol);
@@ -1163,6 +1224,7 @@ public class ExpressionBuilder
             // copyIndex without name resolves to module/resource loop index in the runtime
             ResourceDeclarationSyntax => null,
             ModuleDeclarationSyntax => null,
+            StackDeclarationSyntax => null,
 
             // variable copy index has the name of the variable
             VariableDeclarationSyntax variable when variable.Name.IsValid => variable.Name.IdentifierName,

@@ -110,6 +110,24 @@ namespace Bicep.Core.Emit
             this.currentDeclaration = prevDeclaration;
         }
 
+        public override void VisitStackDeclarationSyntax(StackDeclarationSyntax syntax)
+        {
+            if (this.model.GetSymbolInfo(syntax) is not StackSymbol stackSymbol)
+            {
+                return;
+            }
+
+            // save previous declaration as we may call this recursively
+            var prevDeclaration = this.currentDeclaration;
+
+            this.currentDeclaration = stackSymbol;
+            this.resourceDependencies[stackSymbol] = new HashSet<ResourceDependency>();
+            base.VisitStackDeclarationSyntax(syntax);
+
+            // restore previous declaration
+            this.currentDeclaration = prevDeclaration;
+        }
+
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
             if (this.model.GetSymbolInfo(syntax) is not VariableSymbol variableSymbol)
@@ -149,6 +167,10 @@ namespace Bicep.Core.Emit
 
                 case ResourceSymbol resourceSymbol:
                     currentResourceDependencies.Add(new(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection), IsWeakReference(syntax, resourceSymbol)));
+                    return;
+
+                case StackSymbol stackSymbol:
+                    currentResourceDependencies.Add(new(stackSymbol, GetIndexExpression(syntax, stackSymbol.IsCollection)));
                     return;
 
                 case ModuleSymbol moduleSymbol:
@@ -278,6 +300,7 @@ namespace Bicep.Core.Emit
             {
                 ResourceSymbol resourceSymbol => resourceSymbol.DeclaringResource.GetBody(),
                 ModuleSymbol moduleSymbol => moduleSymbol.DeclaringModule.GetBody(),
+                StackSymbol stackSymbol => stackSymbol.DeclaringStack.GetBody(),
                 VariableSymbol variableSymbol => variableSymbol.DeclaringVariable.GetBody(),
                 _ => throw new NotImplementedException($"Unexpected current declaration type '{this.currentDeclaration?.GetType().Name}'.")
             };

@@ -146,6 +146,12 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return expression;
     }
 
+    void IExpressionVisitor.VisitStackReferenceExpression(StackReferenceExpression expression) => ReplaceCurrent(expression, ReplaceStackReferenceExpression);
+    public virtual Expression ReplaceStackReferenceExpression(StackReferenceExpression expression)
+    {
+        return expression;
+    }
+
     void IExpressionVisitor.VisitNullLiteralExpression(NullLiteralExpression expression) => ReplaceCurrent(expression, ReplaceNullLiteralExpression);
     public virtual Expression ReplaceNullLiteralExpression(NullLiteralExpression expression)
     {
@@ -414,6 +420,27 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
             TryRewriteDescription(expression, out var description);
 
         return hasChanges ? expression with { Body = body, Parameters = parameters, ExtensionConfigs = extensionConfigs, DependsOn = dependsOn, Description = description } : expression;
+    }
+
+    void IExpressionVisitor.VisitDeclaredStackExpression(DeclaredStackExpression expression) => ReplaceCurrent(expression, ReplaceDeclaredStackExpression);
+    public virtual Expression ReplaceDeclaredStackExpression(DeclaredStackExpression expression)
+    {
+        var hasChanges =
+            TryRewrite(expression.Body, out var body) |
+            TryRewriteStrict(expression.DependsOn, out var dependsOn) |
+            TryRewriteDescription(expression, out var description);
+
+        return hasChanges ? expression with { Body = body, DependsOn = dependsOn, Description = description } : expression;
+    }
+
+    void IExpressionVisitor.VisitDeclaredRuleExpression(DeclaredRuleExpression expression) => ReplaceCurrent(expression, ReplaceDeclaredRuleExpression);
+    public virtual Expression ReplaceDeclaredRuleExpression(DeclaredRuleExpression expression)
+    {
+        var hasChanges =
+            TryRewrite(expression.Body, out var body) |
+            TryRewriteDescription(expression, out var description);
+
+        return hasChanges ? expression with { Body = body, Description = description } : expression;
     }
 
     void IExpressionVisitor.VisitResourceDependencyExpression(ResourceDependencyExpression expression) => ReplaceCurrent(expression, ReplaceResourceDependencyExpression);
@@ -721,9 +748,10 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
             TryRewriteStrict(expression.Functions, out var functions) |
             TryRewriteStrict(expression.Resources, out var resources) |
             TryRewriteStrict(expression.Modules, out var modules) |
+            TryRewriteStrict(expression.Stacks, out var stacks) |
             TryRewriteStrict(expression.Outputs, out var outputs);
 
-        return hasChanges ? expression with { Metadata = metadata, Extensions = extensions, Parameters = parameters, Types = types, Variables = variables, Functions = functions, Resources = resources, Modules = modules, Outputs = outputs } : expression;
+        return hasChanges ? expression with { Metadata = metadata, Extensions = extensions, Parameters = parameters, Types = types, Variables = variables, Functions = functions, Resources = resources, Modules = modules, Stacks = stacks, Outputs = outputs } : expression;
     }
 
     protected virtual Expression Replace(Expression expression) => ReplaceInternal(expression);

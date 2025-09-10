@@ -142,7 +142,7 @@ namespace Bicep.Core.Emit
 
             this.EmitExtensionsIfPresent(emitter, program.Extensions);
 
-            this.EmitResources(jsonWriter, emitter, program.Extensions, program.Resources, program.Modules);
+            this.EmitResources(jsonWriter, emitter, program.Extensions, program.Resources, program.Modules, program.Stacks);
 
             this.EmitOutputsIfPresent(emitter, program.Outputs);
 
@@ -1030,7 +1030,7 @@ namespace Bicep.Core.Emit
 
         private void EmitExtensionsIfPresent(ExpressionEmitter emitter, ImmutableArray<ExtensionExpression> extensions)
         {
-            if (Context.SemanticModel.TargetScope == ResourceScope.Local)
+            if (Context.SemanticModel.TargetScope is ResourceScope.Local or ResourceScope.Orchestrator)
             {
                 extensions = extensions.Add(GetExtensionForLocalDeploy());
             }
@@ -1136,7 +1136,8 @@ namespace Bicep.Core.Emit
             ExpressionEmitter emitter,
             ImmutableArray<ExtensionExpression> extensions,
             ImmutableArray<DeclaredResourceExpression> resources,
-            ImmutableArray<DeclaredModuleExpression> modules)
+            ImmutableArray<DeclaredModuleExpression> modules,
+            ImmutableArray<DeclaredStackExpression> stacks)
         {
             if (!Context.Settings.EnableSymbolicNames)
             {
@@ -1176,6 +1177,14 @@ namespace Bicep.Core.Emit
                             module.Symbol.Name,
                             () => EmitModule(jsonWriter, module, emitter),
                             module.SourceSyntax);
+                    }
+
+                    foreach (var stack in stacks)
+                    {
+                        emitter.EmitProperty(
+                            stack.Symbol.Name,
+                            () => EmitStackForLocalDeploy(jsonWriter, stack, emitter),
+                            stack.SourceSyntax);
                     }
                 });
             }
@@ -1579,6 +1588,60 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty(property);
                 }
             }, module.SourceSyntax);
+        }
+
+        private void EmitStackForLocalDeploy(PositionTrackingJsonTextWriter jsonWriter, DeclaredStackExpression stack, ExpressionEmitter emitter)
+        {
+            emitter.EmitObject(() =>
+            {
+                EmitResourceExtensionReference(emitter, "az0synthesized");
+
+                var body = stack.Body;
+                if (body is ForLoopExpression forLoop)
+                {
+                    body = forLoop.Body;
+                    emitter.EmitCopyProperty(() => emitter.EmitCopyObject(forLoop.Name, forLoop.Expression, input: null, batchSize: forLoop.BatchSize));
+                }
+                if (body is ConditionExpression condition)
+                {
+                    body = condition.Body;
+                    emitter.EmitProperty("condition", condition.Expression);
+                }
+
+                emitter.EmitProperty("type", "OrchestrationStack");
+
+                emitter.EmitObjectProperty("properties", () =>
+                {
+                    if (stack.Symbol.TryGetSemanticModel().TryUnwrap() is not SemanticModel paramsModel ||
+                        paramsModel.Root.TryGetBicepFileSemanticModelViaUsing().TryUnwrap() is not SemanticModel bicepModel)
+                    {
+                        throw new InvalidOperationException("Expected stack to have a semantic model");
+                    }
+
+                    var templateWriter = TemplateWriterFactory.CreateTemplateWriter(bicepModel);
+                    var templateStringWriter = new StringWriter();
+                    var templateJsonWriter = new SourceAwareJsonTextWriter(templateStringWriter, bicepModel.SourceFile);
+                    templateWriter.Write(templateJsonWriter);
+                    emitter.EmitProperty("template", templateStringWriter.ToString());
+
+                    var paramsWriter = new ParametersJsonWriter(paramsModel);
+                    var paramsStringWriter = new StringWriter();
+                    var paramsJsonWriter = new SourceAwareJsonTextWriter(paramsStringWriter, paramsModel.SourceFile);
+                    paramsWriter.Write(paramsJsonWriter);
+                    emitter.EmitProperty("parameters", paramsStringWriter.ToString());
+
+                    // TBD!
+                });
+
+                this.EmitDependsOn(emitter, stack.DependsOn);
+
+                // Since we don't want to be mutating the body of the original ObjectSyntax, we create a placeholder body in place
+                // and emit its properties to merge decorator properties.
+                foreach (var property in ApplyDescription(stack, ExpressionFactory.CreateObject(ImmutableArray<ObjectPropertyExpression>.Empty)).Properties)
+                {
+                    emitter.EmitProperty(property);
+                }
+            }, stack.SourceSyntax);
         }
 
         private static void EmitSymbolicNameDependsOnEntry(ExpressionEmitter emitter, ResourceDependencyExpression dependency)
