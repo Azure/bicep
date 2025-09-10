@@ -24,12 +24,11 @@ stack clusterApp './clusterApp/main.bicepparam' = [for (region, i) in config.reg
 }]
 
 rule stages 'Batching' = {
-  // TODO: support this syntax
-  // groups: [for (mapping, i) in config.stageMappings: {
-  //   order: i
-  //   name: mapping.name
-  //   selector: (stack) => contains(mapping.regions, stack.region)
-  // }]
+  groups: [for (mapping, i) in config.stageMappings: {
+    order: i
+    name: mapping.name
+    selector: (stack) => contains(mapping.regions, stack.region)
+  }]
   minimumWaitTimeBetweenBatches: mode == 'hotfix' ? 'PT1H' : 'PT24H'
 }
 

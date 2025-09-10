@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Data;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -148,6 +149,15 @@ namespace Bicep.Core.Emit
             this.activeLoopCapableTopLevelDeclaration = syntax;
 
             base.VisitStackDeclarationSyntax(syntax);
+
+            this.activeLoopCapableTopLevelDeclaration = null;
+        }
+
+        public override void VisitRuleDeclarationSyntax(RuleDeclarationSyntax syntax)
+        {
+            this.activeLoopCapableTopLevelDeclaration = syntax;
+
+            base.VisitRuleDeclarationSyntax(syntax);
 
             this.activeLoopCapableTopLevelDeclaration = null;
         }

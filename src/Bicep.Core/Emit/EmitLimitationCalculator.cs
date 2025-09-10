@@ -475,7 +475,14 @@ namespace Bicep.Core.Emit
         {
             foreach (var lambda in SyntaxAggregator.AggregateByType<LambdaSyntax>(model.Root.Syntax))
             {
-                foreach (var ancestor in model.Binder.EnumerateAncestorsUpwards(lambda))
+                var ancestors = model.Binder.EnumerateAncestorsUpwards(lambda).ToImmutableArray();
+                if (ancestors.Any(x => x is StackDeclarationSyntax or RuleDeclarationSyntax))
+                {
+                    // lambdas are allowed in stack and rule declarations
+                    continue;
+                }
+
+                foreach (var ancestor in ancestors)
                 {
                     if (ancestor is FunctionArgumentSyntax)
                     {
