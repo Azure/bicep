@@ -7450,4 +7450,14 @@ output locations array = flatten(map(databases, database => database.properties.
 
         result.Should().NotHaveAnyDiagnostics();
     }
+
+    [TestMethod]
+    public void Test_FilePathMustBeRelative()
+    {
+      var result = CompilationHelper.Compile("""
+              param test string = loadTextContent('C:\\folder\\.ssh\\id_rsa.pub')
+              """);
+
+      result.Should().ContainDiagnostic("BCP051", DiagnosticLevel.Error,"The specified path seems to reference an absolute path. Files must be referenced using relative paths.");
+    }
 }
