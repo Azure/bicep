@@ -44,7 +44,7 @@ namespace Bicep.Cli.Commands
         {
             var inputUri = this.inputOutputArgumentsResolver.ResolveInputArguments(args);
             ArgumentHelper.ValidateBicepFile(inputUri);
-            var features = featureProviderFactory.GetFeatureProvider(inputUri.ToUri());
+            var features = featureProviderFactory.GetFeatureProvider(inputUri);
 
             if (!features.TestFrameworkEnabled)
             {
@@ -55,7 +55,7 @@ namespace Bicep.Cli.Commands
 
             logger.LogWarning(string.Format(CliResources.ExperimentalFeaturesDisclaimerMessage, "TestFramework"));
 
-            var compilation = await compiler.CreateCompilation(inputUri.ToUri(), skipRestore: args.NoRestore);
+            var compilation = await compiler.CreateCompilation(inputUri, skipRestore: args.NoRestore);
 
             var summary = diagnosticLogger.LogDiagnostics(GetDiagnosticOptions(args), compilation);
 

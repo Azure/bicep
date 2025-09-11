@@ -155,7 +155,7 @@ param intParam constrainedInt
             ("BCP308", DiagnosticLevel.Error, "The decorator \"maxValue\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"minLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"maxLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
-            ("BCP431", DiagnosticLevel.Error, "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type."),
+            ("BCP435", DiagnosticLevel.Error, "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"allowed\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("no-unused-params", DiagnosticLevel.Warning, "Parameter \"stringParam\" is declared but never used."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"minValue\" may not be used on statements whose declared type is a reference to a user-defined type."),
@@ -1866,6 +1866,74 @@ param myParam string
     }
 
     [TestMethod]
+    public void User_defined_validators_are_blocked_if_feature_flag_is_not_enabled()
+    {
+        var result = CompilationHelper.Compile("""
+            @validate(x => startsWith(x, 'foo'))
+            param foo string
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
+            ("BCP057", DiagnosticLevel.Error, "The name \"validate\" does not exist in the current context."),
+        ]);
+    }
+
+    [TestMethod]
+    public void User_defined_validator_can_be_attached_to_a_parameter_statement()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, UserDefinedConstraintsEnabled: true)),
+            """
+            @validate(x => startsWith(x, 'foo'), 'Should have started with \'foo\'')
+            param foo string
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveJsonAtPath("$.parameters.foo.validate",
+            """["[lambda('x', startsWith(lambdaVariables('x'), 'foo'))]", "Should have started with 'foo'"]""");
+    }
+
+    [TestMethod]
+    public void User_defined_validator_checks_lambda_type_against_declared_type()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, UserDefinedConstraintsEnabled: true)),
+            """
+            @validate(x => startsWith(x, 'foo'))
+            param foo int
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
+            ("BCP070", DiagnosticLevel.Error, "Argument of type \"int => error\" is not assignable to parameter of type \"any => bool\"."),
+        ]);
+    }
+
+    [TestMethod]
+    public void User_defined_validator_disallows_runtime_expressions()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, UserDefinedConstraintsEnabled: true)),
+            """
+            resource sa 'Microsoft.Storage/storageAccounts@2025-01-01' existing = {
+              name: 'acct'
+            }
+
+            var indirection = sa.properties.allowBlobPublicAccess
+
+            @validate(x => x == !indirection)
+            param foo bool
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
+            ("BCP432", DiagnosticLevel.Error, "This expression is being used in parameter \"predicate\" of the function \"validate\", which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start (\"indirection\" -> \"sa\"). Properties of sa which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
+        ]);
+    }
+
+    [TestMethod]
     public void Any_type_can_be_used_wherever_a_type_is_allowed()
     {
         var result = CompilationHelper.Compile("""
@@ -1902,8 +1970,8 @@ param myParam string
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
         [
-            ("BCP431", DiagnosticLevel.Error, "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type."),
-            ("BCP431", DiagnosticLevel.Error, "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type."),
+            ("BCP435", DiagnosticLevel.Error, "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type."),
+            ("BCP435", DiagnosticLevel.Error, "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type."),
         ]);
     }
 }

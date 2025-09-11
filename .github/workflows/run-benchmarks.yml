@@ -21,7 +21,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Run Benchmarks
         run: dotnet run --configuration Release --project src/Bicep.Tools.Benchmark -- --filter '*' --profiler EP

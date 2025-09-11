@@ -16,6 +16,8 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.Samples;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Text;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
@@ -4321,7 +4323,6 @@ var file = " + functionName + @"(templ|)
         {
             var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
             var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
-            var fileUri = new Uri($"file:///{Guid.NewGuid():D}/{TestContext.TestName}/main.{extension}");
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
@@ -4338,17 +4339,18 @@ var file = " + functionName + @"(templ|)
 
             var configurationManager = StrictMock.Of<IConfigurationManager>();
             var moduleAliasesConfiguration = BicepTestConstants.BuiltInConfiguration.With(
-                    moduleAliases: RegistryCatalogMocks.ModuleAliases(
-                        """
-                        {
-                            "br": {
-                                "contoso": {
-                                    "registry": "private.contoso.com"
-                                }
+                moduleAliases: RegistryCatalogMocks.ModuleAliases(
+                    """
+                    {
+                        "br": {
+                            "contoso": {
+                                "registry": "private.contoso.com"
                             }
                         }
-                        """));
-            configurationManager.Setup(x => x.GetConfiguration(fileUri)).Returns(moduleAliasesConfiguration);
+                    }
+                    """));
+            var fileUri = DocumentUri.From($"file:///{Guid.NewGuid():D}/{TestContext.TestName}/main.{extension}");
+            configurationManager.Setup(x => x.GetConfiguration(fileUri.ToIOUri())).Returns(moduleAliasesConfiguration);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
@@ -4441,7 +4443,6 @@ var file = " + functionName + @"(templ|)
             var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
             var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(text, '|');
             var baseFolder = $"{Guid.NewGuid():D}";
-            var fileUri = new Uri($"file:///{baseFolder}/{TestContext.TestName}/main.{extension}");
 
             var configurationManager = StrictMock.Of<IConfigurationManager>();
             var moduleAliasesConfiguration = BicepTestConstants.BuiltInConfiguration.With(
@@ -4460,7 +4461,8 @@ var file = " + functionName + @"(templ|)
                     }
                     """),
                 null));
-            configurationManager.Setup(x => x.GetConfiguration(fileUri)).Returns(moduleAliasesConfiguration);
+            var fileUri = DocumentUri.From($"file:///{baseFolder}/{TestContext.TestName}/main.{extension}");
+            configurationManager.Setup(x => x.GetConfiguration(fileUri.ToIOUri())).Returns(moduleAliasesConfiguration);
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
@@ -4511,7 +4513,6 @@ var file = " + functionName + @"(templ|)
         {
             var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(text, '|');
             var baseFolder = $"{Guid.NewGuid():D}";
-            var fileUri = new Uri($"file:///{baseFolder}/{TestContext.TestName}/main.bicep");
 
             var configurationManager = StrictMock.Of<IConfigurationManager>();
             var moduleAliasesConfiguration = BicepTestConstants.BuiltInConfiguration.With(
@@ -4534,7 +4535,8 @@ var file = " + functionName + @"(templ|)
                       }
                     """),
                 null));
-            configurationManager.Setup(x => x.GetConfiguration(fileUri)).Returns(moduleAliasesConfiguration);
+            var fileUri = DocumentUri.From($"file:///{baseFolder}/{TestContext.TestName}/main.bicep");
+            configurationManager.Setup(x => x.GetConfiguration(fileUri.ToIOUri())).Returns(moduleAliasesConfiguration);
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
@@ -5817,6 +5819,39 @@ output people Person[] = [{
         }
 
         [TestMethod]
+        public async Task Readonly_required_properties_are_not_offered_as_completions()
+        {
+            var customTypes = new[] {
+                TestTypeHelper.CreateCustomResourceTypeWithTopLevelProperties("My.Rp/myType", "2020-01-01", TypeSymbolValidationFlags.Default, [
+                    new NamedTypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required),
+                    new NamedTypeProperty("readOnlyRequired", LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.Required),
+                ]),
+            };
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+            resource myRes 'My.Rp/myType@2020-01-01' = {
+              name: 'foo'
+              |
+            }
+            
+            output readOnlyRequired string = myRes.readOnlyRequired
+            """);
+
+            var bicepFile = new LanguageClientFile(InMemoryFileResolver.GetFileUri("/path/to/main.bicep"), text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                TestContext,
+                text,
+                bicepFile.Uri,
+                services => services.WithAzResources(customTypes));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestAndResolveCompletions(cursor);
+
+            completions.Should().Contain(x => x.Label == "required");
+            completions.Should().NotContain(x => x.Label == "readOnlyRequired");
+        }
+
+        [TestMethod]
         public async Task Identity_property_completions_are_offered_for_resource()
         {
             // Resource identity property completion
@@ -5872,7 +5907,7 @@ param foo string = 'bar'
                 this.TestContext,
                 files,
                 bicepFile.Uri,
-                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()).WithFeatureOverrides(new(this.TestContext, ModuleIdentityEnabled: true))
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create())
             );
 
             var file = new FileRequestHelper(helper.Client, bicepFile);

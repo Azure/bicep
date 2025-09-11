@@ -7,6 +7,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.IO.FileSystem;
+using Bicep.TextFixtures.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -21,44 +22,47 @@ public class FeatureProviderTests
     [TestMethod]
     public void PropertyLookup_WithNothingConfigured_ReturnsDefault()
     {
-        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-            [CreatePath("repo")] = new MockDirectoryData(),
-            [CreatePath("repo/bicepconfig.json")] = @"{""experimentalFeaturesEnabled"": {}}",
-        });
+        var fileSet = InMemoryTestFileSet.Create(("repo/bicepconfig.json", """
+            {
+              "experimentalFeaturesEnabled": {}
+            }
+            """));
 
-        var fileExplorer = new FileSystemFileExplorer(fileSystem);
-        var configManager = new ConfigurationManager(fileExplorer);
-        var configuration = configManager.GetConfiguration(new Uri(this.CreatePath("repo/main.bicep")));
-        var fpm = new FeatureProviderFactory(configManager, fileExplorer);
+        var configManager = new ConfigurationManager(fileSet.FileExplorer);
+        var configuration = configManager.GetConfiguration(fileSet.GetUri("repo/main.bicep"));
+        var fpm = new FeatureProviderFactory(configManager, fileSet.FileExplorer);
 
-        var control = fpm.GetFeatureProvider(new Uri("file:///main.bicep"));
-        var sut = fpm.GetFeatureProvider(new Uri(this.CreatePath("repo/main.bicep")));
+        var control = fpm.GetFeatureProvider(fileSet.GetUri("main.bicep"));
+        var sut = fpm.GetFeatureProvider(fileSet.GetUri("repo/main.bicep"));
         sut.SymbolicNameCodegenEnabled.Should().Be(control.SymbolicNameCodegenEnabled);
     }
 
     [TestMethod]
     public void PropertyLookup_WithFeatureEnabledViaBicepConfig_ReturnsTrue()
     {
-        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-            [CreatePath("repo")] = new MockDirectoryData(),
-            [CreatePath("repo/bicepconfig.json")] = @"{""experimentalFeaturesEnabled"": {}}",
-            [CreatePath("repo/subdir")] = new MockDirectoryData(),
-            [CreatePath("repo/subdir/bicepconfig.json")] = @"{""experimentalFeaturesEnabled"": {""symbolicNameCodegen"": true}}",
-        });
-        var fileExplorer = new FileSystemFileExplorer(fileSystem);
-        var configManager = new ConfigurationManager(fileExplorer);
-        var configuration = configManager.GetConfiguration(new Uri(this.CreatePath("repo/main.bicep")));
-        var fpm = new FeatureProviderFactory(configManager, fileExplorer);
+        var fileSet = InMemoryTestFileSet.Create(
+            ("repo/bicepconfig.json", """
+                {
+                  "experimentalFeaturesEnabled": {}
+                }
+                """),
+            ("repo/subdir/bicepconfig.json", """
+                {
+                  "experimentalFeaturesEnabled": {
+                    "symbolicNameCodegen": true
+                  }
+                }
+                """));
 
-        var control = fpm.GetFeatureProvider(new Uri("file:///main.bicep"));
+        var configManager = new ConfigurationManager(fileSet.FileExplorer);
+        var configuration = configManager.GetConfiguration(fileSet.GetUri("repo/main.bicep"));
+        var fpm = new FeatureProviderFactory(configManager, fileSet.FileExplorer);
+
+        var control = fpm.GetFeatureProvider(fileSet.GetUri("main.bicep"));
         control.SymbolicNameCodegenEnabled.Should().BeFalse();
-        var mainDirFeatures = fpm.GetFeatureProvider(new Uri(this.CreatePath("repo/main.bicep")));
+        var mainDirFeatures = fpm.GetFeatureProvider(fileSet.GetUri("repo/main.bicep"));
         mainDirFeatures.SymbolicNameCodegenEnabled.Should().BeFalse();
-        var subDirFeatures = fpm.GetFeatureProvider(new Uri(this.CreatePath("repo/subdir/module.bicep")));
+        var subDirFeatures = fpm.GetFeatureProvider(fileSet.GetUri("repo/subdir/module.bicep"));
         subDirFeatures.SymbolicNameCodegenEnabled.Should().BeTrue();
     }
-
-    private string CreatePath(string path) => Path.Combine(this.TestContext.ResultsDirectory!, path.Replace('/', Path.DirectorySeparatorChar));
 }

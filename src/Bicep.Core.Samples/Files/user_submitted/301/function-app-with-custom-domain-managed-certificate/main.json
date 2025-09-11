@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7505587682154385275"
+      "templateHash": "8861912702016304512"
     }
   },
   "parameters": {
@@ -181,7 +181,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('{0}-{1}-sni-enable', deployment().name, parameters('applicationName'))]",
       "properties": {
         "expressionEvaluationOptions": {

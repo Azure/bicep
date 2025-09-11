@@ -182,13 +182,13 @@ namespace Bicep.Cli.Commands
 
             var fileExplorer = new InMemoryFileExplorer();
 
-            var indexUri = IOUri.FromLocalFilePath("/index.json");
+            var indexUri = IOUri.FromFilePath("/index.json");
             var indexHandle = fileExplorer.GetFile(indexUri);
             indexHandle.Write(typeFiles.IndexFileContent);
 
             foreach (var (path, content) in typeFiles.TypeFileContents)
             {
-                var fileUri = IOUri.FromLocalFilePath($"/{path}");
+                var fileUri = IOUri.FromFilePath($"/{path}");
                 fileExplorer.GetFile(fileUri).Write(content);
             }
 

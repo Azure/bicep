@@ -251,7 +251,7 @@ namespace Bicep.Core.Utils
                 var parameters = ConvertParameters(parametersJToken);
                 var extensionConfigs = ConvertExtensionConfigs(parametersJToken);
 
-                var expectedApiVersion = features is not null ? EmitConstants.GetNestedDeploymentResourceApiVersion(features) : EmitConstants.NestedDeploymentResourceApiVersion;
+                var expectedApiVersion = EmitConstants.NestedDeploymentResourceApiVersion;
 
                 TemplateEngine.ValidateTemplate(template, expectedApiVersion, deploymentScope);
 

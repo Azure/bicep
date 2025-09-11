@@ -670,13 +670,18 @@ public class DependencyInferenceTests
               name: 'containerName'
             }
 
-            resource sa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
-              name: toLower(container.name)
+            resource tags 'Microsoft.Resources/tags@2025-04-01' = {
+              name: 'default'
+              properties: {
+                tags: {
+                  tag: toLower(container.name)
+                }
+              }
             }
             """);
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        result.Template.Should().HaveJsonAtPath("$.resources.sa.dependsOn", """["container"]""");
+        result.Template.Should().HaveJsonAtPath("$.resources.tags.dependsOn", """["container"]""");
     }
 
     [TestMethod]

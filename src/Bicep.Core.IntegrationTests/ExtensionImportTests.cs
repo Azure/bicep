@@ -369,7 +369,7 @@ extension madeUpNamespace
 
             result.Should().NotGenerateATemplate();
             result.Should().HaveDiagnostics(new[] {
-                ("BCP407", DiagnosticLevel.Error, """Built-in extension "microsoftGraph" is retired. Use dynamic types instead. See https://aka.ms/graphBicepDynamicTypes"""),
+                ("BCP407", DiagnosticLevel.Error, """Built-in extension "microsoftGraph" is retired. Use dynamic types instead. See https://aka.ms/graphbicep/dynamictypes"""),
             });
         }
     }

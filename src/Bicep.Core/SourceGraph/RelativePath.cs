@@ -5,13 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.SourceGraph
 {
-    public readonly struct RelativePath
+    public readonly partial struct RelativePath
     {
         private readonly string value;
 
@@ -23,6 +24,9 @@ namespace Bicep.Core.SourceGraph
 
         public override string ToString() => this.value;
 
+        [GeneratedRegex(@"^[a-zA-Z]:")]
+        private static partial Regex WindowsDriveLetterColonRegex();
+
         public static ResultWithDiagnosticBuilder<RelativePath> TryCreate(string path)
         {
             if (path.Length == 0)
@@ -30,9 +34,10 @@ namespace Bicep.Core.SourceGraph
                 return new(x => x.FilePathIsEmpty());
             }
 
-            if (path.First() == '/')
+            if (path.First() == '/' || WindowsDriveLetterColonRegex().IsMatch(path))
             {
-                return new(x => x.FilePathBeginsWithForwardSlash());
+                // '/' for Unix-style absolute paths, 'C:', etc. for Windows-style absolute paths
+                return new(x => x.FilePathIsAbsolute());
             }
 
             foreach (var pathChar in path)

@@ -22,11 +22,11 @@ namespace Bicep.IO.Abstraction
 
         string ReadAllText();
 
-        Task<string> ReadAllTextAsync();
+        Task<string> ReadAllTextAsync(CancellationToken cancellationToken = default);
 
         void WriteAllText(string text);
 
-        Task WriteAllTextAsync(string text);
+        Task WriteAllTextAsync(string text, CancellationToken cancellationToken = default);
 
         void Delete();
 
