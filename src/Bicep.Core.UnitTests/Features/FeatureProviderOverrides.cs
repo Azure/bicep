@@ -24,7 +24,6 @@ public record FeatureProviderOverrides(
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
     bool? ModuleExtensionConfigsEnabled = default,
     bool? DesiredStateConfigurationEnabled = default,
-    bool? OnlyIfNotExistsEnabled = default,
     bool? UserDefinedConstraintsEnabled = default)
 {
     public FeatureProviderOverrides(
@@ -44,7 +43,6 @@ public record FeatureProviderOverrides(
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
         bool? ModuleExtensionConfigsEnabled = default,
         bool? DesiredStateConfigurationEnabled = default,
-        bool? OnlyIfNotExistsEnabled = default,
         bool? UserDefinedConstraintsEnabled = default) : this(
             FileHelper.GetCacheRootDirectory(testContext),
             RegistryEnabled,
@@ -62,7 +60,6 @@ public record FeatureProviderOverrides(
             AssemblyVersion,
             ModuleExtensionConfigsEnabled,
             DesiredStateConfigurationEnabled,
-            OnlyIfNotExistsEnabled,
             UserDefinedConstraintsEnabled)
     { }
 }

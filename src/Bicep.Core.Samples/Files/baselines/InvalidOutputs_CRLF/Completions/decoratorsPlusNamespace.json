@@ -206,6 +206,23 @@
     }
   },
   {
+    "label": "onlyIfNotExists",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nonlyIfNotExists(): any\n\n```  \n  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_onlyIfNotExists",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "onlyIfNotExists()$0"
+    }
+  },
+  {
     "label": "sealed",
     "kind": "function",
     "documentation": {
