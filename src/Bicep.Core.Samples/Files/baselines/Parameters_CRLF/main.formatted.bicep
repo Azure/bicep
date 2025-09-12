@@ -6,6 +6,7 @@
 param myString string
 param myInt int
 param myBool bool
+param myAny any
 
 // parameters with default value
 param myString2 string = 'string value'
@@ -13,6 +14,7 @@ param myInt2 int = 42
 param myTruth bool = true
 param myFalsehood bool = false
 param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
+param myAny2 any = myAny.property
 
 // object default value
 param foo object = {

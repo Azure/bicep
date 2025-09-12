@@ -9,6 +9,8 @@ param myInt int
 //@[6:11) Parameter myInt. Type: int. Declaration start char: 0, length: 15
 param myBool bool
 //@[6:12) Parameter myBool. Type: bool. Declaration start char: 0, length: 17
+param myAny any
+//@[6:11) Parameter myAny. Type: any. Declaration start char: 0, length: 15
 
 // parameters with default value
 param myString2 string = 'string value'
@@ -21,6 +23,8 @@ param myFalsehood bool = false
 //@[6:17) Parameter myFalsehood. Type: bool. Declaration start char: 0, length: 30
 param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 //@[6:21) Parameter myEscapedString. Type: string. Declaration start char: 0, length: 67
+param myAny2 any = myAny.property
+//@[6:12) Parameter myAny2. Type: any. Declaration start char: 0, length: 33
 
 // object default value
 param foo object = {

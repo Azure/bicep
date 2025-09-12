@@ -280,6 +280,12 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
 
     public bool PreserveAbsoluteUriInRelativePath => false;
 
+    public bool AcquirePolicyTokenEnabled => false;
+
+    public int AcquirePolicyTokenMaxRetryCount => 0;
+
+    public TimeSpan AcquirePolicyTokenMaxRetryDuration => TimeSpan.Zero;
+
     IReadOnlyDictionary<string, IEnumerable<string>> IAzureDeploymentSettings.DisabledTenantDictionary => ImmutableDictionary<string, IEnumerable<string>>.Empty;
 
     IReadOnlyDictionary<string, IEnumerable<string>> IAzureDeploymentSettings.DisabledSubscriptionDictionary => ImmutableDictionary<string, IEnumerable<string>>.Empty;
