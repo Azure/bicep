@@ -50,7 +50,7 @@ namespace Bicep.Decompiler.IntegrationTests
 
                     var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepOutput, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepOutput, baselineFolder.OutputFolderPath, diag));
 
-            var decompiler = new TestDecompiler();
+                    var decompiler = new TestDecompiler();
                     baselineFile.WriteToOutputFolder(sourceTextWithDiags);
                     baselineFile.ShouldHaveExpectedValue();
                 }
