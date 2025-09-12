@@ -61,6 +61,7 @@
       },
       "flags": "None",
       "scopeType": "ResourceGroup",
+      "readOnlyScopes": "None",
       "name": "Microsoft.KeyVault/vaults@2024-11-01"
     }
   },
