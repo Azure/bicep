@@ -1776,6 +1776,32 @@ param myParam string
         });
     }
 
+    // https://www.github.com/Azure/bicep/issues/15277
+    [DataTestMethod]
+    [DataRow("type resourceDerived = resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings", "$.definitions.resourceDerived")]
+    [DataRow("param resourceDerived resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings", "$.parameters.resourceDerived")]
+    [DataRow("output resourceDerived resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings = 'foo'", "$.outputs.resourceDerived")]
+    [DataRow("type t = { property: resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings }", "$.definitions.t.properties.property")]
+    [DataRow("type t = { *: resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings }", "$.definitions.t.additionalProperties")]
+    [DataRow("type t = [ resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings ]", "$.definitions.t.prefixItems[0]")]
+    [DataRow("type t = resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings[]", "$.definitions.t.items")]
+    [DataRow("func f() resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings => 'foo'", "$.functions[0].members.f.output")]
+    [DataRow("func f(p resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings) string => 'foo'", "$.functions[0].members.f.parameters[0]")]
+    public void Type_expressions_that_will_become_ARM_schema_nodes_allow_types_that_do_not_fit_into_an_arm_primitive_type_category(
+        string template,
+        string pathToAnyTypeNode)
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
+            template);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        var typeNode = result.Template!.SelectToken(pathToAnyTypeNode);
+        typeNode.Should().BeOfType<JObject>();
+        typeNode!.SelectToken("$.type").Should().BeNull();
+    }
+
     [TestMethod]
     public void Diagnostic_should_be_emitted_for_safe_access_of_non_existent_property()
     {
