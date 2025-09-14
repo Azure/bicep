@@ -17,7 +17,7 @@
     "rimraf": "^6.0.1",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.42.0",
-    "uuid": "^12.0.0",
+    "uuid": "^13.0.0",
     "vitest": "^3.0.9",
     "vscode-jsonrpc": "^8.2.1"
   },
