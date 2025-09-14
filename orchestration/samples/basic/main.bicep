@@ -7,6 +7,7 @@ param mode 'hotfix' | 'standard'
 
 stack global './global/main.bicepparam' = {
   region: 'global'
+  deploy: 'always' // always | onChange | onUnhealthy
 }
 
 stack cluster './cluster/main.bicepparam' = [for (region, i) in config.regions: {
