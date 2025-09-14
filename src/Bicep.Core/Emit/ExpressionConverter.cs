@@ -946,6 +946,9 @@ namespace Bicep.Core.Emit
         public LanguageExpression GenerateSymbolicReference(ModuleSymbol module, IndexReplacementContext? indexContext)
             => GenerateSymbolicReference(module.Name, indexContext);
 
+        public LanguageExpression GenerateSymbolicReference(StackSymbol stack, IndexReplacementContext? indexContext)
+            => GenerateSymbolicReference(stack.Name, indexContext);
+
         public static LanguageExpression GenerateUnqualifiedResourceId(string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
         {
             var typeSegments = fullyQualifiedType.Split("/");

@@ -123,6 +123,13 @@ namespace Bicep.Core.Emit
             writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
         }
 
+        public void EmitIndexedSymbolReference(StackSymbol symbol, IndexReplacementContext? indexContext)
+        {
+            var expression = converter.GetConverter(indexContext).GenerateSymbolicReference(symbol, indexContext);
+
+            writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
+        }
+
         public void EmitResourceIdReference(DeclaredResourceMetadata resource, IndexReplacementContext? indexContext)
         {
             var converterForContext = this.converter.GetConverter(indexContext);

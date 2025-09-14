@@ -24,10 +24,16 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Algorithms;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
+using Azure.ResourceManager.Resources.Models;
+using Azure.Deployments.Expression.Intermediate;
+using Azure.Deployments.Templates.Expressions.PartialEvaluation;
+using Azure.Deployments.Expression.Intermediate.Extensions;
+using Azure.Deployments.ClientTools;
+using Newtonsoft.Json;
 
 namespace Bicep.Local.Deploy.Extensibility;
 
-internal class NestedDeploymentExtension(
+public class NestedDeploymentExtension(
     IArmDeploymentProvider armDeploymentProvider,
     LocalDeploymentEngine localDeploymentEngine,
     IConfigurationManager configurationManager) : ILocalExtension
@@ -97,6 +103,11 @@ internal class NestedDeploymentExtension(
 
     public async Task<LocalExtensionOperationResponse> CreateOrUpdate(ResourceSpecification request, CancellationToken cancellationToken)
     {
+        if (request.Type == "OrchestrationStack")
+        {
+            return await CreateOrUpdateStack(request, cancellationToken);
+        }
+
         EnsureDeploymentType(request.Type);
 
         var template = request.Properties["template"]!.ToString();
@@ -138,8 +149,73 @@ internal class NestedDeploymentExtension(
         }
     }
 
+    private async Task<LocalExtensionOperationResponse> CreateOrUpdateStack(ResourceSpecification request, CancellationToken cancellationToken)
+    {
+        var templateFile = request.Properties["template"]!.ToString();
+        var parametersFile = request.Properties["parameters"]!.ToString();
+        var sourceUri = request.Properties["sourceUri"]!.ToString();
+        var body = request.Properties["body"]!.ToString().FromJson<JObject>();
+        var region = body!["region"]!.Value<string>();
+        var deploy = body!["deploy"]!.Value<string>();
+        var inputs = body!["inputs"]!.Value<JObject>();
+
+        var paramsResult = await ProcessParameters(parametersFile, inputs!);
+        var subscriptionId = paramsResult.UsingConfig.Scope.Split('/')[2];
+        var resourceGroup = paramsResult.UsingConfig.Scope.Split('/')[4];
+
+        DeploymentIdentifiers identifiers = new(
+            SubscriptionId: subscriptionId,
+            ResourceGroup: resourceGroup,
+            Name: paramsResult.UsingConfig.Name!,
+            SourceUri: sourceUri);
+
+        if (paramsResult.UsingConfig.StacksConfig is not { } stacksConfig)
+        {
+            throw new InvalidOperationException("Stacks configuration is not present.");
+        }
+
+        if (identifiers.SubscriptionId is null)
+        {
+            throw new InvalidOperationException("Stack deployments must be deployed to Azure.");
+        }
+
+        var descriptionJson = new JObject
+        {
+            ["version"] = "1.0",
+            ["templateHash"] = TemplateHelpers.ComputeTemplateHash(templateFile.FromJson<JToken>()),
+            ["parametersHash"] = TemplateHelpers.ComputeDeploymentParametersHash(paramsResult.Parameters.FromJson<DeploymentParametersDefinition>().Parameters),
+        };
+
+        stacksConfig = stacksConfig with { Description = descriptionJson.ToJson() };
+
+        try
+        {
+            GuardHelper.ArgumentNotNull(identifiers.SourceUri);
+            var configuration = configurationManager.GetConfiguration(new Uri(identifiers.SourceUri).ToIOUri());
+            DeploymentLocator locator = new("", null, identifiers.SubscriptionId, identifiers.ResourceGroup, identifiers.Name);
+
+            await armDeploymentProvider.CreateResourceGroup(configuration, locator, region!, cancellationToken);
+
+            await armDeploymentProvider.StartDeploymentStack(configuration, locator, templateFile, paramsResult.Parameters, stacksConfig, cancellationToken);
+            var result = await armDeploymentProvider.CheckDeploymentStack(configuration, locator, cancellationToken);
+
+            return GetResponse(request.Type, request.ApiVersion, identifiers, result);
+        }
+        catch (Exception ex)
+        {
+            return new LocalExtensionOperationResponse(
+                Resource: null,
+                ErrorData: new(new("InvalidDeployment", $"Failed to deploy to Azure. {ex}")));
+        }
+    }
+
     public async Task<LocalExtensionOperationResponse> Get(ResourceReference request, CancellationToken cancellationToken)
     {
+        if (request.Type == "OrchestrationStack")
+        {
+            return await GetStack(request, cancellationToken);
+        }
+
         EnsureDeploymentType(request.Type);
 
         var identifiers = GetDeploymentIdentifiers(request.Identifiers);
@@ -171,10 +247,40 @@ internal class NestedDeploymentExtension(
         }
     }
 
+    private async Task<LocalExtensionOperationResponse> GetStack(ResourceReference request, CancellationToken cancellationToken)
+    {
+        var identifiers = GetDeploymentIdentifiers(request.Identifiers);
+
+        if (identifiers.SubscriptionId is null)
+        {
+            throw new InvalidOperationException("Stack deployments must be deployed to Azure.");
+        }
+
+        try
+        {
+            GuardHelper.ArgumentNotNull(identifiers.SourceUri);
+            var configuration = configurationManager.GetConfiguration(new Uri(identifiers.SourceUri).ToIOUri());
+            DeploymentLocator locator = new("", null, identifiers.SubscriptionId, identifiers.ResourceGroup, identifiers.Name);
+
+            var result = await armDeploymentProvider.CheckDeploymentStack(configuration, locator, cancellationToken);
+
+            return GetResponse(request.Type, request.ApiVersion, identifiers, result);
+        }
+        catch (Exception ex)
+        {
+            return new LocalExtensionOperationResponse(
+                Resource: null,
+                ErrorData: new(new("InvalidDeployment", $"Failed to deploy to Azure. {ex}")));
+        }
+    }
+
     public async Task<LocalExtensionOperationResponse> Preview(ResourceSpecification request, CancellationToken cancellationToken)
     {
         await Task.Yield();
-        EnsureDeploymentType(request.Type);
+        if (request.Type != "Microsoft.Resources/deployments" && request.Type != "OrchestrationStack")
+        {
+            throw new InvalidOperationException($"Unsupported type: {request.Type}");
+        }
 
         var identifiers = GetDeploymentIdentifiers(request.Properties);
 
@@ -196,4 +302,200 @@ internal class NestedDeploymentExtension(
 
     public Task<TypeFiles> GetTypeFiles(CancellationToken cancellationToken)
         => throw new InvalidOperationException($"Extension {nameof(NestedDeploymentExtension)} does not support type files.");
+
+    public record UsingConfig(
+        string? Name,
+        string Scope,
+        StacksConfig? StacksConfig);
+
+    public record StacksConfig(
+        string? Description,
+        ActionOnUnmanage? ActionOnUnmanage,
+        DenySettings? DenySettings);
+
+    public record ProcessParametersResult(
+        string Parameters,
+        UsingConfig UsingConfig);
+
+    public static async Task<ProcessParametersResult> ProcessParameters(string parameters, JObject inputs)
+    {
+        parameters = await ParametersProcessor.Process(parameters, async (kind, config) =>
+        {
+            await Task.CompletedTask;
+            switch (kind)
+            {
+                case "stack.setting":
+                    var argKey = config!.Value<string>()!;
+                    return inputs.GetProperty(argKey);
+
+                // TODO implement eval
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(kind), kind, null);
+            }
+        });
+
+        var paramsDefinition = parameters.FromJson<DeploymentParametersDefinition>();
+        if (paramsDefinition.Parameters.TryGetValue("$usingConfig") is not { } usingConfigParam)
+        {
+            // TODO add earlier validation that the 'with <config>' syntax is used
+            throw new UnreachableException();
+        }
+
+        ExpressionEvaluationContext context = new(
+        [
+            global::Azure.Deployments.Expression.Expressions.ExpressionBuiltInFunctions.Functions,
+            new ParametersScope(paramsDefinition.ExternalInputs),
+        ]);
+
+        if (usingConfigParam.Expression is { } expression)
+        {
+            usingConfigParam.Value = ToJTokenExpressionSerializer.Serialize(
+                context.EvaluateExpression(ExpressionParser.ParseLanguageExpression(expression)));
+            usingConfigParam.Expression = null;
+        }
+
+        foreach (var param in paramsDefinition.Parameters.Values)
+        {
+            if (param.Expression is { } expr)
+            {
+                param.Value = ToJTokenExpressionSerializer.Serialize(
+                    context.EvaluateExpression(ExpressionParser.ParseLanguageExpression(expr)));
+                param.Expression = null;
+            }
+        }
+
+        var usingConfig = usingConfigParam.Value ?? throw new UnreachableException("Should have already been evaluated");
+
+        // required property - should have already been validated
+        var mode = usingConfig.GetProperty("mode")?.Value<string>() ?? throw new UnreachableException();
+
+        StacksConfig? stacksConfig = null;
+        if (mode == "stack")
+        {
+            ActionOnUnmanage? actionOnUnmanage = null;
+            if (usingConfig.GetProperty("actionOnUnmanage") is JObject actionOnUnmanageConfig)
+            {
+                DeploymentStacksDeleteDetachEnum actionOnUnmanageResources = actionOnUnmanageConfig?.GetProperty("resources")?.Value<string>() is { } resources ? new(resources) : throw new UnreachableException();
+                DeploymentStacksDeleteDetachEnum? actionOnUnmanageResourceGroups = actionOnUnmanageConfig?.GetProperty("resourceGroups")?.Value<string>() is { } resourceGroups ? new(resourceGroups) : null;
+                DeploymentStacksDeleteDetachEnum? actionOnUnmanageManagementGroups = actionOnUnmanageConfig?.GetProperty("managementGroups")?.Value<string>() is { } managementGroups ? new(managementGroups) : null;
+
+                actionOnUnmanage = new(actionOnUnmanageResources)
+                {
+                    ResourceGroups = actionOnUnmanageResourceGroups,
+                    ManagementGroups = actionOnUnmanageManagementGroups
+                };
+            }
+
+            DenySettings? denySettings = null;
+            if (usingConfig.GetProperty("denySettings") is JObject denySettingsConfig)
+            {
+                DenySettingsMode denySettingsMode = denySettingsConfig?.GetProperty("mode")?.Value<string>() is { } dsMode ? new(dsMode) : throw new UnreachableException();
+                var applyToChildScopes = denySettingsConfig?.GetProperty("applyToChildScopes")?.Value<bool>() ?? false;
+                var excludedActions = denySettingsConfig?.GetProperty("excludedActions")?.FromJToken<string[]>();
+                var excludedPrincipals = denySettingsConfig?.GetProperty("excludedPrincipals")?.FromJToken<string[]>();
+
+                denySettings = new(denySettingsMode)
+                {
+                    ApplyToChildScopes = applyToChildScopes,
+                };
+                denySettings.ExcludedActions.AddRange(excludedActions ?? []);
+                denySettings.ExcludedPrincipals.AddRange(excludedPrincipals ?? []);
+            }
+
+            stacksConfig = new(
+                Description: usingConfig.GetProperty("description")?.Value<string>(),
+                ActionOnUnmanage: actionOnUnmanage,
+                DenySettings: denySettings);
+        }
+
+        UsingConfig config = new(
+            Name: usingConfig.GetProperty("name")?.Value<string>(),
+            // required property - should have already been validated
+            Scope: usingConfig.GetProperty("scope")?.Value<string>() ?? throw new UnreachableException(),
+            StacksConfig: stacksConfig);
+
+        // TODO: This is a hack to pass config around in Bicep - should not be sent on the wire.
+        paramsDefinition.Parameters.Remove("$usingConfig");
+
+        return new(
+            Parameters: paramsDefinition.ToJson(),
+            UsingConfig: config);
+    }
+
+
+
+    private static class ParametersProcessor
+    {
+        public delegate Task<JToken> ResolveExternalInput(string kind, JToken? config);
+
+        public static async Task<string> Process(string parametersFile, ResolveExternalInput onResolveExternalInput)
+        {
+            GuardHelper.ArgumentNotNull(parametersFile);
+            GuardHelper.ArgumentNotNull(onResolveExternalInput);
+
+            // Intentionally avoid using a typed class here, because we don't want to interfere
+            // with properties that aren't part of the official schema.
+            var parameters = TryParse(parametersFile) ?? throw new InvalidOperationException("Failed to read the parameters file");
+
+            if (TryGetPropertyInsensitive(parameters, "externalInputDefinitions") is not { } externalInputDefinitions)
+            {
+                return parametersFile;
+            }
+
+            if (externalInputDefinitions is not JObject inputDefinitions)
+            {
+                throw new InvalidOperationException("externalInputDefinitions must be an object");
+            }
+
+            if (TryGetPropertyInsensitive(parameters, "externalInputs") is { })
+            {
+                throw new InvalidOperationException("externalInputs must not already be defined");
+            }
+
+            var inputs = new JObject();
+            foreach (var kvp in inputDefinitions)
+            {
+                if (kvp.Value is not JObject inputDefinition)
+                {
+                    throw new InvalidOperationException($"externalInputDefinitions[{kvp.Key}] must be an object");
+                }
+
+                if (TryGetPropertyInsensitive(inputDefinition, "kind") is not { } kindToken ||
+                    kindToken.Type != JTokenType.String ||
+                    kindToken.Value<string>() is not { } kind)
+                {
+                    throw new InvalidOperationException($"externalInputDefinitions[{kvp.Key}].kind must be defined");
+                }
+
+                var config = TryGetPropertyInsensitive(inputDefinition, "config");
+                var value = await onResolveExternalInput(kind, config).ConfigureAwait(false);
+
+                inputs[kvp.Key] = new JObject
+                {
+                    ["value"] = value,
+                };
+            }
+
+            parameters["externalInputs"] = inputs;
+
+            return JsonConvert.SerializeObject(parameters, Formatting.Indented);
+        }
+
+        private static JToken? TryGetPropertyInsensitive(JObject jobject, string propertyName)
+            => jobject
+                .Properties()
+                .FirstOrDefault(p => string.Equals(p.Name, propertyName, StringComparison.OrdinalIgnoreCase))?.Value;
+
+        private static JObject? TryParse(string json)
+        {
+            try
+            {
+                return JsonConvert.DeserializeObject<JObject>(json);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+    }
 }

@@ -1183,7 +1183,7 @@ namespace Bicep.Core.Emit
                     {
                         emitter.EmitProperty(
                             stack.Symbol.Name,
-                            () => EmitStackForLocalDeploy(jsonWriter, stack, emitter),
+                            () => EmitStackForLocalDeploy(stack, emitter),
                             stack.SourceSyntax);
                     }
                 });
@@ -1590,7 +1590,7 @@ namespace Bicep.Core.Emit
             }, module.SourceSyntax);
         }
 
-        private void EmitStackForLocalDeploy(PositionTrackingJsonTextWriter jsonWriter, DeclaredStackExpression stack, ExpressionEmitter emitter)
+        private void EmitStackForLocalDeploy(DeclaredStackExpression stack, ExpressionEmitter emitter)
         {
             emitter.EmitObject(() =>
             {
@@ -1630,7 +1630,18 @@ namespace Bicep.Core.Emit
                     paramsWriter.Write(paramsJsonWriter);
                     emitter.EmitProperty("parameters", paramsStringWriter.ToString());
 
-                    // TBD!
+                    var model = stack.Symbol.TryGetSemanticModel().Unwrap() as SemanticModel;
+                    emitter.EmitProperty("sourceUri", model!.SourceFile.Uri.ToString());
+
+                    emitter.EmitObjectProperty("body", () =>
+                    {
+                        ObjectExpression bodyObject = new(
+                            body.SourceSyntax,
+                            // remove 'requires' property if present - it's used for ordering and doesn't have a representation in the request body
+                            [.. ((ObjectExpression)body).Properties.Where(x => x.TryGetKeyText() is not "requires")]);
+
+                        emitter.EmitObjectProperties(bodyObject);
+                    });
                 });
 
                 this.EmitDependsOn(emitter, stack.DependsOn);
@@ -1679,6 +1690,23 @@ namespace Bicep.Core.Emit
                             break;
                         case (true, { } index):
                             emitter.EmitIndexedSymbolReference(module, reference.IndexContext);
+                            break;
+                    }
+                    break;
+                case StackReferenceExpression { Module: StackSymbol stack } reference:
+                    switch ((stack.IsCollection, reference.IndexContext?.Index))
+                    {
+                        case (false, var index):
+                            emitter.EmitExpression(new StringLiteralExpression(null, stack.Name));
+                            Debug.Assert(index is null);
+                            break;
+                        // dependency is on the entire resource collection
+                        // write the name of the resource collection as the dependency
+                        case (true, null):
+                            emitter.EmitExpression(new StringLiteralExpression(null, stack.Name));
+                            break;
+                        case (true, { } index):
+                            emitter.EmitIndexedSymbolReference(stack, reference.IndexContext);
                             break;
                     }
                     break;

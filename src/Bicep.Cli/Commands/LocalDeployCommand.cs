@@ -62,11 +62,11 @@ public class LocalDeployCommand(
             result = await dispatcher.Deploy(templateString, parametersString, cancellationToken);
         }
 
-        await WriteSummary(result);
+        await WriteSummary(io, result);
         return result.Deployment.Properties.ProvisioningState == ProvisioningState.Succeeded ? 0 : 1;
     }
 
-    private async Task WriteSummary(LocalDeploymentResult result)
+    public static async Task WriteSummary(IOContext io, LocalDeploymentResult result)
     {
         if (result.Deployment.Properties.Outputs is { } outputs)
         {

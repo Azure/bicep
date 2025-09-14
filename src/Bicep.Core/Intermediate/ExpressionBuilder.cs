@@ -1417,6 +1417,15 @@ public class ExpressionBuilder
                             reference = new ModuleReferenceExpression(null, module, indexContext);
                             break;
                         }
+                    case StackSymbol stack:
+                        {
+                            indexContext = (stack.IsCollection && target.IndexExpression is null)
+                                ? null
+                                : new ExpressionBuilder(Context, localReplacements)
+                                    .TryGetReplacementContext(stack.DeclaringStack.GetBody(), target.IndexExpression, targetContext);
+                            reference = new StackReferenceExpression(null, stack, indexContext);
+                            break;
+                        }
                     case VariableSymbol variable:
                         {
                             indexContext = (variable.IsCopyVariable && target.IndexExpression is null)
@@ -1510,6 +1519,7 @@ public class ExpressionBuilder
     private bool IsDependencyPathTerminus(ResourceDependency dependency) => dependency.Resource switch
     {
         ModuleSymbol => true,
+        StackSymbol => true,
         ResourceSymbol r => !r.DeclaringResource.IsExistingResource() ||
             // only use an existing resource as the terminus iff the compilation will include existing resources and the reference is not weak
             (Context.Settings.EnableSymbolicNames && !dependency.WeakReference),

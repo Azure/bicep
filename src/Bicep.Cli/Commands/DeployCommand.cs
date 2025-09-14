@@ -21,7 +21,10 @@ using Bicep.Core;
 using Bicep.Core.AzureApi;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
+using Bicep.Local.Deploy;
+using Bicep.Local.Deploy.Extensibility;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
@@ -33,6 +36,7 @@ public class DeployCommand(
     IArmClientProvider armClientProvider,
     DiagnosticLogger diagnosticLogger,
     BicepCompiler compiler,
+    LocalExtensionDispatcherFactory dispatcherFactory,
     InputOutputArgumentsResolver inputOutputArgumentsResolver) : ICommand
 {
     public async Task<int> RunAsync(DeployArguments args, CancellationToken cancellationToken)
@@ -51,6 +55,20 @@ public class DeployCommand(
         }
 
         var model = compilation.GetEntrypointSemanticModel();
+
+        if (model.TargetScope == ResourceScope.Orchestrator)
+        {
+            // this using block is intentional to ensure that the dispatcher completes running before we write the summary
+            LocalDeploymentResult result;
+            await using (var dispatcher = dispatcherFactory.Create())
+            {
+                await dispatcher.InitializeExtensions(compilation);
+                result = await dispatcher.Deploy(parameters.Template?.Template!, parameters.Parameters!, cancellationToken);
+            }
+
+            await LocalDeployCommand.WriteSummary(io, result);
+            return result.Deployment.Properties.ProvisioningState == ProvisioningState.Succeeded ? 0 : 1;
+        }
 
         var armClient = armClientProvider.CreateArmClient(model.Configuration, null);
         var renderer = new Renderer();

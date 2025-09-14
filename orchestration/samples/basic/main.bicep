@@ -8,13 +8,18 @@ func lookupSubscription(region string) string => 'a1bfa635-f2bf-42f1-86b5-848c67
 param config GlobalConfigType
 param mode 'hotfix' | 'standard'
 
+var prefix = '${config.global.infraPrefix}-${config.global.environment}'
+
 stack global './global/main.bicepparam' = {
-  region: 'global'
+  region: config.global.infraRegion
   deploy: 'onChange'
   inputs: {
     subscriptionId: lookupSubscription('global')
-    resourceGroup: 'global-shared'
-    name: 'global-shared'
+    resourceGroup: '${prefix}-global'
+    name: '${prefix}-global'
+    config: {
+      foo: 'bar'
+    }
   }
 }
 
@@ -23,8 +28,11 @@ stack cluster './cluster/main.bicepparam' = [for (region, i) in config.regions: 
   deploy: 'onChange'
   inputs: {
     subscriptionId: lookupSubscription(region)
-    resourceGroup: 'cluster-${region}'
-    name: 'cluster-${region}'
+    resourceGroup: '${prefix}-cluster-${region}'
+    name: '${prefix}-cluster-${region}'
+    config: {
+      foo: 'bar'
+    }
   }
   requires: [
     global
@@ -36,8 +44,11 @@ stack clusterApp './clusterApp/main.bicepparam' = [for (region, i) in config.reg
   deploy: 'always'
   inputs: {
     subscriptionId: lookupSubscription(region)
-    resourceGroup: 'cluster-${region}'
-    name: 'cluster-app-${region}'
+    resourceGroup: '${prefix}-cluster-${region}'
+    name: '${prefix}-cluster-app-${region}'
+    config: {
+      foo: 'bar'
+    }
   }
   requires: [
     cluster[i]
