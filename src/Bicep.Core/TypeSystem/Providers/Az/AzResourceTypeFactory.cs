@@ -240,10 +240,9 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         private static ResourceFlags ToResourceFlags(Azure.Bicep.Types.Concrete.ResourceType input)
         {
             var output = ResourceFlags.None;
-            var (readableScopes, writableScopes) = GetScopeInfo(input);
 
-            // Resource is ReadOnly if there are no writable scopes (matches legacy behavior)
-            if (writableScopes == ResourceScope.None)
+            // Resource is ReadOnly if there are no writable scopes
+            if (input.WritableScopes == Azure.Bicep.Types.Concrete.ScopeType.None)
             {
                 output |= ResourceFlags.ReadOnly;
             }
@@ -262,8 +261,8 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         {
             if (input == Azure.Bicep.Types.Concrete.ScopeType.None)
             {
-                // ScopeType.None is the renamed ScopeType.Unknown
-                return ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource;
+                // ScopeType.None means no valid scopes
+                return ResourceScope.None;
             }
 
             if (input == Azure.Bicep.Types.Concrete.ScopeType.AllExceptExtension)

@@ -261,21 +261,6 @@ resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
             _ => []
         };
 
-        [TestMethod]
-        public void AzResourceTypeFactory_ScopeTypeNone_ShouldReturnAllScopes()
-        {
-            var factory = new AzResourceTypeFactory();
-            var resourceType = CreateMockResourceType(
-                readableScopes: AzConcreteTypes.ScopeType.None,
-                writableScopes: AzConcreteTypes.ScopeType.None);
-
-            var result = factory.GetResourceType(resourceType, []);
-
-            // ScopeType.None should map to all scopes (this is the renamed ScopeType.Unknown behavior)
-            result.ValidParentScopes.Should().Be(
-                ResourceScope.Tenant | ResourceScope.ManagementGroup |
-                ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource);
-        }
 
         [TestMethod]
         public void AzResourceTypeFactory_ScopeTypeAllExceptExtension_ShouldReturnAllExceptResource()
@@ -361,6 +346,25 @@ resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
             result.ValidParentScopes.Should().Be(ResourceScope.None);
             result.ReadOnlyScopes.Should().Be(ResourceScope.Tenant | ResourceScope.ResourceGroup);
             result.Flags.Should().HaveFlag(ResourceFlags.ReadOnly);
+        }
+
+        [TestMethod]
+        public void AzResourceTypeFactory_ReadableNone_WithSpecificWritableScopes_ShouldUseWritableScopes()
+        {
+            var factory = new AzResourceTypeFactory();
+            var resourceType = CreateMockResourceType(
+                readableScopes: AzConcreteTypes.ScopeType.None,
+                writableScopes: AzConcreteTypes.ScopeType.Tenant | AzConcreteTypes.ScopeType.ManagementGroup |
+                               AzConcreteTypes.ScopeType.Subscription | AzConcreteTypes.ScopeType.ResourceGroup);
+
+            var result = factory.GetResourceType(resourceType, []);
+
+            // Should NOT be marked as ReadOnly because there are writable scopes
+            result.Flags.Should().NotHaveFlag(ResourceFlags.ReadOnly);
+            result.ValidParentScopes.Should().Be(
+                ResourceScope.Tenant | ResourceScope.ManagementGroup |
+                ResourceScope.Subscription | ResourceScope.ResourceGroup);
+            result.ReadOnlyScopes.Should().Be(ResourceScope.None);
         }
 
         private static AzConcreteTypes.ResourceType CreateMockResourceType(

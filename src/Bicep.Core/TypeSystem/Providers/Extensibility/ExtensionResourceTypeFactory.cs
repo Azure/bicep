@@ -256,8 +256,8 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
         {
             if (input == Azure.Bicep.Types.Concrete.ScopeType.None)
             {
-                // ScopeType.None is the renamed ScopeType.Unknown
-                return ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource | ResourceScope.Local;
+                // ScopeType.None means no valid scopes
+                return ResourceScope.None;
             }
 
             if (input == Azure.Bicep.Types.Concrete.ScopeType.AllExceptExtension)
