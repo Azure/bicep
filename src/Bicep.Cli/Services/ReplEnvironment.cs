@@ -5,6 +5,7 @@ using System;
 using System.Collections.Immutable;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -14,6 +15,7 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Cli.Services;
 
@@ -32,12 +34,38 @@ public class ReplEnvironment
 
     public async Task<ReplEvaluationResult> EvaluateInput(string input)
     {
-        // TODO: Get syntax from Repl Parser
-        var syntax = new ParamsParser(input, null!).Expression(ExpressionFlags.AllowComplexLiterals);
+        var parser = new ReplParser(input);
+        var syntax = parser.ParseExpression(out var diags);
+        var errors = diags.Where(d => d.Level == DiagnosticLevel.Error).ToList();
+        if (errors.Any())
+        {
+            return ReplEvaluationResult.For(errors);
+        }
 
         if (syntax is VariableDeclarationSyntax varDecl)
         {
-            // TODO: Handle variable declarations
+            // TODO: Handle VariableDeclaration
+            // Placeholder to see variableDeclarationSyntax
+            var valueEval = await EvaluateExpression(varDecl.Value);
+            if (valueEval.Diagnostics.Count > 0)
+            {
+                return valueEval;
+            }
+
+            var typeSyntaxToken = varDecl.Type is null ? JValue.CreateNull() : JValue.FromObject(varDecl.Type.ToString());
+
+            var obj = new JObject
+            {
+                ["variable"] = new JObject
+                {
+                    ["name"] = varDecl.Name.IdentifierName,
+                    ["rawValueSyntax"] = varDecl.Value.ToString(),
+                    ["evaluatedValue"] = valueEval.Value, // may be null
+                    ["hasTypeAnnotation"] = varDecl.Type is not null,
+                    ["typeSyntax"] = typeSyntaxToken
+                }
+            };
+            return ReplEvaluationResult.For(obj);
         }
 
         return await EvaluateExpression(syntax);
