@@ -110,6 +110,9 @@ namespace Bicep.Cli
                     case SnapshotArguments snapshotArguments when snapshotArguments.CommandName == Constants.Command.Snapshot: // bicep snapshot [options]
                         return await services.GetRequiredService<SnapshotCommand>().RunAsync(snapshotArguments, cancellationToken);
 
+                    case ConsoleArguments consoleArguments when consoleArguments.CommandName == Constants.Command.Console: // bicep console
+                        return await services.GetRequiredService<ConsoleCommand>().RunAsync(consoleArguments);
+
                     case RootArguments rootArguments when rootArguments.CommandName == Constants.Command.Root: // bicep [options]
                         return services.GetRequiredService<RootCommand>().Run(rootArguments);
 
