@@ -122,6 +122,9 @@ namespace Bicep.Cli
                     case TeardownArguments teardownArguments when teardownArguments.CommandName == Constants.Command.Teardown: // bicep teardown [options]
                         return await services.GetRequiredService<TeardownCommand>().RunAsync(teardownArguments, cancellationToken);
 
+                    case ConsoleArguments consoleArguments when consoleArguments.CommandName == Constants.Command.Console: // bicep console
+                        return await services.GetRequiredService<ConsoleCommand>().RunAsync(consoleArguments);
+
                     case RootArguments rootArguments when rootArguments.CommandName == Constants.Command.Root: // bicep [options]
                         return services.GetRequiredService<RootCommand>().Run(rootArguments);
 
