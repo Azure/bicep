@@ -30,7 +30,7 @@
             "program": "${workspaceFolder}/src/Bicep.Cli/bin/Debug/net8.0/bicep",
             "args": [
                 "deploy",
-                "/Users/ant/Code/bicep/orchestration/samples/basic/main.bicepparam"
+                "${workspaceRoot}/orchestration/samples/basic/main.bicepparam"
             ],
             "env": {
                 "BICEP_TRACING_ENABLED": "true",
