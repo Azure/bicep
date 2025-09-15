@@ -19,10 +19,13 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
     private readonly ImmutableHashSet<ParameterAssignmentSymbol>.Builder parametersContainingExternalInput;
     private readonly ImmutableHashSet<VariableSymbol>.Builder variablesContainingExternalInput;
     private readonly ImmutableDictionary<FunctionCallSyntaxBase, string>.Builder externalInputReferences;
+    private readonly ImmutableDictionary<FunctionCallSyntaxBase, (string Kind, string Config)>.Builder inlineFunctions;
+
     private ExternalInputFunctionReferenceVisitor(SemanticModel semanticModel)
     {
         this.semanticModel = semanticModel;
         this.externalInputReferences = ImmutableDictionary.CreateBuilder<FunctionCallSyntaxBase, string>();
+        this.inlineFunctions = ImmutableDictionary.CreateBuilder<FunctionCallSyntaxBase, (string Kind, string Config)>();
         this.parametersContainingExternalInput = ImmutableHashSet.CreateBuilder<ParameterAssignmentSymbol>();
         this.variablesContainingExternalInput = ImmutableHashSet.CreateBuilder<VariableSymbol>();
     }
@@ -100,38 +103,72 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
         ProcessSymbolClosures(visitor, model.Root.ParameterAssignments);
         ProcessSymbolClosures(visitor, model.Root.VariableDeclarations);
 
-
         return new ExternalInputReferences(
             ParametersReferences: visitor.parametersContainingExternalInput.ToImmutable(),
             VariablesReferences: visitor.variablesContainingExternalInput.ToImmutable(),
-            ExternalInputIndexMap: visitor.externalInputReferences.ToImmutable()
+            ExternalInputIndexMap: visitor.externalInputReferences.ToImmutable(),
+            InlineFunctions: visitor.inlineFunctions.ToImmutable()
         );
     }
 
     private void VisitFunctionCallSyntaxInternal(FunctionCallSyntaxBase functionCallSyntax)
     {
+        // Handle externalInput(<kind>, <config>?)
         if (SemanticModelHelper.TryGetNamedFunction(
-                this.semanticModel,
-                SystemNamespaceType.BuiltInName,
-                LanguageConstants.ExternalInputBicepFunctionName,
-                functionCallSyntax) is { } functionCall)
+            this.semanticModel,
+            SystemNamespaceType.BuiltInName,
+            LanguageConstants.ExternalInputBicepFunctionName,
+            functionCallSyntax) is { } externalInputFunction)
         {
-            if (functionCallSyntax.Arguments.Length < 1 ||
-                this.semanticModel.GetTypeInfo(functionCallSyntax.Arguments[0]) is not StringLiteralType stringLiteral)
+            if (functionCallSyntax.Arguments.Length >= 1 &&
+                this.semanticModel.GetTypeInfo(functionCallSyntax.Arguments[0]) is StringLiteralType kindLiteral)
+            {
+                var index = this.externalInputReferences.Count;
+                var definitionKey = GetExternalInputDefinitionName(kindLiteral.RawStringValue, index);
+                this.externalInputReferences.TryAdd(externalInputFunction, definitionKey);
+
+                if (this.targetParameterAssignment is not null)
+                {
+                    this.parametersContainingExternalInput.Add(this.targetParameterAssignment);
+                }
+                if (this.targetVariableDeclaration is not null)
+                {
+                    this.variablesContainingExternalInput.Add(this.targetVariableDeclaration);
+                }
+            }
+            return; // externalInput() and inline() are mutually exclusive for a single call node
+        }
+
+        // Handle inline(): param/var X = inline() ==> externalInput('sys.cli', 'X')
+        if (SemanticModelHelper.TryGetNamedFunction(
+            this.semanticModel,
+            SystemNamespaceType.BuiltInName,
+            LanguageConstants.InlineFunctionName,
+            functionCallSyntax) is { })
+        {
+            // inline() must not have arguments
+            if (functionCallSyntax.Arguments.Length != 0)
             {
                 return;
             }
 
-            var index = this.externalInputReferences.Count;
-            var definitionKey = GetExternalInputDefinitionName(stringLiteral.RawStringValue, index);
+            var symbolName = this.targetParameterAssignment?.Name ?? this.targetVariableDeclaration?.Name;
+            if (symbolName is null)
+            {
+                return; // inline() used outside param/var assignment - ignore
+            }
 
-            this.externalInputReferences.TryAdd(functionCall, definitionKey);
+            var kind = "sys.cli";
+            var indexForInline = this.externalInputReferences.Count;
+            var definitionKey = GetExternalInputDefinitionName(kind, indexForInline);
+
+            this.externalInputReferences.TryAdd(functionCallSyntax, definitionKey);
+            this.inlineFunctions.TryAdd(functionCallSyntax, (kind, symbolName));
 
             if (this.targetParameterAssignment is not null)
             {
                 this.parametersContainingExternalInput.Add(this.targetParameterAssignment);
             }
-
             if (this.targetVariableDeclaration is not null)
             {
                 this.variablesContainingExternalInput.Add(this.targetVariableDeclaration);
@@ -158,5 +195,7 @@ public record ExternalInputReferences(
     // variables that contain external input function calls
     ImmutableHashSet<VariableSymbol> VariablesReferences,
     // map of external input function calls to unique keys to be used to construct externalInput definition in parameters.json
-    ImmutableDictionary<FunctionCallSyntaxBase, string> ExternalInputIndexMap
+    ImmutableDictionary<FunctionCallSyntaxBase, string> ExternalInputIndexMap,
+    // for inline() calls, convert to (kind, config) arguments
+    ImmutableDictionary<FunctionCallSyntaxBase, (string Kind, string Config)> InlineFunctions
 );
