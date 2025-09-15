@@ -1,0 +1,98 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System;
+using Azure.Deployments.Core.ErrorResponses;
+using Azure.Deployments.Expression.Expressions;
+using Azure.Deployments.Templates.Expressions;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit;
+using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
+using Newtonsoft.Json.Linq;
+
+namespace Bicep.Cli.Services;
+
+public class ReplEvaluator
+{
+    private readonly ExpressionConverter converter;
+    public ReplEvaluator(SemanticModel semanticModel)
+    {
+        var emitterContext = new EmitterContext(semanticModel);
+        converter = new ExpressionConverter(emitterContext);
+    }
+
+    public ReplEvaluationResult EvaluateExpression(SyntaxBase expressionSyntax)
+    {
+        try
+        {
+            var context = GetExpressionEvaluationContext();
+            var intermediate = converter.ConvertToIntermediateExpression(expressionSyntax);
+            var result = converter.ConvertExpression(intermediate).EvaluateExpression(context);
+            return ReplEvaluationResult.For(result);
+        }
+        catch (Exception ex)
+        {
+            return ReplEvaluationResult.For([DiagnosticBuilder.ForPosition(expressionSyntax)
+                .FailedToEvaluateSubject("expression", expressionSyntax.ToString(), ex.Message)]);
+        }
+    }
+
+    private ReplEvaluationContext GetExpressionEvaluationContext()
+    {
+        var helper = new TemplateExpressionEvaluationHelper
+        {
+            // TODO: implement variable lookup
+        };
+
+        return new(helper, this);
+    }
+    
+    private class ReplEvaluationContext : IEvaluationContext
+    {
+        private readonly TemplateExpressionEvaluationHelper evaluationHelper;
+        private readonly ReplEvaluator evaluator;
+
+        public ReplEvaluationContext(TemplateExpressionEvaluationHelper evaluationHelper, ReplEvaluator evaluator)
+            : this(evaluationHelper, evaluator, evaluationHelper.EvaluationContext.Scope)
+        {
+        }
+
+        private ReplEvaluationContext(TemplateExpressionEvaluationHelper evaluationHelper, ReplEvaluator evaluator, ExpressionScope scope)
+        {
+            this.evaluationHelper = evaluationHelper;
+            this.evaluator = evaluator;
+            this.Scope = scope;
+        }
+
+        public bool IsShortCircuitAllowed => evaluationHelper.EvaluationContext.IsShortCircuitAllowed;
+
+        public ExpressionScope Scope { get; }
+
+        public bool AllowInvalidProperty(Exception exception, FunctionExpression functionExpression, FunctionArgument[] functionParametersValues, JToken[] selectedProperties) =>
+            evaluationHelper.EvaluationContext.AllowInvalidProperty(exception, functionExpression, functionParametersValues, selectedProperties);
+
+        public JToken EvaluateFunction(FunctionExpression functionExpression, FunctionArgument[] parameters, IEvaluationContext context, TemplateErrorAdditionalInfo? additionalnfo)
+            => evaluationHelper.EvaluationContext.EvaluateFunction(functionExpression, parameters, this, additionalnfo);
+
+        public bool ShouldIgnoreExceptionDuringEvaluation(Exception exception) =>
+            this.evaluationHelper.EvaluationContext.ShouldIgnoreExceptionDuringEvaluation(exception);
+
+        public IEvaluationContext WithNewScope(ExpressionScope scope) => new ReplEvaluationContext(this.evaluationHelper, this.evaluator, scope);
+    }
+}
+
+public class ReplEvaluationResult
+{
+    private ReplEvaluationResult(JToken? value, IEnumerable<IDiagnostic>? diagnostics)
+    {
+        Value = value;
+        Diagnostics = diagnostics?.ToList() ?? [];
+    }
+
+    public JToken? Value { get; }
+    public IReadOnlyList<IDiagnostic> Diagnostics { get; }
+
+    public static ReplEvaluationResult For(JToken value) => new(value, null);
+    public static ReplEvaluationResult For(IEnumerable<IDiagnostic> diagnostics) => new(null, diagnostics);
+}
