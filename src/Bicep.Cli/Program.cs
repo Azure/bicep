@@ -187,6 +187,7 @@ namespace Bicep.Cli
                 .AddSingleton<OutputWriter>()
                 .AddSingleton<PlaceholderParametersWriter>()
                 .AddSingleton(io)
+                .AddSingleton<ReplEnvironment>()
                 .AddSingleton(AnsiConsole.Create(new AnsiConsoleSettings
                 {
                     Ansi = AnsiSupport.Detect,

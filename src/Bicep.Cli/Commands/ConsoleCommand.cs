@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Services;
 using Bicep.Core;
 using Microsoft.Extensions.Logging;
 
@@ -14,10 +15,12 @@ namespace Bicep.Cli.Commands;
 public class ConsoleCommand : ICommand
 {
     private readonly IOContext io;
+    private readonly ReplEnvironment replEnvironment;
 
-    public ConsoleCommand(IOContext io)
+    public ConsoleCommand(IOContext io, ReplEnvironment replEnvironment)
     {
         this.io = io;
+        this.replEnvironment = replEnvironment;
     }
 
     public async Task<int> RunAsync(ConsoleArguments _)
@@ -41,7 +44,27 @@ public class ConsoleCommand : ICommand
                 break;
             }
 
+            if (trimmed.Equals("clear", StringComparison.OrdinalIgnoreCase))
+            {
+                Console.Clear();
+                continue;
+            }
+
             await io.Output.WriteLineAsync(rawLine);
+
+            // evaluate input
+            var result = await replEnvironment.EvaluateInput(rawLine);
+            if (result.Diagnostics.Any())
+            {
+                foreach (var diag in result.Diagnostics)
+                {
+                    await io.Output.WriteLineAsync(diag.ToString());
+                }
+            }
+            else if (result.Value is { } value)
+            {
+                await io.Output.WriteLineAsync(value.ToString());
+            }
         }
 
         return 0;
