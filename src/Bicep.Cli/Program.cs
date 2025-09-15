@@ -174,6 +174,7 @@ namespace Bicep.Cli
                 .AddSingleton<DiagnosticLogger>()
                 .AddSingleton<OutputWriter>()
                 .AddSingleton<PlaceholderParametersWriter>()
+                .AddSingleton<ReplEnvironment>()
                 .AddSingleton(io);
     }
 }
