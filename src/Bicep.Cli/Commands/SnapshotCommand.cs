@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Core.Definitions.Schema;
@@ -25,10 +26,15 @@ using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
+using Bicep.Local.Deploy.Extensibility;
+using Json.More;
 using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Newtonsoft.Json.Linq;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Bicep.Cli.Commands;
@@ -43,14 +49,12 @@ public class SnapshotCommand(
 {
     public async Task<int> RunAsync(SnapshotArguments args, CancellationToken cancellationToken)
     {
-        logger.LogWarning($"WARNING: The '{args.CommandName}' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
-
         var snapshotMode = args.Mode ?? SnapshotArguments.SnapshotMode.Overwrite;
 
         var inputUri = inputOutputArgumentsResolver.ResolveInputArguments(args);
         ArgumentHelper.ValidateBicepParamFile(inputUri);
 
-        var newSnapshot = await GetSnapshot(args, inputUri, noRestore: false, cancellationToken)
+        var newSnapshot = await GetSnapshot(args, inputUri, noRestore: false, [], cancellationToken)
             ?? throw new CommandLineException($"Failed to generate snapshot for file {inputUri}");
 
         if (newSnapshot.Diagnostics.Length > 0)
@@ -60,6 +64,76 @@ public class SnapshotCommand(
             {
                 logger.LogWarning($"  {diagnostic}");
             }
+        }
+
+        var inputCompilation = await compiler.CreateCompilation(inputUri);
+        if (inputCompilation.GetEntrypointSemanticModel().TargetScope == ResourceScope.Orchestrator)
+        {
+            var hasFailures = false;
+            foreach (var stackResource in newSnapshot.PredictedResources)
+            {
+                var symbolicName = stackResource.GetPropertyByPath("symbolicName").GetString()!;
+                var parameters = stackResource.GetPropertyByPath("properties.parameters").GetString()!;
+                var sourceUriString = stackResource.GetPropertyByPath("properties.sourceUri").GetString()!;
+                var region = stackResource.GetPropertyByPath("properties.body.region").GetString()!;
+                var inputs = stackResource.GetPropertyByPath("properties.body.inputs");
+
+                var sourceUri = new Uri(sourceUriString).ToIOUri();
+
+                var paramsResult = await NestedDeploymentExtension.ProcessParameters(parameters, inputs.ToJsonString().FromJson<JObject>());
+
+                var compilation = await compiler.CreateCompilation(sourceUri);
+                var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, compilation);
+
+                if (summary.HasErrors ||
+                    compilation.Emitter.Parameters() is not { } result ||
+                    result.Template?.Template is not { } templateContent ||
+                    result.Parameters is not { } parametersContent)
+                {
+                    hasFailures = true;
+                    continue;
+                }
+
+                var stackSnapshot = await SnapshotHelper.GetSnapshot(
+                    targetScope: compilation.GetEntrypointSemanticModel().TargetScope,
+                    templateContent: templateContent,
+                    parametersContent: paramsResult.Parameters,
+                    tenantId: null,
+                    subscriptionId: paramsResult.UsingConfig.Scope.Split('/')[2],
+                    resourceGroup: paramsResult.UsingConfig.Scope.Split('/')[4],
+                    location: region,
+                    deploymentName: paramsResult.UsingConfig.Name ?? "main",
+                    cancellationToken: cancellationToken,
+                    externalInputs: []);
+
+                var invalidFileRegex = new Regex("[^a-zA-Z0-9_]");
+                var stackOutputUri = inputUri.WithExtension($".{invalidFileRegex.Replace(symbolicName, "_")}.snapshot.json");
+                switch (snapshotMode)
+                {
+                    case SnapshotArguments.SnapshotMode.Overwrite:
+                        WriteSnapshot(stackOutputUri, stackSnapshot);
+                        break;
+                    case SnapshotArguments.SnapshotMode.Validate:
+                        {
+                            var oldSnapshot = ReadSnapshot(stackOutputUri);
+
+                            var changes = SnapshotDiffer.CalculateChanges(oldSnapshot, stackSnapshot);
+
+                            if (changes.Any())
+                            {
+                                hasFailures = true;
+                                logger.LogWarning($"Snapshot {stackOutputUri} validation failed. Expected no changes, but found the following:");
+                            }
+
+                            await io.Output.WriteAsync(WhatIfOperationResultFormatter.Format(changes));
+                            break;
+                        }
+                    default:
+                        throw new UnreachableException();
+                }
+            }
+
+            return hasFailures ? 1 : 0;
         }
 
         var outputUri = inputUri.WithExtension(".snapshot.json");
@@ -88,7 +162,7 @@ public class SnapshotCommand(
         }
     }
 
-    private async Task<Snapshot?> GetSnapshot(SnapshotArguments arguments, IOUri inputUri, bool noRestore, CancellationToken cancellationToken)
+    private async Task<Snapshot?> GetSnapshot(SnapshotArguments arguments, IOUri inputUri, bool noRestore, ImmutableArray<SnapshotHelper.ExternalInputValue> externalInputs, CancellationToken cancellationToken)
     {
         var compilation = await compiler.CreateCompilation(inputUri, skipRestore: noRestore);
         CommandHelper.LogExperimentalWarning(logger, compilation);
@@ -115,8 +189,7 @@ public class SnapshotCommand(
                 location: arguments.Location,
                 deploymentName: arguments.DeploymentName,
                 cancellationToken: cancellationToken,
-                // TODO: Add support for external input values
-                externalInputs: []);
+                externalInputs: externalInputs);
         }
         catch (TemplateValidationException e)
         {

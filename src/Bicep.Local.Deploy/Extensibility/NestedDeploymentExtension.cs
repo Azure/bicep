@@ -28,7 +28,6 @@ using Azure.ResourceManager.Resources.Models;
 using Azure.Deployments.Expression.Intermediate;
 using Azure.Deployments.Templates.Expressions.PartialEvaluation;
 using Azure.Deployments.Expression.Intermediate.Extensions;
-using Azure.Deployments.ClientTools;
 using Newtonsoft.Json;
 
 namespace Bicep.Local.Deploy.Extensibility;
