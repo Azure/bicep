@@ -70,7 +70,7 @@ public class ReplEnvironment
 
         return await EvaluateExpression(syntax);
     }
-    
+
     private async Task<ReplEvaluationResult> EvaluateExpression(SyntaxBase expressionSyntax)
     {
         var tempVarName = $"__temp_eval_{Guid.NewGuid():N}";
@@ -80,9 +80,11 @@ public class ReplEnvironment
         var compilerResult = await Compile(expressionSyntax.ToString(), tempVarName);
 
         // ignore linter rules..
-        if (compilerResult.Diagnostics.Any(x => !x.Source.Equals(DiagnosticSource.CoreLinter)))
+        var diagnostics = compilerResult.Model.GetAllDiagnostics().Where(d => d.Source != DiagnosticSource.CoreLinter);
+        
+        if (diagnostics.Any())
         {
-            return ReplEvaluationResult.For(compilerResult.Diagnostics);
+            return ReplEvaluationResult.For(diagnostics);
         }
 
         var evaluator = new ReplEvaluator(compilerResult.Model);
@@ -99,20 +101,20 @@ public class ReplEnvironment
         // TODO: Not sure about this... Reconsider if there's a better way
         var tempContent = new StringBuilder();
         tempContent.AppendLine($"var {variableName} = {input}");
-        var fullContent = "using none\n" + tempContent.ToString();
+        var fullContent = tempContent.ToString();
 
-        var replFileUri = IOUri.FromFilePath("/repl.bicepparam");
+        var replFileUri = IOUri.FromFilePath("/session.biceprepl");
         var fileHandle = fileExplorer.GetFile(replFileUri);
         await fileHandle.WriteAllTextAsync(fullContent);
 
-        var sourceFile = compiler.SourceFileFactory.CreateBicepParamFile(replFileUri, fullContent);
+        var sourceFile = compiler.SourceFileFactory.CreateBicepReplFile(fileHandle, fullContent);
         workspace.UpsertSourceFile(sourceFile);
 
         var compliaton = compiler.CreateCompilationWithoutRestore(replFileUri, workspace);
         var model = compliaton.GetEntrypointSemanticModel();
-
-        return new CompilationResult(model, model.GetAllDiagnostics());
+        return new CompilationResult(model);
     }
 
-    private record CompilationResult(SemanticModel Model, ImmutableArray<IDiagnostic> Diagnostics);
+
+    private record CompilationResult(SemanticModel Model);
 }
