@@ -206,7 +206,7 @@ public class LocalExtensionDispatcher : IAsyncDisposable
         }
     }
 
-    public async Task<LocalDeploymentResult> Deploy(string templateString, string parametersString, CancellationToken cancellationToken)
+    public async Task<LocalDeploymentResult> Deploy(string templateString, string parametersString, CancellationToken cancellationToken, Action<LocalDeploymentResult>? onProgress = null)
     {
         var name = Guid.NewGuid().ToString();
         await localDeploymentEngine.StartDeployment(name, templateString, parametersString, cancellationToken);
@@ -216,6 +216,7 @@ public class LocalExtensionDispatcher : IAsyncDisposable
         {
             await Task.Delay(20, cancellationToken);
             result = await localDeploymentEngine.CheckDeployment(name);
+            onProgress?.Invoke(result);
         }
 
         return result;

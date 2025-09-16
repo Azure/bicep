@@ -56,26 +56,69 @@ public class DeployCommand(
 
         var model = compilation.GetEntrypointSemanticModel();
 
+        var renderer = new Renderer();
+        var onComplete = new CancellationTokenSource();
+        var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, onComplete.Token);
+
         if (model.TargetScope == ResourceScope.Orchestrator)
         {
-            // this using block is intentional to ensure that the dispatcher completes running before we write the summary
-            LocalDeploymentResult result;
-            await using (var dispatcher = dispatcherFactory.Create())
+            void Refresh(LocalDeploymentResult result)
             {
-                await dispatcher.InitializeExtensions(compilation);
-                result = await dispatcher.Deploy(parameters.Template?.Template!, parameters.Parameters!, cancellationToken);
+                var (deployment, operations) = result;
+
+                renderer.Refresh([new(
+                    Id: deployment.Id,
+                    Name: deployment.Name,
+                    StartTime: deployment.Properties.Timestamp!.Value,
+                    EndTime: DeploymentProcessor.IsTerminal(deployment.Properties.ProvisioningState!.Value.ToString()) ? deployment.Properties.Timestamp!.Value.Add(deployment.Properties.Duration!.Value) : null,
+                    Operations: [..operations.Where(x => x.Properties.TargetResource is { }).Select(op => new Renderer.DeploymentOperation(
+                        Id: "",
+                        Name: op.Properties.TargetResource.SymbolicName,
+                        Type: "",
+                        State: op.Properties.ProvisioningState.ToString(),
+                        StartTime: op.Properties.Timestamp!.Value,
+                        EndTime: DeploymentProcessor.IsTerminal(op.Properties.ProvisioningState.ToString()) ? op.Properties.Timestamp!.Value.Add(op.Properties.Duration!.Value) : null,
+                        Error: op.Properties.StatusMessage?.FromJToken<StatusMessage>()?.Error is { } error ? $"{error.Code}: {error.Message}" : null))],
+                    IsEntryPoint: true,
+                    State: deployment.Properties.ProvisioningState.ToString()!,
+                    Error: deployment.Properties.Error is { } error ? $"{error.Code}: {error.Message}" : null,
+                    Outputs: deployment.Properties.Outputs is { } outputs ? outputs.ToImmutableDictionary(
+                        kvp => kvp.Key,
+                        kvp => JsonNode.Parse(kvp.Value.Value.ToJson())!) : ImmutableDictionary<string, JsonNode>.Empty)
+                    ]);
             }
 
-            await LocalDeployCommand.WriteSummary(io, result);
-            return result.Deployment.Properties.ProvisioningState == ProvisioningState.Succeeded ? 0 : 1;
+            async Task ProcessLocal()
+            {
+                try
+                {
+                    // this using block is intentional to ensure that the dispatcher completes running before we write the summary
+                    LocalDeploymentResult result;
+                    await using (var dispatcher = dispatcherFactory.Create())
+                    {
+                        await dispatcher.InitializeExtensions(compilation);
+                        result = await dispatcher.Deploy(parameters.Template?.Template!, parameters.Parameters!, linkedCts.Token, x => Refresh(x));
+                    }
+
+                    Refresh(result);
+                }
+                finally
+                {
+                    await onComplete.CancelAsync();
+                }
+            }
+
+            await Task.WhenAll([
+                renderer.RenderLoop(io, TimeSpan.FromMilliseconds(50), linkedCts.Token),
+                ProcessLocal(),
+            ]);
+
+            return 0;
         }
 
         var armClient = armClientProvider.CreateArmClient(model.Configuration, null);
-        var renderer = new Renderer();
         var processor = new DeploymentProcessor(environment, armClient, renderer);
 
-        var onComplete = new CancellationTokenSource();
-        var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, onComplete.Token);
         await Task.WhenAll([
             renderer.RenderLoop(io, TimeSpan.FromMilliseconds(50), linkedCts.Token),
             Process(processor, args, parameters, cancellationToken, onComplete),
@@ -581,6 +624,6 @@ public class DeploymentProcessor(IEnvironment environment, ArmClient armClient, 
             kvp => JsonNode.Parse(kvp.Value.Value.ToJson())!);
     }
 
-    private static bool IsTerminal(string state)
+    public static bool IsTerminal(string state)
         => state.ToLowerInvariant() is "succeeded" or "failed" or "canceled";
 }
