@@ -9,15 +9,24 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Bicep.Cli.Services;
 
 public class ReplEvaluator
 {
     private readonly ExpressionConverter converter;
+    private readonly SemanticModel semanticModel;
+
+    private readonly Dictionary<string, JToken> variableValueCache = new(LanguageConstants.IdentifierComparer);
+    private readonly HashSet<string> evaluationStack = new(LanguageConstants.IdentifierComparer);
+
     public ReplEvaluator(SemanticModel semanticModel)
     {
+        this.semanticModel = semanticModel;
         var emitterContext = new EmitterContext(semanticModel);
         converter = new ExpressionConverter(emitterContext);
     }
@@ -38,11 +47,45 @@ public class ReplEvaluator
         }
     }
 
+    private JToken EvaluateVariableInternal(string name)
+    {
+        // cycle detection
+        if (evaluationStack.Contains(name))
+        {
+            throw new InvalidOperationException($"Variable cycle detected involving '{name}'");
+        }
+        if (variableValueCache.TryGetValue(name, out var cached))
+        {
+            return cached;
+        }
+
+        var declaration = semanticModel.Root.VariableDeclarations.FirstOrDefault(v => LanguageConstants.IdentifierComparer.Equals(v.Name, name));
+        if (declaration is null)
+        {
+            throw new InvalidOperationException($"Variable '{name}' not found");
+        }
+
+        try
+        {
+            evaluationStack.Add(name);
+            var valueSyntax = declaration.DeclaringVariable.Value;
+            var intermediate = converter.ConvertToIntermediateExpression(valueSyntax);
+            var context = GetExpressionEvaluationContext();
+            var evaluated = converter.ConvertExpression(intermediate).EvaluateExpression(context);
+            variableValueCache[name] = evaluated;
+            return evaluated;
+        }
+        finally
+        {
+            evaluationStack.Remove(name);
+        }
+    }
+
     private ReplEvaluationContext GetExpressionEvaluationContext()
     {
         var helper = new TemplateExpressionEvaluationHelper
         {
-            // TODO: implement variable lookup
+            OnGetVariable = (variableName, _) => EvaluateVariableInternal(variableName)
         };
 
         return new(helper, this);

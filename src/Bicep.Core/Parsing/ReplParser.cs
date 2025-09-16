@@ -6,6 +6,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core; 
+using System.Collections.Generic;
 
 namespace Bicep.Core.Parsing;
 
@@ -42,16 +43,40 @@ public class ReplParser : BaseParser
 
     public override ProgramSyntax Program()
     {
-        var firstToken = reader.Peek();
-        SyntaxBase first = firstToken.Type == TokenType.Identifier && firstToken.Text == LanguageConstants.VariableKeyword
-            ? VariableDeclaration([])
-            : Expression(ExpressionFlags.AllowComplexLiterals);
+        var nodes = new List<SyntaxBase>();
 
-        var eof = reader.Read();
-        var program = new ProgramSyntax(new[] { first }, eof);
-        var parsingErrorVisitor = new ParseDiagnosticsVisitor(this.ParsingErrorTree);
-        parsingErrorVisitor.Visit(program);
-        return program;
+        while (true)
+        {
+            var next = reader.Peek();
+            if (next.Type == TokenType.EndOfFile)
+            {
+                var eof = reader.Read();
+                var program = new ProgramSyntax(nodes, eof);
+                var parsingErrorVisitor = new ParseDiagnosticsVisitor(this.ParsingErrorTree);
+                parsingErrorVisitor.Visit(program);
+                return program;
+            }
+
+            if (next.Type == TokenType.NewLine)
+            {
+                // skip blank lines between entries
+                reader.Read();
+                continue;
+            }
+
+            SyntaxBase syntax;
+            if (next.Type == TokenType.Identifier && next.Text == LanguageConstants.VariableKeyword)
+            {
+                syntax = VariableDeclaration([]);
+            }
+            else
+            {
+                syntax = Expression(ExpressionFlags.AllowComplexLiterals);
+            }
+
+            nodes.Add(syntax);
+            // loop continues; trailing newlines are skipped at top
+        }
     }
 
     protected override SyntaxBase Declaration(params string[] expectedKeywords) => SkipEmpty(b => b.UnrecognizedDeclaration());
