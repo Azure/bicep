@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Services;
 using Bicep.Core;
@@ -49,8 +50,6 @@ public class ConsoleCommand : ICommand
                 Console.Clear();
                 continue;
             }
-
-            await io.Output.WriteLineAsync(rawLine);
 
             // evaluate input
             var result = await replEnvironment.EvaluateInput(rawLine);
