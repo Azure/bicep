@@ -58,7 +58,7 @@ public class ConsoleCommand : ICommand
             {
                 foreach (var diag in result.Diagnostics)
                 {
-                    await io.Output.WriteLineAsync(diag.ToString());
+                    await io.Output.WriteLineAsync(diag.Message);
                 }
             }
             else if (result.Value is { } value)

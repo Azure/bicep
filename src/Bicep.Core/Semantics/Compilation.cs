@@ -43,6 +43,7 @@ namespace Bicep.Core.Semantics
                         BicepParamFile bicepParamFile => CreateSemanticModel(bicepParamFile),
                         ArmTemplateFile armTemplateFile => new ArmTemplateSemanticModel(armTemplateFile),
                         TemplateSpecFile templateSpecFile => new TemplateSpecSemanticModel(templateSpecFile),
+                        BicepReplFile bicepReplFile => CreateSemanticModel(bicepReplFile),
                         _ => throw new ArgumentOutOfRangeException(nameof(sourceFile)),
                     }));
             this.Emitter = new CompilationEmitter(this);
