@@ -19,6 +19,7 @@ stack cluster './cluster/main.bicepparam' = [for (region, i) in config.regions: 
     name: '${prefix}-cluster-${region}'
     config: {
       managedEnvironmentName: '${prefix}-managed-env-${region}'
+      zoneRedundant: config.global.zoneRedundant
     }
   }
 }]

@@ -13,3 +13,5 @@ using 'main.bicep' with {
 var config = externalInput('stack.setting', 'config')
 
 param managedEnvironmentName = config.managedEnvironmentName
+
+param zoneRedundant = config.zoneRedundant

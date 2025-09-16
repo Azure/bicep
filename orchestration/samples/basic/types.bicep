@@ -13,6 +13,7 @@ type GlobalConfigType = {
     environment: string
     infraPrefix: string
     infraRegion: string
+    zoneRedundant: bool
   }
   stageMappings: {
     name: string

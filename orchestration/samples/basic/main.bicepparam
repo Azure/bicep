@@ -6,6 +6,7 @@ param config = {
     environment: 'test'
     infraRegion: 'eastus'
     infraPrefix: 'orch'
+    zoneRedundant: false
   }
   regional: {
     eastus: {
