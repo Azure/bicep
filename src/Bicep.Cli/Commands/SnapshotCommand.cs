@@ -136,6 +136,8 @@ public class SnapshotCommand(
             return hasFailures ? 1 : 0;
         }
 
+        logger.LogWarning($"WARNING: The '{args.CommandName}' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
+
         var outputUri = inputUri.WithExtension(".snapshot.json");
         switch (snapshotMode)
         {
