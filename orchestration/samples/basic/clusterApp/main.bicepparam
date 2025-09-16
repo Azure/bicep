@@ -12,4 +12,4 @@ using 'main.bicep' with {
 
 var config = externalInput('stack.setting', 'config')
 
-param foo = config.foo
+param managedEnvironmentName = config.managedEnvironmentName

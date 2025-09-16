@@ -115,7 +115,8 @@ public class SnapshotCommand(
                         break;
                     case SnapshotArguments.SnapshotMode.Validate:
                         {
-                            var oldSnapshot = ReadSnapshot(stackOutputUri);
+                            var file = fileExplorer.GetFile(stackOutputUri);
+                            var oldSnapshot = file.TryReadAllText().IsSuccess(out var contents) ? SnapshotHelper.Deserialize(contents) : new([], []);
 
                             var changes = SnapshotDiffer.CalculateChanges(oldSnapshot, stackSnapshot);
 

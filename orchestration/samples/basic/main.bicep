@@ -10,19 +10,6 @@ param mode 'hotfix' | 'standard'
 
 var prefix = '${config.global.infraPrefix}-${config.global.environment}'
 
-stack global './global/main.bicepparam' = {
-  region: config.global.infraRegion
-  deploy: 'onChange'
-  inputs: {
-    subscriptionId: lookupSubscription('global')
-    resourceGroup: '${prefix}-global'
-    name: '${prefix}-global'
-    config: {
-      foo: 'bar'
-    }
-  }
-}
-
 stack cluster './cluster/main.bicepparam' = [for (region, i) in config.regions: {
   region: region
   deploy: 'onChange'
@@ -31,12 +18,9 @@ stack cluster './cluster/main.bicepparam' = [for (region, i) in config.regions: 
     resourceGroup: '${prefix}-cluster-${region}'
     name: '${prefix}-cluster-${region}'
     config: {
-      foo: 'bar'
+      managedEnvironmentName: '${prefix}-managed-env-${region}'
     }
   }
-  requires: [
-    global
-  ]
 }]
 
 stack clusterApp './clusterApp/main.bicepparam' = [for (region, i) in config.regions: {
@@ -47,13 +31,36 @@ stack clusterApp './clusterApp/main.bicepparam' = [for (region, i) in config.reg
     resourceGroup: '${prefix}-cluster-${region}'
     name: '${prefix}-cluster-app-${region}'
     config: {
-      foo: 'bar'
+      managedEnvironmentName: '${prefix}-managed-env-${region}'
     }
   }
   requires: [
     cluster[i]
   ]
 }]
+
+stack global './global/main.bicepparam' = {
+  region: config.global.infraRegion
+  deploy: 'onChange'
+  inputs: {
+    subscriptionId: lookupSubscription('global')
+    resourceGroup: '${prefix}-global'
+    name: '${prefix}-global'
+    config: {
+      afdName: 'hello-world-afd'
+      apps: [for (region, i) in config.regions: {
+        subscriptionId: lookupSubscription(region)
+        resourceGroup: '${prefix}-cluster-${region}'
+        name: 'hello-world'
+      }]
+    }
+  }
+  requires: [
+    // TODO support a collection here
+    clusterApp[0]
+    clusterApp[1]
+  ]
+}
 
 rule stages 'Batching' = {
   groups: [for (mapping, i) in config.stageMappings: {

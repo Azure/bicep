@@ -12,4 +12,6 @@ using 'main.bicep' with {
 
 var config = externalInput('stack.setting', 'config')
 
-param foo = config.foo
+param apps = config.apps
+
+param afdName = config.afdName
