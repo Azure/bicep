@@ -61,6 +61,10 @@ public class ConsoleCommand : ICommand
                     await io.Output.WriteLineAsync(diag.Message);
                 }
             }
+            else if (result.AnnotatedDiagnostics is { } annotatedDiagnostic)
+            {
+                await io.Output.WriteLineAsync(annotatedDiagnostic.Diagnostic);
+            }
             else if (result.Value is { } value)
             {
                 await io.Output.WriteLineAsync(value.ToString());

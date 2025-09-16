@@ -13,10 +13,12 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using Bicep.Cli.Helpers.Repl;
 
 namespace Bicep.Cli.Services;
 
@@ -29,6 +31,7 @@ public class ReplEnvironment
     // Persist original variable declaration text (ordered) and lookup to allow redefinition.
     private readonly List<string> variableDeclarationLines = new();
     private readonly Dictionary<string, string> variableDeclarationLookup = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly IOUri replFileUri = IOUri.FromFilePath("/session.biceprepl");
 
     public ReplEnvironment(BicepCompiler compiler)
     {
@@ -64,13 +67,11 @@ public class ReplEnvironment
         List<string> workingLines;
         if (variableDeclarationLookup.TryGetValue(varName, out var existingText))
         {
-            workingLines = variableDeclarationLines
-                .Where(l => !string.Equals(l, existingText, StringComparison.Ordinal))
-                .ToList();
+            workingLines = [.. variableDeclarationLines.Where(l => !string.Equals(l, existingText, StringComparison.Ordinal))];
         }
         else
         {
-            workingLines = variableDeclarationLines.ToList();
+            workingLines = [.. variableDeclarationLines];
         }
 
         // Compile working lines + new declaration (without mutating persisted state yet).
@@ -83,15 +84,16 @@ public class ReplEnvironment
         var fullContent = sb.ToString();
         var compilerResult = await CompileInternal(fullContent);
 
-        var diagnostics = compilerResult.Model.GetAllDiagnostics().Where(d => d.Source != DiagnosticSource.CoreLinter);
-        if (diagnostics.Any())
+        var model = compilerResult.GetEntrypointSemanticModel();
+        var diagnostics = model.GetAllDiagnostics().Where(d => d.Source != DiagnosticSource.CoreLinter).ToList();
+        if (diagnostics.Count != 0)
         {
-            return ReplEvaluationResult.For(diagnostics);
+            return CreateAnnotatedDiagnosticResult(diagnostics, declarationText, model.SourceFile.Text.Length);
         }
 
         // Find and evaluate the newly declared variable symbol.
-        var declaredVariable = compilerResult.Model.Root.VariableDeclarations.First(v => v.Name.Equals(varName, StringComparison.OrdinalIgnoreCase));
-        var evaluator = new ReplEvaluator(compilerResult.Model);
+        var declaredVariable = model.Root.VariableDeclarations.First(v => v.Name.Equals(varName, StringComparison.OrdinalIgnoreCase));
+        var evaluator = new ReplEvaluator(model);
         var valueEval = evaluator.EvaluateExpression(declaredVariable.DeclaringVariable.Value);
         if (valueEval.Diagnostics.Any())
         {
@@ -110,28 +112,31 @@ public class ReplEnvironment
     private async Task<ReplEvaluationResult> EvaluateExpression(SyntaxBase expressionSyntax)
     {
         var tempVarName = $"__temp_eval_{Guid.NewGuid():N}";
+        var userExpression = expressionSyntax.ToString();
 
         // need to write to "some" file in order to compile and get a semantic model
         // a semantic model is needed by ExpressionConverter
-        var compilerResult = await CompileExpression(expressionSyntax.ToString(), tempVarName);
+        var compilerResult = await CompileExpression(userExpression, tempVarName);
 
-        var diagnostics = compilerResult.Model.GetAllDiagnostics().Where(d => d.Source != DiagnosticSource.CoreLinter);
+        var model = compilerResult.GetEntrypointSemanticModel();
+
+        var diagnostics = model.GetAllDiagnostics().Where(d => d.Source != DiagnosticSource.CoreLinter).ToList();
         
-        if (diagnostics.Any())
+        if (diagnostics.Count > 0)
         {
-            return ReplEvaluationResult.For(diagnostics);
+            return CreateAnnotatedDiagnosticResult(diagnostics, userExpression, model.SourceFile.Text.Length);
         }
 
-        var evaluator = new ReplEvaluator(compilerResult.Model);
+        var evaluator = new ReplEvaluator(model);
 
         // find the variable we created to hold the expression and evaluate its value
         // (it doesn't seem like we can evaluate the expression directly because we need a symbol bound to a semantic model)
-        var boundVariable = compilerResult.Model.Root.VariableDeclarations.First(v => v.Name == tempVarName);
+        var boundVariable = model.Root.VariableDeclarations.First(v => v.Name == tempVarName);
 
         return evaluator.EvaluateExpression(boundVariable.DeclaringVariable.Value);
     }
 
-    private async Task<CompilationResult> CompileExpression(string expression, string variableName)
+    private async Task<Compilation> CompileExpression(string expression, string variableName)
     {
         // TODO: Not sure about this... Reconsider if there's a better way
         var sb = new StringBuilder();
@@ -144,19 +149,53 @@ public class ReplEnvironment
         return await CompileInternal(fullContent);
     }
 
-    private async Task<CompilationResult> CompileInternal(string fullContent)
+    private async Task<Compilation> CompileInternal(string fullContent)
     {
-        var replFileUri = IOUri.FromFilePath("/session.biceprepl");
         var fileHandle = fileExplorer.GetFile(replFileUri);
         await fileHandle.WriteAllTextAsync(fullContent);
 
         var sourceFile = compiler.SourceFileFactory.CreateBicepReplFile(fileHandle, fullContent);
         workspace.UpsertSourceFile(sourceFile);
 
-        var compliaton = compiler.CreateCompilationWithoutRestore(replFileUri, workspace);
-        var model = compliaton.GetEntrypointSemanticModel();
-        return new CompilationResult(model);
+        var compilation = compiler.CreateCompilationWithoutRestore(replFileUri, workspace);
+        return compilation;
     }
 
-    private record CompilationResult(SemanticModel Model);
+    private ReplEvaluationResult CreateAnnotatedDiagnosticResult(List<IDiagnostic> diagnostics, string userText, int compiledTextLength)
+    {
+        if (diagnostics.Count == 0)
+        {
+            return ReplEvaluationResult.For(diagnostics);
+        }
+
+        // Calculate the offset where user's text starts in the compiled content
+        // User's text is always at the end, so: totalLength - userTextLength = startOffset
+        var textOffset = compiledTextLength - userText.Length;
+        
+        // Filter diagnostics to only those within the user's text span
+        var relevantDiagnostics = diagnostics
+            .Where(d => d.Span.Position >= textOffset)
+            .Where(d => d.Span.Position < compiledTextLength)
+            .ToList();
+            
+        if (relevantDiagnostics.Count == 0)
+        {
+            return ReplEvaluationResult.For(diagnostics);
+        }
+
+        // Adjust diagnostic positions to be relative to user's text
+        var adjustedAnnotations = relevantDiagnostics.Select(d => new PrintHelper.Annotation(
+            new TextSpan(d.Span.Position - textOffset, d.Span.Length), 
+            $"[{d.Code} ({d.Level})] {d.Message}"));
+
+        // Generate annotated output
+        var userTextLineStarts = TextCoordinateConverter.GetLineStarts(userText);
+        var printResult = PrintHelper.PrintWithAnnotations(
+            userText,
+            userTextLineStarts,
+            adjustedAnnotations, 
+            0);
+            
+        return ReplEvaluationResult.For(new AnnotatedDiagnostic(printResult));
+    }
 }
