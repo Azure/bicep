@@ -804,7 +804,7 @@ namespace Bicep.Core.Emit
         {
             foreach (var syntax in model.SourceFile.ProgramSyntax.Declarations.OfType<UsingDeclarationSyntax>())
             {
-                if (syntax.WithClause is not SkippedTriviaSyntax && !model.Features.DeployCommandEnabled)
+                if (syntax.WithClause is not SkippedTriviaSyntax && !model.Features.DeployCommandsEnabled)
                 {
                     diagnostics.Write(syntax.WithClause, x => x.UsingWithClauseRequiresExperimentalFeature());
                 }

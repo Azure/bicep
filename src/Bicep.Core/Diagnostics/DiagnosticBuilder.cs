@@ -1983,7 +1983,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic UsingWithClauseRequiresExperimentalFeature() => CoreError(
                 "BCP435",
-                $"Using the \"{LanguageConstants.WithKeyword}\" keyword with a \"{LanguageConstants.UsingKeyword}\" statement requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.DeployCommand)}\".");
+                $"Using the \"{LanguageConstants.WithKeyword}\" keyword with a \"{LanguageConstants.UsingKeyword}\" statement requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.DeployCommands)}\".");
 
             public Diagnostic ExpectedWithKeywordOrNewLine() => CoreError(
                 "BCP436",

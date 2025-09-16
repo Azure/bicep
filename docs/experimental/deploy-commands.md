@@ -1,3 +1,5 @@
+# Using the Deploy Commands
+
 ## Goals
 
 1. Allow users to model all properties of the deployment (including scope, stacks configuration) in one place
@@ -12,7 +14,7 @@ https://github.com/user-attachments/assets/da64f3a3-3c11-411b-94b6-6324f79af107
 ### Script
 
 Pre-reqs:
-1. Download samples [here](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FAzure%2Fbicep%2Ftree%2Fmain%2Fdocs%2Fexperimental%2Fdeploy-command-samples)
+1. Download samples [here](https://download-directory.github.io/?url=https%3A%2F%2Fgithub.com%2FAzure%2Fbicep%2Ftree%2Fmain%2Fdocs%2Fexperimental%2Fdeploy-commands-samples)
 1. Unzip
 1. Cd to the unzipped directory
 

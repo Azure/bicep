@@ -34,9 +34,9 @@ public class DestroyCommand(
         var compilation = await compiler.CreateCompilation(paramsFileUri, skipRestore: args.NoRestore);
         CommandHelper.LogExperimentalWarning(logger, compilation);
 
-        if (!compilation.GetEntrypointSemanticModel().Features.DeployCommandEnabled)
+        if (!compilation.GetEntrypointSemanticModel().Features.DeployCommandsEnabled)
         {
-            throw new CommandLineException($"The '{nameof(ExperimentalFeaturesEnabled.DeployCommand)}' experimental feature must be enabled to use this command.");
+            throw new CommandLineException($"The '{nameof(ExperimentalFeaturesEnabled.DeployCommands)}' experimental feature must be enabled to use this command.");
         }
 
         var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, compilation);

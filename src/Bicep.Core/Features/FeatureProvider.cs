@@ -56,7 +56,7 @@ namespace Bicep.Core.Features
 
         public bool UserDefinedConstraintsEnabled => configuration.ExperimentalFeaturesEnabled.UserDefinedConstraints;
 
-        public bool DeployCommandEnabled => configuration.ExperimentalFeaturesEnabled.DeployCommand;
+        public bool DeployCommandsEnabled => configuration.ExperimentalFeaturesEnabled.DeployCommands;
 
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
             => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;

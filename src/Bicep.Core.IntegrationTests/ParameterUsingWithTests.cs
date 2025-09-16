@@ -27,7 +27,7 @@ public class ParameterUsingWithTests
     public void Example_with_scope_information_and_deployment()
     {
         var result = CompilationHelper.CompileParams(
-            ("parameters.bicepparam", @"
+            ("parameters.bicepparam", """
 var subscriptionId = externalInput('sys.cliArg', 'subscription-id')
 var resourceGroup = externalInput('sys.cliArg', 'resource-group')
 
@@ -37,10 +37,17 @@ using 'main.bicep' with {
 }
 
 param foo = 'foo/bar/baz'
-"),
-            ("main.bicep", @"
+"""),
+            ("main.bicep", """
 param foo string
-"));
+"""),
+            ("bicepconfig.json", """
+            {
+              "experimentalFeaturesEnabled": {
+                "deployCommands": true
+              }
+            }
+            """));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }

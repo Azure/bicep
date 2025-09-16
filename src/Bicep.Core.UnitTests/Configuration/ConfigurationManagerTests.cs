@@ -113,7 +113,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "desiredStateConfiguration": false,
           "onlyIfNotExists": false,
           "userDefinedConstraints": false,
-          "deployCommand": false
+          "deployCommands": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -197,7 +197,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "desiredStateConfiguration": false,
           "onlyIfNotExists": false,
           "userDefinedConstraints": false,
-          "deployCommand": false
+          "deployCommands": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -303,7 +303,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "desiredStateConfiguration": false,
           "onlyIfNotExists": false,
           "userDefinedConstraints": false,
-          "deployCommand": false
+          "deployCommands": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -390,7 +390,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 DesiredStateConfiguration: false,
                 OnlyIfNotExists: false,
                 UserDefinedConstraints: false,
-                DeployCommand: false);
+                DeployCommands: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -475,7 +475,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 "desiredStateConfiguration": false,
                 "onlyIfNotExists": false,
                 "userDefinedConstraints": false,
-                "deployCommand": false
+                "deployCommands": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -827,7 +827,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "desiredStateConfiguration": false,
                     "onlyIfNotExists": false,
                     "userDefinedConstraints": false,
-                    "deployCommand": false
+                    "deployCommands": false
                   },
                   "formatting": {
                     "indentKind": "Space",

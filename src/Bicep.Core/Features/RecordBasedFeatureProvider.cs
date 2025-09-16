@@ -26,6 +26,6 @@ namespace Bicep.Core.Features
         public bool ModuleExtensionConfigsEnabled => features.ModuleExtensionConfigs;
         public bool DesiredStateConfigurationEnabled => features.DesiredStateConfiguration;
         public bool UserDefinedConstraintsEnabled => features.UserDefinedConstraints;
-        public bool DeployCommandEnabled => features.DeployCommand;
+        public bool DeployCommandsEnabled => features.DeployCommands;
     }
 }

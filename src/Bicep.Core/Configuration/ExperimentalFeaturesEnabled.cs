@@ -24,7 +24,7 @@ public record ExperimentalFeaturesEnabled(
     bool DesiredStateConfiguration,
     bool OnlyIfNotExists,
     bool UserDefinedConstraints,
-    bool DeployCommand)
+    bool DeployCommands)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();
@@ -46,5 +46,5 @@ public record ExperimentalFeaturesEnabled(
         DesiredStateConfiguration: false,
         OnlyIfNotExists: false,
         UserDefinedConstraints: false,
-        DeployCommand: false);
+        DeployCommands: false);
 }

@@ -49,5 +49,5 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool UserDefinedConstraintsEnabled => overrides.UserDefinedConstraintsEnabled ?? features.UserDefinedConstraintsEnabled;
 
-    public bool DeployCommandEnabled => overrides.DeployCommandEnabled ?? features.DeployCommandEnabled;
+    public bool DeployCommandsEnabled => overrides.DeployCommandsEnabled ?? features.DeployCommandsEnabled;
 }
