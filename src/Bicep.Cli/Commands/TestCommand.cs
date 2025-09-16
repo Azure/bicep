@@ -44,7 +44,7 @@ namespace Bicep.Cli.Commands
         {
             var inputUri = this.inputOutputArgumentsResolver.ResolveInputArguments(args);
             ArgumentHelper.ValidateBicepFile(inputUri);
-            var features = featureProviderFactory.GetFeatureProvider(inputUri.ToUri());
+            var features = featureProviderFactory.GetFeatureProvider(inputUri);
 
             if (!features.TestFrameworkEnabled)
             {

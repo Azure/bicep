@@ -13,6 +13,7 @@ using Azure.Deployments.Extensibility.Core.V2.Models;
 using Azure.Deployments.Extensibility.Data;
 using Azure.Deployments.Extensibility.Messages;
 using Bicep.Core.Configuration;
+using Bicep.Core.Extensions;
 using Bicep.Core.AzureApi;
 using Bicep.Local.Deploy.Azure;
 using Bicep.Local.Deploy.Engine;
@@ -113,7 +114,7 @@ internal class NestedDeploymentExtension(
             try
             {
                 GuardHelper.ArgumentNotNull(identifiers.SourceUri);
-                var configuration = configurationManager.GetConfiguration(new Uri(identifiers.SourceUri));
+                var configuration = configurationManager.GetConfiguration(new Uri(identifiers.SourceUri).ToIOUri());
                 DeploymentLocator locator = new("", null, identifiers.SubscriptionId, identifiers.ResourceGroup, identifiers.Name);
 
                 await armDeploymentProvider.StartDeployment(configuration, locator, template, parameters.ToJsonString(), cancellationToken);
@@ -148,7 +149,7 @@ internal class NestedDeploymentExtension(
             try
             {
                 GuardHelper.ArgumentNotNull(identifiers.SourceUri);
-                var configuration = configurationManager.GetConfiguration(new Uri(identifiers.SourceUri));
+                var configuration = configurationManager.GetConfiguration(new Uri(identifiers.SourceUri).ToIOUri());
                 DeploymentLocator locator = new("", null, identifiers.SubscriptionId, identifiers.ResourceGroup, identifiers.Name);
 
                 var result = await armDeploymentProvider.CheckDeployment(configuration, locator, cancellationToken);

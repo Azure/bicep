@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14572384289576581216"
+      "templateHash": "5384455090613062265"
     }
   },
   "parameters": {
@@ -22,7 +22,7 @@
   "resources": {
     "webappModule": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "webAppPlanDeploy",
       "properties": {
         "expressionEvaluationOptions": {
@@ -144,7 +144,7 @@
     "loggingModule": {
       "condition": "[parameters('logging')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "loggingDeploy",
       "properties": {
         "expressionEvaluationOptions": {

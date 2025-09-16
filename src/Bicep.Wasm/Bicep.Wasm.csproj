@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
-    <PackageReference Include="System.IO.Abstractions.TestingHelpers" />
+    <PackageReference Include="TestableIO.System.IO.Abstractions.TestingHelpers" />
     <PackageReference Include="Microsoft.NET.Sdk.WebAssembly.Pack" />
   </ItemGroup>
 

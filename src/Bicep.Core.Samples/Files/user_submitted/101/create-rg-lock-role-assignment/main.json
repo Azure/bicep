@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12862994173378472724"
+      "templateHash": "1760878859446084154"
     }
   },
   "parameters": {
@@ -55,7 +55,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "applyLock",
       "resourceGroup": "[parameters('rgName')]",
       "properties": {

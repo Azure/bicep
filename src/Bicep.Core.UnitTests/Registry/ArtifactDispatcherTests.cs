@@ -138,7 +138,7 @@ namespace Bicep.Core.UnitTests.Registry
         {
             // Arrange.
             var configManagerMock = StrictMock.Of<IConfigurationManager>();
-            configManagerMock.SetupSequence(m => m.GetConfiguration(It.IsAny<Uri>()))
+            configManagerMock.SetupSequence(m => m.GetConfiguration(It.IsAny<IOUri>()))
                 .Returns(BicepTestConstants.CreateMockConfiguration())
                 .Returns(BicepTestConstants.CreateMockConfiguration())
                 .Returns(changedConfiguration);

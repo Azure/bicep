@@ -2,6 +2,7 @@
 
 param boolParam1 bool
 param strParam1 string
+param objParam1 object
 
 // END: Parameters
 
@@ -9,8 +10,7 @@ param strParam1 string
 
 extension az
 extension kubernetes as k8s
-
-//extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.8-preview' as graph
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as extWithOptionalConfig1
 
 // END: Valid Extension declarations
 
@@ -95,6 +95,18 @@ module moduleWithExtsUsingVar2 'child/hasConfigurableExtensionsWithAlias.bicep' 
   }
 }
 
+module moduleWithExtsUsingParam1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  extensionConfigs: {
+    k8s: objParam1
+  }
+}
+
+module moduleWithExtsUsingReference1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  extensionConfigs: {
+    k8s: testResource1.properties
+  }
+}
+
 module moduleInvalidSpread1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
   extensionConfigs: {
     ...extensionConfigsVar
@@ -106,6 +118,20 @@ module moduleInvalidSpread2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
     k8s: {
       ...k8sConfigDeployTime
     }
+  }
+}
+
+module moduleInvalidInheritanceTernary1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  extensionConfigs: {
+    k8s: k8s.config
+    extWithOptionalConfig1: boolParam1 ? extWithOptionalConfig1.config : k8s.config
+  }
+}
+
+module moduleInvalidInheritanceTernary2 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  extensionConfigs: {
+    k8s: k8s.config
+    extWithOptionalConfig1: boolParam1 ? extWithOptionalConfig1.config : { optionalString: 'value' } // limitation: cannot mix these currently due to special code gen needed for object literals
   }
 }
 

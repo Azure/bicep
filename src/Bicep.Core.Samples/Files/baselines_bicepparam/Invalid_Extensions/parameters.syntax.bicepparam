@@ -1,5 +1,5 @@
 using 'main.bicep'
-//@[000:1895) ProgramSyntax
+//@[000:2042) ProgramSyntax
 //@[000:0018) ├─UsingDeclarationSyntax
 //@[000:0005) | ├─Token(Identifier) |using|
 //@[006:0018) | ├─StringSyntax
@@ -160,6 +160,49 @@ extensionConfig validSecretAssignment1 with {
 //@[052:0059) |     |   |   └─Token(StringComplete) |'valid'|
 //@[059:0060) |     |   └─Token(RightParen) |)|
 //@[060:0061) |     ├─Token(NewLine) |\n|
+}
+//@[000:0001) |     └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\n\n|
+
+extensionConfig duplicateAssignment1 with {
+//@[000:0072) ├─ExtensionConfigAssignmentSyntax
+//@[000:0015) | ├─Token(Identifier) |extensionConfig|
+//@[016:0036) | ├─IdentifierSyntax
+//@[016:0036) | | └─Token(Identifier) |duplicateAssignment1|
+//@[037:0072) | └─ExtensionWithClauseSyntax
+//@[037:0041) |   ├─Token(Identifier) |with|
+//@[042:0072) |   └─ObjectSyntax
+//@[042:0043) |     ├─Token(LeftBrace) |{|
+//@[043:0044) |     ├─Token(NewLine) |\n|
+  requiredString: 'value1'
+//@[002:0026) |     ├─ObjectPropertySyntax
+//@[002:0016) |     | ├─IdentifierSyntax
+//@[002:0016) |     | | └─Token(Identifier) |requiredString|
+//@[016:0017) |     | ├─Token(Colon) |:|
+//@[018:0026) |     | └─StringSyntax
+//@[018:0026) |     |   └─Token(StringComplete) |'value1'|
+//@[026:0027) |     ├─Token(NewLine) |\n|
+}
+//@[000:0001) |     └─Token(RightBrace) |}|
+//@[001:0002) ├─Token(NewLine) |\n|
+extensionConfig duplicateAssignment1 with {
+//@[000:0072) ├─ExtensionConfigAssignmentSyntax
+//@[000:0015) | ├─Token(Identifier) |extensionConfig|
+//@[016:0036) | ├─IdentifierSyntax
+//@[016:0036) | | └─Token(Identifier) |duplicateAssignment1|
+//@[037:0072) | └─ExtensionWithClauseSyntax
+//@[037:0041) |   ├─Token(Identifier) |with|
+//@[042:0072) |   └─ObjectSyntax
+//@[042:0043) |     ├─Token(LeftBrace) |{|
+//@[043:0044) |     ├─Token(NewLine) |\n|
+  requiredString: 'value2'
+//@[002:0026) |     ├─ObjectPropertySyntax
+//@[002:0016) |     | ├─IdentifierSyntax
+//@[002:0016) |     | | └─Token(Identifier) |requiredString|
+//@[016:0017) |     | ├─Token(Colon) |:|
+//@[018:0026) |     | └─StringSyntax
+//@[018:0026) |     |   └─Token(StringComplete) |'value2'|
+//@[026:0027) |     ├─Token(NewLine) |\n|
 }
 //@[000:0001) |     └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\n\n|

@@ -1193,7 +1193,7 @@ var fileObj = loadYamlContent('file.yaml', '" + path + @"')
             using (new AssertionScope())
             {
                 template!.Should().BeNull();
-                diags.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] { ("BCP051", DiagnosticLevel.Error, "The specified path begins with \"/\". Files must be referenced using relative paths.") });
+                diags.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] { ("BCP051", DiagnosticLevel.Error, "The specified path seems to reference an absolute path. Files must be referenced using relative paths.") });
             }
         }
 
@@ -1210,7 +1210,7 @@ var fileObj = loadYamlContent('file.yaml', '" + path + @"')
             using (new AssertionScope())
             {
                 template!.Should().BeNull();
-                diags.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] { ("BCP085", DiagnosticLevel.Error, "The specified file path contains one ore more invalid path characters. The following are not permitted: \"\"\", \"*\", \":\", \"<\", \">\", \"?\", \"\\\", \"|\".") });
+                diags.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] { ("BCP051", DiagnosticLevel.Error, "The specified path seems to reference an absolute path. Files must be referenced using relative paths.") });
             }
         }
 

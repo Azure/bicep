@@ -111,7 +111,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         }
 
         return new(
-            [.. fileUris.Select(x => x.GetLocalFilePath()).OrderBy(x => x)]);
+            [.. fileUris.Select(x => x.GetFilePath()).OrderBy(x => x)]);
     }
 
     /// <inheritdoc/>

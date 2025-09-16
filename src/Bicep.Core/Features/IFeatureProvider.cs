@@ -37,7 +37,7 @@ public interface IFeatureProvider
 
     bool DesiredStateConfigurationEnabled { get; }
 
-    bool ModuleIdentityEnabled { get; }
+    bool UserDefinedConstraintsEnabled { get; }
 
     bool DeployCommandEnabled { get; }
 
@@ -61,7 +61,7 @@ public interface IFeatureProvider
                 (ExtendableParamFilesEnabled, "Enable extendable parameters", true, false),
                 (ModuleExtensionConfigsEnabled, "Enable defining extension configs for modules", true, true),
                 (DesiredStateConfigurationEnabled, "Enable defining Desired State Configuration documents", true, false),
-                (ModuleIdentityEnabled, "Enable module identity support", true, true),
+                (UserDefinedConstraintsEnabled, "Enable @validate() decorator", true, true),
                 (DeployCommandEnabled, "Enable deploy commands", true, true),
             })
             {

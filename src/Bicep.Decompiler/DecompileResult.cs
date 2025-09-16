@@ -2,10 +2,11 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Decompiler
 {
     public record DecompileResult(
-        Uri EntrypointUri,
-        ImmutableDictionary<Uri, string> FilesToSave);
+        IOUri EntrypointUri,
+        ImmutableDictionary<IOUri, string> FilesToSave);
 }

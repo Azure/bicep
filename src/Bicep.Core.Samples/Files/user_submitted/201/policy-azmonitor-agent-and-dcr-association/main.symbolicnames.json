@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13573378578560232885"
+      "templateHash": "10331038542198146623"
     }
   },
   "parameters": {
@@ -24,7 +24,7 @@
   "resources": {
     "policy": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "policy",
       "location": "[deployment().location]",
       "properties": {
@@ -388,7 +388,7 @@
     },
     "assignment": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "assignment",
       "location": "[deployment().location]",
       "properties": {

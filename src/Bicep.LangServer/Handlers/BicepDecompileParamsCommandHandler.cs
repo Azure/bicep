@@ -6,6 +6,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Decompiler;
 using Bicep.IO.Abstraction;
+using Bicep.LanguageServer.Extensions;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
@@ -48,15 +49,15 @@ namespace Bicep.LanguageServer.Handlers
             try
             {
                 var jsonUri = parameters.jsonUri.ToIOUri();
-                var bicepUri = parameters.bicepUri?.ToUriEncoded();
+                var bicepUri = parameters.bicepUri?.ToIOUri();
                 if (!this.fileExplorer.GetFile(jsonUri).TryReadAllText().IsSuccess(out var jsonContents))
                 {
                     throw new InvalidOperationException($"Failed to read {jsonUri}");
                 }
 
-                var (entryUri, filesToSave) = decompiler.DecompileParameters(jsonContents, jsonUri.WithExtension(LanguageConstants.ParamsFileExtension).ToUri(), bicepUri);
+                var (entryUri, filesToSave) = decompiler.DecompileParameters(jsonContents, jsonUri.WithExtension(LanguageConstants.ParamsFileExtension), bicepUri);
 
-                return new(new(filesToSave[entryUri], entryUri), null);
+                return new(new(filesToSave[entryUri], entryUri.ToDocumentUri()), null);
             }
             catch (Exception ex)
             {

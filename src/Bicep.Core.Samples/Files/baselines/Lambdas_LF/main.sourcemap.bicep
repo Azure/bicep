@@ -135,7 +135,7 @@ var mappedResProps = map(items(storageAcc.properties.secondaryEndpoints), item =
 module myMod './test.bicep' = {
 //@    "myMod": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"

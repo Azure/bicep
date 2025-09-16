@@ -25,7 +25,7 @@ public record FeatureProviderOverrides(
     bool? ModuleExtensionConfigsEnabled = default,
     bool? DesiredStateConfigurationEnabled = default,
     bool? OnlyIfNotExistsEnabled = default,
-    bool? ModuleIdentityEnabled = default,
+    bool? UserDefinedConstraintsEnabled = default,
     bool? DeployCommandEnabled = default)
 {
     public FeatureProviderOverrides(
@@ -46,27 +46,26 @@ public record FeatureProviderOverrides(
         bool? ModuleExtensionConfigsEnabled = default,
         bool? DesiredStateConfigurationEnabled = default,
         bool? OnlyIfNotExistsEnabled = default,
-        bool? ModuleIdentityEnabled = default,
-        bool? DeployCommandEnabled = default
-    ) : this(
-        FileHelper.GetCacheRootDirectory(testContext),
-        RegistryEnabled,
-        SymbolicNameCodegenEnabled,
-        AdvancedListComprehensionEnabled,
-        ResourceTypedParamsAndOutputsEnabled,
-        SourceMappingEnabled,
-        LegacyFormatterEnabled,
-        TestFrameworkEnabled,
-        AssertsEnabled,
-        WaitAndRetryEnabled,
-        LocalDeployEnabled,
-        ResourceInfoCodegenEnabled,
-        ExtendableParamFilesEnabled,
-        AssemblyVersion,
-        ModuleExtensionConfigsEnabled,
-        DesiredStateConfigurationEnabled,
-        OnlyIfNotExistsEnabled,
-        ModuleIdentityEnabled,
-        DeployCommandEnabled)
+        bool? UserDefinedConstraintsEnabled = default,
+        bool? DeployCommandEnabled = default) : this(
+            FileHelper.GetCacheRootDirectory(testContext),
+            RegistryEnabled,
+            SymbolicNameCodegenEnabled,
+            AdvancedListComprehensionEnabled,
+            ResourceTypedParamsAndOutputsEnabled,
+            SourceMappingEnabled,
+            LegacyFormatterEnabled,
+            TestFrameworkEnabled,
+            AssertsEnabled,
+            WaitAndRetryEnabled,
+            LocalDeployEnabled,
+            ResourceInfoCodegenEnabled,
+            ExtendableParamFilesEnabled,
+            AssemblyVersion,
+            ModuleExtensionConfigsEnabled,
+            DesiredStateConfigurationEnabled,
+            OnlyIfNotExistsEnabled,
+            UserDefinedConstraintsEnabled,
+            DeployCommandEnabled)
     { }
 }
