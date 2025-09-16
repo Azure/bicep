@@ -1958,6 +1958,14 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic FoundFileInsteadOfDirectory(string filePath) => CoreError(
                 "BCP430",
                 $"Unable to open directory at path \"{filePath}\". Found a file instead.");
+
+            public Diagnostic UsingWithClauseRequiresExperimentalFeature() => CoreError(
+                "BCP431",
+                $"Using the \"{LanguageConstants.WithKeyword}\" keyword with a \"{LanguageConstants.UsingKeyword}\" statement requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.DeployCommand)}\".");
+
+            public Diagnostic ExpectedWithKeywordOrNewLine() => CoreError(
+                "BCP305",
+                $"Expected the \"with\" keyword or a new line character at this location.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

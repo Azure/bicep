@@ -58,6 +58,7 @@ namespace Bicep.Core.Emit
             BlockSecureOutputsWithLocalDeploy(model, diagnostics);
             BlockSecureOutputAccessOnIndirectReference(model, diagnostics);
             BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
+            BlockUsingWithClauseWithoutFeatureFlagEnabled(model, diagnostics);
 
             var paramAssignmentEvaluator = new ParameterAssignmentEvaluator(model);
             var (paramAssignments, usingConfig) = CalculateParameterAssignments(model, paramAssignmentEvaluator, diagnostics);
@@ -802,6 +803,17 @@ namespace Bicep.Core.Emit
                 if (!model.Features.ExtendableParamFilesEnabled)
                 {
                     diagnostics.Write(extendsDeclaration, x => x.ExtendsNotSupported());
+                }
+            }
+        }
+
+        private static void BlockUsingWithClauseWithoutFeatureFlagEnabled(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            foreach (var syntax in model.SourceFile.ProgramSyntax.Declarations.OfType<UsingDeclarationSyntax>())
+            {
+                if (syntax.WithClause is not SkippedTriviaSyntax && !model.Features.DeployCommandEnabled)
+                {
+                    diagnostics.Write(syntax.WithClause, x => x.UsingWithClauseRequiresExperimentalFeature());
                 }
             }
         }

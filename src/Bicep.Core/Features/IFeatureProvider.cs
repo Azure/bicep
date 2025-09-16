@@ -39,6 +39,8 @@ public interface IFeatureProvider
 
     bool ModuleIdentityEnabled { get; }
 
+    bool DeployCommandEnabled { get; }
+
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
         get
@@ -60,6 +62,7 @@ public interface IFeatureProvider
                 (ModuleExtensionConfigsEnabled, "Enable defining extension configs for modules", true, true),
                 (DesiredStateConfigurationEnabled, "Enable defining Desired State Configuration documents", true, false),
                 (ModuleIdentityEnabled, "Enable module identity support", true, true),
+                (DeployCommandEnabled, "Enable deploy commands", true, true),
             })
             {
                 if (enabled)

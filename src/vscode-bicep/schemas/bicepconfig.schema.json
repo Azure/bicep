@@ -889,6 +889,10 @@
         "moduleIdentity": {
           "type": "boolean",
           "description": "Allows you to add an identity property to a module. See https://aka.ms/bicep/experimental-features#moduleidentity"
+        },
+        "deployCommand": {
+          "type": "boolean",
+          "description": "Allows you to access the 'deploy', 'what-if' and 'destroy' commands. See https://aka.ms/bicep/experimental-features#deploycommand"
         }
       },
       "additionalProperties": false

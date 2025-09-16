@@ -23,7 +23,8 @@ public record ExperimentalFeaturesEnabled(
     bool ModuleExtensionConfigs,
     bool DesiredStateConfiguration,
     bool OnlyIfNotExists,
-    bool ModuleIdentity)
+    bool ModuleIdentity,
+    bool DeployCommand)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();
@@ -44,5 +45,6 @@ public record ExperimentalFeaturesEnabled(
         ModuleExtensionConfigs: false,
         DesiredStateConfiguration: false,
         OnlyIfNotExists: false,
-        ModuleIdentity: false);
+        ModuleIdentity: false,
+        DeployCommand: false);
 }

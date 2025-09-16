@@ -29,14 +29,12 @@
             "preLaunchTask": "Build CLI",
             "program": "${workspaceFolder}/src/Bicep.Cli/bin/Debug/net8.0/bicep",
             "args": [
-                "destroy",
-                "${workspaceRoot}/deploy/samples/script/env_vars.bicepparam"
+                "build",
+                "${file}"
             ],
             "env": {
                 "BICEP_TRACING_ENABLED": "true",
                 "BICEP_TRACING_VERBOSITY": "basic",
-                "AZURE_SUBSCRIPTION_ID": "d08e1a72-8180-4ed3-8125-9dff7376b0bd",
-                "AZURE_RESOURCE_GROUP": "ant-test"
             },
             "cwd": "${workspaceFolder}/src/Bicep.Cli",
             "console": "internalConsole",

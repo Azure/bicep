@@ -25,7 +25,8 @@ public record FeatureProviderOverrides(
     bool? ModuleExtensionConfigsEnabled = default,
     bool? DesiredStateConfigurationEnabled = default,
     bool? OnlyIfNotExistsEnabled = default,
-    bool? ModuleIdentityEnabled = default)
+    bool? ModuleIdentityEnabled = default,
+    bool? DeployCommandEnabled = default)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
@@ -45,7 +46,8 @@ public record FeatureProviderOverrides(
         bool? ModuleExtensionConfigsEnabled = default,
         bool? DesiredStateConfigurationEnabled = default,
         bool? OnlyIfNotExistsEnabled = default,
-        bool? ModuleIdentityEnabled = default
+        bool? ModuleIdentityEnabled = default,
+        bool? DeployCommandEnabled = default
     ) : this(
         FileHelper.GetCacheRootDirectory(testContext),
         RegistryEnabled,
@@ -64,6 +66,7 @@ public record FeatureProviderOverrides(
         ModuleExtensionConfigsEnabled,
         DesiredStateConfigurationEnabled,
         OnlyIfNotExistsEnabled,
-        ModuleIdentityEnabled)
+        ModuleIdentityEnabled,
+        DeployCommandEnabled)
     { }
 }

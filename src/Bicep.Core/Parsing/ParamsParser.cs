@@ -141,8 +141,7 @@ namespace Bicep.Core.Parsing
 
         private UsingWithClauseSyntax UsingWithClause()
         {
-            // TODO dedicated diagnostic instead of re-using the extension one
-            var keyword = this.ExpectKeyword(LanguageConstants.WithKeyword, b => b.ExpectedWithOrAsKeywordOrNewLine());
+            var keyword = this.ExpectKeyword(LanguageConstants.WithKeyword, b => b.ExpectedWithKeywordOrNewLine());
             var config = this.WithRecovery(() => this.Object(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine);
 
             return new(keyword, config);

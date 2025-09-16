@@ -19,9 +19,11 @@ using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Core;
 using Bicep.Core.AzureApi;
+using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Utils;
+using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
@@ -29,6 +31,7 @@ namespace Bicep.Cli.Commands;
 
 public class DeployCommand(
     IOContext io,
+    ILogger logger,
     IEnvironment environment,
     IArmClientProvider armClientProvider,
     DiagnosticLogger diagnosticLogger,
@@ -41,6 +44,12 @@ public class DeployCommand(
         ArgumentHelper.ValidateBicepParamFile(paramsFileUri);
 
         var compilation = await compiler.CreateCompilation(paramsFileUri, skipRestore: args.NoRestore);
+        CommandHelper.LogExperimentalWarning(logger, compilation);
+
+        if (!compilation.GetEntrypointSemanticModel().Features.DeployCommandEnabled)
+        {
+            throw new CommandLineException($"The '{nameof(ExperimentalFeaturesEnabled.DeployCommand)}' experimental feature must be enabled to use this command.");
+        }
 
         var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, compilation);
         var parameters = compilation.Emitter.Parameters();

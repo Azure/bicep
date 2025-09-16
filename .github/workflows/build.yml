@@ -2,9 +2,9 @@ name: Build
 
 on:
   push:
-    branches: [main, ant/poc_cli]
+    branches: [main]
   pull_request:
-    branches: [main ,ant/poc_cli]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
