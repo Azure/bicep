@@ -114,8 +114,8 @@ public class TypeDefinitionBuilder
             name: attribute.FullName,
             body: typeFactory.GetReference(typeFactory.Create(() => GenerateForRecord(typeFactory, typeCache, type))),
             functions: null,
-            writableScopes_in: ScopeType.None,
-            readableScopes_in: ScopeType.None));
+            writableScopes_in: ScopeType.All,
+            readableScopes_in: ScopeType.All));
 
     protected virtual TypeBase GenerateForRecord(TypeFactory factory, ConcurrentDictionary<Type, TypeBase> typeCache, Type type)
     {

@@ -262,22 +262,22 @@ resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
         };
 
 
-        // [TestMethod]
-        // public void AzResourceTypeFactory_ScopeTypeAllExceptExtension_ShouldReturnAllExceptResource()
-        // {
-        //     // Test the ScopeType.AllExceptExtension handling
-        //     var factory = new AzResourceTypeFactory();
-        //     var resourceType = CreateMockResourceType(
-        //         readableScopes: AzConcreteTypes.ScopeType.AllExceptExtension,
-        //         writableScopes: AzConcreteTypes.ScopeType.AllExceptExtension);
+        [TestMethod]
+        public void AzResourceTypeFactory_ScopeTypeAll_ShouldReturnAllScopes()
+        {
+            // Test the ScopeType.All handling
+            var factory = new AzResourceTypeFactory();
+            var resourceType = CreateMockResourceType(
+                readableScopes: AzConcreteTypes.ScopeType.All,
+                writableScopes: AzConcreteTypes.ScopeType.All);
 
-        //     var result = factory.GetResourceType(resourceType, []);
+            var result = factory.GetResourceType(resourceType, []);
 
-        //     // ScopeType.AllExceptExtension should map to all deployment scopes except Resource/Extension
-        //     result.ValidParentScopes.Should().Be(
-        //         ResourceScope.Tenant | ResourceScope.ManagementGroup |
-        //         ResourceScope.Subscription | ResourceScope.ResourceGroup);
-        // }
+            // ScopeType.All should map to all deployment scopes including Resource/Extension
+            result.ValidParentScopes.Should().Be(
+                ResourceScope.Tenant | ResourceScope.ManagementGroup |
+                ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource);
+        }
 
         [TestMethod]
         public void AzResourceTypeFactory_DifferentReadableAndwritableScopes_ShouldNotSetReadOnlyFlag()
@@ -329,23 +329,6 @@ resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
             result.Flags.Should().HaveFlag(ResourceFlags.ReadOnly);
             result.ReadOnlyScopes.Should().Be(ResourceScope.Tenant | ResourceScope.Subscription);
             result.ValidParentScopes.Should().Be(ResourceScope.None); // No writable scopes
-        }
-
-        [TestMethod]
-        public void AzResourceTypeFactory_LegacyCompatibility_FullyReadOnlyResource_ShouldSetReadOnlyFlag()
-        {
-            // Test fully read-only resource (no writable scopes at all)
-            var factory = new AzResourceTypeFactory();
-            var resourceType = CreateMockResourceType(
-                readableScopes: AzConcreteTypes.ScopeType.Tenant | AzConcreteTypes.ScopeType.ResourceGroup,
-                writableScopes: (AzConcreteTypes.ScopeType)0);
-
-            var result = factory.GetResourceType(resourceType, []);
-
-            // Should be marked as ReadOnly because there are no writable scopes
-            result.ValidParentScopes.Should().Be(ResourceScope.None);
-            result.ReadOnlyScopes.Should().Be(ResourceScope.Tenant | ResourceScope.ResourceGroup);
-            result.Flags.Should().HaveFlag(ResourceFlags.ReadOnly);
         }
 
         [TestMethod]

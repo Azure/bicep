@@ -19,6 +19,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ruleToTest.GetMessage(nameof(ruleToTest)).Should().Be($"Existing resource \"{nameof(ruleToTest)}\" is declared but never used.");
         }
 
+        private void CompileAndTest(string text, params string[] unusedExistingResources)
+        {
+            CompileAndTest(text, OnCompileErrors.IncludeErrors, unusedExistingResources);
+        }
+
         private void CompileAndTest(string text, OnCompileErrors onCompileErrors, params string[] unusedExistingResources)
         {
             AssertLinterRuleDiagnostics(NoUnusedExistingResourcesRule.Code, text, diags =>
@@ -89,7 +94,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void TestRule(string text, params string[] unusedExistingResources)
         {
-            CompileAndTest(text, OnCompileErrors.Ignore, unusedExistingResources);
+            CompileAndTest(text, unusedExistingResources);
         }
 
         [DataRow(@"resource abc1 'Microsoft.Web/sites@2021-03-01' existing", "abc1")]
