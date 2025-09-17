@@ -15,7 +15,7 @@ Should be enabled in tandem with `testFramework` experimental feature flag for e
 
 ### `deployCommands`
 
-Enables `deploy`, `what-if` and `destroy` command groups, as well as the `with` syntax in a `.bicepparam` file. For more information, see [Using the Deploy Commands](./experimental/deploy-commands.md).
+Enables `deploy`, `what-if` and `teardown` command groups, as well as the `with` syntax in a `.bicepparam` file. For more information, see [Using the Deploy Commands](./experimental/deploy-commands.md).
 
 ### `desiredStateConfiguration`
 

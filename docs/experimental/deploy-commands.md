@@ -3,7 +3,7 @@
 ## Goals
 
 1. Allow users to model all properties of the deployment (including scope, stacks configuration) in one place
-2. Add support for "destroy" functionality for cleaning up a Stack resource
+2. Add support for "teardown" functionality for cleaning up a Stack resource
 
 ## Demo
 
@@ -63,8 +63,8 @@ export AZURE_RESOURCE_GROUP=ant-test
 # deploy
 bicep deploy script/stack.bicepparam
 
-# destroy
-bicep destroy script/stack.bicepparam
+# teardown
+bicep teardown script/stack.bicepparam
 ```
 
 Windows
@@ -77,6 +77,6 @@ $env:AZURE_RESOURCE_GROUP = "ant-test"
 # deploy
 bicep deploy script/stack.bicepparam
 
-# destroy
-bicep destroy script/stack.bicepparam
+# teardown
+bicep teardown script/stack.bicepparam
 ```

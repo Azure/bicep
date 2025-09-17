@@ -1,5 +1,5 @@
-var subscriptionId = externalInput('sys.cliArg', 'subscription-id')
-var resourceGroup = externalInput('sys.cliArg', 'resource-group')
+var subscriptionId = readCliArg('subscription-id')
+var resourceGroup = readCliArg('resource-group')
 
 using 'main.bicep' with {
   mode: 'deployment'

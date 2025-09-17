@@ -896,7 +896,7 @@
         },
         "deployCommands": {
           "type": "boolean",
-          "description": "Allows you to access the 'deploy', 'what-if' and 'destroy' commands. See https://aka.ms/bicep/experimental-features#deploycommands"
+          "description": "Allows you to access the 'deploy', 'what-if' and 'teardown' commands. See https://aka.ms/bicep/experimental-features#deploycommands"
         }
       },
       "additionalProperties": false

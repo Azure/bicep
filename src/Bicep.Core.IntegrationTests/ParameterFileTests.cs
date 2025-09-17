@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Web.Services.Description;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -400,6 +402,37 @@ param foo = {
         externalInputs["my_param_provider_0"].Should().DeepEqual(new JObject
         {
             ["kind"] = "my.param.provider",
+        });
+    }
+
+    [TestMethod]
+    public void ExternalInput_alternative_functions_also_generate_external_inputs()
+    {
+        var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, DeployCommandsEnabled: true));
+        var result = CompilationHelper.CompileParams(
+            services,
+            ("parameters.bicepparam", """
+                using none
+                var foo = readCliArg('foo')
+                var foo2 = '${foo}-${readEnvVar('foo2')}'
+                param foo3 = foo2
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["foo3"].Value.Should().BeNull();
+        parameters["foo3"].Expression.Should().DeepEqual("""[format('{0}-{1}', externalInputs('sys_cliArg_0'), externalInputs('sys_envVar_1'))]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["sys_cliArg_0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cliArg",
+            ["config"] = "foo",
+        });
+        externalInputs["sys_envVar_1"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.envVar",
+            ["config"] = "foo2",
         });
     }
 }

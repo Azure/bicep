@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Cli.UnitTests
 {
     [TestClass]
-    public class ArgumentParserTests
+    public class WhatIfOperationResultFormatterTests
     {
         private static readonly IFileSystem FileSystem = new FileSystem();
 

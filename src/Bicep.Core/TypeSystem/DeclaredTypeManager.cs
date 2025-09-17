@@ -1835,7 +1835,7 @@ namespace Bicep.Core.TypeSystem
 
                     var usingConfigType = LanguageConstants.CreateUsingConfigType();
 
-                    return TryCreateAssignment(ResolveDiscriminatedObjects(usingConfigType, syntax), syntax);
+                    return TryCreateAssignment(usingConfigType, syntax);
 
                 case FunctionArgumentSyntax:
                 case OutputDeclarationSyntax parentOutput when syntax == parentOutput.Value:

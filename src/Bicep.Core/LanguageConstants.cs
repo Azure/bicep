@@ -223,6 +223,8 @@ namespace Bicep.Core
         public const string NameofFunctionName = "nameof";
         public const string ExternalInputBicepFunctionName = "externalInput";
         public const string ExternalInputsArmFunctionName = "externalInputs";
+        public const string ReadCliArgBicepFunctionName = "readCliArg";
+        public const string ReadEnvVarBicepFunctionName = "readEnvVar";
 
         public static readonly TypeSymbol Any = new AnyType();
         public static readonly TypeSymbol Never = new UnionType("never", []);
@@ -439,8 +441,8 @@ namespace Bicep.Core
                 ..commonProps,
                 new("description", LanguageConstants.String, optionalPropFlags, "Deployment stack description."),
                 new("mode", TypeFactory.CreateStringLiteralType("stack"), requiredPropFlags),
-                new("actionOnUnmanage", actionOnUnmanage, optionalPropFlags, "Defines the behavior of resources that are not managed immediately after the stack is updated."),
-                new("denySettings", denySettings, optionalPropFlags, "Defines how resources deployed by the deployment stack are locked."),
+                new("actionOnUnmanage", actionOnUnmanage, requiredPropFlags, "Defines the behavior of resources that are not managed immediately after the stack is updated."),
+                new("denySettings", denySettings, requiredPropFlags, "Defines how resources deployed by the deployment stack are locked."),
             ], null);
 
 
