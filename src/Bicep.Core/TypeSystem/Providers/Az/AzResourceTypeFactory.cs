@@ -265,9 +265,9 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 return ResourceScope.None;
             }
 
-            if (input == Azure.Bicep.Types.Concrete.ScopeType.AllExceptExtension)
+            if (input == Azure.Bicep.Types.Concrete.ScopeType.All)
             {
-                return ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup;
+                return ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource;
             }
 
             var output = ResourceScope.None;

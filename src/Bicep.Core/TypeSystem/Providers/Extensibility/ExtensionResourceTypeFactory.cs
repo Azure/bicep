@@ -260,9 +260,9 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                 return ResourceScope.None;
             }
 
-            if (input == Azure.Bicep.Types.Concrete.ScopeType.AllExceptExtension)
+            if (input == Azure.Bicep.Types.Concrete.ScopeType.All)
             {
-                return ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Local;
+                return ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource | ResourceScope.Local;
             }
 
             var output = ResourceScope.None;

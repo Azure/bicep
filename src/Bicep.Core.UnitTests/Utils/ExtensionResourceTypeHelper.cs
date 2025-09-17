@@ -40,8 +40,8 @@ public static class ExtensionResourceTypeHelper
             "request@v1",
             factory.GetReference(requestBodyType),
             null,
-            writableScopes_in: ScopeType.None,
-            readableScopes_in: ScopeType.None));
+            writableScopes_in: ScopeType.All,
+            readableScopes_in: ScopeType.All));
 
         var settings = new TypeSettings(
             name: "http",
@@ -103,8 +103,8 @@ public static class ExtensionResourceTypeHelper
             {
                 ["convertBarToBaz"] = new(factory.GetReference(barFunctionType), "Converts a bar into a baz!")
             },
-            writableScopes_in: ScopeType.None,
-            readableScopes_in: ScopeType.None));
+            writableScopes_in: ScopeType.All,
+            readableScopes_in: ScopeType.All));
 
         var settings = new TypeSettings(name: "ThirdPartyExtension", version: "1.0.0", isSingleton: false, configurationType: null!);
 
@@ -145,8 +145,8 @@ public static class ExtensionResourceTypeHelper
             {
                 ["convertBarToBaz"] = new(factory.GetReference(barFunctionType), "Converts a bar into a baz!")
             },
-            writableScopes_in: ScopeType.None,
-            readableScopes_in: ScopeType.None));
+            writableScopes_in: ScopeType.All,
+            readableScopes_in: ScopeType.All));
 
         //setup fallback resource
         var fallbackBodyType = rootFactory.Create(() => new ObjectType("fallback body", new Dictionary<string, ObjectTypeProperty>
@@ -158,8 +158,8 @@ public static class ExtensionResourceTypeHelper
             "fallback",
             rootFactory.GetReference(fallbackBodyType),
             null,
-            writableScopes_in: ScopeType.None,
-            readableScopes_in: ScopeType.None));
+            writableScopes_in: ScopeType.All,
+            readableScopes_in: ScopeType.All));
 
         var fallbackResource = new CrossFileTypeReference("types.json", rootFactory.GetIndex(fallbackType));
 
@@ -208,8 +208,8 @@ public static class ExtensionResourceTypeHelper
             "AWS.S3/Bucket@default",
             factory.GetReference(awsBucketsBodyType),
             null,
-            writableScopes_in: ScopeType.None,
-            readableScopes_in: ScopeType.None));
+            writableScopes_in: ScopeType.All,
+            readableScopes_in: ScopeType.All));
 
         var environmentsBodyType = factory.Create(() => new ObjectType("body", new Dictionary<string, ObjectTypeProperty>
         {
@@ -221,8 +221,8 @@ public static class ExtensionResourceTypeHelper
             "Applications.Core/environments@2023-10-01-preview",
             factory.GetReference(environmentsBodyType),
             null,
-            writableScopes_in: ScopeType.None,
-            readableScopes_in: ScopeType.None));
+            writableScopes_in: ScopeType.All,
+            readableScopes_in: ScopeType.All));
 
         var applicationsBodyType = factory.Create(() => new ObjectType("body", new Dictionary<string, ObjectTypeProperty>
         {
@@ -234,8 +234,8 @@ public static class ExtensionResourceTypeHelper
             "Applications.Core/applications@2023-10-01-preview",
             factory.GetReference(applicationsBodyType),
             null,
-            writableScopes_in: ScopeType.None,
-            readableScopes_in: ScopeType.None));
+            writableScopes_in: ScopeType.All,
+            readableScopes_in: ScopeType.All));
 
         var recipeType = factory.Create(() => new ObjectType("recipe", new Dictionary<string, ObjectTypeProperty>
         {
@@ -259,8 +259,8 @@ public static class ExtensionResourceTypeHelper
             "Applications.Core/extenders@2023-10-01-preview",
             factory.GetReference(extendersBodyType),
             null,
-            writableScopes_in: ScopeType.None,
-            readableScopes_in: ScopeType.None));
+            writableScopes_in: ScopeType.All,
+            readableScopes_in: ScopeType.All));
 
         var settings = new TypeSettings(name: "Radius", version: "1.0.0", isSingleton: false, configurationType: null!);
 

@@ -1908,7 +1908,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    []);
+                    [],
+                    OnCompileErrors.Ignore);
             }
         }
     }

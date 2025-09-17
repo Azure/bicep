@@ -83,8 +83,8 @@
       "$ref": "#/6"
     },
     "functions": null,
-    "readableScopes": 0,
-    "writableScopes": 0,
+    "readableScopes": 31,
+    "writableScopes": 31,
     "scopeType": null,
     "readOnlyScopes": null,
     "flags": null
