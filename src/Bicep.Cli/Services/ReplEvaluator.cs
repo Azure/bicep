@@ -13,6 +13,7 @@ using Bicep.Core;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
+using Bicep.Cli.Helpers.Repl;
 
 namespace Bicep.Cli.Services;
 
@@ -127,15 +128,20 @@ public class ReplEvaluator
 
 public class ReplEvaluationResult
 {
-    private ReplEvaluationResult(JToken? value, IEnumerable<IDiagnostic>? diagnostics)
+    private ReplEvaluationResult(JToken? value, IEnumerable<IDiagnostic>? diagnostics, AnnotatedDiagnostic? annotatedDiagnostics)
     {
         Value = value;
         Diagnostics = diagnostics?.ToList() ?? [];
+        AnnotatedDiagnostics = annotatedDiagnostics;
     }
 
     public JToken? Value { get; }
     public IReadOnlyList<IDiagnostic> Diagnostics { get; }
+    public AnnotatedDiagnostic? AnnotatedDiagnostics { get; }
 
-    public static ReplEvaluationResult For(JToken value) => new(value, null);
-    public static ReplEvaluationResult For(IEnumerable<IDiagnostic> diagnostics) => new(null, diagnostics);
+    public static ReplEvaluationResult For(JToken value) => new(value, null, null);
+    public static ReplEvaluationResult For(IEnumerable<IDiagnostic> diagnostics) => new(null, diagnostics, null);
+    public static ReplEvaluationResult For(AnnotatedDiagnostic annotatedDiagnostics) => new(null, null, annotatedDiagnostics);
 }
+
+public record AnnotatedDiagnostic(string Diagnostic);

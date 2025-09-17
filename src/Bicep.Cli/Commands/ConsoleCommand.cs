@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Services;
 using Bicep.Core;
@@ -50,8 +51,6 @@ public class ConsoleCommand : ICommand
                 continue;
             }
 
-            await io.Output.WriteLineAsync(rawLine);
-
             // evaluate input
             var result = await replEnvironment.EvaluateInput(rawLine);
             if (result.Diagnostics.Any())
@@ -60,6 +59,10 @@ public class ConsoleCommand : ICommand
                 {
                     await io.Output.WriteLineAsync(diag.Message);
                 }
+            }
+            else if (result.AnnotatedDiagnostics is { } annotatedDiagnostic)
+            {
+                await io.Output.WriteLineAsync(annotatedDiagnostic.Diagnostic);
             }
             else if (result.Value is { } value)
             {
