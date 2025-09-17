@@ -3,6 +3,8 @@
 
 using System.Collections.Immutable;
 using System.Text;
+using Bicep.Cli.Helpers.WhatIf; // TODO: Move the usages (namely colorization helpers) to a common namespace
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Text;
@@ -11,23 +13,23 @@ namespace Bicep.Cli.Helpers.Repl;
 
 public class PrintHelper
 {
-    public class Annotation : IPositionable
+    public class AnnotatedDiagnostic : IPositionable
     {
-        public Annotation(TextSpan span, string message)
+        // TODO: Rethink this
+        public AnnotatedDiagnostic(IDiagnostic diagnostic, Func<TextSpan>? narrowSpan = null)
         {
-            Span = span;
-            Message = message;
+            Span = narrowSpan?.Invoke() ?? diagnostic.Span;
+            Diagnostic = diagnostic;
         }
 
         public TextSpan Span { get; }
-
-        public string Message { get; }
+        public IDiagnostic Diagnostic { get; }
     }
 
-    public static string PrintWithAnnotations(BicepSourceFile bicepFile, IEnumerable<Annotation> annotations, int context) =>
-        PrintWithAnnotations(bicepFile.ProgramSyntax.ToString(), bicepFile.LineStarts, annotations, context);
+    public static string PrintWithAnnotations(string text, IEnumerable<AnnotatedDiagnostic> annotations)
+        => PrintWithAnnotations(text, TextCoordinateConverter.GetLineStarts(text), annotations);
 
-    public static string PrintWithAnnotations(string fileText, ImmutableArray<int> lineStarts, IEnumerable<Annotation> annotations, int context)
+    public static string PrintWithAnnotations(string fileText, ImmutableArray<int> lineStarts, IEnumerable<AnnotatedDiagnostic> annotations)
     {
         var annotationPositions = annotations.ToDictionary(
             x => x,
@@ -35,10 +37,11 @@ public class PrintHelper
 
         if (annotationPositions.Count == 0)
         {
-            return "";
+            return string.Empty;
         }
 
-        var output = new StringBuilder();
+        var outputBuilder = new ColoredStringBuilder();
+
         var programLines = StringUtils.SplitOnNewLine(fileText).ToArray();
 
         var annotationsByLine = annotationPositions.ToLookup(x => x.Value.line, x => x.Key);
@@ -46,39 +49,48 @@ public class PrintHelper
         var minLine = annotationPositions.Values.Aggregate(int.MaxValue, (min, curr) => Math.Min(curr.line, min));
         var maxLine = annotationPositions.Values.Aggregate(0, (max, curr) => Math.Max(curr.line, max)) + 1;
 
-        minLine = Math.Max(0, minLine - context);
-        maxLine = Math.Min(lineStarts.Length, maxLine + context);
-        // var digits = maxLine.ToString().Length;
+        minLine = Math.Max(0, minLine);
+        maxLine = Math.Min(lineStarts.Length, maxLine);
 
         for (var i = minLine; i < maxLine; i++)
         {
             var gutterOffset = 0;
-            output.Append(programLines[i]);
-            output.Append('\n');
+            outputBuilder.Append(programLines[i]);
+            outputBuilder.Append('\n');
 
             var annotationsToDisplay = annotationsByLine[i].OrderBy(x => annotationPositions[x].character);
             foreach (var annotation in annotationsToDisplay)
             {
-                var position = annotationPositions[annotation];
-                output.Append(new string(' ', gutterOffset + position.character));
-
-                switch (annotation.Span.Length)
+                var color = annotation.Diagnostic.Level switch
                 {
-                    case 0:
-                        output.Append('^');
-                        break;
-                    case int x:
-                        // TODO handle annotation spanning multiple lines
-                        output.Append(new string('~', x));
-                        break;
-                }
+                    DiagnosticLevel.Error => Color.Red,
+                    DiagnosticLevel.Warning => Color.Orange,
+                    _ => Color.Reset,
+                };
 
-                output.Append(' ');
-                output.Append(annotation.Message);
-                output.Append('\n');
+                using (outputBuilder.NewColorScope(color))
+                {
+                    var position = annotationPositions[annotation];
+                    outputBuilder.Append(new string(' ', gutterOffset + position.character));
+
+                    switch (annotation.Span.Length)
+                    {
+                        case 0:
+                            outputBuilder.Append('^');
+                            break;
+                        case int x:
+                            outputBuilder.Append(new string('~', x));
+                            break;
+                    }
+
+                    outputBuilder.Append(' ');
+                    outputBuilder.Append(annotation.Diagnostic.Message);
+                    outputBuilder.Append('\n');
+                }
+                
             }
         }
-
-        return output.ToString();
+        
+        return outputBuilder.ToString();
     }
 }

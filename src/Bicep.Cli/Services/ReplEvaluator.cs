@@ -128,20 +128,15 @@ public class ReplEvaluator
 
 public class ReplEvaluationResult
 {
-    private ReplEvaluationResult(JToken? value, IEnumerable<IDiagnostic>? diagnostics, AnnotatedDiagnostic? annotatedDiagnostics)
+    private ReplEvaluationResult(JToken? value, IEnumerable<IDiagnostic>? diagnostics)
     {
         Value = value;
         Diagnostics = diagnostics?.ToList() ?? [];
-        AnnotatedDiagnostics = annotatedDiagnostics;
     }
 
     public JToken? Value { get; }
     public IReadOnlyList<IDiagnostic> Diagnostics { get; }
-    public AnnotatedDiagnostic? AnnotatedDiagnostics { get; }
 
-    public static ReplEvaluationResult For(JToken value) => new(value, null, null);
-    public static ReplEvaluationResult For(IEnumerable<IDiagnostic> diagnostics) => new(null, diagnostics, null);
-    public static ReplEvaluationResult For(AnnotatedDiagnostic annotatedDiagnostics) => new(null, null, annotatedDiagnostics);
+    public static ReplEvaluationResult For(JToken value) => new(value, null);
+    public static ReplEvaluationResult For(IEnumerable<IDiagnostic> diagnostics) => new(null, diagnostics);
 }
-
-public record AnnotatedDiagnostic(string Diagnostic);
