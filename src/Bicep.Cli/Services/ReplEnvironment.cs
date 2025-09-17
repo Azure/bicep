@@ -42,6 +42,16 @@ public class ReplEnvironment
 
     public async Task<ReplEvaluationResult> EvaluateInput(string input)
     {
+        if (TryParseVariableAssignment(input, out var assignmentName, out var assignmentValue, out var assignmentError))
+        {
+            if (assignmentError is not null)
+            {
+                return assignmentError;
+            }
+
+            return await EvaluateVariableRedefinition(assignmentName!, assignmentValue!);
+        }
+
         var parser = new ReplParser(input);
         var syntax = parser.ParseExpression(out var diags);
         var errors = diags.Where(d => d.Level == DiagnosticLevel.Error).ToList();
@@ -58,37 +68,109 @@ public class ReplEnvironment
         return await EvaluateExpression(syntax);
     }
 
+    private bool TryParseVariableAssignment(string input, out string? name, out string? value, out ReplEvaluationResult? errorResult)
+    {
+        name = null;
+        value = null;
+        errorResult = null;
+
+        // Check input to see if it is a redefinition of a variable
+        // > var a = 'value'
+        // value
+        // > a = 'new value'
+        // new value
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return false;
+        }
+
+        var trimmed = input.TrimStart();
+        if (trimmed.StartsWith($"{LanguageConstants.VariableKeyword} ", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var eqIndex = input.IndexOf('=');
+        if (eqIndex < 0)
+        {
+            return false;
+        }
+        if (eqIndex + 1 < input.Length)
+        {
+            var next = input[eqIndex + 1];
+            if (next is '=' or '>' or '~')
+            {
+                return false;
+            }
+        }
+
+        var lhs = input[..eqIndex].Trim();
+        if (lhs.Length == 0 || !Lexer.IsValidIdentifier(lhs))
+        {
+            return false;
+        }
+
+        var rhs = input[(eqIndex + 1)..];
+        if (string.IsNullOrWhiteSpace(rhs))
+        {
+            return false;
+        }
+
+        // Confirm variable has been declared previously
+        name = lhs;
+        value = rhs;
+
+        if (!variableDeclarationLookup.ContainsKey(lhs))
+        {
+            var diagnostic = DiagnosticBuilder.ForPosition(new TextSpan(0, lhs.Length))
+                .FailedToEvaluateSubject("assignment", lhs, $"Variable '{lhs}' is not declared. Use 'var {lhs} = ...' to declare it.");
+            errorResult = ReplEvaluationResult.For(new[] { diagnostic });
+        }
+
+        return true;
+    }
+
+    private async Task<ReplEvaluationResult> EvaluateVariableRedefinition(string name, string rhsExpression)
+    {
+        if (!variableDeclarationLookup.TryGetValue(name, out _))
+        {
+            var diagnostic = DiagnosticBuilder.ForPosition(new TextSpan(0, name.Length))
+                .FailedToEvaluateSubject("assignment", name, $"Variable '{name}' is not declared. Use 'var {name} = ...' to declare it.");
+            return ReplEvaluationResult.For(new[] { diagnostic });
+        }
+
+        var declarationText = $"var {name} = {rhsExpression}";
+        var workingLines = GetWorkingLinesExcludingPrior(name);
+        return await CompileEvaluateAndPersist(name, declarationText, rhsExpression, workingLines);
+    }
+
     private async Task<ReplEvaluationResult> EvaluateVariableDeclaration(VariableDeclarationSyntax varDecl)
     {
         var varName = varDecl.Name.IdentifierName;
         var declarationText = varDecl.ToString();
+        var workingLines = GetWorkingLinesExcludingPrior(varName);
+        return await CompileEvaluateAndPersist(varName, declarationText, declarationText, workingLines);
+    }
 
-        // Build a working list excluding prior declaration (to avoid duplicate diagnostic) if redefining.
-        List<string> workingLines;
+    // Build a working list excluding prior declaration (to avoid duplicate diagnostic) if redefining.
+    private List<string> GetWorkingLinesExcludingPrior(string varName)
+    {
         if (variableDeclarationLookup.TryGetValue(varName, out var existingText))
         {
-            workingLines = [.. variableDeclarationLines.Where(l => !string.Equals(l, existingText, StringComparison.Ordinal))];
+            return [.. variableDeclarationLines.Where(l => !string.Equals(l, existingText, StringComparison.Ordinal))];
         }
-        else
-        {
-            workingLines = [.. variableDeclarationLines];
-        }
+        return [.. variableDeclarationLines];
+    }
 
-        // Compile working lines + new declaration (without mutating persisted state yet).
-        var sb = new StringBuilder();
-        foreach (var line in workingLines)
-        {
-            sb.AppendLine(line);
-        }
-        sb.Append(declarationText);
-        var fullContent = sb.ToString();
+    private async Task<ReplEvaluationResult> CompileEvaluateAndPersist(string varName, string declarationText, string diagnosticsFocusText, List<string> workingLines)
+    {
+        var fullContent = BuildFullContent(workingLines, declarationText);
         var compilation = await CompileInternal(fullContent);
-
         var model = compilation.GetEntrypointSemanticModel();
         var diagnostics = model.GetAllDiagnostics().Where(d => d.Source != DiagnosticSource.CoreLinter).ToList();
         if (diagnostics.Count != 0)
         {
-            return CreateAnnotatedDiagnosticResult(diagnostics, declarationText, fullContent.Length);
+            return CreateAnnotatedDiagnosticResult(diagnostics, diagnosticsFocusText, fullContent.Length);
         }
 
         // Find and evaluate the newly declared variable symbol.
@@ -109,6 +191,17 @@ public class ReplEnvironment
         return valueEval;
     }
 
+    private string BuildFullContent(IEnumerable<string> existingLines, string lastLine)
+    {
+        var sb = new StringBuilder();
+        foreach (var line in existingLines)
+        {
+            sb.AppendLine(line);
+        }
+        sb.Append(lastLine);
+        return sb.ToString();
+    }
+
     private async Task<ReplEvaluationResult> EvaluateExpression(SyntaxBase expressionSyntax)
     {
         var tempVarName = $"__temp_eval_{Guid.NewGuid():N}";
@@ -116,14 +209,7 @@ public class ReplEnvironment
 
         // need to write to "some" file in order to compile and get a semantic model
         // a semantic model is needed by ExpressionConverter
-        var sb = new StringBuilder();
-        foreach (var line in variableDeclarationLines)
-        {
-            sb.AppendLine(line);
-        }
-        sb.Append("var ").Append(tempVarName).Append(" = ").Append(userExpression);
-        var fullContent = sb.ToString();
-
+        var fullContent = BuildFullContent(variableDeclarationLines, $"var {tempVarName} = {userExpression}");
         var compilation = await CompileInternal(fullContent);
 
         var model = compilation.GetEntrypointSemanticModel();
@@ -151,9 +237,7 @@ public class ReplEnvironment
 
         var sourceFile = compiler.SourceFileFactory.CreateBicepReplFile(fileHandle, fullContent);
         workspace.UpsertSourceFile(sourceFile);
-
-        var compilation = compiler.CreateCompilationWithoutRestore(replFileUri, workspace);
-        return compilation;
+        return compiler.CreateCompilationWithoutRestore(replFileUri, workspace);
     }
 
     private static ReplEvaluationResult CreateAnnotatedDiagnosticResult(List<IDiagnostic> diagnostics, string userText, int compiledTextLength)
