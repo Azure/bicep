@@ -40,6 +40,12 @@ public class ConsoleCommand : ICommand
             }
 
             var trimmed = rawLine.Trim();
+
+            if (trimmed.Length == 0)
+            {
+                continue; // ignore empty lines
+            }
+            
             if (trimmed.Equals("exit", StringComparison.OrdinalIgnoreCase))
             {
                 break;

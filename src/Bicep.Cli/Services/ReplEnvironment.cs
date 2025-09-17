@@ -29,7 +29,7 @@ public class ReplEnvironment
     private readonly Workspace workspace;
 
     // Persist original variable declaration text (ordered) and lookup to allow redefinition.
-    private readonly List<string> variableDeclarationLines = new();
+    private readonly List<string> variableDeclarationLines = [];
     private readonly Dictionary<string, string> variableDeclarationLookup = new(StringComparer.OrdinalIgnoreCase);
     private static readonly IOUri replFileUri = IOUri.FromFilePath("/session.biceprepl");
 
@@ -45,9 +45,9 @@ public class ReplEnvironment
         var parser = new ReplParser(input);
         var syntax = parser.ParseExpression(out var diags);
         var errors = diags.Where(d => d.Level == DiagnosticLevel.Error).ToList();
-        if (errors.Any())
+        if (errors.Count > 0)
         {
-            return ReplEvaluationResult.For(errors);
+            return CreateAnnotatedDiagnosticResult(errors, input, input.Length);
         }
 
         if (syntax is VariableDeclarationSyntax varDecl)
@@ -80,15 +80,15 @@ public class ReplEnvironment
         {
             sb.AppendLine(line);
         }
-        sb.AppendLine(declarationText);
+        sb.Append(declarationText);
         var fullContent = sb.ToString();
-        var compilerResult = await CompileInternal(fullContent);
+        var compilation = await CompileInternal(fullContent);
 
-        var model = compilerResult.GetEntrypointSemanticModel();
+        var model = compilation.GetEntrypointSemanticModel();
         var diagnostics = model.GetAllDiagnostics().Where(d => d.Source != DiagnosticSource.CoreLinter).ToList();
         if (diagnostics.Count != 0)
         {
-            return CreateAnnotatedDiagnosticResult(diagnostics, declarationText, model.SourceFile.Text.Length);
+            return CreateAnnotatedDiagnosticResult(diagnostics, declarationText, fullContent.Length);
         }
 
         // Find and evaluate the newly declared variable symbol.
@@ -116,15 +116,23 @@ public class ReplEnvironment
 
         // need to write to "some" file in order to compile and get a semantic model
         // a semantic model is needed by ExpressionConverter
-        var compilerResult = await CompileExpression(userExpression, tempVarName);
+        var sb = new StringBuilder();
+        foreach (var line in variableDeclarationLines)
+        {
+            sb.AppendLine(line);
+        }
+        sb.Append("var ").Append(tempVarName).Append(" = ").Append(userExpression);
+        var fullContent = sb.ToString();
 
-        var model = compilerResult.GetEntrypointSemanticModel();
+        var compilation = await CompileInternal(fullContent);
+
+        var model = compilation.GetEntrypointSemanticModel();
 
         var diagnostics = model.GetAllDiagnostics().Where(d => d.Source != DiagnosticSource.CoreLinter).ToList();
         
         if (diagnostics.Count > 0)
         {
-            return CreateAnnotatedDiagnosticResult(diagnostics, userExpression, model.SourceFile.Text.Length);
+            return CreateAnnotatedDiagnosticResult(diagnostics, userExpression, fullContent.Length);
         }
 
         var evaluator = new ReplEvaluator(model);
@@ -134,19 +142,6 @@ public class ReplEnvironment
         var boundVariable = model.Root.VariableDeclarations.First(v => v.Name == tempVarName);
 
         return evaluator.EvaluateExpression(boundVariable.DeclaringVariable.Value);
-    }
-
-    private async Task<Compilation> CompileExpression(string expression, string variableName)
-    {
-        // TODO: Not sure about this... Reconsider if there's a better way
-        var sb = new StringBuilder();
-        foreach (var line in variableDeclarationLines)
-        {
-            sb.AppendLine(line);
-        }
-        sb.Append("var ").Append(variableName).Append(" = ").AppendLine(expression);
-        var fullContent = sb.ToString();
-        return await CompileInternal(fullContent);
     }
 
     private async Task<Compilation> CompileInternal(string fullContent)
@@ -161,7 +156,7 @@ public class ReplEnvironment
         return compilation;
     }
 
-    private ReplEvaluationResult CreateAnnotatedDiagnosticResult(List<IDiagnostic> diagnostics, string userText, int compiledTextLength)
+    private static ReplEvaluationResult CreateAnnotatedDiagnosticResult(List<IDiagnostic> diagnostics, string userText, int compiledTextLength)
     {
         if (diagnostics.Count == 0)
         {
@@ -174,8 +169,7 @@ public class ReplEnvironment
         
         // Filter diagnostics to only those within the user's text span
         var relevantDiagnostics = diagnostics
-            .Where(d => d.Span.Position >= textOffset)
-            .Where(d => d.Span.Position < compiledTextLength)
+            .Where(d => d.Span.Position >= textOffset && d.Span.Position <= compiledTextLength)
             .ToList();
             
         if (relevantDiagnostics.Count == 0)
