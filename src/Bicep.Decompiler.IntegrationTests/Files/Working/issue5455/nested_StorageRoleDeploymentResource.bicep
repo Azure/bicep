@@ -1,7 +1,7 @@
 param reference_concat_Microsoft_Synapse_workspaces_parameters_name_2021_06_01_Full_identity_principalId object
 param resourceId_Microsoft_Authorization_roleDefinitions_variables_storageBlobDataContributorRoleID string
 param variables_storageBlobDataContributorRoleID ? /* TODO: fill in correct type */
-//@[049:050) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) |?|
+//@[049:050) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) |?|
 param defaultDataLakeStorageAccountName string
 param name string
 param storageRoleUniqueId string

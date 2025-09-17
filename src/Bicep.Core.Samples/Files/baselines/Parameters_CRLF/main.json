@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15804961212035327508"
+      "templateHash": "3803299486942594908"
     }
   },
   "parameters": {
@@ -18,6 +18,7 @@
     "myBool": {
       "type": "bool"
     },
+    "myAny": {},
     "myString2": {
       "type": "string",
       "defaultValue": "string value"
@@ -37,6 +38,9 @@
     "myEscapedString": {
       "type": "string",
       "defaultValue": "First line\r\nSecond\ttabbed\tline"
+    },
+    "myAny2": {
+      "defaultValue": "[parameters('myAny').property]"
     },
     "foo": {
       "type": "object",
@@ -85,13 +89,13 @@
     },
     "storageName": {
       "type": "string",
-      "maxLength": 24,
-      "minLength": 3
+      "minLength": 3,
+      "maxLength": 24
     },
     "someArray": {
       "type": "array",
-      "maxLength": 24,
-      "minLength": 3
+      "minLength": 3,
+      "maxLength": 24
     },
     "emptyMetadata": {
       "type": "string",
@@ -131,8 +135,8 @@
       "metadata": {
         "description": "Name of the storage account"
       },
-      "maxLength": 24,
-      "minLength": 3
+      "minLength": 3,
+      "maxLength": 24
     },
     "defaultExpression": {
       "type": "bool",
@@ -160,8 +164,8 @@
         "Apple",
         "Banana"
       ],
-      "maxLength": 10,
-      "minLength": 2
+      "minLength": 2,
+      "maxLength": 10
     },
     "decoratedInt": {
       "type": "int",
@@ -170,8 +174,8 @@
     },
     "negativeValues": {
       "type": "int",
-      "maxValue": -3,
-      "minValue": -10
+      "minValue": -10,
+      "maxValue": -3
     },
     "decoratedBool": {
       "type": "bool",

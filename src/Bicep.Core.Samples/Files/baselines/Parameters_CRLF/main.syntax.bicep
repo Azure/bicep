@@ -1,5 +1,5 @@
 /*
-//@[00:2929) ProgramSyntax
+//@[00:2981) ProgramSyntax
   This is a block comment.
 */
 //@[02:0006) ├─Token(NewLine) |\r\n\r\n|
@@ -32,7 +32,16 @@ param myBool bool
 //@[13:0017) | └─TypeVariableAccessSyntax
 //@[13:0017) |   └─IdentifierSyntax
 //@[13:0017) |     └─Token(Identifier) |bool|
-//@[17:0021) ├─Token(NewLine) |\r\n\r\n|
+//@[17:0019) ├─Token(NewLine) |\r\n|
+param myAny any
+//@[00:0015) ├─ParameterDeclarationSyntax
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0011) | ├─IdentifierSyntax
+//@[06:0011) | | └─Token(Identifier) |myAny|
+//@[12:0015) | └─TypeVariableAccessSyntax
+//@[12:0015) |   └─IdentifierSyntax
+//@[12:0015) |     └─Token(Identifier) |any|
+//@[15:0019) ├─Token(NewLine) |\r\n\r\n|
 
 // parameters with default value
 //@[32:0034) ├─Token(NewLine) |\r\n|
@@ -100,7 +109,25 @@ param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 //@[29:0030) |   ├─Token(Assignment) |=|
 //@[31:0067) |   └─StringSyntax
 //@[31:0067) |     └─Token(StringComplete) |'First line\r\nSecond\ttabbed\tline'|
-//@[67:0071) ├─Token(NewLine) |\r\n\r\n|
+//@[67:0069) ├─Token(NewLine) |\r\n|
+param myAny2 any = myAny.property
+//@[00:0033) ├─ParameterDeclarationSyntax
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0012) | ├─IdentifierSyntax
+//@[06:0012) | | └─Token(Identifier) |myAny2|
+//@[13:0016) | ├─TypeVariableAccessSyntax
+//@[13:0016) | | └─IdentifierSyntax
+//@[13:0016) | |   └─Token(Identifier) |any|
+//@[17:0033) | └─ParameterDefaultValueSyntax
+//@[17:0018) |   ├─Token(Assignment) |=|
+//@[19:0033) |   └─PropertyAccessSyntax
+//@[19:0024) |     ├─VariableAccessSyntax
+//@[19:0024) |     | └─IdentifierSyntax
+//@[19:0024) |     |   └─Token(Identifier) |myAny|
+//@[24:0025) |     ├─Token(Dot) |.|
+//@[25:0033) |     └─IdentifierSyntax
+//@[25:0033) |       └─Token(Identifier) |property|
+//@[33:0037) ├─Token(NewLine) |\r\n\r\n|
 
 // object default value
 //@[23:0025) ├─Token(NewLine) |\r\n|

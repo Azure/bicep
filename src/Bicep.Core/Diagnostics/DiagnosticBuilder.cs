@@ -1980,6 +1980,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic CannotExplicitlyDependOnInlinedResource(string dependentName, string dependencyName, IEnumerable<string> runtimePropertyNames) => CoreError(
                 "BCP434",
                 $"The resource \"{dependentName}\" cannot declare an explicit dependency on \"{dependencyName}\" because the identifier properties of the latter including {ToQuotedString(runtimePropertyNames.OrderBy(x => x))} cannot be calculated at the start of the deployment.");
+
+            public Diagnostic SecureDecoratorOnlyAllowedOnStringsAndObjects() => CoreError(
+                "BCP435",
+                "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
