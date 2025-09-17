@@ -40,14 +40,14 @@ public class ReplEnvironment
         this.workspace = new Workspace();
     }
 
-    public async Task<ReplEvaluationResult> EvaluateInput(string input)
+    public async Task<AnnotatedReplResult> EvaluateInput(string input)
     {
         var parser = new ReplParser(input);
         var syntax = parser.ParseExpression(out var diags);
         var errors = diags.Where(d => d.Level == DiagnosticLevel.Error).ToList();
         if (errors.Count > 0)
         {
-            return CreateAnnotatedDiagnosticResult(errors, input, input.Length);
+            return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(errors, input, input.Length));
         }
 
         if (syntax is VariableDeclarationSyntax varDecl)
@@ -58,7 +58,7 @@ public class ReplEnvironment
         return await EvaluateExpression(syntax);
     }
 
-    private async Task<ReplEvaluationResult> EvaluateVariableDeclaration(VariableDeclarationSyntax varDecl)
+    private async Task<AnnotatedReplResult> EvaluateVariableDeclaration(VariableDeclarationSyntax varDecl)
     {
         var varName = varDecl.Name.IdentifierName;
         var declarationText = varDecl.ToString();
@@ -86,18 +86,18 @@ public class ReplEnvironment
 
         var model = compilation.GetEntrypointSemanticModel();
         var diagnostics = model.GetAllDiagnostics().Where(d => d.Source != DiagnosticSource.CoreLinter).ToList();
-        if (diagnostics.Count != 0)
+        if (diagnostics.Count > 0)
         {
-            return CreateAnnotatedDiagnosticResult(diagnostics, declarationText, fullContent.Length);
+            return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(diagnostics, declarationText, fullContent.Length));
         }
 
         // Find and evaluate the newly declared variable symbol.
         var declaredVariable = model.Root.VariableDeclarations.First(v => v.Name.Equals(varName, StringComparison.OrdinalIgnoreCase));
         var evaluator = new ReplEvaluator(model);
-        var valueEval = evaluator.EvaluateExpression(declaredVariable.DeclaringVariable.Value);
-        if (valueEval.Diagnostics.Any())
+        var variableEvalResult = evaluator.EvaluateExpression(declaredVariable.DeclaringVariable.Value);
+        if (variableEvalResult.Diagnostics.Any())
         {
-            return valueEval;
+            return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(variableEvalResult.Diagnostics, declarationText, fullContent.Length));
         }
 
         // Persist only after successful evaluation.
@@ -106,10 +106,10 @@ public class ReplEnvironment
         variableDeclarationLines.Add(declarationText);
         variableDeclarationLookup[varName] = declarationText;
 
-        return valueEval;
+        return new AnnotatedReplResult(variableEvalResult.Value, []);
     }
 
-    private async Task<ReplEvaluationResult> EvaluateExpression(SyntaxBase expressionSyntax)
+    private async Task<AnnotatedReplResult> EvaluateExpression(SyntaxBase expressionSyntax)
     {
         var tempVarName = $"__temp_eval_{Guid.NewGuid():N}";
         var userExpression = expressionSyntax.ToString();
@@ -129,10 +129,10 @@ public class ReplEnvironment
         var model = compilation.GetEntrypointSemanticModel();
 
         var diagnostics = model.GetAllDiagnostics().Where(d => d.Source != DiagnosticSource.CoreLinter).ToList();
-        
+
         if (diagnostics.Count > 0)
         {
-            return CreateAnnotatedDiagnosticResult(diagnostics, userExpression, fullContent.Length);
+            return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(diagnostics, userExpression, fullContent.Length));
         }
 
         var evaluator = new ReplEvaluator(model);
@@ -141,7 +141,13 @@ public class ReplEnvironment
         // (it doesn't seem like we can evaluate the expression directly because we need a symbol bound to a semantic model)
         var boundVariable = model.Root.VariableDeclarations.First(v => v.Name == tempVarName);
 
-        return evaluator.EvaluateExpression(boundVariable.DeclaringVariable.Value);
+        var expressionEvalResult = evaluator.EvaluateExpression(boundVariable.DeclaringVariable.Value);
+        if (expressionEvalResult.Diagnostics.Any())
+        {
+            return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(expressionEvalResult.Diagnostics, userExpression, fullContent.Length));
+        }
+
+        return new AnnotatedReplResult(expressionEvalResult.Value, []);
     }
 
     private async Task<Compilation> CompileInternal(string fullContent)
@@ -156,40 +162,17 @@ public class ReplEnvironment
         return compilation;
     }
 
-    private static ReplEvaluationResult CreateAnnotatedDiagnosticResult(List<IDiagnostic> diagnostics, string userText, int compiledTextLength)
+    // TODO: There's probably a better way to do this...
+    private static IEnumerable<PrintHelper.AnnotatedDiagnostic> CreateAnnotatedDiagnostics(IEnumerable<IDiagnostic> diagnostics, string userText, int compiledTextLength)
     {
-        if (diagnostics.Count == 0)
-        {
-            return ReplEvaluationResult.For(diagnostics);
-        }
-
         // Calculate the offset where user's text starts in the compiled content
         // User's text is always at the end, so: totalLength - userTextLength = startOffset
         var textOffset = compiledTextLength - userText.Length;
-        
-        // Filter diagnostics to only those within the user's text span
-        var relevantDiagnostics = diagnostics
-            .Where(d => d.Span.Position >= textOffset && d.Span.Position <= compiledTextLength)
-            .ToList();
-            
-        if (relevantDiagnostics.Count == 0)
-        {
-            return ReplEvaluationResult.For(diagnostics);
-        }
-
-        // Adjust diagnostic positions to be relative to user's text
-        var adjustedAnnotations = relevantDiagnostics.Select(d => new PrintHelper.Annotation(
-            new TextSpan(d.Span.Position - textOffset, d.Span.Length), 
-            $"[{d.Code} ({d.Level})] {d.Message}"));
-
-        // Generate annotated output
-        var userTextLineStarts = TextCoordinateConverter.GetLineStarts(userText);
-        var printResult = PrintHelper.PrintWithAnnotations(
-            userText,
-            userTextLineStarts,
-            adjustedAnnotations, 
-            0);
-            
-        return ReplEvaluationResult.For(new AnnotatedDiagnostic(printResult));
+        var annotatedDiagnostics = diagnostics
+            .Where(d => d.Span.Position >= textOffset && d.Span.Position <= compiledTextLength) // only diagnostics that overlap with user text
+            .Select(d => new PrintHelper.AnnotatedDiagnostic(d, () => new TextSpan(d.Span.Position - textOffset, d.Span.Length)));
+        return annotatedDiagnostics;
     }
 }
+
+public record AnnotatedReplResult(JToken? Value, IEnumerable<PrintHelper.AnnotatedDiagnostic> AnnotatedDiagnostics);
