@@ -31,7 +31,7 @@
     <PackageReference Include="System.CommandLine.Hosting" />
     <PackageReference Include="System.CommandLine.NamingConventionBinder" />
     <PackageReference Include="System.CommandLine.Rendering" />
-    <PackageReference Include="System.IO.Abstractions" />
+    <PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" />
   </ItemGroup>
 
   <ItemGroup>

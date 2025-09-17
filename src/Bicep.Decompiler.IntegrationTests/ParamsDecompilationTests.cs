@@ -8,6 +8,8 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Decompiler;
+using Bicep.IO.Abstraction;
+using Bicep.TextFixtures.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -19,7 +21,7 @@ namespace Bicep.Decompiler.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private static BicepDecompiler CreateDecompiler() => ServiceBuilder.Create().GetDecompiler();
+        private readonly TestDecompiler decompiler = new();
 
         [TestMethod]
         public void Decompiler_Decompiles_ValidParametersFile()
@@ -71,13 +73,9 @@ namespace Bicep.Decompiler.IntegrationTests
 
                 """;
 
-            var paramFileUri = new Uri("file:///path/to/main.json");
+            var paramFileUri = new IOUri("file", "", "/path/to/main.bicepparam");
 
-            var decompiler = CreateDecompiler();
-
-            var (entryPointUri, filesToSave) = decompiler.DecompileParameters(
-                jsonParametersFile,
-                PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension), null);
+            var (entryPointUri, filesToSave) = decompiler.DecompileParameters(jsonParametersFile, paramFileUri, null);
 
             filesToSave[entryPointUri].Should().BeEquivalentToIgnoringNewlines(expectedBicepparamFile);
         }
@@ -115,15 +113,10 @@ namespace Bicep.Decompiler.IntegrationTests
 
                 """;
 
-            var paramFileUri = new Uri("file:///path/to/main.json");
-            var bicepFileUri = new Uri("file:///path/to/dir/main.bicep");
+            var paramFileUri = new IOUri("file", "", "/path/to/main.bicepparam");
+            var bicepFileUri = new IOUri("file", "", "/path/to/dir/main.bicep");
 
-            var decompiler = CreateDecompiler();
-
-            var (entryPointUri, filesToSave) = decompiler.DecompileParameters(
-              jsonParametersFile,
-              PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension),
-              bicepFileUri);
+            var (entryPointUri, filesToSave) = decompiler.DecompileParameters(jsonParametersFile, paramFileUri, bicepFileUri);
 
             filesToSave[entryPointUri].Should().BeEquivalentToIgnoringNewlines(expectedBicepparamFile);
         }
@@ -168,14 +161,9 @@ namespace Bicep.Decompiler.IntegrationTests
 
                 """;
 
-            var paramFileUri = new Uri("file:///path/to/main.json");
+            var paramFileUri = new IOUri("file", "", "/path/to/main.bicepparam");
 
-            var decompiler = CreateDecompiler();
-
-            var (entryPointUri, filesToSave) = decompiler.DecompileParameters(
-              jsonParametersFile,
-              PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension),
-              null);
+            var (entryPointUri, filesToSave) = decompiler.DecompileParameters(jsonParametersFile, paramFileUri, null);
 
             filesToSave[entryPointUri].Should().Be(expectedBicepparamFile);
         }
@@ -223,14 +211,9 @@ namespace Bicep.Decompiler.IntegrationTests
                 
                 """;
 
-            var paramFileUri = new Uri("file:///path/to/main.json");
+            var paramFileUri = new IOUri("file", "", "/path/to/main.bicepparam");
 
-            var decompiler = CreateDecompiler();
-
-            var (entryPointUri, filesToSave) = decompiler.DecompileParameters(
-              jsonParametersFile,
-              PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension),
-              null);
+            var (entryPointUri, filesToSave) = decompiler.DecompileParameters(jsonParametersFile, paramFileUri, null);
 
             filesToSave[entryPointUri].Should().BeEquivalentToIgnoringNewlines(expectedBicepparamFile);
         }

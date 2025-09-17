@@ -537,7 +537,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             featureProviderMock.Setup(x => x.CacheRootDirectory).Returns(cacheRootDirectoryMock.Object);
 
             var featureProviderFactoryMock = StrictMock.Of<IFeatureProviderFactory>();
-            featureProviderFactoryMock.Setup(x => x.GetFeatureProvider(It.IsAny<Uri>())).Returns(featureProviderMock.Object);
+            featureProviderFactoryMock.Setup(x => x.GetFeatureProvider(It.IsAny<IOUri>())).Returns(featureProviderMock.Object);
 
             var sourceFileFactory = new SourceFileFactory(BicepTestConstants.ConfigurationManager, featureProviderFactoryMock.Object, BicepTestConstants.AuxiliaryFileCache, BicepTestConstants.FileExplorer);
 

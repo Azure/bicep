@@ -28,15 +28,14 @@ namespace Bicep.Core.Configuration
             this.fileExplorer = fileExplorer;
         }
 
-        public RootConfiguration GetConfiguration(Uri sourceFileUri)
+        public RootConfiguration GetConfiguration(IOUri sourceFileUri)
         {
             if (!sourceFileUri.IsFile)
             {
                 return GetDefaultConfiguration();
             }
 
-            var sourceFileIOUri = sourceFileUri.ToIOUri();
-            var sourceDirectory = this.fileExplorer.GetFile(sourceFileIOUri).GetParent();
+            var sourceDirectory = this.fileExplorer.GetFile(sourceFileUri).GetParent();
 
             if (!configFileLookupCache.GetOrAdd(sourceDirectory, LookupConfigurationFile).IsSuccess(out var configFileHandle, out var lookupDiagnostic))
             {
@@ -81,9 +80,9 @@ namespace Bicep.Core.Configuration
             return returnVal;
         }
 
-        public void RemoveConfigCacheEntry(IOUri identifier)
+        public void RemoveConfigCacheEntry(IOUri configFileUri)
         {
-            var configFileHandle = this.fileExplorer.GetFile(identifier);
+            var configFileHandle = this.fileExplorer.GetFile(configFileUri);
             if (loadedConfigCache.TryRemove(configFileHandle, out _))
             {
                 // If a config file has been removed from a workspace, the lookup cache is no longer valid.

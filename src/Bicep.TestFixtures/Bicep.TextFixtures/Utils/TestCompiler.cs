@@ -6,6 +6,7 @@ using Bicep.Core;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.IO.FileSystem;
+using Bicep.IO.InMemory;
 using Bicep.TextFixtures.IO;
 
 namespace Bicep.TextFixtures.Utils
@@ -31,15 +32,30 @@ namespace Bicep.TextFixtures.Utils
 
         public TestFileSet FileSet { get; }
 
-        public static TestCompiler ForMockFileSystemCompilation()
+        public static TestCompiler ForRealFileSystemCompilation()
         {
-            var fileSystem = new MockFileSystem();
-            var fileExplorer = new FileSystemFileExplorer(fileSystem);
-            var fileSet = new MockFileSystemTestFileSet(fileSystem);
+            var fileSet = new MockFileSystemTestFileSet();
 
             return new TestCompiler(fileSet).ConfigureServices(services => services
-                .AddFileSystem(fileSystem)
-                .AddFileExplorer(fileExplorer));
+                .AddFileSystem(fileSet.FileSystem)
+                .AddFileExplorer(fileSet.FileExplorer));
+        }
+
+        public static TestCompiler ForMockFileSystemCompilation()
+        {
+            var fileSet = new MockFileSystemTestFileSet();
+
+            return new TestCompiler(fileSet).ConfigureServices(services => services
+                .AddFileSystem(fileSet.FileSystem)
+                .AddFileExplorer(fileSet.FileExplorer));
+        }
+
+        public static TestCompiler ForInMemoryCompilation()
+        {
+            var fileSet = new InMemoryTestFileSet();
+
+            return new TestCompiler(fileSet).ConfigureServices(services => services
+                .AddFileExplorer(fileSet.FileExplorer));
         }
 
         public T GetService<T>() where T : notnull => this.services.Get<T>();
@@ -75,7 +91,7 @@ namespace Bicep.TextFixtures.Utils
         public async Task<TestCompilationResult> Compile(string entryPointPath = DefaultEntryPointPath, bool skipRestore = false)
         {
             var compiler = this.services.Get<BicepCompiler>();
-            var compilation = await compiler.CreateCompilation(this.FileSet.GetUri(entryPointPath).ToUri(), skipRestore: skipRestore);
+            var compilation = await compiler.CreateCompilation(this.FileSet.GetUri(entryPointPath), skipRestore: skipRestore);
 
             return TestCompilationResult.FromCompilation(compilation);
         }

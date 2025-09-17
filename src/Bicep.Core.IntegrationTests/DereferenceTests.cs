@@ -170,14 +170,14 @@ public class DereferenceTests
         compiledOutputData.Should().NotBeNull();
 
         // there's no way for `.name` or `.id` to be null on a module output resource, hence the lack of `tryGet`
-        compiledOutputData!["vmMaybeName"].Should().DeepEqual("[last(split(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs.vm.value, '/'))]");
-        compiledOutputData!["vmMaybeId"].Should().DeepEqual("[reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs.vm.value]");
+        compiledOutputData!["vmMaybeName"].Should().DeepEqual("[last(split(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2025-04-01').outputs.vm.value, '/'))]");
+        compiledOutputData!["vmMaybeId"].Should().DeepEqual("[reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2025-04-01').outputs.vm.value]");
 
         // if the output resource itself uses a safe dereference, though, the generated expressions get more complex
-        compiledOutputData!["maybeVmId"].Should().DeepEqual("[tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs, 'vm', 'value')]");
-        compiledOutputData!["maybeVmMaybeId"].Should().DeepEqual("[tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs, 'vm', 'value')]");
-        compiledOutputData!["maybeVmName"].Should().DeepEqual("[if(contains(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs, 'vm'), last(split(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs.vm.value, '/')), null())]");
-        compiledOutputData!["maybeVmMaybeName"].Should().DeepEqual("[if(contains(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs, 'vm'), last(split(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs.vm.value, '/')), null())]");
+        compiledOutputData!["maybeVmId"].Should().DeepEqual("[tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2025-04-01').outputs, 'vm', 'value')]");
+        compiledOutputData!["maybeVmMaybeId"].Should().DeepEqual("[tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2025-04-01').outputs, 'vm', 'value')]");
+        compiledOutputData!["maybeVmName"].Should().DeepEqual("[if(contains(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2025-04-01').outputs, 'vm'), last(split(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2025-04-01').outputs.vm.value, '/')), null())]");
+        compiledOutputData!["maybeVmMaybeName"].Should().DeepEqual("[if(contains(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2025-04-01').outputs, 'vm'), last(split(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2025-04-01').outputs.vm.value, '/')), null())]");
     }
 
     [TestMethod]
@@ -212,15 +212,15 @@ public class DereferenceTests
         var compiledOutputData = result.Template?["outputs"]?["outputData"]?["value"];
         compiledOutputData.Should().NotBeNull();
 
-        compiledOutputData!["output"].Should().DeepEqual("[reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs.outputData.value]");
-        compiledOutputData!["maybeOutput"].Should().DeepEqual("[tryGet(tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs, 'outputData'), 'value')]");
-        compiledOutputData!["topLevelProperty"].Should().DeepEqual("[reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs.outputData.value.key]");
-        compiledOutputData!["maybeTopLevelProperty"].Should().DeepEqual("[tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs.outputData.value, 'key')]");
-        compiledOutputData!["maybeOutputTopLevelProperty"].Should().DeepEqual("[tryGet(tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs, 'outputData'), 'value', 'key')]");
-        compiledOutputData!["maybeOutputMaybeTopLevelProperty"].Should().DeepEqual("[tryGet(tryGet(tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs, 'outputData'), 'value'), 'key')]");
-        compiledOutputData!["nestedProperty"].Should().DeepEqual("[reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs.outputData.value.nested.key]");
-        compiledOutputData!["maybeNestedProperty"].Should().DeepEqual("[tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs.outputData.value, 'nested', 'key')]");
-        compiledOutputData!["maybeOutputNestedProperty"].Should().DeepEqual("[tryGet(tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs, 'outputData'), 'value', 'nested', 'key')]");
+        compiledOutputData!["output"].Should().DeepEqual("[reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2025-04-01').outputs.outputData.value]");
+        compiledOutputData!["maybeOutput"].Should().DeepEqual("[tryGet(tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2025-04-01').outputs, 'outputData'), 'value')]");
+        compiledOutputData!["topLevelProperty"].Should().DeepEqual("[reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2025-04-01').outputs.outputData.value.key]");
+        compiledOutputData!["maybeTopLevelProperty"].Should().DeepEqual("[tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2025-04-01').outputs.outputData.value, 'key')]");
+        compiledOutputData!["maybeOutputTopLevelProperty"].Should().DeepEqual("[tryGet(tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2025-04-01').outputs, 'outputData'), 'value', 'key')]");
+        compiledOutputData!["maybeOutputMaybeTopLevelProperty"].Should().DeepEqual("[tryGet(tryGet(tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2025-04-01').outputs, 'outputData'), 'value'), 'key')]");
+        compiledOutputData!["nestedProperty"].Should().DeepEqual("[reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2025-04-01').outputs.outputData.value.nested.key]");
+        compiledOutputData!["maybeNestedProperty"].Should().DeepEqual("[tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2025-04-01').outputs.outputData.value, 'nested', 'key')]");
+        compiledOutputData!["maybeOutputNestedProperty"].Should().DeepEqual("[tryGet(tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2025-04-01').outputs, 'outputData'), 'value', 'nested', 'key')]");
     }
 
     [TestMethod]
@@ -471,14 +471,14 @@ public class DereferenceTests
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         result.Template.Should().NotBeNull();
         result.Template.Should().HaveValueAtPath("$.outputs.name.value", "[if(parameters('condition'), 'mod', null())]");
-        result.Template.Should().HaveValueAtPath("$.outputs.outputs.value", "[if(parameters('condition'), listOutputsWithSecureValues('mod', '2022-09-01'), null())]");
+        result.Template.Should().HaveValueAtPath("$.outputs.outputs.value", "[if(parameters('condition'), listOutputsWithSecureValues('mod', '2025-04-01'), null())]");
         result.Template.Should().HaveValueAtPath("$.outputs.outputs2.value", "[tryGet(if(not(parameters('condition')), reference('mod2'), null()), 'outputs')]");
         result.Template.Should().HaveValueAtPath("$.outputs.foo.value", "[tryGet(if(parameters('condition'), reference('mod'), null()), 'outputs', 'foo', 'value')]");
         result.Template.Should().HaveValueAtPath("$.outputs.foo2.value", "[tryGet(if(not(parameters('condition')), reference('mod2'), null()), 'outputs', 'foo', 'value')]");
         result.Template.Should().HaveValueAtPath("$.outputs.nullableFoo.value", "[tryGet(tryGet(tryGet(if(parameters('condition'), reference('mod'), null()), 'outputs'), 'foo'), 'value')]");
         result.Template.Should().HaveValueAtPath("$.outputs.nullableFoo2.value", "[tryGet(tryGet(tryGet(if(not(parameters('condition')), reference('mod2'), null()), 'outputs'), 'foo'), 'value')]");
-        result.Template.Should().HaveValueAtPath("$.outputs.bar.value", "[tryGet(if(parameters('condition'), listOutputsWithSecureValues('mod', '2022-09-01'), null()), 'bar')]");
-        result.Template.Should().HaveValueAtPath("$.outputs.nullableBar.value", "[tryGet(if(parameters('condition'), listOutputsWithSecureValues('mod', '2022-09-01'), null()), 'bar')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.bar.value", "[tryGet(if(parameters('condition'), listOutputsWithSecureValues('mod', '2025-04-01'), null()), 'bar')]");
+        result.Template.Should().HaveValueAtPath("$.outputs.nullableBar.value", "[tryGet(if(parameters('condition'), listOutputsWithSecureValues('mod', '2025-04-01'), null()), 'bar')]");
     }
 
     [TestMethod]

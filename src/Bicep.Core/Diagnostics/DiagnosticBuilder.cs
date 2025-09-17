@@ -343,9 +343,9 @@ namespace Bicep.Core.Diagnostics
                 "BCP050",
                 "The specified path is empty.");
 
-            public Diagnostic FilePathBeginsWithForwardSlash() => CoreError(
+            public Diagnostic FilePathIsAbsolute() => CoreError(
                 "BCP051",
-                "The specified path begins with \"/\". Files must be referenced using relative paths.");
+                "The specified path seems to reference an absolute path. Files must be referenced using relative paths.");
 
             public Diagnostic UnknownProperty(bool warnInsteadOfError, TypeSymbol type, string badProperty) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
@@ -963,7 +963,7 @@ namespace Bicep.Core.Diagnostics
                     $"This expression is being used in the for-body of the variable \"{variableName}\", which requires values that can be calculated at the start of the deployment.{variableDependencyChainClause}{violatingPropertyNameClause}{accessiblePropertiesClause}");
             }
 
-            public Diagnostic ModulePropertyRequiresObjectLiteral(string propertyName) => CoreError(
+            public Diagnostic PropertyRequiresObjectLiteral(string propertyName) => CoreError(
                 "BCP183",
                 $"The value of the module \"{propertyName}\" property must be an object literal.");
 
@@ -1843,7 +1843,7 @@ namespace Bicep.Core.Diagnostics
 
                 return CoreError(
                 "BCP407",
-                $"Built-in extension \"microsoftGraph\" is retired. Use dynamic types instead. See https://aka.ms/graphBicepDynamicTypes")
+                $"Built-in extension \"microsoftGraph\" is retired. Use dynamic types instead. See https://aka.ms/graphbicep/dynamictypes")
                 with
                 {
                     Fixes = [codeFix]
@@ -1958,6 +1958,28 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic FoundFileInsteadOfDirectory(string filePath) => CoreError(
                 "BCP430",
                 $"Unable to open directory at path \"{filePath}\". Found a file instead.");
+
+            public Diagnostic InvalidModuleExtensionConfigAssignmentExpression(string propertyName) => CoreError(
+                "BCP431",
+                $"The value of the \"{propertyName}\" property must be an object literal or a valid extension config inheritance expression.");
+
+            public Diagnostic RuntimeValueNotAllowedInFunctionArgument(string? functionName, string? parameterName, string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
+            {
+                var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
+                var accessiblePropertiesClause = BuildAccessiblePropertiesClause(accessedSymbolName, accessiblePropertyNames);
+
+                return CoreError(
+                    "BCP432",
+                    $"This expression is being used in parameter \"{parameterName ?? "unknown"}\" of the function \"{functionName ?? "unknown"}\", which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
+            }
+
+            public Diagnostic InlinedResourcesCannotHaveExplicitDependencies(string symbolicName, IEnumerable<string> runtimePropertyNames) => CoreError(
+                "BCP433",
+                $"The resource \"{symbolicName}\" cannot declare explicit dependencies because its identifier properties including {ToQuotedString(runtimePropertyNames.OrderBy(x => x))} cannot be calculated at the start of the deployment.");
+
+            public Diagnostic CannotExplicitlyDependOnInlinedResource(string dependentName, string dependencyName, IEnumerable<string> runtimePropertyNames) => CoreError(
+                "BCP434",
+                $"The resource \"{dependentName}\" cannot declare an explicit dependency on \"{dependencyName}\" because the identifier properties of the latter including {ToQuotedString(runtimePropertyNames.OrderBy(x => x))} cannot be calculated at the start of the deployment.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             var scheme = new IOUriScheme(documentUri.Scheme ?? "");
 
-            if (scheme.IsUntitled && documentUri.Authority.Length == 0)
+            if (!scheme.IsFile && documentUri.Authority.Length == 0)
             {
                 // For untitled documents with no authority (e.g., DocumentUri = untitled:Untitled-<number>),
                 // Omnisharp sets the authority to an empty string, which may be incorrect.

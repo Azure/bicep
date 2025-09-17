@@ -5,8 +5,10 @@ using System.CommandLine;
 using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.RegistryModuleTool.Extensions
 {
@@ -15,7 +17,7 @@ namespace Bicep.RegistryModuleTool.Extensions
         public static async Task<Compilation> CompileAsync(this BicepCompiler compiler, string path, IConsole console, string? skipWritingDiagnosticsPath = null)
         {
             var hasError = false;
-            var uri = PathHelper.FilePathToFileUrl(path);
+            var uri = IOUri.FromFilePath(path);
             var compilation = await compiler.CreateCompilation(uri);
 
             foreach (var (file, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
@@ -27,7 +29,7 @@ namespace Bicep.RegistryModuleTool.Extensions
                         hasError = true;
                     }
 
-                    if (!file.Uri.LocalPath.Equals(skipWritingDiagnosticsPath, StringComparison.Ordinal))
+                    if (!file.FileHandle.Uri.GetFilePath().Equals(skipWritingDiagnosticsPath, StringComparison.Ordinal))
                     {
                         console.WriteDiagnostic(file, diagnostic);
                     }

@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using Bicep.Core.Parsing;
 using Bicep.Core.Text;
 
@@ -25,6 +26,8 @@ namespace Bicep.Core.Syntax
         public override PropertyAccessSyntax AsSafeAccess() => SafeAccessMarker is null
             ? new(BaseExpression, Dot, SyntaxFactory.QuestionToken, PropertyName)
             : this;
+
+        public override string TryGetPropertyName() => PropertyName.IdentifierName;
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitPropertyAccessSyntax(this);
 

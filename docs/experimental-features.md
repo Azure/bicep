@@ -34,10 +34,6 @@ Enables Bicep to run deployments locally, so that you can run Bicep extensions w
 Moves defining extension configurations to the module level rather than from within a template. The feature also
 includes enhancements for Deployment stacks extensibility integration. This feature is not ready for use.
 
-### `moduleIdentity`
-
-Enables adding identity property to modules, which allows you to assign user-assigned identities to a module. The identity will currently only be used on the deployment for tenants on the allow list.
-
 ### `onlyIfNotExists`
 The feature introduces the onlyIfNotExists decorator on a resource. The decorator will only deploy the resource if it does not exist. (Note: This feature will not work until the backend service support has been deployed)
 ```
@@ -70,6 +66,15 @@ Allows the ARM template layer to use a new schema to represent resources as an o
 ### `testFramework`
 
 Should be enabled in tandem with `assertions` experimental feature flag for expected functionality. Allows you to author client-side, offline unit-test test blocks that reference Bicep files and mock deployment parameters in a separate `test.bicep` file using the new `test` keyword. Test blocks can be run with the command *bicep test <filepath_to_file_with_test_blocks>* which runs all `assert` statements in the Bicep files referenced by the test blocks. For more information, see [Bicep Experimental Test Framework](https://github.com/Azure/bicep/issues/11967).
+
+### `userDefinedConstraints`
+
+Enables the `@validate()` decorator on types, type properties, parameters, and outputs. The decorator takes two arguments: 1) a lambda function that accepts the decorator target's value and returns a boolean indicating if the value is valid (`true`) or not (`false`), and 2) an optional error message to use if the lambda returns `false`.
+
+```bicep
+@validate(x => startsWith(x, 'foo')) // <-- Accepts 'food' or 'fool' but causes the deployment to fail if 'booed' was supplied
+param p string
+```
 
 ### `waitAndRetry`
 

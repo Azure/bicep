@@ -126,6 +126,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                             .Replace("<TESTING_TODAY_DATE>", today)
                             .Replace("<MAX_AGE_PROP>", maxAgeInDays.HasValue ? $", \"maxAgeInDays\": {maxAgeInDays}" : ""))),
                 original.CacheRootDirectory,
+                original.ExperimentalFeaturesWarning,
                 original.ExperimentalFeaturesEnabled with
                 {
                     SymbolicNameCodegen = true,

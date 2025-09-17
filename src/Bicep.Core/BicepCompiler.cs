@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using System.IO.Abstractions;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -44,7 +45,7 @@ public class BicepCompiler
 
     public ISourceFileFactory SourceFileFactory { get; }
 
-    public Compilation CreateCompilationWithoutRestore(Uri bicepUri, IReadOnlyWorkspace? workspace = null, bool markAllForRestore = false)
+    public Compilation CreateCompilationWithoutRestore(IOUri bicepUri, IReadOnlyWorkspace? workspace = null, bool markAllForRestore = false)
     {
         workspace ??= new Workspace();
         var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileExplorer, moduleDispatcher, workspace, this.SourceFileFactory, bicepUri, markAllForRestore);
@@ -52,7 +53,7 @@ public class BicepCompiler
         return Create(sourceFileGrouping);
     }
 
-    public async Task<Compilation> CreateCompilation(Uri bicepUri, IReadOnlyWorkspace? workspace = null, bool skipRestore = false, bool forceRestore = false)
+    public async Task<Compilation> CreateCompilation(IOUri bicepUri, IReadOnlyWorkspace? workspace = null, bool skipRestore = false, bool forceRestore = false)
     {
         workspace ??= new Workspace();
         var compilation = CreateCompilationWithoutRestore(bicepUri, workspace, markAllForRestore: forceRestore);

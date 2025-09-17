@@ -8,6 +8,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Text;
 using Bicep.Decompiler;
+using Bicep.IO.InMemory;
 using Bicep.Wasm.LanguageHelpers;
 using Microsoft.JSInterop;
 
@@ -63,7 +64,7 @@ namespace Bicep.Wasm
 
             try
             {
-                var (entrypointUri, filesToSave) = await decompiler.Decompile(new Uri("inmemory:///main.bicep"), jsonContent);
+                var (entrypointUri, filesToSave) = await decompiler.Decompile(DummyFileHandle.Default.Uri, jsonContent);
 
                 return new DecompileResult(filesToSave[entrypointUri], null);
             }
@@ -136,7 +137,7 @@ namespace Bicep.Wasm
             var fileUri = new Uri("file:///main.bicep");
             await fileSystem.File.WriteAllTextAsync(fileUri.LocalPath, fileContents);
 
-            return await compiler.CreateCompilation(fileUri);
+            return await compiler.CreateCompilation(fileUri.ToIOUri());
         }
 
         private static object ToMonacoDiagnostic(IDiagnostic diagnostic, IReadOnlyList<int> lineStarts)

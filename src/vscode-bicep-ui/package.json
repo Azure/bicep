@@ -20,7 +20,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
-    "@eslint/js": "^9.30.0",
+    "@eslint/js": "^9.34.0",
     "@ianvs/prettier-plugin-sort-imports": "^4.4.2",
     "eslint": "^9.30.0",
     "eslint-plugin-notice": "^1.0.0",

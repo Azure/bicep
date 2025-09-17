@@ -16,7 +16,6 @@ namespace Bicep.Core.Emit
             Settings = semanticModel.EmitterSettings;
             SemanticModel = semanticModel;
             DataFlowAnalyzer = new(semanticModel);
-            VariablesToInline = InlineDependencyVisitor.GetVariablesToInline(semanticModel);
             ResourceDependencies = ResourceDependencyVisitor.GetResourceDependencies(semanticModel);
             FunctionVariables = FunctionVariableGeneratorVisitor.GetFunctionVariables(semanticModel);
             ExternalInputReferences = ExternalInputFunctionReferenceVisitor.CollectExternalInputReferences(semanticModel);
@@ -28,15 +27,9 @@ namespace Bicep.Core.Emit
 
         public DataFlowAnalyzer DataFlowAnalyzer { get; }
 
-        public ImmutableHashSet<VariableSymbol> VariablesToInline { get; }
-
         public ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> ResourceDependencies { get; }
 
         public ImmutableDictionary<FunctionCallSyntaxBase, FunctionVariable> FunctionVariables { get; }
-
-        public ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> ModuleScopeData => SemanticModel.EmitLimitationInfo.ModuleScopeData;
-
-        public ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> ResourceScopeData => SemanticModel.EmitLimitationInfo.ResourceScopeData;
 
         public ExternalInputReferences ExternalInputReferences { get; }
     }

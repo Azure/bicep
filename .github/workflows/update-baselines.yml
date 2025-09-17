@@ -25,7 +25,7 @@ jobs:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
       
       - name: Test
         continue-on-error: true

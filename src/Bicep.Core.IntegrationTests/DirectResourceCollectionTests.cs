@@ -6,6 +6,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.IntegrationTests
@@ -14,29 +15,10 @@ namespace Bicep.Core.IntegrationTests
     public class DirectResourceCollectionTests
     {
         [TestMethod]
-        public void DirectResourceCollectionAccess_NonSymbolic_Basic()
-        {
-            var result = CompilationHelper.Compile(CreateReferencesBicepContent());
-
-            result.WithErrorDiagnosticsOnly()
-                .Should()
-                .HaveDiagnostics(new[]
-                {
-                    ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),
-                    ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),
-                    ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),
-                    ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. The collection was accessed by the chain of \"ipAddresses\" -> \"containerWorkers\". Apply an array indexer to the expression."),
-                    ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),
-                    ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),
-                    ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. The collection was accessed by the chain of \"containerWorkersAlias\" -> \"containerWorkers\". Apply an array indexer to the expression."),
-                    ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. The collection was accessed by the chain of \"ipAddresses\" -> \"containerWorkers\". Apply an array indexer to the expression."),
-                });
-        }
-
-        [TestMethod]
         public void DirectResourceCollectionAccess_Basic()
         {
-            var result = CompilationHelper.Compile(NewServiceBuilder(isSymbolicNameCodegenEnabled: true), CreateReferencesBicepContent());
+            // Symbolic names aren't explicitly enabled, but using this feature will enable them
+            var result = CompilationHelper.Compile(CreateReferencesBicepContent());
 
             // NOTE(kylealbert): it's important that this test asserts no diagnostics for CreateReferencesBicepContent()
             // in relation to other tests that extend this content
@@ -84,12 +66,27 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
+        public void Accessing_resource_ids_with_lambda_is_supported()
+        {
+            var result = CompilationHelper.Compile("""
+            resource foo 'Microsoft.Storage/storageAccounts@2025-01-01' existing = [for i in range(0, 10): {
+              name: 'foosa${i}'
+            }]
+
+            output ids string[] = map(foo, x => x.id)
+            """);
+
+            result.WithErrorDiagnosticsOnly().Should().NotHaveAnyDiagnostics();
+            result.Template.Should()
+                .HaveValueAtPath(
+                    "$.outputs.ids.value",
+                    "[map(references('foo', 'full'), lambda('x', lambdaVariables('x').id))]");
+        }
+
+        [TestMethod]
         public void DirectResourceCollectionAccess_Modules()
         {
-            var result = CompilationHelper.Compile(
-                NewServiceBuilder(isSymbolicNameCodegenEnabled: true),
-                CreateReferencesBicepContentWithModules()
-            );
+            var result = CompilationHelper.Compile(CreateReferencesBicepContentWithModules());
 
             result.WithErrorDiagnosticsOnly()
                 .Should()
@@ -151,7 +148,7 @@ resource propertyLoop 'Microsoft.ContainerInstance/containerGroups@2022-09-01' =
 """)]
         public void DirectResourceCollectionAccess_NotAllowedWithinLoops(string additionalContent)
         {
-            var result = CompilationHelper.Compile(NewServiceBuilder(isSymbolicNameCodegenEnabled: true), $"{CreateReferencesBicepContent()}\n{additionalContent}");
+            var result = CompilationHelper.Compile($"{CreateReferencesBicepContent()}\n{additionalContent}");
 
             result.WithErrorDiagnosticsOnly()
                 .Should()
@@ -171,7 +168,7 @@ var loopVar = [for i in range(0, 2): {
   prop: map(containerWorkersAliased, (w) => w.properties.ipAddress.ip)
 }]
 """;
-            var result = CompilationHelper.Compile(NewServiceBuilder(isSymbolicNameCodegenEnabled: true), $"{CreateReferencesBicepContent()}\n{additionalContent}");
+            var result = CompilationHelper.Compile($"{CreateReferencesBicepContent()}\n{additionalContent}");
 
             result.WithErrorDiagnosticsOnly()
                 .Should()
@@ -193,7 +190,7 @@ resource containerController2 'Microsoft.ContainerInstance/containerGroups@2022-
   }
 }
 """;
-            var result = CompilationHelper.Compile(NewServiceBuilder(isSymbolicNameCodegenEnabled: true), $"{CreateReferencesBicepContent()}\n{additionalContent}");
+            var result = CompilationHelper.Compile($"{CreateReferencesBicepContent()}\n{additionalContent}");
 
             result.WithErrorDiagnosticsOnly()
                 .Should()
@@ -218,7 +215,7 @@ resource propertyLoop 'Microsoft.ContainerInstance/containerGroups@2022-09-01' =
   properties: {}
 }
 """;
-            var result = CompilationHelper.Compile(NewServiceBuilder(isSymbolicNameCodegenEnabled: true), $"{CreateReferencesBicepContent()}\n{additionalContent}");
+            var result = CompilationHelper.Compile($"{CreateReferencesBicepContent()}\n{additionalContent}");
 
             result.WithErrorDiagnosticsOnly()
                 .Should()
@@ -245,7 +242,7 @@ resource propertyLoop 'Microsoft.ContainerInstance/containerGroups@2022-09-01' =
 }
 """;
 
-            var result = CompilationHelper.Compile(NewServiceBuilder(isSymbolicNameCodegenEnabled: true), $"{CreateReferencesBicepContent()}\n{additionalContent}");
+            var result = CompilationHelper.Compile($"{CreateReferencesBicepContent()}\n{additionalContent}");
 
             result.WithErrorDiagnosticsOnly()
                 .Should()
@@ -294,7 +291,7 @@ resource containerWorkers2 'Microsoft.ContainerInstance/containerGroups@2022-09-
 }]
 """;
 
-            var result = CompilationHelper.Compile(NewServiceBuilder(isSymbolicNameCodegenEnabled: true), bicepContents);
+            var result = CompilationHelper.Compile(bicepContents);
 
             result.WithErrorDiagnosticsOnly()
                 .Should()
@@ -344,7 +341,7 @@ resource containerWorkers2 'Microsoft.ContainerInstance/containerGroups@2022-09-
 }]
 """;
 
-            var result = CompilationHelper.Compile(NewServiceBuilder(isSymbolicNameCodegenEnabled: true), bicepContents);
+            var result = CompilationHelper.Compile(bicepContents);
 
             result.WithErrorDiagnosticsOnly()
                 .Should()
@@ -367,15 +364,12 @@ resource directAccessOfExisting 'Providers.Test/statefulResources@2014-04-01' = 
 }
 """;
 
-            var result = CompilationHelper.Compile(NewServiceBuilder(isSymbolicNameCodegenEnabled: true), CreateReferencesBicepContent() + "\n" + additionalContent);
+            var result = CompilationHelper.Compile(CreateReferencesBicepContent() + "\n" + additionalContent);
 
             result.WithErrorDiagnosticsOnly()
                 .Should()
                 .NotHaveAnyDiagnostics();
         }
-
-        private static ServiceBuilder NewServiceBuilder(bool isSymbolicNameCodegenEnabled) => new ServiceBuilder()
-            .WithFeatureOverrides(new FeatureProviderOverrides { SymbolicNameCodegenEnabled = isSymbolicNameCodegenEnabled });
 
         private static string CreateReferencesBicepContent()
         {
