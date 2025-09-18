@@ -59,12 +59,13 @@ namespace Bicep.Core.Emit
             BlockSecureOutputAccessOnIndirectReference(model, diagnostics);
             BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
             BlockExplicitDependenciesInOrOnInlinedExistingResources(model, resourceTypeResolver, diagnostics);
+            BlockUsingWithClauseWithoutFeatureFlagEnabled(model, diagnostics);
 
             var paramAssignmentEvaluator = new ParameterAssignmentEvaluator(model);
-            var paramAssignments = CalculateParameterAssignments(model, paramAssignmentEvaluator, diagnostics);
+            var (paramAssignments, usingConfig) = CalculateParameterAssignments(model, paramAssignmentEvaluator, diagnostics);
             var extConfigAssignments = CalculateExtensionConfigAssignments(model, paramAssignmentEvaluator, diagnostics);
 
-            return new(diagnostics.GetDiagnostics(), paramAssignments, extConfigAssignments);
+            return new(diagnostics.GetDiagnostics(), paramAssignments, extConfigAssignments, usingConfig);
         }
 
         private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
@@ -597,14 +598,14 @@ namespace Bicep.Core.Emit
                 .WhereNotNull()
                 .Select(forbiddenSafeAccessMarker => DiagnosticBuilder.ForPosition(forbiddenSafeAccessMarker).SafeDereferenceNotPermittedOnResourceCollections()));
 
-        private static ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue> CalculateParameterAssignments(
+        private static (ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue> paramAssignments, ParameterAssignmentValue? usingConfig) CalculateParameterAssignments(
             SemanticModel model,
             ParameterAssignmentEvaluator evaluator,
             IDiagnosticWriter diagnostics)
         {
             if (model.HasParsingErrors())
             {
-                return ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue>.Empty;
+                return (ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue>.Empty, null);
             }
 
             var referencesInValues = model.Binder.Bindings.Values.OfType<DeclaredSymbol>().Distinct()
@@ -688,7 +689,13 @@ namespace Bicep.Core.Emit
                 }
             }
 
-            return generated.ToImmutableDictionary();
+            ParameterAssignmentValue? usingConfig = null;
+            if (evaluator.EvaluateUsingConfig(model.Root) is { } usingConfigResult)
+            {
+                usingConfig = new(usingConfigResult.Value, usingConfigResult.Expression, usingConfigResult.KeyVaultReference);
+            }
+
+            return (generated.ToImmutableDictionary(), usingConfig);
         }
 
         private static ImmutableDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>> CalculateExtensionConfigAssignments(
@@ -789,6 +796,17 @@ namespace Bicep.Core.Emit
                 if (!model.Features.ExtendableParamFilesEnabled)
                 {
                     diagnostics.Write(extendsDeclaration, x => x.ExtendsNotSupported());
+                }
+            }
+        }
+
+        private static void BlockUsingWithClauseWithoutFeatureFlagEnabled(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            foreach (var syntax in model.SourceFile.ProgramSyntax.Declarations.OfType<UsingDeclarationSyntax>())
+            {
+                if (syntax.WithClause is not SkippedTriviaSyntax && !model.Features.DeployCommandsEnabled)
+                {
+                    diagnostics.Write(syntax.WithClause, x => x.UsingWithClauseRequiresExperimentalFeature());
                 }
             }
         }

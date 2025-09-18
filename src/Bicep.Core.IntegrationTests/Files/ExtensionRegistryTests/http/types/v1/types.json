@@ -79,12 +79,14 @@
   {
     "$type": "ResourceType",
     "name": "request@v1",
-    "scopeType": 0,
-    "readOnlyScopes": null,
     "body": {
       "$ref": "#/6"
     },
-    "flags": 0,
-    "functions": null
+    "functions": null,
+    "readableScopes": 31,
+    "writableScopes": 31,
+    "scopeType": null,
+    "readOnlyScopes": null,
+    "flags": null
   }
 ]

@@ -110,6 +110,15 @@ namespace Bicep.Cli
                     case SnapshotArguments snapshotArguments when snapshotArguments.CommandName == Constants.Command.Snapshot: // bicep snapshot [options]
                         return await services.GetRequiredService<SnapshotCommand>().RunAsync(snapshotArguments, cancellationToken);
 
+                    case DeployArguments deployArguments when deployArguments.CommandName == Constants.Command.Deploy: // bicep deploy [options]
+                        return await services.GetRequiredService<DeployCommand>().RunAsync(deployArguments, cancellationToken);
+
+                    case WhatIfArguments whatIfArguments when whatIfArguments.CommandName == Constants.Command.WhatIf: // bicep what-if [options]
+                        return await services.GetRequiredService<WhatIfCommand>().RunAsync(whatIfArguments, cancellationToken);
+
+                    case TeardownArguments teardownArguments when teardownArguments.CommandName == Constants.Command.Teardown: // bicep teardown [options]
+                        return await services.GetRequiredService<TeardownCommand>().RunAsync(teardownArguments, cancellationToken);
+
                     case RootArguments rootArguments when rootArguments.CommandName == Constants.Command.Root: // bicep [options]
                         return services.GetRequiredService<RootCommand>().Run(rootArguments);
 

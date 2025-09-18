@@ -362,6 +362,12 @@ namespace Bicep.Core.Syntax
         {
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Path);
+            this.Visit(syntax.WithClause);
+        }
+
+        public override void VisitUsingWithClauseSyntax(UsingWithClauseSyntax syntax)
+        {
+            this.Visit(syntax.Config);
         }
 
         public override void VisitExtendsDeclarationSyntax(ExtendsDeclarationSyntax syntax)

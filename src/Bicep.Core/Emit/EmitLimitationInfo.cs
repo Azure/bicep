@@ -18,4 +18,5 @@ public record ExtensionConfigAssignmentValue(JToken? Value, ParameterKeyVaultRef
 public record EmitLimitationInfo(
     IReadOnlyList<IDiagnostic> Diagnostics,
     ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue> ParameterAssignments,
-    ImmutableDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>> ExtensionConfigAssignments);
+    ImmutableDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>> ExtensionConfigAssignments,
+    ParameterAssignmentValue? UsingConfig);

@@ -108,7 +108,7 @@ param storageAccountType = 'Standard_ZRS'
 
             result.Should().Fail();
             // remove the color ascii control codes to make it easier to visualize
-            ReplaceColorCodes(result.Stdout).Should().EqualIgnoringNewlines("""
+            AnsiHelper.ReplaceCodes(result.Stdout).Should().EqualIgnoringNewlines("""
 
 Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
 [Purple]
@@ -292,27 +292,5 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
               "diagnostics": []
             }
             """));
-    }
-
-    private static string ReplaceColorCodes(string input)
-    {
-        var namesByColor = new Dictionary<Color, string>
-        {
-            [Color.Orange] = nameof(Color.Orange),
-            [Color.Green] = nameof(Color.Green),
-            [Color.Purple] = nameof(Color.Purple),
-            [Color.Blue] = nameof(Color.Blue),
-            [Color.Gray] = nameof(Color.Gray),
-            [Color.Reset] = nameof(Color.Reset),
-            [Color.Red] = nameof(Color.Red),
-            [Color.DarkYellow] = nameof(Color.DarkYellow),
-        };
-
-        foreach (var (color, name) in namesByColor)
-        {
-            input = input.Replace(color.ToString(), $"[{name}]");
-        }
-
-        return input;
     }
 }

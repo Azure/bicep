@@ -4,7 +4,7 @@
 using Azure.Core;
 using Bicep.Core.Configuration;
 
-namespace Bicep.Core.Registry.Auth
+namespace Bicep.Core.AzureApi
 {
     public interface ITokenCredentialFactory
     {

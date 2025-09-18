@@ -100,6 +100,11 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
         ProcessSymbolClosures(visitor, model.Root.ParameterAssignments);
         ProcessSymbolClosures(visitor, model.Root.VariableDeclarations);
 
+        if (model.Root.UsingDeclarationSyntax?.Config is { } config)
+        {
+            // TODO update visitor to improve this
+            config.Accept(visitor);
+        }
 
         return new ExternalInputReferences(
             ParametersReferences: visitor.parametersContainingExternalInput.ToImmutable(),
@@ -110,32 +115,43 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
 
     private void VisitFunctionCallSyntaxInternal(FunctionCallSyntaxBase functionCallSyntax)
     {
-        if (SemanticModelHelper.TryGetNamedFunction(
-                this.semanticModel,
-                SystemNamespaceType.BuiltInName,
-                LanguageConstants.ExternalInputBicepFunctionName,
-                functionCallSyntax) is { } functionCall)
+        if (SemanticModelHelper.TryGetFunctionInNamespace(semanticModel, SystemNamespaceType.BuiltInName, functionCallSyntax) is not { } functionCall)
         {
-            if (functionCallSyntax.Arguments.Length < 1 ||
-                this.semanticModel.GetTypeInfo(functionCallSyntax.Arguments[0]) is not StringLiteralType stringLiteral)
-            {
-                return;
-            }
+            return;
+        }
 
-            var index = this.externalInputReferences.Count;
-            var definitionKey = GetExternalInputDefinitionName(stringLiteral.RawStringValue, index);
+        var index = this.externalInputReferences.Count;
+        string definitionKey;
 
-            this.externalInputReferences.TryAdd(functionCall, definitionKey);
+        if (functionCall.Name.NameEquals(LanguageConstants.ExternalInputBicepFunctionName) &&
+            functionCallSyntax.Arguments.Length >= 1 &&
+            semanticModel.GetTypeInfo(functionCallSyntax.Arguments[0]) is StringLiteralType stringLiteral)
+        {
+            definitionKey = GetExternalInputDefinitionName(stringLiteral.RawStringValue, index);
+        }
+        else if (functionCall.Name.NameEquals(LanguageConstants.ReadCliArgBicepFunctionName))
+        {
+            definitionKey = GetExternalInputDefinitionName($"sys.cliArg", index);
+        }
+        else if (functionCall.Name.NameEquals(LanguageConstants.ReadEnvVarBicepFunctionName))
+        {
+            definitionKey = GetExternalInputDefinitionName($"sys.envVar", index);
+        }
+        else
+        {
+            return;
+        }
+        
+        this.externalInputReferences.TryAdd(functionCall, definitionKey);
 
-            if (this.targetParameterAssignment is not null)
-            {
-                this.parametersContainingExternalInput.Add(this.targetParameterAssignment);
-            }
+        if (this.targetParameterAssignment is not null)
+        {
+            this.parametersContainingExternalInput.Add(this.targetParameterAssignment);
+        }
 
-            if (this.targetVariableDeclaration is not null)
-            {
-                this.variablesContainingExternalInput.Add(this.targetVariableDeclaration);
-            }
+        if (this.targetVariableDeclaration is not null)
+        {
+            this.variablesContainingExternalInput.Add(this.targetVariableDeclaration);
         }
     }
 
