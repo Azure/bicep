@@ -343,9 +343,9 @@ namespace Bicep.Core.Diagnostics
                 "BCP050",
                 "The specified path is empty.");
 
-            public Diagnostic FilePathBeginsWithForwardSlash() => CoreError(
+            public Diagnostic FilePathIsAbsolute() => CoreError(
                 "BCP051",
-                "The specified path begins with \"/\". Files must be referenced using relative paths.");
+                "The specified path seems to reference an absolute path. Files must be referenced using relative paths.");
 
             public Diagnostic UnknownProperty(bool warnInsteadOfError, TypeSymbol type, string badProperty) => CoreDiagnostic(
                 warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
@@ -1981,12 +1981,20 @@ namespace Bicep.Core.Diagnostics
                 "BCP434",
                 $"The resource \"{dependentName}\" cannot declare an explicit dependency on \"{dependencyName}\" because the identifier properties of the latter including {ToQuotedString(runtimePropertyNames.OrderBy(x => x))} cannot be calculated at the start of the deployment.");
 
-            public Diagnostic SyntaxBlockedWithTargetScopeOrchestrator(string keyword) => CoreError(
+            public Diagnostic UsingWithClauseRequiresExperimentalFeature() => CoreError(
                 "BCP435",
+                $"Using the \"{LanguageConstants.WithKeyword}\" keyword with a \"{LanguageConstants.UsingKeyword}\" statement requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.DeployCommands)}\".");
+
+            public Diagnostic ExpectedWithKeywordOrNewLine() => CoreError(
+                "BCP436",
+                $"Expected the \"with\" keyword or a new line character at this location.");
+
+            public Diagnostic SyntaxBlockedWithTargetScopeOrchestrator(string keyword) => CoreError(
+                "BCP437",
                 $"""Usage of syntax with keyword "{keyword}" is not permitted if the target scope is set to "{LanguageConstants.TargetScopeTypeOrchestrator}".""");
 
             public Diagnostic SyntaxBlockedWithoutTargetScopeOrchestrator(string keyword) => CoreError(
-                "BCP436",
+                "BCP438",
                 $"""Usage of syntax with keyword "{keyword}" is only permitted if the target scope is set to "{LanguageConstants.TargetScopeTypeOrchestrator}".""");
         }
 

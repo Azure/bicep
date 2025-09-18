@@ -116,8 +116,8 @@ namespace Bicep.Cli
                     case WhatIfArguments whatIfArguments when whatIfArguments.CommandName == Constants.Command.WhatIf: // bicep what-if [options]
                         return await services.GetRequiredService<WhatIfCommand>().RunAsync(whatIfArguments, cancellationToken);
 
-                    case DestroyArguments destroyArguments when destroyArguments.CommandName == Constants.Command.Destroy: // bicep destroy [options]
-                        return await services.GetRequiredService<DestroyCommand>().RunAsync(destroyArguments, cancellationToken);
+                    case TeardownArguments teardownArguments when teardownArguments.CommandName == Constants.Command.Teardown: // bicep teardown [options]
+                        return await services.GetRequiredService<TeardownCommand>().RunAsync(teardownArguments, cancellationToken);
 
                     case RootArguments rootArguments when rootArguments.CommandName == Constants.Command.Root: // bicep [options]
                         return services.GetRequiredService<RootCommand>().Run(rootArguments);

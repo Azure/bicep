@@ -242,7 +242,7 @@ module moduleWithEmptyPath '' = {
 }
 
 module moduleWithAbsolutePath '/abc/def.bicep' = {
-//@[030:046) [BCP051 (Error)] The specified path begins with "/". Files must be referenced using relative paths. (bicep https://aka.ms/bicep/core-diagnostics#BCP051) |'/abc/def.bicep'|
+//@[030:046) [BCP051 (Error)] The specified path seems to reference an absolute path. Files must be referenced using relative paths. (bicep https://aka.ms/bicep/core-diagnostics#BCP051) |'/abc/def.bicep'|
 }
 
 module moduleWithBackslash 'child\\file.bicep' = {

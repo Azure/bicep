@@ -61,13 +61,14 @@ namespace Bicep.Core.Emit
             BlockSecureOutputAccessOnIndirectReference(model, diagnostics);
             BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
             BlockExplicitDependenciesInOrOnInlinedExistingResources(model, resourceTypeResolver, diagnostics);
+            BlockUsingWithClauseWithoutFeatureFlagEnabled(model, diagnostics);
             ValidateSyntaxForOrchestrationMode(model, diagnostics);
 
             var paramAssignmentEvaluator = new ParameterAssignmentEvaluator(model);
             var (paramAssignments, usingConfig) = CalculateParameterAssignments(model, paramAssignmentEvaluator, diagnostics);
             var extConfigAssignments = CalculateExtensionConfigAssignments(model, paramAssignmentEvaluator, diagnostics);
 
-            return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments, extConfigAssignments, usingConfig);
+            return new(diagnostics.GetDiagnostics(), paramAssignments, extConfigAssignments, usingConfig);
         }
 
         private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
@@ -805,6 +806,17 @@ namespace Bicep.Core.Emit
                 if (!model.Features.ExtendableParamFilesEnabled)
                 {
                     diagnostics.Write(extendsDeclaration, x => x.ExtendsNotSupported());
+                }
+            }
+        }
+
+        private static void BlockUsingWithClauseWithoutFeatureFlagEnabled(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            foreach (var syntax in model.SourceFile.ProgramSyntax.Declarations.OfType<UsingDeclarationSyntax>())
+            {
+                if (syntax.WithClause is not SkippedTriviaSyntax && !model.Features.DeployCommandsEnabled)
+                {
+                    diagnostics.Write(syntax.WithClause, x => x.UsingWithClauseRequiresExperimentalFeature());
                 }
             }
         }

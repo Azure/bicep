@@ -26,7 +26,8 @@ public record FeatureProviderOverrides(
     bool? ModuleExtensionConfigsEnabled = default,
     bool? DesiredStateConfigurationEnabled = default,
     bool? OnlyIfNotExistsEnabled = default,
-    bool? UserDefinedConstraintsEnabled = default)
+    bool? UserDefinedConstraintsEnabled = default,
+    bool? DeployCommandsEnabled = default)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
@@ -47,7 +48,8 @@ public record FeatureProviderOverrides(
         bool? ModuleExtensionConfigsEnabled = default,
         bool? DesiredStateConfigurationEnabled = default,
         bool? OnlyIfNotExistsEnabled = default,
-        bool? UserDefinedConstraintsEnabled = default) : this(
+        bool? UserDefinedConstraintsEnabled = default,
+        bool? DeployCommandsEnabled = default) : this(
             FileHelper.GetCacheRootDirectory(testContext),
             RegistryEnabled,
             SymbolicNameCodegenEnabled,
@@ -66,6 +68,7 @@ public record FeatureProviderOverrides(
             ModuleExtensionConfigsEnabled,
             DesiredStateConfigurationEnabled,
             OnlyIfNotExistsEnabled,
-            UserDefinedConstraintsEnabled)
+            UserDefinedConstraintsEnabled,
+            DeployCommandsEnabled)
     { }
 }

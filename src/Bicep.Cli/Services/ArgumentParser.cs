@@ -44,7 +44,7 @@ namespace Bicep.Cli.Services
                 Constants.Command.Snapshot => new SnapshotArguments(args[1..]),
                 Constants.Command.Deploy => new DeployArguments(args[1..]),
                 Constants.Command.WhatIf => new WhatIfArguments(args[1..]),
-                Constants.Command.Destroy => new DestroyArguments(args[1..]),
+                Constants.Command.Teardown => new TeardownArguments(args[1..]),
                 _ => null,
             };
         }

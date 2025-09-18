@@ -897,6 +897,10 @@
         "userDefinedConstraints": {
           "type": "boolean",
           "description": "Allows you to use the `@validate()` decorator on types and parameters with a custom validation predicate. See https://aka.ms/bicep/experimental-features#userdefinedconstraints"
+        },
+        "deployCommands": {
+          "type": "boolean",
+          "description": "Allows you to access the 'deploy', 'what-if' and 'teardown' commands. See https://aka.ms/bicep/experimental-features#deploycommands"
         }
       },
       "additionalProperties": false

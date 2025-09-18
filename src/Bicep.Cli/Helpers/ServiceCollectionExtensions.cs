@@ -63,7 +63,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<SnapshotCommand>()
             .AddSingleton<DeployCommand>()
             .AddSingleton<WhatIfCommand>()
-            .AddSingleton<DestroyCommand>()
+            .AddSingleton<TeardownCommand>()
             .AddSingleton<RootCommand>();
 
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services

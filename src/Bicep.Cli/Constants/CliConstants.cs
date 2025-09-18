@@ -21,7 +21,7 @@ namespace Bicep.Cli.Constants
         public const string Snapshot = "snapshot";
         public const string Deploy = "deploy";
         public const string WhatIf = "what-if";
-        public const string Destroy = "destroy";
+        public const string Teardown = "teardown";
         public const string Root = "";
     }
 
