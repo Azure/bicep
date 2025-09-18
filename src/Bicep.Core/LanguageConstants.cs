@@ -223,6 +223,8 @@ namespace Bicep.Core
         public const string NameofFunctionName = "nameof";
         public const string ExternalInputBicepFunctionName = "externalInput";
         public const string ExternalInputsArmFunctionName = "externalInputs";
+        public const string ReadCliArgBicepFunctionName = "readCliArg";
+        public const string ReadEnvVarBicepFunctionName = "readEnvVar";
 
         public static readonly TypeSymbol Any = new AnyType();
         public static readonly TypeSymbol Never = new UnionType("never", []);
@@ -396,6 +398,55 @@ namespace Bicep.Core
             var moduleBody = new ObjectType(typeName, TypeSymbolValidationFlags.Default, moduleProperties, null);
 
             return new ModuleType(typeName, moduleScope, moduleBody);
+        }
+
+        public static TypeSymbol CreateUsingConfigType()
+        {
+            var optionalPropFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.DisallowAny;
+            var requiredPropFlags = optionalPropFlags | TypePropertyFlags.Required;
+
+            NamedTypeProperty[] commonProps = [
+                // Taken from the official REST specs for Microsoft.Resources/deployments
+                new(ModuleNamePropertyName, TypeFactory.CreateStringType(minLength: 1, maxLength: 64, pattern: @"^[-\w._()]+$"), optionalPropFlags),
+                // TODO model this properly as a scope, rather than a string
+                new(ResourceScopePropertyName, LanguageConstants.String, requiredPropFlags),
+            ];
+
+            var deployment = new ObjectType("DeploymentConfig", TypeSymbolValidationFlags.Default, [
+                ..commonProps,
+                new("mode", TypeFactory.CreateStringLiteralType("deployment"), requiredPropFlags),
+            ], null);
+
+            var deleteDetachEnum = TypeHelper.CreateTypeUnion(
+                TypeFactory.CreateStringLiteralType("delete"),
+                TypeFactory.CreateStringLiteralType("detach"));
+            var actionOnUnmanage = new ObjectType("actionOnUnmanage", TypeSymbolValidationFlags.Default, [
+                new("resources", deleteDetachEnum, requiredPropFlags, "Specifies the action that should be taken on the resource when the deployment stack is deleted. Delete will attempt to delete the resource from Azure. Detach will leave the resource in it's current state."),
+                new("resourceGroups", deleteDetachEnum, optionalPropFlags, "Specifies the action that should be taken on the resource when the deployment stack is deleted. Delete will attempt to delete the resource from Azure. Detach will leave the resource in it's current state."),
+                new("managementGroups", deleteDetachEnum, optionalPropFlags, "Specifies the action that should be taken on the resource when the deployment stack is deleted. Delete will attempt to delete the resource from Azure. Detach will leave the resource in it's current state."),
+            ], null);
+
+            var denySettingsModeEnum = TypeHelper.CreateTypeUnion(
+                TypeFactory.CreateStringLiteralType("denyDelete"),
+                TypeFactory.CreateStringLiteralType("denyWriteAndDelete"),
+                TypeFactory.CreateStringLiteralType("none"));
+            var denySettings = new ObjectType("denySettings", TypeSymbolValidationFlags.Default, [
+                new("applyToChildScopes", LanguageConstants.Bool, optionalPropFlags, "DenySettings will be applied to child scopes."),
+                new("excludedActions", LanguageConstants.StringArray, optionalPropFlags, "List of role-based management operations that are excluded from the denySettings. Up to 200 actions are permitted. If the denySetting mode is set to 'denyWriteAndDelete', then the following actions are automatically appended to 'excludedActions': '*/read' and 'Microsoft.Authorization/locks/delete'. If the denySetting mode is set to 'denyDelete', then the following actions are automatically appended to 'excludedActions': 'Microsoft.Authorization/locks/delete'. Duplicate actions will be removed."),
+                new("excludedPrincipals", LanguageConstants.StringArray, optionalPropFlags, "List of AAD principal IDs excluded from the lock. Up to 5 principals are permitted."),
+                new("mode", denySettingsModeEnum, requiredPropFlags, "denySettings Mode."),
+            ], null);
+
+            var stack = new ObjectType("StackConfig", TypeSymbolValidationFlags.Default, [
+                ..commonProps,
+                new("description", LanguageConstants.String, optionalPropFlags, "Deployment stack description."),
+                new("mode", TypeFactory.CreateStringLiteralType("stack"), requiredPropFlags),
+                new("actionOnUnmanage", actionOnUnmanage, requiredPropFlags, "Defines the behavior of resources that are not managed immediately after the stack is updated."),
+                new("denySettings", denySettings, requiredPropFlags, "Defines how resources deployed by the deployment stack are locked."),
+            ], null);
+
+
+            return new DiscriminatedObjectType("Config", TypeSymbolValidationFlags.Default, "mode", [deployment, stack]);
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Text.Json;
 using Azure.Core;
 using Azure.ResourceManager;
 using Bicep.Core.Configuration;
-using Bicep.Core.Registry.Auth;
+using Bicep.Core.AzureApi;
 using Bicep.Core.Tracing;
 
 namespace Bicep.LanguageServer.Providers

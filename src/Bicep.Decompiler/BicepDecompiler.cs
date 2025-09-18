@@ -90,7 +90,8 @@ public class BicepDecompiler
                 SyntaxFactory.UsingKeywordToken,
                 bicepPath is not null
                     ? SyntaxFactory.CreateStringLiteral(bicepPath)
-                    : SyntaxFactory.CreateStringLiteralWithComment("", "TODO: Provide a path to a bicep template")));
+                    : SyntaxFactory.CreateStringLiteralWithComment("", "TODO: Provide a path to a bicep template"),
+                SyntaxFactory.EmptySkippedTrivia));
 
             statements.Add(SyntaxFactory.DoubleNewlineToken);
         }

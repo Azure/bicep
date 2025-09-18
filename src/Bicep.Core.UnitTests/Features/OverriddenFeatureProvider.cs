@@ -48,4 +48,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool DesiredStateConfigurationEnabled => overrides.DesiredStateConfigurationEnabled ?? features.DesiredStateConfigurationEnabled;
 
     public bool UserDefinedConstraintsEnabled => overrides.UserDefinedConstraintsEnabled ?? features.UserDefinedConstraintsEnabled;
+
+    public bool DeployCommandsEnabled => overrides.DeployCommandsEnabled ?? features.DeployCommandsEnabled;
 }

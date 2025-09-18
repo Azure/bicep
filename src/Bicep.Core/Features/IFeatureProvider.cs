@@ -39,6 +39,8 @@ public interface IFeatureProvider
 
     bool UserDefinedConstraintsEnabled { get; }
 
+    bool DeployCommandsEnabled { get; }
+
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
         get
@@ -60,6 +62,7 @@ public interface IFeatureProvider
                 (ModuleExtensionConfigsEnabled, "Enable defining extension configs for modules", true, true),
                 (DesiredStateConfigurationEnabled, "Enable defining Desired State Configuration documents", true, false),
                 (UserDefinedConstraintsEnabled, "Enable @validate() decorator", true, true),
+                (DeployCommandsEnabled, "Enable deploy commands", true, true),
             })
             {
                 if (enabled)

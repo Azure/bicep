@@ -90,7 +90,15 @@ namespace Bicep.Core.Parsing
                 _ => SkipEmpty(b => b.ExpectedSymbolListOrWildcard()),
             };
 
-            return new(keyword, expression);
+            var current = this.reader.Peek();
+            var withClause = current.Type switch
+            {
+                TokenType.EndOfFile or
+                TokenType.NewLine => this.SkipEmpty(),
+                _ => this.WithRecovery(this.UsingWithClause, GetSuppressionFlag(expression), TokenType.NewLine),
+            };
+
+            return new(keyword, expression, withClause);
         }
 
         private ExtendsDeclarationSyntax ExtendsDeclaration()
@@ -126,6 +134,14 @@ namespace Bicep.Core.Parsing
         private ExtensionWithClauseSyntax ExtensionWithClause()
         {
             var keyword = this.ExpectKeyword(LanguageConstants.WithKeyword);
+            var config = this.WithRecovery(() => this.Object(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine);
+
+            return new(keyword, config);
+        }
+
+        private UsingWithClauseSyntax UsingWithClause()
+        {
+            var keyword = this.ExpectKeyword(LanguageConstants.WithKeyword, b => b.ExpectedWithKeywordOrNewLine());
             var config = this.WithRecovery(() => this.Object(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine);
 
             return new(keyword, config);

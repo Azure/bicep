@@ -112,7 +112,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "desiredStateConfiguration": false,
           "onlyIfNotExists": false,
-          "userDefinedConstraints": false
+          "userDefinedConstraints": false,
+          "deployCommands": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -195,7 +196,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "moduleExtensionConfigs": false,
           "desiredStateConfiguration": false,
           "onlyIfNotExists": false,
-          "userDefinedConstraints": false
+          "userDefinedConstraints": false,
+          "deployCommands": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -300,7 +302,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "moduleExtensionConfigs": false,
           "desiredStateConfiguration": false,
           "onlyIfNotExists": false,
-          "userDefinedConstraints": false
+          "userDefinedConstraints": false,
+          "deployCommands": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -386,7 +389,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 ModuleExtensionConfigs: false,
                 DesiredStateConfiguration: false,
                 OnlyIfNotExists: false,
-                UserDefinedConstraints: false);
+                UserDefinedConstraints: false,
+                DeployCommands: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -470,7 +474,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 "moduleExtensionConfigs": false,
                 "desiredStateConfiguration": false,
                 "onlyIfNotExists": false,
-                "userDefinedConstraints": false
+                "userDefinedConstraints": false,
+                "deployCommands": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -821,7 +826,8 @@ namespace Bicep.Core.UnitTests.Configuration
                     "moduleExtensionConfigs": false,
                     "desiredStateConfiguration": false,
                     "onlyIfNotExists": false,
-                    "userDefinedConstraints": false
+                    "userDefinedConstraints": false,
+                    "deployCommands": false
                   },
                   "formatting": {
                     "indentKind": "Space",
