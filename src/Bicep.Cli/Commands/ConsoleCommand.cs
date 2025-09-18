@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using System.Text;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Helpers.Repl;
 using Bicep.Cli.Services;
 using Bicep.Core;
 using Microsoft.Extensions.Logging;
@@ -114,21 +115,16 @@ public class ConsoleCommand : ICommand
             return;
         }
 
+        // evaluate input
         var result = await replEnvironment.EvaluateInput(current);
-        if (result.Diagnostics.Any())
-        {
-            foreach (var diag in result.Diagnostics)
-            {
-                await io.Output.WriteLineAsync(diag.Message);
-            }
-        }
-        else if (result.AnnotatedDiagnostics is { } annotatedDiagnostic)
-        {
-            await io.Output.WriteLineAsync(annotatedDiagnostic.Diagnostic);
-        }
-        else if (result.Value is { } value)
+
+        if (result.Value is { } value)
         {
             await io.Output.WriteLineAsync(value.ToString());
+        }
+        else if (result.AnnotatedDiagnostics.Any())
+        {
+            await io.Output.WriteLineAsync(PrintHelper.PrintWithAnnotations(current, result.AnnotatedDiagnostics));
         }
         buffer.Clear();
     }
