@@ -47,6 +47,7 @@ public class DeploymentProcessor(ArmClient armClient)
             throw new Exception($"Failed to compile Bicep parameters");
         }
 
+        var foundCliArgs = new HashSet<string>();
         parameters = await ParametersProcessor.Process(parameters, async (kind, config) =>
         {
             await Task.CompletedTask;
@@ -54,7 +55,8 @@ public class DeploymentProcessor(ArmClient armClient)
             {
                 case "sys.cliArg":
                     var argKey = config!.Value<string>()!;
-                    var expectedArgument = $"--arg-{argKey}";
+                    var expectedArgument = $"{ArgumentConstants.CliArgPrefix}{argKey}";
+                    foundCliArgs.Add(argKey);
                     return additionalArgs.TryGetValue(argKey) ?? throw new CommandLineException($"CLI argument '{expectedArgument}' must be provided.");
                 case "sys.envVar":
                     var envKey = config!.Value<string>()!;
@@ -63,6 +65,11 @@ public class DeploymentProcessor(ArmClient armClient)
                     throw new ArgumentOutOfRangeException(nameof(kind), kind, null);
             }
         });
+
+        if (additionalArgs.Keys.Except(foundCliArgs).ToImmutableArray() is { Length: > 0 } extraArgs)
+        {
+            throw new CommandLineException($"The following CLI argument(s) were provided but not required: {string.Join(", ", extraArgs.Select(a => $"{ArgumentConstants.CliArgPrefix}{a}"))}");
+        }
 
         var paramsDefinition = parameters.FromJson<DeploymentParametersDefinition>();
 

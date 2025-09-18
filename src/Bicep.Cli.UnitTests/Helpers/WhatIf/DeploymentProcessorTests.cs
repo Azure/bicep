@@ -141,6 +141,34 @@ public class DeploymentProcessorTests
     }
 
     [TestMethod]
+    public async Task Extraneous_cli_args_throw_error()
+    {
+        var environmentMock = StrictMock.Of<IEnvironment>();
+
+        var cliArgs = new Dictionary<string, string>
+        {
+            ["why-am-i-here"] = "no-really",
+        };
+
+        var result = CompilationHelper.CompileParams(Services, ("parameters.bicepparam", """
+            using 'main.bicep' with {
+              name: 'asdf9uasd9'
+              mode: 'deployment'
+              scope: '/subscriptions/foo/resourceGroups/bar'
+            }            
+
+            param foo = 'bar'
+            """), ("main.bicep", """
+            param foo string
+            """));
+
+        result.Should().NotHaveAnyDiagnostics();
+
+        await FluentActions.Awaiting(async () => await DeploymentProcessor.GetDeployCommandsConfig(environmentMock.Object, cliArgs, result.Compilation.Emitter.Parameters()))
+            .Should().ThrowAsync<CommandLineException>().WithMessage("The following CLI argument(s) were provided but not required: --arg-why-am-i-here");
+    }
+
+    [TestMethod]
     public async Task Missing_env_vars_throw_error()
     {
         var environmentMock = StrictMock.Of<IEnvironment>();
