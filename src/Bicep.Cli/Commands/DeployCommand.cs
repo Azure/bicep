@@ -70,6 +70,7 @@ public class DeployCommand(
             lineCount = output.Count(c => c == '\n');
             await io.Output.WriteAsync(output);
             await Task.Delay(refreshInterval, cancellationToken);
+            await io.Output.FlushAsync(cancellationToken);
         }
 
         {
@@ -77,6 +78,7 @@ public class DeployCommand(
             (var deployments, _) = getCurrentState();
             var finalOutput = DeploymentRenderer.Format(DateTime.UtcNow, deployments, lineCount);
             await io.Output.WriteAsync(finalOutput);
+            await io.Output.FlushAsync(cancellationToken);
         }
     }
 }
