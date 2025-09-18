@@ -111,7 +111,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "localDeploy": false,
           "resourceInfoCodegen": false,
           "desiredStateConfiguration": false,
-          "onlyIfNotExists": false,
           "userDefinedConstraints": false,
           "deployCommands": false
         },
@@ -195,7 +194,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "moduleExtensionConfigs": false,
           "desiredStateConfiguration": false,
-          "onlyIfNotExists": false,
           "userDefinedConstraints": false,
           "deployCommands": false
         },
@@ -301,7 +299,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "moduleExtensionConfigs": false,
           "desiredStateConfiguration": false,
-          "onlyIfNotExists": false,
           "userDefinedConstraints": false,
           "deployCommands": false
         },
@@ -388,7 +385,6 @@ namespace Bicep.Core.UnitTests.Configuration
                 ResourceInfoCodegen: false,
                 ModuleExtensionConfigs: false,
                 DesiredStateConfiguration: false,
-                OnlyIfNotExists: false,
                 UserDefinedConstraints: false,
                 DeployCommands: false);
 
@@ -473,7 +469,6 @@ namespace Bicep.Core.UnitTests.Configuration
                 "resourceInfoCodegen": false,
                 "moduleExtensionConfigs": false,
                 "desiredStateConfiguration": false,
-                "onlyIfNotExists": false,
                 "userDefinedConstraints": false,
                 "deployCommands": false
             },
@@ -825,7 +820,6 @@ namespace Bicep.Core.UnitTests.Configuration
                     "resourceInfoCodegen": false,
                     "moduleExtensionConfigs": false,
                     "desiredStateConfiguration": false,
-                    "onlyIfNotExists": false,
                     "userDefinedConstraints": false,
                     "deployCommands": false
                   },
