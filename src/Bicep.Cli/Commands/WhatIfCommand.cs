@@ -8,7 +8,7 @@ using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
 using Bicep.Cli.Arguments;
-using Bicep.Cli.Commands.Helpers.Deploy;
+using Bicep.Cli.Helpers.Deploy;
 using Bicep.Cli.Helpers.WhatIf;
 using Bicep.Cli.Logging;
 using Bicep.Core;
