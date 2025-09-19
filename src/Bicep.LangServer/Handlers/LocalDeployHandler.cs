@@ -78,7 +78,7 @@ public class LocalDeployHandler(
 
             await using var extensibilityHandler = dispatcherFactory.Create();
             await extensibilityHandler.InitializeExtensions(context.Compilation);
-            var result = await extensibilityHandler.Deploy(templateString, parametersString, cancellationToken);
+            var result = await extensibilityHandler.Deploy(templateString, parametersString, state => { }, cancellationToken);
 
             return FromResult(result);
         }

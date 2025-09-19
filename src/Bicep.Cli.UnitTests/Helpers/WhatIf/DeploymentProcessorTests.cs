@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Azure.Deployments.Extensibility.Core.V2.Models;
 using Azure.ResourceManager.Resources.Models;
 using Bicep.Cli.Arguments;
-using Bicep.Cli.Commands.Helpers.Deploy;
+using Bicep.Cli.Helpers.Deploy;
 using Bicep.Cli.Helpers.WhatIf;
 using Bicep.Cli.Services;
 using Bicep.Core.UnitTests;

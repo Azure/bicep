@@ -8,43 +8,45 @@ namespace Bicep.Cli.Helpers.Deploy;
 
 public class DeploymentRenderer(IAnsiConsole console)
 {
+    public bool RenderDeployment(Table table, DeploymentWrapperView? view, ref bool isInitialized)
+    {
+        if (view?.Deployment is { } deployment)
+        {
+            if (!isInitialized)
+            {
+                table.AddColumn("Resource");
+                table.AddColumn("Duration");
+                table.AddColumn("Status");
+                isInitialized = true;
+            }
+
+            var orderedOperations = deployment.Operations
+                .OrderBy(x => x.EndTime is { } ? x.EndTime.Value : DateTime.MaxValue)
+                .ThenBy(x => x.StartTime)
+                .ToList();
+
+            table.Rows.Clear();
+
+            foreach (var operation in orderedOperations)
+            {
+                table.AddRow(
+                    (operation.SymbolicName ?? operation.Name).EscapeMarkup(),
+                    GetDuration(DateTime.UtcNow, operation.StartTime, operation.EndTime),
+                    GetStatus(operation));
+            }
+        }
+
+        return view?.Error is { } || DeploymentProcessor.IsTerminal(view?.Deployment?.State);
+    }
+
     public async Task<bool> RenderDeployment(TimeSpan refreshInterval, Func<Action<DeploymentWrapperView>, Task> executeFunc, CancellationToken cancellationToken)
     {
         var isInitialized = false;
         var deploymentsTable = new Table().RoundedBorder();
 
         DeploymentWrapperView? view = null;
-        await Task.WhenAny([
-            RenderLive(refreshInterval, deploymentsTable, () =>
-            {
-                if (view?.Deployment is { } deployment)
-                {
-                    if (!isInitialized)
-                    {
-                        deploymentsTable.AddColumn("Resource");
-                        deploymentsTable.AddColumn("Duration");
-                        deploymentsTable.AddColumn("Status");
-                        isInitialized = true;
-                    }
-
-                    var orderedOperations = deployment.Operations
-                        .OrderBy(x => x.EndTime is { } ? x.EndTime.Value : DateTime.MaxValue)
-                        .ThenBy(x => x.StartTime)
-                        .ToList();
-
-                    deploymentsTable.Rows.Clear();
-
-                    foreach (var operation in orderedOperations)
-                    {
-                        deploymentsTable.AddRow(
-                            (operation.SymbolicName ?? operation.Name).EscapeMarkup(),
-                            GetDuration(DateTime.UtcNow, operation.StartTime, operation.EndTime),
-                            GetStatus(operation));
-                    }
-                }
-
-                return view?.Error is { } || DeploymentProcessor.IsTerminal(view?.Deployment?.State);
-            }, cancellationToken),
+        await Task.WhenAll([
+            RenderLive(refreshInterval, deploymentsTable, () => RenderDeployment(deploymentsTable, view, ref isInitialized), cancellationToken),
             executeFunc(newView => view = newView),
         ]);
 
@@ -63,9 +65,9 @@ public class DeploymentRenderer(IAnsiConsole console)
             outputsTable.AddColumn("Output");
             outputsTable.AddColumn("Value");
 
-            foreach (var output in deployment.Outputs)
+            foreach (var (name, value) in deployment.Outputs.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
             {
-                outputsTable.AddRow(output.Key, output.Value.ToString());
+                outputsTable.AddRow(name.EscapeMarkup(), value.ToString().EscapeMarkup());
             }
 
             console.Write(outputsTable);
@@ -83,7 +85,7 @@ public class DeploymentRenderer(IAnsiConsole console)
 
         var stopwatch = Stopwatch.StartNew();
         GeneralOperationView? view = null;
-        await Task.WhenAny([
+        await Task.WhenAll([
             RenderLive(refreshInterval, table, () => {
                 table.Rows.Clear();
                 if (view is { })

@@ -20,6 +20,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Spectre.Console;
 using TestEnvironment = Bicep.Core.UnitTests.Utils.TestEnvironment;
 
 namespace Bicep.Cli.IntegrationTests
@@ -94,7 +95,14 @@ namespace Bicep.Cli.IntegrationTests
                         services
                             .AddSingletonIfNotNull(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
                             .AddSingletonIfNotNull(settings.ClientFactory)
-                            .AddSingletonIfNotNull(settings.TemplateSpecRepositoryFactory);
+                            .AddSingletonIfNotNull(settings.TemplateSpecRepositoryFactory)
+                            .AddSingleton<IAnsiConsole>(AnsiConsole.Create(new()
+                            {
+                                Ansi = AnsiSupport.No,
+                                ColorSystem = ColorSystemSupport.NoColors,
+                                Interactive = InteractionSupport.No,
+                                Out = new AnsiConsoleOutput(@out),
+                            }));
 
                         registerAction?.Invoke(services);
                     }

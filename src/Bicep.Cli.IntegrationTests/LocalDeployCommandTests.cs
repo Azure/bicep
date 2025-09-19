@@ -6,6 +6,7 @@ using System.IO.Abstractions.TestingHelpers;
 using System.IO.Pipes;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Extensibility.Core.V2.Models;
 using Bicep.Cli.Rpc;
@@ -127,27 +128,33 @@ public class LocalDeployCommandTests : TestBase
             ["local-deploy", baselineFolder.EntryFile.OutputFilePath]);
 
         result.Should().NotHaveStderr().And.Succeed();
-        result.Stdout.Should().EqualIgnoringWhitespace("""
-Output forecast: [
-  {
-    "name": "Tonight",
-    "temperature": 47
-  },
-  {
-    "name": "Wednesday",
-    "temperature": 64
-  },
-  {
-    "name": "Wednesday Night",
-    "temperature": 46
-  }
-]
-Output forecastString: "Forecast: Name"
-Resource forecastReq (Create): Succeeded
-Resource gridpointsReq (Create): Succeeded
-Result: Succeeded
-
-""");
+        GetOutputWithoutDurations(AnsiHelper.RemoveCodes(result.Stdout)).Should().EqualIgnoringWhitespace("""
+        ╭───────────────┬──────────┬───────────╮
+        │ Resource      │ Duration │ Status    │
+        ├───────────────┼──────────┼───────────┤
+        │ gridpointsReq │ <snip>   │ Succeeded │
+        │ forecastReq   │ <snip>   │ Succeeded │
+        ╰───────────────┴──────────┴───────────╯
+        ╭────────────────┬────────────────────────────────╮
+        │ Output         │ Value                          │
+        ├────────────────┼────────────────────────────────┤
+        │ forecast       │ [                              │
+        │                │   {                            │
+        │                │     "name": "Tonight",         │
+        │                │     "temperature": 47          │
+        │                │   },                           │
+        │                │   {                            │
+        │                │     "name": "Wednesday",       │
+        │                │     "temperature": 64          │
+        │                │   },                           │
+        │                │   {                            │
+        │                │     "name": "Wednesday Night", │
+        │                │     "temperature": 46          │
+        │                │   }                            │
+        │                │ ]                              │
+        │ forecastString │ Forecast: Name                 │
+        ╰────────────────┴────────────────────────────────╯
+        """);
     }
 
     [TestMethod]
@@ -223,11 +230,22 @@ Result: Succeeded
             ["local-deploy", baselineFolder.EntryFile.OutputFilePath]);
 
         result.Should().NotHaveStderr().And.Succeed();
-        result.Stdout.Should().EqualIgnoringWhitespace("""
-Output gridId: "SEW"
-Resource gridpointsReq (Create): Succeeded
-Resource gridCoords (Create): Succeeded
-Result: Succeeded
-""");
+        GetOutputWithoutDurations(AnsiHelper.RemoveCodes(result.Stdout)).Should().EqualIgnoringWhitespace("""
+        ╭───────────────┬──────────┬───────────╮
+        │ Resource      │ Duration │ Status    │
+        ├───────────────┼──────────┼───────────┤
+        │ gridpointsReq │ <snip>   │ Succeeded │
+        │ gridCoords    │ <snip>   │ Succeeded │
+        ╰───────────────┴──────────┴───────────╯
+        ╭────────┬───────╮
+        │ Output │ Value │
+        ├────────┼───────┤
+        │ gridId │ SEW   │
+        ╰────────┴───────╯
+
+        """);
     }
+
+    private static string GetOutputWithoutDurations(string output)
+        => Regex.Replace(output, @"[ ]+\d+\.\d+s[ ]+", " <snip>   ");
 }

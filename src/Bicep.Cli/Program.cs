@@ -189,6 +189,7 @@ namespace Bicep.Cli
                     Ansi = AnsiSupport.Detect,
                     ColorSystem = ColorSystemSupport.Detect,
                     Interactive = InteractionSupport.Detect,
+                    Out = new AnsiConsoleOutput(io.Output),
                 }))
                 .AddSingleton<DeploymentRenderer>();
     }
