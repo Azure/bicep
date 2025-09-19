@@ -1,133 +1,183 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
-using System.Text;
+using System.Diagnostics;
+using Spectre.Console;
 
-namespace Bicep.Cli.Commands.Helpers.Deploy;
+namespace Bicep.Cli.Helpers.Deploy;
 
-public class DeploymentRenderer
+public class DeploymentRenderer(IAnsiConsole console)
 {
-    private static string RewindLines(int count) => $"{Esc}[{count}F";
-    public static string EraseLine => $"{Esc}[K";
-
-    public const char Esc = (char)27;
-    public static string Orange { get; } = $"{Esc}[38;5;208m";
-    public static string Green { get; } = $"{Esc}[38;5;77m";
-    public static string Purple { get; } = $"{Esc}[38;5;141m";
-    public static string Blue { get; } = $"{Esc}[38;5;39m";
-    public static string Gray { get; } = $"{Esc}[38;5;246m";
-    public static string Reset { get; } = $"{Esc}[0m";
-    public static string Red { get; } = $"{Esc}[38;5;203m";
-    public static string Bold { get; } = $"{Esc}[1m";
-
-    public static string HideCursor { get; } = $"{Esc}[?25l";
-    public static string ShowCursor { get; } = $"{Esc}[?25h";
-
-    public static string Format(DateTime utcNow, ImmutableArray<DeploymentView> deployments, int prevLineCount)
+    public async Task<bool> RenderDeployment(TimeSpan refreshInterval, Func<Action<DeploymentWrapperView>, Task> executeFunc, CancellationToken cancellationToken)
     {
-        var sb = new StringBuilder();
+        var isInitialized = false;
+        var deploymentsTable = new Table().RoundedBorder();
 
-        if (prevLineCount > 0)
-        {
-            sb.Append(DeploymentRenderer.HideCursor);
-            sb.Append(RewindLines(prevLineCount));
-        }
-
-        if (deployments.SingleOrDefault(d => d.IsEntryPoint) is { } entrypoint)
-        {
-            var indent = 0;
-            AppendLine(indent, $"{EraseLine}{entrypoint.Name} {GetState(entrypoint.State)} ({GetDuration(utcNow, entrypoint.StartTime, entrypoint.EndTime)})", sb);
-            RenderOperations(utcNow, sb, deployments, entrypoint, indent + 1);
-            RenderOutputs(sb, entrypoint, indent);
-        }
-
-        if (prevLineCount > 0)
-        {
-            sb.Append(DeploymentRenderer.ShowCursor);
-        }
-
-        return sb.ToString();
-    }
-
-    private static void RenderOutputs(StringBuilder sb, DeploymentView deployment, int indent)
-    {
-        var outputs = deployment.Outputs;
-        if (!deployment.Outputs.Any())
-        {
-            return;
-        }
-
-        sb.AppendLine();
-        AppendLine(indent, $"{EraseLine}Outputs:", sb);
-        foreach (var output in outputs)
-        {
-            AppendLine(indent + 1, $"{EraseLine}{output.Key}: {output.Value}", sb);
-        }
-    }
-
-    private static void RenderOperations(DateTime utcNow, StringBuilder sb, ImmutableArray<DeploymentView> deployments, DeploymentView deployment, int indent)
-    {
-        var tenantId = Guid.NewGuid();
-        var orderedOperations = deployment.Operations
-            .OrderBy(x => x.EndTime is { } ? x.EndTime.Value : DateTime.MaxValue)
-            .ThenBy(x => x.StartTime)
-            .ToList();
-
-        if (deployment.Error is { } error)
-        {
-            AppendLine(indent, $"{EraseLine}{Red}{error}{Reset}", sb);
-        }
-
-        foreach (var operation in orderedOperations)
-        {
-            AppendLine(indent, $"{EraseLine}{operation.Name} {GetState(operation.State)} ({GetDuration(utcNow, operation.StartTime, operation.EndTime)})", sb);
-            if (operation.Error is not null)
+        DeploymentWrapperView? view = null;
+        await Task.WhenAny([
+            RenderLive(refreshInterval, deploymentsTable, () =>
             {
-                AppendLine(indent + 1, $"{EraseLine}{Red}{operation.Error}{Reset}", sb);
+                if (view?.Deployment is { } deployment)
+                {
+                    if (!isInitialized)
+                    {
+                        deploymentsTable.AddColumn("Resource");
+                        deploymentsTable.AddColumn("Duration");
+                        deploymentsTable.AddColumn("Status");
+                        isInitialized = true;
+                    }
+
+                    var orderedOperations = deployment.Operations
+                        .OrderBy(x => x.EndTime is { } ? x.EndTime.Value : DateTime.MaxValue)
+                        .ThenBy(x => x.StartTime)
+                        .ToList();
+
+                    deploymentsTable.Rows.Clear();
+
+                    foreach (var operation in orderedOperations)
+                    {
+                        deploymentsTable.AddRow(
+                            (operation.SymbolicName ?? operation.Name).EscapeMarkup(),
+                            GetDuration(DateTime.UtcNow, operation.StartTime, operation.EndTime),
+                            GetStatus(operation));
+                    }
+                }
+
+                return view?.Error is { } || DeploymentProcessor.IsTerminal(view?.Deployment?.State);
+            }, cancellationToken),
+            executeFunc(newView => view = newView),
+        ]);
+
+        if (view?.Error is { } error)
+        {
+            var errorTable = new Table().RoundedBorder();
+            errorTable.AddColumn("Error");
+
+            errorTable.AddRow($"[bold red]{view.Error.EscapeMarkup()}[/]");
+            console.Write(errorTable);
+        }
+
+        if (view?.Deployment is { } deployment && !deployment.Outputs.IsEmpty)
+        {
+            var outputsTable = new Table().RoundedBorder();
+            outputsTable.AddColumn("Output");
+            outputsTable.AddColumn("Value");
+
+            foreach (var output in deployment.Outputs)
+            {
+                outputsTable.AddRow(output.Key, output.Value.ToString());
             }
 
-            if (operation.Type.Equals("Microsoft.Resources/deployments", StringComparison.OrdinalIgnoreCase))
+            console.Write(outputsTable);
+        }
+
+        return DeploymentProcessor.IsSuccess(view?.Deployment?.State);
+    }
+
+    public async Task<bool> RenderOperation(TimeSpan refreshInterval, Func<Action<GeneralOperationView>, Task> executeFunc, CancellationToken cancellationToken)
+    {
+        var table = new Table().RoundedBorder();
+        table.AddColumn("Operation");
+        table.AddColumn("Duration");
+        table.AddColumn("Status");
+
+        var stopwatch = Stopwatch.StartNew();
+        GeneralOperationView? view = null;
+        await Task.WhenAny([
+            RenderLive(refreshInterval, table, () => {
+                table.Rows.Clear();
+                if (view is { })
+                {
+                    table.AddRow(
+                        view.Name.EscapeMarkup(),
+                        GetDuration(stopwatch.Elapsed),
+                        GetStatus(view));
+                }
+
+                return DeploymentProcessor.IsSuccess(view?.State);
+            }, cancellationToken),
+            executeFunc(newView => view = newView),
+        ]);
+
+        return DeploymentProcessor.IsSuccess(view?.State);
+    }
+
+    private async Task RenderLive(TimeSpan refreshInterval, Table table, Func<bool> refreshFunc, CancellationToken cancellationToken)
+    {
+        // Only support live updates in interactive consoles
+        // This should allow this to render tables correctly in CI/CD pipelines where you can't ovewrite output
+        if (console.Profile.Capabilities.Interactive)
+        {
+            await console.Live(table)
+                .AutoClear(false)
+                .Overflow(VerticalOverflow.Visible)
+                .StartAsync(async ctx =>
+                {
+                    var isComplete = false;
+                    while (!isComplete)
+                    {
+                        isComplete = refreshFunc();
+
+                        ctx.Refresh();
+
+                        if (!isComplete)
+                        {
+                            await Task.Delay(refreshInterval, cancellationToken);
+                        }
+                    }
+                });
+        }
+        else
+        {
+            var isComplete = false;
+            while (!isComplete)
             {
-                var subDeployment = deployments.Single(d => d.Id == operation.Id);
-                RenderOperations(utcNow, sb, deployments, subDeployment, indent + 1);
+                isComplete = refreshFunc();
+
+                if (!isComplete)
+                {
+                    await Task.Delay(refreshInterval, cancellationToken);
+                }
             }
+
+            console.Write(table);
         }
     }
 
-    private static string GetState(string state) => state.ToLowerInvariant() switch
+    private static string GetStatus(GeneralOperationView operation)
+        => GetStatus(operation.State, operation.Error);
+
+    private static string GetStatus(DeploymentOperationView operation)
+        => GetStatus(operation.State, operation.Error);
+
+    private static string GetStatus(string state, string? error)
     {
-        "succeeded" => $"{Bold}{Green}{state}{Reset}",
-        "failed" => $"{Bold}{Red}{state}{Reset}",
-        "accepted" => $"{Bold}{Gray}{state}{Reset}",
-        "running" => $"{Bold}{Gray}{state}{Reset}",
-        _ => $"{Bold}{state}{Reset}",
-    };
+        switch (state.ToLowerInvariant())
+        {
+            case "succeeded":
+                return $"[bold green]{state.EscapeMarkup()}[/]";
+            case "failed":
+                return $"[bold red]{(error ?? state).EscapeMarkup()}[/]";
+            default:
+                return $"[bold gray]{state.EscapeMarkup()}[/]";
+        }
+    }
 
     private static string GetDuration(DateTime utcNow, DateTime startTime, DateTime? endTime)
-    {
-        var duration = (endTime ?? utcNow) - startTime;
-        return $"{duration.TotalSeconds:0.0}s";
-    }
+        => GetDuration((endTime ?? utcNow) - startTime);
+    
+    private static string GetDuration(TimeSpan duration)
+        => $"{duration.TotalSeconds:0.0}s";
 
-    private static void AppendLine(int indent, string text, StringBuilder sb)
-    {
-        if (text.Length == 0)
-        {
-            sb.AppendLine();
-            return;
-        }
-
-        while (text.Length > 0)
-        {
-            var indentString = new string(' ', indent * 2);
-            var wrapIndex = Math.Min(text.Length + indentString.Length, TerminalWidth - 1);
-            sb.Append(indentString);
-            sb.Append(text[..(wrapIndex - indentString.Length)]);
-            sb.AppendLine();
-            text = text[(wrapIndex - indentString.Length)..];
-        }
-    }
-
-    private static int TerminalWidth => (Console.IsOutputRedirected || Console.BufferWidth == 0) ? int.MaxValue : Console.BufferWidth;
+    // private static string GetPortalUrl(DeploymentOperationView operation)
+    // {
+    //     switch (operation.Type.ToLowerInvariant())
+    //     {
+    //         case "microsoft.resources/deployments":
+    //             // Deployments have a dedicated Portal blade to track progress
+    //             return $"{portalBaseUrl}/#@{tenantId}/blade/HubsExtension/DeploymentDetailsBlade/overview/id/{Uri.EscapeDataString(operation.Id)}";
+    //         default:
+    //             return $"{portalBaseUrl}/#@{tenantId}/resource{operation.Id}";
+    //     }
+    // }
 }

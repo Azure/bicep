@@ -4,9 +4,11 @@
 using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Runtime;
+using Azure.Deployments.Engine.Workers;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Commands;
 using Bicep.Cli.Helpers;
+using Bicep.Cli.Helpers.Deploy;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core.Emit;
@@ -16,6 +18,7 @@ using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Spectre.Console;
 
 namespace Bicep.Cli
 {
@@ -180,6 +183,13 @@ namespace Bicep.Cli
                 .AddSingleton<DiagnosticLogger>()
                 .AddSingleton<OutputWriter>()
                 .AddSingleton<PlaceholderParametersWriter>()
-                .AddSingleton(io);
+                .AddSingleton(io)
+                .AddSingleton(AnsiConsole.Create(new AnsiConsoleSettings
+                {
+                    Ansi = AnsiSupport.Detect,
+                    ColorSystem = ColorSystemSupport.Detect,
+                    Interactive = InteractionSupport.Detect,
+                }))
+                .AddSingleton<DeploymentRenderer>();
     }
 }

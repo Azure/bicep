@@ -14,13 +14,14 @@ using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Helpers.WhatIf;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Bicep.Cli.Commands.Helpers.Deploy;
+namespace Bicep.Cli.Helpers.Deploy;
 
 public record UsingConfig(
     string? Name,
@@ -140,7 +141,7 @@ public class DeploymentProcessor(ArmClient armClient)
             UsingConfig: config);
     }
 
-    public async Task Deploy(DeployCommandsConfig config, Action<ImmutableArray<DeploymentView>> onRefresh, CancellationToken cancellationToken)
+    public async Task Deploy(DeployCommandsConfig config, Action<DeploymentWrapperView> onRefresh, CancellationToken cancellationToken)
     {
         var (template, parameters, usingConfig) = config;
         var deploymentName = usingConfig.Name ?? "main";
@@ -204,35 +205,11 @@ public class DeploymentProcessor(ArmClient armClient)
         var complete = false;
         while (!complete)
         {
-            SortedDictionary<string, DeploymentView> deployments = new(StringComparer.OrdinalIgnoreCase);
-            Queue<string> deploymentsToFetch = [];
-            deploymentsToFetch.Enqueue(entrypointDeploymentId);
+            var deployment = await GetDeployment(entrypointDeploymentId, cancellationToken);
 
-            // TODO track stack to completion (including post-deployment resource cleanup stuff + error handling)
-            while (deploymentsToFetch.Any())
-            {
-                var id = deploymentsToFetch.Dequeue();
-                if (deployments.ContainsKey(id))
-                {
-                    continue;
-                }
+            onRefresh(new(deployment, null));
 
-                var isEntryPoint = id.Equals(entrypointDeploymentId, StringComparison.OrdinalIgnoreCase);
-                var deployment = await GetDeployment(id, isEntryPoint, cancellationToken);
-                deployments.Add(deployment.Id, deployment);
-
-                foreach (var op in deployment.Operations)
-                {
-                    if (op.Type.Equals("Microsoft.Resources/deployments", StringComparison.OrdinalIgnoreCase))
-                    {
-                        deploymentsToFetch.Enqueue(op.Id);
-                    }
-                }
-            }
-
-            onRefresh([.. deployments.Values]);
-
-            complete = IsTerminal(deployments[entrypointDeploymentId].State);
+            complete = IsTerminal(deployment.State);
             pollAttempt++;
             if (!complete)
             {
@@ -243,50 +220,19 @@ public class DeploymentProcessor(ArmClient armClient)
         }
     }
 
-    private async Task<DeploymentView> GetDeployment(string resourceId, bool isEntryPoint, CancellationToken cancellationToken)
+    private async Task<DeploymentView> GetDeployment(string resourceId, CancellationToken cancellationToken)
     {
-        List<DeploymentOperationView> cliOperations = [];
-
         var id = ResourceIdentifier.Parse(resourceId);
         var deploymentsClient = armClient.GetArmDeploymentResource(id);
 
         var deployment = await deploymentsClient.GetAsync(cancellationToken);
+        List<ArmDeploymentOperation> operations = [];
         await foreach (var operation in deploymentsClient.GetDeploymentOperationsAsync(cancellationToken: cancellationToken))
         {
-            if (operation.Properties.TargetResource is null)
-            {
-                continue;
-            }
-
-            if (operation.Properties.ProvisioningOperation == ProvisioningOperationKind.Read)
-            {
-                // Hide read operations for now
-                // TODO re-visit this
-                continue;
-            }
-
-            var operationState = operation.Properties.ProvisioningState.ToString();
-            cliOperations.Add(new(
-                Id: operation.Properties.TargetResource.Id,
-                Name: operation.Properties.TargetResource.ResourceName,
-                Type: operation.Properties.TargetResource.ResourceType!,
-                State: operationState,
-                StartTime: operation.Properties.Timestamp!.Value.DateTime,
-                EndTime: IsTerminal(operationState) ? operation.Properties.Timestamp!.Value.Add(operation.Properties.Duration!.Value).DateTime : null,
-                Error: GetError(operation)));
+            operations.Add(operation);
         }
 
-        var deploymentState = deployment.Value.Data.Properties.ProvisioningState!.Value.ToString();
-        return new(
-            Id: deployment.Value.Data.Id.ToString(),
-            Name: deployment.Value.Data.Name,
-            StartTime: deployment.Value.Data.Properties.Timestamp!.Value.DateTime,
-            EndTime: IsTerminal(deploymentState) ? deployment.Value.Data.Properties.Timestamp!.Value.Add(deployment.Value.Data.Properties.Duration!.Value).DateTime : null,
-            Operations: [.. cliOperations],
-            IsEntryPoint: isEntryPoint,
-            State: deploymentState,
-            Error: GetError(deployment.Value.Data),
-            Outputs: GetOutputs(deployment.Value.Data));
+        return GetDeploymentView(deployment, operations);
     }
 
     private static string? GetError(ArmDeploymentOperation operation)
@@ -299,7 +245,27 @@ public class DeploymentProcessor(ArmClient armClient)
         return $"{error.Code}: {error.Message}";
     }
 
+    private static string? GetError(DeploymentOperationDefinition operation)
+    {
+        if (operation.Properties.StatusMessage?.GetProperty("error") is not { } error)
+        {
+            return null;
+        }
+
+        return $"{error.GetProperty("code")}: {error.GetProperty("message")}";
+    }
+
     private static string? GetError(ArmDeploymentData deployment)
+    {
+        if (deployment.Properties.Error is not { } error)
+        {
+            return null;
+        }
+
+        return $"{error.Code}: {error.Message}";
+    }
+
+    private static string? GetError(DeploymentContent deployment)
     {
         if (deployment.Properties.Error is not { } error)
         {
@@ -323,9 +289,106 @@ public class DeploymentProcessor(ArmClient armClient)
             kvp => JsonNode.Parse(kvp.Value.Value.ToJson())!);
     }
 
-    private static bool IsTerminal(string state)
-        => state.ToLowerInvariant() is "succeeded" or "failed" or "canceled";
+    private static ImmutableDictionary<string, JsonNode> GetOutputs(DeploymentContent deployment)
+    {
+        if (deployment.Properties.Outputs is not { } outputs)
+        {
+            return ImmutableDictionary<string, JsonNode>.Empty;
+        }
 
-    public static bool IsSuccess(IEnumerable<DeploymentView> deployments)
-        => deployments.FirstOrDefault(x => x.IsEntryPoint)?.State.ToLowerInvariant() is "succeeded";
+        return outputs.ToImmutableDictionary(
+            kvp => kvp.Key,
+            kvp => JsonNode.Parse(kvp.Value.Value.ToJson())!);
+    }
+
+    public static bool IsTerminal(string? state)
+        => state?.ToLowerInvariant() is "succeeded" or "failed" or "canceled";
+
+    public static bool IsActive(string? state)
+        => !IsTerminal(state);
+
+    public static bool IsSuccess(string? state)
+        => state?.ToLowerInvariant() is "succeeded";
+
+    private static DeploymentView GetDeploymentView(ArmDeploymentResource deployment, IEnumerable<ArmDeploymentOperation> operations)
+    {
+        List<DeploymentOperationView> operationViews = [];
+        foreach (var operation in operations)
+        {
+            if (operation.Properties.TargetResource is null)
+            {
+                continue;
+            }
+
+            if (operation.Properties.ProvisioningOperation == ProvisioningOperationKind.Read)
+            {
+                // Hide read operations for now
+                // TODO re-visit this
+                continue;
+            }
+
+            var operationState = operation.Properties.ProvisioningState.ToString();
+            operationViews.Add(new(
+                Id: operation.Properties.TargetResource.Id,
+                Name: operation.Properties.TargetResource.ResourceName,
+                SymbolicName: operation.Properties.TargetResource.SymbolicName,
+                Type: operation.Properties.TargetResource.ResourceType!,
+                State: operationState,
+                StartTime: operation.Properties.Timestamp!.Value.DateTime,
+                EndTime: IsTerminal(operationState) ? operation.Properties.Timestamp!.Value.Add(operation.Properties.Duration!.Value).DateTime : null,
+                Error: GetError(operation)));
+        }
+
+        var deploymentState = deployment.Data.Properties.ProvisioningState!.Value.ToString();
+        return new(
+            Id: deployment.Data.Id.ToString(),
+            Name: deployment.Data.Name,
+            StartTime: deployment.Data.Properties.Timestamp!.Value.DateTime,
+            EndTime: IsTerminal(deploymentState) ? deployment.Data.Properties.Timestamp!.Value.Add(deployment.Data.Properties.Duration!.Value).DateTime : null,
+            Operations: [.. operationViews],
+            State: deploymentState,
+            Error: GetError(deployment.Data),
+            Outputs: GetOutputs(deployment.Data));
+    }
+
+    public static DeploymentView GetDeploymentView(DeploymentContent deployment, IEnumerable<DeploymentOperationDefinition> operations)
+    {
+        List<DeploymentOperationView> operationViews = [];
+        foreach (var operation in operations)
+        {
+            if (operation.Properties.TargetResource is null)
+            {
+                continue;
+            }
+
+            if (operation.Properties.ProvisioningOperation == ProvisioningOperation.Read)
+            {
+                // Hide read operations for now
+                // TODO re-visit this
+                continue;
+            }
+
+            var operationState = operation.Properties.ProvisioningState.ToString();
+            operationViews.Add(new(
+                Id: operation.Properties.TargetResource.Id,
+                Name: operation.Properties.TargetResource.ResourceName,
+                SymbolicName: operation.Properties.TargetResource.SymbolicName,
+                Type: operation.Properties.TargetResource.ResourceType!,
+                State: operationState,
+                StartTime: operation.Properties.Timestamp!.Value,
+                EndTime: IsTerminal(operationState) ? operation.Properties.Timestamp!.Value.Add(operation.Properties.Duration!.Value) : null,
+                Error: GetError(operation)));
+        }
+
+        var deploymentState = deployment.Properties.ProvisioningState!.Value.ToString();
+        return new(
+            Id: deployment.Id.ToString(),
+            Name: deployment.Name,
+            StartTime: deployment.Properties.Timestamp!.Value,
+            EndTime: IsTerminal(deploymentState) ? deployment.Properties.Timestamp!.Value.Add(deployment.Properties.Duration!.Value) : null,
+            Operations: [.. operationViews],
+            State: deploymentState,
+            Error: GetError(deployment),
+            Outputs: GetOutputs(deployment));
+    }
 }
