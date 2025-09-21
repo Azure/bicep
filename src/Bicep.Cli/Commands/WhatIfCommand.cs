@@ -62,6 +62,6 @@ public class WhatIfCommand(
         var definition = response.GetRawResponse().Content.ToString().FromJson<DeploymentWhatIfResponseDefinition>();
         var changes = definition.Properties.Changes.Where(x => x.ChangeType != DeploymentWhatIfChangeType.Ignore);
 
-        await io.Output.WriteAsync(WhatIfOperationResultFormatter.Format([..changes]));
+        await io.Output.WriteAsync(WhatIfOperationResultFormatter.Format([.. changes]));
     }
 }

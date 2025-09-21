@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { stripVTControlCharacters } from "node:util";
 import spawn from "cross-spawn";
 import { expect } from "vitest";
 import { bicepCli } from "./fs";
 import { EnvironmentOverrides } from "./liveTestEnvironments";
 import { logStdErr } from "./log";
-import { stripVTControlCharacters } from 'node:util';
 
 class StdoutAssertionBuilder {
   constructor(private readonly stdout: string) {}

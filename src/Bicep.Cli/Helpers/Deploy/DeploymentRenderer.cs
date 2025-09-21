@@ -167,7 +167,7 @@ public class DeploymentRenderer(IAnsiConsole console)
 
     private static string GetDuration(DateTime utcNow, DateTime startTime, DateTime? endTime)
         => GetDuration((endTime ?? utcNow) - startTime);
-    
+
     private static string GetDuration(TimeSpan duration)
         => $"{duration.TotalSeconds:0.0}s";
 

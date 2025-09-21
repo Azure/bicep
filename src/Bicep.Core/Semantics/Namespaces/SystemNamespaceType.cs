@@ -1280,7 +1280,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     yield return new FunctionOverloadBuilder(LanguageConstants.ReadEnvVarBicepFunctionName)
                         .WithGenericDescription($"Reads the specified environment variable as bicep string.")
                         .WithRequiredParameter("variableName", LanguageConstants.String, "The name of the environment variable.")
-                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, [new StringLiteralExpression(null, "sys.envVar"), ..exp.Parameters]))
+                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, [new StringLiteralExpression(null, "sys.envVar"), .. exp.Parameters]))
                         .WithReturnType(LanguageConstants.String)
                         .Build();
 
