@@ -12,7 +12,7 @@
   "aiKey": "c195e410-2651-4cea-a18e-8e576714eada",
   "private": true,
   "devDependencies": {
-    "@eslint/js": "^9.35.0",
+    "@eslint/js": "^9.36.0",
     "@types/node": "^24.4.0",
     "@types/pako": "^2.0.4",
     "@types/react": "^19.1.12",
