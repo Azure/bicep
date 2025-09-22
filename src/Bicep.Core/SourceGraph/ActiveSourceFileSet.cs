@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.FileSystem;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.SourceGraph
 {
@@ -11,18 +13,15 @@ namespace Bicep.Core.SourceGraph
     /// </summary>
     public class ActiveSourceFileSet : IActiveSourceFileSet
     {
-        private readonly IDictionary<Uri, ISourceFile> activeFiles = new Dictionary<Uri, ISourceFile>();
+        private readonly Dictionary<Uri, ISourceFile> activeFiles = [];
 
-        public bool TryGetSourceFile(Uri fileUri, [NotNullWhen(true)] out ISourceFile? file)
-            => activeFiles.TryGetValue(fileUri, out file);
+        public ISourceFile? TryGetSourceFile(Uri fileUri) => activeFiles.TryGetValue(fileUri, out var file) ? file : null;
 
-        public IEnumerable<ISourceFile> GetSourceFilesForDirectory(Uri fileUri)
-            => activeFiles
-                .Where(kvp => PathHelper.IsSubPathOf(fileUri, kvp.Key))
-                .Select(kvp => kvp.Value);
+        public bool HasSourceFile(IOUri fileUri) => activeFiles.ContainsKey(fileUri.ToUri());
 
-        public ImmutableDictionary<Uri, ISourceFile> GetActiveSourceFilesByUri()
-            => activeFiles.ToImmutableDictionary();
+        public IEnumerator<ISourceFile> GetEnumerator() => activeFiles.Values.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
         public (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpsertSourceFiles(IEnumerable<ISourceFile> files)
         {

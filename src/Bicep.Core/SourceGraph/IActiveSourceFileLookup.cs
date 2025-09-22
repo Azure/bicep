@@ -2,15 +2,14 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.SourceGraph
 {
-    public interface IActiveSourceFileLookup
+    public interface IActiveSourceFileLookup : IEnumerable<ISourceFile>
     {
-        bool TryGetSourceFile(Uri fileUri, [NotNullWhen(true)] out ISourceFile? sourceFile);
+        ISourceFile? TryGetSourceFile(Uri fileUri);
 
-        IEnumerable<ISourceFile> GetSourceFilesForDirectory(Uri fileUri);
-
-        ImmutableDictionary<Uri, ISourceFile> GetActiveSourceFilesByUri();
+        bool HasSourceFile(IOUri fileUri);
     }
 }

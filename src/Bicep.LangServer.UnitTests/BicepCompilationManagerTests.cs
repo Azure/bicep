@@ -77,7 +77,7 @@ namespace Bicep.LangServer.UnitTests
             // second get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
 
-            workspace.TryGetSourceFile(uri, out var file);
+            var file = workspace.TryGetSourceFile(uri);
 
             // The workspace should remain empty.
             file.Should().BeNull();
@@ -111,7 +111,7 @@ namespace Bicep.LangServer.UnitTests
             // second get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
 
-            workspace.TryGetSourceFile(uri, out var updatedFile);
+            var updatedFile = workspace.TryGetSourceFile(uri);
 
             // The workspace should be refreshed.
             updatedFile.Should().NotBeNull();

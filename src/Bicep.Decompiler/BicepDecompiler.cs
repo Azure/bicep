@@ -263,10 +263,10 @@ Following metadata was not decompiled:
         }
     }
 
-    private static ImmutableDictionary<IOUri, string> PrintFiles(ActiveSourceFileSet workspace)
+    private static ImmutableDictionary<IOUri, string> PrintFiles(ActiveSourceFileSet activeSourceFiles)
     {
         var filesToSave = new Dictionary<IOUri, string>();
-        foreach (var (fileUri, sourceFile) in workspace.GetActiveSourceFilesByUri())
+        foreach (var sourceFile in activeSourceFiles)
         {
             if (sourceFile is not BicepSourceFile bicepFile)
             {
@@ -275,7 +275,7 @@ Following metadata was not decompiled:
 
             var options = bicepFile.Configuration.Formatting.Data;
             var context = PrettyPrinterV2Context.Create(options, bicepFile.LexingErrorLookup, bicepFile.ParsingErrorLookup);
-            filesToSave[fileUri.ToIOUri()] = PrettyPrinterV2.Print(bicepFile.ProgramSyntax, context);
+            filesToSave[sourceFile.FileHandle.Uri] = PrettyPrinterV2.Print(bicepFile.ProgramSyntax, context);
         }
 
         return filesToSave.ToImmutableDictionary();

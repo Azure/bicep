@@ -131,7 +131,7 @@ namespace Bicep.Core.SourceGraph
 
         private ResultWithDiagnosticBuilder<ISourceFile> GetFileResolutionResult(IOUri fileUri, ArtifactReference? moduleReference)
         {
-            if (workspace.TryGetSourceFile(fileUri.ToUri(), out var sourceFile))
+            if (workspace.TryGetSourceFile(fileUri.ToUri()) is { } sourceFile)
             {
                 return new(sourceFile);
             }
