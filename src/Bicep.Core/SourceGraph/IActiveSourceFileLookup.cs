@@ -8,7 +8,7 @@ namespace Bicep.Core.SourceGraph
 {
     public interface IActiveSourceFileLookup : IEnumerable<ISourceFile>
     {
-        ISourceFile? TryGetSourceFile(Uri fileUri);
+        ISourceFile? TryGetSourceFile(IOUri fileUri);
 
         bool HasSourceFile(IOUri fileUri);
     }

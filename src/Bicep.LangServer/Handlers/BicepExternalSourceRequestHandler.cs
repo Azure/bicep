@@ -10,6 +10,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
+using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Telemetry;
 using MediatR;

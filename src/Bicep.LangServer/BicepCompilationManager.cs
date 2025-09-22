@@ -80,7 +80,7 @@ namespace Bicep.LanguageServer
                 // When errors are fixed in bicepconfig.json and file is saved, we'll get called into this
                 // method again. CompilationContext will be null. We'll get the sourceFile from workspace and
                 // upsert compilation.
-                if (activeSourceFileSet.TryGetSourceFile(documentUri.ToUriEncoded()) is BicepFile sourceFile)
+                if (activeSourceFileSet.TryGetSourceFile(documentUri.ToIOUri()) is BicepFile sourceFile)
                 {
                     UpsertCompilationInternal(documentUri, null, sourceFile);
                 }
@@ -178,31 +178,25 @@ namespace Bicep.LanguageServer
                 // There are cases where we may get large numbers of file events in one go (e.g. if the user checks out a git commit).
                 // We should bear that in mind when making changes here, to avoid introducing performance bottlenecks.
 
-                var changedFileUri = change.Uri.ToUriEncoded();
-                var changedFileIOUri = change.Uri.ToIOUri();
+                var changedFileUri = change.Uri.ToIOUri();
                 if (change.Type is FileChangeType.Deleted)
                 {
-                    if (activeSourceFileSet.TryGetSourceFile(changedFileUri) is { } removedSourceFile)
-                    {
-                        modifiedSourceFiles.Add(removedSourceFile);
-                    }
-
                     // If we don't know definitively that we're deleting a file, we have to assume it's a directory; the file system watcher does not give us any information to differentiate reliably.
                     // We could possibly assume that if the path ends in '.bicep', we've got a file, but this would discount directories ending in '.bicep', however unlikely.
-                    var removedDirectoryUri = changedFileIOUri.Path.EndsWith('/')
-                        ? changedFileIOUri
-                        : changedFileIOUri.WithPath(changedFileIOUri.Path + '/');
+                    var removedDirectoryUri = changedFileUri.Path.EndsWith('/')
+                        ? changedFileUri
+                        : changedFileUri.WithPath(changedFileUri.Path + '/');
 
                     var removedSourceFiles = activeSourceFileSet.Where(x => removedDirectoryUri.IsBaseOf(x.FileHandle.Uri));
                     modifiedSourceFiles.UnionWith(removedSourceFiles);
 
-                    var removedAuxiliaryFileUris = activeAuxiliaryFileUris.Where(changedFileIOUri.IsBaseOf);
+                    var removedAuxiliaryFileUris = activeAuxiliaryFileUris.Where(removedDirectoryUri.IsBaseOf);
                     modifiedAuxiliaryFileUris.UnionWith(removedAuxiliaryFileUris);
                 }
 
-                if (activeAuxiliaryFileUris.Contains(changedFileIOUri))
+                if (activeAuxiliaryFileUris.Contains(changedFileUri))
                 {
-                    modifiedAuxiliaryFileUris.Add(changedFileIOUri);
+                    modifiedAuxiliaryFileUris.Add(changedFileUri);
                 }
 
                 if (!activeContexts.ContainsKey(change.Uri) &&
@@ -267,7 +261,7 @@ namespace Bicep.LanguageServer
                 return true;
             }
 
-            if (this.activeSourceFileSet.TryGetSourceFile(documentUri.ToUriEncoded()) is { } sourceFile)
+            if (this.activeSourceFileSet.TryGetSourceFile(documentUri.ToIOUri()) is { } sourceFile)
             {
                 sourceFileType = sourceFile.GetType();
                 return true;
@@ -307,7 +301,7 @@ namespace Bicep.LanguageServer
             }
             catch (Exception exception)
             {
-                if (workspace.TryGetSourceFile(documentUri.ToUriEncoded()) is not { } sourceFile)
+                if (workspace.TryGetSourceFile(documentUri.ToIOUri()) is not { } sourceFile)
                 {
                     // the document is somehow missing from the workspace,
                     // which should not happen since we upsert into the workspace before creating the compilation

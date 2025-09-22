@@ -13,11 +13,11 @@ namespace Bicep.Core.SourceGraph
     /// </summary>
     public class ActiveSourceFileSet : IActiveSourceFileSet
     {
-        private readonly Dictionary<Uri, ISourceFile> activeFiles = [];
+        private readonly Dictionary<IOUri, ISourceFile> activeFiles = [];
 
-        public ISourceFile? TryGetSourceFile(Uri fileUri) => activeFiles.TryGetValue(fileUri, out var file) ? file : null;
+        public ISourceFile? TryGetSourceFile(IOUri fileUri) => activeFiles.TryGetValue(fileUri, out var file) ? file : null;
 
-        public bool HasSourceFile(IOUri fileUri) => activeFiles.ContainsKey(fileUri.ToUri());
+        public bool HasSourceFile(IOUri fileUri) => activeFiles.ContainsKey(fileUri);
 
         public IEnumerator<ISourceFile> GetEnumerator() => activeFiles.Values.GetEnumerator();
 
@@ -30,7 +30,7 @@ namespace Bicep.Core.SourceGraph
 
             foreach (var newFile in files)
             {
-                if (activeFiles.TryGetValue(newFile.Uri, out var oldFile))
+                if (activeFiles.TryGetValue(newFile.FileHandle.Uri, out var oldFile))
                 {
                     if (oldFile == newFile)
                     {
@@ -42,7 +42,7 @@ namespace Bicep.Core.SourceGraph
 
                 added.Add(newFile);
 
-                activeFiles[newFile.Uri] = newFile;
+                activeFiles[newFile.FileHandle.Uri] = newFile;
             }
 
             return (added.ToImmutableArray(), removed.ToImmutableArray());
@@ -52,9 +52,9 @@ namespace Bicep.Core.SourceGraph
         {
             foreach (var file in files)
             {
-                if (activeFiles.TryGetValue(file.Uri, out var treeToRemove) && treeToRemove == file)
+                if (activeFiles.TryGetValue(file.FileHandle.Uri, out var treeToRemove) && treeToRemove == file)
                 {
-                    activeFiles.Remove(file.Uri);
+                    activeFiles.Remove(file.FileHandle.Uri);
                 }
             }
         }

@@ -1443,7 +1443,7 @@ namespace Bicep.Decompiler
                 var filePath = $"./nested_{identifier}.bicep";
                 var nestedModuleUri = bicepFileUri.Resolve(filePath);
 
-                if (workspace.TryGetSourceFile(nestedModuleUri.ToUri()) is not null)
+                if (workspace.TryGetSourceFile(nestedModuleUri) is not null)
                 {
                     throw new ConversionFailedException($"Unable to generate duplicate module to path ${nestedModuleUri} for {typeString} {nameString}", nestedTemplate);
                 }

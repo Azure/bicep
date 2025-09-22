@@ -64,7 +64,7 @@ namespace Bicep.LangServer.UnitTests
 
             var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
             var server = BicepCompilationManagerHelper.CreateMockServer(document);
-            var uri = DocumentUri.File(this.TestContext.TestName + fileExtension).ToUriEncoded();
+            var uri = DocumentUri.File(this.TestContext.TestName + fileExtension);
             var workspace = new ActiveSourceFileSet();
             var manager = BicepCompilationManagerHelper.CreateCompilationManager(uri, string.Empty);
 
@@ -77,7 +77,7 @@ namespace Bicep.LangServer.UnitTests
             // second get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
 
-            var file = workspace.TryGetSourceFile(uri);
+            var file = workspace.TryGetSourceFile(uri.ToIOUri());
 
             // The workspace should remain empty.
             file.Should().BeNull();
@@ -94,7 +94,7 @@ namespace Bicep.LangServer.UnitTests
             PublishDiagnosticsParams? receivedParams = null;
 
             var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
-            var uri = DocumentUri.File(this.TestContext.TestName + fileExtension).ToUriEncoded();
+            var uri = DocumentUri.File(this.TestContext.TestName + fileExtension);
 
             var originalFile = BicepTestConstants.SourceFileFactory.CreateArmTemplateFile(uri.ToIOUri(), "{}");
             var workspace = new ActiveSourceFileSet();
@@ -111,7 +111,7 @@ namespace Bicep.LangServer.UnitTests
             // second get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
 
-            var updatedFile = workspace.TryGetSourceFile(uri);
+            var updatedFile = workspace.TryGetSourceFile(uri.ToIOUri());
 
             // The workspace should be refreshed.
             updatedFile.Should().NotBeNull();
