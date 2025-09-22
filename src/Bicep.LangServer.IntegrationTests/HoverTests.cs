@@ -1188,58 +1188,6 @@ AzureMetrics
             return multiFileLanguageServerHelper;
         }
 
-        private ICompilationManager GetBicepCompilationManager(DocumentUri documentUri, CompilationContext compilationContext)
-        {
-            var bicepCompilationManager = StrictMock.Of<ICompilationManager>();
-            bicepCompilationManager.Setup(m => m.GetCompilation(documentUri)).Returns(compilationContext);
-
-            return bicepCompilationManager.Object;
-        }
-
-        private IFeatureProviderFactory GetFeatureProviderFactory(Uri uri, string rootDirectoryPath)
-        {
-            var features = StrictMock.Of<IFeatureProvider>();
-            var rootDirectory = BicepTestConstants.FileExplorer.GetDirectory(IOUri.FromLocalFilePath(rootDirectoryPath));
-            features.Setup(m => m.CacheRootDirectory).Returns(rootDirectory);
-
-            var featureProviderFactory = StrictMock.Of<IFeatureProviderFactory>();
-            featureProviderFactory.Setup(m => m.GetFeatureProvider(uri)).Returns(features.Object);
-
-            return featureProviderFactory.Object;
-        }
-
-        private IModuleDispatcher GetModuleDispatcher(
-            BicepSourceFile parentModuleFile,
-            string manifestFileContents,
-            string testOutputPath,
-            string registry,
-            string repository,
-            string? digest,
-            string? tag)
-        {
-            var moduleDeclarationSyntax = parentModuleFile.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Single();
-
-            OciRegistryHelper.SaveManifestFileToModuleRegistryCache(
-                TestContext,
-                registry,
-                repository,
-                manifestFileContents,
-                testOutputPath,
-                digest,
-                tag);
-            ArtifactReference? ociArtifactModuleReference = OciRegistryHelper.CreateModuleReferenceMock(
-                parentModuleFile,
-                registry,
-                repository,
-                digest,
-                tag);
-
-            var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
-            moduleDispatcher.Setup(m => m.TryGetArtifactReference(parentModuleFile, moduleDeclarationSyntax)).Returns(ResultHelper.Create(ociArtifactModuleReference, null));
-
-            return moduleDispatcher.Object;
-        }
-
         private static void ValidateHover(Hover? hover, Symbol symbol)
         {
             hover.Should().NotBeNull();

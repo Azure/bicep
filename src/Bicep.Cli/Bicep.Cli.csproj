@@ -26,6 +26,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" />
     <PackageReference Include="Sarif.Sdk" />
     <PackageReference Include="StreamJsonRpc" />
+    <PackageReference Include="Azure.Deployments.ClientTools" />
   </ItemGroup>
 
   <ItemGroup>

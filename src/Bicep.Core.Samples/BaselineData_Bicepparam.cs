@@ -112,6 +112,7 @@ namespace Bicep.Core.Samples
                 "Files/baselines_bicepparam/TypedVariables/parameters.bicepparam",
                 "Files/baselines_bicepparam/Variables/parameters.bicepparam",
                 "Files/baselines_bicepparam/External_Inputs/parameters.bicepparam",
+                "Files/baselines_bicepparam/External_Inputs_DeployCommands/parameters.bicepparam",
                 "Files/baselines_bicepparam/Invalid_ExternalInputs/parameters.bicepparam");
 
             foreach (var file in embeddedFiles)

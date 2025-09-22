@@ -18,13 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Publish Bicep CLI
         run: dotnet publish --configuration release --self-contained true -r linux-x64 ./src/Bicep.Cli/Bicep.Cli.csproj
@@ -84,7 +84,7 @@ jobs:
 
 
       - name: Download Current Bicep CLI Build
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: bicep-release-linux-x64
           path: ~/.azure/bin

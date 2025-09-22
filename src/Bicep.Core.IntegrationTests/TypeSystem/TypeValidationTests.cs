@@ -16,17 +16,17 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class TypeValidationTests
     {
-        private static ServiceBuilder Services => new();
+        private static CompilationHelper.CompilationResult Compile(string programText, IEnumerable<ResourceTypeComponents> definedTypes)
+        {
+            var services = new ServiceBuilder()
+                .WithAzResources(definedTypes)
+                .WithConfigurationPatch(c => c.WithAllAnalyzersDisabled());
+
+            return CompilationHelper.Compile(services, programText);
+        }
 
         private static SemanticModel GetSemanticModelForTest(string programText, IEnumerable<ResourceTypeComponents> definedTypes)
-        {
-            var compilation = Services
-                .WithAzResources(definedTypes)
-                .WithConfigurationPatch(c => c.WithAllAnalyzersDisabled())
-                .BuildCompilation(programText);
-
-            return compilation.GetEntrypointSemanticModel();
-        }
+            => Compile(programText, definedTypes).Compilation.GetEntrypointSemanticModel();
 
         [DataTestMethod]
         [DataRow(TypeSymbolValidationFlags.Default, DiagnosticLevel.Error)]
@@ -513,6 +513,28 @@ resource testRes 'My.Rp/myType@2020-01-01' = {
             model.GetAllDiagnostics().Should().SatisfyRespectively(
                 x => x.Should().HaveCodeAndSeverity("BCP246", DiagnosticLevel.Warning).And.HaveMessage(@"Resource type ""My.Rp/myType@2020-01-01"" can only be used with the 'existing' keyword at the requested scope. Permitted scopes for deployment: ""subscription"".")
             );
+        }
+
+        [TestMethod]
+        public void Required_readonly_properties_should_not_be_required_in_resource_body()
+        {
+            var customTypes = new[] {
+                TestTypeHelper.CreateCustomResourceTypeWithTopLevelProperties("My.Rp/myType", "2020-01-01", TypeSymbolValidationFlags.Default, [
+                    new NamedTypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required),
+                    new NamedTypeProperty("readOnlyRequired", LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.Required),
+                ]),
+            };
+
+            var result = Compile("""
+            resource myRes 'My.Rp/myType@2020-01-01' = {
+              name: 'foo'
+              required: 'abcd'
+            }
+            
+            output readOnlyRequired string = myRes.readOnlyRequired
+            """, customTypes);
+
+            result.Should().NotHaveAnyDiagnostics();
         }
 
         private static TypeSymbol GetTypeForNamedSymbol(SemanticModel model, string symbolName)

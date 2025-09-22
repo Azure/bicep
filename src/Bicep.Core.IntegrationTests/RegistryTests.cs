@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
@@ -12,6 +13,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.InMemory;
 using Bicep.TextFixtures.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -59,7 +61,7 @@ namespace Bicep.Core.IntegrationTests
                 .Build();
 
             var compiler = services.GetCompiler();
-            var compilation = await compiler.CreateCompilation(fileUri);
+            var compilation = await compiler.CreateCompilation(fileUri.ToIOUri());
 
             var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
             diagnostics.Should().HaveCount(1);
@@ -211,12 +213,9 @@ namespace Bicep.Core.IntegrationTests
             var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(features));
             await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
 
-            var fileResolver = BicepTestConstants.FileResolver;
-
             var services = Services
                 .WithFeatureOverrides(features)
                 .WithTestArtifactManager(artifactManager)
-                .WithFileResolver(fileResolver)
                 .Build();
 
             var dispatcher = services.Construct<IModuleDispatcher>();
@@ -277,12 +276,9 @@ namespace Bicep.Core.IntegrationTests
             var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(features));
             await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
 
-            var fileResolver = BicepTestConstants.FileResolver;
-
             var services = Services
                 .WithFeatureOverrides(features)
                 .WithTestArtifactManager(artifactManager)
-                .WithFileResolver(fileResolver)
                 .Build();
 
             var dispatcher = services.Construct<IModuleDispatcher>();
@@ -351,12 +347,9 @@ namespace Bicep.Core.IntegrationTests
             var artifactManager = new TestExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(features));
             await dataSet.PublishAllDataSetArtifacts(artifactManager, publishSource: true);
 
-            var fileResolver = BicepTestConstants.FileResolver;
-
             var services = Services
                 .WithFeatureOverrides(new(CacheRootDirectory: cacheDirectory))
                 .WithTestArtifactManager(artifactManager)
-                .WithFileResolver(fileResolver)
                 .Build();
 
             var dispatcher = services.Construct<IModuleDispatcher>();
@@ -400,7 +393,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var sourceFileFactory = dependencyHelper.Construct<ISourceFileFactory>();
 
-            return sourceFileFactory.CreateBicepFile(new Uri("inmemory:///main.bicep"), "");
+            return sourceFileFactory.CreateBicepFile(DummyFileHandle.Default, "");
         }
 
         private static ResultWithDiagnosticBuilder<ArtifactReference> TryGetModuleReference(IModuleDispatcher moduleDispatcher, BicepSourceFile referencingFile, string reference) =>

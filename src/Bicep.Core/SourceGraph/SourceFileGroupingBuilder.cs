@@ -27,7 +27,7 @@ namespace Bicep.Core.SourceGraph
         private readonly IReadOnlyWorkspace workspace;
         private readonly ISourceFileFactory sourceFileFactory;
 
-        private readonly Dictionary<Uri, ResultWithDiagnosticBuilder<ISourceFile>> fileResultByUri;
+        private readonly Dictionary<IOUri, ResultWithDiagnosticBuilder<ISourceFile>> fileResultByUri;
         private readonly Dictionary<IArtifactReferenceSyntax, ArtifactResolutionInfo> artifactLookup;
         private readonly Dictionary<ISourceFile, HashSet<ImplicitExtension>> implicitExtensions;
         private readonly bool forceRestore;
@@ -67,7 +67,7 @@ namespace Bicep.Core.SourceGraph
             this.forceRestore = forceArtifactRestore;
         }
 
-        public static SourceFileGrouping Build(IFileExplorer fileExplorer, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, ISourceFileFactory sourceFileFactory, Uri entryFileUri, bool forceModulesRestore = false)
+        public static SourceFileGrouping Build(IFileExplorer fileExplorer, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, ISourceFileFactory sourceFileFactory, IOUri entryFileUri, bool forceModulesRestore = false)
         {
             var builder = new SourceFileGroupingBuilder(fileExplorer, moduleDispatcher, workspace, sourceFileFactory, forceModulesRestore);
 
@@ -99,10 +99,10 @@ namespace Bicep.Core.SourceGraph
                 .SelectMany(current.GetSourceFilesDependingOn)
                 .ToFrozenSet();
 
-            return builder.Build(current.EntryPoint.Uri, sourceFileExplorerBuild);
+            return builder.Build(current.EntryPoint.FileHandle.Uri, sourceFileExplorerBuild);
         }
 
-        private SourceFileGrouping Build(Uri entryFileUri, FrozenSet<ISourceFile>? sourceFileExplorerBuild = null)
+        private SourceFileGrouping Build(IOUri entryFileUri, FrozenSet<ISourceFile>? sourceFileExplorerBuild = null)
         {
             var fileResult = this.PopulateRecursive(entryFileUri, null, sourceFileExplorerBuild);
 
@@ -129,28 +129,28 @@ namespace Bicep.Core.SourceGraph
                 fileResultByUri.ToImmutableDictionary());
         }
 
-        private ResultWithDiagnosticBuilder<ISourceFile> GetFileResolutionResult(Uri fileUri, ArtifactReference? moduleReference)
+        private ResultWithDiagnosticBuilder<ISourceFile> GetFileResolutionResult(IOUri fileUri, ArtifactReference? moduleReference)
         {
             // TODO(file-io-abstraction): Create a LanguageServerFileExplorer that handles active file tracking and remove workspace.
-            if (workspace.TryGetSourceFile(fileUri, out var sourceFile))
+            if (workspace.TryGetSourceFile(fileUri.ToUri(), out var sourceFile))
             {
                 return new(sourceFile);
             }
 
-            if (!this.fileExplorer.GetFile(fileUri.ToIOUri()).TryReadAllText().IsSuccess(out var fileContents, out var failureBuilder))
+            if (!this.fileExplorer.GetFile(fileUri).TryReadAllText().IsSuccess(out var fileContents, out var failureBuilder))
             {
                 return new(failureBuilder);
             }
 
 
             sourceFile = moduleReference is TemplateSpecModuleReference
-                ? this.sourceFileFactory.CreateSourceFile(fileUri, fileContents, typeof(TemplateSpecFile))
+                ? this.sourceFileFactory.CreateTemplateSpecFile(fileUri, fileContents)
                 : this.sourceFileFactory.CreateSourceFile(fileUri, fileContents);
 
             return new(sourceFile);
         }
 
-        private ResultWithDiagnosticBuilder<ISourceFile> GetFileResolutionResultWithCaching(Uri fileUri, ArtifactReference? reference)
+        private ResultWithDiagnosticBuilder<ISourceFile> GetFileResolutionResultWithCaching(IOUri fileUri, ArtifactReference? reference)
         {
             if (!fileResultByUri.TryGetValue(fileUri, out var resolutionResult))
             {
@@ -161,7 +161,7 @@ namespace Bicep.Core.SourceGraph
             return resolutionResult;
         }
 
-        private ResultWithDiagnosticBuilder<ISourceFile> PopulateRecursive(Uri fileUri, ArtifactReference? reference, FrozenSet<ISourceFile>? sourceFileExplorerBuild)
+        private ResultWithDiagnosticBuilder<ISourceFile> PopulateRecursive(IOUri fileUri, ArtifactReference? reference, FrozenSet<ISourceFile>? sourceFileExplorerBuild)
         {
             var fileResult = GetFileResolutionResultWithCaching(fileUri, reference);
             if (fileResult.TryUnwrap() is BicepSourceFile bicepSource)
@@ -220,7 +220,7 @@ namespace Bicep.Core.SourceGraph
                     continue;
                 }
 
-                var artifactUri = artifactFileHandle.Uri.ToUri();
+                var artifactUri = artifactFileHandle.Uri;
 
                 // recurse into child modules, to ensure we have an exhaustive list of restorable artifacts for the full compilation
                 if (!fileResultByUri.TryGetValue(artifactUri, out var childResult) ||
@@ -308,7 +308,7 @@ namespace Bicep.Core.SourceGraph
                 .SelectMany(sourceFile => GetArtifactReferenceDeclarations(sourceFile)
                     .Select(x => this.artifactLookup.TryGetValue(x)?.Result.TryUnwrap())
                     .WhereNotNull()
-                    .Select(fileHandle => this.fileResultByUri.TryGetValue(fileHandle.Uri.ToUri())?.TryUnwrap())
+                    .Select(fileHandle => this.fileResultByUri.TryGetValue(fileHandle.Uri)?.TryUnwrap())
                     .WhereNotNull()
                     .Distinct()
                     .Select(referencedFile => (sourceFile, referencedFile)))
@@ -319,7 +319,7 @@ namespace Bicep.Core.SourceGraph
             {
                 if (statement.GetArtifactType() == ArtifactType.Module &&
                     info.Result.IsSuccess(out var fileHandle) &&
-                    fileResultByUri[fileHandle.Uri.ToUri()].IsSuccess(out var sourceFile) &&
+                    fileResultByUri[fileHandle.Uri].IsSuccess(out var sourceFile) &&
                     cycles.TryGetValue(sourceFile, out var cycle))
                 {
                     ResultWithDiagnosticBuilder<IFileHandle> result = cycle switch

@@ -56,7 +56,7 @@ namespace Bicep.LanguageServer.Providers
                 moduleDispatcher,
                 workspace,
                 sourceFileFactory,
-                documentUri.ToUriEncoded());
+                documentUri.ToIOUri());
             return this.CreateContext(sourceFileGrouping, modelLookup);
         }
 

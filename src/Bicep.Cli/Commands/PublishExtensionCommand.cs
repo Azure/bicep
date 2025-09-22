@@ -129,7 +129,7 @@ namespace Bicep.Cli.Commands
                 dummyReferencingFileUri = new IOUri("file", "", "/dummy");
             }
 
-            var dummyReferencingFile = sourceFileFactory.CreateBicepFile(dummyReferencingFileUri.ToUri(), "");
+            var dummyReferencingFile = sourceFileFactory.CreateBicepFile(dummyReferencingFileUri, "");
 
             if (!moduleDispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Extension, targetReference).IsSuccess(out var extensionReference, out var failureBuilder))
             {
@@ -182,13 +182,13 @@ namespace Bicep.Cli.Commands
 
             var fileExplorer = new InMemoryFileExplorer();
 
-            var indexUri = IOUri.FromLocalFilePath("/index.json");
+            var indexUri = IOUri.FromFilePath("/index.json");
             var indexHandle = fileExplorer.GetFile(indexUri);
             indexHandle.Write(typeFiles.IndexFileContent);
 
             foreach (var (path, content) in typeFiles.TypeFileContents)
             {
-                var fileUri = IOUri.FromLocalFilePath($"/{path}");
+                var fileUri = IOUri.FromFilePath($"/{path}");
                 fileExplorer.GetFile(fileUri).Write(content);
             }
 

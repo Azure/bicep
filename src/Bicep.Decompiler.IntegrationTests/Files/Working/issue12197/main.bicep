@@ -63,15 +63,15 @@ module appServiceModule './nested_appServiceModule.bicep' = {
   params: {
     location: location
     appServicePlanID: reference(appServicePlanModule.id, '2022-09-01').outputs.appServicePlanID.value
-//@[53:55) [BCP053 (Error)] The type "module" does not contain property "id". Available properties include "name", "outputs". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |id|
+//@[53:55) [BCP053 (Error)] The type "module" does not contain property "id". Available properties include "identity", "name", "outputs". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |id|
     appServiceName: nameSuffix
     principalId: reference(userAssignedIdentityModule.id, '2022-09-01').outputs.userIdentityResourceId.value
-//@[54:56) [BCP053 (Error)] The type "module" does not contain property "id". Available properties include "name", "outputs". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |id|
+//@[54:56) [BCP053 (Error)] The type "module" does not contain property "id". Available properties include "identity", "name", "outputs". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |id|
     appSettingsArray: [
       {
         name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
         value: reference(appInsightsModule.id, '2022-09-01').outputs.appInsightsInstrumentationKey.value
-//@[43:45) [BCP053 (Error)] The type "module" does not contain property "id". Available properties include "name", "outputs". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |id|
+//@[43:45) [BCP053 (Error)] The type "module" does not contain property "id". Available properties include "identity", "name", "outputs". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |id|
       }
       {
         name: 'CosmosDb:Account'
@@ -122,7 +122,7 @@ module cosmosRBACModule './nested_cosmosRBACModule.bicep' = {
     databaseAccountName: cosmosDBName
     databaseAccountResourceGroup: cosmosDBResourceGroup
     principalId: reference(appServiceModule.id, '2022-09-01').outputs.appServiceManagedIdentity.value
-//@[44:46) [BCP053 (Error)] The type "module" does not contain property "id". Available properties include "name", "outputs". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |id|
+//@[44:46) [BCP053 (Error)] The type "module" does not contain property "id". Available properties include "identity", "name", "outputs". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |id|
   }
 }
 

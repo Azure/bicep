@@ -19,7 +19,9 @@ public class BicepToolsTests
     private static IServiceProvider GetServiceProvider()
     {
         var services = new ServiceCollection();
-        services.AddBicepMcpServer();
+        services
+            .WithAvmSupport()
+            .AddBicepMcpServer();
 
         return services.BuildServiceProvider();
     }
@@ -70,5 +72,49 @@ public class BicepToolsTests
 
         // Update this if the file content changes - it's just here as a sanity check to make sure we're decoding the content correctly
         expectedBestPractices.Should().StartWith("# Bicep best-practices");
+    }
+
+    [TestMethod]
+    public async Task ListAvmMetadata_returns_avm_metadata()
+    {
+        var response = await tools.ListAvmMetadata();
+        var lines = response.ReplaceLineEndings().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+        lines.Should().HaveCountGreaterThan(200, "response should have more than 200 lines");
+
+        lines.Should().AllSatisfy(line =>
+        {
+            // Parse the line format: "Module: {module}; Description: {description}; Versions: [{versions}]; Doc URI: {docUri}"
+            var parts = line.Split("; ");
+            parts.Should().HaveCount(4, $"Each line should have 4 parts separated by '; ', but got: {line}");
+
+            // Extract Module
+            var modulePart = parts[0];
+            modulePart.Should().StartWith("Module: ");
+            var module = modulePart["Module: ".Length..];
+            module.Should().StartWith("avm/");
+
+            // Extract Description
+            var descriptionPart = parts[1];
+            descriptionPart.Should().StartWith("Description: ");
+            var description = descriptionPart["Description: ".Length..];
+            description.Should().NotBeNullOrWhiteSpace("Description should not be empty");
+
+            // Extract Versions
+            var versionsPart = parts[2];
+            versionsPart.Should().StartWith("Versions: [");
+            versionsPart.Should().EndWith("]");
+            var versionsContent = versionsPart.Substring("Versions: [".Length, versionsPart.Length - "Versions: [".Length - 1);
+            versionsContent.Should().NotBeNullOrWhiteSpace("Versions should not be empty");
+            // Versions should be comma-separated
+            var versions = versionsContent.Split(", ");
+            versions.Should().NotBeEmpty("Should have at least one version");
+            versions.Should().AllSatisfy(v => v.Should().MatchRegex(@"^\d+\.\d+\.\d+", "Each version should follow semantic versioning"));
+
+            // Extract Doc URI
+            var docUriPart = parts[3];
+            docUriPart.Should().StartWith("Doc URI: ");
+            var docUri = docUriPart["Doc URI: ".Length..];
+            docUri.Should().StartWith("https://");
+        });
     }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Azure.Bicep.Types.Concrete;
@@ -21,6 +21,16 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             "ValidSecurePropertyAssignment",
             "extensionConfig mockExt with { secureStringRequiredProp: az.getSecret('a', 'b', 'c', 'd'), stringRequiredProp: 'value' }",
             "extensionConfigs: { mockExt: { secureStringRequiredProp: kv.getSecret('a'), stringRequiredProp: 'value' } }"
+        )]
+        [DataRow(
+            "SecurePropertyInheritance",
+            "extensionConfig mockExt with { secureStringRequiredProp: az.getSecret('a', 'b', 'c', 'd'), stringRequiredProp: 'value' }",
+            "extensionConfigs: { mockExt: { secureStringRequiredProp: mockExt.config.secureStringRequiredProp, stringRequiredProp: 'value' } }"
+        )]
+        [DataRow(
+            "SecurePropertyInheritanceArrayVariant",
+            "extensionConfig mockExt with { secureStringRequiredProp: az.getSecret('a', 'b', 'c', 'd'), stringRequiredProp: 'value' }",
+            "extensionConfigs: { mockExt: { secureStringRequiredProp: mockExt['config']['secureStringRequiredProp'], stringRequiredProp: 'value' } }"
         )]
         public async Task Does_not_flag_stack_compatible_assignments(string scenario, string extConfigAssignments, string moduleBody)
         {
@@ -68,13 +78,47 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError() || d.Code == StacksExtensibilityCompatibilityRule.Code);
         }
 
+        // NOTE: BCP180/getSecret validation covers assigning key vault references to non-secure properties.
         [DataTestMethod]
         [DataRow(
             "InlinedSecretsAreFlagged",
             "extensionConfig mockExt with { secureStringRequiredProp: 'SECRET', stringRequiredProp: 'value' }",
-            "extensionConfigs: { mockExt: { secureStringRequiredProp: 'SECRET', stringRequiredProp: 'value' } }"
+            "extensionConfigs: { mockExt: { secureStringRequiredProp: 'SECRET', stringRequiredProp: 'value' } }",
+            true,
+            true,
+            false
         )]
-        public async Task Provides_diagnostic_for_stacks_incompatible_assignments(string scenario, string extConfigAssignments, string moduleBody)
+        [DataRow(
+            "NonSecurePropertyReferencesAreCoveredByGetSecretValidation_ParamsFile",
+            "extensionConfig mockExt with { secureStringRequiredProp: az.getSecret('a', 'b', 'c', 'd'), stringRequiredProp: az.getSecret('a', 'b', 'c', 'd') }",
+            "extensionConfigs: { mockExt: { secureStringRequiredProp: kv.getSecret('a'), stringRequiredProp: 'value' } }",
+            true,
+            false,
+            true)]
+        [DataRow(
+            "NonSecurePropertyReferencesAreCoveredByGetSecretValidation_MainFile",
+            "extensionConfig mockExt with { secureStringRequiredProp: az.getSecret('a', 'b', 'c', 'd'), stringRequiredProp: 'value' }",
+            "extensionConfigs: { mockExt: { secureStringRequiredProp: kv.getSecret('a'), stringRequiredProp: kv.getSecret('a') } }",
+            false,
+            true,
+            true)]
+        [DataRow(
+            "NonSecurePropertyInheritsSecurePropertyIsFlagged",
+            "extensionConfig mockExt with { secureStringRequiredProp: az.getSecret('a', 'b', 'c', 'd'), stringRequiredProp: 'value' }",
+            "extensionConfigs: { mockExt: { secureStringRequiredProp: kv.getSecret('a'), stringRequiredProp: mockExt.config.secureStringRequiredProp } }",
+            false,
+            true,
+            false
+        )]
+        [DataRow(
+            "SecurePropertyInheritsNonSecurePropertyIsFlagged",
+            "extensionConfig mockExt with { secureStringRequiredProp: az.getSecret('a', 'b', 'c', 'd'), stringRequiredProp: 'value' }",
+            "extensionConfigs: { mockExt: { secureStringRequiredProp: mockExt.config.stringRequiredProp, stringRequiredProp: 'value' } }",
+            false,
+            true,
+            false
+        )]
+        public async Task Provides_diagnostic_for_stacks_incompatible_assignments(string scenario, string extConfigAssignments, string moduleBody, bool paramsFileDiagExpected, bool mainFileDiagExpected, bool expectError)
         {
             var paramsUri = new Uri("file:///main.bicepparam");
             var mainUri = new Uri("file:///main.bicep");
@@ -117,19 +161,44 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             var compilation = await services.BuildCompilationWithRestore(files, paramsUri);
 
-            compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
-
             var diagByFileUri = compilation.GetAllDiagnosticsByBicepFileUri();
+
+            if (!expectError)
+            {
+                compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
+            }
+
+            if (scenario is "NonSecurePropertyReferencesAreCoveredByGetSecretValidation_MainFile")
+            {
+                diagByFileUri[mainUri].Should().ContainSingleDiagnostic("BCP180", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator or a secure extension configuration property.", because: "param files should have this validation");
+
+                return;
+            }
 
             var expectedMessage = scenario switch
             {
-                "InlinedSecretsAreFlagged" => CoreResources.StacksExtensibilityCompatibilityRule_SecurePropertyValueIsNotReference,
-                "NonSecurePropertyReferencesAreFlagged" => CoreResources.StacksExtensibilityCompatibilityRule_SecurePropertyValueIsNotReference,
+                "InlinedSecretsAreFlagged" or "SecurePropertyInheritsNonSecurePropertyIsFlagged" => CoreResources.StacksExtensibilityCompatibilityRule_SecurePropertyValueIsNotReference,
+                "NonSecurePropertyInheritsSecurePropertyIsFlagged" or "NonSecurePropertyReferencesAreCoveredByGetSecretValidation_ParamsFile" => CoreResources.StacksExtensibilityCompatibilityRule_NonSecurePropertyValueIsReference,
                 _ => throw new NotImplementedException()
             };
 
-            diagByFileUri[paramsUri].Should().ContainSingleDiagnostic(StacksExtensibilityCompatibilityRule.Code, DiagnosticLevel.Info, expectedMessage, because: "param files should have this validation");
-            diagByFileUri[mainUri].Should().ContainSingleDiagnostic(StacksExtensibilityCompatibilityRule.Code, DiagnosticLevel.Info, expectedMessage, because: "bicep files should have this validation");
+            if (paramsFileDiagExpected)
+            {
+                diagByFileUri[paramsUri].Should().ContainSingleDiagnostic(StacksExtensibilityCompatibilityRule.Code, DiagnosticLevel.Info, expectedMessage, because: "param files should have this validation");
+            }
+            else
+            {
+                diagByFileUri[paramsUri].Should().NotContainDiagnostic(StacksExtensibilityCompatibilityRule.Code);
+            }
+
+            if (mainFileDiagExpected)
+            {
+                diagByFileUri[mainUri].Should().ContainSingleDiagnostic(StacksExtensibilityCompatibilityRule.Code, DiagnosticLevel.Info, expectedMessage, because: "bicep files should have this validation");
+            }
+            else
+            {
+                diagByFileUri[mainUri].Should().NotContainDiagnostic(StacksExtensibilityCompatibilityRule.Code);
+            }
         }
 
         #region Helpers

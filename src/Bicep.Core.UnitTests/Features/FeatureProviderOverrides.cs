@@ -24,8 +24,8 @@ public record FeatureProviderOverrides(
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
     bool? ModuleExtensionConfigsEnabled = default,
     bool? DesiredStateConfigurationEnabled = default,
-    bool? OnlyIfNotExistsEnabled = default,
-    bool? ModuleIdentityEnabled = default,
+    bool? UserDefinedConstraintsEnabled = default,
+    bool? DeployCommandsEnabled = default,
     bool? ThisExistsFunctionEnabled = default)
 {
     public FeatureProviderOverrides(
@@ -45,28 +45,27 @@ public record FeatureProviderOverrides(
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
         bool? ModuleExtensionConfigsEnabled = default,
         bool? DesiredStateConfigurationEnabled = default,
-        bool? OnlyIfNotExistsEnabled = default,
-        bool? ModuleIdentityEnabled = default,
-        bool? ThisExistsFunctionEnabled = default
-    ) : this(
-        FileHelper.GetCacheRootDirectory(testContext),
-        RegistryEnabled,
-        SymbolicNameCodegenEnabled,
-        AdvancedListComprehensionEnabled,
-        ResourceTypedParamsAndOutputsEnabled,
-        SourceMappingEnabled,
-        LegacyFormatterEnabled,
-        TestFrameworkEnabled,
-        AssertsEnabled,
-        WaitAndRetryEnabled,
-        LocalDeployEnabled,
-        ResourceInfoCodegenEnabled,
-        ExtendableParamFilesEnabled,
-        AssemblyVersion,
-        ModuleExtensionConfigsEnabled,
-        DesiredStateConfigurationEnabled,
-        OnlyIfNotExistsEnabled,
-        ModuleIdentityEnabled,
-        ThisExistsFunctionEnabled)
+        bool? UserDefinedConstraintsEnabled = default,
+        bool? DeployCommandsEnabled = default,
+        bool? ThisExistsFunctionEnabled = default) : this(
+            FileHelper.GetCacheRootDirectory(testContext),
+            RegistryEnabled,
+            SymbolicNameCodegenEnabled,
+            AdvancedListComprehensionEnabled,
+            ResourceTypedParamsAndOutputsEnabled,
+            SourceMappingEnabled,
+            LegacyFormatterEnabled,
+            TestFrameworkEnabled,
+            AssertsEnabled,
+            WaitAndRetryEnabled,
+            LocalDeployEnabled,
+            ResourceInfoCodegenEnabled,
+            ExtendableParamFilesEnabled,
+            AssemblyVersion,
+            ModuleExtensionConfigsEnabled,
+            DesiredStateConfigurationEnabled,
+            UserDefinedConstraintsEnabled,
+            DeployCommandsEnabled,
+            ThisExistsFunctionEnabled)
     { }
 }

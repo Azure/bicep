@@ -1358,8 +1358,7 @@ namespace Bicep.LanguageServer.Completions
             IEnumerable<CompletionItem> snippetCompletions = [];
             if (context.Property is { } propertySyntax &&
                 propertySyntax.TryGetKeyText() is "identity" &&
-                (context.EnclosingDeclaration is ResourceDeclarationSyntax ||
-                 (context.EnclosingDeclaration is ModuleDeclarationSyntax && model.Features.ModuleIdentityEnabled)))
+                (context.EnclosingDeclaration is ResourceDeclarationSyntax or ModuleDeclarationSyntax))
             {
                 snippetCompletions = snippetsProvider.GetIdentitySnippets(context.EnclosingDeclaration is ResourceDeclarationSyntax)
                     .Select(snippet => CreateContextualSnippetCompletion(
@@ -1442,7 +1441,9 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetFileCompletionPaths(SemanticModel model, BicepCompletionContext context, TypeSymbol argType)
         {
-            if (context.FunctionArgument is not { } functionArgument || !argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath))
+            if (context.FunctionArgument is not { } functionArgument ||
+                !argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath) &&
+                !argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringDirectoryPath))
             {
                 return [];
             }
@@ -1455,6 +1456,11 @@ namespace Bicep.LanguageServer.Completions
             if (TryGetFilesForPathCompletions(model.SourceFile.FileHandle, entered) is not { } fileCompletionInfo)
             {
                 return [];
+            }
+
+            if (argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringDirectoryPath))
+            {
+                return CreateDirectoryCompletionItems(context.ReplacementRange, fileCompletionInfo, CompletionPriority.High);
             }
 
             IEnumerable<CompletionItem> fileItems;
@@ -1493,7 +1499,8 @@ namespace Bicep.LanguageServer.Completions
 
                     break;
 
-                case StringType when type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath):
+                case StringType when type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath) ||
+                    type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringDirectoryPath):
                     foreach (var completion in GetFileCompletionPaths(model, context, type))
                     {
                         yield return completion;

@@ -3,6 +3,7 @@
 using System.Collections.Immutable;
 using BenchmarkDotNet.Attributes;
 using Bicep.Core;
+using Bicep.Core.Extensions;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
@@ -46,7 +47,7 @@ public class Compilation
 
         foreach (var dataSet in dataSets)
         {
-            var compilation = await compiler.CreateCompilation(new Uri($"file:///{dataSet.Name}/main.bicep"), skipRestore: true);
+            var compilation = await compiler.CreateCompilation(new Uri($"file:///{dataSet.Name}/main.bicep").ToIOUri(), skipRestore: true);
 
             var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
         }

@@ -14,7 +14,7 @@ param deployTimeSuffix string = newGuid()
 module modATest './modulea.bicep' = {
 //@    "modATest": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -125,7 +125,7 @@ module modATest './modulea.bicep' = {
 module modB './child/moduleb.bicep' = {
 //@    "modB": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -183,7 +183,7 @@ module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
 //@    "modBWithCondition": {
 //@      "condition": "[equals(add(1, 1), 2)]",
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -238,7 +238,7 @@ module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
 module modBWithCondition2 './child/moduleb.bicep' =
 //@    "modBWithCondition2": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -294,7 +294,7 @@ if (1 + 1 == 2) {
 module modC './child/modulec.json' = {
 //@    "modC": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -342,7 +342,7 @@ module modCWithCondition './child/modulec.json' = if (2 - 1 == 1) {
 //@    "modCWithCondition": {
 //@      "condition": "[equals(sub(2, 1), 1)]",
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -389,7 +389,7 @@ module modCWithCondition './child/modulec.json' = if (2 - 1 == 1) {
 module optionalWithNoParams1 './child/optionalParams.bicep'= {
 //@    "optionalWithNoParams1": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -451,7 +451,7 @@ module optionalWithNoParams1 './child/optionalParams.bicep'= {
 module optionalWithNoParams2 './child/optionalParams.bicep'= {
 //@    "optionalWithNoParams2": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -516,7 +516,7 @@ module optionalWithNoParams2 './child/optionalParams.bicep'= {
 module optionalWithAllParams './child/optionalParams.bicep'= {
 //@    "optionalWithAllParams": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -622,7 +622,7 @@ resource resWithDependencies 'Mock.Rp/mockResource@2020-01-01' = {
 module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep'= {
 //@    "optionalWithAllParamsAndManualDependency": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -712,7 +712,7 @@ module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep'= 
 module optionalWithImplicitDependency './child/optionalParams.bicep'= {
 //@    "optionalWithImplicitDependency": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -798,7 +798,7 @@ module optionalWithImplicitDependency './child/optionalParams.bicep'= {
 module moduleWithCalculatedName './child/optionalParams.bicep'= {
 //@    "moduleWithCalculatedName": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -963,7 +963,7 @@ module storageResources 'modulea.bicep' = [for module in myModules: {
 //@        "count": "[length(variables('myModules'))]"
 //@      },
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -1060,7 +1060,7 @@ module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules
 //@        "count": "[length(variables('myModules'))]"
 //@      },
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -1165,7 +1165,7 @@ module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
 //@        "count": "[length(variables('myModules'))]"
 //@      },
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -1268,7 +1268,7 @@ module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
 //@        "count": "[length(variables('emptyArray'))]"
 //@      },
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -1377,7 +1377,7 @@ module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes 
 //@        "count": "[length(createArray())]"
 //@      },
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -1487,7 +1487,7 @@ module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
 //@        "count": "[length(createArray())]"
 //@      },
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -1585,7 +1585,7 @@ module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
 module propertyLoopInsideParameterValue 'modulea.bicep' = {
 //@    "propertyLoopInsideParameterValue": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -1729,7 +1729,7 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
 module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@    "propertyLoopInsideParameterValueWithIndexes": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -1879,7 +1879,7 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@        "count": "[length(range(0, 1))]"
 //@      },
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -2036,7 +2036,7 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 module secureModule1 'child/secureParams.bicep' = {
 //@    "secureModule1": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -2113,7 +2113,7 @@ resource scopedKv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 module secureModule2 'child/secureParams.bicep' = {
 //@    "secureModule2": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -2245,7 +2245,7 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 //@        "count": "[length(variables('secrets'))]"
 //@      },
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -2310,7 +2310,7 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 module secureModuleCondition 'child/secureParams.bicep' = {
 //@    "secureModuleCondition": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -2362,7 +2362,7 @@ module secureModuleCondition 'child/secureParams.bicep' = {
 module withSpace 'module with space.bicep' = {
 //@    "withSpace": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -2401,7 +2401,7 @@ module withSpace 'module with space.bicep' = {
 module folderWithSpace 'child/folder with space/child with space.bicep' = {
 //@    "folderWithSpace": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -2447,7 +2447,7 @@ var nameofModuleParam = nameof(secureModuleCondition.outputs.exposedSecureString
 module moduleWithNameof 'modulea.bicep' = {
 //@    "moduleWithNameof": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "resourceGroup": "nameofModuleParam",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -2558,7 +2558,7 @@ module moduleWithNameof 'modulea.bicep' = {
 module moduleWithNullableOutputs 'child/nullableOutputs.bicep' = {
 //@    "moduleWithNullableOutputs": {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"

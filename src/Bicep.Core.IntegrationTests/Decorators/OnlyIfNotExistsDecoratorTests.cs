@@ -23,7 +23,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
         [TestMethod]
         public void OnlyIfNotExistsDecorator_ValidScenario()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, OnlyIfNotExistsEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
             @onlyIfNotExists()
             resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
@@ -40,13 +40,15 @@ namespace Bicep.Core.IntegrationTests.Decorators
 
                 template.Should().NotBeNull()
                     .And.HaveValueAtPath("$.resources['sqlServer'].@options.onlyIfNotExists", onlyIfNotExistsJObject);
+                template.Should().NotBeNull()
+                    .And.HaveValueAtPath("$.languageVersion", "2.0");
             }
         }
 
         [TestMethod]
         public void OnlyIfNotExistsAndRetryOnDecorator_ValidScenario()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, OnlyIfNotExistsEnabled: true, WaitAndRetryEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
             @onlyIfNotExists()
             @retryOn(['ResourceNotFound', 'ServerError'], 1)
@@ -79,7 +81,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
         [TestMethod]
         public void OnlyIfNotExistsDecorator_WithModuleDeclaration_ShouldFail()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, OnlyIfNotExistsEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
 
             var mainUri = new Uri("file:///main.bicep");
             var moduleUri = new Uri("file:///module.bicep");
@@ -119,7 +121,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
         [TestMethod]
         public void OnlyIfNotExistsDecorator_ExpectedResourceDeclaration()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, OnlyIfNotExistsEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
             @onlyIfNotExists()
             ");
@@ -135,7 +137,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
         [TestMethod]
         public void OnlyIfNotExistsDecoratorWithCollections_ValidScenario()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, OnlyIfNotExistsEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
             @onlyIfNotExists()
             resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = [for i in range(1, 2):{
@@ -158,26 +160,6 @@ namespace Bicep.Core.IntegrationTests.Decorators
         [TestMethod]
         public void OnlyIfNotExistsDecorator_Arguments_ShouldFail()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, OnlyIfNotExistsEnabled: true));
-            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
-            @onlyIfNotExists(1)
-            resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
-                name: 'sql-server-name'
-                location: 'polandcentral'
-            }
-            ");
-            using (new AssertionScope())
-            {
-                template.Should().NotHaveValue();
-                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                    ("BCP071", DiagnosticLevel.Error, "Expected 0 arguments, but got 1."),
-                });
-            }
-        }
-
-        [TestMethod]
-        public void OnlyIfNotExistsDecorator_NotEnabled_ShouldFail()
-        {
             var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
             @onlyIfNotExists(1)
@@ -190,7 +172,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
             {
                 template.Should().NotHaveValue();
                 diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                    ("BCP057", DiagnosticLevel.Error, "The name \"onlyIfNotExists\" does not exist in the current context."),
+                    ("BCP071", DiagnosticLevel.Error, "Expected 0 arguments, but got 1."),
                 });
             }
         }

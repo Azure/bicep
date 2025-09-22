@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Azure.Bicep.Types.Concrete;
@@ -13,19 +13,27 @@ public static class MockExtensionFactory
         ExtensionTestHelper.CreateMockExtensionMockData(
             extName, "1.2.3", "v1", CustomExtensionTypeFactoryDelegates.NoTypes);
 
-    public static MockExtensionData CreateMockExtWithObjectConfigType(string extName) =>
+    public static MockExtensionData CreateMockExtWithObjectConfigType(string extName, Func<CreateCustomExtensionTypeContext, IReadOnlyDictionary<string, ObjectTypeProperty>>? configTypeFn = null) =>
         ExtensionTestHelper.CreateMockExtensionMockData(
             extName, "1.2.3", "v1", new CustomExtensionTypeFactoryDelegates
             {
                 CreateConfigurationType = (ctx, tf) => tf.Create(() => new ObjectType(
                     "config",
-                    new Dictionary<string, ObjectTypeProperty>
+                    configTypeFn?.Invoke(ctx) ?? new Dictionary<string, ObjectTypeProperty>
                     {
                         ["requiredString"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.Required, null),
                         ["optionalString"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.None, null)
                     },
                     null))
             });
+
+    public static MockExtensionData CreateMockExtWithOptionalObjectConfigType(string extName) => CreateMockExtWithObjectConfigType(
+        extName,
+        ctx => new Dictionary<string, ObjectTypeProperty>
+        {
+            ["optionalSecureString"] = new(ctx.CoreSecureStringTypeRef, ObjectTypePropertyFlags.None, null),
+            ["optionalString"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.None, null)
+        });
 
     public static MockExtensionData CreateMockExtWithSecureConfigType(string extName) =>
         ExtensionTestHelper.CreateMockExtensionMockData(

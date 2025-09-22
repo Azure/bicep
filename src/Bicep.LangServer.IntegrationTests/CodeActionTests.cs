@@ -612,8 +612,7 @@ param foo2 string", "param foo2 string")]
             });
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
-                services => services.WithFileResolver(fileResolver)
-                                                                    .WithFileExplorer(new FileSystemFileExplorer(fileResolver.MockFileSystem)));
+                services => services.WithFileExplorer(new FileSystemFileExplorer(fileResolver.MockFileSystem)));
 
             await helper.OpenFileOnceAsync(TestContext, importFile);
 
@@ -651,8 +650,7 @@ param foo2 string", "param foo2 string")]
             });
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
-                services => services.WithFileResolver(fileResolver)
-                    .WithFileExplorer(new FileSystemFileExplorer(fileResolver.MockFileSystem)));
+                services => services.WithFileExplorer(new FileSystemFileExplorer(fileResolver.MockFileSystem)));
 
             await helper.OpenFileOnceAsync(TestContext, importFile);
 

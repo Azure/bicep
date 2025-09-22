@@ -1581,11 +1581,14 @@ namespace Bicep.Core.TypeSystem
                 return null;
             }
 
-            var arguments = parentFunction.Arguments.ToImmutableArray();
+            var arguments = parentFunction.Arguments;
             var argIndex = arguments.IndexOf(syntax);
             var declaredType = functionSymbol.GetDeclaredArgumentType(
                 argIndex,
-                getAssignedArgumentType: i => typeManager.GetTypeInfo(parentFunction.Arguments[i]));
+                getAssignedArgumentType: i => typeManager.GetTypeInfo(parentFunction.Arguments[i]),
+                getAttachedType: () => binder.GetParent(parent) is DecoratorSyntax decorator && binder.GetParent(decorator) is DecorableSyntax decorated
+                    ? GetDeclaredType(decorated) ?? ErrorType.Empty()
+                    : throw new InvalidOperationException("Cannot get attached type of function not used as decorator."));
 
             return new DeclaredTypeAssignment(declaredType, declaringSyntax: null);
         }
@@ -1822,6 +1825,18 @@ namespace Bicep.Core.TypeSystem
                     // the object is an item in an array
                     // use the item's type and propagate flags
                     return TryCreateAssignment(ResolveDiscriminatedObjects(configType.Type, syntax), syntax, extensionAssignment.Flags);
+                case UsingWithClauseSyntax:
+                    parent = this.binder.GetParent(parent) ?? throw new InvalidOperationException($"Expected {nameof(UsingWithClauseSyntax)} to have a parent.");
+                    if (!binder.FileSymbol.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var semanticModel))
+                    {
+                        // this error will have already been surfaced elsewhere
+                        return null;
+                    }
+
+                    var usingConfigType = LanguageConstants.CreateUsingConfigType();
+
+                    return TryCreateAssignment(usingConfigType, syntax);
+
                 case FunctionArgumentSyntax:
                 case OutputDeclarationSyntax parentOutput when syntax == parentOutput.Value:
                 case VariableDeclarationSyntax parentVariable when syntax == parentVariable.Value:

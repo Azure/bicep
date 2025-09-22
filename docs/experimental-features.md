@@ -13,6 +13,10 @@ The following features can be optionally enabled through your `bicepconfig.json`
 
 Should be enabled in tandem with `testFramework` experimental feature flag for expected functionality. Allows you to author boolean assertions using the `assert` keyword comparing the actual value of a parameter, variable, or resource name to an expected value. Assert statements can only be written directly within the Bicep file whose resources they reference. For more information, see [Bicep Experimental Test Framework](https://github.com/Azure/bicep/issues/11967).
 
+### `deployCommands`
+
+Enables `deploy`, `what-if` and `teardown` command groups, as well as the `with` syntax in a `.bicepparam` file. For more information, see [Using the Deploy Commands](./experimental/deploy-commands.md).
+
 ### `desiredStateConfiguration`
 
 Allows you to author configuration documents for [Microsoft's Desired State Configuration platform](https://github.com/PowerShell/DSC) using `targetScope = 'desiredStateConfiguration'`. If enabled, the file must only contain DSC resource instances. The built file is a valid configuration document to be used with the CLI. For example, `dsc.exe config test --file example.json`. This feature is in early development.
@@ -34,23 +38,6 @@ Enables Bicep to run deployments locally, so that you can run Bicep extensions w
 Moves defining extension configurations to the module level rather than from within a template. The feature also
 includes enhancements for Deployment stacks extensibility integration. This feature is not ready for use.
 
-### `moduleIdentity`
-
-Enables adding identity property to modules, which allows you to assign user-assigned identities to a module. The identity will currently only be used on the deployment for tenants on the allow list.
-
-### `onlyIfNotExists`
-The feature introduces the onlyIfNotExists decorator on a resource. The decorator will only deploy the resource if it does not exist. (Note: This feature will not work until the backend service support has been deployed)
-```
-@onlyIfNotExists()
-resource onlyDeployIfNotExists 'Microsoft...' = {
-  name: 'example'
-  location: 'eastus'
-  properties: {
-    ...
-  }
-}
-```
-
 ### `resourceInfoCodegen`
 
 Enables the 'resourceInfo' function for simplified code generation.
@@ -70,7 +57,6 @@ Allows the ARM template layer to use a new schema to represent resources as an o
 ### `testFramework`
 
 Should be enabled in tandem with `assertions` experimental feature flag for expected functionality. Allows you to author client-side, offline unit-test test blocks that reference Bicep files and mock deployment parameters in a separate `test.bicep` file using the new `test` keyword. Test blocks can be run with the command *bicep test <filepath_to_file_with_test_blocks>* which runs all `assert` statements in the Bicep files referenced by the test blocks. For more information, see [Bicep Experimental Test Framework](https://github.com/Azure/bicep/issues/11967).
-
 ### `thisExistsFunction`
 
 Enables the `this.exists()` function for accessing the current resource instance. This function can only be used within resource property expressions. Currently, only `this.exists()` is available for usage. For example:
@@ -82,6 +68,15 @@ resource usingThis 'Microsoft...' = {
     property1: this.exists() ? 'resource exists' : 'resource does not exist'
   }
 }
+```
+
+### `userDefinedConstraints`
+
+Enables the `@validate()` decorator on types, type properties, parameters, and outputs. The decorator takes two arguments: 1) a lambda function that accepts the decorator target's value and returns a boolean indicating if the value is valid (`true`) or not (`false`), and 2) an optional error message to use if the lambda returns `false`.
+
+```bicep
+@validate(x => startsWith(x, 'foo')) // <-- Accepts 'food' or 'fool' but causes the deployment to fail if 'booed' was supplied
+param p string
 ```
 
 ### `waitAndRetry`

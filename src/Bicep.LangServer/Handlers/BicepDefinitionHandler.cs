@@ -466,13 +466,12 @@ namespace Bicep.LanguageServer.Handlers
                 // Long term, it would be best to package up symbol information with the source that we could query here to find the location of the definition in the source file.
                 // But for this purpose, doing a compilation of the source entrypoint file should be enough to find the definition for most scenarios, even if the source file
                 // does not compile error-free (which is likely). We will compile the entrypoint file only, not any of its dependencies or referenced modules.
-                var compilationUri = new Uri("inmemory:///main.bicep");
                 var importedSourceBicep = sourceArchive.FindSourceFile(sourceArchive.EntrypointRelativePath).Contents;
-                var bicepFile = sourceFileFactory.CreateBicepFile(compilationUri, importedSourceBicep);
+                var bicepFile = sourceFileFactory.CreateBicepFile(DummyFileHandle.Default, importedSourceBicep);
 
                 var workspace = new Workspace();
                 workspace.UpsertSourceFile(bicepFile);
-                var compilation = bicepCompiler.CreateCompilationWithoutRestore(compilationUri, workspace);
+                var compilation = bicepCompiler.CreateCompilationWithoutRestore(bicepFile.FileHandle.Uri, workspace);
 
                 bicepModel = compilation.GetEntrypointSemanticModel();
                 externalSourceUri = BicepExternalSourceRequestHandler.GetRegistryModuleSourceLinkUri(ociArtifactReference, sourceArchive);

@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using Bicep.Core.Extensions;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -59,8 +60,7 @@ namespace Bicep.Core.UnitTests.Baselines
             filePath.Substring(OutputFolderPath.Length).Replace('\\', '/').TrimStart('/') :
             throw new InvalidOperationException($"FilePath {filePath} is not a sub-path of {OutputFolderPath}");
 
-        public BaselineFile GetFileOrEnsureCheckedIn(Uri fileUri)
-            => GetFileOrEnsureCheckedIn(GetBaselineStreamRelativePath(fileUri.LocalPath));
+        public BaselineFile GetFileOrEnsureCheckedIn(IOUri fileUri) => GetFileOrEnsureCheckedIn(GetBaselineStreamRelativePath(fileUri.GetFilePath()));
 
         public BaselineFile GetFileOrEnsureCheckedIn(string relativePath)
         {

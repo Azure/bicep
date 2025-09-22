@@ -22,8 +22,8 @@ public record ExperimentalFeaturesEnabled(
     bool ResourceInfoCodegen,
     bool ModuleExtensionConfigs,
     bool DesiredStateConfiguration,
-    bool OnlyIfNotExists,
-    bool ModuleIdentity,
+    bool UserDefinedConstraints,
+    bool DeployCommands,
     bool ThisExistsFunction)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
@@ -44,7 +44,7 @@ public record ExperimentalFeaturesEnabled(
         ResourceInfoCodegen: false,
         ModuleExtensionConfigs: false,
         DesiredStateConfiguration: false,
-        OnlyIfNotExists: false,
-        ModuleIdentity: false,
+        UserDefinedConstraints: false,
+        DeployCommands: false,
         ThisExistsFunction: false);
 }

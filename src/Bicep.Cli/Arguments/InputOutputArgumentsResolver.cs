@@ -24,7 +24,7 @@ namespace Bicep.Cli.Arguments
                 throw new CommandLineException(string.Format(CliResources.FilePathContainsBackslash, path));
             }
 
-            return IOUri.FromLocalFilePath(GetFullPath(path));
+            return IOUri.FromFilePath(GetFullPath(path));
         }
 
         public IOUri ResolveInputArguments(IInputArguments arguments)
@@ -84,7 +84,7 @@ namespace Bicep.Cli.Arguments
                 foreach (var inputRelativePath in inputRelativePaths)
                 {
                     var inputUri = rootUri.Resolve(inputRelativePath);
-                    var outputRootPath = arguments.OutputDir ?? rootUri.GetLocalFilePath();
+                    var outputRootPath = arguments.OutputDir ?? rootUri.GetFilePath();
                     var outputRelativePath = this.fileSystem.Path.ChangeExtension(inputRelativePath, T.OutputFileExtensionResolver.Invoke(arguments, inputUri));
                     var outputPath = this.fileSystem.Path.Combine(outputRootPath, outputRelativePath);
                     var outputUri = this.PathToUri(outputPath);
@@ -122,7 +122,7 @@ namespace Bicep.Cli.Arguments
         private (IOUri rootUri, IReadOnlyList<string> relativePaths) ResolveFilePattern(string filePattern)
         {
             var (rootPath, relativePattern) = SplitFilePatternOnWildcard(filePattern);
-            var rootUri = IOUri.FromLocalFilePath(rootPath);
+            var rootUri = IOUri.FromFilePath(rootPath);
 
             Matcher matcher = new();
             matcher.AddInclude(relativePattern);
@@ -130,7 +130,7 @@ namespace Bicep.Cli.Arguments
             var relativePaths = new List<string>();
             foreach (var filePath in matcher.GetResultsInFullPath(rootPath))
             {
-                var fileUri = IOUri.FromLocalFilePath(filePath);
+                var fileUri = IOUri.FromFilePath(filePath);
                 var relativePath = fileUri.GetPathRelativeTo(rootUri);
                 relativePaths.Add(relativePath);
             }

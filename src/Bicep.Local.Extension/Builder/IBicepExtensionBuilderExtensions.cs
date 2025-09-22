@@ -18,7 +18,7 @@ public static class IBicepExtensionBuilderExtensions
 
         return builder;
     }
-    
+
     /// <summary>
     /// Registers a resource handler that manages a specific resource type in your Bicep extension.
     /// </summary>

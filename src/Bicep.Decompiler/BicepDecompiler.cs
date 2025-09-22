@@ -17,6 +17,7 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Decompiler.ArmHelpers;
 using Bicep.Decompiler.Exceptions;
+using Bicep.IO.Abstraction;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Decompiler;
@@ -32,10 +33,10 @@ public class BicepDecompiler
         this.bicepCompiler = bicepCompiler;
     }
 
-    public async Task<DecompileResult> Decompile(Uri bicepUri, string jsonContent, DecompileOptions? options = null)
+    public async Task<DecompileResult> Decompile(IOUri bicepUri, string jsonContent, DecompileOptions? options = null)
     {
         var workspace = new Workspace();
-        var decompileQueue = new Queue<(Uri, Uri)>();
+        var decompileQueue = new Queue<(IOUri, IOUri)>();
         options ??= new DecompileOptions();
 
         var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(bicepCompiler.SourceFileFactory, workspace, bicepUri, jsonContent, options);
@@ -60,7 +61,8 @@ public class BicepDecompiler
             bicepUri,
             PrintFiles(workspace));
     }
-    public DecompileResult DecompileParameters(string contents, Uri entryBicepparamUri, Uri? bicepFileUri, DecompileParamOptions? options = null)
+
+    public DecompileResult DecompileParameters(string contents, IOUri entryBicepparamUri, IOUri? bicepFileUri, DecompileParamOptions? options = null)
     {
         options ??= new();
 
@@ -75,7 +77,7 @@ public class BicepDecompiler
         return new(entryBicepparamUri, PrintFiles(workspace));
     }
 
-    private ProgramSyntax DecompileParametersFile(string jsonInput, Uri entryBicepparamUri, Uri? bicepFileUri, DecompileParamOptions options)
+    private ProgramSyntax DecompileParametersFile(string jsonInput, IOUri entryBicepparamUri, IOUri? bicepFileUri, DecompileParamOptions options)
     {
         var statements = new List<SyntaxBase>();
 
@@ -83,12 +85,13 @@ public class BicepDecompiler
 
         if (options.IncludeUsingDeclaration)
         {
-            var bicepPath = bicepFileUri is not null ? PathHelper.GetRelativePath(entryBicepparamUri, bicepFileUri) : null;
+            var bicepPath = bicepFileUri?.GetPathRelativeTo(entryBicepparamUri);
             statements.Add(new UsingDeclarationSyntax(
                 SyntaxFactory.UsingKeywordToken,
                 bicepPath is not null
                     ? SyntaxFactory.CreateStringLiteral(bicepPath)
-                    : SyntaxFactory.CreateStringLiteralWithComment("", "TODO: Provide a path to a bicep template")));
+                    : SyntaxFactory.CreateStringLiteralWithComment("", "TODO: Provide a path to a bicep template"),
+                SyntaxFactory.EmptySkippedTrivia));
 
             statements.Add(SyntaxFactory.DoubleNewlineToken);
         }
@@ -244,7 +247,7 @@ Following metadata was not decompiled:
         var workspace = new Workspace();
         options ??= new DecompileOptions();
 
-        var bicepUri = new Uri("file://jsonInput.json", UriKind.Absolute);
+        var bicepUri = new IOUri("file", "", "/jsonInput.json");
         try
         {
             var syntax = TemplateConverter.DecompileJsonValue(sourceFileFactory, workspace, bicepUri, jsonInput, options);
@@ -260,9 +263,9 @@ Following metadata was not decompiled:
         }
     }
 
-    private static ImmutableDictionary<Uri, string> PrintFiles(Workspace workspace)
+    private static ImmutableDictionary<IOUri, string> PrintFiles(Workspace workspace)
     {
-        var filesToSave = new Dictionary<Uri, string>();
+        var filesToSave = new Dictionary<IOUri, string>();
         foreach (var (fileUri, sourceFile) in workspace.GetActiveSourceFilesByUri())
         {
             if (sourceFile is not BicepSourceFile bicepFile)
@@ -272,13 +275,13 @@ Following metadata was not decompiled:
 
             var options = bicepFile.Configuration.Formatting.Data;
             var context = PrettyPrinterV2Context.Create(options, bicepFile.LexingErrorLookup, bicepFile.ParsingErrorLookup);
-            filesToSave[fileUri] = PrettyPrinterV2.Print(bicepFile.ProgramSyntax, context);
+            filesToSave[fileUri.ToIOUri()] = PrettyPrinterV2.Print(bicepFile.ProgramSyntax, context);
         }
 
         return filesToSave.ToImmutableDictionary();
     }
 
-    private async Task<bool> RewriteSyntax(Workspace workspace, Uri entryUri, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
+    private async Task<bool> RewriteSyntax(Workspace workspace, IOUri entryUri, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
     {
         var hasChanges = false;
         var compilation = await bicepCompiler.CreateCompilation(entryUri, workspace, skipRestore: true, forceRestore: false);
@@ -292,7 +295,7 @@ Following metadata was not decompiled:
             if (!object.ReferenceEquals(bicepFile.ProgramSyntax, newProgramSyntax))
             {
                 hasChanges = true;
-                var newFile = this.bicepCompiler.SourceFileFactory.CreateBicepFile(bicepFile.Uri, newProgramSyntax.ToString());
+                var newFile = this.bicepCompiler.SourceFileFactory.CreateBicepFile(bicepFile.FileHandle.Uri, newProgramSyntax.ToString());
                 workspace.UpsertSourceFile(newFile);
 
                 compilation = await bicepCompiler.CreateCompilation(entryUri, workspace, skipRestore: true);

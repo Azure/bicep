@@ -19,7 +19,7 @@ namespace Bicep.IO.FileSystem
         protected FileSystemIOHandle(IFileSystem fileSystem, IOUri uri)
         {
             this.FileSystem = fileSystem;
-            this.FilePath = uri.GetLocalFilePath();
+            this.FilePath = uri.GetFilePath();
             this.Uri = uri;
         }
 
@@ -44,7 +44,7 @@ namespace Bicep.IO.FileSystem
                 return false;
             }
 
-            return this.GetType() == other.GetType() && Uri == other.Uri;
+            return this.GetType() == other.GetType() && Uri.Equals(other.Uri);
         }
     }
 }

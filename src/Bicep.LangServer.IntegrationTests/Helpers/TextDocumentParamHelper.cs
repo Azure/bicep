@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -9,20 +10,25 @@ namespace Bicep.LangServer.IntegrationTests.Helpers
 {
     public static class TextDocumentParamHelper
     {
-        public static DidOpenTextDocumentParams CreateDidOpenDocumentParams(DocumentUri documentUri, string text, int version) =>
-            new()
+        public static DidOpenTextDocumentParams CreateDidOpenDocumentParams(DocumentUri documentUri, string text, int version)
+        {
+            var uri = documentUri.ToIOUri();
+            var languageId =
+                uri.HasBicepParamExtension() ? LanguageConstants.ParamsLanguageId :
+                uri.HasArmTemplateLikeExtension() ? LanguageConstants.ArmTemplateLanguageId :
+                LanguageConstants.LanguageId;
+
+            return new()
             {
                 TextDocument = new TextDocumentItem
                 {
-                    LanguageId =
-                        PathHelper.HasBicepparamsExtension(documentUri.ToUriEncoded()) ? LanguageConstants.ParamsLanguageId :
-                        PathHelper.HasArmTemplateLikeExtension(documentUri.ToUriEncoded()) ? LanguageConstants.ArmTemplateLanguageId :
-                        LanguageConstants.LanguageId,
+                    LanguageId = languageId,
                     Version = version,
                     Uri = documentUri,
                     Text = text,
                 },
             };
+        }
 
         public static DidOpenTextDocumentParams CreateDidOpenDocumentParamsFromFile(string filePath, int version) =>
             CreateDidOpenDocumentParams(

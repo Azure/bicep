@@ -18,6 +18,7 @@ using Bicep.Core.Syntax;
 using Bicep.Decompiler.ArmHelpers;
 using Bicep.Decompiler.BicepHelpers;
 using Bicep.Decompiler.Exceptions;
+using Bicep.IO.Abstraction;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
@@ -33,12 +34,12 @@ namespace Bicep.Decompiler
         private ISourceFileFactory sourceFileFactory;
         private INamingResolver nameResolver;
         private readonly Workspace workspace;
-        private readonly Uri bicepFileUri;
+        private readonly IOUri bicepFileUri;
         private readonly JObject template;
-        private readonly Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule;
+        private readonly Dictionary<ModuleDeclarationSyntax, IOUri> jsonTemplateUrisByModule;
         private readonly DecompileOptions options;
 
-        private TemplateConverter(ISourceFileFactory sourceFileFactory, Workspace workspace, Uri bicepFileUri, JObject template, Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule, DecompileOptions options)
+        private TemplateConverter(ISourceFileFactory sourceFileFactory, Workspace workspace, IOUri bicepFileUri, JObject template, Dictionary<ModuleDeclarationSyntax, IOUri> jsonTemplateUrisByModule, DecompileOptions options)
         {
             this.sourceFileFactory = sourceFileFactory;
             this.workspace = workspace;
@@ -49,10 +50,10 @@ namespace Bicep.Decompiler
             this.options = options;
         }
 
-        public static (ProgramSyntax programSyntax, IReadOnlyDictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule) DecompileTemplate(
+        public static (ProgramSyntax programSyntax, IReadOnlyDictionary<ModuleDeclarationSyntax, IOUri> jsonTemplateUrisByModule) DecompileTemplate(
             ISourceFileFactory sourceFileFactory,
             Workspace workspace,
-            Uri bicepFileUri,
+            IOUri bicepFileUri,
             string content,
             DecompileOptions options)
         {
@@ -72,7 +73,7 @@ namespace Bicep.Decompiler
         public static SyntaxBase? DecompileJsonValue(
             ISourceFileFactory sourceFileFactory,
             Workspace workspace,
-            Uri bicepFileUri,
+            IOUri bicepFileUri,
             string jsonInput,
             DecompileOptions options)
         {
@@ -1050,7 +1051,7 @@ namespace Bicep.Decompiler
             return SyntaxFactory.CreateVariableDeclaration(identifier, variableValue);
         }
 
-        private (SyntaxBase moduleFilePathStringLiteral, Uri? jsonTemplateUri) GetModuleFilePath(string templateLink)
+        private (SyntaxBase moduleFilePathStringLiteral, IOUri? jsonTemplateUri) GetModuleFilePath(string templateLink)
         {
             StringSyntax createFakeModulePath(string templateLinkExpression)
                 => SyntaxFactory.CreateStringLiteralWithComment("?", $"TODO: replace with correct path to {templateLinkExpression}");
@@ -1064,13 +1065,17 @@ namespace Bicep.Decompiler
                 return (createFakeModulePath(templateLink), null);
             }
 
-            if (!Uri.TryCreate(bicepFileUri, nestedRelativePath, out var nestedUri))
+            try
+            {
+                var nestedUri = bicepFileUri.Resolve(nestedRelativePath);
+
+                return (SyntaxFactory.CreateStringLiteral(nestedRelativePath), nestedUri);
+            }
+            catch (IOException)
             {
                 // return the original expression so that the author can fix it up rather than failing
                 return (createFakeModulePath(templateLink), null);
             }
-
-            return (SyntaxFactory.CreateStringLiteral(nestedRelativePath), nestedUri);
         }
 
         /// <summary>
@@ -1436,12 +1441,9 @@ namespace Bicep.Decompiler
                 var nestedValue = ProcessCondition(resource, nestedBody);
 
                 var filePath = $"./nested_{identifier}.bicep";
-                if (!Uri.TryCreate(bicepFileUri, filePath, out var nestedModuleUri))
-                {
-                    throw new ConversionFailedException($"Failed to create module uri for {typeString} {nameString}", nestedTemplate);
-                }
+                var nestedModuleUri = bicepFileUri.Resolve(filePath);
 
-                if (workspace.TryGetSourceFile(nestedModuleUri, out _))
+                if (workspace.TryGetSourceFile(nestedModuleUri.ToUri(), out _))
                 {
                     throw new ConversionFailedException($"Unable to generate duplicate module to path ${nestedModuleUri} for {typeString} {nameString}", nestedTemplate);
                 }
@@ -1476,7 +1478,7 @@ namespace Bicep.Decompiler
 
                 // fetch the module templatespec if the id property set else fetch the module path
                 SyntaxBase modulePath;
-                Uri? jsonTemplateUri = null;
+                IOUri? jsonTemplateUri = null;
                 if (pathProperty?.Value<string>() is string templatePathString)
                 {
                     (modulePath, jsonTemplateUri) = GetModuleFilePath(templatePathString);
@@ -1784,6 +1786,11 @@ namespace Bicep.Decompiler
                         SyntaxFactory.TargetScopeKeywordToken,
                         SyntaxFactory.AssignmentToken,
                         SyntaxFactory.CreateStringLiteral("subscription"));
+                case "/dsc/schemas/v3/bundled/config/document.json":
+                    return new TargetScopeSyntax(
+                        SyntaxFactory.TargetScopeKeywordToken,
+                        SyntaxFactory.AssignmentToken,
+                        SyntaxFactory.CreateStringLiteral("desiredStateConfiguration"));
                 case "/schemas/2014-04-01-preview/deploymentTemplate.json":
                 case "/schemas/2015-01-01/deploymentTemplate.json":
                 case "/schemas/2019-04-01/deploymentTemplate.json":
