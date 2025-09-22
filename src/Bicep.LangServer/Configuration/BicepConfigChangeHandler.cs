@@ -16,13 +16,13 @@ namespace Bicep.LanguageServer.Configuration
         private readonly ConfigurationManager configurationManager;
         private readonly ILinterRulesProvider linterRulesProvider;
         private readonly ITelemetryProvider telemetryProvider;
-        private readonly IWorkspace workspace;
+        private readonly IActiveSourceFileSet workspace;
 
         public BicepConfigChangeHandler(ICompilationManager compilationManager,
                                         ConfigurationManager configurationManager,
                                         ILinterRulesProvider linterRulesProvider,
                                         ITelemetryProvider telemetryProvider,
-                                        IWorkspace workspace)
+                                        IActiveSourceFileSet workspace)
         {
             this.compilationManager = compilationManager;
             this.configurationManager = configurationManager;

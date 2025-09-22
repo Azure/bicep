@@ -25,7 +25,7 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IFileExplorer fileExplorer;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly ICompilationManager compilationManager;
-        private readonly IWorkspace workspace;
+        private readonly IActiveSourceFileSet workspace;
         private readonly ISourceFileFactory sourceFileFactory;
 
         public BicepForceModulesRestoreCommandHandler(
@@ -33,7 +33,7 @@ namespace Bicep.LanguageServer.Handlers
             IFileExplorer fileExplorer,
             IModuleDispatcher moduleDispatcher,
             ICompilationManager compilationManager,
-            IWorkspace workspace,
+            IActiveSourceFileSet workspace,
             ISourceFileFactory sourceFileFactory)
             : base(LangServerConstants.ForceModulesRestoreCommand, serializer)
         {

@@ -73,7 +73,7 @@ public static class IServiceCollectionExtensions
         .AddBicepCore()
         .AddBicepDecompiler()
         .AddLocalDeploy()
-        .AddSingleton<IWorkspace, Workspace>()
+        .AddSingleton<IActiveSourceFileSet, ActiveSourceFileSet>()
         .AddSingleton<ISnippetsProvider, SnippetsProvider>()
         .AddSingleton<ITelemetryProvider, TelemetryProvider>()
         .AddSingleton<ICompilationManager, BicepCompilationManager>()

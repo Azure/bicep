@@ -80,7 +80,7 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithTemplateSpecRepositoryFactory(this IServiceCollection services, ITemplateSpecRepositoryFactory factory)
         => Register(services, factory);
 
-    public static IServiceCollection WithWorkspace(this IServiceCollection services, IWorkspace workspace)
+    public static IServiceCollection WithWorkspace(this IServiceCollection services, IActiveSourceFileSet workspace)
         => Register(services, workspace);
 
     public static IServiceCollection WithFeatureOverrides(this IServiceCollection services, FeatureProviderOverrides overrides)

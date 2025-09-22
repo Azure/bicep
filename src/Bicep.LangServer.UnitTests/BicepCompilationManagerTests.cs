@@ -37,9 +37,9 @@ namespace Bicep.LangServer.UnitTests
 
         private static readonly LinterRulesProvider linterRulesProvider = new();
 
-        private static BicepCompilationManager GetTestBicepCompilationManager(Mock<ITextDocumentLanguageServer> document, Workspace? workspace = null)
+        private static BicepCompilationManager GetTestBicepCompilationManager(Mock<ITextDocumentLanguageServer> document, ActiveSourceFileSet? workspace = null)
         {
-            workspace ??= new Workspace();
+            workspace ??= new ActiveSourceFileSet();
             return new BicepCompilationManager(
                 BicepCompilationManagerHelper.CreateMockServer(document).Object,
                 BicepCompilationManagerHelper.CreateEmptyCompilationProvider(),
@@ -65,7 +65,7 @@ namespace Bicep.LangServer.UnitTests
             var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
             var server = BicepCompilationManagerHelper.CreateMockServer(document);
             var uri = DocumentUri.File(this.TestContext.TestName + fileExtension).ToUriEncoded();
-            var workspace = new Workspace();
+            var workspace = new ActiveSourceFileSet();
             var manager = BicepCompilationManagerHelper.CreateCompilationManager(uri, string.Empty);
 
             // first get should not return anything
@@ -97,7 +97,7 @@ namespace Bicep.LangServer.UnitTests
             var uri = DocumentUri.File(this.TestContext.TestName + fileExtension).ToUriEncoded();
 
             var originalFile = BicepTestConstants.SourceFileFactory.CreateArmTemplateFile(uri.ToIOUri(), "{}");
-            var workspace = new Workspace();
+            var workspace = new ActiveSourceFileSet();
             workspace.UpsertSourceFile(originalFile);
 
             var manager = GetTestBicepCompilationManager(document, workspace);
@@ -298,7 +298,7 @@ namespace Bicep.LangServer.UnitTests
             var manager = new BicepCompilationManager(
                 server.Object,
                 BicepCompilationManagerHelper.CreateEmptyCompilationProvider(),
-                new Workspace(),
+                new ActiveSourceFileSet(),
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object,
                 linterRulesProvider,
@@ -348,7 +348,7 @@ namespace Bicep.LangServer.UnitTests
             const string expectedMessage = "Internal bicep exception.";
             provider.Setup(
                 m => m.Create(
-                    It.IsAny<IReadOnlyWorkspace>(),
+                    It.IsAny<IActiveSourceFileLookup>(),
                     It.IsAny<DocumentUri>(),
                     It.IsAny<ImmutableDictionary<ISourceFile, ISemanticModel>>()))
                     .Throws(new InvalidOperationException(expectedMessage));
@@ -358,7 +358,7 @@ namespace Bicep.LangServer.UnitTests
             var manager = new BicepCompilationManager(
                 server.Object,
                 provider.Object,
-                new Workspace(),
+                new ActiveSourceFileSet(),
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object,
                 linterRulesProvider,
@@ -418,14 +418,14 @@ namespace Bicep.LangServer.UnitTests
             bool failUpsert = true;
             provider
                 .Setup(m => m.Create(
-                    It.IsAny<IReadOnlyWorkspace>(),
+                    It.IsAny<IActiveSourceFileLookup>(),
                     It.IsAny<DocumentUri>(),
                     It.IsAny<ImmutableDictionary<ISourceFile, ISemanticModel>>()))
-                .Returns<IReadOnlyWorkspace, DocumentUri, ImmutableDictionary<ISourceFile, ISemanticModel>>((grouping, documentUri, modelLookup) => failUpsert
+                .Returns<IActiveSourceFileLookup, DocumentUri, ImmutableDictionary<ISourceFile, ISemanticModel>>((grouping, documentUri, modelLookup) => failUpsert
                     ? throw new InvalidOperationException(expectedMessage)
                     : BicepCompilationManagerHelper.CreateEmptyCompilationProvider().Create(grouping, documentUri, modelLookup));
 
-            var workspace = new Workspace();
+            var workspace = new ActiveSourceFileSet();
 
             var manager = new BicepCompilationManager(
                 server.Object,
@@ -538,7 +538,7 @@ module moduleB './moduleB.bicep' = {
             var compilationManager = new BicepCompilationManager(
                 server.Object,
                 compilationProvider,
-                new Workspace(),
+                new ActiveSourceFileSet(),
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
                 BicepTestConstants.CreateMockTelemetryProvider().Object,
                 linterRulesProvider,
@@ -919,7 +919,7 @@ param location string = 'testLocation'");
             var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
             var server = BicepCompilationManagerHelper.CreateMockServer(document);
             var uri = DocumentUri.File($"{TestContext.TestName}.bicep");
-            var workspace = new Workspace();
+            var workspace = new ActiveSourceFileSet();
 
             return new BicepCompilationManager(
                 server.Object,

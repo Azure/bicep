@@ -9,7 +9,7 @@ namespace Bicep.Core.SourceGraph
     /// <summary>
     /// Represents the active set of files and shared data that can be utilized to compile one or more bicep files.
     /// </summary>
-    public class Workspace : IWorkspace
+    public class ActiveSourceFileSet : IActiveSourceFileSet
     {
         private readonly IDictionary<Uri, ISourceFile> activeFiles = new Dictionary<Uri, ISourceFile>();
 

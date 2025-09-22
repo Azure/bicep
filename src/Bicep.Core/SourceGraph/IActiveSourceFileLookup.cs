@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Bicep.Core.SourceGraph
 {
-    public interface IReadOnlyWorkspace
+    public interface IActiveSourceFileLookup
     {
         bool TryGetSourceFile(Uri fileUri, [NotNullWhen(true)] out ISourceFile? sourceFile);
 

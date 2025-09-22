@@ -79,7 +79,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
 
         paramFile = ParamsFileHelper.ApplyParameterOverrides(compilation.SourceFileFactory, paramFile, request.ParameterOverrides);
 
-        var workspace = new Workspace();
+        var workspace = new ActiveSourceFileSet();
         workspace.UpsertSourceFile(paramFile);
         compilation = await compiler.CreateCompilation(paramFile.FileHandle.Uri, workspace);
         var paramsResult = compilation.Emitter.Parameters();

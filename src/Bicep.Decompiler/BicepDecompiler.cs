@@ -35,7 +35,7 @@ public class BicepDecompiler
 
     public async Task<DecompileResult> Decompile(IOUri bicepUri, string jsonContent, DecompileOptions? options = null)
     {
-        var workspace = new Workspace();
+        var workspace = new ActiveSourceFileSet();
         var decompileQueue = new Queue<(IOUri, IOUri)>();
         options ??= new DecompileOptions();
 
@@ -66,7 +66,7 @@ public class BicepDecompiler
     {
         options ??= new();
 
-        var workspace = new Workspace();
+        var workspace = new ActiveSourceFileSet();
 
         var program = DecompileParametersFile(contents, entryBicepparamUri, bicepFileUri, options);
 
@@ -244,7 +244,7 @@ Following metadata was not decompiled:
 
     public static string? DecompileJsonValue(ISourceFileFactory sourceFileFactory, string jsonInput, DecompileOptions? options = null)
     {
-        var workspace = new Workspace();
+        var workspace = new ActiveSourceFileSet();
         options ??= new DecompileOptions();
 
         var bicepUri = new IOUri("file", "", "/jsonInput.json");
@@ -263,7 +263,7 @@ Following metadata was not decompiled:
         }
     }
 
-    private static ImmutableDictionary<IOUri, string> PrintFiles(Workspace workspace)
+    private static ImmutableDictionary<IOUri, string> PrintFiles(ActiveSourceFileSet workspace)
     {
         var filesToSave = new Dictionary<IOUri, string>();
         foreach (var (fileUri, sourceFile) in workspace.GetActiveSourceFilesByUri())
@@ -281,7 +281,7 @@ Following metadata was not decompiled:
         return filesToSave.ToImmutableDictionary();
     }
 
-    private async Task<bool> RewriteSyntax(Workspace workspace, IOUri entryUri, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
+    private async Task<bool> RewriteSyntax(ActiveSourceFileSet workspace, IOUri entryUri, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
     {
         var hasChanges = false;
         var compilation = await bicepCompiler.CreateCompilation(entryUri, workspace, skipRestore: true, forceRestore: false);

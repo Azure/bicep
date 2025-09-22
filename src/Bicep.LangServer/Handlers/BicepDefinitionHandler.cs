@@ -469,7 +469,7 @@ namespace Bicep.LanguageServer.Handlers
                 var importedSourceBicep = sourceArchive.FindSourceFile(sourceArchive.EntrypointRelativePath).Contents;
                 var bicepFile = sourceFileFactory.CreateBicepFile(DummyFileHandle.Default, importedSourceBicep);
 
-                var workspace = new Workspace();
+                var workspace = new ActiveSourceFileSet();
                 workspace.UpsertSourceFile(bicepFile);
                 var compilation = bicepCompiler.CreateCompilationWithoutRestore(bicepFile.FileHandle.Uri, workspace);
 

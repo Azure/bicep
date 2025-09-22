@@ -47,7 +47,7 @@ namespace Bicep.LanguageServer.Providers
         }
 
         public CompilationContext Create(
-            IReadOnlyWorkspace workspace,
+            IActiveSourceFileLookup workspace,
             DocumentUri documentUri,
             ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
@@ -61,7 +61,7 @@ namespace Bicep.LanguageServer.Providers
         }
 
         public CompilationContext Update(
-            IReadOnlyWorkspace workspace,
+            IActiveSourceFileLookup workspace,
             CompilationContext current,
             ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {

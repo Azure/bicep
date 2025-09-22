@@ -202,7 +202,7 @@ module main 'main.bicep' = {
 
             var mockDispatcher = StrictMock.Of<IModuleDispatcher>().Object;
 
-            Action buildAction = () => SourceFileGroupingBuilder.Build(fileExplorerMock.Object, mockDispatcher, new Workspace(), BicepTestConstants.SourceFileFactory, fileUri);
+            Action buildAction = () => SourceFileGroupingBuilder.Build(fileExplorerMock.Object, mockDispatcher, new ActiveSourceFileSet(), BicepTestConstants.SourceFileFactory, fileUri);
             buildAction.Should().Throw<DiagnosticException>()
                 .And.Diagnostic.Should().HaveCodeAndSeverity("BCP091", DiagnosticLevel.Error).And.HaveMessage("An error occurred reading file. Mock read failure!");
         }

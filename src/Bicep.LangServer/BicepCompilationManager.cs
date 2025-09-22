@@ -34,7 +34,7 @@ namespace Bicep.LanguageServer
     {
         public const string LinterEnabledSetting = "core.enabled";
 
-        private readonly IWorkspace workspace;
+        private readonly IActiveSourceFileSet workspace;
         private readonly ILanguageServerFacade server;
         private readonly ICompilationProvider provider;
         private readonly IModuleRestoreScheduler scheduler;
@@ -49,7 +49,7 @@ namespace Bicep.LanguageServer
         public BicepCompilationManager(
             ILanguageServerFacade server,
             ICompilationProvider provider,
-            IWorkspace workspace,
+            IActiveSourceFileSet workspace,
             IModuleRestoreScheduler scheduler,
             ITelemetryProvider telemetryProvider,
             ILinterRulesProvider LinterRulesProvider,
@@ -290,7 +290,7 @@ namespace Bicep.LanguageServer
             return [.. closedFiles];
         }
 
-        private CompilationContextBase CreateCompilationContext(IWorkspace workspace, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
+        private CompilationContextBase CreateCompilationContext(IActiveSourceFileSet workspace, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
             try
             {

@@ -8,7 +8,7 @@ namespace Bicep.Core.Extensions
 {
     public static class IWorkspaceExtensions
     {
-        public static (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpsertSourceFile(this IWorkspace workspace, ISourceFile sourceFile) =>
+        public static (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpsertSourceFile(this IActiveSourceFileSet workspace, ISourceFile sourceFile) =>
             workspace.UpsertSourceFiles(sourceFile.AsEnumerable());
     }
 }
