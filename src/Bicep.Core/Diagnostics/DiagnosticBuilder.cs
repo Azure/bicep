@@ -1988,6 +1988,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic ExpectedWithKeywordOrNewLine() => CoreError(
                 "BCP436",
                 $"Expected the \"with\" keyword or a new line character at this location.");
+
+            public Diagnostic ThisFunctionOnlyAllowedInResourceProperties() => CoreError(
+                "BCP437",
+                "The \"this.exists()\" function can only be used within resource property expressions.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -57,6 +57,18 @@ Allows the ARM template layer to use a new schema to represent resources as an o
 ### `testFramework`
 
 Should be enabled in tandem with `assertions` experimental feature flag for expected functionality. Allows you to author client-side, offline unit-test test blocks that reference Bicep files and mock deployment parameters in a separate `test.bicep` file using the new `test` keyword. Test blocks can be run with the command *bicep test <filepath_to_file_with_test_blocks>* which runs all `assert` statements in the Bicep files referenced by the test blocks. For more information, see [Bicep Experimental Test Framework](https://github.com/Azure/bicep/issues/11967).
+### `thisExistsFunction`
+
+Enables the `this.exists()` function for accessing the current resource instance. This function can only be used within resource property expressions. Currently, only `this.exists()` is available for usage. For example:
+```
+resource usingThis 'Microsoft...' = {
+  name: 'example'
+  location: 'eastus'
+  properties: {
+    property1: this.exists() ? 'resource exists' : 'resource does not exist'
+  }
+}
+```
 
 ### `userDefinedConstraints`
 
