@@ -98,6 +98,35 @@ extensionConfig validSecretAssignment1 with {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
+extensionConfig duplicateAssignment1 with {
+//@[000:015) Identifier |extensionConfig|
+//@[016:036) Identifier |duplicateAssignment1|
+//@[037:041) Identifier |with|
+//@[042:043) LeftBrace |{|
+//@[043:044) NewLine |\n|
+  requiredString: 'value1'
+//@[002:016) Identifier |requiredString|
+//@[016:017) Colon |:|
+//@[018:026) StringComplete |'value1'|
+//@[026:027) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:002) NewLine |\n|
+extensionConfig duplicateAssignment1 with {
+//@[000:015) Identifier |extensionConfig|
+//@[016:036) Identifier |duplicateAssignment1|
+//@[037:041) Identifier |with|
+//@[042:043) LeftBrace |{|
+//@[043:044) NewLine |\n|
+  requiredString: 'value2'
+//@[002:016) Identifier |requiredString|
+//@[016:017) Colon |:|
+//@[018:026) StringComplete |'value2'|
+//@[026:027) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
 param invalidParamAssignment1 = validAssignment1.requiredString
 //@[000:005) Identifier |param|
 //@[006:029) Identifier |invalidParamAssignment1|

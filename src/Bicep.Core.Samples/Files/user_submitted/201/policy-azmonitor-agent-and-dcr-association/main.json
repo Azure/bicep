@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12171729092113973289"
+      "templateHash": "15619144206045943583"
     }
   },
   "parameters": {
@@ -23,7 +23,7 @@
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "policy",
       "location": "[deployment().location]",
       "properties": {
@@ -386,7 +386,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "assignment",
       "location": "[deployment().location]",
       "properties": {
@@ -396,7 +396,7 @@
         "mode": "Incremental",
         "parameters": {
           "monitoringGovernanceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'policy'), '2022-09-01').outputs.monitoringGovernanceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'policy'), '2025-04-01').outputs.monitoringGovernanceId.value]"
           },
           "assignmentIdentityLocation": {
             "value": "[parameters('assignmentIdentityLocation')]"

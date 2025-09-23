@@ -3,7 +3,7 @@ targetScope = 'tenant'
 module myManagementGroupMod 'modules/managementgroup.bicep' = {
 //@    {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "scope": "[format('Microsoft.Management/managementGroups/{0}', 'myManagementGroup')]",
 //@      "location": "[deployment().location]",
 //@      "properties": {
@@ -18,13 +18,13 @@ module myManagementGroupMod 'modules/managementgroup.bicep' = {
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "13668708128840728545"
+//@              "templateHash": "15396932166486482455"
 //@            }
 //@          },
 //@          "resources": [
 //@            {
 //@              "type": "Microsoft.Resources/deployments",
-//@              "apiVersion": "2022-09-01",
+//@              "apiVersion": "2025-04-01",
 //@              "name": "myTenantMod",
 //@              "scope": "/",
 //@              "location": "[deployment().location]",
@@ -55,7 +55,7 @@ module myManagementGroupMod 'modules/managementgroup.bicep' = {
 //@            },
 //@            {
 //@              "type": "Microsoft.Resources/deployments",
-//@              "apiVersion": "2022-09-01",
+//@              "apiVersion": "2025-04-01",
 //@              "name": "myManagementGroupMod",
 //@              "scope": "[format('Microsoft.Management/managementGroups/{0}', 'myManagementGroup2')]",
 //@              "location": "[deployment().location]",
@@ -80,7 +80,7 @@ module myManagementGroupMod 'modules/managementgroup.bicep' = {
 //@            },
 //@            {
 //@              "type": "Microsoft.Resources/deployments",
-//@              "apiVersion": "2022-09-01",
+//@              "apiVersion": "2025-04-01",
 //@              "name": "mySubscriptionMod",
 //@              "subscriptionId": "1ad827ac-2669-4c2f-9970-282b93c3c550",
 //@              "location": "[deployment().location]",
@@ -107,7 +107,7 @@ module myManagementGroupMod 'modules/managementgroup.bicep' = {
 //@          "outputs": {
 //@            "myOutput": {
 //@              "type": "string",
-//@              "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2022-09-01').outputs.myOutput.value]"
+//@              "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2025-04-01').outputs.myOutput.value]"
 //@            }
 //@          }
 //@        }
@@ -120,7 +120,7 @@ module myManagementGroupMod 'modules/managementgroup.bicep' = {
 module myManagementGroupModWithDuplicatedNameButDifferentScope 'modules/managementgroup_empty.bicep' = {
 //@    {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "scope": "[format('Microsoft.Management/managementGroups/{0}', 'myManagementGroup2')]",
 //@      "location": "[deployment().location]",
 //@      "properties": {
@@ -149,7 +149,7 @@ module myManagementGroupModWithDuplicatedNameButDifferentScope 'modules/manageme
 module mySubscriptionMod 'modules/subscription.bicep' = {
 //@    {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "location": "[deployment().location]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -163,13 +163,13 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "15454708585237868866"
+//@              "templateHash": "10808174241847988714"
 //@            }
 //@          },
 //@          "resources": [
 //@            {
 //@              "type": "Microsoft.Resources/deployments",
-//@              "apiVersion": "2022-09-01",
+//@              "apiVersion": "2025-04-01",
 //@              "name": "myResourceGroupMod",
 //@              "resourceGroup": "myRg",
 //@              "properties": {
@@ -184,13 +184,13 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@                    "_generator": {
 //@                      "name": "bicep",
 //@                      "version": "dev",
-//@                      "templateHash": "3707936864441531265"
+//@                      "templateHash": "18100022219999285369"
 //@                    }
 //@                  },
 //@                  "resources": [
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "myTenantMod",
 //@                      "scope": "/",
 //@                      "location": "[resourceGroup().location]",
@@ -221,7 +221,7 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@                    },
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "myOtherResourceGroup",
 //@                      "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
 //@                      "resourceGroup": "myOtherRg",
@@ -252,7 +252,7 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@                    },
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "mySubscription",
 //@                      "subscriptionId": "[subscription().subscriptionId]",
 //@                      "location": "[resourceGroup().location]",
@@ -277,7 +277,7 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@                    },
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "otherSubscription",
 //@                      "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
 //@                      "location": "[resourceGroup().location]",
@@ -304,11 +304,11 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@                  "outputs": {
 //@                    "myOutput": {
 //@                      "type": "string",
-//@                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2022-09-01').outputs.myOutput.value]"
+//@                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2025-04-01').outputs.myOutput.value]"
 //@                    },
 //@                    "myOutputResourceGroup": {
 //@                      "type": "string",
-//@                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2022-09-01').outputs.myOutput.value]"
+//@                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2025-04-01').outputs.myOutput.value]"
 //@                    }
 //@                  }
 //@                }
@@ -316,7 +316,7 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@            },
 //@            {
 //@              "type": "Microsoft.Resources/deployments",
-//@              "apiVersion": "2022-09-01",
+//@              "apiVersion": "2025-04-01",
 //@              "name": "myResourceGroupMod2",
 //@              "resourceGroup": "myRg",
 //@              "properties": {
@@ -331,13 +331,13 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@                    "_generator": {
 //@                      "name": "bicep",
 //@                      "version": "dev",
-//@                      "templateHash": "3707936864441531265"
+//@                      "templateHash": "18100022219999285369"
 //@                    }
 //@                  },
 //@                  "resources": [
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "myTenantMod",
 //@                      "scope": "/",
 //@                      "location": "[resourceGroup().location]",
@@ -368,7 +368,7 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@                    },
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "myOtherResourceGroup",
 //@                      "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
 //@                      "resourceGroup": "myOtherRg",
@@ -399,7 +399,7 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@                    },
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "mySubscription",
 //@                      "subscriptionId": "[subscription().subscriptionId]",
 //@                      "location": "[resourceGroup().location]",
@@ -424,7 +424,7 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@                    },
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "otherSubscription",
 //@                      "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
 //@                      "location": "[resourceGroup().location]",
@@ -451,11 +451,11 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@                  "outputs": {
 //@                    "myOutput": {
 //@                      "type": "string",
-//@                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2022-09-01').outputs.myOutput.value]"
+//@                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2025-04-01').outputs.myOutput.value]"
 //@                    },
 //@                    "myOutputResourceGroup": {
 //@                      "type": "string",
-//@                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2022-09-01').outputs.myOutput.value]"
+//@                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2025-04-01').outputs.myOutput.value]"
 //@                    }
 //@                  }
 //@                }
@@ -463,7 +463,7 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@            },
 //@            {
 //@              "type": "Microsoft.Resources/deployments",
-//@              "apiVersion": "2022-09-01",
+//@              "apiVersion": "2025-04-01",
 //@              "name": "myResourceGroupMod3",
 //@              "subscriptionId": "subId",
 //@              "resourceGroup": "myRg",
@@ -479,13 +479,13 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@                    "_generator": {
 //@                      "name": "bicep",
 //@                      "version": "dev",
-//@                      "templateHash": "3707936864441531265"
+//@                      "templateHash": "18100022219999285369"
 //@                    }
 //@                  },
 //@                  "resources": [
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "myTenantMod",
 //@                      "scope": "/",
 //@                      "location": "[resourceGroup().location]",
@@ -516,7 +516,7 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@                    },
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "myOtherResourceGroup",
 //@                      "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
 //@                      "resourceGroup": "myOtherRg",
@@ -547,7 +547,7 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@                    },
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "mySubscription",
 //@                      "subscriptionId": "[subscription().subscriptionId]",
 //@                      "location": "[resourceGroup().location]",
@@ -572,7 +572,7 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@                    },
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "otherSubscription",
 //@                      "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
 //@                      "location": "[resourceGroup().location]",
@@ -599,11 +599,11 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@                  "outputs": {
 //@                    "myOutput": {
 //@                      "type": "string",
-//@                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2022-09-01').outputs.myOutput.value]"
+//@                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2025-04-01').outputs.myOutput.value]"
 //@                    },
 //@                    "myOutputResourceGroup": {
 //@                      "type": "string",
-//@                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2022-09-01').outputs.myOutput.value]"
+//@                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2025-04-01').outputs.myOutput.value]"
 //@                    }
 //@                  }
 //@                }
@@ -611,7 +611,7 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@            },
 //@            {
 //@              "type": "Microsoft.Resources/deployments",
-//@              "apiVersion": "2022-09-01",
+//@              "apiVersion": "2025-04-01",
 //@              "name": "myTenantMod",
 //@              "scope": "/",
 //@              "location": "[deployment().location]",
@@ -644,15 +644,15 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
 //@          "outputs": {
 //@            "myOutput": {
 //@              "type": "string",
-//@              "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2022-09-01').outputs.myOutput.value]"
+//@              "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2025-04-01').outputs.myOutput.value]"
 //@            },
 //@            "myOutputRgMod": {
 //@              "type": "string",
-//@              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod'), '2022-09-01').outputs.myOutput.value]"
+//@              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod'), '2025-04-01').outputs.myOutput.value]"
 //@            },
 //@            "myOutputRgMod2": {
 //@              "type": "string",
-//@              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod2'), '2022-09-01').outputs.myOutput.value]"
+//@              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod2'), '2025-04-01').outputs.myOutput.value]"
 //@            }
 //@          }
 //@        }
@@ -668,7 +668,7 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@    {
 //@      "condition": "[equals(length('foo'), 3)]",
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "location": "[deployment().location]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -682,13 +682,13 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "15454708585237868866"
+//@              "templateHash": "10808174241847988714"
 //@            }
 //@          },
 //@          "resources": [
 //@            {
 //@              "type": "Microsoft.Resources/deployments",
-//@              "apiVersion": "2022-09-01",
+//@              "apiVersion": "2025-04-01",
 //@              "name": "myResourceGroupMod",
 //@              "resourceGroup": "myRg",
 //@              "properties": {
@@ -703,13 +703,13 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@                    "_generator": {
 //@                      "name": "bicep",
 //@                      "version": "dev",
-//@                      "templateHash": "3707936864441531265"
+//@                      "templateHash": "18100022219999285369"
 //@                    }
 //@                  },
 //@                  "resources": [
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "myTenantMod",
 //@                      "scope": "/",
 //@                      "location": "[resourceGroup().location]",
@@ -740,7 +740,7 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@                    },
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "myOtherResourceGroup",
 //@                      "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
 //@                      "resourceGroup": "myOtherRg",
@@ -771,7 +771,7 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@                    },
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "mySubscription",
 //@                      "subscriptionId": "[subscription().subscriptionId]",
 //@                      "location": "[resourceGroup().location]",
@@ -796,7 +796,7 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@                    },
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "otherSubscription",
 //@                      "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
 //@                      "location": "[resourceGroup().location]",
@@ -823,11 +823,11 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@                  "outputs": {
 //@                    "myOutput": {
 //@                      "type": "string",
-//@                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2022-09-01').outputs.myOutput.value]"
+//@                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2025-04-01').outputs.myOutput.value]"
 //@                    },
 //@                    "myOutputResourceGroup": {
 //@                      "type": "string",
-//@                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2022-09-01').outputs.myOutput.value]"
+//@                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2025-04-01').outputs.myOutput.value]"
 //@                    }
 //@                  }
 //@                }
@@ -835,7 +835,7 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@            },
 //@            {
 //@              "type": "Microsoft.Resources/deployments",
-//@              "apiVersion": "2022-09-01",
+//@              "apiVersion": "2025-04-01",
 //@              "name": "myResourceGroupMod2",
 //@              "resourceGroup": "myRg",
 //@              "properties": {
@@ -850,13 +850,13 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@                    "_generator": {
 //@                      "name": "bicep",
 //@                      "version": "dev",
-//@                      "templateHash": "3707936864441531265"
+//@                      "templateHash": "18100022219999285369"
 //@                    }
 //@                  },
 //@                  "resources": [
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "myTenantMod",
 //@                      "scope": "/",
 //@                      "location": "[resourceGroup().location]",
@@ -887,7 +887,7 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@                    },
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "myOtherResourceGroup",
 //@                      "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
 //@                      "resourceGroup": "myOtherRg",
@@ -918,7 +918,7 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@                    },
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "mySubscription",
 //@                      "subscriptionId": "[subscription().subscriptionId]",
 //@                      "location": "[resourceGroup().location]",
@@ -943,7 +943,7 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@                    },
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "otherSubscription",
 //@                      "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
 //@                      "location": "[resourceGroup().location]",
@@ -970,11 +970,11 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@                  "outputs": {
 //@                    "myOutput": {
 //@                      "type": "string",
-//@                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2022-09-01').outputs.myOutput.value]"
+//@                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2025-04-01').outputs.myOutput.value]"
 //@                    },
 //@                    "myOutputResourceGroup": {
 //@                      "type": "string",
-//@                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2022-09-01').outputs.myOutput.value]"
+//@                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2025-04-01').outputs.myOutput.value]"
 //@                    }
 //@                  }
 //@                }
@@ -982,7 +982,7 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@            },
 //@            {
 //@              "type": "Microsoft.Resources/deployments",
-//@              "apiVersion": "2022-09-01",
+//@              "apiVersion": "2025-04-01",
 //@              "name": "myResourceGroupMod3",
 //@              "subscriptionId": "subId",
 //@              "resourceGroup": "myRg",
@@ -998,13 +998,13 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@                    "_generator": {
 //@                      "name": "bicep",
 //@                      "version": "dev",
-//@                      "templateHash": "3707936864441531265"
+//@                      "templateHash": "18100022219999285369"
 //@                    }
 //@                  },
 //@                  "resources": [
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "myTenantMod",
 //@                      "scope": "/",
 //@                      "location": "[resourceGroup().location]",
@@ -1035,7 +1035,7 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@                    },
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "myOtherResourceGroup",
 //@                      "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
 //@                      "resourceGroup": "myOtherRg",
@@ -1066,7 +1066,7 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@                    },
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "mySubscription",
 //@                      "subscriptionId": "[subscription().subscriptionId]",
 //@                      "location": "[resourceGroup().location]",
@@ -1091,7 +1091,7 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@                    },
 //@                    {
 //@                      "type": "Microsoft.Resources/deployments",
-//@                      "apiVersion": "2022-09-01",
+//@                      "apiVersion": "2025-04-01",
 //@                      "name": "otherSubscription",
 //@                      "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
 //@                      "location": "[resourceGroup().location]",
@@ -1118,11 +1118,11 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@                  "outputs": {
 //@                    "myOutput": {
 //@                      "type": "string",
-//@                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2022-09-01').outputs.myOutput.value]"
+//@                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2025-04-01').outputs.myOutput.value]"
 //@                    },
 //@                    "myOutputResourceGroup": {
 //@                      "type": "string",
-//@                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2022-09-01').outputs.myOutput.value]"
+//@                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2025-04-01').outputs.myOutput.value]"
 //@                    }
 //@                  }
 //@                }
@@ -1130,7 +1130,7 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@            },
 //@            {
 //@              "type": "Microsoft.Resources/deployments",
-//@              "apiVersion": "2022-09-01",
+//@              "apiVersion": "2025-04-01",
 //@              "name": "myTenantMod",
 //@              "scope": "/",
 //@              "location": "[deployment().location]",
@@ -1163,15 +1163,15 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 //@          "outputs": {
 //@            "myOutput": {
 //@              "type": "string",
-//@              "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2022-09-01').outputs.myOutput.value]"
+//@              "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2025-04-01').outputs.myOutput.value]"
 //@            },
 //@            "myOutputRgMod": {
 //@              "type": "string",
-//@              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod'), '2022-09-01').outputs.myOutput.value]"
+//@              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod'), '2025-04-01').outputs.myOutput.value]"
 //@            },
 //@            "myOutputRgMod2": {
 //@              "type": "string",
-//@              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod2'), '2022-09-01').outputs.myOutput.value]"
+//@              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod2'), '2025-04-01').outputs.myOutput.value]"
 //@            }
 //@          }
 //@        }
@@ -1186,7 +1186,7 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
 module mySubscriptionModWithDuplicatedNameButDifferentScope 'modules/subscription_empty.bicep' = {
 //@    {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "location": "[deployment().location]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -1217,11 +1217,11 @@ module mySubscriptionModWithDuplicatedNameButDifferentScope 'modules/subscriptio
 output myManagementGroupOutput string = myManagementGroupMod.outputs.myOutput
 //@    "myManagementGroupOutput": {
 //@      "type": "string",
-//@      "value": "[reference(extensionResourceId(tenantResourceId('Microsoft.Management/managementGroups', 'myManagementGroup'), 'Microsoft.Resources/deployments', 'myManagementGroupMod'), '2022-09-01').outputs.myOutput.value]"
+//@      "value": "[reference(extensionResourceId(tenantResourceId('Microsoft.Management/managementGroups', 'myManagementGroup'), 'Microsoft.Resources/deployments', 'myManagementGroupMod'), '2025-04-01').outputs.myOutput.value]"
 //@    },
 output mySubscriptionOutput string = mySubscriptionMod.outputs.myOutput
 //@    "mySubscriptionOutput": {
 //@      "type": "string",
-//@      "value": "[reference(subscriptionResourceId('ee44cd78-68c6-43d9-874e-e684ec8d1191', 'Microsoft.Resources/deployments', 'mySubscriptionMod'), '2022-09-01').outputs.myOutput.value]"
+//@      "value": "[reference(subscriptionResourceId('ee44cd78-68c6-43d9-874e-e684ec8d1191', 'Microsoft.Resources/deployments', 'mySubscriptionMod'), '2025-04-01').outputs.myOutput.value]"
 //@    }
 

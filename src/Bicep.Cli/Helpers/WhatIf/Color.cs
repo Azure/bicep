@@ -8,7 +8,7 @@ namespace Bicep.Cli.Helpers.WhatIf;
 
 public class Color : IEquatable<Color>
 {
-    private const char Esc = (char)27;
+    public const char Esc = (char)27;
 
     private readonly string colorCode;
 

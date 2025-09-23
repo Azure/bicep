@@ -27,4 +27,24 @@ public abstract class AccessExpressionSyntax : ExpressionSyntax
     public bool IsSafeAccess => SafeAccessMarker is not null;
 
     public abstract AccessExpressionSyntax AsSafeAccess();
+
+    public abstract string? TryGetPropertyName();
+
+    /// <returns>Returns the base expression chain of this property access syntax. The first element is the left-most expression.
+    /// Example: ext.config.property, ext is first, config is second, etc.</returns>
+    public IReadOnlyList<SyntaxBase> GetBaseExpressionChain()
+    {
+        var currentBaseExpression = BaseExpression;
+        var baseExpressions = new List<SyntaxBase>();
+
+        while (currentBaseExpression is not null)
+        {
+            baseExpressions.Add(currentBaseExpression);
+            currentBaseExpression = currentBaseExpression is AccessExpressionSyntax accessSyntax ? accessSyntax.BaseExpression : null;
+        }
+
+        baseExpressions.Reverse();
+
+        return baseExpressions;
+    }
 }

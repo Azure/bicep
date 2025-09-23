@@ -44,7 +44,7 @@ namespace Bicep.Core.IntegrationTests
                     "microsoftGraph",
                     false,
                     new (string, DiagnosticLevel, string)[] {
-                     ("BCP407", DiagnosticLevel.Error, "Built-in extension \"microsoftGraph\" is retired. Use dynamic types instead. See https://aka.ms/graphBicepDynamicTypes" ) } };
+                     ("BCP407", DiagnosticLevel.Error, "Built-in extension \"microsoftGraph\" is retired. Use dynamic types instead. See https://aka.ms/graphbicep/dynamictypes" ) } };
                 yield return new object[] {
                     "az",
                     true,

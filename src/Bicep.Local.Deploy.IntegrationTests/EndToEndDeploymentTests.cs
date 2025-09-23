@@ -590,6 +590,6 @@ using 'main.bicep'
 
         await extensionDispatcher.InitializeExtensions(result.Compilation);
 
-        return await extensionDispatcher.Deploy(templateFile, parametersFile, TestContext.CancellationTokenSource.Token);
+        return await extensionDispatcher.Deploy(templateFile, parametersFile, state => { }, TestContext.CancellationTokenSource.Token);
     }
 }

@@ -275,7 +275,7 @@ namespace Bicep.Core.Emit
                     var parentResourceId = FormatFullyQualifiedResourceId(
                         context,
                         converter,
-                        context.ResourceScopeData[resource],
+                        context.SemanticModel.ResourceScopeData[resource],
                         resource.TypeReference.FormatType(),
                         scopingResourceNameSegments);
 
@@ -306,7 +306,7 @@ namespace Bicep.Core.Emit
                     var parentResourceId = FormatUnqualifiedResourceId(
                         context,
                         converter,
-                        context.ResourceScopeData[resource],
+                        context.SemanticModel.ResourceScopeData[resource],
                         resource.TypeReference.FormatType(),
                         converter.GetResourceNameSegments(resource));
 

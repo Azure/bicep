@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10831612777047662097"
+      "templateHash": "5118154572106714577"
     }
   },
   "parameters": {
@@ -17,7 +17,7 @@
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "publicIp",
       "properties": {
         "expressionEvaluationOptions": {
@@ -85,7 +85,7 @@
   "outputs": {
     "ipFqdn": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'publicIp'), '2022-09-01').outputs.ipFqdn.value]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'publicIp'), '2025-04-01').outputs.ipFqdn.value]"
     }
   }
 }

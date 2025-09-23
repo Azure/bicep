@@ -8,14 +8,16 @@ using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Auth;
+using Bicep.Core.AzureApi;
 using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
 using Bicep.Decompiler;
 using Bicep.IO.Abstraction;
+using Bicep.TextFixtures.Fakes.TypeSystem;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.TextFixtures.Utils
@@ -35,6 +37,7 @@ namespace Bicep.TextFixtures.Utils
                 .AddSingleton<IResourceTypeProviderFactory, ResourceTypeProviderFactory>()
                 .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
                 .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
+                .AddSingleton<IArmClientProvider, ArmClientProvider>()
                 .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
                 .AddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>()
                 .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
@@ -71,14 +74,7 @@ namespace Bicep.TextFixtures.Utils
             return this;
         }
 
-        // TODO(file-io-abstraction): Remove this method when the migration to the file IO abstraction is complete.
-        public TestServices AddFileSystem(IFileSystem fileSystem)
-        {
-            this.services.AddSingleton<IFileSystem>(fileSystem);
-            this.dirty = true;
-
-            return this;
-        }
+        public TestServices AddFileSystem(IFileSystem fileSystem) => this.AddSingleton(fileSystem);
 
         public TestServices AddFileExplorer(IFileExplorer fileExplorer) => this.AddSingleton(fileExplorer);
 
@@ -92,6 +88,10 @@ namespace Bicep.TextFixtures.Utils
 
             return this;
         }
+
+        public TestServices AddResourceTypeProviderFactory(IResourceTypeProviderFactory resourceTypeProviderFactory) => this.AddSingleton(resourceTypeProviderFactory);
+
+        public TestServices AddAzureResourceTypes(IEnumerable<ResourceTypeComponents> resourceTypes) => this.AddResourceTypeProviderFactory(FakeResourceTypeProviderFactory.ForAzureResourceTypes(resourceTypes));
 
         public T Get<T>() where T : notnull
         {

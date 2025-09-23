@@ -4,9 +4,11 @@
 using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Runtime;
+using Azure.Deployments.Engine.Workers;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Commands;
 using Bicep.Cli.Helpers;
+using Bicep.Cli.Helpers.Deploy;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core.Emit;
@@ -16,6 +18,7 @@ using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Spectre.Console;
 
 namespace Bicep.Cli
 {
@@ -110,6 +113,15 @@ namespace Bicep.Cli
                     case SnapshotArguments snapshotArguments when snapshotArguments.CommandName == Constants.Command.Snapshot: // bicep snapshot [options]
                         return await services.GetRequiredService<SnapshotCommand>().RunAsync(snapshotArguments, cancellationToken);
 
+                    case DeployArguments deployArguments when deployArguments.CommandName == Constants.Command.Deploy: // bicep deploy [options]
+                        return await services.GetRequiredService<DeployCommand>().RunAsync(deployArguments, cancellationToken);
+
+                    case WhatIfArguments whatIfArguments when whatIfArguments.CommandName == Constants.Command.WhatIf: // bicep what-if [options]
+                        return await services.GetRequiredService<WhatIfCommand>().RunAsync(whatIfArguments, cancellationToken);
+
+                    case TeardownArguments teardownArguments when teardownArguments.CommandName == Constants.Command.Teardown: // bicep teardown [options]
+                        return await services.GetRequiredService<TeardownCommand>().RunAsync(teardownArguments, cancellationToken);
+
                     case RootArguments rootArguments when rootArguments.CommandName == Constants.Command.Root: // bicep [options]
                         return services.GetRequiredService<RootCommand>().Run(rootArguments);
 
@@ -171,6 +183,14 @@ namespace Bicep.Cli
                 .AddSingleton<DiagnosticLogger>()
                 .AddSingleton<OutputWriter>()
                 .AddSingleton<PlaceholderParametersWriter>()
-                .AddSingleton(io);
+                .AddSingleton(io)
+                .AddSingleton(AnsiConsole.Create(new AnsiConsoleSettings
+                {
+                    Ansi = AnsiSupport.Detect,
+                    ColorSystem = ColorSystemSupport.Detect,
+                    Interactive = InteractionSupport.Detect,
+                    Out = new AnsiConsoleOutput(io.Output),
+                }))
+                .AddSingleton<DeploymentRenderer>();
     }
 }

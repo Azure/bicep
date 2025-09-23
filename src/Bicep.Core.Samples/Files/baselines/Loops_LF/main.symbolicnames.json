@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12607551507018547709"
+      "templateHash": "4248994183264669171"
     }
   },
   "parameters": {
@@ -434,7 +434,7 @@
     },
     "singleModule": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "test",
       "properties": {
         "expressionEvaluationOptions": {
@@ -480,7 +480,7 @@
         "batchSize": 3
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[variables('moduleSetup')[copyIndex()]]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -528,7 +528,7 @@
         "count": "[length(variables('moduleSetup'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[variables('moduleSetup')[copyIndex()]]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -572,7 +572,7 @@
     },
     "singleModuleWithIndexedDependencies": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "hello",
       "properties": {
         "expressionEvaluationOptions": {
@@ -621,7 +621,7 @@
         "count": "[length(variables('moduleSetup'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[variables('moduleSetup')[copyIndex()]]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -670,7 +670,7 @@
         "count": "[length(variables('regions'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('apim-{0}-{1}', variables('regions')[copyIndex()], parameters('name'))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -715,7 +715,7 @@
       },
       "condition": "[equals(mod(range(0, 6)[copyIndex()], 2), 0)]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('stuff{0}', range(0, 6)[copyIndex()])]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -760,7 +760,7 @@
       },
       "condition": "[parameters('accounts')[copyIndex()].enabled]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2025-04-01",
       "name": "[format('stuff-{0}', copyIndex())]",
       "properties": {
         "expressionEvaluationOptions": {

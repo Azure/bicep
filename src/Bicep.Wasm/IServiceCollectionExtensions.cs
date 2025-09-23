@@ -9,7 +9,7 @@ using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Auth;
+using Bicep.Core.AzureApi;
 using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
@@ -28,6 +28,7 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
         .AddSingleton<INamespaceProvider, NamespaceProvider>()
         .AddSingleton<IResourceTypeProviderFactory, ResourceTypeProviderFactory>()
+        .AddSingleton<IArmClientProvider, ArmClientProvider>()
         .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
         .AddSingleton<IArtifactRegistryProvider, EmptyModuleRegistryProvider>()
         .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
