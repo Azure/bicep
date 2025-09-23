@@ -46,9 +46,7 @@ namespace Bicep.Core.TypeSystem
                     return LanguageConstants.Any;
                 }
 
-                if (((SemanticModel)this.typeAssignmentVisitor.GetType().GetField("model", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(this.typeAssignmentVisitor)!)
-                    .Binder.FileSymbol.Declarations.OfType<BaseParametersSymbol>()
-                    .FirstOrDefault(s => ReferenceEquals(s.DeclaringSyntax, key)) is not { } baseSymbol)
+                if (this.binder.FileSymbol.Declarations.OfType<BaseParametersSymbol>().FirstOrDefault(s => ReferenceEquals(s.DeclaringSyntax, key)) is not { } baseSymbol)
                 {
                     return LanguageConstants.Any;
                 }
