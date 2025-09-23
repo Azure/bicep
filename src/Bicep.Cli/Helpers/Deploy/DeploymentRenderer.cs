@@ -2,12 +2,15 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
+using Bicep.Cli.Arguments;
 using Spectre.Console;
 
 namespace Bicep.Cli.Helpers.Deploy;
 
-public class DeploymentRenderer(IAnsiConsole console)
+public partial class DeploymentRenderer(IAnsiConsole console)
 {
+    public static readonly TimeSpan RefreshInterval = TimeSpan.FromMilliseconds(50);
+
     public bool RenderDeployment(Table table, DeploymentWrapperView? view, ref bool isInitialized)
     {
         if (view?.Deployment is { } deployment)
@@ -39,69 +42,106 @@ public class DeploymentRenderer(IAnsiConsole console)
         return view?.Error is { } || DeploymentProcessor.IsTerminal(view?.Deployment?.State);
     }
 
-    public async Task<bool> RenderDeployment(TimeSpan refreshInterval, Func<Action<DeploymentWrapperView>, Task> executeFunc, CancellationToken cancellationToken)
+    public async Task<bool> RenderDeployment(TimeSpan refreshInterval, Func<Action<DeploymentWrapperView>, Task> executeFunc, DeploymentOutputFormat outputFormat, CancellationToken cancellationToken)
     {
         var isInitialized = false;
         var deploymentsTable = new Table().RoundedBorder();
 
         DeploymentWrapperView? view = null;
         await Task.WhenAll([
-            RenderLive(refreshInterval, deploymentsTable, () => RenderDeployment(deploymentsTable, view, ref isInitialized), cancellationToken),
+            outputFormat == DeploymentOutputFormat.Default ?
+                RenderLive(refreshInterval, deploymentsTable, () => RenderDeployment(deploymentsTable, view, ref isInitialized), cancellationToken) :
+                Task.CompletedTask,
             executeFunc(newView => view = newView),
         ]);
 
-        if (view?.Error is { } error)
+        if (view is null)
         {
-            var errorTable = new Table().RoundedBorder();
-            errorTable.AddColumn("Error");
-
-            errorTable.AddRow($"[bold red]{view.Error.EscapeMarkup()}[/]");
-            console.Write(errorTable);
+            throw new UnreachableException("The deployment view should have been initialized by the execute function.");
         }
 
-        if (view?.Deployment is { } deployment && !deployment.Outputs.IsEmpty)
+        switch (outputFormat)
         {
-            var outputsTable = new Table().RoundedBorder();
-            outputsTable.AddColumn("Output");
-            outputsTable.AddColumn("Value");
+            case DeploymentOutputFormat.Default:
+                if (view.Error is { } error)
+                {
+                    var errorTable = new Table().RoundedBorder();
+                    errorTable.AddColumn("Error");
 
-            foreach (var (name, value) in deployment.Outputs.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
-            {
-                outputsTable.AddRow(name.EscapeMarkup(), value.ToString().EscapeMarkup());
-            }
+                    errorTable.AddRow($"[bold red]{view.Error.EscapeMarkup()}[/]");
+                    console.Write(errorTable);
+                }
 
-            console.Write(outputsTable);
+                if (view.Deployment is { } deployment && !deployment.Outputs.IsEmpty)
+                {
+                    var outputsTable = new Table().RoundedBorder();
+                    outputsTable.AddColumn("Output");
+                    outputsTable.AddColumn("Value");
+
+                    foreach (var (name, value) in deployment.Outputs.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
+                    {
+                        outputsTable.AddRow(name.EscapeMarkup(), value.ToString().EscapeMarkup());
+                    }
+
+                    console.Write(outputsTable);
+                }
+                break;
+            case DeploymentOutputFormat.Json:
+                DeploymentJsonOutput output = new(
+                    Outputs: view.Deployment?.Outputs,
+                    Error: view.Error);
+
+                console.Write(output.ToFormattedString());
+                break;
+            default:
+                throw new UnreachableException($"Unsupported output format {outputFormat}.");
         }
 
-        return DeploymentProcessor.IsSuccess(view?.Deployment?.State);
+        return DeploymentProcessor.IsSuccess(view.Deployment?.State);
     }
 
     public async Task<bool> RenderOperation(TimeSpan refreshInterval, Func<Action<GeneralOperationView>, Task> executeFunc, CancellationToken cancellationToken)
     {
+        var isInitialized = false;
         var table = new Table().RoundedBorder();
-        table.AddColumn("Operation");
-        table.AddColumn("Duration");
-        table.AddColumn("Status");
 
         var stopwatch = Stopwatch.StartNew();
         GeneralOperationView? view = null;
         await Task.WhenAll([
-            RenderLive(refreshInterval, table, () => {
-                table.Rows.Clear();
-                if (view is { })
-                {
-                    table.AddRow(
-                        view.Name.EscapeMarkup(),
-                        GetDuration(stopwatch.Elapsed),
-                        GetStatus(view));
-                }
-
-                return DeploymentProcessor.IsSuccess(view?.State);
-            }, cancellationToken),
+            RenderLive(refreshInterval, table, () => RenderOperation(table, view, stopwatch.Elapsed, ref isInitialized), cancellationToken),
             executeFunc(newView => view = newView),
         ]);
 
         return DeploymentProcessor.IsSuccess(view?.State);
+    }
+
+    public void RenderOperation(GeneralOperationView view, TimeSpan duration)
+    {
+        var table = new Table().RoundedBorder();
+        var isInitialized = false;
+        RenderOperation(table, view, duration, ref isInitialized);
+    }
+
+    public bool RenderOperation(Table table, GeneralOperationView? view, TimeSpan duration, ref bool isInitialized)
+    {
+        if (!isInitialized)
+        {
+            table.AddColumn("Operation");
+            table.AddColumn("Duration");
+            table.AddColumn("Status");
+            isInitialized = true;
+        }
+
+        table.Rows.Clear();
+        if (view is { })
+        {
+            table.AddRow(
+                view.Name.EscapeMarkup(),
+                GetDuration(duration),
+                GetStatus(view));
+        }
+
+        return !DeploymentProcessor.IsActive(view?.State);
     }
 
     private async Task RenderLive(TimeSpan refreshInterval, Table table, Func<bool> refreshFunc, CancellationToken cancellationToken)
@@ -167,7 +207,7 @@ public class DeploymentRenderer(IAnsiConsole console)
 
     private static string GetDuration(DateTime utcNow, DateTime startTime, DateTime? endTime)
         => GetDuration((endTime ?? utcNow) - startTime);
-    
+
     private static string GetDuration(TimeSpan duration)
         => $"{duration.TotalSeconds:0.0}s";
 

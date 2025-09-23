@@ -17,6 +17,8 @@ public static class AnsiHelper
         [Color.Red.ToString()] = nameof(Color.Red),
         [Color.DarkYellow.ToString()] = nameof(Color.DarkYellow),
         [$"{Color.Esc}[1m"] = "Bold",
+        [$"{Color.Esc}[1;32m"] = "Bold,Green",
+        [$"{Color.Esc}[1;91m"] = "Bold,Red",
     }.ToImmutableDictionary();
 
     public static string ReplaceCodes(string input)

@@ -32,10 +32,9 @@ using Moq;
 using Newtonsoft.Json.Linq;
 using StreamJsonRpc;
 
-namespace Bicep.Cli.IntegrationTests;
+namespace Bicep.Cli.IntegrationTests.Commands;
 
 [TestClass]
-[Ignore("Commented out temporarily to investigate ANSI assertion differences in CI")]
 public class LocalDeployCommandTests : TestBase
 {
     private static ExtensionPackage GetMockLocalDeployPackage(BinaryData? tgzData = null)
@@ -65,12 +64,8 @@ public class LocalDeployCommandTests : TestBase
             .AddSingleton(armDeploymentProvider);
     }
 
-    [TestMethod]
-    public async Task Local_deploy_should_succeed()
+    private ILocalExtension GetExtensionMock()
     {
-        var paramFile = new EmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/weather/main.bicepparam");
-        var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
-
         var extensionMock = StrictMock.Of<ILocalExtension>();
         extensionMock.Setup(x => x.CreateOrUpdate(It.IsAny<ResourceSpecification>(), It.IsAny<CancellationToken>()))
             .Returns<ResourceSpecification, CancellationToken>((req, _) =>
@@ -118,25 +113,32 @@ public class LocalDeployCommandTests : TestBase
                 return Task.FromResult(new LocalExtensionOperationResponse(new Resource(req.Type, req.ApiVersion, req.Properties, (outputProperties as JsonObject)!, "Succeeded"), null));
             });
 
+        return extensionMock.Object;
+    }
+
+    [TestMethod]
+    public async Task Local_deploy_should_succeed()
+    {
+        var paramFile = new EmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/weather/main.bicepparam");
+        var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
 
         var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(LocalDeployEnabled: true));
         var clientFactory = services.Build().Construct<IContainerRegistryClientFactory>();
 
         var result = await Bicep(
             new InvocationSettings(ClientFactory: clientFactory),
-            services => RegisterExtensionMocks(services, extensionMock.Object),
+            services => RegisterExtensionMocks(services, GetExtensionMock()),
             TestContext.CancellationTokenSource.Token,
             ["local-deploy", baselineFolder.EntryFile.OutputFilePath]);
 
         result.Should().NotHaveStderr().And.Succeed();
-        var output = GetOutputWithoutDurations(result.Stdout);
 
-        output.Should().EqualIgnoringWhitespace("""
+        result.WithoutAnsi().WithoutDurations().Stdout.Should().BeEquivalentToIgnoringNewlines("""
         ╭───────────────┬──────────┬───────────╮
         │ Resource      │ Duration │ Status    │
         ├───────────────┼──────────┼───────────┤
-        │ gridpointsReq │ <snip>   │ Succeeded │
-        │ forecastReq   │ <snip>   │ Succeeded │
+        │ gridpointsReq │          │ Succeeded │
+        │ forecastReq   │          │ Succeeded │
         ╰───────────────┴──────────┴───────────╯
         ╭────────────────┬────────────────────────────────╮
         │ Output         │ Value                          │
@@ -157,6 +159,47 @@ public class LocalDeployCommandTests : TestBase
         │                │ ]                              │
         │ forecastString │ Forecast: Name                 │
         ╰────────────────┴────────────────────────────────╯
+
+        """);
+    }
+
+    [TestMethod]
+    public async Task Local_deploy_should_succeed_with_json_output()
+    {
+        var paramFile = new EmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/weather/main.bicepparam");
+        var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
+
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(LocalDeployEnabled: true));
+        var clientFactory = services.Build().Construct<IContainerRegistryClientFactory>();
+
+        var result = await Bicep(
+            new InvocationSettings(ClientFactory: clientFactory),
+            services => RegisterExtensionMocks(services, GetExtensionMock()),
+            TestContext.CancellationTokenSource.Token,
+            ["local-deploy", baselineFolder.EntryFile.OutputFilePath, "--format", "json"]);
+
+        result.Should().NotHaveStderr().And.Succeed();
+
+        result.Stdout.Should().DeepEqualJson("""
+        {
+          "outputs": {
+            "forecast": [
+              {
+                "name": "Tonight",
+                "temperature": 47
+              },
+              {
+                "name": "Wednesday",
+                "temperature": 64
+              },
+              {
+                "name": "Wednesday Night",
+                "temperature": 46
+              }
+            ],
+            "forecastString": "Forecast: Name"
+          }
+        }
         """);
     }
 
@@ -233,13 +276,13 @@ public class LocalDeployCommandTests : TestBase
             ["local-deploy", baselineFolder.EntryFile.OutputFilePath]);
 
         result.Should().NotHaveStderr().And.Succeed();
-        var output = GetOutputWithoutDurations(result.Stdout);
-        output.Should().EqualIgnoringWhitespace("""
+
+        result.WithoutAnsi().WithoutDurations().Stdout.Should().BeEquivalentToIgnoringNewlines("""
         ╭───────────────┬──────────┬───────────╮
         │ Resource      │ Duration │ Status    │
         ├───────────────┼──────────┼───────────┤
-        │ gridpointsReq │ <snip>   │ Succeeded │
-        │ gridCoords    │ <snip>   │ Succeeded │
+        │ gridpointsReq │          │ Succeeded │
+        │ gridCoords    │          │ Succeeded │
         ╰───────────────┴──────────┴───────────╯
         ╭────────┬───────╮
         │ Output │ Value │
@@ -249,7 +292,4 @@ public class LocalDeployCommandTests : TestBase
 
         """);
     }
-
-    private static string GetOutputWithoutDurations(string output)
-        => Regex.Replace(output, @"[ ]+\d+\.\d+s[ ]+", " <snip>   ");
 }

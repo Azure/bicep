@@ -9,23 +9,16 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Spectre.Console;
 using Spectre.Console.Testing;
 
-namespace Bicep.Cli.UnitTests.Helpers.WhatIf;
+namespace Bicep.Cli.UnitTests.Helpers.Deploy;
 
 [TestClass]
 public class DeploymentRendererTests
 {
-    [TestMethod]
-    public void Basic_formatting_works()
-    {
-        var console = new TestConsole();
-        var renderer = new DeploymentRenderer(console);
-
-        var timeNow = DateTime.UtcNow;
-        var table = new Table().RoundedBorder();
-        DeploymentWrapperView view = new(new(
+    public static DeploymentWrapperView Create(DateTime timeNow)
+        => new(new(
             Id: "/subscriptions/id/resourceGroups/rg/providers/Microsoft.Resources/deployments/foo",
             Name: "foo",
-            State: "Running",
+            State: "Succeeded",
             StartTime: timeNow.Subtract(TimeSpan.FromSeconds(0.5)),
             EndTime: null,
             Operations: [
@@ -58,7 +51,22 @@ public class DeploymentRendererTests
                     Error: null),
             ],
             Error: null,
-            Outputs: ImmutableDictionary<string, JsonNode>.Empty), null);
+            Outputs: new Dictionary<string, JsonNode>
+            {
+                ["output1"] = JsonValue.Create("value1")!,
+                ["output2"] = JsonValue.Create(42)!,
+            }.ToImmutableDictionary()), null);
+
+
+    [TestMethod]
+    public void Basic_formatting_works()
+    {
+        var console = new TestConsole();
+        var renderer = new DeploymentRenderer(console);
+
+        var timeNow = DateTime.UtcNow;
+        var table = new Table().RoundedBorder();
+        DeploymentWrapperView view = Create(timeNow);
         var isInitialized = false;
         renderer.RenderDeployment(table, view, ref isInitialized);
 

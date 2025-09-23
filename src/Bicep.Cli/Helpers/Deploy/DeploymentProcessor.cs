@@ -15,8 +15,11 @@ using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers.WhatIf;
+using Bicep.Core.AzureApi;
+using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
@@ -26,6 +29,7 @@ namespace Bicep.Cli.Helpers.Deploy;
 public record UsingConfig(
     string? Name,
     string Scope,
+    ResourceScope ScopeType,
     StacksConfig? StacksConfig);
 
 public record StacksConfig(
@@ -38,9 +42,9 @@ public record DeployCommandsConfig(
     string Parameters,
     UsingConfig UsingConfig);
 
-public class DeploymentProcessor(ArmClient armClient)
+public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploymentProcessor
 {
-    public static async Task<DeployCommandsConfig> GetDeployCommandsConfig(IEnvironment environment, IReadOnlyDictionary<string, string> additionalArgs, ParametersResult result)
+    public static async Task<DeployCommandsConfig> GetDeployCommandsConfig(IEnvironment environment, IReadOnlyDictionary<string, string> additionalArgs, ParametersResult result, ResourceScope scopeType)
     {
         if (result.Template?.Template is not { } template ||
             result.Parameters is not { } parameters)
@@ -133,6 +137,7 @@ public class DeploymentProcessor(ArmClient armClient)
         UsingConfig config = new(
             Name: usingConfig.GetProperty("name")?.Value<string>(),
             Scope: usingConfig.GetProperty("scope")?.Value<string>() ?? throw new UnreachableException(),
+            ScopeType: scopeType,
             StacksConfig: stacksConfig);
 
         return new(
@@ -141,86 +146,193 @@ public class DeploymentProcessor(ArmClient armClient)
             UsingConfig: config);
     }
 
-    public async Task Deploy(DeployCommandsConfig config, Action<DeploymentWrapperView> onRefresh, CancellationToken cancellationToken)
+    private static DeploymentStackCollection GetStacksClient(ArmClient armClient, UsingConfig usingConfig)
+        => usingConfig.ScopeType switch
+        {
+            ResourceScope.ResourceGroup => armClient.GetResourceGroupResource(new ResourceIdentifier(usingConfig.Scope)).GetDeploymentStacks(),
+            ResourceScope.Subscription => armClient.GetSubscriptionResource(new ResourceIdentifier(usingConfig.Scope)).GetDeploymentStacks(),
+            ResourceScope.ManagementGroup => armClient.GetManagementGroupResource(new ResourceIdentifier(usingConfig.Scope)).GetDeploymentStacks(),
+            _ => throw new CommandLineException($"Target scope {usingConfig.ScopeType} is not supported."),
+        };
+
+    private static ArmDeploymentCollection GetDeploymentsClient(ArmClient armClient, UsingConfig usingConfig)
+        => usingConfig.ScopeType switch
+        {
+            ResourceScope.ResourceGroup => armClient.GetResourceGroupResource(new ResourceIdentifier(usingConfig.Scope)).GetArmDeployments(),
+            ResourceScope.Subscription => armClient.GetSubscriptionResource(new ResourceIdentifier(usingConfig.Scope)).GetArmDeployments(),
+            ResourceScope.ManagementGroup => armClient.GetManagementGroupResource(new ResourceIdentifier(usingConfig.Scope)).GetArmDeployments(),
+            _ => throw new CommandLineException($"Target scope {usingConfig.ScopeType} is not supported."),
+        };
+
+    public async Task Deploy(RootConfiguration bicepConfig, DeployCommandsConfig config, Action<DeploymentWrapperView> onRefresh, CancellationToken cancellationToken)
     {
+        try
+        {
+            var armClient = armClientProvider.CreateArmClient(bicepConfig, null);
+
+            var (template, parameters, usingConfig) = config;
+            var deploymentName = usingConfig.Name ?? "main";
+            var paramsDefinition = parameters.FromJson<DeploymentParametersDefinition>();
+
+            string entrypointDeploymentId;
+            if (usingConfig.StacksConfig is { } stacksConfig)
+            {
+                var stacksClient = GetStacksClient(armClient, usingConfig);
+
+                DeploymentStackData stacksData = new()
+                {
+                    Description = stacksConfig.Description,
+                    ActionOnUnmanage = stacksConfig.ActionOnUnmanage,
+                    DenySettings = stacksConfig.DenySettings,
+                    Template = BinaryData.FromString(template),
+                };
+
+                foreach (var kvp in paramsDefinition.Parameters ?? [])
+                {
+                    stacksData.Parameters[kvp.Key] = new DeploymentParameter()
+                    {
+                        // TODO handle expressions, external inputs
+                        Value = BinaryData.FromString(kvp.Value.Value.ToJson()),
+                    };
+                }
+
+                await stacksClient.CreateOrUpdateAsync(Azure.WaitUntil.Started, deploymentName, stacksData, cancellationToken);
+                while (true)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+                    var response = await stacksClient.GetAsync(deploymentName, cancellationToken);
+                    if (response.Value.Data.DeploymentId is { })
+                    {
+                        entrypointDeploymentId = response.Value.Data.DeploymentId;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                var deploymentsClient = GetDeploymentsClient(armClient, usingConfig);
+                var deploymentProperties = new ArmDeploymentProperties(ArmDeploymentMode.Incremental)
+                {
+                    Template = BinaryData.FromString(template),
+                    Parameters = BinaryData.FromString(paramsDefinition.Parameters.ToJson()),
+                };
+
+                foreach (var kvp in paramsDefinition.ExternalInputs ?? [])
+                {
+                    deploymentProperties.ExternalInputs[kvp.Key] = new(BinaryData.FromString(kvp.Value.ToJson()));
+                }
+
+                var armDeploymentContent = new ArmDeploymentContent(deploymentProperties);
+
+                await deploymentsClient.CreateOrUpdateAsync(Azure.WaitUntil.Started, deploymentName, armDeploymentContent, cancellationToken);
+                entrypointDeploymentId = $"{usingConfig.Scope}/providers/Microsoft.Resources/deployments/{deploymentName}";
+            }
+
+            var pollAttempt = 0;
+            var complete = false;
+            while (!complete)
+            {
+                var deployment = await GetDeployment(armClient, entrypointDeploymentId, cancellationToken);
+
+                onRefresh(new(deployment, null));
+
+                complete = IsTerminal(deployment.State);
+                pollAttempt++;
+                if (!complete)
+                {
+                    // optimize for quick polls at the start, then back off (2s -> 4s -> 8s -> 10s)
+                    var waitTimeSeconds = Math.Max(pollAttempt * 2, 10);
+                    await Task.Delay(TimeSpan.FromSeconds(waitTimeSeconds), cancellationToken);
+                }
+            }
+        }
+        catch (Exception exception)
+        {
+            // ensure we report the error
+            onRefresh(new(null, exception.Message));
+        }
+    }
+
+    public async Task<DeploymentWhatIfResponseDefinition> WhatIf(RootConfiguration bicepConfig, DeployCommandsConfig config, CancellationToken cancellationToken)
+    {
+        var armClient = armClientProvider.CreateArmClient(bicepConfig, null);
+
         var (template, parameters, usingConfig) = config;
         var deploymentName = usingConfig.Name ?? "main";
         var paramsDefinition = parameters.FromJson<DeploymentParametersDefinition>();
 
-        var deploymentsClient = armClient.GetResourceGroupResource(new ResourceIdentifier(usingConfig.Scope)).GetArmDeployments();
-        string entrypointDeploymentId;
-        if (usingConfig.StacksConfig is { } stacksConfig)
+        if (config.UsingConfig.StacksConfig is { })
         {
-            var stacksClient = armClient.GetResourceGroupResource(new ResourceIdentifier(usingConfig.Scope)).GetDeploymentStacks();
-
-            DeploymentStackData stacksData = new()
-            {
-                Description = stacksConfig.Description,
-                ActionOnUnmanage = stacksConfig.ActionOnUnmanage,
-                DenySettings = stacksConfig.DenySettings,
-                Template = BinaryData.FromString(template),
-            };
-
-            foreach (var kvp in paramsDefinition.Parameters ?? [])
-            {
-                stacksData.Parameters[kvp.Key] = new DeploymentParameter()
-                {
-                    // TODO handle expressions, external inputs
-                    Value = BinaryData.FromString(kvp.Value.Value.ToJson()),
-                };
-            }
-
-            await stacksClient.CreateOrUpdateAsync(Azure.WaitUntil.Started, deploymentName, stacksData, cancellationToken);
-            while (true)
-            {
-                await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
-                var response = await stacksClient.GetAsync(deploymentName, cancellationToken);
-                if (response.Value.Data.DeploymentId is { })
-                {
-                    entrypointDeploymentId = response.Value.Data.DeploymentId;
-                    break;
-                }
-            }
-        }
-        else
-        {
-            var deploymentProperties = new ArmDeploymentProperties(ArmDeploymentMode.Incremental)
-            {
-                Template = BinaryData.FromString(template),
-                Parameters = BinaryData.FromString(paramsDefinition.Parameters.ToJson()),
-            };
-
-            foreach (var kvp in paramsDefinition.ExternalInputs ?? [])
-            {
-                deploymentProperties.ExternalInputs[kvp.Key] = new(BinaryData.FromString(kvp.Value.ToJson()));
-            }
-
-            var armDeploymentContent = new ArmDeploymentContent(deploymentProperties);
-
-            await deploymentsClient.CreateOrUpdateAsync(Azure.WaitUntil.Started, deploymentName, armDeploymentContent, cancellationToken);
-            entrypointDeploymentId = $"{usingConfig.Scope}/providers/Microsoft.Resources/deployments/{deploymentName}";
+            throw new CommandLineException("What-If analysis is not currently supported for stack deployments.");
         }
 
-        var pollAttempt = 0;
-        var complete = false;
-        while (!complete)
+        var deploymentResource = armClient.GetArmDeploymentResource(new ResourceIdentifier($"{usingConfig.Scope}/providers/Microsoft.Resources/deployments/{deploymentName}"));
+        var deploymentProperties = new ArmDeploymentWhatIfProperties(ArmDeploymentMode.Incremental)
         {
-            var deployment = await GetDeployment(entrypointDeploymentId, cancellationToken);
+            Template = BinaryData.FromString(template),
+            Parameters = BinaryData.FromString(paramsDefinition.Parameters.ToJson()),
+        };
+        var armDeploymentContent = new ArmDeploymentWhatIfContent(deploymentProperties);
 
-            onRefresh(new(deployment, null));
+        var response = await deploymentResource.WhatIfAsync(Azure.WaitUntil.Completed, armDeploymentContent, cancellationToken);
 
-            complete = IsTerminal(deployment.State);
-            pollAttempt++;
-            if (!complete)
+        return response.GetRawResponse().Content.ToString().FromJson<DeploymentWhatIfResponseDefinition>();
+    }
+
+    public async Task Teardown(RootConfiguration bicepConfig, DeployCommandsConfig config, Action<GeneralOperationView> onRefresh, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var armClient = armClientProvider.CreateArmClient(bicepConfig, null);
+
+            var (template, parameters, usingConfig) = config;
+            var deploymentName = usingConfig.Name ?? "main";
+            var paramsDefinition = parameters.FromJson<DeploymentParametersDefinition>();
+
+            if (config.UsingConfig.StacksConfig is not { } stacksConfig)
             {
-                // optimize for quick polls at the start, then back off (2s -> 4s -> 8s -> 10s)
-                var waitTimeSeconds = Math.Max(pollAttempt * 2, 10);
-                await Task.Delay(TimeSpan.FromSeconds(waitTimeSeconds), cancellationToken);
+                throw new CommandLineException("What-If analysis is not currently supported for stack deployments.");
             }
+
+            var stackResource = armClient.GetDeploymentStackResource(new ResourceIdentifier($"{usingConfig.Scope}/providers/Microsoft.Resources/deploymentStacks/{deploymentName}"));
+            onRefresh(new("Teardown", "Running", null));
+
+            await stackResource.DeleteAsync(Azure.WaitUntil.Completed,
+                unmanageActionResources: stacksConfig.ActionOnUnmanage?.Resources switch
+                {
+                    // TODO simplify
+                    { } val when val.Equals(DeploymentStacksDeleteDetachEnum.Delete) => UnmanageActionResourceMode.Delete,
+                    { } val when val.Equals(DeploymentStacksDeleteDetachEnum.Detach) => UnmanageActionResourceMode.Detach,
+                    _ => (UnmanageActionResourceMode?)null,
+                },
+                unmanageActionResourceGroups: stacksConfig.ActionOnUnmanage?.ResourceGroups switch
+                {
+                    // TODO simplify
+                    { } val when val.Equals(DeploymentStacksDeleteDetachEnum.Delete) => UnmanageActionResourceGroupMode.Delete,
+                    { } val when val.Equals(DeploymentStacksDeleteDetachEnum.Detach) => UnmanageActionResourceGroupMode.Detach,
+                    _ => (UnmanageActionResourceGroupMode?)null,
+                },
+                unmanageActionManagementGroups: stacksConfig.ActionOnUnmanage?.ManagementGroups switch
+                {
+                    // TODO simplify
+                    { } val when val.Equals(DeploymentStacksDeleteDetachEnum.Delete) => UnmanageActionManagementGroupMode.Delete,
+                    { } val when val.Equals(DeploymentStacksDeleteDetachEnum.Detach) => UnmanageActionManagementGroupMode.Detach,
+                    _ => (UnmanageActionManagementGroupMode?)null,
+                },
+                // TODO figure out what to do with this
+                // bypassStackOutOfSyncError: true,
+                cancellationToken: cancellationToken);
+
+            onRefresh(new("Teardown", "Succeeded", null));
+        }
+        catch (Exception exception)
+        {
+            // ensure we report the error
+            onRefresh(new("Teardown", "Failed", exception.Message));
         }
     }
 
-    private async Task<DeploymentView> GetDeployment(string resourceId, CancellationToken cancellationToken)
+    private static async Task<DeploymentView> GetDeployment(ArmClient armClient, string resourceId, CancellationToken cancellationToken)
     {
         var id = ResourceIdentifier.Parse(resourceId);
         var deploymentsClient = armClient.GetArmDeploymentResource(id);
