@@ -5,6 +5,6 @@
   "sdk": {
     "allowPrerelease": false,
     "version": "8.0.414",
-    "rollForward": "disable"
+    "rollForward": "latestpatch"
   }
 }
