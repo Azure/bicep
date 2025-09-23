@@ -32,10 +32,9 @@ using Moq;
 using Newtonsoft.Json.Linq;
 using StreamJsonRpc;
 
-namespace Bicep.Cli.IntegrationTests;
+namespace Bicep.Cli.IntegrationTests.Commands;
 
 [TestClass]
-[Ignore("Commented out temporarily to investigate ANSI assertion differences in CI")]
 public class LocalDeployCommandTests : TestBase
 {
     private static ExtensionPackage GetMockLocalDeployPackage(BinaryData? tgzData = null)
@@ -129,14 +128,13 @@ public class LocalDeployCommandTests : TestBase
             ["local-deploy", baselineFolder.EntryFile.OutputFilePath]);
 
         result.Should().NotHaveStderr().And.Succeed();
-        var output = GetOutputWithoutDurations(result.Stdout);
 
-        output.Should().EqualIgnoringWhitespace("""
+        result.WithoutAnsi().WithoutDurations().Stdout.Should().BeEquivalentToIgnoringNewlines("""
         ╭───────────────┬──────────┬───────────╮
         │ Resource      │ Duration │ Status    │
         ├───────────────┼──────────┼───────────┤
-        │ gridpointsReq │ <snip>   │ Succeeded │
-        │ forecastReq   │ <snip>   │ Succeeded │
+        │ gridpointsReq │          │ Succeeded │
+        │ forecastReq   │          │ Succeeded │
         ╰───────────────┴──────────┴───────────╯
         ╭────────────────┬────────────────────────────────╮
         │ Output         │ Value                          │
@@ -157,6 +155,7 @@ public class LocalDeployCommandTests : TestBase
         │                │ ]                              │
         │ forecastString │ Forecast: Name                 │
         ╰────────────────┴────────────────────────────────╯
+
         """);
     }
 
@@ -233,13 +232,13 @@ public class LocalDeployCommandTests : TestBase
             ["local-deploy", baselineFolder.EntryFile.OutputFilePath]);
 
         result.Should().NotHaveStderr().And.Succeed();
-        var output = GetOutputWithoutDurations(result.Stdout);
-        output.Should().EqualIgnoringWhitespace("""
+
+        result.WithoutAnsi().WithoutDurations().Stdout.Should().BeEquivalentToIgnoringNewlines("""
         ╭───────────────┬──────────┬───────────╮
         │ Resource      │ Duration │ Status    │
         ├───────────────┼──────────┼───────────┤
-        │ gridpointsReq │ <snip>   │ Succeeded │
-        │ gridCoords    │ <snip>   │ Succeeded │
+        │ gridpointsReq │          │ Succeeded │
+        │ gridCoords    │          │ Succeeded │
         ╰───────────────┴──────────┴───────────╯
         ╭────────┬───────╮
         │ Output │ Value │
@@ -249,7 +248,4 @@ public class LocalDeployCommandTests : TestBase
 
         """);
     }
-
-    private static string GetOutputWithoutDurations(string output)
-        => Regex.Replace(output, @"[ ]+\d+\.\d+s[ ]+", " <snip>   ");
 }

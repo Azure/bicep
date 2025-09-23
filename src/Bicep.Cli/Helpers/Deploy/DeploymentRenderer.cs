@@ -78,30 +78,46 @@ public class DeploymentRenderer(IAnsiConsole console)
 
     public async Task<bool> RenderOperation(TimeSpan refreshInterval, Func<Action<GeneralOperationView>, Task> executeFunc, CancellationToken cancellationToken)
     {
+        var isInitialized = false;
         var table = new Table().RoundedBorder();
-        table.AddColumn("Operation");
-        table.AddColumn("Duration");
-        table.AddColumn("Status");
 
         var stopwatch = Stopwatch.StartNew();
         GeneralOperationView? view = null;
         await Task.WhenAll([
-            RenderLive(refreshInterval, table, () => {
-                table.Rows.Clear();
-                if (view is { })
-                {
-                    table.AddRow(
-                        view.Name.EscapeMarkup(),
-                        GetDuration(stopwatch.Elapsed),
-                        GetStatus(view));
-                }
-
-                return DeploymentProcessor.IsSuccess(view?.State);
-            }, cancellationToken),
+            RenderLive(refreshInterval, table, () => RenderOperation(table, view, stopwatch.Elapsed, ref isInitialized), cancellationToken),
             executeFunc(newView => view = newView),
         ]);
 
         return DeploymentProcessor.IsSuccess(view?.State);
+    }
+
+    public void RenderOperation(GeneralOperationView view, TimeSpan duration)
+    {
+        var table = new Table().RoundedBorder();
+        var isInitialized = false;
+        RenderOperation(table, view, duration, ref isInitialized);
+    }
+
+    public bool RenderOperation(Table table, GeneralOperationView? view, TimeSpan duration, ref bool isInitialized)
+    {
+        if (!isInitialized)
+        {
+            table.AddColumn("Operation");
+            table.AddColumn("Duration");
+            table.AddColumn("Status");
+            isInitialized = true;
+        }
+
+        table.Rows.Clear();
+        if (view is { })
+        {
+            table.AddRow(
+                view.Name.EscapeMarkup(),
+                GetDuration(duration),
+                GetStatus(view));
+        }
+
+        return !DeploymentProcessor.IsActive(view?.State);
     }
 
     private async Task RenderLive(TimeSpan refreshInterval, Table table, Func<bool> refreshFunc, CancellationToken cancellationToken)

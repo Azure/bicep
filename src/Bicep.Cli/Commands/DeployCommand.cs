@@ -5,7 +5,6 @@ using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers.Deploy;
 using Bicep.Cli.Logging;
 using Bicep.Core;
-using Bicep.Core.AzureApi;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
 using Bicep.Core.Utils;
@@ -15,9 +14,9 @@ namespace Bicep.Cli.Commands;
 
 public class DeployCommand(
     DeploymentRenderer deploymentRenderer,
+    IDeploymentProcessor deploymentProcessor,
     ILogger logger,
     IEnvironment environment,
-    IArmClientProvider armClientProvider,
     DiagnosticLogger diagnosticLogger,
     BicepCompiler compiler,
     InputOutputArgumentsResolver inputOutputArgumentsResolver) : DeploymentsCommandsBase<DeployArguments>(logger, diagnosticLogger, compiler, inputOutputArgumentsResolver)
@@ -28,24 +27,9 @@ public class DeployCommand(
 
         var success = await deploymentRenderer.RenderDeployment(
             TimeSpan.FromMilliseconds(50),
-            (onUpdate) => ProcessDeployment(model, config, onUpdate, cancellationToken),
+            (onUpdate) => deploymentProcessor.Deploy(model.Configuration, config, onUpdate, cancellationToken),
             cancellationToken);
 
         return success ? 0 : 1;
-    }
-
-    private async Task ProcessDeployment(SemanticModel model, DeployCommandsConfig config, Action<DeploymentWrapperView> onUpdate, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var armClient = armClientProvider.CreateArmClient(model.Configuration, null);
-            var processor = new DeploymentProcessor(armClient);
-
-            await processor.Deploy(config, deployment => onUpdate(deployment), cancellationToken);
-        }
-        catch (Exception exception)
-        {
-            onUpdate(new(null, exception.Message));
-        }
     }
 }

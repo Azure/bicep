@@ -21,7 +21,7 @@ using Json.Path;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Bicep.Cli.UnitTests.Helpers.WhatIf;
+namespace Bicep.Cli.UnitTests.Helpers.Deploy;
 
 [TestClass]
 public class DeploymentProcessorTests
