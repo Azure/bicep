@@ -21,15 +21,19 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Moq;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Cli.IntegrationTests.Commands;
 
 [TestClass]
 public class DeployCommandTests : TestBase
 {
-    public async Task<CliResult> Deploy(IDeploymentProcessor deploymentProcessor)
+    public async Task<CliResult> Deploy(IDeploymentProcessor deploymentProcessor, string[]? additionalArgs = null)
     {
+        additionalArgs ??= [];
+
         var bicepparamsPath = FileHelper.SaveResultFile(
             TestContext,
             "main.bicepparam",
@@ -78,7 +82,7 @@ public class DeployCommandTests : TestBase
             settings,
             services => services.AddSingleton(deploymentProcessor),
             TestContext.CancellationTokenSource.Token,
-            ["deploy", bicepparamsPath]);
+            ["deploy", bicepparamsPath, ..additionalArgs]);
     }
 
     [TestMethod]
@@ -110,6 +114,30 @@ public class DeployCommandTests : TestBase
         │ output2 │ 42     │
         ╰─────────┴────────╯
         
+        """);
+    }
+
+    [TestMethod]
+    public async Task Deploy_should_succeed_with_json_output()
+    {
+        var deploymentProcessor = StrictMock.Of<IDeploymentProcessor>();
+        deploymentProcessor.Setup(x => x.Deploy(It.IsAny<RootConfiguration>(), It.IsAny<DeployCommandsConfig>(), It.IsAny<Action<DeploymentWrapperView>>(), It.IsAny<CancellationToken>()))
+            .Returns<RootConfiguration, DeployCommandsConfig, Action<DeploymentWrapperView>, CancellationToken>((_, config, onUpdate, _) =>
+            {
+                onUpdate(DeploymentRendererTests.Create(DateTime.UtcNow));
+
+                return Task.CompletedTask;
+            });
+
+        var result = await Deploy(deploymentProcessor.Object, ["--format", "json"]);
+
+        result.Stdout.Should().DeepEqualJson("""
+        {
+          "outputs": {
+            "output2": 42,
+            "output1": "value1"
+          }
+        }
         """);
     }
 

@@ -26,7 +26,7 @@ public class TeardownCommand(
         var config = await DeploymentProcessor.GetDeployCommandsConfig(environment, args.AdditionalArguments, result);
 
         var success = await deploymentRenderer.RenderOperation(
-            TimeSpan.FromMilliseconds(50),
+            DeploymentRenderer.RefreshInterval,
             (onUpdate) => deploymentProcessor.Teardown(model.Configuration, config, onUpdate, cancellationToken),
             cancellationToken);
 

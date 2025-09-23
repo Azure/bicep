@@ -26,8 +26,9 @@ public class DeployCommand(
         var config = await DeploymentProcessor.GetDeployCommandsConfig(environment, args.AdditionalArguments, result);
 
         var success = await deploymentRenderer.RenderDeployment(
-            TimeSpan.FromMilliseconds(50),
+            DeploymentRenderer.RefreshInterval,
             (onUpdate) => deploymentProcessor.Deploy(model.Configuration, config, onUpdate, cancellationToken),
+            args.OutputFormat ?? DeploymentOutputFormat.Default,
             cancellationToken);
 
         return success ? 0 : 1;

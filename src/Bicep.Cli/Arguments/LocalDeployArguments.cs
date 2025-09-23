@@ -17,6 +17,12 @@ namespace Bicep.Cli.Arguments
                         NoRestore = true;
                         break;
 
+                    case ArgumentConstants.OutputFormat:
+                        ArgumentHelper.ValidateNotAlreadySet(ArgumentConstants.OutputFormat, OutputFormat);
+                        OutputFormat = ArgumentHelper.GetEnumValueWithValidation<DeploymentOutputFormat>(ArgumentConstants.OutputFormat, args, i);
+                        i++;
+                        break;
+
                     default:
                         if (args[i].StartsWith("--"))
                         {
@@ -40,5 +46,7 @@ namespace Bicep.Cli.Arguments
         public string ParamsFile { get; }
 
         public bool NoRestore { get; }
+
+        public DeploymentOutputFormat? OutputFormat { get; }
     }
 }
