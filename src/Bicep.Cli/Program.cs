@@ -191,7 +191,7 @@ namespace Bicep.Cli
                     Interactive = InteractionSupport.Detect,
                     Out = new AnsiConsoleOutput(io.Output),
                 }))
-                .AddSingleton<IDeploymentProcessor, DeploymentProcessor>();
+                .AddSingleton<IDeploymentProcessor, DeploymentProcessor>()
                 .AddSingleton<DeploymentRenderer>();
 
         // This logic is duplicated in Bicep.Cli. We avoid placing it in Bicep.Core
