@@ -14,7 +14,7 @@
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.7.0",
-    "vite": "^7.0.0"
+    "vite": "^7.1.6"
   },
   "dependencies": {
     "@vscode-bicep-ui/components": "^0.0.0",
