@@ -15,6 +15,7 @@ namespace Bicep.Core.TypeSystem
         // stores results of type checks
         private readonly TypeAssignmentVisitor typeAssignmentVisitor;
         private readonly DeclaredTypeManager declaredTypeManager;
+        private readonly IBinder binder;
 
         public TypeManager(SemanticModel model, IBinder binder)
         {
@@ -23,6 +24,7 @@ namespace Bicep.Core.TypeSystem
             // (using the IReadOnlyDictionary to prevent accidental mutation)
             this.typeAssignmentVisitor = new(this, model);
             this.declaredTypeManager = new(this, binder, model.Features);
+            this.binder = binder;
         }
 
         public TypeSymbol GetTypeInfo(SyntaxBase syntax)
