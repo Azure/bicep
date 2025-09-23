@@ -28,6 +28,11 @@ using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Providers;
 using Microsoft.Extensions.DependencyInjection;
 using LocalFileSystem = System.IO.Abstractions.FileSystem;
+using Azure.ResourceManager.Resources.Mocking;
+using Bicep.Core.UnitTests.Mock;
+using Azure.ResourceManager;
+using Moq;
+using Azure.Core;
 
 namespace Bicep.Core.UnitTests;
 
@@ -179,5 +184,25 @@ public static class IServiceCollectionExtensions
         }
 
         return services;
+    }
+
+    public static IServiceCollection AddMockArmClient(this IServiceCollection services, MockableResourcesArmClient armClient)
+        => AddMockArmClient(services, _ => armClient);
+
+    public static IServiceCollection AddMockArmClient(this IServiceCollection services, Func<RootConfiguration, MockableResourcesArmClient> armClient)
+    {
+        var clientProvider = StrictMock.Of<IArmClientProvider>();
+        clientProvider.Setup(x => x.CreateArmClient(It.IsAny<RootConfiguration>(), It.IsAny<string?>()))
+            .Returns<RootConfiguration, string?>((config, _) =>
+            {
+                var clientMock = StrictMock.Of<ArmClient>();
+
+                clientMock.Setup(x => x.GetCachedClient(It.IsAny<Func<ArmClient, MockableResourcesArmClient>>()))
+                    .Returns(armClient(config));
+
+                return clientMock.Object;
+            });
+
+        return services.AddSingleton(clientProvider.Object);
     }
 }

@@ -52,8 +52,9 @@ public class LocalDeployCommand(
         }
 
         var success = await deploymentRenderer.RenderDeployment(
-            TimeSpan.FromMilliseconds(50),
+            DeploymentRenderer.RefreshInterval,
             (onUpdate) => ProcessDeployment(compilation, templateString, parametersString, onUpdate, cancellationToken),
+            args.OutputFormat ?? DeploymentOutputFormat.Default,
             cancellationToken);
 
         return success ? 0 : 1;

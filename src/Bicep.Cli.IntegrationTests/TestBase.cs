@@ -96,10 +96,10 @@ namespace Bicep.Cli.IntegrationTests
                             .AddSingletonIfNotNull(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
                             .AddSingletonIfNotNull(settings.ClientFactory)
                             .AddSingletonIfNotNull(settings.TemplateSpecRepositoryFactory)
-                            .AddSingleton<IAnsiConsole>(AnsiConsole.Create(new()
+                            .AddSingleton(AnsiConsole.Create(new()
                             {
-                                Ansi = AnsiSupport.No,
-                                ColorSystem = ColorSystemSupport.NoColors,
+                                Ansi = AnsiSupport.Yes,
+                                ColorSystem = ColorSystemSupport.Standard,
                                 Interactive = InteractionSupport.No,
                                 Out = new AnsiConsoleOutput(@out),
                             }));

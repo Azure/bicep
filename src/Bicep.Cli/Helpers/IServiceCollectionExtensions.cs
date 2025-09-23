@@ -29,7 +29,7 @@ namespace Bicep.Cli.Helpers;
 /// <summary>
 /// Contains the collection extensions for adding the CLI commands and configuration of those commands.
 /// </summary>
-public static class ServiceCollectionExtensions
+public static class IServiceCollectionExtensions
 {
     /// <summary>
     /// Adds the CLI commands to the DI container. These are resolved when the commands are registered with the
