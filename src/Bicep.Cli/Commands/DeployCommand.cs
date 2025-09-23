@@ -23,7 +23,7 @@ public class DeployCommand(
 {
     protected override async Task<int> RunInternal(DeployArguments args, SemanticModel model, ParametersResult result, CancellationToken cancellationToken)
     {
-        var config = await DeploymentProcessor.GetDeployCommandsConfig(environment, args.AdditionalArguments, result);
+        var config = await DeploymentProcessor.GetDeployCommandsConfig(environment, args.AdditionalArguments, result, model.TargetScope);
 
         var success = await deploymentRenderer.RenderDeployment(
             DeploymentRenderer.RefreshInterval,

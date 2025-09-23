@@ -19,6 +19,7 @@ using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
@@ -28,6 +29,7 @@ namespace Bicep.Cli.Helpers.Deploy;
 public record UsingConfig(
     string? Name,
     string Scope,
+    ResourceScope ScopeType,
     StacksConfig? StacksConfig);
 
 public record StacksConfig(
@@ -42,7 +44,7 @@ public record DeployCommandsConfig(
 
 public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploymentProcessor
 {
-    public static async Task<DeployCommandsConfig> GetDeployCommandsConfig(IEnvironment environment, IReadOnlyDictionary<string, string> additionalArgs, ParametersResult result)
+    public static async Task<DeployCommandsConfig> GetDeployCommandsConfig(IEnvironment environment, IReadOnlyDictionary<string, string> additionalArgs, ParametersResult result, ResourceScope scopeType)
     {
         if (result.Template?.Template is not { } template ||
             result.Parameters is not { } parameters)
@@ -135,6 +137,7 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
         UsingConfig config = new(
             Name: usingConfig.GetProperty("name")?.Value<string>(),
             Scope: usingConfig.GetProperty("scope")?.Value<string>() ?? throw new UnreachableException(),
+            ScopeType: scopeType,
             StacksConfig: stacksConfig);
 
         return new(
@@ -142,6 +145,24 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
             Parameters: paramsDefinition.ToJson(),
             UsingConfig: config);
     }
+
+    private static DeploymentStackCollection GetStacksClient(ArmClient armClient, UsingConfig usingConfig)
+        => usingConfig.ScopeType switch
+        {
+            ResourceScope.ResourceGroup => armClient.GetResourceGroupResource(new ResourceIdentifier(usingConfig.Scope)).GetDeploymentStacks(),
+            ResourceScope.Subscription => armClient.GetSubscriptionResource(new ResourceIdentifier(usingConfig.Scope)).GetDeploymentStacks(),
+            ResourceScope.ManagementGroup => armClient.GetManagementGroupResource(new ResourceIdentifier(usingConfig.Scope)).GetDeploymentStacks(),
+            _ => throw new CommandLineException($"Target scope {usingConfig.ScopeType} is not supported."),
+        };
+
+    private static ArmDeploymentCollection GetDeploymentsClient(ArmClient armClient, UsingConfig usingConfig)
+        => usingConfig.ScopeType switch
+        {
+            ResourceScope.ResourceGroup => armClient.GetResourceGroupResource(new ResourceIdentifier(usingConfig.Scope)).GetArmDeployments(),
+            ResourceScope.Subscription => armClient.GetSubscriptionResource(new ResourceIdentifier(usingConfig.Scope)).GetArmDeployments(),
+            ResourceScope.ManagementGroup => armClient.GetManagementGroupResource(new ResourceIdentifier(usingConfig.Scope)).GetArmDeployments(),
+            _ => throw new CommandLineException($"Target scope {usingConfig.ScopeType} is not supported."),
+        };
 
     public async Task Deploy(RootConfiguration bicepConfig, DeployCommandsConfig config, Action<DeploymentWrapperView> onRefresh, CancellationToken cancellationToken)
     {
@@ -156,7 +177,7 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
             string entrypointDeploymentId;
             if (usingConfig.StacksConfig is { } stacksConfig)
             {
-                var stacksClient = armClient.GetResourceGroupResource(new ResourceIdentifier(usingConfig.Scope)).GetDeploymentStacks();
+                var stacksClient = GetStacksClient(armClient, usingConfig);
 
                 DeploymentStackData stacksData = new()
                 {
@@ -189,7 +210,7 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
             }
             else
             {
-                var deploymentsClient = armClient.GetResourceGroupResource(new ResourceIdentifier(usingConfig.Scope)).GetArmDeployments();
+                var deploymentsClient = GetDeploymentsClient(armClient, usingConfig);
                 var deploymentProperties = new ArmDeploymentProperties(ArmDeploymentMode.Incremental)
                 {
                     Template = BinaryData.FromString(template),

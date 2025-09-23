@@ -25,7 +25,7 @@ public class WhatIfCommand(
 {
     protected override async Task<int> RunInternal(WhatIfArguments args, SemanticModel model, ParametersResult result, CancellationToken cancellationToken)
     {
-        var config = await DeploymentProcessor.GetDeployCommandsConfig(environment, args.AdditionalArguments, result);
+        var config = await DeploymentProcessor.GetDeployCommandsConfig(environment, args.AdditionalArguments, result, model.TargetScope);
 
         await WhatIf(model, config, cancellationToken);
 

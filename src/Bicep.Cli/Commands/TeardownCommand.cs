@@ -23,7 +23,7 @@ public class TeardownCommand(
 {
     protected override async Task<int> RunInternal(TeardownArguments args, SemanticModel model, ParametersResult result, CancellationToken cancellationToken)
     {
-        var config = await DeploymentProcessor.GetDeployCommandsConfig(environment, args.AdditionalArguments, result);
+        var config = await DeploymentProcessor.GetDeployCommandsConfig(environment, args.AdditionalArguments, result, model.TargetScope);
 
         var success = await deploymentRenderer.RenderOperation(
             DeploymentRenderer.RefreshInterval,
