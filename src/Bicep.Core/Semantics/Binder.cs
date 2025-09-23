@@ -87,77 +87,10 @@ namespace Bicep.Core.Semantics
             {
                 foreach (var parentAssignment in parentParameterAssignments)
                 {
-                    var valueSyntax = parentAssignment.DeclaringParameterAssignment.Value;
-
-                    var stack = new Stack<SyntaxBase>();
-                    stack.Push(valueSyntax);
-                    while (stack.Count > 0)
-                    {
-                        var current = stack.Pop();
-
-                        if (current is VariableAccessSyntax || current == valueSyntax || current is PropertyAccessSyntax || current is ArrayAccessSyntax)
-                        {
-                            var parentSymbol = parentAssignment.Context.Binder.GetSymbolInfo(current);
-                            if (parentSymbol is not null && !baseBindings.ContainsKey(current))
-                            {
-                                baseBindings[current] = parentSymbol;
-                            }
-                        }
-
-                        if (current is ObjectSyntax obj)
-                        {
-                            foreach (var prop in obj.Properties)
-                            {
-                                stack.Push(prop.Value);
-                            }
-                        }
-                        else if (current is ArraySyntax arr)
-                        {
-                            foreach (var item in arr.Items)
-                            {
-                                stack.Push(item.Value);
-                            }
-                        }
-                        else if (current is PropertyAccessSyntax propAccess)
-                        {
-                            stack.Push(propAccess.BaseExpression);
-                        }
-                        else if (current is ArrayAccessSyntax arrayAccess)
-                        {
-                            stack.Push(arrayAccess.BaseExpression);
-                            stack.Push(arrayAccess.IndexExpression);
-                        }
-                        else if (current is FunctionCallSyntaxBase funcCall)
-                        {
-                            foreach (var argument in funcCall.Arguments)
-                            {
-                                stack.Push(argument.Expression);
-                            }
-                        }
-                        else if (current is ParenthesizedExpressionSyntax paren)
-                        {
-                            stack.Push(paren.Expression);
-                        }
-                        else if (current is TernaryOperationSyntax ternary)
-                        {
-                            stack.Push(ternary.FalseExpression);
-                            stack.Push(ternary.TrueExpression);
-                            stack.Push(ternary.ConditionExpression);
-                        }
-                        else if (current is BinaryOperationSyntax binary)
-                        {
-                            stack.Push(binary.RightExpression);
-                            stack.Push(binary.LeftExpression);
-                        }
-                        else if (current is UnaryOperationSyntax unary)
-                        {
-                            stack.Push(unary.Expression);
-                        }
-                        else if (current is NonNullAssertionSyntax nonNull)
-                        {
-                            stack.Push(nonNull.BaseExpression);
-                        }
-                    }
+                    ProcessSyntaxForBinding(
+                        parentAssignment.DeclaringParameterAssignment.Value,
+                        parentAssignment.Context.Binder,
+                        baseBindings);
                 }
 
                 var inheritedVariables = fileScope.Locals.OfType<VariableSymbol>()
@@ -166,74 +99,10 @@ namespace Bicep.Core.Semantics
 
                 foreach (var inheritedVar in inheritedVariables)
                 {
-                    var stack = new Stack<SyntaxBase>();
-                    stack.Push(inheritedVar.DeclaringVariable.Value);
-                    while (stack.Count > 0)
-                    {
-                        var current = stack.Pop();
-                        if (current is VariableAccessSyntax || current == inheritedVar.DeclaringVariable.Value || current is PropertyAccessSyntax || current is ArrayAccessSyntax)
-                        {
-                            var parentSymbol = inheritedVar.Context.Binder.GetSymbolInfo(current);
-                            if (parentSymbol is not null && !baseBindings.ContainsKey(current))
-                            {
-                                baseBindings[current] = parentSymbol;
-                            }
-                        }
-
-                        if (current is ObjectSyntax obj)
-                        {
-                            foreach (var prop in obj.Properties)
-                            {
-                                stack.Push(prop.Value);
-                            }
-                        }
-                        else if (current is ArraySyntax arr)
-                        {
-                            foreach (var item in arr.Items)
-                            {
-                                stack.Push(item.Value);
-                            }
-                        }
-                        else if (current is PropertyAccessSyntax propAccess)
-                        {
-                            stack.Push(propAccess.BaseExpression);
-                        }
-                        else if (current is ArrayAccessSyntax arrayAccess)
-                        {
-                            stack.Push(arrayAccess.BaseExpression);
-                            stack.Push(arrayAccess.IndexExpression);
-                        }
-                        else if (current is FunctionCallSyntaxBase funcCall)
-                        {
-                            foreach (var argument in funcCall.Arguments)
-                            {
-                                stack.Push(argument.Expression);
-                            }
-                        }
-                        else if (current is ParenthesizedExpressionSyntax paren)
-                        {
-                            stack.Push(paren.Expression);
-                        }
-                        else if (current is TernaryOperationSyntax ternary)
-                        {
-                            stack.Push(ternary.FalseExpression);
-                            stack.Push(ternary.TrueExpression);
-                            stack.Push(ternary.ConditionExpression);
-                        }
-                        else if (current is BinaryOperationSyntax binary)
-                        {
-                            stack.Push(binary.RightExpression);
-                            stack.Push(binary.LeftExpression);
-                        }
-                        else if (current is UnaryOperationSyntax unary)
-                        {
-                            stack.Push(unary.Expression);
-                        }
-                        else if (current is NonNullAssertionSyntax nonNull)
-                        {
-                            stack.Push(nonNull.BaseExpression);
-                        }
-                    }
+                    ProcessSyntaxForBinding(
+                        inheritedVar.DeclaringVariable.Value,
+                        inheritedVar.Context.Binder,
+                        baseBindings);
                 }
             }
 
@@ -295,6 +164,49 @@ namespace Bicep.Core.Semantics
             closureCalculationStack.Pop();
 
             return builder.ToImmutable();
+        }
+
+        private void ProcessSyntaxForBinding(
+            SyntaxBase rootSyntax,
+            IBinder parentBinder,
+            IDictionary<SyntaxBase, Symbol> baseBindings)
+        {
+            var stack = new Stack<SyntaxBase>();
+            stack.Push(rootSyntax);
+
+            while (stack.Count > 0)
+            {
+                var current = stack.Pop();
+
+                if (current is VariableAccessSyntax || current == rootSyntax || current is PropertyAccessSyntax || current is ArrayAccessSyntax)
+                {
+                    var parentSymbol = parentBinder.GetSymbolInfo(current);
+                    if (parentSymbol is not null && !baseBindings.ContainsKey(current))
+                    {
+                        baseBindings[current] = parentSymbol;
+                    }
+                }
+
+                var childNodes = current switch
+                {
+                    ObjectSyntax obj => obj.Properties.Select(p => p.Value),
+                    ArraySyntax arr => arr.Items.Select(i => i.Value),
+                    PropertyAccessSyntax propAccess => [propAccess.BaseExpression],
+                    ArrayAccessSyntax arrayAccess => [arrayAccess.BaseExpression, arrayAccess.IndexExpression],
+                    FunctionCallSyntaxBase funcCall => funcCall.Arguments.Select(a => a.Expression),
+                    ParenthesizedExpressionSyntax paren => [paren.Expression],
+                    TernaryOperationSyntax ternary => [ternary.ConditionExpression, ternary.TrueExpression, ternary.FalseExpression],
+                    BinaryOperationSyntax binary => [binary.LeftExpression, binary.RightExpression],
+                    UnaryOperationSyntax unary => [unary.Expression],
+                    NonNullAssertionSyntax nonNull => [nonNull.BaseExpression],
+                    _ => []
+                };
+
+                foreach (var child in childNodes)
+                {
+                    stack.Push(child);
+                }
+            }
         }
     }
 }
