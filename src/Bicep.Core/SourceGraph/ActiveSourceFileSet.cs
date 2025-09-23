@@ -3,7 +3,6 @@
 using System.Collections;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using Bicep.Core.FileSystem;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.SourceGraph

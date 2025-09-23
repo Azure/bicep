@@ -11,7 +11,6 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Oci;

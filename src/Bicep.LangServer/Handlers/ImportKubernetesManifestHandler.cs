@@ -6,7 +6,6 @@ using System.Text;
 using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics.Namespaces;

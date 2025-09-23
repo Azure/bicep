@@ -9,7 +9,6 @@ using System.ServiceModel;
 using System.Text.Json;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
 using Bicep.Core.TypeSystem;
 using Bicep.IO.Abstraction;

@@ -7,7 +7,6 @@ using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core;
 using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
 using Bicep.IO.Abstraction;
 using Microsoft.Extensions.Logging;
 

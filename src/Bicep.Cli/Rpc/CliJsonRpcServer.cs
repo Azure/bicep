@@ -8,7 +8,6 @@ using Bicep.Cli.Helpers.Snapshot;
 using Bicep.Core;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrintV2;

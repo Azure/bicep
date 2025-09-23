@@ -4,7 +4,6 @@
 using Azure.ResourceManager;
 using Bicep.Core.AzureApi;
 using Bicep.Core;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
 using Bicep.Core.Tracing;
 using Bicep.LanguageServer.CompilationManager;

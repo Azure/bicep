@@ -8,7 +8,6 @@ using Bicep.Core;
 using Bicep.Core.Decompiler.Rewriters;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Rewriters;
 using Bicep.Core.Semantics;

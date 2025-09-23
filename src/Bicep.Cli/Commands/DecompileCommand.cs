@@ -5,7 +5,6 @@ using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core;
 using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
 using Bicep.Core.SourceGraph;
 using Bicep.Decompiler;
 using Bicep.IO.Abstraction;

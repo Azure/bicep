@@ -4,7 +4,6 @@
 using Bicep.Cli.Helpers;
 using Bicep.Core;
 using Bicep.Core.Emit.Options;
-using Bicep.Core.FileSystem;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Cli.Arguments

@@ -5,7 +5,6 @@ using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Emit.Options;
-using Bicep.Core.FileSystem;
 using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Utils;
