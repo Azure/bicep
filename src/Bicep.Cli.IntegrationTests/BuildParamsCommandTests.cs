@@ -6,6 +6,7 @@ using Azure;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Cli.Models;
 using Bicep.Cli.UnitTests.Assertions;
+using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
