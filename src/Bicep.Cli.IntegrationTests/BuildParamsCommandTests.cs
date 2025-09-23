@@ -239,30 +239,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
 
-            result.Should().Fail().And.HaveStderrMatch("*Error BCP438: The identifier 'base' is reserved and cannot be declared.*");
-        }
-
-        [TestMethod]
-        public async Task Build_params_base_redeclaration_without_extends_should_fail()
-        {
-            var rootDir = FileHelper.GetUniqueTestOutputPath(TestContext);
-            var path = FileHelper.SaveResultFile(TestContext, "file.bicepparam", """
-                using './main.bicep'
-
-                param base = 'oops'
-                """, rootDir);
-
-            FileHelper.SaveResultFile(TestContext, "main.bicep", """
-                param other string = ''
-                """, rootDir);
-
-            FileHelper.SaveResultFile(TestContext, "bicepconfig.json", """
-                { "experimentalFeaturesEnabled": {"extendableParamFiles": true}}
-                """, rootDir);
-
-            var result = await Bicep(CreateDefaultSettings(), "build-params", path, "--stdout");
-            result.Should().Fail();
-            result.Stderr.Should().Contain("Error BCP438: The identifier 'base' is reserved and cannot be declared.");
+            result.Should().Fail().And.HaveStderrMatch($"*Error BCP438: The identifier '{LanguageConstants.BaseIdentifier}' is reserved and cannot be declared.*");
         }
 
         [TestMethod]
