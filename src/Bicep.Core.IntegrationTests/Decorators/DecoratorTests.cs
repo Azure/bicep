@@ -82,12 +82,11 @@ param inputb string
             };
 
             var compilation = Services.BuildCompilation(files, mainUri);
-            var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.Uri, kvp => kvp.Value);
-            var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => !d.IsError());
+            var success = !compilation.HasErrors();
 
             using (new AssertionScope())
             {
-                diagnosticsByFile[mainUri].ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                compilation.GetSourceFileDiagnostics(mainUri).ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                     ("BCP126", DiagnosticLevel.Error, "Function \"maxLength\" cannot be used as a variable decorator."),
                     ("BCP127", DiagnosticLevel.Error, "Function \"allowed\" cannot be used as a resource decorator."),
                     ("BCP128", DiagnosticLevel.Error, "Function \"secure\" cannot be used as a module decorator."),
@@ -223,12 +222,11 @@ param inputb string
             };
 
             var compilation = Services.BuildCompilation(files, mainUri);
-            var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.Uri, kvp => kvp.Value);
-            var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => !d.IsError());
+            var success = !compilation.HasErrors();
 
             using (new AssertionScope())
             {
-                diagnosticsByFile[mainUri].ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                compilation.GetSourceFileDiagnostics(mainUri).ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                     ("BCP152", DiagnosticLevel.Error, "Function \"resourceId\" cannot be used as a decorator."),
                     ("BCP152", DiagnosticLevel.Error, "Function \"concat\" cannot be used as a decorator."),
                     ("BCP152", DiagnosticLevel.Error, "Function \"environment\" cannot be used as a decorator."),

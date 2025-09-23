@@ -17,6 +17,7 @@ using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+using Bicep.Core.Extensions;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -83,7 +84,9 @@ namespace Bicep.LanguageServer.Handlers
 
             if (request.parametersFilePath is { })
             {
-                if (PathHelper.HasBicepparamsExtension(DocumentUri.FromFileSystemPath(request.parametersFilePath).ToUriEncoded()))
+                var parametersDocumentUri = DocumentUri.FromFileSystemPath(request.parametersFilePath);
+
+                if (parametersDocumentUri.ToIOUri().HasBicepParamExtension())
                 {
                     //params file validation
                     if (request.parametersFileUpdateOption != ParametersFileUpdateOption.None)
@@ -181,8 +184,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (paramsResult.Parameters is null)
             {
-                var fileDiagnosticPair = KeyValuePair.Create(compilation.SourceFileGrouping.EntryPoint, paramsResult.Diagnostics[compilation.SourceFileGrouping.EntryPoint]);
-                return new BicepparamCompilationResult(false, DiagnosticsHelper.GetDiagnosticsMessage(fileDiagnosticPair));
+                return new BicepparamCompilationResult(false, DiagnosticsHelper.GetDiagnosticsMessage(paramsResult.Diagnostics));
             }
 
             return new BicepparamCompilationResult(true, paramsResult.Parameters);

@@ -61,12 +61,11 @@ namespace Bicep.LanguageServer.Handlers
 
             if (paramSemanticModel.HasErrors())
             {
-                var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().FirstOrDefault(x => x.Key.FileHandle.Uri.Equals(bicepParamFileUri));
+                var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile();
 
                 return "Building parameters file failed. Please fix below errors:\n" + DiagnosticsHelper.GetDiagnosticsMessage(diagnosticsByFile);
             }
 
-            var emitter = new TemplateEmitter(paramSemanticModel);
             using var fileStream = jsonParamFile.OpenWrite();
             var result = new ParametersEmitter(paramSemanticModel).Emit(fileStream);
 
