@@ -190,7 +190,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var result = await Bicep(CreateDefaultSettings(), "build-params", paramsPath, "--stdout");
 
-            result.Should().Fail().And.HaveStderrMatch("*Error BCP431: The identifier 'base' is only available in parameter files that declare an 'extends' clause.*");
+            result.Should().Fail().And.HaveStderrMatch($"*Error BCP437: The identifier '{LanguageConstants.BaseIdentifier}' is only available in parameter files that declare an '{LanguageConstants.ExtendsKeyword}' clause.*");
         }
 
         [TestMethod]
@@ -238,7 +238,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
 
-            result.Should().Fail().And.HaveStderrMatch("*Error BCP432: The identifier 'base' is reserved and cannot be declared.*");
+            result.Should().Fail().And.HaveStderrMatch("*Error BCP438: The identifier 'base' is reserved and cannot be declared.*");
         }
 
         [TestMethod]
@@ -261,7 +261,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var result = await Bicep(CreateDefaultSettings(), "build-params", path, "--stdout");
             result.Should().Fail();
-            result.Stderr.Should().Contain("Error BCP432: The identifier 'base' is reserved and cannot be declared.");
+            result.Stderr.Should().Contain("Error BCP438: The identifier 'base' is reserved and cannot be declared.");
         }
 
         [TestMethod]

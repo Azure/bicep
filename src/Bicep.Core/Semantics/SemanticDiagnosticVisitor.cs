@@ -110,10 +110,12 @@ namespace Bicep.Core.Semantics
                         this.diagnosticWriter.Write(access.Name, x => x.BaseIdentifierNotAvailableWithoutExtends());
                     }
                 }
-
-                foreach (var decl in symbol.Declarations.Where(d => string.Equals(d.Name, LanguageConstants.BaseIdentifier, LanguageConstants.IdentifierComparison) && d is not BaseParametersSymbol))
+                else
                 {
-                    this.diagnosticWriter.Write(decl.DeclaringSyntax, x => x.BaseIdentifierRedeclared());
+                    foreach (var decl in symbol.Declarations.Where(d => string.Equals(d.Name, LanguageConstants.BaseIdentifier, LanguageConstants.IdentifierComparison) && d is not BaseParametersSymbol))
+                    {
+                        this.diagnosticWriter.Write(decl.DeclaringSyntax, x => x.BaseIdentifierRedeclared());
+                    }
                 }
             }
         }
