@@ -2430,6 +2430,9 @@ namespace Bicep.Core.TypeSystem
                     case WildcardImportSymbol wildcardImport:
                         return wildcardImport.Type;
 
+                    case BaseParametersSymbol baseParameters:
+                        return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, baseParameters));
+
                     default:
                         return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAVariableOrParameter(syntax.Name.IdentifierName));
                 }
