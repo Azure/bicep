@@ -7,7 +7,6 @@ using Bicep.Core;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.AzureApi;
 using Bicep.Core.Registry.Catalog.Implementation;

@@ -8,7 +8,6 @@ using Bicep.Cli.Helpers.Snapshot;
 using Bicep.Core;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrintV2;
@@ -79,7 +78,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
 
         paramFile = ParamsFileHelper.ApplyParameterOverrides(compilation.SourceFileFactory, paramFile, request.ParameterOverrides);
 
-        var workspace = new Workspace();
+        var workspace = new ActiveSourceFileSet();
         workspace.UpsertSourceFile(paramFile);
         compilation = await compiler.CreateCompilation(paramFile.FileHandle.Uri, workspace);
         var paramsResult = compilation.Emitter.Parameters();

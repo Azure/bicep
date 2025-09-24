@@ -26,9 +26,9 @@ namespace Bicep.LangServer.UnitTests
     {
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
 
-        public static BicepCompilationManager CreateCompilationManager(DocumentUri documentUri, string fileContents, bool upsertCompilation = false, IWorkspace? workspace = null, IConfigurationManager? configurationManager = null)
+        public static BicepCompilationManager CreateCompilationManager(DocumentUri documentUri, string fileContents, bool upsertCompilation = false, IActiveSourceFileSet? workspace = null, IConfigurationManager? configurationManager = null)
         {
-            workspace ??= new Workspace();
+            workspace ??= new ActiveSourceFileSet();
             PublishDiagnosticsParams? receivedParams = null;
             var document = CreateMockDocument(p => receivedParams = p);
             var server = CreateMockServer(document);
@@ -43,7 +43,7 @@ namespace Bicep.LangServer.UnitTests
             return bicepCompilationManager;
         }
 
-        public static BicepCompilationManager CreateCompilationManager(ILanguageServerFacade server, IWorkspace workspace, IConfigurationManager configurationManager)
+        public static BicepCompilationManager CreateCompilationManager(ILanguageServerFacade server, IActiveSourceFileSet workspace, IConfigurationManager configurationManager)
         {
             var helper = ServiceBuilder.Create(services => services
                 .AddSingleton<ILanguageServerFacade>(server)
@@ -51,7 +51,7 @@ namespace Bicep.LangServer.UnitTests
                 .AddSingleton(CreateMockScheduler().Object)
                 .AddSingleton(BicepTestConstants.CreateMockTelemetryProvider().Object)
                 .AddSingleton<ICompilationProvider, BicepCompilationProvider>()
-                .AddSingleton<IWorkspace>(workspace)
+                .AddSingleton<IActiveSourceFileSet>(workspace)
                 .WithConfigurationManager(configurationManager)
                 .WithFeatureOverrides(new FeatureProviderOverrides(
                     // This is necessary to avoid hard-coding a particular version number into a compiled template

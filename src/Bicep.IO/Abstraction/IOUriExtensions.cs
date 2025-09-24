@@ -70,6 +70,8 @@ namespace Bicep.IO.Abstraction
             return actualExtension.Equals(extension, StringComparison.OrdinalIgnoreCase);
         }
 
+        public static IOUri WithPath(this IOUri uri, string path) => new(uri.Scheme, uri.Authority, path, uri.Query, uri.Fragment);
+
         private static int GetExtensionStartIndex(string path)
         {
             for (int i = path.Length - 1; i >= 0; i--)

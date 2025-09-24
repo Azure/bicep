@@ -8,7 +8,6 @@ using Azure.Deployments.Templates.Engines;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Text;
 using Bicep.IO.Abstraction;

@@ -76,13 +76,10 @@ namespace Bicep.LanguageServer.Handlers
 
         private string GetCompiledFile(Compilation compilation, DocumentUri documentUri)
         {
-            var fileUri = documentUri.ToIOUri();
-
-            var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile()
-                .FirstOrDefault(x => x.Key.FileHandle.Uri == fileUri);
-
-            if (diagnosticsByFile.Value.Any(x => x.IsError()))
+            if (compilation.HasErrors())
             {
+                var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile();
+
                 throw new Exception(DiagnosticsHelper.GetDiagnosticsMessage(diagnosticsByFile));
             }
 

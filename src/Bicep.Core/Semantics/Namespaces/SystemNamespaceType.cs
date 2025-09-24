@@ -2355,7 +2355,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 return new(errorBuilder(DiagnosticBuilder.ForPosition(directoryPathArgument.syntax)));
             }
 
-            var thisFileUri = model.SourceFile.Uri.ToIOUri();
+            var thisFileUri = model.SourceFile.FileHandle.Uri;
             return new(directoryFiles.Select(uri =>
             {
                 var baseName = uri.GetFileName();

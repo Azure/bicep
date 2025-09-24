@@ -48,7 +48,7 @@ namespace Bicep.TextFixtures.Utils
                 .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
                 .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
                 .AddSingleton<ISourceFileFactory, SourceFileFactory>()
-                .AddSingleton<IWorkspace, Workspace>()
+                .AddSingleton<IActiveSourceFileSet, ActiveSourceFileSet>()
                 .AddRegistryCatalogServices()
                 .AddSingleton<BicepCompiler>()
                 .AddSingleton<BicepDecompiler>();

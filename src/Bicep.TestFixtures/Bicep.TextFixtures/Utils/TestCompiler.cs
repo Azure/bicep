@@ -4,8 +4,6 @@
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core;
 using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
-using Bicep.IO.FileSystem;
 using Bicep.IO.InMemory;
 using Bicep.TextFixtures.IO;
 

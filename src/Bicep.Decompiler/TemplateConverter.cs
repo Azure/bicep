@@ -33,13 +33,13 @@ namespace Bicep.Decompiler
 
         private ISourceFileFactory sourceFileFactory;
         private INamingResolver nameResolver;
-        private readonly Workspace workspace;
+        private readonly ActiveSourceFileSet workspace;
         private readonly IOUri bicepFileUri;
         private readonly JObject template;
         private readonly Dictionary<ModuleDeclarationSyntax, IOUri> jsonTemplateUrisByModule;
         private readonly DecompileOptions options;
 
-        private TemplateConverter(ISourceFileFactory sourceFileFactory, Workspace workspace, IOUri bicepFileUri, JObject template, Dictionary<ModuleDeclarationSyntax, IOUri> jsonTemplateUrisByModule, DecompileOptions options)
+        private TemplateConverter(ISourceFileFactory sourceFileFactory, ActiveSourceFileSet workspace, IOUri bicepFileUri, JObject template, Dictionary<ModuleDeclarationSyntax, IOUri> jsonTemplateUrisByModule, DecompileOptions options)
         {
             this.sourceFileFactory = sourceFileFactory;
             this.workspace = workspace;
@@ -52,7 +52,7 @@ namespace Bicep.Decompiler
 
         public static (ProgramSyntax programSyntax, IReadOnlyDictionary<ModuleDeclarationSyntax, IOUri> jsonTemplateUrisByModule) DecompileTemplate(
             ISourceFileFactory sourceFileFactory,
-            Workspace workspace,
+            ActiveSourceFileSet workspace,
             IOUri bicepFileUri,
             string content,
             DecompileOptions options)
@@ -72,7 +72,7 @@ namespace Bicep.Decompiler
 
         public static SyntaxBase? DecompileJsonValue(
             ISourceFileFactory sourceFileFactory,
-            Workspace workspace,
+            ActiveSourceFileSet workspace,
             IOUri bicepFileUri,
             string jsonInput,
             DecompileOptions options)
@@ -1443,7 +1443,7 @@ namespace Bicep.Decompiler
                 var filePath = $"./nested_{identifier}.bicep";
                 var nestedModuleUri = bicepFileUri.Resolve(filePath);
 
-                if (workspace.TryGetSourceFile(nestedModuleUri.ToUri(), out _))
+                if (workspace.TryGetSourceFile(nestedModuleUri) is not null)
                 {
                     throw new ConversionFailedException($"Unable to generate duplicate module to path ${nestedModuleUri} for {typeString} {nameString}", nestedTemplate);
                 }

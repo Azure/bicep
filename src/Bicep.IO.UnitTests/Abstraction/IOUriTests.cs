@@ -196,6 +196,9 @@ namespace Bicep.IO.UnitTests.Abstraction
         [DataRow("http", "example.com", "/a/b", "/a/b/../c", false)]
         [DataRow("http", "example.com", "/a/b", "/a/b/./c", true)]
         [DataRow("http", "example.com", "/a/b", "/a/b/c/..", true)]
+        [DataRow("http", "example.com", "/a/b/", "/a/b", false)]
+        [DataRow("http", "example.com", "/a/b/", "/a/b/", true)]
+        [DataRow("http", "example.com", "/a/b", "/a/b/", true)]
         public void IsBaseOf_ValidPaths_ReturnsExpectedResult(string scheme, string authority, string basePath, string otherPath, bool expectedResult)
         {
             // Arrange.

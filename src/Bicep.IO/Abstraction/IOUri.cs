@@ -162,6 +162,11 @@ namespace Bicep.IO.Abstraction
                 return false;
             }
 
+            if (this.Path.Length > other.Path.Length)
+            {
+                return false;
+            }
+
             var thisPathSegments = this.PathSegments;
             var otherPathSegments = other.PathSegments;
 

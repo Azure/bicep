@@ -5,7 +5,6 @@ using System.Collections.Immutable;
 using System.IO.Abstractions;
 using Bicep.Cli.Extensions;
 using Bicep.Cli.Helpers;
-using Bicep.Core.FileSystem;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.IO.Abstraction;
 

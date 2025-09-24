@@ -1,28 +1,26 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using Bicep.Core.FileSystem;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.SourceGraph
 {
     /// <summary>
     /// Represents the active set of files and shared data that can be utilized to compile one or more bicep files.
     /// </summary>
-    public class Workspace : IWorkspace
+    public class ActiveSourceFileSet : IActiveSourceFileSet
     {
-        private readonly IDictionary<Uri, ISourceFile> activeFiles = new Dictionary<Uri, ISourceFile>();
+        private readonly Dictionary<IOUri, ISourceFile> activeFiles = [];
 
-        public bool TryGetSourceFile(Uri fileUri, [NotNullWhen(true)] out ISourceFile? file)
-            => activeFiles.TryGetValue(fileUri, out file);
+        public ISourceFile? TryGetSourceFile(IOUri fileUri) => activeFiles.TryGetValue(fileUri, out var file) ? file : null;
 
-        public IEnumerable<ISourceFile> GetSourceFilesForDirectory(Uri fileUri)
-            => activeFiles
-                .Where(kvp => PathHelper.IsSubPathOf(fileUri, kvp.Key))
-                .Select(kvp => kvp.Value);
+        public bool HasSourceFile(IOUri fileUri) => activeFiles.ContainsKey(fileUri);
 
-        public ImmutableDictionary<Uri, ISourceFile> GetActiveSourceFilesByUri()
-            => activeFiles.ToImmutableDictionary();
+        public IEnumerator<ISourceFile> GetEnumerator() => activeFiles.Values.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
         public (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpsertSourceFiles(IEnumerable<ISourceFile> files)
         {
@@ -31,7 +29,7 @@ namespace Bicep.Core.SourceGraph
 
             foreach (var newFile in files)
             {
-                if (activeFiles.TryGetValue(newFile.Uri, out var oldFile))
+                if (activeFiles.TryGetValue(newFile.FileHandle.Uri, out var oldFile))
                 {
                     if (oldFile == newFile)
                     {
@@ -43,7 +41,7 @@ namespace Bicep.Core.SourceGraph
 
                 added.Add(newFile);
 
-                activeFiles[newFile.Uri] = newFile;
+                activeFiles[newFile.FileHandle.Uri] = newFile;
             }
 
             return (added.ToImmutableArray(), removed.ToImmutableArray());
@@ -53,9 +51,9 @@ namespace Bicep.Core.SourceGraph
         {
             foreach (var file in files)
             {
-                if (activeFiles.TryGetValue(file.Uri, out var treeToRemove) && treeToRemove == file)
+                if (activeFiles.TryGetValue(file.FileHandle.Uri, out var treeToRemove) && treeToRemove == file)
                 {
-                    activeFiles.Remove(file.Uri);
+                    activeFiles.Remove(file.FileHandle.Uri);
                 }
             }
         }

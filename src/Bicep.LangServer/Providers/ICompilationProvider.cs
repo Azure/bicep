@@ -10,8 +10,8 @@ namespace Bicep.LanguageServer.Providers
 {
     public interface ICompilationProvider
     {
-        CompilationContext Create(IReadOnlyWorkspace workspace, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup);
+        CompilationContext Create(IActiveSourceFileLookup workspace, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup);
 
-        CompilationContext Update(IReadOnlyWorkspace workspace, CompilationContext current, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup);
+        CompilationContext Update(IActiveSourceFileLookup workspace, CompilationContext current, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup);
     }
 }

@@ -11,6 +11,7 @@ using Bicep.Cli.Helpers;
 using Bicep.Cli.Helpers.Deploy;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
+using Bicep.Core;
 using Bicep.Core.Emit;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Features;
@@ -42,9 +43,8 @@ namespace Bicep.Cli
         public static async Task<int> Main(string[] args)
             => await RunWithCancellationAsync(async cancellationToken =>
             {
-                string profilePath = DirHelper.GetTempPath();
-                ProfileOptimization.SetProfileRoot(profilePath);
-                ProfileOptimization.StartProfile("bicep.profile");
+                StartProfile();
+
                 Console.OutputEncoding = TemplateEmitter.UTF8EncodingWithoutBom;
 
                 if (FeatureProvider.TracingEnabled)
@@ -191,7 +191,19 @@ namespace Bicep.Cli
                     Interactive = InteractionSupport.Detect,
                     Out = new AnsiConsoleOutput(io.Output),
                 }))
-                .AddSingleton<DeploymentRenderer>()
-                .AddSingleton<IDeploymentProcessor, DeploymentProcessor>();
+                .AddSingleton<IDeploymentProcessor, DeploymentProcessor>()
+                .AddSingleton<DeploymentRenderer>();
+
+        // This logic is duplicated in Bicep.Cli. We avoid placing it in Bicep.Core
+        // to keep Bicep.Core free of System.IO dependencies. Consider moving this
+        // and other components shared between the CLI and Language Server to a
+        // separate project, such as Bicep.Hosting.
+        private static void StartProfile()
+        {
+            string profilePath = Path.Combine(Path.GetTempPath(), LanguageConstants.LanguageFileExtension); // bicep extension as a hidden folder name
+            Directory.CreateDirectory(profilePath);
+            ProfileOptimization.SetProfileRoot(profilePath);
+            ProfileOptimization.StartProfile("bicep.profile");
+        }
     }
 }
