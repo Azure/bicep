@@ -155,7 +155,7 @@ param intParam constrainedInt
             ("BCP308", DiagnosticLevel.Error, "The decorator \"maxValue\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"minLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"maxLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
-            ("BCP437", DiagnosticLevel.Error, "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type."),
+            ("BCP439", DiagnosticLevel.Error, "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"allowed\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("no-unused-params", DiagnosticLevel.Warning, "Parameter \"stringParam\" is declared but never used."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"minValue\" may not be used on statements whose declared type is a reference to a user-defined type."),
@@ -1996,8 +1996,8 @@ param myParam string
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
         [
-            ("BCP437", DiagnosticLevel.Error, "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type."),
-            ("BCP437", DiagnosticLevel.Error, "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type."),
+            ("BCP439", DiagnosticLevel.Error, "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type."),
+            ("BCP439", DiagnosticLevel.Error, "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type."),
         ]);
     }
 }

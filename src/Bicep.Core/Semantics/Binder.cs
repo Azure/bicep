@@ -40,28 +40,74 @@ namespace Bicep.Core.Semantics
             this.NamespaceResolver = NamespaceResolver.Create(namespaceResults);
 
             var fileScope = DeclarationVisitor.GetDeclarations(namespaceResults, sourceFile, symbolContext);
-            this.Bindings = NameBindingVisitor.GetBindings(sourceFile.ProgramSyntax, NamespaceResolver, fileScope);
-            this.cyclesBySymbol = CyclicCheckVisitor.FindCycles(sourceFile.ProgramSyntax, this.Bindings);
 
-            var extendsDeclarations = sourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>();
+            // Process extends & synthesize 'base' BEFORE name binding so variable accesses to 'base' bind correctly.
+            var extendsDeclarations = sourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>().ToImmutableArray();
+            bool hasExtends = extendsDeclarations.Any();
+            var parentParameterAssignments = ImmutableArray<ParameterAssignmentSymbol>.Empty;
 
-            foreach (var extendsDeclaration in extendsDeclarations)
+            if (hasExtends)
             {
-                if (sourceFileLookup.TryGetSourceFile(extendsDeclaration).TryUnwrap() is { } extendedFile &&
-                    modelLookup.GetSemanticModel(extendedFile) is SemanticModel extendedModel)
+                foreach (var extendsDeclaration in extendsDeclarations)
                 {
-                    var parameterAssignments = ImmutableArray<ParameterAssignmentSymbol>.Empty;
-                    foreach (var assignment in extendedModel.Root.ParameterAssignments)
+                    if (!(sourceFileLookup.TryGetSourceFile(extendsDeclaration).TryUnwrap() is { } extendedFile &&
+                        modelLookup.GetSemanticModel(extendedFile) is SemanticModel extendedModel))
                     {
-                        if (!fileScope.Locals.Any(e => e.Name == assignment.Name))
+                        continue;
+                    }
+
+                    var allParentAssignments = extendedModel.Root.ParameterAssignments;
+                    foreach (var assignment in allParentAssignments)
+                    {
+                        if (!parentParameterAssignments.Any(a => string.Equals(a.Name, assignment.Name, LanguageConstants.IdentifierComparison)))
                         {
-                            parameterAssignments = parameterAssignments.Add(assignment);
+                            parentParameterAssignments = parentParameterAssignments.Add(assignment);
                         }
                     }
 
-                    fileScope = fileScope.ReplaceLocals(fileScope.Locals.AddRange(parameterAssignments));
+                    var parentVariables = extendedModel.Root.VariableDeclarations.OfType<VariableSymbol>().ToImmutableArray();
+
+                    var nonConflicting = allParentAssignments.Where(a => !fileScope.Locals.Any(e => string.Equals(e.Name, a.Name, LanguageConstants.IdentifierComparison)));
+                    fileScope = fileScope.ReplaceLocals(fileScope.Locals.AddRange(nonConflicting));
+
+                    var nonConflictingVars = parentVariables.Where(v => !fileScope.Locals.Any(e => string.Equals(e.Name, v.Name, LanguageConstants.IdentifierComparison)));
+                    fileScope = fileScope.ReplaceLocals(fileScope.Locals.AddRange(nonConflictingVars));
+                }
+
+                if (parentParameterAssignments.Any())
+                {
+                    var localsWithoutOldBase = fileScope.Locals.Where(l => l is not BaseParametersSymbol).ToImmutableArray();
+                    fileScope = fileScope.ReplaceLocals(localsWithoutOldBase.Add(new BaseParametersSymbol(symbolContext, parentParameterAssignments)));
                 }
             }
+
+            var baseBindings = NameBindingVisitor.GetBindings(sourceFile.ProgramSyntax, NamespaceResolver, fileScope).ToBuilder();
+
+            if (hasExtends && parentParameterAssignments.Any())
+            {
+                foreach (var parentAssignment in parentParameterAssignments)
+                {
+                    ProcessSyntaxForBinding(
+                        parentAssignment.DeclaringParameterAssignment.Value,
+                        parentAssignment.Context.Binder,
+                        baseBindings);
+                }
+
+                var inheritedVariables = fileScope.Locals.OfType<VariableSymbol>()
+                    .Where(v => !ReferenceEquals(v.Context.SourceFile, sourceFile))
+                    .ToImmutableArray();
+
+                foreach (var inheritedVar in inheritedVariables)
+                {
+                    ProcessSyntaxForBinding(
+                        inheritedVar.DeclaringVariable.Value,
+                        inheritedVar.Context.Binder,
+                        baseBindings);
+                }
+            }
+
+            this.Bindings = baseBindings.ToImmutable();
+            this.cyclesBySymbol = CyclicCheckVisitor.FindCycles(sourceFile.ProgramSyntax, this.Bindings);
 
             this.FileSymbol = new FileSymbol(
                 symbolContext,
@@ -118,6 +164,49 @@ namespace Bicep.Core.Semantics
             closureCalculationStack.Pop();
 
             return builder.ToImmutable();
+        }
+
+        private void ProcessSyntaxForBinding(
+            SyntaxBase rootSyntax,
+            IBinder parentBinder,
+            IDictionary<SyntaxBase, Symbol> baseBindings)
+        {
+            var stack = new Stack<SyntaxBase>();
+            stack.Push(rootSyntax);
+
+            while (stack.Count > 0)
+            {
+                var current = stack.Pop();
+
+                if (current is VariableAccessSyntax || current == rootSyntax || current is PropertyAccessSyntax || current is ArrayAccessSyntax)
+                {
+                    var parentSymbol = parentBinder.GetSymbolInfo(current);
+                    if (parentSymbol is not null && !baseBindings.ContainsKey(current))
+                    {
+                        baseBindings[current] = parentSymbol;
+                    }
+                }
+
+                var childNodes = current switch
+                {
+                    ObjectSyntax obj => obj.Properties.Select(p => p.Value),
+                    ArraySyntax arr => arr.Items.Select(i => i.Value),
+                    PropertyAccessSyntax propAccess => [propAccess.BaseExpression],
+                    ArrayAccessSyntax arrayAccess => [arrayAccess.BaseExpression, arrayAccess.IndexExpression],
+                    FunctionCallSyntaxBase funcCall => funcCall.Arguments.Select(a => a.Expression),
+                    ParenthesizedExpressionSyntax paren => [paren.Expression],
+                    TernaryOperationSyntax ternary => [ternary.ConditionExpression, ternary.TrueExpression, ternary.FalseExpression],
+                    BinaryOperationSyntax binary => [binary.LeftExpression, binary.RightExpression],
+                    UnaryOperationSyntax unary => [unary.Expression],
+                    NonNullAssertionSyntax nonNull => [nonNull.BaseExpression],
+                    _ => []
+                };
+
+                foreach (var child in childNodes)
+                {
+                    stack.Push(child);
+                }
+            }
         }
     }
 }

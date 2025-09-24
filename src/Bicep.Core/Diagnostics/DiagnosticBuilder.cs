@@ -1989,8 +1989,16 @@ namespace Bicep.Core.Diagnostics
                 "BCP436",
                 $"Expected the \"with\" keyword or a new line character at this location.");
 
-            public Diagnostic SecureDecoratorOnlyAllowedOnStringsAndObjects() => CoreError(
+            public Diagnostic BaseIdentifierNotAvailableWithoutExtends() => CoreError(
                 "BCP437",
+                $"The identifier '{LanguageConstants.BaseIdentifier}' is only available in parameter files that declare an '{LanguageConstants.ExtendsKeyword}' clause.");
+
+            public Diagnostic BaseIdentifierRedeclared() => CoreError(
+                "BCP438",
+                $"The identifier '{LanguageConstants.BaseIdentifier}' is reserved and cannot be declared.");
+
+            public Diagnostic SecureDecoratorOnlyAllowedOnStringsAndObjects() => CoreError(
+                "BCP439",
                 "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type.");
         }
 
