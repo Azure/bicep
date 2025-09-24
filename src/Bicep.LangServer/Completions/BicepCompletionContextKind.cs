@@ -263,5 +263,15 @@ namespace Bicep.LanguageServer.Completions
         /// The location immediately after a name in a variable declaration.
         /// </summary>
         VariableNameFollower = 1UL << 48,
+
+        /// <summary>
+        /// We're at this place: 'using 'main.bicep' |'
+        /// </summary>
+        UsingFollower = 1UL << 49,
+
+        /// <summary>
+        /// We're at this place: 'using 'main.bicep' with |'
+        /// </summary>
+        UsingWithFollower = 1UL << 50,
     }
 }
