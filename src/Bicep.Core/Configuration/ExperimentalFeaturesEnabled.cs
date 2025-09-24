@@ -23,7 +23,6 @@ public record ExperimentalFeaturesEnabled(
     bool ResourceInfoCodegen,
     bool ModuleExtensionConfigs,
     bool DesiredStateConfiguration,
-    bool OnlyIfNotExists,
     bool UserDefinedConstraints,
     bool DeployCommands)
 {
@@ -46,7 +45,6 @@ public record ExperimentalFeaturesEnabled(
         ResourceInfoCodegen: false,
         ModuleExtensionConfigs: false,
         DesiredStateConfiguration: false,
-        OnlyIfNotExists: false,
         UserDefinedConstraints: false,
         DeployCommands: false);
 }

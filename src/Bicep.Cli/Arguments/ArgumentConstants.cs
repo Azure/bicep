@@ -11,4 +11,5 @@ public static class ArgumentConstants
     public const string DiagnosticsFormat = "--diagnostics-format";
     public const string Mode = "--mode";
     public const string CliArgPrefix = "--arg-";
+    public const string OutputFormat = "--format";
 }

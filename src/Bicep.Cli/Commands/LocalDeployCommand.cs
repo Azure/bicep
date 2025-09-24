@@ -1,22 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure.Deployments.Core.Definitions;
-using Azure.Deployments.Core.Json;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
+using Bicep.Cli.Helpers.Deploy;
 using Bicep.Cli.Logging;
 using Bicep.Core;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
-using Bicep.Local.Deploy;
 using Bicep.Local.Deploy.Extensibility;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace Bicep.Cli.Commands;
 
 public class LocalDeployCommand(
-    IOContext io,
+    DeploymentRenderer deploymentRenderer,
     ILogger logger,
     DiagnosticLogger diagnosticLogger,
     BicepCompiler compiler,
@@ -53,42 +51,27 @@ public class LocalDeployCommand(
             return 1;
         }
 
+        var success = await deploymentRenderer.RenderDeployment(
+            DeploymentRenderer.RefreshInterval,
+            (onUpdate) => ProcessDeployment(compilation, templateString, parametersString, onUpdate, cancellationToken),
+            args.OutputFormat ?? DeploymentOutputFormat.Default,
+            cancellationToken);
 
-        // this using block is intentional to ensure that the dispatcher completes running before we write the summary
-        LocalDeploymentResult result;
-        await using (var dispatcher = dispatcherFactory.Create())
-        {
-            await dispatcher.InitializeExtensions(compilation);
-            result = await dispatcher.Deploy(templateString, parametersString, cancellationToken);
-        }
-
-        await WriteSummary(io, result);
-        return result.Deployment.Properties.ProvisioningState == ProvisioningState.Succeeded ? 0 : 1;
+        return success ? 0 : 1;
     }
 
-    public static async Task WriteSummary(IOContext io, LocalDeploymentResult result)
+    private async Task ProcessDeployment(Compilation compilation, string templateString, string parametersString, Action<DeploymentWrapperView> onUpdate, CancellationToken cancellationToken)
     {
-        if (result.Deployment.Properties.Outputs is { } outputs)
+        try
         {
-            foreach (var output in outputs)
-            {
-                await io.Output.WriteLineAsync($"Output {output.Key}: {JsonConvert.SerializeObject(output.Value.Value, Formatting.Indented, SerializerSettings.SerializerObjectTypeSettings)}");
-            }
-        }
+            await using var dispatcher = dispatcherFactory.Create();
 
-        if (result.Deployment.Properties.Error is { } error)
+            await dispatcher.InitializeExtensions(compilation);
+            await dispatcher.Deploy(templateString, parametersString, result => onUpdate(new(DeploymentProcessor.GetDeploymentView(result.Deployment, result.Operations), null)), cancellationToken);
+        }
+        catch (Exception exception)
         {
-            foreach (var subError in error.Details)
-            {
-                await io.Output.WriteLineAsync($"Error: {subError.Code} - {subError.Message}");
-            }
+            onUpdate(new(null, exception.Message));
         }
-
-        foreach (var operation in result.Operations)
-        {
-            await io.Output.WriteLineAsync($"Resource {operation.Properties.TargetResource.SymbolicName} ({operation.Properties.ProvisioningOperation}): {operation.Properties.ProvisioningState}");
-        }
-
-        await io.Output.WriteLineAsync($"Result: {result.Deployment.Properties.ProvisioningState}");
     }
 }

@@ -5,6 +5,11 @@ namespace Bicep.Cli.Arguments;
 
 public abstract class DeployArgumentsBase : ArgumentsBase, IInputArguments
 {
+    protected virtual void ParseAdditionalArgument(string[] args, ref int i)
+    {
+        throw new CommandLineException($"Unrecognized parameter \"{args[i]}\"");
+    }
+
     public DeployArgumentsBase(string[] args, string commandName) : base(commandName)
     {
         for (var i = 0; i < args.Length; i++)
@@ -30,7 +35,8 @@ public abstract class DeployArgumentsBase : ArgumentsBase, IInputArguments
                 default:
                     if (args[i].StartsWith("--"))
                     {
-                        throw new CommandLineException($"Unrecognized parameter \"{args[i]}\"");
+                        ParseAdditionalArgument(args, ref i);
+                        break;
                     }
                     if (InputFile is not null)
                     {

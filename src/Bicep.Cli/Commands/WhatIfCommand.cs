@@ -4,11 +4,10 @@
 using Azure.Core;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Core.Entities;
-using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
 using Bicep.Cli.Arguments;
-using Bicep.Cli.Commands.Helpers.Deploy;
+using Bicep.Cli.Helpers.Deploy;
 using Bicep.Cli.Helpers.Snapshot;
 using Bicep.Cli.Helpers.WhatIf;
 using Bicep.Cli.Logging;
@@ -32,6 +31,7 @@ public class WhatIfCommand : DeploymentsCommandsBase<WhatIfArguments>
     private readonly IOContext io;
     private readonly ILogger logger;
     private readonly IEnvironment environment;
+    private readonly IDeploymentProcessor deploymentProcessor;
     private readonly IArmClientProvider armClientProvider;
     private readonly DiagnosticLogger diagnosticLogger;
     private readonly BicepCompiler compiler;
@@ -40,6 +40,7 @@ public class WhatIfCommand : DeploymentsCommandsBase<WhatIfArguments>
         IOContext io,
         ILogger logger,
         IEnvironment environment,
+        IDeploymentProcessor deploymentProcessor,
         IArmClientProvider armClientProvider,
         DiagnosticLogger diagnosticLogger,
         BicepCompiler compiler,
@@ -48,16 +49,17 @@ public class WhatIfCommand : DeploymentsCommandsBase<WhatIfArguments>
         this.io = io;
         this.logger = logger;
         this.environment = environment;
+        this.deploymentProcessor = deploymentProcessor;
         this.armClientProvider = armClientProvider;
         this.diagnosticLogger = diagnosticLogger;
         this.compiler = compiler;
     }
 
-    protected override async Task<int> RunInternal(WhatIfArguments args, Compilation compilation, SemanticModel model, ParametersResult parameters, CancellationToken cancellationToken)
+    protected override async Task<int> RunInternal(WhatIfArguments args, Compilation compilation, SemanticModel model, ParametersResult result, CancellationToken cancellationToken)
     {
-        var armClient = armClientProvider.CreateArmClient(model.Configuration, null);
+        var config = await DeploymentProcessor.GetDeployCommandsConfig(environment, args.AdditionalArguments, result, model.TargetScope);
 
-        await WhatIf(armClient, args, parameters, cancellationToken);
+        await WhatIf(model, config, cancellationToken);
 
         return 0;
     }
@@ -133,29 +135,11 @@ public class WhatIfCommand : DeploymentsCommandsBase<WhatIfArguments>
         return hasFailures ? 1 : 0;
     }
 
-    private async Task WhatIf(ArmClient armClient, WhatIfArguments args, ParametersResult result, CancellationToken cancellationToken)
+    private async Task WhatIf(SemanticModel model, DeployCommandsConfig config, CancellationToken cancellationToken)
     {
-        var (template, parameters, config) = await DeploymentProcessor.GetDeployCommandsConfig(environment, args.AdditionalArguments, result);
-        var deploymentName = config.Name ?? "main";
+        var result = await deploymentProcessor.WhatIf(model.Configuration, config, cancellationToken);
 
-        if (config.StacksConfig is { })
-        {
-            throw new CommandLineException("What-If analysis is not currently supported for stack deployments.");
-        }
-
-        var deploymentResource = armClient.GetArmDeploymentResource(new ResourceIdentifier($"{config.Scope}/providers/Microsoft.Resources/deployments/{deploymentName}"));
-        var paramsDefinition = parameters.FromJson<DeploymentParametersDefinition>();
-        var deploymentProperties = new ArmDeploymentWhatIfProperties(ArmDeploymentMode.Incremental)
-        {
-            Template = BinaryData.FromString(template),
-            Parameters = BinaryData.FromString(paramsDefinition.Parameters.ToJson()),
-        };
-        var armDeploymentContent = new ArmDeploymentWhatIfContent(deploymentProperties);
-
-        var response = await deploymentResource.WhatIfAsync(Azure.WaitUntil.Completed, armDeploymentContent, cancellationToken);
-
-        var definition = response.GetRawResponse().Content.ToString().FromJson<DeploymentWhatIfResponseDefinition>();
-        var changes = definition.Properties.Changes.Where(x => x.ChangeType != DeploymentWhatIfChangeType.Ignore);
+        var changes = result.Properties.Changes.Where(x => x.ChangeType != DeploymentWhatIfChangeType.Ignore);
 
         await io.Output.WriteAsync(WhatIfOperationResultFormatter.Format([..changes]));
     }

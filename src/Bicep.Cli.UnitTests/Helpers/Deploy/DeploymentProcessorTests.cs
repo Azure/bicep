@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 using Azure.Deployments.Extensibility.Core.V2.Models;
 using Azure.ResourceManager.Resources.Models;
 using Bicep.Cli.Arguments;
-using Bicep.Cli.Commands.Helpers.Deploy;
+using Bicep.Cli.Helpers.Deploy;
 using Bicep.Cli.Helpers.WhatIf;
 using Bicep.Cli.Services;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
@@ -21,7 +22,7 @@ using Json.Path;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Bicep.Cli.UnitTests.Helpers.WhatIf;
+namespace Bicep.Cli.UnitTests.Helpers.Deploy;
 
 [TestClass]
 public class DeploymentProcessorTests
@@ -56,7 +57,7 @@ public class DeploymentProcessorTests
 
         result.Should().NotHaveAnyDiagnostics();
 
-        var config = await DeploymentProcessor.GetDeployCommandsConfig(environmentMock.Object, cliArgs, result.Compilation.Emitter.Parameters());
+        var config = await DeploymentProcessor.GetDeployCommandsConfig(environmentMock.Object, cliArgs, result.Compilation.Emitter.Parameters(), ResourceScope.ResourceGroup);
 
         config.Template.Should().NotBeNull();
         config.Parameters.Should().NotBeNull();
@@ -97,7 +98,7 @@ public class DeploymentProcessorTests
 
         result.Should().NotHaveAnyDiagnostics();
 
-        var config = await DeploymentProcessor.GetDeployCommandsConfig(environmentMock.Object, cliArgs, result.Compilation.Emitter.Parameters());
+        var config = await DeploymentProcessor.GetDeployCommandsConfig(environmentMock.Object, cliArgs, result.Compilation.Emitter.Parameters(), ResourceScope.ResourceGroup);
 
         config.Template.Should().NotBeNull();
         config.Parameters.Should().NotBeNull();
@@ -136,7 +137,7 @@ public class DeploymentProcessorTests
 
         result.Should().NotHaveAnyDiagnostics();
 
-        await FluentActions.Awaiting(async () => await DeploymentProcessor.GetDeployCommandsConfig(environmentMock.Object, cliArgs, result.Compilation.Emitter.Parameters()))
+        await FluentActions.Awaiting(async () => await DeploymentProcessor.GetDeployCommandsConfig(environmentMock.Object, cliArgs, result.Compilation.Emitter.Parameters(), ResourceScope.ResourceGroup))
             .Should().ThrowAsync<CommandLineException>().WithMessage("CLI argument '--arg-subscription-id' must be provided.");
     }
 
@@ -164,7 +165,7 @@ public class DeploymentProcessorTests
 
         result.Should().NotHaveAnyDiagnostics();
 
-        await FluentActions.Awaiting(async () => await DeploymentProcessor.GetDeployCommandsConfig(environmentMock.Object, cliArgs, result.Compilation.Emitter.Parameters()))
+        await FluentActions.Awaiting(async () => await DeploymentProcessor.GetDeployCommandsConfig(environmentMock.Object, cliArgs, result.Compilation.Emitter.Parameters(), ResourceScope.ResourceGroup))
             .Should().ThrowAsync<CommandLineException>().WithMessage("The following CLI argument(s) were provided but not required: --arg-why-am-i-here");
     }
 
@@ -193,7 +194,7 @@ public class DeploymentProcessorTests
 
         result.Should().NotHaveAnyDiagnostics();
 
-        await FluentActions.Awaiting(async () => await DeploymentProcessor.GetDeployCommandsConfig(environmentMock.Object, cliArgs, result.Compilation.Emitter.Parameters()))
+        await FluentActions.Awaiting(async () => await DeploymentProcessor.GetDeployCommandsConfig(environmentMock.Object, cliArgs, result.Compilation.Emitter.Parameters(), ResourceScope.ResourceGroup))
             .Should().ThrowAsync<CommandLineException>().WithMessage("Environment variable 'SUBSCRIPTION_ID' is not set.");
     }
 }
