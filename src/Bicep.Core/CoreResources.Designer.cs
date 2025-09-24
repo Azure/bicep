@@ -421,6 +421,15 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Avoid using an explicit &apos;any&apos; type whenever possible..
+        /// </summary>
+        internal static string NoExplicitAnyRule_Description {
+            get {
+                return ResourceManager.GetString("NoExplicitAnyRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to A resource location should not use a hard-coded string or variable value. Change variable &apos;{0}&apos; into a parameter instead..
         /// </summary>
         internal static string NoHardcodedLocation_ErrorChangeVarToParam {

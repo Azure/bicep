@@ -12,7 +12,7 @@ var testSymbol = 42
 
 // #completionTest(28,29) -> symbols
 output missingValueAndType = 
-//@[27:28) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) |=|
+//@[27:28) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) |=|
 //@[29:29) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP009) ||
 
 // #completionTest(28,29) -> symbols
@@ -35,25 +35,25 @@ output boolCompletions bool =
 
 output foo
 //@[07:10) [BCP145 (Error)] Output "foo" is declared multiple times. Remove or rename the duplicates. (bicep https://aka.ms/bicep/core-diagnostics#BCP145) |foo|
-//@[10:10) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
+//@[10:10) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
 
 // space after identifier #completionTest(20) -> outputTypes
 output spaceAfterId 
-//@[20:20) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
+//@[20:20) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
 
 // #completionTest(25) -> outputTypes
 output spacesAfterCursor  
-//@[26:26) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
+//@[26:26) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
 
 // partial type #completionTest(19, 20, 21, 22) -> outputTypes
 output partialType obj
-//@[19:22) [BCP302 (Error)] The name "obj" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "resourceInput", "resourceOutput", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP302) |obj|
+//@[19:22) [BCP302 (Error)] The name "obj" is not a valid type. Please specify one of the following types: "any", "array", "bool", "int", "object", "resourceInput", "resourceOutput", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP302) |obj|
 //@[22:22) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
 // malformed identifier
 output 2
 //@[07:08) [BCP016 (Error)] Expected an output identifier at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP016) |2|
-//@[08:08) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
+//@[08:08) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
 
 // malformed type
 output malformedType 3
@@ -73,7 +73,7 @@ output lol 2 = true
 // wrong type + missing value
 output foo fluffy
 //@[07:10) [BCP145 (Error)] Output "foo" is declared multiple times. Remove or rename the duplicates. (bicep https://aka.ms/bicep/core-diagnostics#BCP145) |foo|
-//@[11:17) [BCP302 (Error)] The name "fluffy" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "resourceInput", "resourceOutput", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP302) |fluffy|
+//@[11:17) [BCP302 (Error)] The name "fluffy" is not a valid type. Please specify one of the following types: "any", "array", "bool", "int", "object", "resourceInput", "resourceOutput", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP302) |fluffy|
 //@[17:17) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
 // missing value

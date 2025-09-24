@@ -12,78 +12,78 @@ type test = {
 //@    "test": {
 //@      "type": "object",
 //@      "properties": {
-//@        "resA": {
-//@        },
-//@        "resB": {
-//@        },
-//@        "resD": {
-//@        }
 //@      }
 //@    },
   resA: resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+//@        "resA": {
 //@          "type": "string",
 //@          "metadata": {
 //@            "__bicep_resource_derived_type!": {
 //@              "source": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
 //@            }
 //@          }
+//@        },
   resB: sys.resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
+//@        "resB": {
 //@          "type": "string",
 //@          "metadata": {
 //@            "__bicep_resource_derived_type!": {
 //@              "source": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
 //@            }
 //@          }
+//@        },
   resC: sys.array
 //@        "resC": {
 //@          "type": "array"
 //@        },
   resD: sys.resourceInput<'az:Microsoft.Storage/storageAccounts@2022-09-01'>.name
+//@        "resD": {
 //@          "type": "string",
 //@          "metadata": {
 //@            "__bicep_resource_derived_type!": {
 //@              "source": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
 //@            }
 //@          }
+//@        }
 }
 
 type strangeFormatting = {
 //@    "strangeFormatting": {
 //@      "type": "object",
 //@      "properties": {
-//@        "test": {
-//@        },
-//@        "test2": {
-//@        },
-//@        "test3": {
-//@        }
 //@      }
 //@    },
   test: resourceInput<
+//@        "test": {
 //@          "type": "string",
 //@          "metadata": {
 //@            "__bicep_resource_derived_type!": {
 //@              "source": "Astronomer.Astro/organizations@2023-08-01-preview#properties/name"
 //@            }
 //@          }
+//@        },
 
   'Astronomer.Astro/organizations@2023-08-01-preview'
 
 >.name
   test2: resourceInput    <'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+//@        "test2": {
 //@          "type": "string",
 //@          "metadata": {
 //@            "__bicep_resource_derived_type!": {
 //@              "source": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
 //@            }
 //@          }
+//@        },
   test3: resourceInput</*    */'Microsoft.Storage/storageAccounts@2023-01-01'/*     */>.name
+//@        "test3": {
 //@          "type": "string",
 //@          "metadata": {
 //@            "__bicep_resource_derived_type!": {
 //@              "source": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
 //@            }
 //@          }
+//@        }
 }
 
 @description('I love space(s)')

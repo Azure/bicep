@@ -9,6 +9,8 @@ param myInt int
 //@[06:011) [no-unused-params (Warning)] Parameter "myInt" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |myInt|
 param myBool bool
 //@[06:012) [no-unused-params (Warning)] Parameter "myBool" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |myBool|
+param myAny any
+//@[12:015) [no-explicit-any (Warning)] Avoid using an explicit 'any' type whenever possible. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-explicit-any) |any|
 
 // parameters with default value
 param myString2 string = 'string value'
@@ -21,6 +23,9 @@ param myFalsehood bool = false
 //@[06:017) [no-unused-params (Warning)] Parameter "myFalsehood" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |myFalsehood|
 param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 //@[06:021) [no-unused-params (Warning)] Parameter "myEscapedString" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |myEscapedString|
+param myAny2 any = myAny.property
+//@[06:012) [no-unused-params (Warning)] Parameter "myAny2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |myAny2|
+//@[13:016) [no-explicit-any (Warning)] Avoid using an explicit 'any' type whenever possible. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-explicit-any) |any|
 
 // object default value
 param foo object = {

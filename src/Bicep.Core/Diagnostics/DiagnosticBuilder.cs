@@ -1996,6 +1996,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic BaseIdentifierRedeclared() => CoreError(
                 "BCP438",
                 $"The identifier '{LanguageConstants.BaseIdentifier}' is reserved and cannot be declared.");
+
+            public Diagnostic SecureDecoratorOnlyAllowedOnStringsAndObjects() => CoreError(
+                "BCP439",
+                "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
