@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
@@ -56,7 +57,8 @@ namespace Bicep.Core.Emit
                     resultSelector: result => result,
                     continuationFunction: (result, syntax) => !result) ||
                 // there are optional module names
-                model.Root.ModuleDeclarations.Any(module => module.TryGetBodyProperty(LanguageConstants.ModuleNamePropertyName) is null);
+                model.Root.ModuleDeclarations.Any(module => module.TryGetBodyProperty(LanguageConstants.ModuleNamePropertyName) is null) ||
+                model.Root.ResourceDeclarations.Any(resource => resource.TryGetDecorator(model, SystemNamespaceType.BuiltInName, LanguageConstants.OnlyIfNotExistsPropertyName) is not null);
         }
 
         /// <summary>

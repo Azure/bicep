@@ -34,7 +34,7 @@ namespace Bicep.Core.UnitTests.SourceGraph
             relativePath.IsSuccess().Should().BeTrue();
         }
 
-        
+
         [DataTestMethod]
         [DataRow("code\\file.txt")]
         public void File_paths_with_backslash_fail(string filePath)

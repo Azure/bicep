@@ -178,15 +178,6 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Enable OnlyIfNotExists feature.
-        /// </summary>
-        internal static string ExperimentalFeatureNames_OnlyIfNotExists {
-            get {
-                return ResourceManager.GetString("ExperimentalFeatureNames_OnlyIfNotExists", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Resource info code generation.
         /// </summary>
         internal static string ExperimentalFeatureNames_ResourceInfoCodegen {

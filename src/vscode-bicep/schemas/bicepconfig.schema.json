@@ -896,13 +896,13 @@
           "type": "boolean",
           "description": "Allows you to author Desired State Configuration documents using the target scope 'dsc'. See https://aka.ms/bicep/experimental-features#desiredstateconfiguration"
         },
-        "onlyIfNotExists": {
-          "type": "boolean",
-          "description": "If enabled, you can use the 'onlyIfNotExists' property on resources. See https://aka.ms/bicep/experimental-features#onlyifnotexists"
-        },
         "userDefinedConstraints": {
           "type": "boolean",
           "description": "Allows you to use the `@validate()` decorator on types and parameters with a custom validation predicate. See https://aka.ms/bicep/experimental-features#userdefinedconstraints"
+        },
+        "deployCommands": {
+          "type": "boolean",
+          "description": "Allows you to access the 'deploy', 'what-if' and 'teardown' commands. See https://aka.ms/bicep/experimental-features#deploycommands"
         }
       },
       "additionalProperties": false

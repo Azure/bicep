@@ -182,7 +182,7 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
 
     public KeyValuePair<string, string>[] BlacklistedDeploymentParameters { get; set; } = [];
 
-    public TimeSpan DeploymentJobTimeout { get; set; } = TimeSpan.FromSeconds(60);
+    public TimeSpan DeploymentJobTimeout { get; set; } = TimeSpan.FromHours(6);
 
     public Uri ExtensibilityHostUri { get; set; } = new Uri("https://example.com");
 

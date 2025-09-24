@@ -1981,8 +1981,16 @@ namespace Bicep.Core.Diagnostics
                 "BCP434",
                 $"The resource \"{dependentName}\" cannot declare an explicit dependency on \"{dependencyName}\" because the identifier properties of the latter including {ToQuotedString(runtimePropertyNames.OrderBy(x => x))} cannot be calculated at the start of the deployment.");
 
-            public Diagnostic SecureDecoratorOnlyAllowedOnStringsAndObjects() => CoreError(
+            public Diagnostic UsingWithClauseRequiresExperimentalFeature() => CoreError(
                 "BCP435",
+                $"Using the \"{LanguageConstants.WithKeyword}\" keyword with a \"{LanguageConstants.UsingKeyword}\" statement requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.DeployCommands)}\".");
+
+            public Diagnostic ExpectedWithKeywordOrNewLine() => CoreError(
+                "BCP436",
+                $"Expected the \"with\" keyword or a new line character at this location.");
+
+            public Diagnostic SecureDecoratorOnlyAllowedOnStringsAndObjects() => CoreError(
+                "BCP437",
                 "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type.");
         }
 

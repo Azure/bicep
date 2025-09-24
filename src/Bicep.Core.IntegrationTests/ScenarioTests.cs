@@ -5776,8 +5776,8 @@ param foo {
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP435", DiagnosticLevel.Error, """The @secure() decorator can only be used on statements whose type clause is "string,", "object", or a literal type."""),
-            ("BCP435", DiagnosticLevel.Error, """The @secure() decorator can only be used on statements whose type clause is "string,", "object", or a literal type."""),
+            ("BCP437", DiagnosticLevel.Error, """The @secure() decorator can only be used on statements whose type clause is "string,", "object", or a literal type."""),
+            ("BCP437", DiagnosticLevel.Error, """The @secure() decorator can only be used on statements whose type clause is "string,", "object", or a literal type."""),
         });
     }
 
@@ -7458,6 +7458,6 @@ output locations array = flatten(map(databases, database => database.properties.
             param test string = loadTextContent('C:\\folder\\.ssh\\id_rsa.pub')
             """);
 
-        result.Should().ContainDiagnostic("BCP051", DiagnosticLevel.Error,"The specified path seems to reference an absolute path. Files must be referenced using relative paths.");
+        result.Should().ContainDiagnostic("BCP051", DiagnosticLevel.Error, "The specified path seems to reference an absolute path. Files must be referenced using relative paths.");
     }
 }

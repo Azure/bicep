@@ -1006,6 +1006,18 @@ namespace Bicep.Core.TypeSystem
                     return moduleAwareExtConfigType;
                 });
 
+        public override void VisitUsingWithClauseSyntax(UsingWithClauseSyntax syntax)
+            => AssignTypeWithDiagnostics(
+                syntax, diagnostics =>
+                {
+                    if (typeManager.GetDeclaredType(syntax.Config) is not { } configType)
+                    {
+                        return ErrorType.Empty();
+                    }
+
+                    return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Config, configType, false);
+                });
+
         private void ValidateDecorators(IEnumerable<DecoratorSyntax> decoratorSyntaxes, TypeSymbol targetType, IDiagnosticWriter diagnostics)
         {
             var decoratorSyntaxesByMatchingDecorator = new Dictionary<Decorator, List<DecoratorSyntax>>();

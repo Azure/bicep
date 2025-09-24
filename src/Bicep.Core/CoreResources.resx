@@ -529,9 +529,6 @@
     <value>Parameter '{0}' is used as a resource identifier, API version, or condition in the module '{1}'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If.</value>
     <comment>{0} Parameter name</comment>
   </data>
-  <data name="ExperimentalFeatureNames_OnlyIfNotExists" xml:space="preserve">
-    <value>Enable OnlyIfNotExists feature</value>
-  </data>
   <data name="ImportMustBeUsedRuleDescription" xml:space="preserve">
     <value>All imports must be used.</value>
   </data>
