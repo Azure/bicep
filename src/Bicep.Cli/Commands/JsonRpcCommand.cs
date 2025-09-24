@@ -40,11 +40,21 @@ public class JsonRpcCommand : ICommand
         }
         else if (args.Socket is { } port)
         {
-            using var tcpClient = new TcpClient();
+            using var ipEndPoint = new IPEndPoint(IPAddress.Loopback, port);
+            using var listener = new TcpListener(ipEndPoint);
+            try
+            {    
+                listener.Start();
 
-            await tcpClient.ConnectAsync(IPAddress.Loopback, port, cancellationToken);
-            using var tcpStream = tcpClient.GetStream();
-            await RunServer(tcpStream, tcpStream, cancellationToken);
+                using TcpClient handler = await listener.AcceptTcpClientAsync(cancellationToken);
+                await using NetworkStream tcpStream = handler.GetStream();
+
+                await RunServer(tcpStream, tcpStream, cancellationToken);
+            }
+            finally
+            {
+                listener.Stop();
+            }
         }
         else
         {
