@@ -6,7 +6,7 @@
     1. Create a PR [here](https://github.com/Azure/bicep-types-az/compare/main...autogenerate), get it approved, and then merge it.
     1. Follow the "Release Process" instructions [here](https://msazure.visualstudio.com/One/_git/BicepMirror-Types-Az) to build and publish the Bicep.Types.Az NuGet package.
     1. Submit a Bicep PR to use the new Bicep.Types.Az NuGet package version.
-        1. Update the version [here](https://github.com/Azure/bicep/blob/main/src/Bicep.Core/Bicep.Core.csproj) and run `dotnet restore` to update packages.lock.json files.
+        1. Update the version [here](https://github.com/Azure/bicep/blob/main/src/Bicep.Core/Bicep.Core.csproj) and run `dotnet restore`.
         1. Submit a PR. If CI tests fail, you may need to update baselines (run `./scripts/UpdateBaselines.ps1` in the Bicep repo) and push the changes.
 1. Verify the latest build on the `main` branch is green: [![Build](https://github.com/Azure/bicep/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/Azure/bicep/actions/workflows/build.yml?query=branch%3Amain).
 1. (**end-of-month releases only**) Submit a PR to increment the minor version number in [this file](https://github.com/Azure/bicep/blob/main/version.json) (example [here](https://github.com/Azure/bicep/pull/9698))
