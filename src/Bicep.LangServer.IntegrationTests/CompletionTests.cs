@@ -5923,5 +5923,143 @@ param foo string = 'bar'
             identitySnippets.Should().Contain("none-identity");
             identitySnippets.Should().Contain("user-assigned-identity-array");
         }
+
+        [TestMethod]
+        public async Task Using_with_keyword_completions_require_experimental_feature()
+        {
+            var helper = new ServerRequestHelper(TestContext, DefaultServer);
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+            using 'main.bicep' |
+            """);
+
+            var bicepFile = await helper.OpenFile("/path/to/main.bicep", "");
+            var bicepParamFile = await helper.OpenFile("/path/to/main.bicepparam", text);
+
+            var completions = await bicepParamFile.RequestAndResolveCompletions(cursor);
+            completions.Should().NotContain(x => x.Label == "with");
+        }
+
+        [TestMethod]
+        public async Task Using_with_keyword_completions_work()
+        {
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(
+                TestContext,
+                s => s.WithFeatureOverrides(new(DeployCommandsEnabled: true)));
+            var helper = new ServerRequestHelper(TestContext, server);
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+            using 'main.bicep' |
+            """);
+
+            var bicepFile = await helper.OpenFile("/path/to/main.bicep", "");
+            var bicepParamFile = await helper.OpenFile("/path/to/main.bicepparam", text);
+
+            var completions = await bicepParamFile.RequestAndResolveCompletions(cursor);
+
+            var updatedFile = bicepParamFile.ApplyCompletion(completions, "with");
+
+            updatedFile.Should().HaveSourceText("""
+            using 'main.bicep' with|
+            """);
+        }
+
+        [TestMethod]
+        public async Task Using_with_completions_work()
+        {
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(
+                TestContext,
+                s => s.WithFeatureOverrides(new(DeployCommandsEnabled: true)));
+            var helper = new ServerRequestHelper(TestContext, server);
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+            using 'main.bicep' with |
+            """);
+
+            var bicepFile = await helper.OpenFile("/path/to/main.bicep", "");
+            var bicepParamFile = await helper.OpenFile("/path/to/main.bicepparam", text);
+
+            var completions = await bicepParamFile.RequestAndResolveCompletions(cursor);
+
+            var updatedFile = bicepParamFile.ApplyCompletion(
+                completions,
+                "required-properties-stack",
+                [
+                    "'/subscriptions/foo/resourceGroups/bar'",
+                    "'delete'",
+                    "'denyDelete'",
+                ]);
+
+            updatedFile.Should().HaveSourceText("""
+            using 'main.bicep' with {
+              scope: '/subscriptions/foo/resourceGroups/bar'
+              actionOnUnmanage: {
+                resources: 'delete'
+              }
+              denySettings: {
+                mode: 'denyDelete'
+              }
+              mode: 'stack'
+            }|
+            """);
+        }
+
+        [TestMethod]
+        public async Task Using_with_property_completions_work()
+        {
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(
+                TestContext,
+                s => s.WithFeatureOverrides(new(DeployCommandsEnabled: true)));
+            var helper = new ServerRequestHelper(TestContext, server);
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+            using 'main.bicep' with {
+              mode: 'deployment'
+              |
+            }
+            """);
+
+            var bicepFile = await helper.OpenFile("/path/to/main.bicep", "");
+            var bicepParamFile = await helper.OpenFile("/path/to/main.bicepparam", text);
+
+            var completions = await bicepParamFile.RequestAndResolveCompletions(cursor);
+
+            var updatedFile = bicepParamFile.ApplyCompletion(completions, "scope");
+
+            updatedFile.Should().HaveSourceText("""
+            using 'main.bicep' with {
+              mode: 'deployment'
+              scope:|
+            }
+            """);
+        }
+
+        [TestMethod]
+        public async Task Using_with_discriminator_completions_work()
+        {
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(
+                TestContext,
+                s => s.WithFeatureOverrides(new(DeployCommandsEnabled: true)));
+            var helper = new ServerRequestHelper(TestContext, server);
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+            using 'main.bicep' with {
+              mode: |
+            }
+            """);
+
+            var bicepFile = await helper.OpenFile("/path/to/main.bicep", "");
+            var bicepParamFile = await helper.OpenFile("/path/to/main.bicepparam", text);
+
+            var completions = await bicepParamFile.RequestAndResolveCompletions(cursor);
+
+            var updatedFile = bicepParamFile.ApplyCompletion(completions, "'stack'");
+
+            updatedFile.Should().HaveSourceText("""
+            using 'main.bicep' with {
+              mode: 'stack'|
+            }
+            """);
+        }
     }
 }
