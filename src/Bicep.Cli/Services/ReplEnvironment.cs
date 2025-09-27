@@ -19,6 +19,10 @@ using Bicep.IO.InMemory;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using Bicep.Cli.Helpers.Repl;
+using System.Management;
+using Bicep.Core.Highlighting;
+using Bicep.Cli.Helpers.WhatIf;
+using System.Net;
 
 namespace Bicep.Cli.Services;
 
@@ -38,6 +42,60 @@ public class ReplEnvironment
         this.fileExplorer = new InMemoryFileExplorer();
         this.compiler = compiler;
         this.workspace = new Workspace();
+    }
+
+    public async Task<string> HighlightInputLine(string buffer, string nextLine)
+    {
+        var sb = new StringBuilder();
+        foreach (var line in variableDeclarationLines)
+        {
+            sb.AppendLine(line);
+        }
+        sb.AppendLine(buffer).Append(nextLine);
+        var fullContent = sb.ToString();
+
+        var compilation = await CompileInternal(fullContent);
+        var model = compilation.GetEntrypointSemanticModel();
+
+        var tokens = SemanticTokenVisitor.Build(model);
+        var lineStart = fullContent.Length - nextLine.Length;
+        var overlapping = tokens
+            .Where(x => x.Positionable.IsOverlapping(lineStart) || x.Positionable.IsOnOrAfter(lineStart))
+            .OrderBy(x => x.Positionable.GetPosition());
+
+        var outputSb = new StringBuilder();
+        var cursor = lineStart;
+        foreach (var token in overlapping)
+        {
+            for (var i = cursor; i < token.Positionable.GetPosition(); i++)
+            {
+                outputSb.Append(fullContent[i]);
+            }
+
+            var color = token.TokenType switch
+            {
+                SemanticTokenType.Operator => Color.Reset,
+                SemanticTokenType.Comment => Color.Green,
+                SemanticTokenType.Class => Color.Blue,
+                SemanticTokenType.Variable => Color.Purple,
+                _ => Color.Orange,
+            };
+
+            outputSb.Append(color.ToString());
+            for (var i = token.Positionable.GetPosition(); i < token.Positionable.GetEndPosition(); i++)
+            {
+                outputSb.Append(fullContent[i]);
+            }
+            outputSb.Append(Color.Reset.ToString());
+            cursor = token.Positionable.GetEndPosition();
+        }
+
+        for (var i = cursor; i < fullContent.Length; i++)
+        {
+            outputSb.Append(fullContent[i]);
+        }
+
+        return outputSb.ToString();
     }
 
     public async Task<AnnotatedReplResult> EvaluateInput(string input)

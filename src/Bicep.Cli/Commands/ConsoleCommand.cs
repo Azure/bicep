@@ -7,7 +7,12 @@ using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers.Repl;
 using Bicep.Cli.Services;
 using Bicep.Core;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.PrettyPrintV2;
+using Bicep.Core.Syntax;
+using Microsoft.Diagnostics.Tracing.StackSources;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Cli.Commands;
 
@@ -39,59 +44,106 @@ public class ConsoleCommand : ICommand
 
         while (true)
         {
-            await io.Output.WriteAsync(buffer.Length == 0 ? "> " : ". ");
-            var rawLine = Console.ReadLine();
-            if (rawLine is null)
+            if (buffer.Length == 0)
             {
-                break; // EOF
+                await io.Output.WriteAsync("> ");
             }
 
-            // Only treat commands when buffer empty (except :reset)
-            var trimmed = rawLine.Trim();
+            var lineBuffer = new StringBuilder();
+            var cursorOffset = 0;
+            while (true)
+            {
+                var keyInfo = Console.ReadKey(intercept: true);
+                var nextChar = keyInfo.KeyChar;
+
+                var prevCursorOffset = cursorOffset;
+
+                if (keyInfo.Key == ConsoleKey.LeftArrow)
+                {
+                    cursorOffset = Math.Max(cursorOffset - 1, 0);
+                }
+                if (keyInfo.Key == ConsoleKey.RightArrow)
+                {
+                    cursorOffset = Math.Min(cursorOffset + 1, lineBuffer.Length);
+                }
+                if (keyInfo.Key == ConsoleKey.Enter)
+                {
+                    await io.Output.FlushAsync();
+                    break;
+                }
+                else if (keyInfo.Key == ConsoleKey.Backspace)
+                {
+                    if (cursorOffset > 0 && cursorOffset <= lineBuffer.Length)
+                    {
+                        lineBuffer.Remove(cursorOffset - 1, 1);
+                        cursorOffset = Math.Max(cursorOffset - 1, 0);
+                    }
+                }
+                else if (nextChar != 0)
+                {
+                    lineBuffer.Insert(cursorOffset, nextChar);
+                    cursorOffset += 1;
+                }
+
+                // Reprint line with highlighting
+                var highlighted = await replEnvironment.HighlightInputLine(buffer.ToString(), lineBuffer.ToString());
+
+                // Hide cursor
+                await io.Output.WriteAsync("\u001b[?25l");
+
+                if (prevCursorOffset > 0)
+                {
+                    // Move cursor to start of line
+                    await io.Output.WriteAsync("\u001b[" + prevCursorOffset + "D");
+                }
+
+                // Clear from cursor to end of line
+                await io.Output.WriteAsync("\u001b[0J");
+
+                // Write the line
+                await io.Output.WriteAsync(highlighted);
+
+                if (lineBuffer.Length - cursorOffset > 0)
+                {
+                    // Move cursor back to correct position
+                    await io.Output.WriteAsync("\u001b[" + (lineBuffer.Length - cursorOffset) + "D");
+                }
+
+                // Show cursor
+                await io.Output.WriteAsync("\u001b[?25h");
+            }
+
+            await io.Output.WriteAsync("\n");
+
+            var rawLine = lineBuffer.ToString();
 
             if (buffer.Length == 0)
             {
-                if (trimmed.Length == 0)
-                {
-                    continue; // ignore empty standalone line
-                }
-
-                if (trimmed.Equals("exit", StringComparison.OrdinalIgnoreCase))
+                if (rawLine.Equals("exit", StringComparison.OrdinalIgnoreCase))
                 {
                     break;
                 }
 
-                if (trimmed.Equals("clear", StringComparison.OrdinalIgnoreCase))
+                if (rawLine.Equals("clear", StringComparison.OrdinalIgnoreCase))
                 {
                     Console.Clear();
                     continue;
                 }
 
-                if (trimmed.Equals("help", StringComparison.OrdinalIgnoreCase))
+                if (rawLine.Equals("help", StringComparison.OrdinalIgnoreCase))
                 {
                     await io.Output.WriteLineAsync("Enter expressions or 'var name = <expr>'. Multi-line supported until structure closes.");
-                    await io.Output.WriteLineAsync("Commands: exit, clear, :reset");
+                    await io.Output.WriteLineAsync("Commands: exit, clear");
                     continue;
                 }
             }
 
-            if (trimmed.Equals(":reset", StringComparison.OrdinalIgnoreCase))
-            {
-                buffer.Clear();
-                continue;
-            }
-
-            // Accumulate line
-            if (buffer.Length > 0)
-            {
-                buffer.AppendLine();
-            }
-            buffer.Append(rawLine);
+            buffer.AppendLine(rawLine);
 
             var current = buffer.ToString();
 
-            // If line is blank AND structurally complete -> submit
-            if (trimmed.Length == 0 && IsInputStructurallyComplete(current))
+            // If line is blank -> submit
+            if (rawLine.Length == 0)
             {
                 await SubmitBuffer(buffer, current);
                 continue;
@@ -120,7 +172,12 @@ public class ConsoleCommand : ICommand
 
         if (result.Value is { } value)
         {
-            await io.Output.WriteLineAsync(value.ToString());
+            var context = PrettyPrinterV2Context.Create(PrettyPrinterV2Options.Default, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
+            var lineText = PrettyPrinterV2.Print(ParseJToken(value), context);
+
+            var highlighted = await replEnvironment.HighlightInputLine("", lineText);
+
+            await io.Output.WriteLineAsync(highlighted);
         }
         else if (result.AnnotatedDiagnostics.Any())
         {
@@ -243,4 +300,30 @@ public class ConsoleCommand : ICommand
 
         return openCurly == 0 && openSquare == 0 && openParen == 0 && !inString && interpolationDepth == 0;
     }
+
+    private static SyntaxBase ParseJToken(JToken value)
+        => value switch {
+            JObject jObject => ParseJObject(jObject),
+            JArray jArray => ParseJArray(jArray),
+            JValue jValue => ParseJValue(jValue),
+            _ => throw new NotImplementedException($"Unrecognized token type {value.Type}"),
+        };
+
+    private static SyntaxBase ParseJValue(JValue value)
+        => value.Type switch {
+            JTokenType.Integer => SyntaxFactory.CreatePositiveOrNegativeInteger(value.Value<long>()),
+            JTokenType.String => SyntaxFactory.CreateStringLiteral(value.ToString()),
+            JTokenType.Boolean => SyntaxFactory.CreateBooleanLiteral(value.Value<bool>()),
+            JTokenType.Null => SyntaxFactory.CreateNullLiteral(),
+            _ => throw new NotImplementedException($"Unrecognized token type {value.Type}"),
+        };
+
+    private static SyntaxBase ParseJArray(JArray jArray)
+        => SyntaxFactory.CreateArray(
+            jArray.Select(ParseJToken));
+
+    private static SyntaxBase ParseJObject(JObject jObject)
+        => SyntaxFactory.CreateObject(
+            jObject.Properties()
+                .Select(x => SyntaxFactory.CreateObjectProperty(x.Name, ParseJToken(x.Value))));
 }

@@ -8,15 +8,6 @@ namespace Bicep.Wasm.LanguageHelpers
 {
     public static class IPositionableExtensions
     {
-        public static TextSpan GetSpanSlice(this IPositionable positionable, int start, int length)
-            => new(positionable.Span.Position + start, length);
-
-        public static TextSpan TryGetSpanSlice(this IPositionable positionable, int start, int length)
-            => GetSpanSlice(
-                positionable,
-                Math.Min(start, positionable.Span.Length),
-                Math.Min(length, positionable.Span.Length - start));
-
         public static Range ToRange(this IPositionable positionable, ImmutableArray<int> lineStarts) =>
             new()
             {

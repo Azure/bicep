@@ -5,6 +5,7 @@ using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
+using Bicep.Core.Highlighting;
 using Bicep.Core.Semantics;
 using Bicep.Core.Text;
 using Bicep.Decompiler;
@@ -91,10 +92,10 @@ namespace Bicep.Wasm
         public async Task<object> GetSemanticTokens(string content)
         {
             var compilation = await GetCompilation(content);
-            var tokens = SemanticTokenVisitor.BuildSemanticTokens(compilation.GetEntrypointSemanticModel());
+            var tokens = GetTokenPositions(compilation.GetEntrypointSemanticModel());
 
             var data = new List<int>();
-            SemanticToken? prevToken = null;
+            TokenPosition? prevToken = null;
             foreach (var token in tokens)
             {
                 if (prevToken == null)
@@ -165,5 +166,21 @@ namespace Bicep.Wasm
                 DiagnosticLevel.Error => 8,
                 _ => throw new ArgumentException($"Unrecognized level {level}"),
             };
+
+            
+        private static IEnumerable<TokenPosition> GetTokenPositions(SemanticModel model)
+        {
+            var tokens = SemanticTokenVisitor.Build(model);
+
+            // the builder is fussy about ordering. tokens are visited out of order, we need to call build after visiting everything
+            foreach (var (positionable, tokenType) in tokens.OrderBy(t => t.Positionable.GetPosition()))
+            {
+                var tokenRanges = positionable.ToRangeSpanningLines(model.SourceFile.LineStarts);
+                foreach (var tokenRange in tokenRanges)
+                {
+                    yield return new(tokenRange.Start.Line, tokenRange.Start.Character, tokenRange.End.Character - tokenRange.Start.Character, tokenType);
+                }
+            }
+        }
     }
 }
