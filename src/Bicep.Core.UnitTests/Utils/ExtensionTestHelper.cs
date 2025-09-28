@@ -29,11 +29,11 @@ public static class ExtensionTestHelper
             .WithContainerRegistryClientFactory(clientFactory);
     }
 
-    public static Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(BinaryData tgzData, FeatureProviderOverrides features, IFileSystem? fileSystem = null)
-        => GetServiceBuilderWithPublishedExtension(new ExtensionPackage(tgzData, false, []), "example.azurecr.io/extensions/foo:1.2.3", features, fileSystem);
+    public static Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(BinaryData tgzData, FeatureProviderOverrides features, IFileSystem? fileSystem = null, string? artifactTarget = null)
+        => GetServiceBuilderWithPublishedExtension(new ExtensionPackage(tgzData, false, []),  artifactTarget ?? "example.azurecr.io/extensions/foo:1.2.3", features, fileSystem);
 
-    public static Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(ExtensionPackage package, FeatureProviderOverrides features, IFileSystem? fileSystem = null)
-        => GetServiceBuilderWithPublishedExtension(package, "example.azurecr.io/extensions/foo:1.2.3", features, fileSystem);
+    public static Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(ExtensionPackage package, FeatureProviderOverrides features, IFileSystem? fileSystem = null, string? artifactTarget = null)
+        => GetServiceBuilderWithPublishedExtension(package, artifactTarget ?? "example.azurecr.io/extensions/foo:1.2.3", features, fileSystem);
 
     public static async Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(ExtensionPackage package, string target, FeatureProviderOverrides features, IFileSystem? fileSystem = null)
     {
