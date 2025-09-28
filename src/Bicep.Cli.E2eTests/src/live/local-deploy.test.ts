@@ -32,6 +32,6 @@ describe("bicep local-deploy", () => {
 
     invokingBicepCommand("local-deploy", files.bicepparam)
       .shouldSucceed()
-      .withStdoutContaining('sayHiResult │ Hello, World!', true);
+      .withStdoutContaining("sayHiResult │ Hello, World!", true);
   });
 });
