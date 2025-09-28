@@ -82,7 +82,7 @@ public class DeployCommandTests : TestBase
             settings,
             services => services.AddSingleton(deploymentProcessor),
             TestContext.CancellationTokenSource.Token,
-            ["deploy", bicepparamsPath, ..additionalArgs]);
+            ["deploy", bicepparamsPath, .. additionalArgs]);
     }
 
     [TestMethod]

@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Text;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Semantics
 {
@@ -14,14 +14,14 @@ namespace Bicep.Core.Semantics
         public BaseParametersSymbol(ISymbolContext context, ImmutableArray<ParameterAssignmentSymbol> parentAssignments) : base(context, LanguageConstants.BaseIdentifier, new ImplicitBaseIdentifierSyntax(parentAssignments.First().DeclaringParameterAssignment), parentAssignments.First().DeclaringParameterAssignment.Name)
         {
             this.ParentAssignments = parentAssignments;
-            this.syntheticSyntax = (ImplicitBaseIdentifierSyntax) this.DeclaringSyntax;
+            this.syntheticSyntax = (ImplicitBaseIdentifierSyntax)this.DeclaringSyntax;
         }
 
         public ImmutableArray<ParameterAssignmentSymbol> ParentAssignments { get; }
 
         private readonly ImplicitBaseIdentifierSyntax syntheticSyntax;
 
-    public override SymbolKind Kind => SymbolKind.BaseParameters;
+        public override SymbolKind Kind => SymbolKind.BaseParameters;
 
         public override IEnumerable<Symbol> Descendants => ParentAssignments;
 
@@ -41,7 +41,7 @@ namespace Bicep.Core.Semantics
             this.anchor = anchor;
         }
 
-    public override TextSpan Span => anchor.Span;
+        public override TextSpan Span => anchor.Span;
 
         public override void Accept(ISyntaxVisitor visitor)
         {

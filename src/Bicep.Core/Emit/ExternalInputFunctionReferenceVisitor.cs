@@ -141,7 +141,7 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
         {
             return;
         }
-        
+
         this.externalInputReferences.TryAdd(functionCall, definitionKey);
 
         if (this.targetParameterAssignment is not null)

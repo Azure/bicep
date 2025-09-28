@@ -46,7 +46,7 @@ public class TraceEventSource : ICommonEventSource, IDeploymentEventSource
 
             sb.AppendFormat("{0}={1}, ", name, value);
         }
-        
+
         var traceLine = sb.ToString();
         // exclude unnecessarily noisy traces
         if (traceLine.Contains("operationName=EnablementConfigExtensions.") ||

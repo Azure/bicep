@@ -14,8 +14,8 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using AzTypes = Azure.Bicep.Types;
 using AzConcreteTypes = Azure.Bicep.Types.Concrete;
+using AzTypes = Azure.Bicep.Types;
 
 namespace Bicep.Core.UnitTests.TypeSystem.Az
 {

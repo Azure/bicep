@@ -2,8 +2,9 @@
 // Licensed under the MIT License.
 
 using Azure.ResourceManager;
-using Bicep.Core.AzureApi;
 using Bicep.Core;
+using Bicep.Core.AzureApi;
+using Bicep.Core.Extensions;
 using Bicep.Core.Json;
 using Bicep.Core.Tracing;
 using Bicep.LanguageServer.CompilationManager;
@@ -16,7 +17,6 @@ using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
-using Bicep.Core.Extensions;
 
 namespace Bicep.LanguageServer.Handlers
 {
