@@ -17,10 +17,11 @@ namespace Bicep.Cli.Commands;
 /// Minimal interactive console (experimental).
 /// Supports multi-line input: enter expressions or variable declarations.
 /// Input is submitted automatically when structurally complete, or by entering a blank line once complete.
-/// Type :reset to discard the current multi-line buffer.
 /// </summary>
 public class ConsoleCommand : ICommand
 {
+    private const string FirstLinePrefix = "> ";
+
     private readonly IOContext io;
     private readonly ReplEnvironment replEnvironment;
 
@@ -31,21 +32,32 @@ public class ConsoleCommand : ICommand
     }
 
     private Rune ReadRune(char firstChar)
+        => ReadRune(firstChar, () => Console.ReadKey(intercept: true).KeyChar);
+
+    private Rune ReadRune(char firstChar, Func<char> readNextChar)
     {
         if (char.IsHighSurrogate(firstChar))
         {
-            var secondChar = Console.ReadKey(intercept: true).KeyChar;
+            var secondChar = readNextChar();
             return new Rune(char.ConvertToUtf32(firstChar, secondChar));
         }
 
         return new Rune(firstChar);
     }
 
+    private IEnumerable<Rune> GetRunes(string text)
+    {
+        for (var i = 0; i < text.Length; i++)
+        {
+            yield return ReadRune(text[i], () => text[++i]);
+        }
+    }
+
     public async Task<int> RunAsync(ConsoleArguments _)
     {
         await io.Output.WriteLineAsync("Bicep Console v1.0.0");
-        await io.Output.WriteLineAsync("Type 'help' for available commands, 'exit' to quit.");
-        await io.Output.WriteLineAsync("Multi-line input supported. Use :reset to clear current buffer.");
+        await io.Output.WriteLineAsync("Type 'help' for available commands, press ESC to quit.");
+        await io.Output.WriteLineAsync("Multi-line input supported.");
         await io.Output.WriteLineAsync(string.Empty);
 
         var buffer = new StringBuilder();
@@ -101,10 +113,36 @@ public class ConsoleCommand : ICommand
         return 0;
     }
 
+    private async Task<bool> PrintHistory(StringBuilder buffer, List<Rune> lineBuffer, int cursorOffset, bool backwards)
+    {
+        if (replEnvironment.TryGetHistory(backwards) is { } history)
+        {
+            var prevBufferLineCount = buffer.ToString().Count(x => x == '\n');
+            buffer.Clear();
+            lineBuffer.Clear();
+
+            var finalNewline = history.LastIndexOf('\n');
+            var lineStart = finalNewline > -1 ? finalNewline + 1 : 0;
+
+            buffer.Append(history[..lineStart]);
+            lineBuffer.AddRange(GetRunes(history[lineStart..]));
+            cursorOffset = lineBuffer.Count;
+
+            var output2 = replEnvironment.HighlightInputLine(FirstLinePrefix, buffer.ToString(), lineBuffer, cursorOffset, printPrevLines: true);
+            await io.Output.WriteAsync(PrintHelper.MoveCursorUp(prevBufferLineCount));
+            await io.Output.WriteAsync(output2);
+            return true;
+        }
+
+        return false;
+    }
+
+    private string GetPrefix(StringBuilder buffer)
+        => buffer.Length == 0 ? FirstLinePrefix : "";
+
     private async Task<string?> ReadLine(StringBuilder buffer)
     {
-        var prefix = buffer.Length == 0 ? "> " : "";
-        await io.Output.WriteAsync(prefix);
+        await io.Output.WriteAsync(GetPrefix(buffer));
 
         var lineBuffer = new List<Rune>();
         var cursorOffset = 0;
@@ -113,6 +151,20 @@ public class ConsoleCommand : ICommand
             var keyInfo = Console.ReadKey(intercept: true);
             var nextChar = keyInfo.KeyChar;
 
+            if (keyInfo.Key == ConsoleKey.UpArrow)
+            {
+                if (await PrintHistory(buffer, lineBuffer, cursorOffset, backwards: true))
+                {
+                    continue;
+                }
+            }
+            if (keyInfo.Key == ConsoleKey.DownArrow)
+            {
+                if (await PrintHistory(buffer, lineBuffer, cursorOffset, backwards: false))
+                {
+                    continue;
+                }
+            }
             if (keyInfo.Key == ConsoleKey.LeftArrow)
             {
                 cursorOffset = Math.Max(cursorOffset - 1, 0);
@@ -151,10 +203,10 @@ public class ConsoleCommand : ICommand
                 cursorOffset += 1;
             }
 
-            var output = replEnvironment.HighlightInputLine(prefix, buffer.ToString(), lineBuffer, cursorOffset);
+            var output = replEnvironment.HighlightInputLine(GetPrefix(buffer), buffer.ToString(), lineBuffer, cursorOffset, printPrevLines: false);
             await io.Output.WriteAsync(output);
         }
-        
+
         return string.Concat(lineBuffer);
     }
 
