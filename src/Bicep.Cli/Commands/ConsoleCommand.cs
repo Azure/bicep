@@ -23,7 +23,6 @@ public class ConsoleCommand : ICommand
 {
     private readonly ILogger logger;
     private const string FirstLinePrefix = "> ";
-
     private readonly IOContext io;
     private readonly ReplEnvironment replEnvironment;
 
