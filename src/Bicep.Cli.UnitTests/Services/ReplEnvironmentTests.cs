@@ -40,7 +40,7 @@ public class ReplEnvironmentTests
             var runes = lines[i].Select(x => new Rune(x)).ToArray();
 
             var prefix = i == 0 ? "> " : "";
-            output.Add(replEnvironment.HighlightInputLine(prefix, prevLines, runes, runes.Length));
+            output.Add(replEnvironment.HighlightInputLine(prefix, prevLines, runes, runes.Length, printPrevLines: false));
         }
 
         output.Select(AnsiHelper.ReplaceCodes).Should().BeEquivalentTo([
