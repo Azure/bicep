@@ -1,13 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Diagnostics;
 using System.Text;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers.Repl;
 using Bicep.Cli.Services;
-using Bicep.Core;
-using Microsoft.Extensions.Logging;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Parsing;
+using Bicep.Core.PrettyPrintV2;
+using Bicep.Core.Syntax;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Cli.Commands;
 
@@ -28,6 +30,17 @@ public class ConsoleCommand : ICommand
         this.replEnvironment = replEnvironment;
     }
 
+    private Rune ReadRune(char firstChar)
+    {
+        if (char.IsHighSurrogate(firstChar))
+        {
+            var secondChar = Console.ReadKey(intercept: true).KeyChar;
+            return new Rune(char.ConvertToUtf32(firstChar, secondChar));
+        }
+
+        return new Rune(firstChar);
+    }
+
     public async Task<int> RunAsync(ConsoleArguments _)
     {
         await io.Output.WriteLineAsync("Bicep Console v1.0.0");
@@ -39,72 +52,110 @@ public class ConsoleCommand : ICommand
 
         while (true)
         {
-            await io.Output.WriteAsync(buffer.Length == 0 ? "> " : ". ");
-            var rawLine = Console.ReadLine();
-            if (rawLine is null)
+            if (await ReadLine(buffer) is not { } rawLine)
             {
-                break; // EOF
+                break;
             }
 
-            // Only treat commands when buffer empty (except :reset)
-            var trimmed = rawLine.Trim();
+            await io.Output.WriteAsync("\n");
 
             if (buffer.Length == 0)
             {
-                if (trimmed.Length == 0)
-                {
-                    continue; // ignore empty standalone line
-                }
-
-                if (trimmed.Equals("exit", StringComparison.OrdinalIgnoreCase))
+                if (rawLine.Equals("exit", StringComparison.OrdinalIgnoreCase))
                 {
                     break;
                 }
 
-                if (trimmed.Equals("clear", StringComparison.OrdinalIgnoreCase))
+                if (rawLine.Equals("clear", StringComparison.OrdinalIgnoreCase))
                 {
                     Console.Clear();
                     continue;
                 }
 
-                if (trimmed.Equals("help", StringComparison.OrdinalIgnoreCase))
+                if (rawLine.Equals("help", StringComparison.OrdinalIgnoreCase))
                 {
                     await io.Output.WriteLineAsync("Enter expressions or 'var name = <expr>'. Multi-line supported until structure closes.");
-                    await io.Output.WriteLineAsync("Commands: exit, clear, :reset");
+                    await io.Output.WriteLineAsync("Commands: exit, clear");
                     continue;
                 }
             }
 
-            if (trimmed.Equals(":reset", StringComparison.OrdinalIgnoreCase))
-            {
-                buffer.Clear();
-                continue;
-            }
-
-            // Accumulate line
-            if (buffer.Length > 0)
-            {
-                buffer.AppendLine();
-            }
-            buffer.Append(rawLine);
+            buffer.AppendLine(rawLine);
 
             var current = buffer.ToString();
 
-            // If line is blank AND structurally complete -> submit
-            if (trimmed.Length == 0 && IsInputStructurallyComplete(current))
+            // If line is blank -> submit
+            if (rawLine.Length == 0)
             {
                 await SubmitBuffer(buffer, current);
                 continue;
             }
 
             // Auto-submit when structure complete immediately after this line.
-            if (IsInputStructurallyComplete(current))
+            if (ShouldTerminateWithNewLine(current))
             {
                 await SubmitBuffer(buffer, current);
             }
         }
 
         return 0;
+    }
+
+    private async Task<string?> ReadLine(StringBuilder buffer)
+    {
+        var prefix = buffer.Length == 0 ? "> " : "";
+        await io.Output.WriteAsync(prefix);
+
+        var lineBuffer = new List<Rune>();
+        var cursorOffset = 0;
+        while (true)
+        {
+            var keyInfo = Console.ReadKey(intercept: true);
+            var nextChar = keyInfo.KeyChar;
+
+            if (keyInfo.Key == ConsoleKey.LeftArrow)
+            {
+                cursorOffset = Math.Max(cursorOffset - 1, 0);
+            }
+            if (keyInfo.Key == ConsoleKey.RightArrow)
+            {
+                cursorOffset = Math.Min(cursorOffset + 1, lineBuffer.Count);
+            }
+            if (keyInfo.Key == ConsoleKey.Enter)
+            {
+                await io.Output.FlushAsync();
+                break;
+            }
+            else if (keyInfo.Key == ConsoleKey.Backspace)
+            {
+                if (cursorOffset > 0 && cursorOffset <= lineBuffer.Count)
+                {
+                    lineBuffer.RemoveAt(cursorOffset - 1);
+                    cursorOffset = Math.Max(cursorOffset - 1, 0);
+                }
+            }
+            else if (keyInfo.Key == ConsoleKey.Delete)
+            {
+                if (cursorOffset < lineBuffer.Count)
+                {
+                    lineBuffer.RemoveAt(cursorOffset);
+                }
+            }
+            else if (keyInfo.Key == ConsoleKey.Escape)
+            {
+                return null;
+            }
+            else if (nextChar != 0)
+            {
+                lineBuffer.Insert(cursorOffset, ReadRune(nextChar));
+                cursorOffset += 1;
+            }
+
+            var output = replEnvironment.HighlightInputLine(prefix, buffer.ToString(), lineBuffer, cursorOffset);
+            await io.Output.WriteAsync(output);
+        }
+        
+        return string.Concat(lineBuffer);
     }
 
     private async Task SubmitBuffer(StringBuilder buffer, string current)
@@ -116,15 +167,21 @@ public class ConsoleCommand : ICommand
         }
 
         // evaluate input
-        var result = await replEnvironment.EvaluateInput(current);
+        var result = replEnvironment.EvaluateInput(current);
 
         if (result.Value is { } value)
         {
-            await io.Output.WriteLineAsync(value.ToString());
+            var context = PrettyPrinterV2Context.Create(PrettyPrinterV2Options.Default, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
+            var lineText = PrettyPrinterV2.Print(ParseJToken(value), context);
+
+            var highlighted = replEnvironment.HighlightSyntax(lineText);
+
+            await io.Output.WriteLineAsync(highlighted);
         }
         else if (result.AnnotatedDiagnostics.Any())
         {
-            await io.Output.WriteLineAsync(PrintHelper.PrintWithAnnotations(current, result.AnnotatedDiagnostics));
+            var highlighted = replEnvironment.HighlightSyntax(current);
+            await io.Output.WriteLineAsync(PrintHelper.PrintWithAnnotations(current, result.AnnotatedDiagnostics, highlighted));
         }
         buffer.Clear();
     }
@@ -134,113 +191,44 @@ public class ConsoleCommand : ICommand
     /// and not inside (multi-line) string or interpolation expression.
     /// Not a full parse; parse errors still reported by real parser.
     /// </summary>
-    private static bool IsInputStructurallyComplete(string text)
+    private static bool ShouldTerminateWithNewLine(string text)
     {
-        int openCurly = 0, openSquare = 0, openParen = 0;
-        bool inString = false; // single or multi-line (same delimiter logic)
-        bool inMultiline = false;
-        int interpolationDepth = 0; // inside ${ ... } within string
-        for (int i = 0; i < text.Length; i++)
+        var program = new ReplParser(text).Program();
+        if (program.Children.Length != 1)
         {
-            char c = text[i];
-
-            // Handle single-line comments // ... (ignore content until newline)
-            if (!inString && c == '/' && i + 1 < text.Length && text[i + 1] == '/')
-            {
-                // skip until newline or end
-                i += 2;
-                while (i < text.Length && text[i] != '\n')
-                {
-                    i++;
-                }
-                continue;
-            }
-
-            if (!inString)
-            {
-                // Start (multi-line) string detection: ''' or single '
-                if (c == '\'')
-                {
-                    if (i + 2 < text.Length && text[i + 1] == '\'' && text[i + 2] == '\'')
-                    {
-                        inString = true; inMultiline = true; i += 2; // skip the two extra quotes
-                        continue;
-                    }
-                    inString = true; inMultiline = false; continue;
-                }
-
-                switch (c)
-                {
-                    case '{':
-                        openCurly++;
-                        break;
-                    case '}':
-                        if (openCurly > 0)
-                        {
-                            openCurly--;
-                        }
-                        break;
-                    case '[':
-                        openSquare++;
-                        break;
-                    case ']':
-                        if (openSquare > 0)
-                        {
-                            openSquare--;
-                        }
-                        break;
-                    case '(':
-                        openParen++;
-                        break;
-                    case ')':
-                        if (openParen > 0)
-                        {
-                            openParen--;
-                        }
-                        break;
-                }
-            }
-            else // inside string (maybe interpolation)
-            {
-                if (!inMultiline && c == '\n')
-                {
-                    // normal single quoted string cannot span lines; treat newline as termination safeguard
-                    // (actual parser will raise a diagnostic); we end early to avoid blocking user.
-                    inString = false; interpolationDepth = 0; continue;
-                }
-
-                if (c == '$' && i + 1 < text.Length && text[i + 1] == '{')
-                {
-                    interpolationDepth++; i++; continue;
-                }
-                if (c == '{' && interpolationDepth > 0)
-                {
-                    interpolationDepth++; continue;
-                }
-                if (c == '}' && interpolationDepth > 0)
-                {
-                    interpolationDepth--; continue;
-                }
-
-                // End of string
-                if (c == '\'')
-                {
-                    if (inMultiline)
-                    {
-                        // need '''
-                        if (i + 2 < text.Length && text[i + 1] == '\'' && text[i + 2] == '\'')
-                        {
-                            inString = false; inMultiline = false; interpolationDepth = 0; i += 2; continue;
-                        }
-                    }
-                    else if (interpolationDepth == 0)
-                    {
-                        inString = false; interpolationDepth = 0; continue;
-                    }
-                }
-            }
+            return true;
         }
 
-        return openCurly == 0 && openSquare == 0 && openParen == 0 && !inString && interpolationDepth == 0;
+        return program.Children[0] switch
+        {
+            VariableDeclarationSyntax { Value: SkippedTriviaSyntax } => false,
+            _ => true,
+        };
     }
+
+    private static SyntaxBase ParseJToken(JToken value)
+        => value switch {
+            JObject jObject => ParseJObject(jObject),
+            JArray jArray => ParseJArray(jArray),
+            JValue jValue => ParseJValue(jValue),
+            _ => throw new NotImplementedException($"Unrecognized token type {value.Type}"),
+        };
+
+    private static SyntaxBase ParseJValue(JValue value)
+        => value.Type switch {
+            JTokenType.Integer => SyntaxFactory.CreatePositiveOrNegativeInteger(value.Value<long>()),
+            JTokenType.String => SyntaxFactory.CreateStringLiteral(value.ToString()),
+            JTokenType.Boolean => SyntaxFactory.CreateBooleanLiteral(value.Value<bool>()),
+            JTokenType.Null => SyntaxFactory.CreateNullLiteral(),
+            _ => throw new NotImplementedException($"Unrecognized token type {value.Type}"),
+        };
+
+    private static SyntaxBase ParseJArray(JArray jArray)
+        => SyntaxFactory.CreateArray(
+            jArray.Select(ParseJToken));
+
+    private static SyntaxBase ParseJObject(JObject jObject)
+        => SyntaxFactory.CreateObject(
+            jObject.Properties()
+                .Select(x => SyntaxFactory.CreateObjectProperty(x.Name, ParseJToken(x.Value))));
 }

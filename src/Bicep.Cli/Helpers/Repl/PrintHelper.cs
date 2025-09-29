@@ -5,7 +5,10 @@ using System.Collections.Immutable;
 using System.Text;
 using Bicep.Cli.Helpers.WhatIf; // TODO: Move the usages (namely colorization helpers) to a common namespace
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
+using Bicep.Core.Highlighting;
 using Bicep.Core.Parsing;
+using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Text;
 
@@ -13,6 +16,12 @@ namespace Bicep.Cli.Helpers.Repl;
 
 public class PrintHelper
 {
+    public const string MoveCursorToLineStart = "\r";
+    public const string ClearToEndOfScreen = "\u001b[0J";
+    public const string HideCursor = "\u001b[?25l";
+    public const string ShowCursor = "\u001b[?25h";
+    public static string MoveCursorRight(int count) => $"\u001b[{count}C";
+    
     public class AnnotatedDiagnostic : IPositionable
     {
         // TODO: Rethink this
@@ -26,10 +35,10 @@ public class PrintHelper
         public IDiagnostic Diagnostic { get; }
     }
 
-    public static string PrintWithAnnotations(string text, IEnumerable<AnnotatedDiagnostic> annotations)
-        => PrintWithAnnotations(text, TextCoordinateConverter.GetLineStarts(text), annotations);
+    public static string PrintWithAnnotations(string text, IEnumerable<AnnotatedDiagnostic> annotations, string? fileTextToPrint = null)
+        => PrintWithAnnotations(text, TextCoordinateConverter.GetLineStarts(text), annotations, fileTextToPrint);
 
-    public static string PrintWithAnnotations(string fileText, ImmutableArray<int> lineStarts, IEnumerable<AnnotatedDiagnostic> annotations)
+    public static string PrintWithAnnotations(string fileText, ImmutableArray<int> lineStarts, IEnumerable<AnnotatedDiagnostic> annotations, string? fileTextToPrint = null)
     {
         var annotationPositions = annotations.ToDictionary(
             x => x,
@@ -42,7 +51,7 @@ public class PrintHelper
 
         var outputBuilder = new ColoredStringBuilder();
 
-        var programLines = StringUtils.SplitOnNewLine(fileText).ToArray();
+        var linesToPrint = StringUtils.SplitOnNewLine(fileTextToPrint ?? fileText).ToArray();
 
         var annotationsByLine = annotationPositions.ToLookup(x => x.Value.line, x => x.Key);
 
@@ -55,7 +64,7 @@ public class PrintHelper
         for (var i = minLine; i < maxLine; i++)
         {
             var gutterOffset = 0;
-            outputBuilder.Append(programLines[i]);
+            outputBuilder.Append(linesToPrint[i]);
             outputBuilder.Append('\n');
 
             var annotationsToDisplay = annotationsByLine[i].OrderBy(x => annotationPositions[x].character);
@@ -68,11 +77,11 @@ public class PrintHelper
                     _ => Color.Reset,
                 };
 
+                var position = annotationPositions[annotation];
+                outputBuilder.Append(new string(' ', gutterOffset + position.character));
+
                 using (outputBuilder.NewColorScope(color))
                 {
-                    var position = annotationPositions[annotation];
-                    outputBuilder.Append(new string(' ', gutterOffset + position.character));
-
                     switch (annotation.Span.Length)
                     {
                         case 0:
@@ -85,12 +94,84 @@ public class PrintHelper
 
                     outputBuilder.Append(' ');
                     outputBuilder.Append(annotation.Diagnostic.Message);
-                    outputBuilder.Append('\n');
                 }
-                
+                outputBuilder.Append('\n');
             }
         }
-        
+
         return outputBuilder.ToString();
     }
+
+    public static string PrintWithSyntaxHighlighting(SemanticModel model, string fullContent, int startPosition = 0)
+    {
+        var tokens = SemanticTokenVisitor.Build(model);
+        var overlapping = tokens
+            .Where(x => x.Positionable.IsOverlapping(startPosition) || x.Positionable.IsOnOrAfter(startPosition))
+            .OrderBy(x => x.Positionable.GetPosition());
+
+        var outputSb = new StringBuilder();
+        var cursor = startPosition;
+        foreach (var token in overlapping)
+        {
+            for (var i = cursor; i < token.Positionable.GetPosition(); i++)
+            {
+                outputSb.Append(fullContent[i]);
+            }
+
+            var tokenStart = Math.Max(cursor, token.Positionable.GetPosition());
+            var tokenEnd = token.Positionable.GetEndPosition();
+
+            outputSb.Append(GetSyntaxColor(token).ToString());
+            for (var i = tokenStart; i < tokenEnd; i++)
+            {
+                outputSb.Append(fullContent[i]);
+            }
+            outputSb.Append(Color.Reset.ToString());
+            cursor = tokenEnd;
+        }
+
+        for (var i = cursor; i < fullContent.Length; i++)
+        {
+            outputSb.Append(fullContent[i]);
+        }
+
+        return outputSb.ToString();
+    }
+
+    public static string PrintInputLine(string prefix, string currentLine, int cursorOffset)
+    {
+        var output = new StringBuilder();
+
+        output.Append(HideCursor);
+
+        output.Append(MoveCursorToLineStart);
+        output.Append(ClearToEndOfScreen);
+
+        output.Append(prefix);
+        output.Append(currentLine);
+
+        output.Append(MoveCursorToLineStart);
+        if (prefix.Length > 0)
+        {
+            output.Append(MoveCursorRight(prefix.Length));
+        }
+
+        if (cursorOffset > 0)
+        {
+            output.Append(MoveCursorRight(cursorOffset));
+        }
+
+        output.Append(ShowCursor);
+
+        return output.ToString();
+    }
+
+    private static Color GetSyntaxColor(SemanticToken token) => token.TokenType switch
+    {
+        SemanticTokenType.Operator => Color.Reset,
+        SemanticTokenType.Comment => Color.Green,
+        SemanticTokenType.Class => Color.Blue,
+        SemanticTokenType.Variable => Color.Purple,
+        _ => Color.Orange,
+    };
 }

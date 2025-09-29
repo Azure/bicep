@@ -19,6 +19,10 @@ using Bicep.IO.InMemory;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using Bicep.Cli.Helpers.Repl;
+using System.Management;
+using Bicep.Core.Highlighting;
+using Bicep.Cli.Helpers.WhatIf;
+using System.Net;
 
 namespace Bicep.Cli.Services;
 
@@ -26,7 +30,6 @@ public class ReplEnvironment
 {
     private readonly InMemoryFileExplorer fileExplorer;
     private readonly BicepCompiler compiler;
-    private readonly Workspace workspace;
 
     // Persist original variable declaration text (ordered) and lookup to allow redefinition.
     private readonly List<string> variableDeclarationLines = [];
@@ -37,10 +40,32 @@ public class ReplEnvironment
     {
         this.fileExplorer = new InMemoryFileExplorer();
         this.compiler = compiler;
-        this.workspace = new Workspace();
     }
 
-    public async Task<AnnotatedReplResult> EvaluateInput(string input)
+    public string HighlightInputLine(string prefix, string prevLines, IReadOnlyList<Rune> lineBuffer, int cursorOffset)
+    {
+        var currentLine = string.Concat(lineBuffer);
+        var fullContent = $"{prevLines}{currentLine}";
+        var lineStart = prevLines.Length;
+
+        var compilation = CompileInternal(fullContent);
+        var model = compilation.GetEntrypointSemanticModel();
+
+        var highlighted = PrintHelper.PrintWithSyntaxHighlighting(model, fullContent, lineStart);
+        var width = lineBuffer.Take(cursorOffset).Sum(r => r.Utf16SequenceLength);
+
+        return PrintHelper.PrintInputLine(prefix, highlighted, width);
+    }
+
+    public string HighlightSyntax(string content)
+    {
+        var compilation = CompileInternal(content);
+        var model = compilation.GetEntrypointSemanticModel();
+
+        return PrintHelper.PrintWithSyntaxHighlighting(model, content);
+    }
+
+    public AnnotatedReplResult EvaluateInput(string input)
     {
         var parser = new ReplParser(input);
         var syntax = parser.ParseExpression(out var diags);
@@ -52,13 +77,13 @@ public class ReplEnvironment
 
         if (syntax is VariableDeclarationSyntax varDecl)
         {
-            return await EvaluateVariableDeclaration(varDecl);
+            return EvaluateVariableDeclaration(varDecl);
         }
 
-        return await EvaluateExpression(syntax);
+        return EvaluateExpression(syntax);
     }
 
-    private async Task<AnnotatedReplResult> EvaluateVariableDeclaration(VariableDeclarationSyntax varDecl)
+    private AnnotatedReplResult EvaluateVariableDeclaration(VariableDeclarationSyntax varDecl)
     {
         var varName = varDecl.Name.IdentifierName;
         var declarationText = varDecl.ToString();
@@ -82,7 +107,7 @@ public class ReplEnvironment
         }
         sb.Append(declarationText);
         var fullContent = sb.ToString();
-        var compilation = await CompileInternal(fullContent);
+        var compilation = CompileInternal(fullContent);
 
         var model = compilation.GetEntrypointSemanticModel();
         var diagnostics = model.GetAllDiagnostics().Where(d => d.Source != DiagnosticSource.CoreLinter).ToList();
@@ -109,7 +134,7 @@ public class ReplEnvironment
         return new AnnotatedReplResult(variableEvalResult.Value, []);
     }
 
-    private async Task<AnnotatedReplResult> EvaluateExpression(SyntaxBase expressionSyntax)
+    private AnnotatedReplResult EvaluateExpression(SyntaxBase expressionSyntax)
     {
         var tempVarName = $"__temp_eval_{Guid.NewGuid():N}";
         var userExpression = expressionSyntax.ToString();
@@ -124,7 +149,7 @@ public class ReplEnvironment
         sb.Append("var ").Append(tempVarName).Append(" = ").Append(userExpression);
         var fullContent = sb.ToString();
 
-        var compilation = await CompileInternal(fullContent);
+        var compilation = CompileInternal(fullContent);
 
         var model = compilation.GetEntrypointSemanticModel();
 
@@ -150,16 +175,14 @@ public class ReplEnvironment
         return new AnnotatedReplResult(expressionEvalResult.Value, []);
     }
 
-    private async Task<Compilation> CompileInternal(string fullContent)
+    private Compilation CompileInternal(string fullContent)
     {
         var fileHandle = fileExplorer.GetFile(replFileUri);
-        await fileHandle.WriteAllTextAsync(fullContent);
-
         var sourceFile = compiler.SourceFileFactory.CreateBicepReplFile(fileHandle, fullContent);
+        var workspace = new Workspace();
         workspace.UpsertSourceFile(sourceFile);
 
-        var compilation = compiler.CreateCompilationWithoutRestore(replFileUri, workspace);
-        return compilation;
+        return compiler.CreateCompilationWithoutRestore(replFileUri, workspace);
     }
 
     // TODO: There's probably a better way to do this...
