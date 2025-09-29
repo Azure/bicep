@@ -123,6 +123,7 @@ module mod 'module.json' = {
             }
         }
 
+        // TODO(file-io-abstraction): Need migration.
         private static ImmutableDictionary<string, ImmutableArray<IDiagnostic>> GetDiagnosticsByFileName(Compilation compilation) =>
             compilation.GetAllDiagnosticsByBicepFile().ToImmutableDictionary(kvp => Path.GetFileName(kvp.Key.Uri.LocalPath), kvp => kvp.Value);
     }

@@ -4,8 +4,8 @@
 using System.Reflection;
 using Azure.Core;
 using Azure.Identity;
+using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
-using Bicep.Core.Registry.Auth;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import os from "os";
 import { describe, it } from "vitest";
 import { BicepRegistryReferenceBuilder } from "../utils/br";
 import { invokingBicepCommand } from "../utils/command";
@@ -33,10 +32,6 @@ describe("bicep local-deploy", () => {
 
     invokingBicepCommand("local-deploy", files.bicepparam)
       .shouldSucceed()
-      .withStdout(
-        ['Output sayHiResult: "Hello, World!"', "Resource sayHi (Create): Succeeded", "Result: Succeeded", ""].join(
-          os.EOL,
-        ),
-      );
+      .withStdoutContaining("sayHiResult │ Hello, World!", true);
   });
 });

@@ -10,7 +10,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14300936452791949961"
+      "templateHash": "14479042167380879537"
     }
   },
   "parameters": {
@@ -30,7 +30,7 @@
   "extensions": {
     "az": {
       "name": "AzureResourceManager",
-      "version": "0.2.789"
+      "version": "0.2.803"
     },
     "k8s": {
       "name": "Kubernetes",

@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 
 namespace Bicep.Core.SourceGraph
 {
-    public interface IWorkspace : IReadOnlyWorkspace
+    public interface IActiveSourceFileSet : IActiveSourceFileLookup
     {
         (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpsertSourceFiles(IEnumerable<ISourceFile> sourceFiles);
 

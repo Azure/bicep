@@ -13,6 +13,10 @@ The following features can be optionally enabled through your `bicepconfig.json`
 
 Should be enabled in tandem with `testFramework` experimental feature flag for expected functionality. Allows you to author boolean assertions using the `assert` keyword comparing the actual value of a parameter, variable, or resource name to an expected value. Assert statements can only be written directly within the Bicep file whose resources they reference. For more information, see [Bicep Experimental Test Framework](https://github.com/Azure/bicep/issues/11967).
 
+### `deployCommands`
+
+Enables `deploy`, `what-if` and `teardown` command groups, as well as the `with` syntax in a `.bicepparam` file. For more information, see [Using the Deploy Commands](./experimental/deploy-commands.md).
+
 ### `desiredStateConfiguration`
 
 Allows you to author configuration documents for [Microsoft's Desired State Configuration platform](https://github.com/PowerShell/DSC) using `targetScope = 'desiredStateConfiguration'`. If enabled, the file must only contain DSC resource instances. The built file is a valid configuration document to be used with the CLI. For example, `dsc.exe config test --file example.json`. This feature is in early development.
@@ -33,19 +37,6 @@ Enables Bicep to run deployments locally, so that you can run Bicep extensions w
 
 Moves defining extension configurations to the module level rather than from within a template. The feature also
 includes enhancements for Deployment stacks extensibility integration. This feature is not ready for use.
-
-### `onlyIfNotExists`
-The feature introduces the onlyIfNotExists decorator on a resource. The decorator will only deploy the resource if it does not exist. (Note: This feature will not work until the backend service support has been deployed)
-```
-@onlyIfNotExists()
-resource onlyDeployIfNotExists 'Microsoft...' = {
-  name: 'example'
-  location: 'eastus'
-  properties: {
-    ...
-  }
-}
-```
 
 ### `resourceInfoCodegen`
 

@@ -8,7 +8,6 @@ using Bicep.Core;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
@@ -34,7 +33,7 @@ namespace Bicep.LanguageServer
     {
         public const string LinterEnabledSetting = "core.enabled";
 
-        private readonly IWorkspace workspace;
+        private readonly IActiveSourceFileSet activeSourceFileSet;
         private readonly ILanguageServerFacade server;
         private readonly ICompilationProvider provider;
         private readonly IModuleRestoreScheduler scheduler;
@@ -49,7 +48,7 @@ namespace Bicep.LanguageServer
         public BicepCompilationManager(
             ILanguageServerFacade server,
             ICompilationProvider provider,
-            IWorkspace workspace,
+            IActiveSourceFileSet activeSourceFileSet,
             IModuleRestoreScheduler scheduler,
             ITelemetryProvider telemetryProvider,
             ILinterRulesProvider LinterRulesProvider,
@@ -58,7 +57,7 @@ namespace Bicep.LanguageServer
         {
             this.server = server;
             this.provider = provider;
-            this.workspace = workspace;
+            this.activeSourceFileSet = activeSourceFileSet;
             this.scheduler = scheduler;
             this.TelemetryProvider = telemetryProvider;
             this.LinterRulesProvider = LinterRulesProvider;
@@ -80,7 +79,7 @@ namespace Bicep.LanguageServer
                 // When errors are fixed in bicepconfig.json and file is saved, we'll get called into this
                 // method again. CompilationContext will be null. We'll get the sourceFile from workspace and
                 // upsert compilation.
-                if (workspace.TryGetSourceFile(documentUri.ToUriEncoded(), out ISourceFile? sourceFile) && sourceFile is BicepFile)
+                if (activeSourceFileSet.TryGetSourceFile(documentUri.ToIOUri()) is BicepFile sourceFile)
                 {
                     UpsertCompilationInternal(documentUri, null, sourceFile);
                 }
@@ -103,9 +102,9 @@ namespace Bicep.LanguageServer
 
         public void RefreshAllActiveCompilations(bool forceReloadAuxiliaryFiles)
         {
-            foreach (Uri sourceFileUri in workspace.GetActiveSourceFilesByUri().Keys)
+            foreach (var sourceFile in activeSourceFileSet)
             {
-                RefreshCompilation(DocumentUri.From(sourceFileUri), forceReloadAuxiliaryFiles);
+                RefreshCompilation(sourceFile.FileHandle.Uri.ToDocumentUri(), forceReloadAuxiliaryFiles);
             }
         }
 
@@ -129,7 +128,7 @@ namespace Bicep.LanguageServer
 
         private void UpsertCompilationInternal(DocumentUri documentUri, int? version, ISourceFile newFile, bool triggeredByFileOpenEvent = false, bool clearAuxiliaryFileCache = false)
         {
-            var (_, removedFiles) = workspace.UpsertSourceFile(newFile);
+            var (_, removedFiles) = activeSourceFileSet.UpsertSourceFile(newFile);
 
             var modelLookup = new Dictionary<ISourceFile, ISemanticModel>();
             if (newFile is BicepSourceFile)
@@ -178,26 +177,29 @@ namespace Bicep.LanguageServer
                 // There are cases where we may get large numbers of file events in one go (e.g. if the user checks out a git commit).
                 // We should bear that in mind when making changes here, to avoid introducing performance bottlenecks.
 
-                var changedFileUri = change.Uri.ToUriEncoded();
-                var changedFileIOUri = change.Uri.ToIOUri();
+                var changedFileUri = change.Uri.ToIOUri();
                 if (change.Type is FileChangeType.Deleted)
                 {
                     // If we don't know definitively that we're deleting a file, we have to assume it's a directory; the file system watcher does not give us any information to differentiate reliably.
                     // We could possibly assume that if the path ends in '.bicep', we've got a file, but this would discount directories ending in '.bicep', however unlikely.
-                    var removedSourceFiles = workspace.GetSourceFilesForDirectory(changedFileUri);
+                    var removedDirectoryUri = changedFileUri.Path.EndsWith('/')
+                        ? changedFileUri
+                        : changedFileUri.WithPath(changedFileUri.Path + '/');
+
+                    var removedSourceFiles = activeSourceFileSet.Where(x => removedDirectoryUri.IsBaseOf(x.FileHandle.Uri));
                     modifiedSourceFiles.UnionWith(removedSourceFiles);
 
-                    var removedAuxiliaryFiles = activeAuxiliaryFileUris.Where(changedFileIOUri.IsBaseOf);
-                    modifiedAuxiliaryFileUris.UnionWith(removedAuxiliaryFiles);
+                    var removedAuxiliaryFileUris = activeAuxiliaryFileUris.Where(removedDirectoryUri.IsBaseOf);
+                    modifiedAuxiliaryFileUris.UnionWith(removedAuxiliaryFileUris);
                 }
 
-                if (activeAuxiliaryFileUris.Contains(changedFileIOUri))
+                if (activeAuxiliaryFileUris.Contains(changedFileUri))
                 {
-                    modifiedAuxiliaryFileUris.Add(changedFileIOUri);
+                    modifiedAuxiliaryFileUris.Add(changedFileUri);
                 }
 
                 if (!activeContexts.ContainsKey(change.Uri) &&
-                    workspace.TryGetSourceFile(changedFileUri, out var modifiedSourceFile))
+                    activeSourceFileSet.TryGetSourceFile(changedFileUri) is { } modifiedSourceFile)
                 {
                     // If a file is active in the editor, we will get an explicit textDocument/did* request to update it.
                     // We deliberately avoid clearing the workspace for active files to avoid a race condition.
@@ -205,7 +207,7 @@ namespace Bicep.LanguageServer
                 }
             }
 
-            workspace.RemoveSourceFiles(modifiedSourceFiles);
+            activeSourceFileSet.RemoveSourceFiles(modifiedSourceFiles);
             auxiliaryfileCache.Trim(modifiedAuxiliaryFileUris);
 
             var modelLookup = new Dictionary<ISourceFile, ISemanticModel>();
@@ -258,7 +260,7 @@ namespace Bicep.LanguageServer
                 return true;
             }
 
-            if (this.workspace.TryGetSourceFile(documentUri.ToUriEncoded(), out var sourceFile))
+            if (this.activeSourceFileSet.TryGetSourceFile(documentUri.ToIOUri()) is { } sourceFile)
             {
                 sourceFileType = sourceFile.GetType();
                 return true;
@@ -285,12 +287,12 @@ namespace Bicep.LanguageServer
                 closedFiles.ExceptWith(context.Compilation.SourceFileGrouping.SourceFiles);
             }
 
-            workspace.RemoveSourceFiles(closedFiles);
+            activeSourceFileSet.RemoveSourceFiles(closedFiles);
 
             return [.. closedFiles];
         }
 
-        private CompilationContextBase CreateCompilationContext(IWorkspace workspace, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
+        private CompilationContextBase CreateCompilationContext(IActiveSourceFileSet workspace, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
             try
             {
@@ -298,7 +300,7 @@ namespace Bicep.LanguageServer
             }
             catch (Exception exception)
             {
-                if (!workspace.TryGetSourceFile(documentUri.ToUriEncoded(), out var sourceFile))
+                if (workspace.TryGetSourceFile(documentUri.ToIOUri()) is not { } sourceFile)
                 {
                     // the document is somehow missing from the workspace,
                     // which should not happen since we upsert into the workspace before creating the compilation
@@ -336,7 +338,7 @@ namespace Bicep.LanguageServer
             {
                 var potentiallyUnsafeContext = this.activeContexts.AddOrUpdate(
                     documentUri,
-                    (documentUri) => CreateCompilationContext(workspace, documentUri, modelLookup.ToImmutableDictionary()),
+                    (documentUri) => CreateCompilationContext(activeSourceFileSet, documentUri, modelLookup.ToImmutableDictionary()),
                     (documentUri, prevPotentiallyUnsafeContext) =>
                     {
                         if (prevPotentiallyUnsafeContext is CompilationContext prevContext)
@@ -356,7 +358,7 @@ namespace Bicep.LanguageServer
                             }
                         }
 
-                        return CreateCompilationContext(workspace, documentUri, modelLookup.ToImmutableDictionary());
+                        return CreateCompilationContext(activeSourceFileSet, documentUri, modelLookup.ToImmutableDictionary());
                     });
 
                 switch (potentiallyUnsafeContext)
@@ -373,7 +375,7 @@ namespace Bicep.LanguageServer
                         this.scheduler.RequestModuleRestore(this, documentUri, artifactsToRestore);
 
                         var sourceFiles = context.Compilation.SourceFileGrouping.SourceFiles;
-                        var output = workspace.UpsertSourceFiles(sourceFiles);
+                        var output = activeSourceFileSet.UpsertSourceFiles(sourceFiles);
 
                         // convert all the diagnostics to LSP diagnostics
                         var diagnostics = GetDiagnosticsFromContext(context).ToDiagnostics(context.LineStarts);

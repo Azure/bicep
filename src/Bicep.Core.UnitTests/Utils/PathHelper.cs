@@ -7,8 +7,7 @@ using LocalFileSystem = System.IO.Abstractions.FileSystem;
 namespace Bicep.Core.FileSystem
 {
     // TODO(file-io-abstraction): Currently only used by Workspace and tests.
-    // After replacing Workspace with InMemoryFileExplorer, move this to
-    // Bicep.Core.UnitTests. It can be removed once the tests are migrated eventually.
+    // It can be removed once the tests are migrated eventually.
     public static class PathHelper
     {
         private static readonly bool IsFileSystemCaseSensitive = CheckIfFileSystemIsCaseSensitive();
@@ -53,48 +52,6 @@ namespace Bicep.Core.FileSystem
             var resolvedPath = ResolvePath(path, baseDirectory);
 
             return Path.GetFullPath(resolvedPath);
-        }
-
-        public static string ResolveOutputPath(string inputPath, string? outputDir, string? outputFile, Func<string, string> defaultOutputPath, IFileSystem? fileSystem = null)
-        {
-            fileSystem ??= new LocalFileSystem();
-
-            if (outputDir is not null)
-            {
-                var dir = ResolvePath(outputDir, fileSystem: fileSystem);
-                var file = fileSystem.Path.GetFileName(inputPath);
-                var path = fileSystem.Path.Combine(dir, file);
-
-                return defaultOutputPath(path);
-            }
-            else if (outputFile is not null)
-            {
-                return ResolvePath(outputFile, fileSystem: fileSystem);
-            }
-            else
-            {
-                return defaultOutputPath(inputPath);
-            }
-        }
-
-        public static string ResolveParametersFileOutputPath(string path, OutputFormatOption outputFormat)
-        {
-            var folder = ResolvePath(path);
-
-            var pathWithoutFileName = Path.GetDirectoryName(folder);
-
-            var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(path);
-
-            if (string.IsNullOrWhiteSpace(fileNameWithoutExtension))
-            {
-                fileNameWithoutExtension = "output";
-            }
-
-            var extension = outputFormat == OutputFormatOption.Json ? "parameters.json" : "bicepparam";
-
-            var outputPath = $"{pathWithoutFileName}{Path.DirectorySeparatorChar}{fileNameWithoutExtension}.{extension}";
-
-            return outputPath;
         }
 
         public static string GetJsonOutputPath(string path)

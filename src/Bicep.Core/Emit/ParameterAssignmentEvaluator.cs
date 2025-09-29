@@ -209,6 +209,21 @@ public class ParameterAssignmentEvaluator
                 }
             });
 
+    public Result? EvaluateUsingConfig(FileSymbol file)
+    {
+        if (file.UsingDeclarationSyntax?.Config is not { } config)
+        {
+            return null;
+        }
+
+        var intermediate = converter.ConvertToIntermediateExpression(config);
+
+        var rewrittenExpression = ExternalInputExpressionRewriter
+            .Rewrite(intermediate, this.externalInputReferences);
+
+        return Result.For(rewrittenExpression);
+    }
+
     public ImmutableDictionary<string, Result> EvaluateExtensionConfigAssignment(ExtensionConfigAssignmentSymbol inputExtConfigAssignment)
         => extensionConfigAssignmentResults.GetOrAdd(
             inputExtConfigAssignment,
@@ -502,8 +517,7 @@ public class ParameterAssignmentEvaluator
 
         public override Expression ReplaceFunctionCallExpression(FunctionCallExpression expression)
         {
-            if (LanguageConstants.IdentifierComparer.Equals(expression.Name, LanguageConstants.ExternalInputsArmFunctionName) &&
-                expression.SourceSyntax is FunctionCallSyntaxBase functionCallSyntax &&
+            if (expression.SourceSyntax is FunctionCallSyntaxBase functionCallSyntax &&
                 externalInputReferences.ExternalInputIndexMap.TryGetValue(functionCallSyntax, out var definitionKey))
             {
                 return new FunctionCallExpression(

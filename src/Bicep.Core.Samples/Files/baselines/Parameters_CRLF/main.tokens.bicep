@@ -19,7 +19,12 @@ param myBool bool
 //@[00:05) Identifier |param|
 //@[06:12) Identifier |myBool|
 //@[13:17) Identifier |bool|
-//@[17:21) NewLine |\r\n\r\n|
+//@[17:19) NewLine |\r\n|
+param myAny any
+//@[00:05) Identifier |param|
+//@[06:11) Identifier |myAny|
+//@[12:15) Identifier |any|
+//@[15:19) NewLine |\r\n\r\n|
 
 // parameters with default value
 //@[32:34) NewLine |\r\n|
@@ -57,7 +62,16 @@ param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 //@[22:28) Identifier |string|
 //@[29:30) Assignment |=|
 //@[31:67) StringComplete |'First line\r\nSecond\ttabbed\tline'|
-//@[67:71) NewLine |\r\n\r\n|
+//@[67:69) NewLine |\r\n|
+param myAny2 any = myAny.property
+//@[00:05) Identifier |param|
+//@[06:12) Identifier |myAny2|
+//@[13:16) Identifier |any|
+//@[17:18) Assignment |=|
+//@[19:24) Identifier |myAny|
+//@[24:25) Dot |.|
+//@[25:33) Identifier |property|
+//@[33:37) NewLine |\r\n\r\n|
 
 // object default value
 //@[23:25) NewLine |\r\n|

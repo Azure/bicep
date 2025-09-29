@@ -5,6 +5,7 @@ using System.IO.Pipes;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime;
+using Bicep.Core;
 using Bicep.Core.Utils;
 using Bicep.LanguageServer.Options;
 using CommandLine;
@@ -34,9 +35,7 @@ namespace Bicep.LanguageServer
         public static async Task Main(string[] args)
             => await RunWithCancellationAsync(async cancellationToken =>
             {
-                var profilePath = DirHelper.GetTempPath();
-                ProfileOptimization.SetProfileRoot(profilePath);
-                ProfileOptimization.StartProfile("bicepserver.profile");
+                StartProfile();
 
                 var parser = new Parser(settings =>
                 {
@@ -137,6 +136,14 @@ namespace Bicep.LanguageServer
             {
                 // this is expected - no need to rethrow
             }
+        }
+
+        private static void StartProfile()
+        {
+            string profilePath = Path.Combine(Path.GetTempPath(), LanguageConstants.LanguageFileExtension); // bicep extension as a hidden folder name
+            Directory.CreateDirectory(profilePath);
+            ProfileOptimization.SetProfileRoot(profilePath);
+            ProfileOptimization.StartProfile("bicepserver.profile");
         }
     }
 }

@@ -1264,13 +1264,33 @@ namespace Bicep.Core.Semantics.Namespaces
 
             static IEnumerable<FunctionOverload> GetParamsFilePermittedOverloads(IFeatureProvider featureProvider)
             {
-                yield return new FunctionOverloadBuilder("readEnvironmentVariable")
-                    .WithGenericDescription($"Reads the specified Environment variable as bicep string. Variable loading occurs during compilation, not at runtime.")
-                    .WithRequiredParameter("variableName", LanguageConstants.String, "Environment Variable Name.")
-                    .WithReturnResultBuilder(ReadEnvironmentVariableResultBuilder, LanguageConstants.String)
-                    .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
-                    .WithOptionalParameter("default", LanguageConstants.String, "Default value to return if environment variable is not found.")
-                    .Build();
+                if (!featureProvider.DeployCommandsEnabled)
+                {
+                    yield return new FunctionOverloadBuilder("readEnvironmentVariable")
+                        .WithGenericDescription($"Reads the specified Environment variable as bicep string. Variable loading occurs during compilation, not at runtime.")
+                        .WithRequiredParameter("variableName", LanguageConstants.String, "Environment Variable Name.")
+                        .WithReturnResultBuilder(ReadEnvironmentVariableResultBuilder, LanguageConstants.String)
+                        .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
+                        .WithOptionalParameter("default", LanguageConstants.String, "Default value to return if environment variable is not found.")
+                        .Build();
+                }
+
+                if (featureProvider.DeployCommandsEnabled)
+                {
+                    yield return new FunctionOverloadBuilder(LanguageConstants.ReadEnvVarBicepFunctionName)
+                        .WithGenericDescription($"Reads the specified environment variable as bicep string.")
+                        .WithRequiredParameter("variableName", LanguageConstants.String, "The name of the environment variable.")
+                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, [new StringLiteralExpression(null, "sys.envVar"), .. exp.Parameters]))
+                        .WithReturnType(LanguageConstants.String)
+                        .Build();
+
+                    yield return new FunctionOverloadBuilder(LanguageConstants.ReadCliArgBicepFunctionName)
+                        .WithGenericDescription($"Reads the specified CLI argument as bicep string.")
+                        .WithRequiredParameter("argumentName", LanguageConstants.String, "The name of the CLI argument.")
+                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, [new StringLiteralExpression(null, "sys.cliArg"), .. exp.Parameters]))
+                        .WithReturnType(LanguageConstants.String)
+                        .Build();
+                }
 
                 yield return new FunctionOverloadBuilder(LanguageConstants.ExternalInputBicepFunctionName)
                     .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
@@ -1811,11 +1831,38 @@ namespace Bicep.Core.Semantics.Namespaces
 
             static IEnumerable<Decorator> GetBicepTemplateDecorators(IFeatureProvider featureProvider)
             {
+                var secureAttachableType = TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object);
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSecurePropertyName)
                     .WithDescription("Makes the parameter a secure parameter.")
                     .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
-                    .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
-                    .WithValidator(ValidateNotTargetingAlias)
+                    .WithAttachableType(secureAttachableType)
+                    .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
+                    {
+                        if (!TypeValidator.AreTypesAssignable(targetType, secureAttachableType))
+                        {
+                            // skip further validation if we're already reporting an error
+                            return;
+                        }
+
+                        var targetTypeClause = UnwrapNullableSyntax(GetDeclaredTypeSyntaxOfParent(decoratorSyntax, binder));
+                        if (IsLiteralSyntax(targetTypeClause, typeManager))
+                        {
+                            // @secure() is allowed on literal string and object types
+                            return;
+                        }
+
+                        if (targetTypeClause is not null &&
+                            binder.GetSymbolInfo(targetTypeClause) is AmbientTypeSymbol ambientType &&
+                            ambientType.DeclaringNamespace.ExtensionName.Equals(BuiltInName) &&
+                            ambientType.Name is LanguageConstants.TypeNameString or LanguageConstants.ObjectType)
+                        {
+                            // @secure() is allowed if the target's type syntax is "string" or "object"
+                            return;
+                        }
+
+                        diagnosticWriter.Write(
+                            DiagnosticBuilder.ForPosition(decoratorSyntax).SecureDecoratorOnlyAllowedOnStringsAndObjects());
+                    })
                     .WithEvaluator((functionCall, decorated) =>
                     {
                         if (decorated is TypeDeclaringExpression typeDeclaringExpression)
@@ -2012,14 +2059,13 @@ namespace Bicep.Core.Semantics.Namespaces
                         .Build();
                 }
 
-                if (featureProvider.OnlyIfNotExistsEnabled)
-                {
-                    yield return new DecoratorBuilder(LanguageConstants.OnlyIfNotExistsPropertyName)
-                        .WithDescription("Causes the resource deployment to be skipped if the resource already exists")
-                        .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
-                        .WithEvaluator(AddDecoratorConfigToResource)
-                        .Build();
-                }
+
+                yield return new DecoratorBuilder(LanguageConstants.OnlyIfNotExistsPropertyName)
+                    .WithDescription("Causes the resource deployment to be skipped if the resource already exists")
+                    .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
+                    .WithEvaluator(AddDecoratorConfigToResource)
+                    .Build();
+
 
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSealedPropertyName)
                     .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
@@ -2172,6 +2218,8 @@ namespace Bicep.Core.Semantics.Namespaces
             VariableDeclarationSyntax variableDeclaration => variableDeclaration.Type,
             TypeDeclarationSyntax typeDeclaration => typeDeclaration.Value,
             ObjectTypePropertySyntax objectTypeProperty => objectTypeProperty.Value,
+            ObjectTypeAdditionalPropertiesSyntax objectTypeAdditionalProperties => objectTypeAdditionalProperties.Value,
+            TupleTypeItemSyntax tupleTypeItem => tupleTypeItem.Value,
             _ => null,
         };
 
@@ -2336,7 +2384,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 return new(errorBuilder(DiagnosticBuilder.ForPosition(directoryPathArgument.syntax)));
             }
 
-            var thisFileUri = model.SourceFile.Uri.ToIOUri();
+            var thisFileUri = model.SourceFile.FileHandle.Uri;
             return new(directoryFiles.Select(uri =>
             {
                 var baseName = uri.GetFileName();

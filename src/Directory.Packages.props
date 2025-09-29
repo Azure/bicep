@@ -11,24 +11,24 @@
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.45" />
-    <PackageVersion Include="Azure.Bicep.Types" Version="0.5.110" />
-    <PackageVersion Include="Azure.Bicep.Types.Az" Version="0.2.789" />
+  <PackageVersion Include="Azure.Bicep.Types" Version="0.6.12" />
+  <PackageVersion Include="Azure.Bicep.Types.Az" Version="0.2.803" />
     <PackageVersion Include="Azure.Bicep.Types.K8s" Version="0.1.644" />
     <PackageVersion Include="Azure.Containers.ContainerRegistry" Version="1.1.1" />
     <PackageVersion Include="Azure.Deployments.ClientTools" Version="1.473.0" />
-    <PackageVersion Include="Azure.Deployments.Engine" Version="1.424.0" />
+    <PackageVersion Include="Azure.Deployments.Engine" Version="1.473.0" />
     <PackageVersion Include="Azure.Deployments.Extensibility.Core" Version="0.1.67" />
     <PackageVersion Include="Azure.Deployments.Internal.GenerateNotice" Version="0.1.45" />
-    <PackageVersion Include="Azure.Deployments.Templates" Version="1.424.0" />
-    <PackageVersion Include="Azure.Identity" Version="1.15.0" />
+    <PackageVersion Include="Azure.Deployments.Templates" Version="1.473.0" />
+    <PackageVersion Include="Azure.Identity" Version="1.16.0" />
     <PackageVersion Include="Azure.ResourceManager.ResourceGraph" Version="1.0.1" />
     <PackageVersion Include="Azure.ResourceManager.Resources" Version="1.11.1" />
-    <PackageVersion Include="BenchmarkDotNet" Version="0.14.0" />
+    <PackageVersion Include="BenchmarkDotNet" Version="0.15.4" />
     <PackageVersion Include="CommandLineParser" Version="2.9.1" />
-    <PackageVersion Include="DiffPlex" Version="1.7.2" />
+    <PackageVersion Include="DiffPlex" Version="1.9.0" />
     <!-- Version 8 or above are no longer fully open-source -->
     <PackageVersion Include="FluentAssertions" Version="7.2.0" />
-    <PackageVersion Include="Google.Protobuf" Version="3.32.0" />
+    <PackageVersion Include="Google.Protobuf" Version="3.32.1" />
     <PackageVersion Include="Grpc.AspNetCore" Version="2.71.0" />
     <PackageVersion Include="Grpc.AspNetCore.Server" Version="2.71.0" />
     <PackageVersion Include="Grpc.AspNetCore.Server.Reflection" Version="2.71.0" />
@@ -89,6 +89,8 @@
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageVersion Include="Serilog.Sinks.TextWriter" Version="3.0.0" />
     <PackageVersion Include="SharpYaml" Version="2.1.1" />
+    <PackageVersion Include="Spectre.Console" Version="0.51.1" />
+    <PackageVersion Include="Spectre.Console.Testing" Version="0.51.1" />
     <PackageVersion Include="StreamJsonRpc" Version="2.20.20" />
     <PackageVersion Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
     <PackageVersion Include="System.CommandLine.Hosting" Version="0.4.0-alpha.22272.1" />

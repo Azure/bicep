@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5298110337297432768"
+      "templateHash": "6668302940960209723"
     }
   },
   "parameters": {
@@ -19,6 +19,7 @@
     "myBool": {
       "type": "bool"
     },
+    "myAny": {},
     "myString2": {
       "type": "string",
       "defaultValue": "string value"
@@ -38,6 +39,9 @@
     "myEscapedString": {
       "type": "string",
       "defaultValue": "First line\r\nSecond\ttabbed\tline"
+    },
+    "myAny2": {
+      "defaultValue": "[parameters('myAny').property]"
     },
     "foo": {
       "type": "object",

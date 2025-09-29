@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { stripVTControlCharacters } from "node:util";
 import spawn from "cross-spawn";
 import { expect } from "vitest";
 import { bicepCli } from "./fs";
@@ -10,12 +11,20 @@ import { logStdErr } from "./log";
 class StdoutAssertionBuilder {
   constructor(private readonly stdout: string) {}
 
-  withStdout(expectedStdout: string | RegExp): void {
+  withStdout(expectedStdout: string | RegExp, stripAnsiCodes?: boolean): void {
+    const output = stripAnsiCodes ? stripVTControlCharacters(this.stdout) : this.stdout;
     if (typeof expectedStdout === "string") {
-      expect(this.stdout).toBe(expectedStdout);
+      expect(output).toBe(expectedStdout);
     } else {
-      expect(this.stdout).toMatch(expectedStdout);
+      expect(output).toMatch(expectedStdout);
     }
+  }
+
+  withStdoutContaining(contents: string, stripAnsiCodes?: boolean): StdoutAssertionBuilder {
+    const output = stripAnsiCodes ? stripVTControlCharacters(this.stdout) : this.stdout;
+    expect(output).toContain(contents);
+
+    return this;
   }
 
   withEmptyStdout(): void {

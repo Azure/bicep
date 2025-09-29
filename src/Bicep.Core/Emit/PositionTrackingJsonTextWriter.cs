@@ -4,7 +4,6 @@
 using System.Collections.Immutable;
 using System.Text;
 using System.Text.RegularExpressions;
-using Bicep.Core.FileSystem;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;

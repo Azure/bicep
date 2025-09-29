@@ -1,0 +1,48 @@
+M:System.Console.Write(System.Int32);Don't use Console.Write for logging.
+M:System.Console.Write(System.Int64);Don't use Console.Write for logging.
+M:System.Console.Write(System.UInt32);Don't use Console.Write for logging.
+M:System.Console.Write(System.UInt64);Don't use Console.Write for logging.
+M:System.Console.Write(System.Boolean);Don't use Console.Write for logging.
+M:System.Console.Write(System.Char);Don't use Console.Write for logging.
+M:System.Console.Write(System.Char[]);Don't use Console.Write for logging.
+M:System.Console.Write(System.Char[],System.Int32,System.Int32);Don't use Console.Write for logging.
+M:System.Console.Write(System.Single);Don't use Console.Write for logging.
+M:System.Console.Write(System.Double);Don't use Console.Write for logging.
+M:System.Console.Write(System.Object);Don't use Console.Write for logging.
+M:System.Console.Write(System.String);Don't use Console.Write for logging.
+M:System.Console.Write(System.String,System.Object);Don't use Console.Write for logging.
+M:System.Console.Write(System.String,System.Object,System.Object);Don't use Console.Write for logging.
+M:System.Console.Write(System.String,System.Object,System.Object,System.Object);Don't use Console.Write for logging.
+M:System.Console.Write(System.String,System.Object[]);Don't use Console.Write for logging.
+M:System.Console.Write(System.Decimal);Don't use Console.Write for logging.
+
+M:System.Console.WriteLine;Don't use Console.WriteLine for logging.
+M:System.Console.WriteLine(System.Int32);Don't use Console.WriteLine for logging.
+M:System.Console.WriteLine(System.Int64);Don't use Console.WriteLine for logging.
+M:System.Console.WriteLine(System.UInt32);Don't use Console.WriteLine for logging.
+M:System.Console.WriteLine(System.UInt64);Don't use Console.WriteLine for logging.
+M:System.Console.WriteLine(System.Boolean);Don't use Console.WriteLine for logging.
+M:System.Console.WriteLine(System.Char);Don't use Console.WriteLine for logging.
+M:System.Console.WriteLine(System.Char[]);Don't use Console.WriteLine for logging.
+M:System.Console.WriteLine(System.Char[],System.Int32,System.Int32);Don't use Console.WriteLine for logging.
+M:System.Console.WriteLine(System.Single);Don't use Console.WriteLine for logging.
+M:System.Console.WriteLine(System.Double);Don't use Console.WriteLine for logging.
+M:System.Console.WriteLine(System.Object);Don't use Console.WriteLine for logging.
+M:System.Console.WriteLine(System.String);Don't use Console.WriteLine for logging.
+M:System.Console.WriteLine(System.String,System.Object);Don't use Console.WriteLine for logging.
+M:System.Console.WriteLine(System.String,System.Object,System.Object);Don't use Console.WriteLine for logging.
+M:System.Console.WriteLine(System.String,System.Object,System.Object,System.Object);Don't use Console.WriteLine for logging.
+M:System.Console.WriteLine(System.String,System.Object[]);Don't use Console.WriteLine for logging.
+M:System.Console.WriteLine(System.Decimal);Don't use Console.WriteLine for logging.
+
+M:Moq.Mock`1.#ctor();Don't use the default Mock constructor. Set Strict mode explicitly or use a MockRepository set to strict mode.
+M:Moq.Mock`1.#ctor(System.Object[]);Don't use the default Mock constructor. Set Strict mode explicitly or use a MockRepository set to strict mode.
+
+M:OmniSharp.Extensions.LanguageServer.Protocol.DocumentUri.ToUri();Use DocumentUri.ToUriEncoded() instead.
+
+T:System.IO.File;Don't use System.IO for file operations. Use APIs from Bicep.Core.IO.Abstraction instead.
+T:System.IO.Directory;Don't use System.IO for file operations. Use APIs from Bicep.Core.IO.Abstraction instead.
+T:System.IO.FileInfo;Don't use System.IO for file operations. Use APIs from Bicep.Core.IO.Abstraction instead.
+T:System.IO.DirectoryInfo;Don't use System.IO for file operations. Use APIs from Bicep.Core.IO.Abstraction instead.
+T:System.IO.Path;Don't use System.IO for file operations. Use APIs from Bicep.Core.IO instead.
+T:System.IO.Abstraction.IFileSystem;Don't use System.IO.Abstraction for file operations. Use APIs from Bicep.Core.IO.Abstraction instead.

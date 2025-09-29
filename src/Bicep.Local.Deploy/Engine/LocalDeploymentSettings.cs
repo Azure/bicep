@@ -182,7 +182,7 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
 
     public KeyValuePair<string, string>[] BlacklistedDeploymentParameters { get; set; } = [];
 
-    public TimeSpan DeploymentJobTimeout { get; set; } = TimeSpan.FromSeconds(60);
+    public TimeSpan DeploymentJobTimeout { get; set; } = TimeSpan.FromHours(6);
 
     public Uri ExtensibilityHostUri { get; set; } = new Uri("https://example.com");
 
@@ -279,6 +279,12 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
     public TimeSpan ApiReferenceRetryTimeout { get; } = TimeSpan.FromSeconds(40);
 
     public bool PreserveAbsoluteUriInRelativePath => false;
+
+    public bool AcquirePolicyTokenEnabled => false;
+
+    public int AcquirePolicyTokenMaxRetryCount => 0;
+
+    public TimeSpan AcquirePolicyTokenMaxRetryDuration => TimeSpan.Zero;
 
     IReadOnlyDictionary<string, IEnumerable<string>> IAzureDeploymentSettings.DisabledTenantDictionary => ImmutableDictionary<string, IEnumerable<string>>.Empty;
 

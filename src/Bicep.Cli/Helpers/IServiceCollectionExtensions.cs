@@ -6,11 +6,10 @@ using Bicep.Cli.Commands;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Auth;
 using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
@@ -30,7 +29,7 @@ namespace Bicep.Cli.Helpers;
 /// <summary>
 /// Contains the collection extensions for adding the CLI commands and configuration of those commands.
 /// </summary>
-public static class ServiceCollectionExtensions
+public static class IServiceCollectionExtensions
 {
     /// <summary>
     /// Adds the CLI commands to the DI container. These are resolved when the commands are registered with the
@@ -62,6 +61,9 @@ public static class ServiceCollectionExtensions
             .AddSingleton<LocalDeployCommand>()
             .AddSingleton<SnapshotCommand>()
             .AddSingleton<ConsoleCommand>()
+            .AddSingleton<DeployCommand>()
+            .AddSingleton<WhatIfCommand>()
+            .AddSingleton<TeardownCommand>()
             .AddSingleton<RootCommand>();
 
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
@@ -69,6 +71,7 @@ public static class ServiceCollectionExtensions
         .AddSingleton<IResourceTypeProviderFactory, ResourceTypeProviderFactory>()
         .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
         .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
+        .AddSingleton<IArmClientProvider, ArmClientProvider>()
         .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
         .AddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>()
         .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()

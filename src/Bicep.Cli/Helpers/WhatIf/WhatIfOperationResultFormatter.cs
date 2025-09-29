@@ -16,7 +16,7 @@ namespace Bicep.Cli.Helpers.WhatIf;
 
 public class WhatIfOperationResultFormatter : WhatIfJsonFormatter
 {
-    public WhatIfOperationResultFormatter(ColoredStringBuilder builder)
+    private WhatIfOperationResultFormatter(ColoredStringBuilder builder)
         : base(builder)
     {
     }

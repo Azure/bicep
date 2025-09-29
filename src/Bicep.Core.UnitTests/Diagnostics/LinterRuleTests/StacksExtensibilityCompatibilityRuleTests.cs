@@ -161,8 +161,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             var compilation = await services.BuildCompilationWithRestore(files, paramsUri);
 
-            var diagByFileUri = compilation.GetAllDiagnosticsByBicepFileUri();
-
             if (!expectError)
             {
                 compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
@@ -170,7 +168,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             if (scenario is "NonSecurePropertyReferencesAreCoveredByGetSecretValidation_MainFile")
             {
-                diagByFileUri[mainUri].Should().ContainSingleDiagnostic("BCP180", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator or a secure extension configuration property.", because: "param files should have this validation");
+                compilation.GetSourceFileDiagnostics(mainUri).Should().ContainSingleDiagnostic("BCP180", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator or a secure extension configuration property.", because: "param files should have this validation");
 
                 return;
             }
@@ -184,20 +182,20 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             if (paramsFileDiagExpected)
             {
-                diagByFileUri[paramsUri].Should().ContainSingleDiagnostic(StacksExtensibilityCompatibilityRule.Code, DiagnosticLevel.Info, expectedMessage, because: "param files should have this validation");
+                compilation.GetSourceFileDiagnostics(paramsUri).Should().ContainSingleDiagnostic(StacksExtensibilityCompatibilityRule.Code, DiagnosticLevel.Info, expectedMessage, because: "param files should have this validation");
             }
             else
             {
-                diagByFileUri[paramsUri].Should().NotContainDiagnostic(StacksExtensibilityCompatibilityRule.Code);
+                compilation.GetSourceFileDiagnostics(paramsUri).Should().NotContainDiagnostic(StacksExtensibilityCompatibilityRule.Code);
             }
 
             if (mainFileDiagExpected)
             {
-                diagByFileUri[mainUri].Should().ContainSingleDiagnostic(StacksExtensibilityCompatibilityRule.Code, DiagnosticLevel.Info, expectedMessage, because: "bicep files should have this validation");
+                compilation.GetSourceFileDiagnostics(mainUri).Should().ContainSingleDiagnostic(StacksExtensibilityCompatibilityRule.Code, DiagnosticLevel.Info, expectedMessage, because: "bicep files should have this validation");
             }
             else
             {
-                diagByFileUri[mainUri].Should().NotContainDiagnostic(StacksExtensibilityCompatibilityRule.Code);
+                compilation.GetSourceFileDiagnostics(mainUri).Should().NotContainDiagnostic(StacksExtensibilityCompatibilityRule.Code);
             }
         }
 

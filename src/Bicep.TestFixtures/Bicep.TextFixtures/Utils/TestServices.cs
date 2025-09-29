@@ -5,10 +5,10 @@ using System.IO.Abstractions;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Auth;
 using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
@@ -37,6 +37,7 @@ namespace Bicep.TextFixtures.Utils
                 .AddSingleton<IResourceTypeProviderFactory, ResourceTypeProviderFactory>()
                 .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
                 .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
+                .AddSingleton<IArmClientProvider, ArmClientProvider>()
                 .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
                 .AddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>()
                 .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
@@ -47,7 +48,7 @@ namespace Bicep.TextFixtures.Utils
                 .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
                 .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
                 .AddSingleton<ISourceFileFactory, SourceFileFactory>()
-                .AddSingleton<IWorkspace, Workspace>()
+                .AddSingleton<IActiveSourceFileSet, ActiveSourceFileSet>()
                 .AddRegistryCatalogServices()
                 .AddSingleton<BicepCompiler>()
                 .AddSingleton<BicepDecompiler>();

@@ -8,11 +8,14 @@ using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.Core.TypeSystem.Providers.Extensibility;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using AzConcreteTypes = Azure.Bicep.Types.Concrete;
+using AzTypes = Azure.Bicep.Types;
 
 namespace Bicep.Core.UnitTests.TypeSystem.Az
 {
@@ -257,6 +260,111 @@ resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
 
             _ => []
         };
+
+
+        [TestMethod]
+        public void AzResourceTypeFactory_ScopeTypeAll_ShouldReturnAllScopes()
+        {
+            // Test the ScopeType.All handling
+            var factory = new AzResourceTypeFactory();
+            var resourceType = CreateMockResourceType(
+                readableScopes: AzConcreteTypes.ScopeType.All,
+                writableScopes: AzConcreteTypes.ScopeType.All);
+
+            var result = factory.GetResourceType(resourceType, []);
+
+            // ScopeType.All should map to all deployment scopes including Resource/Extension
+            result.ValidParentScopes.Should().Be(
+                ResourceScope.Tenant | ResourceScope.ManagementGroup |
+                ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource);
+        }
+
+        [TestMethod]
+        public void AzResourceTypeFactory_DifferentReadableAndwritableScopes_ShouldNotSetReadOnlyFlag()
+        {
+            // Test that ReadOnly flag is NOT set when there are some writable scopes
+            var factory = new AzResourceTypeFactory();
+            var resourceType = CreateMockResourceType(
+                readableScopes: AzConcreteTypes.ScopeType.Tenant | AzConcreteTypes.ScopeType.Subscription | AzConcreteTypes.ScopeType.ResourceGroup,
+                writableScopes: AzConcreteTypes.ScopeType.Subscription | AzConcreteTypes.ScopeType.ResourceGroup);
+
+            var result = factory.GetResourceType(resourceType, []);
+
+            // Should NOT be marked as ReadOnly because there are writable scopes available
+            result.Flags.Should().NotHaveFlag(ResourceFlags.ReadOnly);
+            // ReadOnlyScopes should be readable scopes minus writable scopes (tenant only)
+            result.ReadOnlyScopes.Should().Be(ResourceScope.Tenant);
+            // ValidParentScopes should be the writable scopes
+            result.ValidParentScopes.Should().Be(ResourceScope.Subscription | ResourceScope.ResourceGroup);
+        }
+
+        [TestMethod]
+        public void AzResourceTypeFactory_SameReadableAndwritableScopes_ShouldNotSetReadOnlyFlag()
+        {
+            // Test when readable and writable scopes are identical
+            var factory = new AzResourceTypeFactory();
+            var resourceType = CreateMockResourceType(
+                readableScopes: AzConcreteTypes.ScopeType.Subscription | AzConcreteTypes.ScopeType.ResourceGroup,
+                writableScopes: AzConcreteTypes.ScopeType.Subscription | AzConcreteTypes.ScopeType.ResourceGroup);
+
+            var result = factory.GetResourceType(resourceType, []);
+
+            // Should NOT be marked as ReadOnly when readable and writable scopes are the same
+            result.Flags.Should().NotHaveFlag(ResourceFlags.ReadOnly);
+            result.ReadOnlyScopes.Should().Be(ResourceScope.None);
+        }
+
+        [TestMethod]
+        public void AzResourceTypeFactory_NowritableScopes_WithReadableScopes_ShouldSetReadOnlyFlag()
+        {
+            // Test resources that have readable scopes but no writable scopes (fully read-only)
+            var factory = new AzResourceTypeFactory();
+            var resourceType = CreateMockResourceType(
+                readableScopes: AzConcreteTypes.ScopeType.Tenant | AzConcreteTypes.ScopeType.Subscription,
+                writableScopes: (AzConcreteTypes.ScopeType)0);
+
+            var result = factory.GetResourceType(resourceType, []);
+
+            // Should be marked as ReadOnly because there are no writable scopes
+            result.Flags.Should().HaveFlag(ResourceFlags.ReadOnly);
+            result.ReadOnlyScopes.Should().Be(ResourceScope.Tenant | ResourceScope.Subscription);
+            result.ValidParentScopes.Should().Be(ResourceScope.None); // No writable scopes
+        }
+
+        [TestMethod]
+        public void AzResourceTypeFactory_ReadableNone_WithSpecificWritableScopes_ShouldUseWritableScopes()
+        {
+            var factory = new AzResourceTypeFactory();
+            var resourceType = CreateMockResourceType(
+                readableScopes: AzConcreteTypes.ScopeType.None,
+                writableScopes: AzConcreteTypes.ScopeType.Tenant | AzConcreteTypes.ScopeType.ManagementGroup |
+                               AzConcreteTypes.ScopeType.Subscription | AzConcreteTypes.ScopeType.ResourceGroup);
+
+            var result = factory.GetResourceType(resourceType, []);
+
+            // Should NOT be marked as ReadOnly because there are writable scopes
+            result.Flags.Should().NotHaveFlag(ResourceFlags.ReadOnly);
+            result.ValidParentScopes.Should().Be(
+                ResourceScope.Tenant | ResourceScope.ManagementGroup |
+                ResourceScope.Subscription | ResourceScope.ResourceGroup);
+            result.ReadOnlyScopes.Should().Be(ResourceScope.None);
+        }
+
+        private static AzConcreteTypes.ResourceType CreateMockResourceType(
+            AzConcreteTypes.ScopeType readableScopes,
+            AzConcreteTypes.ScopeType writableScopes,
+            string name = "Test.Provider/testResource@2021-01-01")
+        {
+            var factory = new AzConcreteTypes.TypeFactory([]);
+            var bodyType = factory.Create(() => new AzConcreteTypes.ObjectType("body", new Dictionary<string, AzConcreteTypes.ObjectTypeProperty>(), null));
+
+            return factory.Create(() => new AzConcreteTypes.ResourceType(
+                name,
+                factory.GetReference(bodyType),
+                null,
+                writableScopes_in: writableScopes,
+                readableScopes_in: readableScopes));
+        }
 
         private static void VisitAllReachableTypes(TypeSymbol typeSymbol, HashSet<TypeSymbol> visited)
         {

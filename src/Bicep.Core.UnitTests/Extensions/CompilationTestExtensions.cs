@@ -14,14 +14,6 @@ namespace Bicep.Core.UnitTests.Extensions;
 
 public static class CompilationTestExtensions
 {
-    public static (bool success, IDictionary<Uri, ImmutableArray<IDiagnostic>> diagnosticsByFile) GetSuccessAndDiagnosticsByBicepFile(this Compilation compilation)
-    {
-        var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.Uri, kvp => kvp.Value);
-        var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => !d.IsError());
-
-        return (success, diagnosticsByFile);
-    }
-
     /// <summary>
     /// Emits and returns the ARM template compiled from the provided file URI. If a file URI is not provided, the entry point of the
     /// compilation is used by default.

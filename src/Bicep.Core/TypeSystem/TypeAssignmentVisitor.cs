@@ -229,8 +229,6 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Empty();
                 }
 
-                diagnostics.WriteMultiple(ValidateTypeAssignability(syntax.Type, declaredType));
-
                 base.VisitTypedLocalVariableSyntax(syntax);
 
                 return declaredType;
@@ -458,7 +456,7 @@ namespace Bicep.Core.TypeSystem
                 {
                     diagnostics.WriteMultiple(this.ValidateIdentifierAccess(syntax.Modifier));
 
-                    if (TypeValidator.AreTypesAssignable(LanguageConstants.Null, declaredType))
+                    if (TypeHelper.IsNullable(declaredType))
                     {
                         diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Modifier).NullableTypedParamsMayNotHaveDefaultValues());
                     }
@@ -531,8 +529,6 @@ namespace Bicep.Core.TypeSystem
                 {
                     var unwrapped = declaredType is TypeType wrapped ? wrapped.Unwrapped : declaredType;
                     ValidateDecorators(syntax.Decorators, unwrapped, diagnostics);
-
-                    diagnostics.WriteMultiple(ValidateTypeAssignability(syntax.Value, unwrapped));
                 }
 
                 return declaredType ?? ErrorType.Empty();
@@ -609,8 +605,6 @@ namespace Bicep.Core.TypeSystem
 
                 base.VisitArrayTypeMemberSyntax(syntax);
 
-                diagnostics.WriteMultiple(ValidateTypeAssignability(syntax.Value, declaredType));
-
                 return declaredType;
             });
 
@@ -664,12 +658,9 @@ namespace Bicep.Core.TypeSystem
 
         private static TypeSymbol? GetNonLiteralType(TypeSymbol? type) => type switch
         {
-            StringLiteralType => LanguageConstants.String,
-            IntegerLiteralType => LanguageConstants.Int,
-            BooleanLiteralType => LanguageConstants.Bool,
-            BooleanType => LanguageConstants.Bool,
-            IntegerType => LanguageConstants.Int,
-            StringType => LanguageConstants.String,
+            StringLiteralType or StringType => LanguageConstants.String,
+            IntegerLiteralType or IntegerType => LanguageConstants.Int,
+            BooleanLiteralType or BooleanType => LanguageConstants.Bool,
             ObjectType => LanguageConstants.Object,
             TupleType => LanguageConstants.Array,
             NullType => LanguageConstants.Null,
@@ -889,7 +880,6 @@ namespace Bicep.Core.TypeSystem
             }
 
             this.ValidateDecorators(targetSyntax.Decorators, declaredType, diagnostics);
-            diagnostics.WriteMultiple(ValidateTypeAssignability(typeSyntax, declaredType));
 
             return declaredType;
         }
@@ -1014,6 +1004,18 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     return moduleAwareExtConfigType;
+                });
+
+        public override void VisitUsingWithClauseSyntax(UsingWithClauseSyntax syntax)
+            => AssignTypeWithDiagnostics(
+                syntax, diagnostics =>
+                {
+                    if (typeManager.GetDeclaredType(syntax.Config) is not { } configType)
+                    {
+                        return ErrorType.Empty();
+                    }
+
+                    return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Config, configType, false);
                 });
 
         private void ValidateDecorators(IEnumerable<DecoratorSyntax> decoratorSyntaxes, TypeSymbol targetType, IDiagnosticWriter diagnostics)
@@ -2173,8 +2175,6 @@ namespace Bicep.Core.TypeSystem
                     CollectErrors(errors, argumentType.Type);
                 }
 
-                diagnostics.WriteMultiple(ValidateTypeAssignability(syntax.ReturnType, declaredLambdaType.ReturnType.Type));
-
                 var returnType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Body, declaredLambdaType.ReturnType.Type);
                 CollectErrors(errors, returnType);
 
@@ -2418,6 +2418,9 @@ namespace Bicep.Core.TypeSystem
                     case WildcardImportSymbol wildcardImport:
                         return wildcardImport.Type;
 
+                    case BaseParametersSymbol baseParameters:
+                        return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, baseParameters));
+
                     default:
                         return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAVariableOrParameter(syntax.Name.IdentifierName));
                 }
@@ -2635,24 +2638,6 @@ namespace Bicep.Core.TypeSystem
 
             return diagnosticWriter.GetDiagnostics();
         }
-
-        private IEnumerable<IDiagnostic> ValidateTypeAssignability(SyntaxBase typeSyntax, TypeSymbol assignedType)
-        {
-            if (typeSyntax is not SkippedTriviaSyntax &&
-                assignedType is not ErrorType &&
-                TryGetArmPrimitiveType(assignedType, typeSyntax) is null)
-            {
-                yield return DiagnosticBuilder.ForPosition(typeSyntax)
-                    .TypeExpressionResolvesToUnassignableType(assignedType);
-            }
-        }
-
-        private TypeSymbol? TryGetArmPrimitiveType(TypeSymbol type, SyntaxBase syntax) => type switch
-        {
-            ResourceType when features.ResourceTypedParamsAndOutputsEnabled => LanguageConstants.String,
-            UnionType when IsExplicitUnion(syntax) => LanguageConstants.Any,
-            _ => TypeHelper.TryGetArmPrimitiveType(type),
-        };
 
         private static bool IsExplicitUnion(SyntaxBase syntax) => syntax switch
         {
