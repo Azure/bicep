@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Highlighting;
+
 namespace Bicep.Wasm.LanguageHelpers
 {
-    public class SemanticToken
+    public class TokenPosition
     {
-        public SemanticToken(int line, int character, int length, SemanticTokenType tokenType)
+        public TokenPosition(int line, int character, int length, SemanticTokenType tokenType)
         {
             Line = line;
             Character = character;

@@ -64,15 +64,18 @@ public class ReplParser : BaseParser
                 continue;
             }
 
-            SyntaxBase syntax;
-            if (next.Type == TokenType.Identifier && next.Text == LanguageConstants.VariableKeyword)
-            {
-                syntax = VariableDeclaration([]);
-            }
-            else
-            {
-                syntax = Expression(ExpressionFlags.AllowComplexLiterals);
-            }
+            var syntax = this.WithRecovery(
+                () =>
+                {
+                    if (next.Type == TokenType.Identifier && next.Text == LanguageConstants.VariableKeyword)
+                    {
+                        return VariableDeclaration([]);
+                    }
+
+                    return Expression(ExpressionFlags.AllowComplexLiterals);
+                },
+                RecoveryFlags.None,
+                TokenType.NewLine);
 
             nodes.Add(syntax);
             // loop continues; trailing newlines are skipped at top
