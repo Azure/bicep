@@ -9,6 +9,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Syntax;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Cli.Commands;
@@ -21,11 +22,16 @@ namespace Bicep.Cli.Commands;
 /// </summary>
 public class ConsoleCommand : ICommand
 {
+    private readonly ILogger logger;
     private readonly IOContext io;
     private readonly ReplEnvironment replEnvironment;
 
-    public ConsoleCommand(IOContext io, ReplEnvironment replEnvironment)
+    public ConsoleCommand(
+        ILogger logger,
+        IOContext io,
+        ReplEnvironment replEnvironment)
     {
+        this.logger = logger;
         this.io = io;
         this.replEnvironment = replEnvironment;
     }
@@ -43,6 +49,8 @@ public class ConsoleCommand : ICommand
 
     public async Task<int> RunAsync(ConsoleArguments _)
     {
+        logger.LogWarning("WARNING: The 'console' CLI command is an experimental feature. Experimental features should be used for testing purposes only, as there are no guarantees about the quality or stability of these features.");
+        
         await io.Output.WriteLineAsync("Bicep Console v1.0.0");
         await io.Output.WriteLineAsync("Type 'help' for available commands, 'exit' to quit.");
         await io.Output.WriteLineAsync("Multi-line input supported. Use :reset to clear current buffer.");
