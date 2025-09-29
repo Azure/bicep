@@ -35,6 +35,8 @@ public class ReplEnvironment
     private readonly List<string> variableDeclarationLines = [];
     private readonly Dictionary<string, string> variableDeclarationLookup = new(StringComparer.OrdinalIgnoreCase);
     private static readonly IOUri replFileUri = IOUri.FromFilePath("/session.biceprepl");
+    private readonly List<string> history = [];
+    private int lastHistoryIndex = -1;
 
     public ReplEnvironment(BicepCompiler compiler)
     {
@@ -42,7 +44,7 @@ public class ReplEnvironment
         this.compiler = compiler;
     }
 
-    public string HighlightInputLine(string prefix, string prevLines, IReadOnlyList<Rune> lineBuffer, int cursorOffset)
+    public string HighlightInputLine(string prefix, string prevLines, IReadOnlyList<Rune> lineBuffer, int cursorOffset, bool printPrevLines)
     {
         var currentLine = string.Concat(lineBuffer);
         var fullContent = $"{prevLines}{currentLine}";
@@ -50,9 +52,16 @@ public class ReplEnvironment
 
         var compilation = CompileInternal(fullContent);
         var model = compilation.GetEntrypointSemanticModel();
+        var width = lineBuffer.Take(cursorOffset).Sum(r => r.Utf16SequenceLength);
+
+        if (printPrevLines)
+        {
+            var historyHighlighted = PrintHelper.PrintWithSyntaxHighlighting(model, fullContent, 0);
+
+            return PrintHelper.PrintInputLine(prefix, historyHighlighted, width);
+        }
 
         var highlighted = PrintHelper.PrintWithSyntaxHighlighting(model, fullContent, lineStart);
-        var width = lineBuffer.Take(cursorOffset).Sum(r => r.Utf16SequenceLength);
 
         return PrintHelper.PrintInputLine(prefix, highlighted, width);
     }
@@ -67,6 +76,9 @@ public class ReplEnvironment
 
     public AnnotatedReplResult EvaluateInput(string input)
     {
+        history.Add(input);
+        lastHistoryIndex = -1;
+
         var parser = new ReplParser(input);
         var syntax = parser.ParseExpression(out var diags);
         var errors = diags.Where(d => d.Level == DiagnosticLevel.Error).ToList();
@@ -173,6 +185,43 @@ public class ReplEnvironment
         }
 
         return new AnnotatedReplResult(expressionEvalResult.Value, []);
+    }
+
+    public string? TryGetHistory(bool backwards)
+    {
+        if (backwards)
+        {
+            if (lastHistoryIndex <= -1)
+            {
+                lastHistoryIndex = history.Count - 1;
+            }
+            else if (lastHistoryIndex > 0)
+            {
+                lastHistoryIndex--;
+            }
+            else
+            {
+                // remain at oldest entry
+            }
+        }
+        else
+        {
+            if (lastHistoryIndex > -1 && lastHistoryIndex < history.Count - 1)
+            {
+                lastHistoryIndex++;
+            }
+            else
+            {
+                // remain at newest entry
+            }
+        }
+
+        if (lastHistoryIndex == -1)
+        {
+            return null;
+        }
+
+        return history[lastHistoryIndex].TrimEnd('\n');
     }
 
     private Compilation CompileInternal(string fullContent)
