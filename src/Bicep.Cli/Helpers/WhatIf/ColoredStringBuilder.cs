@@ -59,7 +59,7 @@ public class ColoredStringBuilder
 
     public ColoredStringBuilder AppendLine(string value)
     {
-        this.stringBuilder.AppendLine(value);
+        this.stringBuilder.Append(value + '\n');
 
         return this;
     }
