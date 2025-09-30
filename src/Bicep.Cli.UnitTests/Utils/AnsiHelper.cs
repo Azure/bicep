@@ -7,7 +7,7 @@ using Bicep.Cli.Helpers.Repl;
 using Bicep.Cli.Helpers.WhatIf;
 public static class AnsiHelper
 {
-    private static readonly ImmutableDictionary<string, string> namesByEscapeCode = new Dictionary<string, string>
+    private static readonly ImmutableDictionary<string, string> escapeCodeByName = new Dictionary<string, string>
     {
         [nameof(Color.Orange)] = Color.Orange.ToString(),
         [nameof(Color.Green)] = Color.Green.ToString(),
@@ -26,19 +26,19 @@ public static class AnsiHelper
         [nameof(PrintHelper.MoveCursorToLineStart)] = PrintHelper.MoveCursorToLineStart,
     }.ToImmutableDictionary();
 
-    private static readonly ImmutableDictionary<string, string> regexByEscapeCode = new Dictionary<string, string>
+    private static readonly ImmutableDictionary<string, string> escapeCodeRegexByName = new Dictionary<string, string>
     {
         [nameof(PrintHelper.MoveCursorRight)] = "\u001b\\[(\\d+)C",
     }.ToImmutableDictionary();
 
     public static string ReplaceCodes(string input)
     {
-        foreach (var (name, code) in namesByEscapeCode)
+        foreach (var (name, code) in escapeCodeByName)
         {
             input = input.Replace(code, $"[{name}]");
         }
 
-        foreach (var (name, pattern) in regexByEscapeCode)
+        foreach (var (name, pattern) in escapeCodeRegexByName)
         {
             input = Regex.Replace(input, pattern, $"[{name}($1)]");
         }
@@ -48,12 +48,12 @@ public static class AnsiHelper
 
     public static string RemoveCodes(string input)
     {
-        foreach (var (escapeCode, name) in namesByEscapeCode)
+        foreach (var (name, escapeCode) in escapeCodeByName)
         {
             input = input.Replace(escapeCode, "");
         }
 
-        foreach (var (name, pattern) in regexByEscapeCode)
+        foreach (var (name, pattern) in escapeCodeRegexByName)
         {
             input = Regex.Replace(input, pattern, "");
         }
