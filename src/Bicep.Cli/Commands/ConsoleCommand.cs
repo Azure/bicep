@@ -11,6 +11,7 @@ using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Syntax;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using Spectre.Console;
 
 namespace Bicep.Cli.Commands;
 
@@ -19,22 +20,13 @@ namespace Bicep.Cli.Commands;
 /// Supports multi-line input: enter expressions or variable declarations.
 /// Input is submitted automatically when structurally complete, or by entering a blank line once complete.
 /// </summary>
-public class ConsoleCommand : ICommand
+public class ConsoleCommand(
+    ILogger logger,
+    IOContext io,
+    ReplEnvironment replEnvironment,
+    IAnsiConsole console) : ICommand
 {
-    private readonly ILogger logger;
     private const string FirstLinePrefix = "> ";
-    private readonly IOContext io;
-    private readonly ReplEnvironment replEnvironment;
-
-    public ConsoleCommand(
-        ILogger logger,
-        IOContext io,
-        ReplEnvironment replEnvironment)
-    {
-        this.logger = logger;
-        this.io = io;
-        this.replEnvironment = replEnvironment;
-    }
 
     private Rune ReadRune(char firstChar)
         => ReadRune(firstChar, () => Console.ReadKey(intercept: true).KeyChar);
@@ -58,9 +50,15 @@ public class ConsoleCommand : ICommand
         }
     }
 
-    public async Task<int> RunAsync(ConsoleArguments _)
+    public async Task<int> RunAsync(ConsoleArguments args)
     {
-        logger.LogWarning("WARNING: The 'console' CLI command is an experimental feature. Experimental features should be used for testing purposes only, as there are no guarantees about the quality or stability of these features.");
+        logger.LogWarning($"WARNING: The '{args.CommandName}' CLI command is an experimental feature. Experimental features should be used for testing purposes only, as there are no guarantees about the quality or stability of these features.");
+
+        if (!console.Profile.Capabilities.Interactive)
+        {
+            logger.LogError($"The '{args.CommandName}' CLI command requires an interactive console.");
+            return 1;
+        }
         
         await io.Output.WriteLineAsync("Bicep Console v1.0.0");
         await io.Output.WriteLineAsync("Type 'help' for available commands, press ESC to quit.");

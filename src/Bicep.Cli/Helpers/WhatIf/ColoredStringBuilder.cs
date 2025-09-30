@@ -52,14 +52,15 @@ public class ColoredStringBuilder
 
     public ColoredStringBuilder AppendLine()
     {
-        this.stringBuilder.AppendLine();
+        this.stringBuilder.Append('\n');
 
         return this;
     }
 
     public ColoredStringBuilder AppendLine(string value)
     {
-        this.stringBuilder.Append(value + '\n');
+        this.stringBuilder.Append(value);
+        this.AppendLine();
 
         return this;
     }
