@@ -1,0 +1,5 @@
+{
+  "extensions": {
+    "http": "br:example.azurecr.io/extensions/snapshot:1.2.3"
+  }
+}
