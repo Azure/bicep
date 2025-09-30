@@ -228,7 +228,7 @@ public class ReplEnvironment
     {
         var fileHandle = fileExplorer.GetFile(replFileUri);
         var sourceFile = compiler.SourceFileFactory.CreateBicepReplFile(fileHandle, fullContent);
-        var workspace = new Workspace();
+        var workspace = new ActiveSourceFileSet();
         workspace.UpsertSourceFile(sourceFile);
 
         return compiler.CreateCompilationWithoutRestore(replFileUri, workspace);
