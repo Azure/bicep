@@ -946,4 +946,28 @@ resource bazRes 'bar:fooType@v1' = {
 }
 """);
     }
+
+    [TestMethod]
+    public async Task MSGraph_extension_1_0_0_is_valid()
+    {
+        // https://github.com/Azure/bicep/issues/18158
+        var registry = "mcr.microsoft.com";
+        var repository = "bicep/extensions/microsoftgraph/v1.0";
+
+        var services = ExtensionTestHelper.GetServiceBuilder(new MockFileSystem(), registry, repository, AllFeaturesEnabled);
+        var typesTgz = new EmbeddedFile(typeof(ExtensionRegistryTests).Assembly, "Files/ExtensionTypes/msgraph-1.0.0-types.tgz");
+        await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.0.0", typesTgz.BinaryData);
+
+        var result = await CompilationHelper.RestoreAndCompile(services, """
+            param application object
+
+            extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:1.0.0' as microsoftGraphV1_0
+
+            resource ownerUsers 'Microsoft.Graph/users@v1.0' existing = [for (owner, i) in application.owners: {
+              userPrincipalName: owner.upn
+            }]
+            """);
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+    }
 }
