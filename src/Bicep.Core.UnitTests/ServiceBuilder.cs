@@ -34,7 +34,7 @@ public class ServiceBuilder
         this.services = new ServiceCollection()
             .AddBicepCore()
             .AddBicepDecompiler()
-            .WithWorkspace(new Workspace());
+            .WithWorkspace(new ActiveSourceFileSet());
     }
 
     public static IDependencyHelper Create(Action<IServiceCollection>? registerAction = null)

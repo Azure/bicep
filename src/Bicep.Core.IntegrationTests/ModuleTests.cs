@@ -91,9 +91,7 @@ output outputb string = '${inputa}-${inputb}'
 
             var compilation = Services.BuildCompilation(files, mainUri);
 
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
-            diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
-            success.Should().BeTrue();
+            compilation.HasErrors().Should().BeFalse();
             compilation.GetTestTemplate().Should().NotBeEmpty();
         }
 
@@ -120,12 +118,10 @@ module mainRecursive 'main.bicep' = {
 
             var compilation = Services.BuildCompilation(files, mainUri);
 
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
-            diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
+            compilation.HasErrors().Should().BeTrue();
+            compilation.GetSourceFileDiagnostics(mainUri).Should().HaveDiagnostics(new[] {
                 ("BCP094", DiagnosticLevel.Error, "This module references itself, which is not allowed."),
             });
-
-            success.Should().BeFalse();
         }
 
         [TestMethod]
@@ -174,17 +170,16 @@ module main 'main.bicep' = {
 
             var compilation = Services.BuildCompilation(files, mainUri);
 
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
-            diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
+            compilation.HasErrors().Should().BeTrue();
+            compilation.GetSourceFileDiagnostics(mainUri).Should().HaveDiagnostics(new[] {
                 ("BCP095", DiagnosticLevel.Error, "The file is involved in a cycle (\"/modulea.bicep\" -> \"/moduleb.bicep\" -> \"/main.bicep\")."),
             });
-            diagnosticsByFile[moduleAUri].Should().HaveDiagnostics(new[] {
+            compilation.GetSourceFileDiagnostics(moduleAUri).Should().HaveDiagnostics(new[] {
                 ("BCP095", DiagnosticLevel.Error, "The file is involved in a cycle (\"/moduleb.bicep\" -> \"/main.bicep\" -> \"/modulea.bicep\")."),
             });
-            diagnosticsByFile[moduleBUri].Should().HaveDiagnostics(new[] {
+            compilation.GetSourceFileDiagnostics(moduleBUri).Should().HaveDiagnostics(new[] {
                 ("BCP095", DiagnosticLevel.Error, "The file is involved in a cycle (\"/main.bicep\" -> \"/modulea.bicep\" -> \"/moduleb.bicep\")."),
             });
-            success.Should().BeFalse();
         }
 
         private delegate bool TryReadDelegate(Uri fileUri, out string? fileContents, out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder);
@@ -202,7 +197,7 @@ module main 'main.bicep' = {
 
             var mockDispatcher = StrictMock.Of<IModuleDispatcher>().Object;
 
-            Action buildAction = () => SourceFileGroupingBuilder.Build(fileExplorerMock.Object, mockDispatcher, new Workspace(), BicepTestConstants.SourceFileFactory, fileUri);
+            Action buildAction = () => SourceFileGroupingBuilder.Build(fileExplorerMock.Object, mockDispatcher, new ActiveSourceFileSet(), BicepTestConstants.SourceFileFactory, fileUri);
             buildAction.Should().Throw<DiagnosticException>()
                 .And.Diagnostic.Should().HaveCodeAndSeverity("BCP091", DiagnosticLevel.Error).And.HaveMessage("An error occurred reading file. Mock read failure!");
         }
@@ -295,10 +290,7 @@ output outputc2 int = inputb + 1
             };
 
             var compilation = Services.BuildCompilation(files, mainUri);
-
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
-            diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
-            success.Should().BeTrue();
+            compilation.HasErrors().Should().BeFalse();
 
             var templateString = compilation.GetTestTemplate();
             var template = JToken.Parse(templateString);
@@ -364,8 +356,7 @@ module modulea 'modulea.bicep' = {
             var compiler = ServiceBuilder.Create(s => s.WithFileExplorer(fileExplorer).WithDisabledAnalyzersConfiguration()).GetCompiler();
             var compilation = await compiler.CreateCompilation(mainUri.ToIOUri());
 
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
-            diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
+            compilation.GetSourceFileDiagnostics(mainUri).Should().HaveDiagnostics(new[] {
                 ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. File '/path/to/modulea.bicep' does not exist."),
             });
         }
@@ -649,16 +640,16 @@ resource fake 'Another.Fake/Type@2019-06-01' = {
 
 output storage resource 'Another.Fake/Type@2019-06-01' = fake
 "));
-            var diagnosticsMap = result.Compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.Uri, kvp => kvp.Value);
+            var compilation = result.Compilation;
             using (new AssertionScope())
             {
-                diagnosticsMap[InMemoryFileResolver.GetFileUri("/path/to/module.bicep")].Should().HaveDiagnostics(new[]
+                compilation.GetSourceFileDiagnostics(InMemoryFileResolver.GetFileUri("/path/to/module.bicep")).Should().HaveDiagnostics(new[]
                 {
                     ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
                     ("BCP081", DiagnosticLevel.Warning, "Resource type \"Another.Fake/Type@2019-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
                     ("BCP081", DiagnosticLevel.Warning, "Resource type \"Another.Fake/Type@2019-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
                 });
-                diagnosticsMap[InMemoryFileResolver.GetFileUri("/path/to/main.bicep")].Should().HaveDiagnostics(new[]
+                compilation.GetSourceFileDiagnostics(InMemoryFileResolver.GetFileUri("/path/to/main.bicep")).Should().HaveDiagnostics(new[]
                 {
                     ("BCP230", DiagnosticLevel.Warning, "The referenced module uses resource type \"Some.Fake/Type@2019-06-01\" which does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
                     ("BCP230", DiagnosticLevel.Warning, "The referenced module uses resource type \"Another.Fake/Type@2019-06-01\" which does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
@@ -868,9 +859,7 @@ output outputb string = '${inputa}-${inputb}'
 
             var compilation = ServicesWithExtensionConfigs.BuildCompilation(files, mainUri);
 
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
-            diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
-            success.Should().BeTrue();
+            compilation.HasErrors().Should().BeFalse();
             compilation.GetTestTemplate().Should().NotBeEmpty();
             var templateString = compilation.GetTestTemplate();
             templateString.Should().NotBeNull();
@@ -1071,9 +1060,7 @@ output runtimevalue string = 'runtime'
 
         private static void ModuleTemplateHashValidator(Compilation compilation, string expectedTemplateHash)
         {
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
-            diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
-            success.Should().BeTrue();
+            compilation.HasErrors().Should().BeFalse();
             var templateString = compilation.GetTestTemplate();
             var template = JToken.Parse(templateString);
             template.Should().NotBeNull();

@@ -4,7 +4,6 @@
 using System.Collections.Immutable;
 using System.IO.Abstractions;
 using Bicep.Cli.Logging;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
 using Bicep.Core.Utils;
 using Microsoft.Extensions.FileSystemGlobbing;

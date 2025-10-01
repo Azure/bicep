@@ -243,7 +243,9 @@ namespace Bicep.LanguageServer.Completions
                 ConvertFlag(ExpectingExtensionSpecification.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionSpecification) |
                 ConvertFlag(ExpectingExtensionWithOrAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionWithOrAsKeyword) |
                 ConvertFlag(ExpectingExtensionConfig.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionConfig) |
-                ConvertFlag(ExpectingExtensionAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionAsKeyword);
+                ConvertFlag(ExpectingExtensionAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingExtensionAsKeyword) |
+                ConvertFlag(IsUsingFollowerContext(matchingNodes, offset), BicepCompletionContextKind.UsingFollower) |
+                ConvertFlag(IsUsingWithFollowerContext(matchingNodes, offset), BicepCompletionContextKind.UsingWithFollower);
 
             if (bicepFile.Features.AssertsEnabled)
             {
@@ -466,6 +468,20 @@ namespace Bicep.LanguageServer.Completions
             SyntaxMatcher.IsTailMatch<TargetScopeSyntax, Token>(matchingNodes, (targetScope, token) =>
                 token.Type == TokenType.Assignment &&
                 ReferenceEquals(targetScope.Assignment, token));
+
+        private static bool IsUsingFollowerContext(List<SyntaxBase> matchingNodes, int offset) =>
+            // using 'main.bicep' |
+            SyntaxMatcher.IsTailMatch<UsingDeclarationSyntax>(matchingNodes, syntax =>
+                offset > syntax.Path.GetEndPosition() &&
+                syntax.WithClause is SkippedTriviaSyntax &&
+                offset <= syntax.WithClause.Span.Position);
+
+        private static bool IsUsingWithFollowerContext(List<SyntaxBase> matchingNodes, int offset) =>
+            // using 'main.bicep' with |
+            SyntaxMatcher.IsTailMatch<UsingWithClauseSyntax>(matchingNodes, syntax =>
+                offset > syntax.Keyword.GetEndPosition() &&
+                syntax.Config is SkippedTriviaSyntax &&
+                offset <= syntax.Config.Span.Position);
 
         private static bool IsTopLevelDeclarationStartContext(List<SyntaxBase> matchingNodes, int offset)
         {

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using Bicep.Core;
 using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Configuration;
 using Bicep.LanguageServer.Utils;

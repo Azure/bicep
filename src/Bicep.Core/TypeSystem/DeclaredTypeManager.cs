@@ -195,6 +195,9 @@ namespace Bicep.Core.TypeSystem
 
                 case VariableDeclarationSyntax variableDeclaration:
                     return GetVariableTypeIfDefined(variableDeclaration);
+
+                case UsingWithClauseSyntax usingWithClause:
+                    return GetUsingConfigAssignmentType(usingWithClause);
             }
 
             return null;
@@ -1225,6 +1228,13 @@ namespace Bicep.Core.TypeSystem
             return extMetadata.ConfigAssignmentDeclaredType;
         }
 
+        private DeclaredTypeAssignment? GetUsingConfigAssignmentType(UsingWithClauseSyntax syntax)
+        {
+            var usingConfigType = LanguageConstants.CreateUsingConfigType();
+
+            return TryCreateAssignment(usingConfigType, syntax);
+        }
+
         private DeclaredTypeAssignment? GetExtensionConfigAssignmentType(ExtensionConfigAssignmentSyntax extConfigAssignment)
         {
             if (GetDeclaredExtensionConfigAssignmentType(extConfigAssignment) is { } configType)
@@ -1852,21 +1862,11 @@ namespace Bicep.Core.TypeSystem
                     // the object is an item in an array
                     // use the item's type and propagate flags
                     return TryCreateAssignment(ResolveDiscriminatedObjects(configType.Type, syntax), syntax, extensionAssignment.Flags);
-                case UsingWithClauseSyntax:
-                    parent = this.binder.GetParent(parent) ?? throw new InvalidOperationException($"Expected {nameof(UsingWithClauseSyntax)} to have a parent.");
-                    if (!binder.FileSymbol.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var semanticModel))
-                    {
-                        // this error will have already been surfaced elsewhere
-                        return null;
-                    }
-
-                    var usingConfigType = LanguageConstants.CreateUsingConfigType();
-
-                    return TryCreateAssignment(usingConfigType, syntax);
 
                 case FunctionArgumentSyntax:
                 case OutputDeclarationSyntax parentOutput when syntax == parentOutput.Value:
                 case VariableDeclarationSyntax parentVariable when syntax == parentVariable.Value:
+                case UsingWithClauseSyntax usingWith when syntax == usingWith.Config:
                     if (GetNonNullableTypeAssignment(parent) is not { } parentAssignment)
                     {
                         return null;
@@ -2038,7 +2038,7 @@ namespace Bicep.Core.TypeSystem
             return null;
         }
 
-        private static TypeSymbol? ResolveDiscriminatedObjects(TypeSymbol type, ObjectSyntax syntax)
+        private static TypeSymbol ResolveDiscriminatedObjects(TypeSymbol type, ObjectSyntax syntax)
         {
             if (type is not DiscriminatedObjectType discriminated)
             {
@@ -2080,7 +2080,7 @@ namespace Bicep.Core.TypeSystem
             var matchingObjectType = discriminated.UnionMembersByKey.TryGetValue(StringUtils.EscapeBicepString(discriminatorValue));
 
             // return the match if we have it
-            return matchingObjectType?.Type;
+            return matchingObjectType?.Type ?? type;
         }
 
         // references to symbols can be involved in cycles

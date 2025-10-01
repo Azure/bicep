@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using Azure.Containers.ContainerRegistry;
-using Bicep.Core.Configuration;
 using Bicep.Core.AzureApi;
+using Bicep.Core.Configuration;
 using Bicep.Core.Tracing;
 
 namespace Bicep.Core.Registry

@@ -550,4 +550,7 @@
   <data name="StacksExtensibilityCompatibilityRule_NonSecurePropertyValueIsReference" xml:space="preserve">
     <value>Non-secure config property values must be a value type to be valid for Deployment stack deployments.</value>
   </data>
+  <data name="NoExplicitAnyRule_Description" xml:space="preserve">
+    <value>Avoid using an explicit 'any' type whenever possible.</value>
+  </data>
 </root>

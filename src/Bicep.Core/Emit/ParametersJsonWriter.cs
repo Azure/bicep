@@ -14,7 +14,7 @@ namespace Bicep.Core.Emit;
 public class ParametersJsonWriter
 {
     public const string UsingConfigPropertyName = "usingConfig";
-    
+
     private ExpressionBuilder ExpressionBuilder { get; }
 
     private EmitterContext Context => ExpressionBuilder.Context;

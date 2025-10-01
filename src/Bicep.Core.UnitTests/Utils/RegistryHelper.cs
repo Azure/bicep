@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
+using Azure.Bicep.Types.Serialization;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -21,6 +22,7 @@ using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.IO.FileSystem;
+using Bicep.IO.Utils;
 using FluentAssertions;
 using Google.Protobuf;
 using Microsoft.Extensions.DependencyInjection;
@@ -196,9 +198,53 @@ public static class RegistryHelper
     {
         var fileSystem = services.Construct<IFileSystem>();
 
-        var tgzData = await TypesV1Archive.GenerateExtensionTarStream(fileSystem, pathToIndexJson);
+        var tgzData = await GenerateExtensionTarStream(fileSystem, pathToIndexJson);
 
         await PublishExtensionToRegistryAsync(services, target, tgzData);
+    }
+
+    // TODO(file-io-abstraction): This is only used by tests. Needs refactoring.
+    public static async Task<BinaryData> GenerateExtensionTarStream(IFileSystem fileSystem, string indexJsonPath)
+    {
+        using var stream = new MemoryStream();
+        using (var tgzWriter = new TgzWriter(stream, leaveOpen: true))
+        {
+            var indexJson = await fileSystem.File.ReadAllTextAsync(indexJsonPath);
+            await tgzWriter.WriteEntryAsync("index.json", indexJson);
+
+            var indexJsonParentPath = Path.GetDirectoryName(indexJsonPath);
+            var uniqueTypePaths = GetAllUniqueTypePaths(indexJsonPath, fileSystem);
+
+            foreach (var relativePath in uniqueTypePaths)
+            {
+                var absolutePath = Path.Combine(indexJsonParentPath!, relativePath);
+                var typesJson = await fileSystem.File.ReadAllTextAsync(absolutePath);
+                await tgzWriter.WriteEntryAsync(relativePath, typesJson);
+            }
+        }
+
+        stream.Seek(0, SeekOrigin.Begin);
+
+        return BinaryData.FromStream(stream);
+    }
+
+    private static IEnumerable<string> GetAllUniqueTypePaths(string pathToIndex, IFileSystem fileSystem)
+    {
+        using var indexStream = fileSystem.FileStream.New(pathToIndex, FileMode.Open, FileAccess.Read);
+
+        var index = TypeSerializer.DeserializeIndex(indexStream);
+
+        var typeReferences = index.Resources.Values.ToList();
+        if (index.Settings?.ConfigurationType is { } configType)
+        {
+            typeReferences.Add(configType);
+        }
+        if (index.FallbackResourceType is { } fallbackType)
+        {
+            typeReferences.Add(fallbackType);
+        }
+
+        return typeReferences.Select(x => x.RelativePath).Distinct();
     }
 
     public static async Task PublishExtensionToRegistryAsync(IDependencyHelper services, string target, BinaryData tgzData, Uri? bicepFileUri = null)

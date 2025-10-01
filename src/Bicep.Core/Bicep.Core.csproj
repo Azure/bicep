@@ -20,6 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <AdditionalFiles Include="BannedSymbols.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="Configuration\bicepconfig.json" WithCulture="false" />
   </ItemGroup>
 

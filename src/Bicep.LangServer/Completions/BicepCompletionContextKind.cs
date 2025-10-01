@@ -268,5 +268,15 @@ namespace Bicep.LanguageServer.Completions
         /// The current location needs a stack path (local or remote)
         /// </summary>
         StackPath = 1UL << 49,
+
+        /// <summary>
+        /// We're at this place: 'using 'main.bicep' |'
+        /// </summary>
+        UsingFollower = 1UL << 50,
+
+        /// <summary>
+        /// We're at this place: 'using 'main.bicep' with |'
+        /// </summary>
+        UsingWithFollower = 1UL << 51,
     }
 }

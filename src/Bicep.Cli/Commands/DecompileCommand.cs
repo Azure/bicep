@@ -5,7 +5,6 @@ using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core;
 using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
 using Bicep.Core.SourceGraph;
 using Bicep.Decompiler;
 using Bicep.IO.Abstraction;
@@ -65,7 +64,7 @@ namespace Bicep.Cli.Commands
 
                 // TODO(low-priority): It would be ideal to remove Workspace and use InMemoryFileExplorer instead.
                 // This is something that should be done after the core part of file I/O abstraction migration is complete.
-                var workspace = new Workspace();
+                var workspace = new ActiveSourceFileSet();
                 foreach (var (fileUri, bicepOutput) in decompilation.FilesToSave)
                 {
                     workspace.UpsertSourceFile(this.sourceFileFactory.CreateBicepFile(fileUri, bicepOutput));

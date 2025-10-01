@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.Helpers;
-using Bicep.Core.FileSystem;
 using Bicep.IO.Abstraction;
 using LanguageConstants = Bicep.Core.LanguageConstants;
 

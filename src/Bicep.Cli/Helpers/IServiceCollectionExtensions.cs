@@ -9,7 +9,6 @@ using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Semantics.Namespaces;
@@ -64,6 +63,7 @@ public static class IServiceCollectionExtensions
             .AddSingleton<DeployCommand>()
             .AddSingleton<WhatIfCommand>()
             .AddSingleton<TeardownCommand>()
+            .AddSingleton<ConsoleCommand>()
             .AddSingleton<RootCommand>();
 
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services

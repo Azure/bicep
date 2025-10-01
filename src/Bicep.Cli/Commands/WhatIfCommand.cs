@@ -141,6 +141,6 @@ public class WhatIfCommand : DeploymentsCommandsBase<WhatIfArguments>
 
         var changes = result.Properties.Changes.Where(x => x.ChangeType != DeploymentWhatIfChangeType.Ignore);
 
-        await io.Output.WriteAsync(WhatIfOperationResultFormatter.Format([..changes]));
+        await io.Output.WriteAsync(WhatIfOperationResultFormatter.Format([.. changes]));
     }
 }

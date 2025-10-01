@@ -445,6 +445,15 @@ output length int =
             completions.Should().SatisfyRespectively(
                 c =>
                 {
+                    const string expected = "any";
+                    c.Label.Should().Be(expected);
+                    c.Kind.Should().Be(CompletionItemKind.Class);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
+                    c.TextEdit!.TextEdit!.NewText.Should().Be(expected);
+                    c.Detail.Should().Be(expected);
+                },
+                c =>
+                {
                     const string expected = "array";
                     c.Label.Should().Be(expected);
                     c.Kind.Should().Be(CompletionItemKind.Class);

@@ -451,6 +451,16 @@
                     }
                   ]
                 },
+                "no-explicit-any": {
+                  "allOf": [
+                    {
+                      "description": "Avoid using an explicit 'any' type whenever possible. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#no-explicit-any"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "no-hardcoded-env-urls": {
                   "allOf": [
                     {

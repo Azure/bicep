@@ -1989,12 +1989,24 @@ namespace Bicep.Core.Diagnostics
                 "BCP436",
                 $"Expected the \"with\" keyword or a new line character at this location.");
 
-            public Diagnostic SyntaxBlockedWithTargetScopeOrchestrator(string keyword) => CoreError(
+            public Diagnostic BaseIdentifierNotAvailableWithoutExtends() => CoreError(
                 "BCP437",
+                $"The identifier '{LanguageConstants.BaseIdentifier}' is only available in parameter files that declare an '{LanguageConstants.ExtendsKeyword}' clause.");
+
+            public Diagnostic BaseIdentifierRedeclared() => CoreError(
+                "BCP438",
+                $"The identifier '{LanguageConstants.BaseIdentifier}' is reserved and cannot be declared.");
+
+            public Diagnostic SecureDecoratorOnlyAllowedOnStringsAndObjects() => CoreError(
+                "BCP439",
+                "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type.");
+
+            public Diagnostic SyntaxBlockedWithTargetScopeOrchestrator(string keyword) => CoreError(
+                "BCP440",
                 $"""Usage of syntax with keyword "{keyword}" is not permitted if the target scope is set to "{LanguageConstants.TargetScopeTypeOrchestrator}".""");
 
             public Diagnostic SyntaxBlockedWithoutTargetScopeOrchestrator(string keyword) => CoreError(
-                "BCP438",
+                "BCP441",
                 $"""Usage of syntax with keyword "{keyword}" is only permitted if the target scope is set to "{LanguageConstants.TargetScopeTypeOrchestrator}".""");
         }
 

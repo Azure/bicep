@@ -6,7 +6,6 @@ using System.IO.Abstractions;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
 using Bicep.IO.Abstraction;
 using Json.Patch;
 

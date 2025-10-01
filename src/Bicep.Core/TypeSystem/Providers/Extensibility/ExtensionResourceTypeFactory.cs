@@ -39,7 +39,10 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             var (readableScopes, writableScopes) = GetScopeInfo(resourceType);
             var readOnlyScopes = readableScopes & ~writableScopes;
 
-            return new ResourceTypeComponents(resourceTypeReference, writableScopes, readOnlyScopes, ToResourceFlags(resourceType), bodyType);
+            // Temporary fix for https://github.com/Azure/bicep/issues/18158
+            var validParentScopes = readableScopes | writableScopes;
+
+            return new ResourceTypeComponents(resourceTypeReference, validParentScopes, readOnlyScopes, ToResourceFlags(resourceType), bodyType);
         }
 
         public TypeSymbol GetConfigurationType(Azure.Bicep.Types.Concrete.TypeBase configurationType)

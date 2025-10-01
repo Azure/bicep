@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions.TestingHelpers;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Azure;
@@ -9,6 +10,7 @@ using Bicep.Cli.Helpers.WhatIf;
 using Bicep.Cli.Models;
 using Bicep.Cli.UnitTests.Assertions;
 using Bicep.Core.Configuration;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
@@ -16,6 +18,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.FileSystem;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.CodeAnalysis.Sarif;
@@ -125,13 +128,18 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
     [TestCategory(BaselineHelper.BaselineTestCategory)]
     public async Task Snapshot_generates_correct_format(EmbeddedFile paramFile)
     {
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ExtensionResourceTypeHelper.GetHttpExtensionTypesTgz(), new(), artifactTarget: "example.azurecr.io/extensions/snapshot:1.2.3");
+        var clientFactory = services.Build().Construct<IContainerRegistryClientFactory>();
+
         var subscriptionId = new Guid().ToString();
         var resourceGroupName = "myRg";
 
         var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
         var snapshotFile = baselineFolder.GetFileOrEnsureCheckedIn("main.snapshot.json");
 
-        var result = await Bicep("snapshot", baselineFolder.EntryFile.OutputFilePath, "--mode", "overwrite", "--subscription-id", subscriptionId, "--resource-group", resourceGroupName);
+        var result = await Bicep(
+            services => services.WithContainerRegistryClientFactory(clientFactory),
+            "snapshot", baselineFolder.EntryFile.OutputFilePath, "--mode", "overwrite", "--subscription-id", subscriptionId, "--resource-group", resourceGroupName);
         result.Should().Succeed();
 
         snapshotFile.ShouldHaveExpectedJsonValue();
