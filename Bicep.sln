@@ -113,6 +113,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.McpServer.UnitTests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Local.Rpc", "src\Bicep.Local.Rpc\Bicep.Local.Rpc.csproj", "{8585C44C-5093-4A32-AABA-9EC7B8A6118C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.RpcClient", "src\Bicep.RpcClient\Bicep.RpcClient.csproj", "{EFC27293-4DBB-4D58-85E4-4B94A8F50C8B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.RpcClient.Tests", "src\Bicep.RpcClient.Tests\Bicep.RpcClient.Tests.csproj", "{930BA3F9-160A-4EB6-80DC-AABFDE3BB919}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -243,6 +247,14 @@ Global
 		{8585C44C-5093-4A32-AABA-9EC7B8A6118C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8585C44C-5093-4A32-AABA-9EC7B8A6118C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8585C44C-5093-4A32-AABA-9EC7B8A6118C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFC27293-4DBB-4D58-85E4-4B94A8F50C8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFC27293-4DBB-4D58-85E4-4B94A8F50C8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFC27293-4DBB-4D58-85E4-4B94A8F50C8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFC27293-4DBB-4D58-85E4-4B94A8F50C8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{930BA3F9-160A-4EB6-80DC-AABFDE3BB919}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{930BA3F9-160A-4EB6-80DC-AABFDE3BB919}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{930BA3F9-160A-4EB6-80DC-AABFDE3BB919}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{930BA3F9-160A-4EB6-80DC-AABFDE3BB919}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -279,6 +291,8 @@ Global
 		{83AC12EE-E6B5-45FA-AADF-68AB652CC804} = {013E98B4-42CE-4009-BC62-2588ED9028CD}
 		{46780AD4-62F3-4AB4-9B3C-6A8AB305C260} = {013E98B4-42CE-4009-BC62-2588ED9028CD}
 		{8585C44C-5093-4A32-AABA-9EC7B8A6118C} = {013E98B4-42CE-4009-BC62-2588ED9028CD}
+		{EFC27293-4DBB-4D58-85E4-4B94A8F50C8B} = {013E98B4-42CE-4009-BC62-2588ED9028CD}
+		{930BA3F9-160A-4EB6-80DC-AABFDE3BB919} = {013E98B4-42CE-4009-BC62-2588ED9028CD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {21F77282-91E7-4304-B1EF-FADFA4F39E37}

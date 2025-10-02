@@ -5,14 +5,14 @@
   </PropertyGroup>
   <ItemGroup>
     <GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.7.115" PrivateAssets="All" />
-    <GlobalPackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4"  PrivateAssets="All" />
-    <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
-    <GlobalPackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.13.2" PrivateAssets="All"/>
+    <GlobalPackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4" PrivateAssets="All" />
+    <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <GlobalPackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.13.2" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.45" />
-  <PackageVersion Include="Azure.Bicep.Types" Version="0.6.12" />
-  <PackageVersion Include="Azure.Bicep.Types.Az" Version="0.2.803" />
+    <PackageVersion Include="Azure.Bicep.Types" Version="0.6.12" />
+    <PackageVersion Include="Azure.Bicep.Types.Az" Version="0.2.803" />
     <PackageVersion Include="Azure.Bicep.Types.K8s" Version="0.1.644" />
     <PackageVersion Include="Azure.Containers.ContainerRegistry" Version="1.1.1" />
     <PackageVersion Include="Azure.Deployments.ClientTools" Version="1.473.0" />
@@ -82,6 +82,7 @@
     <PackageVersion Include="NuGet.CommandLine" Version="6.6.2" />
     <PackageVersion Include="OmniSharp.Extensions.LanguageClient" Version="0.19.9" />
     <PackageVersion Include="OmniSharp.Extensions.LanguageServer" Version="0.19.9" />
+    <PackageVersion Include="PublicApiGenerator" Version="11.4.6" />
     <PackageVersion Include="RichardSzalay.MockHttp" Version="7.0.0" />
     <PackageVersion Include="Sarif.Sdk" Version="4.5.4" />
     <PackageVersion Include="Semver" Version="3.0.0" />
@@ -96,6 +97,7 @@
     <PackageVersion Include="System.CommandLine.Hosting" Version="0.4.0-alpha.22272.1" />
     <PackageVersion Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta4.22272.1" />
     <PackageVersion Include="System.CommandLine.Rendering" Version="0.4.0-alpha.22272.1" />
+    <PackageVersion Include="System.Collections.Immutable" Version="9.0.9" />
     <PackageVersion Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.0.15" />
     <PackageVersion Include="TestableIO.System.IO.Abstractions.TestingHelpers" Version="22.0.15" />
     <PackageVersion Include="System.Linq.Async" Version="6.0.1" />

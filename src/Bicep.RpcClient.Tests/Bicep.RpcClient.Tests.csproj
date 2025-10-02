@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="./Files/**/*.*" />
+    <EmbeddedResource Include="./Files/**/*.*" LogicalName="$([System.String]::new('Files/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" WithCulture="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="MSTest" />
+    <PackageReference Include="PublicApiGenerator" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Bicep.Core.UnitTests/Bicep.Core.UnitTests.csproj" />
+    <ProjectReference Include="../Bicep.Cli/Bicep.Cli.csproj" />
+    <ProjectReference Include="../Bicep.RpcClient/Bicep.RpcClient.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+  </ItemGroup>
+
+  <Target Name="PublishCli" AfterTargets="Build">
+    <Exec Command="dotnet publish --no-restore --configuration $(Configuration) --self-contained true ../Bicep.Cli --output $(OutDir)/PublishedCli"
+      WorkingDirectory="$(MSBuildProjectDirectory)" />
+  </Target>
+
+</Project>
