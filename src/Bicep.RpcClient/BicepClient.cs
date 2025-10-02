@@ -13,7 +13,6 @@ namespace Bicep.RpcClient;
 
 internal class BicepClient : IBicepClient
 {
-    private readonly NamedPipeServerStream pipeStream;
     private readonly Process cliProcess;
     private readonly JsonRpcClient jsonRpcClient;
     private readonly Task backgroundTask;
@@ -21,7 +20,6 @@ internal class BicepClient : IBicepClient
 
     private BicepClient(NamedPipeServerStream pipeStream, Process cliProcess, JsonRpcClient jsonRpcClient, CancellationTokenSource cts)
     {
-        this.pipeStream = pipeStream;
         this.cliProcess = cliProcess;
         this.jsonRpcClient = jsonRpcClient;
         this.backgroundTask = CreateBackgroundTask(pipeStream, cliProcess, jsonRpcClient, cts.Token);
@@ -35,7 +33,7 @@ internal class BicepClient : IBicepClient
     {
         if (!File.Exists(bicepCliPath))
         {
-            throw new FileNotFoundException($"The specified Bicep CLI path does not exist: {bicepCliPath}");
+            throw new FileNotFoundException($"The specified Bicep CLI path does not exist: '{bicepCliPath}'.");
         }
 
         var pipeName = Guid.NewGuid().ToString();
@@ -54,7 +52,7 @@ internal class BicepClient : IBicepClient
         var cliProcess = Process.Start(psi)
             ?? throw new InvalidOperationException("Failed to start Bicep CLI process");
 
-        await pipeStream.WaitForConnectionAsync(cancellationToken);
+        await pipeStream.WaitForConnectionAsync(cancellationToken).ConfigureAwait(false);
         var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         var client = new JsonRpcClient(pipeStream, pipeStream);
 
@@ -66,7 +64,7 @@ internal class BicepClient : IBicepClient
         {
             try
             {
-                await jsonRpcClient.ReadLoop(cancellationToken);
+                await jsonRpcClient.ReadLoop(cancellationToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
@@ -90,8 +88,8 @@ internal class BicepClient : IBicepClient
     /// <inheritdoc/>
     public async Task<FormatResponse> Format(FormatRequest request, CancellationToken cancellationToken)
     {
-        await EnsureMinimumVersion("0.37.1", nameof(Format), cancellationToken);
-        return await jsonRpcClient.SendRequest<FormatRequest, FormatResponse>("bicep/format", request, cancellationToken);
+        await EnsureMinimumVersion("0.37.1", nameof(Format), cancellationToken).ConfigureAwait(false);
+        return await jsonRpcClient.SendRequest<FormatRequest, FormatResponse>("bicep/format", request, cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -109,17 +107,20 @@ internal class BicepClient : IBicepClient
     /// <inheritdoc/>
     public async Task<GetSnapshotResponse> GetSnapshot(GetSnapshotRequest request, CancellationToken cancellationToken)
     {
-        await EnsureMinimumVersion("0.36.1", nameof(GetSnapshot), cancellationToken);
-        return await jsonRpcClient.SendRequest<GetSnapshotRequest, GetSnapshotResponse>("bicep/getSnapshot", request, cancellationToken);        
+        await EnsureMinimumVersion("0.36.1", nameof(GetSnapshot), cancellationToken).ConfigureAwait(false);
+        return await jsonRpcClient.SendRequest<GetSnapshotRequest, GetSnapshotResponse>("bicep/getSnapshot", request, cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
     public async Task<string> GetVersion(CancellationToken cancellationToken)
-        => (await jsonRpcClient.SendRequest<VersionRequest, VersionResponse>("bicep/version", new(), cancellationToken)).Version;
+    {
+        var response = await jsonRpcClient.SendRequest<VersionRequest, VersionResponse>("bicep/version", new(), cancellationToken).ConfigureAwait(false);
+        return response.Version;
+    }
 
     private async Task EnsureMinimumVersion(string requiredVersion, string operationName, CancellationToken cancellationToken)
     {
-        var actualVersion = await GetVersion(cancellationToken);
+        var actualVersion = await GetVersion(cancellationToken).ConfigureAwait(false);
         if (Version.Parse(actualVersion) < Version.Parse(requiredVersion))
         {
             throw new InvalidOperationException($"Operation '{operationName}' requires Bicep CLI version '{requiredVersion}' or later, whereas '{actualVersion}' is currently installed.");

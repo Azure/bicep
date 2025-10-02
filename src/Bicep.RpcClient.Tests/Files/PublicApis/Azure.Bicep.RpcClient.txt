@@ -3,17 +3,19 @@
 [assembly: System.Runtime.Versioning.TargetFramework(".NETStandard,Version=v2.0", FrameworkDisplayName=".NET Standard 2.0")]
 namespace Bicep.RpcClient
 {
-    public class BicepClientConfiguration
+    public class BicepClientConfiguration : System.IEquatable<Bicep.RpcClient.BicepClientConfiguration>
     {
         public BicepClientConfiguration() { }
-        public System.Runtime.InteropServices.Architecture? Architecture { get; set; }
-        public string? InstallPath { get; set; }
-        public System.Runtime.InteropServices.OSPlatform? OsPlatform { get; set; }
+        public System.Runtime.InteropServices.Architecture? Architecture { get; init; }
+        public string? BicepVersion { get; init; }
+        public string? InstallPath { get; init; }
+        public System.Runtime.InteropServices.OSPlatform? OsPlatform { get; init; }
+        public static Bicep.RpcClient.BicepClientConfiguration Default { get; }
     }
     public class BicepClientFactory : Bicep.RpcClient.IBicepClientFactory
     {
         public BicepClientFactory(System.Net.Http.HttpClient httpClient) { }
-        public System.Threading.Tasks.Task<Bicep.RpcClient.IBicepClient> DownloadAndInitialize(Bicep.RpcClient.BicepClientConfiguration configuration, string? bicepVersion, System.Threading.CancellationToken cancellationToken) { }
+        public System.Threading.Tasks.Task<Bicep.RpcClient.IBicepClient> DownloadAndInitialize(Bicep.RpcClient.BicepClientConfiguration configuration, System.Threading.CancellationToken cancellationToken) { }
         public System.Threading.Tasks.Task<Bicep.RpcClient.IBicepClient> InitializeFromPath(string bicepCliPath, System.Threading.CancellationToken cancellationToken) { }
     }
     public interface IBicepClient : System.IDisposable
@@ -29,7 +31,7 @@ namespace Bicep.RpcClient
     }
     public interface IBicepClientFactory
     {
-        System.Threading.Tasks.Task<Bicep.RpcClient.IBicepClient> DownloadAndInitialize(Bicep.RpcClient.BicepClientConfiguration configuration, string? bicepVersion, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<Bicep.RpcClient.IBicepClient> DownloadAndInitialize(Bicep.RpcClient.BicepClientConfiguration configuration, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.IBicepClient> InitializeFromPath(string bicepCliPath, System.Threading.CancellationToken cancellationToken = default);
     }
 }

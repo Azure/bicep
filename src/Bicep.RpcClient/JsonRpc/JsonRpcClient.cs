@@ -57,11 +57,11 @@ internal class JsonRpcClient(Stream reader, Stream writer) : IDisposable
         var rawRequest = $"Content-Length: {requestLength}\r\n\r\n{requestContent}";
         var requestBytes = Encoding.UTF8.GetBytes(rawRequest);
 
-        await writeSemaphore.WaitAsync(cancellationToken);
+        await writeSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            await writer.WriteAsync(requestBytes, 0, requestBytes.Length, cancellationToken);
-            await writer.FlushAsync(cancellationToken);
+            await writer.WriteAsync(requestBytes, 0, requestBytes.Length, cancellationToken).ConfigureAwait(false);
+            await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
         }
         finally
         {
@@ -74,7 +74,7 @@ internal class JsonRpcClient(Stream reader, Stream writer) : IDisposable
             throw new InvalidOperationException($"A request with ID {currentId} is already pending.");
         }
 
-        var responseContent = await tcs.Task;
+        var responseContent = await tcs.Task.ConfigureAwait(false);
         var jsonRpcResponse = JsonSerializer.Deserialize<JsonRpcResponse<TResponse>>(responseContent, jsonSerializerOptions)
             ?? throw new InvalidOperationException("Failed to deserialize JSON-RPC response");
 
@@ -93,7 +93,7 @@ internal class JsonRpcClient(Stream reader, Stream writer) : IDisposable
         {
             try
             {
-                var message = await ReadMessage(cancellationToken);
+                var message = await ReadMessage(cancellationToken).ConfigureAwait(false);
 
                 var response = JsonSerializer.Deserialize<MinimalJsonRpcResponse>(message, jsonSerializerOptions)
                     ?? throw new InvalidOperationException("Failed to deserialize JSON-RPC response");
@@ -120,9 +120,9 @@ internal class JsonRpcClient(Stream reader, Stream writer) : IDisposable
 
         while (true)
         {
-            await ReadExactly(byteBuffer, byteBuffer.Length, cancellationToken);
+            await ReadExactly(byteBuffer, byteBuffer.Length, cancellationToken).ConfigureAwait(false);
 
-            await outputStream.WriteAsync(byteBuffer, 0, byteBuffer.Length, cancellationToken);
+            await outputStream.WriteAsync(byteBuffer, 0, byteBuffer.Length, cancellationToken).ConfigureAwait(false);
             patternIndex = terminator[patternIndex] == byteBuffer[0] ? patternIndex + 1 : 0;
             if (patternIndex == terminator.Length)
             {
@@ -137,14 +137,14 @@ internal class JsonRpcClient(Stream reader, Stream writer) : IDisposable
     private async Task<string> ReadContent(int length, CancellationToken cancellationToken)
     {
         var byteBuffer = new byte[length];
-        await ReadExactly(byteBuffer, length, cancellationToken);
+        await ReadExactly(byteBuffer, length, cancellationToken).ConfigureAwait(false);
 
         return Encoding.UTF8.GetString(byteBuffer);
     }
 
     private async Task<string> ReadMessage(CancellationToken cancellationToken)
     {
-        var header = await ReadUntilTerminator(cancellationToken);
+        var header = await ReadUntilTerminator(cancellationToken).ConfigureAwait(false);
         var parsed = header.Split(':').Select(x => x.Trim()).ToArray();
 
         if (parsed.Length != 2 ||
@@ -155,7 +155,7 @@ internal class JsonRpcClient(Stream reader, Stream writer) : IDisposable
             throw new InvalidOperationException($"Invalid header: {header}");
         }
 
-        return await ReadContent(contentLength, cancellationToken);
+        return await ReadContent(contentLength, cancellationToken).ConfigureAwait(false);
     }
 
     private async ValueTask ReadExactly(byte[] buffer, int minimumBytes, CancellationToken cancellationToken)
@@ -163,7 +163,7 @@ internal class JsonRpcClient(Stream reader, Stream writer) : IDisposable
         var totalRead = 0;
         while (totalRead < minimumBytes)
         {
-            var read = await reader.ReadAsync(buffer, totalRead, minimumBytes - totalRead, cancellationToken);
+            var read = await reader.ReadAsync(buffer, totalRead, minimumBytes - totalRead, cancellationToken).ConfigureAwait(false);
             if (read == 0)
             {
                 throw new EndOfStreamException("Stream closed before reading expected number of bytes");

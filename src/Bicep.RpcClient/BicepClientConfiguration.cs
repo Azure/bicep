@@ -5,11 +5,16 @@ using System.Runtime.InteropServices;
 
 namespace Bicep.RpcClient;
 
-public class BicepClientConfiguration
+public record BicepClientConfiguration
 {
-    public string? InstallPath { get; set; }
+    public string? InstallPath { get; init; }
 
-    public OSPlatform? OsPlatform { get; set; }
+    public OSPlatform? OsPlatform { get; init; }
 
-    public Architecture? Architecture { get; set; }
+    public Architecture? Architecture { get; init; }
+
+    public string? BicepVersion { get; init; }
+
+    public static BicepClientConfiguration Default
+        => new();
 }

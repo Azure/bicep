@@ -7,6 +7,7 @@ using Bicep.RpcClient.Helpers;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.FileSystem;
 using RichardSzalay.MockHttp;
+using System.Threading.Tasks;
 
 namespace Bicep.RpcClient.Tests;
 
@@ -42,10 +43,9 @@ public class BicepClientTests
 
         var clientFactory = new BicepClientFactory(new(mockHandler));
 
-        Bicep = await clientFactory.DownloadAndInitialize(new()
-        {
-            InstallPath = FileHelper.GetUniqueTestOutputPath(TestContext),
-        }, null, TestContext.CancellationTokenSource.Token);
+        Bicep = await clientFactory.DownloadAndInitialize(
+            new() { InstallPath = FileHelper.GetUniqueTestOutputPath(TestContext) },
+            TestContext.CancellationTokenSource.Token);
     }
 
     [TestCleanup]
@@ -57,6 +57,23 @@ public class BicepClientTests
             // This test creates a new Bicep CLI install for each test run, so we need to clean it up afterwards
             Directory.Delete(TestContext.TestResultsDirectory, true);
         }
+    }
+
+    [TestMethod]
+    public async Task DownloadAndInitialize_validates_version_number_format()
+    {
+        var clientFactory = new BicepClientFactory(new());
+        await FluentActions.Invoking(() => clientFactory.DownloadAndInitialize(new() { BicepVersion = "v0.1.1" }, default))
+            .Should().ThrowAsync<ArgumentException>().WithMessage("Invalid Bicep version format 'v0.1.1'. Expected format: 'x.y.z' where x, y, and z are integers.");
+    }
+
+    [TestMethod]
+    public async Task DownloadAndInitialize_validates_path_existence()
+    {
+        var nonExistentPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var clientFactory = new BicepClientFactory(new());
+        await FluentActions.Invoking(() => clientFactory.InitializeFromPath(nonExistentPath, default))
+            .Should().ThrowAsync<FileNotFoundException>().WithMessage($"The specified Bicep CLI path does not exist: '{nonExistentPath}'.");
     }
 
     [TestMethod]

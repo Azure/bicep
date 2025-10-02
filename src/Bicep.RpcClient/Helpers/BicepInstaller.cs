@@ -50,16 +50,10 @@ internal static class BicepInstaller
         }
     }
 
-    public static async Task<string> ResolveBicepVersionTagAsync(
+    public static async Task<string> GetLatestBicepVersion(
         HttpClient httpClient,
-        string? bicepVersion,
         CancellationToken cancellationToken)
     {
-        if (bicepVersion != null)
-        {
-            return $"v{bicepVersion}";
-        }
-
         var response = await httpClient.GetAsync(LatestReleaseUrl, cancellationToken).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 

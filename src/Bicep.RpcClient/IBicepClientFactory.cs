@@ -12,9 +12,8 @@ public interface IBicepClientFactory
     /// Initializes a Bicep client by downloading the specified version of the Bicep CLI.
     /// </summary>
     /// <param name="configuration">The configuration for the Bicep client.</param>
-    /// <param name="bicepVersion">The version of the Bicep CLI to download.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    Task<IBicepClient> DownloadAndInitialize(BicepClientConfiguration configuration, string? bicepVersion, CancellationToken cancellationToken = default);
+    Task<IBicepClient> DownloadAndInitialize(BicepClientConfiguration configuration, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Initializes a Bicep client from a file system path.
