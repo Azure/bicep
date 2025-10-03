@@ -445,7 +445,8 @@ namespace Bicep.Core.Emit
                         : AppendProperties(ToFunctionExpression(guarded), property);
                 }
 
-                if (context.SemanticModel.Features.ResourceInfoCodegenEnabled)
+                if (context.SemanticModel.Features.ResourceInfoCodegenEnabled &&
+                    !context.SemanticModel.SymbolsToInline.ExistingResourcesToInline.Contains(declaredResource.Symbol))
                 {
                     // Use simplified "resourceInfo" code generation.
 
@@ -644,7 +645,7 @@ namespace Bicep.Core.Emit
             return ScopeHelper.FormatUnqualifiedResourceId(
                 context,
                 this,
-                context.ResourceScopeData[resource],
+                context.SemanticModel.ResourceScopeData[resource],
                 resource.TypeReference.FormatType(),
                 GetResourceNameSegments(resource));
         }
@@ -672,7 +673,7 @@ namespace Bicep.Core.Emit
                 return ScopeHelper.FormatFullyQualifiedResourceId(
                     context,
                     this,
-                    context.ResourceScopeData[declared],
+                    context.SemanticModel.ResourceScopeData[declared],
                     resource.TypeReference.FormatType(),
                     nameSegments);
             }
@@ -687,7 +688,7 @@ namespace Bicep.Core.Emit
             return ScopeHelper.FormatFullyQualifiedResourceId(
                 context,
                 this,
-                context.ModuleScopeData[moduleSymbol],
+                context.SemanticModel.ModuleScopeData[moduleSymbol],
                 TemplateWriter.NestedDeploymentResourceType,
                 GetModuleNameExpression(moduleSymbol, indexExpression).AsEnumerable());
         }
@@ -714,7 +715,7 @@ namespace Bicep.Core.Emit
             return CreateFunction(
                 referenceFunctionName,
                 GetConverter(indexContext).GetFullyQualifiedResourceId(moduleSymbol, indexContext?.Index),
-                new JTokenExpression(EmitConstants.GetNestedDeploymentResourceApiVersion(context.SemanticModel.Features)));
+                new JTokenExpression(EmitConstants.NestedDeploymentResourceApiVersion));
         }
 
         public FunctionExpression GetReferenceExpression(ResourceMetadata resource, IndexReplacementContext? indexContext, bool full)

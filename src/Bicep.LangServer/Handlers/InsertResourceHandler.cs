@@ -198,7 +198,7 @@ namespace Bicep.LanguageServer.Handlers
 
             BicepSourceFile bicepFile = compiler.SourceFileFactory.CreateBicepFile(DummyFileHandle.Default, program.ToString());
 
-            var workspace = new Workspace();
+            var workspace = new ActiveSourceFileSet();
             workspace.UpsertSourceFile(bicepFile);
             var compilation = compiler.CreateCompilationWithoutRestore(bicepFile.FileHandle.Uri, workspace);
 

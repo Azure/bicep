@@ -292,7 +292,7 @@ var ☕ = true
 //@[12:12) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 var a☕ = true
 //@[04:05) [no-unused-vars (Warning)] Variable "a" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |a|
-//@[05:06) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) |☕|
+//@[05:06) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) |☕|
 //@[05:06) [BCP001 (Error)] The following token is not recognized: "☕". (bicep https://aka.ms/bicep/core-diagnostics#BCP001) |☕|
 
 var missingArrayVariable = [for thing in stuff: 4]

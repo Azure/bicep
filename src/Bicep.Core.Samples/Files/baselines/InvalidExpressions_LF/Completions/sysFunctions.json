@@ -1,6 +1,27 @@
 [
   {
     "label": "any",
+    "kind": "property",
+    "detail": "any",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Type<any>`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_any",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "any"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "any",
     "kind": "function",
     "documentation": {
       "kind": "markdown",

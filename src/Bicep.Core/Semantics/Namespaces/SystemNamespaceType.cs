@@ -428,7 +428,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         "startIndex",
                         TypeFactory.CreateIntegerType(minValue: 0),
                         "The zero-based starting character position for the substring.",
-                        getArgumentType => TypeFactory.CreateIntegerType(
+                        (getArgumentType, _) => TypeFactory.CreateIntegerType(
                             minValue: 0,
                             maxValue: getArgumentType(0) switch
                             {
@@ -440,7 +440,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         "length",
                         TypeFactory.CreateIntegerType(minValue: 0),
                         "The number of characters for the substring. Must refer to a location within the string. Must be zero or greater.",
-                        getArgumentType =>
+                        (getArgumentType, _) =>
                         {
                             var maxInputLength = getArgumentType(0) switch
                             {
@@ -1086,7 +1086,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription("Filters an array with a custom filtering function.")
                     .WithRequiredParameter("array", LanguageConstants.Array, "The array to filter.")
                     .WithRequiredParameter("predicate", TypeHelper.CreateLambdaType([LanguageConstants.Any], [LanguageConstants.Int], LanguageConstants.Bool), "The predicate applied to each input array element. If false, the item will be filtered out of the output array.",
-                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TypeHelper.CreateLambdaType([t], [LanguageConstants.Int], LanguageConstants.Bool)))
+                        calculator: (getArgumentType, _) => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TypeHelper.CreateLambdaType([t], [LanguageConstants.Int], LanguageConstants.Bool)))
                     .WithReturnResultBuilder((_, _, _, argumentTypes) => new(argumentTypes[0] switch
                     {
                         // If a tuple is filtered, each member of the resulting array will be assignable to <input tuple>.Item, but information about specific indices and tuple length is no longer reliable.
@@ -1102,7 +1102,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription("Applies a custom mapping function to each element of an array and returns the result array.")
                     .WithRequiredParameter("array", LanguageConstants.Array, "The array to map.")
                     .WithRequiredParameter("predicate", TypeHelper.CreateLambdaType([LanguageConstants.Any], [LanguageConstants.Int], LanguageConstants.Any), "The predicate applied to each input array element, in order to generate the output array.",
-                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TypeHelper.CreateLambdaType([t], [LanguageConstants.Int], LanguageConstants.Any)))
+                        calculator: (getArgumentType, _) => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TypeHelper.CreateLambdaType([t], [LanguageConstants.Int], LanguageConstants.Any)))
                     .WithReturnResultBuilder((_, _, _, argumentTypes) => argumentTypes[1] switch
                     {
                         LambdaType lambdaType => new(new TypedArrayType(lambdaType.ReturnType.Type, TypeSymbolValidationFlags.Default)),
@@ -1114,7 +1114,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription("Applies a custom mapping function to the values of an object and returns the result object.")
                     .WithRequiredParameter("object", LanguageConstants.Object, "The object to map.")
                     .WithRequiredParameter("predicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Any), "The predicate applied to each input object value, in order to generate the output object.",
-                        calculator: getArgumentType => CalculateLambdaFromObjectValues(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
+                        calculator: (getArgumentType, _) => CalculateLambdaFromObjectValues(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
                     .WithReturnResultBuilder((_, _, _, argumentTypes) => argumentTypes[1] switch
                     {
                         LambdaType lambdaType => new(TypeHelper.CreateDictionaryType("object", TypeSymbolValidationFlags.Default, lambdaType.ReturnType.Type)),
@@ -1126,7 +1126,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription("Sorts an array with a custom sort function.")
                     .WithRequiredParameter("array", LanguageConstants.Array, "The array to sort.")
                     .WithRequiredParameter("predicate", TypeHelper.CreateLambdaType([LanguageConstants.Any, LanguageConstants.Any], [], LanguageConstants.Bool), "The predicate used to compare two array elements for ordering. If true, the second element will be ordered after the first in the output array.",
-                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TypeHelper.CreateLambdaType([t, t], [], LanguageConstants.Bool)))
+                        calculator: (getArgumentType, _) => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TypeHelper.CreateLambdaType([t, t], [], LanguageConstants.Bool)))
                     .WithReturnResultBuilder((_, _, _, argumentTypes) => new(argumentTypes[0] switch
                     {
                         // When a tuple is sorted, the resultant array will be of the same length as the input tuple, but the information about which member resides at which index can no longer be relied upon.
@@ -1140,7 +1140,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("array", LanguageConstants.Array, "The array to reduce.")
                     .WithRequiredParameter("initialValue", LanguageConstants.Any, "The initial value.")
                     .WithRequiredParameter("predicate", TypeHelper.CreateLambdaType([LanguageConstants.Any, LanguageConstants.Any], [LanguageConstants.Int], LanguageConstants.Any), "The predicate used to aggregate the current value and the next value. ",
-                        calculator: getArgumentType =>
+                        calculator: (getArgumentType, _) =>
                         {
                             var toReduceType = getArgumentType(0);
 
@@ -1183,9 +1183,9 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription("Converts an array to an object with a custom key function and optional custom value function.")
                     .WithRequiredParameter("array", LanguageConstants.Array, "The array to map to an object.")
                     .WithRequiredParameter("keyPredicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.String), "The predicate applied to each input array element to return the object key.",
-                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.String)))
+                        calculator: (getArgumentType, _) => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.String)))
                     .WithOptionalParameter("valuePredicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Any), "The optional predicate applied to each input array element to return the object value.",
-                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
+                        calculator: (getArgumentType, _) => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
                     .WithReturnType(LanguageConstants.Any)
                     .WithReturnResultBuilder((_, _, _, argumentTypes) =>
                     {
@@ -1207,9 +1207,9 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription("Converts an array to an object containing a lookup from key to array values filtered by said key. Values can be optionally translated using a mapping function.")
                     .WithRequiredParameter("array", LanguageConstants.Array, "The array to map to an object.")
                     .WithRequiredParameter("keyPredicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.String), "The predicate applied to each input array element to return the object key.",
-                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.String)))
+                        calculator: (getArgumentType, _) => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.String)))
                     .WithOptionalParameter("valuePredicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Any), "The optional predicate applied to each input array element to return the object value.",
-                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
+                        calculator: (getArgumentType, _) => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
                     .WithReturnType(LanguageConstants.Any)
                     .WithReturnResultBuilder((_, _, _, argumentTypes) =>
                     {
@@ -1264,13 +1264,33 @@ namespace Bicep.Core.Semantics.Namespaces
 
             static IEnumerable<FunctionOverload> GetParamsFilePermittedOverloads(IFeatureProvider featureProvider)
             {
-                yield return new FunctionOverloadBuilder("readEnvironmentVariable")
-                    .WithGenericDescription($"Reads the specified Environment variable as bicep string. Variable loading occurs during compilation, not at runtime.")
-                    .WithRequiredParameter("variableName", LanguageConstants.String, "Environment Variable Name.")
-                    .WithReturnResultBuilder(ReadEnvironmentVariableResultBuilder, LanguageConstants.String)
-                    .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
-                    .WithOptionalParameter("default", LanguageConstants.String, "Default value to return if environment variable is not found.")
-                    .Build();
+                if (!featureProvider.DeployCommandsEnabled)
+                {
+                    yield return new FunctionOverloadBuilder("readEnvironmentVariable")
+                        .WithGenericDescription($"Reads the specified Environment variable as bicep string. Variable loading occurs during compilation, not at runtime.")
+                        .WithRequiredParameter("variableName", LanguageConstants.String, "Environment Variable Name.")
+                        .WithReturnResultBuilder(ReadEnvironmentVariableResultBuilder, LanguageConstants.String)
+                        .WithFlags(FunctionFlags.GenerateIntermediateVariableAlways)
+                        .WithOptionalParameter("default", LanguageConstants.String, "Default value to return if environment variable is not found.")
+                        .Build();
+                }
+
+                if (featureProvider.DeployCommandsEnabled)
+                {
+                    yield return new FunctionOverloadBuilder(LanguageConstants.ReadEnvVarBicepFunctionName)
+                        .WithGenericDescription($"Reads the specified environment variable as bicep string.")
+                        .WithRequiredParameter("variableName", LanguageConstants.String, "The name of the environment variable.")
+                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, [new StringLiteralExpression(null, "sys.envVar"), .. exp.Parameters]))
+                        .WithReturnType(LanguageConstants.String)
+                        .Build();
+
+                    yield return new FunctionOverloadBuilder(LanguageConstants.ReadCliArgBicepFunctionName)
+                        .WithGenericDescription($"Reads the specified CLI argument as bicep string.")
+                        .WithRequiredParameter("argumentName", LanguageConstants.String, "The name of the CLI argument.")
+                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, [new StringLiteralExpression(null, "sys.cliArg"), .. exp.Parameters]))
+                        .WithReturnType(LanguageConstants.String)
+                        .Build();
+                }
 
                 yield return new FunctionOverloadBuilder(LanguageConstants.ExternalInputBicepFunctionName)
                     .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
@@ -1789,7 +1809,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 yield return new DecoratorBuilder(LanguageConstants.MetadataDescriptionPropertyName)
                     .WithDescription("Describes the parameter.")
-                    .WithRequiredParameter("text", LanguageConstants.String, "The description.")
+                    .WithParameter("text", LanguageConstants.String, "The description.", FunctionParameterFlags.Required | FunctionParameterFlags.Constant)
                     .WithFlags(FunctionFlags.AnyDecorator)
                     .WithEvaluator((functionCall, decorated) =>
                     {
@@ -1811,11 +1831,38 @@ namespace Bicep.Core.Semantics.Namespaces
 
             static IEnumerable<Decorator> GetBicepTemplateDecorators(IFeatureProvider featureProvider)
             {
+                var secureAttachableType = TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object);
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSecurePropertyName)
                     .WithDescription("Makes the parameter a secure parameter.")
                     .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
-                    .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
-                    .WithValidator(ValidateNotTargetingAlias)
+                    .WithAttachableType(secureAttachableType)
+                    .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
+                    {
+                        if (!TypeValidator.AreTypesAssignable(targetType, secureAttachableType))
+                        {
+                            // skip further validation if we're already reporting an error
+                            return;
+                        }
+
+                        var targetTypeClause = UnwrapNullableSyntax(GetDeclaredTypeSyntaxOfParent(decoratorSyntax, binder));
+                        if (IsLiteralSyntax(targetTypeClause, typeManager))
+                        {
+                            // @secure() is allowed on literal string and object types
+                            return;
+                        }
+
+                        if (targetTypeClause is not null &&
+                            binder.GetSymbolInfo(targetTypeClause) is AmbientTypeSymbol ambientType &&
+                            ambientType.DeclaringNamespace.ExtensionName.Equals(BuiltInName) &&
+                            ambientType.Name is LanguageConstants.TypeNameString or LanguageConstants.ObjectType)
+                        {
+                            // @secure() is allowed if the target's type syntax is "string" or "object"
+                            return;
+                        }
+
+                        diagnosticWriter.Write(
+                            DiagnosticBuilder.ForPosition(decoratorSyntax).SecureDecoratorOnlyAllowedOnStringsAndObjects());
+                    })
                     .WithEvaluator((functionCall, decorated) =>
                     {
                         if (decorated is TypeDeclaringExpression typeDeclaringExpression)
@@ -1829,7 +1876,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 yield return new DecoratorBuilder(LanguageConstants.ParameterAllowedPropertyName)
                     .WithDescription("Defines the allowed values of the parameter.")
-                    .WithRequiredParameter("values", LanguageConstants.Array, "The allowed values.")
+                    .WithParameter("values", LanguageConstants.Array, "The allowed values.", FunctionParameterFlags.Required | FunctionParameterFlags.Constant)
                     .WithFlags(FunctionFlags.ParameterDecorator)
                     .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
                     {
@@ -1872,7 +1919,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 yield return new DecoratorBuilder(LanguageConstants.ParameterMinValuePropertyName)
                     .WithDescription("Defines the minimum value of the parameter.")
-                    .WithRequiredParameter("value", LanguageConstants.Int, "The minimum value.")
+                    .WithParameter("value", LanguageConstants.Int, "The minimum value.", FunctionParameterFlags.Required | FunctionParameterFlags.Constant)
                     .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                     .WithAttachableType(LanguageConstants.Int)
                     .WithValidator(ValidateNotTargetingAlias)
@@ -1890,7 +1937,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 yield return new DecoratorBuilder(LanguageConstants.ParameterMaxValuePropertyName)
                     .WithDescription("Defines the maximum value of the parameter.")
-                    .WithRequiredParameter("value", LanguageConstants.Int, "The maximum value.")
+                    .WithParameter("value", LanguageConstants.Int, "The maximum value.", FunctionParameterFlags.Required | FunctionParameterFlags.Constant)
                     .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                     .WithAttachableType(LanguageConstants.Int)
                     .WithValidator(ValidateNotTargetingAlias)
@@ -1908,7 +1955,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 yield return new DecoratorBuilder(LanguageConstants.ParameterMinLengthPropertyName)
                     .WithDescription("Defines the minimum length of the parameter.")
-                    .WithRequiredParameter("length", LanguageConstants.Int, "The minimum length.")
+                    .WithParameter("length", LanguageConstants.Int, "The minimum length.", FunctionParameterFlags.Required | FunctionParameterFlags.Constant)
                     .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                     .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Array))
                     .WithValidator(ValidateLength)
@@ -1926,7 +1973,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 yield return new DecoratorBuilder(LanguageConstants.ParameterMaxLengthPropertyName)
                     .WithDescription("Defines the maximum length of the parameter.")
-                    .WithRequiredParameter("length", LanguageConstants.Int, "The maximum length.")
+                    .WithParameter("length", LanguageConstants.Int, "The maximum length.", FunctionParameterFlags.Required | FunctionParameterFlags.Constant)
                     .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                     .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Array))
                     .WithValidator(ValidateLength)
@@ -1944,7 +1991,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 yield return new DecoratorBuilder(LanguageConstants.ParameterMetadataPropertyName)
                     .WithDescription("Defines metadata of the parameter.")
-                    .WithRequiredParameter("object", LanguageConstants.Object, "The metadata object.")
+                    .WithParameter("object", LanguageConstants.Object, "The metadata object.", FunctionParameterFlags.Required | FunctionParameterFlags.Constant)
                     .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                     .WithValidator((_, decoratorSyntax, _, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
                         TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, SingleArgumentSelector(decoratorSyntax), LanguageConstants.ParameterModifierMetadata))
@@ -1962,7 +2009,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 yield return new DecoratorBuilder(LanguageConstants.BatchSizePropertyName)
                     .WithDescription("Causes the resource or module for-expression to be run in sequential batches of specified size instead of the default behavior where all the resources or modules are deployed in parallel.")
-                    .WithRequiredParameter(LanguageConstants.BatchSizePropertyName, LanguageConstants.Int, "The size of the batch")
+                    .WithParameter(LanguageConstants.BatchSizePropertyName, LanguageConstants.Int, "The size of the batch", FunctionParameterFlags.Required)
                     .WithFlags(FunctionFlags.ResourceOrModuleDecorator)
                     // the decorator is constrained to resources and modules already - checking for array alone is simple and should be sufficient
                     .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, _, diagnosticWriter) =>
@@ -1988,30 +2035,37 @@ namespace Bicep.Core.Semantics.Namespaces
                 if (featureProvider.WaitAndRetryEnabled)
                 {
                     yield return new DecoratorBuilder(LanguageConstants.WaitUntilPropertyName)
-                    .WithDescription("Causes the resource deployment to wait until the given condition is satisfied")
-                    .WithRequiredParameter("predicate", OneParamLambda(LanguageConstants.Object, LanguageConstants.Bool), "The predicate applied to the resource.")
-                    .WithRequiredParameter("maxWaitTime", LanguageConstants.String, "Maximum time used to wait until the predicate is true. Please be cautious as max wait time adds to total deployment time. It cannot be a negative value. Use [ISO 8601 duration format](https://en.wikipedia.org/wiki/ISO_8601#Durations).")
-                    .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
-                    .WithEvaluator(AddDecoratorConfigToResource)
-                    .Build();
+                        .WithDescription("Causes the resource deployment to wait until the given condition is satisfied")
+                        .WithParameter(
+                            name: "predicate",
+                            type: OneParamLambda(LanguageConstants.Object, LanguageConstants.Bool),
+                            description: "The predicate applied to the resource.",
+                            flags: FunctionParameterFlags.Required)
+                        .WithParameter(
+                            name: "maxWaitTime",
+                            type: LanguageConstants.String,
+                            description: "Maximum time used to wait until the predicate is true. Please be cautious as max wait time adds to total deployment time. It cannot be a negative value. Use [ISO 8601 duration format](https://en.wikipedia.org/wiki/ISO_8601#Durations).",
+                            flags: FunctionParameterFlags.Required | FunctionParameterFlags.Constant)
+                        .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
+                        .WithEvaluator(AddDecoratorConfigToResource)
+                        .Build();
 
                     yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
-                    .WithDescription("Causes the resource deployment to retry when deployment failed with one of the exceptions listed")
-                    .WithRequiredParameter("exceptionCodes", LanguageConstants.StringArray, "List of exceptions.")
-                    .WithOptionalParameter("retryCount", TypeFactory.CreateIntegerType(minValue: 1), "Maximum number if retries on the exception.")
-                    .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
-                    .WithEvaluator(AddDecoratorConfigToResource)
-                    .Build();
+                        .WithDescription("Causes the resource deployment to retry when deployment failed with one of the exceptions listed")
+                        .WithParameter("exceptionCodes", LanguageConstants.StringArray, "List of exceptions.", FunctionParameterFlags.Required | FunctionParameterFlags.Constant)
+                        .WithParameter("retryCount", TypeFactory.CreateIntegerType(minValue: 1), "Maximum number if retries on the exception.", FunctionParameterFlags.Constant)
+                        .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
+                        .WithEvaluator(AddDecoratorConfigToResource)
+                        .Build();
                 }
 
-                if (featureProvider.OnlyIfNotExistsEnabled)
-                {
-                    yield return new DecoratorBuilder(LanguageConstants.OnlyIfNotExistsPropertyName)
+
+                yield return new DecoratorBuilder(LanguageConstants.OnlyIfNotExistsPropertyName)
                     .WithDescription("Causes the resource deployment to be skipped if the resource already exists")
                     .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
                     .WithEvaluator(AddDecoratorConfigToResource)
                     .Build();
-                }
+
 
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSealedPropertyName)
                     .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
@@ -2048,7 +2102,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 yield return new DecoratorBuilder(LanguageConstants.TypeDiscriminatorDecoratorName)
                     .WithDescription("Defines the discriminator property to use for a tagged union that is shared between all union members")
-                    .WithRequiredParameter("value", LanguageConstants.String, "The discriminator property name.")
+                    .WithParameter("value", LanguageConstants.String, "The discriminator property name.", FunctionParameterFlags.Required | FunctionParameterFlags.Constant)
                     .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                     .WithValidator(ValidateTypeDiscriminator)
                     .WithAttachableType(LanguageConstants.Object)
@@ -2093,6 +2147,37 @@ namespace Bicep.Core.Semantics.Namespaces
                         }
                     })
                     .Build();
+
+                if (featureProvider.UserDefinedConstraintsEnabled)
+                {
+                    yield return new DecoratorBuilder("validate")
+                        .WithDescription("Applies a custom validation lambda to a type")
+                        .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
+                        .WithParameter(
+                            name: "predicate",
+                            type: OneParamLambda(LanguageConstants.Any, LanguageConstants.Bool),
+                            description: "Validation predicate. Return true for valid values.",
+                            flags: FunctionParameterFlags.Required | FunctionParameterFlags.DeployTimeConstant,
+                            calculator: static (_, getAttachedType) => OneParamLambda(getAttachedType(), LanguageConstants.Bool))
+                        .WithParameter(
+                            name: "errorMessage",
+                            type: LanguageConstants.String,
+                            description: "Error message to use when the value is not valid according to the predicate.",
+                            flags: FunctionParameterFlags.Constant)
+                        .WithEvaluator(static (functionCall, decorated) =>
+                        {
+                            if (decorated is TypeDeclaringExpression typeDeclaringExpression)
+                            {
+                                return typeDeclaringExpression with
+                                {
+                                    UserDefinedConstraint = new ArrayExpression(functionCall.SourceSyntax, functionCall.Parameters),
+                                };
+                            }
+
+                            return decorated;
+                        })
+                        .Build();
+                }
             }
 
             foreach (var decorator in GetAlwaysPermittedDecorators())
@@ -2133,6 +2218,8 @@ namespace Bicep.Core.Semantics.Namespaces
             VariableDeclarationSyntax variableDeclaration => variableDeclaration.Type,
             TypeDeclarationSyntax typeDeclaration => typeDeclaration.Value,
             ObjectTypePropertySyntax objectTypeProperty => objectTypeProperty.Value,
+            ObjectTypeAdditionalPropertiesSyntax objectTypeAdditionalProperties => objectTypeAdditionalProperties.Value,
+            TupleTypeItemSyntax tupleTypeItem => tupleTypeItem.Value,
             _ => null,
         };
 
@@ -2297,7 +2384,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 return new(errorBuilder(DiagnosticBuilder.ForPosition(directoryPathArgument.syntax)));
             }
 
-            var thisFileUri = model.SourceFile.Uri.ToIOUri();
+            var thisFileUri = model.SourceFile.FileHandle.Uri;
             return new(directoryFiles.Select(uri =>
             {
                 var baseName = uri.GetFileName();

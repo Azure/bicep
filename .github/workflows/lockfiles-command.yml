@@ -22,7 +22,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4.0.0
+        uses: actions/setup-dotnet@v5
 
       - name: Restore dotnet dependencies
         run: |

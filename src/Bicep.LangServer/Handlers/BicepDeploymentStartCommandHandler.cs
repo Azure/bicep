@@ -3,7 +3,8 @@
 
 using Azure.ResourceManager;
 using Bicep.Core;
-using Bicep.Core.FileSystem;
+using Bicep.Core.AzureApi;
+using Bicep.Core.Extensions;
 using Bicep.Core.Json;
 using Bicep.Core.Tracing;
 using Bicep.LanguageServer.CompilationManager;
@@ -75,14 +76,16 @@ namespace Bicep.LanguageServer.Handlers
             options.Environment = new ArmEnvironment(new Uri(request.resourceManagerEndpointUrl), request.audience);
 
             var credential = new CredentialFromTokenAndTimeStamp(request.token, request.expiresOnTimestamp);
-            var armClient = armClientProvider.createArmClient(credential, default, options);
+            var armClient = armClientProvider.CreateArmClient(credential, default, options);
 
             //starting with empty valid json (that can be parsed) for deployments with no parameters
             string parametersFileJson = "{}";
 
             if (request.parametersFilePath is { })
             {
-                if (PathHelper.HasBicepparamsExtension(DocumentUri.FromFileSystemPath(request.parametersFilePath).ToUriEncoded()))
+                var parametersDocumentUri = DocumentUri.FromFileSystemPath(request.parametersFilePath);
+
+                if (parametersDocumentUri.ToIOUri().HasBicepParamExtension())
                 {
                     //params file validation
                     if (request.parametersFileUpdateOption != ParametersFileUpdateOption.None)
@@ -180,8 +183,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (paramsResult.Parameters is null)
             {
-                var fileDiagnosticPair = KeyValuePair.Create(compilation.SourceFileGrouping.EntryPoint, paramsResult.Diagnostics[compilation.SourceFileGrouping.EntryPoint]);
-                return new BicepparamCompilationResult(false, DiagnosticsHelper.GetDiagnosticsMessage(fileDiagnosticPair));
+                return new BicepparamCompilationResult(false, DiagnosticsHelper.GetDiagnosticsMessage(paramsResult.Diagnostics));
             }
 
             return new BicepparamCompilationResult(true, paramsResult.Parameters);

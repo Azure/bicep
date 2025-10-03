@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Microsoft.Identity.Client;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
@@ -11,6 +13,8 @@ namespace Bicep.Core.Emit;
 
 public class ParametersJsonWriter
 {
+    public const string UsingConfigPropertyName = "usingConfig";
+
     private ExpressionBuilder ExpressionBuilder { get; }
 
     private EmitterContext Context => ExpressionBuilder.Context;
@@ -63,7 +67,7 @@ public class ParametersJsonWriter
             }
         });
 
-        if (this.Context.ExternalInputReferences.ParametersReferences.Count > 0)
+        if (this.Context.ExternalInputReferences.ExternalInputIndexMap.Count > 0)
         {
             WriteExternalInputDefinitions(emitter, this.Context.ExternalInputReferences.ExternalInputIndexMap);
         }
@@ -71,6 +75,31 @@ public class ParametersJsonWriter
         if (this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
         {
             WriteExtensionConfigs(emitter, jsonWriter);
+        }
+
+        if (this.Context.SemanticModel.EmitLimitationInfo.UsingConfig is { } usingConfig)
+        {
+            emitter.EmitObjectProperty(UsingConfigPropertyName, () =>
+            {
+                if (usingConfig.KeyVaultReferenceExpression is { } keyVaultReference)
+                {
+                    WriteKeyVaultReference(emitter, keyVaultReference, "reference");
+                }
+                else if (usingConfig.Value is { } value)
+                {
+                    emitter.EmitProperty("value", () => value.WriteTo(jsonWriter));
+                }
+                else if (usingConfig.Expression is { } expression)
+                {
+                    // The backend is always expecting an expression string, so we must always ensure we emit
+                    // a top-level expression, even if we could simplify by emitting a top-level object.
+                    emitter.EmitProperty("expression", () => emitter.EmitLanguageExpression(expression));
+                }
+                else
+                {
+                    throw new UnreachableException();
+                }
+            });
         }
 
         jsonWriter.WriteEndObject();

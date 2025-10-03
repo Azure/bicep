@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Definitions;
+using Azure.Deployments.Core.Definitions.Extensibility;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Engine.Definitions;
@@ -24,7 +25,6 @@ using Bicep.Core.ArmHelpers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
@@ -73,7 +73,13 @@ public static class SnapshotHelper
         return new(
             [
                 .. expansionResult.preflightResources.Select(x => JsonElementFactory.CreateElement(JsonExtensions.ToJson(DeploymentPreflightResourceWithParsedExpressions.From(x)))),
-                .. expansionResult.extensibleResources.Select(x => JsonElementFactory.CreateElement(JsonExtensions.ToJson(x))),
+                .. expansionResult.extensibleResources.Select(x => JsonElementFactory.CreateElement(JsonExtensions.ToJson(new DeploymentWhatIfExtensibleResource
+                    {
+                        Type = x.Type,
+                        ApiVersion = x.ApiVersion,
+                        Identifiers = x.Identifiers?.ToObject<JObject>(),
+                        Properties = x.Properties?.ToObject<JObject>(),
+                    }))),
             ],
             [
                 .. expansionResult.diagnostics.Select(d => $"{d.Target} {d.Level} {d.Code}: {d.Message}")

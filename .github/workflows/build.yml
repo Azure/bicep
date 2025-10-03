@@ -46,7 +46,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Publish Bicep
         run: dotnet publish --configuration release --self-contained true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
@@ -76,7 +76,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Pack
         run: dotnet pack --configuration release
@@ -106,7 +106,7 @@ jobs:
           node-version: 20
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Publish Language Server
         run: |
@@ -225,7 +225,7 @@ jobs:
           node-version: 20
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Publish Language Server
         run: |
@@ -300,7 +300,7 @@ jobs:
 
       # needed by the GenerateNotice package
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
@@ -356,16 +356,16 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: bicep-release-win-x64
           path: ./src/installer-win/bicep
 
       - name: Download Bicep CLI project assets file
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: bicep-project-assets-win-x64
           path: ./src/installer-win/bicep
@@ -419,7 +419,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -440,26 +440,30 @@ jobs:
         working-directory: ./src/Bicep.MSBuild.E2eTests
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: bicep-release-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/tools
 
       - name: Download Bicep CLI project assets file
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: bicep-project-assets-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/tools
 
       - name: Download .Net Packages
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: bicep-nupkg-any
           path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
 
-      - name: Install mono
+      - name: Install mono (Mac)
+        if: runner.os == 'macOS'
+        run: brew install mono
+
+      - name: Install mono (Linux)
+        if: runner.os == 'Linux'
         run: sudo apt update && sudo apt install mono-complete
-        if: ${{ matrix.rid == 'linux-x64' || matrix.rid == 'linux-arm64' }}
 
       - name: Build CLI Package
         run: dotnet build --configuration Release /p:RuntimeSuffix=${{ matrix.rid }} ./src/Bicep.Cli.Nuget/nuget.proj
@@ -473,7 +477,7 @@ jobs:
 
       - name: Download CLI Package
         if: matrix.runTests
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: bicep-nupkg-${{ matrix.rid }}
           path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
@@ -494,7 +498,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -534,7 +538,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -590,7 +594,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -598,7 +602,7 @@ jobs:
           node-version: 20
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: bicep-release-${{ matrix.runtime.rid }}
           path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
@@ -657,7 +661,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Run Tests
         run: dotnet test --configuration release -- --filter '${{ matrix.config.filter }}' --report-trx --results-directory ${{ github.workspace }}/TestResults
@@ -688,7 +692,7 @@ jobs:
           delete-merged: true
 
       - name: Download Test Results Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: TestResults
           path: TestResults
@@ -742,7 +746,7 @@ jobs:
     name: Check secret access
     runs-on: ubuntu-latest
     outputs:
-      access_verified: ${{ steps.check-access.outputs.verified && !(github.event_name == 'workflow_dispatch' && github.ref != 'refs/head/main') }}
+      access_verified: ${{ steps.check-access.outputs.verified && (github.base_ref == 'refs/head/main' || github.ref == 'refs/head/main') }}
 
     steps:
       - id: check-access
@@ -783,10 +787,10 @@ jobs:
           node-version: 20
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: bicep-release-${{ matrix.runtime.rid }}
           path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
@@ -842,7 +846,7 @@ jobs:
         run: apk add --update nodejs npm
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: bicep-release-linux-musl-x64
           path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli

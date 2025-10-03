@@ -180,7 +180,7 @@ public class SnippetCacheBuilder
         // We need to provide uri for syntax tree creation, but it's not used anywhere. In order to avoid
         // cross platform issues, we'll provide a placeholder uri.
         var bicepFile = this.bicepCompiler.SourceFileFactory.CreateBicepFile(DummyFileHandle.Default, template);
-        var workspace = new Workspace();
+        var workspace = new ActiveSourceFileSet();
         workspace.UpsertSourceFiles(bicepFile.AsEnumerable());
 
         var compilation = await bicepCompiler.CreateCompilation(bicepFile.FileHandle.Uri, workspace, skipRestore: true);

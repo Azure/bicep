@@ -14,6 +14,8 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
@@ -302,6 +304,13 @@ namespace Bicep.Core.UnitTests.Assertions
                 .BecauseOf(because, becauseArgs)
                 .ForCondition(newlines.Length == 1 && newlines[0] == newline)
                 .FailWith("Expected all newlines in {0} to be {1}, but found inconsistent newlines.", instance.Subject, newline);
+
+            return new(instance);
+        }
+
+        public static AndConstraint<StringAssertions> DeepEqualJson(this StringAssertions instance, string json, string because = "", params object[] becauseArgs)
+        {
+            json.FromJson<JToken>().Should().DeepEqual(JObject.Parse(json), because, becauseArgs);
 
             return new(instance);
         }

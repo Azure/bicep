@@ -98,7 +98,7 @@ public class TypeDefinitionBuilder
         var index = new TypeIndex(
             resourceTypes,
             new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
-            new(name, version, isSingleton, config!),
+            new TypeSettings(name: name, version: version, isSingleton: isSingleton, configurationType: config!),
             null);
 
         return new(
@@ -112,11 +112,10 @@ public class TypeDefinitionBuilder
     protected virtual ResourceType GenerateResource(TypeFactory typeFactory, ConcurrentDictionary<Type, TypeBase> typeCache, Type type, ResourceTypeAttribute attribute)
         => typeFactory.Create(() => new ResourceType(
             name: attribute.FullName,
-            scopeType: ScopeType.Unknown,
-            readOnlyScopes: null,
             body: typeFactory.GetReference(typeFactory.Create(() => GenerateForRecord(typeFactory, typeCache, type))),
-            flags: ResourceFlags.None,
-            functions: null));
+            functions: null,
+            writableScopes_in: ScopeType.All,
+            readableScopes_in: ScopeType.All));
 
     protected virtual TypeBase GenerateForRecord(TypeFactory factory, ConcurrentDictionary<Type, TypeBase> typeCache, Type type)
     {

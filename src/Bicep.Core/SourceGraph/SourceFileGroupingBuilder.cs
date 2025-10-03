@@ -7,7 +7,6 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
@@ -24,7 +23,7 @@ namespace Bicep.Core.SourceGraph
     {
         private readonly IFileExplorer fileExplorer;
         private readonly IModuleDispatcher dispatcher;
-        private readonly IReadOnlyWorkspace workspace;
+        private readonly IActiveSourceFileLookup workspace;
         private readonly ISourceFileFactory sourceFileFactory;
 
         private readonly Dictionary<IOUri, ResultWithDiagnosticBuilder<ISourceFile>> fileResultByUri;
@@ -35,7 +34,7 @@ namespace Bicep.Core.SourceGraph
         private SourceFileGroupingBuilder(
             IFileExplorer fileExplorer,
             IModuleDispatcher moduleDispatcher,
-            IReadOnlyWorkspace workspace,
+            IActiveSourceFileLookup workspace,
             ISourceFileFactory sourceFileFactory,
             bool forceModulesRestore = false)
         {
@@ -52,7 +51,7 @@ namespace Bicep.Core.SourceGraph
         private SourceFileGroupingBuilder(
             IFileExplorer fileExplorer,
             IModuleDispatcher moduleDispatcher,
-            IReadOnlyWorkspace workspace,
+            IActiveSourceFileLookup workspace,
             ISourceFileFactory sourceFileFactory,
             SourceFileGrouping current,
             bool forceArtifactRestore = false)
@@ -67,14 +66,14 @@ namespace Bicep.Core.SourceGraph
             this.forceRestore = forceArtifactRestore;
         }
 
-        public static SourceFileGrouping Build(IFileExplorer fileExplorer, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, ISourceFileFactory sourceFileFactory, IOUri entryFileUri, bool forceModulesRestore = false)
+        public static SourceFileGrouping Build(IFileExplorer fileExplorer, IModuleDispatcher moduleDispatcher, IActiveSourceFileLookup workspace, ISourceFileFactory sourceFileFactory, IOUri entryFileUri, bool forceModulesRestore = false)
         {
             var builder = new SourceFileGroupingBuilder(fileExplorer, moduleDispatcher, workspace, sourceFileFactory, forceModulesRestore);
 
             return builder.Build(entryFileUri);
         }
 
-        public static SourceFileGrouping Rebuild(IFileExplorer fileExplorer, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, ISourceFileFactory sourceFileFactory, SourceFileGrouping current)
+        public static SourceFileGrouping Rebuild(IFileExplorer fileExplorer, IModuleDispatcher moduleDispatcher, IActiveSourceFileLookup workspace, ISourceFileFactory sourceFileFactory, SourceFileGrouping current)
         {
             var builder = new SourceFileGroupingBuilder(fileExplorer, moduleDispatcher, workspace, sourceFileFactory, current);
 
@@ -131,8 +130,7 @@ namespace Bicep.Core.SourceGraph
 
         private ResultWithDiagnosticBuilder<ISourceFile> GetFileResolutionResult(IOUri fileUri, ArtifactReference? moduleReference)
         {
-            // TODO(file-io-abstraction): Create a LanguageServerFileExplorer that handles active file tracking and remove workspace.
-            if (workspace.TryGetSourceFile(fileUri.ToUri(), out var sourceFile))
+            if (workspace.TryGetSourceFile(fileUri) is { } sourceFile)
             {
                 return new(sourceFile);
             }

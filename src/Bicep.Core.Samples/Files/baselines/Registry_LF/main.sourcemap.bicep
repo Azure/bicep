@@ -14,7 +14,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
 module appPlanDeploy 'br:mock-registry-one.invalid/demo/plan:v2' = {
 //@    {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "resourceGroup": "adotfrank-rg",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -83,7 +83,7 @@ module appPlanDeploy 'br:mock-registry-one.invalid/demo/plan:v2' = {
 module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
 //@    {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "resourceGroup": "adotfrank-rg",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -177,7 +177,7 @@ module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [for site in web
 //@        "count": "[length(variables('websites'))]"
 //@      },
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "resourceGroup": "adotfrank-rg",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -265,7 +265,7 @@ module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [for site in web
 //@        },
     appPlanId: appPlanDeploy.outputs.planId
 //@          "appPlanId": {
-//@            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy'), '2022-09-01').outputs.planId.value]"
+//@            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy'), '2025-04-01').outputs.planId.value]"
 //@          },
     namePrefix: site.name
 //@          "namePrefix": {
@@ -289,7 +289,7 @@ module siteDeploy2 'br/demo-two:site:v3' = [for site in websites: {
 //@        "count": "[length(variables('websites'))]"
 //@      },
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "resourceGroup": "adotfrank-rg",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -377,7 +377,7 @@ module siteDeploy2 'br/demo-two:site:v3' = [for site in websites: {
 //@        },
     appPlanId: appPlanDeploy.outputs.planId
 //@          "appPlanId": {
-//@            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy'), '2022-09-01').outputs.planId.value]"
+//@            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy'), '2025-04-01').outputs.planId.value]"
 //@          },
     namePrefix: site.name
 //@          "namePrefix": {
@@ -397,7 +397,7 @@ module siteDeploy2 'br/demo-two:site:v3' = [for site in websites: {
 module storageDeploy 'ts:00000000-0000-0000-0000-000000000000/test-rg/storage-spec:1.0' = {
 //@    {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "resourceGroup": "adotfrank-rg",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -428,7 +428,7 @@ module storageDeploy 'ts:00000000-0000-0000-0000-000000000000/test-rg/storage-sp
 module storageDeploy2 'ts/mySpecRG:storage-spec:1.0' = {
 //@    {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "resourceGroup": "adotfrank-rg",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -484,7 +484,7 @@ module vnetDeploy 'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2'
 //@        "count": "[length(variables('vnets'))]"
 //@      },
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "resourceGroup": "adotfrank-rg",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -521,14 +521,14 @@ output siteUrls array = [for (site, i) in websites: siteDeploy[i].outputs.siteUr
 //@      "type": "array",
 //@      "copy": {
 //@        "count": "[length(variables('websites'))]",
-//@        "input": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', format('{0}siteDeploy', variables('websites')[copyIndex()].name)), '2022-09-01').outputs.siteUrl.value]"
+//@        "input": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', format('{0}siteDeploy', variables('websites')[copyIndex()].name)), '2025-04-01').outputs.siteUrl.value]"
 //@      }
 //@    }
 
 module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
 //@    {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "resourceGroup": "adotfrank-rg",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -580,7 +580,7 @@ module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
 module ipv4 'br:127.0.0.1/passthrough/ipv4:v1' = {
 //@    {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "resourceGroup": "adotfrank-rg",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -631,7 +631,7 @@ module ipv4 'br:127.0.0.1/passthrough/ipv4:v1' = {
 module ipv4port 'br:127.0.0.1:5000/passthrough/ipv4port:v1' = {
 //@    {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "resourceGroup": "adotfrank-rg",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -682,7 +682,7 @@ module ipv4port 'br:127.0.0.1:5000/passthrough/ipv4port:v1' = {
 module ipv6 'br:[::1]/passthrough/ipv6:v1' = {
 //@    {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "resourceGroup": "adotfrank-rg",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -733,7 +733,7 @@ module ipv6 'br:[::1]/passthrough/ipv6:v1' = {
 module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
 //@    {
 //@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
+//@      "apiVersion": "2025-04-01",
 //@      "resourceGroup": "adotfrank-rg",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {

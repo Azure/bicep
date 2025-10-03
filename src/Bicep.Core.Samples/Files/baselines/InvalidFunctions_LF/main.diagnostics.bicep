@@ -2,10 +2,10 @@ func useRuntimeFunction() string => reference('foo').bar
 //@[36:52) [BCP341 (Error)] This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment. (bicep https://aka.ms/bicep/core-diagnostics#BCP341) |reference('foo')|
 
 func missingArgType(input) string => input
-//@[25:26) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) |)|
+//@[25:26) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) |)|
 
 func missingOutputType(input string) => input
-//@[37:39) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) |=>|
+//@[37:39) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) |=>|
 //@[45:45) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP009) ||
 //@[45:45) [BCP018 (Error)] Expected the "=>" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
@@ -59,23 +59,23 @@ func recursiveB() string => recursiveA()
 
 func onlyComma(,) string => 'foo'
 //@[15:15) [BCP015 (Error)] Expected a variable identifier at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP015) ||
-//@[15:16) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) |,|
+//@[15:16) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) |,|
 func trailingCommas(a string,,) string => 'foo'
 //@[29:29) [BCP015 (Error)] Expected a variable identifier at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP015) ||
-//@[29:30) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) |,|
+//@[29:30) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) |,|
 func multiLineOnly(
   a string
   b string) string => 'foo'
 //@[02:03) [BCP018 (Error)] Expected the ")" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) |b|
 //@[27:27) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP009) ||
-//@[27:27) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
+//@[27:27) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
 //@[27:27) [BCP018 (Error)] Expected the "=>" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
 func multiLineTrailingCommas(
   a string,
   ,) string => 'foo'
 //@[02:02) [BCP015 (Error)] Expected a variable identifier at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP015) ||
-//@[02:03) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) |,|
+//@[02:03) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) |,|
 
 func lineBeforeComma(
   a string

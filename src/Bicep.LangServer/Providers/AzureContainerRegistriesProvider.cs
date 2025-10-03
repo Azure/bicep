@@ -7,8 +7,8 @@ using Azure.ResourceManager;
 using Azure.ResourceManager.ResourceGraph;
 using Azure.ResourceManager.ResourceGraph.Models;
 using Azure.ResourceManager.Resources;
+using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
-using Bicep.Core.Registry.Auth;
 using Bicep.Core.Tracing;
 using Newtonsoft.Json.Linq;
 

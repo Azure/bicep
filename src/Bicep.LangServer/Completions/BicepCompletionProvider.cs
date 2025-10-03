@@ -86,6 +86,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetParamValueCompletions(model, context))
                 .Concat(GetAssertValueCompletions(model, context))
                 .Concat(GetTypeArgumentCompletions(model, context))
+                .Concat(GetUsingWithCompletions(model, context))
                 .Concat(await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile, context, cancellationToken));
         }
 
@@ -1358,8 +1359,7 @@ namespace Bicep.LanguageServer.Completions
             IEnumerable<CompletionItem> snippetCompletions = [];
             if (context.Property is { } propertySyntax &&
                 propertySyntax.TryGetKeyText() is "identity" &&
-                (context.EnclosingDeclaration is ResourceDeclarationSyntax ||
-                 (context.EnclosingDeclaration is ModuleDeclarationSyntax && model.Features.ModuleIdentityEnabled)))
+                (context.EnclosingDeclaration is ResourceDeclarationSyntax or ModuleDeclarationSyntax))
             {
                 snippetCompletions = snippetsProvider.GetIdentitySnippets(context.EnclosingDeclaration is ResourceDeclarationSyntax)
                     .Select(snippet => CreateContextualSnippetCompletion(
@@ -2108,6 +2108,30 @@ namespace Bicep.LanguageServer.Completions
             if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingExtensionAsKeyword))
             {
                 yield return CreateKeywordCompletion(LanguageConstants.AsKeyword, "As keyword", context.ReplacementRange);
+            }
+        }
+
+        private IEnumerable<CompletionItem> GetUsingWithCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (!model.Features.DeployCommandsEnabled)
+            {
+                yield break;
+            }
+
+            if (context.Kind.HasFlag(BicepCompletionContextKind.UsingFollower))
+            {
+                yield return CreateKeywordCompletion(LanguageConstants.WithKeyword, "With keyword", context.ReplacementRange);
+            }
+
+            if (context.Kind.HasFlag(BicepCompletionContextKind.UsingWithFollower) &&
+                context.EnclosingDeclaration is UsingDeclarationSyntax usingDeclaration &&
+                usingDeclaration.WithClause is UsingWithClauseSyntax usingWithClause)
+            {
+                var configType = model.GetDeclaredType(usingWithClause);
+                foreach (var completion in GetValueCompletionsForType(model, context, configType, usingWithClause.Config, loopsAllowed: false))
+                {
+                    yield return completion;
+                }
             }
         }
 

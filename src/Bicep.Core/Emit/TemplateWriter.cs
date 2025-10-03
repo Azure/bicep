@@ -246,6 +246,7 @@ namespace Bicep.Core.Emit
                 (expression.MaxLength, LanguageConstants.ParameterMaxLengthPropertyName),
                 (expression.MinValue, LanguageConstants.ParameterMinValuePropertyName),
                 (expression.MaxValue, LanguageConstants.ParameterMaxValuePropertyName),
+                (expression.UserDefinedConstraint, LanguageConstants.ParameterUserDefinedConstraintPropertyName),
             })
             {
                 if (modifier is not null)
@@ -388,6 +389,8 @@ namespace Bicep.Core.Emit
         private ObjectExpression TypePropertiesForTypeExpression(TypeExpression typeExpression) => typeExpression switch
         {
             // ARM primitive types
+            AmbientTypeReferenceExpression ambientTypeReference when ambientTypeReference.Name == LanguageConstants.TypeNameAny
+                => ExpressionFactory.CreateObject([], ambientTypeReference.SourceSyntax),
             AmbientTypeReferenceExpression ambientTypeReference
                 => ExpressionFactory.CreateObject(TypeProperty(ambientTypeReference.Name, ambientTypeReference.SourceSyntax).AsEnumerable(),
                     ambientTypeReference.SourceSyntax),
@@ -502,18 +505,23 @@ namespace Bicep.Core.Emit
                     _ => typePointerProperty.Value,
                 };
 
-                return ExpressionFactory.CreateObject(new[]
+                List<ObjectPropertyExpression> properties = new();
+                if (TryGetNonLiteralTypeName(DerivedType) is string typeConstraintValue)
                 {
-                    TypeProperty(GetNonLiteralTypeName(DerivedType), sourceSyntax),
-                    ExpressionFactory.CreateObjectProperty(LanguageConstants.ParameterMetadataPropertyName,
-                        ExpressionFactory.CreateObject(
-                            ExpressionFactory.CreateObjectProperty(
-                                LanguageConstants.MetadataResourceDerivedTypePropertyName,
-                                metadataValue,
-                                sourceSyntax).AsEnumerable(),
-                            sourceSyntax),
+                    properties.Add(TypeProperty(typeConstraintValue, sourceSyntax));
+                }
+
+                properties.Add(ExpressionFactory.CreateObjectProperty(
+                    LanguageConstants.ParameterMetadataPropertyName,
+                    ExpressionFactory.CreateObject(
+                        ExpressionFactory.CreateObjectProperty(
+                            LanguageConstants.MetadataResourceDerivedTypePropertyName,
+                            metadataValue,
+                            sourceSyntax).AsEnumerable(),
                         sourceSyntax),
-                });
+                    sourceSyntax));
+
+                return ExpressionFactory.CreateObject(properties, sourceSyntax);
             }
         }
 
@@ -713,6 +721,11 @@ namespace Bicep.Core.Emit
                 throw new ArgumentException("Property access base expression did not resolve to the 'sys' namespace.");
             }
 
+            if (qualifiedAmbientType.Name == LanguageConstants.TypeNameAny)
+            {
+                return ExpressionFactory.CreateObject([], qualifiedAmbientType.SourceSyntax);
+            }
+
             return ExpressionFactory.CreateObject(TypeProperty(qualifiedAmbientType.Name, qualifiedAmbientType.SourceSyntax).AsEnumerable(),
                 qualifiedAmbientType.SourceSyntax);
         }
@@ -814,16 +827,17 @@ namespace Bicep.Core.Emit
         {
             var (nullable, nonLiteralTypeName, allowedValues) = TypeHelper.TryRemoveNullability(expression.ExpressedUnionType) switch
             {
-                UnionType nonNullableUnion => (true, GetNonLiteralTypeName(nonNullableUnion.Members.First().Type), GetAllowedValuesForUnionType(nonNullableUnion, expression.SourceSyntax)),
-                TypeSymbol nonNullable => (true, GetNonLiteralTypeName(nonNullable), SingleElementArray(ToLiteralValue(nonNullable))),
-                _ => (false, GetNonLiteralTypeName(expression.ExpressedUnionType.Members.First().Type), GetAllowedValuesForUnionType(expression.ExpressedUnionType, expression.SourceSyntax)),
+                UnionType nonNullableUnion => (true, TryGetNonLiteralTypeName(nonNullableUnion.Members.First().Type), GetAllowedValuesForUnionType(nonNullableUnion, expression.SourceSyntax)),
+                TypeSymbol nonNullable => (true, TryGetNonLiteralTypeName(nonNullable), SingleElementArray(ToLiteralValue(nonNullable))),
+                _ => (false, TryGetNonLiteralTypeName(expression.ExpressedUnionType.Members.First().Type), GetAllowedValuesForUnionType(expression.ExpressedUnionType, expression.SourceSyntax)),
             };
 
-            var properties = new List<ObjectPropertyExpression>
+            List<ObjectPropertyExpression> properties = new();
+            if (nonLiteralTypeName is not null)
             {
-                TypeProperty(nonLiteralTypeName, expression.SourceSyntax),
-                AllowedValuesProperty(allowedValues, expression.SourceSyntax),
-            };
+                properties.Add(TypeProperty(nonLiteralTypeName, expression.SourceSyntax));
+            }
+            properties.Add(AllowedValuesProperty(allowedValues, expression.SourceSyntax));
 
             if (nullable)
             {
@@ -982,16 +996,17 @@ namespace Bicep.Core.Emit
             _ => throw new ArgumentException("Union types used in ARM type checks must be composed entirely of literal types"),
         };
 
-        private static string GetNonLiteralTypeName(TypeSymbol? type) => type switch
+        private static string? TryGetNonLiteralTypeName(TypeSymbol? type) => type switch
         {
             StringLiteralType or StringType => "string",
             IntegerLiteralType or IntegerType => "int",
             BooleanLiteralType or BooleanType => "bool",
             ObjectType or DiscriminatedObjectType => "object",
             ArrayType => "array",
-            UnionType @union => @union.Members.Select(m => GetNonLiteralTypeName(m.Type)).Distinct().Single(),
-            // This would have been caught by the DeclaredTypeManager during initial type assignment
-            _ => throw new ArgumentException($"Cannot resolve nonliteral type name of type {type?.GetType().Name}"),
+            UnionType @union when
+                @union.Members.Select(m => TryGetNonLiteralTypeName(m.Type)).ToHashSet() is { } memberLiteralNames &&
+                memberLiteralNames.Count == 1 => memberLiteralNames.Single(),
+            _ => null,
         };
 
         private void EmitVariablesIfPresent(ExpressionEmitter emitter, IEnumerable<DeclaredVariableExpression> variables)
@@ -1463,9 +1478,9 @@ namespace Bicep.Core.Emit
                     jsonWriter.AddNestedSourceMap(moduleJsonWriter.TrackingJsonWriter);
                     emitter.EmitProperty("template", moduleTextWriter.ToString());
 
-                    if (moduleBicepFile?.Uri is { } sourceUri)
+                    if (moduleBicepFile?.FileHandle.Uri is { } sourceUri)
                     {
-                        emitter.EmitProperty("sourceUri", sourceUri.AbsoluteUri);
+                        emitter.EmitProperty("sourceUri", sourceUri.ToUriString());
                     }
                 });
 
@@ -1504,7 +1519,7 @@ namespace Bicep.Core.Emit
                 }
 
                 emitter.EmitProperty("type", NestedDeploymentResourceType);
-                emitter.EmitProperty("apiVersion", EmitConstants.GetNestedDeploymentResourceApiVersion(Context.SemanticModel.Features));
+                emitter.EmitProperty("apiVersion", EmitConstants.NestedDeploymentResourceApiVersion);
 
                 // emit all properties apart from 'params'. In practice, this currently only allows 'name', but we may choose to allow other top-level resource properties in future.
                 // params requires special handling (see below).

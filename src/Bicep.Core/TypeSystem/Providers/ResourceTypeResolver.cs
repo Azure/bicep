@@ -14,12 +14,12 @@ namespace Bicep.Core.TypeSystem.Providers
     {
         private readonly SemanticModel semanticModel;
 
-        private readonly ImmutableDictionary<ResourceSymbol, ObjectType> existingResourceBodyTypeOverrides;
+        private readonly IReadOnlyDictionary<ResourceSymbol, ObjectType> existingResourceBodyTypeOverrides;
 
         private ResourceTypeResolver(SemanticModel semanticModel, IReadOnlyDictionary<ResourceSymbol, ObjectType> existingResourceBodyTypeOverrides)
         {
             this.semanticModel = semanticModel;
-            this.existingResourceBodyTypeOverrides = existingResourceBodyTypeOverrides.ToImmutableDictionary();
+            this.existingResourceBodyTypeOverrides = existingResourceBodyTypeOverrides;
         }
 
         public static ResourceTypeResolver Create(SemanticModel semanticModel)
@@ -69,6 +69,9 @@ namespace Bicep.Core.TypeSystem.Providers
             return TryResolveResourceOrModuleSymbolAndBodyType(syntaxToResolve, isCollection);
         }
 
+        public ObjectType? TryGetBodyObjectType(ResourceSymbol resource)
+            => existingResourceBodyTypeOverrides.GetValueOrDefault(resource) ?? resource.TryGetBodyObjectType();
+
         private (DeclaredSymbol?, ObjectType?) TryResolveResourceOrModuleSymbolAndBodyType(SyntaxBase syntax, bool isCollection) => semanticModel.GetSymbolInfo(syntax) switch
         {
             ResourceSymbol resourceSymbol when resourceSymbol.IsCollection == isCollection =>
@@ -82,64 +85,64 @@ namespace Bicep.Core.TypeSystem.Providers
 
         private static IReadOnlyDictionary<ResourceSymbol, ObjectType> CreateExistingResourceBodyTypeOverrides(SemanticModel semanticModel)
         {
-            var existingResourceBodyTypeOverrides = new Dictionary<ResourceSymbol, ObjectType>();
-
-            // grab all existing resources
-            var existingResourceSymbols = semanticModel.DeclaredResources
-                .Where(x => x.IsExistingResource)
-                .Select(x => x.Symbol)
-                .ToArray();
-
-            // compare existing resources to all other existing resources to find dependencies and see if it has a non-DTC value
-            // and needs to remove the ReadableAtDeployTime flag from the "name" property -> O(n^2) time complexity with some optimizations
-            foreach (var _ in existingResourceSymbols)
+            static IEnumerable<ResourceSymbol> TopoSort(IBinder binder, IReadOnlySet<ResourceSymbol> resources)
             {
-                int count = existingResourceBodyTypeOverrides.Count;
-
-                foreach (var existingResourceSymbol in existingResourceSymbols)
+                HashSet<ResourceSymbol> processed = new();
+                IEnumerable<ResourceSymbol> YieldResourceAndUnprocessedPredecessors(ResourceSymbol resource)
                 {
-                    // skip if the existing resource symbol is already in the dictionary because there is no need to check the DTC value again
-                    if (existingResourceBodyTypeOverrides.ContainsKey(existingResourceSymbol))
+                    if (!processed.Add(resource))
                     {
-                        continue;
+                        yield break;
                     }
 
-                    // if "name" property has a non-DTC value, then make an entry for the corresponding existing ResourceSymbol to a modified ObjectType in the dictionary
-                    if (existingResourceSymbol.DeclaringResource.TryGetBody() is { } existingResourceBody &&
-                        existingResourceSymbol.TryGetBodyObjectType() is { } existingResourceBodyType)
+                    foreach (var predecessor in binder.GetSymbolsReferencedInDeclarationOf(resource)
+                        .OfType<ResourceSymbol>()
+                        .SelectMany(YieldResourceAndUnprocessedPredecessors))
                     {
-                        var resourceTypeResolver = new ResourceTypeResolver(semanticModel, existingResourceBodyTypeOverrides);
-
-                        foreach (var propertyName in AzResourceTypeProvider.UniqueIdentifierProperties)
+                        if (resources.Contains(predecessor))
                         {
-                            if (existingResourceBody.TryGetPropertyByName(propertyName) is { } identifierProperty)
+                            yield return predecessor;
+                        }
+                    }
+
+                    yield return resource;
+                }
+
+                return resources.SelectMany(YieldResourceAndUnprocessedPredecessors);
+            }
+
+            var existingResourceBodyTypeOverrides = new Dictionary<ResourceSymbol, ObjectType>();
+            var resourceTypeResolver = new ResourceTypeResolver(semanticModel, existingResourceBodyTypeOverrides);
+
+            foreach (var existingResource in TopoSort(semanticModel.Binder, semanticModel.SymbolsToInline.ExistingResourcesToInline))
+            {
+                if (existingResource.TryGetBodyObjectType() is { } existingResourceBodyType)
+                {
+                    List<string> notReadableAtDeployTime = new() { AzResourceTypeProvider.ResourceIdPropertyName };
+                    foreach (var propertyName in AzResourceTypeProvider.UniqueIdentifierProperties)
+                    {
+                        if (existingResource.TryGetBodyProperty(propertyName) is { } identifierProperty)
+                        {
+                            var diagnosticWriter = new SimpleDiagnosticWriter();
+
+                            DeployTimeConstantValidator.Validate(identifierProperty, semanticModel, resourceTypeResolver, diagnosticWriter);
+
+                            // If a DTC diagnostic was caught, the existing resource identifier property contains a runtime value.
+                            // Remove ReadableAtDeployTime flag from the name property.
+                            if (diagnosticWriter.HasDiagnostics())
                             {
-                                var diagnosticWriter = new SimpleDiagnosticWriter();
-
-                                DeployTimeConstantValidator.Validate(identifierProperty, semanticModel, resourceTypeResolver, diagnosticWriter);
-
-                                // If a DTC diagnostic was caught, the existing resource identifier property contains a runtime value.
-                                // Remove ReadableAtDeployTime flag from the name property.
-                                if (diagnosticWriter.HasDiagnostics())
-                                {
-                                    existingResourceBodyTypeOverrides[existingResourceSymbol] = ClearReadableAtDeployTimeFlags(propertyName, existingResourceBodyType); ;
-                                }
+                                notReadableAtDeployTime.Add(propertyName);
                             }
                         }
                     }
-                }
 
-                // if no new entries have been added to existingResourceBodyObjectTypeOverrides, that means there are no further DTC checks needed
-                if (count == existingResourceBodyTypeOverrides.Count)
-                {
-                    break;
-                }
-            }
+                    foreach (var propertyName in notReadableAtDeployTime)
+                    {
+                        existingResourceBodyType = ClearReadableAtDeployTimeFlags(propertyName, existingResourceBodyType);
+                    }
 
-            // now map every resourceSymbol in the dictionary to the same ObjectType but with the DeployTimeConstant flag removed this time
-            foreach (var (existingResourceSymbol, existingResourceBodyType) in existingResourceBodyTypeOverrides)
-            {
-                existingResourceBodyTypeOverrides[existingResourceSymbol] = ClearDeployTimeConstantFlagIfNotReadableAtDeployTime(existingResourceBodyType);
+                    existingResourceBodyTypeOverrides[existingResource] = ClearDeployTimeConstantFlagIfNotReadableAtDeployTime(existingResourceBodyType);
+                }
             }
 
             return existingResourceBodyTypeOverrides;
@@ -160,7 +163,8 @@ namespace Bicep.Core.TypeSystem.Providers
 
         private static ObjectType ClearDeployTimeConstantFlagIfNotReadableAtDeployTime(ObjectType existingResourceBodyType)
         {
-            foreach (var propertyName in AzResourceTypeProvider.UniqueIdentifierProperties)
+            foreach (var propertyName in AzResourceTypeProvider.UniqueIdentifierProperties
+                .Append(AzResourceTypeProvider.ResourceIdPropertyName))
             {
                 if (existingResourceBodyType.Properties.TryGetValue(propertyName, out var propertyType) &&
                     !propertyType.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime))

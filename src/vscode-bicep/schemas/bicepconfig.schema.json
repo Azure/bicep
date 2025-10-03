@@ -451,6 +451,16 @@
                     }
                   ]
                 },
+                "no-explicit-any": {
+                  "allOf": [
+                    {
+                      "description": "Avoid using an explicit 'any' type whenever possible. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#no-explicit-any"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "no-hardcoded-env-urls": {
                   "allOf": [
                     {
@@ -830,6 +840,10 @@
       "type": "string",
       "description": "The directory in which Bicep may cache templates downloaded from remote registries"
     },
+    "experimentalFeaturesWarning": {
+      "type": "boolean",
+      "description": "Controls whether the Bicep CLI displays a warning when experimental features are used. Defaults to true."
+    },
     "experimentalFeaturesEnabled": {
       "type": "object",
       "description": "The experimental Bicep features that should be enabled or disabled for templates using this configuration file. See https://aka.ms/bicep/experimental-features for more information.",
@@ -882,13 +896,13 @@
           "type": "boolean",
           "description": "Allows you to author Desired State Configuration documents using the target scope 'dsc'. See https://aka.ms/bicep/experimental-features#desiredstateconfiguration"
         },
-        "onlyIfNotExists": {
+        "userDefinedConstraints": {
           "type": "boolean",
-          "description": "If enabled, you can use the 'onlyIfNotExists' property on resources. See https://aka.ms/bicep/experimental-features#onlyifnotexists"
+          "description": "Allows you to use the `@validate()` decorator on types and parameters with a custom validation predicate. See https://aka.ms/bicep/experimental-features#userdefinedconstraints"
         },
-        "moduleIdentity": {
+        "deployCommands": {
           "type": "boolean",
-          "description": "Allows you to add an identity property to a module. See https://aka.ms/bicep/experimental-features#moduleidentity"
+          "description": "Allows you to access the 'deploy', 'what-if' and 'teardown' commands. See https://aka.ms/bicep/experimental-features#deploycommands"
         }
       },
       "additionalProperties": false

@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Reactive;
 using Azure.Deployments.Core.Diagnostics;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;

@@ -668,7 +668,7 @@ namespace Bicep.Core.UnitTests.Registry
             var template = BinaryData.FromString(jsonContentsV1);
 
             var featureProviderFactoryMock = StrictMock.Of<IFeatureProviderFactory>();
-            featureProviderFactoryMock.Setup(x => x.GetFeatureProvider(bicepFile.Uri)).Returns(bicepFile.Features);
+            featureProviderFactoryMock.Setup(x => x.GetFeatureProvider(bicepFile.FileHandle.Uri)).Returns(bicepFile.Features);
 
             SourceArchive? sourceArchive = null;
             if (publishSource)
@@ -746,7 +746,7 @@ namespace Bicep.Core.UnitTests.Registry
             featureProviderMock.Setup(m => m.CacheRootDirectory).Returns(cacheRootDirectory);
 
             var featureProviderFactoryMock = StrictMock.Of<IFeatureProviderFactory>();
-            featureProviderFactoryMock.Setup(m => m.GetFeatureProvider(parentModuleUri)).Returns(featureProviderMock.Object);
+            featureProviderFactoryMock.Setup(m => m.GetFeatureProvider(parentModuleUri.ToIOUri())).Returns(featureProviderMock.Object);
 
             var parentModuleFile = new BicepFile(
                 BicepTestConstants.FileExplorer.GetFile(parentModuleUri.ToIOUri()),

@@ -4,7 +4,6 @@
 using Bicep.Cli.Helpers;
 using Bicep.Core;
 using Bicep.Core.Emit.Options;
-using Bicep.Core.FileSystem;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Cli.Arguments
@@ -95,16 +94,6 @@ namespace Bicep.Cli.Arguments
             if (OutputDir is not null && OutputFile is not null)
             {
                 throw new CommandLineException($"The --outdir and --outfile parameters cannot both be used");
-            }
-
-            if (OutputDir is not null)
-            {
-                var outputDir = PathHelper.ResolvePath(OutputDir);
-
-                if (!Directory.Exists(outputDir))
-                {
-                    throw new CommandLineException(string.Format(CliResources.DirectoryDoesNotExistFormat, outputDir));
-                }
             }
         }
 
