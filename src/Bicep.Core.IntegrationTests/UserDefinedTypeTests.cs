@@ -155,7 +155,7 @@ param intParam constrainedInt
             ("BCP308", DiagnosticLevel.Error, "The decorator \"maxValue\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"minLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"maxLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
-            ("BCP439", DiagnosticLevel.Error, "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type."),
+            ("BCP308", DiagnosticLevel.Error, "The decorator \"secure\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"allowed\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("no-unused-params", DiagnosticLevel.Warning, "Parameter \"stringParam\" is declared but never used."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"minValue\" may not be used on statements whose declared type is a reference to a user-defined type."),
@@ -1991,13 +1991,46 @@ param myParam string
             type untyped = any
 
             @secure()
-            type rdt = resourceInput<'Microsoft.Resources/deployments@2022-09-01'>.name
+            type rdt = resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings
             """);
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
         [
-            ("BCP439", DiagnosticLevel.Error, "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type."),
-            ("BCP439", DiagnosticLevel.Error, "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type."),
+            ("BCP440", DiagnosticLevel.Error, "The @secure() decorator can only be used on statements whose type is a subtype of \"string\" or \"object\"."),
+            ("BCP440", DiagnosticLevel.Error, "The @secure() decorator can only be used on statements whose type is a subtype of \"string\" or \"object\"."),
         ]);
+    }
+
+    [TestMethod]
+    public void Secure_decorator_is_permitted_on_inline_object_types()
+    {
+        var result = CompilationHelper.Compile("""
+            @secure()
+            param config {
+              *: string
+            }
+
+            @secure()
+            param foo 'bar' | 'baz' | 'quux'
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Secure_decorator_on_resource_derived_type_should_use_secure_ARM_primitive_type()
+    {
+        var result = CompilationHelper.Compile("""
+            @secure()
+            type stringRdt = resourceInput<'Microsoft.Resources/tags@2022-09-01'>.properties.tags.*
+
+            @secure()
+            type objectRdt = resourceInput<'Microsoft.Resources/tags@2022-09-01'>.properties.tags
+            """);
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("$.definitions.stringRdt.type", "securestring");
+        result.Template.Should().HaveValueAtPath("$.definitions.objectRdt.type", "secureObject");
     }
 }

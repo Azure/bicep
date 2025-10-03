@@ -2000,6 +2000,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic SecureDecoratorOnlyAllowedOnStringsAndObjects() => CoreError(
                 "BCP439",
                 "The @secure() decorator can only be used on statements whose type clause is \"string,\", \"object\", or a literal type.");
+
+            public Diagnostic SecureDecoratorTargetMustFitWithinStringOrObject() => CoreError(
+                "BCP440",
+                "The @secure() decorator can only be used on statements whose type is a subtype of \"string\" or \"object\".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

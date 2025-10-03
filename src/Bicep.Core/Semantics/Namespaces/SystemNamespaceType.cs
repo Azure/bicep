@@ -1844,24 +1844,14 @@ namespace Bicep.Core.Semantics.Namespaces
                             return;
                         }
 
-                        var targetTypeClause = UnwrapNullableSyntax(GetDeclaredTypeSyntaxOfParent(decoratorSyntax, binder));
-                        if (IsLiteralSyntax(targetTypeClause, typeManager))
+                        if (TypeHelper.TryGetArmPrimitiveType(targetType) is null)
                         {
-                            // @secure() is allowed on literal string and object types
-                            return;
+                            // if we won't be emitting a "type" constraint in the compiled JSON, we can't make it a secure type
+                            diagnosticWriter.Write(
+                                DiagnosticBuilder.ForPosition(decoratorSyntax).SecureDecoratorTargetMustFitWithinStringOrObject());
                         }
 
-                        if (targetTypeClause is not null &&
-                            binder.GetSymbolInfo(targetTypeClause) is AmbientTypeSymbol ambientType &&
-                            ambientType.DeclaringNamespace.ExtensionName.Equals(BuiltInName) &&
-                            ambientType.Name is LanguageConstants.TypeNameString or LanguageConstants.ObjectType)
-                        {
-                            // @secure() is allowed if the target's type syntax is "string" or "object"
-                            return;
-                        }
-
-                        diagnosticWriter.Write(
-                            DiagnosticBuilder.ForPosition(decoratorSyntax).SecureDecoratorOnlyAllowedOnStringsAndObjects());
+                        ValidateNotTargetingAlias(decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter);
                     })
                     .WithEvaluator((functionCall, decorated) =>
                     {
