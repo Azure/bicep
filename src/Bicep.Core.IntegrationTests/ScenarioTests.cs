@@ -5776,8 +5776,8 @@ param foo {
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP439", DiagnosticLevel.Error, """The @secure() decorator can only be used on statements whose type clause is "string,", "object", or a literal type."""),
-            ("BCP439", DiagnosticLevel.Error, """The @secure() decorator can only be used on statements whose type clause is "string,", "object", or a literal type."""),
+            ("BCP308", DiagnosticLevel.Error, """The decorator "secure" may not be used on statements whose declared type is a reference to a user-defined type."""),
+            ("BCP308", DiagnosticLevel.Error, """The decorator "secure" may not be used on statements whose declared type is a reference to a user-defined type."""),
         });
     }
 
