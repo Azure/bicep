@@ -504,7 +504,10 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                var validatedScopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, resource.Type.ValidParentScopes, resource.Symbol.DeclaringResource.Value, resource.TryGetScopeSyntax());
+                var supportedScopes = resource.IsExistingResource 
+                    ? resource.Type.ValidParentScopes | (ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource)
+                    : resource.Type.ValidParentScopes;
+                var validatedScopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, supportedScopes, resource.Symbol.DeclaringResource.Value, resource.TryGetScopeSyntax());
                 scopeInfo[resource] = validatedScopeData ?? defaultScopeData;
             }
 
