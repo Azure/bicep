@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16286362524030391182"
+      "templateHash": "9893796164133631849"
     }
   },
   "parameters": {
@@ -62,7 +62,7 @@
     "roleAssignment": {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
-      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('accountName'))]",
+      "scope": "[resourceId('Microsoft.Storage/storageAccounts', parameters('accountName'))]",
       "name": "[guid(resourceGroup().id, variables('storageAccountContributorRoleDefinitionId'))]",
       "properties": {
         "roleDefinitionId": "[variables('storageAccountContributorRoleDefinitionId')]",

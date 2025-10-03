@@ -99,6 +99,16 @@ namespace Bicep.Core.Emit
             writer.WriteValue(serialized);
         }
 
+        public void EmitFullyQualifiedResourceId(DeclaredResourceMetadata resource, IndexReplacementContext? indexContext)
+        {
+            var converterForContext = converter.GetConverter(indexContext);
+
+            var fullyQualifiedResourceId = converterForContext.GetFullyQualifiedResourceId(resource);
+            var serialized = ExpressionSerializer.SerializeExpression(fullyQualifiedResourceId);
+
+            writer.WriteValue(serialized);
+        }
+
         public void EmitIndexedSymbolReference(DeclaredResourceMetadata resource, IndexReplacementContext? indexContext)
         {
             var expression = converter.GetConverter(indexContext).GenerateSymbolicReference(resource, indexContext);
