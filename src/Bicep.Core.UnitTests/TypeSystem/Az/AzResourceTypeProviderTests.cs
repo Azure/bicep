@@ -328,7 +328,7 @@ resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
             // Should be marked as ReadOnly because there are no writable scopes
             result.Flags.Should().HaveFlag(ResourceFlags.ReadOnly);
             result.ReadOnlyScopes.Should().Be(ResourceScope.Tenant | ResourceScope.Subscription);
-            result.ValidParentScopes.Should().Be(ResourceScope.None); // No writable scopes
+            result.ValidParentScopes.Should().Be(ResourceScope.Tenant | ResourceScope.Subscription); // All usable scopes (readable | writable)
         }
 
         [TestMethod]
