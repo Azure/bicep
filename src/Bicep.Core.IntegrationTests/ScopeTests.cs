@@ -395,5 +395,65 @@ output tiers array = [for (account, i) in accounts: storage[i].properties.access
                 template.Should().HaveValueAtPath("$.resources.storage.resourceGroup", "[variables('accounts')[copyIndex()].rg]");
             }
         }
+
+        [TestMethod]
+        public void Existing_policy_definitions_can_use_tenant_scope_from_management_group()
+        {
+            // Regression test for https://github.com/Azure/bicep/issues/18166
+            // Microsoft.Authorization/policyDefinitions should allow existing resources to use tenant() scope
+            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+targetScope = 'managementGroup'
+
+var input array = [
+  {policyDefinitionId: '0a914e76-4921-4c19-b460-a2d36003525a'}
+]
+
+// Get all builtin policies as defined in the input parameter
+resource builtin 'Microsoft.Authorization/policyDefinitions@2023-04-01' existing = [for policy in input: {
+  scope: tenant()
+  name: policy.policyDefinitionId
+}]
+");
+
+            using (new AssertionScope())
+            {
+                diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
+                template.Should().NotBeNull();
+            }
+        }
+
+        [TestMethod]
+        public void Policy_definitions_can_use_scope_property_for_deployment()
+        {
+            // Regression test for https://github.com/Azure/bicep/issues/18163
+            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+targetScope = 'subscription'
+
+resource policyDef 'Microsoft.Authorization/policyDefinitions@2021-06-01' = {
+  name: 'test-policy'
+  scope: subscription()
+  properties: {
+    displayName: 'Test Policy'
+    description: 'Test policy for regression test'
+    mode: 'All'
+    policyRule: {
+      if: {
+        field: 'type'
+        equals: 'Microsoft.Storage/storageAccounts'
+      }
+      then: {
+        effect: 'audit'
+      }
+    }
+  }
+}
+");
+
+            using (new AssertionScope())
+            {
+                diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
+                template.Should().NotBeNull();
+            }
+        }
     }
 }

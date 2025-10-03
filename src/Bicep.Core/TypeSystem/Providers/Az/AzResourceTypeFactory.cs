@@ -38,7 +38,9 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             var (readableScopes, writableScopes) = GetScopeInfo(resourceType);
             var readOnlyScopes = readableScopes & ~writableScopes;
 
-            return new ResourceTypeComponents(resourceTypeReference, writableScopes, readOnlyScopes, ToResourceFlags(resourceType), bodyType);
+            var validParentScopes = readableScopes | writableScopes;
+
+            return new ResourceTypeComponents(resourceTypeReference, validParentScopes, readOnlyScopes, ToResourceFlags(resourceType), bodyType);
         }
 
         public IEnumerable<FunctionOverload> GetResourceFunctionOverloads(Azure.Bicep.Types.Concrete.ResourceFunctionType resourceFunctionType)
