@@ -294,8 +294,8 @@ resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
             result.Flags.Should().NotHaveFlag(ResourceFlags.ReadOnly);
             // ReadOnlyScopes should be readable scopes minus writable scopes (tenant only)
             result.ReadOnlyScopes.Should().Be(ResourceScope.Tenant);
-            // ValidParentScopes should be the writable scopes
-            result.ValidParentScopes.Should().Be(ResourceScope.Subscription | ResourceScope.ResourceGroup);
+            // ValidParentScopes should be all usable scopes (readable | writable)
+            result.ValidParentScopes.Should().Be(ResourceScope.Tenant | ResourceScope.Subscription | ResourceScope.ResourceGroup);
         }
 
         [TestMethod]
