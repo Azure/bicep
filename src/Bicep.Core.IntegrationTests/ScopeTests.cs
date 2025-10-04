@@ -232,7 +232,7 @@ output resourceARef string = resourceA.kind
                 }, null))
             });
 
-            // explicitly pass an invalid scope
+            // Existing resources can be referenced at any ARM scope (tenant, managementGroup, subscription, resourceGroup, resource)
             var (_, diags, _) = CompilationHelper.Compile(typeLoader, ("main.bicep", @"
 resource resourceA 'My.Rp/myResource@2020-01-01' existing = {
   name: 'resourceA'
@@ -242,10 +242,9 @@ resource resourceA 'My.Rp/myResource@2020-01-01' existing = {
 
             diags.Should().HaveDiagnostics(new[] {
                 ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"resourceA\" is declared but never used."),
-                ("BCP135", DiagnosticLevel.Error, "Scope \"subscription\" is not valid for this resource type. Permitted scopes: \"resourceGroup\"."),
             });
 
-            // use an invalid targetScope without setting the scope property
+            // When using an existing resource without explicit scope, it inherits the targetScope, which is allowed for existing resources
             (_, diags, _) = CompilationHelper.Compile(typeLoader, ("main.bicep", @"
 targetScope = 'subscription'
 
@@ -256,7 +255,6 @@ resource resourceA 'My.Rp/myResource@2020-01-01' existing = {
 
             diags.Should().HaveDiagnostics(new[] {
                 ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"resourceA\" is declared but never used."),
-                ("BCP135", DiagnosticLevel.Error, "Scope \"subscription\" is not valid for this resource type. Permitted scopes: \"resourceGroup\"."),
             });
         }
 
