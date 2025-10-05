@@ -59,7 +59,7 @@ public class ConsoleCommand(
             logger.LogError($"The '{args.CommandName}' CLI command requires an interactive console.");
             return 1;
         }
-        
+
         await io.Output.WriteLineAsync("Bicep Console v1.0.0");
         await io.Output.WriteLineAsync("Type 'help' for available commands, press ESC to quit.");
         await io.Output.WriteLineAsync("Multi-line input supported.");
@@ -264,7 +264,8 @@ public class ConsoleCommand(
     }
 
     private static SyntaxBase ParseJToken(JToken value)
-        => value switch {
+        => value switch
+        {
             JObject jObject => ParseJObject(jObject),
             JArray jArray => ParseJArray(jArray),
             JValue jValue => ParseJValue(jValue),
@@ -272,7 +273,8 @@ public class ConsoleCommand(
         };
 
     private static SyntaxBase ParseJValue(JValue value)
-        => value.Type switch {
+        => value.Type switch
+        {
             JTokenType.Integer => SyntaxFactory.CreatePositiveOrNegativeInteger(value.Value<long>()),
             JTokenType.String => SyntaxFactory.CreateStringLiteral(value.ToString()),
             JTokenType.Boolean => SyntaxFactory.CreateBooleanLiteral(value.Value<bool>()),

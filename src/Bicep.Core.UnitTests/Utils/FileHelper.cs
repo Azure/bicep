@@ -33,7 +33,7 @@ namespace Bicep.Core.UnitTests.Utils
 
             return Path.Combine(outputPath, fileName);
         }
-        
+
         public record ResultFile(string FileName, string Contents, Encoding? Encoding = null);
 
         public static string SaveResultFiles(TestContext testContext, ResultFile[] files, string? testOutputPath = null)

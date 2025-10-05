@@ -2,18 +2,18 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Azure.Deployments.Core.ErrorResponses;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Templates.Expressions;
+using Bicep.Cli.Helpers.Repl;
+using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core;
 using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
-using System.Linq;
-using Bicep.Cli.Helpers.Repl;
 
 namespace Bicep.Cli.Services;
 
@@ -91,7 +91,7 @@ public class ReplEvaluator
 
         return new(helper, this);
     }
-    
+
     private class ReplEvaluationContext : IEvaluationContext
     {
         private readonly TemplateExpressionEvaluationHelper evaluationHelper;

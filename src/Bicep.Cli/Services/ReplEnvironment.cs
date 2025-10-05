@@ -2,13 +2,19 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
+using System.Management;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using System.Linq;
+using Bicep.Cli.Helpers.Repl;
+using Bicep.Cli.Helpers.WhatIf;
 using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Highlighting;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
@@ -17,12 +23,6 @@ using Bicep.Core.Text;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
-using Bicep.Cli.Helpers.Repl;
-using System.Management;
-using Bicep.Core.Highlighting;
-using Bicep.Cli.Helpers.WhatIf;
-using System.Net;
 
 namespace Bicep.Cli.Services;
 
