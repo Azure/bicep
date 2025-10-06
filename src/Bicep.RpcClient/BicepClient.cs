@@ -130,9 +130,14 @@ internal class BicepClient : IBicepClient
     public void Dispose()
     {
         cts.Cancel();
-        if (!cliProcess.HasExited)
+        jsonRpcClient.Dispose();
+        try
         {
+            cliProcess.Kill();
             cliProcess.WaitForExit();
+        }
+        catch (InvalidOperationException)
+        {
         }
     }
 }
