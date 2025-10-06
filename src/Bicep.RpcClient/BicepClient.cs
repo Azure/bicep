@@ -4,8 +4,11 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Pipelines;
 using System.IO.Pipes;
 using System.Threading;
+using System.Threading.Tasks;
+using Bicep.RpcClient;
 using Bicep.RpcClient.JsonRpc;
 using Bicep.RpcClient.Models;
 
@@ -17,12 +20,13 @@ internal class BicepClient : IBicepClient
     private readonly JsonRpcClient jsonRpcClient;
     private readonly Task backgroundTask;
     private readonly CancellationTokenSource cts;
+    private string? cachedVersion;
 
     private BicepClient(NamedPipeServerStream pipeStream, Process cliProcess, JsonRpcClient jsonRpcClient, CancellationTokenSource cts)
     {
         this.cliProcess = cliProcess;
         this.jsonRpcClient = jsonRpcClient;
-        this.backgroundTask = CreateBackgroundTask(pipeStream, cliProcess, jsonRpcClient, cts.Token);
+        this.backgroundTask = jsonRpcClient.Listen(onComplete: pipeStream.Dispose, cts.Token);
         this.cts = cts;
     }
 
@@ -37,7 +41,7 @@ internal class BicepClient : IBicepClient
         }
 
         var pipeName = Guid.NewGuid().ToString();
-        var pipeStream = new NamedPipeServerStream(pipeName, PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+        var pipeStream = new NamedPipeServerStream(pipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, System.IO.Pipes.PipeOptions.Asynchronous);
 
         var psi = new ProcessStartInfo
         {
@@ -54,28 +58,10 @@ internal class BicepClient : IBicepClient
 
         await pipeStream.WaitForConnectionAsync(cancellationToken).ConfigureAwait(false);
         var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        var client = new JsonRpcClient(pipeStream, pipeStream);
+        var client = new JsonRpcClient(PipeReader.Create(pipeStream), PipeWriter.Create(pipeStream));
 
         return new BicepClient(pipeStream, cliProcess, client, cts);
     }
-
-    private static Task CreateBackgroundTask(NamedPipeServerStream pipeStream, Process cliProcess, JsonRpcClient jsonRpcClient, CancellationToken cancellationToken)
-        => Task.Run(async () =>
-        {
-            try
-            {
-                await jsonRpcClient.ReadLoop(cancellationToken).ConfigureAwait(false);
-            }
-            catch (OperationCanceledException)
-            {
-                // Expected when disposing
-            }
-            finally
-            {
-                pipeStream.Dispose();
-                cliProcess.Dispose();
-            }
-        }, cancellationToken);
 
     /// <inheritdoc/>
     public Task<CompileResponse> Compile(CompileRequest request, CancellationToken cancellationToken)
@@ -114,8 +100,15 @@ internal class BicepClient : IBicepClient
     /// <inheritdoc/>
     public async Task<string> GetVersion(CancellationToken cancellationToken)
     {
-        var response = await jsonRpcClient.SendRequest<VersionRequest, VersionResponse>("bicep/version", new(), cancellationToken).ConfigureAwait(false);
-        return response.Version;
+        // This method is called frequently for version checks - cache the result
+        if (cachedVersion is null)
+        {
+            var response = await jsonRpcClient.SendRequest<VersionRequest, VersionResponse>("bicep/version", new(), cancellationToken).ConfigureAwait(false);
+            // No locks needed here, since replacing a reference is atomic
+            cachedVersion = response.Version;
+        }
+
+        return cachedVersion;
     }
 
     private async Task EnsureMinimumVersion(string requiredVersion, string operationName, CancellationToken cancellationToken)
@@ -130,9 +123,15 @@ internal class BicepClient : IBicepClient
     public void Dispose()
     {
         cts.Cancel();
-        if (!cliProcess.HasExited)
+        jsonRpcClient.Dispose();
+        try
         {
-            cliProcess.WaitForExit();
+            cliProcess.Kill();
+            // wait for 10 seconds for the process to exit
+            cliProcess.WaitForExit(10000);
+        }
+        catch (InvalidOperationException)
+        {
         }
     }
 }

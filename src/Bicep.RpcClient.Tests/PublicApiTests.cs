@@ -41,6 +41,7 @@ public class PublicApiTests
             // Be careful when adding new dependencies to the ClientTools assembly - this assembly is intentionally slim.
             // The assembly is used in Microsoft internal tools, where dependency management is complex, so we want to avoid transitively depending on ResourceStack
             "System.Collections.Immutable",
+            "System.IO.Pipelines",
             "System.Memory",
             "System.Text.Encodings.Web",
             "System.Text.Json",
