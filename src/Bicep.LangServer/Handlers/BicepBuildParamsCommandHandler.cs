@@ -37,12 +37,12 @@ namespace Bicep.LanguageServer.Handlers
 
         public override async Task<string> Handle(DocumentUri documentUri, CancellationToken cancellationToken)
         {
-            string output = await GenerateCompiledParametersFileAndReturnOutputMessage(documentUri);
+            string output = await GenerateCompiledParametersFileAndReturnOutputMessage(documentUri, cancellationToken);
 
             return output;
         }
 
-        private async Task<string> GenerateCompiledParametersFileAndReturnOutputMessage(DocumentUri documentUri)
+        private async Task<string> GenerateCompiledParametersFileAndReturnOutputMessage(DocumentUri documentUri, CancellationToken cancellationToken)
         {
             var bicepParamFileUri = documentUri.ToIOUri();
             var jsonParamFileUri = bicepParamFileUri.WithExtension(".parameters.json");
@@ -56,17 +56,16 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             var compilation = await new CompilationHelper(bicepCompiler, compilationManager).GetRefreshedCompilation(documentUri);
-            var paramSemanticModel = compilation.GetEntrypointSemanticModel();
+            var paramsResult = compilation.Emitter.Parameters();
 
-            if (paramSemanticModel.HasErrors())
+            if (paramsResult.Success != true || paramsResult.Parameters is not { } parameters)
             {
                 var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile();
 
                 return "Building parameters file failed. Please fix below errors:\n" + DiagnosticsHelper.GetDiagnosticsMessage(diagnosticsByFile);
             }
 
-            using var fileStream = jsonParamFile.OpenWrite();
-            var result = new ParametersEmitter(paramSemanticModel).Emit(fileStream);
+            await jsonParamFile.WriteAllTextAsync(parameters, cancellationToken);
 
             return $"Building parameters file succeeded. Processed file {jsonParamFileUri}";
         }
