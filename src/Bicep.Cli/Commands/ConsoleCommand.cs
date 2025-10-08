@@ -52,14 +52,14 @@ public class ConsoleCommand(
 
     public async Task<int> RunAsync(ConsoleArguments args)
     {
-        logger.LogWarning($"WARNING: The '{args.CommandName}' CLI command is an experimental feature. Experimental features should be used for testing purposes only, as there are no guarantees about the quality or stability of these features.");
+        logger.LogWarning("WARNING: The '{commandName}' CLI command is an experimental feature. Experimental features should be used for testing purposes only, as there are no guarantees about the quality or stability of these features.", args.CommandName);
 
         if (!console.Profile.Capabilities.Interactive)
         {
-            logger.LogError($"The '{args.CommandName}' CLI command requires an interactive console.");
+            logger.LogError("The '{commandName}' CLI command requires an interactive console.", args.CommandName);
             return 1;
         }
-        
+
         await io.Output.WriteLineAsync("Bicep Console v1.0.0");
         await io.Output.WriteLineAsync("Type 'help' for available commands, press ESC to quit.");
         await io.Output.WriteLineAsync("Multi-line input supported.");
@@ -109,7 +109,7 @@ public class ConsoleCommand(
             }
 
             // Auto-submit when structure complete immediately after this line.
-            if (ShouldTerminateWithNewLine(current))
+            if (StructuralCompletenessHelper.IsStructurallyComplete(current))
             {
                 await SubmitBuffer(buffer, current);
             }
@@ -142,7 +142,7 @@ public class ConsoleCommand(
         return false;
     }
 
-    private string GetPrefix(StringBuilder buffer)
+    private static string GetPrefix(StringBuilder buffer)
         => buffer.Length == 0 ? FirstLinePrefix : "";
 
     private async Task<string?> ReadLine(StringBuilder buffer)
@@ -243,36 +243,18 @@ public class ConsoleCommand(
         buffer.Clear();
     }
 
-    /// <summary>
-    /// Heuristic structural completeness check: ensures bracket/brace/paren balance
-    /// and not inside (multi-line) string or interpolation expression.
-    /// Not a full parse; parse errors still reported by real parser.
-    /// </summary>
-    private static bool ShouldTerminateWithNewLine(string text)
-    {
-        var program = new ReplParser(text).Program();
-        if (program.Children.Length != 1)
-        {
-            return true;
-        }
-
-        return program.Children[0] switch
-        {
-            VariableDeclarationSyntax { Value: SkippedTriviaSyntax } => false,
-            _ => true,
-        };
-    }
-
     private static SyntaxBase ParseJToken(JToken value)
-        => value switch {
+        => value switch
+        {
             JObject jObject => ParseJObject(jObject),
             JArray jArray => ParseJArray(jArray),
             JValue jValue => ParseJValue(jValue),
             _ => throw new NotImplementedException($"Unrecognized token type {value.Type}"),
         };
 
-    private static SyntaxBase ParseJValue(JValue value)
-        => value.Type switch {
+    private static ExpressionSyntax ParseJValue(JValue value)
+        => value.Type switch
+        {
             JTokenType.Integer => SyntaxFactory.CreatePositiveOrNegativeInteger(value.Value<long>()),
             JTokenType.String => SyntaxFactory.CreateStringLiteral(value.ToString()),
             JTokenType.Boolean => SyntaxFactory.CreateBooleanLiteral(value.Value<bool>()),
