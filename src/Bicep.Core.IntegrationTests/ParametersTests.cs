@@ -641,7 +641,7 @@ param stringParam =  /*TODO*/
                 param testParam1 string
                 param testParam2 string
               "),
-              ("main.bicepparam", @"
+              ("parameters.bicepparam", @"
                 using 'main.bicep'
 
                 extends 'base.bicepparam'
