@@ -51,6 +51,8 @@ The console automatically detects when expressions are structurally complete:
 > config.settings.debug
 true
 ```
+To exit out of a multi-line expression input (e.g. if you get stuck due to an invalid syntax), simply hit 'Enter' twice.
+
 
 ### Complex Expressions
 ```bicep

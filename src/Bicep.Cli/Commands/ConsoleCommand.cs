@@ -91,8 +91,16 @@ public class ConsoleCommand(
 
                 if (rawLine.Equals("help", StringComparison.OrdinalIgnoreCase))
                 {
-                    await io.Output.WriteLineAsync("Enter expressions or 'var name = <expr>'. Multi-line supported until structure closes.");
-                    await io.Output.WriteLineAsync("Commands: exit, clear");
+                    await io.Output.WriteLineAsync(
+                        """
+                        Enter Bicep expressions or variable declarations (var a = <expr>).
+                        If stuck in a multi-line expression, Press 'Enter' twice
+                        Special commands:
+                            exit         Exit the console
+                            clear        Clear the console
+                            help         Show this help message
+                        """
+                    );
                     continue;
                 }
             }
