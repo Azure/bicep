@@ -614,5 +614,55 @@ param stringParam =  /*TODO*/
                 }
             }"));
         }
+
+        [TestMethod]
+        public void Usage_variables_from_import_in_base_bicepparam_should_succeed()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("bicepconfig.json", @"
+                {
+                    ""experimentalFeaturesEnabled"": {
+                        ""extendableParamFiles"": true
+                    }
+                }
+              "),
+              ("consts.bicep", @"
+                @export()
+                var someGlobal = 'someValue'
+              "),
+              ("base.bicepparam", @"
+                import * as consts from 'consts.bicep'
+
+                using none
+
+                param testParam1 = consts.someGlobal
+              "),
+              ("main.bicep", @"
+                param testParam1 string
+                param testParam2 string
+              "),
+              ("main.bicepparam", @"
+                using 'main.bicep'
+
+                extends 'base.bicepparam'
+
+                param testParam2 =  'someOtherValue'
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            result.Parameters.Should().DeepEqual(JToken.Parse(@"{
+                ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+                ""contentVersion"": ""1.0.0.0"",
+                ""parameters"": {
+                    ""testParam2"": {
+                        ""value"": ""someOtherValue""
+                    },
+                    ""testParam1"": {
+                        ""value"": ""someValue""
+                    }
+                }
+            }"));
+        }
     }
 }
