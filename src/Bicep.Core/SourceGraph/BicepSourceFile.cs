@@ -78,9 +78,9 @@ namespace Bicep.Core.SourceGraph
 
         public ISyntaxHierarchy Hierarchy { get; }
 
-        public RootConfiguration Configuration => this.configurationManager.GetConfiguration(this.Uri);
+        public RootConfiguration Configuration => this.configurationManager.GetConfiguration(this.FileHandle.Uri);
 
-        public IFeatureProvider Features => this.featureProviderFactory.GetFeatureProvider(this.Uri);
+        public IFeatureProvider Features => this.featureProviderFactory.GetFeatureProvider(this.FileHandle.Uri);
 
         public IDiagnosticLookup LexingErrorLookup { get; }
 

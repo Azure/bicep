@@ -35,7 +35,12 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 }
             }
 
-            return new ResourceTypeComponents(resourceTypeReference, ToResourceScope(resourceType.ScopeType), ToResourceScope(resourceType.ReadOnlyScopes), ToResourceFlags(resourceType.Flags), bodyType);
+            var (readableScopes, writableScopes) = GetScopeInfo(resourceType);
+            var readOnlyScopes = readableScopes & ~writableScopes;
+
+            var validParentScopes = readableScopes | writableScopes;
+
+            return new ResourceTypeComponents(resourceTypeReference, validParentScopes, readOnlyScopes, ToResourceFlags(resourceType), bodyType);
         }
 
         public IEnumerable<FunctionOverload> GetResourceFunctionOverloads(Azure.Bicep.Types.Concrete.ResourceFunctionType resourceFunctionType)
@@ -234,10 +239,12 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             return flags;
         }
 
-        private static ResourceFlags ToResourceFlags(Azure.Bicep.Types.Concrete.ResourceFlags input)
+        private static ResourceFlags ToResourceFlags(Azure.Bicep.Types.Concrete.ResourceType input)
         {
             var output = ResourceFlags.None;
-            if (input.HasFlag(Azure.Bicep.Types.Concrete.ResourceFlags.ReadOnly))
+
+            // Resource is ReadOnly if there are no writable scopes
+            if (input.WritableScopes == Azure.Bicep.Types.Concrete.ScopeType.None)
             {
                 output |= ResourceFlags.ReadOnly;
             }
@@ -245,9 +252,22 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             return output;
         }
 
+        private static (ResourceScope readableScopes, ResourceScope writableScopes) GetScopeInfo(Azure.Bicep.Types.Concrete.ResourceType resourceType)
+        {
+            var readableScopes = ToResourceScope(resourceType.ReadableScopes);
+            var writableScopes = ToResourceScope(resourceType.WritableScopes);
+            return (readableScopes, writableScopes);
+        }
+
         private static ResourceScope ToResourceScope(Azure.Bicep.Types.Concrete.ScopeType input)
         {
-            if (input == Azure.Bicep.Types.Concrete.ScopeType.Unknown)
+            if (input == Azure.Bicep.Types.Concrete.ScopeType.None)
+            {
+                // ScopeType.None means no valid scopes
+                return ResourceScope.None;
+            }
+
+            if (input == Azure.Bicep.Types.Concrete.ScopeType.All)
             {
                 return ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource;
             }
@@ -260,8 +280,5 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             output |= input.HasFlag(Azure.Bicep.Types.Concrete.ScopeType.ResourceGroup) ? ResourceScope.ResourceGroup : ResourceScope.None;
             return output;
         }
-
-        private static ResourceScope ToResourceScope(Azure.Bicep.Types.Concrete.ScopeType? input)
-            => input.HasValue ? ToResourceScope(input.Value) : ResourceScope.None;
     }
 }

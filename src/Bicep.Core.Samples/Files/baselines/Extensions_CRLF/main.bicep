@@ -19,8 +19,8 @@ var strVar1 = 'strVar1Value'
 
 extension az
 extension kubernetes as k8s
-
-//extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1:1.2.3' as graph
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as extWithOptionalConfig1
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as extWithOptionalConfig2
 
 // END: Extension declarations
 
@@ -103,6 +103,13 @@ module moduleWithExtsUsingFullInheritance 'child/hasConfigurableExtensionsWithAl
   }
 }
 
+module moduleWithExtsUsingFullInheritanceTernary1 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  extensionConfigs: {
+    k8s: k8s.config
+    extWithOptionalConfig: boolParam1 ? extWithOptionalConfig1.config : extWithOptionalConfig2.config
+  }
+}
+
 module moduleWithExtsUsingPiecemealInheritance 'child/hasConfigurableExtensionsWithAlias.bicep' = {
   extensionConfigs: {
     k8s: {
@@ -128,6 +135,13 @@ module moduleExtConfigsConditionalMixed 'child/hasConfigurableExtensionsWithAlia
       kubeConfig: boolParam1 ? secureStrParam1 : k8s.config.kubeConfig
       namespace: boolParam1 ? az.resourceGroup().location : k8s.config.namespace
     }
+  }
+}
+
+module moduleWithExtsEmpty 'child/hasConfigurableExtensionsWithAlias.bicep' = {
+  extensionConfigs: {
+    k8s: k8s.config
+    extWithOptionalConfig: {}
   }
 }
 

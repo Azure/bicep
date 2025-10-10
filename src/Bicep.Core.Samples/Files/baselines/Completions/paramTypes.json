@@ -1,5 +1,19 @@
 [
   {
+    "label": "any",
+    "kind": "class",
+    "detail": "any",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_any",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "any"
+    }
+  },
+  {
     "label": "array",
     "kind": "class",
     "detail": "array",

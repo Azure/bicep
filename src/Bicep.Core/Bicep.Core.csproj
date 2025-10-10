@@ -20,6 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <AdditionalFiles Include="BannedSymbols.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="Configuration\bicepconfig.json" WithCulture="false" />
   </ItemGroup>
 
@@ -41,7 +45,7 @@
     <PackageReference Include="Azure.Bicep.Types" />
     <PackageReference Include="Azure.Bicep.Types.Az" />
     <PackageReference Include="Azure.Bicep.Types.K8s" />
-    <PackageReference Include="System.IO.Abstractions" />
+    <PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" />
     <PackageReference Include="Azure.Bicep.Internal.RoslynAnalyzers" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="System.Private.Uri" />

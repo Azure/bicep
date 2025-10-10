@@ -11,14 +11,12 @@ namespace Bicep.Core.UnitTests.Baselines
         Assembly Assembly,
         string StreamPath)
     {
-        private readonly Lazy<string> contentsLazy = new(() =>
-        {
-            var stream = Assembly.GetManifestResourceStream(StreamPath);
-
-            return new StreamReader(stream!).ReadToEnd();
-        });
+        private readonly Lazy<BinaryData> binaryDataLazy = new(() => BinaryData.FromStream(Assembly.GetManifestResourceStream(StreamPath)!));
+        private readonly Lazy<string> contentsLazy = new(() => new StreamReader(Assembly.GetManifestResourceStream(StreamPath)!).ReadToEnd());
 
         public string Contents => contentsLazy.Value;
+
+        public BinaryData BinaryData => binaryDataLazy.Value;
 
         public string FileName => Path.GetFileName(StreamPath);
 

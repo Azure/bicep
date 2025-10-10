@@ -11,7 +11,7 @@
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="JsonDiffPatch.Net" />
     <PackageReference Include="Moq" />
-    <PackageReference Include="System.IO.Abstractions.TestingHelpers" />
+    <PackageReference Include="TestableIO.System.IO.Abstractions.TestingHelpers" />
   </ItemGroup>
 
   <ItemGroup>

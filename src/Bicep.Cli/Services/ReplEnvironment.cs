@@ -1,0 +1,250 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System;
+using System.Collections.Immutable;
+using System.Text;
+using System.Threading.Tasks;
+using System.Linq;
+using Bicep.Core;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
+using Bicep.Core.Parsing;
+using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
+using Bicep.Core.Syntax;
+using Bicep.Core.Text;
+using Bicep.IO.Abstraction;
+using Bicep.IO.InMemory;
+using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using Bicep.Cli.Helpers.Repl;
+using System.Management;
+using Bicep.Core.Highlighting;
+using Bicep.Cli.Helpers.WhatIf;
+using System.Net;
+
+namespace Bicep.Cli.Services;
+
+public class ReplEnvironment
+{
+    private readonly InMemoryFileExplorer fileExplorer;
+    private readonly BicepCompiler compiler;
+
+    // Persist original variable declaration text (ordered) and lookup to allow redefinition.
+    private readonly List<string> variableDeclarationLines = [];
+    private readonly Dictionary<string, string> variableDeclarationLookup = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly IOUri replFileUri = IOUri.FromFilePath("/session.biceprepl");
+    private readonly List<string> history = [];
+    private int lastHistoryIndex = -1;
+
+    public ReplEnvironment(BicepCompiler compiler)
+    {
+        this.fileExplorer = new InMemoryFileExplorer();
+        this.compiler = compiler;
+    }
+
+    public string HighlightInputLine(string prefix, string prevLines, IReadOnlyList<Rune> lineBuffer, int cursorOffset, bool printPrevLines)
+    {
+        var currentLine = string.Concat(lineBuffer);
+        var fullContent = $"{prevLines}{currentLine}";
+        var lineStart = prevLines.Length;
+
+        var compilation = CompileInternal(fullContent);
+        var model = compilation.GetEntrypointSemanticModel();
+        var width = lineBuffer.Take(cursorOffset).Sum(r => r.Utf16SequenceLength);
+
+        if (printPrevLines)
+        {
+            var historyHighlighted = PrintHelper.PrintWithSyntaxHighlighting(model, fullContent, 0);
+
+            return PrintHelper.PrintInputLine(prefix, historyHighlighted, width);
+        }
+
+        var highlighted = PrintHelper.PrintWithSyntaxHighlighting(model, fullContent, lineStart);
+
+        return PrintHelper.PrintInputLine(prefix, highlighted, width);
+    }
+
+    public string HighlightSyntax(string content)
+    {
+        var compilation = CompileInternal(content);
+        var model = compilation.GetEntrypointSemanticModel();
+
+        return PrintHelper.PrintWithSyntaxHighlighting(model, content);
+    }
+
+    public AnnotatedReplResult EvaluateInput(string input)
+    {
+        history.Add(input);
+        lastHistoryIndex = -1;
+
+        var parser = new ReplParser(input);
+        var syntax = parser.ParseExpression(out var diags);
+        var errors = diags.Where(d => d.Level == DiagnosticLevel.Error).ToList();
+        if (errors.Count > 0)
+        {
+            return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(errors, input, input.Length));
+        }
+
+        if (syntax is VariableDeclarationSyntax varDecl)
+        {
+            return EvaluateVariableDeclaration(varDecl);
+        }
+
+        return EvaluateExpression(syntax);
+    }
+
+    private AnnotatedReplResult EvaluateVariableDeclaration(VariableDeclarationSyntax varDecl)
+    {
+        var varName = varDecl.Name.IdentifierName;
+        var declarationText = varDecl.ToString();
+
+        // Build a working list excluding prior declaration (to avoid duplicate diagnostic) if redefining.
+        List<string> workingLines;
+        if (variableDeclarationLookup.TryGetValue(varName, out var existingText))
+        {
+            workingLines = [.. variableDeclarationLines.Where(l => !string.Equals(l, existingText, StringComparison.Ordinal))];
+        }
+        else
+        {
+            workingLines = [.. variableDeclarationLines];
+        }
+
+        // Compile working lines + new declaration (without mutating persisted state yet).
+        var sb = new StringBuilder();
+        foreach (var line in workingLines)
+        {
+            sb.AppendLine(line);
+        }
+        sb.Append(declarationText);
+        var fullContent = sb.ToString();
+        var compilation = CompileInternal(fullContent);
+
+        var model = compilation.GetEntrypointSemanticModel();
+        var diagnostics = model.GetAllDiagnostics().Where(d => d.Source != DiagnosticSource.CoreLinter).ToList();
+        if (diagnostics.Count > 0)
+        {
+            return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(diagnostics, declarationText, fullContent.Length));
+        }
+
+        // Find and evaluate the newly declared variable symbol.
+        var declaredVariable = model.Root.VariableDeclarations.First(v => v.Name.Equals(varName, StringComparison.OrdinalIgnoreCase));
+        var evaluator = new ReplEvaluator(model);
+        var variableEvalResult = evaluator.EvaluateExpression(declaredVariable.DeclaringVariable.Value);
+        if (variableEvalResult.Diagnostics.Any())
+        {
+            return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(variableEvalResult.Diagnostics, declarationText, fullContent.Length));
+        }
+
+        // Persist only after successful evaluation.
+        variableDeclarationLines.Clear();
+        variableDeclarationLines.AddRange(workingLines);
+        variableDeclarationLines.Add(declarationText);
+        variableDeclarationLookup[varName] = declarationText;
+
+        return new AnnotatedReplResult(variableEvalResult.Value, []);
+    }
+
+    private AnnotatedReplResult EvaluateExpression(SyntaxBase expressionSyntax)
+    {
+        var tempVarName = $"__temp_eval_{Guid.NewGuid():N}";
+        var userExpression = expressionSyntax.ToString();
+
+        // need to write to "some" file in order to compile and get a semantic model
+        // a semantic model is needed by ExpressionConverter
+        var sb = new StringBuilder();
+        foreach (var line in variableDeclarationLines)
+        {
+            sb.AppendLine(line);
+        }
+        sb.Append("var ").Append(tempVarName).Append(" = ").Append(userExpression);
+        var fullContent = sb.ToString();
+
+        var compilation = CompileInternal(fullContent);
+
+        var model = compilation.GetEntrypointSemanticModel();
+
+        var diagnostics = model.GetAllDiagnostics().Where(d => d.Source != DiagnosticSource.CoreLinter).ToList();
+
+        if (diagnostics.Count > 0)
+        {
+            return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(diagnostics, userExpression, fullContent.Length));
+        }
+
+        var evaluator = new ReplEvaluator(model);
+
+        // find the variable we created to hold the expression and evaluate its value
+        // (it doesn't seem like we can evaluate the expression directly because we need a symbol bound to a semantic model)
+        var boundVariable = model.Root.VariableDeclarations.First(v => v.Name == tempVarName);
+
+        var expressionEvalResult = evaluator.EvaluateExpression(boundVariable.DeclaringVariable.Value);
+        if (expressionEvalResult.Diagnostics.Any())
+        {
+            return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(expressionEvalResult.Diagnostics, userExpression, fullContent.Length));
+        }
+
+        return new AnnotatedReplResult(expressionEvalResult.Value, []);
+    }
+
+    public string? TryGetHistory(bool backwards)
+    {
+        if (backwards)
+        {
+            if (lastHistoryIndex <= -1)
+            {
+                lastHistoryIndex = history.Count - 1;
+            }
+            else if (lastHistoryIndex > 0)
+            {
+                lastHistoryIndex--;
+            }
+            else
+            {
+                // remain at oldest entry
+            }
+        }
+        else
+        {
+            if (lastHistoryIndex > -1 && lastHistoryIndex < history.Count - 1)
+            {
+                lastHistoryIndex++;
+            }
+            else
+            {
+                // remain at newest entry
+            }
+        }
+
+        if (lastHistoryIndex == -1)
+        {
+            return null;
+        }
+
+        return history[lastHistoryIndex].TrimEnd('\n');
+    }
+
+    private Compilation CompileInternal(string fullContent)
+    {
+        var fileHandle = fileExplorer.GetFile(replFileUri);
+        var sourceFile = compiler.SourceFileFactory.CreateBicepReplFile(fileHandle, fullContent);
+        var workspace = new ActiveSourceFileSet();
+        workspace.UpsertSourceFile(sourceFile);
+
+        return compiler.CreateCompilationWithoutRestore(replFileUri, workspace);
+    }
+
+    // TODO: There's probably a better way to do this...
+    private static IEnumerable<PrintHelper.AnnotatedDiagnostic> CreateAnnotatedDiagnostics(IEnumerable<IDiagnostic> diagnostics, string userText, int compiledTextLength)
+    {
+        // Calculate the offset where user's text starts in the compiled content
+        // User's text is always at the end, so: totalLength - userTextLength = startOffset
+        var textOffset = compiledTextLength - userText.Length;
+        var annotatedDiagnostics = diagnostics
+            .Where(d => d.Span.Position >= textOffset && d.Span.Position <= compiledTextLength) // only diagnostics that overlap with user text
+            .Select(d => new PrintHelper.AnnotatedDiagnostic(d, () => new TextSpan(d.Span.Position - textOffset, d.Span.Length)));
+        return annotatedDiagnostics;
+    }
+}
+
+public record AnnotatedReplResult(JToken? Value, IEnumerable<PrintHelper.AnnotatedDiagnostic> AnnotatedDiagnostics);

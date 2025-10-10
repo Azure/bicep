@@ -1,22 +1,22 @@
 <Project>
 
   <!--
-    We need to use conditional compilation for some platform-specific code in certain cases. 
+    We need to use conditional compilation for some platform-specific code in certain cases.
     The macros declared here represent the platform of the build machine that is compiling the code.
     You are wrong if you use these macros in code that compiles into a multi-platform binary.
     (If we ship one binary for all 3 platforms, there will only be one build machine platform and it won't match the 2 others.)
   -->
   <PropertyGroup Condition=" $(MSBuildProjectExtension) == '.csproj' ">
-    <IsWindowsBuild Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindowsBuild> 
-    <IsOSXBuild Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsOSXBuild> 
+    <IsWindowsBuild Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindowsBuild>
+    <IsOSXBuild Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsOSXBuild>
     <IsLinuxBuild Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinuxBuild>
 
     <DefineConstants Condition=" $(IsLinuxBuild) == 'true' ">$(DefineConstants);LINUX_BUILD</DefineConstants>
     <DefineConstants Condition=" $(IsOSXBuild) == 'true' ">$(DefineConstants);OSX_BUILD</DefineConstants>
     <DefineConstants Condition=" $(IsWindowsBuild) == 'true' ">$(DefineConstants);WINDOWS_BUILD</DefineConstants>
   </PropertyGroup>
-  
-  <ItemGroup>
+
+  <ItemGroup Condition="'$(MSBuildProjectName)' != 'Bicep.Core' AND '$(MSBuildProjectName)' != 'Bicep.Decompiler'">
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)/BannedSymbols.txt" />
   </ItemGroup>
 
@@ -51,7 +51,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- 
+    <!--
       projects that conditionally depend on this package must always reference it in order for the lock files to be predictable
       the package is harmless until the target it provides is executed via AfterTargets or BeforeTargets.
     -->

@@ -4,11 +4,14 @@
 using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Runtime;
+using Azure.Deployments.Engine.Workers;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Commands;
 using Bicep.Cli.Helpers;
+using Bicep.Cli.Helpers.Deploy;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
+using Bicep.Core;
 using Bicep.Core.Emit;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Features;
@@ -16,6 +19,7 @@ using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Spectre.Console;
 
 namespace Bicep.Cli
 {
@@ -39,9 +43,8 @@ namespace Bicep.Cli
         public static async Task<int> Main(string[] args)
             => await RunWithCancellationAsync(async cancellationToken =>
             {
-                string profilePath = DirHelper.GetTempPath();
-                ProfileOptimization.SetProfileRoot(profilePath);
-                ProfileOptimization.StartProfile("bicep.profile");
+                StartProfile();
+
                 Console.OutputEncoding = TemplateEmitter.UTF8EncodingWithoutBom;
 
                 if (FeatureProvider.TracingEnabled)
@@ -110,6 +113,18 @@ namespace Bicep.Cli
                     case SnapshotArguments snapshotArguments when snapshotArguments.CommandName == Constants.Command.Snapshot: // bicep snapshot [options]
                         return await services.GetRequiredService<SnapshotCommand>().RunAsync(snapshotArguments, cancellationToken);
 
+                    case DeployArguments deployArguments when deployArguments.CommandName == Constants.Command.Deploy: // bicep deploy [options]
+                        return await services.GetRequiredService<DeployCommand>().RunAsync(deployArguments, cancellationToken);
+
+                    case WhatIfArguments whatIfArguments when whatIfArguments.CommandName == Constants.Command.WhatIf: // bicep what-if [options]
+                        return await services.GetRequiredService<WhatIfCommand>().RunAsync(whatIfArguments, cancellationToken);
+
+                    case TeardownArguments teardownArguments when teardownArguments.CommandName == Constants.Command.Teardown: // bicep teardown [options]
+                        return await services.GetRequiredService<TeardownCommand>().RunAsync(teardownArguments, cancellationToken);
+
+                    case ConsoleArguments consoleArguments when consoleArguments.CommandName == Constants.Command.Console: // bicep console
+                        return await services.GetRequiredService<ConsoleCommand>().RunAsync(consoleArguments);
+
                     case RootArguments rootArguments when rootArguments.CommandName == Constants.Command.Root: // bicep [options]
                         return services.GetRequiredService<RootCommand>().Run(rootArguments);
 
@@ -171,6 +186,28 @@ namespace Bicep.Cli
                 .AddSingleton<DiagnosticLogger>()
                 .AddSingleton<OutputWriter>()
                 .AddSingleton<PlaceholderParametersWriter>()
-                .AddSingleton(io);
+                .AddSingleton(io)
+                .AddSingleton<ReplEnvironment>()
+                .AddSingleton(AnsiConsole.Create(new AnsiConsoleSettings
+                {
+                    Ansi = AnsiSupport.Detect,
+                    ColorSystem = ColorSystemSupport.Detect,
+                    Interactive = InteractionSupport.Detect,
+                    Out = new AnsiConsoleOutput(io.Output),
+                }))
+                .AddSingleton<IDeploymentProcessor, DeploymentProcessor>()
+                .AddSingleton<DeploymentRenderer>();
+
+        // This logic is duplicated in Bicep.Cli. We avoid placing it in Bicep.Core
+        // to keep Bicep.Core free of System.IO dependencies. Consider moving this
+        // and other components shared between the CLI and Language Server to a
+        // separate project, such as Bicep.Hosting.
+        private static void StartProfile()
+        {
+            string profilePath = Path.Combine(Path.GetTempPath(), LanguageConstants.LanguageFileExtension); // bicep extension as a hidden folder name
+            Directory.CreateDirectory(profilePath);
+            ProfileOptimization.SetProfileRoot(profilePath);
+            ProfileOptimization.StartProfile("bicep.profile");
+        }
     }
 }

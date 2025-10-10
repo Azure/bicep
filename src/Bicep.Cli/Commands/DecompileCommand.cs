@@ -5,7 +5,6 @@ using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core;
 using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
 using Bicep.Core.SourceGraph;
 using Bicep.Decompiler;
 using Bicep.IO.Abstraction;
@@ -61,18 +60,18 @@ namespace Bicep.Cli.Commands
             try
             {
                 var jsonContents = await this.fileExplorer.GetFile(inputUri).ReadAllTextAsync();
-                var decompilation = await decompiler.Decompile(outputUri.ToUri(), jsonContents);
+                var decompilation = await decompiler.Decompile(outputUri, jsonContents);
 
                 // TODO(low-priority): It would be ideal to remove Workspace and use InMemoryFileExplorer instead.
                 // This is something that should be done after the core part of file I/O abstraction migration is complete.
-                var workspace = new Workspace();
+                var workspace = new ActiveSourceFileSet();
                 foreach (var (fileUri, bicepOutput) in decompilation.FilesToSave)
                 {
-                    workspace.UpsertSourceFile(this.sourceFileFactory.CreateBicepFile(fileUri.ToIOUri(), bicepOutput));
+                    workspace.UpsertSourceFile(this.sourceFileFactory.CreateBicepFile(fileUri, bicepOutput));
                 }
 
                 // to verify success we recompile and check for syntax errors.
-                var compilation = await compiler.CreateCompilation(decompilation.EntrypointUri.ToIOUri(), skipRestore: true, workspace: workspace);
+                var compilation = await compiler.CreateCompilation(decompilation.EntrypointUri, skipRestore: true, workspace: workspace);
                 var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, compilation);
 
                 if (args.OutputToStdOut)
@@ -89,7 +88,7 @@ namespace Bicep.Cli.Commands
             }
             catch (Exception exception)
             {
-                await io.Error.WriteLineAsync(string.Format(CliResources.DecompilationFailedFormat, PathHelper.ResolvePath(args.InputFile), exception.Message));
+                await io.Error.WriteLineAsync(string.Format(CliResources.DecompilationFailedFormat, inputUri, exception.Message));
                 return 1;
             }
         }

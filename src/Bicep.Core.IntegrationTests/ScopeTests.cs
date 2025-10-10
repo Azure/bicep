@@ -25,23 +25,23 @@ namespace Bicep.Core.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        [DataRow("tenant", "tenant()", "tenant", ExpectedTenantSchema, "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myMod'), '2022-09-01').outputs.hello.value]", "[tenantResourceId('Microsoft.Resources/deployments', 'myMod')]")]
-        [DataRow("tenant", "managementGroup('abc')", "managementGroup", ExpectedTenantSchema, "[reference(extensionResourceId(tenantResourceId('Microsoft.Management/managementGroups', 'abc'), 'Microsoft.Resources/deployments', 'myMod'), '2022-09-01').outputs.hello.value]", "[extensionResourceId(tenantResourceId('Microsoft.Management/managementGroups', 'abc'), 'Microsoft.Resources/deployments', 'myMod')]")]
-        [DataRow("tenant", "subscription('abc')", "subscription", ExpectedTenantSchema, "[reference(subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod'), '2022-09-01').outputs.hello.value]", "[subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod')]")]
-        [DataRow("tenant", "resourceGroup('abc', 'def')", "resourceGroup", ExpectedTenantSchema, "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'abc', 'def'), 'Microsoft.Resources/deployments', 'myMod'), '2022-09-01').outputs.hello.value]", "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'abc', 'def'), 'Microsoft.Resources/deployments', 'myMod')]")]
-        [DataRow("managementGroup", "managementGroup()", "managementGroup", ExpectedMgSchema, "[reference(extensionResourceId(managementGroup().id, 'Microsoft.Resources/deployments', 'myMod'), '2022-09-01').outputs.hello.value]", "[extensionResourceId(managementGroup().id, 'Microsoft.Resources/deployments', 'myMod')]")]
-        [DataRow("managementGroup", "subscription('abc')", "subscription", ExpectedMgSchema, "[reference(subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod'), '2022-09-01').outputs.hello.value]", "[subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod')]")]
-        [DataRow("managementGroup", "resourceGroup('abc', 'def')", "resourceGroup", ExpectedMgSchema, "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'abc', 'def'), 'Microsoft.Resources/deployments', 'myMod'), '2022-09-01').outputs.hello.value]", "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'abc', 'def'), 'Microsoft.Resources/deployments', 'myMod')]")]
-        [DataRow("subscription", "subscription()", "subscription", ExpectedSubSchema, "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'myMod'), '2022-09-01').outputs.hello.value]", "[subscriptionResourceId('Microsoft.Resources/deployments', 'myMod')]")]
-        [DataRow("subscription", "subscription('abc')", "subscription", ExpectedSubSchema, "[reference(subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod'), '2022-09-01').outputs.hello.value]", "[subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod')]")]
-        [DataRow("subscription", "resourceGroup('abc')", "resourceGroup", ExpectedSubSchema, "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'abc'), 'Microsoft.Resources/deployments', 'myMod'), '2022-09-01').outputs.hello.value]", "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'abc'), 'Microsoft.Resources/deployments', 'myMod')]")]
-        [DataRow("subscription", "tenant()", "tenant", ExpectedSubSchema, "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myMod'), '2022-09-01').outputs.hello.value]", "[tenantResourceId('Microsoft.Resources/deployments', 'myMod')]")]
-        [DataRow("resourceGroup", "subscription()", "subscription", ExpectedRgSchema, "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'myMod'), '2022-09-01').outputs.hello.value]", "[subscriptionResourceId('Microsoft.Resources/deployments', 'myMod')]")]
-        [DataRow("resourceGroup", "subscription('abc')", "subscription", ExpectedRgSchema, "[reference(subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod'), '2022-09-01').outputs.hello.value]", "[subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod')]")]
-        [DataRow("resourceGroup", "resourceGroup()", "resourceGroup", ExpectedRgSchema, "[reference(resourceId('Microsoft.Resources/deployments', 'myMod'), '2022-09-01').outputs.hello.value]", "[resourceId('Microsoft.Resources/deployments', 'myMod')]")]
-        [DataRow("resourceGroup", "resourceGroup('abc')", "resourceGroup", ExpectedRgSchema, "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'abc'), 'Microsoft.Resources/deployments', 'myMod'), '2022-09-01').outputs.hello.value]", "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'abc'), 'Microsoft.Resources/deployments', 'myMod')]")]
-        [DataRow("resourceGroup", "resourceGroup('abc', 'def')", "resourceGroup", ExpectedRgSchema, "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'abc', 'def'), 'Microsoft.Resources/deployments', 'myMod'), '2022-09-01').outputs.hello.value]", "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'abc', 'def'), 'Microsoft.Resources/deployments', 'myMod')]")]
-        [DataRow("resourceGroup", "tenant()", "tenant", ExpectedRgSchema, "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myMod'), '2022-09-01').outputs.hello.value]", "[tenantResourceId('Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("tenant", "tenant()", "tenant", ExpectedTenantSchema, "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myMod'), '2025-04-01').outputs.hello.value]", "[tenantResourceId('Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("tenant", "managementGroup('abc')", "managementGroup", ExpectedTenantSchema, "[reference(extensionResourceId(tenantResourceId('Microsoft.Management/managementGroups', 'abc'), 'Microsoft.Resources/deployments', 'myMod'), '2025-04-01').outputs.hello.value]", "[extensionResourceId(tenantResourceId('Microsoft.Management/managementGroups', 'abc'), 'Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("tenant", "subscription('abc')", "subscription", ExpectedTenantSchema, "[reference(subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod'), '2025-04-01').outputs.hello.value]", "[subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("tenant", "resourceGroup('abc', 'def')", "resourceGroup", ExpectedTenantSchema, "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'abc', 'def'), 'Microsoft.Resources/deployments', 'myMod'), '2025-04-01').outputs.hello.value]", "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'abc', 'def'), 'Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("managementGroup", "managementGroup()", "managementGroup", ExpectedMgSchema, "[reference(extensionResourceId(managementGroup().id, 'Microsoft.Resources/deployments', 'myMod'), '2025-04-01').outputs.hello.value]", "[extensionResourceId(managementGroup().id, 'Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("managementGroup", "subscription('abc')", "subscription", ExpectedMgSchema, "[reference(subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod'), '2025-04-01').outputs.hello.value]", "[subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("managementGroup", "resourceGroup('abc', 'def')", "resourceGroup", ExpectedMgSchema, "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'abc', 'def'), 'Microsoft.Resources/deployments', 'myMod'), '2025-04-01').outputs.hello.value]", "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'abc', 'def'), 'Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("subscription", "subscription()", "subscription", ExpectedSubSchema, "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'myMod'), '2025-04-01').outputs.hello.value]", "[subscriptionResourceId('Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("subscription", "subscription('abc')", "subscription", ExpectedSubSchema, "[reference(subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod'), '2025-04-01').outputs.hello.value]", "[subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("subscription", "resourceGroup('abc')", "resourceGroup", ExpectedSubSchema, "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'abc'), 'Microsoft.Resources/deployments', 'myMod'), '2025-04-01').outputs.hello.value]", "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'abc'), 'Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("subscription", "tenant()", "tenant", ExpectedSubSchema, "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myMod'), '2025-04-01').outputs.hello.value]", "[tenantResourceId('Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("resourceGroup", "subscription()", "subscription", ExpectedRgSchema, "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'myMod'), '2025-04-01').outputs.hello.value]", "[subscriptionResourceId('Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("resourceGroup", "subscription('abc')", "subscription", ExpectedRgSchema, "[reference(subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod'), '2025-04-01').outputs.hello.value]", "[subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("resourceGroup", "resourceGroup()", "resourceGroup", ExpectedRgSchema, "[reference(resourceId('Microsoft.Resources/deployments', 'myMod'), '2025-04-01').outputs.hello.value]", "[resourceId('Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("resourceGroup", "resourceGroup('abc')", "resourceGroup", ExpectedRgSchema, "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'abc'), 'Microsoft.Resources/deployments', 'myMod'), '2025-04-01').outputs.hello.value]", "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'abc'), 'Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("resourceGroup", "resourceGroup('abc', 'def')", "resourceGroup", ExpectedRgSchema, "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'abc', 'def'), 'Microsoft.Resources/deployments', 'myMod'), '2025-04-01').outputs.hello.value]", "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'abc', 'def'), 'Microsoft.Resources/deployments', 'myMod')]")]
+        [DataRow("resourceGroup", "tenant()", "tenant", ExpectedRgSchema, "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myMod'), '2025-04-01').outputs.hello.value]", "[tenantResourceId('Microsoft.Resources/deployments', 'myMod')]")]
         [DataTestMethod]
         public void Emitter_should_generate_correct_module_output_scope_strings(string targetScope, string moduleScope, string moduleTargetScope, string expectedSchema, string expectedOutput, string expectedResourceDependsOn)
         {
@@ -393,6 +393,66 @@ output tiers array = [for (account, i) in accounts: storage[i].properties.access
 
                 template.Should().HaveValueAtPath("$.resources.storage.existing", true);
                 template.Should().HaveValueAtPath("$.resources.storage.resourceGroup", "[variables('accounts')[copyIndex()].rg]");
+            }
+        }
+
+        [TestMethod]
+        public void Existing_policy_definitions_can_use_tenant_scope_from_management_group()
+        {
+            // Regression test for https://github.com/Azure/bicep/issues/18166
+            // Microsoft.Authorization/policyDefinitions should allow existing resources to use tenant() scope
+            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+targetScope = 'managementGroup'
+
+var input array = [
+  {policyDefinitionId: '0a914e76-4921-4c19-b460-a2d36003525a'}
+]
+
+// Get all builtin policies as defined in the input parameter
+resource builtin 'Microsoft.Authorization/policyDefinitions@2023-04-01' existing = [for policy in input: {
+  scope: tenant()
+  name: policy.policyDefinitionId
+}]
+");
+
+            using (new AssertionScope())
+            {
+                diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
+                template.Should().NotBeNull();
+            }
+        }
+
+        [TestMethod]
+        public void Policy_definitions_can_use_scope_property_for_deployment()
+        {
+            // Regression test for https://github.com/Azure/bicep/issues/18163
+            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+targetScope = 'subscription'
+
+resource policyDef 'Microsoft.Authorization/policyDefinitions@2021-06-01' = {
+  name: 'test-policy'
+  scope: subscription()
+  properties: {
+    displayName: 'Test Policy'
+    description: 'Test policy for regression test'
+    mode: 'All'
+    policyRule: {
+      if: {
+        field: 'type'
+        equals: 'Microsoft.Storage/storageAccounts'
+      }
+      then: {
+        effect: 'audit'
+      }
+    }
+  }
+}
+");
+
+            using (new AssertionScope())
+            {
+                diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
+                template.Should().NotBeNull();
             }
         }
     }

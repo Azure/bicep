@@ -112,12 +112,11 @@ namespace Bicep.Core.IntegrationTests.Decorators
             };
 
             var compilation = services.BuildCompilation(files, mainUri);
-            var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.Uri, kvp => kvp.Value);
-            var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => !d.IsError());
+            var success = !compilation.HasErrors();
 
             using (new AssertionScope())
             {
-                diagnosticsByFile[mainUri].ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                compilation.GetSourceFileDiagnostics(mainUri).ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                     ("BCP128", DiagnosticLevel.Error, "Function \"waitUntil\" cannot be used as a module decorator.")
                 });
                 success.Should().BeFalse();

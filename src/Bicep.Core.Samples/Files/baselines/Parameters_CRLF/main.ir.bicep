@@ -1,5 +1,5 @@
 /*
-//@[00:2929) ProgramExpression
+//@[00:2981) ProgramExpression
   This is a block comment.
 */
 
@@ -13,6 +13,9 @@ param myInt int
 param myBool bool
 //@[00:0017) ├─DeclaredParameterExpression { Name = myBool }
 //@[13:0017) | └─AmbientTypeReferenceExpression { Name = bool }
+param myAny any
+//@[00:0015) ├─DeclaredParameterExpression { Name = myAny }
+//@[12:0015) | └─AmbientTypeReferenceExpression { Name = any }
 
 // parameters with default value
 param myString2 string = 'string value'
@@ -35,6 +38,11 @@ param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 //@[00:0067) ├─DeclaredParameterExpression { Name = myEscapedString }
 //@[22:0028) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[31:0067) | └─StringLiteralExpression { Value = First line\r\nSecond\ttabbed\tline }
+param myAny2 any = myAny.property
+//@[00:0033) ├─DeclaredParameterExpression { Name = myAny2 }
+//@[13:0016) | ├─AmbientTypeReferenceExpression { Name = any }
+//@[19:0033) | └─PropertyAccessExpression { PropertyName = property }
+//@[19:0024) |   └─ParametersReferenceExpression { Parameter = myAny }
 
 // object default value
 param foo object = {

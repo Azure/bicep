@@ -7,12 +7,12 @@ using System.Text;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Decompiler;
+using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Telemetry;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -55,9 +55,9 @@ namespace Bicep.LanguageServer.Handlers
     {
         private readonly TelemetryAndErrorHandlingHelper<BicepDecompileForPasteCommandResult> telemetryHelper = new(server.Window, telemetryProvider);
 
-        private static readonly Uri JsonDummyUri = new("file:///from-clipboard.json", UriKind.Absolute);
-        private static readonly Uri BicepDummyUri = PathHelper.ChangeToBicepExtension(JsonDummyUri);
-        private static readonly Uri BicepParamsDummyUri = PathHelper.ChangeToBicepparamExtension(JsonDummyUri);
+        private static readonly IOUri JsonDummyUri = new("file", "", "/from-clipboard.json");
+        private static readonly IOUri BicepDummyUri = JsonDummyUri.WithExtension(LanguageConstants.LanguageFileExtension);
+        private static readonly IOUri BicepParamsDummyUri = JsonDummyUri.WithExtension(LanguageConstants.ParamsFileExtension);
 
         public enum PasteType
         {
@@ -264,7 +264,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private async Task<ResultAndTelemetry?> TryConvertFromConstructedTemplate(StringBuilder output, string json, string decompileId, PasteContext pasteContext, PasteType pasteType, bool queryCanPaste, string? constructedJsonTemplate, LanguageId languageId)
         {
-            ImmutableDictionary<Uri, string> filesToSave;
+            ImmutableDictionary<IOUri, string> filesToSave;
             try
             {
                 // Decompile the full template
@@ -306,7 +306,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private ResultAndTelemetry? TryConvertFromConstructedParameters(StringBuilder output, string json, string decompileId, PasteContext pasteContext, PasteType pasteType, bool queryCanPaste, string? constructedJsonTemplate, LanguageId languageId)
         {
-            ImmutableDictionary<Uri, string> filesToSave;
+            ImmutableDictionary<IOUri, string> filesToSave;
             try
             {
                 // Decompile the full template

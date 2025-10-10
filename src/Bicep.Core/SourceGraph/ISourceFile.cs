@@ -7,7 +7,7 @@ namespace Bicep.Core.SourceGraph
 {
     public interface ISourceFile
     {
-        // CONSIDER: Uri Uri => this.FileHandle.Uri.ToUri();
+        // TODO(file-io-abstraction): This is now only referenced in tests. Remove after migration is done.
         Uri Uri { get; }
 
         IFileHandle FileHandle { get; }

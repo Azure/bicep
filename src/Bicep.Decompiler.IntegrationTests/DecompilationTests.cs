@@ -11,6 +11,8 @@ using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Decompiler;
 using Bicep.Decompiler.Exceptions;
+using Bicep.IO.Abstraction;
+using Bicep.TextFixtures.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -23,8 +25,7 @@ namespace Bicep.Decompiler.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private static BicepDecompiler CreateDecompiler()
-            => ServiceBuilder.Create(s => s.WithEmptyAzResources()).GetDecompiler();
+        private TestDecompiler CreateDecompilerWithEmptyAzResourceTypes() => new TestDecompiler().ConfigureServices(services => services.AddAzureResourceTypes([]));
 
         [DataTestMethod]
         [EmbeddedFilesTestData(@"Files/Working/.*\.json")]
@@ -34,22 +35,22 @@ namespace Bicep.Decompiler.IntegrationTests
             var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, embeddedJson);
             var jsonFile = baselineFolder.EntryFile;
 
-            var jsonUri = PathHelper.FilePathToFileUrl(jsonFile.OutputFilePath);
-            var decompiler = ServiceBuilder.Create().GetDecompiler();
-            var (bicepUri, filesToSave) = await decompiler.Decompile(PathHelper.ChangeToBicepExtension(jsonUri), jsonFile.EmbeddedFile.Contents);
+            var jsonUri = IOUri.FromFilePath(jsonFile.OutputFilePath);
+            var (bicepUri, filesToSave) = await new TestDecompiler().Decompile(jsonUri.WithExtension(LanguageConstants.LanguageFileExtension), jsonFile.EmbeddedFile.Contents);
 
-            var compilation = new ServiceBuilder().BuildCompilation(filesToSave, PathHelper.ChangeToBicepExtension(jsonUri));
+            var compilation = new ServiceBuilder().BuildCompilation(filesToSave, bicepUri);
             var diagnosticsByBicepFile = compilation.GetAllDiagnosticsByBicepFile();
 
             using (new AssertionScope())
             {
                 foreach (var (bicepFile, diagnostics) in diagnosticsByBicepFile)
                 {
-                    var baselineFile = baselineFolder.GetFileOrEnsureCheckedIn(bicepFile.Uri);
-                    var bicepOutput = filesToSave[bicepFile.Uri];
+                    var baselineFile = baselineFolder.GetFileOrEnsureCheckedIn(bicepFile.FileHandle.Uri);
+                    var bicepOutput = filesToSave[bicepFile.FileHandle.Uri];
 
                     var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepOutput, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepOutput, baselineFolder.OutputFolderPath, diag));
 
+                    var decompiler = new TestDecompiler();
                     baselineFile.WriteToOutputFolder(sourceTextWithDiags);
                     baselineFile.ShouldHaveExpectedValue();
                 }
@@ -64,10 +65,9 @@ namespace Bicep.Decompiler.IntegrationTests
             var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, embeddedJson);
             var jsonFile = baselineFolder.EntryFile;
 
-            var jsonUri = PathHelper.FilePathToFileUrl(jsonFile.OutputFilePath);
-            var decompiler = ServiceBuilder.Create().GetDecompiler();
+            var jsonUri = IOUri.FromFilePath(jsonFile.OutputFilePath);
 
-            var (entryPointUri, filesToSave) = decompiler.DecompileParameters(jsonFile.EmbeddedFile.Contents, PathHelper.ChangeExtension(jsonUri, LanguageConstants.ParamsFileExtension), null);
+            var (entryPointUri, filesToSave) = new TestDecompiler().DecompileParameters(jsonFile.EmbeddedFile.Contents, jsonUri.WithExtension(LanguageConstants.ParamsFileExtension), null);
 
             var baselineFile = baselineFolder.GetFileOrEnsureCheckedIn(entryPointUri);
             baselineFile.WriteToOutputFolder(filesToSave[entryPointUri]);
@@ -92,8 +92,7 @@ namespace Bicep.Decompiler.IntegrationTests
             Func<Task> onDecompile = async () =>
             {
                 var jsonContent = ReadResourceFile(resourcePath);
-                var decompiler = CreateDecompiler();
-                await decompiler.Decompile(new Uri("file:///unused.bicep"), jsonContent);
+                await CreateDecompilerWithEmptyAzResourceTypes().Decompile(new IOUri("file", "", "/unused.bicep"), jsonContent);
             };
 
             await onDecompile.Should().ThrowAsync<ConversionFailedException>().WithMessage(expectedMessage);
@@ -120,10 +119,8 @@ namespace Bicep.Decompiler.IntegrationTests
             // replace newlines with the style passed in
             template = string.Join(newline, Regex.Split(template, "\r?\n"));
 
-            var fileUri = new Uri("file:///path/to/main.json");
-
-            var decompiler = CreateDecompiler();
-            var (entryPointUri, filesToSave) = await decompiler.Decompile(PathHelper.ChangeToBicepExtension(fileUri), template);
+            var fileUri = new IOUri("file", "", "/path/to/main.bicep");
+            var (entryPointUri, filesToSave) = await CreateDecompilerWithEmptyAzResourceTypes().Decompile(fileUri, template);
 
             // this behavior is actually controlled by newtonsoft's deserializer, but we should assert it anyway to avoid regressions.
             filesToSave[entryPointUri].Should().Contain($"var multilineString = 'multi{escapedNewline}        line{escapedNewline}        string'");
@@ -180,10 +177,8 @@ namespace Bicep.Decompiler.IntegrationTests
     }
 }";
 
-            var fileUri = new Uri("file:///path/to/main.json");
-
-            var decompiler = CreateDecompiler();
-            var (entryPointUri, filesToSave) = await decompiler.Decompile(PathHelper.ChangeToBicepExtension(fileUri), template);
+            var fileUri = new IOUri("file", "", "/path/to/main.bicep");
+            var (entryPointUri, filesToSave) = await CreateDecompilerWithEmptyAzResourceTypes().Decompile(fileUri, template);
 
             filesToSave[entryPointUri].Should().Contain($"output calculated {type} = {expectedValue}");
         }
@@ -203,15 +198,13 @@ namespace Bicep.Decompiler.IntegrationTests
     ""outputs"": {}
 }";
 
-            var fileUri = new Uri("file:///path/to/main.json");
-
+            var fileUri = new IOUri("file", "", "/path/to/main.bicep");
             var currentCulture = Thread.CurrentThread.CurrentCulture;
+
             try
             {
                 Thread.CurrentThread.CurrentCulture = new CultureInfo("fi-FI");
-
-                var decompiler = CreateDecompiler();
-                var (entryPointUri, filesToSave) = await decompiler.Decompile(PathHelper.ChangeToBicepExtension(fileUri), template);
+                var (entryPointUri, filesToSave) = await CreateDecompilerWithEmptyAzResourceTypes().Decompile(fileUri, template);
 
                 filesToSave[entryPointUri].Should().Contain($"var cpu = json('0.25')");
             }

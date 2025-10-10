@@ -1730,11 +1730,10 @@ param myParam string
                   properties: siteProperties
                 }
 
-                @secure()
                 output siteProperties resourceOutput<'Microsoft.Web/sites@2022-09-01'>.properties = appService.properties
                 """);
 
-        result.Should().NotHaveAnyDiagnostics();
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
@@ -1779,26 +1778,28 @@ param myParam string
 
     // https://www.github.com/Azure/bicep/issues/15277
     [DataTestMethod]
-    [DataRow("type resourceDerived = resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings")]
-    [DataRow("param resourceDerived resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings")]
-    [DataRow("output resourceDerived resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings = 'foo'")]
-    [DataRow("type t = { property: resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings }")]
-    [DataRow("type t = { *: resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings }")]
-    [DataRow("type t = [ resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings ]")]
-    [DataRow("type t = resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings[]")]
-    [DataRow("func f() resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings => 'foo'")]
-    [DataRow("func f(p resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings) string => 'foo'")]
-    public void Type_expressions_that_will_become_ARM_schema_nodes_are_checked_for_ARM_type_system_compatibility_prior_to_compilation(string template)
+    [DataRow("type resourceDerived = resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings", "$.definitions.resourceDerived")]
+    [DataRow("param resourceDerived resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings", "$.parameters.resourceDerived")]
+    [DataRow("output resourceDerived resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings = 'foo'", "$.outputs.resourceDerived")]
+    [DataRow("type t = { property: resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings }", "$.definitions.t.properties.property")]
+    [DataRow("type t = { *: resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings }", "$.definitions.t.additionalProperties")]
+    [DataRow("type t = [ resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings ]", "$.definitions.t.prefixItems[0]")]
+    [DataRow("type t = resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings[]", "$.definitions.t.items")]
+    [DataRow("func f() resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings => 'foo'", "$.functions[0].members.f.output")]
+    [DataRow("func f(p resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings) string => 'foo'", "$.functions[0].members.f.parameters[0]")]
+    public void Type_expressions_that_will_become_ARM_schema_nodes_allow_types_that_do_not_fit_into_an_arm_primitive_type_category(
+        string template,
+        string pathToAnyTypeNode)
     {
         var result = CompilationHelper.Compile(
             new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
             template);
 
-        result.Template.Should().BeNull();
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
-            ("BCP411", DiagnosticLevel.Error, """The type "any" cannot be used in a type assignment because it does not fit within one of ARM's primitive type categories (string, int, bool, array, object). If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."""),
-        });
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        var typeNode = result.Template!.SelectToken(pathToAnyTypeNode);
+        typeNode.Should().BeOfType<JObject>();
+        typeNode!.SelectToken("$.type").Should().BeNull();
     }
 
     [TestMethod]
@@ -1888,5 +1889,148 @@ param myParam string
             """);
 
         result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void User_defined_validators_are_blocked_if_feature_flag_is_not_enabled()
+    {
+        var result = CompilationHelper.Compile("""
+            @validate(x => startsWith(x, 'foo'))
+            param foo string
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
+            ("BCP057", DiagnosticLevel.Error, "The name \"validate\" does not exist in the current context."),
+        ]);
+    }
+
+    [TestMethod]
+    public void User_defined_validator_can_be_attached_to_a_parameter_statement()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, UserDefinedConstraintsEnabled: true)),
+            """
+            @validate(x => startsWith(x, 'foo'), 'Should have started with \'foo\'')
+            param foo string
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveJsonAtPath("$.parameters.foo.validate",
+            """["[lambda('x', startsWith(lambdaVariables('x'), 'foo'))]", "Should have started with 'foo'"]""");
+    }
+
+    [TestMethod]
+    public void User_defined_validator_checks_lambda_type_against_declared_type()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, UserDefinedConstraintsEnabled: true)),
+            """
+            @validate(x => startsWith(x, 'foo'))
+            param foo int
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
+            ("BCP070", DiagnosticLevel.Error, "Argument of type \"int => error\" is not assignable to parameter of type \"any => bool\"."),
+        ]);
+    }
+
+    [TestMethod]
+    public void User_defined_validator_disallows_runtime_expressions()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, UserDefinedConstraintsEnabled: true)),
+            """
+            resource sa 'Microsoft.Storage/storageAccounts@2025-01-01' existing = {
+              name: 'acct'
+            }
+
+            var indirection = sa.properties.allowBlobPublicAccess
+
+            @validate(x => x == !indirection)
+            param foo bool
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
+            ("BCP432", DiagnosticLevel.Error, "This expression is being used in parameter \"predicate\" of the function \"validate\", which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start (\"indirection\" -> \"sa\"). Properties of sa which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
+        ]);
+    }
+
+    [TestMethod]
+    public void Any_type_can_be_used_wherever_a_type_is_allowed()
+    {
+        var result = CompilationHelper.Compile("""
+            type myAny = any
+            type hasAnyProp = {
+              property: any
+            }
+            type dictStringAny = {
+              *: any
+            }
+            type untypedArray = any[]
+            type tupleWithAny = [string, bool, any]
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveJsonAtPath("$.definitions.myAny", "{}");
+        result.Template.Should().HaveJsonAtPath("$.definitions.hasAnyProp.properties.property", "{}");
+        result.Template.Should().HaveJsonAtPath("$.definitions.dictStringAny.additionalProperties", "{}");
+        result.Template.Should().HaveJsonAtPath("$.definitions.untypedArray.items", "{}");
+        result.Template.Should().HaveJsonAtPath("$.definitions.tupleWithAny.prefixItems[2]", "{}");
+    }
+
+    [TestMethod]
+    public void Secure_decorator_is_blocked_on_any_and_resource_derived_types()
+    {
+        var result = CompilationHelper.Compile("""
+            @secure()
+            type untyped = any
+
+            @secure()
+            type rdt = resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
+            ("BCP440", DiagnosticLevel.Error, "The @secure() decorator can only be used on statements whose type is a subtype of \"string\" or \"object\"."),
+            ("BCP440", DiagnosticLevel.Error, "The @secure() decorator can only be used on statements whose type is a subtype of \"string\" or \"object\"."),
+        ]);
+    }
+
+    [TestMethod]
+    public void Secure_decorator_is_permitted_on_inline_object_types()
+    {
+        var result = CompilationHelper.Compile("""
+            @secure()
+            param config {
+              *: string
+            }
+
+            @secure()
+            param foo 'bar' | 'baz' | 'quux'
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Secure_decorator_on_resource_derived_type_should_use_secure_ARM_primitive_type()
+    {
+        var result = CompilationHelper.Compile("""
+            @secure()
+            type stringRdt = resourceInput<'Microsoft.Resources/tags@2022-09-01'>.properties.tags.*
+
+            @secure()
+            type objectRdt = resourceInput<'Microsoft.Resources/tags@2022-09-01'>.properties.tags
+            """);
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("$.definitions.stringRdt.type", "securestring");
+        result.Template.Should().HaveValueAtPath("$.definitions.objectRdt.type", "secureObject");
     }
 }

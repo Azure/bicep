@@ -448,7 +448,7 @@ var invalidPropertyAccessOnAzNamespace = az.az
 //@[44:46) [BCP052 (Error)] The type "az" does not contain property "az". (bicep https://aka.ms/bicep/core-diagnostics#BCP052) |az|
 var invalidPropertyAccessOnSysNamespace = sys.az
 //@[04:39) [no-unused-vars (Warning)] Variable "invalidPropertyAccessOnSysNamespace" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |invalidPropertyAccessOnSysNamespace|
-//@[46:48) [BCP053 (Error)] The type "sys" does not contain property "az". Available properties include "array", "bool", "int", "object", "resourceInput", "resourceOutput", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |az|
+//@[46:48) [BCP053 (Error)] The type "sys" does not contain property "az". Available properties include "any", "array", "bool", "int", "object", "resourceInput", "resourceOutput", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |az|
 var invalidOperands = 1 + az
 //@[04:19) [no-unused-vars (Warning)] Variable "invalidOperands" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |invalidOperands|
 //@[22:28) [BCP045 (Error)] Cannot apply operator "+" to operands of type "1" and "az". (bicep https://aka.ms/bicep/core-diagnostics#BCP045) |1 + az|
@@ -495,12 +495,12 @@ var azFunctions = az.a
 // #completionTest(24) -> sysFunctions
 var sysFunctions = sys.a
 //@[04:16) [no-unused-vars (Warning)] Variable "sysFunctions" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |sysFunctions|
-//@[23:24) [BCP053 (Error)] The type "sys" does not contain property "a". Available properties include "array", "bool", "int", "object", "resourceInput", "resourceOutput", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |a|
+//@[23:24) [BCP053 (Error)] The type "sys" does not contain property "a". Available properties include "any", "array", "bool", "int", "object", "resourceInput", "resourceOutput", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |a|
 
 // #completionTest(33) -> sysFunctions
 var sysFunctionsInParens = (sys.a)
 //@[04:24) [no-unused-vars (Warning)] Variable "sysFunctionsInParens" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |sysFunctionsInParens|
-//@[32:33) [BCP053 (Error)] The type "sys" does not contain property "a". Available properties include "array", "bool", "int", "object", "resourceInput", "resourceOutput", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |a|
+//@[32:33) [BCP053 (Error)] The type "sys" does not contain property "a". Available properties include "any", "array", "bool", "int", "object", "resourceInput", "resourceOutput", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |a|
 
 // missing method name
 var missingMethodName = az.()

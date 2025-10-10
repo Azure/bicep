@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core;
-using Bicep.Core.FileSystem;
+using Bicep.Core.Extensions;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Configuration;
 using Bicep.LanguageServer.Utils;
@@ -34,7 +34,7 @@ namespace Bicep.LanguageServer.Handlers
                 return new TextDocumentAttributes(uri, LanguageConstants.JsoncLanguageId);
             }
 
-            if (PathHelper.HasBicepparamsExtension(uri.ToUriEncoded()))
+            if (uri.ToIOUri().HasBicepParamExtension())
             {
                 return new TextDocumentAttributes(uri, LanguageConstants.ParamsLanguageId);
             }

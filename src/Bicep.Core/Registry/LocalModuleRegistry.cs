@@ -7,7 +7,6 @@ using System.Runtime.InteropServices;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Extensions;
 using Bicep.Core.Registry.Oci;

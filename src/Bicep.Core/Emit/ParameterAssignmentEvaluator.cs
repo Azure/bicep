@@ -209,6 +209,21 @@ public class ParameterAssignmentEvaluator
                 }
             });
 
+    public Result? EvaluateUsingConfig(FileSymbol file)
+    {
+        if (file.UsingDeclarationSyntax?.Config is not { } config)
+        {
+            return null;
+        }
+
+        var intermediate = converter.ConvertToIntermediateExpression(config);
+
+        var rewrittenExpression = ExternalInputExpressionRewriter
+            .Rewrite(intermediate, this.externalInputReferences);
+
+        return Result.For(rewrittenExpression);
+    }
+
     public ImmutableDictionary<string, Result> EvaluateExtensionConfigAssignment(ExtensionConfigAssignmentSymbol inputExtConfigAssignment)
         => extensionConfigAssignmentResults.GetOrAdd(
             inputExtConfigAssignment,

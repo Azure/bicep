@@ -6,7 +6,6 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Emit.Options;
 using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
 using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.CompilationManager;
@@ -61,12 +60,11 @@ namespace Bicep.LanguageServer.Handlers
 
             if (paramSemanticModel.HasErrors())
             {
-                var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().FirstOrDefault(x => x.Key.FileHandle.Uri.Equals(bicepParamFileUri));
+                var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile();
 
                 return "Building parameters file failed. Please fix below errors:\n" + DiagnosticsHelper.GetDiagnosticsMessage(diagnosticsByFile);
             }
 
-            var emitter = new TemplateEmitter(paramSemanticModel);
             using var fileStream = jsonParamFile.OpenWrite();
             var result = new ParametersEmitter(paramSemanticModel).Emit(fileStream);
 

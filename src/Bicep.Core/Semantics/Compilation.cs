@@ -5,17 +5,19 @@ using System.Collections.Immutable;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Semantics
 {
     public class Compilation : ISemanticModelLookup
     {
         // Stores semantic model for each source file (map exists for all source files, but semantic model created only when indexed)
-        private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;
+        private readonly ImmutableDictionary<IOUri, Lazy<ISemanticModel>> lazySemanticModelLookup;
 
         public Compilation(
             IEnvironment environment,
@@ -34,7 +36,7 @@ namespace Bicep.Core.Semantics
             this.SourceFileFactory = sourceFileFactory;
 
             this.lazySemanticModelLookup = sourceFileGrouping.SourceFiles.ToImmutableDictionary(
-                sourceFile => sourceFile,
+                sourceFile => sourceFile.FileHandle.Uri,
                 sourceFile => modelLookup.TryGetValue(sourceFile, out var existingModel) ?
                     new(existingModel) :
                     new Lazy<ISemanticModel>(() => sourceFile switch // semantic model doesn't yet exist for file, create it
@@ -43,6 +45,7 @@ namespace Bicep.Core.Semantics
                         BicepParamFile bicepParamFile => CreateSemanticModel(bicepParamFile),
                         ArmTemplateFile armTemplateFile => new ArmTemplateSemanticModel(armTemplateFile),
                         TemplateSpecFile templateSpecFile => new TemplateSpecSemanticModel(templateSpecFile),
+                        BicepReplFile bicepReplFile => CreateSemanticModel(bicepReplFile),
                         _ => throw new ArgumentOutOfRangeException(nameof(sourceFile)),
                     }));
             this.Emitter = new CompilationEmitter(this);
@@ -73,25 +76,35 @@ namespace Bicep.Core.Semantics
             => this.GetSemanticModel<ArmTemplateSemanticModel>(armTemplateFile);
 
         public ISemanticModel GetSemanticModel(ISourceFile sourceFile)
-            => this.lazySemanticModelLookup[sourceFile].Value;
+            => this.GetSemanticModel(sourceFile.FileHandle.Uri);
+
+        public ISemanticModel GetSemanticModel(IOUri sourceFileUri)
+            => this.lazySemanticModelLookup[sourceFileUri].Value;
 
         public ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> GetAllDiagnosticsByBicepFile()
-            => SourceFileGrouping.SourceFiles.OfType<BicepSourceFile>().ToImmutableDictionary(
-                bicepFile => bicepFile,
-                bicepFile => this.GetSemanticModel(bicepFile) is SemanticModel semanticModel ? semanticModel.GetAllDiagnostics() : []);
+            => SourceFileGrouping.SourceFiles.OfType<BicepSourceFile>().ToImmutableDictionary(bicepFile => bicepFile, this.GetSourceFileDiagnostics);
 
-        public ImmutableDictionary<Uri, ImmutableArray<IDiagnostic>> GetAllDiagnosticsByBicepFileUri()
-            => GetAllDiagnosticsByBicepFile().ToImmutableDictionary(kvp => kvp.Key.Uri, bicepFile => bicepFile.Value);
+        public ImmutableArray<IDiagnostic> GetSourceFileDiagnostics(ISourceFile sourceFile) =>
+            this.GetSourceFileDiagnostics(sourceFile.FileHandle.Uri);
 
-        private T GetSemanticModel<T>(ISourceFile sourceFile) where T : class, ISemanticModel =>
-            this.GetSemanticModel(sourceFile) as T ??
-            throw new ArgumentException($"Expected the semantic model type to be \"{typeof(T).Name}\".");
+        // TODO(file-io-abstraction): Remove once tests are migrated.
+        public ImmutableArray<IDiagnostic> GetSourceFileDiagnostics(Uri sourceFileUri) =>
+            this.GetSourceFileDiagnostics(sourceFileUri.ToIOUri());
+
+        public ImmutableArray<IDiagnostic> GetSourceFileDiagnostics(IOUri sourceFileUri) =>
+            (this.GetSemanticModel(sourceFileUri) as SemanticModel)?.GetAllDiagnostics() ?? [];
 
         public IEnumerable<ISemanticModel> GetAllModels()
             => this.SourceFileGrouping.SourceFiles.Select(GetSemanticModel);
 
         public IEnumerable<SemanticModel> GetAllBicepModels()
             => GetAllModels().OfType<SemanticModel>();
+
+        public bool HasErrors() => this.GetEntrypointSemanticModel().HasErrors();
+
+        private T GetSemanticModel<T>(ISourceFile sourceFile) where T : class, ISemanticModel =>
+            this.GetSemanticModel(sourceFile) as T ??
+            throw new ArgumentException($"Expected the semantic model type to be \"{typeof(T).Name}\".");
 
         private SemanticModel CreateSemanticModel(BicepSourceFile bicepFile) => new(
             this.LinterAnalyzer,

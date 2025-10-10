@@ -28,7 +28,7 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
         {
             var compilation = Services.BuildCompilation(Text);
 
-            var inlineVariables = InlineDependencyVisitor.GetVariablesToInline(compilation.GetEntrypointSemanticModel());
+            var inlineVariables = InlineDependencyVisitor.GetSymbolsToInline(compilation.GetEntrypointSemanticModel()).VariablesToInline;
 
             inlineVariables.Should().Contain(new[]
             {

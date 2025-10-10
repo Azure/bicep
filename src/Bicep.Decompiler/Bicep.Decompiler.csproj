@@ -14,6 +14,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AdditionalFiles Include="BannedSymbols.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
   </ItemGroup>
 

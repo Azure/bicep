@@ -38,7 +38,7 @@ namespace Bicep.Core.IntegrationTests
 
         private ServiceBuilder ServicesWithResourceTyped => new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceTypedParamsAndOutputsEnabled: true));
 
-        private ServiceBuilder ServicesWithModuleIdentity => new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, ModuleExtensionConfigsEnabled: true, ModuleIdentityEnabled: true));
+        private ServiceBuilder ServicesWithExtensionConfigs => new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, ModuleExtensionConfigsEnabled: true));
 
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -91,9 +91,7 @@ output outputb string = '${inputa}-${inputb}'
 
             var compilation = Services.BuildCompilation(files, mainUri);
 
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
-            diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
-            success.Should().BeTrue();
+            compilation.HasErrors().Should().BeFalse();
             compilation.GetTestTemplate().Should().NotBeEmpty();
         }
 
@@ -120,12 +118,10 @@ module mainRecursive 'main.bicep' = {
 
             var compilation = Services.BuildCompilation(files, mainUri);
 
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
-            diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
+            compilation.HasErrors().Should().BeTrue();
+            compilation.GetSourceFileDiagnostics(mainUri).Should().HaveDiagnostics(new[] {
                 ("BCP094", DiagnosticLevel.Error, "This module references itself, which is not allowed."),
             });
-
-            success.Should().BeFalse();
         }
 
         [TestMethod]
@@ -174,17 +170,16 @@ module main 'main.bicep' = {
 
             var compilation = Services.BuildCompilation(files, mainUri);
 
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
-            diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
+            compilation.HasErrors().Should().BeTrue();
+            compilation.GetSourceFileDiagnostics(mainUri).Should().HaveDiagnostics(new[] {
                 ("BCP095", DiagnosticLevel.Error, "The file is involved in a cycle (\"/modulea.bicep\" -> \"/moduleb.bicep\" -> \"/main.bicep\")."),
             });
-            diagnosticsByFile[moduleAUri].Should().HaveDiagnostics(new[] {
+            compilation.GetSourceFileDiagnostics(moduleAUri).Should().HaveDiagnostics(new[] {
                 ("BCP095", DiagnosticLevel.Error, "The file is involved in a cycle (\"/moduleb.bicep\" -> \"/main.bicep\" -> \"/modulea.bicep\")."),
             });
-            diagnosticsByFile[moduleBUri].Should().HaveDiagnostics(new[] {
+            compilation.GetSourceFileDiagnostics(moduleBUri).Should().HaveDiagnostics(new[] {
                 ("BCP095", DiagnosticLevel.Error, "The file is involved in a cycle (\"/main.bicep\" -> \"/modulea.bicep\" -> \"/moduleb.bicep\")."),
             });
-            success.Should().BeFalse();
         }
 
         private delegate bool TryReadDelegate(Uri fileUri, out string? fileContents, out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder);
@@ -202,7 +197,7 @@ module main 'main.bicep' = {
 
             var mockDispatcher = StrictMock.Of<IModuleDispatcher>().Object;
 
-            Action buildAction = () => SourceFileGroupingBuilder.Build(fileExplorerMock.Object, mockDispatcher, new Workspace(), BicepTestConstants.SourceFileFactory, fileUri);
+            Action buildAction = () => SourceFileGroupingBuilder.Build(fileExplorerMock.Object, mockDispatcher, new ActiveSourceFileSet(), BicepTestConstants.SourceFileFactory, fileUri);
             buildAction.Should().Throw<DiagnosticException>()
                 .And.Diagnostic.Should().HaveCodeAndSeverity("BCP091", DiagnosticLevel.Error).And.HaveMessage("An error occurred reading file. Mock read failure!");
         }
@@ -295,10 +290,7 @@ output outputc2 int = inputb + 1
             };
 
             var compilation = Services.BuildCompilation(files, mainUri);
-
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
-            diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
-            success.Should().BeTrue();
+            compilation.HasErrors().Should().BeFalse();
 
             var templateString = compilation.GetTestTemplate();
             var template = JToken.Parse(templateString);
@@ -364,8 +356,7 @@ module modulea 'modulea.bicep' = {
             var compiler = ServiceBuilder.Create(s => s.WithFileExplorer(fileExplorer).WithDisabledAnalyzersConfiguration()).GetCompiler();
             var compilation = await compiler.CreateCompilation(mainUri.ToIOUri());
 
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
-            diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
+            compilation.GetSourceFileDiagnostics(mainUri).Should().HaveDiagnostics(new[] {
                 ("BCP091", DiagnosticLevel.Error, "An error occurred reading file. File '/path/to/modulea.bicep' does not exist."),
             });
         }
@@ -555,12 +546,12 @@ output storage resource = storage
             result.Template.Should().HaveValueAtPath("$.outputs.id", new JObject()
             {
                 ["type"] = new JValue("string"),
-                ["value"] = new JValue("[reference(resourceId('Microsoft.Resources/deployments', 'test'), '2022-09-01').outputs.storage.value]"),
+                ["value"] = new JValue("[reference(resourceId('Microsoft.Resources/deployments', 'test'), '2025-04-01').outputs.storage.value]"),
             });
             result.Template.Should().HaveValueAtPath("$.outputs.name", new JObject()
             {
                 ["type"] = new JValue("string"),
-                ["value"] = new JValue("[last(split(reference(resourceId('Microsoft.Resources/deployments', 'test'), '2022-09-01').outputs.storage.value, '/'))]"),
+                ["value"] = new JValue("[last(split(reference(resourceId('Microsoft.Resources/deployments', 'test'), '2025-04-01').outputs.storage.value, '/'))]"),
             });
             result.Template.Should().HaveValueAtPath("$.outputs.type", new JObject()
             {
@@ -602,12 +593,12 @@ output storage resource = storage
             result.Template.Should().HaveValueAtPath("$.outputs.id", new JObject()
             {
                 ["type"] = new JValue("string"),
-                ["value"] = new JValue("[reference(resourceId('Microsoft.Resources/deployments', format('test-{0}', 0)), '2022-09-01').outputs.storage.value]"),
+                ["value"] = new JValue("[reference(resourceId('Microsoft.Resources/deployments', format('test-{0}', 0)), '2025-04-01').outputs.storage.value]"),
             });
             result.Template.Should().HaveValueAtPath("$.outputs.name", new JObject()
             {
                 ["type"] = new JValue("string"),
-                ["value"] = new JValue("[last(split(reference(resourceId('Microsoft.Resources/deployments', format('test-{0}', 0)), '2022-09-01').outputs.storage.value, '/'))]"),
+                ["value"] = new JValue("[last(split(reference(resourceId('Microsoft.Resources/deployments', format('test-{0}', 0)), '2025-04-01').outputs.storage.value, '/'))]"),
             });
             result.Template.Should().HaveValueAtPath("$.outputs.type", new JObject()
             {
@@ -649,16 +640,16 @@ resource fake 'Another.Fake/Type@2019-06-01' = {
 
 output storage resource 'Another.Fake/Type@2019-06-01' = fake
 "));
-            var diagnosticsMap = result.Compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.Uri, kvp => kvp.Value);
+            var compilation = result.Compilation;
             using (new AssertionScope())
             {
-                diagnosticsMap[InMemoryFileResolver.GetFileUri("/path/to/module.bicep")].Should().HaveDiagnostics(new[]
+                compilation.GetSourceFileDiagnostics(InMemoryFileResolver.GetFileUri("/path/to/module.bicep")).Should().HaveDiagnostics(new[]
                 {
                     ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
                     ("BCP081", DiagnosticLevel.Warning, "Resource type \"Another.Fake/Type@2019-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
                     ("BCP081", DiagnosticLevel.Warning, "Resource type \"Another.Fake/Type@2019-06-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
                 });
-                diagnosticsMap[InMemoryFileResolver.GetFileUri("/path/to/main.bicep")].Should().HaveDiagnostics(new[]
+                compilation.GetSourceFileDiagnostics(InMemoryFileResolver.GetFileUri("/path/to/main.bicep")).Should().HaveDiagnostics(new[]
                 {
                     ("BCP230", DiagnosticLevel.Warning, "The referenced module uses resource type \"Some.Fake/Type@2019-06-01\" which does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
                     ("BCP230", DiagnosticLevel.Warning, "The referenced module uses resource type \"Another.Fake/Type@2019-06-01\" which does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
@@ -866,11 +857,9 @@ output outputb string = '${inputa}-${inputb}'
 """
             };
 
-            var compilation = ServicesWithModuleIdentity.BuildCompilation(files, mainUri);
+            var compilation = ServicesWithExtensionConfigs.BuildCompilation(files, mainUri);
 
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
-            diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
-            success.Should().BeTrue();
+            compilation.HasErrors().Should().BeFalse();
             compilation.GetTestTemplate().Should().NotBeEmpty();
             var templateString = compilation.GetTestTemplate();
             templateString.Should().NotBeNull();
@@ -898,7 +887,7 @@ output outputb string = '${inputa}-${inputb}'
         public void Module_can_be_compiled_with_identity_successfully()
         {
             var result = CompilationHelper.Compile(
-                ServicesWithModuleIdentity,
+                ServicesWithExtensionConfigs,
 ("main.bicep", """
 module mod './module.bicep' = {
     identity: {
@@ -938,7 +927,7 @@ output out string = '${keyVaultUri}-${identityId}'
         public void Module_can_be_compiled_with_identity_successfully_with_object_param()
         {
             var result = CompilationHelper.Compile(
-                ServicesWithModuleIdentity,
+                ServicesWithExtensionConfigs,
 ("main.bicep", """
 param identity object
 module mod './module.bicep' = {
@@ -968,7 +957,7 @@ output out string = '${keyVaultUri}-${identityId}'
         public void Module_incorrect_identity_raises_diagnostics()
         {
             var result = CompilationHelper.Compile(
-                ServicesWithModuleIdentity,
+                ServicesWithExtensionConfigs,
 ("main.bicep", """
 module mod './module.bicep' = {
     identity: {
@@ -1003,7 +992,7 @@ output out string = '${keyVaultUri}-${identityId}'
         public void Module_invalid_identity_type_raises_diagnostics()
         {
             var result = CompilationHelper.Compile(
-                ServicesWithModuleIdentity,
+                ServicesWithExtensionConfigs,
 ("main.bicep", """
 module mod './module.bicep' = {
     identity: {
@@ -1030,40 +1019,10 @@ output out string = '${keyVaultUri}-${identityId}'
         }
 
         [TestMethod]
-        public void Module_identity_not_enabled_raises_diagnostics()
-        {
-            var result = CompilationHelper.Compile(
-                Services,
-("main.bicep", """
-module mod './module.bicep' = {
-    identity: {
-        type: 'None'
-    }
-    name: 'test'
-    params: {
-        keyVaultUri: 'keyVaultUri'
-        identityId: 'identityId'
-    }
-}
-
-"""),
-("module.bicep", """
-param keyVaultUri string
-param identityId string
-
-output out string = '${keyVaultUri}-${identityId}'
-"""));
-            result.Should().HaveDiagnostics(new[]
-            {
-                ("BCP037", DiagnosticLevel.Error, "The property \"identity\" is not allowed on objects of type \"module\". Permissible properties include \"dependsOn\", \"scope\".")
-            });
-        }
-
-        [TestMethod]
         public void Module_with_identity_runtime_value_raises_diagnostic()
         {
             var result = CompilationHelper.Compile(
-                ServicesWithModuleIdentity,
+                ServicesWithExtensionConfigs,
 ("main.bicep", """
 module outputModule './modoutput.bicep' = {
     name: 'modWithOutput'
@@ -1101,9 +1060,7 @@ output runtimevalue string = 'runtime'
 
         private static void ModuleTemplateHashValidator(Compilation compilation, string expectedTemplateHash)
         {
-            var (success, diagnosticsByFile) = compilation.GetSuccessAndDiagnosticsByBicepFile();
-            diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
-            success.Should().BeTrue();
+            compilation.HasErrors().Should().BeFalse();
             var templateString = compilation.GetTestTemplate();
             var template = JToken.Parse(templateString);
             template.Should().NotBeNull();

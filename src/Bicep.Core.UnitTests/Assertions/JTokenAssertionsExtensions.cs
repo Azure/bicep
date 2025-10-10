@@ -106,7 +106,7 @@ namespace Bicep.Core.UnitTests.Assertions
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
                 .ForCondition(valueAtPath is null)
-                .FailWith("Expected value at path {0} to be null{reason}, but it was {1}", jtokenPath, valueAtPath);
+                .FailWith("Expected value at path {0} to be null{reason}, but it was {1}", jtokenPath, valueAtPath?.ToString());
 
             return new AndConstraint<JTokenAssertions>(instance);
         }

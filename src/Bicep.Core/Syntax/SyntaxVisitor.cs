@@ -126,6 +126,8 @@ namespace Bicep.Core.Syntax
 
         public abstract void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax);
 
+        public abstract void VisitUsingWithClauseSyntax(UsingWithClauseSyntax syntax);
+
         public abstract void VisitExtendsDeclarationSyntax(ExtendsDeclarationSyntax syntax);
 
         public abstract void VisitVariableAccessSyntax(VariableAccessSyntax syntax);

@@ -4,7 +4,6 @@
 using System.Collections.Immutable;
 using System.IO.Abstractions;
 using Bicep.Cli.Logging;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
 using Bicep.Core.Utils;
 using Microsoft.Extensions.FileSystemGlobbing;
@@ -20,7 +19,8 @@ public static class CommandHelper
 
     public static void LogExperimentalWarning(ILogger logger, Compilation compilation)
     {
-        if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping.SourceFiles) is { } warningMessage)
+        if (compilation.GetEntrypointSemanticModel().Configuration.ExperimentalFeaturesWarning &&
+            ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping.SourceFiles) is { } warningMessage)
         {
             logger.LogWarning(warningMessage);
         }

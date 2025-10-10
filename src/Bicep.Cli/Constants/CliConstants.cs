@@ -19,6 +19,10 @@ namespace Bicep.Cli.Constants
         public const string Restore = "restore";
         public const string Lint = "lint";
         public const string Snapshot = "snapshot";
+        public const string Deploy = "deploy";
+        public const string WhatIf = "what-if";
+        public const string Teardown = "teardown";
+        public const string Console = "console";
         public const string Root = "";
     }
 
