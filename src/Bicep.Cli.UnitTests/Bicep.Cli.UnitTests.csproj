@@ -21,8 +21,4 @@
   <ItemGroup>
     <PackageReference Update="Nerdbank.GitVersioning" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Helpers\" />
-  </ItemGroup>
 </Project>
