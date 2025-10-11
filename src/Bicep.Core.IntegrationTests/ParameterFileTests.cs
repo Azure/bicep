@@ -315,52 +315,6 @@ param foo3 = foo2
     }
 
     [TestMethod]
-    public void InlineFunction_parameter_with_variable_references()
-    {
-        var result = CompilationHelper.CompileParams(
-("parameters.bicepparam", @"
-using none
-var foo = inline()
-var foo2 = '${foo}-${inline()}'
-param foo3 = foo2
-"));
-
-        result.Should().NotHaveAnyDiagnostics();
-        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
-        parameters["foo3"].Value.Should().BeNull();
-        parameters["foo3"].Expression.Should().DeepEqual("""[format('{0}-{1}', externalInputs('sys_cli_0'), externalInputs('sys_cli_1'))]""");
-
-        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
-        externalInputs["sys_cli_0"].Should().DeepEqual(new JObject
-        {
-            ["kind"] = "sys.cli",
-            ["config"] = "foo",
-        });
-        externalInputs["sys_cli_1"].Should().DeepEqual(new JObject
-        {
-            ["kind"] = "sys.cli",
-            ["config"] = "foo2",
-        });
-    }
-
-    [TestMethod]
-    public void No_parameters_containing_external_input_should_not_generate_external_input_definitions()
-    {
-        var result = CompilationHelper.CompileParams(
-("parameters.bicepparam", @"
-using none
-param foo = 'foo'
-var baz = externalInput('sys.cli', 'baz')
-"));
-
-        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
-        parameters["foo"].Value.Should().DeepEqual("foo");
-        parameters["foo"].Expression.Should().BeNull();
-        result.Parameters.Should().NotHaveValueAtPath("$.externalInputDefinitions");
-    }
-
-    [TestMethod]
     public void ExternalInput_parameter_with_param_references()
     {
         var result = CompilationHelper.CompileParams(
@@ -449,6 +403,52 @@ param foo = {
         {
             ["kind"] = "my.param.provider",
         });
+    }
+
+    [TestMethod]
+    public void InlineFunction_parameter_with_variable_references()
+    {
+        var result = CompilationHelper.CompileParams(
+("parameters.bicepparam", @"
+using none
+var foo = inline()
+var foo2 = '${foo}-${inline()}'
+param foo3 = foo2
+"));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["foo3"].Value.Should().BeNull();
+        parameters["foo3"].Expression.Should().DeepEqual("""[format('{0}-{1}', externalInputs('sys_cli_0'), externalInputs('sys_cli_1'))]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["sys_cli_0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["config"] = "foo",
+        });
+        externalInputs["sys_cli_1"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["config"] = "foo2",
+        });
+    }
+
+    [TestMethod]
+    public void No_parameters_containing_external_input_should_not_generate_external_input_definitions()
+    {
+        var result = CompilationHelper.CompileParams(
+("parameters.bicepparam", @"
+using none
+param foo = 'foo'
+var baz = externalInput('sys.cli', 'baz')
+"));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["foo"].Value.Should().DeepEqual("foo");
+        parameters["foo"].Expression.Should().BeNull();
+        result.Parameters.Should().NotHaveValueAtPath("$.externalInputDefinitions");
     }
 
     [TestMethod]

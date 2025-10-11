@@ -69,7 +69,10 @@ public class ParametersJsonWriter
 
         if (this.Context.ExternalInputReferences.ExternalInputIndexMap.Count > 0)
         {
-            WriteExternalInputDefinitions(emitter, this.Context.ExternalInputReferences.ExternalInputIndexMap);
+            if (this.Context.ExternalInputReferences.ParametersReferences.Count > 0)
+            {
+                WriteExternalInputDefinitions(emitter, this.Context.ExternalInputReferences.ExternalInputIndexMap);
+            }
         }
 
         if (this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
@@ -112,18 +115,47 @@ public class ParametersJsonWriter
     {
         emitter.EmitObjectProperty("externalInputDefinitions", () =>
         {
+            var parametersWithExternalInputs = this.Context.ExternalInputReferences.ParametersReferences;
+            var variablesWithExternalInputs = this.Context.ExternalInputReferences.VariablesReferences;
+
+            var syntaxNodesToInclude = new HashSet<SyntaxBase>();
+
+            foreach (var param in parametersWithExternalInputs)
+            {
+                // Add the parameter's declaring syntax
+                syntaxNodesToInclude.Add(param.DeclaringParameterAssignment);
+
+                // Add all variables referenced by this parameter
+                var closure = this.Context.SemanticModel.Binder.GetReferencedSymbolClosureFor(param);
+                foreach (var symbol in closure.OfType<VariableSymbol>())
+                {
+                    if (variablesWithExternalInputs.Contains(symbol))
+                    {
+                        syntaxNodesToInclude.Add(symbol.DeclaringVariable);
+                    }
+                }
+            }
+
+            // Filter the external input index map to only include function calls that are within the syntax nodes we want to include
+            var filteredReferences = externalInputIndexMap
+                .Where(kvp => syntaxNodesToInclude.Any(node => this.Context.SemanticModel.Binder.IsDescendant(kvp.Key, node)))
+                .OrderBy(x => x.Value);
+
             // Sort the external input references by name for deterministic ordering
-            foreach (var reference in externalInputIndexMap.OrderBy(x => x.Value))
+            foreach (var reference in filteredReferences)
             {
                 var expression = (FunctionCallExpression)ExpressionBuilder.Convert(reference.Key);
                 var hasInline = this.Context.ExternalInputReferences.InlineFunctions.TryGetValue(reference.Key, out var inlineArgs);
 
                 emitter.EmitObjectProperty(reference.Value, () =>
                 {
-                    if (hasInline && inlineArgs is { } ia)
+                    if (hasInline && inlineArgs is { } sa)
                     {
-                        emitter.EmitProperty("kind", ia.Kind);
-                        emitter.EmitProperty("config", ia.Config);
+                        emitter.EmitProperty("kind", sa.Kind);
+                        if (sa.Config is not null)
+                        {
+                            emitter.EmitProperty("config", sa.Config);
+                        }
                     }
                     else
                     {
