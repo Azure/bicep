@@ -152,7 +152,7 @@ public class ParametersJsonWriter
                     if (hasInline && inlineArgs is { } sa)
                     {
                         emitter.EmitProperty("kind", sa.Kind);
-                        if (sa.Config is not null)
+                        if (!string.IsNullOrEmpty(sa.Config))
                         {
                             emitter.EmitProperty("config", sa.Config);
                         }

@@ -19,13 +19,13 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
     private readonly ImmutableHashSet<ParameterAssignmentSymbol>.Builder parametersContainingExternalInput;
     private readonly ImmutableHashSet<VariableSymbol>.Builder variablesContainingExternalInput;
     private readonly ImmutableDictionary<FunctionCallSyntaxBase, string>.Builder externalInputReferences;
-    private readonly ImmutableDictionary<FunctionCallSyntaxBase, (string Kind, string? Config)>.Builder inlineFunctions;
+    private readonly ImmutableDictionary<FunctionCallSyntaxBase, (string Kind, string Config)>.Builder inlineFunctions;
 
     private ExternalInputFunctionReferenceVisitor(SemanticModel semanticModel)
     {
         this.semanticModel = semanticModel;
         this.externalInputReferences = ImmutableDictionary.CreateBuilder<FunctionCallSyntaxBase, string>();
-        this.inlineFunctions = ImmutableDictionary.CreateBuilder<FunctionCallSyntaxBase, (string Kind, string? Config)>();
+        this.inlineFunctions = ImmutableDictionary.CreateBuilder<FunctionCallSyntaxBase, (string Kind, string Config)>();
         this.parametersContainingExternalInput = ImmutableHashSet.CreateBuilder<ParameterAssignmentSymbol>();
         this.variablesContainingExternalInput = ImmutableHashSet.CreateBuilder<VariableSymbol>();
     }
@@ -156,7 +156,7 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
             var definitionKey = GetExternalInputDefinitionName("sys.cliArg", index);
             this.externalInputReferences.TryAdd(readCliArgFunction, definitionKey);
 
-            string? config = null;
+            var config = "";
             if (functionCallSyntax.Arguments.Length >= 1 &&
                 this.semanticModel.GetTypeInfo(functionCallSyntax.Arguments[0]) is StringLiteralType configLiteral)
             {
@@ -186,7 +186,7 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
             var definitionKey = GetExternalInputDefinitionName("sys.envVar", index);
             this.externalInputReferences.TryAdd(readEnvVarFunction, definitionKey);
 
-            string? config = null;
+            var config = "";
             if (functionCallSyntax.Arguments.Length >= 1 &&
                 this.semanticModel.GetTypeInfo(functionCallSyntax.Arguments[0]) is StringLiteralType configLiteral)
             {
@@ -260,5 +260,5 @@ public record ExternalInputReferences(
     ImmutableHashSet<VariableSymbol> VariablesReferences,
     // map of external input function calls to unique keys to be used to construct externalInput definition in parameters.json
     ImmutableDictionary<FunctionCallSyntaxBase, string> ExternalInputIndexMap,
-    ImmutableDictionary<FunctionCallSyntaxBase, (string Kind, string? Config)> InlineFunctions
+    ImmutableDictionary<FunctionCallSyntaxBase, (string Kind, string Config)> InlineFunctions
 );
