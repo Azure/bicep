@@ -26,7 +26,7 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.44.1",
     "vscode-oniguruma": "^2.0.1",
-    "vscode-textmate": "^9.2.0"
+    "vscode-textmate": "^9.2.1"
   },
   "engines": {
     "node": ">=14.0.0"
