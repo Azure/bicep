@@ -85,7 +85,7 @@ jobs:
         run: msbuild src/vs-bicep/BicepInVisualStudio.sln /restore -property:Configuration=Release /v:m
 
       - name: Create branch and force push
-        uses: stefanzweifel/git-auto-commit-action@v6
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: Update Local TPN Files
           commit_user_name: ${{ github.actor }}
