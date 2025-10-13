@@ -245,6 +245,13 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                 output |= ResourceFlags.ReadOnly;
             }
 
+            // Resource is WriteOnly if there are no readable scopes but has writable scopes
+            // This is specifically for extensions which cannot be referenced as existing
+            if (readableScopes == ResourceScope.None && writableScopes != ResourceScope.None)
+            {
+                output |= ResourceFlags.WriteOnly;
+            }
+
             return output;
         }
 
