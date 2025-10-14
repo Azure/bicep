@@ -49,10 +49,7 @@
             "args": [
                 "console",
             ],
-            "env": {
-                "BICEP_TRACING_ENABLED": "true",
-                "BICEP_TRACING_VERBOSITY": "basic",
-            },
+            "env": {},
             "cwd": "${workspaceFolder}/src/Bicep.Cli",
             "console": "integratedTerminal",
             "stopAtEntry": false

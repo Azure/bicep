@@ -91,6 +91,9 @@ public class ColoredStringBuilder
         this.stringBuilder.Append(this.colorStack.Count > 0 ? this.colorStack.Peek() : Color.Reset);
     }
 
+    public static string Colorize(string value, Color color)
+        => $"{color}{value}{Color.Reset}";
+
     public class AnsiColorScope : IDisposable
     {
         private readonly ColoredStringBuilder builder;

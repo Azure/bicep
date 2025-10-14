@@ -23,6 +23,9 @@ using System.Management;
 using Bicep.Core.Highlighting;
 using Bicep.Cli.Helpers.WhatIf;
 using System.Net;
+using Bicep.Core.Emit;
+using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.PrettyPrintV2;
 
 namespace Bicep.Cli.Services;
 
@@ -32,8 +35,8 @@ public class ReplEnvironment
     private readonly BicepCompiler compiler;
 
     // Persist original variable declaration text (ordered) and lookup to allow redefinition.
-    private readonly List<string> variableDeclarationLines = [];
-    private readonly Dictionary<string, string> variableDeclarationLookup = new(StringComparer.OrdinalIgnoreCase);
+    private readonly List<string> declarationLines = [];
+    private readonly Dictionary<string, string> declarationLookup = new(StringComparer.OrdinalIgnoreCase);
     private static readonly IOUri replFileUri = IOUri.FromFilePath("/session.biceprepl");
     private readonly List<string> history = [];
     private int lastHistoryIndex = -1;
@@ -66,6 +69,14 @@ public class ReplEnvironment
         return PrintHelper.PrintInputLine(prefix, highlighted, width);
     }
 
+    public string HighlightSyntax(SyntaxBase syntax)
+    {
+        var context = PrettyPrinterV2Context.Create(PrettyPrinterV2Options.Default, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
+        var content = PrettyPrinterV2.Print(syntax, context);
+
+        return HighlightSyntax(content);
+    }
+
     public string HighlightSyntax(string content)
     {
         var compilation = CompileInternal(content);
@@ -80,35 +91,38 @@ public class ReplEnvironment
         lastHistoryIndex = -1;
 
         var parser = new ReplParser(input);
-        var syntax = parser.ParseExpression(out var diags);
-        var errors = diags.Where(d => d.Level == DiagnosticLevel.Error).ToList();
+        IDiagnostic[] diagnostics = [.. parser.ParsingErrorLookup, .. parser.LexingErrorLookup];
+        var errors = diagnostics.Where(d => d.Level == DiagnosticLevel.Error).ToList();
         if (errors.Count > 0)
         {
             return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(errors, input, input.Length));
         }
 
-        if (syntax is VariableDeclarationSyntax varDecl)
-        {
-            return EvaluateVariableDeclaration(varDecl);
-        }
+        var finalExpression = parser.Program().Children
+            .Where(x => x is not Token { Type: TokenType.NewLine })
+            .LastOrDefault();
 
-        return EvaluateExpression(syntax);
+        return finalExpression switch {
+            NamedDeclarationSyntax named => EvalutateDeclaration(named),
+            { } child => EvaluateExpression(child),
+            _ => new AnnotatedReplResult(null, []),
+        };
     }
 
-    private AnnotatedReplResult EvaluateVariableDeclaration(VariableDeclarationSyntax varDecl)
+    private AnnotatedReplResult EvalutateDeclaration(NamedDeclarationSyntax declaration)
     {
-        var varName = varDecl.Name.IdentifierName;
-        var declarationText = varDecl.ToString();
+        var declarationName = declaration.Name.IdentifierName;
+        var declarationText = declaration.ToString();
 
         // Build a working list excluding prior declaration (to avoid duplicate diagnostic) if redefining.
         List<string> workingLines;
-        if (variableDeclarationLookup.TryGetValue(varName, out var existingText))
+        if (declarationLookup.TryGetValue(declarationName, out var existingText))
         {
-            workingLines = [.. variableDeclarationLines.Where(l => !string.Equals(l, existingText, StringComparison.Ordinal))];
+            workingLines = [.. declarationLines.Where(l => !string.Equals(l, existingText, StringComparison.Ordinal))];
         }
         else
         {
-            workingLines = [.. variableDeclarationLines];
+            workingLines = [.. declarationLines];
         }
 
         // Compile working lines + new declaration (without mutating persisted state yet).
@@ -128,22 +142,26 @@ public class ReplEnvironment
             return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(diagnostics, declarationText, fullContent.Length));
         }
 
-        // Find and evaluate the newly declared variable symbol.
-        var declaredVariable = model.Root.VariableDeclarations.First(v => v.Name.Equals(varName, StringComparison.OrdinalIgnoreCase));
-        var evaluator = new ReplEvaluator(model);
-        var variableEvalResult = evaluator.EvaluateExpression(declaredVariable.DeclaringVariable.Value);
-        if (variableEvalResult.Diagnostics.Any())
+        ExpressionEvaluationResult? evalResult = null;
+        if (model.GetSymbolInfo(declaration) is VariableSymbol variableSymbol)
         {
-            return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(variableEvalResult.Diagnostics, declarationText, fullContent.Length));
+            // Find and evaluate the newly declared variable symbol.
+            var evaluator = new ParameterAssignmentEvaluator(model);
+            evalResult = evaluator.EvaluateExpression(variableSymbol.DeclaringVariable.Value);
+        }
+
+        if (evalResult?.Diagnostics.Any() == true)
+        {
+            return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(evalResult.Diagnostics, declarationText, fullContent.Length));
         }
 
         // Persist only after successful evaluation.
-        variableDeclarationLines.Clear();
-        variableDeclarationLines.AddRange(workingLines);
-        variableDeclarationLines.Add(declarationText);
-        variableDeclarationLookup[varName] = declarationText;
+        declarationLines.Clear();
+        declarationLines.AddRange(workingLines);
+        declarationLines.Add(declarationText);
+        declarationLookup[declarationName] = declarationText;
 
-        return new AnnotatedReplResult(variableEvalResult.Value, []);
+        return new AnnotatedReplResult(ParseJToken(evalResult?.Value), []);
     }
 
     private AnnotatedReplResult EvaluateExpression(SyntaxBase expressionSyntax)
@@ -154,7 +172,7 @@ public class ReplEnvironment
         // need to write to "some" file in order to compile and get a semantic model
         // a semantic model is needed by ExpressionConverter
         var sb = new StringBuilder();
-        foreach (var line in variableDeclarationLines)
+        foreach (var line in declarationLines)
         {
             sb.AppendLine(line);
         }
@@ -172,7 +190,7 @@ public class ReplEnvironment
             return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(diagnostics, userExpression, fullContent.Length));
         }
 
-        var evaluator = new ReplEvaluator(model);
+        var evaluator = new ParameterAssignmentEvaluator(model);
 
         // find the variable we created to hold the expression and evaluate its value
         // (it doesn't seem like we can evaluate the expression directly because we need a symbol bound to a semantic model)
@@ -184,7 +202,7 @@ public class ReplEnvironment
             return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(expressionEvalResult.Diagnostics, userExpression, fullContent.Length));
         }
 
-        return new AnnotatedReplResult(expressionEvalResult.Value, []);
+        return new AnnotatedReplResult(ParseJToken(expressionEvalResult.Value), []);
     }
 
     public string? TryGetHistory(bool backwards)
@@ -245,6 +263,35 @@ public class ReplEnvironment
             .Select(d => new PrintHelper.AnnotatedDiagnostic(d, () => new TextSpan(d.Span.Position - textOffset, d.Span.Length)));
         return annotatedDiagnostics;
     }
+
+    [return:NotNullIfNotNull(nameof(value))]
+    private static SyntaxBase? ParseJToken(JToken? value)
+        => value switch
+        {
+            JObject jObject => ParseJObject(jObject),
+            JArray jArray => ParseJArray(jArray),
+            JValue jValue => ParseJValue(jValue),
+            null => null,
+            _ => throw new NotImplementedException($"Unrecognized token type {value.Type}"),
+        };
+
+    private static SyntaxBase ParseJValue(JValue value)
+        => value.Type switch {
+            JTokenType.Integer => SyntaxFactory.CreatePositiveOrNegativeInteger(value.Value<long>()),
+            JTokenType.String => SyntaxFactory.CreateStringLiteral(value.ToString()),
+            JTokenType.Boolean => SyntaxFactory.CreateBooleanLiteral(value.Value<bool>()),
+            JTokenType.Null => SyntaxFactory.CreateNullLiteral(),
+            _ => throw new NotImplementedException($"Unrecognized token type {value.Type}"),
+        };
+
+    private static SyntaxBase ParseJArray(JArray jArray)
+        => SyntaxFactory.CreateArray(
+            jArray.Select(ParseJToken).WhereNotNull());
+
+    private static SyntaxBase ParseJObject(JObject jObject)
+        => SyntaxFactory.CreateObject(
+            jObject.Properties()
+                .Select(x => SyntaxFactory.CreateObjectProperty(x.Name, ParseJToken(x.Value))));
 }
 
-public record AnnotatedReplResult(JToken? Value, IEnumerable<PrintHelper.AnnotatedDiagnostic> AnnotatedDiagnostics);
+public record AnnotatedReplResult(SyntaxBase? Value, IEnumerable<PrintHelper.AnnotatedDiagnostic> AnnotatedDiagnostics);
