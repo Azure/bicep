@@ -59,8 +59,8 @@ public class ConsoleCommand(
             logger.LogError($"The '{args.CommandName}' CLI command requires an interactive console.");
             return 1;
         }
-        
-        await io.Output.WriteLineAsync("Bicep Console v1.0.0");
+
+        await io.Output.WriteLineAsync($"Bicep Console {RootCommand.GetVersionString()}");
         await io.Output.WriteLineAsync("Type 'help' for available commands, press ESC to quit.");
         await io.Output.WriteLineAsync("Multi-line input supported.");
         await io.Output.WriteLineAsync(string.Empty);
@@ -118,7 +118,7 @@ public class ConsoleCommand(
         return 0;
     }
 
-    private async Task<bool> PrintHistory(StringBuilder buffer, List<Rune> lineBuffer, int cursorOffset, bool backwards)
+    private async Task<int> PrintHistory(StringBuilder buffer, List<Rune> lineBuffer, int cursorOffset, bool backwards)
     {
         if (replEnvironment.TryGetHistory(backwards) is { } history)
         {
@@ -136,10 +136,10 @@ public class ConsoleCommand(
             var output2 = replEnvironment.HighlightInputLine(FirstLinePrefix, buffer.ToString(), lineBuffer, cursorOffset, printPrevLines: true);
             await io.Output.WriteAsync(PrintHelper.MoveCursorUp(prevBufferLineCount));
             await io.Output.WriteAsync(output2);
-            return true;
+            return cursorOffset;
         }
 
-        return false;
+        return -1;
     }
 
     private string GetPrefix(StringBuilder buffer)
@@ -158,15 +158,17 @@ public class ConsoleCommand(
 
             if (keyInfo.Key == ConsoleKey.UpArrow)
             {
-                if (await PrintHistory(buffer, lineBuffer, cursorOffset, backwards: true))
+                if (await PrintHistory(buffer, lineBuffer, cursorOffset, backwards: true) is { } newOffset and not -1)
                 {
+                    cursorOffset = newOffset;
                     continue;
                 }
             }
             if (keyInfo.Key == ConsoleKey.DownArrow)
             {
-                if (await PrintHistory(buffer, lineBuffer, cursorOffset, backwards: false))
+                if (await PrintHistory(buffer, lineBuffer, cursorOffset, backwards: false) is { } newOffset and not -1)
                 {
+                    cursorOffset = newOffset;
                     continue;
                 }
             }
@@ -228,10 +230,7 @@ public class ConsoleCommand(
 
         if (result.Value is { } value)
         {
-            var context = PrettyPrinterV2Context.Create(PrettyPrinterV2Options.Default, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
-            var lineText = PrettyPrinterV2.Print(ParseJToken(value), context);
-
-            var highlighted = replEnvironment.HighlightSyntax(lineText);
+            var highlighted = replEnvironment.HighlightSyntax(value);
 
             await io.Output.WriteLineAsync(highlighted);
         }
@@ -259,33 +258,9 @@ public class ConsoleCommand(
         return program.Children[0] switch
         {
             VariableDeclarationSyntax { Value: SkippedTriviaSyntax } => false,
+            TypeDeclarationSyntax { Value: SkippedTriviaSyntax } => false,
+            FunctionDeclarationSyntax { Lambda: SkippedTriviaSyntax } => false,
             _ => true,
         };
     }
-
-    private static SyntaxBase ParseJToken(JToken value)
-        => value switch {
-            JObject jObject => ParseJObject(jObject),
-            JArray jArray => ParseJArray(jArray),
-            JValue jValue => ParseJValue(jValue),
-            _ => throw new NotImplementedException($"Unrecognized token type {value.Type}"),
-        };
-
-    private static SyntaxBase ParseJValue(JValue value)
-        => value.Type switch {
-            JTokenType.Integer => SyntaxFactory.CreatePositiveOrNegativeInteger(value.Value<long>()),
-            JTokenType.String => SyntaxFactory.CreateStringLiteral(value.ToString()),
-            JTokenType.Boolean => SyntaxFactory.CreateBooleanLiteral(value.Value<bool>()),
-            JTokenType.Null => SyntaxFactory.CreateNullLiteral(),
-            _ => throw new NotImplementedException($"Unrecognized token type {value.Type}"),
-        };
-
-    private static SyntaxBase ParseJArray(JArray jArray)
-        => SyntaxFactory.CreateArray(
-            jArray.Select(ParseJToken));
-
-    private static SyntaxBase ParseJObject(JObject jObject)
-        => SyntaxFactory.CreateObject(
-            jObject.Properties()
-                .Select(x => SyntaxFactory.CreateObjectProperty(x.Name, ParseJToken(x.Value))));
 }

@@ -18,7 +18,6 @@ public enum SemanticTokenType
     Parameter,
     Variable,
     Property,
-    Member,
     Function,
     TypeParameter,
     Macro,
@@ -33,4 +32,5 @@ public enum SemanticTokenType
     Struct,
     Class,
     Namespace,
+    Decorator,
 }

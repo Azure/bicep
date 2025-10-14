@@ -6,26 +6,20 @@ using Bicep.Core.Text;
 
 namespace Bicep.Core.Syntax
 {
-    public class VariableDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
+    public class VariableDeclarationSyntax : NamedDeclarationSyntax
     {
         public VariableDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase? type, SyntaxBase assignment, SyntaxBase value)
-            : base(leadingNodes)
+            : base(keyword, name, leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.VariableKeyword);
             AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
             AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
             AssertTokenType(assignment as Token, nameof(assignment), TokenType.Assignment);
 
-            this.Keyword = keyword;
-            this.Name = name;
             this.Type = type;
             this.Assignment = assignment;
             this.Value = value;
         }
-
-        public Token Keyword { get; }
-
-        public IdentifierSyntax Name { get; }
 
         public SyntaxBase? Type { get; }
 

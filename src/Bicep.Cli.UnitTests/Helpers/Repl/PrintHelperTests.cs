@@ -30,7 +30,7 @@ public class PrintHelperTests
             "[HideCursor]",
             "[MoveCursorToLineStart]",
             "[ClearToEndOfScreen]",
-            "> var test = 'foo'",
+            "[Gray]> [Reset]var test = 'foo'",
             "[MoveCursorToLineStart]",
             "[MoveCursorRight(2)]",
             "[MoveCursorRight(16)]",
@@ -51,9 +51,9 @@ public class PrintHelperTests
 
         var result = PrintHelper.PrintWithSyntaxHighlighting(model, model.SourceFile.ProgramSyntax.ToString());
         AnsiHelper.ReplaceCodes(result).Should().Be("""
-            [Orange]var[Reset] [Purple]foo[Reset] = {
-              [Orange]abc[Reset]: [Orange]'def'[Reset]
-              [Orange]ghi[Reset]: [Orange]123[Reset]
+            [Gray]var[Reset] [Blue]foo[Reset] = {
+              [DarkYellow]abc[Reset]: [Orange]'def'[Reset]
+              [DarkYellow]ghi[Reset]: [Orange]123[Reset]
             }
             """);
     }
@@ -80,11 +80,11 @@ public class PrintHelperTests
         result = AnsiHelper.ReplaceCodes(result);
 
         AnsiHelper.ReplaceCodes(result).Should().Be("""
-            [Orange]var[Reset] [Purple]foo[Reset] = {
+            [Gray]var[Reset] [Blue]foo[Reset] = {
                 [Orange]~~~ Variable "foo" is declared but never used.[Reset]
-              [Orange]abc[Reset]: [Purple]def[Reset]
+              [DarkYellow]abc[Reset]: [Blue]def[Reset]
                    [Red]~~~ The name "def" does not exist in the current context.[Reset]
-              [Orange]ghi[Reset]: [Orange]123[Reset][Reset],[Reset]
+              [DarkYellow]ghi[Reset]: [Orange]123[Reset][Reset],[Reset]
                        [Red]^ Unexpected new line character after a comma.[Reset]
             
             """);
