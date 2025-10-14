@@ -28,7 +28,7 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
                 ");
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP437", DiagnosticLevel.Error, "The \"this\" namespace can only be used within resource property expressions.")
+                ("BCP441", DiagnosticLevel.Error, "The \"this\" namespace can only be used within resource property expressions.")
             });
 
             // Test that this.exists() function works inside resource properties when feature is enabled
@@ -47,7 +47,7 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
                   }
                 }
                 ");
-            // Should not have the BCP437 error when used inside resource properties
+            // Should not have the BCP441 error when used inside resource properties
             result2.Should().NotHaveAnyDiagnostics();
         }
 
@@ -124,7 +124,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
             result.Should().HaveDiagnostics(new[]
             {
                 ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"name\" property of the \"Microsoft.Storage/storageAccounts\" type, which requires a value that can be calculated at the start of the deployment."),
-                ("BCP437", DiagnosticLevel.Error, "The \"this\" namespace can only be used within resource property expressions.")
+                ("BCP441", DiagnosticLevel.Error, "The \"this\" namespace can only be used within resource property expressions.")
 
             });
         }
@@ -159,7 +159,7 @@ output sto bool = storageExists
 
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP437", DiagnosticLevel.Error, "The \"this\" namespace can only be used within resource property expressions.")
+                ("BCP441", DiagnosticLevel.Error, "The \"this\" namespace can only be used within resource property expressions.")
             });
         }
 
@@ -238,7 +238,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
                 ");
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP437", DiagnosticLevel.Error, "The \"this\" namespace can only be used within resource property expressions.")
+                ("BCP441", DiagnosticLevel.Error, "The \"this\" namespace can only be used within resource property expressions.")
             });
 
             // Test that this.existingProperties() function works inside resource properties when feature is enabled
@@ -257,7 +257,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
                   }
                 }
                 ");
-            // Should not have the BCP437 error when used inside resource properties
+            // Should not have the BCP441 error when used inside resource properties
             result2.Should().NotHaveAnyDiagnostics();
         }
 
@@ -421,7 +421,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
                 ");
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP437", DiagnosticLevel.Error, "The \"this\" namespace can only be used within resource property expressions.")
+                ("BCP441", DiagnosticLevel.Error, "The \"this\" namespace can only be used within resource property expressions.")
             });
 
             // Test that this.existingTags() function works inside resource properties when feature is enabled
@@ -438,7 +438,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
                   properties: this.existingResource().properties
                 }
                 ");
-            // Should not have the BCP437 error when used inside resource properties
+            // Should not have the BCP441 error when used inside resource properties
             result2.Should().NotHaveAnyDiagnostics();
         }
 
