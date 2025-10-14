@@ -11,6 +11,8 @@ public interface IFeatureProvider
 
     IDirectoryHandle CacheRootDirectory { get; }
 
+    bool OciEnabled { get; }
+
     bool SymbolicNameCodegenEnabled { get; }
 
     bool ResourceTypedParamsAndOutputsEnabled { get; }
@@ -47,6 +49,7 @@ public interface IFeatureProvider
             // `usesExperimentalArmEngineFeature` means that the compiled JSON template will use an experimental language version and include a warning in the template metadata
             foreach (var (enabled, name, impactsCompilation, usesExperimentalArmEngineFeature) in new[]
             {
+                (OciEnabled, CoreResources.ExperimentalFeatureNames_OciEnabled, true, true),
                 (SymbolicNameCodegenEnabled, CoreResources.ExperimentalFeatureNames_SymbolicNameCodegen, false, false), // Symbolic name codegen is listed as not impacting compilation because it is GA
                 (ResourceInfoCodegenEnabled, CoreResources.ExperimentalFeatureNames_ResourceInfoCodegen, true, true),
                 (ResourceTypedParamsAndOutputsEnabled, CoreResources.ExperimentalFeatureNames_ResourceTypedParamsAndOutputs, true, false),

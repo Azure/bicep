@@ -6,6 +6,7 @@ using System.Formats.Tar;
 using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Text;
+using System.Text.Json;
 using System.Web.Services.Description;
 using Azure.Bicep.Types;
 using Azure.Bicep.Types.Index;
@@ -23,14 +24,35 @@ public static class TypesV1Archive
 {
     public static async Task<BinaryData> PackIntoBinaryData(IFileHandle typeIndexFile)
     {
+        var typeIndexPath = typeIndexFile.Uri.Path;
+        var typeIndexJson = await typeIndexFile.ReadAllTextAsync();
+
+        if (string.IsNullOrWhiteSpace(typeIndexJson))
+        {
+            throw new InvalidOperationException($"Extension type index \"{typeIndexPath}\" is empty.");
+        }
+
+        TypeIndex typeIndex;
+        try
+        {
+            typeIndex = TypeSerializer.DeserializeIndex(new MemoryStream(Encoding.UTF8.GetBytes(typeIndexJson)));
+        }
+        catch (JsonException exception)
+        {
+            throw new InvalidOperationException($"Extension type index \"{typeIndexPath}\" could not be parsed: {exception.Message}", exception);
+        }
+
+        if (typeIndex.Resources is null || typeIndex.Resources.Count == 0)
+        {
+            throw new InvalidOperationException($"Extension type index \"{typeIndexPath}\" must define at least one entry in the \"resources\" object.");
+        }
+
         using var stream = new MemoryStream();
         using (var tgzWriter = new TgzWriter(stream, leaveOpen: true))
         {
-            var typeIndexJson = await typeIndexFile.ReadAllTextAsync();
             await tgzWriter.WriteEntryAsync("index.json", typeIndexJson);
 
             var typeDirectory = typeIndexFile.GetParent();
-            var typeIndex = TypeSerializer.DeserializeIndex(new MemoryStream(Encoding.UTF8.GetBytes(typeIndexJson)));
 
             foreach (var typesJsonPath in EnumerateDistinctTypeReferences(typeIndex))
             {
@@ -53,4 +75,3 @@ public static class TypesV1Archive
         return allTypeReferences.Select(r => r.RelativePath).Distinct();
     }
 }
-

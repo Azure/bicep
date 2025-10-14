@@ -12,6 +12,7 @@ namespace Bicep.Core.Features
 
         public string AssemblyVersion => throw new NotImplementedException();
         public IDirectoryHandle CacheRootDirectory => throw new NotImplementedException();
+        public bool OciEnabled => features.OciEnabled;
         public bool SymbolicNameCodegenEnabled => features.SymbolicNameCodegen;
         public bool ResourceTypedParamsAndOutputsEnabled => features.ResourceTypedParamsAndOutputs;
         public bool SourceMappingEnabled => features.SourceMapping;

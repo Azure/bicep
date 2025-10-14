@@ -1706,6 +1706,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP367",
                 $"The \"{featureName}\" feature is temporarily disabled.");
 
+            public Diagnostic NonAzureOciRegistryRequiresExperimentalFeature(string registry) => CoreError(
+                "BCP440",
+                $"Using registry \"{registry}\" requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.OciEnabled)}\".");
+
             public Diagnostic ParameterReferencesKeyVaultSuppliedParameter(string targetName) => CoreError(
                 "BCP368",
                 $"The value of the \"{targetName}\" parameter cannot be known until the template deployment has started because it uses a reference to a secret value in Azure Key Vault. Expressions that refer to the \"{targetName}\" parameter may be used in {LanguageConstants.LanguageFileExtension} files but not in {LanguageConstants.ParamsFileExtension} files.");

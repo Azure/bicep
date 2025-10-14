@@ -483,6 +483,9 @@
   <data name="ExperimentalFeatureNames_Asserts" xml:space="preserve">
     <value>Asserts</value>
   </data>
+  <data name="ExperimentalFeatureNames_OciEnabled" xml:space="preserve">
+    <value>OCI registry support</value>
+  </data>
   <data name="ExperimentalFeatureNames_ResourceTypedParamsAndOutputs" xml:space="preserve">
     <value>Resource-typed parameters and outputs</value>
   </data>

@@ -848,6 +848,10 @@
       "type": "object",
       "description": "The experimental Bicep features that should be enabled or disabled for templates using this configuration file. See https://aka.ms/bicep/experimental-features for more information.",
       "properties": {
+        "ociEnabled": {
+          "type": "boolean",
+          "description": "Enables publishing and restoring modules from non-Azure OCI registries using the generic ORAS transport. Equivalent to passing --oci-enabled on the CLI or setting BICEP_EXPERIMENTAL_OCI=1."
+        },
         "extendableParamFiles": {
           "type": "boolean",
           "description": "Allows the use of 'extends' keyword. See https://aka.ms/bicep/experimental-features#extendableparamfiles"

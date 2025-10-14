@@ -48,7 +48,7 @@ namespace Bicep.Core.IntegrationTests
             // cache root points to a file
             var featureOverrides = BicepTestConstants.FeatureOverrides with
             {
-                RegistryEnabled = true,
+                OciEnabled = true,
                 CacheRootDirectory = badCacheDirectory,
             };
 

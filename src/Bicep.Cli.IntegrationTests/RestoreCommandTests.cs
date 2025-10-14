@@ -126,7 +126,7 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
 
             var (output, error, result) = await Bicep(
                 services => services
-                    .WithFeatureOverrides(new(CacheRootDirectory: cacheRoot, RegistryEnabled: true))
+                    .WithFeatureOverrides(new(CacheRootDirectory: cacheRoot, OciEnabled: true))
                     .WithContainerRegistryClientFactory(clientFactory)
                     .WithFileSystem(fileSystem)
                     .WithFileExplorer(fileExplorer),
@@ -190,7 +190,7 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
                 .Setup(m => m.CreateAnonymousBlobClient(It.IsAny<CloudConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
                 .Returns<CloudConfiguration, Uri, string>(clientFactory.CreateAnonymousBlobClient);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactoryForRestore.Object, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, OciEnabled: dataSet.HasExternalModules), clientFactoryForRestore.Object, templateSpecRepositoryFactory);
             TestContext.WriteLine($"Cache root = {settings.FeatureOverrides!.CacheRootDirectory}");
             var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
 
@@ -261,7 +261,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             restoredFile.Write(bicep);
 
             var restoredFilePath = restoredFile.Uri.GetFilePath();
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, OciEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
 
             var (output, error, result) = await Bicep(settings, "restore", restoredFilePath);
             using (new AssertionScope())
@@ -342,7 +342,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             var restoredFilePath = restoredFile.Uri.GetFilePath();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, OciEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
 
             var (output, error, result) = await Bicep(settings, "restore", restoredFilePath);
             using (new AssertionScope())
@@ -378,7 +378,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, OciEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -499,7 +499,7 @@ output o1 string = '${p1}${p2}'");
 
             var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, OciEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -551,7 +551,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
 
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, OciEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
             TestContext.WriteLine($"Cache root = {settings.FeatureOverrides!.CacheRootDirectory}");
             var (output, error, exitCode) = await Bicep(settings, "restore", bicepFilePath);
 
@@ -587,7 +587,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var settings = new InvocationSettings(new(TestContext, OciEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
             var (output, error, result) = await Bicep(settings, "restore", compiledFilePath);
             using (new AssertionScope())
             {
@@ -619,7 +619,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var settings = new InvocationSettings(new(TestContext, OciEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
             var (output, error, result) = await Bicep(settings, "restore", compiledFilePath);
             using (new AssertionScope())
             {
@@ -648,7 +648,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var settings = new InvocationSettings(new(TestContext, OciEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
             var result = await Bicep(settings, "restore", baselineFolder.EntryFile.OutputFilePath);
 
             result.Should().Fail().And.NotHaveStdout();

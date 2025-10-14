@@ -1,10 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using Azure;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
@@ -12,30 +15,44 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Modules;
+using Bicep.Core.Registry.Auth;
 using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.Registry.Sessions;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
+using Microsoft.Extensions.Logging;
 using JsonSerializer = System.Text.Json.JsonSerializer;
+using OrasProject.Oras.Exceptions;
+using RegistryOciDescriptor = Bicep.Core.Registry.Oci.OciDescriptor;
+using SessionRegistryArtifact = Bicep.Core.Registry.Sessions.RegistryArtifact;
 
 namespace Bicep.Core.Registry
 {
     public sealed class OciArtifactRegistry : ExternalArtifactRegistry<OciArtifactReference, OciArtifactResult>
     {
-        private readonly AzureContainerRegistryManager containerRegistryManager;
+        private readonly IOciRegistryTransportFactory transportFactory;
 
         private readonly IPublicModuleMetadataProvider publicModuleMetadataProvider;
 
+        private readonly ICredentialChain credentialChain;
+
+        private readonly ILogger<OciArtifactRegistry> logger;
+
         public OciArtifactRegistry(
-            IContainerRegistryClientFactory clientFactory,
-            IPublicModuleMetadataProvider publicModuleMetadataProvider)
+            IOciRegistryTransportFactory transportFactory,
+            IPublicModuleMetadataProvider publicModuleMetadataProvider,
+            ICredentialChain credentialChain,
+            ILogger<OciArtifactRegistry> logger)
         {
-            this.containerRegistryManager = new AzureContainerRegistryManager(clientFactory);
+            this.transportFactory = transportFactory;
             this.publicModuleMetadataProvider = publicModuleMetadataProvider;
+            this.credentialChain = credentialChain;
+            this.logger = logger;
         }
 
         public override string Scheme => ArtifactReferenceSchemes.Oci;
@@ -84,21 +101,43 @@ namespace Bicep.Core.Registry
 
         public override async Task<bool> CheckArtifactExists(ArtifactType artifactType, OciArtifactReference reference)
         {
+            if (reference.ReferencingFile.Features.OciEnabled)
+            {
+                var session = TryCreateSession(reference) ?? throw new ExternalArtifactException($"Registry provider for '{reference.Registry}' does not support OCI sessions.");
+
+                await using var disposableSession = session;
+                try
+                {
+                    await disposableSession.ResolveAsync(CreateRegistryRef(reference), CancellationToken.None).ConfigureAwait(false);
+                    return true;
+                }
+                catch (NotFoundException)
+                {
+                    return false;
+                }
+                catch (Exception exception) when (exception is ExternalArtifactException or RequestFailedException)
+                {
+                    return false;
+                }
+                catch (InvalidArtifactException exception)
+                {
+                    throw new ExternalArtifactException($"The artifact referenced by {reference.FullyQualifiedReference} was not downloaded from the registry because it is invalid.", exception);
+                }
+            }
+
+            var transport = transportFactory.GetTransport(reference);
+
             try
             {
-                // Get module
-                await this.containerRegistryManager.PullArtifactAsync(reference.ReferencingFile.Configuration.Cloud, reference);
+                await transport.PullArtifactAsync(reference.ReferencingFile.Configuration.Cloud, reference);
+                return true;
             }
             catch (RequestFailedException exception) when (exception.Status == 404)
             {
-                // Found module but tag doesn't exist
                 return false;
             }
-            catch (ExternalArtifactException exception) when
-                (exception.InnerException is RequestFailedException &&
-                ((RequestFailedException)exception.InnerException).Status == 404)
+            catch (ExternalArtifactException exception) when (IsNotFoundException(exception.InnerException))
             {
-                // Found no module at all
                 return false;
             }
             catch (InvalidArtifactException exception) when (
@@ -115,8 +154,6 @@ namespace Bicep.Core.Registry
             {
                 throw new ExternalArtifactException(exception.Message, exception);
             }
-
-            return true;
         }
 
         public override string? TryGetDocumentationUri(OciArtifactReference ociArtifactModuleReference)
@@ -173,17 +210,40 @@ namespace Bicep.Core.Registry
             }
         }
 
-        private ImmutableDictionary<string, string>? TryGetOciAnnotations(OciArtifactReference ociArtifactModuleReference)
+    private ImmutableDictionary<string, string>? TryGetOciAnnotations(OciArtifactReference reference)
+    {
+        try
         {
-            try
-            {
-                return GetCachedManifest(ociArtifactModuleReference).Annotations;
-            }
-            catch (Exception)
+            return GetCachedManifest(reference).Annotations;
+        }
+        catch (Exception)
+        {
+            if (!reference.ReferencingFile.Features.OciEnabled)
             {
                 return null;
             }
+
+            var session = TryCreateSession(reference);
+            if (session is null)
+            {
+                throw new ExternalArtifactException($"Registry provider for '{reference.Registry}' does not support OCI sessions.");
+            }
+
+            try
+            {
+#pragma warning disable VSTHRD002
+                var info = session.ResolveAsync(CreateRegistryRef(reference), CancellationToken.None).GetAwaiter().GetResult();
+#pragma warning restore VSTHRD002
+                return info.Annotations?.ToImmutableDictionary(StringComparer.OrdinalIgnoreCase) ?? ImmutableDictionary<string, string>.Empty;
+            }
+            finally
+            {
+#pragma warning disable VSTHRD002
+                session.DisposeAsync().AsTask().GetAwaiter().GetResult();
+#pragma warning restore VSTHRD002
+            }
         }
+    }
 
         public override async Task OnRestoreArtifacts(bool forceRestore)
         {
@@ -235,11 +295,9 @@ namespace Bicep.Core.Registry
 
         public override async Task PublishModule(OciArtifactReference reference, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri, string? description)
         {
-            // This needs to be valid JSON, otherwise there may be compatibility issues.
-            // NOTE: Bicep v0.20 and earlier will throw on this, so it's a breaking change.
             var config = new Oci.OciDescriptor("{}", BicepMediaTypes.BicepModuleConfigV1);
 
-            List<Oci.OciDescriptor> layers = new()
+            var layers = new List<Oci.OciDescriptor>
             {
                 new(compiledArmTemplate, BicepMediaTypes.BicepModuleLayerV1Json, new OciManifestAnnotationsBuilder().WithTitle("Compiled ARM template").Build())
             };
@@ -258,27 +316,49 @@ namespace Bicep.Core.Registry
                 .WithDocumentationUri(documentationUri)
                 .WithCreatedTime(DateTime.Now);
 
-            try
+            if (reference.ReferencingFile.Features.OciEnabled)
             {
-                await this.containerRegistryManager.PushArtifactAsync(
-                    reference.ReferencingFile.Configuration.Cloud,
-                    reference,
-                    // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
+                var session = TryCreateSession(reference) ?? throw new ExternalArtifactException($"Registry provider for '{reference.Registry}' does not support OCI sessions.");
+                var artifact = new SessionRegistryArtifact(
                     ManifestMediaType.OciImageManifest.ToString(),
                     BicepMediaTypes.BicepModuleArtifactType,
                     config,
-                    layers,
-                    annotations);
+                    layers.ToImmutableArray(),
+                    annotations.Build());
+
+                await using var disposableSession = session;
+                try
+                {
+                    await disposableSession.PushAsync(CreateRegistryRef(reference), artifact, CancellationToken.None).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    throw new ExternalArtifactException($"Failed to publish module via OCI session: {ex.Message}", ex);
+                }
             }
-            catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
+            else
             {
-                // will include several retry messages, but likely the best we can do
-                throw new ExternalArtifactException(exception.Message, exception);
-            }
-            catch (RequestFailedException exception)
-            {
-                // can only happen if client retries are disabled
-                throw new ExternalArtifactException(exception.Message, exception);
+                var transport = transportFactory.GetTransport(reference);
+
+                try
+                {
+                    await transport.PushArtifactAsync(
+                        reference.ReferencingFile.Configuration.Cloud,
+                        reference,
+                        ManifestMediaType.OciImageManifest.ToString(),
+                        BicepMediaTypes.BicepModuleArtifactType,
+                        config,
+                        layers,
+                        annotations);
+                }
+                catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
+                {
+                    throw new ExternalArtifactException(exception.Message, exception);
+                }
+                catch (RequestFailedException exception)
+                {
+                    throw new ExternalArtifactException(exception.Message, exception);
+                }
             }
         }
 
@@ -287,15 +367,13 @@ namespace Bicep.Core.Registry
             OciExtensionV1Config configData = package.LocalDeployEnabled ? new(
                 localDeployEnabled: true,
                 supportedArchitectures: package.Binaries.Select(x => x.Architecture.Name).ToImmutableArray()) :
-                // avoid writing properties to the config - localDeploy is a preview feature, so
-                // there should be no detectable impact to 'mainline' functionality when disabled.
                 new(null, null);
 
             var config = new Oci.OciDescriptor(
                 JsonSerializer.Serialize(configData, OciExtensionV1ConfigSerializationContext.Default.OciExtensionV1Config),
                 BicepMediaTypes.BicepExtensionConfigV1);
 
-            List<Oci.OciDescriptor> layers = new()
+            var layers = new List<Oci.OciDescriptor>
             {
                 new(package.Types, BicepMediaTypes.BicepExtensionArtifactLayerV1TarGzip, new OciManifestAnnotationsBuilder().WithTitle("types.tgz").Build())
             };
@@ -305,7 +383,7 @@ namespace Bicep.Core.Registry
                 foreach (var binary in package.Binaries)
                 {
                     var layerName = BicepMediaTypes.GetExtensionArtifactLayerV1Binary(binary.Architecture);
-                    layers.Add(new(binary.Data, layerName, new OciManifestAnnotationsBuilder().WithTitle($"extension.bin").Build()));
+                    layers.Add(new(binary.Data, layerName, new OciManifestAnnotationsBuilder().WithTitle("extension.bin").Build()));
                 }
             }
 
@@ -313,27 +391,50 @@ namespace Bicep.Core.Registry
                 .WithBicepSerializationFormatV1()
                 .WithCreatedTime(DateTime.Now);
 
-            try
+            if (reference.ReferencingFile.Features.OciEnabled)
             {
-                await this.containerRegistryManager.PushArtifactAsync(
-                    reference.ReferencingFile.Configuration.Cloud,
-                    reference,
-                    // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
+                var session = TryCreateSession(reference) ?? throw new ExternalArtifactException($"Registry provider for '{reference.Registry}' does not support OCI sessions.");
+
+                var artifact = new SessionRegistryArtifact(
                     ManifestMediaType.OciImageManifest.ToString(),
                     BicepMediaTypes.BicepExtensionArtifactType,
                     config,
-                    layers,
-                    annotations);
+                    layers.ToImmutableArray(),
+                    annotations.Build());
+
+                await using var disposableSession = session;
+                try
+                {
+                    await disposableSession.PushAsync(CreateRegistryRef(reference), artifact, CancellationToken.None).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    throw new ExternalArtifactException($"Failed to publish extension via OCI session: {ex.Message}", ex);
+                }
             }
-            catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
+            else
             {
-                // will include several retry messages, but likely the best we can do
-                throw new ExternalArtifactException(exception.Message, exception);
-            }
-            catch (RequestFailedException exception)
-            {
-                // can only happen if client retries are disabled
-                throw new ExternalArtifactException(exception.Message, exception);
+                var transport = transportFactory.GetTransport(reference);
+
+                try
+                {
+                    await transport.PushArtifactAsync(
+                        reference.ReferencingFile.Configuration.Cloud,
+                        reference,
+                        ManifestMediaType.OciImageManifest.ToString(),
+                        BicepMediaTypes.BicepExtensionArtifactType,
+                        config,
+                        layers,
+                        annotations);
+                }
+                catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
+                {
+                    throw new ExternalArtifactException(exception.Message, exception);
+                }
+                catch (RequestFailedException exception)
+                {
+                    throw new ExternalArtifactException(exception.Message, exception);
+                }
             }
         }
 
@@ -466,28 +567,50 @@ namespace Bicep.Core.Registry
 
         private async Task<(OciArtifactResult?, string? errorMessage)> TryRestoreArtifactAsync(RootConfiguration configuration, OciArtifactReference reference)
         {
+            if (reference.ReferencingFile.Features.OciEnabled)
+            {
+                var session = TryCreateSession(reference) ?? throw new ExternalArtifactException($"Registry provider for '{reference.Registry}' does not support OCI sessions.");
+
+                await using var disposableSession = session;
+                try
+                {
+                    var artifact = await disposableSession.PullAsync(CreateRegistryRef(reference), CancellationToken.None).ConfigureAwait(false);
+                    var result = ConvertToOciArtifactResult(artifact);
+
+                    await WriteArtifactContentToCacheAsync(reference, result).ConfigureAwait(false);
+
+                    return (result, null);
+                }
+                catch (Exception exception) when (exception is ExternalArtifactException or RequestFailedException or InvalidArtifactException)
+                {
+                    return (null, exception.Message);
+                }
+                catch (Exception exception)
+                {
+                    throw new ExternalArtifactException($"Failed to restore artifact via OCI session: {exception.Message}", exception);
+                }
+            }
+
+            var transport = transportFactory.GetTransport(reference);
+
             try
             {
-                var result = await containerRegistryManager.PullArtifactAsync(configuration.Cloud, reference);
+                var result = await transport.PullArtifactAsync(configuration.Cloud, reference).ConfigureAwait(false);
 
-                await WriteArtifactContentToCacheAsync(reference, result);
+                await WriteArtifactContentToCacheAsync(reference, result).ConfigureAwait(false);
 
                 return (result, null);
             }
             catch (ExternalArtifactException exception)
             {
-                // we can trust the message in this exception
                 return (null, exception.Message);
             }
             catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
             {
-                // the message on this one is not great because it includes all the retry attempts
-                // however, we don't really have a good way to classify them in a cross-platform way
                 return (null, exception.Message);
             }
             catch (RequestFailedException exception)
             {
-                // this can only happen if we disable retry on the client and a registry request failed
                 return (null, exception.Message);
             }
             catch (Exception exception)
@@ -495,6 +618,77 @@ namespace Bicep.Core.Registry
                 return (null, $"Unhandled exception: {exception}");
             }
         }
+
+        private RegistryRef CreateRegistryRef(OciArtifactReference reference) =>
+            new(reference.Registry, reference.Repository, reference.Tag, reference.Digest);
+
+        private IRegistrySession? TryCreateSession(OciArtifactReference reference, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var context = new RegistryProviderContext
+                {
+                    Logger = logger,
+                    CredentialChain = credentialChain,
+                    Cloud = reference.ReferencingFile.Configuration.Cloud,
+                    CancellationToken = cancellationToken,
+                };
+
+                return transportFactory.CreateSession(CreateRegistryRef(reference), context);
+            }
+            catch (NotSupportedException)
+            {
+                return null;
+            }
+        }
+
+        private static OciArtifactResult ConvertToOciArtifactResult(SessionRegistryArtifact artifact)
+        {
+            var manifest = new OciManifest(
+                schemaVersion: 2,
+                mediaType: artifact.MediaType,
+                artifactType: artifact.ArtifactType,
+                config: artifact.Config,
+                layers: artifact.Layers,
+                annotations: artifact.Annotations);
+
+#pragma warning disable IL2026
+            var manifestBinaryData = BinaryData.FromObjectAsJson(manifest, OciManifestSerializationContext.Default.Options);
+#pragma warning restore IL2026
+            var manifestDigest = RegistryOciDescriptor.ComputeDigest(RegistryOciDescriptor.AlgorithmIdentifierSha256, manifestBinaryData);
+
+            var layers = artifact.Layers.Select(descriptor =>
+            {
+                if (descriptor.Data is null)
+                {
+                    throw new InvalidOperationException("Registry session returned a layer without content.");
+                }
+
+                return new OciArtifactLayer(descriptor.Digest, descriptor.MediaType, descriptor.Data);
+            }).ToImmutableArray();
+
+            OciArtifactLayer? configLayer = null;
+            if (!artifact.Config.IsEmpty() && artifact.Config.Data is BinaryData configData)
+            {
+                configLayer = new OciArtifactLayer(artifact.Config.Digest, artifact.Config.MediaType, configData);
+            }
+
+            return artifact.ArtifactType switch
+            {
+                BicepMediaTypes.BicepExtensionArtifactType => new OciExtensionArtifactResult(manifestBinaryData, manifestDigest, layers, configLayer),
+                BicepMediaTypes.BicepModuleArtifactType or null => new OciModuleArtifactResult(manifestBinaryData, manifestDigest, layers),
+                _ => throw new InvalidArtifactException($"artifacts of type: '{artifact.ArtifactType}' are not supported by this Bicep version."),
+            };
+        }
+
+        private static bool IsNotFoundException(Exception? exception) =>
+            exception switch
+            {
+                null => false,
+                NotFoundException => true,
+                RequestFailedException { Status: 404 } => true,
+                _ => false,
+            };
 
         private static bool CheckAllInnerExceptionsAreRequestFailures(AggregateException exception) =>
             exception.InnerExceptions.All(inner => inner is RequestFailedException);

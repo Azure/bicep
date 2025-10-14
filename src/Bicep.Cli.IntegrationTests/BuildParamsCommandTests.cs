@@ -744,7 +744,7 @@ param objParam object
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var settings = new InvocationSettings(new(TestContext, OciEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
             var result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath, "--stdout");
 
             result.Should().Fail().And.NotHaveStdout();

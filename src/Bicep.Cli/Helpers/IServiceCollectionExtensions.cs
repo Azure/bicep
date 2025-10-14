@@ -10,6 +10,10 @@ using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Auth;
+using Bicep.Core.Registry.Oci;
+using Bicep.Core.Registry.Oci.Oras;
+using Bicep.Core.Registry.Providers;
 using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
@@ -69,6 +73,20 @@ public static class IServiceCollectionExtensions
         .AddSingleton<INamespaceProvider, NamespaceProvider>()
         .AddSingleton<IResourceTypeProviderFactory, ResourceTypeProviderFactory>()
         .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
+        .AddSingleton<AzureContainerRegistryManager>()
+        .AddSingleton<DockerCredentialProvider>()
+        .AddSingleton<DockerCredentialSource>()
+        .AddSingleton<ICredentialSource>(sp => sp.GetRequiredService<DockerCredentialSource>())
+        .AddSingleton<ICredentialChain, CompositeCredentialChain>()
+        .AddSingleton<OrasOciRegistryTransport>()
+        .AddSingleton<IRegistryProvider, AcrRegistryProvider>()
+        .AddSingleton<IRegistryProvider, GenericOciRegistryProvider>()
+        .AddSingleton<RegistryProviderFactory>()
+        .AddSingleton<IOciRegistryTransportFactory>(services =>
+        {
+            var providerFactory = services.GetRequiredService<RegistryProviderFactory>();
+            return new OciRegistryTransportFactory(providerFactory);
+        })
         .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
         .AddSingleton<IArmClientProvider, ArmClientProvider>()
         .AddSingleton<IModuleDispatcher, ModuleDispatcher>()

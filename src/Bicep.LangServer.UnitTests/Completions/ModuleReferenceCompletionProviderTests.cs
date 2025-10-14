@@ -10,6 +10,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
@@ -738,7 +739,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                     new("bicep/app/app/dapr-cntrapp2", "description2", "contoso.com/help2", []),
                 ]).Object,
                 StrictMock.Of<IPrivateAcrModuleMetadataProviderFactory>().Object,
-                StrictMock.Of<IContainerRegistryClientFactory>().Object,
+                StrictMock.Of<IOciRegistryTransportFactory>().Object,
                 BicepTestConstants.BuiltInOnlyConfigurationManager
             );
 

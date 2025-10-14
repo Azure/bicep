@@ -102,7 +102,7 @@
     <PackageVersion Include="System.Memory.Data" Version="9.0.5" />
     <!-- force an upgrade of this dependency as it seems to cause build flakiness for unknown reasons -->
     <PackageVersion Include="System.Private.Uri" Version="4.3.2" />
-    <PackageVersion Include="System.Text.Json" Version="9.0.5" />
+    <PackageVersion Include="System.Text.Json" Version="9.0.9" />
     <PackageVersion Include="Tools.InnoSetup" Version="6.0.5" />
   </ItemGroup>
 </Project>

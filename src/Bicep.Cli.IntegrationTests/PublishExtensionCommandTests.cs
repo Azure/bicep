@@ -37,7 +37,7 @@ public class PublishExtensionCommandTests : TestBase
         var fakeBlobClient = (FakeRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration.Cloud, registryUri, repository);
 
         var indexPath = Path.Combine(outputDirectory, "index.json");
-        var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+        var settings = new InvocationSettings(new(TestContext, OciEnabled: true), clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
 
         List<string> requiredArgs = new() { "publish-extension", indexPath, "--target", $"br:{registryStr}/{repository}:{version}" };
 

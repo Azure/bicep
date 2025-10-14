@@ -55,6 +55,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Bicep.IO\Bicep.IO.csproj" />
+    <ProjectReference Include="..\..\..\oras-project-oras-dotnet\src\OrasProject.Oras\OrasProject.Oras.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="CoreResources.Designer.cs">

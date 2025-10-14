@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Immutable;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
@@ -13,8 +14,12 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Auth;
+using Bicep.Core.Registry.Azure;
 using Bicep.Core.Registry.Extensions;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.Registry.Sessions;
+using Bicep.Core.Registry.Providers;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Syntax;
@@ -26,6 +31,7 @@ using Bicep.IO.Utils;
 using FluentAssertions;
 using Google.Protobuf;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using static Bicep.Core.UnitTests.Registry.FakeContainerRegistryClient;
 using static Bicep.Core.UnitTests.Utils.TestContainerRegistryClientFactoryBuilder;
@@ -34,6 +40,32 @@ namespace Bicep.Core.UnitTests.Utils;
 
 public static class RegistryHelper
 {
+    private static ServiceBuilder ConfigureServiceBuilder(ServiceBuilder serviceBuilder)
+        => serviceBuilder
+            .WithFeaturesOverridden(f => f with { OciEnabled = true })
+            .WithRegistration(services =>
+            {
+                services.AddSingleton<RegistryProviderFactory>(sp =>
+                {
+                    var azureTransport = sp.GetRequiredService<AzureContainerRegistryManager>();
+                    IRegistryProvider[] providers =
+                    [
+                        new StaticRegistryProvider(azureTransport),
+                    ];
+
+                    return new RegistryProviderFactory(providers);
+                });
+
+                services.AddSingleton<IOciRegistryTransportFactory>(sp =>
+                {
+                    var providerFactory = sp.GetRequiredService<RegistryProviderFactory>();
+                    return new OciRegistryTransportFactory(providerFactory);
+                });
+            });
+
+    public static ServiceBuilder CreateServiceBuilderWithTransportOverride()
+        => ConfigureServiceBuilder(new ServiceBuilder());
+
     public record class RepoDescriptor(
         string Registry, // e.g. "registry.contoso.io"
         string Repository, // e.g. "test/module1"
@@ -126,11 +158,14 @@ public static class RegistryHelper
         IFileSystem fileSystem,
         ModuleToPublish module)
     {
+        var originalExperimentalFlag = Environment.GetEnvironmentVariable("BICEP_EXPERIMENTAL_OCI");
+        Environment.SetEnvironmentVariable("BICEP_EXPERIMENTAL_OCI", "1");
+
         var fileExplorer = new FileSystemFileExplorer(fileSystem);
         var configurationManager = new ConfigurationManager(fileExplorer);
         var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, fileExplorer), BicepTestConstants.FeatureOverrides);
 
-        serviceBuilder = serviceBuilder
+        serviceBuilder = ConfigureServiceBuilder(serviceBuilder)
             .WithDisabledAnalyzersConfiguration()
             .WithContainerRegistryClientFactory(clientFactory)
             .WithFileSystem(fileSystem)
@@ -338,4 +373,25 @@ public static class RegistryHelper
             new RepoDescriptor(LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/microsoftgraph/beta", ["tag"]),
             new RepoDescriptor(LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/microsoftgraph/v1", ["tag"])
             );
+
+    private sealed class StaticRegistryProvider : IRegistryProvider
+    {
+        private readonly AzureContainerRegistryManager azureTransport;
+
+        public StaticRegistryProvider(AzureContainerRegistryManager azureTransport)
+        {
+            this.azureTransport = azureTransport;
+        }
+
+        public string Name => WellKnownRegistryProviders.Acr;
+
+        public int Priority => int.MaxValue;
+
+        public bool CanHandle(string registry) => true;
+
+        public IOciRegistryTransport GetTransport(string registry) => azureTransport;
+
+        public IRegistrySession CreateSession(RegistryRef reference, RegistryProviderContext context)
+            => new AcrRegistrySession(azureTransport, context.Cloud);
+    }
 }

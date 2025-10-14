@@ -364,7 +364,7 @@ module modulea 'modulea.bicep' = {
         [TestMethod]
         public void External_module_reference_with_unknown_scheme_should_be_rejected()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, RegistryEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, OciEnabled: true));
             var result = CompilationHelper.Compile(services, @"module test 'fake:totally-fake' = {}");
 
             result.Should().HaveDiagnostics(new[]

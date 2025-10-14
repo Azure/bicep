@@ -10,6 +10,7 @@ using Bicep.IO.Abstraction;
 namespace Bicep.Core.Configuration;
 
 public record ExperimentalFeaturesEnabled(
+    bool OciEnabled,
     bool SymbolicNameCodegen,
     bool ExtendableParamFiles,
     bool ResourceTypedParamsAndOutputs,
@@ -31,6 +32,7 @@ public record ExperimentalFeaturesEnabled(
     public void WriteTo(Utf8JsonWriter writer) => JsonElementFactory.CreateElement(this).WriteTo(writer);
 
     public static readonly ExperimentalFeaturesEnabled AllDisabled = new(
+        OciEnabled: false,
         SymbolicNameCodegen: false,
         ExtendableParamFiles: false,
         ResourceTypedParamsAndOutputs: false,

@@ -65,7 +65,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task Publish_InvalidInputFile_ShouldProduceExpectedError()
         {
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, OciEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
             var (output, error, result) = await Bicep(settings, "publish", "WrongFile.bicep", "--target", "br:example.azurecr.io/hello/there:v1");
 
             result.Should().Be(1);
@@ -86,7 +86,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task Publish_OciDigestTarget_ShouldProduceExpectedError()
         {
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, OciEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
             var (output, error, result) = await Bicep(settings, "publish", "WrongFile.bicep", "--target", "br:example.com/test@sha256:80f63ced0b80b63874c808a321f472755a3c9e93987d1fa0a51e13c65e4a52b9");
 
             result.Should().Be(1);
@@ -97,7 +97,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task Publish_WithMissingDocumentationUri_ShouldProduceExpectedError()
         {
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, OciEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"output myOutput string = 'hello!'");
             var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br:example.azurecr.io/hello/there:v1", "--documentation-uri");
 
@@ -109,7 +109,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task Publish_WithDocumentationUriSpecifiedMoreThanOnce_ShouldProduceExpectedError()
         {
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, OciEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"output myOutput string = 'hello!'");
             var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br:example.azurecr.io/hello/there:v1", "--documentation-uri", "https://example.com", "--documentation-uri", "https://example.com");
 
@@ -121,7 +121,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task Publish_WithInvalidDocumentUri_ShouldProduceExpectedError()
         {
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, OciEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"output myOutput string = 'hello!'");
             var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br:example.azurecr.io/hello/there:v1", "--documentation-uri", "invalid_uri");
 
@@ -167,7 +167,7 @@ namespace Bicep.Cli.IntegrationTests
             // mock client factory caches the clients
             var testClient = (FakeRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration.Cloud, registryUri, repository);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, OciEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
             List<string> requiredArgs = new() { "publish", bicepFilePath, "--target", $"br:{registryStr}/{repository}:v1" };
 
@@ -266,7 +266,7 @@ namespace Bicep.Cli.IntegrationTests
             // mock client factory caches the clients
             var testClient = (FakeRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration.Cloud, registryUri, repository);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, OciEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
             var (output, error, result) = await Bicep(settings, "publish", compiledFilePath, "--target", $"br:{registryStr}/{repository}:v1");
             result.Should().Be(0);
@@ -320,7 +320,7 @@ namespace Bicep.Cli.IntegrationTests
             // mock client factory caches the clients
             var testClient = (FakeRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration.Cloud, registryUri, repository);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, OciEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
             var args = new List<string> { "publish", compiledFilePath, "--target", $"br:{registryStr}/{repository}:v1", "--with-source" };
             var (output, error, result) = await Bicep(settings, [.. args]);
@@ -351,7 +351,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var settings = new InvocationSettings(new(TestContext, OciEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
             var (output, error, result) = await Bicep(settings, "publish", compiledFilePath, "--target", "br:fake/fake:v1");
             using (new AssertionScope())
             {
@@ -383,7 +383,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var settings = new InvocationSettings(new(TestContext, OciEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
             var (output, error, result) = await Bicep(settings, "publish", compiledFilePath, "--target", "br:fake/fake:v1");
             using (new AssertionScope())
             {
@@ -401,7 +401,7 @@ namespace Bicep.Cli.IntegrationTests
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
             // publish won't actually happen, so broken client factory is fine
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, OciEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
 
             var diagnostics = await GetAllDiagnostics(bicepFilePath, settings.ClientFactory, settings.TemplateSpecRepositoryFactory);
 

@@ -99,6 +99,7 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "experimentalFeaturesWarning": true,
         "experimentalFeaturesEnabled": {
+          "ociEnabled": false,
           "extendableParamFiles": false,
           "symbolicNameCodegen": false,
           "moduleExtensionConfigs": false,
@@ -182,6 +183,7 @@ namespace Bicep.Core.UnitTests.Configuration
         "analyzers": {},
         "experimentalFeaturesWarning": true,
         "experimentalFeaturesEnabled": {
+          "ociEnabled": false,
           "extendableParamFiles": false,
           "symbolicNameCodegen": false,
           "resourceTypedParamsAndOutputs": false,
@@ -287,6 +289,7 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "experimentalFeaturesWarning": true,
         "experimentalFeaturesEnabled": {
+          "ociEnabled": false,
           "extendableParamFiles": false,
           "symbolicNameCodegen": false,
           "resourceTypedParamsAndOutputs": false,
@@ -373,6 +376,7 @@ namespace Bicep.Core.UnitTests.Configuration
             var configuration = IConfigurationManager.GetBuiltInConfiguration();
 
             ExperimentalFeaturesEnabled experimentalFeaturesEnabled = new(
+                OciEnabled: false,
                 SymbolicNameCodegen: false,
                 ExtendableParamFiles: true,
                 ResourceTypedParamsAndOutputs: false,
@@ -457,6 +461,7 @@ namespace Bicep.Core.UnitTests.Configuration
             },
             "experimentalFeaturesWarning": true,
             "experimentalFeaturesEnabled": {
+                "ociEnabled": false,
                 "symbolicNameCodegen": false,
                 "extendableParamFiles": true,
                 "resourceTypedParamsAndOutputs": false,
@@ -707,7 +712,9 @@ namespace Bicep.Core.UnitTests.Configuration
                       },
                       "cacheRootDirectory": "/home/username/.bicep/cache",
                       "experimentalFeaturesWarning": false,
-                      "experimentalFeaturesEnabled": {},
+                      "experimentalFeaturesEnabled": {
+                        "ociEnabled": false
+                      },
                       "formatting": {
                         "indentKind": "Space",
                         "newlineKind": "LF",
@@ -808,6 +815,7 @@ namespace Bicep.Core.UnitTests.Configuration
                   "cacheRootDirectory": "/home/username/.bicep/cache",
                   "experimentalFeaturesWarning": false,
                   "experimentalFeaturesEnabled": {
+                    "ociEnabled": false,
                     "extendableParamFiles": false,
                     "symbolicNameCodegen": false,
                     "resourceTypedParamsAndOutputs": false,

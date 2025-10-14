@@ -9,7 +9,7 @@ namespace Bicep.Core.UnitTests.Features;
 
 public record FeatureProviderOverrides(
     IDirectoryHandle? CacheRootDirectory = null,
-    bool? RegistryEnabled = default,
+    bool? OciEnabled = default,
     bool? SymbolicNameCodegenEnabled = default,
     bool? AdvancedListComprehensionEnabled = default,
     bool? ResourceTypedParamsAndOutputsEnabled = default,
@@ -29,7 +29,7 @@ public record FeatureProviderOverrides(
 {
     public FeatureProviderOverrides(
         TestContext testContext,
-        bool? RegistryEnabled = default,
+        bool? OciEnabled = default,
         bool? SymbolicNameCodegenEnabled = default,
         bool? AdvancedListComprehensionEnabled = default,
         bool? ResourceTypedParamsAndOutputsEnabled = default,
@@ -47,7 +47,7 @@ public record FeatureProviderOverrides(
         bool? UserDefinedConstraintsEnabled = default,
         bool? DeployCommandsEnabled = default) : this(
             FileHelper.GetCacheRootDirectory(testContext),
-            RegistryEnabled,
+            OciEnabled,
             SymbolicNameCodegenEnabled,
             AdvancedListComprehensionEnabled,
             ResourceTypedParamsAndOutputsEnabled,

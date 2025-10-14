@@ -44,7 +44,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task BicepHelpShouldPrintHelp()
         {
-            var settings = new InvocationSettings() { FeatureOverrides = new(RegistryEnabled: true) };
+            var settings = new InvocationSettings() { FeatureOverrides = new(OciEnabled: true) };
 
             var (output, error, result) = await Bicep(settings, "--help");
 
@@ -75,6 +75,19 @@ namespace Bicep.Cli.IntegrationTests
                     "--third-party-notices",
                     "license information",
                     "third-party notices");
+            }
+        }
+
+        [TestMethod]
+        public async Task OciFlag_PrecedingCommand_ShouldBeAccepted()
+        {
+            var (output, error, result) = await Bicep("--oci-enabled", "--help");
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+                error.Should().BeEmpty();
+                output.Should().Contain("build");
             }
         }
 
@@ -127,7 +140,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             // disable registry to ensure `bicep --help` is not consulting the feature provider before
             // preparing the help text (as features can only be determined when an input file is specified)
-            var settings = new InvocationSettings() { FeatureOverrides = new(RegistryEnabled: false) };
+            var settings = new InvocationSettings() { FeatureOverrides = new(OciEnabled: false) };
 
             var (output, error, result) = await Bicep(settings, "--help");
 

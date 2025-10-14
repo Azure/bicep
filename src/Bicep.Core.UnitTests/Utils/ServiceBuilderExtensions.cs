@@ -35,7 +35,7 @@ public static class ServiceBuilderExtensions
 
     public static ServiceBuilder WithTestArtifactManager(this ServiceBuilder serviceBuilder, TestExternalArtifactManager manager)
         => serviceBuilder
-            .WithFeaturesOverridden(f => f with { RegistryEnabled = true })
+            .WithFeaturesOverridden(f => f with { OciEnabled = true })
             .WithContainerRegistryClientFactory(manager.ContainerRegistryClientFactory)
             .WithTemplateSpecRepositoryFactory(manager.TemplateSpecRepositoryFactory);
 

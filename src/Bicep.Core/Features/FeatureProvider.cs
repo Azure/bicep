@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Globalization;
 using Bicep.Core.Configuration;
 using Bicep.IO.Abstraction;
 
@@ -19,6 +20,8 @@ namespace Bicep.Core.Features
         }
 
         public IDirectoryHandle CacheRootDirectory => GetCacheRootDirectory(this.configuration.CacheRootDirectory);
+
+        public bool OciEnabled => this.configuration.ExperimentalFeaturesEnabled.OciEnabled || ReadBooleanEnvVar("BICEP_EXPERIMENTAL_OCI", defaultValue: false);
 
         public bool SymbolicNameCodegenEnabled => this.configuration.ExperimentalFeaturesEnabled.SymbolicNameCodegen;
 
@@ -57,7 +60,33 @@ namespace Bicep.Core.Features
         public bool DeployCommandsEnabled => configuration.ExperimentalFeaturesEnabled.DeployCommands;
 
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
-            => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;
+        {
+            var value = Environment.GetEnvironmentVariable(envVar);
+            if (value is null)
+            {
+                return defaultValue;
+            }
+
+            if (bool.TryParse(value, out var boolValue))
+            {
+                return boolValue;
+            }
+
+            if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var intValue))
+            {
+                if (intValue == 1)
+                {
+                    return true;
+                }
+
+                if (intValue == 0)
+                {
+                    return false;
+                }
+            }
+
+            return defaultValue;
+        }
 
         public static string ReadEnvVar(string envVar, string defaultValue)
             => Environment.GetEnvironmentVariable(envVar) ?? defaultValue;

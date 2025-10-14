@@ -73,7 +73,7 @@ namespace Bicep.Cli.IntegrationTests
             public InvocationSettings WithArtifactManager(TestExternalArtifactManager artifactManager, TestContext testContext) =>
                 this with
                 {
-                    FeatureOverrides = (this.FeatureOverrides ?? new(testContext)) with { RegistryEnabled = true },
+                    FeatureOverrides = (this.FeatureOverrides ?? new(testContext)) with { OciEnabled = true },
                     ClientFactory = artifactManager.ContainerRegistryClientFactory,
                     TemplateSpecRepositoryFactory = artifactManager.TemplateSpecRepositoryFactory
                 };

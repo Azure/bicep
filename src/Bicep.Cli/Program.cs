@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Runtime;
@@ -41,27 +42,38 @@ namespace Bicep.Cli
         }
 
         public static async Task<int> Main(string[] args)
-            => await RunWithCancellationAsync(async cancellationToken =>
+        {
+            var normalizedArgs = ProcessExperimentalFeatureArguments(args, out var ociEnabled);
+
+            if (ociEnabled)
+            {
+                System.Environment.SetEnvironmentVariable("BICEP_EXPERIMENTAL_OCI", "1");
+            }
+
+            return await RunWithCancellationAsync(async cancellationToken =>
             {
                 StartProfile();
 
                 Console.OutputEncoding = TemplateEmitter.UTF8EncodingWithoutBom;
 
-                if (FeatureProvider.TracingEnabled)
+                var tracingEnabled = FeatureProvider.TracingEnabled;
+
+                if (tracingEnabled)
                 {
                     Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
                 }
 
                 // this event listener picks up SDK events and writes them to Trace.WriteLine()
-                using (FeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(FeatureProvider.TracingVerbosity) : null)
+                using (tracingEnabled ? AzureEventSourceListenerFactory.Create(FeatureProvider.TracingVerbosity) : null)
                 {
                     var program = new Program(new(Output: Console.Out, Error: Console.Error));
 
                     // this must be awaited so dispose of the listener occurs in the continuation
                     // rather than the sync part at the beginning of RunAsync()
-                    return await program.RunAsync(args, cancellationToken);
+                    return await program.RunAsync(normalizedArgs, cancellationToken);
                 }
             });
+        }
 
         public async Task<int> RunAsync(string[] args, CancellationToken cancellationToken)
         {
@@ -193,6 +205,31 @@ namespace Bicep.Cli
                 }))
                 .AddSingleton<IDeploymentProcessor, DeploymentProcessor>()
                 .AddSingleton<DeploymentRenderer>();
+
+        private static string[] ProcessExperimentalFeatureArguments(string[] args, out bool ociEnabled)
+        {
+            ociEnabled = false;
+
+            if (args.Length == 0)
+            {
+                return args;
+            }
+
+            var sanitized = new List<string>(args.Length);
+
+            foreach (var arg in args)
+            {
+                if (string.Equals(arg, "--oci-enabled", StringComparison.OrdinalIgnoreCase))
+                {
+                    ociEnabled = true;
+                    continue;
+                }
+
+                sanitized.Add(arg);
+            }
+
+            return sanitized.ToArray();
+        }
 
         // This logic is duplicated in Bicep.Cli. We avoid placing it in Bicep.Core
         // to keep Bicep.Core free of System.IO dependencies. Consider moving this
