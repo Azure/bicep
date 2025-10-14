@@ -47,13 +47,10 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
     {
         var previousPropertyName = currentPropertyName;
 
-        // Capture the property key name when visiting object properties
         currentPropertyName = syntax.TryGetKeyText();
 
-        // Visit the value expression (where inline() might be)
         this.Visit(syntax.Value);
 
-        // Restore previous context
         currentPropertyName = previousPropertyName;
     }
 
@@ -191,6 +188,8 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
 
     private static string GetExternalInputDefinitionName(string kind, int index)
     {
+        // The name of the external input definition is a combination of the kind and the index.
+        // e.g. 'sys.cli' becomes 'sys_cli_0'
         var nonAlphanumericPattern = NonAlphanumericPattern();
         var sanitizedKind = nonAlphanumericPattern.Replace(kind, "_");
         return $"{sanitizedKind}_{index}";

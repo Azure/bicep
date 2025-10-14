@@ -444,29 +444,29 @@ param foo = {
             services,
             ("parameters.bicepparam", """
                 using none
-                param myParam = inline()
-                param anotherParam = int(inline())
+                param foo = inline()
+                param bar = int(inline())
                 """));
 
         result.Should().NotHaveAnyDiagnostics();
         var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
 
-        parameters["myParam"].Value.Should().BeNull();
-        parameters["myParam"].Expression.Should().DeepEqual("""[externalInputs('sys_cli_0')]""");
+        parameters["foo"].Value.Should().BeNull();
+        parameters["foo"].Expression.Should().DeepEqual("""[externalInputs('sys_cli_0')]""");
 
-        parameters["anotherParam"].Value.Should().BeNull();
-        parameters["anotherParam"].Expression.Should().DeepEqual("""[int(externalInputs('sys_cli_1'))]""");
+        parameters["bar"].Value.Should().BeNull();
+        parameters["bar"].Expression.Should().DeepEqual("""[int(externalInputs('sys_cli_1'))]""");
 
         var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
         externalInputs["sys_cli_0"].Should().DeepEqual(new JObject
         {
             ["kind"] = "sys.cli",
-            ["config"] = "myParam",
+            ["config"] = "foo",
         });
         externalInputs["sys_cli_1"].Should().DeepEqual(new JObject
         {
             ["kind"] = "sys.cli",
-            ["config"] = "anotherParam",
+            ["config"] = "bar",
         });
     }
 
@@ -629,31 +629,31 @@ param foo = {
             services,
             ("parameters.bicepparam", """
                 using none
-                param conditionalParam = true ? inline() : 'default'
-                param ternaryWithBoth = false ? inline() : inline()
+                param foo = true ? inline() : 'default'
+                param bar = false ? inline() : inline()
                 """));
 
         result.Should().NotHaveAnyDiagnostics();
         var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
 
-        parameters["conditionalParam"].Expression.Should().DeepEqual("""[if(true(), externalInputs('sys_cli_0'), 'default')]""");
-        parameters["ternaryWithBoth"].Expression.Should().DeepEqual("""[if(false(), externalInputs('sys_cli_1'), externalInputs('sys_cli_2'))]""");
+        parameters["foo"].Expression.Should().DeepEqual("""[if(true(), externalInputs('sys_cli_0'), 'default')]""");
+        parameters["bar"].Expression.Should().DeepEqual("""[if(false(), externalInputs('sys_cli_1'), externalInputs('sys_cli_2'))]""");
 
         var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
         externalInputs["sys_cli_0"].Should().DeepEqual(new JObject
         {
             ["kind"] = "sys.cli",
-            ["config"] = "conditionalParam",
+            ["config"] = "foo",
         });
         externalInputs["sys_cli_1"].Should().DeepEqual(new JObject
         {
             ["kind"] = "sys.cli",
-            ["config"] = "ternaryWithBoth",
+            ["config"] = "bar",
         });
         externalInputs["sys_cli_2"].Should().DeepEqual(new JObject
         {
             ["kind"] = "sys.cli",
-            ["config"] = "ternaryWithBoth",
+            ["config"] = "bar",
         });
     }
 
