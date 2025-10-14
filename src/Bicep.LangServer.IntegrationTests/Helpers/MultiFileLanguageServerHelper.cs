@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using Bicep.Core.SourceGraph;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer;
+using Bicep.LanguageServer.Extensions;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -109,7 +110,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         public async Task ChangeFileAsync(TestContext testContext, BicepFile file, int version)
-            => await ChangeFileAsync(testContext, file.ProgramSyntax.ToString(), file.Uri, version);
+            => await ChangeFileAsync(testContext, file.ProgramSyntax.ToString(), file.FileHandle.Uri.ToDocumentUri(), version);
 
         public void Dispose()
         {

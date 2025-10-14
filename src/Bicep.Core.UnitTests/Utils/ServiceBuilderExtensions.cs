@@ -24,7 +24,7 @@ public static class ServiceBuilderExtensions
     public static ServiceBuilder WithFileExplorer(this ServiceBuilder serviceBuilder, IFileExplorer fileExplorer)
         => serviceBuilder.WithRegistration(x => x.WithFileExplorer(fileExplorer));
 
-    public static ServiceBuilder WithWorkspace(this ServiceBuilder serviceBuilder, IWorkspace workspace)
+    public static ServiceBuilder WithWorkspace(this ServiceBuilder serviceBuilder, IActiveSourceFileSet workspace)
         => serviceBuilder.WithRegistration(x => x.WithWorkspace(workspace));
 
     public static ServiceBuilder WithContainerRegistryClientFactory(this ServiceBuilder serviceBuilder, IContainerRegistryClientFactory containerRegistryClientFactory)

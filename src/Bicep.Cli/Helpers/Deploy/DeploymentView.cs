@@ -4,7 +4,16 @@
 using System.Collections.Immutable;
 using System.Text.Json.Nodes;
 
-namespace Bicep.Cli.Commands.Helpers.Deploy;
+namespace Bicep.Cli.Helpers.Deploy;
+
+public record GeneralOperationView(
+    string Name,
+    string State,
+    string? Error);
+
+public record DeploymentWrapperView(
+    DeploymentView? Deployment,
+    string? Error);
 
 public record DeploymentView(
     string Id,
@@ -13,13 +22,13 @@ public record DeploymentView(
     DateTime StartTime,
     DateTime? EndTime,
     ImmutableArray<DeploymentOperationView> Operations,
-    bool IsEntryPoint,
     string? Error,
     ImmutableDictionary<string, JsonNode> Outputs);
 
 public record DeploymentOperationView(
     string Id,
     string Name,
+    string? SymbolicName,
     string Type,
     string State,
     DateTime StartTime,

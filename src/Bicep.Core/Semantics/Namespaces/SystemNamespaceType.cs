@@ -1280,7 +1280,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     yield return new FunctionOverloadBuilder(LanguageConstants.ReadEnvVarBicepFunctionName)
                         .WithGenericDescription($"Reads the specified environment variable as bicep string.")
                         .WithRequiredParameter("variableName", LanguageConstants.String, "The name of the environment variable.")
-                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, [new StringLiteralExpression(null, "sys.envVar"), ..exp.Parameters]))
+                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, [new StringLiteralExpression(null, "sys.envVar"), .. exp.Parameters]))
                         .WithReturnType(LanguageConstants.String)
                         .Build();
 
@@ -1831,11 +1831,28 @@ namespace Bicep.Core.Semantics.Namespaces
 
             static IEnumerable<Decorator> GetBicepTemplateDecorators(IFeatureProvider featureProvider)
             {
+                var secureAttachableType = TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object);
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSecurePropertyName)
                     .WithDescription("Makes the parameter a secure parameter.")
                     .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
-                    .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
-                    .WithValidator(ValidateNotTargetingAlias)
+                    .WithAttachableType(secureAttachableType)
+                    .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
+                    {
+                        if (!TypeValidator.AreTypesAssignable(targetType, secureAttachableType))
+                        {
+                            // skip further validation if we're already reporting an error
+                            return;
+                        }
+
+                        if (TypeHelper.TryGetArmPrimitiveType(targetType) is null)
+                        {
+                            // if we won't be emitting a "type" constraint in the compiled JSON, we can't make it a secure type
+                            diagnosticWriter.Write(
+                                DiagnosticBuilder.ForPosition(decoratorSyntax).SecureDecoratorTargetMustFitWithinStringOrObject());
+                        }
+
+                        ValidateNotTargetingAlias(decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter);
+                    })
                     .WithEvaluator((functionCall, decorated) =>
                     {
                         if (decorated is TypeDeclaringExpression typeDeclaringExpression)
@@ -2191,6 +2208,8 @@ namespace Bicep.Core.Semantics.Namespaces
             VariableDeclarationSyntax variableDeclaration => variableDeclaration.Type,
             TypeDeclarationSyntax typeDeclaration => typeDeclaration.Value,
             ObjectTypePropertySyntax objectTypeProperty => objectTypeProperty.Value,
+            ObjectTypeAdditionalPropertiesSyntax objectTypeAdditionalProperties => objectTypeAdditionalProperties.Value,
+            TupleTypeItemSyntax tupleTypeItem => tupleTypeItem.Value,
             _ => null,
         };
 
@@ -2355,7 +2374,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 return new(errorBuilder(DiagnosticBuilder.ForPosition(directoryPathArgument.syntax)));
             }
 
-            var thisFileUri = model.SourceFile.Uri.ToIOUri();
+            var thisFileUri = model.SourceFile.FileHandle.Uri;
             return new(directoryFiles.Select(uri =>
             {
                 var baseName = uri.GetFileName();

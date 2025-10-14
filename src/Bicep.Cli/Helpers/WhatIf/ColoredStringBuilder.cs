@@ -52,14 +52,15 @@ public class ColoredStringBuilder
 
     public ColoredStringBuilder AppendLine()
     {
-        this.stringBuilder.AppendLine();
+        this.stringBuilder.Append('\n');
 
         return this;
     }
 
     public ColoredStringBuilder AppendLine(string value)
     {
-        this.stringBuilder.AppendLine(value);
+        this.stringBuilder.Append(value);
+        this.AppendLine();
 
         return this;
     }
@@ -89,6 +90,9 @@ public class ColoredStringBuilder
         this.colorStack.Pop();
         this.stringBuilder.Append(this.colorStack.Count > 0 ? this.colorStack.Peek() : Color.Reset);
     }
+
+    public static string Colorize(string value, Color color)
+        => $"{color}{value}{Color.Reset}";
 
     public class AnsiColorScope : IDisposable
     {

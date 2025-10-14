@@ -1,0 +1,19 @@
+{
+  "predictedResources": [
+    {
+      "properties": {
+        "uri": "https://api.weather.gov/points/47.6363726,-122.1357068",
+        "format": "raw"
+      },
+      "type": "request@v1"
+    },
+    {
+      "properties": {
+        "uri": "[format('https://api.weather.gov/gridpoints/{0}/{1},{2}/forecast', json(reference('gridpointsReq').body).properties.gridId, json(reference('gridpointsReq').body).properties.gridX, json(reference('gridpointsReq').body).properties.gridY)]",
+        "format": "raw"
+      },
+      "type": "request@v1"
+    }
+  ],
+  "diagnostics": []
+}

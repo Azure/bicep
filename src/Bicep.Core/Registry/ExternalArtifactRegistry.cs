@@ -4,7 +4,6 @@
 using System.Diagnostics;
 using System.IO.Abstractions;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Tracing;
 using Bicep.IO.Abstraction;
 

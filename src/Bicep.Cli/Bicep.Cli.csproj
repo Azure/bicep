@@ -25,6 +25,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" />
     <PackageReference Include="Sarif.Sdk" />
+    <PackageReference Include="Spectre.Console" />
     <PackageReference Include="StreamJsonRpc" />
     <PackageReference Include="Azure.Deployments.ClientTools" />
   </ItemGroup>

@@ -3,7 +3,6 @@
 
 using Bicep.Core;
 using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
 using Bicep.Decompiler;
 using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Extensions;

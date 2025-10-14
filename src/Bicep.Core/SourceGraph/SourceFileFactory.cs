@@ -8,7 +8,6 @@ using Azure.Deployments.Templates.Engines;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Text;
 using Bicep.IO.Abstraction;
@@ -107,6 +106,14 @@ namespace Bicep.Core.SourceGraph
         public BicepFile CreateBicepFile(IFileHandle fileHandle, string fileContents)
         {
             var parser = new Parser(fileContents);
+            var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
+
+            return new(fileHandle, lineStarts, parser.Program(), this.configurationManager, this.featureProviderFactory, this.auxiliaryFileCache, parser.LexingErrorLookup, parser.ParsingErrorLookup);
+        }
+
+        public BicepReplFile CreateBicepReplFile(IFileHandle fileHandle, string fileContents)
+        {
+            var parser = new ReplParser(fileContents);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
 
             return new(fileHandle, lineStarts, parser.Program(), this.configurationManager, this.featureProviderFactory, this.auxiliaryFileCache, parser.LexingErrorLookup, parser.ParsingErrorLookup);

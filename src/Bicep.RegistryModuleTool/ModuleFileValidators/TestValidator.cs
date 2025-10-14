@@ -33,7 +33,7 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
 
             var compilation = await this.compiler.CompileAsync(file.Path, this.console, this.mainBicepFile.Path);
             var hasMainBicepFileReference = compilation.SourceFileGrouping.SourceFiles
-                .Any(x => x.Uri.LocalPath.Equals(this.mainBicepFile.Path, StringComparison.Ordinal));
+                .Any(x => x.FileHandle.Uri.GetFilePath().Equals(this.mainBicepFile.Path, StringComparison.Ordinal));
 
             if (!hasMainBicepFileReference)
             {

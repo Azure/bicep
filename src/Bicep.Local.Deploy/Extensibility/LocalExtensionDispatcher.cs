@@ -14,10 +14,10 @@ using Azure.Deployments.Engine.Instrumentation;
 using Azure.Deployments.Engine.Workers;
 using Azure.Deployments.Extensibility.Core.V2.Json;
 using Azure.Deployments.Extensibility.Core.V2.Models;
+using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
-using Bicep.Core.AzureApi;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph.ArtifactReferences;
 using Bicep.Core.TypeSystem.Types;
@@ -206,7 +206,7 @@ public class LocalExtensionDispatcher : IAsyncDisposable
         }
     }
 
-    public async Task<LocalDeploymentResult> Deploy(string templateString, string parametersString, CancellationToken cancellationToken)
+    public async Task<LocalDeploymentResult> Deploy(string templateString, string parametersString, Action<LocalDeploymentResult> onUpdate, CancellationToken cancellationToken)
     {
         var name = Guid.NewGuid().ToString();
         await localDeploymentEngine.StartDeployment(name, templateString, parametersString, cancellationToken);
@@ -214,8 +214,9 @@ public class LocalExtensionDispatcher : IAsyncDisposable
         var result = await localDeploymentEngine.CheckDeployment(name);
         while (result.Deployment.Properties.ProvisioningState?.IsTerminal() != true)
         {
-            await Task.Delay(20, cancellationToken);
+            await Task.Delay(50, cancellationToken);
             result = await localDeploymentEngine.CheckDeployment(name);
+            onUpdate(result);
         }
 
         return result;

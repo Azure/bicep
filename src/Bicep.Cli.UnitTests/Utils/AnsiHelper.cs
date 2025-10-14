@@ -1,60 +1,61 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Cli.Commands.Helpers.Deploy;
+using System.Collections.Immutable;
+using System.Text.RegularExpressions;
+using Bicep.Cli.Helpers.Repl;
 using Bicep.Cli.Helpers.WhatIf;
-using Humanizer;
-
 public static class AnsiHelper
 {
+    private static readonly ImmutableDictionary<string, string> escapeCodeByName = new Dictionary<string, string>
+    {
+        [nameof(Color.Orange)] = Color.Orange.ToString(),
+        [nameof(Color.Green)] = Color.Green.ToString(),
+        [nameof(Color.Purple)] = Color.Purple.ToString(),
+        [nameof(Color.Blue)] = Color.Blue.ToString(),
+        [nameof(Color.Gray)] = Color.Gray.ToString(),
+        [nameof(Color.Reset)] = Color.Reset.ToString(),
+        [nameof(Color.Red)] = Color.Red.ToString(),
+        [nameof(Color.DarkYellow)] = Color.DarkYellow.ToString(),
+        ["Bold"] = $"{Color.Esc}[1m",
+        ["Bold,Green"] = $"{Color.Esc}[1;32m",
+        ["Bold,Red"] = $"{Color.Esc}[1;91m",
+        [nameof(PrintHelper.HideCursor)] = PrintHelper.HideCursor,
+        [nameof(PrintHelper.ShowCursor)] = PrintHelper.ShowCursor,
+        [nameof(PrintHelper.ClearToEndOfScreen)] = PrintHelper.ClearToEndOfScreen,
+        [nameof(PrintHelper.MoveCursorToLineStart)] = PrintHelper.MoveCursorToLineStart,
+    }.ToImmutableDictionary();
+
+    private static readonly ImmutableDictionary<string, string> escapeCodeRegexByName = new Dictionary<string, string>
+    {
+        [nameof(PrintHelper.MoveCursorRight)] = "\u001b\\[(\\d+)C",
+    }.ToImmutableDictionary();
+
     public static string ReplaceCodes(string input)
     {
-        var namesByEscapeCode = new Dictionary<string, string>
+        foreach (var (name, code) in escapeCodeByName)
         {
-            [Color.Orange.ToString()] = nameof(Color.Orange),
-            [Color.Green.ToString()] = nameof(Color.Green),
-            [Color.Purple.ToString()] = nameof(Color.Purple),
-            [Color.Blue.ToString()] = nameof(Color.Blue),
-            [Color.Gray.ToString()] = nameof(Color.Gray),
-            [Color.Reset.ToString()] = nameof(Color.Reset),
-            [Color.Red.ToString()] = nameof(Color.Red),
-            [Color.DarkYellow.ToString()] = nameof(Color.DarkYellow),
-            [DeploymentRenderer.EraseLine] = nameof(DeploymentRenderer.EraseLine),
-            [DeploymentRenderer.Bold] = nameof(DeploymentRenderer.Bold),
-            [DeploymentRenderer.HideCursor] = nameof(DeploymentRenderer.HideCursor),
-            [DeploymentRenderer.ShowCursor] = nameof(DeploymentRenderer.ShowCursor),
-        };
-
-        foreach (var (escapeCode, name) in namesByEscapeCode)
-        {
-            input = input.Replace(escapeCode, $"[{name}]");
+            input = input.Replace(code, $"[{name}]");
         }
 
-        // go backwards to avoid messing up indices as we go
-        for (var i = input.Length - 1; i >= 0; i--)
+        foreach (var (name, pattern) in escapeCodeRegexByName)
         {
-            if (input[i] == DeploymentRenderer.Esc &&
-                i + 1 < input.Length &&
-                input[i + 1] == '[')
-            {
-                string? newInput = null;
-                for (var j = i + 2; j < input.Length; j++)
-                {
-                    if (input[j] == 'F')
-                    {
-                        newInput = $"{input[..i]}[RewindLines({input[(i + 2)..j]})]{input[(j + 1)..]}";
-                        break;
-                    }
-                }
+            input = Regex.Replace(input, pattern, $"[{name}($1)]");
+        }
 
-                if (newInput is null)
-                {
-                    // Add handling for other escape codes here if we hit this error
-                    throw new InvalidOperationException("Unhandled ANSI escape code");
-                }
+        return input;
+    }
 
-                input = newInput;
-            }
+    public static string RemoveCodes(string input)
+    {
+        foreach (var (name, escapeCode) in escapeCodeByName)
+        {
+            input = input.Replace(escapeCode, "");
+        }
+
+        foreach (var (name, pattern) in escapeCodeRegexByName)
+        {
+            input = Regex.Replace(input, pattern, "");
         }
 
         return input;

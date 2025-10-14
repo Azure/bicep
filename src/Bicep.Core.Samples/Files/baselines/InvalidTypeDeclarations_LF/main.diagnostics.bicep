@@ -1,14 +1,14 @@
 type 44
 //@[05:007) [BCP325 (Error)] Expected a type identifier at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP325) |44|
-//@[07:007) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
+//@[07:007) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
 //@[07:007) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
 type noAssignment
-//@[17:017) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
+//@[17:017) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
 //@[17:017) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
 type incompleteAssignment =
-//@[27:027) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
+//@[27:027) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
 
 type resource = bool
 //@[05:013) [BCP301 (Error)] The type name "resource" is reserved and may not be attached to a user-defined type. (bicep https://aka.ms/bicep/core-diagnostics#BCP301) |resource|
@@ -38,7 +38,6 @@ type nullLiteral = null
 //@[19:023) [BCP289 (Error)] The type definition is not valid. (bicep https://aka.ms/bicep/core-diagnostics#BCP289) |null|
 
 type unionOfNulls = null|null
-//@[20:029) [BCP411 (Error)] The type "null" cannot be used in a type assignment because it does not fit within one of ARM's primitive type categories (string, int, bool, array, object). If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP411) |null|null|
 //@[20:029) [BCP294 (Error)] Type unions must be reducible to a single ARM type (such as 'string', 'int', or 'bool'). (bicep https://aka.ms/bicep/core-diagnostics#BCP294) |null|null|
 
 @minLength(3)

@@ -278,7 +278,7 @@ Usage:
             WriteEmbeddedResource(io.Output, "NOTICE.deflated");
         }
 
-        private static string GetVersionString()
+        public static string GetVersionString()
         {
             var versionSplit = ThisAssembly.AssemblyInformationalVersion.Split('+');
 
