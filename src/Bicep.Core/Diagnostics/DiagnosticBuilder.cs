@@ -1991,7 +1991,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic ThisFunctionOnlyAllowedInResourceProperties() => CoreError(
                 "BCP437",
-                "The \"this.exists()\" function can only be used within resource property expressions.");
+                "The \"this\" namespace can only be used within resource property expressions.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -28,7 +28,7 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
                 ");
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP437", DiagnosticLevel.Error, "The \"this.exists()\" function can only be used within resource property expressions.")
+                ("BCP437", DiagnosticLevel.Error, "The \"this\" namespace can only be used within resource property expressions.")
             });
 
             // Test that this.exists() function works inside resource properties when feature is enabled
@@ -98,8 +98,8 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
             {
                 var template = result.Template;
 
-                // Check that this.exists() is compiled to targetExists()
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[targetExists()]");
+                // Check that this.exists() is compiled to target('exists')
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[target('exists')]");
             }
         }
 
@@ -124,7 +124,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
             result.Should().HaveDiagnostics(new[]
             {
                 ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"name\" property of the \"Microsoft.Storage/storageAccounts\" type, which requires a value that can be calculated at the start of the deployment."),
-                ("BCP437", DiagnosticLevel.Error, "The \"this.exists()\" function can only be used within resource property expressions.")
+                ("BCP437", DiagnosticLevel.Error, "The \"this\" namespace can only be used within resource property expressions.")
 
             });
         }
@@ -159,7 +159,7 @@ output sto bool = storageExists
 
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP437", DiagnosticLevel.Error, "The \"this.exists()\" function can only be used within resource property expressions.")
+                ("BCP437", DiagnosticLevel.Error, "The \"this\" namespace can only be used within resource property expressions.")
             });
         }
 
@@ -191,7 +191,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
 
             result.Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.resources.testResource.properties",
-                "[if(targetExists(), createObject('allowBlobPublicAccess', true(), 'encryption', createObject('keySource', 'Microsoft.KeyVault', 'services', createObject('blob', createObject('enabled', targetExists())))), createObject())]");
+                "[if(target('exists'), createObject('allowBlobPublicAccess', true(), 'encryption', createObject('keySource', 'Microsoft.KeyVault', 'services', createObject('blob', createObject('enabled', target('exists'))))), createObject())]");
         }
 
         [TestMethod]
@@ -220,10 +220,324 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
             {
                 var template = result.Template;
 
-                // Check that all usages compile to targetExists()
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[targetExists()]");
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.supportsHttpsTrafficOnly", "[targetExists()]");
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.minimumTlsVersion", "[if(targetExists(), 'TLS1_2', 'TLS1_0')]");
+                // Check that all usages compile to target('exists')
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[target('exists')]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.supportsHttpsTrafficOnly", "[target('exists')]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.minimumTlsVersion", "[if(target('exists'), 'TLS1_2', 'TLS1_0')]");
+            }
+        }
+
+        [TestMethod]
+        public void ThisNamespace_ExistingProperties_ShouldOnlyWorkInResourcePropertiesWhenFeatureEnabled()
+        {
+            // Test that this.existingProperties() function fails outside of resource properties when feature is enabled
+            var result = CompilationHelper.Compile(
+                new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true)),
+                @"
+                output result object = this.existingProperties()
+                ");
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP437", DiagnosticLevel.Error, "The \"this\" namespace can only be used within resource property expressions.")
+            });
+
+            // Test that this.existingProperties() function works inside resource properties when feature is enabled
+            var result2 = CompilationHelper.Compile(
+                new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true)),
+                @"
+                resource test 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+                  name: 'test'
+                  location: 'westus'
+                  sku: {
+                    name: 'Standard_LRS'
+                  }
+                  kind: 'StorageV2'
+                  properties: {
+                    allowBlobPublicAccess: this.existingProperties().allowBlobPublicAccess
+                  }
+                }
+                ");
+            // Should not have the BCP437 error when used inside resource properties
+            result2.Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void ThisNamespace_ExistingProperties_CompilationGeneratesCorrectArmFunctions()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true));
+            var result = CompilationHelper.Compile(services, @"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'testStorage'
+  location: 'westus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    allowBlobPublicAccess: this.existingProperties().allowBlobPublicAccess
+    minimumTlsVersion: this.existingProperties().minimumTlsVersion
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+
+            using (new AssertionScope())
+            {
+                var template = result.Template;
+
+                // Check that this.existingProperties() is compiled to target() and property access works
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[target().allowBlobPublicAccess]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.minimumTlsVersion", "[target().minimumTlsVersion]");
+            }
+        }
+
+        [TestMethod]
+        public void ThisNamespace_ExistingProperties_CompilationGeneratesCorrectArmFunctionsWithTryGet()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true));
+            var result = CompilationHelper.Compile(services, @"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'testStorage'
+  location: 'westus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    allowBlobPublicAccess: this.existingProperties().?allowBlobPublicAccess ?? false
+    minimumTlsVersion: this.existingProperties().?minimumTlsVersion ?? 'TLS1_0'
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+
+            using (new AssertionScope())
+            {
+                var template = result.Template;
+
+                // Check that this.existingProperties() is compiled to target() and property access works
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[coalesce(tryGet(target(), 'allowBlobPublicAccess'), false())]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.minimumTlsVersion", "[coalesce(tryGet(target(), 'minimumTlsVersion'), 'TLS1_0')]");
+            }
+        }
+
+        [TestMethod]
+        public void ThisNamespace_ExistingProperties_DirectUsage_ShouldWork()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true));
+            var result = CompilationHelper.Compile(services, @"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'testStorage'
+  location: 'westus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: this.existingProperties()
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+
+            using (new AssertionScope())
+            {
+                var template = result.Template;
+
+                // Check that this.existingProperties() is compiled to target()
+                template.Should().HaveValueAtPath("$.resources.testResource.properties", "[target()]");
+            }
+        }
+
+        [TestMethod]
+        public void ThisNamespace_ExistsAndExistingProperties_DirectUsage_ShouldWork()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true));
+            var result = CompilationHelper.Compile(services, @"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'testStorage'
+  location: 'westus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    minimumTlsVersion: this.exists() ? this.existingProperties().minimumTlsVersion : 'TLS1_0'
+    allowBlobPublicAccess: this.exists() ? this.existingProperties().allowBlobPublicAccess : false
+    sasPolicy: {
+      expirationAction: this.exists() ? this.existingProperties().sasPolicy.expirationAction : 'Block'
+      sasExpirationPeriod: this.exists() ? this.existingProperties().sasPolicy.sasExpirationPeriod : '2'
+    }
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+
+            using (new AssertionScope())
+            {
+                var template = result.Template;
+
+                // Check that this.existingProperties() is compiled to target()
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.minimumTlsVersion", "[if(target('exists'), target().minimumTlsVersion, 'TLS1_0')]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[if(target('exists'), target().allowBlobPublicAccess, false())]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.sasPolicy.expirationAction", "[if(target('exists'), target().sasPolicy.expirationAction, 'Block')]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.sasPolicy.sasExpirationPeriod", "[if(target('exists'), target().sasPolicy.sasExpirationPeriod, '2')]");
+            }
+        }
+
+        [TestMethod]
+        public void ThisNamespace_ExistingProperties_ShouldNotBeRecognizedWhenFeatureDisabled()
+        {
+            // Test that this.existingProperties() function is not recognized when feature is disabled
+            var result = CompilationHelper.Compile(@"
+                resource test 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+                  name: 'test'
+                  location: 'westus'
+                  sku: {
+                    name: 'Standard_LRS'
+                  }
+                  kind: 'StorageV2'
+                  properties: {
+                    customProperty: this.existingProperties().someProperty
+                  }
+                }
+                ");
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP057", DiagnosticLevel.Error, "The name \"this\" does not exist in the current context.")
+            });
+        }
+
+        [TestMethod]
+        public void ThisNamespace_ExistingTags_ShouldOnlyWorkInResourcePropertiesWhenFeatureEnabled()
+        {
+            // Test that this.existingTags() function fails outside of resource properties when feature is enabled
+            var result = CompilationHelper.Compile(
+                new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true)),
+                @"
+                output result object = this.existingResource()
+                ");
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP437", DiagnosticLevel.Error, "The \"this\" namespace can only be used within resource property expressions.")
+            });
+
+            // Test that this.existingTags() function works inside resource properties when feature is enabled
+            var result2 = CompilationHelper.Compile(
+                new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true)),
+                @"
+                resource test 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+                  name: 'test'
+                  location: 'westus'
+                  sku: {
+                    name: 'Standard_LRS'
+                  }
+                  kind: 'StorageV2'
+                  properties: this.existingResource().properties
+                }
+                ");
+            // Should not have the BCP437 error when used inside resource properties
+            result2.Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void ThisNamespace_ExistingResourceProperties_CompilationGeneratesCorrectArmFunctions()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true));
+            var result = CompilationHelper.Compile(services, @"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'testStorage'
+  location: 'westus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    allowBlobPublicAccess: this.exists()
+    sasPolicy: this.existingProperties().?sasPolicy
+    accessTier: this.existingResource().?properties.accessTier
+  }
+}
+
+resource secret 'Microsoft.KeyVault/vaults/secrets@2024-12-01-preview' = {
+  name: 'vault/secret'
+  properties: {
+    value: this.existingResource().tags.secretValue
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+
+            using (new AssertionScope())
+            {
+                var template = result.Template;
+
+                // Check that the three supported functions compile correctly
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.accessTier", "[tryGet(target('full'), 'properties', 'accessTier')]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[target('exists')]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.sasPolicy", "[tryGet(target(), 'sasPolicy')]");
+                template.Should().HaveValueAtPath("$.resources.secret.properties.value", "[target('full').tags.secretValue]");
+            }
+        }
+
+        [TestMethod]
+        public void ThisNamespace_ExistingResourceProperties_ShouldNotBeRecognizedWhenFeatureDisabled()
+        {
+            // Test that the functions are not recognized when feature is disabled
+            var result = CompilationHelper.Compile(@"
+                resource test 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+                  name: 'test'
+                  location: 'westus'
+                  sku: {
+                    name: 'Standard_LRS'
+                  }
+                  kind: 'StorageV2'
+                  tags: this.existingTags()
+                  properties: {
+                    allowBlobPublicAccess: this.exists()
+                  }
+                }
+                ");
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP057", DiagnosticLevel.Error, "The name \"this\" does not exist in the current context."),
+                ("BCP057", DiagnosticLevel.Error, "The name \"this\" does not exist in the current context.")
+            });
+        }
+
+        [TestMethod]
+        public void ThisNamespace_AllSupportedFunctions_ShouldWork()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true));
+            var result = CompilationHelper.Compile(services, @"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'testStorage'
+  location: 'westus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    allowBlobPublicAccess: this.exists()
+    sasPolicy: this.existingProperties().sasPolicy
+    accessTier: this.existingResource().properties.accessTier
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+
+            using (new AssertionScope())
+            {
+                var template = result.Template;
+
+                // Check that all three supported functions compile correctly
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.accessTier", "[target('full').properties.accessTier]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[target('exists')]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.sasPolicy", "[target().sasPolicy]");
             }
         }
     }
