@@ -2004,6 +2004,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic SecureDecoratorTargetMustFitWithinStringOrObject() => CoreError(
                 "BCP440",
                 "The @secure() decorator can only be used on statements whose type is a subtype of \"string\" or \"object\".");
+
+            public Diagnostic InlineFunctionOnlyValidInParameterAssignments() => CoreError(
+                "BCP441",
+                $"Function \"{LanguageConstants.InlineFunctionName}\" is not valid at this location. It can only be used in parameter assignments, not in variable assignments or string interpolation.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

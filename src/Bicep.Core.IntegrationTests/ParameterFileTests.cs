@@ -406,132 +406,6 @@ param foo = {
     }
 
     [TestMethod]
-    public void InlineFunction_parameter_with_variable_references()
-    {
-        var result = CompilationHelper.CompileParams(
-("parameters.bicepparam", @"
-using none
-var foo = inline()
-var foo2 = '${foo}-${inline()}'
-param foo3 = foo2
-"));
-
-        result.Should().NotHaveAnyDiagnostics();
-        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
-        parameters["foo3"].Value.Should().BeNull();
-        parameters["foo3"].Expression.Should().DeepEqual("""[format('{0}-{1}', externalInputs('sys_cli_0'), externalInputs('sys_cli_1'))]""");
-
-        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
-        externalInputs["sys_cli_0"].Should().DeepEqual(new JObject
-        {
-            ["kind"] = "sys.cli",
-            ["config"] = "foo",
-        });
-        externalInputs["sys_cli_1"].Should().DeepEqual(new JObject
-        {
-            ["kind"] = "sys.cli",
-            ["config"] = "foo2",
-        });
-    }
-
-    [TestMethod]
-    public void No_parameters_containing_external_input_should_not_generate_external_input_definitions()
-    {
-        var result = CompilationHelper.CompileParams(
-("parameters.bicepparam", @"
-using none
-param foo = 'foo'
-var baz = externalInput('sys.cli', 'baz')
-"));
-
-        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
-        parameters["foo"].Value.Should().DeepEqual("foo");
-        parameters["foo"].Expression.Should().BeNull();
-        result.Parameters.Should().NotHaveValueAtPath("$.externalInputDefinitions");
-    }
-
-    [TestMethod]
-    public void InlineFunction_variable_not_referenced_by_parameter()
-    {
-        var result = CompilationHelper.CompileParams(
-            ("parameters.bicepparam", @"
-                using none
-                var unused = inline()
-                param foo = 'bar'
-                "));
-
-        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
-        parameters["foo"].Value.Should().DeepEqual("bar");
-        parameters["foo"].Expression.Should().BeNull();
-        result.Parameters.Should().NotHaveValueAtPath("$.externalInputDefinitions");
-    }
-
-    [TestMethod]
-    public void InlineFunction_multiple_calls_in_same_interpolated_string()
-    {
-        var result = CompilationHelper.CompileParams(
-            ("parameters.bicepparam", @"
-                using none
-                var v = '${inline()}-${inline()}'
-                param p = v
-                "));
-
-        result.Should().NotHaveAnyDiagnostics();
-        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
-        parameters["p"].Value.Should().BeNull();
-        parameters["p"].Expression.Should().DeepEqual("""[format('{0}-{1}', externalInputs('sys_cli_0'), externalInputs('sys_cli_1'))]""");
-
-        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
-        externalInputs["sys_cli_0"].Should().DeepEqual(new JObject { ["kind"] = "sys.cli", ["config"] = "v" });
-        externalInputs["sys_cli_1"].Should().DeepEqual(new JObject { ["kind"] = "sys.cli", ["config"] = "v" });
-    }
-
-    [TestMethod]
-    public void InlineFunction_reused_variable_in_multiple_parameters()
-    {
-        var result = CompilationHelper.CompileParams(
-            ("parameters.bicepparam", @"
-                using none
-                var shared = inline()
-                param p1 = shared
-                param p2 = shared
-                "));
-
-        result.Should().NotHaveAnyDiagnostics();
-        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
-        parameters["p1"].Value.Should().BeNull();
-        parameters["p2"].Value.Should().BeNull();
-        parameters["p1"].Expression.Should().DeepEqual("""[externalInputs('sys_cli_0')]""");
-        parameters["p2"].Expression.Should().DeepEqual("""[externalInputs('sys_cli_0')]""");
-
-        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
-        externalInputs["sys_cli_0"].Should().DeepEqual(new JObject { ["kind"] = "sys.cli", ["config"] = "shared" });
-    }
-
-    [TestMethod]
-    public void InlineFunction_duplicate_calls_across_variables()
-    {
-        var result = CompilationHelper.CompileParams(
-            ("parameters.bicepparam", @"
-                using none
-                var v1 = inline()
-                var v2 = inline()
-                param p = '${v1}-${v2}'
-                "));
-
-        result.Should().NotHaveAnyDiagnostics();
-        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
-        parameters["p"].Value.Should().BeNull();
-        parameters["p"].Expression.Should().DeepEqual("""[format('{0}-{1}', externalInputs('sys_cli_0'), externalInputs('sys_cli_1'))]""");
-
-        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
-        externalInputs["sys_cli_0"].Should().DeepEqual(new JObject { ["kind"] = "sys.cli", ["config"] = "v1" });
-        externalInputs["sys_cli_1"].Should().DeepEqual(new JObject { ["kind"] = "sys.cli", ["config"] = "v2" });
-    }
-
-    [TestMethod]
     public void ExternalInput_alternative_functions_also_generate_external_inputs()
     {
         var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, DeployCommandsEnabled: true));
@@ -559,6 +433,264 @@ var baz = externalInput('sys.cli', 'baz')
         {
             ["kind"] = "sys.envVar",
             ["config"] = "foo2",
+        });
+    }
+
+    [TestMethod]
+    public void Inline_function_should_work_in_parameter_assignments()
+    {
+        var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext));
+        var result = CompilationHelper.CompileParams(
+            services,
+            ("parameters.bicepparam", """
+                using none
+                param myParam = inline()
+                param anotherParam = int(inline())
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+
+        parameters["myParam"].Value.Should().BeNull();
+        parameters["myParam"].Expression.Should().DeepEqual("""[externalInputs('sys_cli_0')]""");
+
+        parameters["anotherParam"].Value.Should().BeNull();
+        parameters["anotherParam"].Expression.Should().DeepEqual("""[int(externalInputs('sys_cli_1'))]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["sys_cli_0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["config"] = "myParam",
+        });
+        externalInputs["sys_cli_1"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["config"] = "anotherParam",
+        });
+    }
+
+    [TestMethod]
+    public void Inline_function_should_infer_parameter_names_correctly()
+    {
+        var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext));
+        var result = CompilationHelper.CompileParams(
+            services,
+            ("parameters.bicepparam", """
+                using none
+                param firstName = inline()
+                param lastName = inline()
+                param age = int(inline())
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+
+        parameters["firstName"].Expression.Should().DeepEqual("""[externalInputs('sys_cli_0')]""");
+        parameters["lastName"].Expression.Should().DeepEqual("""[externalInputs('sys_cli_1')]""");
+        parameters["age"].Expression.Should().DeepEqual("""[int(externalInputs('sys_cli_2'))]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["sys_cli_0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["config"] = "firstName",
+        });
+        externalInputs["sys_cli_1"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["config"] = "lastName",
+        });
+        externalInputs["sys_cli_2"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["config"] = "age",
+        });
+    }
+
+    [TestMethod]
+    public void Inline_function_in_complex_expressions()
+    {
+        var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext));
+        var result = CompilationHelper.CompileParams(
+            services,
+            ("parameters.bicepparam", """
+                using none
+                param stringParam = toLower(inline())
+                param arrayParam = [inline(), inline()]
+                param objectParam = {
+                  key1: inline()
+                  key2: toUpper(inline())
+                }
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+
+        parameters["stringParam"].Expression.Should().DeepEqual("""[toLower(externalInputs('sys_cli_0'))]""");
+        parameters["arrayParam"].Expression.Should().DeepEqual("""[createArray(externalInputs('sys_cli_1'), externalInputs('sys_cli_2'))]""");
+        parameters["objectParam"].Expression.Should().DeepEqual("""[createObject('key1', externalInputs('sys_cli_3'), 'key2', toUpper(externalInputs('sys_cli_4')))]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["sys_cli_0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["config"] = "stringParam",
+        });
+        externalInputs["sys_cli_1"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["config"] = "arrayParam",
+        });
+        externalInputs["sys_cli_2"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["config"] = "arrayParam",
+        });
+        externalInputs["sys_cli_3"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["config"] = "key1",
+        });
+        externalInputs["sys_cli_4"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["config"] = "key2",
+        });
+    }
+
+    [TestMethod]
+    public void Inline_function_should_be_blocked_in_variable_assignments()
+    {
+        var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext));
+        var result = CompilationHelper.CompileParams(
+            services,
+            ("parameters.bicepparam", """
+                using none
+                var foo = inline()
+                param bar = foo
+                """));
+
+        result.Diagnostics.Should().Contain(x => x.Code == "BCP441");
+    }
+
+    [TestMethod]
+    public void Inline_function_should_be_blocked_in_string_interpolation()
+    {
+        var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext));
+        var result = CompilationHelper.CompileParams(
+            services,
+            ("parameters.bicepparam", """
+                using none
+                param foo = 'prefix-${inline()}'
+                """));
+
+        result.Diagnostics.Should().Contain(x => x.Code == "BCP441");
+    }
+
+    [TestMethod]
+    public void Inline_function_should_be_blocked_in_variable_string_interpolation()
+    {
+        var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext));
+        var result = CompilationHelper.CompileParams(
+            services,
+            ("parameters.bicepparam", """
+                using none
+                var prefix = 'my-value-${inline()}'
+                param foo = prefix
+                """));
+
+        result.Diagnostics.Should().Contain(x => x.Code == "BCP441");
+    }
+
+    [TestMethod]
+    public void Inline_function_multiple_errors_in_same_file()
+    {
+        var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext));
+        var result = CompilationHelper.CompileParams(
+            services,
+            ("parameters.bicepparam", """
+                using none
+                var invalidVar = inline()
+                var invalidInterpolation = 'value-${inline()}'
+                param validParam = inline()
+                param anotherInvalidInterpolation = '${inline()}-suffix'
+                """));
+
+        var bcp441Diagnostics = result.Diagnostics.Where(x => x.Code == "BCP441").ToList();
+        bcp441Diagnostics.Should().HaveCount(3);
+    }
+
+    [TestMethod]
+    public void Inline_function_works_with_conditionals()
+    {
+        var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext));
+        var result = CompilationHelper.CompileParams(
+            services,
+            ("parameters.bicepparam", """
+                using none
+                param conditionalParam = true ? inline() : 'default'
+                param ternaryWithBoth = false ? inline() : inline()
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+
+        parameters["conditionalParam"].Expression.Should().DeepEqual("""[if(true(), externalInputs('sys_cli_0'), 'default')]""");
+        parameters["ternaryWithBoth"].Expression.Should().DeepEqual("""[if(false(), externalInputs('sys_cli_1'), externalInputs('sys_cli_2'))]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["sys_cli_0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["config"] = "conditionalParam",
+        });
+        externalInputs["sys_cli_1"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["config"] = "ternaryWithBoth",
+        });
+        externalInputs["sys_cli_2"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["config"] = "ternaryWithBoth",
+        });
+    }
+
+    [TestMethod]
+    public void Inline_function_nested_in_function_calls()
+    {
+        var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext));
+        var result = CompilationHelper.CompileParams(
+            services,
+            ("parameters.bicepparam", """
+                using none
+                #disable-next-line prefer-interpolation
+                param nestedParam = concat(toLower(inline()), toUpper(inline()))
+                param doubleNested = length(string(inline()))
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+
+        parameters["nestedParam"].Expression.Should().DeepEqual("""[concat(toLower(externalInputs('sys_cli_0')), toUpper(externalInputs('sys_cli_1')))]""");
+        parameters["doubleNested"].Expression.Should().DeepEqual("""[length(string(externalInputs('sys_cli_2')))]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["sys_cli_0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["config"] = "nestedParam",
+        });
+        externalInputs["sys_cli_1"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["config"] = "nestedParam",
+        });
+        externalInputs["sys_cli_2"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["config"] = "doubleNested",
         });
     }
 }

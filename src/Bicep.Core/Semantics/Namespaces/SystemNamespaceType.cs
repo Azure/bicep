@@ -1292,6 +1292,12 @@ namespace Bicep.Core.Semantics.Namespaces
                         .Build();
                 }
 
+                yield return new FunctionOverloadBuilder(LanguageConstants.InlineFunctionName)
+                    .WithGenericDescription("Resolves input from cli parameters. The input value is resolved during deployment, not at compile time. This is a shorthand for externalInput('sys.cli', parameterName) where parameterName is automatically inferred.")
+                    .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputBicepFunctionName, [new StringLiteralExpression(null, "sys.cli"), new StringLiteralExpression(null, "__INLINE_PARAMETER_NAME__")]))
+                    .WithReturnType(LanguageConstants.Any)
+                    .Build();
+
                 yield return new FunctionOverloadBuilder(LanguageConstants.ExternalInputBicepFunctionName)
                     .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
                     .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.")
@@ -1307,15 +1313,6 @@ namespace Bicep.Core.Semantics.Namespaces
 
                         return new(LanguageConstants.Any);
                     }, LanguageConstants.Any)
-                    .Build();
-
-                yield return new FunctionOverloadBuilder(LanguageConstants.InlineFunctionName)
-                    .WithGenericDescription("Resolves input from cli parameters. The input value is resolved during deployment, not at compile time.")
-                    .WithReturnResultBuilder((model, diagnostics, call, argumentTypes) =>
-                    {
-                        return new(new StringLiteralType("returnValue", TypeSymbolValidationFlags.Default));
-                    }, LanguageConstants.String)
-                    .WithFlags(FunctionFlags.IsArgumentValueIndependent)
                     .Build();
             }
 

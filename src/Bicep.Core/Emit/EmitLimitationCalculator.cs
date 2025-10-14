@@ -36,6 +36,7 @@ namespace Bicep.Core.Emit
             DeployTimeConstantValidator.Validate(model, resourceTypeResolver, diagnostics);
             ForSyntaxValidatorVisitor.Validate(model, diagnostics);
             FunctionPlacementValidatorVisitor.Validate(model, diagnostics);
+            InlineFunctionValidatorVisitor.Validate(model, diagnostics);
             IntegerValidatorVisitor.Validate(model, diagnostics);
             ExtensionReferenceValidatorVisitor.Validate(model, diagnostics);
 
