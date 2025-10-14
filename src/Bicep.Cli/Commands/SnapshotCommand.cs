@@ -102,6 +102,7 @@ public class SnapshotCommand(
                     resourceGroup: paramsResult.UsingConfig.Scope.Split('/')[4],
                     location: region,
                     deploymentName: paramsResult.UsingConfig.Name ?? "main",
+                    includeSymbolicNames: false,
                     cancellationToken: cancellationToken,
                     externalInputs: []);
 
@@ -190,6 +191,7 @@ public class SnapshotCommand(
                 resourceGroup: arguments.ResourceGroup,
                 location: arguments.Location,
                 deploymentName: arguments.DeploymentName,
+                includeSymbolicNames: false,
                 cancellationToken: cancellationToken,
                 externalInputs: externalInputs);
         }

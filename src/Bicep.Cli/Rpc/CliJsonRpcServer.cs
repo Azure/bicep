@@ -234,6 +234,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
             resourceGroup: request.Metadata.ResourceGroup,
             location: request.Metadata.Location,
             deploymentName: request.Metadata.DeploymentName,
+            includeSymbolicNames: false,
             externalInputs: [.. externalInputs.Select(x => new SnapshotHelper.ExternalInputValue(x.Kind, x.Config, x.Value))],
             cancellationToken: cancellationToken);
 

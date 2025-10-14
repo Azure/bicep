@@ -84,6 +84,7 @@ public class WhatIfCommand : DeploymentsCommandsBase<WhatIfArguments>
             location: null,
             deploymentName: null,
             cancellationToken: cancellationToken,
+            includeSymbolicNames: true,
             externalInputs: []);
 
         var armClient = armClientProvider.CreateArmClient(model.Configuration, null);

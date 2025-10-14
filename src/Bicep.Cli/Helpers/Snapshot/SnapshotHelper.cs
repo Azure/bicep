@@ -53,6 +53,7 @@ public static class SnapshotHelper
         string? deploymentName,
         string? location,
         ImmutableArray<ExternalInputValue> externalInputs,
+        bool includeSymbolicNames,
         CancellationToken cancellationToken)
     {
         var parameters = parametersContent.FromJson<DeploymentParametersDefinition>();
@@ -73,8 +74,9 @@ public static class SnapshotHelper
         return new(
             [
                 .. expansionResult.preflightResources.Select(x => JsonElementFactory.CreateElement(JsonExtensions.ToJson(DeploymentPreflightResourceWithParsedExpressions.From(x)))),
-                .. expansionResult.extensibleResources.Select(x => JsonElementFactory.CreateElement(JsonExtensions.ToJson(new DeploymentWhatIfExtensibleResource
+                .. expansionResult.extensibleResources.Select(x => JsonElementFactory.CreateElement(JsonExtensions.ToJson(new
                     {
+                        SymbolicName = includeSymbolicNames ? x.SymbolicName : null,
                         Type = x.Type,
                         ApiVersion = x.ApiVersion,
                         Identifiers = x.Identifiers?.ToObject<JObject>(),

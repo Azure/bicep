@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Configuration;
+using System.Diagnostics;
 using Azure.Core;
 using Azure.ResourceManager.Resources;
 using Bicep.Cli.Arguments;
@@ -85,8 +86,51 @@ public class TeardownCommand : DeploymentsCommandsBase<TeardownArguments>
             resourceGroup: null,
             location: null,
             deploymentName: null,
+            includeSymbolicNames: true,
             cancellationToken: cancellationToken,
             externalInputs: []);
+
+        var stacksConfigs = new List<DeployCommandsConfig>();
+        var hasFailures = false;
+        foreach (var stackResource in snapshot.PredictedResources)
+        {
+            var symbolicName = stackResource.GetPropertyByPath("symbolicName").GetString()!;
+            var stackParameters = stackResource.GetPropertyByPath("properties.parameters").GetString()!;
+            var sourceUriString = stackResource.GetPropertyByPath("properties.sourceUri").GetString()!;
+            var region = stackResource.GetPropertyByPath("properties.body.region").GetString()!;
+            var inputs = stackResource.GetPropertyByPath("properties.body.inputs");
+
+            var sourceUri = new Uri(sourceUriString).ToIOUri();
+
+            var paramsResult = await NestedDeploymentExtension.ProcessParameters(stackParameters, inputs.ToJsonString().FromJson<JObject>());
+            var deploymentName = paramsResult.UsingConfig.Name ?? "main";
+
+            var stackCompilation = await compiler.CreateCompilation(sourceUri);
+            var stackSummary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, stackCompilation);
+
+            if (stackSummary.HasErrors ||
+                stackCompilation.Emitter.Parameters() is not { } stackResult ||
+                stackResult.Template?.Template is not { } stackTemplateContent ||
+                stackResult.Parameters is not { } stackParametersContent)
+            {
+                hasFailures = true;
+                continue;
+            }
+
+            stacksConfigs.Add(new(stackTemplateContent, stackParametersContent, new(
+                paramsResult.UsingConfig.Name,
+                paramsResult.UsingConfig.Scope,
+                stackCompilation.GetEntrypointSemanticModel().TargetScope,
+                paramsResult.UsingConfig.StacksConfig is { } stacksConfig ? new(
+                    stacksConfig.Description,
+                    stacksConfig.ActionOnUnmanage,
+                    stacksConfig.DenySettings) : null)));
+        }
+
+        if (hasFailures)
+        {
+            return 1;
+        }
 
         var armClient = armClientProvider.CreateArmClient(model.Configuration, null);
 
@@ -96,36 +140,11 @@ public class TeardownCommand : DeploymentsCommandsBase<TeardownArguments>
             {
                 var hasFailures = false;
                 onUpdate(new("Teardown", "Running", null));
-                foreach (var stackResource in snapshot.PredictedResources)
+
+                await Task.WhenAll(stacksConfigs.Select(async config =>
                 {
-                    var symbolicName = stackResource.GetPropertyByPath("symbolicName").GetString()!;
-                    var stackParameters = stackResource.GetPropertyByPath("properties.parameters").GetString()!;
-                    var sourceUriString = stackResource.GetPropertyByPath("properties.sourceUri").GetString()!;
-                    var region = stackResource.GetPropertyByPath("properties.body.region").GetString()!;
-                    var inputs = stackResource.GetPropertyByPath("properties.body.inputs");
-
-                    var sourceUri = new Uri(sourceUriString).ToIOUri();
-
-                    var paramsResult = await NestedDeploymentExtension.ProcessParameters(stackParameters, inputs.ToJsonString().FromJson<JObject>());
-                    var deploymentName = paramsResult.UsingConfig.Name ?? "main";
-
-                    var stackCompilation = await compiler.CreateCompilation(sourceUri);
-                    var stackSummary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, stackCompilation);
-
-                    if (stackSummary.HasErrors ||
-                        stackCompilation.Emitter.Parameters() is not { } stackResult ||
-                        stackResult.Template?.Template is not { } stackTemplateContent ||
-                        stackResult.Parameters is not { } stackParametersContent)
-                    {
-                        hasFailures = true;
-                        continue;
-                    }
-
-                    var resourceId = $"{paramsResult.UsingConfig.Scope}/providers/Microsoft.Resources/deploymentStacks/{deploymentName}";
-                    var deploymentResource = armClient.GetDeploymentStackResource(new ResourceIdentifier(resourceId));
-
-                    await deploymentResource.DeleteAsync(Azure.WaitUntil.Completed, cancellationToken: cancellationToken);
-                }
+                    await deploymentProcessor.Teardown(model.Configuration, config, _ => { }, cancellationToken);
+                }));
 
                 onUpdate(new("Teardown", hasFailures ? "Failed" : "Succeeded", null));
             },
