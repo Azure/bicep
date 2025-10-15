@@ -33,7 +33,7 @@ public static class ThisNamespaceType
             return new(ErrorType.Create(diagnostic));
         }
 
-        return new(LanguageConstants.Bool, new FunctionCallExpression(functionCall, "target", [new StringLiteralExpression(functionCall, "exists")]));
+        return new(LanguageConstants.Bool, new UnaryExpression(functionCall, UnaryOperator.Not, new FunctionCallExpression(functionCall, "empty", [ new FunctionCallExpression(functionCall, "target", [ new StringLiteralExpression(functionCall, "full")]) ])));
     }
 
     private static FunctionResult GetExistingPropertiesReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)

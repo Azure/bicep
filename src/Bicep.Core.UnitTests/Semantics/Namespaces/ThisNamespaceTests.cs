@@ -98,8 +98,8 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
             {
                 var template = result.Template;
 
-                // Check that this.exists() is compiled to target('exists')
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[target('exists')]");
+                // Check that this.exists() is compiled to not(empty(target('full')))
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[not(empty(target('full')))]");
             }
         }
 
@@ -191,7 +191,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
 
             result.Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.resources.testResource.properties",
-                "[if(target('exists'), createObject('allowBlobPublicAccess', true(), 'encryption', createObject('keySource', 'Microsoft.KeyVault', 'services', createObject('blob', createObject('enabled', target('exists'))))), createObject())]");
+                "[if(not(empty(target('full'))), createObject('allowBlobPublicAccess', true(), 'encryption', createObject('keySource', 'Microsoft.KeyVault', 'services', createObject('blob', createObject('enabled', not(empty(target('full'))))))), createObject())]");
         }
 
         [TestMethod]
@@ -220,10 +220,10 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
             {
                 var template = result.Template;
 
-                // Check that all usages compile to target('exists')
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[target('exists')]");
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.supportsHttpsTrafficOnly", "[target('exists')]");
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.minimumTlsVersion", "[if(target('exists'), 'TLS1_2', 'TLS1_0')]");
+                // Check that all usages compile to not(empty(target('full')))
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[not(empty(target('full')))]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.supportsHttpsTrafficOnly", "[not(empty(target('full')))]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.minimumTlsVersion", "[if(not(empty(target('full'))), 'TLS1_2', 'TLS1_0')]");
             }
         }
 
@@ -380,10 +380,10 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
                 var template = result.Template;
 
                 // Check that this.existingProperties() is compiled to target()
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.minimumTlsVersion", "[if(target('exists'), target().minimumTlsVersion, 'TLS1_0')]");
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[if(target('exists'), target().allowBlobPublicAccess, false())]");
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.sasPolicy.expirationAction", "[if(target('exists'), target().sasPolicy.expirationAction, 'Block')]");
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.sasPolicy.sasExpirationPeriod", "[if(target('exists'), target().sasPolicy.sasExpirationPeriod, '2')]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.minimumTlsVersion", "[if(not(empty(target('full'))), target().minimumTlsVersion, 'TLS1_0')]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[if(not(empty(target('full'))), target().allowBlobPublicAccess, false())]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.sasPolicy.expirationAction", "[if(not(empty(target('full'))), target().sasPolicy.expirationAction, 'Block')]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.sasPolicy.sasExpirationPeriod", "[if(not(empty(target('full'))), target().sasPolicy.sasExpirationPeriod, '2')]");
             }
         }
 
@@ -477,7 +477,7 @@ resource secret 'Microsoft.KeyVault/vaults/secrets@2024-12-01-preview' = {
 
                 // Check that the three supported functions compile correctly
                 template.Should().HaveValueAtPath("$.resources.testResource.properties.accessTier", "[tryGet(target('full'), 'properties', 'accessTier')]");
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[target('exists')]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[not(empty(target('full')))]");
                 template.Should().HaveValueAtPath("$.resources.testResource.properties.sasPolicy", "[tryGet(target(), 'sasPolicy')]");
                 template.Should().HaveValueAtPath("$.resources.secret.properties.value", "[target('full').tags.secretValue]");
             }
@@ -536,7 +536,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
 
                 // Check that all three supported functions compile correctly
                 template.Should().HaveValueAtPath("$.resources.testResource.properties.accessTier", "[target('full').properties.accessTier]");
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[target('exists')]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[not(empty(target('full')))]");
                 template.Should().HaveValueAtPath("$.resources.testResource.properties.sasPolicy", "[target().sasPolicy]");
             }
         }
