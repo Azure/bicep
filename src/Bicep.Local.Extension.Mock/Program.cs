@@ -11,13 +11,11 @@ var builder = WebApplication.CreateBuilder();
 
 builder.AddBicepExtensionHost(args);
 
-builder.Services
-    .AddBicepExtension(
-        name: "MockExtension",
-        version: "0.0.1",
-        isSingleton: true,
-        typeAssembly: typeof(Program).Assembly,
-        configurationType: typeof(Configuration))
+builder.services
+    .AddBicepExtension()
+    .WithExtensionInfo(name: "MockExtension", version: "0.0.1", isSingleton: true)
+    .WithTypeAssembly(typeof(Program).Assembly)
+    .WithTypeConfiguration<Configuration>()
     .WithResourceHandler<EchoResourceHandler>();
 
 var app = builder.Build();

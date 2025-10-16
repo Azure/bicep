@@ -45,39 +45,8 @@ public static class BicepExtensionServiceCollectionExtensions
     ///     });
     /// </code>
     /// </example>
-    public static IBicepExtensionBuilder AddBicepExtension(
-        this IServiceCollection services,
-        string name,
-        string version,
-        bool isSingleton,
-        Assembly typeAssembly,
-        Type? configurationType = null)
+    public static IBicepExtensionBuilder AddBicepExtension(this IServiceCollection services)
     {
-        var typeDictionary = new Dictionary<Type, Func<TypeBase>>
-                            {
-                                { typeof(string), () => new StringType() },
-                                { typeof(bool), () => new BooleanType() },
-                                { typeof(int), () => new IntegerType() }
-                            }.ToImmutableDictionary();
-        var typeFactory = new TypeFactory([]);
-
-        foreach (var type in typeDictionary)
-        {
-            typeFactory.Create(type.Value);
-        }
-
-        var configuration = new Dictionary<string, ObjectTypeProperty>();
-
-        services.AddSingleton<ITypeProvider>(new TypeProvider([typeAssembly]));
-        services.AddSingleton<ITypeDefinitionBuilder>(sp => new TypeDefinitionBuilder(
-            name,
-            version,
-            isSingleton,
-            configurationType,
-            typeFactory,
-            sp.GetRequiredService<ITypeProvider>(),
-            typeDictionary));
-
         services.AddSingleton<IResourceHandlerCollection, ResourceHandlerCollection>();
 
         services.AddGrpc(options =>
@@ -86,6 +55,9 @@ public static class BicepExtensionServiceCollectionExtensions
         });
         services.AddGrpcReflection();
 
-        return new DefaultBicepExtensionBuilder(services);
+        var extensionBuilder = new DefaultBicepExtensionBuilder(services);
+        extensionBuilder.WithDefaultTypeBuilder();
+
+        return extensionBuilder;
     }
 }
