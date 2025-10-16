@@ -1,8 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
+using System.Reflection;
+using Azure.Bicep.Types.Concrete;
+using Bicep.Local.Extension.Builder;
 using Bicep.Local.Extension.Host.Extensions;
 using Bicep.Local.Extension.Host.Handlers;
+using Bicep.Local.Extension.Types;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -25,9 +30,9 @@ public static class IBicepExtensionBuilderExtensions
     }
 
     public static IBicepExtensionBuilder WithTypeConfiguration<T>(this IBicepExtensionBuilder builder)
-        where T : Type, new()
+        where T : class
     {
-        builder.Services.AddSingleton<Type, T>();
+        builder.Services.AddSingleton<T>();
 
         return builder;
     }

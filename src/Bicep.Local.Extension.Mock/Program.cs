@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder();
 
 builder.AddBicepExtensionHost(args);
 
-builder.services
+builder.Services
     .AddBicepExtension()
     .WithExtensionInfo(name: "MockExtension", version: "0.0.1", isSingleton: true)
     .WithTypeAssembly(typeof(Program).Assembly)
