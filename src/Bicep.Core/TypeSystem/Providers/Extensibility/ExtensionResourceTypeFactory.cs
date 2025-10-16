@@ -253,12 +253,6 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             var readableScopes = ToResourceScope(resourceType.ReadableScopes);
             var writableScopes = ToResourceScope(resourceType.WritableScopes);
 
-            if (readableScopes == ResourceScope.None && writableScopes == ResourceScope.None)
-            {
-                readableScopes = ToResourceScope(Azure.Bicep.Types.Concrete.ScopeType.All);
-                writableScopes = ToResourceScope(Azure.Bicep.Types.Concrete.ScopeType.All);
-            }
-
             return (readableScopes, writableScopes);
         }
 
