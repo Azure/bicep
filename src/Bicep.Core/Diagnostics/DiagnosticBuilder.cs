@@ -2004,10 +2004,6 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic SecureDecoratorTargetMustFitWithinStringOrObject() => CoreError(
                 "BCP440",
                 "The @secure() decorator can only be used on statements whose type is a subtype of \"string\" or \"object\".");
-
-            public Diagnostic ThisFunctionOnlyAllowedInResourceProperties() => CoreError(
-                "BCP441",
-                "The \"this\" namespace can only be used within resource property expressions.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

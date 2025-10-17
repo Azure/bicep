@@ -26,124 +26,32 @@ public static class ThisNamespaceType
 
     private static FunctionResult GetExistsReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
     {
-        if (!IsWithinResourcePropertyContext(model.Binder, functionCall))
-        {
-            var diagnostic = DiagnosticBuilder.ForPosition(functionCall.Name).ThisFunctionOnlyAllowedInResourceProperties();
-            diagnostics.Write(diagnostic);
-            return new(ErrorType.Create(diagnostic));
-        }
+        // Compile to not(empty(target('full')))
+        var targetExpression = new FunctionCallExpression(functionCall, "target", [new StringLiteralExpression(functionCall, "full")]);
+        var emptyExpression = new FunctionCallExpression(functionCall, "empty", [targetExpression]);
+        var notExpression = new FunctionCallExpression(functionCall, "not", [emptyExpression]);
 
-        return new(LanguageConstants.Bool, new UnaryExpression(functionCall, UnaryOperator.Not, new FunctionCallExpression(functionCall, "empty", [ new FunctionCallExpression(functionCall, "target", [ new StringLiteralExpression(functionCall, "full")]) ])));
+        return new(LanguageConstants.Bool, notExpression);
     }
 
     private static FunctionResult GetExistingPropertiesReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
     {
-        if (!IsWithinResourcePropertyContext(model.Binder, functionCall))
-        {
-            var diagnostic = DiagnosticBuilder.ForPosition(functionCall.Name).ThisFunctionOnlyAllowedInResourceProperties();
-            diagnostics.Write(diagnostic);
-            return new(ErrorType.Create(diagnostic));
-        }
-
         var derived = TryGetExistingPropertiesType(model, functionCall) ?? LanguageConstants.Object;
         return new(derived, new FunctionCallExpression(functionCall, "target", []));
     }
 
     private static FunctionResult GetExistingResourceReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
     {
-        if (!IsWithinResourcePropertyContext(model.Binder, functionCall))
-        {
-            var diagnostic = DiagnosticBuilder.ForPosition(functionCall.Name).ThisFunctionOnlyAllowedInResourceProperties();
-            diagnostics.Write(diagnostic);
-            return new(ErrorType.Create(diagnostic));
-        }
-
         var derived = TryGetExistingResourceType(model, functionCall) ?? LanguageConstants.Object;
-        return new(derived, new FunctionCallExpression(functionCall, "target", [new StringLiteralExpression(functionCall, "full")]));
-    }
+        var resourceType = TryGetEnclosingResourceType(model, functionCall);
 
-    private static bool IsWithinResourcePropertyContext(IBinder binder, SyntaxBase syntax)
-    {
-        var resourceDeclaration = binder.GetNearestAncestor<ResourceDeclarationSyntax>(syntax);
-        if (resourceDeclaration is null)
-        {
-            return false;
-        }
+        // For extensible resources, use target() without 'full' since they don't have the standard Azure resource structure
+        var isExtensibleResource = resourceType is not null && !resourceType.IsAzResource();
+        var targetExpression = isExtensibleResource
+            ? new FunctionCallExpression(functionCall, "target", [])
+            : new FunctionCallExpression(functionCall, "target", [new StringLiteralExpression(functionCall, "full")]);
 
-        var resourceBody = resourceDeclaration.TryGetBody();
-        if (resourceBody is null)
-        {
-            return false;
-        }
-
-        if (IsInTopLevelResourceProperty(binder, syntax, resourceDeclaration) ||
-            IsInResourceConditionOrLoop(binder, syntax, resourceDeclaration))
-        {
-            return false;
-        }
-
-        return IsInResourcePropertiesOrChildResource(binder, syntax, resourceBody);
-    }
-
-    private static bool IsInTopLevelResourceProperty(IBinder binder, SyntaxBase syntax, ResourceDeclarationSyntax resourceDeclaration)
-    {
-        var objectProperty = binder.GetNearestAncestor<ObjectPropertySyntax>(syntax);
-        if (objectProperty is null)
-        {
-            return false;
-        }
-
-        var resourceBody = resourceDeclaration.TryGetBody();
-        if (resourceBody is null)
-        {
-            return false;
-        }
-
-        if (binder.GetParent(objectProperty) == resourceBody)
-        {
-            var propertyName = objectProperty.TryGetKeyText();
-            var restricted = new[] { "name", "type", "scope", "location", "tags", "dependsOn" };
-            return restricted.Contains(propertyName, StringComparer.OrdinalIgnoreCase);
-        }
-
-        return false;
-    }
-
-    private static bool IsInResourceConditionOrLoop(IBinder binder, SyntaxBase syntax, ResourceDeclarationSyntax resourceDeclaration)
-    {
-        var ifCondition = binder.GetNearestAncestor<IfConditionSyntax>(syntax);
-        if (ifCondition != null && binder.GetNearestAncestor<ResourceDeclarationSyntax>(ifCondition) == resourceDeclaration)
-        {
-            return true;
-        }
-
-        var forLoop = binder.GetNearestAncestor<ForSyntax>(syntax);
-        if (forLoop != null && binder.GetNearestAncestor<ResourceDeclarationSyntax>(forLoop) == resourceDeclaration)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    private static bool IsInResourcePropertiesOrChildResource(IBinder binder, SyntaxBase syntax, ObjectSyntax resourceBody)
-    {
-        var current = syntax;
-        while (current != null && current != resourceBody)
-        {
-            if (current is ResourceDeclarationSyntax)
-            {
-                return true; // nested child resource
-            }
-
-            if (current is ObjectPropertySyntax op && string.Equals(op.TryGetKeyText(), "properties", StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-
-            current = binder.GetParent(current);
-        }
-        return false;
+        return new(derived, targetExpression);
     }
 
     private static ResourceType? TryGetEnclosingResourceType(SemanticModel model, SyntaxBase syntax)
@@ -170,14 +78,23 @@ public static class ThisNamespaceType
             return null;
         }
 
-        var body = (resourceType.Body.Type as ObjectType);
+        var body = resourceType.Body.Type as ObjectType;
 
-        if (body?.Properties.TryGetValue("properties", out var p) is true && p.TypeReference.Type is ObjectType props)
+        // Check if this is an extensible resource (non-Azure resource)
+        var isExtensibleResource = !resourceType.IsAzResource();
+
+        if (isExtensibleResource)
+        {
+            // For extensible resources, return the full resource body type
+            return body ?? LanguageConstants.Object;
+        }
+        else if (body?.Properties.TryGetValue("properties", out var p) is true && p.TypeReference.Type is ObjectType props)
         {
             return props;
         }
         else
         {
+            // For Azure resources without properties, return generic object
             return LanguageConstants.Object;
         }
     }
@@ -217,17 +134,13 @@ public static class ThisNamespaceType
             .Build();
     }
 
-    public static NamespaceType Create(string? aliasName, IFeatureProvider? featureProvider = null)
+    public static NamespaceType Create(string? aliasName)
     {
-        var functions = featureProvider?.ThisExistsFunctionEnabled == true
-            ? GetThisFunctions()
-            : [];
-
         return new NamespaceType(
             aliasName ?? BuiltInName,
             Settings,
             ImmutableArray<NamedTypeProperty>.Empty,
-            functions,
+            GetThisFunctions(),
             ImmutableArray<BannedFunction>.Empty,
             ImmutableArray<Decorator>.Empty,
             new EmptyResourceTypeProvider());

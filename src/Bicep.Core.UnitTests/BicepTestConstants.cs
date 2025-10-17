@@ -89,7 +89,6 @@ namespace Bicep.Core.UnitTests
         public static readonly NamespaceResolver DefaultNamespaceResolver = NamespaceResolver.Create([
             new("az", AzNamespaceType.Create("az", ResourceScope.ResourceGroup, AzNamespaceType.BuiltInTypeProvider, BicepSourceFileKind.BicepFile), null),
             new("sys", SystemNamespaceType.Create("sys", Features, BicepSourceFileKind.BicepFile), null),
-            new("this", ThisNamespaceType.Create("this", Features), null),
         ]);
 
         // By default turns off only problematic analyzers
