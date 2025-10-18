@@ -4,15 +4,13 @@
 // @ts-check
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
-import pluginJest from 'eslint-plugin-jest';
 import notice from "eslint-plugin-notice";
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 
 export default tseslint.config({
-  files: ["src/**/*.ts", "test/**/*.ts", "test-live/**/*.ts"],
+  files: ["src/**/*.ts"],
   extends: [
     eslint.configs.recommended,
-    pluginJest.configs['flat/recommended'],
     eslintPluginPrettierRecommended,
     ...tseslint.configs.recommended,
   ],
