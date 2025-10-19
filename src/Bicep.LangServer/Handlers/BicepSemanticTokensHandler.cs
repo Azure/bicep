@@ -8,8 +8,8 @@ using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using LspTokenType = OmniSharp.Extensions.LanguageServer.Protocol.Models.SemanticTokenType;
 using BicepTokenType = Bicep.Core.Highlighting.SemanticTokenType;
+using LspTokenType = OmniSharp.Extensions.LanguageServer.Protocol.Models.SemanticTokenType;
 
 namespace Bicep.LanguageServer.Handlers
 {

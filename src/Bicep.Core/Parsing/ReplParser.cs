@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
-using Bicep.Core; 
-using System.Collections.Generic;
-using System.Collections.Immutable;
 
 namespace Bicep.Core.Parsing;
 
