@@ -101,7 +101,7 @@ jobs:
           submodules: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -171,7 +171,7 @@ jobs:
           submodules: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -220,7 +220,7 @@ jobs:
           submodules: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -422,7 +422,7 @@ jobs:
         uses: actions/setup-dotnet@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -501,7 +501,7 @@ jobs:
         uses: actions/setup-dotnet@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 23
 
@@ -541,7 +541,7 @@ jobs:
         uses: actions/setup-dotnet@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -597,7 +597,7 @@ jobs:
         uses: actions/setup-dotnet@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -782,7 +782,7 @@ jobs:
           submodules: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -841,7 +841,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # Cannot use actions/setup-node@v4 for linux-musl-x64
+      # Cannot use actions/setup-node@v6 for linux-musl-x64
       - name: Setup Node.js
         run: apk add --update nodejs npm
 
