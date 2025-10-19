@@ -614,5 +614,55 @@ param stringParam =  /*TODO*/
                 }
             }"));
         }
+
+        [TestMethod]
+        public void Decorators_on_using_param_and_extends_statements_should_raise_errors()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("bicepconfig.json", @"
+                {
+                    ""experimentalFeaturesEnabled"": {
+                        ""extendableParamFiles"": true
+                    }
+                }
+              "),
+              ("parameters.bicepparam", @"
+                @foo('bar')
+                using 'main.bicep'
+
+                @notARealDecorator(1, 2, 3)
+                param fizz = 'buzz'
+
+                @minLength(3)
+                extends 'shared.bicepparam'
+              "),
+              ("shared.bicepparam", @"
+                using none
+              "),
+              ("main.bicep", @"
+                param fizz string
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP130", DiagnosticLevel.Error, "Decorators are not allowed here."),
+                ("BCP130", DiagnosticLevel.Error, "Decorators are not allowed here."),
+                ("BCP130", DiagnosticLevel.Error, "Decorators are not allowed here."),
+            });
+        }
+
+        [TestMethod]
+        public void Decorators_on_param_declarations_in_bicep_files_should_be_allowed()
+        {
+            var result = CompilationHelper.Compile(@"
+                @description('A parameter with a decorator')
+                @minLength(3)
+                param myParam string
+
+                @secure()
+                param secureParam string
+            ");
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
     }
 }
