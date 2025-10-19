@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Runtime.InteropServices;
-using FluentAssertions;
-using Bicep.RpcClient.Helpers;
-using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.FileSystem;
-using RichardSzalay.MockHttp;
 using System.Threading.Tasks;
+using Bicep.Core.FileSystem;
+using Bicep.Core.UnitTests.Utils;
+using Bicep.RpcClient.Helpers;
+using FluentAssertions;
+using RichardSzalay.MockHttp;
 
 namespace Bicep.RpcClient.Tests;
 
@@ -31,7 +31,8 @@ public class BicepClientTests
             """);
 
         mockHandler.When(HttpMethod.Get, "https://downloads.bicep.azure.com/v0.0.0-dev/bicep-*-*")
-            .Respond(req => {
+            .Respond(req =>
+            {
                 var cliName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "bicep.exe" : "bicep";
                 var cliPath = Path.GetFullPath(Path.Combine(typeof(BicepClientTests).Assembly.Location, $"../PublishedCli/{cliName}"));
 
@@ -141,7 +142,7 @@ public class BicepClientTests
 
         """);
     }
-    
+
     [TestMethod]
     public async Task GetSnapshot_runs_successfully()
     {
