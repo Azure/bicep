@@ -49,5 +49,5 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool DeployCommandsEnabled => overrides.DeployCommandsEnabled ?? features.DeployCommandsEnabled;
 
-    public bool ThisExistsFunctionEnabled => overrides.ThisExistsFunctionEnabled ?? features.ThisExistsFunctionEnabled;
+    public bool ThisNamespaceEnabled => overrides.ThisNamespaceEnabled ?? features.ThisNamespaceEnabled;
 }

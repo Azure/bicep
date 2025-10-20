@@ -39,7 +39,7 @@ public interface IFeatureProvider
 
     bool DeployCommandsEnabled { get; }
 
-    bool ThisExistsFunctionEnabled { get; }
+    bool ThisNamespaceEnabled { get; }
 
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
@@ -62,7 +62,7 @@ public interface IFeatureProvider
                 (DesiredStateConfigurationEnabled, "Enable defining Desired State Configuration documents", true, false),
                 (UserDefinedConstraintsEnabled, "Enable @validate() decorator", true, true),
                 (DeployCommandsEnabled, "Enable deploy commands", true, true),
-                (ThisExistsFunctionEnabled, "Enable this() function", true, true),
+                (ThisNamespaceEnabled, "Enable 'this' namespace", true, true),
             })
             {
                 if (enabled)

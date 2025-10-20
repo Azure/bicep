@@ -44,7 +44,7 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
         [TestMethod]
         public void ThisNamespace_CompilationGeneratesCorrectArmFunctions()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
             var result = CompilationHelper.Compile(services, @"
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: 'testStorage'
@@ -73,7 +73,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
         [TestMethod]
         public void ThisNamespace_InTopLevelResourceProperties_ShouldFail()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
             var result = CompilationHelper.Compile(services, @"
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: this.exists() ? 'testStorage' : 'defaultStorage'
@@ -97,7 +97,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
         [TestMethod]
         public void ThisNamespace_InModuleParameters_ShouldFail()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
             var result = CompilationHelper.Compile(services, ("main.bicep", @"
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: 'testStorage'
@@ -131,7 +131,7 @@ output sto bool = storageExists
         [TestMethod]
         public void ThisNamespace_InNestedAndResourceProperty_ShouldSucceed()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
             var result = CompilationHelper.Compile(services, @"
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: 'testStorage'
@@ -162,7 +162,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
         [TestMethod]
         public void ThisNamespace_MultiplePropertiesInSameResource_ShouldSucceed()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
             var result = CompilationHelper.Compile(services, @"
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: 'testStorage'
@@ -197,7 +197,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
         {
             // Test that this.existingProperties() function fails outside of resource properties when feature is enabled
             var result = CompilationHelper.Compile(
-                new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true)),
+                new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true)),
                 @"
                 output result object = this.existingProperties()
                 ");
@@ -208,7 +208,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
 
             // Test that this.existingProperties() function works inside resource properties when feature is enabled
             var result2 = CompilationHelper.Compile(
-                new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true)),
+                new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true)),
                 @"
                 resource test 'Microsoft.Storage/storageAccounts@2021-04-01' = {
                   name: 'test'
@@ -229,7 +229,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
         [TestMethod]
         public void ThisNamespace_ExistingProperties_CompilationGeneratesCorrectArmFunctions()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
             var result = CompilationHelper.Compile(services, @"
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: 'testStorage'
@@ -260,7 +260,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
         [TestMethod]
         public void ThisNamespace_ExistingProperties_CompilationGeneratesCorrectArmFunctionsWithTryGet()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
             var result = CompilationHelper.Compile(services, @"
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: 'testStorage'
@@ -291,7 +291,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
         [TestMethod]
         public void ThisNamespace_ExistingProperties_DirectUsage_ShouldWork()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
             var result = CompilationHelper.Compile(services, @"
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: 'testStorage'
@@ -318,7 +318,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
         [TestMethod]
         public void ThisNamespace_ExistsAndExistingProperties_DirectUsage_ShouldWork()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
             var result = CompilationHelper.Compile(services, @"
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: 'testStorage'
@@ -355,7 +355,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
         [TestMethod]
         public void ThisNamespace_AllSupportedFunctions_ShouldWork()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
             var result = CompilationHelper.Compile(services, @"
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: 'testStorage'
@@ -399,7 +399,7 @@ resource secret 'Microsoft.KeyVault/vaults/secrets@2024-12-01-preview' = {
             var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
             var extensionTgz = await ExtensionV1Archive.Build(new(typesTgz, false, []));
 
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisExistsFunctionEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
 
             var result = await CompilationHelper.RestoreAndCompile(services,
               ("main.bicep", new("""
