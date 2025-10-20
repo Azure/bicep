@@ -167,7 +167,7 @@ namespace Bicep.Wasm
                 _ => throw new ArgumentException($"Unrecognized level {level}"),
             };
 
-            
+
         private static IEnumerable<TokenPosition> GetTokenPositions(SemanticModel model)
         {
             var tokens = SemanticTokenVisitor.Build(model);

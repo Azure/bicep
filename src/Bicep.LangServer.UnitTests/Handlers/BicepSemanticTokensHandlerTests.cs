@@ -19,5 +19,5 @@ public class BicepSemanticTokensHandlerTests
         {
             BicepSemanticTokensHandler.MapTokenType(tokenType).Should().NotBeNull();
         }
-    }    
+    }
 }

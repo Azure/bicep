@@ -2,14 +2,23 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Management;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using System.Linq;
+using Bicep.Cli.Helpers.Repl;
+using Bicep.Cli.Helpers.WhatIf;
 using Bicep.Core;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
+using Bicep.Core.Highlighting;
 using Bicep.Core.Parsing;
+using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
@@ -17,15 +26,6 @@ using Bicep.Core.Text;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
-using Bicep.Cli.Helpers.Repl;
-using System.Management;
-using Bicep.Core.Highlighting;
-using Bicep.Cli.Helpers.WhatIf;
-using System.Net;
-using Bicep.Core.Emit;
-using System.Diagnostics.CodeAnalysis;
-using Bicep.Core.PrettyPrintV2;
 
 namespace Bicep.Cli.Services;
 
@@ -102,7 +102,8 @@ public class ReplEnvironment
             .Where(x => x is not Token { Type: TokenType.NewLine })
             .LastOrDefault();
 
-        return finalExpression switch {
+        return finalExpression switch
+        {
             NamedDeclarationSyntax named => EvalutateDeclaration(named),
             { } child => EvaluateExpression(child),
             _ => new AnnotatedReplResult(null, []),
@@ -264,7 +265,7 @@ public class ReplEnvironment
         return annotatedDiagnostics;
     }
 
-    [return:NotNullIfNotNull(nameof(value))]
+    [return: NotNullIfNotNull(nameof(value))]
     private static SyntaxBase? ParseJToken(JToken? value)
         => value switch
         {
@@ -276,7 +277,8 @@ public class ReplEnvironment
         };
 
     private static SyntaxBase ParseJValue(JValue value)
-        => value.Type switch {
+        => value.Type switch
+        {
             JTokenType.Integer => SyntaxFactory.CreatePositiveOrNegativeInteger(value.Value<long>()),
             JTokenType.String => SyntaxFactory.CreateStringLiteral(value.ToString()),
             JTokenType.Boolean => SyntaxFactory.CreateBooleanLiteral(value.Value<bool>()),
