@@ -7460,4 +7460,52 @@ output locations array = flatten(map(databases, database => database.properties.
 
         result.Should().ContainDiagnostic("BCP051", DiagnosticLevel.Error, "The specified path seems to reference an absolute path. Files must be referenced using relative paths.");
     }
+
+    [TestMethod]
+    public void Test_Issue18217()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+            using 'mod.json'
+
+            param foo = 'bar'
+            """),
+            ("mod.json", """
+            {
+              "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "parameters": {
+                "foo": {}
+              },
+              "resources": []
+            }
+            """));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue18217_module()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+            module mod 'mod.json' = {
+              params: {
+                foo: 'bar'
+              }
+            }
+            """),
+            ("mod.json", """
+            {
+              "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "parameters": {
+                "foo": {}
+              },
+              "resources": []
+            }
+            """));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
 }
