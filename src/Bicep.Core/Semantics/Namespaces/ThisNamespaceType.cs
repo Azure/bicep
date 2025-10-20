@@ -15,6 +15,7 @@ namespace Bicep.Core.Semantics.Namespaces;
 
 public static class ThisNamespaceType
 {
+    // Note: self() function should be added to this namespace when it is implemented in bicep. 
     public const string BuiltInName = "this";
 
     public static NamespaceSettings Settings { get; } = new(
@@ -32,12 +33,6 @@ public static class ThisNamespaceType
         var notExpression = new FunctionCallExpression(functionCall, "not", [emptyExpression]);
 
         return new(LanguageConstants.Bool, notExpression);
-    }
-
-    private static FunctionResult GetExistingPropertiesReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
-    {
-        var derived = TryGetExistingPropertiesType(model, functionCall) ?? LanguageConstants.Object;
-        return new(derived, new FunctionCallExpression(functionCall, "target", []));
     }
 
     private static FunctionResult GetExistingResourceReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
@@ -70,35 +65,6 @@ public static class ThisNamespaceType
         return null;
     }
 
-    private static TypeSymbol? TryGetExistingPropertiesType(SemanticModel model, SyntaxBase syntax)
-    {
-        var resourceType = TryGetEnclosingResourceType(model, syntax);
-        if (resourceType is null)
-        {
-            return null;
-        }
-
-        var body = resourceType.Body.Type as ObjectType;
-
-        // Check if this is an extensible resource (non-Azure resource)
-        var isExtensibleResource = !resourceType.IsAzResource();
-
-        if (isExtensibleResource)
-        {
-            // For extensible resources, return the full resource body type
-            return body ?? LanguageConstants.Object;
-        }
-        else if (body?.Properties.TryGetValue("properties", out var p) is true && p.TypeReference.Type is ObjectType props)
-        {
-            return props;
-        }
-        else
-        {
-            // For Azure resources without properties, return generic object
-            return LanguageConstants.Object;
-        }
-    }
-
     private static TypeSymbol? TryGetExistingResourceType(SemanticModel model, SyntaxBase syntax)
     {
         var resourceType = TryGetEnclosingResourceType(model, syntax);
@@ -116,13 +82,6 @@ public static class ThisNamespaceType
             .WithReturnType(LanguageConstants.Bool)
             .WithReturnResultBuilder(GetExistsReturnResult, LanguageConstants.Bool)
             .WithGenericDescription("Returns whether the current resource exists.")
-            .WithFlags(FunctionFlags.RequiresInlining)
-            .Build();
-
-        yield return new FunctionOverloadBuilder("existingProperties")
-            .WithReturnType(LanguageConstants.Object)
-            .WithReturnResultBuilder(GetExistingPropertiesReturnResult, LanguageConstants.Object)
-            .WithGenericDescription("Returns the existing properties bag of the current resource.")
             .WithFlags(FunctionFlags.RequiresInlining)
             .Build();
 
