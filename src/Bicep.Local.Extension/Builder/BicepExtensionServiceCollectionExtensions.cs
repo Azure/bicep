@@ -28,23 +28,13 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class BicepExtensionServiceCollectionExtensions
 {
     /// <summary>
-    /// Configures the dependency injection container with core Bicep extension services and type definitions.
+    /// Adds Bicep extension services and gRPC endpoints to the specified service collection.
     /// </summary>
-    /// <example>
-    /// <code>
-    /// services.AddBicepExtension(
-    ///     name: "MyCompany.KubernetesExtension",
-    ///     version: "1.0.0",
-    ///     isSingleton: true,
-    ///     typeConfiguration: (typeFactory, config) => {
-    ///         var stringType = typeFactory.Create(() => new StringType());
-    ///         config["apiUrl"] = new ObjectTypeProperty(
-    ///             typeFactory.GetReference(stringType), 
-    ///             ObjectTypePropertyFlags.Required, 
-    ///             "The Kubernetes API server URL");
-    ///     });
-    /// </code>
-    /// </example>
+    /// <remarks>This method registers required services for Bicep extension functionality, including resource
+    /// handlers and gRPC reflection. Call this method during application startup to enable Bicep extension
+    /// features.</remarks>
+    /// <param name="services">The service collection to which the Bicep extension and related services will be added. Cannot be null.</param>
+    /// <returns>An <see cref="IBicepExtensionBuilder"/> that can be used to further configure the Bicep extension.</returns>
     public static IBicepExtensionBuilder AddBicepExtension(this IServiceCollection services)
     {
         services.AddSingleton<IResourceHandlerCollection, ResourceHandlerCollection>();
@@ -54,10 +44,7 @@ public static class BicepExtensionServiceCollectionExtensions
             options.EnableDetailedErrors = true;
         });
         services.AddGrpcReflection();
-
-        var extensionBuilder = new DefaultBicepExtensionBuilder(services);
-        extensionBuilder.WithDefaultTypeBuilder();
-
-        return extensionBuilder;
+        
+        return new DefaultBicepExtensionBuilder(services);
     }
 }

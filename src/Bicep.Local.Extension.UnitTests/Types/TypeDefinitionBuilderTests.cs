@@ -11,6 +11,8 @@ using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
 using Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.Local.Extension.Builder;
+using Bicep.Local.Extension.Host;
 using Bicep.Local.Extension.Types;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -26,8 +28,8 @@ public class TypeDefinitionBuilderTests
 
     private record SimpleResource(string Name = "", string AnotherString = "");
 
-    private static TypeSettings CreateTypeSettings() =>
-        new(name: "TestSettings", version: "2025-01-01", isSingleton: true, configurationType: new Azure.Bicep.Types.CrossFileTypeReference("index.json", 0));
+    private static BicepExtensionInfo CreateExtensionInfo() =>
+        new(Name: "TestSettings", Version: "2025-01-01", IsSingleton: true);
 
     private TypeFactory CreateTypeFactory() => new([]);
 
@@ -35,23 +37,24 @@ public class TypeDefinitionBuilderTests
     [TestMethod]
     public void Constructor_Throws_On_Empty_TypeToTypeBaseMap()
     {
-        var settings = CreateTypeSettings();
+        var extensionInfo = CreateExtensionInfo();
         var typeFactory = CreateTypeFactory();
         var typeProvider = StrictMock.Of<ITypeProvider>().Object;
         var emptyMap = new Dictionary<Type, Func<TypeBase>>();
 
-        Action act = () => new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, typeFactory, typeProvider, emptyMap);
+        Action act = () => new TypeDefinitionBuilder(extensionInfo, null, typeFactory, typeProvider, emptyMap);
         act.Should().Throw<ArgumentException>();
     }
 
     [TestMethod]
     public void Constructor_Succeeds_With_Valid_Arguments()
     {
+        var extensionInfo = CreateExtensionInfo();
         var factory = new TypeFactory([]);
         var typeProvider = new Mock<ITypeProvider>(MockBehavior.Strict).Object;
         var map = ImmutableDictionary<Type, Func<TypeBase>>.Empty.Add(typeof(string), () => new StringType());
 
-        var generator = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, factory, typeProvider, map);
+        var generator = new TypeDefinitionBuilder(extensionInfo, null, factory, typeProvider, map);
 
         generator.Should().NotBeNull();
     }
@@ -62,14 +65,14 @@ public class TypeDefinitionBuilderTests
     [TestMethod]
     public void GenerateTypeDefinition_Returns_Empty_When_TypeProvider_Has_No_Types()
     {
-        var settings = CreateTypeSettings();
+        var extensionInfo = CreateExtensionInfo();
         var factory = CreateTypeFactory();
         var typeProviderMock = StrictMock.Of<ITypeProvider>();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([]);
 
         var map = new Dictionary<Type, Func<TypeBase>> { { typeof(string), () => new StringType() } };
 
-        var builder = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, factory, typeProviderMock.Object, map);
+        var builder = new TypeDefinitionBuilder(extensionInfo, null, factory, typeProviderMock.Object, map);
 
         var result = builder.GenerateTypeDefinition();
 
@@ -82,13 +85,13 @@ public class TypeDefinitionBuilderTests
     [TestMethod]
     public void GenerateTypeDefinition_Emits_Resource_When_TypeProvider_Has_Types()
     {
-        var settings = CreateTypeSettings();
+        var extensionInfo = CreateExtensionInfo();
         var factory = CreateTypeFactory();
         var typeProviderMock = StrictMock.Of<ITypeProvider>();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([(typeof(SimpleResource), new("SimpleResource"))]);
         var map = new Dictionary<Type, Func<TypeBase>> { { typeof(string), () => new StringType() } };
 
-        var builder = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, factory, typeProviderMock.Object, map);
+        var builder = new TypeDefinitionBuilder(extensionInfo, null, factory, typeProviderMock.Object, map);
 
         var result = builder.GenerateTypeDefinition();
 
@@ -106,12 +109,12 @@ public class TypeDefinitionBuilderTests
             { typeof(string), () => new StringType() }
         }.ToImmutableDictionary();
 
-        var settings = CreateTypeSettings();
+        var extensionInfo = CreateExtensionInfo();
         var factory = CreateTypeFactory();
         var typeProviderMock = StrictMock.Of<ITypeProvider>();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([(typeof(TestUnsupportedProperty), new("TestUnsupportedProperty"))]);
 
-        var builder = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, factory, typeProviderMock.Object, map);
+        var builder = new TypeDefinitionBuilder(extensionInfo, null, factory, typeProviderMock.Object, map);
 
         Action act = () => builder.GenerateTypeDefinition();
         act.Should().Throw<NotImplementedException>();
@@ -124,13 +127,13 @@ public class TypeDefinitionBuilderTests
     [TestMethod]
     public void GenerateTypeDefinition_Emits_ArrayType_For_ArrayProperty()
     {
-        var settings = CreateTypeSettings();
+        var extensionInfo = CreateExtensionInfo();
         var factory = CreateTypeFactory();
         var typeProviderMock = StrictMock.Of<ITypeProvider>();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([(typeof(ArrayResource), new("ArrayResource"))]);
         var map = new Dictionary<Type, Func<TypeBase>> { { typeof(string), () => new StringType() } };
 
-        var builder = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, factory, typeProviderMock.Object, map);
+        var builder = new TypeDefinitionBuilder(extensionInfo, null, factory, typeProviderMock.Object, map);
 
         var result = builder.GenerateTypeDefinition();
 
@@ -142,13 +145,13 @@ public class TypeDefinitionBuilderTests
     [TestMethod]
     public void GenerateTypeDefinition_Emits_ArrayType_For_IEnumerableProperty()
     {
-        var settings = CreateTypeSettings();
+        var extensionInfo = CreateExtensionInfo();
         var factory = CreateTypeFactory();
         var typeProviderMock = StrictMock.Of<ITypeProvider>();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([(typeof(EnumerableResource), new("EnumerableResource"))]);
         var map = new Dictionary<Type, Func<TypeBase>> { { typeof(string), () => new StringType() } };
 
-        var builder = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, factory, typeProviderMock.Object, map);
+        var builder = new TypeDefinitionBuilder(extensionInfo, null, factory, typeProviderMock.Object, map);
 
         var result = builder.GenerateTypeDefinition();
 
