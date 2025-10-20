@@ -171,4 +171,27 @@ public static class IBicepExtensionBuilderExtensions
 
         return builder;
     }
+
+    /// <summary>
+    /// Registers all resource handlers found in the specified assembly with the extension builder for dependency injection.
+    /// </summary>
+    /// <remarks>This method scans the provided assembly for all concrete types that implement <see cref="IResourceHandler"/>
+    /// and registers each one as a singleton service. Abstract classes and interfaces are excluded from registration.
+    /// This is useful for bulk registration of resource handlers from a single assembly without needing to register
+    /// each handler individually.</remarks>
+    /// <param name="builder">The extension builder to which the resource handlers will be added. Cannot be null.</param>
+    /// <param name="handlerAssembly">The assembly to scan for resource handler implementations. Cannot be null.</param>
+    /// <returns>The same <see cref="IBicepExtensionBuilder"/> instance, enabling method chaining.</returns>
+    public static IBicepExtensionBuilder WithResourceHandlerAssembly(this IBicepExtensionBuilder builder, Assembly handlerAssembly)
+    {
+        var handlerTypes = handlerAssembly.GetTypes()
+            .Where(t => typeof(IResourceHandler).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+
+        foreach (var handlerType in handlerTypes)
+        {
+            builder.Services.AddSingleton(typeof(IResourceHandler), handlerType);
+        }
+
+        return builder;
+    }
 }
