@@ -1245,6 +1245,10 @@ namespace Bicep.Core.Diagnostics
                 $"Using lambda variables inside the \"{functionName}\" function is not currently supported."
                     + $" Found the following lambda variable(s) being accessed: {ToQuotedString(variableNames)}.");
 
+            public Diagnostic CannotUseExistingWithWriteOnlyResource(ResourceTypeReference resourceTypeReference) => CoreError(
+                "BCP441",
+                $"Resource type \"{resourceTypeReference.FormatName()}\" cannot be used with the 'existing' keyword.");
+
             public Diagnostic ExpectedLoopVariableBlockWith2Elements(int actualCount) => CoreError(
                 "BCP249",
                 $"Expected loop variable block to consist of exactly 2 elements (item variable and index variable), but found {actualCount}.");
