@@ -239,8 +239,8 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             var output = ResourceFlags.None;
             var (readableScopes, writableScopes) = GetScopeInfo(input);
 
-            // Resource is ReadOnly if there are no writable scopes (matches legacy behavior)
-            if (writableScopes == ResourceScope.None)
+            // Resource is ReadOnly if there are no writable scopes but has readable scopes
+            if (writableScopes == ResourceScope.None && readableScopes != ResourceScope.None)
             {
                 output |= ResourceFlags.ReadOnly;
             }
