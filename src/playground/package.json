@@ -25,7 +25,7 @@
     "nerdbank-gitversioning": "3.8.118",
     "typescript": "5.9.3",
     "typescript-eslint": "8.46.1",
-    "vite": "7.1.10",
+    "vite": "7.1.11",
     "vite-plugin-ejs": "1.7.0",
     "vite-plugin-monaco-editor-esm": "2.0.2",
     "vite-plugin-static-copy": "3.1.4"
