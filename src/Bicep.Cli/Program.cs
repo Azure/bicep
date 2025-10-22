@@ -65,7 +65,8 @@ namespace Bicep.Cli
 
         public async Task<int> RunAsync(string[] args, CancellationToken cancellationToken)
         {
-            Trace.WriteLine($"Bicep version: {ThisAssembly.AssemblyInformationalVersion}, CLI arguments: \"{string.Join(' ', args)}\"");
+            var environment = services.GetRequiredService<IEnvironment>();
+            Trace.WriteLine($"Bicep version: {environment.GetVersionString()}, OS: {environment.CurrentPlatform?.ToString() ?? "unknown"}, Architecture: {environment.CurrentArchitecture}, CLI arguments: \"{string.Join(' ', args)}\"");
 
             try
             {

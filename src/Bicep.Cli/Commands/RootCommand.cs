@@ -4,18 +4,14 @@
 using System.IO.Compression;
 using Bicep.Cli.Arguments;
 using Bicep.Core.Exceptions;
+using Bicep.Core.Utils;
 
 namespace Bicep.Cli.Commands
 {
-    public class RootCommand : ICommand
+    public class RootCommand(
+        IOContext io,
+        IEnvironment environment) : ICommand
     {
-        private readonly IOContext io;
-
-        public RootCommand(IOContext io)
-        {
-            this.io = io;
-        }
-
         public int Run(RootArguments args)
         {
             if (args.PrintVersion)
@@ -48,7 +44,7 @@ namespace Bicep.Cli.Commands
         private void PrintHelp()
         {
             var exeName = ThisAssembly.AssemblyName;
-            var versionString = GetVersionString();
+            var versionString = environment.GetVersionString();
 
             var output =
 $@"Bicep CLI version {versionString}
@@ -262,7 +258,7 @@ Usage:
 
         private void PrintVersion()
         {
-            var output = $@"Bicep CLI version {GetVersionString()}{Environment.NewLine}";
+            var output = $@"Bicep CLI version {environment.GetVersionString()}{System.Environment.NewLine}";
 
             io.Output.Write(output);
             io.Output.Flush();
@@ -276,14 +272,6 @@ Usage:
         private void PrintThirdPartyNotices()
         {
             WriteEmbeddedResource(io.Output, "NOTICE.deflated");
-        }
-
-        public static string GetVersionString()
-        {
-            var versionSplit = ThisAssembly.AssemblyInformationalVersion.Split('+');
-
-            // <major>.<minor>.<patch> (<commmithash>)
-            return $"{versionSplit[0]} ({(versionSplit.Length > 1 ? versionSplit[1] : "custom")})";
         }
 
         private static void WriteEmbeddedResource(TextWriter writer, string streamName)
