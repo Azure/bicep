@@ -323,5 +323,97 @@ resource secret 'Microsoft.KeyVault/vaults/secrets@2024-12-01-preview' = {
                 ("BCP077", DiagnosticLevel.Error, "The property \"writeonly\" on type \"fooBody\" is write-only. Write-only properties cannot be accessed.")
             });
         }
+
+        [TestMethod]
+        public void ThisNamespace_UnqualifiedFunctionCalls_ShouldWork()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
+            var result = CompilationHelper.Compile(services, @"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'testStorage'
+  location: 'westus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    allowBlobPublicAccess: exists()
+    minimumTlsVersion: exists() ? 'TLS1_2' : 'TLS1_0'
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+
+            using (new AssertionScope())
+            {
+                var template = result.Template;
+
+                // Check that exists() is compiled to not(empty(target('full')))
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[not(empty(target('full')))]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.minimumTlsVersion", "[if(not(empty(target('full'))), 'TLS1_2', 'TLS1_0')]");
+            }
+        }
+
+        [TestMethod]
+        public void ThisNamespace_MixedQualifiedAndUnqualifiedFunctionCalls_ShouldWork()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
+            var result = CompilationHelper.Compile(services, @"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'testStorage'
+  location: 'westus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    allowBlobPublicAccess: this.exists()
+    minimumTlsVersion: existingResource().?properties.minimumTlsVersion ?? 'TLS1_2'
+    networkAcls: {
+      defaultAction: exists() ? 'Allow' : 'Deny'
+    }
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+
+            using (new AssertionScope())
+            {
+                var template = result.Template;
+
+                // Check that both exists() and this.exists() compile to the same ARM function
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[not(empty(target('full')))]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.minimumTlsVersion", "[coalesce(tryGet(target('full'), 'properties', 'minimumTlsVersion'), 'TLS1_2')]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.networkAcls.defaultAction", "[if(not(empty(target('full'))), 'Allow', 'Deny')]");
+            }
+        }
+
+        [TestMethod]
+        public void ThisNamespace_UnqualifiedFunctionCallOutsideResourceScope_ShouldFail()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
+            var result = CompilationHelper.Compile(services, @"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'testStorage'
+  location: 'westus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    allowBlobPublicAccess: exists()
+  }
+}
+
+output testOutput bool = exists()
+");
+
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP057", DiagnosticLevel.Error, "The name \"exists\" does not exist in the current context.")
+            });
+        }
     }
 }
