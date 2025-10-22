@@ -326,6 +326,11 @@ namespace Bicep.Core.TypeSystem
                     {
                         diagnostics.Write(syntax.Type, x => x.ResourceTypeIsReadonly(resourceType.TypeReference));
                     }
+
+                    if (syntax.IsExistingResource() && resourceType.Flags.HasFlag(ResourceFlags.WriteOnly))
+                    {
+                        diagnostics.Write(syntax.Type, x => x.CannotUseExistingWithWriteOnlyResource(resourceType.TypeReference));
+                    }
                 }
 
                 return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Value, declaredType, true);

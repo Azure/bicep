@@ -48,7 +48,7 @@
     "@vitest/coverage-v8": "^3.2.4",
     "@vscode/codicons": "^0.0.36",
     "eslint-plugin-storybook": "9.1.5",
-    "happy-dom": "^20.0.0",
+    "happy-dom": "^20.0.2",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "storybook": "^9.0.14",
     "styled-components": "^6.1.16",

@@ -74,6 +74,7 @@ true
 - No support for expressions requiring Azure context, e.g. `resourceGroup()`
 - No file system access or external dependencies
 - Limited to expression evaluation and variable declarations
+- No support for for-loop expressions, e.g. `[for i in range(0, x): i]`
 - No persistent state between console sessions
 - No completions support
 
