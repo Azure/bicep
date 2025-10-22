@@ -42,6 +42,34 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
         }
 
         [TestMethod]
+        public void ThisNamespace_ShouldNotBreakExistingVariablesFeatureDisabled()
+        {
+            var result = CompilationHelper.Compile(@"
+                var this = false
+                resource test 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+                  name: 'test'
+                  location: 'westus'
+                  sku: {
+                    name: 'Standard_LRS'
+                  }
+                  kind: 'StorageV2'
+                  properties: {
+                    allowBlobPublicAccess: this
+                  }
+                }
+                ");
+            result.Should().NotHaveAnyDiagnostics();
+
+            using (new AssertionScope())
+            {
+                var template = result.Template;
+
+                // Check that this.exists() is compiled to not(empty(target('full')))
+                template.Should().HaveValueAtPath("$.resources[0].properties.allowBlobPublicAccess", "[variables('this')]");
+            }
+        }
+
+        [TestMethod]
         public void ThisNamespace_CompilationGeneratesCorrectArmFunctions()
         {
             var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
@@ -67,6 +95,50 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
 
                 // Check that this.exists() is compiled to not(empty(target('full')))
                 template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[not(empty(target('full')))]");
+            }
+        }
+
+        [TestMethod]
+        public void ThisNamespace_CompilationGeneratesCorrectArmFunctionsNested()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
+            var result = CompilationHelper.Compile(services, @"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'testStorage'
+  location: 'westus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    allowBlobPublicAccess: this.exists()
+  }
+  resource fileService 'fileServices' = {
+    name: 'default'
+    properties: {
+      shareDeleteRetentionPolicy: this.existingResource().properties.shareDeleteRetentionPolicy
+    }
+
+    resource fileShare 'shares' = {
+      name: 'exampleshare'
+      properties: {
+        accessTier: this.existingResource().properties.accessTier
+      }
+    }
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+
+            using (new AssertionScope())
+            {
+                var template = result.Template;
+
+                // Check that this.exists() is compiled to not(empty(target('full')))
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[not(empty(target('full')))]");
+                template.Should().HaveValueAtPath("$.resources.testResource::fileService.properties.shareDeleteRetentionPolicy", "[target('full').properties.shareDeleteRetentionPolicy]");
+                template.Should().HaveValueAtPath("$.resources.testResource::fileService::fileShare.properties.accessTier", "[target('full').properties.accessTier]");
             }
         }
 
