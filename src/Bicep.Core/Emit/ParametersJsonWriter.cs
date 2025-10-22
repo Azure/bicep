@@ -69,7 +69,7 @@ public class ParametersJsonWriter
 
         if (this.Context.ExternalInputReferences.ExternalInputIndexMap.Count > 0)
         {
-            WriteExternalInputDefinitions(emitter, this.Context.ExternalInputReferences.ExternalInputIndexMap);
+            WriteExternalInputDefinitions(emitter, this.Context.ExternalInputReferences.ExternalInputIndexMap, this.Context.ExternalInputReferences.InlineFunctionCallsMap);
         }
 
         if (this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
@@ -108,7 +108,7 @@ public class ParametersJsonWriter
         return content.FromJson<JToken>();
     }
 
-    private void WriteExternalInputDefinitions(ExpressionEmitter emitter, IDictionary<FunctionCallSyntaxBase, string> externalInputIndexMap)
+    private void WriteExternalInputDefinitions(ExpressionEmitter emitter, IDictionary<FunctionCallSyntaxBase, string> externalInputIndexMap, IDictionary<FunctionCallSyntaxBase, string> inlineFunctionCallsMap)
     {
         emitter.EmitObjectProperty("externalInputDefinitions", () =>
         {
@@ -119,10 +119,21 @@ public class ParametersJsonWriter
 
                 emitter.EmitObjectProperty(reference.Value, () =>
                 {
-                    emitter.EmitProperty("kind", expression.Parameters[0]);
-                    if (expression.Parameters.Length > 1)
+                    // Check if this is an inline() function call
+                    if (inlineFunctionCallsMap.TryGetValue(reference.Key, out var parameterName))
                     {
-                        emitter.EmitProperty("config", expression.Parameters[1]);
+                        // For inline() calls, generate externalInput('sys.cli', parameterName)
+                        emitter.EmitProperty("kind", new StringLiteralExpression(null, "sys.cli"));
+                        emitter.EmitProperty("config", new StringLiteralExpression(null, parameterName));
+                    }
+                    else
+                    {
+                        // For regular external input calls, use the original parameters
+                        emitter.EmitProperty("kind", expression.Parameters[0]);
+                        if (expression.Parameters.Length > 1)
+                        {
+                            emitter.EmitProperty("config", expression.Parameters[1]);
+                        }
                     }
                 });
             }

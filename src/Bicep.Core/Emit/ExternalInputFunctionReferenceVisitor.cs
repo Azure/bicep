@@ -19,12 +19,16 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
     private readonly ImmutableHashSet<ParameterAssignmentSymbol>.Builder parametersContainingExternalInput;
     private readonly ImmutableHashSet<VariableSymbol>.Builder variablesContainingExternalInput;
     private readonly ImmutableDictionary<FunctionCallSyntaxBase, string>.Builder externalInputReferences;
+    private readonly ImmutableDictionary<FunctionCallSyntaxBase, string>.Builder inlineFunctionCalls;
+    private string? currentPropertyName = null;
+
     private ExternalInputFunctionReferenceVisitor(SemanticModel semanticModel)
     {
         this.semanticModel = semanticModel;
         this.externalInputReferences = ImmutableDictionary.CreateBuilder<FunctionCallSyntaxBase, string>();
         this.parametersContainingExternalInput = ImmutableHashSet.CreateBuilder<ParameterAssignmentSymbol>();
         this.variablesContainingExternalInput = ImmutableHashSet.CreateBuilder<VariableSymbol>();
+        this.inlineFunctionCalls = ImmutableDictionary.CreateBuilder<FunctionCallSyntaxBase, string>();
     }
 
     public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
@@ -37,6 +41,17 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
     {
         VisitFunctionCallSyntaxInternal(syntax);
         base.VisitInstanceFunctionCallSyntax(syntax);
+    }
+
+    public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
+    {
+        var previousPropertyName = currentPropertyName;
+
+        currentPropertyName = syntax.TryGetKeyText();
+
+        this.Visit(syntax.Value);
+
+        currentPropertyName = previousPropertyName;
     }
 
     public static ExternalInputReferences CollectExternalInputReferences(SemanticModel model)
@@ -109,7 +124,8 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
         return new ExternalInputReferences(
             ParametersReferences: visitor.parametersContainingExternalInput.ToImmutable(),
             VariablesReferences: visitor.variablesContainingExternalInput.ToImmutable(),
-            ExternalInputIndexMap: visitor.externalInputReferences.ToImmutable()
+            ExternalInputIndexMap: visitor.externalInputReferences.ToImmutable(),
+            InlineFunctionCallsMap: visitor.inlineFunctionCalls.ToImmutable()
         );
     }
 
@@ -136,6 +152,21 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
         else if (functionCall.Name.NameEquals(LanguageConstants.ReadEnvVarBicepFunctionName))
         {
             definitionKey = GetExternalInputDefinitionName($"sys.envVar", index);
+        }
+        else if (functionCall.Name.NameEquals(LanguageConstants.InlineFunctionName))
+        {
+            var inferredName = this.currentPropertyName ?? this.targetParameterAssignment?.Name;
+
+            if (inferredName is not null)
+            {
+                definitionKey = GetExternalInputDefinitionName($"sys.cli", index);
+                this.inlineFunctionCalls.TryAdd(functionCallSyntax, inferredName);
+            }
+            else
+            {
+                // inline() can only be used in parameter assignments
+                return;
+            }
         }
         else
         {
@@ -174,5 +205,7 @@ public record ExternalInputReferences(
     // variables that contain external input function calls
     ImmutableHashSet<VariableSymbol> VariablesReferences,
     // map of external input function calls to unique keys to be used to construct externalInput definition in parameters.json
-    ImmutableDictionary<FunctionCallSyntaxBase, string> ExternalInputIndexMap
+    ImmutableDictionary<FunctionCallSyntaxBase, string> ExternalInputIndexMap,
+    // map of inline() function calls to their parameter names for special handling
+    ImmutableDictionary<FunctionCallSyntaxBase, string> InlineFunctionCallsMap
 );

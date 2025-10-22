@@ -1292,6 +1292,11 @@ namespace Bicep.Core.Semantics.Namespaces
                         .Build();
                 }
 
+                yield return new FunctionOverloadBuilder(LanguageConstants.InlineFunctionName)
+                    .WithGenericDescription("Resolves input from cli parameters. The input value is resolved during deployment, not at compile time. This is a shorthand for externalInput('sys.cli', parameterName) where parameterName is automatically inferred.")
+                    .WithReturnType(LanguageConstants.Any)
+                    .Build();
+
                 yield return new FunctionOverloadBuilder(LanguageConstants.ExternalInputBicepFunctionName)
                     .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
                     .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.")
