@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using Bicep.Cli.Helpers.Repl;
 using Bicep.Cli.Helpers.WhatIf;
@@ -31,8 +32,14 @@ public static class AnsiHelper
         [nameof(PrintHelper.MoveCursorRight)] = "\u001b\\[(\\d+)C",
     }.ToImmutableDictionary();
 
-    public static string ReplaceCodes(string input)
+    [return: NotNullIfNotNull(nameof(input))]
+    public static string? ReplaceCodes(string? input)
     {
+        if (input is null)
+        {
+            return null;
+        }
+
         foreach (var (name, code) in escapeCodeByName)
         {
             input = input.Replace(code, $"[{name}]");

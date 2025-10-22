@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Text;
 using Bicep.Cli.Services;
 using Bicep.Core;
@@ -116,36 +117,116 @@ public class ReplEnvironmentTests
     [TestMethod]
     public void Expression_evaluation_succeeds()
     {
-        var replEnvironment = CreateReplEnvironment();
-        replEnvironment.EvaluateInput("""
+        var outputs = EvaluateInputs([
+            """
             type PersonType = {
               name: string
               age: int
             }
-            """);
-        replEnvironment.EvaluateInput("""
+            """,
+            """
             func sayHi(person PersonType) string => 'Hello ${person.name}, you are ${person.age} years old!'
-            """);
-        replEnvironment.EvaluateInput("""
+            """,
+            """
             var alice = {
               name: 'Alice'
               age: 30
             }
-            """);
-        var result = replEnvironment.EvaluateInput("""
+            """,
+            """
             [ sayHi(alice), sayHi({ name: 'Bob', age: 25 }) ]
-            """);
+            """
+        ]);
 
-        result.AnnotatedDiagnostics.Should().BeEmpty();
-        result.Value.Should().NotBeNull();
+        outputs.Should().SatisfyRespectively(
+            x => x.Should().BeEmpty(),
+            x => x.Should().BeEmpty(),
+            x => x.Should().BeEmpty(),
+            x => x.Should().BeEquivalentToIgnoringNewlines("""
+                [
+                  [Orange]'Hello Alice, you are 30 years old!'[Reset]
+                  [Orange]'Hello Bob, you are 25 years old!'[Reset]
+                ]
 
-        var output = replEnvironment.HighlightSyntax(result.Value);
-        AnsiHelper.ReplaceCodes(output).Should().BeEquivalentToIgnoringNewlines("""
-            [
-              [Orange]'Hello Alice, you are 30 years old!'[Reset]
-              [Orange]'Hello Bob, you are 25 years old!'[Reset]
+                """));
+    }
+
+    [TestMethod]
+    public void Expression_evaluation_succeeds_issue_18316()
+    {
+        // https://github.com/Azure/bicep/issues/18316
+        var outputs = EvaluateInputs([
+            """
+            var varMockedEntraGroupIds = [
+              {
+                uniqueName: 'Reader-Group'
+                roleToAssign: 'Reader'
+                groupId: '11111111-1111-1111-1111-111111111111'
+              }
+              {
+                uniqueName: 'Contributor-Group'
+                roleToAssign: 'Contributor'
+                groupId: '22222222-2222-2222-2222-222222222222'
+              }
+              {
+                uniqueName: 'DevOps-Group'
+                groupId: '33333333-3333-3333-3333-333333333333'
+              }
             ]
-            """);
+            """,
+            """
+            var outRoleAssignments object[] = union(map(
+              filter(varMockedEntraGroupIds, item => !contains(item.uniqueName, 'DevOps')),
+              group => {
+                principalId: group.groupId
+                definition: group.roleToAssign
+                relativeScope: ''
+                principalType: 'Group'
+              }
+            ),[
+              {
+                principalId: '22222222-2222-2222-2222-222222222222'
+                definition: 'Reader'
+                relativeScope: ''
+                principalType: 'ServicePrincipal'
+              }
+            ])
+            """,
+            """
+            outRoleAssignments
+            """
+        ]);
+
+        outputs.Should().SatisfyRespectively(
+            x => x.Should().BeEmpty(),
+            x => x.Should().BeEquivalentToIgnoringNewlines("""
+                    [DarkYellow]definition[Reset]: [Blue]group[Reset][Reset].[Reset][DarkYellow]roleToAssign[Reset]
+                                      [DarkYellow]~~~~~~~~~~~~ The property "roleToAssign" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues.[Reset]
+
+                """),
+            x => x.Should().BeEquivalentToIgnoringNewlines("""
+                [
+                  {
+                    [DarkYellow]principalId[Reset]: [Orange]'11111111-1111-1111-1111-111111111111'[Reset]
+                    [DarkYellow]definition[Reset]: [Orange]'Reader'[Reset]
+                    [DarkYellow]relativeScope[Reset]: [Orange]''[Reset]
+                    [DarkYellow]principalType[Reset]: [Orange]'Group'[Reset]
+                  }
+                  {
+                    [DarkYellow]principalId[Reset]: [Orange]'22222222-2222-2222-2222-222222222222'[Reset]
+                    [DarkYellow]definition[Reset]: [Orange]'Contributor'[Reset]
+                    [DarkYellow]relativeScope[Reset]: [Orange]''[Reset]
+                    [DarkYellow]principalType[Reset]: [Orange]'Group'[Reset]
+                  }
+                  {
+                    [DarkYellow]principalId[Reset]: [Orange]'22222222-2222-2222-2222-222222222222'[Reset]
+                    [DarkYellow]definition[Reset]: [Orange]'Reader'[Reset]
+                    [DarkYellow]relativeScope[Reset]: [Orange]''[Reset]
+                    [DarkYellow]principalType[Reset]: [Orange]'ServicePrincipal'[Reset]
+                  }
+                ]
+
+                """));
     }
 
     private static string GetHighlighted(ReplEnvironment replEnvironment, string input)
@@ -163,5 +244,89 @@ public class ReplEnvironmentTests
         }
 
         return string.Join('\n', output);
+    }
+
+    [DataRow("""
+    var varMockedEntraGroupIds = [
+      {
+        uniqueName: 'Reader-Group'
+        roleToAssign: 'Reader'
+        groupId: '11111111-1111-1111-1111-111111111111'
+      }
+      {
+        uniqueName: 'Contributor-Group'
+        roleToAssign: 'Contributor'
+        groupId: '22222222-2222-2222-2222-222222222222'
+      }
+      {
+        uniqueName: 'DevOps-Group'
+        groupId: '33333333-3333-3333-3333-333333333333'
+      }
+    ]
+    """)]
+    [DataRow("""
+    var outRoleAssignments object[] = union(map(
+      filter(varMockedEntraGroupIds, item => !contains(item.uniqueName, 'DevOps')),
+      group => {
+        principalId: group.groupId
+        definition: group.roleToAssign
+        relativeScope: ''
+        principalType: 'Group'
+      }
+    ),[
+      {
+        principalId: '22222222-2222-2222-2222-222222222222'
+        definition: 'Reader'
+        relativeScope: ''
+        principalType: 'ServicePrincipal'
+      }
+    ])
+    """)]
+    [DataRow("""
+    var multilineString = '''
+    Line 1
+    Line 2
+    Line 3
+    '''
+    """)]
+    [DataRow("""
+    var singleLineString = '${true} or ${false}?'
+    """)]
+    [DataRow("var foo = {\n")]
+    [DataRow("""
+    var test = {
+      abc: 'def' // boo
+    }
+    """)]
+    [TestMethod]
+    public void ShouldSubmitBuffer_terminates_at_expected_point(string text)
+    {
+        EnsureSingleInput(text);
+    }
+
+    private static void EnsureSingleInput(string text)
+    {        
+        var input = text.NormalizeNewlines().Split('\n');
+        for (var i = 0; i < input.Length; i++)
+        {
+            var isLastLine = i == input.Length - 1;
+            // The console command always submits with a newline
+            var partialText = string.Join("\n", input.Take(i + 1)) + "\n";
+            ReplEnvironment.ShouldSubmitBuffer(partialText, input[i]).Should().Be(isLastLine);
+        }
+    }
+
+    private static ImmutableArray<string> EvaluateInputs(IEnumerable<string> input)
+    {
+        var replEnvironment = CreateReplEnvironment();
+        var outputs = new List<string>();
+        foreach (var inputBlock in input)
+        {
+            EnsureSingleInput(inputBlock);
+            var output = replEnvironment.EvaluateAndGetOutput(inputBlock);
+            outputs.Add(AnsiHelper.ReplaceCodes(output));
+        }
+
+        return [..outputs];
     }
 }
