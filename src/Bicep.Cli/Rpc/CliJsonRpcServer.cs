@@ -16,13 +16,17 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Newtonsoft.Json.Serialization;
 using StreamJsonRpc;
 
 namespace Bicep.Cli.Rpc;
 
-public class CliJsonRpcServer : ICliJsonRpcProtocol
+public class CliJsonRpcServer(
+    BicepCompiler compiler,
+    InputOutputArgumentsResolver inputOutputArgumentsResolver,
+    IEnvironment environment) : ICliJsonRpcProtocol
 {
     public static IJsonRpcMessageHandler CreateMessageHandler(Stream inputStream, Stream outputStream)
     {
@@ -32,22 +36,12 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         return new HeaderDelimitedMessageHandler(inputStream, outputStream, formatter);
     }
 
-    private readonly BicepCompiler compiler;
-    private readonly InputOutputArgumentsResolver inputOutputArgumentsResolver;
-
-    public CliJsonRpcServer(BicepCompiler compiler, InputOutputArgumentsResolver inputOutputArgumentsResolver)
-    {
-        this.compiler = compiler;
-        this.inputOutputArgumentsResolver = inputOutputArgumentsResolver;
-    }
-
     /// <inheritdoc/>
     public async Task<VersionResponse> Version(VersionRequest request, CancellationToken cancellationToken)
     {
         await Task.Yield();
 
-        return new(
-            ThisAssembly.AssemblyInformationalVersion.Split('+')[0]);
+        return new(environment.CurrentVersion.Version);
     }
 
     /// <inheritdoc/>
@@ -274,7 +268,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
 
     private async Task<Compilation> GetCompilation(BicepCompiler compiler, string filePath)
     {
-        var fileUri = this.inputOutputArgumentsResolver.PathToUri(filePath);
+        var fileUri = inputOutputArgumentsResolver.PathToUri(filePath);
         if (!fileUri.HasBicepExtension() && !fileUri.HasBicepParamExtension())
         {
             throw new InvalidOperationException($"Invalid file path: {fileUri}");

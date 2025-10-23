@@ -10,6 +10,7 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Syntax;
+using Bicep.Core.Utils;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Spectre.Console;
@@ -24,6 +25,7 @@ namespace Bicep.Cli.Commands;
 public class ConsoleCommand(
     ILogger logger,
     IOContext io,
+    IEnvironment environment,
     ReplEnvironment replEnvironment,
     IAnsiConsole console) : ICommand
 {
@@ -61,7 +63,7 @@ public class ConsoleCommand(
             return 1;
         }
 
-        await io.Output.WriteLineAsync($"Bicep Console {RootCommand.GetVersionString()}");
+        await io.Output.WriteLineAsync($"Bicep Console version {environment.GetVersionString()}");
         await io.Output.WriteLineAsync("Type 'help' for available commands, press ESC to quit.");
         await io.Output.WriteLineAsync("Multi-line input supported.");
         await io.Output.WriteLineAsync(string.Empty);
