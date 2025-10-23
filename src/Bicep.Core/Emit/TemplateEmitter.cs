@@ -12,10 +12,12 @@ namespace Bicep.Core.Emit;
 public class TemplateEmitter
 {
     private readonly SemanticModel model;
+    private readonly IModuleWriterFactory? moduleWriterFactory;
 
-    public TemplateEmitter(SemanticModel model)
+    public TemplateEmitter(SemanticModel model, IModuleWriterFactory? moduleWriterFactory = null)
     {
         this.model = model;
+        this.moduleWriterFactory = moduleWriterFactory;
     }
 
     /// <summary>
@@ -113,7 +115,7 @@ public class TemplateEmitter
             Formatting = Formatting.Indented
         };
 
-        var emitter = TemplateWriterFactory.CreateTemplateWriter(this.model);
+        var emitter = new TemplateWriter(this.model, moduleWriterFactory);
         emitter.Write(writer);
         writer.Flush();
 
