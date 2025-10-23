@@ -58,7 +58,7 @@ metadata myMultiLineString = '''
 //@[09:026) | | └─Token(Identifier) |myMultiLineString|
 //@[27:028) | ├─Token(Assignment) |=|
 //@[29:142) | └─StringSyntax
-//@[29:142) |   └─Token(MultilineString) |'''\r\n  This is a multi line string // with comments,\r\n  blocked ${interpolation},\r\n  and a /* newline.\r\n  */\r\n'''|
+//@[29:142) |   └─Token(StringComplete) |'''\r\n  This is a multi line string // with comments,\r\n  blocked ${interpolation},\r\n  and a /* newline.\r\n  */\r\n'''|
   This is a multi line string // with comments,
   blocked ${interpolation},
   and a /* newline.

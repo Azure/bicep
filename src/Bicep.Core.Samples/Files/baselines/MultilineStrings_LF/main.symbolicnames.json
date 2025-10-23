@@ -1,0 +1,25 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "2.0",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "14071116582698142224"
+    }
+  },
+  "variables": {
+    "name": "Anthony",
+    "multilineInterpolation": "[format('Hello,\nmy\nname is\n{0}\n', variables('name'))]",
+    "complexMultilineInterpolation": "[format('${{name}}\n$${{name}}\n{0}\n${1}\n', variables('name'), variables('name'))]",
+    "interpMultiEmpty": "",
+    "interp1Multi": "[format('abc{0}def\n', 123)]",
+    "interp2Multi": "[format('{0}def', 123)]",
+    "interp3Multi": "[format('abc{0}', 123)]",
+    "interp4Multi": "[format('abc{0}{1}jk$l{2}p$', 123, 456, 789)]",
+    "doubleInterpMulti": "[format('abc{0}_{1}', format('def{0}', 123), format('{0}{1}', 456, 789))]",
+    "curliesInInterpMulti": "[format('{{{0}{{0}}{1}}}', 123, true())]"
+  },
+  "resources": {}
+}

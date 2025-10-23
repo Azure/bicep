@@ -49,6 +49,18 @@ public class ServiceBuilder
         return new ServiceBuilder().WithRegistration(registerAction).Build();
     }
 
+    public static ServiceBuilder CreateWithServices(Action<IServiceCollection> registerAction)
+    {
+        ServiceBuilder builder = new();
+
+        builder.WithRegistration(registerAction);
+
+        return builder;
+    }
+
+    public static ServiceBuilder CreateWithFeatures(FeatureProviderOverrides overrides)
+        => CreateWithServices(x => x.WithFeatureOverrides(overrides));
+
     public ServiceBuilder WithRegistration(Action<IServiceCollection> registerAction)
     {
         registerAction(services);
