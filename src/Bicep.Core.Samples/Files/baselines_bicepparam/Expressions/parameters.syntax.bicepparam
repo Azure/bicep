@@ -1318,7 +1318,7 @@ param myString = '''
 //@[06:0014) | | └─Token(Identifier) |myString|
 //@[15:0016) | ├─Token(Assignment) |=|
 //@[17:0072) | └─StringSyntax
-//@[17:0072) |   └─Token(MultilineString) |'''\nTHis\n  is\n    a\n      multiline\n        string!\n'''|
+//@[17:0072) |   └─Token(StringComplete) |'''\nTHis\n  is\n    a\n      multiline\n        string!\n'''|
 THis
   is
     a

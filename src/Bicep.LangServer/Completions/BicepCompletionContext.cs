@@ -1178,7 +1178,6 @@ namespace Bicep.LanguageServer.Completions
                 TokenType.StringLeftPiece => true,
                 TokenType.StringMiddlePiece => true,
                 TokenType.StringRightPiece => true,
-                TokenType.MultilineString => true,
                 _ => false,
             });
 

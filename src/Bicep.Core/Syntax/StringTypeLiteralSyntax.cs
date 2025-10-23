@@ -25,7 +25,7 @@ namespace Bicep.Core.Syntax
         /// </summary>
         public TextSpan GetInnerSpan()
         {
-            var skipChars = StringTokens.First().Type == TokenType.MultilineString ? 3 : 1;
+            var skipChars = StringTokens.First().Text.Count(c => c == '\'');
             var outerSpan = Span;
 
             return new(outerSpan.Position + skipChars, outerSpan.Length - (skipChars * 2));

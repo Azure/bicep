@@ -725,7 +725,7 @@ param myString = '''
 //@[00:05) Identifier |param|
 //@[06:14) Identifier |myString|
 //@[15:16) Assignment |=|
-//@[17:72) MultilineString |'''\nTHis\n  is\n    a\n      multiline\n        string!\n'''|
+//@[17:72) StringComplete |'''\nTHis\n  is\n    a\n      multiline\n        string!\n'''|
 THis
   is
     a

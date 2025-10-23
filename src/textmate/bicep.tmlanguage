@@ -133,7 +133,11 @@
           </dict>
           <dict>
             <key>include</key>
-            <string>#string-verbatim</string>
+            <string>#multiline-string</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#multiline-string-single-esc</string>
           </dict>
           <dict>
             <key>include</key>
@@ -254,6 +258,33 @@
         <key>match</key>
         <string>//.*(?=$)</string>
       </dict>
+      <key>multiline-string</key>
+      <dict>
+        <key>name</key>
+        <string>string.quoted.multi.bicep</string>
+        <key>begin</key>
+        <string>'''</string>
+        <key>end</key>
+        <string>'''(?!')</string>
+        <key>patterns</key>
+        <array/>
+      </dict>
+      <key>multiline-string-single-esc</key>
+      <dict>
+        <key>name</key>
+        <string>string.quoted.multi.bicep</string>
+        <key>begin</key>
+        <string>\$'''</string>
+        <key>end</key>
+        <string>'''(?!')</string>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>include</key>
+            <string>#string-literal-subst</string>
+          </dict>
+        </array>
+      </dict>
       <key>named-literal</key>
       <dict>
         <key>name</key>
@@ -354,17 +385,6 @@
             <string>#comments</string>
           </dict>
         </array>
-      </dict>
-      <key>string-verbatim</key>
-      <dict>
-        <key>name</key>
-        <string>string.quoted.multi.bicep</string>
-        <key>begin</key>
-        <string>'''</string>
-        <key>end</key>
-        <string>'''(?!')</string>
-        <key>patterns</key>
-        <array/>
       </dict>
     </dict>
   </dict>

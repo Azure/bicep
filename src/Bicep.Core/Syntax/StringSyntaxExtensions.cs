@@ -22,6 +22,6 @@ namespace Bicep.Core.Syntax
             => syntax.IsInterpolated() ? null : syntax.SegmentValues[0];
 
         public static bool IsVerbatimString(this StringSyntax syntax)
-            => syntax.StringTokens.First().Type == TokenType.MultilineString;
+            => syntax.StringTokens.First() is { } token && token.Type == TokenType.StringComplete && token.Text.StartsWith(Lexer.MultilineStringSequence);
     }
 }

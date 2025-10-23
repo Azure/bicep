@@ -91,6 +91,30 @@ output multiline string = multiline
     }
 
     [TestMethod]
+    public void Multiline_interpolation_is_evaluated_successfully()
+    {
+        var result = CompilationHelper.Compile("""
+var intVal = 12345
+output multiline string = $'''
+>${intVal}<
+>$${intVal}<
+'''
+output multiline2 string = $$'''
+>${intVal}<
+>$${intVal}<
+'''
+""");
+
+        using (new AssertionScope())
+        {
+            var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
+
+            evaluated.Should().HaveValueAtPath("$.outputs['multiline'].value", ">12345<\n>$12345<\n");
+            evaluated.Should().HaveValueAtPath("$.outputs['multiline2'].value", ">${intVal}<\n>12345<\n");
+        }
+    }
+
+    [TestMethod]
     public void ResourceId_expressions_are_evaluated_successfully()
     {
         var bicepparamText = @"
