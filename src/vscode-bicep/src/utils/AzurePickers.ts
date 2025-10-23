@@ -1,9 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ManagementGroupInfo, ManagementGroupsAPI } from "@azure/arm-managementgroups";
+import { ManagementGroupInfo } from "@azure/arm-managementgroups";
 import { ResourceGroup, ResourceManagementClient } from "@azure/arm-resources";
-import { DefaultAzureCredential } from "@azure/identity";
 import { AzureSubscription, VSCodeAzureSubscriptionProvider } from "@microsoft/vscode-azext-azureauth";
 import {
   IResourceGroupWizardContext,
@@ -22,7 +21,7 @@ import {
   nonNullProp,
   parseError,
 } from "@microsoft/vscode-azext-utils";
-import { createResourceManagementClient, createSubscriptionClient } from "../azure/azureClients";
+import { createManagementGroupsClient, createResourceManagementClient, createSubscriptionClient } from "../azure/azureClients";
 import { Disposable } from "./disposable";
 import { OutputChannelManager } from "./OutputChannelManager";
 
@@ -125,13 +124,14 @@ export class AzurePickers extends Disposable {
     return (await context.ui.showQuickPick(picks, { placeHolder: "Select location" })).data;
   }
 
-  public async pickManagementGroup(context: IActionContext): Promise<ManagementGroupInfo> {
+  public async pickManagementGroup(context: IActionContext, subscription: AzureSubscription): Promise<ManagementGroupInfo> {
     await this.EnsureSignedIn();
 
-    const managementGroupsAPI = new ManagementGroupsAPI(new DefaultAzureCredential());
+    const client = await createManagementGroupsClient([context, createSubscriptionContext(subscription)]);
+
     let managementGroups: ManagementGroupInfo[];
     try {
-      managementGroups = await uiUtils.listAllIterator(managementGroupsAPI.managementGroups.list());
+      managementGroups = await uiUtils.listAllIterator(client.managementGroups.list());
     } catch (err) {
       throw new Error(
         `You might not have access to any management groups. Please create one in the Azure portal and try to deploy again.  Error: ${parseError(err).message}. ${await this.getTenantInfo()}`,
