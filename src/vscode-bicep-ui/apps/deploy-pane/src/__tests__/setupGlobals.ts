@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { vi } from "vitest";
-
+import '@testing-library/jest-dom/vitest';
 import "element-internals-polyfill";
 
 global.ResizeObserver = vi.fn(() => ({
