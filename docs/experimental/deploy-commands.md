@@ -7,7 +7,7 @@
 
 ## Demo
 
-https://github.com/user-attachments/assets/da64f3a3-3c11-411b-94b6-6324f79af107
+https://github.com/user-attachments/assets/bc2e32f6-3237-4c52-a320-81c2c19cf686
 
 ## Running Samples
 
@@ -79,4 +79,5 @@ bicep deploy script/stack.bicepparam
 
 # teardown
 bicep teardown script/stack.bicepparam
+
 ```
