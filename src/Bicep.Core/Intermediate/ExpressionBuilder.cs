@@ -1594,7 +1594,7 @@ public class ExpressionBuilder
         {
             // emit the resource id of the resource being extended
             var indexContext = TryGetReplacementContext(scopeResource, resource.ScopeData.IndexExpression, resource.BodySyntax);
-            expressionEmitter.EmitProperty("scope", () => expressionEmitter.EmitUnqualifiedResourceId(scopeResource, indexContext));
+            expressionEmitter.EmitProperty("scope", () => expressionEmitter.EmitFullyQualifiedResourceId(scopeResource, indexContext));
             return;
         }
 

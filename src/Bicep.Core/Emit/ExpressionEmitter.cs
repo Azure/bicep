@@ -89,16 +89,6 @@ namespace Bicep.Core.Emit
             writer.WriteValue(serialized);
         }
 
-        public void EmitUnqualifiedResourceId(DeclaredResourceMetadata resource, IndexReplacementContext? indexContext)
-        {
-            var converterForContext = converter.GetConverter(indexContext);
-
-            var unqualifiedResourceId = converterForContext.GetUnqualifiedResourceId(resource);
-            var serialized = ExpressionSerializer.SerializeExpression(unqualifiedResourceId);
-
-            writer.WriteValue(serialized);
-        }
-
         public void EmitIndexedSymbolReference(DeclaredResourceMetadata resource, IndexReplacementContext? indexContext)
         {
             var expression = converter.GetConverter(indexContext).GenerateSymbolicReference(resource, indexContext);
@@ -123,7 +113,7 @@ namespace Bicep.Core.Emit
             writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
         }
 
-        public void EmitResourceIdReference(DeclaredResourceMetadata resource, IndexReplacementContext? indexContext)
+        public void EmitFullyQualifiedResourceId(DeclaredResourceMetadata resource, IndexReplacementContext? indexContext)
         {
             var converterForContext = this.converter.GetConverter(indexContext);
 
@@ -133,7 +123,7 @@ namespace Bicep.Core.Emit
             writer.WriteValue(serialized);
         }
 
-        public void EmitResourceIdReference(ModuleSymbol moduleSymbol, IndexReplacementContext? indexContext)
+        public void EmitFullyQualifiedResourceId(ModuleSymbol moduleSymbol, IndexReplacementContext? indexContext)
         {
             var converterForContext = this.converter.GetConverter(indexContext);
 
