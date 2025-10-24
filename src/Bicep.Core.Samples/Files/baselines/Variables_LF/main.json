@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12058230623899485737"
+      "templateHash": "10590534894376033849"
     }
   },
   "parameters": {
@@ -291,7 +291,17 @@
     "arraySpread": "[flatten(createArray(variables('arrayOfBooleans'), variables('arrayOfHardCodedNumbers'), variables('arrayOfHardCodedStrings')))]",
     "nameof1": "arraySpread",
     "nameof2": "foo",
-    "nameof3": "nested"
+    "nameof3": "nested",
+    "name": "Anthony",
+    "multilineInterpolation": "[format('Hello,\nmy\nname is\n{0}\n', variables('name'))]",
+    "complexMultilineInterpolation": "[format('${{name}}\n$${{name}}\n{0}\n${1}\n', variables('name'), variables('name'))]",
+    "interpMultiEmpty": "",
+    "interp1Multi": "[format('abc{0}def\n', 123)]",
+    "interp2Multi": "[format('{0}def', 123)]",
+    "interp3Multi": "[format('abc{0}', 123)]",
+    "interp4Multi": "[format('abc{0}{1}jk$l{2}p$', 123, 456, 789)]",
+    "doubleInterpMulti": "[format('abc{0}_{1}', format('def{0}', 123), format('{0}{1}', 456, 789))]",
+    "curliesInInterpMulti": "[format('{{{0}{{0}}{1}}}', 123, true())]"
   },
   "resources": []
 }

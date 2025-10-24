@@ -108,14 +108,6 @@ const escapeChar: MatchRule = {
   match: `\\\\(u{[0-9A-Fa-f]+}|n|r|t|\\\\|'|\\\${)`,
 };
 
-const stringVerbatim: BeginEndRule = {
-  key: "string-verbatim",
-  scope: "string.quoted.multi.bicep",
-  begin: `'''`,
-  end: `'''${notBefore(`'`)}`,
-  patterns: [],
-};
-
 const stringSubstitution: BeginEndRule = {
   key: "string-literal-subst",
   scope: meta,
@@ -136,6 +128,22 @@ const stringLiteral: BeginEndRule = {
   begin: `'${notBefore(`''`)}`,
   end: `'`,
   patterns: [escapeChar, stringSubstitution],
+};
+
+const multiLineString: BeginEndRule = {
+  key: "multiline-string",
+  scope: "string.quoted.multi.bicep",
+  begin: `'''`,
+  end: `'''${notBefore(`'`)}`,
+  patterns: [],
+};
+
+const multiLineStringSingleEsc: BeginEndRule = {
+  key: "multiline-string-single-esc",
+  scope: "string.quoted.multi.bicep",
+  begin: `\\$'''`,
+  end: `'''${notBefore(`'`)}`,
+  patterns: [stringSubstitution],
 };
 
 const numericLiteral: MatchRule = {
@@ -234,7 +242,8 @@ const directiveStatement: BeginEndRule = {
 
 expression.patterns = [
   stringLiteral,
-  stringVerbatim,
+  multiLineString,
+  multiLineStringSingleEsc,
   numericLiteral,
   namedLiteral,
   objectLiteral,

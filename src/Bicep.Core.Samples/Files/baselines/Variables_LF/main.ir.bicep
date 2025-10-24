@@ -1,5 +1,5 @@
 
-//@[000:8214) ProgramExpression
+//@[000:8708) ProgramExpression
 // int
 @sys.description('an int variable')
 //@[000:0050) ├─DeclaredVariableExpression { Name = myInt }
@@ -1122,6 +1122,68 @@ var nameof2 = nameof(spread.foo)
 //@[000:0032) ├─DeclaredVariableExpression { Name = nameof2 }
 //@[021:0031) | └─StringLiteralExpression { Value = foo }
 var nameof3 = nameof(myObj.obj.nested)
-//@[000:0038) └─DeclaredVariableExpression { Name = nameof3 }
-//@[021:0037)   └─StringLiteralExpression { Value = nested }
+//@[000:0038) ├─DeclaredVariableExpression { Name = nameof3 }
+//@[021:0037) | └─StringLiteralExpression { Value = nested }
+
+
+var name = 'Anthony'
+//@[000:0020) ├─DeclaredVariableExpression { Name = name }
+//@[011:0020) | └─StringLiteralExpression { Value = Anthony }
+var multilineInterpolation = $'''
+//@[000:0063) ├─DeclaredVariableExpression { Name = multilineInterpolation }
+//@[029:0063) | └─InterpolatedStringExpression
+Hello,
+my
+name is
+${name}
+//@[002:0006) |   └─VariableReferenceExpression { Variable = name }
+'''
+
+var complexMultilineInterpolation = $$$'''
+//@[000:0084) ├─DeclaredVariableExpression { Name = complexMultilineInterpolation }
+//@[036:0084) | └─InterpolatedStringExpression
+${name}
+$${name}
+$$${name}
+//@[004:0008) |   ├─VariableReferenceExpression { Variable = name }
+$$$${name}
+//@[005:0009) |   └─VariableReferenceExpression { Variable = name }
+'''
+
+var interpMultiEmpty = $''''''
+//@[000:0030) ├─DeclaredVariableExpression { Name = interpMultiEmpty }
+//@[023:0030) | └─StringLiteralExpression { Value =  }
+var interp1Multi = $'''
+//@[000:0040) ├─DeclaredVariableExpression { Name = interp1Multi }
+//@[019:0040) | └─InterpolatedStringExpression
+abc${123}def
+//@[005:0008) |   └─IntegerLiteralExpression { Value = 123 }
+'''
+var interp2Multi = $'''${123}def'''
+//@[000:0035) ├─DeclaredVariableExpression { Name = interp2Multi }
+//@[019:0035) | └─InterpolatedStringExpression
+//@[025:0028) |   └─IntegerLiteralExpression { Value = 123 }
+var interp3Multi = $$'''abc$${123}'''
+//@[000:0037) ├─DeclaredVariableExpression { Name = interp3Multi }
+//@[019:0037) | └─InterpolatedStringExpression
+//@[030:0033) |   └─IntegerLiteralExpression { Value = 123 }
+var interp4Multi = $'''abc${123}${456}jk$l${789}p$'''
+//@[000:0053) ├─DeclaredVariableExpression { Name = interp4Multi }
+//@[019:0053) | └─InterpolatedStringExpression
+//@[028:0031) |   ├─IntegerLiteralExpression { Value = 123 }
+//@[034:0037) |   ├─IntegerLiteralExpression { Value = 456 }
+//@[044:0047) |   └─IntegerLiteralExpression { Value = 789 }
+var doubleInterpMulti = $'''abc${'def${123}'}_${'${456}${789}'}'''
+//@[000:0066) ├─DeclaredVariableExpression { Name = doubleInterpMulti }
+//@[024:0066) | └─InterpolatedStringExpression
+//@[033:0044) |   ├─InterpolatedStringExpression
+//@[039:0042) |   | └─IntegerLiteralExpression { Value = 123 }
+//@[048:0062) |   └─InterpolatedStringExpression
+//@[051:0054) |     ├─IntegerLiteralExpression { Value = 456 }
+//@[057:0060) |     └─IntegerLiteralExpression { Value = 789 }
+var curliesInInterpMulti = $'''{${123}{0}${true}}'''
+//@[000:0052) └─DeclaredVariableExpression { Name = curliesInInterpMulti }
+//@[027:0052)   └─InterpolatedStringExpression
+//@[034:0037)     ├─IntegerLiteralExpression { Value = 123 }
+//@[043:0047)     └─BooleanLiteralExpression { Value = True }
 

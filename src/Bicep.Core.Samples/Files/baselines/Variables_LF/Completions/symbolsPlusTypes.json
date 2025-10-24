@@ -508,6 +508,20 @@
     }
   },
   {
+    "label": "complexMultilineInterpolation",
+    "kind": "variable",
+    "detail": "complexMultilineInterpolation",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_complexMultilineInterpolation",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "complexMultilineInterpolation"
+    }
+  },
+  {
     "label": "concat",
     "kind": "function",
     "documentation": {
@@ -603,6 +617,20 @@
     "textEdit": {
       "range": {},
       "newText": "curliesInInterp"
+    }
+  },
+  {
+    "label": "curliesInInterpMulti",
+    "kind": "variable",
+    "detail": "curliesInInterpMulti",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_curliesInInterpMulti",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "curliesInInterpMulti"
     }
   },
   {
@@ -798,6 +826,20 @@
     "textEdit": {
       "range": {},
       "newText": "doubleInterp"
+    }
+  },
+  {
+    "label": "doubleInterpMulti",
+    "kind": "variable",
+    "detail": "doubleInterpMulti",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_doubleInterpMulti",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "doubleInterpMulti"
     }
   },
   {
@@ -1306,6 +1348,20 @@
     }
   },
   {
+    "label": "interp1Multi",
+    "kind": "variable",
+    "detail": "interp1Multi",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_interp1Multi",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "interp1Multi"
+    }
+  },
+  {
     "label": "interp2",
     "kind": "variable",
     "detail": "interp2",
@@ -1317,6 +1373,20 @@
     "textEdit": {
       "range": {},
       "newText": "interp2"
+    }
+  },
+  {
+    "label": "interp2Multi",
+    "kind": "variable",
+    "detail": "interp2Multi",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_interp2Multi",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "interp2Multi"
     }
   },
   {
@@ -1334,6 +1404,20 @@
     }
   },
   {
+    "label": "interp3Multi",
+    "kind": "variable",
+    "detail": "interp3Multi",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_interp3Multi",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "interp3Multi"
+    }
+  },
+  {
     "label": "interp4",
     "kind": "variable",
     "detail": "interp4",
@@ -1345,6 +1429,34 @@
     "textEdit": {
       "range": {},
       "newText": "interp4"
+    }
+  },
+  {
+    "label": "interp4Multi",
+    "kind": "variable",
+    "detail": "interp4Multi",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_interp4Multi",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "interp4Multi"
+    }
+  },
+  {
+    "label": "interpMultiEmpty",
+    "kind": "variable",
+    "detail": "interpMultiEmpty",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_interpMultiEmpty",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "interpMultiEmpty"
     }
   },
   {
@@ -1982,6 +2094,20 @@
     }
   },
   {
+    "label": "multilineInterpolation",
+    "kind": "variable",
+    "detail": "multilineInterpolation",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineInterpolation",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineInterpolation"
+    }
+  },
+  {
     "label": "multilineJavaScript",
     "kind": "variable",
     "detail": "multilineJavaScript",
@@ -2289,6 +2415,20 @@
     "textEdit": {
       "range": {},
       "newText": "myVar4"
+    }
+  },
+  {
+    "label": "name",
+    "kind": "variable",
+    "detail": "name",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_name",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "name"
     }
   },
   {

@@ -74,17 +74,24 @@ const escapeChar: Mode = {
   match: `\\\\(u{[0-9A-Fa-f]+}|n|r|t|\\\\|'|\\\${)`,
 };
 
-const stringVerbatim: Mode = {
-  className: "string",
-  begin: `'''`,
-  end: `'''${notBefore(`'`)}`,
-};
-
 const stringSubstitution: Mode = {
   className: "subst",
   begin: `${notAfter(`\\\\`)}(\\\${)`,
   end: `(})`,
   contains: withComments([expression]),
+};
+
+const multiLineString: Mode = {
+  className: "string",
+  begin: `'''`,
+  end: `'''${notBefore(`'`)}`,
+};
+
+const multiLineStringSingleEsc: Mode = {
+  className: "string",
+  begin: `\\$'''`,
+  end: `'''${notBefore(`'`)}`,
+  contains: [stringSubstitution],
 };
 
 const stringLiteral: Mode = {
@@ -172,7 +179,8 @@ const directiveStatement: Mode = {
 
 expression.variants = [
   stringLiteral,
-  stringVerbatim,
+  multiLineString,
+  multiLineStringSingleEsc,
   numericLiteral,
   namedLiteral,
   objectLiteral,

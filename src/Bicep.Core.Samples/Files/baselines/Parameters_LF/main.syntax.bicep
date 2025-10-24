@@ -20,7 +20,7 @@
 //@[016:0017) | |   ├─Token(LeftParen) |(|
 //@[017:0074) | |   ├─FunctionArgumentSyntax
 //@[017:0074) | |   | └─StringSyntax
-//@[017:0074) | |   |   └─Token(MultilineString) |'''\nthis is my multi line\ndescription for my myString\n'''|
+//@[017:0074) | |   |   └─Token(StringComplete) |'''\nthis is my multi line\ndescription for my myString\n'''|
 this is my multi line
 description for my myString
 ''')

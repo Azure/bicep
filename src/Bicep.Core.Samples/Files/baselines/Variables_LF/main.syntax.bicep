@@ -1,5 +1,5 @@
 
-//@[000:8214) ProgramSyntax
+//@[000:8708) ProgramSyntax
 //@[000:0001) ├─Token(NewLine) |\n|
 // int
 //@[006:0007) ├─Token(NewLine) |\n|
@@ -2885,7 +2885,7 @@ var multilineString = '''
 //@[004:0019) | | └─Token(Identifier) |multilineString|
 //@[020:0021) | ├─Token(Assignment) |=|
 //@[022:0036) | └─StringSyntax
-//@[022:0036) |   └─Token(MultilineString) |'''\nHELLO!\n'''|
+//@[022:0036) |   └─Token(StringComplete) |'''\nHELLO!\n'''|
 HELLO!
 '''
 //@[003:0005) ├─Token(NewLine) |\n\n|
@@ -2897,7 +2897,7 @@ var multilineEmpty = ''''''
 //@[004:0018) | | └─Token(Identifier) |multilineEmpty|
 //@[019:0020) | ├─Token(Assignment) |=|
 //@[021:0027) | └─StringSyntax
-//@[021:0027) |   └─Token(MultilineString) |''''''|
+//@[021:0027) |   └─Token(StringComplete) |''''''|
 //@[027:0028) ├─Token(NewLine) |\n|
 var multilineEmptyNewline = '''
 //@[000:0035) ├─VariableDeclarationSyntax
@@ -2906,7 +2906,7 @@ var multilineEmptyNewline = '''
 //@[004:0025) | | └─Token(Identifier) |multilineEmptyNewline|
 //@[026:0027) | ├─Token(Assignment) |=|
 //@[028:0035) | └─StringSyntax
-//@[028:0035) |   └─Token(MultilineString) |'''\n'''|
+//@[028:0035) |   └─Token(StringComplete) |'''\n'''|
 '''
 //@[003:0005) ├─Token(NewLine) |\n\n|
 
@@ -2919,7 +2919,7 @@ var multilineExtraQuotes = ''''abc''''
 //@[004:0024) | | └─Token(Identifier) |multilineExtraQuotes|
 //@[025:0026) | ├─Token(Assignment) |=|
 //@[027:0038) | └─StringSyntax
-//@[027:0038) |   └─Token(MultilineString) |''''abc''''|
+//@[027:0038) |   └─Token(StringComplete) |''''abc''''|
 //@[038:0040) ├─Token(NewLine) |\n\n|
 
 // evaluates to '\'\nabc\n\''
@@ -2931,7 +2931,7 @@ var multilineExtraQuotesNewlines = ''''
 //@[004:0032) | | └─Token(Identifier) |multilineExtraQuotesNewlines|
 //@[033:0034) | ├─Token(Assignment) |=|
 //@[035:0048) | └─StringSyntax
-//@[035:0048) |   └─Token(MultilineString) |''''\nabc\n''''|
+//@[035:0048) |   └─Token(StringComplete) |''''\nabc\n''''|
 abc
 ''''
 //@[004:0006) ├─Token(NewLine) |\n\n|
@@ -2943,7 +2943,7 @@ var multilineSingleLine = '''hello!'''
 //@[004:0023) | | └─Token(Identifier) |multilineSingleLine|
 //@[024:0025) | ├─Token(Assignment) |=|
 //@[026:0038) | └─StringSyntax
-//@[026:0038) |   └─Token(MultilineString) |'''hello!'''|
+//@[026:0038) |   └─Token(StringComplete) |'''hello!'''|
 //@[038:0040) ├─Token(NewLine) |\n\n|
 
 var multilineFormatted = format('''
@@ -2958,7 +2958,7 @@ var multilineFormatted = format('''
 //@[031:0032) |   ├─Token(LeftParen) |(|
 //@[032:0061) |   ├─FunctionArgumentSyntax
 //@[032:0061) |   | └─StringSyntax
-//@[032:0061) |   |   └─Token(MultilineString) |'''\nHello,\nmy\nname is\n{0}\n'''|
+//@[032:0061) |   |   └─Token(StringComplete) |'''\nHello,\nmy\nname is\n{0}\n'''|
 Hello,
 my
 name is
@@ -2978,7 +2978,7 @@ var multilineJavaScript = '''
 //@[004:0023) | | └─Token(Identifier) |multilineJavaScript|
 //@[024:0025) | ├─Token(Assignment) |=|
 //@[026:0586) | └─StringSyntax
-//@[026:0586) |   └─Token(MultilineString) |'''\n// NOT RECOMMENDED PATTERN\nconst fs = require('fs');\n\nmodule.exports = function (context) {\n    fs.readFile('./hello.txt', (err, data) => {\n        if (err) {\n            context.log.error('ERROR', err);\n            // BUG #1: This will result in an uncaught exception that crashes the entire process\n            throw err;\n        }\n        context.log(`Data from file: ${data}`);\n        // context.done() should be called here\n    });\n    // BUG #2: Data is not guaranteed to be read before the Azure Function's invocation ends\n    context.done();\n}\n'''|
+//@[026:0586) |   └─Token(StringComplete) |'''\n// NOT RECOMMENDED PATTERN\nconst fs = require('fs');\n\nmodule.exports = function (context) {\n    fs.readFile('./hello.txt', (err, data) => {\n        if (err) {\n            context.log.error('ERROR', err);\n            // BUG #1: This will result in an uncaught exception that crashes the entire process\n            throw err;\n        }\n        context.log(`Data from file: ${data}`);\n        // context.done() should be called here\n    });\n    // BUG #2: Data is not guaranteed to be read before the Azure Function's invocation ends\n    context.done();\n}\n'''|
 // NOT RECOMMENDED PATTERN
 const fs = require('fs');
 
@@ -3313,6 +3313,163 @@ var nameof3 = nameof(myObj.obj.nested)
 //@[031:0037) |   |   └─IdentifierSyntax
 //@[031:0037) |   |     └─Token(Identifier) |nested|
 //@[037:0038) |   └─Token(RightParen) |)|
-//@[038:0039) ├─Token(NewLine) |\n|
+//@[038:0041) ├─Token(NewLine) |\n\n\n|
+
+
+var name = 'Anthony'
+//@[000:0020) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0008) | ├─IdentifierSyntax
+//@[004:0008) | | └─Token(Identifier) |name|
+//@[009:0010) | ├─Token(Assignment) |=|
+//@[011:0020) | └─StringSyntax
+//@[011:0020) |   └─Token(StringComplete) |'Anthony'|
+//@[020:0021) ├─Token(NewLine) |\n|
+var multilineInterpolation = $'''
+//@[000:0063) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0026) | ├─IdentifierSyntax
+//@[004:0026) | | └─Token(Identifier) |multilineInterpolation|
+//@[027:0028) | ├─Token(Assignment) |=|
+//@[029:0063) | └─StringSyntax
+//@[029:0054) |   ├─Token(StringLeftPiece) |$'''\nHello,\nmy\nname is\n${|
+Hello,
+my
+name is
+${name}
+//@[002:0006) |   ├─VariableAccessSyntax
+//@[002:0006) |   | └─IdentifierSyntax
+//@[002:0006) |   |   └─Token(Identifier) |name|
+//@[006:0011) |   └─Token(StringRightPiece) |}\n'''|
+'''
+//@[003:0005) ├─Token(NewLine) |\n\n|
+
+var complexMultilineInterpolation = $$$'''
+//@[000:0084) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0033) | ├─IdentifierSyntax
+//@[004:0033) | | └─Token(Identifier) |complexMultilineInterpolation|
+//@[034:0035) | ├─Token(Assignment) |=|
+//@[036:0084) | └─StringSyntax
+//@[036:0064) |   ├─Token(StringLeftPiece) |$$$'''\n${name}\n$${name}\n$$${|
+${name}
+$${name}
+$$${name}
+//@[004:0008) |   ├─VariableAccessSyntax
+//@[004:0008) |   | └─IdentifierSyntax
+//@[004:0008) |   |   └─Token(Identifier) |name|
+//@[008:0015) |   ├─Token(StringMiddlePiece) |}\n$$$${|
+$$$${name}
+//@[005:0009) |   ├─VariableAccessSyntax
+//@[005:0009) |   | └─IdentifierSyntax
+//@[005:0009) |   |   └─Token(Identifier) |name|
+//@[009:0014) |   └─Token(StringRightPiece) |}\n'''|
+'''
+//@[003:0005) ├─Token(NewLine) |\n\n|
+
+var interpMultiEmpty = $''''''
+//@[000:0030) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0020) | ├─IdentifierSyntax
+//@[004:0020) | | └─Token(Identifier) |interpMultiEmpty|
+//@[021:0022) | ├─Token(Assignment) |=|
+//@[023:0030) | └─StringSyntax
+//@[023:0030) |   └─Token(StringComplete) |$''''''|
+//@[030:0031) ├─Token(NewLine) |\n|
+var interp1Multi = $'''
+//@[000:0040) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0016) | ├─IdentifierSyntax
+//@[004:0016) | | └─Token(Identifier) |interp1Multi|
+//@[017:0018) | ├─Token(Assignment) |=|
+//@[019:0040) | └─StringSyntax
+//@[019:0029) |   ├─Token(StringLeftPiece) |$'''\nabc${|
+abc${123}def
+//@[005:0008) |   ├─IntegerLiteralSyntax
+//@[005:0008) |   | └─Token(Integer) |123|
+//@[008:0016) |   └─Token(StringRightPiece) |}def\n'''|
+'''
+//@[003:0004) ├─Token(NewLine) |\n|
+var interp2Multi = $'''${123}def'''
+//@[000:0035) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0016) | ├─IdentifierSyntax
+//@[004:0016) | | └─Token(Identifier) |interp2Multi|
+//@[017:0018) | ├─Token(Assignment) |=|
+//@[019:0035) | └─StringSyntax
+//@[019:0025) |   ├─Token(StringLeftPiece) |$'''${|
+//@[025:0028) |   ├─IntegerLiteralSyntax
+//@[025:0028) |   | └─Token(Integer) |123|
+//@[028:0035) |   └─Token(StringRightPiece) |}def'''|
+//@[035:0036) ├─Token(NewLine) |\n|
+var interp3Multi = $$'''abc$${123}'''
+//@[000:0037) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0016) | ├─IdentifierSyntax
+//@[004:0016) | | └─Token(Identifier) |interp3Multi|
+//@[017:0018) | ├─Token(Assignment) |=|
+//@[019:0037) | └─StringSyntax
+//@[019:0030) |   ├─Token(StringLeftPiece) |$$'''abc$${|
+//@[030:0033) |   ├─IntegerLiteralSyntax
+//@[030:0033) |   | └─Token(Integer) |123|
+//@[033:0037) |   └─Token(StringRightPiece) |}'''|
+//@[037:0038) ├─Token(NewLine) |\n|
+var interp4Multi = $'''abc${123}${456}jk$l${789}p$'''
+//@[000:0053) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0016) | ├─IdentifierSyntax
+//@[004:0016) | | └─Token(Identifier) |interp4Multi|
+//@[017:0018) | ├─Token(Assignment) |=|
+//@[019:0053) | └─StringSyntax
+//@[019:0028) |   ├─Token(StringLeftPiece) |$'''abc${|
+//@[028:0031) |   ├─IntegerLiteralSyntax
+//@[028:0031) |   | └─Token(Integer) |123|
+//@[031:0034) |   ├─Token(StringMiddlePiece) |}${|
+//@[034:0037) |   ├─IntegerLiteralSyntax
+//@[034:0037) |   | └─Token(Integer) |456|
+//@[037:0044) |   ├─Token(StringMiddlePiece) |}jk$l${|
+//@[044:0047) |   ├─IntegerLiteralSyntax
+//@[044:0047) |   | └─Token(Integer) |789|
+//@[047:0053) |   └─Token(StringRightPiece) |}p$'''|
+//@[053:0054) ├─Token(NewLine) |\n|
+var doubleInterpMulti = $'''abc${'def${123}'}_${'${456}${789}'}'''
+//@[000:0066) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0021) | ├─IdentifierSyntax
+//@[004:0021) | | └─Token(Identifier) |doubleInterpMulti|
+//@[022:0023) | ├─Token(Assignment) |=|
+//@[024:0066) | └─StringSyntax
+//@[024:0033) |   ├─Token(StringLeftPiece) |$'''abc${|
+//@[033:0044) |   ├─StringSyntax
+//@[033:0039) |   | ├─Token(StringLeftPiece) |'def${|
+//@[039:0042) |   | ├─IntegerLiteralSyntax
+//@[039:0042) |   | | └─Token(Integer) |123|
+//@[042:0044) |   | └─Token(StringRightPiece) |}'|
+//@[044:0048) |   ├─Token(StringMiddlePiece) |}_${|
+//@[048:0062) |   ├─StringSyntax
+//@[048:0051) |   | ├─Token(StringLeftPiece) |'${|
+//@[051:0054) |   | ├─IntegerLiteralSyntax
+//@[051:0054) |   | | └─Token(Integer) |456|
+//@[054:0057) |   | ├─Token(StringMiddlePiece) |}${|
+//@[057:0060) |   | ├─IntegerLiteralSyntax
+//@[057:0060) |   | | └─Token(Integer) |789|
+//@[060:0062) |   | └─Token(StringRightPiece) |}'|
+//@[062:0066) |   └─Token(StringRightPiece) |}'''|
+//@[066:0067) ├─Token(NewLine) |\n|
+var curliesInInterpMulti = $'''{${123}{0}${true}}'''
+//@[000:0052) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0024) | ├─IdentifierSyntax
+//@[004:0024) | | └─Token(Identifier) |curliesInInterpMulti|
+//@[025:0026) | ├─Token(Assignment) |=|
+//@[027:0052) | └─StringSyntax
+//@[027:0034) |   ├─Token(StringLeftPiece) |$'''{${|
+//@[034:0037) |   ├─IntegerLiteralSyntax
+//@[034:0037) |   | └─Token(Integer) |123|
+//@[037:0043) |   ├─Token(StringMiddlePiece) |}{0}${|
+//@[043:0047) |   ├─BooleanLiteralSyntax
+//@[043:0047) |   | └─Token(TrueKeyword) |true|
+//@[047:0052) |   └─Token(StringRightPiece) |}}'''|
+//@[052:0053) ├─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

@@ -237,7 +237,7 @@ namespace Bicep.Core.Syntax
             var tokenValue = $"'''{value}'''";
 
             return new(
-                [CreateFreeformToken(TokenType.MultilineString, tokenValue, leadingTrivia, trailingTrivia)],
+                [CreateFreeformToken(TokenType.StringComplete, tokenValue, leadingTrivia, trailingTrivia)],
                 [],
                 [value]);
         }

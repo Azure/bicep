@@ -1801,7 +1801,7 @@ var multilineString = '''
 //@[000:003) Identifier |var|
 //@[004:019) Identifier |multilineString|
 //@[020:021) Assignment |=|
-//@[022:036) MultilineString |'''\nHELLO!\n'''|
+//@[022:036) StringComplete |'''\nHELLO!\n'''|
 HELLO!
 '''
 //@[003:005) NewLine |\n\n|
@@ -1810,13 +1810,13 @@ var multilineEmpty = ''''''
 //@[000:003) Identifier |var|
 //@[004:018) Identifier |multilineEmpty|
 //@[019:020) Assignment |=|
-//@[021:027) MultilineString |''''''|
+//@[021:027) StringComplete |''''''|
 //@[027:028) NewLine |\n|
 var multilineEmptyNewline = '''
 //@[000:003) Identifier |var|
 //@[004:025) Identifier |multilineEmptyNewline|
 //@[026:027) Assignment |=|
-//@[028:035) MultilineString |'''\n'''|
+//@[028:035) StringComplete |'''\n'''|
 '''
 //@[003:005) NewLine |\n\n|
 
@@ -1826,7 +1826,7 @@ var multilineExtraQuotes = ''''abc''''
 //@[000:003) Identifier |var|
 //@[004:024) Identifier |multilineExtraQuotes|
 //@[025:026) Assignment |=|
-//@[027:038) MultilineString |''''abc''''|
+//@[027:038) StringComplete |''''abc''''|
 //@[038:040) NewLine |\n\n|
 
 // evaluates to '\'\nabc\n\''
@@ -1835,7 +1835,7 @@ var multilineExtraQuotesNewlines = ''''
 //@[000:003) Identifier |var|
 //@[004:032) Identifier |multilineExtraQuotesNewlines|
 //@[033:034) Assignment |=|
-//@[035:048) MultilineString |''''\nabc\n''''|
+//@[035:048) StringComplete |''''\nabc\n''''|
 abc
 ''''
 //@[004:006) NewLine |\n\n|
@@ -1844,7 +1844,7 @@ var multilineSingleLine = '''hello!'''
 //@[000:003) Identifier |var|
 //@[004:023) Identifier |multilineSingleLine|
 //@[024:025) Assignment |=|
-//@[026:038) MultilineString |'''hello!'''|
+//@[026:038) StringComplete |'''hello!'''|
 //@[038:040) NewLine |\n\n|
 
 var multilineFormatted = format('''
@@ -1853,7 +1853,7 @@ var multilineFormatted = format('''
 //@[023:024) Assignment |=|
 //@[025:031) Identifier |format|
 //@[031:032) LeftParen |(|
-//@[032:061) MultilineString |'''\nHello,\nmy\nname is\n{0}\n'''|
+//@[032:061) StringComplete |'''\nHello,\nmy\nname is\n{0}\n'''|
 Hello,
 my
 name is
@@ -1868,7 +1868,7 @@ var multilineJavaScript = '''
 //@[000:003) Identifier |var|
 //@[004:023) Identifier |multilineJavaScript|
 //@[024:025) Assignment |=|
-//@[026:586) MultilineString |'''\n// NOT RECOMMENDED PATTERN\nconst fs = require('fs');\n\nmodule.exports = function (context) {\n    fs.readFile('./hello.txt', (err, data) => {\n        if (err) {\n            context.log.error('ERROR', err);\n            // BUG #1: This will result in an uncaught exception that crashes the entire process\n            throw err;\n        }\n        context.log(`Data from file: ${data}`);\n        // context.done() should be called here\n    });\n    // BUG #2: Data is not guaranteed to be read before the Azure Function's invocation ends\n    context.done();\n}\n'''|
+//@[026:586) StringComplete |'''\n// NOT RECOMMENDED PATTERN\nconst fs = require('fs');\n\nmodule.exports = function (context) {\n    fs.readFile('./hello.txt', (err, data) => {\n        if (err) {\n            context.log.error('ERROR', err);\n            // BUG #1: This will result in an uncaught exception that crashes the entire process\n            throw err;\n        }\n        context.log(`Data from file: ${data}`);\n        // context.done() should be called here\n    });\n    // BUG #2: Data is not guaranteed to be read before the Azure Function's invocation ends\n    context.done();\n}\n'''|
 // NOT RECOMMENDED PATTERN
 const fs = require('fs');
 
@@ -2081,6 +2081,114 @@ var nameof3 = nameof(myObj.obj.nested)
 //@[030:031) Dot |.|
 //@[031:037) Identifier |nested|
 //@[037:038) RightParen |)|
-//@[038:039) NewLine |\n|
+//@[038:041) NewLine |\n\n\n|
+
+
+var name = 'Anthony'
+//@[000:003) Identifier |var|
+//@[004:008) Identifier |name|
+//@[009:010) Assignment |=|
+//@[011:020) StringComplete |'Anthony'|
+//@[020:021) NewLine |\n|
+var multilineInterpolation = $'''
+//@[000:003) Identifier |var|
+//@[004:026) Identifier |multilineInterpolation|
+//@[027:028) Assignment |=|
+//@[029:054) StringLeftPiece |$'''\nHello,\nmy\nname is\n${|
+Hello,
+my
+name is
+${name}
+//@[002:006) Identifier |name|
+//@[006:011) StringRightPiece |}\n'''|
+'''
+//@[003:005) NewLine |\n\n|
+
+var complexMultilineInterpolation = $$$'''
+//@[000:003) Identifier |var|
+//@[004:033) Identifier |complexMultilineInterpolation|
+//@[034:035) Assignment |=|
+//@[036:064) StringLeftPiece |$$$'''\n${name}\n$${name}\n$$${|
+${name}
+$${name}
+$$${name}
+//@[004:008) Identifier |name|
+//@[008:015) StringMiddlePiece |}\n$$$${|
+$$$${name}
+//@[005:009) Identifier |name|
+//@[009:014) StringRightPiece |}\n'''|
+'''
+//@[003:005) NewLine |\n\n|
+
+var interpMultiEmpty = $''''''
+//@[000:003) Identifier |var|
+//@[004:020) Identifier |interpMultiEmpty|
+//@[021:022) Assignment |=|
+//@[023:030) StringComplete |$''''''|
+//@[030:031) NewLine |\n|
+var interp1Multi = $'''
+//@[000:003) Identifier |var|
+//@[004:016) Identifier |interp1Multi|
+//@[017:018) Assignment |=|
+//@[019:029) StringLeftPiece |$'''\nabc${|
+abc${123}def
+//@[005:008) Integer |123|
+//@[008:016) StringRightPiece |}def\n'''|
+'''
+//@[003:004) NewLine |\n|
+var interp2Multi = $'''${123}def'''
+//@[000:003) Identifier |var|
+//@[004:016) Identifier |interp2Multi|
+//@[017:018) Assignment |=|
+//@[019:025) StringLeftPiece |$'''${|
+//@[025:028) Integer |123|
+//@[028:035) StringRightPiece |}def'''|
+//@[035:036) NewLine |\n|
+var interp3Multi = $$'''abc$${123}'''
+//@[000:003) Identifier |var|
+//@[004:016) Identifier |interp3Multi|
+//@[017:018) Assignment |=|
+//@[019:030) StringLeftPiece |$$'''abc$${|
+//@[030:033) Integer |123|
+//@[033:037) StringRightPiece |}'''|
+//@[037:038) NewLine |\n|
+var interp4Multi = $'''abc${123}${456}jk$l${789}p$'''
+//@[000:003) Identifier |var|
+//@[004:016) Identifier |interp4Multi|
+//@[017:018) Assignment |=|
+//@[019:028) StringLeftPiece |$'''abc${|
+//@[028:031) Integer |123|
+//@[031:034) StringMiddlePiece |}${|
+//@[034:037) Integer |456|
+//@[037:044) StringMiddlePiece |}jk$l${|
+//@[044:047) Integer |789|
+//@[047:053) StringRightPiece |}p$'''|
+//@[053:054) NewLine |\n|
+var doubleInterpMulti = $'''abc${'def${123}'}_${'${456}${789}'}'''
+//@[000:003) Identifier |var|
+//@[004:021) Identifier |doubleInterpMulti|
+//@[022:023) Assignment |=|
+//@[024:033) StringLeftPiece |$'''abc${|
+//@[033:039) StringLeftPiece |'def${|
+//@[039:042) Integer |123|
+//@[042:044) StringRightPiece |}'|
+//@[044:048) StringMiddlePiece |}_${|
+//@[048:051) StringLeftPiece |'${|
+//@[051:054) Integer |456|
+//@[054:057) StringMiddlePiece |}${|
+//@[057:060) Integer |789|
+//@[060:062) StringRightPiece |}'|
+//@[062:066) StringRightPiece |}'''|
+//@[066:067) NewLine |\n|
+var curliesInInterpMulti = $'''{${123}{0}${true}}'''
+//@[000:003) Identifier |var|
+//@[004:024) Identifier |curliesInInterpMulti|
+//@[025:026) Assignment |=|
+//@[027:034) StringLeftPiece |$'''{${|
+//@[034:037) Integer |123|
+//@[037:043) StringMiddlePiece |}{0}${|
+//@[043:047) TrueKeyword |true|
+//@[047:052) StringRightPiece |}}'''|
+//@[052:053) NewLine |\n|
 
 //@[000:000) EndOfFile ||

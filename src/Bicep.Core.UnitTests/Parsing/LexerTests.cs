@@ -504,11 +504,11 @@ namespace Bicep.Core.UnitTests.Parsing
             var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
             lexer.Lex();
 
-            lexer.GetTokens().Select(t => t.Type).Should().Equal(TokenType.MultilineString, TokenType.EndOfFile);
+            lexer.GetTokens().Select(t => t.Type).Should().Equal(TokenType.StringComplete, TokenType.EndOfFile);
 
             var multilineToken = lexer.GetTokens().First();
             multilineToken.Text.Should().Be(text);
-            Lexer.TryGetMultilineStringValue(multilineToken).Should().Be(expectedValue);
+            Lexer.TryGetMultilineStringValue(multilineToken, 0).Should().Be(expectedValue);
         }
 
         [DataRow("'''abc")]
@@ -520,7 +520,7 @@ namespace Bicep.Core.UnitTests.Parsing
             var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
             lexer.Lex();
 
-            lexer.GetTokens().Select(t => t.Type).Should().Equal(TokenType.MultilineString, TokenType.EndOfFile);
+            lexer.GetTokens().Select(t => t.Type).Should().Equal(TokenType.StringComplete, TokenType.EndOfFile);
             var diagnostics = diagnosticWriter.GetDiagnostics().ToList();
 
             diagnostics.Should().HaveCount(1);

@@ -219,20 +219,20 @@ public class SemanticTokenVisitor : CstVisitor
         base.VisitFunctionDeclarationSyntax(syntax);
     }
 
-    private void AddStringToken(Token token)
+    private void AddStringToken(Token token, string? start, string? end)
     {
-        var endInterp = token.Type switch
+        var endInterp = (token.Type, end) switch
         {
-            TokenType.StringLeftPiece => LanguageConstants.StringHoleOpen,
-            TokenType.StringMiddlePiece => LanguageConstants.StringHoleOpen,
-            _ => ""
+            (TokenType.StringLeftPiece, { }) => end,
+            (TokenType.StringMiddlePiece, { }) => end,
+            _ => "",
         };
 
-        var startInterp = token.Type switch
+        var startInterp = (token.Type, start) switch
         {
-            TokenType.StringMiddlePiece => LanguageConstants.StringHoleClose,
-            TokenType.StringRightPiece => LanguageConstants.StringHoleClose,
-            _ => ""
+            (TokenType.StringMiddlePiece, { }) => start,
+            (TokenType.StringRightPiece, { }) => start,
+            _ => "",
         };
 
         // need to be extremely cautious here. it may be that lexing has failed to find a string terminating character,
@@ -263,17 +263,38 @@ public class SemanticTokenVisitor : CstVisitor
         base.VisitTernaryOperationSyntax(syntax);
     }
 
+    public override void VisitStringTypeLiteralSyntax(StringTypeLiteralSyntax syntax)
+    {
+        var startAndEndTokens = Lexer.TryGetStartAndEndTokens(syntax.StringTokens).ToImmutableArray();
+        for (var i = 0; i < syntax.StringTokens.Length; i++)
+        {
+            var result = startAndEndTokens[i];
+            AddStringToken(syntax.StringTokens[i], result?.start, result?.end);
+        }
+        foreach (var expression in syntax.Expressions)
+        {
+            Visit(expression);
+        }
+    }
+
+    public override void VisitStringSyntax(StringSyntax syntax)
+    {
+        var startAndEndTokens = Lexer.TryGetStartAndEndTokens(syntax.StringTokens).ToImmutableArray();
+        for (var i = 0; i < syntax.StringTokens.Length; i++)
+        {
+            var result = startAndEndTokens[i];
+            AddStringToken(syntax.StringTokens[i], result?.start, result?.end);
+        }
+        foreach (var expression in syntax.Expressions)
+        {
+            Visit(expression);
+        }
+    }
+
     public override void VisitToken(Token token)
     {
         switch (token.Type)
         {
-            case TokenType.StringComplete:
-            case TokenType.StringLeftPiece:
-            case TokenType.StringMiddlePiece:
-            case TokenType.StringRightPiece:
-            case TokenType.MultilineString:
-                AddStringToken(token);
-                break;
             case TokenType.Comma:
                 AddTokenType(token, SemanticTokenType.Operator);
                 break;
