@@ -1,0 +1,1061 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "2.0",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "2165669177709342949"
+    }
+  },
+  "parameters": {
+    "deployTimeSuffix": {
+      "type": "string",
+      "defaultValue": "[newGuid()]",
+      "metadata": {
+        "description": "this is deployTimeSuffix param"
+      }
+    }
+  },
+  "variables": {
+    "myModules": [
+      {
+        "name": "one",
+        "location": "eastus2"
+      },
+      {
+        "name": "two",
+        "location": "westus"
+      }
+    ],
+    "emptyArray": [],
+    "duplicateAcrossScopes": "hello",
+    "someDuplicate": true,
+    "otherDuplicate": false,
+    "vaults": [
+      {
+        "vaultName": "test-1-kv",
+        "vaultRG": "test-1-rg",
+        "vaultSub": "abcd-efgh"
+      },
+      {
+        "vaultName": "test-2-kv",
+        "vaultRG": "test-2-rg",
+        "vaultSub": "ijkl-1adg1"
+      }
+    ],
+    "secrets": [
+      {
+        "name": "secret01",
+        "version": "versionA"
+      },
+      {
+        "name": "secret02",
+        "version": "versionB"
+      }
+    ],
+    "nameofModule": "folderWithSpace",
+    "nameofModuleParam": "exposedSecureString"
+  },
+  "resources": {
+    "resWithDependencies": {
+      "type": "Mock.Rp/mockResource",
+      "apiVersion": "2020-01-01",
+      "name": "harry",
+      "properties": {
+        "modADep": "[reference('modATest').outputs.stringOutputA.value]",
+        "modBDep": "[reference('modB').outputs.myResourceId.value]",
+        "modCDep": "[reference('modC').outputs.myResourceId.value]"
+      },
+      "dependsOn": [
+        "modATest",
+        "modB",
+        "modC"
+      ]
+    },
+    "resWithCalculatedNameDependencies": {
+      "type": "Mock.Rp/mockResource",
+      "apiVersion": "2020-01-01",
+      "name": "[format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix'))]",
+      "properties": {
+        "modADep": "[reference('moduleWithCalculatedName').outputs.outputObj.value]"
+      },
+      "dependsOn": [
+        "moduleWithCalculatedName",
+        "optionalWithAllParamsAndManualDependency"
+      ]
+    },
+    "kv": {
+      "existing": true,
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2019-09-01",
+      "name": "testkeyvault"
+    },
+    "scopedKv": {
+      "existing": true,
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2019-09-01",
+      "resourceGroup": "otherGroup",
+      "name": "testkeyvault"
+    },
+    "loopedKv": {
+      "copy": {
+        "name": "loopedKv",
+        "count": "[length(variables('vaults'))]"
+      },
+      "existing": true,
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2019-09-01",
+      "subscriptionId": "[variables('vaults')[copyIndex()].vaultSub]",
+      "resourceGroup": "[variables('vaults')[copyIndex()].vaultRG]",
+      "name": "[variables('vaults')[copyIndex()].vaultName]"
+    },
+    "modATest": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "modATest",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "stringParamB": {
+            "value": "hello!"
+          },
+          "objParam": {
+            "value": {
+              "a": "b"
+            }
+          },
+          "arrayParam": {
+            "value": [
+              {
+                "a": "b"
+              },
+              "abc"
+            ]
+          }
+        },
+        "templateLink": {
+          "relativePath": "45909d4bead657d05a48604396b113742c5ca3b066b039ba3fad4a972142fb69"
+        }
+      },
+      "metadata": {
+        "description": "this module a"
+      }
+    },
+    "modB": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "modB",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "West US"
+          }
+        },
+        "templateLink": {
+          "relativePath": "a699b440a8a73eeda764380d5b37b7255190962e08dcb16a49d4c28f3dd44542"
+        }
+      },
+      "metadata": {
+        "description": "this module b"
+      }
+    },
+    "modBWithCondition": {
+      "condition": "[equals(add(1, 1), 2)]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "modBWithCondition",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "East US"
+          }
+        },
+        "templateLink": {
+          "relativePath": "a699b440a8a73eeda764380d5b37b7255190962e08dcb16a49d4c28f3dd44542"
+        }
+      },
+      "metadata": {
+        "description": "this is just module b with a condition"
+      }
+    },
+    "modBWithCondition2": {
+      "condition": "[equals(add(1, 1), 2)]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "modBWithCondition2",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "East US"
+          }
+        },
+        "templateLink": {
+          "relativePath": "a699b440a8a73eeda764380d5b37b7255190962e08dcb16a49d4c28f3dd44542"
+        }
+      }
+    },
+    "modC": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "modC",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "West US"
+          }
+        },
+        "templateLink": {
+          "relativePath": "2f593b8c43b18853049dca2e4db0959333e9b08ed1430d2d9f43b830941fd0b9"
+        }
+      }
+    },
+    "modCWithCondition": {
+      "condition": "[equals(sub(2, 1), 1)]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "modCWithCondition",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "East US"
+          }
+        },
+        "templateLink": {
+          "relativePath": "2f593b8c43b18853049dca2e4db0959333e9b08ed1430d2d9f43b830941fd0b9"
+        }
+      }
+    },
+    "optionalWithNoParams1": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "optionalWithNoParams1",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "templateLink": {
+          "relativePath": "86f326d32342f64aa8a3c6e22ecec71d5eff9b264214c4e599e80f6217893531"
+        }
+      }
+    },
+    "optionalWithNoParams2": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "optionalWithNoParams2",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {},
+        "templateLink": {
+          "relativePath": "86f326d32342f64aa8a3c6e22ecec71d5eff9b264214c4e599e80f6217893531"
+        }
+      }
+    },
+    "optionalWithAllParams": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "optionalWithNoParams3",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "optionalString": {
+            "value": "abc"
+          },
+          "optionalInt": {
+            "value": 42
+          },
+          "optionalObj": {
+            "value": {}
+          },
+          "optionalArray": {
+            "value": []
+          }
+        },
+        "templateLink": {
+          "relativePath": "86f326d32342f64aa8a3c6e22ecec71d5eff9b264214c4e599e80f6217893531"
+        }
+      }
+    },
+    "optionalWithAllParamsAndManualDependency": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "optionalWithAllParamsAndManualDependency",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "optionalString": {
+            "value": "abc"
+          },
+          "optionalInt": {
+            "value": 42
+          },
+          "optionalObj": {
+            "value": {}
+          },
+          "optionalArray": {
+            "value": []
+          }
+        },
+        "templateLink": {
+          "relativePath": "86f326d32342f64aa8a3c6e22ecec71d5eff9b264214c4e599e80f6217893531"
+        }
+      },
+      "dependsOn": [
+        "optionalWithAllParams",
+        "resWithDependencies"
+      ]
+    },
+    "optionalWithImplicitDependency": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "optionalWithImplicitDependency",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "optionalString": {
+            "value": "[concat(resourceId('Mock.Rp/mockResource', 'harry'), 'optionalWithAllParamsAndManualDependency')]"
+          },
+          "optionalInt": {
+            "value": 42
+          },
+          "optionalObj": {
+            "value": {}
+          },
+          "optionalArray": {
+            "value": []
+          }
+        },
+        "templateLink": {
+          "relativePath": "86f326d32342f64aa8a3c6e22ecec71d5eff9b264214c4e599e80f6217893531"
+        }
+      },
+      "dependsOn": [
+        "optionalWithAllParamsAndManualDependency",
+        "resWithDependencies"
+      ]
+    },
+    "moduleWithCalculatedName": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "optionalString": {
+            "value": "[concat(resourceId('Mock.Rp/mockResource', 'harry'), 'optionalWithAllParamsAndManualDependency')]"
+          },
+          "optionalInt": {
+            "value": 42
+          },
+          "optionalObj": {
+            "value": {}
+          },
+          "optionalArray": {
+            "value": []
+          }
+        },
+        "templateLink": {
+          "relativePath": "86f326d32342f64aa8a3c6e22ecec71d5eff9b264214c4e599e80f6217893531"
+        }
+      },
+      "dependsOn": [
+        "optionalWithAllParamsAndManualDependency",
+        "resWithDependencies"
+      ]
+    },
+    "storageResources": {
+      "copy": {
+        "name": "storageResources",
+        "count": "[length(variables('myModules'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[variables('myModules')[copyIndex()].name]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "arrayParam": {
+            "value": []
+          },
+          "objParam": {
+            "value": "[variables('myModules')[copyIndex()]]"
+          },
+          "stringParamB": {
+            "value": "[variables('myModules')[copyIndex()].location]"
+          }
+        },
+        "templateLink": {
+          "relativePath": "45909d4bead657d05a48604396b113742c5ca3b066b039ba3fad4a972142fb69"
+        }
+      }
+    },
+    "storageResourcesWithIndex": {
+      "copy": {
+        "name": "storageResourcesWithIndex",
+        "count": "[length(variables('myModules'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[variables('myModules')[copyIndex()].name]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "arrayParam": {
+            "value": [
+              "[add(copyIndex(), 1)]"
+            ]
+          },
+          "objParam": {
+            "value": "[variables('myModules')[copyIndex()]]"
+          },
+          "stringParamB": {
+            "value": "[variables('myModules')[copyIndex()].location]"
+          },
+          "stringParamA": {
+            "value": "[concat('a', copyIndex())]"
+          }
+        },
+        "templateLink": {
+          "relativePath": "45909d4bead657d05a48604396b113742c5ca3b066b039ba3fad4a972142fb69"
+        }
+      }
+    },
+    "nestedModuleLoop": {
+      "copy": {
+        "name": "nestedModuleLoop",
+        "count": "[length(variables('myModules'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[variables('myModules')[copyIndex()].name]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "arrayParam": {
+            "copy": [
+              {
+                "name": "value",
+                "count": "[length(range(0, 3))]",
+                "input": "[concat('test-', range(0, 3)[copyIndex('value')], '-', variables('myModules')[copyIndex()].name)]"
+              }
+            ]
+          },
+          "objParam": {
+            "value": "[variables('myModules')[copyIndex()]]"
+          },
+          "stringParamB": {
+            "value": "[variables('myModules')[copyIndex()].location]"
+          }
+        },
+        "templateLink": {
+          "relativePath": "45909d4bead657d05a48604396b113742c5ca3b066b039ba3fad4a972142fb69"
+        }
+      }
+    },
+    "duplicateIdentifiersWithinLoop": {
+      "copy": {
+        "name": "duplicateIdentifiersWithinLoop",
+        "count": "[length(variables('emptyArray'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('hello-{0}', variables('emptyArray')[copyIndex()])]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "objParam": {
+            "value": {}
+          },
+          "stringParamA": {
+            "value": "test"
+          },
+          "stringParamB": {
+            "value": "test"
+          },
+          "arrayParam": {
+            "copy": [
+              {
+                "name": "value",
+                "count": "[length(variables('emptyArray'))]",
+                "input": "[variables('emptyArray')[copyIndex('value')]]"
+              }
+            ]
+          }
+        },
+        "templateLink": {
+          "relativePath": "45909d4bead657d05a48604396b113742c5ca3b066b039ba3fad4a972142fb69"
+        }
+      }
+    },
+    "duplicateInGlobalAndOneLoop": {
+      "copy": {
+        "name": "duplicateInGlobalAndOneLoop",
+        "count": "[length(createArray())]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('hello-{0}', createArray()[copyIndex()])]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "objParam": {
+            "value": {}
+          },
+          "stringParamA": {
+            "value": "test"
+          },
+          "stringParamB": {
+            "value": "test"
+          },
+          "arrayParam": {
+            "copy": [
+              {
+                "name": "value",
+                "count": "[length(variables('emptyArray'))]",
+                "input": "[variables('emptyArray')[copyIndex('value')]]"
+              }
+            ]
+          }
+        },
+        "templateLink": {
+          "relativePath": "45909d4bead657d05a48604396b113742c5ca3b066b039ba3fad4a972142fb69"
+        }
+      }
+    },
+    "duplicatesEverywhere": {
+      "copy": {
+        "name": "duplicatesEverywhere",
+        "count": "[length(createArray())]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('hello-{0}', createArray()[copyIndex()])]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "objParam": {
+            "value": {}
+          },
+          "stringParamB": {
+            "value": "test"
+          },
+          "arrayParam": {
+            "copy": [
+              {
+                "name": "value",
+                "count": "[length(variables('emptyArray'))]",
+                "input": "[format('{0}-{1}', createArray()[copyIndex()], variables('emptyArray')[copyIndex('value')])]"
+              }
+            ]
+          }
+        },
+        "templateLink": {
+          "relativePath": "45909d4bead657d05a48604396b113742c5ca3b066b039ba3fad4a972142fb69"
+        }
+      }
+    },
+    "propertyLoopInsideParameterValue": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "propertyLoopInsideParameterValue",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "objParam": {
+            "value": {
+              "copy": [
+                {
+                  "name": "a",
+                  "count": "[length(range(0, 10))]",
+                  "input": "[range(0, 10)[copyIndex('a')]]"
+                },
+                {
+                  "name": "b",
+                  "count": "[length(range(1, 2))]",
+                  "input": "[range(1, 2)[copyIndex('b')]]"
+                },
+                {
+                  "name": "e",
+                  "count": "[length(range(4, 4))]",
+                  "input": {
+                    "f": "[range(4, 4)[copyIndex('e')]]"
+                  }
+                }
+              ],
+              "c": {
+                "copy": [
+                  {
+                    "name": "d",
+                    "count": "[length(range(2, 3))]",
+                    "input": "[range(2, 3)[copyIndex('d')]]"
+                  }
+                ]
+              }
+            }
+          },
+          "stringParamB": {
+            "value": ""
+          },
+          "arrayParam": {
+            "value": [
+              {
+                "copy": [
+                  {
+                    "name": "e",
+                    "count": "[length(range(7, 7))]",
+                    "input": "[range(7, 7)[copyIndex('e')]]"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "templateLink": {
+          "relativePath": "45909d4bead657d05a48604396b113742c5ca3b066b039ba3fad4a972142fb69"
+        }
+      }
+    },
+    "propertyLoopInsideParameterValueWithIndexes": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "propertyLoopInsideParameterValueWithIndexes",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "objParam": {
+            "value": {
+              "copy": [
+                {
+                  "name": "a",
+                  "count": "[length(range(0, 10))]",
+                  "input": "[add(range(0, 10)[copyIndex('a')], copyIndex('a'))]"
+                },
+                {
+                  "name": "b",
+                  "count": "[length(range(1, 2))]",
+                  "input": "[div(range(1, 2)[copyIndex('b')], copyIndex('b'))]"
+                },
+                {
+                  "name": "e",
+                  "count": "[length(range(4, 4))]",
+                  "input": {
+                    "f": "[range(4, 4)[copyIndex('e')]]",
+                    "g": "[copyIndex('e')]"
+                  }
+                }
+              ],
+              "c": {
+                "copy": [
+                  {
+                    "name": "d",
+                    "count": "[length(range(2, 3))]",
+                    "input": "[mul(range(2, 3)[copyIndex('d')], copyIndex('d'))]"
+                  }
+                ]
+              }
+            }
+          },
+          "stringParamB": {
+            "value": ""
+          },
+          "arrayParam": {
+            "value": [
+              {
+                "copy": [
+                  {
+                    "name": "e",
+                    "count": "[length(range(7, 7))]",
+                    "input": "[range(7, 7)[copyIndex('e')]]"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "templateLink": {
+          "relativePath": "45909d4bead657d05a48604396b113742c5ca3b066b039ba3fad4a972142fb69"
+        }
+      }
+    },
+    "propertyLoopInsideParameterValueInsideModuleLoop": {
+      "copy": {
+        "name": "propertyLoopInsideParameterValueInsideModuleLoop",
+        "count": "[length(range(0, 1))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "propertyLoopInsideParameterValueInsideModuleLoop",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "objParam": {
+            "value": {
+              "copy": [
+                {
+                  "name": "a",
+                  "count": "[length(range(0, 10))]",
+                  "input": "[add(range(0, 10)[copyIndex('a')], range(0, 1)[copyIndex()])]"
+                },
+                {
+                  "name": "b",
+                  "count": "[length(range(1, 2))]",
+                  "input": "[mul(range(1, 2)[copyIndex('b')], range(0, 1)[copyIndex()])]"
+                },
+                {
+                  "name": "e",
+                  "count": "[length(range(4, 4))]",
+                  "input": {
+                    "f": "[sub(range(4, 4)[copyIndex('e')], range(0, 1)[copyIndex()])]"
+                  }
+                }
+              ],
+              "c": {
+                "copy": [
+                  {
+                    "name": "d",
+                    "count": "[length(range(2, 3))]",
+                    "input": "[range(2, 3)[copyIndex('d')]]"
+                  }
+                ]
+              }
+            }
+          },
+          "stringParamB": {
+            "value": ""
+          },
+          "arrayParam": {
+            "value": [
+              {
+                "copy": [
+                  {
+                    "name": "e",
+                    "count": "[length(range(7, 7))]",
+                    "input": "[mod(range(7, 7)[copyIndex('e')], add(range(0, 1)[copyIndex()], 1))]"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "templateLink": {
+          "relativePath": "45909d4bead657d05a48604396b113742c5ca3b066b039ba3fad4a972142fb69"
+        }
+      }
+    },
+    "secureModule1": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "secureModule1",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "secureStringParam1": {
+            "reference": {
+              "keyVault": {
+                "id": "[resourceId('Microsoft.KeyVault/vaults', 'testkeyvault')]"
+              },
+              "secretName": "mySecret"
+            }
+          },
+          "secureStringParam2": {
+            "reference": {
+              "keyVault": {
+                "id": "[resourceId('Microsoft.KeyVault/vaults', 'testkeyvault')]"
+              },
+              "secretName": "mySecret",
+              "secretVersion": "secretVersion"
+            }
+          }
+        },
+        "templateLink": {
+          "relativePath": "f936a0741e4f0109556d74434ad08fb09f1b860d82d3d96fe40f9110597e4070"
+        }
+      }
+    },
+    "secureModule2": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "secureModule2",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "secureStringParam1": {
+            "reference": {
+              "keyVault": {
+                "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'otherGroup'), 'Microsoft.KeyVault/vaults', 'testkeyvault')]"
+              },
+              "secretName": "mySecret"
+            }
+          },
+          "secureStringParam2": {
+            "reference": {
+              "keyVault": {
+                "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'otherGroup'), 'Microsoft.KeyVault/vaults', 'testkeyvault')]"
+              },
+              "secretName": "mySecret",
+              "secretVersion": "secretVersion"
+            }
+          }
+        },
+        "templateLink": {
+          "relativePath": "f936a0741e4f0109556d74434ad08fb09f1b860d82d3d96fe40f9110597e4070"
+        }
+      }
+    },
+    "secureModuleLooped": {
+      "copy": {
+        "name": "secureModuleLooped",
+        "count": "[length(variables('secrets'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('secureModuleLooped-{0}', copyIndex())]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "secureStringParam1": {
+            "reference": {
+              "keyVault": {
+                "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('vaults')[copyIndex()].vaultSub, variables('vaults')[copyIndex()].vaultRG), 'Microsoft.KeyVault/vaults', variables('vaults')[copyIndex()].vaultName)]"
+              },
+              "secretName": "[variables('secrets')[copyIndex()].name]"
+            }
+          },
+          "secureStringParam2": {
+            "reference": {
+              "keyVault": {
+                "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', variables('vaults')[copyIndex()].vaultSub, variables('vaults')[copyIndex()].vaultRG), 'Microsoft.KeyVault/vaults', variables('vaults')[copyIndex()].vaultName)]"
+              },
+              "secretName": "[variables('secrets')[copyIndex()].name]",
+              "secretVersion": "[variables('secrets')[copyIndex()].version]"
+            }
+          }
+        },
+        "templateLink": {
+          "relativePath": "f936a0741e4f0109556d74434ad08fb09f1b860d82d3d96fe40f9110597e4070"
+        }
+      }
+    },
+    "secureModuleCondition": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "secureModuleCondition",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "secureStringParam1": "[if(true(), createObject('reference', createObject('keyVault', createObject('id', resourceId('Microsoft.KeyVault/vaults', 'testkeyvault')), 'secretName', 'mySecret')), createObject('value', 'notTrue'))]",
+          "secureStringParam2": "[if(true(), if(false(), createObject('value', 'false'), createObject('reference', createObject('keyVault', createObject('id', resourceId('Microsoft.KeyVault/vaults', 'testkeyvault')), 'secretName', 'mySecret', 'secretVersion', 'secretVersion'))), createObject('value', 'notTrue'))]"
+        },
+        "templateLink": {
+          "relativePath": "f936a0741e4f0109556d74434ad08fb09f1b860d82d3d96fe40f9110597e4070"
+        }
+      }
+    },
+    "withSpace": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "withSpace",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "templateLink": {
+          "relativePath": "2cfd181dae4ba36235541ceafe4d146dbf9ac17dc2cc166ffea2772dc85dc89b"
+        }
+      }
+    },
+    "folderWithSpace": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "childWithSpace",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "templateLink": {
+          "relativePath": "2cfd181dae4ba36235541ceafe4d146dbf9ac17dc2cc166ffea2772dc85dc89b"
+        }
+      }
+    },
+    "moduleWithNameof": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "nameofModule",
+      "resourceGroup": "nameofModuleParam",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "stringParamA": {
+            "value": "withSpace"
+          },
+          "stringParamB": {
+            "value": "folderWithSpace"
+          },
+          "objParam": {
+            "value": {
+              "a": "exposedSecureString"
+            }
+          },
+          "arrayParam": {
+            "value": [
+              "vaults"
+            ]
+          }
+        },
+        "templateLink": {
+          "relativePath": "45909d4bead657d05a48604396b113742c5ca3b066b039ba3fad4a972142fb69"
+        }
+      },
+      "dependsOn": [
+        "folderWithSpace",
+        "secureModuleCondition",
+        "withSpace"
+      ]
+    },
+    "moduleWithNullableOutputs": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "nullableOutputs",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "templateLink": {
+          "relativePath": "043b8534de01d19c987a2bf311a01e089e346c5cc929d9252071af39873328be"
+        }
+      }
+    }
+  },
+  "outputs": {
+    "stringOutputA": {
+      "type": "string",
+      "value": "[reference('modATest').outputs.stringOutputA.value]"
+    },
+    "stringOutputB": {
+      "type": "string",
+      "value": "[reference('modATest').outputs.stringOutputB.value]"
+    },
+    "objOutput": {
+      "type": "object",
+      "value": "[reference('modATest').outputs.objOutput.value]"
+    },
+    "arrayOutput": {
+      "type": "array",
+      "value": "[reference('modATest').outputs.arrayOutput.value]"
+    },
+    "modCalculatedNameOutput": {
+      "type": "object",
+      "value": "[reference('moduleWithCalculatedName').outputs.outputObj.value]"
+    },
+    "nullableString": {
+      "type": "string",
+      "nullable": true,
+      "value": "[tryGet(tryGet(reference('moduleWithNullableOutputs').outputs, 'nullableString'), 'value')]"
+    },
+    "deeplyNestedProperty": {
+      "type": "string",
+      "nullable": true,
+      "value": "[tryGet(tryGet(reference('moduleWithNullableOutputs').outputs, 'nullableObj'), 'value', 'deeply', 'nested', 'property')]"
+    },
+    "deeplyNestedArrayItem": {
+      "type": "string",
+      "nullable": true,
+      "value": "[tryGet(tryGet(reference('moduleWithNullableOutputs').outputs, 'nullableObj'), 'value', 'deeply', 'nested', 'array', 0)]"
+    },
+    "deeplyNestedArrayItemFromEnd": {
+      "type": "string",
+      "nullable": true,
+      "value": "[tryGet(tryGet(reference('moduleWithNullableOutputs').outputs, 'nullableObj'), 'value', 'deeply', 'nested', 'array', createObject('value', 1, 'fromEnd', true()))]"
+    },
+    "deeplyNestedArrayItemFromEndAttempt": {
+      "type": "string",
+      "nullable": true,
+      "value": "[tryIndexFromEnd(tryGet(tryGet(reference('moduleWithNullableOutputs').outputs, 'nullableObj'), 'value', 'deeply', 'nested', 'array'), 1)]"
+    }
+  }
+}
