@@ -43,6 +43,7 @@ namespace Bicep.Core.Emit
 
             return moduleSemanticModel;
         }
+
         private static string GetSchema(ResourceScope targetScope)
         {
             if (targetScope.HasFlag(ResourceScope.Tenant))
@@ -72,9 +73,11 @@ namespace Bicep.Core.Emit
         private EmitterContext Context => ExpressionBuilder.Context;
         private ExpressionBuilder ExpressionBuilder { get; }
         private ImmutableDictionary<string, DeclaredTypeExpression> declaredTypesByName;
+        private readonly IModuleWriterFactory moduleWriterFactory;
 
-        public TemplateWriter(SemanticModel semanticModel)
+        public TemplateWriter(SemanticModel semanticModel, IModuleWriterFactory? moduleWriterFactory = null)
         {
+            this.moduleWriterFactory = moduleWriterFactory ?? new InlineModuleWriterFactory();
             ExpressionBuilder = new ExpressionBuilder(new EmitterContext(semanticModel));
             declaredTypesByName = ImmutableDictionary<string, DeclaredTypeExpression>.Empty;
         }
@@ -450,7 +453,7 @@ namespace Bicep.Core.Emit
 
         private ObjectExpression GetTypePropertiesForReferenceExpression(TypeExpression typeExpression)
             => ResolveTypeReferenceExpression(typeExpression)
-                .GetTypePropertiesForResolvedReferenceExpression(typeExpression.SourceSyntax);
+                    .GetTypePropertiesForResolvedReferenceExpression(typeExpression.SourceSyntax);
 
         private interface ITypeReferenceExpressionResolution
         {
@@ -1469,14 +1472,14 @@ namespace Bicep.Core.Emit
 
                     var moduleSemanticModel = GetModuleSemanticModel(module.Symbol);
 
-                    var moduleWriter = TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel);
+                    var (moduleKind, moduleWriter) = moduleWriterFactory.CreateTemplateWriter(moduleSemanticModel);
                     var moduleBicepFile = (moduleSemanticModel as SemanticModel)?.SourceFile;
                     var moduleTextWriter = new StringWriter();
                     var moduleJsonWriter = new SourceAwareJsonTextWriter(moduleTextWriter, moduleBicepFile);
 
                     moduleWriter.Write(moduleJsonWriter);
                     jsonWriter.AddNestedSourceMap(moduleJsonWriter.TrackingJsonWriter);
-                    emitter.EmitProperty("template", moduleTextWriter.ToString());
+                    emitter.EmitProperty(moduleKind.ToPropertyName(), moduleTextWriter.ToString());
 
                     if (moduleBicepFile?.FileHandle.Uri is { } sourceUri)
                     {
@@ -1568,20 +1571,17 @@ namespace Bicep.Core.Emit
 
                     var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
 
-                    // If it is a template spec module, emit templateLink instead of template contents.
-                    jsonWriter.WritePropertyName(moduleSemanticModel is TemplateSpecSemanticModel ? "templateLink" : "template");
-                    {
-                        var moduleWriter = TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel);
-                        var moduleBicepFile = (moduleSemanticModel as SemanticModel)?.SourceFile;
-                        var moduleTextWriter = new StringWriter();
-                        var moduleJsonWriter = new SourceAwareJsonTextWriter(moduleTextWriter, moduleBicepFile);
+                    var (moduleKind, moduleWriter) = moduleWriterFactory.CreateTemplateWriter(moduleSemanticModel);
+                    var moduleBicepFile = (moduleSemanticModel as SemanticModel)?.SourceFile;
+                    var moduleTextWriter = new StringWriter();
+                    var moduleJsonWriter = new SourceAwareJsonTextWriter(moduleTextWriter, moduleBicepFile);
 
-                        moduleWriter.Write(moduleJsonWriter);
-                        jsonWriter.AddNestedSourceMap(moduleJsonWriter.TrackingJsonWriter);
+                    moduleWriter.Write(moduleJsonWriter);
+                    jsonWriter.AddNestedSourceMap(moduleJsonWriter.TrackingJsonWriter);
 
-                        var nestedTemplate = moduleTextWriter.ToString().FromJson<JToken>();
-                        nestedTemplate.WriteTo(jsonWriter);
-                    }
+                    var nestedTemplate = moduleTextWriter.ToString().FromJson<JToken>();
+                    jsonWriter.WritePropertyName(moduleKind.ToPropertyName());
+                    nestedTemplate.WriteTo(jsonWriter);
                 });
 
                 this.EmitDependsOn(emitter, module.DependsOn);
