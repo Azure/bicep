@@ -7,7 +7,7 @@
 The Bicep VS Code extension now includes a Bicep MCP server with agentic tools to support Bicep code generation for AI agents in VS Code. To find out more about MCP, see [Use MCP servers in VS Code](https://code.visualstudio.com/docs/copilot/chat/mcp-servers).
 
 ### Available Bicep MCP tools
-- `get_bicep_best_practices`:  Lists up-to-date recommended Bicep best-practices for authoring templates. These practices help improve maintainability, security, and reliability of your Bicep files. This is helpful additional context if you've been asked to generate Bicep code.
+- `get_bicep_best_practices`: Lists up-to-date recommended Bicep best-practices for authoring templates. These practices help improve maintainability, security, and reliability of your Bicep files. This is helpful additional context if you've been asked to generate Bicep code.
 - `list_az_resource_types_for_provider`: Lists all available Azure resource types for a specific provider. The return value is a newline-separated list of resource types including their API version, e.g. `Microsoft.KeyVault/vaults@2024-11-01`. Such information is the most accurate and up-to-date as it is sourced from the Azure Resource Provider APIs.
 - `get_az_resource_type_schema`: Gets the schema for a specific Azure resource type and API version. Such information is the most accurate and up-to-date as it is sourced from the Azure Resource Provider APIs.
 - `list_avm_metadata`: Lists up-to-date metadata for all Azure Verified Modules (AVM). The return value is a newline-separated list of AVM metadata. Each line includes the module name, description, versions, and documentation URI for a specific module.
