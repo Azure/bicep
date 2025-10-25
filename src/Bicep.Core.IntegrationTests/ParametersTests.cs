@@ -616,7 +616,7 @@ param stringParam =  /*TODO*/
         }
 
         [TestMethod]
-        public void Usage_variables_from_import_in_base_bicepparam_should_succeed()
+        public void Decorators_on_using_param_and_extends_statements_should_raise_errors()
         {
             var result = CompilationHelper.CompileParams(
               ("bicepconfig.json", @"
@@ -626,43 +626,43 @@ param stringParam =  /*TODO*/
                     }
                 }
               "),
-              ("consts.bicep", @"
-                @export()
-                var someGlobal = 'someValue'
-              "),
-              ("base.bicepparam", @"
-                import * as consts from 'consts.bicep'
-
-                using none
-
-                param testParam1 = consts.someGlobal
-              "),
-              ("main.bicep", @"
-                param testParam1 string
-                param testParam2 string
-              "),
               ("parameters.bicepparam", @"
+                @foo('bar')
                 using 'main.bicep'
 
-                extends 'base.bicepparam'
+                @notARealDecorator(1, 2, 3)
+                param fizz = 'buzz'
 
-                param testParam2 =  'someOtherValue'
+                @minLength(3)
+                extends 'shared.bicepparam'
+              "),
+              ("shared.bicepparam", @"
+                using none
+              "),
+              ("main.bicep", @"
+                param fizz string
               "));
 
-            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP130", DiagnosticLevel.Error, "Decorators are not allowed here."),
+                ("BCP130", DiagnosticLevel.Error, "Decorators are not allowed here."),
+                ("BCP130", DiagnosticLevel.Error, "Decorators are not allowed here."),
+            });
+        }
 
-            result.Parameters.Should().DeepEqual(JToken.Parse(@"{
-                ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
-                ""contentVersion"": ""1.0.0.0"",
-                ""parameters"": {
-                    ""testParam2"": {
-                        ""value"": ""someOtherValue""
-                    },
-                    ""testParam1"": {
-                        ""value"": ""someValue""
-                    }
-                }
-            }"));
+        [TestMethod]
+        public void Decorators_on_param_declarations_in_bicep_files_should_be_allowed()
+        {
+            var result = CompilationHelper.Compile(@"
+                @description('A parameter with a decorator')
+                @minLength(3)
+                param myParam string
+
+                @secure()
+                param secureParam string
+            ");
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
     }
 }

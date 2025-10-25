@@ -3,15 +3,15 @@
   "private": true,
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
-    "@eslint/js": "^9.37.0",
+    "@eslint/js": "^9.38.0",
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.5.2",
+    "@types/node": "^24.8.1",
     "@types/plist": "^3.0.5",
     "@typescript-eslint/eslint-plugin": "^8.44.1",
-    "@typescript-eslint/parser": "^8.44.1",
+    "@typescript-eslint/parser": "^8.46.1",
     "cross-env": "^10.1.0",
-    "esbuild": "^0.25.10",
-    "eslint": "^9.36.0",
+    "esbuild": "^0.25.11",
+    "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jest": "^29.0.1",
     "eslint-plugin-notice": "^1.0.0",
@@ -19,11 +19,11 @@
     "globals": "^16.4.0",
     "highlight.js": "^11.11.1",
     "jest": "^30.2.0",
-    "ts-jest": "^29.4.4",
+    "ts-jest": "^29.4.5",
     "ts-loader": "^9.5.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.45.0"
+    "typescript-eslint": "^8.46.0"
   },
   "engines": {
     "node": ">=14.0.0"

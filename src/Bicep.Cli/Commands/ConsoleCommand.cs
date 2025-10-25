@@ -6,9 +6,11 @@ using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers.Repl;
 using Bicep.Cli.Services;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Syntax;
+using Bicep.Core.Utils;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Spectre.Console;
@@ -23,6 +25,7 @@ namespace Bicep.Cli.Commands;
 public class ConsoleCommand(
     ILogger logger,
     IOContext io,
+    IEnvironment environment,
     ReplEnvironment replEnvironment,
     IAnsiConsole console) : ICommand
 {
@@ -59,8 +62,8 @@ public class ConsoleCommand(
             logger.LogError($"The '{args.CommandName}' CLI command requires an interactive console.");
             return 1;
         }
-        
-        await io.Output.WriteLineAsync("Bicep Console v1.0.0");
+
+        await io.Output.WriteLineAsync($"Bicep Console version {environment.GetVersionString()}");
         await io.Output.WriteLineAsync("Type 'help' for available commands, press ESC to quit.");
         await io.Output.WriteLineAsync("Multi-line input supported.");
         await io.Output.WriteLineAsync(string.Empty);
@@ -73,8 +76,6 @@ public class ConsoleCommand(
             {
                 break;
             }
-
-            await io.Output.WriteAsync("\n");
 
             if (buffer.Length == 0)
             {
@@ -97,28 +98,25 @@ public class ConsoleCommand(
                 }
             }
 
-            buffer.AppendLine(rawLine);
+            buffer.Append(rawLine);
+            buffer.Append('\n');
 
             var current = buffer.ToString();
 
-            // If line is blank -> submit
-            if (rawLine.Length == 0)
+            if (ReplEnvironment.ShouldSubmitBuffer(current, rawLine))
             {
-                await SubmitBuffer(buffer, current);
-                continue;
-            }
+                buffer.Clear();
 
-            // Auto-submit when structure complete immediately after this line.
-            if (ShouldTerminateWithNewLine(current))
-            {
-                await SubmitBuffer(buffer, current);
+                // evaluate input
+                var output = replEnvironment.EvaluateAndGetOutput(current);
+                await io.Output.WriteAsync(output);
             }
         }
 
         return 0;
     }
 
-    private async Task<bool> PrintHistory(StringBuilder buffer, List<Rune> lineBuffer, int cursorOffset, bool backwards)
+    private async Task<int> PrintHistory(StringBuilder buffer, List<Rune> lineBuffer, int cursorOffset, bool backwards)
     {
         if (replEnvironment.TryGetHistory(backwards) is { } history)
         {
@@ -136,10 +134,10 @@ public class ConsoleCommand(
             var output2 = replEnvironment.HighlightInputLine(FirstLinePrefix, buffer.ToString(), lineBuffer, cursorOffset, printPrevLines: true);
             await io.Output.WriteAsync(PrintHelper.MoveCursorUp(prevBufferLineCount));
             await io.Output.WriteAsync(output2);
-            return true;
+            return cursorOffset;
         }
 
-        return false;
+        return -1;
     }
 
     private string GetPrefix(StringBuilder buffer)
@@ -158,15 +156,17 @@ public class ConsoleCommand(
 
             if (keyInfo.Key == ConsoleKey.UpArrow)
             {
-                if (await PrintHistory(buffer, lineBuffer, cursorOffset, backwards: true))
+                if (await PrintHistory(buffer, lineBuffer, cursorOffset, backwards: true) is { } newOffset and not -1)
                 {
+                    cursorOffset = newOffset;
                     continue;
                 }
             }
             if (keyInfo.Key == ConsoleKey.DownArrow)
             {
-                if (await PrintHistory(buffer, lineBuffer, cursorOffset, backwards: false))
+                if (await PrintHistory(buffer, lineBuffer, cursorOffset, backwards: false) is { } newOffset and not -1)
                 {
+                    cursorOffset = newOffset;
                     continue;
                 }
             }
@@ -212,80 +212,8 @@ public class ConsoleCommand(
             await io.Output.WriteAsync(output);
         }
 
+        await io.Output.WriteAsync("\n");
+
         return string.Concat(lineBuffer);
     }
-
-    private async Task SubmitBuffer(StringBuilder buffer, string current)
-    {
-        if (current.Trim().Length == 0)
-        {
-            buffer.Clear();
-            return;
-        }
-
-        // evaluate input
-        var result = replEnvironment.EvaluateInput(current);
-
-        if (result.Value is { } value)
-        {
-            var context = PrettyPrinterV2Context.Create(PrettyPrinterV2Options.Default, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
-            var lineText = PrettyPrinterV2.Print(ParseJToken(value), context);
-
-            var highlighted = replEnvironment.HighlightSyntax(lineText);
-
-            await io.Output.WriteLineAsync(highlighted);
-        }
-        else if (result.AnnotatedDiagnostics.Any())
-        {
-            var highlighted = replEnvironment.HighlightSyntax(current);
-            await io.Output.WriteLineAsync(PrintHelper.PrintWithAnnotations(current, result.AnnotatedDiagnostics, highlighted));
-        }
-        buffer.Clear();
-    }
-
-    /// <summary>
-    /// Heuristic structural completeness check: ensures bracket/brace/paren balance
-    /// and not inside (multi-line) string or interpolation expression.
-    /// Not a full parse; parse errors still reported by real parser.
-    /// </summary>
-    private static bool ShouldTerminateWithNewLine(string text)
-    {
-        var program = new ReplParser(text).Program();
-        if (program.Children.Length != 1)
-        {
-            return true;
-        }
-
-        return program.Children[0] switch
-        {
-            VariableDeclarationSyntax { Value: SkippedTriviaSyntax } => false,
-            _ => true,
-        };
-    }
-
-    private static SyntaxBase ParseJToken(JToken value)
-        => value switch {
-            JObject jObject => ParseJObject(jObject),
-            JArray jArray => ParseJArray(jArray),
-            JValue jValue => ParseJValue(jValue),
-            _ => throw new NotImplementedException($"Unrecognized token type {value.Type}"),
-        };
-
-    private static SyntaxBase ParseJValue(JValue value)
-        => value.Type switch {
-            JTokenType.Integer => SyntaxFactory.CreatePositiveOrNegativeInteger(value.Value<long>()),
-            JTokenType.String => SyntaxFactory.CreateStringLiteral(value.ToString()),
-            JTokenType.Boolean => SyntaxFactory.CreateBooleanLiteral(value.Value<bool>()),
-            JTokenType.Null => SyntaxFactory.CreateNullLiteral(),
-            _ => throw new NotImplementedException($"Unrecognized token type {value.Type}"),
-        };
-
-    private static SyntaxBase ParseJArray(JArray jArray)
-        => SyntaxFactory.CreateArray(
-            jArray.Select(ParseJToken));
-
-    private static SyntaxBase ParseJObject(JObject jObject)
-        => SyntaxFactory.CreateObject(
-            jObject.Properties()
-                .Select(x => SyntaxFactory.CreateObjectProperty(x.Name, ParseJToken(x.Value))));
 }

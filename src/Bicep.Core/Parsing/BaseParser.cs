@@ -1757,6 +1757,15 @@ namespace Bicep.Core.Parsing
             new AliasAsClauseSyntax(ExpectKeyword(LanguageConstants.AsKeyword),
                 Identifier(b => b.ExpectedNamespaceIdentifier())));
 
+        protected SyntaxBase FunctionDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+        {
+            var keyword = ExpectKeyword(LanguageConstants.FunctionKeyword);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
+            var lambda = this.WithRecovery(() => this.TypedLambda(), GetSuppressionFlag(name), TokenType.NewLine);
+
+            return new FunctionDeclarationSyntax(leadingNodes, keyword, name, lambda);
+        }
+
         private CompileTimeImportFromClauseSyntax CompileTimeImportFromClause()
         {
             var keyword = ExpectKeyword(LanguageConstants.FromKeyword);

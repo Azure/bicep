@@ -86,6 +86,7 @@ public class BicepDecompiler
         {
             var bicepPath = bicepFileUri?.GetPathRelativeTo(entryBicepparamUri);
             statements.Add(new UsingDeclarationSyntax(
+                [],
                 SyntaxFactory.UsingKeywordToken,
                 bicepPath is not null
                     ? SyntaxFactory.CreateStringLiteral(bicepPath)

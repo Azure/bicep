@@ -89,15 +89,23 @@ public class ParameterAssignmentEvaluator
             }
 
             if (expression.Function.StartsWith($"{EmitConstants.UserDefinedFunctionsNamespace}.") &&
-                expression.Function[$"{EmitConstants.UserDefinedFunctionsNamespace}.".Length..] is { } functionName &&
-                this.evaluator.importsByName.TryGetValue(functionName, out var imported) &&
-                imported.OriginalSymbolName is { } originalSymbolName)
+                expression.Function[$"{EmitConstants.UserDefinedFunctionsNamespace}.".Length..] is { } functionName)
             {
-                var template = this.evaluator.GetTemplateWithCaching(imported.SourceModel).Unwrap();
-                var evaluator = this.evaluator.armEvaluators.GetOrAdd(template, importedFrom => new(importedFrom));
+                if (this.evaluator.importsByName.TryGetValue(functionName, out var imported) &&
+                    imported.OriginalSymbolName is { } originalSymbolName)
+                {
+                    var template = this.evaluator.GetTemplateWithCaching(imported.SourceModel).Unwrap();
+                    var evaluator = this.evaluator.armEvaluators.GetOrAdd(template, importedFrom => new(importedFrom));
 
+                    return evaluateFunction(template, originalSymbolName);
+                }
 
-                return evaluateFunction(template, originalSymbolName);
+                if (this.evaluator.functionsByName.TryGetValue(functionName, out var functionSymbol))
+                {
+                    var template = this.evaluator.GetTemplateWithCaching(functionSymbol.GetSemanticModel()).Unwrap();
+
+                    return evaluateFunction(template, functionName);
+                }
             }
 
             if (this.evaluator.wildcardImportPropertiesByName.TryGetValue(expression.Function, out var wildcardImportProperty))
@@ -143,6 +151,7 @@ public class ParameterAssignmentEvaluator
     private readonly ConcurrentDictionary<Template, TemplateVariablesEvaluator> armEvaluators = new();
     private readonly ImmutableDictionary<string, ParameterAssignmentSymbol> paramsByName;
     private readonly ImmutableDictionary<string, VariableSymbol> variablesByName;
+    private readonly ImmutableDictionary<string, DeclaredFunctionSymbol> functionsByName;
     private readonly ImmutableDictionary<string, ImportedSymbol> importsByName;
     private readonly ImmutableDictionary<string, WildcardImportPropertyReference> wildcardImportPropertiesByName;
     private readonly ImmutableDictionary<string, Expression> synthesizedVariableValuesByName;
@@ -155,6 +164,9 @@ public class ParameterAssignmentEvaluator
             .GroupBy(x => x.Name, LanguageConstants.IdentifierComparer)
             .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
         this.variablesByName = model.Root.VariableDeclarations
+            .GroupBy(x => x.Name, LanguageConstants.IdentifierComparer)
+            .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
+        this.functionsByName = model.Root.FunctionDeclarations
             .GroupBy(x => x.Name, LanguageConstants.IdentifierComparer)
             .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
 
@@ -458,7 +470,7 @@ public class ParameterAssignmentEvaluator
             OnGetParameter = (name, _) =>
             {
                 return EvaluateParameter(paramsByName[name]).Value ?? throw new InvalidOperationException($"Parameter {name} has an invalid value");
-            }
+            },
         };
 
         return new(helper, this);
@@ -491,6 +503,21 @@ public class ParameterAssignmentEvaluator
         }
     }
 
+    public ExpressionEvaluationResult EvaluateExpression(SyntaxBase expressionSyntax)
+    {
+        try
+        {
+            var context = GetExpressionEvaluationContext();
+            var intermediate = converter.ConvertToIntermediateExpression(expressionSyntax);
+            var result = converter.ConvertExpression(intermediate).EvaluateExpression(context);
+            return ExpressionEvaluationResult.For(result);
+        }
+        catch (Exception ex)
+        {
+            return ExpressionEvaluationResult.For([DiagnosticBuilder.ForPosition(expressionSyntax)
+                .FailedToEvaluateSubject("expression", expressionSyntax.ToString(), ex.Message)]);
+        }
+    }
 
     /// <summary>
     /// Rewrites the external input function calls to use the externalInputs function with the index of the external input.

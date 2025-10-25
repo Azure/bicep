@@ -20,18 +20,29 @@ namespace Bicep.Core.Syntax.Visitors
             TAccumulate seed,
             Func<TAccumulate, SyntaxBase, TAccumulate> function,
             Func<TAccumulate, TResult> resultSelector,
-            Func<TAccumulate, SyntaxBase, bool>? continuationFunction = null)
+            Func<TAccumulate, SyntaxBase, bool>? continuationFunction = null,
+            bool useCst = false)
         {
             // default to "always continue processing"
             continuationFunction ??= (value, node) => true;
 
-            var visitor = new AccumulatingVisitor<TAccumulate>(seed, function, continuationFunction);
-            visitor.Visit(source);
+            if (useCst)
+            {
+                var visitor = new CstAccumulatingVisitor<TAccumulate>(seed, function, continuationFunction);
+                visitor.Visit(source);
 
-            return resultSelector(visitor.Value);
+                return resultSelector(visitor.Value);
+            }
+            else
+            {
+                var visitor = new AstAccumulatingVisitor<TAccumulate>(seed, function, continuationFunction);
+                visitor.Visit(source);
+
+                return resultSelector(visitor.Value);
+            }
         }
 
-        public static IEnumerable<SyntaxBase> Aggregate(SyntaxBase source, Func<SyntaxBase, bool> collectFunc)
+        public static IEnumerable<SyntaxBase> Aggregate(SyntaxBase source, Func<SyntaxBase, bool> collectFunc, bool useCst = false)
             => Aggregate(source, new List<SyntaxBase>(), (accumulated, current) =>
                 {
                     if (collectFunc(current))
@@ -41,19 +52,48 @@ namespace Bicep.Core.Syntax.Visitors
 
                     return accumulated;
                 },
-                accumulated => accumulated);
+                accumulated => accumulated,
+                useCst: useCst);
 
-        public static IEnumerable<TSyntax> AggregateByType<TSyntax>(SyntaxBase source)
+        public static IEnumerable<TSyntax> AggregateByType<TSyntax>(SyntaxBase source, bool useCst = false)
             where TSyntax : SyntaxBase
-            => Aggregate(source, syntax => syntax is TSyntax).OfType<TSyntax>();
+            => Aggregate(source, syntax => syntax is TSyntax, useCst: useCst).OfType<TSyntax>();
 
-        private class AccumulatingVisitor<TAccumulate> : AstVisitor
+        private class AstAccumulatingVisitor<TAccumulate> : AstVisitor
         {
             private readonly Func<TAccumulate, SyntaxBase, TAccumulate> function;
 
             private readonly Func<TAccumulate, SyntaxBase, bool> continuationFunction;
 
-            public AccumulatingVisitor(TAccumulate seed, Func<TAccumulate, SyntaxBase, TAccumulate> function, Func<TAccumulate, SyntaxBase, bool> continuationFunction)
+            public AstAccumulatingVisitor(TAccumulate seed, Func<TAccumulate, SyntaxBase, TAccumulate> function, Func<TAccumulate, SyntaxBase, bool> continuationFunction)
+            {
+                this.Value = seed;
+                this.function = function;
+                this.continuationFunction = continuationFunction;
+            }
+
+            public TAccumulate Value { get; private set; }
+
+            protected override void VisitInternal(SyntaxBase syntax)
+            {
+                // process other nodes if further processing is required
+                if (this.continuationFunction(this.Value, syntax))
+                {
+                    this.Value = this.function(this.Value, syntax);
+
+                    base.VisitInternal(syntax);
+                    return;
+                }
+            }
+        }
+
+        private class CstAccumulatingVisitor<TAccumulate> : CstVisitor
+        {
+            private readonly Func<TAccumulate, SyntaxBase, TAccumulate> function;
+
+            private readonly Func<TAccumulate, SyntaxBase, bool> continuationFunction;
+
+            public CstAccumulatingVisitor(TAccumulate seed, Func<TAccumulate, SyntaxBase, TAccumulate> function, Func<TAccumulate, SyntaxBase, bool> continuationFunction)
             {
                 this.Value = seed;
                 this.function = function;

@@ -11,6 +11,7 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
@@ -326,6 +327,11 @@ namespace Bicep.Core.TypeSystem
                     {
                         diagnostics.Write(syntax.Type, x => x.ResourceTypeIsReadonly(resourceType.TypeReference));
                     }
+
+                    if (syntax.IsExistingResource() && resourceType.Flags.HasFlag(ResourceFlags.WriteOnly))
+                    {
+                        diagnostics.Write(syntax.Type, x => x.CannotUseExistingWithWriteOnlyResource(resourceType.TypeReference));
+                    }
                 }
 
                 return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Value, declaredType, true);
@@ -498,6 +504,11 @@ namespace Bicep.Core.TypeSystem
         public override void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
+                if (this.model.SourceFile is BicepParamFile && syntax.Decorators.Any())
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Decorators.First().At).DecoratorsNotAllowed());
+                }
+
                 var errors = new List<IDiagnostic>();
 
                 var valueType = this.typeManager.GetTypeInfo(syntax.Value);
@@ -509,6 +520,32 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 return valueType;
+            });
+
+        public override void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                if (this.model.SourceFile is BicepParamFile && syntax.Decorators.Any())
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Decorators.First().At).DecoratorsNotAllowed());
+                }
+
+                base.VisitUsingDeclarationSyntax(syntax);
+
+                return LanguageConstants.Any;
+            });
+
+        public override void VisitExtendsDeclarationSyntax(ExtendsDeclarationSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                if (this.model.SourceFile is BicepParamFile && syntax.Decorators.Any())
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Decorators.First().At).DecoratorsNotAllowed());
+                }
+
+                base.VisitExtendsDeclarationSyntax(syntax);
+
+                return LanguageConstants.Any;
             });
 
         public override void VisitTypeDeclarationSyntax(TypeDeclarationSyntax syntax)
