@@ -65,33 +65,4 @@ public static class IServiceCollectionExtensions
             .AddSingleton<TeardownCommand>()
             .AddSingleton<ConsoleCommand>()
             .AddSingleton<RootCommand>();
-
-    public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
-        .AddSingleton<INamespaceProvider, NamespaceProvider>()
-        .AddSingleton<IResourceTypeProviderFactory, ResourceTypeProviderFactory>()
-        .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
-        .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
-        .AddSingleton<IArmClientProvider, ArmClientProvider>()
-        .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
-        .AddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>()
-        .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
-        .AddSingleton<IEnvironment, Environment>()
-        .AddSingleton<IFileSystem, LocalFileSystem>()
-        .AddSingleton<IFileExplorer, FileSystemFileExplorer>()
-        .AddSingleton<IAuxiliaryFileCache, AuxiliaryFileCache>()
-        .AddSingleton<IConfigurationManager, ConfigurationManager>()
-        .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
-        .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
-        .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
-        .AddSingleton<ISourceFileFactory, SourceFileFactory>()
-        .AddRegistryCatalogServices()
-        .AddSingleton<BicepCompiler>();
-
-    public static IServiceCollection AddBicepDecompiler(this IServiceCollection services) => services
-        .AddSingleton<BicepDecompiler>();
-
-    public static IServiceCollection AddLocalDeploy(this IServiceCollection services) => services
-        .AddSingleton<LocalExtensionDispatcherFactory>()
-        .AddSingleton<IArmDeploymentProvider, ArmDeploymentProvider>()
-        .AddSingleton<ILocalExtensionFactory, GrpcLocalExtensionFactory>();
 }

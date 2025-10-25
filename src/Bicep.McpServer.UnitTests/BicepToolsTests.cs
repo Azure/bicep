@@ -20,7 +20,6 @@ public class BicepToolsTests
     {
         var services = new ServiceCollection();
         services
-            .WithAvmSupport()
             .AddBicepMcpServer();
 
         return services.BuildServiceProvider();

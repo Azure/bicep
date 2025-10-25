@@ -20,7 +20,8 @@ public static class IServiceCollectionExtensions
         services
             .AddSingleton<ILogger<ResourceVisitor>>(NullLoggerFactory.Instance.CreateLogger<ResourceVisitor>())
             .AddSingleton<AzResourceTypeLoader>(provider => new(new AzTypeLoader()))
-            .AddSingleton<ResourceVisitor>();
+            .AddSingleton<ResourceVisitor>()
+            .AddBicepCore();
 
         services
             .AddSingleton<BicepTools>();
@@ -30,19 +31,5 @@ public static class IServiceCollectionExtensions
             options.ServerInstructions = Constants.ServerInstructions;
         })
         .WithTools<BicepTools>();
-    }
-
-    public static IServiceCollection WithAvmSupport(this IServiceCollection services)
-    {
-        // using type based registration for Http clients so dependencies can be injected automatically
-        // without manually constructing up the graph, see https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#typed-clients
-        services
-            .AddHttpClient<IPublicModuleIndexHttpClient, PublicModuleMetadataHttpClient>()
-            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-            {
-                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-            });
-
-        return services;
     }
 }

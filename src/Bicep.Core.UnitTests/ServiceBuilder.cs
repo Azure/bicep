@@ -3,6 +3,9 @@
 
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests.Features;
+using Bicep.Core.UnitTests.Mock.Registry;
+using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using Bicep.Decompiler;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -32,8 +35,10 @@ public class ServiceBuilder
     public ServiceBuilder()
     {
         this.services = new ServiceCollection()
+            .AddSingleton<IEnvironment>(TestEnvironment.Default)
             .AddBicepCore()
             .AddBicepDecompiler()
+            .AddMockHttpClient(PublicModuleIndexHttpClientMocks.Create([]).Object)
             .WithWorkspace(new ActiveSourceFileSet());
     }
 

@@ -8,7 +8,6 @@ using Microsoft.Extensions.Hosting;
 var builder = Host.CreateEmptyApplicationBuilder(settings: null);
 
 builder.Services
-    .WithAvmSupport()
     .AddBicepMcpServer()
     .WithStdioServerTransport();
 

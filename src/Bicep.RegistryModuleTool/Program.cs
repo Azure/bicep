@@ -10,6 +10,7 @@ using System.CommandLine.Parsing;
 using Bicep.RegistryModuleTool.Commands;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.Options;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
@@ -40,7 +41,7 @@ namespace Bicep.RegistryModuleTool
         }
 
         private static void ConfigureHost(IHostBuilder builder) => builder
-            .ConfigureServices(services => services.AddBicepCompiler())
+            .ConfigureServices(services => services.AddBicepCore())
             .UseSerilog((context, logging) => logging
                 .MinimumLevel.Is(GetMinimumLogEventLevel(context))
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)

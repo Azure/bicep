@@ -31,7 +31,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Storage.Volatile;
 
 namespace Bicep.Local.Deploy.Engine;
 
-public static class IServiceCollectionExtensions
+internal static class IServiceCollectionExtensions
 {
     public static IServiceCollection RegisterLocalDeployServices(this IServiceCollection services, LocalExtensionDispatcher extensionHostManager)
     {
