@@ -305,7 +305,7 @@ public class ReplEnvironmentTests
     }
 
     private static void EnsureSingleInput(string text)
-    {        
+    {
         var input = text.NormalizeNewlines().Split('\n');
         for (var i = 0; i < input.Length; i++)
         {
@@ -327,6 +327,6 @@ public class ReplEnvironmentTests
             outputs.Add(AnsiHelper.ReplaceCodes(output));
         }
 
-        return [..outputs];
+        return [.. outputs];
     }
 }

@@ -41,7 +41,7 @@ public class Environment : IEnvironment
 
         return null;
     }
-    
+
     private static IEnvironment.BicepVersionInfo GetVersionInfo()
     {
         var version = ThisAssembly.AssemblyInformationalVersion.Split('+');

@@ -81,7 +81,7 @@ describe("App", () => {
     fireEvent.click(deployButton);
 
     await waitFor(() => {
-      expect(screen.getAllByText('Succeeded')[0]).toBeInTheDocument();
+      expect(screen.getAllByText("Succeeded")[0]).toBeInTheDocument();
     });
 
     expect(container).toMatchSnapshot();
@@ -100,7 +100,7 @@ describe("App", () => {
     fireEvent.click(deployButton);
 
     await waitFor(() => {
-      expect(screen.getAllByText('Failed')[0]).toBeInTheDocument();
+      expect(screen.getAllByText("Failed")[0]).toBeInTheDocument();
     });
 
     expect(mockClient.deploymentOperations.listAtScope).not.toHaveBeenCalled();
@@ -116,7 +116,7 @@ describe("App", () => {
     fireEvent.click(validateButton);
 
     await waitFor(() => {
-      expect(screen.getAllByText('InvalidTemplate')[0]).toBeInTheDocument();
+      expect(screen.getAllByText("InvalidTemplate")[0]).toBeInTheDocument();
     });
 
     expect(container).toMatchSnapshot();
@@ -131,7 +131,7 @@ describe("App", () => {
     fireEvent.click(whatIfButton);
 
     await waitFor(() => {
-      expect(screen.getAllByText('Succeeded')[0]).toBeInTheDocument();
+      expect(screen.getAllByText("Succeeded")[0]).toBeInTheDocument();
     });
 
     expect(container).toMatchSnapshot();
