@@ -14,7 +14,7 @@ public record TestEnvironment(
     public static TestEnvironment Default = new(
         ImmutableDictionary<string, string?>.Empty,
         System.Environment.CurrentDirectory);
- 
+
     private readonly IEnvironment realEnvironment = new Core.Utils.Environment();
 
     public IEnvironment WithVariables(params (string key, string? value)[] variables)

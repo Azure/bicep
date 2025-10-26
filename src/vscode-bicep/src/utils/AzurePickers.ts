@@ -21,7 +21,11 @@ import {
   nonNullProp,
   parseError,
 } from "@microsoft/vscode-azext-utils";
-import { createManagementGroupsClient, createResourceManagementClient, createSubscriptionClient } from "../azure/azureClients";
+import {
+  createManagementGroupsClient,
+  createResourceManagementClient,
+  createSubscriptionClient,
+} from "../azure/azureClients";
 import { Disposable } from "./disposable";
 import { OutputChannelManager } from "./OutputChannelManager";
 
@@ -124,7 +128,10 @@ export class AzurePickers extends Disposable {
     return (await context.ui.showQuickPick(picks, { placeHolder: "Select location" })).data;
   }
 
-  public async pickManagementGroup(context: IActionContext, subscription: AzureSubscription): Promise<ManagementGroupInfo> {
+  public async pickManagementGroup(
+    context: IActionContext,
+    subscription: AzureSubscription,
+  ): Promise<ManagementGroupInfo> {
     await this.EnsureSignedIn();
 
     const client = await createManagementGroupsClient([context, createSubscriptionContext(subscription)]);

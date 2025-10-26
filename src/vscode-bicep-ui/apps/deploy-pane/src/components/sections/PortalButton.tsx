@@ -30,7 +30,7 @@ export function PortalButton(props: PortalButtonProps) {
       style={{ verticalAlign: "middle" }}
       title="Open in Portal"
       href={`${portalResourceUrl}`} //CodeQL [SM01507] False positive - we use C# code to pass in the base URL
-      >
+    >
       {" "}
       <Codicon name="globe" size={12} />
     </a>
