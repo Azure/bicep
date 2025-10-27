@@ -180,7 +180,7 @@ namespace Bicep.Cli
             => new ServiceCollection()
                 .AddBicepCore()
                 .AddBicepDecompiler()
-                .AddLocalDeploy()
+                .AddBicepLocalDeploy()
                 .AddCommands()
                 .AddSingleton(CreateLoggerFactory(io).CreateLogger("bicep"))
                 .AddSingleton<InputOutputArgumentsResolver>()
