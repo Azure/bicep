@@ -889,8 +889,8 @@
           "description": "Allows to enable wait and retry feature on resource type. See https://aka.ms/bicep/experimental-features#waitandretry"
         },
         "resourceInfoCodegen": {
-            "type": "boolean",
-            "description": "Enables the 'resourceInfo' function for simplified code generation. See https://aka.ms/bicep/experimental-features#resourceinfocodegen"
+          "type": "boolean",
+          "description": "Enables the 'resourceInfo' function for simplified code generation. See https://aka.ms/bicep/experimental-features#resourceinfocodegen"
         },
         "desiredStateConfiguration": {
           "type": "boolean",
@@ -903,6 +903,10 @@
         "deployCommands": {
           "type": "boolean",
           "description": "Allows you to access the 'deploy', 'what-if' and 'teardown' commands. See https://aka.ms/bicep/experimental-features#deploycommands"
+        },
+        "thisNamespace": {
+          "type": "boolean",
+          "description": "Allows you to use this namespace to modify resource properties based on whether the resource already exists. Ex. this.exists() and this.existingResource(). See https://aka.ms/bicep/experimental-features#thisnamespace"
         }
       },
       "additionalProperties": false
