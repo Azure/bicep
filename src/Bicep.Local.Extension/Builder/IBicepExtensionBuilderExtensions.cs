@@ -22,9 +22,9 @@ public static class IBicepExtensionBuilderExtensions
     /// <param name="isSingleton">A value indicating whether the extension should be registered as a singleton. If <see langword="true"/>, only
     /// one instance of the extension will be created.</param>
     /// <returns>The same <see cref="IBicepExtensionBuilder"/> instance, enabling method chaining.</returns>
-    public static IBicepExtensionBuilder WithExtensionInfo(this IBicepExtensionBuilder builder, string name, string version, bool isSingleton)
+    public static IBicepExtensionBuilder WithExtensionInfo(this IBicepExtensionBuilder builder, string name, string version, bool isSingleton = true)
     {
-        builder.Services.AddSingleton<BicepExtensionInfo>(new BicepExtensionInfo(name, version, isSingleton));
+        builder.Services.AddSingleton(new BicepExtensionInfo(name, version, isSingleton));
 
         return builder;
     }
@@ -60,7 +60,7 @@ public static class IBicepExtensionBuilderExtensions
     /// <param name="typeAssembly">The assembly containing type definitions to be registered with the type provider.</param>
     /// <param name="configuration">An optional configuration type to be registered. If not null, this type will be added to the service collection.</param>
     /// <returns>The same Bicep extension builder instance, configured with default type provider and type builder services.</returns>
-    public static IBicepExtensionBuilder WithDefaultTypeBuilder(this IBicepExtensionBuilder builder, Assembly typeAssembly, Type? configuration)
+    public static IBicepExtensionBuilder WithDefaultTypeBuilder(this IBicepExtensionBuilder builder, Assembly typeAssembly, Type? configuration = null)
     {
         builder.Services.AddSingleton<ITypeProvider>(new TypeProvider([typeAssembly]));
 

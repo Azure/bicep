@@ -54,11 +54,9 @@ public class ProviderExtensionTests : TestBase
 
                 builder.AddBicepExtensionHost(processArgs);
                 registerHandlers(builder.Services
-                    .AddBicepExtension(
-                        name: "MockExtension",
-                        version: "0.0.1",
-                        isSingleton: true,
-                        typeAssembly: typeof(ProviderExtensionTests).Assembly));
+                    .AddBicepExtension()
+                    .WithExtensionInfo(name: "MockExtension",version: "0.0.1", isSingleton: true)
+                    .WithDefaultTypeBuilder(typeAssembly: typeof(ProviderExtensionTests).Assembly));
 
                 var app = builder.Build();
 

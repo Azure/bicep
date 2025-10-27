@@ -13,7 +13,7 @@ builder.AddBicepExtensionHost(args);
 
 builder.Services
     .AddBicepExtension()
-    .WithExtensionInfo(name: "MockExtension", version: "0.0.1", isSingleton: true)
+    .WithExtensionInfo(name: "MockExtension", version: "0.0.1")
     .WithDefaultTypeBuilder(typeAssembly: typeof(Program).Assembly, configuration: typeof(Configuration))
     .WithResourceHandler<EchoResourceHandler>();
 
