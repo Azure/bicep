@@ -33,25 +33,10 @@ namespace Bicep.TextFixtures.Utils
             // Don't register the file IO types. We are abusing the real file system for tests which
             // causes a lot of TestResults garbages. Tests should be more explicit about the file IO types they use.
             this.services = new ServiceCollection()
-                .AddSingleton<INamespaceProvider, NamespaceProvider>()
-                .AddSingleton<IResourceTypeProviderFactory, ResourceTypeProviderFactory>()
-                .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
-                .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
-                .AddSingleton<IArmClientProvider, ArmClientProvider>()
-                .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
-                .AddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>()
-                .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
                 .AddSingleton<IEnvironment>(TestEnvironment.Default)
-                .AddSingleton<IAuxiliaryFileCache, AuxiliaryFileCache>()
-                .AddSingleton<IConfigurationManager, ConfigurationManager>()
-                .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
-                .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
-                .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
-                .AddSingleton<ISourceFileFactory, SourceFileFactory>()
-                .AddSingleton<IActiveSourceFileSet, ActiveSourceFileSet>()
-                .AddRegistryCatalogServices()
-                .AddSingleton<BicepCompiler>()
-                .AddSingleton<BicepDecompiler>();
+                .AddBicepCore()
+                .AddBicepDecompiler()
+                .AddSingleton<IActiveSourceFileSet, ActiveSourceFileSet>();
             this.dirty = true;
         }
 
