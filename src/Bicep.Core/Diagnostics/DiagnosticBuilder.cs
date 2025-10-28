@@ -1245,10 +1245,6 @@ namespace Bicep.Core.Diagnostics
                 $"Using lambda variables inside the \"{functionName}\" function is not currently supported."
                     + $" Found the following lambda variable(s) being accessed: {ToQuotedString(variableNames)}.");
 
-            public Diagnostic CannotUseExistingWithWriteOnlyResource(ResourceTypeReference resourceTypeReference) => CoreError(
-                "BCP441",
-                $"Resource type \"{resourceTypeReference.FormatName()}\" cannot be used with the 'existing' keyword.");
-
             public Diagnostic ExpectedLoopVariableBlockWith2Elements(int actualCount) => CoreError(
                 "BCP249",
                 $"Expected loop variable block to consist of exactly 2 elements (item variable and index variable), but found {actualCount}.");
@@ -2008,6 +2004,14 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic SecureDecoratorTargetMustFitWithinStringOrObject() => CoreError(
                 "BCP440",
                 "The @secure() decorator can only be used on statements whose type is a subtype of \"string\" or \"object\".");
+
+            public Diagnostic CannotUseExistingWithWriteOnlyResource(ResourceTypeReference resourceTypeReference) => CoreError(
+                "BCP441",
+                $"Resource type \"{resourceTypeReference.FormatName()}\" cannot be used with the 'existing' keyword.");
+
+            public Diagnostic MultilineStringRequiresExperimentalFeature() => CoreError(
+                "BCP442",
+                $"Using multiline string interpolation requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.MultilineStringInterpolation)}\".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

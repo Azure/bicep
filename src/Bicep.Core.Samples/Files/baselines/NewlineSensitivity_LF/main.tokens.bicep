@@ -308,7 +308,7 @@ hello
 //@[39:40) Comma |,|
 //@[59:61) StringComplete |''|
 //@[61:62) Comma |,|
-//@[67:76) MultilineString |'''\n\n\n'''|
+//@[67:76) StringComplete |'''\n\n\n'''|
 
 
 '''
