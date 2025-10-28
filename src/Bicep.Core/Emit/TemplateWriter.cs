@@ -1255,6 +1255,7 @@ namespace Bicep.Core.Emit
                 }
 
                 if (metadata.IsAzResource ||
+                    Context.SemanticModel.TargetScope == ResourceScope.DesiredStateConfiguration ||
                     this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
                 {
                     emitter.EmitProperty("type", metadata.TypeReference.FormatType());
