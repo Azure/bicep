@@ -284,18 +284,29 @@ namespace Bicep.Core.Emit
                         fullyQualifiedType,
                         nameSegments);
                 case ResourceScope.DesiredStateConfiguration:
-                    // DSC resources don't have traditional ARM resource IDs
-                    var dscNameParts = new List<LanguageExpression>
-                    {
-                        new JTokenExpression(fullyQualifiedType)
-                    };
-                    dscNameParts.AddRange(nameSegments);
+                    var dscNameParts = new List<LanguageExpression>();
+                    var nameSegmentsArray = nameSegments.ToArray();
+                
+                    dscNameParts.Add(new JTokenExpression(fullyQualifiedType));
                     
-                    return new FunctionExpression("concat", [.. dscNameParts.SelectMany(expr => new LanguageExpression[] 
-                    { 
-                        expr, 
-                        new JTokenExpression("/") 
-                    }).SkipLast(1)], []);
+                    dscNameParts.Add(new JTokenExpression(":"));
+                    
+                    if (nameSegmentsArray.Length == 1)
+                    {
+                        dscNameParts.Add(new FunctionExpression("uriComponent", [nameSegmentsArray[0]], []));
+                    }
+                    else
+                    {
+                        var concatNameArgs = nameSegmentsArray.SelectMany(expr => new LanguageExpression[] 
+                        { 
+                            expr, 
+                            new JTokenExpression("/") 
+                        }).SkipLast(1).ToArray();
+                        var concatenatedName = new FunctionExpression("concat", concatNameArgs, []);
+                        dscNameParts.Add(new FunctionExpression("uriComponent", [concatenatedName], []));
+                    }
+                    
+                    return new FunctionExpression("concat", [.. dscNameParts], []);
                 default:
                     throw new InvalidOperationException($"Cannot format resourceId for scope {scopeData.RequestedScope}");
             }
@@ -328,18 +339,36 @@ namespace Bicep.Core.Emit
                         fullyQualifiedType,
                         nameSegments);
                 case ResourceScope.DesiredStateConfiguration:
-                    // DSC resources use the same unqualified format as the qualified one
-                    var dscNameParts = new List<LanguageExpression>
-                    {
-                        new JTokenExpression(fullyQualifiedType)
-                    };
-                    dscNameParts.AddRange(nameSegments);
+                    // DSC resources use format: type:urlencoded(name)
+                    // The name needs to be URL-encoded to allow arbitrary characters
+                    var unqualifiedDscNameParts = new List<LanguageExpression>();
+                    var unqualifiedNameSegmentsArray = nameSegments.ToArray();
                     
-                    return new FunctionExpression("concat", [.. dscNameParts.SelectMany(expr => new LanguageExpression[] 
-                    { 
-                        expr, 
-                        new JTokenExpression("/") 
-                    }).SkipLast(1)], []);
+                    // Start with the type
+                    unqualifiedDscNameParts.Add(new JTokenExpression(fullyQualifiedType));
+                    
+                    // Add colon separator
+                    unqualifiedDscNameParts.Add(new JTokenExpression(":"));
+                    
+                    // URL-encode the name segments (concatenated with slashes if multiple)
+                    if (unqualifiedNameSegmentsArray.Length == 1)
+                    {
+                        // Single name segment - just URL encode it
+                        unqualifiedDscNameParts.Add(new FunctionExpression("uriComponent", [unqualifiedNameSegmentsArray[0]], []));
+                    }
+                    else
+                    {
+                        // Multiple name segments - concatenate with slashes, then URL encode
+                        var concatNameArgs = unqualifiedNameSegmentsArray.SelectMany(expr => new LanguageExpression[] 
+                        { 
+                            expr, 
+                            new JTokenExpression("/") 
+                        }).SkipLast(1).ToArray();
+                        var concatenatedName = new FunctionExpression("concat", concatNameArgs, []);
+                        unqualifiedDscNameParts.Add(new FunctionExpression("uriComponent", [concatenatedName], []));
+                    }
+                    
+                    return new FunctionExpression("concat", [.. unqualifiedDscNameParts], []);
                 default:
                     throw new InvalidOperationException($"Cannot format resourceId for scope {scopeData.RequestedScope}");
             }
