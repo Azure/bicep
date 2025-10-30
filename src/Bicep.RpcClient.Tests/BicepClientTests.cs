@@ -4,6 +4,7 @@
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.RpcClient.Helpers;
 using FluentAssertions;
@@ -21,31 +22,12 @@ public class BicepClientTests
     [TestInitialize]
     public async Task TestInitialize()
     {
-        MockHttpMessageHandler mockHandler = new();
+        var clientFactory = new BicepClientFactory(new());
+        var cliName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "bicep.exe" : "bicep";
+        var cliPath = Path.GetFullPath(Path.Combine(typeof(BicepClientTests).Assembly.Location, $"../{cliName}"));
 
-        mockHandler.When(HttpMethod.Get, "https://downloads.bicep.azure.com/releases/latest")
-            .Respond("application/json", """
-            {
-                "tag_name": "v0.0.0-dev"
-            }
-            """);
-
-        mockHandler.When(HttpMethod.Get, "https://downloads.bicep.azure.com/v0.0.0-dev/bicep-*-*")
-            .Respond(req =>
-            {
-                var cliName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "bicep.exe" : "bicep";
-                var cliPath = Path.GetFullPath(Path.Combine(typeof(BicepClientTests).Assembly.Location, $"../PublishedCli/{cliName}"));
-
-                return new(System.Net.HttpStatusCode.OK)
-                {
-                    Content = new StreamContent(File.OpenRead(cliPath))
-                };
-            });
-
-        var clientFactory = new BicepClientFactory(new(mockHandler));
-
-        Bicep = await clientFactory.DownloadAndInitialize(
-            new() { InstallPath = FileHelper.GetUniqueTestOutputPath(TestContext) },
+        Bicep = await clientFactory.InitializeFromPath(
+            cliPath,
             TestContext.CancellationTokenSource.Token);
     }
 
@@ -58,6 +40,56 @@ public class BicepClientTests
             // This test creates a new Bicep CLI install for each test run, so we need to clean it up afterwards
             Directory.Delete(TestContext.TestResultsDirectory, true);
         }
+    }
+
+    public static IEnumerable<object[]> GetArchitectures()
+    {
+        yield return new object[] { "linux-x64", Architecture.X64, "linux" };
+        yield return new object[] { "linux-arm64", Architecture.Arm64, "linux" };
+        yield return new object[] { "osx-x64", Architecture.X64, "osx" };
+        yield return new object[] { "osx-arm64", Architecture.Arm64, "osx" };
+        yield return new object[] { "win-x64", Architecture.X64, "windows" };
+        yield return new object[] { "win-arm64", Architecture.Arm64, "windows" };
+    }
+
+    [TestMethod]
+    [DynamicData(nameof(GetArchitectures))]
+    public async Task Download_fetches_and_installs_bicep_cli(string name, Architecture architecture, string osPlatformString)
+    {
+        var osPlatform = OSPlatform.Create(osPlatformString);
+        var exeSuffix = osPlatform == OSPlatform.Windows ? ".exe" : string.Empty;
+        var outputDir = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+        MockHttpMessageHandler mockHandler = new();
+        mockHandler.When(HttpMethod.Get, "https://downloads.bicep.azure.com/releases/latest")
+            .Respond("application/json", """
+            {
+                "tag_name": "v1.2.3"
+            }
+            """);
+
+        var randomBytes = Guid.NewGuid().ToByteArray();
+        mockHandler.When(HttpMethod.Get, $"https://downloads.bicep.azure.com/v1.2.3/bicep-{name}{exeSuffix}")
+            .Respond(req =>
+            {
+                return new(System.Net.HttpStatusCode.OK)
+                {
+                    Content = new ByteArrayContent(randomBytes),
+                };
+            });
+
+        var clientFactory = new BicepClientFactory(new(mockHandler));
+
+        var bicepCliPath = await clientFactory.Download(new()
+        {
+            InstallPath = outputDir,
+            OsPlatform = osPlatform,
+            Architecture = architecture,
+        }, TestContext.CancellationTokenSource.Token);
+
+        File.Exists(bicepCliPath).Should().BeTrue();
+        var installedContent = await File.ReadAllBytesAsync(bicepCliPath);
+        installedContent.Should().BeEquivalentTo(randomBytes);
     }
 
     [TestMethod]

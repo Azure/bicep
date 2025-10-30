@@ -51,6 +51,25 @@ param foo string
     }
 
     [TestMethod]
+    public void Using_with_clause_required_if_experimental_feature_enabled()
+    {
+        // https://github.com/Azure/bicep/issues/18328
+        var result = CompilationHelper.CompileParams(Services,
+            ("parameters.bicepparam", """
+using 'main.bicep'
+
+param foo = 'foo/bar/baz'
+"""),
+            ("main.bicep", """
+param foo string
+"""));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP443", DiagnosticLevel.Error, """The "using" statement requires a "with" clause if the EXPERIMENTAL feature "DeployCommands" is enabled."""),
+        ]);
+    }
+
+    [TestMethod]
     public void Scope_information_and_deployment_can_be_parsed()
     {
         var result = CompilationHelper.CompileParams(Services,

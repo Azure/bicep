@@ -2012,6 +2012,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic MultilineStringRequiresExperimentalFeature() => CoreError(
                 "BCP442",
                 $"Using multiline string interpolation requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.MultilineStringInterpolation)}\".");
+
+            public Diagnostic UsingWithClauseRequiredIfExperimentalFeatureEnabled() => CoreError(
+                "BCP443",
+                $"""The "{LanguageConstants.UsingKeyword}" statement requires a "{LanguageConstants.WithKeyword}" clause if the EXPERIMENTAL feature "{nameof(ExperimentalFeaturesEnabled.DeployCommands)}" is enabled.""");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

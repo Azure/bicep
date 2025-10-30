@@ -27,9 +27,4 @@
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
 
-  <Target Name="PublishCli" AfterTargets="Build">
-    <Exec Command="dotnet publish --no-restore --configuration $(Configuration) --self-contained true ../Bicep.Cli --output $(OutDir)/PublishedCli"
-      WorkingDirectory="$(MSBuildProjectDirectory)" />
-  </Target>
-
 </Project>

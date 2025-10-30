@@ -1,112 +1,18 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
-  "parameters": {
-    "singleParam": {
-      "expression": "[externalInputs('sys_cliArg_0')]"
-    },
-    "singleParamCast": {
-      "expression": "[bool(externalInputs('sys_cliArg_1'))]"
-    },
-    "foo": {
-      "expression": "[externalInputs('sys_cliArg_2')]"
-    },
-    "bar": {
-      "expression": "[externalInputs('sys_envVar_3')]"
-    },
-    "baz": {
-      "expression": "[externalInputs('sys_envVar_4')]"
-    },
-    "varRef": {
-      "expression": "[bool(externalInputs('sys_cliArg_12'))]"
-    },
-    "c": {
-      "expression": "[externalInputs('sys_cliArg_13')]"
-    },
-    "a1": {
-      "expression": "[externalInputs('sys_cliArg_5')]"
-    },
-    "b1": {
-      "expression": "[externalInputs('sys_cliArg_5')]"
-    },
-    "c1": {
-      "expression": "[externalInputs('sys_cliArg_5')]"
-    },
-    "first": {
-      "expression": "[int(externalInputs('sys_envVar_6'))]"
-    },
-    "second": {
-      "expression": "[externalInputs('sys_envVar_7')]"
-    },
-    "result": {
-      "expression": "[format('{0} combined with {1}', int(externalInputs('sys_envVar_6')), externalInputs('sys_envVar_7'))]"
-    },
-    "myParam": {
-      "expression": "[externalInputs('sys_cliArg_8')]"
-    },
-    "coolParam": {
-      "expression": "[externalInputs('sys_cliArg_9')]"
-    },
-    "objectBody": {
-      "expression": "[createObject('foo', externalInputs('sys_envVar_10'), 'bar', externalInputs('sys_envVar_11'), 'baz', 'blah')]"
-    }
-  },
+  "parameters": {},
   "externalInputDefinitions": {
     "sys_cliArg_0": {
       "kind": "sys.cliArg",
-      "config": "foo"
+      "config": "subscription-id"
     },
     "sys_cliArg_1": {
       "kind": "sys.cliArg",
-      "config": "foo"
-    },
-    "sys_cliArg_12": {
-      "kind": "sys.cliArg",
-      "config": "myVar"
-    },
-    "sys_cliArg_13": {
-      "kind": "sys.cliArg",
-      "config": "a"
-    },
-    "sys_cliArg_2": {
-      "kind": "sys.cliArg",
-      "config": "foo"
-    },
-    "sys_cliArg_5": {
-      "kind": "sys.cliArg",
-      "config": "a"
-    },
-    "sys_cliArg_8": {
-      "kind": "sys.cliArg",
-      "config": "myParam"
-    },
-    "sys_cliArg_9": {
-      "kind": "sys.cliArg",
-      "config": "sys&sons.cool#param provider"
-    },
-    "sys_envVar_10": {
-      "kind": "sys.envVar",
-      "config": "foo"
-    },
-    "sys_envVar_11": {
-      "kind": "sys.envVar",
-      "config": "bar"
-    },
-    "sys_envVar_3": {
-      "kind": "sys.envVar",
-      "config": "bar"
-    },
-    "sys_envVar_4": {
-      "kind": "sys.envVar",
-      "config": "FIRST_ENV_VAR"
-    },
-    "sys_envVar_6": {
-      "kind": "sys.envVar",
-      "config": "FIRST_ENV_VAR"
-    },
-    "sys_envVar_7": {
-      "kind": "sys.envVar",
-      "config": "SECOND_ENV_VAR"
+      "config": "resource-group"
     }
+  },
+  "usingConfig": {
+    "expression": "[createObject('scope', format('/subscriptions/{0}/resourceGroups/{1}', externalInputs('sys_cliArg_0'), externalInputs('sys_cliArg_1')), 'actionOnUnmanage', createObject('resources', 'delete'), 'denySettings', createObject('mode', 'denyDelete'), 'mode', 'stack')]"
   }
 }
