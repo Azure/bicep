@@ -3,6 +3,8 @@
 
 using System.Collections.Immutable;
 using System.Globalization;
+using Bicep.Core;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Rewriters;
@@ -32,11 +34,77 @@ public static class ParamsFileHelper
         _ => throw new InvalidOperationException($"Cannot parse JSON object. Unsupported token: {token.Type}")
     };
 
+    private class InlineReplacementRewriter : SyntaxRewriteVisitor
+    {
+        private readonly Dictionary<string, JToken> parameters;
+        private readonly HashSet<string> replacedParameters;
+        private string? currentParameterName;
+        private string? currentPropertyName;
+
+        public InlineReplacementRewriter(Dictionary<string, JToken> parameters, HashSet<string> replacedParameters)
+        {
+            this.parameters = parameters;
+            this.replacedParameters = replacedParameters;
+        }
+
+        protected override SyntaxBase VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
+        {
+            var previousParameterName = currentParameterName;
+            currentParameterName = syntax.Name.IdentifierName;
+
+            var result = base.VisitParameterAssignmentSyntax(syntax);
+
+            currentParameterName = previousParameterName;
+            return result;
+        }
+
+        protected override SyntaxBase ReplaceObjectPropertySyntax(ObjectPropertySyntax syntax)
+        {
+            var previousPropertyName = currentPropertyName;
+
+            currentPropertyName = syntax.Key switch
+            {
+                StringSyntax stringSyntax when stringSyntax.TryGetLiteralValue() is string literal => literal,
+                IdentifierSyntax identifier => identifier.IdentifierName,
+                _ => null
+            };
+
+            var result = base.ReplaceObjectPropertySyntax(syntax);
+
+            currentPropertyName = previousPropertyName;
+            return result;
+        }
+
+        protected override SyntaxBase ReplaceFunctionCallSyntax(FunctionCallSyntax syntax)
+        {
+            if (syntax.Name.IdentifierName == LanguageConstants.InlineKeyword && syntax.Arguments.Length == 0)
+            {
+                string? overrideKey = DetermineOverrideKey();
+
+                if (overrideKey != null && parameters.TryGetValue(overrideKey, out var overrideValue))
+                {
+                    replacedParameters.Add(overrideKey);
+                    return ConvertJsonToBicepSyntax(overrideValue);
+                }
+            }
+
+            return base.ReplaceFunctionCallSyntax(syntax);
+        }
+
+        private string? DetermineOverrideKey()
+        {
+            return currentPropertyName ?? currentParameterName;
+        }
+    }
+
     public static BicepParamFile ApplyParameterOverrides(ISourceFileFactory sourceFileFactory, BicepParamFile sourceFile, Dictionary<string, JToken> parameters)
     {
         var replacedParameters = new HashSet<string>();
 
-        var newProgramSyntax = CallbackRewriter.Rewrite(sourceFile.ProgramSyntax, syntax =>
+        var inlineRewriter = new InlineReplacementRewriter(parameters, replacedParameters);
+        var newProgramSyntax = inlineRewriter.Rewrite(sourceFile.ProgramSyntax);
+
+        newProgramSyntax = CallbackRewriter.Rewrite(newProgramSyntax, syntax =>
         {
             if (syntax is not ParameterAssignmentSyntax paramSyntax)
             {

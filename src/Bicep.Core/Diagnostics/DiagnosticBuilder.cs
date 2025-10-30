@@ -2012,6 +2012,18 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic MultilineStringRequiresExperimentalFeature() => CoreError(
                 "BCP442",
                 $"Using multiline string interpolation requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.MultilineStringInterpolation)}\".");
+
+            public Diagnostic InlineFunctionNotValidInVariables() => CoreError(
+                "BCP443",
+                $"The '{LanguageConstants.InlineKeyword}()' function cannot be used in variable declarations. It is only valid in parameter assignments in .bicepparam files.");
+
+            public Diagnostic InlineFunctionNotValidInStringInterpolation() => CoreError(
+                "BCP444",
+                $"The '{LanguageConstants.InlineKeyword}()' function cannot be used in string interpolation.");
+
+            public Diagnostic MissingInlineParameterOverride(string parameterName) => CoreError(
+                "BCP445",
+                $"The parameter \"{parameterName}\" uses the '{LanguageConstants.InlineKeyword}()' function but no value was provided via the '--parameters' argument. Please provide a value using: '--parameters {parameterName}=<value>'");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -1308,6 +1308,11 @@ namespace Bicep.Core.Semantics.Namespaces
                         return new(LanguageConstants.Any);
                     }, LanguageConstants.Any)
                     .Build();
+
+                yield return new FunctionOverloadBuilder(LanguageConstants.InlineKeyword)
+                    .WithGenericDescription("Placeholder for parameter values provided at deployment time via CLI arguments.")
+                    .WithReturnType(LanguageConstants.Any)
+                    .Build();
             }
 
             foreach (var overload in GetAlwaysPermittedOverloads())
