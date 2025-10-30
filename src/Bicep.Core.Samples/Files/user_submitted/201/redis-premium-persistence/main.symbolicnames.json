@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5964134893459816940"
+      "templateHash": "13554821015312618227"
     }
   },
   "parameters": {
@@ -120,7 +120,7 @@
     "diagSettings": {
       "type": "microsoft.insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
-      "scope": "[format('Microsoft.Cache/redis/{0}', parameters('redisCacheName'))]",
+      "scope": "[resourceId('Microsoft.Cache/redis', parameters('redisCacheName'))]",
       "name": "[parameters('redisCacheName')]",
       "properties": {
         "storageAccountId": "[parameters('existingDiagnosticsStorageAccountId')]"

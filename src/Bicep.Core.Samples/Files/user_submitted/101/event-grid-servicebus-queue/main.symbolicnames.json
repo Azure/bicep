@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1891339663717247843"
+      "templateHash": "3156881033686547405"
     }
   },
   "parameters": {
@@ -67,7 +67,7 @@
     "eventGridSubscription": {
       "type": "Microsoft.EventGrid/eventSubscriptions",
       "apiVersion": "2020-06-01",
-      "scope": "[format('Microsoft.EventGrid/topics/{0}', parameters('eventGridTopicName'))]",
+      "scope": "[resourceId('Microsoft.EventGrid/topics', parameters('eventGridTopicName'))]",
       "name": "[parameters('eventGridSubscriptionName')]",
       "properties": {
         "destination": {

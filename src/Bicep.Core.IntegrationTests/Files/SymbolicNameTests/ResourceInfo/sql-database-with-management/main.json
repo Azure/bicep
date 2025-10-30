@@ -10,7 +10,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4117458336638385923"
+      "templateHash": "9398539240056510995"
     }
   },
   "parameters": {
@@ -67,7 +67,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "539045749339275659"
+              "templateHash": "7415740835907921061"
             }
           },
           "parameters": {
@@ -184,7 +184,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "13365229039280932647"
+                      "templateHash": "12444332133751382655"
                     }
                   },
                   "parameters": {
@@ -398,7 +398,7 @@
                       "condition": "[parameters('sqlLogicalServer').diagnosticLogsAndMetrics.auditLogs]",
                       "type": "microsoft.insights/diagnosticSettings",
                       "apiVersion": "2017-05-01-preview",
-                      "scope": "[format('Microsoft.Sql/servers/{0}/databases/{1}', parameters('sqlLogicalServer').name, 'master')]",
+                      "scope": "[resourceId('Microsoft.Sql/servers/databases', parameters('sqlLogicalServer').name, 'master')]",
                       "name": "SQLSecurityAuditEvents_3d229c42-c7e7-4c97-9a99-ec0d0d8b86c1",
                       "properties": {
                         "workspaceId": "[resourceInfo('logAnalyticsWorkspace').id]",
@@ -424,7 +424,7 @@
                       "condition": "[not(empty(parameters('sqlLogicalServer').diagnosticLogsAndMetrics.name))]",
                       "type": "microsoft.insights/diagnosticSettings",
                       "apiVersion": "2017-05-01-preview",
-                      "scope": "[format('Microsoft.Sql/servers/{0}/databases/{1}', parameters('sqlLogicalServer').name, 'master')]",
+                      "scope": "[resourceId('Microsoft.Sql/servers/databases', parameters('sqlLogicalServer').name, 'master')]",
                       "name": "sendLogsAndMetrics",
                       "properties": {
                         "copy": [
@@ -548,7 +548,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "11694828696500125168"
+                              "templateHash": "18189861927363119486"
                             }
                           },
                           "parameters": {
@@ -660,7 +660,7 @@
                               "condition": "[parameters('sqlDatabase').diagnosticLogsAndMetrics.auditLogs]",
                               "type": "microsoft.insights/diagnosticSettings",
                               "apiVersion": "2017-05-01-preview",
-                              "scope": "[format('Microsoft.Sql/servers/{0}/databases/{1}', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1])]",
+                              "scope": "[resourceId('Microsoft.Sql/servers/databases', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1])]",
                               "name": "SQLSecurityAuditEvents_3d229c42-c7e7-4c97-9a99-ec0d0d8b86c1",
                               "properties": {
                                 "workspaceId": "[resourceInfo('logAnalyticsWorkspace').id]",
@@ -681,7 +681,7 @@
                               "condition": "[not(empty(parameters('sqlDatabase').diagnosticLogsAndMetrics.name))]",
                               "type": "microsoft.insights/diagnosticSettings",
                               "apiVersion": "2017-05-01-preview",
-                              "scope": "[format('Microsoft.Sql/servers/{0}/databases/{1}', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1])]",
+                              "scope": "[resourceId('Microsoft.Sql/servers/databases', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1])]",
                               "name": "sendLogsAndMetrics",
                               "properties": {
                                 "copy": [
