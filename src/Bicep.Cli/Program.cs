@@ -68,6 +68,8 @@ namespace Bicep.Cli
             var environment = services.GetRequiredService<IEnvironment>();
             Trace.WriteLine($"Bicep version: {environment.GetVersionString()}, OS: {environment.CurrentPlatform?.ToString() ?? "unknown"}, Architecture: {environment.CurrentArchitecture}, CLI arguments: \"{string.Join(' ', args)}\"");
 
+            services.GetRequiredService<VersionChecker>().CheckForNewerVersions(io.Error);
+
             try
             {
                 switch (ArgumentParser.TryParse(args, services.GetRequiredService<IFileSystem>()))
@@ -197,7 +199,8 @@ namespace Bicep.Cli
                     Out = new AnsiConsoleOutput(io.Output),
                 }))
                 .AddSingleton<IDeploymentProcessor, DeploymentProcessor>()
-                .AddSingleton<DeploymentRenderer>();
+                .AddSingleton<DeploymentRenderer>()
+                .AddSingleton<VersionChecker>();
 
         // This logic is duplicated in Bicep.Cli. We avoid placing it in Bicep.Core
         // to keep Bicep.Core free of System.IO dependencies. Consider moving this
