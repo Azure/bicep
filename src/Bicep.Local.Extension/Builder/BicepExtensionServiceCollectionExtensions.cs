@@ -28,56 +28,15 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class BicepExtensionServiceCollectionExtensions
 {
     /// <summary>
-    /// Configures the dependency injection container with core Bicep extension services and type definitions.
+    /// Adds Bicep extension services and gRPC endpoints to the specified service collection.
     /// </summary>
-    /// <example>
-    /// <code>
-    /// services.AddBicepExtension(
-    ///     name: "MyCompany.KubernetesExtension",
-    ///     version: "1.0.0",
-    ///     isSingleton: true,
-    ///     typeConfiguration: (typeFactory, config) => {
-    ///         var stringType = typeFactory.Create(() => new StringType());
-    ///         config["apiUrl"] = new ObjectTypeProperty(
-    ///             typeFactory.GetReference(stringType), 
-    ///             ObjectTypePropertyFlags.Required, 
-    ///             "The Kubernetes API server URL");
-    ///     });
-    /// </code>
-    /// </example>
-    public static IBicepExtensionBuilder AddBicepExtension(
-        this IServiceCollection services,
-        string name,
-        string version,
-        bool isSingleton,
-        Assembly typeAssembly,
-        Type? configurationType = null)
+    /// <remarks>This method registers required services for Bicep extension functionality, including resource
+    /// handlers and gRPC reflection. Call this method during application startup to enable Bicep extension
+    /// features.</remarks>
+    /// <param name="services">The service collection to which the Bicep extension and related services will be added. Cannot be null.</param>
+    /// <returns>An <see cref="IBicepExtensionBuilder"/> that can be used to further configure the Bicep extension.</returns>
+    public static IBicepExtensionBuilder AddBicepExtension(this IServiceCollection services)
     {
-        var typeDictionary = new Dictionary<Type, Func<TypeBase>>
-                            {
-                                { typeof(string), () => new StringType() },
-                                { typeof(bool), () => new BooleanType() },
-                                { typeof(int), () => new IntegerType() }
-                            }.ToImmutableDictionary();
-        var typeFactory = new TypeFactory([]);
-
-        foreach (var type in typeDictionary)
-        {
-            typeFactory.Create(type.Value);
-        }
-
-        var configuration = new Dictionary<string, ObjectTypeProperty>();
-
-        services.AddSingleton<ITypeProvider>(new TypeProvider([typeAssembly]));
-        services.AddSingleton<ITypeDefinitionBuilder>(sp => new TypeDefinitionBuilder(
-            name,
-            version,
-            isSingleton,
-            configurationType,
-            typeFactory,
-            sp.GetRequiredService<ITypeProvider>(),
-            typeDictionary));
-
         services.AddSingleton<IResourceHandlerCollection, ResourceHandlerCollection>();
 
         services.AddGrpc(options =>
@@ -85,7 +44,7 @@ public static class BicepExtensionServiceCollectionExtensions
             options.EnableDetailedErrors = true;
         });
         services.AddGrpcReflection();
-
+        
         return new DefaultBicepExtensionBuilder(services);
     }
 }
