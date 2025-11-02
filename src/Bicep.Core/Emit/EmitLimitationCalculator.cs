@@ -1060,7 +1060,7 @@ namespace Bicep.Core.Emit
             {
                 return;
             }
-            
+
             foreach (var @string in SyntaxAggregator.AggregateByType<StringSyntax>(model.Root.Syntax)
                 .Where(x => x.IsMultiLineString() && !x.IsVerbatimString()))
             {

@@ -189,7 +189,7 @@ namespace Bicep.Core.Parsing
 
             return stringToken.Text.Substring(startOffset, stringToken.Text.Length - startOffset - end.Length);
         }
-        
+
         public static string? TryGetStringValue(Token stringToken)
         {
             if (stringToken.Type is not TokenType.StringComplete)
@@ -200,7 +200,7 @@ namespace Bicep.Core.Parsing
             var (isMultiLine, _) = GetStringTokenInfo(stringToken);
             return isMultiLine ? TryGetMultilineStringValue(stringToken, 0) : TryGetSingleLineStringValue(stringToken);
         }
-    
+
         /// <summary>
         /// Converts string literal text into its value. Returns null if the specified string token is malformed due to lexer error recovery.
         /// </summary>
