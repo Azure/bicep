@@ -44,7 +44,7 @@ public class BicepDecompilerServiceCollectionExtensionsTests : TestBase
           }
         }
         """);
-        
+
         result.FilesToSave[result.EntrypointUri].Should().Contain("param foo string");
     }
 }
