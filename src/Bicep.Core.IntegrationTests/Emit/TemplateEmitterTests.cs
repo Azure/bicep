@@ -295,6 +295,31 @@ this
         }
 
         [TestMethod]
+        [DataRow("\n")]
+        [DataRow("\r\n")]
+        public void Multiline_interpolated_strings_should_parse_correctly(string newlineSequence)
+        {
+            var inputFile = @"
+var name = 'World'
+var multiline = $'''
+Hello ${name}!
+'''
+
+var multiline2 = $$'''
+Hello $${name}!
+'''
+";
+
+            var (template, _, _) = CompilationHelper.Compile(ServiceBuilder.CreateWithFeatures(new(MultilineStringInterpolationEnabled: true)), StringUtils.ReplaceNewlines(inputFile, newlineSequence));
+
+            var expected1 = string.Join(newlineSequence, ["[format('Hello {0}!", "', variables('name'))]"]);
+            template.Should().HaveValueAtPath("$.variables.multiline", expected1);
+
+            var expected2 = string.Join(newlineSequence, ["[format('Hello {0}!", "', variables('name'))]"]);
+            template.Should().HaveValueAtPath("$.variables.multiline2", expected2);
+        }
+
+        [TestMethod]
         public void TemplateEmitter_should_not_dispose_text_writer()
         {
             var (_, _, compilation) = CompilationHelper.Compile(string.Empty);

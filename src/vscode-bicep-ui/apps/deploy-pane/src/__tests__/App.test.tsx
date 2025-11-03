@@ -8,8 +8,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "../components/App";
 import {
   createDeploymentDataMessage,
-  createGetAccessTokenMessage,
-  createGetAccessTokenResultMessage,
   createGetDeploymentScopeMessage,
   createGetDeploymentScopeResultMessage,
   createGetStateMessage,
@@ -77,14 +75,13 @@ describe("App", () => {
   it("runs a deployment", async () => {
     const { container } = render(<App />);
 
-    const scope = await initialize();
+    await initialize();
 
     const deployButton = screen.getByText("Deploy");
     fireEvent.click(deployButton);
 
-    await act(async () => {
-      await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createGetAccessTokenMessage(scope)));
-      sendMessage(getAccessTokenResultMessage());
+    await waitFor(() => {
+      expect(screen.getAllByText("Succeeded")[0]).toBeInTheDocument();
     });
 
     expect(container).toMatchSnapshot();
@@ -93,7 +90,7 @@ describe("App", () => {
   it("handles synchronous deployment failures correctly", async () => {
     const { container } = render(<App />);
 
-    const scope = await initialize();
+    await initialize();
 
     mockClient.deployments.beginCreateOrUpdateAtScope.mockImplementation(async () => {
       throw new Error("Deployment failed");
@@ -102,9 +99,8 @@ describe("App", () => {
     const deployButton = screen.getByText("Deploy");
     fireEvent.click(deployButton);
 
-    await act(async () => {
-      await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createGetAccessTokenMessage(scope)));
-      sendMessage(getAccessTokenResultMessage());
+    await waitFor(() => {
+      expect(screen.getAllByText("Failed")[0]).toBeInTheDocument();
     });
 
     expect(mockClient.deploymentOperations.listAtScope).not.toHaveBeenCalled();
@@ -114,14 +110,13 @@ describe("App", () => {
   it("validates a deployment", async () => {
     const { container } = render(<App />);
 
-    const scope = await initialize();
+    await initialize();
 
     const validateButton = screen.getByText("Validate");
     fireEvent.click(validateButton);
 
-    await act(async () => {
-      await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createGetAccessTokenMessage(scope)));
-      sendMessage(getAccessTokenResultMessage());
+    await waitFor(() => {
+      expect(screen.getAllByText("InvalidTemplate")[0]).toBeInTheDocument();
     });
 
     expect(container).toMatchSnapshot();
@@ -130,14 +125,13 @@ describe("App", () => {
   it("what-ifs a deployment", async () => {
     const { container } = render(<App />);
 
-    const scope = await initialize();
+    await initialize();
 
     const whatIfButton = screen.getByText("What-If");
     fireEvent.click(whatIfButton);
 
-    await act(async () => {
-      await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createGetAccessTokenMessage(scope)));
-      sendMessage(getAccessTokenResultMessage());
+    await waitFor(() => {
+      expect(screen.getAllByText("Succeeded")[0]).toBeInTheDocument();
     });
 
     expect(container).toMatchSnapshot();
@@ -191,12 +185,5 @@ function getDeploymentDataMessage() {
 function getStateResultMessage() {
   return createGetStateResultMessage({
     scope: scope,
-  });
-}
-
-function getAccessTokenResultMessage() {
-  return createGetAccessTokenResultMessage({
-    expiresOnTimestamp: 1737601964200,
-    token: "mockAccessToken",
   });
 }

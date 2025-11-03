@@ -237,7 +237,7 @@ namespace Bicep.Core.Syntax
             var tokenValue = $"'''{value}'''";
 
             return new(
-                [CreateFreeformToken(TokenType.MultilineString, tokenValue, leadingTrivia, trailingTrivia)],
+                [CreateFreeformToken(TokenType.StringComplete, tokenValue, leadingTrivia, trailingTrivia)],
                 [],
                 [value]);
         }
@@ -409,6 +409,7 @@ namespace Bicep.Core.Syntax
 
         public static ParameterAssignmentSyntax CreateParameterAssignmentSyntax(string name, SyntaxBase value)
             => new(
+                [],
                 ParameterKeywordToken,
                 CreateIdentifierWithTrailingSpace(name),
                 AssignmentToken,

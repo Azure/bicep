@@ -60,7 +60,31 @@ export const BicepLanguage: languages.IMonarchLanguage = {
   tokenizer: {
     root: [{ include: "@expression" }, { include: "@whitespace" }],
 
-    stringVerbatim: [
+    multilineString: [
+      { regex: `(|'|'')[^']`, action: { token: "string" } },
+      {
+        regex: `'''${notBefore(`'`)}`,
+        action: { token: "string.quote", next: "@pop" },
+      },
+    ],
+
+    multilineString1Interpolation: [
+      {
+        regex: `\\\${`,
+        action: { token: "delimiter.bracket", next: "@bracketCounting" },
+      },
+      { regex: `(|'|'')[^']`, action: { token: "string" } },
+      {
+        regex: `'''${notBefore(`'`)}`,
+        action: { token: "string.quote", next: "@pop" },
+      },
+    ],
+
+    multilineString2Interpolation: [
+      {
+        regex: `\\$\\\${`,
+        action: { token: "delimiter.bracket", next: "@bracketCounting" },
+      },
       { regex: `(|'|'')[^']`, action: { token: "string" } },
       {
         regex: `'''${notBefore(`'`)}`,
@@ -102,8 +126,22 @@ export const BicepLanguage: languages.IMonarchLanguage = {
 
     expression: [
       {
+        regex: `\\$\\$'''`,
+        action: {
+          token: "string.quote",
+          next: "@multilineString2Interpolation",
+        },
+      },
+      {
+        regex: `\\$'''`,
+        action: {
+          token: "string.quote",
+          next: "@multilineString1Interpolation",
+        },
+      },
+      {
         regex: `'''`,
-        action: { token: "string.quote", next: "@stringVerbatim" },
+        action: { token: "string.quote", next: "@multilineString" },
       },
       {
         regex: `'${notBefore(`''`)}`,

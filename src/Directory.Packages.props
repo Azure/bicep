@@ -15,13 +15,13 @@
     <PackageVersion Include="Azure.Bicep.Types.Az" Version="0.2.803" />
     <PackageVersion Include="Azure.Bicep.Types.K8s" Version="0.1.644" />
     <PackageVersion Include="Azure.Containers.ContainerRegistry" Version="1.1.1" />
-    <PackageVersion Include="Azure.Deployments.ClientTools" Version="1.473.0" />
+    <PackageVersion Include="Azure.Deployments.ClientTools" Version="1.527.0" />
     <PackageVersion Include="Azure.Deployments.Engine" Version="1.473.0" />
     <PackageVersion Include="Azure.Deployments.Extensibility.Core" Version="0.1.67" />
     <PackageVersion Include="Azure.Deployments.Internal.GenerateNotice" Version="0.1.45" />
     <PackageVersion Include="Azure.Deployments.Templates" Version="1.473.0" />
     <PackageVersion Include="Azure.Identity" Version="1.17.0" />
-    <PackageVersion Include="Azure.ResourceManager.ResourceGraph" Version="1.0.1" />
+    <PackageVersion Include="Azure.ResourceManager.ResourceGraph" Version="1.1.0" />
     <PackageVersion Include="Azure.ResourceManager.Resources" Version="1.11.1" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.4" />
     <PackageVersion Include="CommandLineParser" Version="2.9.1" />

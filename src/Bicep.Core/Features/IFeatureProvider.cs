@@ -39,6 +39,8 @@ public interface IFeatureProvider
 
     bool DeployCommandsEnabled { get; }
 
+    bool MultilineStringInterpolationEnabled { get; }
+
     bool ThisNamespaceEnabled { get; }
 
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
@@ -62,6 +64,7 @@ public interface IFeatureProvider
                 (DesiredStateConfigurationEnabled, "Enable defining Desired State Configuration documents", true, false),
                 (UserDefinedConstraintsEnabled, "Enable @validate() decorator", true, true),
                 (DeployCommandsEnabled, "Enable deploy commands", true, true),
+                (MultilineStringInterpolationEnabled, "Enable multiline string interpolation", false, false),
                 (ThisNamespaceEnabled, "Enable 'this' namespace", true, true),
             })
             {

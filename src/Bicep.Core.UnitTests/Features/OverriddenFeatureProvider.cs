@@ -49,5 +49,7 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool DeployCommandsEnabled => overrides.DeployCommandsEnabled ?? features.DeployCommandsEnabled;
 
+    public bool MultilineStringInterpolationEnabled => overrides.MultilineStringInterpolationEnabled ?? features.MultilineStringInterpolationEnabled;
+
     public bool ThisNamespaceEnabled => overrides.ThisNamespaceEnabled ?? features.ThisNamespaceEnabled;
 }

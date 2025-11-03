@@ -38,7 +38,7 @@ namespace Bicep.Core.Syntax
         {
             WriteTrivia(token.LeadingTrivia);
 
-            if (token.Type is TokenType.NewLine or TokenType.MultilineString &&
+            if (token.Type is TokenType.NewLine or TokenType.StringComplete or TokenType.StringLeftPiece or TokenType.StringMiddlePiece or TokenType.StringRightPiece &&
                 !string.IsNullOrEmpty(this.newlineReplacement))
             {
                 writer.Write(token.Text.ReplaceLineEndings(this.newlineReplacement));

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 import type { CloudError, Deployment, DeploymentOperation, ErrorResponse, WhatIfChange } from "@azure/arm-resources";
 import type { AccessToken, TokenCredential } from "@azure/identity";
 import type {
@@ -14,9 +17,6 @@ import { RestError } from "@azure/core-rest-pipeline";
 import { useState } from "react";
 import { getDate } from "./time";
 
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-
 export interface UseAzureProps {
   scope?: DeploymentScope;
   templateMetadata?: TemplateMetadata;
@@ -32,17 +32,13 @@ export function useAzure(props: UseAzureProps) {
   const [outputs, setOutputs] = useState<Record<string, unknown>>();
   const [deployState, setDeployState] = useState<DeployState>({});
 
-  function getArmClient(scope: DeploymentScope, accessToken: AccessToken) {
-    const tokenProvider: TokenCredential = {
-      getToken: async () => accessToken,
-    };
-
+  function getArmClient(scope: DeploymentScope, credential: TokenCredential) {
     const authenticatedSubscriptionId =
       scope.scopeType === "managementGroup" || scope.scopeType === "tenant"
         ? scope.associatedSubscriptionId
         : scope.subscriptionId;
 
-    return new ResourceManagementClient(tokenProvider, authenticatedSubscriptionId, {
+    return new ResourceManagementClient(credential, authenticatedSubscriptionId, {
       userAgentOptions: {
         userAgentPrefix: "bicepdeploypane",
       },
@@ -69,8 +65,9 @@ export function useAzure(props: UseAzureProps) {
       setDeployState({ status: "running", name: deploymentName });
 
       const deployment = getDeploymentProperties(scope, templateMetadata, parametersMetadata.parameters);
-      const accessToken = await acquireAccessToken();
-      const armClient = getArmClient(scope, accessToken);
+      const armClient = getArmClient(scope, {
+        getToken: acquireAccessToken,
+      });
       const { success, error } = await operation(armClient, deployment);
       setDeployState({ status: success ? "succeeded" : "failed", name: deploymentName, error });
     } catch (error) {

@@ -91,6 +91,52 @@ output multiline string = multiline
     }
 
     [TestMethod]
+    public void Multiline_interpolation_is_evaluated_successfully()
+    {
+        var result = CompilationHelper.Compile(ServiceBuilder.CreateWithFeatures(new(MultilineStringInterpolationEnabled: true)), """
+var intVal = 12345
+output multiline string = $'''
+>${intVal}<
+>$${intVal}<
+'''
+output multiline2 string = $$'''
+>${intVal}<
+>$${intVal}<
+'''
+""");
+
+        using (new AssertionScope())
+        {
+            var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
+
+            evaluated.Should().HaveValueAtPath("$.outputs['multiline'].value", ">12345<\n>$12345<\n");
+            evaluated.Should().HaveValueAtPath("$.outputs['multiline2'].value", ">${intVal}<\n>12345<\n");
+        }
+    }
+
+    [TestMethod]
+    public void Multiline_interpolation_is_blocked_without_feature_flag()
+    {
+        var result = CompilationHelper.Compile("""
+var intVal = 12345
+output multiline string = $'''
+>${intVal}<
+>$${intVal}<
+'''
+output multiline2 string = $$'''
+>${intVal}<
+>$${intVal}<
+'''
+""");
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP442", DiagnosticLevel.Error, """Using multiline string interpolation requires enabling EXPERIMENTAL feature "MultilineStringInterpolation"."""),
+            ("BCP442", DiagnosticLevel.Error, """Using multiline string interpolation requires enabling EXPERIMENTAL feature "MultilineStringInterpolation"."""),
+        });
+    }
+
+    [TestMethod]
     public void ResourceId_expressions_are_evaluated_successfully()
     {
         var bicepparamText = @"
