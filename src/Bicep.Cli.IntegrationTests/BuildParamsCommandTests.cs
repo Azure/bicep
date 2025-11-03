@@ -1119,5 +1119,222 @@ param objParam object
             error.Should().Contain("Error BCP033: Expected a value of type \"bool\" but the provided value is of type \"<empty array>\".");
             result.Should().Be(1);
         }
+
+        [TestMethod]
+        public async Task Build_params_with_inline_function_succeeds()
+        {
+            var bicepparamsPath = FileHelper.SaveResultFile(
+                TestContext,
+                "input.bicepparam", """
+                    using 'main.bicep'
+                    param foo = inline()
+                """);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep", """
+                    param foo string
+                    output foo string = foo
+                """,
+                Path.GetDirectoryName(bicepparamsPath));
+
+            var environment = TestEnvironment.Default.WithVariables(("BICEP_PARAMETERS_OVERRIDES", new
+            {
+                foo = "bar"
+            }.ToJson()));
+
+            var settings = CreateDefaultSettings() with { Environment = environment };
+            var result = await Bicep(settings, "build-params", bicepparamsPath, "--stdout");
+
+            result.Should().NotHaveStderr();
+            result.Should().Succeed();
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+
+            paramsObject.Should().DeepEqual(JToken.Parse("""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "foo": {
+                        "value": "bar"
+                        }
+                    }
+                }
+            """));
+        }
+
+        [TestMethod]
+        public async Task Build_params_with_inline_but_no_override_fails()
+        {
+            var bicepparamsPath = FileHelper.SaveResultFile(
+                TestContext,
+                "input.bicepparam", """
+                    using 'main.bicep'
+                    param foo = inline()
+                """);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep", """
+                    param foo string
+                """,
+                Path.GetDirectoryName(bicepparamsPath));
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", bicepparamsPath);
+
+            result.Should().Fail()
+                .And.HaveStderrMatch("*BCP445*")
+                .And.HaveStderrMatch("*foo*");
+        }
+
+        [TestMethod]
+        public async Task Build_params_with_inline_in_object_property_succeeds()
+        {
+            var bicepparamsPath = FileHelper.SaveResultFile(
+                TestContext,
+                "input.bicepparam", """
+                    using 'main.bicep'
+                    param config = {
+                    key1: inline()
+                    key2: 'fixed'
+                    }
+                """);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep", """
+                    param config object
+                    output configOutput object = config
+                """,
+                Path.GetDirectoryName(bicepparamsPath));
+
+            var environment = TestEnvironment.Default.WithVariables(("BICEP_PARAMETERS_OVERRIDES", new
+            {
+                key1 = "value1"
+            }.ToJson()));
+
+            var settings = CreateDefaultSettings() with { Environment = environment };
+            var result = await Bicep(settings, "build-params", bicepparamsPath, "--stdout");
+
+            result.Should().NotHaveStderr();
+            result.Should().Succeed();
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+
+            paramsObject!["parameters"]!["config"]!["value"]!["key1"]!.Value<string>().Should().Be("value1");
+            paramsObject!["parameters"]!["config"]!["value"]!["key2"]!.Value<string>().Should().Be("fixed");
+        }
+
+        [TestMethod]
+        public async Task Build_params_with_inline_in_variable_fails()
+        {
+            var bicepparamsPath = FileHelper.SaveResultFile(
+                TestContext,
+                "input.bicepparam", """
+                    using 'main.bicep'
+                    var myVar = inline()
+                    param foo = myVar
+                """);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep", """
+                    param foo string
+                """,
+                Path.GetDirectoryName(bicepparamsPath));
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", bicepparamsPath);
+
+            result.Should().Fail()
+                .And.HaveStderrMatch("*BCP443*");
+        }
+
+        [TestMethod]
+        public async Task Build_params_with_inline_in_string_interpolation_fails()
+        {
+            var bicepparamsPath = FileHelper.SaveResultFile(
+                TestContext,
+                "input.bicepparam", """
+                    using 'main.bicep'
+                    param foo = 'prefix-${inline()}'
+                """);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep", """
+                    param foo string
+                """,
+                Path.GetDirectoryName(bicepparamsPath));
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", bicepparamsPath);
+
+            result.Should().Fail()
+                .And.HaveStderrMatch("*BCP444*");
+        }
+
+        [TestMethod]
+        public async Task Build_params_with_inline_type_mismatch_fails()
+        {
+            var bicepparamsPath = FileHelper.SaveResultFile(
+                TestContext,
+                "input.bicepparam", """
+                    using 'main.bicep'
+                    param count = inline()
+                """);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep", """
+                    param count int
+                """,
+                Path.GetDirectoryName(bicepparamsPath));
+
+            var environment = TestEnvironment.Default.WithVariables(("BICEP_PARAMETERS_OVERRIDES", new
+            {
+                count = "five"
+            }.ToJson()));
+
+            var settings = CreateDefaultSettings() with { Environment = environment };
+            var result = await Bicep(settings, "build-params", bicepparamsPath);
+
+            result.Should().Fail()
+                .And.HaveStderrMatch("*BCP033*")
+                .And.HaveStderrMatch("*int*");
+        }
+
+        [TestMethod]
+        public async Task Build_params_with_inline_array_succeeds()
+        {
+            var bicepparamsPath = FileHelper.SaveResultFile(
+                TestContext,
+                "input.bicepparam", """
+                    using 'main.bicep'
+                    param items = inline()
+                """);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep", """
+                    param items array
+                    output itemsOutput array = items
+                """,
+                Path.GetDirectoryName(bicepparamsPath));
+
+            var environment = TestEnvironment.Default.WithVariables(("BICEP_PARAMETERS_OVERRIDES", new
+            {
+                items = new[] { "a", "b", "c" }
+            }.ToJson()));
+
+            var settings = CreateDefaultSettings() with { Environment = environment };
+            var result = await Bicep(settings, "build-params", bicepparamsPath, "--stdout");
+
+            result.Should().NotHaveStderr();
+            result.Should().Succeed();
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+
+            paramsObject!["parameters"]!["items"]!["value"]!.Should().DeepEqual(JToken.Parse("""["a", "b", "c"]"""));
+        }
     }
 }
