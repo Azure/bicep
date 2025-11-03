@@ -164,39 +164,20 @@ public class VersionChecker(IEnvironment environment, IFileSystem fileSystem)
     {
         try
         {
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = bicepPath,
-                Arguments = "--version",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            using var process = Process.Start(startInfo);
-            if (process == null)
+            if (!fileSystem.File.Exists(bicepPath))
             {
                 return null;
             }
 
-            process.WaitForExit(5000);
+            var fileVersionInfo = FileVersionInfo.GetVersionInfo(bicepPath);
+            var fileVersion = fileVersionInfo.FileVersion;
 
-            if (process.ExitCode != 0)
+            if (string.IsNullOrEmpty(fileVersion))
             {
                 return null;
             }
 
-            var output = process.StandardOutput.ReadToEnd();
-
-            // Parse version from output like "Bicep CLI version 0.30.23 (abc123)"
-            // Extract the version number between "version " and the next space or parenthesis
-            var versionMatch = System.Text.RegularExpressions.Regex.Match(
-                output,
-                @"version\s+(\d+\.\d+\.\d+)",
-                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-
-            if (versionMatch.Success && Version.TryParse(versionMatch.Groups[1].Value, out var version))
+            if (Version.TryParse(fileVersion, out var version))
             {
                 return version;
             }
