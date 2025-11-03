@@ -12,36 +12,49 @@ public class VersionChecker(IEnvironment environment, IFileSystem fileSystem)
 {
     /// <summary>
     /// Checks well-known installation locations for other Bicep CLI versions and warns if a newer version is installed.
+    /// Runs asynchronously in the background without blocking CLI startup.
     /// </summary>
-    public void CheckForNewerVersions(TextWriter output)
+    /// <param name="output">Output stream to write warnings to</param>
+    /// <param name="shouldCheck">Whether the check should run based on command type and output redirection</param>
+    public void CheckForNewerVersionsAsync(TextWriter output, bool shouldCheck)
     {
-        try
+        if (!shouldCheck)
         {
-            var currentVersion = environment.CurrentVersion.Version;
-            if (!Version.TryParse(currentVersion, out var parsedCurrentVersion))
-            {
-                return; // Cannot parse current version, skip check
-            }
+            return;
+        }
 
-            var newerVersions = FindNewerVersions(parsedCurrentVersion);
-
-            if (newerVersions.Any())
+        _ = Task.Run(async () =>
+        {
+            try
             {
-                output.WriteLine($"Warning: You are running Bicep CLI version {currentVersion}, but newer version(s) are installed on this system:");
-                foreach (var (version, path) in newerVersions.OrderByDescending(v => v.Version))
+                var currentVersion = environment.CurrentVersion.Version;
+                if (!Version.TryParse(currentVersion, out var parsedCurrentVersion))
                 {
-                    output.WriteLine($"  - Version {version} at {path}");
+                    return;
                 }
-                output.WriteLine();
+
+                // Use 100ms timeout for the entire scan
+                using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
+                var newerVersions = await Task.Run(() => FindNewerVersions(parsedCurrentVersion, cts.Token), cts.Token);
+
+                if (newerVersions.Any())
+                {
+                    await output.WriteLineAsync($"Warning: You are running Bicep CLI version {currentVersion}, but newer version(s) are installed on this system:");
+                    foreach (var (version, path) in newerVersions.OrderByDescending(v => v.Version))
+                    {
+                        await output.WriteLineAsync($"  - Version {version} at {path}");
+                    }
+                    await output.WriteLineAsync();
+                }
             }
-        }
-        catch
-        {
-            // Silently ignore any errors during version checking to avoid disrupting normal CLI operations
-        }
+            catch
+            {
+                // Silently ignore any errors during version checking to avoid disrupting normal CLI operations
+            }
+        });
     }
 
-    private List<(Version Version, string Path)> FindNewerVersions(Version currentVersion)
+    private List<(Version Version, string Path)> FindNewerVersions(Version currentVersion, CancellationToken cancellationToken)
     {
         var newerVersions = new List<(Version, string)>();
         var checkedPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -54,6 +67,11 @@ public class VersionChecker(IEnvironment environment, IFileSystem fileSystem)
 
         foreach (var location in GetWellKnownInstallLocations())
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                break;
+            }
+
             try
             {
                 if (!fileSystem.Directory.Exists(location))
@@ -64,10 +82,15 @@ public class VersionChecker(IEnvironment environment, IFileSystem fileSystem)
                 var bicepFiles = fileSystem.Directory.GetFiles(
                     location,
                     environment.CurrentPlatform == OSPlatform.Windows ? "bicep.exe" : "bicep",
-                    SearchOption.AllDirectories);
+                    SearchOption.TopDirectoryOnly);
 
                 foreach (var bicepPath in bicepFiles)
                 {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        break;
+                    }
+
                     var normalizedPath = GetNormalizedPath(bicepPath);
                     if (normalizedPath == null || checkedPaths.Contains(normalizedPath))
                     {
@@ -123,18 +146,6 @@ public class VersionChecker(IEnvironment environment, IFileSystem fileSystem)
             {
                 locations.Add(fileSystem.Path.Combine(programFilesX86, "Bicep CLI"));
             }
-
-            var pathVar = environment.GetVariable("PATH");
-            if (!string.IsNullOrEmpty(pathVar))
-            {
-                foreach (var pathEntry in pathVar.Split(';'))
-                {
-                    if (!string.IsNullOrWhiteSpace(pathEntry))
-                    {
-                        locations.Add(pathEntry.Trim());
-                    }
-                }
-            }
         }
         else
         {
@@ -143,18 +154,6 @@ public class VersionChecker(IEnvironment environment, IFileSystem fileSystem)
 
             // /usr/bin
             locations.Add("/usr/bin");
-
-            var pathVar = environment.GetVariable("PATH");
-            if (!string.IsNullOrEmpty(pathVar))
-            {
-                foreach (var pathEntry in pathVar.Split(':'))
-                {
-                    if (!string.IsNullOrWhiteSpace(pathEntry))
-                    {
-                        locations.Add(pathEntry.Trim());
-                    }
-                }
-            }
         }
 
         return locations.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
