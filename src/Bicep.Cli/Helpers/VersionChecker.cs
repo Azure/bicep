@@ -33,8 +33,7 @@ public class VersionChecker(IEnvironment environment, IFileSystem fileSystem)
                     return;
                 }
 
-                // Use 100ms timeout for the entire scan
-                using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
+                using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(250));
                 var newerVersions = await Task.Run(() => FindNewerVersions(parsedCurrentVersion, cts.Token), cts.Token);
 
                 if (newerVersions.Any())
@@ -54,7 +53,7 @@ public class VersionChecker(IEnvironment environment, IFileSystem fileSystem)
         });
     }
 
-    private List<(Version Version, string Path)> FindNewerVersions(Version currentVersion, CancellationToken cancellationToken)
+    public List<(Version Version, string Path)> FindNewerVersions(Version currentVersion, CancellationToken cancellationToken)
     {
         var newerVersions = new List<(Version, string)>();
         var checkedPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -115,7 +114,7 @@ public class VersionChecker(IEnvironment environment, IFileSystem fileSystem)
         return newerVersions;
     }
 
-    private List<string> GetWellKnownInstallLocations()
+    public List<string> GetWellKnownInstallLocations()
     {
         var locations = new List<string>();
         var homePath = environment.GetVariable("HOME") ?? environment.GetVariable("USERPROFILE");
@@ -159,7 +158,7 @@ public class VersionChecker(IEnvironment environment, IFileSystem fileSystem)
         return locations.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
     }
 
-    private Version? GetBicepVersion(string bicepPath)
+    protected virtual Version? GetBicepVersion(string bicepPath)
     {
         try
         {
