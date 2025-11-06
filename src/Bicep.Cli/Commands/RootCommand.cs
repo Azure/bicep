@@ -239,15 +239,16 @@ Usage:
       bicep build-params --pattern './dir/**/*.bicepparam'
 
   {exeName} jsonrpc [options]
-    Runs a JSONRPC server for interacting with Bicep programmatically.
+    Starts the Bicep CLI listening for JSONRPC messages, for programatically interacting with Bicep. See https://aka.ms/bicep/jsonrpc for more information.
 
     Options:
-      --pipe <name>   Runs the JSONRPC server using a named pipe.
-      --socket <dir>  Runs the JSONRPC server on a specific port.
-      --stdio         Runs the JSONRPC server over stdin/stdout.
+      --pipe <name>    Bicep CLI will connect to the supplied named pipe as a client, and start listening for JSONRPC requests.
+      --socket <port>  Bicep CLI will connect to the supplied TCP port on the loopback interface as a client, and start listening for JSONRPC requests.
+      --stdio          Bicep CLI will use stdin/stdout for JSONRPC requests.
 
     Examples:
       bicep jsonrpc --pipe /path/to/pipe.sock
+      bicep jsonrpc --socket 9853
       bicep jsonrpc --stdio
 
 "; // this newline is intentional
