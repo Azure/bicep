@@ -8,6 +8,9 @@
     <BicepOutputPath Condition=" $(BicepOutputPath) == '' ">$(OutputPath)</BicepOutputPath>
     <!-- all files by default will get dumped into the configured output path -->
     <BicepOutputStyle Condition=" $(BicepOutputStyle) == '' ">Flat</BicepOutputStyle>
+
+    <!-- disable promoting info diagnostics to warnings by default -->
+    <BicepTreatInfoAsWarnings Condition=" $(BicepTreatInfoAsWarnings) == '' ">false</BicepTreatInfoAsWarnings>
   </PropertyGroup>
 
   <Target Name="BeforeBicepCompileCommon">
@@ -32,7 +35,7 @@
       <!-- collect all the files with NoBuild metadata set -->
       <_BicepSkipped Include="@(Bicep)" Condition=" %(Bicep.NoBuild) == 'true' " />
     </ItemGroup>
-    
+
     <!-- pre-create directories for all the outputs in case they don't exist -->
     <MakeDir Directories=" %(_BicepOutputFile.RootDir)%(Directory)" />
     <Error Text="The path to the Bicep compiler is not set. Reference the appropriate Azure.Bicep.CommandLine.* package for your runtime or set the BicepPath property." Condition=" $(BicepPath) == '' " />
@@ -56,14 +59,14 @@
       <!-- collect all the files with NoBuild metadata set -->
       <_BicepParamSkipped Include="@(BicepParam)" Condition=" %(BicepParam.NoBuild) == 'true' " />
     </ItemGroup>
-    
+
     <!-- pre-create directories for all the outputs in case they don't exist -->
     <MakeDir Directories=" %(_BicepOutputFile.RootDir)%(Directory)" />
     <Error Text="The path to the Bicep compiler is not set. Reference the appropriate Azure.Bicep.CommandLine.* package for your runtime or set the BicepPath property." Condition=" $(BicepPath) == '' " />
   </Target>
 
   <Target Name="BicepCompile" Inputs="@(_BicepResolved);@(_BicepSkipped)" Outputs="%(_BicepResolved.OutputFile)" DependsOnTargets="$(BicepCompileDependsOn)" AfterTargets="$(BicepCompileAfterTargets)" BeforeTargets="$(BicepCompileBeforeTargets)">
-    <Bicep SourceFile="%(_BicepResolved.FullPath)" OutputFile="%(OutputFile)" ToolExe="$(BicepPath)" YieldDuringToolExecution="true" />
+    <Bicep SourceFile="%(_BicepResolved.FullPath)" OutputFile="%(OutputFile)" ToolExe="$(BicepPath)" YieldDuringToolExecution="true" BicepTreatInfoAsWarnings="$(BicepTreatInfoAsWarnings)" />
     <Message Importance="High" Text="$(MSBuildProjectName) -&gt; %(_BicepResolved.OutputFile)" />
 
     <ItemGroup>
@@ -72,7 +75,7 @@
   </Target>
 
   <Target Name="BicepParamCompile" Inputs="@(_BicepParamResolved);@(_BicepParamSkipped)" Outputs="%(_BicepParamResolved.OutputFile)" DependsOnTargets="$(BicepParamCompileDependsOn)" AfterTargets="$(BicepParamCompileAfterTargets)" BeforeTargets="$(BicepParamCompileBeforeTargets)">
-    <BicepParam SourceFile="%(_BicepParamResolved.FullPath)" OutputFile="%(OutputFile)" ToolExe="$(BicepPath)" YieldDuringToolExecution="true" />
+    <BicepParam SourceFile="%(_BicepParamResolved.FullPath)" OutputFile="%(OutputFile)" ToolExe="$(BicepPath)" YieldDuringToolExecution="true" BicepTreatInfoAsWarnings="$(BicepTreatInfoAsWarnings)" />
     <Message Importance="High" Text="$(MSBuildProjectName) -&gt; %(_BicepParamResolved.OutputFile)" />
 
     <ItemGroup>
