@@ -12,7 +12,7 @@
   <ItemGroup>
     <PackageVersion Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.45" />
     <PackageVersion Include="Azure.Bicep.Types" Version="0.6.12" />
-    <PackageVersion Include="Azure.Bicep.Types.Az" Version="0.2.803" />
+    <PackageVersion Include="Azure.Bicep.Types.Az" Version="0.2.813" />
     <PackageVersion Include="Azure.Bicep.Types.K8s" Version="0.1.644" />
     <PackageVersion Include="Azure.Containers.ContainerRegistry" Version="1.1.1" />
     <PackageVersion Include="Azure.Deployments.ClientTools" Version="1.527.0" />
