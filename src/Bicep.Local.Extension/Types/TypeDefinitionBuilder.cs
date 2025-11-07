@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -13,6 +14,7 @@ using Azure.Bicep.Types.Index;
 using Azure.Bicep.Types.Serialization;
 using Bicep.Local.Extension.Builder;
 using Bicep.Local.Extension.Types.Attributes;
+using Microsoft.Extensions.Options;
 using static Google.Protobuf.Reflection.GeneratedCodeInfo.Types;
 
 namespace Bicep.Local.Extension.Types;
@@ -21,7 +23,7 @@ public class TypeDefinitionBuilder
 {
     private readonly HashSet<Type> visited;
     private readonly ITypeProvider typeProvider;
-    private readonly IDictionary<Type, Func<TypeBase>> typeToTypeBaseMap;
+    private readonly FrozenDictionary<Type, Func<TypeBase>> typeToTypeBaseMap;
 
     protected readonly ConcurrentDictionary<Type, TypeBase> typeCache;
     private readonly BicepExtensionInfo extensionInfo;
@@ -45,20 +47,21 @@ public class TypeDefinitionBuilder
     /// </para>
     /// </remarks>
     public TypeDefinitionBuilder(
-        BicepExtensionInfo extensionInfo,
-        Type? configurationType,
+        BicepExtensionInfo extensionInfo,        
         TypeFactory factory,
         ITypeProvider typeProvider,
-        IDictionary<Type, Func<TypeBase>> typeToTypeBaseMap)
+        TypeDefinitionBuilderOptions options)
     {
+        ArgumentNullException.ThrowIfNull(options);
+
         this.extensionInfo = extensionInfo ?? throw new ArgumentNullException(nameof(extensionInfo));
-        this.configurationType = configurationType;
+        this.configurationType = options.ConfigurationType;
         this.factory = factory;
         this.typeProvider = typeProvider;
 
-        this.typeToTypeBaseMap = typeToTypeBaseMap is null || typeToTypeBaseMap.Count == 0
+        this.typeToTypeBaseMap = options.TypeToTypeBaseMap is null || options.TypeToTypeBaseMap.Count == 0
                 ? throw new ArgumentException(nameof(typeToTypeBaseMap))
-                : typeToTypeBaseMap;
+                : options.TypeToTypeBaseMap;
 
         this.visited = new HashSet<Type>();
         this.typeCache = new ConcurrentDictionary<Type, TypeBase>();

@@ -44,7 +44,19 @@ public static class BicepExtensionServiceCollectionExtensions
             options.EnableDetailedErrors = true;
         });
         services.AddGrpcReflection();
-        
+
         return new DefaultBicepExtensionBuilder(services);
     }
+
+    [Obsolete("Use the overload that decouples extension info and type builder configuration.")]
+    public static IBicepExtensionBuilder AddBicepExtension(
+    this IServiceCollection services,
+    string name,
+    string version,
+    bool isSingleton,
+    Assembly typeAssembly,
+    Type? configurationType = null)
+        => services.AddBicepExtension()
+            .WithExtensionInfo(name, version, isSingleton)
+            .WithDefaultTypeBuilder(typeAssembly, configurationType);
 }

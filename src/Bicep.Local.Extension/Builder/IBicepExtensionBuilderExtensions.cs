@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Reflection;
 using Azure.Bicep.Types.Concrete;
@@ -58,23 +59,22 @@ public static class IBicepExtensionBuilderExtensions
     /// scenarios.</remarks>
     /// <param name="builder">The Bicep extension builder to configure with default type provider and type builder services.</param>
     /// <param name="typeAssembly">The assembly containing type definitions to be registered with the type provider.</param>
-    /// <param name="configuration">An optional configuration type to be registered. If not null, this type will be added to the service collection.</param>
+    /// <param name="configurationType">An optional configuration type to be registered. If not null, this type will be added to the service collection.</param>
     /// <returns>The same Bicep extension builder instance, configured with default type provider and type builder services.</returns>
-    public static IBicepExtensionBuilder WithDefaultTypeBuilder(this IBicepExtensionBuilder builder, Assembly typeAssembly, Type? configuration = null)
+    public static IBicepExtensionBuilder WithDefaultTypeBuilder(this IBicepExtensionBuilder builder, Assembly typeAssembly, Type? configurationType = null)
     {
         builder.Services.AddSingleton<ITypeProvider>(new TypeProvider([typeAssembly]));
-
-        if (configuration is not null)
-        {
-            builder.Services.AddSingleton<Type>(configuration);
-        }
+      
 
         var typeDictionary = new Dictionary<Type, Func<TypeBase>>
                     {
                         { typeof(string), () => new StringType() },
                         { typeof(bool), () => new BooleanType() },
                         { typeof(int), () => new IntegerType() }
-                    }.ToImmutableDictionary();
+                    };
+
+        builder.Services.AddSingleton(new TypeDefinitionBuilderOptions(typeDictionary.ToFrozenDictionary(), configurationType));
+
         var typeFactory = new TypeFactory([]);
 
         foreach (var type in typeDictionary)
@@ -83,7 +83,6 @@ public static class IBicepExtensionBuilderExtensions
         }
 
         builder.Services.AddSingleton<TypeFactory>(typeFactory);
-        builder.Services.AddSingleton<IDictionary<Type, Func<TypeBase>>>(typeDictionary);
 
         builder.WithTypeBuilder<TypeDefinitionBuilder>();
 

@@ -14,7 +14,7 @@ builder.AddBicepExtensionHost(args);
 builder.Services
     .AddBicepExtension()
     .WithExtensionInfo(name: "MockExtension", version: "0.0.1")
-    .WithDefaultTypeBuilder(typeAssembly: typeof(Program).Assembly, configuration: typeof(Configuration))
+    .WithDefaultTypeBuilder(typeAssembly: typeof(Program).Assembly, configurationType: typeof(Configuration))
     .WithResourceHandler<EchoResourceHandler>();
 
 var app = builder.Build();
