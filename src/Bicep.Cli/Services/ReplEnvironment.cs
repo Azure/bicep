@@ -1,23 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Management;
-using System.Net;
+using System.IO.Abstractions;
 using System.Text;
-using System.Threading.Tasks;
 using Bicep.Cli.Helpers.Repl;
-using Bicep.Cli.Helpers.WhatIf;
 using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
-using Bicep.Core.Highlighting;
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics;
@@ -33,8 +24,11 @@ namespace Bicep.Cli.Services;
 
 public class ReplEnvironment
 {
-    private readonly InMemoryFileExplorer fileExplorer;
+    private readonly InMemoryFileExplorer fileExplorer = new();
     private readonly BicepCompiler compiler;
+
+    // Auxiliary directory for resolving relative paths for load* functions.
+    private readonly IDirectoryHandle auxiliaryDirectory;
 
     // Persist original variable declaration text (ordered) and lookup to allow redefinition.
     private readonly List<string> declarationLines = [];
@@ -43,10 +37,13 @@ public class ReplEnvironment
     private readonly List<string> history = [];
     private int lastHistoryIndex = -1;
 
-    public ReplEnvironment(BicepCompiler compiler)
+    public ReplEnvironment(
+        BicepCompiler compiler,
+        IFileSystem auxiliaryFileSystem,
+        IFileExplorer auxiliaryFileExplorer)
     {
-        this.fileExplorer = new InMemoryFileExplorer();
         this.compiler = compiler;
+        this.auxiliaryDirectory = auxiliaryFileExplorer.GetDirectory(IOUri.FromFilePath(auxiliaryFileSystem.Directory.GetCurrentDirectory()));
     }
 
     public string HighlightInputLine(string prefix, string prevLines, IReadOnlyList<Rune> lineBuffer, int cursorOffset, bool printPrevLines)
@@ -244,7 +241,7 @@ public class ReplEnvironment
     private Compilation CompileInternal(string fullContent)
     {
         var fileHandle = fileExplorer.GetFile(replFileUri);
-        var sourceFile = compiler.SourceFileFactory.CreateBicepReplFile(fileHandle, fullContent);
+        var sourceFile = compiler.SourceFileFactory.CreateBicepReplFile(fileHandle, this.auxiliaryDirectory, fullContent);
         var workspace = new ActiveSourceFileSet();
         workspace.UpsertSourceFile(sourceFile);
 
@@ -280,6 +277,8 @@ public class ReplEnvironment
             JTokenType.Integer => SyntaxFactory.CreatePositiveOrNegativeInteger(value.Value<long>()),
             JTokenType.String => SyntaxFactory.CreateStringLiteral(value.ToString()),
             JTokenType.Boolean => SyntaxFactory.CreateBooleanLiteral(value.Value<bool>()),
+            // Floats are currently not supported in Bicep, so fallback to string syntax
+            JTokenType.Float => SyntaxFactory.CreateStringLiteral(value.ToString()),
             JTokenType.Null => SyntaxFactory.CreateNullLiteral(),
             _ => throw new NotImplementedException($"Unrecognized token type {value.Type}"),
         };
