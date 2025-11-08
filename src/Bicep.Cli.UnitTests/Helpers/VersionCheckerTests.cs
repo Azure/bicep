@@ -96,7 +96,8 @@ public class VersionCheckerTests
         var outputText = output.ToString();
         outputText.Should().Contain("Warning: You are running Bicep CLI version 0.30.23");
         outputText.Should().Contain("0.35.0");
-        outputText.Should().Contain("/home/user/.bicep/bin/bicep");
+        // Path may be normalized differently on different platforms, so check for either format
+        (outputText.Contains("/home/user/.bicep/bin/bicep") || outputText.Contains(@"\home\user\.bicep\bin\bicep") || outputText.Contains(@"C:\home\user\.bicep\bin\bicep")).Should().BeTrue();
     }
 
     [TestMethod]
@@ -309,10 +310,11 @@ public class VersionCheckerTests
         var locations = versionChecker.GetWellKnownInstallLocations();
 
         // Assert
-        locations.Should().Contain("/home/user/.bicep/bin");
-        locations.Should().Contain("/home/user/.azure/bin");
-        locations.Should().Contain("/usr/local/bin");
-        locations.Should().Contain("/usr/bin");
+        var normalizedLocations = locations.Select(l => l.Replace('\\', '/')).ToList();
+        normalizedLocations.Should().Contain("/home/user/.bicep/bin");
+        normalizedLocations.Should().Contain("/home/user/.azure/bin");
+        normalizedLocations.Should().Contain("/usr/local/bin");
+        normalizedLocations.Should().Contain("/usr/bin");
         locations.Should().NotContain(l => l.Contains("Program Files"));
     }
 
@@ -409,28 +411,25 @@ internal class TestableVersionChecker : VersionChecker
         this.mockVersions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         foreach (var kvp in mockVersions)
         {
+            this.mockVersions[NormalizePath(kvp.Key)] = kvp.Value;
+
             try
             {
-                var normalizedKey = fileSystem.Path.GetFullPath(kvp.Key);
-                this.mockVersions[normalizedKey] = kvp.Value;
-                // Also add the original key in case normalization doesn't match
-                if (!this.mockVersions.ContainsKey(kvp.Key))
-                {
-                    this.mockVersions[kvp.Key] = kvp.Value;
-                }
+                var fullPath = fileSystem.Path.GetFullPath(kvp.Key);
+                this.mockVersions[NormalizePath(fullPath)] = kvp.Value;
             }
             catch
             {
-                // If normalization fails, just use the original key
-                this.mockVersions[kvp.Key] = kvp.Value;
+                // Ignore if GetFullPath fails
             }
         }
     }
 
     protected override Version? GetBicepVersion(string bicepPath)
     {
-        // Try the path as-is first
-        if (mockVersions.TryGetValue(bicepPath, out var versionString))
+        var normalizedPath = NormalizePath(bicepPath);
+
+        if (mockVersions.TryGetValue(normalizedPath, out var versionString))
         {
             if (Version.TryParse(versionString, out var version))
             {
@@ -438,11 +437,12 @@ internal class TestableVersionChecker : VersionChecker
             }
         }
 
-        // Try normalizing the path
         try
         {
-            var normalizedPath = fileSystem.Path.GetFullPath(bicepPath);
-            if (mockVersions.TryGetValue(normalizedPath, out versionString))
+            var fullPath = fileSystem.Path.GetFullPath(bicepPath);
+            var normalizedFullPath = NormalizePath(fullPath);
+
+            if (mockVersions.TryGetValue(normalizedFullPath, out versionString))
             {
                 if (Version.TryParse(versionString, out var version))
                 {
@@ -456,5 +456,15 @@ internal class TestableVersionChecker : VersionChecker
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Normalize path separators to handle cross-platform testing.
+    /// This ensures paths match regardless of whether we're testing Windows behavior on Linux or vice versa.
+    /// </summary>
+    private static string NormalizePath(string path)
+    {
+        // Replace all backslashes with forward slashes for consistent comparison
+        return path.Replace('\\', '/');
     }
 }
