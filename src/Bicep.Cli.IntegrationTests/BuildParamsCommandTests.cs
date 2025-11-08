@@ -1283,5 +1283,70 @@ param objParam object
             var kindValue = parametersObject["parameters"]?["organizationProfile"]?["value"]?["kind"]?.ToString();
             kindValue.Should().Be("AzureDevOps");
         }
+
+        [TestMethod]
+        public async Task Build_params_with_extends_and_loadTextContent_in_base_succeeds()
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            var exampleTxtFile = FileHelper.SaveResultFile(
+                TestContext,
+                "example.txt",
+                "This is an example txt file.",
+                outputPath);
+
+            var baseParamsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "base.bicepparam",
+                """
+                using none
+
+                param foo = {
+                 bar: loadTextContent('./example.txt')
+                }
+                """,
+                outputPath);
+
+            var mainParamsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+                extends './base.bicepparam'
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                param foo object
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "bicepconfig.json",
+                """
+                {
+                    "experimentalFeaturesEnabled": {
+                        "extendableParamFiles": true
+                    }
+                }
+                """,
+                outputPath);
+
+            var settings = CreateDefaultSettings();
+            var result = await Bicep(settings, "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Succeed().And.NotHaveStderr();
+
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            parametersStdout.Should().NotBeNull();
+
+            var parametersObject = JObject.Parse(parametersStdout!.parametersJson);
+            var bar = parametersObject["parameters"]?["foo"]?["value"]?["bar"]?.ToString();
+            bar.Should().Be("This is an example txt file.");
+        }
     }
 }
