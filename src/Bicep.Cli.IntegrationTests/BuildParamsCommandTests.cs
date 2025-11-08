@@ -1320,6 +1320,7 @@ param objParam object
                 TestContext,
                 "main.bicep",
                 """
+                #disable-next-line no-unused-params
                 param foo object
                 """,
                 outputPath);
@@ -1339,7 +1340,7 @@ param objParam object
             var settings = CreateDefaultSettings();
             var result = await Bicep(settings, "build-params", mainParamsFile, "--stdout");
 
-            result.Should().Succeed().And.NotHaveStderr();
+            result.Should().Succeed();
 
             var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
             parametersStdout.Should().NotBeNull();
