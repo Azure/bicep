@@ -13,6 +13,7 @@ using Azure.Deployments.Engine.Definitions;
 using Azure.Deployments.Engine.Dependencies;
 using Azure.Deployments.Engine.DeploymentExpander;
 using Azure.Deployments.Engine.External;
+using Azure.Deployments.Engine.Http;
 using Azure.Deployments.Engine.Interfaces;
 using Azure.Deployments.Engine.Providers;
 using Azure.Deployments.Engine.Storage.Volatile;
@@ -40,7 +41,7 @@ internal static class IServiceCollectionExtensions
         services.AddSingleton<IDeploymentEventSource>(eventSource);
         services.AddSingleton<IDeploymentMetricsReporter, NoOpDeploymentMetricsReporter>();
 
-        services.AddSingleton<IHttpContentHandler, LocalHttpContentHandler>();
+        services.AddSingleton<IHttpResponseReader, DefaultHttpResponseReader>();
         services.AddSingleton<IKeyVaultDataProvider, LocalKeyVaultDataProvider>();
         services.AddSingleton<IAzureDeploymentSettings, LocalDeploymentSettings>();
         services.AddSingleton<IEnablementConfigProvider, LocalEnablementConfigProvider>();

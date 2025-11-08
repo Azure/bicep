@@ -51,7 +51,7 @@ namespace Bicep.Core.Intermediate
 
         public virtual void VisitObjectExpression(Azure.Deployments.Expression.Intermediate.ObjectExpression expression)
         {
-            foreach (var kvp in expression)
+            foreach (var kvp in expression.Properties)
             {
                 Visit(kvp.Key);
                 Visit(kvp.Value);
