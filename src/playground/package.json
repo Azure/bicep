@@ -24,7 +24,7 @@
     "eslint-plugin-prettier": "5.5.4",
     "nerdbank-gitversioning": "3.9.50",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.46.2",
+    "typescript-eslint": "8.46.3",
     "vite": "7.1.12",
     "vite-plugin-ejs": "1.7.0",
     "vite-plugin-monaco-editor-esm": "2.0.2",
