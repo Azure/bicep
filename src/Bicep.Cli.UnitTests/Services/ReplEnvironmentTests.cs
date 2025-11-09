@@ -341,7 +341,7 @@ public class ReplEnvironmentTests
 #if WINDOWS_BUILD
         var pathPrefix = "C:/";
 #else
-var pathPrefix = string.Empty;
+        var pathPrefix = string.Empty;
 #endif
 
         outputs.Should().SatisfyRespectively(
