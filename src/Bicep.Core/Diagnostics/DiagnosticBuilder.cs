@@ -2008,6 +2008,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic SecureDecoratorTargetMustFitWithinStringOrObject() => CoreError(
                 "BCP440",
                 "The @secure() decorator can only be used on statements whose type is a subtype of \"string\" or \"object\".");
+
+            public Diagnostic MultiDocumentYamlNotSupported() => CoreError(
+                "BCP441",
+                "Multi-document YAML files are not supported. Please use a single YAML document.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
