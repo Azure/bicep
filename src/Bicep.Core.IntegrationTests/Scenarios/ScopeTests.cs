@@ -205,7 +205,7 @@ resource dbLocks 'Microsoft.Authorization/locks@2016-09-01' = [for (item, index)
             result.Should().NotHaveAnyDiagnostics();
             using (new AssertionScope())
             {
-                result.Template.Should().HaveValueAtPath("$.resources['dbLocks'].scope", "[format('Microsoft.DBforPostgreSQL/servers/{0}/databases/{1}', last(split(parameters('postgreSqlServerId'), '/')), parameters('PSQL_DATABASES')[copyIndex()].database.name)]");
+                result.Template.Should().HaveValueAtPath("$.resources['dbLocks'].scope", "[resourceId('Microsoft.DBforPostgreSQL/servers/databases', last(split(parameters('postgreSqlServerId'), '/')), parameters('PSQL_DATABASES')[copyIndex()].database.name)]");
                 result.Template.Should().HaveValueAtPath("$.resources['dbLocks'].dependsOn", new JArray
                 {
                     "[format('postgreSQL::database[{0}]', copyIndex())]"
