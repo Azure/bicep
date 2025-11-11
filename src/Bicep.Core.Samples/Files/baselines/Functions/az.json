@@ -273,6 +273,25 @@
     "parameterTypeSignatures": []
   },
   {
+    "name": "roleDefinition",
+    "description": "Returns information about the specified role definition including id and roleDefinitionId.",
+    "fixedParameters": [
+      {
+        "name": "roleName",
+        "description": "The display name of the role definition",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "requiresInlining",
+    "typeSignature": "(roleName: string): roleDefinition",
+    "parameterTypeSignatures": [
+      "roleName: string"
+    ]
+  },
+  {
     "name": "resourceGroup",
     "description": "Returns a named resource group scope",
     "fixedParameters": [
