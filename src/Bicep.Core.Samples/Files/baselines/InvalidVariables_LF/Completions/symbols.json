@@ -2124,6 +2124,27 @@
     }
   },
   {
+    "label": "roleDefinition",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nroleDefinition(roleName: string): roleDefinition\n\n```  \nGets a role definition that can be used in role assignments.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_roleDefinition",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "roleDefinition($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "runtimeLoop",
     "kind": "variable",
     "detail": "runtimeLoop",
