@@ -703,7 +703,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     return [];
                 }
 
-                return expression.SelectMany(
+                return expression.Properties.SelectMany(
                     kvp => kvp.Key.Apply(this, expressionsToSkip).Concat(kvp.Value.Apply(this, expressionsToSkip)));
             }
 
