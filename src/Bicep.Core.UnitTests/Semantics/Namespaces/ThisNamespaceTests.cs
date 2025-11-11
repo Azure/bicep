@@ -99,6 +99,35 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
         }
 
         [TestMethod]
+        public void ThisNamespace_CompilationGeneratesCorrectArmFunctionsInForLoops()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
+            var result = CompilationHelper.Compile(services, @"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = [for i in range(0, 3): {
+  name: 'testStorage-${i}'
+  location: 'westus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    allowBlobPublicAccess: this.exists()
+  }
+}]
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+
+            using (new AssertionScope())
+            {
+                var template = result.Template;
+
+                // Check that this.exists() is compiled to not(empty(target('full')))
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[not(empty(target('full')))]");
+            }
+        }
+
+        [TestMethod]
         public void ThisNamespace_CompilationGeneratesCorrectArmFunctionsNested()
         {
             var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
@@ -485,6 +514,34 @@ output testOutput bool = exists()
             result.Should().HaveDiagnostics(new[]
             {
                 ("BCP057", DiagnosticLevel.Error, "The name \"exists\" does not exist in the current context.")
+            });
+        }
+
+        [TestMethod]
+        public void ThisNamespace_VariableThisShouldRaiseDiagnosticWhenFeatureEnabled_ShouldFail()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
+            var result = CompilationHelper.Compile(services, @"
+var this = 'test'
+
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'testStorage'
+  location: 'westus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    allowBlobPublicAccess: this.exists()
+  }
+}
+
+");
+
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP084", DiagnosticLevel.Error, "The symbolic name \"this\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\", \"this\"."),
+                ("no-unused-vars", DiagnosticLevel.Warning, "Variable \"this\" is declared but never used.")
             });
         }
     }
