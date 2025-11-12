@@ -498,12 +498,11 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
 
                 // Add roleDefinition function
-                yield return new FunctionOverloadBuilder("roleDefinition")
+                yield return new FunctionOverloadBuilder("roleDefinitions")
                     .WithReturnResultBuilder(GetRoleDefinitionReturnResult, GetRoleDefinitionReturnType())
                     .WithGenericDescription("Gets a role definition that can be used in role assignments.")
                     .WithDescription("Returns information about the specified role definition including id and roleDefinitionId.")
                     .WithRequiredParameter("roleName", LanguageConstants.String, "The display name of the role definition")
-                    .WithFlags(FunctionFlags.RequiresInlining)
                     .Build();
 
                 const string providersDescription = "Returns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.";

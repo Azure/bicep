@@ -446,7 +446,7 @@
     ]
   },
   {
-    "name": "roleDefinition",
+    "name": "roleDefinitions",
     "description": "Returns information about the specified role definition including id and roleDefinitionId.",
     "fixedParameters": [
       {
@@ -458,7 +458,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "requiresInlining",
+    "flags": "default",
     "typeSignature": "(roleName: string): roleDefinition",
     "parameterTypeSignatures": [
       "roleName: string"
