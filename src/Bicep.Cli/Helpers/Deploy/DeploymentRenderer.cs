@@ -148,7 +148,7 @@ public partial class DeploymentRenderer(IAnsiConsole console)
     {
         // Only support live updates in interactive consoles
         // This should allow this to render tables correctly in CI/CD pipelines where you can't ovewrite output
-        if (console.Profile.Capabilities.Interactive)
+        if (console.Profile.Capabilities.Interactive && console.Profile.Capabilities.Ansi)
         {
             await console.Live(table)
                 .AutoClear(false)

@@ -219,9 +219,9 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
     public IReadOnlyDictionary<string, List<string>> PreviewFeatureTenantDictionary { get; set; } = new Dictionary<string, List<string>>();
     public IReadOnlyDictionary<string, List<string>> PreviewFeatureRegionDictionary { get; set; } = new Dictionary<string, List<string>>();
     public IReadOnlyDictionary<string, decimal> PreviewFeatureThresholdDictionary { get; set; } = new Dictionary<string, decimal>();
-    public IReadOnlyDictionary<string, List<string>> DisabledTenantDictionary { get; set; } = new Dictionary<string, List<string>>();
-    public IReadOnlyDictionary<string, List<string>> DisabledSubscriptionDictionary { get; set; } = new Dictionary<string, List<string>>();
-    public IReadOnlyDictionary<string, List<string>> DisabledRegionDictionary { get; set; } = new Dictionary<string, List<string>>();
+    public IReadOnlyDictionary<string, IEnumerable<string>> DisabledTenantDictionary => ImmutableDictionary<string, IEnumerable<string>>.Empty;
+    public IReadOnlyDictionary<string, IEnumerable<string>> DisabledSubscriptionDictionary => ImmutableDictionary<string, IEnumerable<string>>.Empty;
+    public IReadOnlyDictionary<string, IEnumerable<string>> DisabledRegionDictionary => ImmutableDictionary<string, IEnumerable<string>>.Empty;
     public IEnumerable<string> DisabledThresholdFeatures { get; set; } = [];
 
     public string[] AllowedLocations => ["local", "west us", "east us"];
@@ -286,9 +286,9 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
 
     public TimeSpan AcquirePolicyTokenMaxRetryDuration => TimeSpan.Zero;
 
-    IReadOnlyDictionary<string, IEnumerable<string>> IAzureDeploymentSettings.DisabledTenantDictionary => ImmutableDictionary<string, IEnumerable<string>>.Empty;
+    public IReadOnlyDictionary<string, IEnumerable<string>> DisabledApplicationDictionary => throw new NotImplementedException();
 
-    IReadOnlyDictionary<string, IEnumerable<string>> IAzureDeploymentSettings.DisabledSubscriptionDictionary => ImmutableDictionary<string, IEnumerable<string>>.Empty;
+    public int ExtendedDeploymentLimit => 2500;
 
-    IReadOnlyDictionary<string, IEnumerable<string>> IAzureDeploymentSettings.DisabledRegionDictionary => ImmutableDictionary<string, IEnumerable<string>>.Empty;
+    public int ExtendedGroomingJobMinimumThreshold => 2000;
 }

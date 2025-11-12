@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3479488747872656234"
+      "templateHash": "18290868509187730108"
     }
   },
   "parameters": {
@@ -70,7 +70,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4134091672904132879"
+              "templateHash": "16666116783092395572"
             }
           },
           "parameters": {
@@ -88,7 +88,7 @@
             {
               "type": "microsoft.insights/diagnosticSettings",
               "apiVersion": "2017-05-01-preview",
-              "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostpoolName'))]",
+              "scope": "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostpoolName'))]",
               "name": "hostpool-diag",
               "properties": {
                 "workspaceId": "[parameters('logAnalyticsWorkspaceID')]",
@@ -119,7 +119,7 @@
             {
               "type": "microsoft.insights/diagnosticSettings",
               "apiVersion": "2017-05-01-preview",
-              "scope": "[format('Microsoft.DesktopVirtualization/workspaces/{0}', parameters('workspaceName'))]",
+              "scope": "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaceName'))]",
               "name": "workspacepool-diag",
               "properties": {
                 "workspaceId": "[parameters('logAnalyticsWorkspaceID')]",

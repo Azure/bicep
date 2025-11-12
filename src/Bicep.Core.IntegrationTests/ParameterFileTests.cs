@@ -412,10 +412,15 @@ param foo = {
         var result = CompilationHelper.CompileParams(
             services,
             ("parameters.bicepparam", """
-                using none
+                using 'main.bicep' with {
+                  mode: 'deployment'
+                  scope: '/subscriptions/foo/resourceGroups/bar'
+                }
                 var foo = readCliArg('foo')
                 var foo2 = '${foo}-${readEnvVar('foo2')}'
                 param foo3 = foo2
+                """), ("main.bicep", """
+                param foo3 string
                 """));
 
         result.Should().NotHaveAnyDiagnostics();
