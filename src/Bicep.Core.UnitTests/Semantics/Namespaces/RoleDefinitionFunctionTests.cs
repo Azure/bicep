@@ -15,8 +15,8 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
         public void RoleDefinitionFunction_CompilationTest()
         {
             var bicepText = @"
-                var contributorRole = az.roleDefinition('Contributor')
-                var ownerRole = az.roleDefinition('Owner')
+                var contributorRole = az.roleDefinitions('Contributor')
+                var ownerRole = az.roleDefinitions('Owner')
 
                 output contributorRoleId string = contributorRole.id
                 output contributorRoleDefinitionId string = contributorRole.roleDefinitionId
@@ -29,8 +29,8 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
 
             // Verify the ARM template contains the expected function calls
             var json = result.Template!.ToString();
-            json.Should().Contain("roleDefinition('Contributor')");
-            json.Should().Contain("roleDefinition('Owner')");
+            json.Should().Contain("roleDefinitions('Contributor')");
+            json.Should().Contain("roleDefinitions('Owner')");
             json.Should().Contain(".id");
             json.Should().Contain(".roleDefinitionId");
         }
@@ -43,7 +43,7 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
 
                 param principalId string = '00000000-0000-0000-0000-000000000000'
 
-                var contributorRole = az.roleDefinition('Contributor')
+                var contributorRole = az.roleDefinitions('Contributor')
 
                 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
                   name: guid(principalId, 'contributor')
@@ -61,7 +61,7 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
             result.Template.Should().NotBeNull();
 
             var json = result.Template!.ToString();
-            json.Should().Contain("roleDefinition('Contributor').id");
+            json.Should().Contain("roleDefinitions('Contributor')");
             json.Should().Contain("Microsoft.Authorization/roleAssignments");
         }
     }

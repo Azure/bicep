@@ -38,17 +38,17 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
         [TestMethod]
         public void RoleDefinitionFunction_ShouldExistAndRequireInlining()
         {
-            VerifyFunctionProperties("roleDefinition", function =>
+            VerifyFunctionProperties("roleDefinitions", function =>
             {
-                function.Name.Should().Be("roleDefinition");
-                function.Overloads.Should().HaveCount(1, "Function 'roleDefinition' should have exactly one overload");
+                function.Name.Should().Be("roleDefinitions");
+                function.Overloads.Should().HaveCount(1, "Function 'roleDefinitions' should have exactly one overload");
                 
                 var overload = function.Overloads[0];
-                overload.Flags.HasFlag(FunctionFlags.RequiresInlining).Should().BeTrue(
-                    "Function 'roleDefinition' should have the RequiresInlining flag set");
+                overload.Flags.HasFlag(FunctionFlags.RequiresInlining).Should().BeFalse(
+                    "Function 'roleDefinitions' should not have the RequiresInlining flag set");
                 
                 // Verify parameters
-                overload.FixedParameters.Should().HaveCount(1, "Function 'roleDefinition' should have exactly one parameter");
+                overload.FixedParameters.Should().HaveCount(1, "Function 'roleDefinitions' should have exactly one parameter");
                 overload.FixedParameters[0].Name.Should().Be("roleName");
                 overload.FixedParameters[0].Type.Should().Be(LanguageConstants.String);
                 overload.FixedParameters[0].Required.Should().BeTrue();
