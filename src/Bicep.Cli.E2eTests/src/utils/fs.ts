@@ -8,7 +8,7 @@ import { expect } from "vitest";
 
 export const bicepCli = path.resolve(
   __dirname,
-  process.env.BICEP_CLI_EXECUTABLE || "../../../Bicep.Cli/bin/Debug/net8.0/bicep",
+  process.env.BICEP_CLI_EXECUTABLE || "../../../Bicep.Cli/bin/Debug/net10.0/bicep",
 );
 
 export const defaultModuleCacheRoot = path.resolve(homedir(), ".bicep");

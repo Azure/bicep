@@ -70,7 +70,7 @@ public class CompilationEmitter : ICompilationEmitter
             case ArmTemplateSemanticModel armTemplateModel:
                 {
                     var template = armTemplateModel.SourceFile.Text;
-                    var templateResult = new TemplateResult(true, ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>>.Empty, template, null);
+                    var templateResult = new TemplateResult(true, [], template, null);
 
                     return new ParametersResult(true, diagnostics, parametersData, null, templateResult);
                 }

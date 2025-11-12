@@ -33,7 +33,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bicep-release-linux-x64
-          path: ./src/Bicep.Cli/bin/release/net8.0/linux-x64/publish/*
+          path: ./src/Bicep.Cli/bin/release/net10.0/linux-x64/publish/*
           if-no-files-found: error
 
 

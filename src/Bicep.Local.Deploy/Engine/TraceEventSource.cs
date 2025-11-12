@@ -33,7 +33,10 @@ public class TraceEventSource : ICommonEventSource, IDeploymentEventSource
         var sb = new StringBuilder();
         sb.AppendFormat("{0}: ", callingMethod);
 
-        foreach (var prop in paramsObj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
+#pragma warning disable IL2075 // 'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.
+        var properties = paramsObj.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
+#pragma warning restore IL2075 // 'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.
+        foreach (var prop in properties)
         {
             var name = prop.Name;
             var value = prop.GetValue(paramsObj, null);
