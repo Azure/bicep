@@ -5085,20 +5085,20 @@
     }
   },
   {
-    "label": "roleDefinition",
+    "label": "roleDefinitions",
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nroleDefinition(roleName: string): roleDefinition\n\n```  \nGets a role definition that can be used in role assignments.  \n"
+      "value": "```bicep\nroleDefinitions(roleName: string): roleDefinition\n\n```  \nGets a role definition that can be used in role assignments.  \n"
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "3_roleDefinition",
+    "sortText": "3_roleDefinitions",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "roleDefinition($0)"
+      "newText": "roleDefinitions($0)"
     },
     "command": {
       "title": "signature help",
