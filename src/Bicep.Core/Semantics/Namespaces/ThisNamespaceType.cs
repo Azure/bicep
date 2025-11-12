@@ -23,7 +23,7 @@ public static class ThisNamespaceType
         BicepExtensionName: BuiltInName,
         ConfigurationType: null,
         TemplateExtensionName: "This",
-        TemplateExtensionVersion: "1.0.0");
+        TemplateExtensionVersion: "0.0.1");
 
     private static FunctionResult GetExistsReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
     {
@@ -37,7 +37,7 @@ public static class ThisNamespaceType
 
     private static FunctionResult GetExistingResourceReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
     {
-        var derived = TryGetExistingResourceType(model, functionCall) ?? LanguageConstants.Object;
+        var derived = TypeHelper.MakeNullable(TryGetExistingResourceType(model, functionCall) ?? LanguageConstants.Object);
         var resourceType = TryGetEnclosingResourceType(model, functionCall);
 
         // For extensible resources, use target() without 'full' since they don't have the standard Azure resource structure
@@ -81,14 +81,16 @@ public static class ThisNamespaceType
         yield return new FunctionOverloadBuilder("exists")
             .WithReturnType(LanguageConstants.Bool)
             .WithReturnResultBuilder(GetExistsReturnResult, LanguageConstants.Bool)
-            .WithGenericDescription("Returns whether the current resource exists.")
+            .WithGenericDescription("Returns whether the current resource already exists when the template is deployed.")
+            // The flag RequiresInlining is used here to indicate that this is an ARM runtime function to provide diagnostics where runtime values are blocked.
             .WithFlags(FunctionFlags.RequiresInlining)
             .Build();
 
         yield return new FunctionOverloadBuilder("existingResource")
-            .WithReturnType(LanguageConstants.Object)
-            .WithReturnResultBuilder(GetExistingResourceReturnResult, LanguageConstants.Object)
-            .WithGenericDescription("Returns the existing resource body (same schema as declaration body).")
+            .WithReturnType(TypeHelper.MakeNullable(LanguageConstants.Object))
+            .WithReturnResultBuilder(GetExistingResourceReturnResult, TypeHelper.MakeNullable(LanguageConstants.Object))
+            .WithGenericDescription("Returns the resource as it is defined immediately preceding the deployment if the deployment will update the resource, or null if the deployment will create the resource.")
+            // The flag RequiresInlining is used here to indicate that this is an ARM runtime function to provide diagnostics where runtime values are blocked.
             .WithFlags(FunctionFlags.RequiresInlining)
             .Build();
     }

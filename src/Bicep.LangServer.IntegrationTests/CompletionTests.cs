@@ -5866,7 +5866,7 @@ output people Person[] = [{
             resource myRes 'My.Rp/myType@2020-01-01' = {
               name: 'foo'
               properties: {
-                required: this.existingResource().properties.|
+                required: this.existingResource().?properties.|
               }
             }
             """);

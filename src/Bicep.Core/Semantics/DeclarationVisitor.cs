@@ -119,7 +119,7 @@ namespace Bicep.Core.Semantics
             this.PushScope(scope);
 
             // Add a local 'this' namespace symbol to the resource scope when the feature is enabled
-            if (this.context.SourceFile.Features.ThisNamespaceEnabled)
+            if (this.context.SourceFile.Features.ThisNamespaceEnabled && !syntax.IsExistingResource())
             {
                 // Use the bindingSyntax (the resource body) as the declaring syntax to avoid conflicts
                 // with the ResourceSymbol which uses the ResourceDeclarationSyntax
@@ -130,6 +130,7 @@ namespace Bicep.Core.Semantics
                     syntax,
                     bindingSyntax,
                     thisNamespaceType);
+
                 DeclareSymbol(thisNamespaceSymbol);
             }
 

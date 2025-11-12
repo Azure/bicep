@@ -145,13 +145,13 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   resource fileService 'fileServices' = {
     name: 'default'
     properties: {
-      shareDeleteRetentionPolicy: this.existingResource().properties.shareDeleteRetentionPolicy
+      shareDeleteRetentionPolicy: this.existingResource().?properties.shareDeleteRetentionPolicy
     }
 
     resource fileShare 'shares' = {
       name: 'exampleshare'
       properties: {
-        accessTier: this.existingResource().properties.accessTier
+        accessTier: this.existingResource().?properties.accessTier
       }
     }
   }
@@ -166,8 +166,8 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
 
                 // Check that this.exists() is compiled to not(empty(target('full')))
                 template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[not(empty(target('full')))]");
-                template.Should().HaveValueAtPath("$.resources.testResource::fileService.properties.shareDeleteRetentionPolicy", "[target('full').properties.shareDeleteRetentionPolicy]");
-                template.Should().HaveValueAtPath("$.resources.testResource::fileService::fileShare.properties.accessTier", "[target('full').properties.accessTier]");
+                template.Should().HaveValueAtPath("$.resources.testResource::fileService.properties.shareDeleteRetentionPolicy", "[tryGet(target('full'), 'properties', 'shareDeleteRetentionPolicy')]");
+                template.Should().HaveValueAtPath("$.resources.testResource::fileService::fileShare.properties.accessTier", "[tryGet(target('full'), 'properties', 'accessTier')]");
             }
         }
 
@@ -306,8 +306,8 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   }
   kind: 'StorageV2'
   properties: {
-    allowBlobPublicAccess: this.existingResource().properties.?allowBlobPublicAccess ?? false
-    minimumTlsVersion: this.existingResource().properties.?minimumTlsVersion ?? 'TLS1_0'
+    allowBlobPublicAccess: this.existingResource().?properties.allowBlobPublicAccess ?? false
+    minimumTlsVersion: this.existingResource().?properties.minimumTlsVersion ?? 'TLS1_0'
   }
 }
 ");
@@ -319,8 +319,8 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
                 var template = result.Template;
 
                 // Check that this.existingResource().properties is compiled to target('full').properties and property access works
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[coalesce(tryGet(target('full').properties, 'allowBlobPublicAccess'), false())]");
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.minimumTlsVersion", "[coalesce(tryGet(target('full').properties, 'minimumTlsVersion'), 'TLS1_0')]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[coalesce(tryGet(target('full'), 'properties', 'allowBlobPublicAccess'), false())]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.minimumTlsVersion", "[coalesce(tryGet(target('full'), 'properties', 'minimumTlsVersion'), 'TLS1_0')]");
             }
         }
 
@@ -338,7 +338,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   kind: 'StorageV2'
   properties: {
     allowBlobPublicAccess: this.exists()
-    sasPolicy: this.existingResource().properties.?sasPolicy
+    sasPolicy: this.existingResource().?properties.sasPolicy
     accessTier: this.existingResource().?properties.accessTier
   }
 }
@@ -346,7 +346,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
 resource secret 'Microsoft.KeyVault/vaults/secrets@2024-12-01-preview' = {
   name: 'vault/secret'
   properties: {
-    value: this.existingResource().tags.secretValue
+    value: this.existingResource().?tags.secretValue
   }
 }
 ");
@@ -360,8 +360,8 @@ resource secret 'Microsoft.KeyVault/vaults/secrets@2024-12-01-preview' = {
                 // Check that all three supported functions compile correctly
                 template.Should().HaveValueAtPath("$.resources.testResource.properties.accessTier", "[tryGet(target('full'), 'properties', 'accessTier')]");
                 template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[not(empty(target('full')))]");
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.sasPolicy", "[tryGet(target('full').properties, 'sasPolicy')]");
-                template.Should().HaveValueAtPath("$.resources.secret.properties.value", "[target('full').tags.secretValue]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.sasPolicy", "[tryGet(target('full'), 'properties', 'sasPolicy')]");
+                template.Should().HaveValueAtPath("$.resources.secret.properties.value", "[tryGet(target('full'), 'tags', 'secretValue')]");
             }
         }
 
@@ -380,8 +380,8 @@ resource secret 'Microsoft.KeyVault/vaults/secrets@2024-12-01-preview' = {
                   resource fooRes 'fooType@v1' = {
                     identifier: 'foobar'
                     properties: {
-                      required: this.existingResource().properties.required
-                      readwrite: this.existingResource().identifier
+                      required: this.existingResource().?properties.required ?? 'defaultValue'
+                      readwrite: this.existingResource().?identifier
                     }
                   }
                   """)), ("../extension.tgz", extensionTgz));
@@ -393,8 +393,8 @@ resource secret 'Microsoft.KeyVault/vaults/secrets@2024-12-01-preview' = {
                 var template = result.Template;
 
                 // Check that all three supported functions compile correctly
-                template.Should().HaveValueAtPath("$.resources.fooRes.properties.properties.required", "[target().properties.required]");
-                template.Should().HaveValueAtPath("$.resources.fooRes.properties.properties.readwrite", "[target().identifier]");
+                template.Should().HaveValueAtPath("$.resources.fooRes.properties.properties.required", "[coalesce(tryGet(target(), 'properties', 'required'), 'defaultValue')]");
+                template.Should().HaveValueAtPath("$.resources.fooRes.properties.properties.readwrite", "[tryGet(target(), 'identifier')]");
             }
         }
 
@@ -413,107 +413,18 @@ resource secret 'Microsoft.KeyVault/vaults/secrets@2024-12-01-preview' = {
                   resource fooRes 'fooType@v1' = {
                     identifier: 'foobar'
                     properties: {
-                      readonly: this.existingResource().properties.readonly
-                      writeonly: this.existingResource().properties.writeonly
+                      required: this.existingResource().?properties.required ?? 'defaultValue'
+                      readonly: this.existingResource().?properties.readonly
+                      writeonly: this.existingResource().?properties.writeonly
                     }
                   }
                   """)), ("../extension.tgz", extensionTgz));
 
             result.Should().HaveDiagnostics(new[]
             {
+                ("BCP073", DiagnosticLevel.Warning, "The property \"readonly\" is read-only. Expressions cannot be assigned to read-only properties. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
+                ("BCP036", DiagnosticLevel.Warning, "The property \"writeonly\" expected a value of type \"null | string\" but the provided value is of type \"error | null\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues."),
                 ("BCP077", DiagnosticLevel.Error, "The property \"writeonly\" on type \"fooBody\" is write-only. Write-only properties cannot be accessed.")
-            });
-        }
-
-        [TestMethod]
-        public void ThisNamespace_UnqualifiedFunctionCalls_ShouldWork()
-        {
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
-            var result = CompilationHelper.Compile(services, @"
-resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
-  name: 'testStorage'
-  location: 'westus'
-  sku: {
-    name: 'Standard_LRS'
-  }
-  kind: 'StorageV2'
-  properties: {
-    allowBlobPublicAccess: exists()
-    minimumTlsVersion: exists() ? 'TLS1_2' : 'TLS1_0'
-  }
-}
-");
-
-            result.Should().NotHaveAnyDiagnostics();
-
-            using (new AssertionScope())
-            {
-                var template = result.Template;
-
-                // Check that exists() is compiled to not(empty(target('full')))
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[not(empty(target('full')))]");
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.minimumTlsVersion", "[if(not(empty(target('full'))), 'TLS1_2', 'TLS1_0')]");
-            }
-        }
-
-        [TestMethod]
-        public void ThisNamespace_MixedQualifiedAndUnqualifiedFunctionCalls_ShouldWork()
-        {
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
-            var result = CompilationHelper.Compile(services, @"
-resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
-  name: 'testStorage'
-  location: 'westus'
-  sku: {
-    name: 'Standard_LRS'
-  }
-  kind: 'StorageV2'
-  properties: {
-    allowBlobPublicAccess: this.exists()
-    minimumTlsVersion: existingResource().?properties.minimumTlsVersion ?? 'TLS1_2'
-    networkAcls: {
-      defaultAction: exists() ? 'Allow' : 'Deny'
-    }
-  }
-}
-");
-
-            result.Should().NotHaveAnyDiagnostics();
-
-            using (new AssertionScope())
-            {
-                var template = result.Template;
-
-                // Check that both exists() and this.exists() compile to the same ARM function
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[not(empty(target('full')))]");
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.minimumTlsVersion", "[coalesce(tryGet(target('full'), 'properties', 'minimumTlsVersion'), 'TLS1_2')]");
-                template.Should().HaveValueAtPath("$.resources.testResource.properties.networkAcls.defaultAction", "[if(not(empty(target('full'))), 'Allow', 'Deny')]");
-            }
-        }
-
-        [TestMethod]
-        public void ThisNamespace_UnqualifiedFunctionCallOutsideResourceScope_ShouldFail()
-        {
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
-            var result = CompilationHelper.Compile(services, @"
-resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
-  name: 'testStorage'
-  location: 'westus'
-  sku: {
-    name: 'Standard_LRS'
-  }
-  kind: 'StorageV2'
-  properties: {
-    allowBlobPublicAccess: exists()
-  }
-}
-
-output testOutput bool = exists()
-");
-
-            result.Should().HaveDiagnostics(new[]
-            {
-                ("BCP057", DiagnosticLevel.Error, "The name \"exists\" does not exist in the current context.")
             });
         }
 
@@ -543,6 +454,48 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
                 ("BCP084", DiagnosticLevel.Error, "The symbolic name \"this\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\", \"this\"."),
                 ("no-unused-vars", DiagnosticLevel.Warning, "Variable \"this\" is declared but never used.")
             });
+        }
+
+        [TestMethod]
+        public void ThisNamespace_ThisInExisting_ShouldFail()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
+            var result = CompilationHelper.Compile(services, @"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: this.exists() ? 'testStorage' : 'defaultStorage'
+}
+
+");
+
+            result.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"this\" does not exist in the current context.");
+        }
+
+        [TestMethod]
+        public void ThisNamespace_ForLoopNamedThis_ShouldSucceed()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true));
+            var result = CompilationHelper.Compile(services, @"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = [for this in range(0,2): {
+  name: 'testStorage${this}'
+  location: 'westus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    allowBlobPublicAccess: true
+  }
+}]
+
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+            using (new AssertionScope())
+            {
+                var template = result.Template;
+
+                template.Should().HaveValueAtPath("$.resources.testResource.name", "[format('testStorage{0}', range(0, 2)[copyIndex()])]");
+            }
         }
     }
 }

@@ -8,7 +8,6 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Semantics
 {
@@ -345,9 +344,9 @@ namespace Bicep.Core.Semantics
         }
 
         private Symbol LookupSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall) =>
-            this.LookupLocalSymbolByName(identifierSyntax, isFunctionCall) ?? LookupGlobalSymbolByName(identifierSyntax, isFunctionCall);
+            this.LookupLocalSymbolByName(identifierSyntax) ?? LookupGlobalSymbolByName(identifierSyntax, isFunctionCall);
 
-        private Symbol? LookupLocalSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall)
+        private Symbol? LookupLocalSymbolByName(IdentifierSyntax identifierSyntax)
         {
             Func<Symbol, bool> symbolFilter = _ => true;
 
@@ -357,7 +356,7 @@ namespace Bicep.Core.Semantics
             {
                 // resolve symbol against current scope
                 // this binds to the innermost symbol even if there exists one at the parent scope
-                var symbol = LookupLocalSymbolByName(scope, identifierSyntax, isFunctionCall);
+                var symbol = LookupLocalSymbolByName(scope, identifierSyntax);
                 if (symbol != null)
                 {
                     // found a symbol - return it
@@ -380,38 +379,16 @@ namespace Bicep.Core.Semantics
             return null;
         }
 
-        private static Symbol? LookupLocalSymbolByName(LocalScope scope, IdentifierSyntax identifierSyntax, bool isFunctionCall)
-        {
-            // First, check regular local symbols
+        private static Symbol? LookupLocalSymbolByName(LocalScope scope, IdentifierSyntax identifierSyntax) =>
             // bind to first symbol matching the specified identifier
             // (errors about duplicate identifiers are emitted elsewhere)
             // loops currently are the only source of local symbols
             // as a result a local scope can contain between 1 to 2 local symbols
             // linear search should be fine, but this should be revisited if the above is no longer holds true
-            var symbol = scope.Declarations
+            scope.Declarations
                 .Where(decl => decl.CanBeReferenced())
                 .FirstOrDefault(symbol => identifierSyntax.NameEquals(symbol.Name));
 
-            if (symbol != null)
-            {
-                return symbol;
-            }
-
-            // If it's a function call and no direct match found, check within LocalThisNamespaceSymbol
-            if (isFunctionCall)
-            {
-                var thisNamespace = scope.Declarations
-                    .OfType<LocalThisNamespaceSymbol>()
-                    .FirstOrDefault();
-
-                if (thisNamespace?.TryGetNamespaceType() is NamespaceType namespaceType)
-                {
-                    return namespaceType.MethodResolver.TryGetSymbol(identifierSyntax);
-                }
-            }
-
-            return null;
-        }
 
         private static ResourceSymbol? LookupResourceSymbolByName(ILanguageScope scope, IdentifierSyntax identifierSyntax) =>
             scope.Declarations
