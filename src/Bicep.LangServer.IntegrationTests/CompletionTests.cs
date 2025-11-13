@@ -5852,6 +5852,41 @@ output people Person[] = [{
         }
 
         [TestMethod]
+        public async Task Write_only_properties_are_not_offered_as_completions_this_namespace()
+        {
+            var customTypes = new[] {
+                TestTypeHelper.CreateCustomResourceTypeWithTopLevelProperties("My.Rp/myType", "2020-01-01", TypeSymbolValidationFlags.Default, null, [
+                    new NamedTypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required),
+                    new NamedTypeProperty("readOnlyRequired", LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.Required),
+                    new NamedTypeProperty("writeOnly", LanguageConstants.String, TypePropertyFlags.WriteOnly),
+                ]),
+            };
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+            resource myRes 'My.Rp/myType@2020-01-01' = {
+              name: 'foo'
+              properties: {
+                required: this.existingResource().?properties.|
+              }
+            }
+            """);
+
+            var bicepFile = new LanguageClientFile(InMemoryFileResolver.GetFileUri("/path/to/main.bicep"), text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                TestContext,
+                text,
+                bicepFile.Uri,
+                services => services.WithFeatureOverrides(new(ThisNamespaceEnabled: true)).WithAzResources(customTypes));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestAndResolveCompletions(cursor);
+
+            completions.Should().Contain(x => x.Label == "required");
+            completions.Should().Contain(x => x.Label == "readOnlyRequired");
+            completions.Should().NotContain(x => x.Label == "writeOnly");
+        }
+
+        [TestMethod]
         public async Task Identity_property_completions_are_offered_for_resource()
         {
             // Resource identity property completion

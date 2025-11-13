@@ -27,5 +27,6 @@ namespace Bicep.Core.Features
         public bool UserDefinedConstraintsEnabled => features.UserDefinedConstraints;
         public bool DeployCommandsEnabled => features.DeployCommands;
         public bool MultilineStringInterpolationEnabled => features.MultilineStringInterpolation;
+        public bool ThisNamespaceEnabled => features.ThisNamespace;
     }
 }

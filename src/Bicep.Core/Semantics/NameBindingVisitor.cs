@@ -389,6 +389,7 @@ namespace Bicep.Core.Semantics
                 .Where(decl => decl.CanBeReferenced())
                 .FirstOrDefault(symbol => identifierSyntax.NameEquals(symbol.Name));
 
+
         private static ResourceSymbol? LookupResourceSymbolByName(ILanguageScope scope, IdentifierSyntax identifierSyntax) =>
             scope.Declarations
                 .OfType<ResourceSymbol>()

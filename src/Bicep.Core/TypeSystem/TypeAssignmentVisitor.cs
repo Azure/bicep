@@ -2443,6 +2443,9 @@ namespace Bicep.Core.TypeSystem
                     case LocalVariableSymbol local:
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, local));
 
+                    case LocalThisNamespaceSymbol localThisNamespace:
+                        return localThisNamespace.DeclaredType;
+
                     case ImportedSymbol imported:
                         return imported.Type;
 
