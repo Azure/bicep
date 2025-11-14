@@ -7508,4 +7508,33 @@ output locations array = flatten(map(databases, database => database.properties.
 
         result.Should().NotHaveAnyDiagnostics();
     }
+
+    [TestMethod]
+    public void Test_Issue18416()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("foo.json", """
+                {
+                    "default": 5,
+                    "boolLiteral": true
+                }
+                """),
+            ("main.bicep", """
+                type fooType = 5 | 10 | 15
+
+                param foo fooType
+
+                param bar true
+                """),
+            ("parameters.bicepparam", """
+                using 'main.bicep'
+
+                var fooVar = loadJsonContent('foo.json')
+
+                param foo = fooVar.default
+                param bar = fooVar.boolLiteral
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
 }
