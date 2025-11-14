@@ -14,7 +14,7 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: normalizePath(path.resolve(__dirname, '../Bicep.Wasm/bin/Release/net8.0/wwwroot/_framework') + '/**/*.*'),
+          src: normalizePath(path.resolve(__dirname, '../Bicep.Wasm/bin/Release/net10.0/wwwroot/_framework') + '/**/*.*'),
           dest: './_framework',
         },
       ],

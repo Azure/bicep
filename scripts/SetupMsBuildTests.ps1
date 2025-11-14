@@ -50,7 +50,7 @@ function RemoveFilesFromDirectory($dir, $fileNameFilter) {
 }
 
 $ErrorActionPreference = 'Stop';
-$TargetFramework = 'net8.0';
+$TargetFramework = 'net10.0';
 
 $msbuildNuGetFileGlob = "Azure.Bicep.MSBuild.*.nupkg";
 $bicepCliNuGetFileGlob = "Azure.Bicep.CommandLine.$RuntimeIdentifier.*.nupkg";

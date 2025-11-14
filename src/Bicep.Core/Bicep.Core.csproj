@@ -48,7 +48,6 @@
     <PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" />
     <PackageReference Include="Azure.Bicep.Internal.RoslynAnalyzers" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
-    <PackageReference Include="System.Private.Uri" />
     <PackageReference Include="Microsoft.Extensions.Http" />
     <PackageReference Include="Microsoft.VisualStudio.Threading" />
   </ItemGroup>

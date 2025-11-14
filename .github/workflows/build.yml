@@ -55,7 +55,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bicep-release-${{ matrix.rid }}
-          path: ./src/Bicep.Cli/bin/release/net8.0/${{ matrix.rid }}/publish/*
+          path: ./src/Bicep.Cli/bin/release/net10.0/${{ matrix.rid }}/publish/*
           if-no-files-found: error
 
       - name: Upload Bicep project assets file
@@ -111,12 +111,12 @@ jobs:
       - name: Publish Language Server
         run: |
           dotnet publish --configuration release ./src/Bicep.LangServer/Bicep.LangServer.csproj
-          cp -R src/Bicep.LangServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepLanguageServer
+          cp -R src/Bicep.LangServer/bin/release/net10.0/publish ./src/vscode-bicep/bicepLanguageServer
 
       - name: Publish MCP Server
         run: |
           dotnet publish --configuration release ./src/Bicep.McpServer/Bicep.McpServer.csproj
-          cp -R src/Bicep.McpServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepMcpServer
+          cp -R src/Bicep.McpServer/bin/release/net10.0/publish ./src/vscode-bicep/bicepMcpServer
 
       - name: Check npm version
         run: npm -v
@@ -230,12 +230,12 @@ jobs:
       - name: Publish Language Server
         run: |
           dotnet publish --configuration release ./src/Bicep.LangServer/Bicep.LangServer.csproj
-          cp -R src/Bicep.LangServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepLanguageServer
+          cp -R src/Bicep.LangServer/bin/release/net10.0/publish ./src/vscode-bicep/bicepLanguageServer
 
       - name: Publish MCP Server
         run: |
           dotnet publish --configuration release ./src/Bicep.McpServer/Bicep.McpServer.csproj
-          cp -R src/Bicep.McpServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepMcpServer
+          cp -R src/Bicep.McpServer/bin/release/net10.0/publish ./src/vscode-bicep/bicepMcpServer
 
       - name: Check npm version
         run: npm -v
@@ -377,7 +377,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bicep-setup-win-x64
-          path: ./src/installer-win/bin/release/net8.0/bicep-setup-win-x64.exe
+          path: ./src/installer-win/bin/release/net10.0/bicep-setup-win-x64.exe
           if-no-files-found: error
 
   build-cli-nugets:

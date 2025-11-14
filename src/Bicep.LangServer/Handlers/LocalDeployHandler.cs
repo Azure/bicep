@@ -86,7 +86,7 @@ public class LocalDeployHandler(
         {
             server.Window.LogError($"Unhandled exception during local deployment: {ex}");
             return new(
-                new("Failed", ImmutableDictionary<string, JToken>.Empty, new("UnhandledException", ex.Message, "")),
+                new("Failed", [], new("UnhandledException", ex.Message, "")),
                 []
             );
         }
@@ -112,7 +112,7 @@ public class LocalDeployHandler(
 
         LocalDeploymentContent deployment = new(
             result.Deployment.Properties.ProvisioningState.ToString() ?? "Failed",
-            result.Deployment.Properties.Outputs?.ToImmutableDictionary(x => x.Key, x => x.Value.Value) ?? ImmutableDictionary<string, JToken>.Empty,
+            result.Deployment.Properties.Outputs?.ToImmutableDictionary(x => x.Key, x => x.Value.Value) ?? [],
             deployError);
 
         var operations = result.Operations.Select(FromOperation).ToImmutableArray();

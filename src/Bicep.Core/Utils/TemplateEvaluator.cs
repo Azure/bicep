@@ -286,7 +286,7 @@ namespace Bicep.Core.Utils
         {
             if (parametersJToken is null)
             {
-                return ImmutableDictionary<string, JToken>.Empty;
+                return [];
             }
 
             var parametersObject = parametersJToken["parameters"] as JObject;
@@ -294,7 +294,7 @@ namespace Bicep.Core.Utils
             var externalInputsObject = parametersJToken["externalInputs"] as JObject;
             var externalInputs = externalInputsObject?.Properties().ToImmutableDictionary(
                 x => x.Name,
-                x => new DeploymentExternalInput { Value = x.Value["value"] }) ?? ImmutableDictionary<string, DeploymentExternalInput>.Empty;
+                x => new DeploymentExternalInput { Value = x.Value["value"] }) ?? [];
 
             IntermediateEvaluationContext context = new(
                 [

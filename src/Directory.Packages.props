@@ -43,19 +43,19 @@
     <PackageVersion Include="MSTest" Version="3.9.2" />
     <PackageVersion Include="Markdig" Version="0.42.0" />
     <PackageVersion Include="MessagePack" Version="3.1.3" />
-    <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.20" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Build.Framework" Version="17.13.9" />
     <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="17.13.9" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="4.11.0" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.5" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.5" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.5" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Http" Version="8.0.1" />
-    <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.0" />
     <PackageVersion Include="Microsoft.IO.Redist" Version="6.1.0" />
-    <PackageVersion Include="Microsoft.NET.Sdk.WebAssembly.Pack" Version="8.0.11" />
+    <PackageVersion Include="Microsoft.NET.Sdk.WebAssembly.Pack" Version="10.0.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageVersion Include="Microsoft.Net.Compilers.Toolset" Version="4.12.0" />
     <PackageVersion Include="Microsoft.PowerPlatform.ResourceStack" Version="7.0.0.2080" />
@@ -100,11 +100,10 @@
     <PackageVersion Include="System.Collections.Immutable" Version="9.0.9" />
     <PackageVersion Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.0.15" />
     <PackageVersion Include="TestableIO.System.IO.Abstractions.TestingHelpers" Version="22.0.15" />
-    <PackageVersion Include="System.Linq.Async" Version="6.0.1" />
-    <PackageVersion Include="System.Memory.Data" Version="9.0.5" />
+    <PackageVersion Include="System.Memory.Data" Version="10.0.0" />
     <!-- force an upgrade of this dependency as it seems to cause build flakiness for unknown reasons -->
     <PackageVersion Include="System.Private.Uri" Version="4.3.2" />
-    <PackageVersion Include="System.Text.Json" Version="9.0.5" />
+    <PackageVersion Include="System.Text.Json" Version="10.0.0" />
     <PackageVersion Include="Tools.InnoSetup" Version="6.0.5" />
   </ItemGroup>
 </Project>

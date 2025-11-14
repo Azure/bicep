@@ -21,7 +21,7 @@ namespace Bicep.Core.TypeSystem.Providers
             => false;
 
         public ImmutableDictionary<string, ImmutableArray<ResourceTypeReference>> TypeReferencesByType
-            => ImmutableDictionary<string, ImmutableArray<ResourceTypeReference>>.Empty;
+            => [];
 
         public string Version { get; } = "1.0.0";
     }

@@ -606,7 +606,7 @@ namespace Bicep.Core.Emit
         {
             if (model.HasParsingErrors())
             {
-                return (ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue>.Empty, null);
+                return ([], null);
             }
 
             var referencesInValues = model.Binder.Bindings.Values.OfType<DeclaredSymbol>().Distinct()
@@ -706,7 +706,7 @@ namespace Bicep.Core.Emit
         {
             if (model.Root.ExtensionConfigAssignments.IsEmpty)
             {
-                return ImmutableDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>>.Empty;
+                return [];
             }
 
             var generated = ImmutableDictionary.CreateBuilder<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>>();

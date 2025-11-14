@@ -397,7 +397,7 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
     {
         if (deployment.Properties.Outputs is not { } outputsData)
         {
-            return ImmutableDictionary<string, JsonNode>.Empty;
+            return [];
         }
 
         var outputs = outputsData.ToString().FromJson<Dictionary<string, DeploymentParameterDefinition>>();
@@ -411,7 +411,7 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
     {
         if (deployment.Properties.Outputs is not { } outputs)
         {
-            return ImmutableDictionary<string, JsonNode>.Empty;
+            return [];
         }
 
         return outputs.ToImmutableDictionary(

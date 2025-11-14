@@ -1,9 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
-  <PropertyGroup>
-    <RazorLangVersion>3.0</RazorLangVersion>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
     <PackageReference Include="TestableIO.System.IO.Abstractions.TestingHelpers" />

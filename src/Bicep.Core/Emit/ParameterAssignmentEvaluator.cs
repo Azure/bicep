@@ -243,7 +243,7 @@ public class ParameterAssignmentEvaluator
             {
                 if (extConfigAssignment.DeclaringExtensionConfigAssignment.Config is null)
                 {
-                    return ImmutableDictionary<string, Result>.Empty;
+                    return [];
                 }
 
                 var context = GetExpressionEvaluationContext();

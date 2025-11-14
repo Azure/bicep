@@ -28,4 +28,4 @@ exit /b 1
 :start
 
 xcopy /s Bicep.VSLanguageServerClient\bin\Debug\net472\*.* %DEST%
-xcopy /s ..\Bicep.LangServer\bin\Debug\net8.0\*.* %DEST%\LanguageServer
+xcopy /s ..\Bicep.LangServer\bin\Debug\net10.0\*.* %DEST%\LanguageServer

@@ -25,7 +25,7 @@ namespace Bicep.Core.IntegrationTests
         {
             if (parametersJToken is null)
             {
-                return ImmutableDictionary<string, ParameterProperties>.Empty;
+                return [];
             }
 
             parametersJToken.Should().HaveValueAtPath("$schema", "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#");

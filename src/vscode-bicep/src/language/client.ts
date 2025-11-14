@@ -10,7 +10,7 @@ import { writeDeploymentOutputMessageToBicepOperationsOutputChannel } from "../c
 import { getLogger } from "../utils/logger";
 import { bicepLanguageId } from "./constants";
 
-const dotnetRuntimeVersion = "8.0";
+const dotnetRuntimeVersion = "10.0";
 const packagedServerPath = "bicepLanguageServer/Bicep.LangServer.dll";
 const packagedMcpServerPath = "bicepMcpServer/Bicep.McpServer.dll";
 const extensionId = "ms-azuretools.vscode-bicep";

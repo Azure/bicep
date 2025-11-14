@@ -52,7 +52,7 @@ public class ExpressionBuilder
     }
 
     public ExpressionBuilder(EmitterContext Context)
-        : this(Context, ImmutableDictionary<LocalVariableSymbol, Expression>.Empty)
+        : this(Context, [])
     {
     }
 
@@ -724,7 +724,7 @@ public class ExpressionBuilder
             body,
             bodyExpression,
             BuildDependencyExpressions(resource.Symbol, body),
-            ImmutableDictionary<string, ArrayExpression>.Empty);
+            []);
     }
 
     private Expression ConvertArray(ArraySyntax array)
