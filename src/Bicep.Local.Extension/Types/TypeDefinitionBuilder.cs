@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -11,7 +12,9 @@ using Azure.Bicep.Types;
 using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
 using Azure.Bicep.Types.Serialization;
+using Bicep.Local.Extension.Builder;
 using Bicep.Local.Extension.Types.Attributes;
+using Microsoft.Extensions.Options;
 using static Google.Protobuf.Reflection.GeneratedCodeInfo.Types;
 
 namespace Bicep.Local.Extension.Types;
@@ -20,12 +23,10 @@ public class TypeDefinitionBuilder
 {
     private readonly HashSet<Type> visited;
     private readonly ITypeProvider typeProvider;
-    private readonly IDictionary<Type, Func<TypeBase>> typeToTypeBaseMap;
+    private readonly FrozenDictionary<Type, Func<TypeBase>> typeToTypeBaseMap;
 
     protected readonly ConcurrentDictionary<Type, TypeBase> typeCache;
-    private readonly string name;
-    private readonly string version;
-    private readonly bool isSingleton;
+    private readonly BicepExtensionInfo extensionInfo;
     private readonly Type? configurationType;
     protected readonly TypeFactory factory;
 
@@ -46,24 +47,21 @@ public class TypeDefinitionBuilder
     /// </para>
     /// </remarks>
     public TypeDefinitionBuilder(
-        string name,
-        string version,
-        bool isSingleton,
-        Type? configurationType,
+        BicepExtensionInfo extensionInfo,        
         TypeFactory factory,
         ITypeProvider typeProvider,
-        IDictionary<Type, Func<TypeBase>> typeToTypeBaseMap)
+        TypeDefinitionBuilderOptions options)
     {
-        this.name = name;
-        this.version = version;
-        this.isSingleton = isSingleton;
-        this.configurationType = configurationType;
+        ArgumentNullException.ThrowIfNull(options);
+
+        this.extensionInfo = extensionInfo ?? throw new ArgumentNullException(nameof(extensionInfo));
+        this.configurationType = options.ConfigurationType;
         this.factory = factory;
         this.typeProvider = typeProvider;
 
-        this.typeToTypeBaseMap = typeToTypeBaseMap is null || typeToTypeBaseMap.Count == 0
+        this.typeToTypeBaseMap = options.TypeToTypeBaseMap is null || options.TypeToTypeBaseMap.Count == 0
                 ? throw new ArgumentException(nameof(typeToTypeBaseMap))
-                : typeToTypeBaseMap;
+                : options.TypeToTypeBaseMap;
 
         this.visited = new HashSet<Type>();
         this.typeCache = new ConcurrentDictionary<Type, TypeBase>();
@@ -98,7 +96,7 @@ public class TypeDefinitionBuilder
         var index = new TypeIndex(
             resourceTypes,
             new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
-            new TypeSettings(name: name, version: version, isSingleton: isSingleton, configurationType: config!),
+            new TypeSettings(name: extensionInfo.Name, version: extensionInfo.Version, isSingleton: extensionInfo.IsSingleton, configurationType: config!),
             null);
 
         return new(
