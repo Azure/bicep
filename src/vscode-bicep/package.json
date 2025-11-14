@@ -748,10 +748,10 @@
     "test:unit": "jest --config jest.config.unit.js",
     "test:snapshot": "jest --config jest.config.snapshot.js",
     "test:update-snapshot": "jest --config jest.config.snapshot.js --updateSnapshot",
-    "testlocal:e2e": "(export BICEP_LANGUAGE_SERVER_PATH=${INIT_CWD}/../Bicep.LangServer/bin/Debug/net8.0/Bicep.LangServer.dll || set BICEP_LANGUAGE_SERVER_PATH=%INIT_CWD%/../Bicep.LangServer/bin/Debug/net8.0/Bicep.LangServer.dll) && npm run build && npm run build:e2e && npm run test:e2e",
+    "testlocal:e2e": "(export BICEP_LANGUAGE_SERVER_PATH=${INIT_CWD}/../Bicep.LangServer/bin/Debug/net10.0/Bicep.LangServer.dll || set BICEP_LANGUAGE_SERVER_PATH=%INIT_CWD%/../Bicep.LangServer/bin/Debug/net10.0/Bicep.LangServer.dll) && npm run build && npm run build:e2e && npm run test:e2e",
     "clean": "rimraf ./out ./coverage",
     "package": "npm run clean && nbgv-setversion && vsce package --no-dependencies --githubBranch main --out ./vscode-bicep.vsix && nbgv-setversion --reset",
-    "package:local": "rimraf ./bicepLanguageServer && cp -r ../Bicep.LangServer/bin/Debug/net8.0 ./bicepLanguageServer && rimraf ./bicepMcpServer && cp -r ../Bicep.McpServer/bin/Debug/net8.0 ./bicepMcpServer && npm run package"
+    "package:local": "rimraf ./bicepLanguageServer && cp -r ../Bicep.LangServer/bin/Debug/net10.0 ./bicepLanguageServer && rimraf ./bicepMcpServer && cp -r ../Bicep.McpServer/bin/Debug/net10.0 ./bicepMcpServer && npm run package"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

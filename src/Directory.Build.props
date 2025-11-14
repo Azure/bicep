@@ -35,7 +35,7 @@
 
   <!-- set default framework - each project can still override -->
   <PropertyGroup Condition=" '$(MSBuildProjectExtension)' == '.csproj' ">
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup>
