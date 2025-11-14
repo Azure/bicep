@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
+using Azure.Deployments.Expression.Extensions;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -1666,10 +1667,10 @@ namespace Bicep.Core.Semantics.Namespaces
                 JValue value => value.Type switch
                 {
                     JTokenType.String => TypeFactory.CreateStringLiteralType(value.ToString(CultureInfo.InvariantCulture)),
-                    JTokenType.Integer => LanguageConstants.Int,
+                    JTokenType.Integer => TypeFactory.CreateIntegerLiteralType(value.ToLong()),
                     // Floats are currently not supported in Bicep, so fall back to the default behavior of "any"
                     JTokenType.Float => LanguageConstants.Any,
-                    JTokenType.Boolean => LanguageConstants.Bool,
+                    JTokenType.Boolean => TypeFactory.CreateBooleanLiteralType(value.ToObject<bool>()),
                     JTokenType.Null => LanguageConstants.Null,
                     _ => LanguageConstants.Any,
                 },
