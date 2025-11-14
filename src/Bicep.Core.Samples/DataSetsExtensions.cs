@@ -101,7 +101,7 @@ namespace Bicep.Core.Samples
         }
 
         public static ITemplateSpecRepositoryFactory CreateEmptyTemplateSpecRepositoryFactory()
-            => CreateMockTemplateSpecRepositoryFactory(ImmutableDictionary<string, DataSet.ExternalModuleInfo>.Empty);
+            => CreateMockTemplateSpecRepositoryFactory([]);
 
         public static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRepositoryFactory(this DataSet dataSet, TestContext _)
             => CreateMockTemplateSpecRepositoryFactory(dataSet.TemplateSpecs);

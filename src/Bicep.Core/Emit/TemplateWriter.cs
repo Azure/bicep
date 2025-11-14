@@ -76,7 +76,7 @@ namespace Bicep.Core.Emit
         public TemplateWriter(SemanticModel semanticModel)
         {
             ExpressionBuilder = new ExpressionBuilder(new EmitterContext(semanticModel));
-            declaredTypesByName = ImmutableDictionary<string, DeclaredTypeExpression>.Empty;
+            declaredTypesByName = [];
         }
 
         public void Write(SourceAwareJsonTextWriter writer)

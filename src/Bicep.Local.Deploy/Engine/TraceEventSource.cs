@@ -13,6 +13,7 @@ using Bicep.Core.Features;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using Microsoft.WindowsAzure.ResourceStack.Common.EventSources;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Bicep.Local.Deploy.Engine;
 
@@ -20,6 +21,7 @@ namespace Bicep.Local.Deploy.Engine;
 
 public class TraceEventSource : ICommonEventSource, IDeploymentEventSource
 {
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Anonymous types used for tracing will have their properties preserved by the compiler")]
     private static void WriteToTrace(
         TraceVerbosity verbosity,
         object paramsObj,

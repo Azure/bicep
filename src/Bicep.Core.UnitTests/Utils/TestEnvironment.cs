@@ -12,7 +12,7 @@ public record TestEnvironment(
 ) : IEnvironment
 {
     public static TestEnvironment Default = new(
-        ImmutableDictionary<string, string?>.Empty,
+        [],
         System.Environment.CurrentDirectory);
 
     private readonly IEnvironment realEnvironment = new Core.Utils.Environment();
