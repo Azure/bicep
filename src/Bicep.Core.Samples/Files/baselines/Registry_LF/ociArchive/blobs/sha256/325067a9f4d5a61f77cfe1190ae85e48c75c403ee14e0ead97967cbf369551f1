@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "2.0",
+  "mediaType": "application/vnd.oci.image.manifest.v1+json",
+  "artifactType": "application/vnd.ms.bicep.module.artifact",
+  "config": {
+    "mediaType": "application/vnd.ms.bicep.module.config.v1+json",
+    "digest": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "size": 2,
+    "annotations": {}
+  },
+  "layers": [
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:1861bf0399f9ac303d13b36b25989313fc91f4cb3770d3d7c0cf80369dc71f7e",
+      "size": 949,
+      "annotations": {
+        "org.opencontainers.image.title": "restored/br/mock-registry-one.invalid/demo$plan/v2$/main.json"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:23758c6543c92fce96be3f103df3468842bf27246ea63e2d51e91e771d788d3f",
+      "size": 11221,
+      "annotations": {
+        "org.opencontainers.image.title": "local/main.bicep",
+        "ms.azure.deployments.entryPoint": "true"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:37f6d4eeb89e2d3af0345afa7656d9b1e83a20517e9d7ddba06f458a5abad514",
+      "size": 506,
+      "annotations": {
+        "org.opencontainers.image.title": "restored/br/localhost$5000/passthrough$port/v1$/main.json"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:5be74250009313c57aea7216ed381f13b2969fa2f4c3ba6d07ecdb0f353da89a",
+      "size": 1756,
+      "annotations": {
+        "org.opencontainers.image.title": "restored/br/mock-registry-two.invalid/demo$site/v3$/main.json"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:8ea8d78fbbef0d4c7730e234460ec45473ed9c87dcd7de97a22618e1b5a620da",
+      "size": 455,
+      "annotations": {
+        "org.opencontainers.image.title": "restored/br/127.0.0.1/passthrough$ipv4/v1$/main.json"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:981985f7bf4a9bca9ce263231e9b463592e969ac267368a36e98eb93add33a66",
+      "size": 466,
+      "annotations": {
+        "org.opencontainers.image.title": "restored/br/127.0.0.1$5000/passthrough$ipv4port/v1$/main.json"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:c6fbd68a20e41d3a38a2a068507ba205d0b24e818c3f7035461055c91164420b",
+      "size": 465,
+      "annotations": {
+        "org.opencontainers.image.title": "restored/br/[$$1]$5000/passthrough$ipv6port/v1$/main.json"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:fe9a56b50fe31cdecba965b0c9e3ab239e43b87d6b229abef4d7a6a56c153702",
+      "size": 454,
+      "annotations": {
+        "org.opencontainers.image.title": "restored/br/[$$1]/passthrough$ipv6/v1$/main.json"
+      }
+    }
+  ]
+}
