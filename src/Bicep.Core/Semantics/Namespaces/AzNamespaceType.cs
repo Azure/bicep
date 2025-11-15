@@ -193,8 +193,20 @@ namespace Bicep.Core.Semantics.Namespaces
             }, null);
         }
 
-        private static ObjectType GetDeploymentReturnType(bool resourceGroupScope)
+        private static FunctionResult GetDeploymentReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
+            List<NamedTypeProperty> templateProperties = [new("contentVersion", LanguageConstants.String)];
+            if (model.Root.MetadataDeclarations.Length > 0)
+            {
+                templateProperties.Add(new("metadata", new ObjectType(
+                    "metadataProperties",
+                    TypeSymbolValidationFlags.Default,
+                    model.Root.MetadataDeclarations.Select(md => new NamedTypeProperty(
+                        md.Name,
+                        md.Type,
+                        Description: md.TryGetDescriptionFromDecorator(model))))));
+            }
+
             // Note: there are other properties which could be included here, but they allow you to break out of the bicep world.
             // We're going to omit them and only include what is truly necessary. If we get feature requests to expose more properties, we should discuss this further.
             // Properties such as 'template', 'templateHash', 'parameters' depend on the codegen, and feel like they could be fragile.
@@ -204,10 +216,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 new NamedTypeProperty("name", LanguageConstants.String),
                 new NamedTypeProperty("properties", new ObjectType("properties", TypeSymbolValidationFlags.Default, new []
                 {
-                    new NamedTypeProperty("template", new ObjectType("templateProperties", TypeSymbolValidationFlags.Default, new []
-                    {
-                        new NamedTypeProperty("contentVersion", LanguageConstants.String)
-                    }, null)),
+                    new NamedTypeProperty("template", new ObjectType("templateProperties", TypeSymbolValidationFlags.Default, templateProperties, null)),
                     new NamedTypeProperty("templateLink", new ObjectType("templateLinkProperties", TypeSymbolValidationFlags.Default, new []
                     {
                         new NamedTypeProperty("id", LanguageConstants.String),
@@ -216,14 +225,14 @@ namespace Bicep.Core.Semantics.Namespaces
                 }, null)),
             };
 
-            if (!resourceGroupScope)
+            if (model.TargetScope != ResourceScope.ResourceGroup)
             {
                 // deployments in the 'resourcegroup' scope do not have the 'location' property. All other scopes do.
                 var locationProperty = new NamedTypeProperty("location", LanguageConstants.String);
                 properties = properties.Concat(locationProperty.AsEnumerable());
             }
 
-            return new ObjectType("deployment", TypeSymbolValidationFlags.Default, properties, null);
+            return new(new ObjectType("deployment", TypeSymbolValidationFlags.Default, properties, null));
         }
 
         private static ObjectType GetDeployerReturnType()
@@ -315,17 +324,12 @@ namespace Bicep.Core.Semantics.Namespaces
 
             yield return (
                 new FunctionOverloadBuilder("deployment")
-                    .WithReturnType(GetDeploymentReturnType(resourceGroupScope: true))
+                    .WithReturnResultBuilder(
+                        GetDeploymentReturnResult,
+                        new ObjectType("deployment", TypeSymbolValidationFlags.Default, [], new TypeProperty(LanguageConstants.Any)))
                     .WithGenericDescription("Returns information about the current deployment operation.")
                     .Build(),
-                ResourceScope.ResourceGroup);
-
-            yield return (
-                new FunctionOverloadBuilder("deployment")
-                    .WithReturnType(GetDeploymentReturnType(resourceGroupScope: false))
-                    .WithGenericDescription("Returns information about the current deployment operation.")
-                    .Build(),
-                ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription);
+                ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
 
             yield return (
                 new FunctionOverloadBuilder("deployer")
