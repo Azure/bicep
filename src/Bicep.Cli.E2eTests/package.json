@@ -8,7 +8,7 @@
     "@types/cross-spawn": "^6.0.6",
     "@types/eslint__js": "^8.42.3",
     "@types/uuid": "^11.0.0",
-    "@vitest/eslint-plugin": "^1.4.2",
+    "@vitest/eslint-plugin": "^1.4.3",
     "cross-env": "^10.1.0",
     "cross-spawn": "^7.0.6",
     "eslint": "^9.39.1",
