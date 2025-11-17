@@ -335,7 +335,7 @@ namespace Bicep.Core.UnitTests.Semantics
                           name: George Washington
                           age: 89";
 
-        var span = new TextSpan(0, 10);  // ← Add this line
+        var span = new TextSpan(0, 10);  
         new YamlObjectParser().TryExtractFromObject(singleDocYml, null, [span], out var errorDiagnostic, out JToken? jToken);
         
         Assert.IsNull(errorDiagnostic);
