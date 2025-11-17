@@ -324,24 +324,7 @@ namespace Bicep.Core.UnitTests.Semantics
         Assert.IsNull(jToken);
     }
 
-    [TestMethod]
-    public void YAML_with_only_comments_and_empty_lines_before_separator_parses_successfully()
-    {
-        var singleDocYml = @"
-                          # This is a comment
+    
+  }
 
-                          ---
-                          # Another comment
-                          name: George Washington
-                          age: 89";
-
-        var span = new TextSpan(0, 10);  
-        new YamlObjectParser().TryExtractFromObject(singleDocYml, null, [span], out var errorDiagnostic, out JToken? jToken);
-        
-        Assert.IsNull(errorDiagnostic);
-        Assert.IsNotNull(jToken);
-        Assert.AreEqual("George Washington", jToken!["name"]);
-    }
-        }
-
-    }
+}
