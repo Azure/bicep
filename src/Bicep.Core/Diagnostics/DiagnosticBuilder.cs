@@ -1609,6 +1609,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP340",
                 $"Unable to parse literal YAML value. Please ensure that it is well-formed.");
 
+                
+            public Diagnostic MultiDocumentYamlNotSupported() => CoreError(
+                "BCP442",
+                "Multi-document YAML files are not supported. Please use a single YAML document.");
+
             public Diagnostic RuntimeValueNotAllowedInFunctionDeclaration(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
             {
                 var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
@@ -2009,9 +2014,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP440",
                 "The @secure() decorator can only be used on statements whose type is a subtype of \"string\" or \"object\".");
 
-            public Diagnostic MultiDocumentYamlNotSupported() => CoreError(
-                "BCP441",
-                "Multi-document YAML files are not supported. Please use a single YAML document.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
