@@ -9,6 +9,7 @@ using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Semantics
 {
@@ -116,6 +117,22 @@ namespace Bicep.Core.Semantics
             var bindingSyntax = syntax.Value is IfConditionSyntax ifConditionSyntax ? ifConditionSyntax.Body : syntax.Value;
             var scope = new LocalScope(string.Empty, syntax, bindingSyntax, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.InheritAll);
             this.PushScope(scope);
+
+            // Add a local 'this' namespace symbol to the resource scope when the feature is enabled
+            if (this.context.SourceFile.Features.ThisNamespaceEnabled && !syntax.IsExistingResource())
+            {
+                // Use the bindingSyntax (the resource body) as the declaring syntax to avoid conflicts
+                // with the ResourceSymbol which uses the ResourceDeclarationSyntax
+                var thisNamespaceType = ThisNamespaceType.Create(ThisNamespaceType.BuiltInName);
+                var thisNamespaceSymbol = new LocalThisNamespaceSymbol(
+                    this.context,
+                    ThisNamespaceType.BuiltInName,
+                    syntax,
+                    bindingSyntax,
+                    thisNamespaceType);
+
+                DeclareSymbol(thisNamespaceSymbol);
+            }
 
             base.VisitResourceDeclarationSyntax(syntax);
 
