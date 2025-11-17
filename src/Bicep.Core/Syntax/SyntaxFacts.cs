@@ -17,7 +17,6 @@ namespace Bicep.Core.Syntax
             TokenType.StringMiddlePiece or
             TokenType.StringRightPiece or
             TokenType.StringComplete or
-            TokenType.MultilineString or
             TokenType.Unrecognized => true,
             _ => false,
         };
@@ -63,6 +62,7 @@ namespace Bicep.Core.Syntax
             TokenType.Pipe => "|",
             TokenType.Ellipsis => "...",
             TokenType.Hat => "^",
+            TokenType.Dollar => "$",
             _ => null,
         };
 

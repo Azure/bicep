@@ -6,3 +6,4 @@
 /src/Bicep.Core.Samples/Files/**/Assets/**/*.txt -text
 /src/Bicep.Core.Samples/Files/baselines/*_LF/**/*.bicep eol=lf
 /src/Bicep.Core.Samples/Files/baselines/*_CRLF/**/*.bicep eol=crlf
+/src/Bicep.Core.Samples/Files/baselines/*_CRLF/**/*.json text eol=crlf

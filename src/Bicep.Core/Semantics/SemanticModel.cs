@@ -708,22 +708,26 @@ namespace Bicep.Core.Semantics
                     assignmentSymbol.Type is not NullType && // `param x = null` is equivalent to skipping the assignment altogether
                     TypeManager.GetDeclaredType(assignmentSymbol.DeclaringSyntax) is { } declaredType)
                 {
+                    var diagnostics = ToListDiagnosticWriter.Create();
+
                     if (isFromSameFile)
                     {
-                        var diagnostics = ToListDiagnosticWriter.Create();
                         TypeValidator.NarrowTypeAndCollectDiagnostics(TypeManager, Binder, ParsingErrorLookup, diagnostics, assignmentSymbol.DeclaringParameterAssignment.Value, declaredType);
-                        foreach (var diagnostic in diagnostics.GetDiagnostics())
-                        {
-                            yield return diagnostic;
-                        }
                     }
                     else
                     {
-                        var areTypesAssignable = TypeValidator.AreTypesAssignable(assignmentSymbol.Type, declaredType);
-                        if (!areTypesAssignable)
-                        {
-                            yield return DiagnosticBuilder.ForPosition(assignmentSymbol.DeclaringSyntax).ExpectedValueTypeMismatch(false, declaredType, assignmentSymbol.Type);
-                        }
+                        TypeValidator.NarrowTypeAndCollectDiagnostics(
+                            assignmentSymbol.Context.TypeManager,
+                            assignmentSymbol.Context.Binder,
+                            assignmentSymbol.Context.SourceFile.ParsingErrorLookup,
+                            diagnostics,
+                            assignmentSymbol.DeclaringParameterAssignment.Value,
+                            declaredType);
+                    }
+
+                    foreach (var diagnostic in diagnostics.GetDiagnostics())
+                    {
+                        yield return diagnostic;
                     }
                 }
             }

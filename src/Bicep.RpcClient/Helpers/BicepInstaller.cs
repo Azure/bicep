@@ -93,6 +93,12 @@ internal static class BicepInstaller
         string filePath,
         CancellationToken cancellationToken)
     {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            // No need to set executable permissions on Windows
+            return;
+        }
+
         var chmod = new System.Diagnostics.Process
         {
             StartInfo = new System.Diagnostics.ProcessStartInfo

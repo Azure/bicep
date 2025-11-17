@@ -903,6 +903,10 @@
         "deployCommands": {
           "type": "boolean",
           "description": "Allows you to access the 'deploy', 'what-if' and 'teardown' commands. See https://aka.ms/bicep/experimental-features#deploycommands"
+        },
+        "multilineStringInterpolation": {
+          "type": "boolean",
+          "description": "Enables support for multiline string interpolation. See https://aka.ms/bicep/experimental-features#multilinestringinterpolation"
         }
       },
       "additionalProperties": false

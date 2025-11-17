@@ -59,7 +59,8 @@ namespace Bicep.Core.Emit
             BlockSecureOutputAccessOnIndirectReference(model, diagnostics);
             BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
             BlockExplicitDependenciesInOrOnInlinedExistingResources(model, resourceTypeResolver, diagnostics);
-            BlockUsingWithClauseWithoutFeatureFlagEnabled(model, diagnostics);
+            ValidateUsingWithClauseMatchesExperimentalFeatureEnablement(model, diagnostics);
+            BlockMultilineStringInterpolationWithoutFeatureFlagEnabled(model, diagnostics);
 
             var paramAssignmentEvaluator = new ParameterAssignmentEvaluator(model);
             var (paramAssignments, usingConfig) = CalculateParameterAssignments(model, paramAssignmentEvaluator, diagnostics);
@@ -800,13 +801,18 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private static void BlockUsingWithClauseWithoutFeatureFlagEnabled(SemanticModel model, IDiagnosticWriter diagnostics)
+        private static void ValidateUsingWithClauseMatchesExperimentalFeatureEnablement(SemanticModel model, IDiagnosticWriter diagnostics)
         {
             foreach (var syntax in model.SourceFile.ProgramSyntax.Declarations.OfType<UsingDeclarationSyntax>())
             {
                 if (syntax.WithClause is not SkippedTriviaSyntax && !model.Features.DeployCommandsEnabled)
                 {
                     diagnostics.Write(syntax.WithClause, x => x.UsingWithClauseRequiresExperimentalFeature());
+                }
+
+                if (syntax.WithClause is SkippedTriviaSyntax && model.Features.DeployCommandsEnabled)
+                {
+                    diagnostics.Write(syntax, x => x.UsingWithClauseRequiredIfExperimentalFeatureEnabled());
                 }
             }
         }
@@ -1050,6 +1056,20 @@ namespace Bicep.Core.Emit
                 {
                     yield return body;
                 }
+            }
+        }
+
+        private static void BlockMultilineStringInterpolationWithoutFeatureFlagEnabled(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            if (model.Features.MultilineStringInterpolationEnabled)
+            {
+                return;
+            }
+
+            foreach (var @string in SyntaxAggregator.AggregateByType<StringSyntax>(model.Root.Syntax)
+                .Where(x => x.IsMultiLineString() && !x.IsVerbatimString()))
+            {
+                diagnostics.Write(@string, x => x.MultilineStringRequiresExperimentalFeature());
             }
         }
     }

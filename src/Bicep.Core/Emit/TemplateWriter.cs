@@ -1255,6 +1255,7 @@ namespace Bicep.Core.Emit
                 }
 
                 if (metadata.IsAzResource ||
+                    Context.SemanticModel.TargetScope == ResourceScope.DesiredStateConfiguration ||
                     this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
                 {
                     emitter.EmitProperty("type", metadata.TypeReference.FormatType());
@@ -1652,7 +1653,7 @@ namespace Bicep.Core.Emit
                         break;
                     }
 
-                    emitter.EmitResourceIdReference(resource, reference.IndexContext);
+                    emitter.EmitFullyQualifiedResourceId(resource, reference.IndexContext);
                     break;
                 case ModuleReferenceExpression { Module: ModuleSymbol module } reference:
                     if (module.IsCollection && reference.IndexContext?.Index is null)
@@ -1664,7 +1665,7 @@ namespace Bicep.Core.Emit
                         break;
                     }
 
-                    emitter.EmitResourceIdReference(module, reference.IndexContext);
+                    emitter.EmitFullyQualifiedResourceId(module, reference.IndexContext);
 
                     break;
                 default:

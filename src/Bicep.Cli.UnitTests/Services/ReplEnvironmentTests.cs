@@ -2,24 +2,27 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.IO.Abstractions.TestingHelpers;
 using System.Text;
 using Bicep.Cli.Services;
-using Bicep.Core;
 using Bicep.Core.Parsing;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
 namespace Bicep.Cli.UnitTests.Services;
 
 [TestClass]
 public class ReplEnvironmentTests
 {
-    private static ReplEnvironment CreateReplEnvironment()
-        => ServiceBuilder.Create(x => x.AddSingleton<ReplEnvironment>())
+    private static ReplEnvironment CreateReplEnvironment(Action<IServiceCollection>? configure = null)
+        => ServiceBuilder.Create(x =>
+            {
+                x.AddSingleton<ReplEnvironment>();
+                configure?.Invoke(x);
+            })
             .Construct<ReplEnvironment>();
 
     [TestMethod]
@@ -304,8 +307,83 @@ public class ReplEnvironmentTests
         EnsureSingleInput(text);
     }
 
+    [TestMethod]
+    public void LoadFunctions_succeed()
+    {
+        var mockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/testDir/vnet/vNetSubnet.jsonc"] = new MockFileData("""
+        {
+          "name": "mySubnet",
+          "version": 1.4 // test float handling
+        }
+        """),
+            ["/testDir/config/app1.txt"] = new MockFileData("test content 1"),
+            ["/testDir/config/app2.txt"] = new MockFileData("test content 2"),
+            ["/testDir/test.yaml"] = new MockFileData("""
+        description: "Allows SSH traffic"
+        protocol: "Tcp"
+        """)
+        });
+
+        mockFileSystem.Directory.SetCurrentDirectory("/testDir");
+
+        var outputs = EvaluateInputs([
+            "loadJsonContent('./vnet/vNetSubnet.jsonc')",
+        "loadTextContent('./config/app1.txt')",
+        "loadYamlContent('./test.yaml')",
+        "loadDirectoryFileInfo('./config/', '*.txt')"
+        ], services =>
+        {
+            services.WithFileSystem(mockFileSystem);
+        });
+
+#if WINDOWS_BUILD
+        var pathPrefix = "C:/";
+#else
+        var pathPrefix = string.Empty;
+#endif
+
+        outputs.Should().SatisfyRespectively(
+            x => x.Should().BeEquivalentToIgnoringNewlines("""
+          {
+            [DarkYellow]name[Reset]: [Orange]'mySubnet'[Reset]
+            [DarkYellow]version[Reset]: [Orange]'1.4'[Reset]
+          }
+
+          """),
+            x => x.Should().BeEquivalentToIgnoringNewlines("""
+          [Orange]'test content 1'[Reset]
+
+          """),
+
+            x => x.Should().BeEquivalentToIgnoringNewlines("""
+          {
+            [DarkYellow]description[Reset]: [Orange]'Allows SSH traffic'[Reset]
+            [DarkYellow]protocol[Reset]: [Orange]'Tcp'[Reset]
+          }
+
+          """),
+
+            x => x.Should().BeEquivalentToIgnoringNewlines($$"""
+          [
+            {
+              [DarkYellow]relativePath[Reset]: [Orange]'{{pathPrefix}}testDir/config/app1.txt'[Reset]
+              [DarkYellow]baseName[Reset]: [Orange]'app1.txt'[Reset]
+              [DarkYellow]extension[Reset]: [Orange]'.txt'[Reset]
+            }
+            {
+              [DarkYellow]relativePath[Reset]: [Orange]'{{pathPrefix}}testDir/config/app2.txt'[Reset]
+              [DarkYellow]baseName[Reset]: [Orange]'app2.txt'[Reset]
+              [DarkYellow]extension[Reset]: [Orange]'.txt'[Reset]
+            }
+          ]
+
+          """));
+    }
+
     private static void EnsureSingleInput(string text)
-    {        
+    {
         var input = text.NormalizeNewlines().Split('\n');
         for (var i = 0; i < input.Length; i++)
         {
@@ -316,9 +394,9 @@ public class ReplEnvironmentTests
         }
     }
 
-    private static ImmutableArray<string> EvaluateInputs(IEnumerable<string> input)
+    private static ImmutableArray<string> EvaluateInputs(IEnumerable<string> input, Action<IServiceCollection>? configure = null)
     {
-        var replEnvironment = CreateReplEnvironment();
+        var replEnvironment = CreateReplEnvironment(configure);
         var outputs = new List<string>();
         foreach (var inputBlock in input)
         {
@@ -327,6 +405,6 @@ public class ReplEnvironmentTests
             outputs.Add(AnsiHelper.ReplaceCodes(output));
         }
 
-        return [..outputs];
+        return [.. outputs];
     }
 }

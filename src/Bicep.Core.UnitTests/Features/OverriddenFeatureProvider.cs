@@ -48,4 +48,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool UserDefinedConstraintsEnabled => overrides.UserDefinedConstraintsEnabled ?? features.UserDefinedConstraintsEnabled;
 
     public bool DeployCommandsEnabled => overrides.DeployCommandsEnabled ?? features.DeployCommandsEnabled;
+
+    public bool MultilineStringInterpolationEnabled => overrides.MultilineStringInterpolationEnabled ?? features.MultilineStringInterpolationEnabled;
 }

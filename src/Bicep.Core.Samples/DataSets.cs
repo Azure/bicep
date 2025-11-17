@@ -132,6 +132,8 @@ namespace Bicep.Core.Samples
 
         public static DataSet PrettyPrint_LF => CreateDataSet();
 
+        public static DataSet MultilineStrings_LF => CreateDataSet();
+
         public static IEnumerable<DataSet> AllDataSets =>
             typeof(DataSets)
                 .GetProperties(BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.Static)

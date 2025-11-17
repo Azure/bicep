@@ -494,7 +494,7 @@ hello
 //@[61:0062) |   ├─Token(Comma) |,|
 //@[67:0076) |   ├─ArrayItemSyntax
 //@[67:0076) |   | └─StringSyntax
-//@[67:0076) |   |   └─Token(MultilineString) |'''\n\n\n'''|
+//@[67:0076) |   |   └─Token(StringComplete) |'''\n\n\n'''|
 
 
 '''
