@@ -4,7 +4,7 @@
 <Project Sdk="Microsoft.Build.NoTargets">
   <PropertyGroup>
     <!-- Ensure the package supports multi-targeting -->
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <LanguageTargets>$(MSBuildThisFileDirectory)\multitarget-mitigation.targets</LanguageTargets> <!-- https://github.com/microsoft/MSBuildSdks/issues/155 -->
     <!-- intentionally set incorrect mode -->
     <BicepOutputStyle>WRONG MODE</BicepOutputStyle>
