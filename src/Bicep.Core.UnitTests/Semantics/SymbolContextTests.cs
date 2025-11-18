@@ -58,9 +58,40 @@ resource storage 'Microsoft.Storage/storageAccounts@2021-02-01' = {
 
             var programSyntax = model.SourceFile.ProgramSyntax;
 
+            var binder = model.Binder;
             var node = programSyntax.TryFindMostSpecificNodeInclusive(
                 cursor,
-                n => n is not IdentifierSyntax && n is not Token && n is not AliasAsClauseSyntax);
+                n => n is not IdentifierSyntax &&
+                     n is not Token &&
+                     n is not AliasAsClauseSyntax &&
+                     !IsPropertyKeyString(n));
+
+            if (node is StringSyntax stringSyntax && TryGetPropertyNode(stringSyntax, out var propertyNode))
+            {
+                node = propertyNode;
+            }
+
+            bool IsPropertyKeyString(SyntaxBase syntaxBase) =>
+                syntaxBase is StringSyntax stringSyntax && TryGetPropertyNode(stringSyntax, out _);
+
+            bool TryGetPropertyNode(StringSyntax stringSyntax, out SyntaxBase? propertyNode)
+            {
+                var parent = binder.GetParent(stringSyntax);
+                if (parent is ObjectPropertySyntax objectProperty && objectProperty.Key == stringSyntax)
+                {
+                    propertyNode = objectProperty;
+                    return true;
+                }
+
+                if (parent is ObjectTypePropertySyntax objectTypeProperty && objectTypeProperty.Key == stringSyntax)
+                {
+                    propertyNode = objectTypeProperty;
+                    return true;
+                }
+
+                propertyNode = null;
+                return false;
+            }
 
             node.Should().NotBeNull($"cursor at position {cursor} should find a node");
             var symbol = model.GetSymbolInfo(node!);

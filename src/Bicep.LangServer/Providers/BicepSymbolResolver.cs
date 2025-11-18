@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Utils;
@@ -38,9 +39,28 @@ namespace Bicep.LanguageServer.Providers
             var semanticModel = context.Compilation.GetEntrypointSemanticModel();
 
             // locate the most specific node that can be bound as a symbol
-            var node = context.ProgramSyntax.TryFindMostSpecificNodeInclusive(
-                offset,
-                n => n is not IdentifierSyntax && n is not Token && n is not AliasAsClauseSyntax);
+            var binder = semanticModel.Binder;
+            bool Predicate(SyntaxBase node)
+            {
+                if (node is IdentifierSyntax or Token or AliasAsClauseSyntax)
+                {
+                    return false;
+                }
+
+                if (node is StringSyntax stringSyntax)
+                {
+                    var parent = binder.GetParent(stringSyntax);
+                    if ((parent is ObjectPropertySyntax objectProperty && objectProperty.Key == stringSyntax) ||
+                        (parent is ObjectTypePropertySyntax objectTypeProperty && objectTypeProperty.Key == stringSyntax))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            var node = context.ProgramSyntax.TryFindMostSpecificNodeInclusive(offset, Predicate);
 
             if (node is null)
             {

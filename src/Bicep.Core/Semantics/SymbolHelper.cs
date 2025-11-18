@@ -63,35 +63,6 @@ namespace Bicep.Core.Semantics
 
             switch (syntax)
             {
-                case StringSyntax stringSyntax:
-                    {
-                        var parent = binder.GetParent(stringSyntax);
-                        if (parent is ObjectPropertySyntax objectProperty && objectProperty.Key == stringSyntax)
-                        {
-                            if (binder.GetParent(objectProperty) is not { } parentSyntax)
-                            {
-                                return null;
-                            }
-
-                            var baseType = getDeclaredTypeFunc(parentSyntax);
-                            if (objectProperty.TryGetKeyText() is not { } property)
-                            {
-                                return null;
-                            }
-
-                            return GetPropertySymbol(baseType, property, true);
-                        }
-                        else if (parent is ObjectTypePropertySyntax objectTypeProperty && objectTypeProperty.Key == stringSyntax)
-                        {
-                            if (objectTypeProperty.TryGetKeyText() is not string propertyName || binder.GetParent(objectTypeProperty) is not SyntaxBase parentSyntax)
-                            {
-                                return null;
-                            }
-
-                            return GetPropertySymbol(getDeclaredTypeFunc(parentSyntax), propertyName, false);
-                        }
-                        break;
-                    }
                 case InstanceFunctionCallSyntax ifc:
                     {
                         var baseType = getDeclaredTypeFunc(ifc.BaseExpression);
