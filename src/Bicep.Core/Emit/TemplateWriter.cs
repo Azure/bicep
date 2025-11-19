@@ -43,8 +43,16 @@ namespace Bicep.Core.Emit
 
             return moduleSemanticModel;
         }
-        private static string GetSchema(ResourceScope targetScope)
+        private static string GetSchema(SemanticModel semanticModel)
         {
+            // TODO: Scope this to the extension!
+            if (semanticModel.Configuration.ExperimentalFeaturesEnabled.DesiredStateConfiguration)
+            {
+                return "https://aka.ms/dsc/schemas/v3/bundled/config/document.json"; // the trailing '#' is against DSC's schema
+            }
+
+            ResourceScope targetScope = semanticModel.TargetScope;
+
             if (targetScope.HasFlag(ResourceScope.Tenant))
             {
                 return "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#";
@@ -103,7 +111,7 @@ namespace Bicep.Core.Emit
 
             jsonWriter.WriteStartObject();
 
-            emitter.EmitProperty("$schema", GetSchema(Context.SemanticModel.TargetScope));
+            emitter.EmitProperty("$schema", GetSchema(Context.SemanticModel));
 
             if (Context.Settings.UseExperimentalTemplateLanguageVersion)
             {
@@ -1248,8 +1256,9 @@ namespace Bicep.Core.Emit
                     });
                 }
 
-                // TODO: Fix thsi for DSC.
+                // TODO: Scope this to the extension!
                 if (metadata.IsAzResource ||
+                    this.Context.SemanticModel.Configuration.ExperimentalFeaturesEnabled.DesiredStateConfiguration ||
                     this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
                 {
                     emitter.EmitProperty("type", metadata.TypeReference.FormatType());

@@ -3,6 +3,7 @@
 
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using Bicep.Core.Configuration;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -33,7 +34,30 @@ public class DesiredStateConfigurationCompatibilityTests
         var tgzData = ExtensionResourceTypeHelper.GetMockDesiredStateConfigurationTypesTgz();
         await PublishExtensionToRegistryAsync(services.Build(), $"br:{registry}/{repository}:0.1.0", tgzData);
 
-        return services;
+        // TODO: There has to be a cleaner way to do this, especially the experimental features.
+        return services.WithConfigurationPatch(c => c.WithExtensions("""
+            {
+              "dsc": "br:example.azurecr.io/test/dsc:0.1.0"
+            }
+            """).WithImplicitExtensions("""
+            []
+            """).WithExperimentalFeaturesEnabled(new ExperimentalFeaturesEnabled(
+                SymbolicNameCodegen: false,
+                ExtendableParamFiles: false,
+                ResourceTypedParamsAndOutputs: false,
+                SourceMapping: false,
+                LegacyFormatter: false,
+                TestFramework: false,
+                Assertions: false,
+                WaitAndRetry: false,
+                LocalDeploy: false,
+                ResourceInfoCodegen: false,
+                ModuleExtensionConfigs: false,
+                DesiredStateConfiguration: true,
+                UserDefinedConstraints: false,
+                DeployCommands: false,
+                MultilineStringInterpolation: false,
+                ThisNamespace: false)));
     }
 
     [TestMethod]
