@@ -8,6 +8,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 
 namespace Bicep.Core.IntegrationTests.Extensibility;
@@ -75,5 +76,36 @@ resource myEcho 'Microsoft.DSC.Debug/Echo@1.0.0' = {
 """);
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().DeepEqual(JToken.Parse("""
+{
+  "$schema": "https://aka.ms/dsc/schemas/v3/bundled/config/document.json",
+  "languageVersion": "2.0",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.39.76.52923",
+      "templateHash": "6709714292298633753"
+    }
+  },
+  "imports": {
+    "DesiredStateConfiguration": {
+      "provider": "DesiredStateConfiguration",
+      "version": "0.1.0"
+    }
+  },
+  "resources": {
+    "myEcho": {
+      "import": "DesiredStateConfiguration",
+      "type": "Microsoft.DSC.Debug/Echo",
+      "apiVersion": "1.0.0",
+      "properties": {
+        "output": "Hello world!",
+        "showSecrets": false
+      }
+    }
+  }
+}
+"""));
     }
 }
