@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Globalization;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Helpers;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Resources;
@@ -45,8 +46,9 @@ namespace Bicep.Core.Emit
         }
         private static string GetSchema(SemanticModel semanticModel)
         {
-            // TODO: Scope this to the extension!
-            if (semanticModel.Configuration.ExperimentalFeaturesEnabled.DesiredStateConfiguration)
+            // TODO: Is this the best way to determine that this file has the DSC extension?
+            if (semanticModel.Configuration.ExperimentalFeaturesEnabled.DesiredStateConfiguration
+                && semanticModel.SourceFile.Configuration.Extensions.TryGetExtensionSource("dsc").IsSuccess())
             {
                 return "https://aka.ms/dsc/schemas/v3/bundled/config/document.json"; // the trailing '#' is against DSC's schema
             }
@@ -1256,10 +1258,11 @@ namespace Bicep.Core.Emit
                     });
                 }
 
-                // TODO: Scope this to the extension!
+                // TODO: Is this the best way to determine that this file has the DSC extension?
                 if (metadata.IsAzResource ||
-                    this.Context.SemanticModel.Configuration.ExperimentalFeaturesEnabled.DesiredStateConfiguration ||
-                    this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
+                    this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled ||
+                    (this.Context.SemanticModel.Configuration.ExperimentalFeaturesEnabled.DesiredStateConfiguration
+                        && this.Context.SemanticModel.SourceFile.Configuration.Extensions.TryGetExtensionSource("dsc").IsSuccess()))
                 {
                     emitter.EmitProperty("type", metadata.TypeReference.FormatType());
                     if (metadata.TypeReference.ApiVersion is not null)
