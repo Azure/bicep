@@ -1254,8 +1254,9 @@ namespace Bicep.Core.Emit
                     });
                 }
 
+                // The DSC feature flag is checked during scope validation, so just always handle it here.
                 if (metadata.IsAzResource ||
-                    Context.SemanticModel.TargetScope == ResourceScope.DesiredStateConfiguration ||
+                    this.Context.SemanticModel.TargetScope == ResourceScope.DesiredStateConfiguration ||
                     this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
                 {
                     emitter.EmitProperty("type", metadata.TypeReference.FormatType());

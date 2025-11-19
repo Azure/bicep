@@ -282,6 +282,59 @@ public static class ExtensionResourceTypeHelper
             ("types.json", StreamHelper.GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes()))));
     }
 
+    public static BinaryData GetMockDesiredStateConfigurationTypesTgz()
+    {
+        var factory = new TypeFactory([]);
+
+        var stringType = factory.Create(() => new StringType());
+        var booleanType = factory.Create(() => new BooleanType());
+        var anyType = factory.Create(() => new AnyType());
+
+        var echoBodyType = factory.Create(() => new ObjectType("body", new Dictionary<string, ObjectTypeProperty>
+        {
+            ["name"] = new(factory.GetReference(stringType), ObjectTypePropertyFlags.None, "the resource name"),
+            ["output"] = new(factory.GetReference(stringType), ObjectTypePropertyFlags.Identifier, null),
+            ["showSecrets"] = new(factory.GetReference(booleanType), ObjectTypePropertyFlags.Identifier, null),
+        }, null));
+
+        var echoType = factory.Create(() => new ResourceType(
+            "Microsoft.DSC.Debug/Echo@1.0.0",
+            factory.GetReference(echoBodyType),
+            null,
+            // TODO: The Azure types package doesn't have the DSC scope so this is the best we can do for now.
+            writableScopes_in: ScopeType.All,
+            readableScopes_in: ScopeType.All));
+
+        // Setup a fallback resource type to support unknown DSC resources (with SemVer).
+        // Use AnyType directly as the body to allow any properties.
+        var fallbackType = factory.Create(() => new ResourceType(
+            "fallback",
+            factory.GetReference(anyType),
+            null,
+            // TODO: Ditto above.
+            writableScopes_in: ScopeType.All,
+            readableScopes_in: ScopeType.All));
+
+        var fallbackResource = new CrossFileTypeReference("types.json", factory.GetIndex(fallbackType));
+
+        // TODO: What to pass for conigurationType?
+        var settings = new TypeSettings(name: "DesiredStateConfiguration", version: "0.1.0", isSingleton: false, configurationType: null!);
+
+        var resourceTypes = new[] {
+            echoType,
+        };
+
+        var index = new TypeIndex(
+            resourceTypes.ToDictionary(x => x.Name, x => new CrossFileTypeReference("types.json", factory.GetIndex(x))),
+            new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
+            settings,
+            fallbackResource);
+
+        return GetTypesTgzBytesFromFiles(
+            ("index.json", StreamHelper.GetString(stream => TypeSerializer.SerializeIndex(stream, index))),
+            ("types.json", StreamHelper.GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes()))));
+    }
+
     public static BinaryData GetTypesTgzBytesFromFiles(params (string filePath, string contents)[] files)
     {
         var stream = new MemoryStream();
