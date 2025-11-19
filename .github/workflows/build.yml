@@ -546,6 +546,14 @@ jobs:
           node-version: 23
     
       - name: Run playground locally
+        run: dotnet workload install wasm-tools
+        working-directory: ./src/playground
+
+      - name: npm ci
+        run: npm ci
+        working-directory: ./src/playground
+
+      - name: Run playground locally
         run: npm run dev
         working-directory: ./src/playground
         
