@@ -549,12 +549,16 @@ jobs:
         run: dotnet workload install wasm-tools
         working-directory: ./src/playground
 
-      - name: npm ci
+      - name: Install Playground dependencies
         run: npm ci
         working-directory: ./src/playground
 
+      - name: Build
+        run: npm run package
+        working-directory: ./src/playground
+
       - name: Run playground locally
-        run: npm run dev
+        run: npm run preview &
         working-directory: ./src/playground
         
       - name: Build E2E Tests
