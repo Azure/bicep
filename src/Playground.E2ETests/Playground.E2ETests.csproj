@@ -10,6 +10,9 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <RunSettingsFilePath>$(MSBuildProjectDirectory)\debug.runsettings</RunSettingsFilePath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <RunSettingsFilePath>$(MSBuildProjectDirectory)\test.runsettings</RunSettingsFilePath>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" />
@@ -21,6 +24,9 @@
 
   <ItemGroup>
     <None Update="debug.runsettings">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>    
+    <None Update="test.runsettings">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

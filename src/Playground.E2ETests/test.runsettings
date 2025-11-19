@@ -2,14 +2,12 @@
 <RunSettings>
   <RunConfiguration>
     <EnvironmentVariables>
-      <PlaygroundPort>5173</PlaygroundPort>
+      <PlaygroundPort>4173</PlaygroundPort>
     </EnvironmentVariables>
   </RunConfiguration>
   <Playwright>
-    <ExpectTimeout>5000</ExpectTimeout>
     <LaunchOptions>
-        <Headless>false</Headless>
-        <Timeout>5000</Timeout>
+        <Headless>true</Headless>
     </LaunchOptions>
   </Playwright>
 </RunSettings>

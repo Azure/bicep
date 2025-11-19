@@ -15,7 +15,8 @@ public class PlaygroundPage(IPage page)
     public async Task OpenPlayground()
     {
         await Init();
-        await page.GotoAsync("http://localhost:4173/");
+        string port = System.Environment.GetEnvironmentVariable("PlaygroundPort") ?? "4173";
+        await page.GotoAsync($"http://localhost:{port}/");
     }
 
     private async Task Init()
