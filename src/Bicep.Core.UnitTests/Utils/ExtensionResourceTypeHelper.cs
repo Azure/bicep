@@ -288,6 +288,7 @@ public static class ExtensionResourceTypeHelper
 
         var stringType = factory.Create(() => new StringType());
         var booleanType = factory.Create(() => new BooleanType());
+        var anyType = factory.Create(() => new AnyType());
 
         var echoBodyType = factory.Create(() => new ObjectType("body", new Dictionary<string, ObjectTypeProperty>
         {
@@ -303,6 +304,18 @@ public static class ExtensionResourceTypeHelper
             writableScopes_in: ScopeType.All,
             readableScopes_in: ScopeType.All));
 
+        // Setup a fallback resource type to support unknown DSC resources (with SemVer).
+        // Use AnyType directly as the body to allow any properties.
+        var fallbackType = factory.Create(() => new ResourceType(
+            "fallback",
+            factory.GetReference(anyType),
+            null,
+            writableScopes_in: ScopeType.All,
+            readableScopes_in: ScopeType.All));
+
+        var fallbackResource = new CrossFileTypeReference("types.json", factory.GetIndex(fallbackType));
+
+        // TODO: What to pass for conigurationType?
         var settings = new TypeSettings(name: "DesiredStateConfiguration", version: "0.1.0", isSingleton: false, configurationType: null!);
 
         var resourceTypes = new[] {
@@ -313,7 +326,7 @@ public static class ExtensionResourceTypeHelper
             resourceTypes.ToDictionary(x => x.Name, x => new CrossFileTypeReference("types.json", factory.GetIndex(x))),
             new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
             settings,
-            null);
+            fallbackResource);
 
         return GetTypesTgzBytesFromFiles(
             ("index.json", StreamHelper.GetString(stream => TypeSerializer.SerializeIndex(stream, index))),

@@ -106,10 +106,42 @@ resource myResource 'Foo/Bar@1.0.0' = {
 }
 """);
 
-        // TODO: This is the current behavior, but the goal is to workaround this error by adding some sort of "wildcard" logic so that unknown DSC resources (using SemVer) are usable.
-        result.Should().NotGenerateATemplate();
-        result.Should().HaveDiagnostics(new[]{
-            ("BCP029", DiagnosticLevel.Error, "The resource type is not valid. Specify a valid resource type of format \"<type-name>@<apiVersion>\"."),
+        // With the fallback resource type, unknown DSC resources using SemVer are now supported.
+        // NOTE: BCP081 warning is expected when using fallback types
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]{
+            ("BCP081", DiagnosticLevel.Warning, "Resource type \"Foo/Bar@1.0.0\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed."),
         });
+        result.Template.Should().NotBeNull();
+        result.Template.Should().DeepEqual(JToken.Parse("""
+{
+  "$schema": "https://aka.ms/dsc/schemas/v3/bundled/config/document.json",
+  "languageVersion": "2.0",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "14920036266898035169"
+    }
+  },
+  "imports": {
+    "DesiredStateConfiguration": {
+      "provider": "DesiredStateConfiguration",
+      "version": "0.1.0"
+    }
+  },
+  "resources": {
+    "myResource": {
+      "import": "DesiredStateConfiguration",
+      "type": "Foo/Bar",
+      "apiVersion": "1.0.0",
+      "properties": {
+        "field": "value",
+        "okay": true
+      }
+    }
+  }
+}
+"""));
     }
 }
