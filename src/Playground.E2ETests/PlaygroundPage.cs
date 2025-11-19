@@ -15,7 +15,7 @@ public class PlaygroundPage(IPage page)
     public async Task OpenPlayground()
     {
         await Init();
-        await page.GotoAsync("http://localhost:5173/");
+        await page.GotoAsync("http://localhost:4173/");
     }
 
     private async Task Init()
