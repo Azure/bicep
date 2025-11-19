@@ -54,12 +54,6 @@ namespace Bicep.Core.Syntax
                 LanguageConstants.TargetScopeTypeResourceGroup,
             ];
 
-            // We add the DSC constant here so we can have it as a completion when the feature is enabled.
-            if (features.DesiredStateConfigurationEnabled)
-            {
-                scopes.Add(LanguageConstants.TargetScopeTypeDesiredStateConfiguration);
-            }
-
             if (features.LocalDeployEnabled)
             {
                 scopes.Add(LanguageConstants.TargetScopeTypeLocal);
