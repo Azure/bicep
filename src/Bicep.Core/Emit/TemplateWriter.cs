@@ -60,12 +60,6 @@ namespace Bicep.Core.Emit
                 return "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#";
             }
 
-            // The feature flag is checked during scope validation, so just always handle it here.
-            if (targetScope.HasFlag(ResourceScope.DesiredStateConfiguration))
-            {
-                return "https://aka.ms/dsc/schemas/v3/bundled/config/document.json"; // the trailing '#' is against DSC's schema
-            }
-
             return "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
         }
 
@@ -1254,8 +1248,8 @@ namespace Bicep.Core.Emit
                     });
                 }
 
+                // TODO: Fix thsi for DSC.
                 if (metadata.IsAzResource ||
-                    Context.SemanticModel.TargetScope == ResourceScope.DesiredStateConfiguration ||
                     this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
                 {
                     emitter.EmitProperty("type", metadata.TypeReference.FormatType());

@@ -1786,11 +1786,12 @@ namespace Bicep.Decompiler
                         SyntaxFactory.TargetScopeKeywordToken,
                         SyntaxFactory.AssignmentToken,
                         SyntaxFactory.CreateStringLiteral("subscription"));
+                // TODO: Check if this works with 'local'.
                 case "/dsc/schemas/v3/bundled/config/document.json":
                     return new TargetScopeSyntax(
                         SyntaxFactory.TargetScopeKeywordToken,
                         SyntaxFactory.AssignmentToken,
-                        SyntaxFactory.CreateStringLiteral("desiredStateConfiguration"));
+                        SyntaxFactory.CreateStringLiteral("local"));
                 case "/schemas/2014-04-01-preview/deploymentTemplate.json":
                 case "/schemas/2015-01-01/deploymentTemplate.json":
                 case "/schemas/2019-04-01/deploymentTemplate.json":

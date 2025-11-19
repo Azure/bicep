@@ -43,7 +43,6 @@ public class DesiredStateConfigurationCompatibilityTests
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
 extension 'br:example.azurecr.io/test/dsc:0.1.0'
-targetScope = 'desiredStateConfiguration'
 
 resource myEcho 'Microsoft.DSC.Debug/Echo@1.0.0' = {
     output: 'Hello world!'
