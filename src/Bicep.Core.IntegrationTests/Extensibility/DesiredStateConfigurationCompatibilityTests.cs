@@ -6,6 +6,7 @@ using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Configuration;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -16,49 +17,25 @@ namespace Bicep.Core.IntegrationTests.Extensibility;
 [TestClass]
 public class DesiredStateConfigurationCompatibilityTests
 {
-    private static ServiceBuilder GetServiceBuilder(IFileSystem fileSystem, string registryHost, string repositoryPath)
-    {
-        var clientFactory = CreateMockRegistryClient(new RepoDescriptor(registryHost, repositoryPath, ["tag"]));
-
-        return new ServiceBuilder()
-            .WithFileSystem(fileSystem)
-            .WithContainerRegistryClientFactory(clientFactory);
-    }
+    private static readonly string ExtensionReference = "example.azurecr.io/test/dsc:0.1.0";
 
     private static async Task<ServiceBuilder> GetServicesWithPrepublishedTypes()
     {
-        var registry = "example.azurecr.io";
-        var repository = $"test/dsc";
-
-        var services = GetServiceBuilder(new MockFileSystem(), registry, repository);
-
         var tgzData = ExtensionResourceTypeHelper.GetMockDesiredStateConfigurationTypesTgz();
-        await PublishExtensionToRegistryAsync(services.Build(), $"br:{registry}/{repository}:0.1.0", tgzData);
+        var features = new FeatureProviderOverrides(DesiredStateConfigurationEnabled: true);
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(
+            tgzData, features, null, ExtensionReference);
 
-        // TODO: There has to be a cleaner way to do this, especially the experimental features.
-        return services.WithConfigurationPatch(c => c.WithExtensions("""
+        return services
+            .WithConfigurationPatch(c => c
+            .WithExtensions($$"""
             {
-              "dsc": "br:example.azurecr.io/test/dsc:0.1.0"
+              "dsc": "br:{{ExtensionReference}}"
             }
-            """).WithImplicitExtensions("""
-            []
-            """).WithExperimentalFeaturesEnabled(new ExperimentalFeaturesEnabled(
-                SymbolicNameCodegen: false,
-                ExtendableParamFiles: false,
-                ResourceTypedParamsAndOutputs: false,
-                SourceMapping: false,
-                LegacyFormatter: false,
-                TestFramework: false,
-                Assertions: false,
-                WaitAndRetry: false,
-                LocalDeploy: false,
-                ResourceInfoCodegen: false,
-                ModuleExtensionConfigs: false,
-                DesiredStateConfiguration: true,
-                UserDefinedConstraints: false,
-                DeployCommands: false,
-                MultilineStringInterpolation: false,
-                ThisNamespace: false)));
+            """)
+            .WithImplicitExtensions("[]")
+            .WithExperimentalFeaturesEnabled(
+                ExperimentalFeaturesEnabled.AllDisabled with { DesiredStateConfiguration = true }));
     }
 
     [TestMethod]
@@ -66,8 +43,8 @@ public class DesiredStateConfigurationCompatibilityTests
     {
         var services = await GetServicesWithPrepublishedTypes();
 
-        var result = await CompilationHelper.RestoreAndCompile(services, """
-extension 'br:example.azurecr.io/test/dsc:0.1.0'
+        var result = await CompilationHelper.RestoreAndCompile(services, $$"""
+extension 'br:{{ExtensionReference}}'
 
 resource myEcho 'Microsoft.DSC.Debug/Echo@1.0.0' = {
     output: 'Hello world!'
@@ -76,6 +53,7 @@ resource myEcho 'Microsoft.DSC.Debug/Echo@1.0.0' = {
 """);
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
         result.Template.Should().DeepEqual(JToken.Parse("""
 {
   "$schema": "https://aka.ms/dsc/schemas/v3/bundled/config/document.json",
@@ -84,8 +62,8 @@ resource myEcho 'Microsoft.DSC.Debug/Echo@1.0.0' = {
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.39.76.52923",
-      "templateHash": "6709714292298633753"
+      "version": "dev",
+      "templateHash": "9498991573444564149"
     }
   },
   "imports": {
