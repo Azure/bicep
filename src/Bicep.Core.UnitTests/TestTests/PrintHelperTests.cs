@@ -91,7 +91,7 @@ about
             output.Should().Be(
 @"16| //
 17| // give me a cursor here please!
-                        ~~~~ here's your cursor!
+                         ~~~~ here's your cursor!
 18| //
 ");
         }
