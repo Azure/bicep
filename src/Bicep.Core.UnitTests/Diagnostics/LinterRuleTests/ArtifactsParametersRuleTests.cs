@@ -99,9 +99,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public void ArmTtk_MissingDefaults_Both_Pass()
         {
             /* TTK result:
-     [-] artifacts parameter (24 ms)                                                                                     
-         The _artifactsLocation parameter in "mainTemplate.json" must have a defaultValue in the main template           
-         The _artifactsLocationSasToken in "mainTemplate.json" has an incorrect defaultValue, must be an empty string   
+     [-] artifacts parameter (24 ms)
+         The _artifactsLocation parameter in "mainTemplate.json" must have a defaultValue in the main template
+         The _artifactsLocationSasToken in "mainTemplate.json" has an incorrect defaultValue, must be an empty string
  */
             CompileAndTest(
                 @"
@@ -117,13 +117,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void ArmTtk_MissingDefaults_ArtifactsLocation_EmptyString_Fail()
         {
-            /* TTK result:                                                                                  
-                [-] artifacts parameter (2 ms)                                                                                      
-                    The _artifactsLocation parameter in "mainTemplate.json" must have a defaultValue in the main template   
+            /* TTK result:
+                [-] artifacts parameter (2 ms)
+                    The _artifactsLocation parameter in "mainTemplate.json" must have a defaultValue in the main template
            */
             CompileAndTest(
                 @"
-                    @secure()  
+                    @secure()
                     param _artifactsLocation string = ''
 
                     @secure()
@@ -156,9 +156,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public void ArmTtk_MissingSas_Fail()
         {
             /* TTK result:
-                 [-] artifacts parameter (3 ms)                                                                                      
-                    Template "mainTemplate.json" is missing _artifactsLocationSasToken parameter                                    
-                    The _artifactsLocationSasToken in "mainTemplate.json" has an incorrect defaultValue, must be an empty string    
+                 [-] artifacts parameter (3 ms)
+                    Template "mainTemplate.json" is missing _artifactsLocationSasToken parameter
+                    The _artifactsLocationSasToken in "mainTemplate.json" has an incorrect defaultValue, must be an empty string
             */
             CompileAndTest(
                 @"
@@ -193,14 +193,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public void ArmTtk_WrongDefaults_Fail()
         {
             /* TTK result:
-              [-] artifacts parameter (3 ms)                                                                                      
-                    ENV:SAMPLE_NAME is empty - using placeholder for manual verification: 100-blank-template                        
-                    The _artifactsLocation in ""mainTemplate.json"" has an incorrect defaultValue, found: http://myweb.com/           
-                    Must be one of: https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/100-blank-template/ or deployment().properties.templateLink.uri 
+              [-] artifacts parameter (3 ms)
+                    ENV:SAMPLE_NAME is empty - using placeholder for manual verification: 100-blank-template
+                    The _artifactsLocation in ""mainTemplate.json"" has an incorrect defaultValue, found: http://myweb.com/
+                    Must be one of: https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/100-blank-template/ or deployment().properties.templateLink.uri
             */
 
-            /*                                                                 
-                [-] Secure String Parameters Cannot Have Default (3 ms)                                                             
+            /*
+                [-] Secure String Parameters Cannot Have Default (3 ms)
                     Parameter _artifactsLocationSasToken is a SecureString and must not have a default value unless it is an expression that contains the newGuid() function.
              */
             CompileAndTest(
@@ -247,11 +247,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public void ArmTtk_WrongType_Fail()
         {
             /* TTK result:
-                [-] artifacts parameter (2 ms)                                                                                      
+                [-] artifacts parameter (2 ms)
                     The _artifactsLocation in "mainTemplate.json" parameter must be a 'string' type in the parameter declaration "array"
-                    The _artifactsLocationSasToken in "mainTemplate.json" parameter must be of type 'securestring'.                 
-                    The _artifactsLocation parameter in "mainTemplate.json" must have a defaultValue in the main template           
-                    The _artifactsLocationSasToken in "mainTemplate.json" has an incorrect defaultValue, must be an empty string    
+                    The _artifactsLocationSasToken in "mainTemplate.json" parameter must be of type 'securestring'.
+                    The _artifactsLocation parameter in "mainTemplate.json" must have a defaultValue in the main template
+                    The _artifactsLocationSasToken in "mainTemplate.json" has an incorrect defaultValue, must be an empty string
              */
             CompileAndTest(
                 @"
@@ -270,11 +270,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public void ArmTtk_WrongType_NotSecure_Fail()
         {
             /* TTK result:
-                [-] artifacts parameter (2 ms)                                                                                      
+                [-] artifacts parameter (2 ms)
                     The _artifactsLocation in "mainTemplate.json" parameter must be a 'string' type in the parameter declaration "array"
-                    The _artifactsLocationSasToken in "mainTemplate.json" parameter must be of type 'securestring'.                 
-                    The _artifactsLocation parameter in "mainTemplate.json" must have a defaultValue in the main template           
-                    The _artifactsLocationSasToken in "mainTemplate.json" has an incorrect defaultValue, must be an empty string    
+                    The _artifactsLocationSasToken in "mainTemplate.json" parameter must be of type 'securestring'.
+                    The _artifactsLocation parameter in "mainTemplate.json" must have a defaultValue in the main template
+                    The _artifactsLocationSasToken in "mainTemplate.json" has an incorrect defaultValue, must be an empty string
              */
             CompileAndTest(
                 @"

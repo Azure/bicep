@@ -15,7 +15,7 @@
   </Target>
 
   <ItemGroup>
-    <!-- 
+    <!--
       Ensure the notice file is included in the package at the root.
       This must be outside the generate notice target because the target can be skipped if notice file is up to date
     -->

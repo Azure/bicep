@@ -39,8 +39,8 @@ public static class BicepExtensionServiceCollectionExtensions
     ///     typeConfiguration: (typeFactory, config) => {
     ///         var stringType = typeFactory.Create(() => new StringType());
     ///         config["apiUrl"] = new ObjectTypeProperty(
-    ///             typeFactory.GetReference(stringType), 
-    ///             ObjectTypePropertyFlags.Required, 
+    ///             typeFactory.GetReference(stringType),
+    ///             ObjectTypePropertyFlags.Required,
     ///             "The Kubernetes API server URL");
     ///     });
     /// </code>

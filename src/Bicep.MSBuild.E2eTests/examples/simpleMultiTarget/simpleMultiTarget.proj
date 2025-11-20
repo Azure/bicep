@@ -8,7 +8,7 @@
     <LanguageTargets>$(MSBuildThisFileDirectory)\multitarget-mitigation.targets</LanguageTargets> <!-- https://github.com/microsoft/MSBuildSdks/issues/155 -->
   </PropertyGroup>
 
-  <!-- 
+  <!--
     Pickup latest available packages (including prerelease) from local feed configured in NuGet.config.
   -->
   <ItemGroup>

@@ -109,7 +109,7 @@ public class TeardownCommandTests : TestBase
         ├───────────┼──────────┼───────────┤
         │ Teardown  │          │ Succeeded │
         ╰───────────┴──────────┴───────────╯
-        
+
         """);
     }
 
@@ -133,7 +133,7 @@ public class TeardownCommandTests : TestBase
         ├───────────┼──────────┼─────────────────┤
         │ Teardown  │          │ Teardown error! │
         ╰───────────┴──────────┴─────────────────╯
-        
+
         """);
     }
 }

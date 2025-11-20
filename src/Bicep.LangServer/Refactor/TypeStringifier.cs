@@ -188,7 +188,7 @@ public static class TypeStringifier
             case UnionType unionType:
                 if (unionType.Members.Any(m => !IsLiteralType(m.Type)))
                 {
-                    // This handles the "open enum" type scenario (e.g. "type t = 'abc' | 'def' | string"), 
+                    // This handles the "open enum" type scenario (e.g. "type t = 'abc' | 'def' | string"),
                     //   which is supported by swagger but not by Bicep syntax.
                     // In this case, we will generate the widened type with a comment indicating the exact actual type,
                     //   e.g. "string /* 'abc' | 'def' | string */"

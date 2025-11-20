@@ -33,7 +33,7 @@ resource domainServices 'Microsoft.MadeUpRp/madeUpType@2017-06-01' = {
             }, 1, true);
 
             output.Should().Be(
-@"1| 
+@"1|
 2| resource domainServices 'Microsoft.MadeUpRp/madeUpType@2017-06-01' = {
                             ~~~~~~~~~~~~~~~~~~ what is this!?
 3|   name: 'hello'
@@ -64,7 +64,7 @@ care
 about
 '''
 
-// 
+//
 // give me a cursor here please!
 //
 
@@ -89,7 +89,7 @@ about
             }, 1, true);
 
             output.Should().Be(
-@"16| // 
+@"16| //
 17| // give me a cursor here please!
                         ~~~~ here's your cursor!
 18| //

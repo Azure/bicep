@@ -194,10 +194,10 @@ namespace Bicep.Decompiler.IntegrationTests
             var expectedBicepparamFile =
                 """
                 using '' /*TODO: Provide a path to a bicep template*/
-    
+
                 /*
                 Parameter metadata is not supported in Bicep Parameters files
-                
+
                 Following metadata was not decompiled:
                 {
                   "description": "List of permitted regions",
@@ -208,7 +208,7 @@ namespace Bicep.Decompiler.IntegrationTests
                   'North Europe'
                   'West Europe'
                 ]
-                
+
                 """;
 
             var paramFileUri = new IOUri("file", "", "/path/to/main.bicepparam");

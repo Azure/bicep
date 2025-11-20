@@ -10,7 +10,7 @@
     <BicepOutputStyle>WRONG MODE</BicepOutputStyle>
   </PropertyGroup>
 
-  <!-- 
+  <!--
     Pickup latest available packages (including prerelease) from local feed configured in NuGet.config.
   -->
   <ItemGroup>

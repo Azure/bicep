@@ -15,7 +15,7 @@ namespace Bicep.Core.Semantics.Namespaces;
 
 public static class ThisNamespaceType
 {
-    // Note: self() function should be added to this namespace when it is implemented in bicep. 
+    // Note: self() function should be added to this namespace when it is implemented in bicep.
     public const string BuiltInName = "this";
 
     public static NamespaceSettings Settings { get; } = new(

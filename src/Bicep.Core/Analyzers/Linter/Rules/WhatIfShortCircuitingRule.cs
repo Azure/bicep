@@ -526,7 +526,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             if (moduleModel.Template is null)
             {
                 // If the module's template failed to parse or load, there's no further analysis we can do here.
-                // A compilation-blocking error will be reported elsewhere. 
+                // A compilation-blocking error will be reported elsewhere.
                 return ImmutableDictionary<string, ParameterUsageFlags>.Empty;
             }
 

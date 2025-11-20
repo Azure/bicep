@@ -36,7 +36,7 @@ public class SecureOutputsTests
             ("main.bicep", @"
                 @secure()
                 param myInput string
- 
+
                 module foo 'foo.bicep' = {
                   name: 'foo'
                   params: {
@@ -49,7 +49,7 @@ public class SecureOutputsTests
             ("foo.bicep", @"
                 @secure()
                 param myInput string
- 
+
                 @secure()
                 output myOutput string = myInput
             ")
@@ -76,7 +76,7 @@ public class SecureOutputsTests
             ("main.bicep", @"
                 @secure()
                 param myInput string
- 
+
                 module foo 'foo.bicep' = {
                   name: 'foo'
                   params: {
@@ -260,7 +260,7 @@ public class SecureOutputsTests
             ("main.bicep", @"
                 @secure()
                 param myInput string
- 
+
                 @secure()
                 output myOutput string = myInput
             ")
@@ -287,7 +287,7 @@ public class SecureOutputsTests
             ("foo.bicep", @"
                 @secure()
                 param myInput string
- 
+
                 @secure()
                 output myOutput string = myInput
             "),

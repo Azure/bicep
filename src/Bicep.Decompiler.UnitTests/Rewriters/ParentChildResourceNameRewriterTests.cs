@@ -16,7 +16,7 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
         {
             var bicepFile = """
                 var parentName = 'resA'
-                        
+
                 resource resA 'My.Rp/resA@2020-01-01' = {
                   name: parentName
                 }
@@ -53,7 +53,7 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
         {
             var bicepFile = """
                 var parentName = 'resA'
-                        
+
                 resource resA 'My.Rp/resA@2020-01-01' = [
                   for i in range(0, 1): {
                     name: 'resA${i}'
@@ -144,7 +144,7 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
         {
             var bicepFile = """
                 var parentName = 'resA'
-                        
+
                 resource resA 'My.Rp/resA@2020-01-01' = {
                   name: '${parentName}'
                 }
@@ -248,7 +248,7 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
         {
             var bicepFile = """
                 var parentName = 'resA'
-                        
+
                 resource resA 'My.Rp/resA@2020-01-01' = {
                   name: '${parentName}'
                 }

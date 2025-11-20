@@ -166,7 +166,7 @@ namespace Bicep.VSLanguageServerClient.ProcessLauncher
         }
 
         /// <summary>
-        /// IClientProcess implementation for executables started on Arm64 
+        /// IClientProcess implementation for executables started on Arm64
         /// </summary>
         private class ClientProcessArm64 : IDisposable, IClientProcess
         {
@@ -215,7 +215,7 @@ namespace Bicep.VSLanguageServerClient.ProcessLauncher
 
         /// <summary>
         /// Wraps handling the ProcThreadAttributeList ensuring the value set on the attribute list remains valid until DeleteProcThreadAttributeList is called which
-        /// should be after the call to CreateProcess. 
+        /// should be after the call to CreateProcess.
         /// </summary>
         private class ProcThreadAttributeList : IDisposable
         {

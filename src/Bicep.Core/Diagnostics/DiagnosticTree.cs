@@ -63,7 +63,7 @@ namespace Bicep.Core.Diagnostics
                     //
                     // ---|diagnostic1.start...diagnostic1.end|
                     // --------|diagnostic1.start...diagnostic2.end|
-                    // 
+                    //
                     // If start < current.Start, and current is not enclosed by [start, end], end must be smaller
                     // than current.Start as well:
                     //

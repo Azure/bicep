@@ -407,7 +407,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             resource vn 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {
               name: 'vn'
             }
-                
+
             resource blobServices 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' = [for i in range(0, 3): {
               name: 'blobs${i}'
               parent: vn

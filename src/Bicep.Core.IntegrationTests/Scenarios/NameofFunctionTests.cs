@@ -166,7 +166,7 @@ var dbs = [
   'secondary'
   'tertiary'
 ]
-   
+
 resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
   name: 'sql-server-name'
 
@@ -196,7 +196,7 @@ var dbs = [
   'secondary'
   'tertiary'
 ]
-   
+
 resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
   name: 'sql-server-name'
 

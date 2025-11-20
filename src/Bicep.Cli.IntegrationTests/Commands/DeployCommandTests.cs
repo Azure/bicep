@@ -113,7 +113,7 @@ public class DeployCommandTests : TestBase
         │ output1 │ value1 │
         │ output2 │ 42     │
         ╰─────────┴────────╯
-        
+
         """);
     }
 
@@ -157,7 +157,7 @@ public class DeployCommandTests : TestBase
 
         result.WithoutAnsi().WithoutDurations().Stdout.Should().BeEquivalentToIgnoringNewlines("""
         ╭╮
-        
+
         ╰╯
         ╭───────────────────╮
         │ Error             │

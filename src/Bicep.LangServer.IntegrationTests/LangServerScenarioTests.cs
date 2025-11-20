@@ -89,8 +89,8 @@ param foo: string
                     .WithContainerRegistryClientFactory(clientFactory)
                     .AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>();
 
-                // Using a mock IPublicModuleIndexHttpClient since this test doesn't require public registry modules. 
-                // This prevents downloading public registry metadata on each run, avoiding potential flakiness 
+                // Using a mock IPublicModuleIndexHttpClient since this test doesn't require public registry modules.
+                // This prevents downloading public registry metadata on each run, avoiding potential flakiness
                 // or test timeouts caused by slow internet connections.
                 services.AddHttpClient<IPublicModuleIndexHttpClient, MockPublicModuleIndexHttpClient>();
             });
@@ -162,8 +162,8 @@ param foo = {
         hover!.Contents.MarkupContent!.Value.Should().Be("""
 ```bicep
 *: string
-```  
-Description of foo  
+```
+Description of foo
 
 """);
     }

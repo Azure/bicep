@@ -138,15 +138,15 @@ namespace Bicep.LangServer.UnitTests.Handlers
             PasteType.FullParams,
             """
             using '' /*TODO: Provide a path to a bicep template*/
-            
+
             param pString = ''
-            
+
             param pInt = 0
-            
+
             param pBool = false
-            
+
             param pObject = {}
-            
+
             param pArray = []
             """,
             DisplayName = "Full Params"
@@ -161,15 +161,15 @@ namespace Bicep.LangServer.UnitTests.Handlers
             PasteType.FullParams,
             """
             using '' /*TODO: Provide a path to a bicep template*/
-            
+
             param pString = ''
-            
+
             param pInt = 0
-            
+
             param pBool = false
-            
+
             param pObject = {}
-            
+
             param pArray = []
             """,
             DisplayName = "Extra property"
@@ -184,15 +184,15 @@ namespace Bicep.LangServer.UnitTests.Handlers
             PasteType.FullParams,
             """
             using '' /*TODO: Provide a path to a bicep template*/
-            
+
             param pString = ''
-            
+
             param pInt = 0
-            
+
             param pBool = false
-            
+
             param pObject = {}
-            
+
             param pArray = []
             """,
             DisplayName = "Extra brace at end (succeeds)"
@@ -207,15 +207,15 @@ namespace Bicep.LangServer.UnitTests.Handlers
             PasteType.FullParams,
             """
             using '' /*TODO: Provide a path to a bicep template*/
-            
+
             param pString = ''
-            
+
             param pInt = 0
-            
+
             param pBool = false
-            
+
             param pObject = {}
-            
+
             param pArray = []
             """,
             DisplayName = "Extra random characters at end"
@@ -606,16 +606,14 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [DataRow(
             """
             // comment that shouldn't get removed because code is already valid Bicep
-            
+
                             /* another comment
-            
+
                             */
                             '123' // yet another comment
-            
+
                             /* and another
                             */
-            
-                            
             """,
             PasteType.BicepValue, // Valid json and valid Bicep expression (will get pasted as original for copy/paste, as '123' for "paste as Bicep" command)
             "'123'",
@@ -764,9 +762,9 @@ namespace Bicep.LangServer.UnitTests.Handlers
         )]
         [DataRow(
             """
-            var a = /* 
+            var a = /*
                             'not a| string' */ 123
-                            
+
             """,
             PasteContext.None,
             DisplayName = "comments: string inside a multiline comment"
