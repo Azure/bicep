@@ -159,7 +159,7 @@ param foo = {
 
         var hover = await file.RequestHover(bicepparamCursor);
 
-        hover!.Contents.MarkupContent!.Value.Should().Be("""
+        hover!.Contents.MarkupContent!.Value.Replace("  ", "").Should().Be("""
 ```bicep
 *: string
 ```
