@@ -63,4 +63,5 @@
   "experimentalFeaturesWarning": true,
   "experimentalFeaturesEnabled": {},
   "formatting": {}
+  ,"externalInputResolverConfig": {}
 }

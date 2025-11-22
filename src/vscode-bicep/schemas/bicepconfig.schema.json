@@ -169,6 +169,31 @@
         "builtIn"
       ],
       "additionalProperties": false
+    },
+    "externalInputResolverEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target", "parameters"],
+      "properties": {
+        "target": {
+          "type": "string",
+          "description": "Path to the resolver plugin executable or script."
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Resolver-specific parameter bag passed through to the resolver tooling. Properties are specific to the external input kind.",
+          "additionalProperties": true
+        }
+      }
+    },
+    "externalInputResolverConfig": {
+      "title": "External Input Resolver Configuration",
+      "description": "Mappings from externalInput kinds (supports wildcards) to resolver configuration entries.",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/externalInputResolverEntry"
+      },
+      "default": {}
     }
   },
   "type": "object",
@@ -314,6 +339,9 @@
         "type": "string"
       },
       "additionalProperties": false
+    },
+    "externalInputResolverConfig": {
+      "$ref": "#/definitions/externalInputResolverConfig"
     },
     "analyzers": {
       "title": "Analyzers",

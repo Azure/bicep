@@ -47,6 +47,7 @@ namespace Bicep.Core.Configuration
                 current.ExperimentalFeaturesWarning,
                 current.ExperimentalFeaturesEnabled,
                 current.Formatting,
+                current.ExternalInputResolverConfiguration,
                 current.ConfigFileUri,
                 current.Diagnostics);
 
@@ -70,6 +71,7 @@ namespace Bicep.Core.Configuration
             current.ExperimentalFeaturesWarning,
             current.ExperimentalFeaturesEnabled,
             current.Formatting,
+            current.ExternalInputResolverConfiguration,
             current.ConfigFileUri,
             current.Diagnostics);
 

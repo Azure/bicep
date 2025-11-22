@@ -25,6 +25,7 @@ public static class ExtensionsConfigurationExtensions
             rootConfiguration.ExperimentalFeaturesWarning,
             rootConfiguration.ExperimentalFeaturesEnabled,
             rootConfiguration.Formatting,
+            rootConfiguration.ExternalInputResolverConfiguration,
             rootConfiguration.ConfigFileUri,
             rootConfiguration.Diagnostics);
     }
@@ -41,6 +42,7 @@ public static class ExtensionsConfigurationExtensions
             rootConfiguration.ExperimentalFeaturesWarning,
             rootConfiguration.ExperimentalFeaturesEnabled,
             rootConfiguration.Formatting,
+            rootConfiguration.ExternalInputResolverConfiguration,
             rootConfiguration.ConfigFileUri,
             rootConfiguration.Diagnostics);
     }

@@ -24,6 +24,7 @@ public class RootConfigurationTests
                 BicepTestConstants.BuiltInConfiguration.ExperimentalFeaturesWarning,
                 BicepTestConstants.BuiltInConfiguration.ExperimentalFeaturesEnabled,
                 BicepTestConstants.BuiltInConfiguration.Formatting,
+                BicepTestConstants.BuiltInConfiguration.ExternalInputResolverConfiguration,
                 BicepTestConstants.BuiltInConfiguration.ConfigFileUri,
                 BicepTestConstants.BuiltInConfiguration.Diagnostics);
 

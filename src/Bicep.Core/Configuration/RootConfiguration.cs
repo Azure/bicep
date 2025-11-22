@@ -31,6 +31,8 @@ namespace Bicep.Core.Configuration
 
         public const string FormattingKey = "formatting";
 
+        public const string ExternalInputResolverConfigKey = "externalInputResolverConfig"; // maps external input kinds to resolver config
+
         public RootConfiguration(
             CloudConfiguration cloud,
             ModuleAliasesConfiguration moduleAliases,
@@ -41,6 +43,7 @@ namespace Bicep.Core.Configuration
             bool experimentalFeaturesWarning,
             ExperimentalFeaturesEnabled experimentalFeaturesEnabled,
             FormattingConfiguration formatting,
+            ExternalInputResolverConfiguration externalInputResolverConfiguration,
             IOUri? configFileUri,
             IEnumerable<IDiagnostic>? diagnostics)
         {
@@ -53,6 +56,7 @@ namespace Bicep.Core.Configuration
             this.ExperimentalFeaturesWarning = experimentalFeaturesWarning;
             this.ExperimentalFeaturesEnabled = experimentalFeaturesEnabled;
             this.Formatting = formatting;
+            this.ExternalInputResolverConfiguration = externalInputResolverConfiguration;
             this.ConfigFileUri = configFileUri;
             this.Diagnostics = diagnostics?.ToImmutableArray() ?? [];
         }
@@ -66,11 +70,14 @@ namespace Bicep.Core.Configuration
             var experimentalFeaturesWarning = element.TryGetProperty(ExperimentalFeaturesWarningKey, out var value) && value.GetBoolean();
             var experimentalFeaturesEnabled = ExperimentalFeaturesEnabled.Bind(element.GetProperty(ExperimentalFeaturesEnabledKey));
             var formatting = FormattingConfiguration.Bind(element.GetProperty(FormattingKey));
+            var externalInputResolverConfiguration = element.TryGetProperty(ExternalInputResolverConfigKey, out var extInputElement) 
+                ? ExternalInputResolverConfiguration.Bind(extInputElement) 
+                : ExternalInputResolverConfiguration.Empty;
 
             var extensions = ExtensionsConfiguration.Bind(element.GetProperty(ExtensionsKey));
             var implicitExtensions = ImplicitExtensionsConfiguration.Bind(element.GetProperty(ImplicitExtensionsKey));
 
-            return new(cloud, moduleAliases, extensions, implicitExtensions, analyzers, cacheRootDirectory, experimentalFeaturesWarning, experimentalFeaturesEnabled, formatting, configFileUri, null);
+            return new(cloud, moduleAliases, extensions, implicitExtensions, analyzers, cacheRootDirectory, experimentalFeaturesWarning, experimentalFeaturesEnabled, formatting, externalInputResolverConfiguration, configFileUri, null);
         }
 
         public CloudConfiguration Cloud { get; }
@@ -91,6 +98,8 @@ namespace Bicep.Core.Configuration
 
         public FormattingConfiguration Formatting { get; }
 
+        public ExternalInputResolverConfiguration ExternalInputResolverConfiguration { get; }
+
         public IOUri? ConfigFileUri { get; }
 
         public ImmutableArray<IDiagnostic> Diagnostics { get; }
@@ -107,6 +116,7 @@ namespace Bicep.Core.Configuration
             bool? experimentalFeaturesWarning = null,
             ExperimentalFeaturesEnabled? experimentalFeaturesEnabled = null,
             FormattingConfiguration? formatting = null,
+            ExternalInputResolverConfiguration? externalInputResolverConfiguration = null,
             IOUri? configFileIdentifier = null,
             IEnumerable<IDiagnostic>? diagnostics = null)
         {
@@ -120,6 +130,7 @@ namespace Bicep.Core.Configuration
                 experimentalFeaturesWarning ?? this.ExperimentalFeaturesWarning,
                 experimentalFeaturesEnabled ?? this.ExperimentalFeaturesEnabled,
                 formatting ?? this.Formatting,
+                externalInputResolverConfiguration ?? this.ExternalInputResolverConfiguration,
                 configFileIdentifier ?? this.ConfigFileUri,
                 diagnostics ?? this.Diagnostics);
         }
@@ -158,6 +169,9 @@ namespace Bicep.Core.Configuration
 
                 writer.WritePropertyName(FormattingKey);
                 this.Formatting.WriteTo(writer);
+
+                writer.WritePropertyName(ExternalInputResolverConfigKey);
+                this.ExternalInputResolverConfiguration.WriteTo(writer);
 
                 writer.WriteEndObject();
             }

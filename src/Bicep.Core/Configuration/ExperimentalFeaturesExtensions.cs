@@ -16,6 +16,7 @@ namespace Bicep.Core.Configuration
                 current.ExperimentalFeaturesWarning,
                 featuresEnabled,
                 current.Formatting,
+                current.ExternalInputResolverConfiguration,
                 current.ConfigFileUri,
                 current.Diagnostics);
 
