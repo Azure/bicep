@@ -10,7 +10,7 @@
     <GlobalPackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.13.2" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
-    <PackageVersion Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.45" />
+    <PackageVersion Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.60" />
     <PackageVersion Include="Azure.Bicep.Types" Version="0.6.12" />
     <PackageVersion Include="Azure.Bicep.Types.Az" Version="0.2.813" />
     <PackageVersion Include="Azure.Bicep.Types.K8s" Version="0.1.644" />
