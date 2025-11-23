@@ -672,7 +672,8 @@ namespace Bicep.LanguageServer.Completions
                     SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (property, variableAccess, identifier, token) => ReferenceEquals(property.Value, variableAccess)))
                 {
                     return BicepCompletionContextKind.PropertyValue | BicepCompletionContextKind.Expression;
-                };
+                }
+                ;
 
                 // | indicates cursor position
                 if (

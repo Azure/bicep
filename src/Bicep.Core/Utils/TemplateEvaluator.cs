@@ -174,7 +174,8 @@ namespace Bicep.Core.Utils
                     if (resource.Type.Value.EqualsOrdinalInsensitively("Microsoft.Resources/deployments"))
                     {
                         skipEvaluationPaths.Add("template");
-                    };
+                    }
+                    ;
 
                     resource.Properties.Value = ExpressionsEngine.EvaluateLanguageExpressionsRecursive(
                         root: resource.Properties.Value,
@@ -229,7 +230,8 @@ namespace Bicep.Core.Utils
                     ["id"] = $"/subscriptions/{config.SubscriptionId}/resourceGroups/{config.ResourceGroup}",
                     ["location"] = config.RgLocation,
                 };
-            };
+            }
+            ;
             if (deploymentScope == TemplateDeploymentScope.ManagementGroup)
             {
                 metadata["managementGroup"] = new JObject
@@ -238,7 +240,8 @@ namespace Bicep.Core.Utils
                     ["name"] = config.ManagementGroup,
                     ["type"] = "Microsoft.Management/managementGroups",
                 };
-            };
+            }
+            ;
             // tenant() function is available at all scopes
             metadata["tenant"] = new JObject
             {

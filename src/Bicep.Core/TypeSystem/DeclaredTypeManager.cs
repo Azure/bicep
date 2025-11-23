@@ -1869,7 +1869,8 @@ namespace Bicep.Core.TypeSystem
                     if (GetDeclaredTypeAssignment(parent) is not { } parameterAssignmentTypeAssignment)
                     {
                         return null;
-                    };
+                    }
+                    ;
 
                     return TryCreateAssignment(parameterAssignmentTypeAssignment.Reference.Type, syntax);
 
