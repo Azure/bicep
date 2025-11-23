@@ -15,6 +15,7 @@ using Bicep.Local.Extension.Types.Attributes;
 using static Google.Protobuf.Reflection.GeneratedCodeInfo.Types;
 
 namespace Bicep.Local.Extension.Types;
+
 public class TypeDefinitionBuilder
     : ITypeDefinitionBuilder
 {
