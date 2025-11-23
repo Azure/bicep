@@ -16,7 +16,7 @@
     "@types/node": "24.10.1",
     "@types/pako": "2.0.4",
     "@types/react": "19.2.5",
-    "@types/react-dom": "19.2.2",
+    "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "5.1.1",
     "eslint": "9.39.1",
     "eslint-config-prettier": "10.1.8",
