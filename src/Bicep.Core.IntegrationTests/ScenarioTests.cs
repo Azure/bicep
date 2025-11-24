@@ -7537,4 +7537,32 @@ output locations array = flatten(map(databases, database => database.properties.
 
         result.Should().NotHaveAnyDiagnostics();
     }
+
+    [TestMethod]
+    public void Test_Issue18520()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                module mod 'mod.bicep' = [for i in range(0, 10): if (i >= 0) {}]
+
+                module mod2 'mod2.bicep' = {
+                  params: {
+                    secureStrings: [for i in range(0, 10): mod[i]!.outputs.foo]
+                  }
+                }
+                
+                """),
+            ("mod.bicep", """
+                @secure()
+                output foo string = 'foo'
+                """),
+            ("mod2.bicep", """
+                @secure()
+                type secureString = string
+
+                param secureStrings secureString[]
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
 }

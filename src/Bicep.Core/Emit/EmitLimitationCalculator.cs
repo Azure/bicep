@@ -961,7 +961,7 @@ namespace Bicep.Core.Emit
                     TypeHelper.IsOrContainsSecureType(model.GetTypeInfo(accessExpr)))
                 {
                     if (model.GetSymbolInfo(baseAccessExpr.BaseExpression) is ModuleSymbol ||
-                        (baseAccessExpr.BaseExpression is ArrayAccessSyntax grandBaseArrayAccess &&
+                        (SyntaxHelper.UnwrapNonNullAssertion(baseAccessExpr.BaseExpression) is ArrayAccessSyntax grandBaseArrayAccess &&
                             model.GetSymbolInfo(grandBaseArrayAccess.BaseExpression) is ModuleSymbol greatGrandBaseModule &&
                             greatGrandBaseModule.IsCollection))
                     {
