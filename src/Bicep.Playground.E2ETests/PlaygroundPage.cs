@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using FluentAssertions;
-using FluentAssertions.Primitives;
 using Microsoft.Playwright;
 
 namespace Bicep.Playground.E2ETests;
