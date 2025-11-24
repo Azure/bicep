@@ -70,7 +70,7 @@ public class PlaygroundSpecs : PageTest
     }
 
     [Fact]
-    public async Task WhenInsertingBicep_ThenShouldTransformToArmJson()
+    public async Task WhenInsertingBicep_ThenShouldCompileToArmJson()
     {
         await _page.OpenPlayground();
 
