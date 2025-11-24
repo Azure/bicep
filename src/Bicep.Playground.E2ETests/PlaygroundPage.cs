@@ -3,7 +3,7 @@
 
 using Microsoft.Playwright;
 
-namespace Playground.E2ETests;
+namespace Bicep.Playground.E2ETests;
 
 public class PlaygroundPage(IPage page)
 {

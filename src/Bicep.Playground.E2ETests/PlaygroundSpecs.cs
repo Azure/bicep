@@ -6,7 +6,7 @@ using Microsoft.Playwright;
 using Microsoft.Playwright.Xunit;
 using Xunit;
 
-namespace Playground.E2ETests;
+namespace Bicep.Playground.E2ETests;
 
 public class PlaygroundSpecs : PageTest
 {
