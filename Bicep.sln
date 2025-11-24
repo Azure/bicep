@@ -119,8 +119,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.RpcClient.Tests", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.MSBuild.UnitTests", "src\Bicep.MSBuild.UnitTests\Bicep.MSBuild.UnitTests.csproj", "{64F80A63-FF29-4B66-89EB-3F94A0F33E3B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Playground.E2ETests", "src\Bicep.Playground.E2ETests\Bicep.Playground.E2ETests.csproj", "{A664BD85-291C-4545-950B-30474FBAAD24}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -539,18 +537,6 @@ Global
 		{64F80A63-FF29-4B66-89EB-3F94A0F33E3B}.Release|x64.Build.0 = Release|Any CPU
 		{64F80A63-FF29-4B66-89EB-3F94A0F33E3B}.Release|x86.ActiveCfg = Release|Any CPU
 		{64F80A63-FF29-4B66-89EB-3F94A0F33E3B}.Release|x86.Build.0 = Release|Any CPU
-		{A664BD85-291C-4545-950B-30474FBAAD24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A664BD85-291C-4545-950B-30474FBAAD24}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A664BD85-291C-4545-950B-30474FBAAD24}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{A664BD85-291C-4545-950B-30474FBAAD24}.Debug|x64.Build.0 = Debug|Any CPU
-		{A664BD85-291C-4545-950B-30474FBAAD24}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A664BD85-291C-4545-950B-30474FBAAD24}.Debug|x86.Build.0 = Debug|Any CPU
-		{A664BD85-291C-4545-950B-30474FBAAD24}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A664BD85-291C-4545-950B-30474FBAAD24}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A664BD85-291C-4545-950B-30474FBAAD24}.Release|x64.ActiveCfg = Release|Any CPU
-		{A664BD85-291C-4545-950B-30474FBAAD24}.Release|x64.Build.0 = Release|Any CPU
-		{A664BD85-291C-4545-950B-30474FBAAD24}.Release|x86.ActiveCfg = Release|Any CPU
-		{A664BD85-291C-4545-950B-30474FBAAD24}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -590,7 +576,6 @@ Global
 		{EFC27293-4DBB-4D58-85E4-4B94A8F50C8B} = {013E98B4-42CE-4009-BC62-2588ED9028CD}
 		{930BA3F9-160A-4EB6-80DC-AABFDE3BB919} = {013E98B4-42CE-4009-BC62-2588ED9028CD}
 		{64F80A63-FF29-4B66-89EB-3F94A0F33E3B} = {38A0A11F-72BD-4512-A4A9-AC953936C09F}
-		{A664BD85-291C-4545-950B-30474FBAAD24} = {013E98B4-42CE-4009-BC62-2588ED9028CD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {21F77282-91E7-4304-B1EF-FADFA4F39E37}
