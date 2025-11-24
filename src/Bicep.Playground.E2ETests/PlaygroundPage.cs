@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using FluentAssertions;
+using FluentAssertions.Primitives;
 using Microsoft.Playwright;
 
 namespace Bicep.Playground.E2ETests;
@@ -63,24 +65,22 @@ public class PlaygroundPage(IPage page)
             new PageWaitForSelectorOptions { State = WaitForSelectorState.Visible });
     }
 
-    public async Task<string> GetBicepEditorContent()
+    public async Task ExpectingBicepEditorContentToContain(string expectedContent)
     {
-        return await GetEditorContent(BicepEditorPane);
+        var content = await GetEditorContent(BicepEditorPane);
+        content.Should().Contain(expectedContent.ReplaceLineEndings());
     }
 
-    public async Task<string> GetArmEditorContent()
+    public async Task ExpectingBicepEditorContentToBeEquivalentTo(string expectedContent)
     {
-        return await GetEditorContent(ArmEditorPane);
+        var content = await GetEditorContent(BicepEditorPane);
+        content.Should().BeEquivalentTo(expectedContent.ReplaceLineEndings());
     }
 
-    public ILocatorAssertions ExpectingBicepEditor()
+    public async Task ExpectingArmEditorContentToBeEquivalentTo(string expectedContent)
     {
-        return Assertions.Expect(BicepEditorPane);
-    }
-
-    public ILocatorAssertions ExpectingArmEditor()
-    {
-        return Assertions.Expect(ArmEditorPane);
+        var content = await GetEditorContent(ArmEditorPane);
+        content.Should().BeEquivalentTo(expectedContent.ReplaceLineEndings());
     }
 
     private async Task<string> GetEditorContent(ILocator editorPane)
@@ -90,6 +90,6 @@ public class PlaygroundPage(IPage page)
         await page.Keyboard.PressAsync("Control+A");
         await page.Keyboard.PressAsync("Control+C");
         var content = await page.EvaluateAsync<string>("async () => await window.navigator.clipboard.readText()");
-        return content;
+        return content.ReplaceLineEndings();
     }
 }
