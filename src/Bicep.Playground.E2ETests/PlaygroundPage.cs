@@ -8,23 +8,18 @@ namespace Bicep.Playground.E2ETests;
 public class PlaygroundPage(IPage page)
 {
     private const string EditorsSelector = ".playground-editorpane";
-    private ILocator BicepEditor => page.Locator(EditorsSelector).First;
+    private ILocator BicepEditorPane => page.Locator(EditorsSelector).First;
 
-    private ILocator ArmEditor => page.Locator(EditorsSelector).Last;
+    private ILocator ArmEditorPane => page.Locator(EditorsSelector).Last;
 
     public async Task OpenPlayground()
     {
-        await Init();
-        string port = System.Environment.GetEnvironmentVariable("PlaygroundPort") ?? "4173";
+        await page.Context.GrantPermissionsAsync(["clipboard-read", "clipboard-write"]);
+        var port = Environment.GetEnvironmentVariable("PlaygroundPort") ?? "4173";
         await page.GotoAsync($"http://localhost:{port}/");
     }
 
-    private async Task Init()
-    {
-        await page.Context.GrantPermissionsAsync(["clipboard-read", "clipboard-write"]);
-    }
-
-    public async Task CopyLink()
+    public async Task CopyLinkToCurrentExample()
     {
         await page.GetByRole(
                 AriaRole.Button,
@@ -32,22 +27,22 @@ public class PlaygroundPage(IPage page)
             .ClickAsync();
     }
 
-    public async Task OpenLink()
+    public async Task NavigateToCopiedLink()
     {
         await page.FocusAsync("body"); // Ensure the page is focused
         var url = await page.EvaluateAsync<string>("async () => await window.navigator.clipboard.readText()");
         await page.GotoAsync(url, new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
     }
 
-    public async Task WriteBicep(string bicep)
+    public async Task PasteInBicepEditor(string bicep)
     {
-        await BicepEditor.ClickAsync();
+        await BicepEditorPane.ClickAsync();
         await page.Keyboard.InsertTextAsync(bicep);
     }
 
     public async Task DeleteBicepContent()
     {
-        await BicepEditor.ClickAsync();
+        await BicepEditorPane.ClickAsync();
         await page.Keyboard.PressAsync("Control+A"); // select existing content
         await page.Keyboard.PressAsync("Delete");
     }
@@ -64,26 +59,37 @@ public class PlaygroundPage(IPage page)
                 new PageGetByRoleOptions { Name = templateName })
             .ClickAsync();
 
-        await page.WaitForSelectorAsync(EditorsSelector, new PageWaitForSelectorOptions { State = WaitForSelectorState.Visible });
+        await page.WaitForSelectorAsync(EditorsSelector,
+            new PageWaitForSelectorOptions { State = WaitForSelectorState.Visible });
     }
 
-    public async Task<IReadOnlyList<string>> GetBicepEditorContent()
+    public async Task<string> GetBicepEditorContent()
     {
-        return await BicepEditor.AllTextContentsAsync();
+        return await GetEditorContent(BicepEditorPane);
     }
 
-    public async Task<IReadOnlyList<string>> GetArmEditorContent()
+    public async Task<string> GetArmEditorContent()
     {
-        return await ArmEditor.AllTextContentsAsync();
+        return await GetEditorContent(ArmEditorPane);
     }
 
     public ILocatorAssertions ExpectingBicepEditor()
     {
-        return Assertions.Expect(BicepEditor);
+        return Assertions.Expect(BicepEditorPane);
     }
 
     public ILocatorAssertions ExpectingArmEditor()
     {
-        return Assertions.Expect(ArmEditor);
+        return Assertions.Expect(ArmEditorPane);
+    }
+
+    private async Task<string> GetEditorContent(ILocator editorPane)
+    {
+        // Needs to get content this way because monaco editor keeps content in different divs.
+        await editorPane.ClickAsync();
+        await page.Keyboard.PressAsync("Control+A");
+        await page.Keyboard.PressAsync("Control+C");
+        var content = await page.EvaluateAsync<string>("async () => await window.navigator.clipboard.readText()");
+        return content;
     }
 }
