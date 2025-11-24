@@ -67,19 +67,19 @@ public class PlaygroundPage(IPage page)
     public async Task ExpectingBicepEditorContentToContain(string expectedContent)
     {
         var content = await GetEditorContent(BicepEditorPane);
-        content.Should().Contain(expectedContent.ReplaceLineEndings());
+        content.Should().Contain(ReplaceLineEndings(expectedContent));
     }
 
     public async Task ExpectingBicepEditorContentToBeEquivalentTo(string expectedContent)
     {
         var content = await GetEditorContent(BicepEditorPane);
-        content.Should().BeEquivalentTo(expectedContent.ReplaceLineEndings());
+        content.Should().BeEquivalentTo(ReplaceLineEndings(expectedContent));
     }
 
     public async Task ExpectingArmEditorContentToBeEquivalentTo(string expectedContent)
     {
         var content = await GetEditorContent(ArmEditorPane);
-        content.Should().BeEquivalentTo(expectedContent.ReplaceLineEndings());
+        content.Should().BeEquivalentTo(ReplaceLineEndings(expectedContent));
     }
 
     private async Task<string> GetEditorContent(ILocator editorPane)
@@ -89,6 +89,8 @@ public class PlaygroundPage(IPage page)
         await page.Keyboard.PressAsync("Control+A");
         await page.Keyboard.PressAsync("Control+C");
         var content = await page.EvaluateAsync<string>("async () => await window.navigator.clipboard.readText()");
-        return content.ReplaceLineEndings();
+        return ReplaceLineEndings(content);
     }
+
+    private string ReplaceLineEndings(string content) => content.Replace("\r\n", "\n");
 }
