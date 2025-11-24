@@ -21,17 +21,20 @@ Please see below on how to contribute to the Bicep best practices tool.
 ### Prerequisites
 
 - Install the latest version of the [Bicep VS Code Extension][01]
+- Install the latest version of [Bicep CLI][01b]
 - Confirm access to [Copilot in VS Code][02]
 
 ### Installing
 
-Ensure you have the latest version of the Bicep extension installed.
+Ensure you have the latest version of Bicep and the Bicep extension installed.
 
 ### Troubleshooting
 
 The Bicep server may not appear in your list of MCP servers and tools in VS Code until it has been triggered. If you do not see the server, try opening and saving a `.bicep` file and then try providing a Bicep related-prompt in the Copilot chat window in "Agent" mode (as shown in Step #3 of the Viewing and Using Bicep Tools in the Bicep MCP Server section below). You may also need to press the "Refresh" button in the Copilot chat box.
 
 ![Refresh copilot tools][05]
+
+If any of the tools are missing from the list of available tools, start/restart the MCP server: In VS Code, hit `Ctrl + Shift + P` -> `MCP: List Servers` -> Select the Bicep MCP Server -> `Start Server` / `Restart Server`
 
 ## Viewing and Using Bicep Tools in the Bicep MCP Server
 
@@ -69,6 +72,7 @@ Please raise bug reports or feature requests under [Bicep Issues][04] and tag wi
 <!-- Link reference definitions -->
 [00]: https://code.visualstudio.com/docs/copilot/chat/mcp-servers
 [01]: https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-bicep
+[01b]: https://aka.ms/bicep-install
 [02]: https://code.visualstudio.com/docs/copilot/overview
 [03]: https://github.com/Azure/bicep/issues/17660
 [04]: https://github.com/Azure/bicep/issues
