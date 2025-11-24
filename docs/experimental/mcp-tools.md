@@ -33,6 +33,8 @@ The Bicep server may not appear in your list of MCP servers and tools in VS Code
 
 ![Refresh copilot tools][05]
 
+If any of the tools are missing from the list of available tools, start/restart the MCP server in VS Code, by hitting `Ctrl + Shift + P`, selecting `MCP: List Servers`, then choosing the Bicep MCP Server and clicking on `Start Server` or `Restart Server`.
+
 ## Viewing and Using Bicep Tools in the Bicep MCP Server
 
 1. Open the GitHub Copilot extension window and select "Agent Mode".
