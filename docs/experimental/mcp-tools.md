@@ -21,12 +21,11 @@ Please see below on how to contribute to the Bicep best practices tool.
 ### Prerequisites
 
 - Install the latest version of the [Bicep VS Code Extension][01]
-- Install the latest version of [Bicep CLI][01b]
 - Confirm access to [Copilot in VS Code][02]
 
 ### Installing
 
-Ensure you have the latest version of Bicep CLI and the Bicep extension installed.
+Ensure you have the latest version of the Bicep extension installed.
 
 ### Troubleshooting
 
@@ -72,7 +71,6 @@ Please raise bug reports or feature requests under [Bicep Issues][04] and tag wi
 <!-- Link reference definitions -->
 [00]: https://code.visualstudio.com/docs/copilot/chat/mcp-servers
 [01]: https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-bicep
-[01b]: https://aka.ms/bicep-install
 [02]: https://code.visualstudio.com/docs/copilot/overview
 [03]: https://github.com/Azure/bicep/issues/17660
 [04]: https://github.com/Azure/bicep/issues
