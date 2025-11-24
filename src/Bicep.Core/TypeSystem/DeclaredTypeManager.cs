@@ -1295,6 +1295,10 @@ namespace Bicep.Core.TypeSystem
                 case WildcardImportSymbol wildcardImportSymbol:
                     return new DeclaredTypeAssignment(wildcardImportSymbol.Type, declaringSyntax: null);
 
+                case LocalThisNamespaceSymbol localThisNamespace:
+                    // the syntax node is referencing a local 'this' namespace - use its declared type
+                    return new DeclaredTypeAssignment(localThisNamespace.DeclaredType, declaringSyntax: null);
+
                 case DeclaredSymbol declaredSymbol when IsCycleFree(declaredSymbol):
                     // the syntax node is referencing a declared symbol
                     // use its declared type
@@ -1865,7 +1869,8 @@ namespace Bicep.Core.TypeSystem
                     if (GetDeclaredTypeAssignment(parent) is not { } parameterAssignmentTypeAssignment)
                     {
                         return null;
-                    };
+                    }
+                    ;
 
                     return TryCreateAssignment(parameterAssignmentTypeAssignment.Reference.Type, syntax);
 

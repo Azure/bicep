@@ -15,6 +15,7 @@ using Bicep.Core.Emit.CompileTimeImports;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json;
@@ -149,7 +150,9 @@ public class ParameterAssignmentEvaluator
     private readonly ConcurrentDictionary<Expression, Result> synthesizedVariableResults = new();
     private readonly ConcurrentDictionary<SemanticModel, ResultWithDiagnosticBuilder<Template>> templateResults = new();
     private readonly ConcurrentDictionary<Template, TemplateVariablesEvaluator> armEvaluators = new();
+    private readonly ConcurrentDictionary<SemanticModel, ExpressionConverter> converterCache = new();
     private readonly ImmutableDictionary<string, ParameterAssignmentSymbol> paramsByName;
+    private readonly SemanticModel semanticModel;
     private readonly ImmutableDictionary<string, VariableSymbol> variablesByName;
     private readonly ImmutableDictionary<string, DeclaredFunctionSymbol> functionsByName;
     private readonly ImmutableDictionary<string, ImportedSymbol> importsByName;
@@ -158,8 +161,70 @@ public class ParameterAssignmentEvaluator
     private readonly ExternalInputReferences externalInputReferences;
     private readonly ExpressionConverter converter;
 
+    private static IEnumerable<FunctionVariable> CollectFunctionVariablesIncludingExtends(SemanticModel model, EmitterContext context)
+    {
+        foreach (var functionVariable in context.FunctionVariables.Values)
+        {
+            yield return functionVariable;
+        }
+
+        if (model.SourceFile is not BicepParamFile)
+        {
+            yield break;
+        }
+
+        var visitedModels = new HashSet<ISemanticModel>();
+
+        foreach (var extendsDeclaration in model.SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>())
+        {
+            foreach (var functionVariable in CollectFunctionVariablesFromExtendedModel(model, extendsDeclaration, visitedModels))
+            {
+                yield return functionVariable;
+            }
+        }
+    }
+
+    private static IEnumerable<FunctionVariable> CollectFunctionVariablesFromExtendedModel(SemanticModel currentModel, ExtendsDeclarationSyntax extendsDeclaration, HashSet<ISemanticModel> visitedModels)
+    {
+        if (!currentModel.TryGetReferencedModel(extendsDeclaration).IsSuccess(out var extendedModel))
+        {
+            yield break;
+        }
+
+        if (!visitedModels.Add(extendedModel))
+        {
+            yield break;
+        }
+
+        if (extendedModel is not SemanticModel extendedSemanticModel)
+        {
+            yield break;
+        }
+
+        var extendedContext = new EmitterContext(extendedSemanticModel);
+
+        foreach (var functionVariable in extendedContext.FunctionVariables.Values)
+        {
+            yield return functionVariable;
+        }
+
+        if (extendedSemanticModel.SourceFile is BicepParamFile)
+        {
+            var nestedExtendsDeclarations = extendedSemanticModel.SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>();
+
+            foreach (var nestedExtendsDeclaration in nestedExtendsDeclarations)
+            {
+                foreach (var functionVariable in CollectFunctionVariablesFromExtendedModel(extendedSemanticModel, nestedExtendsDeclaration, visitedModels))
+                {
+                    yield return functionVariable;
+                }
+            }
+        }
+    }
+
     public ParameterAssignmentEvaluator(SemanticModel model)
     {
+        this.semanticModel = model;
         this.paramsByName = model.Root.ParameterAssignments
             .GroupBy(x => x.Name, LanguageConstants.IdentifierComparer)
             .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
@@ -172,6 +237,7 @@ public class ParameterAssignmentEvaluator
 
         EmitterContext context = new(model);
         this.converter = new(context);
+        this.converterCache[model] = this.converter;
         this.importsByName = context.SemanticModel.ImportClosureInfo.ImportedSymbolNames.Keys
             .Select(importedVariable => (context.SemanticModel.ImportClosureInfo.ImportedSymbolNames[importedVariable], importedVariable))
             .GroupBy(x => x.Item1, LanguageConstants.IdentifierComparer)
@@ -179,11 +245,26 @@ public class ParameterAssignmentEvaluator
         this.wildcardImportPropertiesByName = context.SemanticModel.ImportClosureInfo.WildcardImportPropertyNames
             .GroupBy(x => x.Value, LanguageConstants.IdentifierComparer)
             .ToImmutableDictionary(x => x.Key, x => x.First().Key, LanguageConstants.IdentifierComparer);
-        this.synthesizedVariableValuesByName = context.FunctionVariables.Values
+        this.synthesizedVariableValuesByName = CollectFunctionVariablesIncludingExtends(model, context)
             .GroupBy(result => result.Name)
             .ToImmutableDictionary(x => x.Key, x => x.First().Value);
 
         this.externalInputReferences = context.ExternalInputReferences;
+    }
+
+    private ExpressionConverter GetConverterForParameter(ParameterAssignmentSymbol parameter)
+    {
+        if (ReferenceEquals(parameter.Context.SourceFile, semanticModel.SourceFile))
+        {
+            return converter;
+        }
+
+        if (parameter.Context.ModelLookup.GetSemanticModel(parameter.Context.SourceFile) is SemanticModel parameterModel)
+        {
+            return converterCache.GetOrAdd(parameterModel, model => new ExpressionConverter(new EmitterContext(model)));
+        }
+
+        return converter;
     }
 
     public Result EvaluateParameter(ParameterAssignmentSymbol parameter)
@@ -195,7 +276,8 @@ public class ParameterAssignmentEvaluator
 
                 var declaringParam = parameter.DeclaringParameterAssignment;
 
-                var intermediate = converter.ConvertToIntermediateExpression(declaringParam.Value);
+                var parameterConverter = GetConverterForParameter(parameter);
+                var intermediate = parameterConverter.ConvertToIntermediateExpression(declaringParam.Value);
 
                 if (this.externalInputReferences.ParametersReferences.Contains(parameter))
                 {
@@ -212,7 +294,7 @@ public class ParameterAssignmentEvaluator
 
                 try
                 {
-                    return Result.For(converter.ConvertExpression(intermediate).EvaluateExpression(context));
+                    return Result.For(parameterConverter.ConvertExpression(intermediate).EvaluateExpression(context));
                 }
                 catch (Exception ex)
                 {
@@ -243,7 +325,7 @@ public class ParameterAssignmentEvaluator
             {
                 if (extConfigAssignment.DeclaringExtensionConfigAssignment.Config is null)
                 {
-                    return ImmutableDictionary<string, Result>.Empty;
+                    return [];
                 }
 
                 var context = GetExpressionEvaluationContext();

@@ -185,7 +185,7 @@ resource resourceB 'My.Rp/myResource@2020-01-01' = {
 
             using (new AssertionScope())
             {
-               template1.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].scope", "[tenantResourceId('My.Rp/myResource', 'resourceA')]");
+                template1.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].scope", "[tenantResourceId('My.Rp/myResource', 'resourceA')]");
             }
 
 

@@ -26,7 +26,7 @@ namespace Bicep.Core.Emit
         private readonly ExpressionBuilder expressionBuilder;
 
         public ExpressionConverter(EmitterContext context)
-            : this(context, ImmutableDictionary<LocalVariableSymbol, Expression>.Empty)
+            : this(context, [])
         {
         }
 

@@ -52,7 +52,7 @@ public class ExpressionBuilder
     }
 
     public ExpressionBuilder(EmitterContext Context)
-        : this(Context, ImmutableDictionary<LocalVariableSymbol, Expression>.Empty)
+        : this(Context, [])
     {
     }
 
@@ -724,7 +724,7 @@ public class ExpressionBuilder
             body,
             bodyExpression,
             BuildDependencyExpressions(resource.Symbol, body),
-            ImmutableDictionary<string, ArrayExpression>.Empty);
+            []);
     }
 
     private Expression ConvertArray(ArraySyntax array)
@@ -884,8 +884,7 @@ public class ExpressionBuilder
 
     private Expression ConvertFunction(FunctionCallSyntaxBase functionCall)
     {
-        if (Context.Settings.FileKind == BicepSourceFileKind.BicepFile &&
-            Context.FunctionVariables.GetValueOrDefault(functionCall) is { } functionVariable)
+        if (Context.FunctionVariables.GetValueOrDefault(functionCall) is { } functionVariable)
         {
             return new SynthesizedVariableReferenceExpression(functionCall, functionVariable.Name);
         }

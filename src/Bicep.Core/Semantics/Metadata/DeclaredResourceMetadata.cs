@@ -30,7 +30,7 @@ namespace Bicep.Core.Semantics.Metadata
         {
             if (symbol.DeclaringResource.TryGetBody() is not { } bodySyntax)
             {
-                return ImmutableDictionary<string, SyntaxBase>.Empty;
+                return [];
             }
 
             var identifiersBuilder = ImmutableDictionary.CreateBuilder<string, SyntaxBase>(LanguageConstants.IdentifierComparer);

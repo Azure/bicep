@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -27,7 +27,7 @@ jobs:
         run: dotnet run --configuration Release --project src/Bicep.Tools.Benchmark -- --filter '*' --profiler EP
 
       - name: Upload Benchmarks
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: BenchmarkDotNet.Artifacts
           path: ./BenchmarkDotNet.Artifacts

@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -30,10 +30,10 @@ jobs:
         run: dotnet publish --configuration release --self-contained true -r linux-x64 ./src/Bicep.Cli/Bicep.Cli.csproj
 
       - name: Upload Bicep
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: bicep-release-linux-x64
-          path: ./src/Bicep.Cli/bin/release/net8.0/linux-x64/publish/*
+          path: ./src/Bicep.Cli/bin/release/net10.0/linux-x64/publish/*
           if-no-files-found: error
 
 
