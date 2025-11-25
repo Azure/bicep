@@ -8,25 +8,25 @@ namespace Bicep.Playground.E2ETests;
 
 public class PlaygroundSpecs : PageTest
 {
-    private const string StorageBicep = """
-                                        param storageName string
-                                        param location string
+private const string StorageBicep = """
+    param storageName string
+    param location string
 
-                                        resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
-                                            name: storageName
-                                            location: location
-                                            kind: 'StorageV2'
-                                            sku: {
-                                                name: 'Standard_LRS'
-                                            }
-                                            properties: {
-                                                accessTier: 'Hot'
-                                                supportsHttpsTrafficOnly: true
-                                                minimumTlsVersion: 'TLS1_2'
-                                                allowBlobPublicAccess: true
-                                            }
-                                        }
-                                        """;
+    resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+      name: storageName
+      location: location
+      kind: 'StorageV2'
+      sku: {
+        name: 'Standard_LRS'
+      }
+      properties: {
+        accessTier: 'Hot'
+        supportsHttpsTrafficOnly: true
+        minimumTlsVersion: 'TLS1_2'
+        allowBlobPublicAccess: true
+      }
+    }
+    """;
 
     private PlaygroundPage _page = null!;
 
