@@ -38,8 +38,10 @@ public class PlaygroundPage(IPage page)
 
     public async Task PasteInBicepEditor(string bicep)
     {
+        await page.EvaluateAsync("async (text) => await navigator.clipboard.writeText(text);", bicep);
         await BicepEditorPane.ClickAsync();
-        await page.Keyboard.InsertTextAsync(bicep);
+        await page.Keyboard.PressAsync("Control+A");
+        await page.Keyboard.PressAsync("Control+V");
     }
 
     public async Task DeleteBicepContent()
