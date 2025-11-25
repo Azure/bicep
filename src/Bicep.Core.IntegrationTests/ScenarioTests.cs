@@ -7539,6 +7539,26 @@ output locations array = flatten(map(databases, database => database.properties.
     }
 
     [TestMethod]
+    public void Test_Issue17555()
+    {
+        var result = CompilationHelper.Compile("""
+            metadata name = 'ts-devopspool'
+            metadata description = 'Creates a managed devops pool'
+            metadata version = '1.0.0'
+
+            @description('Optional, default value is empty. Resource tags. Dictionary of tag names and values. See Tags in templates')
+            param parTags object = {}
+
+            #disable-next-line no-unused-vars
+            var varTags = union(parTags, {
+              'ts-name': deployment().properties.template.metadata.name
+              'ts-version': deployment().properties.template.metadata.version
+            })
+            """);
+                     
+        result.Should().NotHaveAnyDiagnostics();
+    }
+                                               
     public void Test_Issue18520()
     {
         var result = CompilationHelper.Compile(
