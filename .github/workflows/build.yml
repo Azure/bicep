@@ -526,6 +526,52 @@ jobs:
           name: playground
           path: ./src/playground/dist/*
           if-no-files-found: error
+          
+  test-playground:
+    name: Test Playground
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 23
+    
+      - name: Install wasm tools workload
+        run: dotnet workload install wasm-tools
+        working-directory: ./src/playground
+
+      - name: Install Playground dependencies
+        run: npm ci
+        working-directory: ./src/playground
+
+      - name: Build
+        run: npm run package
+        working-directory: ./src/playground
+
+      - name: Run playground locally
+        run: npm run preview &
+        working-directory: ./src/playground
+        
+      - name: Build E2E Tests
+        run: dotnet build --configuration Release
+        working-directory: ./src/Bicep.Playground.E2ETests
+
+      - name: Install Playwright
+        run: pwsh bin/Release/net10.0/playwright.ps1 install --with-deps
+        working-directory: ./src/Bicep.Playground.E2ETests
+
+      - name: Run E2E Tests
+        run: dotnet test --configuration Release --no-build --nologo
+        working-directory: ./src/Bicep.Playground.E2ETests
 
   build-highlight-libs:
     name: Build Highlight Libraries
