@@ -570,7 +570,7 @@ jobs:
         working-directory: ./src/Bicep.Playground.E2ETests
 
       - name: Run E2E Tests
-        run: dotnet test --configuration Release --no-build --nologo -v quiet
+        run: dotnet test --configuration Release --no-build --nologo
         working-directory: ./src/Bicep.Playground.E2ETests
 
   build-highlight-libs:
