@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Text.RegularExpressions;
 using FluentAssertions;
 using Microsoft.Playwright;
 
@@ -79,7 +80,14 @@ public class PlaygroundPage(IPage page)
     public async Task ExpectingArmEditorContentToBeEquivalentTo(string expectedContent)
     {
         var content = await GetEditorContent(ArmEditorPane);
-        content.Should().BeEquivalentTo(ReplaceLineEndings(expectedContent));
+        content = IgnoreGeneratorField(content);
+        content.Should().BeEquivalentTo(ReplaceLineEndings(IgnoreGeneratorField(expectedContent)));
+    }
+
+    private string IgnoreGeneratorField(string content)
+    {
+        var pattern = "\"_generator\"\\s*:\\s*\\{[^}]*\\}";
+        return Regex.Replace(content, pattern, string.Empty, RegexOptions.Singleline);
     }
 
     private async Task<string> GetEditorContent(ILocator editorPane)
@@ -92,5 +100,8 @@ public class PlaygroundPage(IPage page)
         return ReplaceLineEndings(content);
     }
 
-    private string ReplaceLineEndings(string content) => content.Replace("\r\n", "\n");
+    private string ReplaceLineEndings(string content)
+    {
+        return content.Replace("\r\n", "\n");
+    }
 }
