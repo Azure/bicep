@@ -1662,10 +1662,8 @@ public class ExpressionBuilder
                     expressionEmitter.EmitProperty("resourceGroup", () => expressionEmitter.EmitExpression(scopeData.ResourceGroupProperty, indexContext));
                 }
                 return;
-            case ResourceScope.DesiredStateConfiguration:
             case ResourceScope.Local:
-                // These scopes just changes the schema so there are no properties to emit.
-                // We don't ever need to throw here because the feature is checked during scope validation.
+                // These scopes just change the schema so there are no properties to emit.
                 return;
             default:
                 throw new InvalidOperationException($"Cannot format resourceId for scope {scopeData.RequestedScope}");
