@@ -55,7 +55,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             "res-app-plan",
             "Application Service Plan (Server Farm)",
             """
-                no resources          
+                no resources
                 """,
             null)]
         [DataRow(
@@ -69,7 +69,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                     name: 'F1'
                     capacity: 1
                   }
-                }            
+                }
                 """,
             "res-app-plan Application Service Plan (Server Farm) Microsoft.Web/serverfarms asp appserviceplan hostingplan")]
         [DataRow(
@@ -83,7 +83,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                     name: 'F1'
                     capacity: 1
                   }
-                }            
+                }
                 resource /*${1:appServicePlan}*/appServicePlan 'Microsoft.Web/serverfarms@3333-12-01' = {
                   name: /*${2:'name'}*/'name'
                   location: /*${3:location}*/'location'
@@ -91,7 +91,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                     name: 'F1'
                     capacity: 1
                   }
-                }            
+                }
                 resource /*${1:appServicePlan}*/appServicePlan 'Microsoft.Web/unknown@2020-12-01-beta' = {
                   name: /*${2:'name'}*/'name'
                   location: /*${3:location}*/'location'
@@ -99,7 +99,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                     name: reference
                     capacity: 1
                   }
-                }            
+                }
                 """,
             "res-app-plan Application Service Plan (Server Farm) Microsoft.Web/serverfarms asp appserviceplan hostingplan Microsoft.Web/unknown")]
         [DataRow(
@@ -121,7 +121,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                   name: /*${5:'name'}*/'name'
                 }
               }
-            }            
+            }
             """,
             "res-automation-job-schedule Automation Job Schedule Microsoft.Automation/automationAccounts Microsoft.Automation/automationAccounts/jobSchedules")]
         [DataTestMethod]

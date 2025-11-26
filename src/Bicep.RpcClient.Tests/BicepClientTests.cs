@@ -181,7 +181,7 @@ public class BicepClientTests
         var outputPath = FileHelper.SaveResultFiles(TestContext, [
             new("main.bicep", """
             param sku string
-            
+
             resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
               name: 'myStgAct'
               location: resourceGroup().location
@@ -193,7 +193,7 @@ public class BicepClientTests
             """),
             new("main.bicepparam", """
             using 'main.bicep'
-            
+
             param sku = 'Premium_LRS'
             """),
         ]);

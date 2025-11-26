@@ -37,7 +37,7 @@ var blah = '${test}'
 """, """
 1| var test = 'asdf'
        ~~~~ Write
-2| 
+2|
 3| var asdf = test
               ~~~~ Read
 4| var blah = '${test}'

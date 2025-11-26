@@ -180,7 +180,7 @@ public class DependencyInferenceTests
               }
               kind: 'StorageV2'
             }
-            
+
             resource secondDeployedSa 'Microsoft.Storage/storageAccounts@2023-05-01' = {
               name: replace(deployedSa.name, '1', '2')
               location: resourceGroup().location
@@ -221,7 +221,7 @@ public class DependencyInferenceTests
               }
               kind: 'StorageV2'
             }
-            
+
             resource existingSa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
               name: replace(deployedSa.name, '1', '2')
             }
@@ -260,7 +260,7 @@ public class DependencyInferenceTests
               }
               kind: 'StorageV2'
             }
-            
+
             resource existingSa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = [for i in range(0, 1): {
               name: '${replace(deployedSa.name, '1', '2')}${i}'
             }]
@@ -297,7 +297,7 @@ public class DependencyInferenceTests
               }
               kind: 'StorageV2'
             }
-            
+
             resource existingSa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = {
               name: replace(deployedSa.name, '1', '2')
             }
@@ -334,7 +334,7 @@ public class DependencyInferenceTests
               }
               kind: 'StorageV2'
             }
-            
+
             resource existingSa 'Microsoft.Storage/storageAccounts@2023-05-01' existing = [for i in range(0, 1): {
               name: '${replace(deployedSa.name, '1', '2')}${i}'
             }]
@@ -528,7 +528,7 @@ public class DependencyInferenceTests
                 }
               }
             }]
-            
+
             var subnetIds = [for l in range(20, 10): subnets[l - 20].id]
             """);
 

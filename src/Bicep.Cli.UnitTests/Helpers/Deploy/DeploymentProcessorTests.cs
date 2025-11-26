@@ -48,7 +48,7 @@ public class DeploymentProcessorTests
               name: 'asdf9uasd9'
               mode: 'deployment'
               scope: '/subscriptions/${subscriptionId}/resourceGroups/${resourceGroup}'
-            }            
+            }
 
             param foo = 'bar'
             """), ("main.bicep", """
@@ -128,7 +128,7 @@ public class DeploymentProcessorTests
               name: 'asdf9uasd9'
               mode: 'deployment'
               scope: '/subscriptions/${subscriptionId}/resourceGroups/${resourceGroup}'
-            }            
+            }
 
             param foo = 'bar'
             """), ("main.bicep", """
@@ -156,7 +156,7 @@ public class DeploymentProcessorTests
               name: 'asdf9uasd9'
               mode: 'deployment'
               scope: '/subscriptions/foo/resourceGroups/bar'
-            }            
+            }
 
             param foo = 'bar'
             """), ("main.bicep", """
@@ -185,7 +185,7 @@ public class DeploymentProcessorTests
               name: 'asdf9uasd9'
               mode: 'deployment'
               scope: '/subscriptions/${subscriptionId}/resourceGroups/${resourceGroup}'
-            }            
+            }
 
             param foo = 'bar'
             """), ("main.bicep", """

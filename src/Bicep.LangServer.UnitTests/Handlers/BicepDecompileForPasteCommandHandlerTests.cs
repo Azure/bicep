@@ -1653,7 +1653,7 @@ name: 'Premium_LRS'
             DisplayName = "comments: string inside a /**/ comment"
         )]
         [DataRow(
-            @"var a = /* 
+            @"var a = /*
                 'not a| string' */ 123
                 ",
             PasteContext.None,

@@ -401,19 +401,19 @@ public class DereferenceTests
         var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(ResourceInfoCodegenEnabled: true)), """
             param condition bool
             param condition2 bool
-            
+
             resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' existing = if (condition) {
               name: 'storageacct'
-            
+
               resource bs 'blobServices' = {
                 name: 'default'
-            
+
                 resource container 'containers' = if (condition2) {
                   name: 'container'
                 }
               }
             }
-            
+
             output id string? = storageAccount::bs::container.?id
             output name string? = storageAccount::bs::container.?name
             output type string? = storageAccount::bs::container.?type
@@ -456,7 +456,7 @@ public class DereferenceTests
                 output nullableFoo2 string? = mod2.?outputs.?foo
                 output bar string? = mod.?outputs.bar
                 output nullableBar string? = mod.?outputs.?bar
-            
+
                 """),
             ("mod.bicep", """
                 output foo string = 'foo'
@@ -503,7 +503,7 @@ public class DereferenceTests
                   name: 'default'
                 }
 
-                module empty 'empty.bicep' = { 
+                module empty 'empty.bicep' = {
                   dependsOn: [
                     acct
                   ]
@@ -537,7 +537,7 @@ public class DereferenceTests
                   properties: {
                     publicAccess: conditionParent.properties.allowBlobPublicAccess ? 'Blob' : 'None'
                     metadata: {
-                      versioned: conditionChild.properties.isVersioningEnabled ? 'On' : 'Off' 
+                      versioned: conditionChild.properties.isVersioningEnabled ? 'On' : 'Off'
                     }
                   }
                 }

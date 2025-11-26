@@ -9,7 +9,7 @@
     <BicepOutputPath>bin\$(Configuration)\templates\$(TargetFramework)</BicepOutputPath>
   </PropertyGroup>
 
-  <!-- 
+  <!--
     Pickup latest available packages (including prerelease) from local feed configured in NuGet.config.
   -->
   <ItemGroup>

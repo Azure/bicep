@@ -252,8 +252,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     }
                     """),
                 ("mod3.bicep", """
-                    param name string 
-                    
+                    param name string
+
                     resource vnet 'Microsoft.Network/virtualNetworks@2024-07-01' = {
                       name: name
                     }

@@ -21,7 +21,7 @@ public class MultilineStringCodeFixProvider : ICodeFixProvider
             if (stringSyntax.IsVerbatimString() || // it's already a multi-line string
                 stringSyntax.TryGetLiteralValue() is not { } stringValue || // it's an interpolated string
                 !stringValue.Contains(newlineSequence) || // it's non-interpolated, but doesn't have newlines
-                stringValue.Contains("'''")) // there's no way to escape this sequence in a multiline string 
+                stringValue.Contains("'''")) // there's no way to escape this sequence in a multiline string
             {
                 continue;
             }
