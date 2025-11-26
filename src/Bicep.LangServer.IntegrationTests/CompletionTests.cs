@@ -4852,7 +4852,7 @@ param p validRecursiveObjectType = {
         }
 
         [TestMethod]
-        public async Task Compile_time_imports_do_not_offer_types_as_imported_symbol_list_item_completions_in_bicepparam_files()
+        public async Task Compile_time_imports_offer_types_as_imported_symbol_list_item_completions_in_bicepparam_files()
         {
             var modContent = """
               @export()
@@ -4883,7 +4883,7 @@ param p validRecursiveObjectType = {
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
             var completions = await file.RequestAndResolveCompletions(cursors[0]);
-            completions.Should().NotContain(c => c.Label == "foo");
+            completions.Should().Contain(c => c.Label == "foo");
             completions.Should().Contain(c => c.Label == "bar");
         }
 
