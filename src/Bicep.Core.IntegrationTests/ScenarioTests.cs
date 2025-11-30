@@ -7555,10 +7555,10 @@ output locations array = flatten(map(databases, database => database.properties.
               'ts-version': deployment().properties.template.metadata.version
             })
             """);
-                     
+
         result.Should().NotHaveAnyDiagnostics();
     }
-                                               
+
     public void Test_Issue18520()
     {
         var result = CompilationHelper.Compile(
