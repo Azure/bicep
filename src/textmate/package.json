@@ -24,7 +24,7 @@
     "ts-jest": "^29.4.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.47.0",
+    "typescript-eslint": "^8.48.0",
     "vscode-oniguruma": "^2.0.1",
     "vscode-textmate": "^9.2.1"
   },
