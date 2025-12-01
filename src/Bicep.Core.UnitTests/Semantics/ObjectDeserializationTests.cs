@@ -195,6 +195,25 @@ namespace Bicep.Core.UnitTests.Semantics
             Assert.AreEqual(89, jToken["age"]);
             Assert.AreEqual("Louaryland", jToken["addresses"]!["home"]!["city"]);
         }
+
+        [TestMethod]
+        public void MultiDocument_YAML_throws_BCP442()
+        {
+            // Multi-document YAML separated by '---'
+            var multiDocYaml = @"
+            first: doc
+            ---
+            second: doc
+            ";
+
+            // Using a dummy text span, consistent with the other tests
+            var span = new TextSpan(0, 10 - 0);
+
+            new YamlObjectParser().TryExtractFromObject(multiDocYaml, null, [span], out var errorDiagnostic, out JToken? jToken);
+
+            Assert.AreEqual("BCP442", errorDiagnostic!.Code);
+            Assert.IsNull(jToken);
+        }
     }
 
 }
