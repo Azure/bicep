@@ -10,7 +10,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10760791355972060746"
+      "templateHash": "68567476990140423"
     }
   },
   "parameters": {
@@ -43,6 +43,24 @@
     "extWithOptionalConfig2": {
       "name": "hasoptionalconfig",
       "version": "1.2.3"
+    },
+    "extWithOptionalConfig3": {
+      "name": "hasoptionalconfig",
+      "version": "1.2.3",
+      "config": {
+        "optionalString": {
+          "defaultValue": "[parameters('strParam1')]"
+        }
+      }
+    },
+    "extWithSecureStr1": {
+      "name": "hassecureconfig",
+      "version": "1.2.3",
+      "config": {
+        "requiredSecureString": {
+          "defaultValue": "[parameters('secureStrParam1')]"
+        }
+      }
     }
   },
   "resources": {

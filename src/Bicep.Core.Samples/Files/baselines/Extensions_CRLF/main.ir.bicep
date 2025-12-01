@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:3754) ProgramExpression
+//@[000:4045) ProgramExpression
 //@[000:0000) | | └─ObjectPropertyExpression [UNPARENTED]
 //@[000:0000) | |   ├─StringLiteralExpression { Value = name } [UNPARENTED]
 //@[000:0000) | |   └─FunctionCallExpression { Name = format } [UNPARENTED]
@@ -119,6 +119,22 @@ extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as 
 //@[000:0102) ├─ExtensionExpression { Name = extWithOptionalConfig1 }
 extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as extWithOptionalConfig2
 //@[000:0102) ├─ExtensionExpression { Name = extWithOptionalConfig2 }
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' with {
+//@[000:0141) ├─ExtensionExpression { Name = extWithOptionalConfig3 }
+//@[082:0115) | └─ObjectExpression
+  optionalString: strParam1
+//@[002:0027) |   └─ObjectPropertyExpression
+//@[002:0016) |     ├─StringLiteralExpression { Value = optionalString }
+//@[018:0027) |     └─ParametersReferenceExpression { Parameter = strParam1 }
+} as extWithOptionalConfig3
+extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' with {
+//@[000:0146) ├─ExtensionExpression { Name = extWithSecureStr1 }
+//@[080:0125) | └─ObjectExpression
+  requiredSecureString: secureStrParam1
+//@[002:0039) |   └─ObjectPropertyExpression
+//@[002:0022) |     ├─StringLiteralExpression { Value = requiredSecureString }
+//@[024:0039) |     └─ParametersReferenceExpression { Parameter = secureStrParam1 }
+} as extWithSecureStr1
 
 // END: Extension declarations
 

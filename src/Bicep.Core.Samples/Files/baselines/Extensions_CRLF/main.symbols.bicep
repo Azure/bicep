@@ -29,6 +29,14 @@ extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as 
 //@[080:102) ImportedNamespace extWithOptionalConfig1. Type: extWithOptionalConfig1. Declaration start char: 0, length: 102
 extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as extWithOptionalConfig2
 //@[080:102) ImportedNamespace extWithOptionalConfig2. Type: extWithOptionalConfig2. Declaration start char: 0, length: 102
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' with {
+  optionalString: strParam1
+} as extWithOptionalConfig3
+//@[005:027) ImportedNamespace extWithOptionalConfig3. Type: extWithOptionalConfig3. Declaration start char: 0, length: 141
+extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' with {
+  requiredSecureString: secureStrParam1
+} as extWithSecureStr1
+//@[005:022) ImportedNamespace extWithSecureStr1. Type: extWithSecureStr1. Declaration start char: 0, length: 146
 
 // END: Extension declarations
 

@@ -65,7 +65,39 @@ extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as 
 //@[010:076) StringComplete |'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3'|
 //@[077:079) Identifier |as|
 //@[080:102) Identifier |extWithOptionalConfig2|
-//@[102:106) NewLine |\r\n\r\n|
+//@[102:104) NewLine |\r\n|
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' with {
+//@[000:009) Identifier |extension|
+//@[010:076) StringComplete |'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3'|
+//@[077:081) Identifier |with|
+//@[082:083) LeftBrace |{|
+//@[083:085) NewLine |\r\n|
+  optionalString: strParam1
+//@[002:016) Identifier |optionalString|
+//@[016:017) Colon |:|
+//@[018:027) Identifier |strParam1|
+//@[027:029) NewLine |\r\n|
+} as extWithOptionalConfig3
+//@[000:001) RightBrace |}|
+//@[002:004) Identifier |as|
+//@[005:027) Identifier |extWithOptionalConfig3|
+//@[027:029) NewLine |\r\n|
+extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' with {
+//@[000:009) Identifier |extension|
+//@[010:074) StringComplete |'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3'|
+//@[075:079) Identifier |with|
+//@[080:081) LeftBrace |{|
+//@[081:083) NewLine |\r\n|
+  requiredSecureString: secureStrParam1
+//@[002:022) Identifier |requiredSecureString|
+//@[022:023) Colon |:|
+//@[024:039) Identifier |secureStrParam1|
+//@[039:041) NewLine |\r\n|
+} as extWithSecureStr1
+//@[000:001) RightBrace |}|
+//@[002:004) Identifier |as|
+//@[005:022) Identifier |extWithSecureStr1|
+//@[022:026) NewLine |\r\n\r\n|
 
 // END: Extension declarations
 //@[030:034) NewLine |\r\n\r\n|

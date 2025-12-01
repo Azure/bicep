@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:3754) ProgramSyntax
+//@[000:4045) ProgramSyntax
 //@[020:0024) ├─Token(NewLine) |\r\n\r\n|
 
 param strParam1 string
@@ -103,7 +103,59 @@ extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as 
 //@[077:0079) |   ├─Token(Identifier) |as|
 //@[080:0102) |   └─IdentifierSyntax
 //@[080:0102) |     └─Token(Identifier) |extWithOptionalConfig2|
-//@[102:0106) ├─Token(NewLine) |\r\n\r\n|
+//@[102:0104) ├─Token(NewLine) |\r\n|
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' with {
+//@[000:0141) ├─ExtensionDeclarationSyntax
+//@[000:0009) | ├─Token(Identifier) |extension|
+//@[010:0076) | ├─StringSyntax
+//@[010:0076) | | └─Token(StringComplete) |'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3'|
+//@[077:0115) | ├─ExtensionWithClauseSyntax
+//@[077:0081) | | ├─Token(Identifier) |with|
+//@[082:0115) | | └─ObjectSyntax
+//@[082:0083) | |   ├─Token(LeftBrace) |{|
+//@[083:0085) | |   ├─Token(NewLine) |\r\n|
+  optionalString: strParam1
+//@[002:0027) | |   ├─ObjectPropertySyntax
+//@[002:0016) | |   | ├─IdentifierSyntax
+//@[002:0016) | |   | | └─Token(Identifier) |optionalString|
+//@[016:0017) | |   | ├─Token(Colon) |:|
+//@[018:0027) | |   | └─VariableAccessSyntax
+//@[018:0027) | |   |   └─IdentifierSyntax
+//@[018:0027) | |   |     └─Token(Identifier) |strParam1|
+//@[027:0029) | |   ├─Token(NewLine) |\r\n|
+} as extWithOptionalConfig3
+//@[000:0001) | |   └─Token(RightBrace) |}|
+//@[002:0027) | └─AliasAsClauseSyntax
+//@[002:0004) |   ├─Token(Identifier) |as|
+//@[005:0027) |   └─IdentifierSyntax
+//@[005:0027) |     └─Token(Identifier) |extWithOptionalConfig3|
+//@[027:0029) ├─Token(NewLine) |\r\n|
+extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' with {
+//@[000:0146) ├─ExtensionDeclarationSyntax
+//@[000:0009) | ├─Token(Identifier) |extension|
+//@[010:0074) | ├─StringSyntax
+//@[010:0074) | | └─Token(StringComplete) |'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3'|
+//@[075:0125) | ├─ExtensionWithClauseSyntax
+//@[075:0079) | | ├─Token(Identifier) |with|
+//@[080:0125) | | └─ObjectSyntax
+//@[080:0081) | |   ├─Token(LeftBrace) |{|
+//@[081:0083) | |   ├─Token(NewLine) |\r\n|
+  requiredSecureString: secureStrParam1
+//@[002:0039) | |   ├─ObjectPropertySyntax
+//@[002:0022) | |   | ├─IdentifierSyntax
+//@[002:0022) | |   | | └─Token(Identifier) |requiredSecureString|
+//@[022:0023) | |   | ├─Token(Colon) |:|
+//@[024:0039) | |   | └─VariableAccessSyntax
+//@[024:0039) | |   |   └─IdentifierSyntax
+//@[024:0039) | |   |     └─Token(Identifier) |secureStrParam1|
+//@[039:0041) | |   ├─Token(NewLine) |\r\n|
+} as extWithSecureStr1
+//@[000:0001) | |   └─Token(RightBrace) |}|
+//@[002:0022) | └─AliasAsClauseSyntax
+//@[002:0004) |   ├─Token(Identifier) |as|
+//@[005:0022) |   └─IdentifierSyntax
+//@[005:0022) |     └─Token(Identifier) |extWithSecureStr1|
+//@[022:0026) ├─Token(NewLine) |\r\n\r\n|
 
 // END: Extension declarations
 //@[030:0034) ├─Token(NewLine) |\r\n\r\n|

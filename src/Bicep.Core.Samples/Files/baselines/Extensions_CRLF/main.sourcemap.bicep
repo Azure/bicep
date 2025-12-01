@@ -46,7 +46,31 @@ extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as 
 //@    "extWithOptionalConfig2": {
 //@      "name": "hasoptionalconfig",
 //@      "version": "1.2.3"
+//@    },
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' with {
+//@    "extWithOptionalConfig3": {
+//@      "name": "hasoptionalconfig",
+//@      "version": "1.2.3",
+//@      "config": {
+//@        "optionalString": {
+//@        }
+//@      }
+//@    },
+  optionalString: strParam1
+//@          "defaultValue": "[parameters('strParam1')]"
+} as extWithOptionalConfig3
+extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' with {
+//@    "extWithSecureStr1": {
+//@      "name": "hassecureconfig",
+//@      "version": "1.2.3",
+//@      "config": {
+//@        "requiredSecureString": {
+//@        }
+//@      }
 //@    }
+  requiredSecureString: secureStrParam1
+//@          "defaultValue": "[parameters('secureStrParam1')]"
+} as extWithSecureStr1
 
 // END: Extension declarations
 
