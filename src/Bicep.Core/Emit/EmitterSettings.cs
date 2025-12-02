@@ -37,8 +37,14 @@ namespace Bicep.Core.Emit
                 // there are any wildcard compile-time imports
                 model.Root.WildcardImports.Any() ||
                 // there are any existing resources with explicit dependencies
-                model.Root.ResourceDeclarations.Any(r => r.DeclaringResource.IsExistingResource() &&
-                    r.DeclaringResource.TryGetBody()?.TryGetPropertyByName(LanguageConstants.ResourceDependsOnPropertyName) is not null) ||
+                SyntaxAggregator.Aggregate(model.SourceFile.ProgramSyntax,
+                    seed: false,
+                    function: (found, syntax) => found ||
+                        (syntax is ResourceDeclarationSyntax resourceSyntax &&
+                            resourceSyntax.IsExistingResource() &&
+                            resourceSyntax.TryGetBody()?.TryGetPropertyByName(LanguageConstants.ResourceDependsOnPropertyName) is not null),
+                    resultSelector: result => result,
+                    continuationFunction: (result, syntax) => !result) ||
                 // there are secure outputs
                 model.Outputs.Any(output => output.IsSecure) ||
                 // there are secure outputs in modules
@@ -58,7 +64,16 @@ namespace Bicep.Core.Emit
                     continuationFunction: (result, syntax) => !result) ||
                 // there are optional module names
                 model.Root.ModuleDeclarations.Any(module => module.TryGetBodyProperty(LanguageConstants.ModuleNamePropertyName) is null) ||
-                model.Root.ResourceDeclarations.Any(resource => resource.TryGetDecorator(model, SystemNamespaceType.BuiltInName, LanguageConstants.OnlyIfNotExistsPropertyName) is not null);
+                SyntaxAggregator.Aggregate(model.SourceFile.ProgramSyntax,
+                    seed: false,
+                    function: (found, syntax) => found ||
+                        (syntax is ResourceDeclarationSyntax resourceSyntax && SemanticModelHelper.TryGetDecoratorInNamespace(
+                            model,
+                            resourceSyntax,
+                            SystemNamespaceType.BuiltInName,
+                            LanguageConstants.OnlyIfNotExistsPropertyName) is not null),
+                    resultSelector: result => result,
+                    continuationFunction: (result, syntax) => !result);
         }
 
         /// <summary>
