@@ -7559,6 +7559,7 @@ output locations array = flatten(map(databases, database => database.properties.
         result.Should().NotHaveAnyDiagnostics();
     }
 
+    [TestMethod]
     public void Test_Issue18520()
     {
         var result = CompilationHelper.Compile(
@@ -7584,5 +7585,67 @@ output locations array = flatten(map(databases, database => database.properties.
                 """));
 
         result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue18603()
+    {
+        var result = CompilationHelper.Compile("""
+            @secure()
+            param secretValue string
+
+            resource keyVault 'Microsoft.KeyVault/vaults@2025-05-01' = {
+              name: 'name'
+              location: resourceGroup().location
+              properties: {
+                tenantId: subscription().tenantId
+                sku: {
+                  family: 'A'
+                  name: 'standard'
+                }
+                softDeleteRetentionInDays: 30
+                enableRbacAuthorization: true
+              }
+
+              @onlyIfNotExists()
+              resource clientSecret 'secrets' = {
+                name: 'secret'
+                properties: {
+                  value: secretValue
+                }
+              }
+            }
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
+    }
+
+    [TestMethod]
+    public void Syntactically_nested_existing_resources_with_explicit_dependencies_should_use_lv_2()
+    {
+        var result = CompilationHelper.Compile("""
+            resource keyVault 'Microsoft.KeyVault/vaults@2025-05-01' existing = {
+              name: 'name'
+
+              resource clientSecret 'secrets' existing = {
+                name: 'secret'
+                dependsOn: [
+                  c
+                ]
+              }
+            }
+            
+            
+            resource c 'Microsoft.Network/dnsZones@2018-05-01' = {
+              name: 'zone'
+              location: resourceGroup().location
+            }
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
     }
 }
