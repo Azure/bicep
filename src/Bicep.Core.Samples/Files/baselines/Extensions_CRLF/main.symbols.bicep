@@ -16,6 +16,8 @@ param boolParam1 bool
 
 var strVar1 = 'strVar1Value'
 //@[004:011) Variable strVar1. Type: 'strVar1Value'. Declaration start char: 0, length: 28
+var strParamVar1 = strParam1
+//@[004:016) Variable strParamVar1. Type: string. Declaration start char: 0, length: 28
 
 // END: Variables
 
@@ -37,6 +39,14 @@ extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' with 
   requiredSecureString: secureStrParam1
 } as extWithSecureStr1
 //@[005:022) ImportedNamespace extWithSecureStr1. Type: extWithSecureStr1. Declaration start char: 0, length: 146
+extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' with {
+  requiredString: testResource1.id
+} as extWithConfig1
+//@[005:019) ImportedNamespace extWithConfig1. Type: extWithConfig1. Declaration start char: 0, length: 132
+extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' with {
+  requiredString: boolParam1 ? strParamVar1 : strParam1
+} as extWithConfig2
+//@[005:019) ImportedNamespace extWithConfig2. Type: extWithConfig2. Declaration start char: 0, length: 153
 
 // END: Extension declarations
 

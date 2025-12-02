@@ -21,7 +21,9 @@ param boolParam1 bool
 // BEGIN: Variables
 
 var strVar1 = 'strVar1Value'
-//@    "strVar1": "strVar1Value"
+//@    "strVar1": "strVar1Value",
+var strParamVar1 = strParam1
+//@    "strParamVar1": "[parameters('strParam1')]"
 
 // END: Variables
 
@@ -67,10 +69,34 @@ extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' with 
 //@        "requiredSecureString": {
 //@        }
 //@      }
-//@    }
+//@    },
   requiredSecureString: secureStrParam1
 //@          "defaultValue": "[parameters('secureStrParam1')]"
 } as extWithSecureStr1
+extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' with {
+//@    "extWithConfig1": {
+//@      "name": "hasconfig",
+//@      "version": "1.2.3",
+//@      "config": {
+//@        "requiredString": {
+//@        }
+//@      }
+//@    },
+  requiredString: testResource1.id
+//@          "defaultValue": "[resourceId('My.Rp/TestType', 'testResource1')]"
+} as extWithConfig1
+extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' with {
+//@    "extWithConfig2": {
+//@      "name": "hasconfig",
+//@      "version": "1.2.3",
+//@      "config": {
+//@        "requiredString": {
+//@        }
+//@      }
+//@    }
+  requiredString: boolParam1 ? strParamVar1 : strParam1
+//@          "defaultValue": "[if(parameters('boolParam1'), variables('strParamVar1'), parameters('strParam1'))]"
+} as extWithConfig2
 
 // END: Extension declarations
 

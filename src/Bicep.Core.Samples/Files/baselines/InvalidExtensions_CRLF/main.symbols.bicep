@@ -34,6 +34,11 @@ extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' wit
 } as invalidExtDecl2
 //@[05:020) ImportedNamespace invalidExtDecl2. Type: invalidExtDecl2. Declaration start char: 0, length: 134
 
+extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' with {
+  requiredSecureString: kv1.getSecret('abc')
+} as invalidExtDecl3
+//@[05:020) ImportedNamespace invalidExtDecl3. Type: invalidExtDecl3. Declaration start char: 0, length: 149
+
 // END: Invalid extension declarations
 
 // BEGIN: Key vaults

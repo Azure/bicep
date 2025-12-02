@@ -30,6 +30,12 @@ extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' wit
 //@[18:025) [BCP065 (Error)] Function "newGuid" is not valid at this location. It can only be used as a parameter default value. (bicep https://aka.ms/bicep/core-diagnostics#BCP065) |newGuid|
 } as invalidExtDecl2
 
+extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' with {
+  requiredSecureString: kv1.getSecret('abc')
+//@[24:027) [BCP444 (Error)] This expression is being used as a default value for an extension configuration property, which requires a value that can be calculated at the start of the deployment. Properties of kv1 which can be calculated at the start include "apiVersion", "id", "name", "type". (bicep https://aka.ms/bicep/core-diagnostics#BCP444) |kv1|
+//@[24:044) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator or a secure extension configuration property. (bicep https://aka.ms/bicep/core-diagnostics#BCP180) |kv1.getSecret('abc')|
+} as invalidExtDecl3
+
 // END: Invalid extension declarations
 
 // BEGIN: Key vaults

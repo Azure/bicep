@@ -97,6 +97,28 @@ extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' wit
 //@[005:020) Identifier |invalidExtDecl2|
 //@[020:024) NewLine |\r\n\r\n|
 
+extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' with {
+//@[000:009) Identifier |extension|
+//@[010:074) StringComplete |'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3'|
+//@[075:079) Identifier |with|
+//@[080:081) LeftBrace |{|
+//@[081:083) NewLine |\r\n|
+  requiredSecureString: kv1.getSecret('abc')
+//@[002:022) Identifier |requiredSecureString|
+//@[022:023) Colon |:|
+//@[024:027) Identifier |kv1|
+//@[027:028) Dot |.|
+//@[028:037) Identifier |getSecret|
+//@[037:038) LeftParen |(|
+//@[038:043) StringComplete |'abc'|
+//@[043:044) RightParen |)|
+//@[044:046) NewLine |\r\n|
+} as invalidExtDecl3
+//@[000:001) RightBrace |}|
+//@[002:004) Identifier |as|
+//@[005:020) Identifier |invalidExtDecl3|
+//@[020:024) NewLine |\r\n\r\n|
+
 // END: Invalid extension declarations
 //@[038:042) NewLine |\r\n\r\n|
 

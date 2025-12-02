@@ -25,6 +25,10 @@ extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' wit
   optionalString: newGuid()
 } as invalidExtDecl2
 
+extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' with {
+  requiredSecureString: kv1.getSecret('abc')
+} as invalidExtDecl3
+
 // END: Invalid extension declarations
 
 // BEGIN: Key vaults

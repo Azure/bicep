@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:4577) ProgramSyntax
+//@[000:4730) ProgramSyntax
 //@[020:0024) ├─Token(NewLine) |\r\n\r\n|
 
 param boolParam1 bool
@@ -157,6 +157,42 @@ extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' wit
 //@[002:0004) |   ├─Token(Identifier) |as|
 //@[005:0020) |   └─IdentifierSyntax
 //@[005:0020) |     └─Token(Identifier) |invalidExtDecl2|
+//@[020:0024) ├─Token(NewLine) |\r\n\r\n|
+
+extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' with {
+//@[000:0149) ├─ExtensionDeclarationSyntax
+//@[000:0009) | ├─Token(Identifier) |extension|
+//@[010:0074) | ├─StringSyntax
+//@[010:0074) | | └─Token(StringComplete) |'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3'|
+//@[075:0130) | ├─ExtensionWithClauseSyntax
+//@[075:0079) | | ├─Token(Identifier) |with|
+//@[080:0130) | | └─ObjectSyntax
+//@[080:0081) | |   ├─Token(LeftBrace) |{|
+//@[081:0083) | |   ├─Token(NewLine) |\r\n|
+  requiredSecureString: kv1.getSecret('abc')
+//@[002:0044) | |   ├─ObjectPropertySyntax
+//@[002:0022) | |   | ├─IdentifierSyntax
+//@[002:0022) | |   | | └─Token(Identifier) |requiredSecureString|
+//@[022:0023) | |   | ├─Token(Colon) |:|
+//@[024:0044) | |   | └─InstanceFunctionCallSyntax
+//@[024:0027) | |   |   ├─VariableAccessSyntax
+//@[024:0027) | |   |   | └─IdentifierSyntax
+//@[024:0027) | |   |   |   └─Token(Identifier) |kv1|
+//@[027:0028) | |   |   ├─Token(Dot) |.|
+//@[028:0037) | |   |   ├─IdentifierSyntax
+//@[028:0037) | |   |   | └─Token(Identifier) |getSecret|
+//@[037:0038) | |   |   ├─Token(LeftParen) |(|
+//@[038:0043) | |   |   ├─FunctionArgumentSyntax
+//@[038:0043) | |   |   | └─StringSyntax
+//@[038:0043) | |   |   |   └─Token(StringComplete) |'abc'|
+//@[043:0044) | |   |   └─Token(RightParen) |)|
+//@[044:0046) | |   ├─Token(NewLine) |\r\n|
+} as invalidExtDecl3
+//@[000:0001) | |   └─Token(RightBrace) |}|
+//@[002:0020) | └─AliasAsClauseSyntax
+//@[002:0004) |   ├─Token(Identifier) |as|
+//@[005:0020) |   └─IdentifierSyntax
+//@[005:0020) |     └─Token(Identifier) |invalidExtDecl3|
 //@[020:0024) ├─Token(NewLine) |\r\n\r\n|
 
 // END: Invalid extension declarations

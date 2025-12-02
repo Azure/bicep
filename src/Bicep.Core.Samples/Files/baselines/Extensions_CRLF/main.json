@@ -10,7 +10,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "68567476990140423"
+      "templateHash": "2332865048346148420"
     }
   },
   "parameters": {
@@ -25,7 +25,8 @@
     }
   },
   "variables": {
-    "strVar1": "strVar1Value"
+    "strVar1": "strVar1Value",
+    "strParamVar1": "[parameters('strParam1')]"
   },
   "extensions": {
     "az": {
@@ -59,6 +60,24 @@
       "config": {
         "requiredSecureString": {
           "defaultValue": "[parameters('secureStrParam1')]"
+        }
+      }
+    },
+    "extWithConfig1": {
+      "name": "hasconfig",
+      "version": "1.2.3",
+      "config": {
+        "requiredString": {
+          "defaultValue": "[resourceId('My.Rp/TestType', 'testResource1')]"
+        }
+      }
+    },
+    "extWithConfig2": {
+      "name": "hasconfig",
+      "version": "1.2.3",
+      "config": {
+        "requiredString": {
+          "defaultValue": "[if(parameters('boolParam1'), variables('strParamVar1'), parameters('strParam1'))]"
         }
       }
     }

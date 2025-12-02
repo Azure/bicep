@@ -12,6 +12,7 @@ param boolParam1 bool
 // BEGIN: Variables
 
 var strVar1 = 'strVar1Value'
+var strParamVar1 = strParam1
 
 // END: Variables
 
@@ -27,6 +28,12 @@ extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' wit
 extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' with {
   requiredSecureString: secureStrParam1
 } as extWithSecureStr1
+extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' with {
+  requiredString: testResource1.id
+} as extWithConfig1
+extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' with {
+  requiredString: boolParam1 ? strParamVar1 : strParam1
+} as extWithConfig2
 
 // END: Extension declarations
 
