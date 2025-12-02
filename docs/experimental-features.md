@@ -3,6 +3,9 @@
 > [!WARNING]
 > Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.
 
+> [!WARNING]
+> Experimental features in Bicep are not support by Microsoft customer support.
+
 Bicep exposes experimental features as a means of previewing new functionality that hasn't yet been stabilized for general availability. This provides a valuable way for us to release functionality and collect feedback, without affecting existing users, or introducing features that may require breaking changes.
 
 ## List of features
