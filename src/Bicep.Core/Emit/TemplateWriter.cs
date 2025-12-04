@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Globalization;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Helpers;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Resources;
@@ -43,8 +44,17 @@ namespace Bicep.Core.Emit
 
             return moduleSemanticModel;
         }
-        private static string GetSchema(ResourceScope targetScope)
+        private static string GetSchema(SemanticModel semanticModel)
         {
+            // TODO: Is this the best way to determine that this file has the DSC extension?
+            if (semanticModel.Configuration.ExperimentalFeaturesEnabled.DesiredStateConfiguration
+                && semanticModel.SourceFile.Configuration.Extensions.TryGetExtensionSource("dsc").IsSuccess())
+            {
+                return "https://aka.ms/dsc/schemas/v3/bundled/config/document.json"; // the trailing '#' is against DSC's schema
+            }
+
+            ResourceScope targetScope = semanticModel.TargetScope;
+
             if (targetScope.HasFlag(ResourceScope.Tenant))
             {
                 return "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#";
@@ -58,12 +68,6 @@ namespace Bicep.Core.Emit
             if (targetScope.HasFlag(ResourceScope.Subscription))
             {
                 return "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#";
-            }
-
-            // The feature flag is checked during scope validation, so just always handle it here.
-            if (targetScope.HasFlag(ResourceScope.DesiredStateConfiguration))
-            {
-                return "https://aka.ms/dsc/schemas/v3/bundled/config/document.json"; // the trailing '#' is against DSC's schema
             }
 
             return "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
@@ -109,7 +113,7 @@ namespace Bicep.Core.Emit
 
             jsonWriter.WriteStartObject();
 
-            emitter.EmitProperty("$schema", GetSchema(Context.SemanticModel.TargetScope));
+            emitter.EmitProperty("$schema", GetSchema(Context.SemanticModel));
 
             if (Context.Settings.UseExperimentalTemplateLanguageVersion)
             {
@@ -1254,9 +1258,11 @@ namespace Bicep.Core.Emit
                     });
                 }
 
+                // TODO: Is this the best way to determine that this file has the DSC extension?
                 if (metadata.IsAzResource ||
-                    Context.SemanticModel.TargetScope == ResourceScope.DesiredStateConfiguration ||
-                    this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
+                    this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled ||
+                    (this.Context.SemanticModel.Configuration.ExperimentalFeaturesEnabled.DesiredStateConfiguration
+                        && this.Context.SemanticModel.SourceFile.Configuration.Extensions.TryGetExtensionSource("dsc").IsSuccess()))
                 {
                     emitter.EmitProperty("type", metadata.TypeReference.FormatType());
                     if (metadata.TypeReference.ApiVersion is not null)

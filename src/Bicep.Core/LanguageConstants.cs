@@ -92,7 +92,6 @@ namespace Bicep.Core
         public const string TargetScopeTypeManagementGroup = "managementGroup";
         public const string TargetScopeTypeSubscription = "subscription";
         public const string TargetScopeTypeResourceGroup = "resourceGroup";
-        public const string TargetScopeTypeDesiredStateConfiguration = "desiredStateConfiguration";
         public const string TargetScopeTypeLocal = "local";
 
         public const string CopyLoopIdentifier = "copy";
@@ -342,10 +341,6 @@ namespace Bicep.Core
             if (resourceScope.HasFlag(ResourceScope.ResourceGroup))
             {
                 yield return "resourceGroup";
-            }
-            if (resourceScope.HasFlag(ResourceScope.DesiredStateConfiguration))
-            {
-                yield return "desiredStateConfiguration";
             }
             if (resourceScope.HasFlag(ResourceScope.Local))
             {
