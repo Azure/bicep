@@ -79,4 +79,5 @@ true
 - No completions support
 
 ## Raising bugs or feature requests
-Please raise bug reports or feature requests under [Bicep REPL issue](https://github.com/Azure/bicep/issues/11963).
+
+Please raise bug reports or feature requests under [Bicep Issues](https://github.com/Azure/bicep/issues) as usual.
