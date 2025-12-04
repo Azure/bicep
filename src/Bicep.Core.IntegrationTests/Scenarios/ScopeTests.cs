@@ -68,7 +68,7 @@ var managementGroups = [
 ]
 
 resource mgs 'Microsoft.Management/managementGroups@2020-02-01' = [for mgname in managementGroups: {
-  name: mgname  
+  name: mgname
 }]
 
 
@@ -105,7 +105,7 @@ var managementGroups = [
 ]
 
 resource mgs 'Microsoft.Management/managementGroups@2020-02-01' existing = [for mgname in managementGroups: {
-  name: mgname  
+  name: mgname
 }]
 
 
@@ -140,13 +140,13 @@ var resourceGroups = [
   {
     name: 'test-uat-rg'
     sub: '00000000-0000-0000-0000-000000000000'
-  } 
+  }
 ]
 
 // base resource group deployment
 resource rgs 'Microsoft.Resources/resourceGroups@2021-04-01' existing = [for rg in resourceGroups: {
   name: rg.name
-  scope: subscription(rg.sub)  
+  scope: subscription(rg.sub)
 }]
 
 module storage 'storage.bicep' = {

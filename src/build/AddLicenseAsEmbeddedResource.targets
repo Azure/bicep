@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <LicenseFilePath>$(MSBuildProjectDirectory)\..\..\LICENSE</LicenseFilePath>
-    <DeflatedLicenseFilePath>$(IntermediateOutputPath)LICENSE.deflated</DeflatedLicenseFilePath>    
+    <DeflatedLicenseFilePath>$(IntermediateOutputPath)LICENSE.deflated</DeflatedLicenseFilePath>
   </PropertyGroup>
 
   <Import Project="CompressFileTask.targets" Condition="'$(CompressFileTaskImported)' != 'true'" />

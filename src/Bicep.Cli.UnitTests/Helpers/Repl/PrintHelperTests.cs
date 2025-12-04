@@ -86,7 +86,7 @@ public class PrintHelperTests
                    [Red]~~~ The name "def" does not exist in the current context.[Reset]
               [DarkYellow]ghi[Reset]: [Orange]123[Reset][Reset],[Reset]
                        [Red]^ Unexpected new line character after a comma.[Reset]
-            
+
             """);
     }
 }

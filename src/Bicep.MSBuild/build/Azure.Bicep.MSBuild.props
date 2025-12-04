@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- 
+    <!--
       This has the following effect in Visual Studio:
       - Makes project up-to-date checks aware of Bicep items
       - Makes "Bicep" one of the Build Actions available for a file.

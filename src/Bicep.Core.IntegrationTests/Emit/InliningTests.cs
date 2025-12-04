@@ -302,7 +302,7 @@ public class InliningTests
               }
               kind: 'StorageV2'
             }
-            
+
             resource blobs 'Microsoft.Storage/storageAccounts/blobServices@2025-01-01' = {
               name: 'default'
               parent: sa

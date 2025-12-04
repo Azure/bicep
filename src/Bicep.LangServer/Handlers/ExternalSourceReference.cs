@@ -210,7 +210,7 @@ namespace Bicep.LanguageServer.Handlers
             .*
             \$(?<repoName>[^\/\$]+)
             \/(?<tag>[^\/\$]+)\$[^\/\$]*
-            \/(?<filename>[^\/]+)$            
+            \/(?<filename>[^\/]+)$
             """, RegexOptions.IgnorePatternWhitespace)]
         private static partial Regex ExternalModulePathRegex();
 

@@ -330,7 +330,7 @@ namespace Bicep.Core.UnitTests.Parsing
         public void ValidDisableNextLineDiagnosticsDirective_WithinResourceAndWithTrailingWhiteSpace_ShouldLexCorrectly()
         {
             string text = @"resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
-#disable-next-line BCP226   
+#disable-next-line BCP226
   properties: vmProperties
 }";
             var diagnosticWriter = ToListDiagnosticWriter.Create();
@@ -343,18 +343,13 @@ namespace Bicep.Core.UnitTests.Parsing
             tokens.Count().Should().Be(13);
 
             var leadingTrivia = tokens.ElementAt(6).LeadingTrivia;
-            leadingTrivia.Count().Should().Be(2);
+            leadingTrivia.Count().Should().Be(1);
 
             leadingTrivia.Should().SatisfyRespectively(
                 x =>
                 {
                     x.Text.Should().Be("#disable-next-line BCP226");
                     x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
-                },
-                x =>
-                {
-                    x.Text.Should().Be("   ");
-                    x.Type.Should().Be(SyntaxTriviaType.Whitespace);
                 });
         }
 

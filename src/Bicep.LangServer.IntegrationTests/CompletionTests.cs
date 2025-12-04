@@ -2739,7 +2739,7 @@ func foo(innerVar string) string => '${outerVar|}'
         [TestMethod]
         public async Task Func_definition_lambda_completions_suggest_imported_variables()
         {
-            var exportContent = """              
+            var exportContent = """
 @export()
 var whatsup = 'Whatsup?'
 """;
@@ -5833,7 +5833,7 @@ output people Person[] = [{
               name: 'foo'
               |
             }
-            
+
             output readOnlyRequired string = myRes.readOnlyRequired
             """);
 

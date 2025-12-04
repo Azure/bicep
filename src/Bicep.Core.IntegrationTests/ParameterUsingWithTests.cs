@@ -98,7 +98,7 @@ param foo string
             ("parameters.bicepparam", """
                 var subscriptionId = readEnvVar('SUBSCRIPTION_ID')
                 var resourceGroup = readEnvVar('RESOURCE_GROUP')
-    
+
                 using 'main.bicep' with {
                   name: 'asdf9uasd9'
                   mode: 'stack'
@@ -111,7 +111,7 @@ param foo string
                     mode: 'denyDelete'
                   }
                 }
-    
+
                 param foo = 'bar'
                 """),
             ("main.bicep", """
