@@ -17,7 +17,7 @@ import { daysToMs, monthsToDays } from "../utils/time";
 //   "bicep.debug.surveys.now": "2023-10-01 PDT" // or whatever date you want to pretend the current date/time is
 //                                               //   (assumes GMT if you don't specify a time zone)
 //   "bicep.debug.surveys.link:<old link>": "<new link>" // Use a different link for a survey
-//       // e.g., "bicep.debug.surveys.link:bicep/surveys/annual": "bicep/surveys/testLink"
+//       // e.g., "bicep.debug.surveys.link:bicep-csat-survey": "bicep/surveys/testLink"
 //
 // To reset global state for surveys, add this:
 //   "bicep.debug.surveys.clearState": true
@@ -25,9 +25,9 @@ import { daysToMs, monthsToDays } from "../utils/time";
 // You'll need to manually set it back to false if you don't want it to keep clearing on each startup
 // ======================================================
 
-// Annual HaTS survey
-const hatsAnnualSurveyInfo: ISurveyInfo = {
-  akaLinkToSurvey: "bicep/surveys/annual",
+// Always on HaTS survey
+const hatsAlwaysOnSurveyInfo: ISurveyInfo = {
+  akaLinkToSurvey: "bicep-csat-survey",
   // Enough to be sure we don't ask again before the next survey, but still have flexibility about sending out the next
   //   survey earlier than a year if we want to.
   postponeAfterTakenInDays: monthsToDays(6),
@@ -43,7 +43,7 @@ const debugSurveyLinkKeyPrefix = "debug.surveys.link:";
 type MessageItemWithId = MessageItem & { id: string };
 
 export function showSurveys(globalState: GlobalState): void {
-  checkShowSurvey(globalState, hatsAnnualSurveyInfo);
+  checkShowSurvey(globalState, hatsAlwaysOnSurveyInfo);
 }
 
 export function checkShowSurvey(globalState: GlobalState, surveyInfo: ISurveyInfo): void {
