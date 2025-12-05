@@ -363,6 +363,11 @@ namespace Bicep.Core.Parsing
             }
         }
 
+        private record DiagnosticPragmaDescriptor(DiagnosticsPragmaType Type, string Keyword);
+
+        private static readonly ImmutableArray<DiagnosticPragmaDescriptor> DiagnosticPragmaDescriptors =
+            [.. Enum.GetValues<DiagnosticsPragmaType>().Select(t => new DiagnosticPragmaDescriptor(t, t.GetKeyword()))];
+
         private IEnumerable<SyntaxTrivia> ScanLeadingTrivia()
         {
             SyntaxTrivia? current = null;
@@ -384,13 +389,11 @@ namespace Bicep.Core.Parsing
                 else if (
                     (current is null || !current.IsComment()) &&
                     textWindow.Peek() == '#' &&
-                    Enum.GetValues<DiagnosticsPragmaType>()
-                        .Where(pragmaType => CheckAdjacentText(pragmaType.GetKeyword()))
-                        .Cast<DiagnosticsPragmaType?>()
-                        .FirstOrDefault() is DiagnosticsPragmaType pragmaType &&
+                    DiagnosticPragmaDescriptors.Where(descriptor => CheckAdjacentText(descriptor.Keyword))
+                        .FirstOrDefault() is { } descriptor &&
                     string.IsNullOrWhiteSpace(textWindow.GetTextBetweenLineStartAndCurrentPosition()))
                 {
-                    current = ScanDiagnosticsPragma(pragmaType);
+                    current = ScanDiagnosticsPragma(descriptor);
                 }
                 else
                 {
@@ -401,10 +404,10 @@ namespace Bicep.Core.Parsing
             }
         }
 
-        private DiagnosticsPragmaSyntaxTrivia ScanDiagnosticsPragma(DiagnosticsPragmaType pragmaType)
+        private DiagnosticsPragmaSyntaxTrivia ScanDiagnosticsPragma(DiagnosticPragmaDescriptor pragmaDescriptor)
         {
             textWindow.Reset();
-            textWindow.Advance(pragmaType.GetKeyword().Length + 1); // Length of keyword plus #
+            textWindow.Advance(pragmaDescriptor.Keyword.Length + 1); // Length of keyword plus #
 
             var span = textWindow.GetSpan();
             int start = span.Position;
@@ -477,7 +480,7 @@ namespace Bicep.Core.Parsing
                 AddDiagnostic(b => b.MissingDiagnosticCodes());
             }
 
-            return GetDiagnosticsPragmaSyntaxTrivia(pragmaType, codes, start, end, sb.ToString());
+            return GetDiagnosticsPragmaSyntaxTrivia(pragmaDescriptor.Type, codes, start, end, sb.ToString());
         }
 
         private bool CheckAdjacentText(string text)

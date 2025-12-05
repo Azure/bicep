@@ -75,10 +75,10 @@ public class DisabledDiagnosticsCache
             Dictionary<string, ImmutableArray<TextSpan>> disabledDiagnosticSpansByCodeBuilder = new();
             foreach (var kvp in visitor.disabledDiagnosticSpanStarts)
             {
-                visitor.disabledDiagnosticSpansByCode.GetOrAdd(kvp.Key, _ => new()).Add(new(kvp.Value, visitor.eof));
+                visitor.disabledDiagnosticSpansByCode.GetOrAdd(kvp.Key, _ => new()).Add(new(kvp.Value, visitor.eof - kvp.Value));
             }
 
-            foreach (var kvp in visitor.disabledDiagnosticSpansByCode)
+            foreach (var kvp in visitor.disabledDiagnosticSpansByCode.Where(kvp => kvp.Value.Count > 0))
             {
                 kvp.Value.Sort((a, b) => a.Position.CompareTo(b.Position));
 
@@ -123,7 +123,7 @@ public class DisabledDiagnosticsCache
                         int spanEnd = line + 2 < lineStarts.Length ? lineStarts[line + 2] - 1 : eof;
                         foreach (var code in codes)
                         {
-                            disabledDiagnosticSpansByCode.GetOrAdd(code, _ => new()).Add(new(syntaxTrivia.Span.Position, spanEnd));
+                            disabledDiagnosticSpansByCode.GetOrAdd(code, _ => new()).Add(new(syntaxTrivia.Span.Position, spanEnd - syntaxTrivia.Span.Position));
                         }
                         break;
                     case DiagnosticsPragmaType.Disable:
@@ -137,7 +137,7 @@ public class DisabledDiagnosticsCache
                         {
                             if (disabledDiagnosticSpanStarts.TryGetValue(code.Text, out int spanStart))
                             {
-                                disabledDiagnosticSpansByCode.GetOrAdd(code.Text, _ => new()).Add(new(spanStart, syntaxTrivia.Span.GetEndPosition()));
+                                disabledDiagnosticSpansByCode.GetOrAdd(code.Text, _ => new()).Add(new(spanStart, syntaxTrivia.Span.GetEndPosition() - spanStart));
                                 disabledDiagnosticSpanStarts.Remove(code.Text);
                             }
                         }

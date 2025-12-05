@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -17,6 +14,9 @@ public class DirectiveTests
     public void DisableNextLine_should_disable_diagnostics_on_next_line_only()
     {
         var result = CompilationHelper.Compile("""
+            // Some initial comment
+            // that describes the file
+            
             #disable-next-line no-unused-params
             param unusedParam string
             param anotherUnusedParam string
@@ -31,6 +31,9 @@ public class DirectiveTests
     public void DisableDiagnostics_and_RestoreDiagnostics_should_work_as_expected()
     {
         var result = CompilationHelper.Compile("""
+            // Some initial comment
+            // that describes the file
+
             #disable-diagnostics no-unused-params no-unused-vars
             param unusedParam1 string
             var unusedVariable = 42
