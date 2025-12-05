@@ -343,21 +343,12 @@ namespace Bicep.Core.Semantics
                 .Concat(GetAdditionalParamsSemanticDiagnostics())
                 .Distinct()
                 .OrderBy(diag => diag.Span.Position);
-            var filteredDiagnostics = new List<IDiagnostic>();
+            var filteredDiagnostics = ImmutableArray.CreateBuilder<IDiagnostic>();
 
-            var disabledDiagnosticsCache = SourceFile.DisabledDiagnosticsCache;
             foreach (IDiagnostic diagnostic in diagnostics)
             {
-                (int diagnosticLine, _) = TextCoordinateConverter.GetPosition(SourceFile.LineStarts, diagnostic.Span.Position);
-
-                if (diagnosticLine == 0 || !diagnostic.CanBeSuppressed())
-                {
-                    filteredDiagnostics.Add(diagnostic);
-                    continue;
-                }
-
-                if (disabledDiagnosticsCache.TryGetDisabledNextLineDirective(diagnosticLine - 1) is { } disableNextLineDirectiveEndPositionAndCodes &&
-                    disableNextLineDirectiveEndPositionAndCodes.diagnosticCodes.Contains(diagnostic.Code))
+                if (diagnostic.CanBeSuppressed() &&
+                    SourceFile.DisabledDiagnosticsCache.IsDisabledAtPosition(diagnostic.Code, diagnostic.Span.Position))
                 {
                     continue;
                 }
@@ -365,7 +356,7 @@ namespace Bicep.Core.Semantics
                 filteredDiagnostics.Add(diagnostic);
             }
 
-            return [.. filteredDiagnostics];
+            return filteredDiagnostics.ToImmutable();
         }
 
         /// <summary>

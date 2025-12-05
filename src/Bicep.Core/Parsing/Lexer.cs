@@ -384,10 +384,30 @@ namespace Bicep.Core.Parsing
                 else if (
                     (current is null || !current.IsComment()) &&
                     textWindow.Peek() == '#' &&
-                    CheckAdjacentText(LanguageConstants.DisableNextLineDiagnosticsKeyword) &&
                     string.IsNullOrWhiteSpace(textWindow.GetTextBetweenLineStartAndCurrentPosition()))
                 {
-                    current = ScanDisableNextLineDiagnosticsDirective();
+                    if (CheckAdjacentText(LanguageConstants.DisableNextLineDiagnosticsKeyword))
+                    {
+                        current = ScanDiagnosticsPragma(
+                            LanguageConstants.DisableNextLineDiagnosticsKeyword,
+                            SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+                    }
+                    else if (CheckAdjacentText(LanguageConstants.DisableDiagnosticsKeyword))
+                    {
+                        current = ScanDiagnosticsPragma(
+                            LanguageConstants.DisableDiagnosticsKeyword,
+                            SyntaxTriviaType.DisableDiagnosticsDirective);
+                    }
+                    else if (CheckAdjacentText(LanguageConstants.RestoreDiagnosticsKeyword))
+                    {
+                        current = ScanDiagnosticsPragma(
+                            LanguageConstants.RestoreDiagnosticsKeyword,
+                            SyntaxTriviaType.RestoreDiagnosticsDirective);
+                    }
+                    else
+                    {
+                        yield break;
+                    }
                 }
                 else
                 {
@@ -398,10 +418,10 @@ namespace Bicep.Core.Parsing
             }
         }
 
-        private SyntaxTrivia ScanDisableNextLineDiagnosticsDirective()
+        private SyntaxTrivia ScanDiagnosticsPragma(string pragmaKeyword, SyntaxTriviaType triviaType)
         {
             textWindow.Reset();
-            textWindow.Advance(LanguageConstants.DisableNextLineDiagnosticsKeyword.Length + 1); // Length of disable next statement plus #
+            textWindow.Advance(pragmaKeyword.Length + 1); // Length of keyword plus #
 
             var span = textWindow.GetSpan();
             int start = span.Position;
@@ -474,7 +494,7 @@ namespace Bicep.Core.Parsing
                 AddDiagnostic(b => b.MissingDiagnosticCodes());
             }
 
-            return GetDisableNextLineDiagnosticsSyntaxTrivia(codes, start, end, sb.ToString());
+            return GetDiagnosticsPragmaSyntaxTrivia(triviaType, codes, start, end, sb.ToString());
         }
 
         private bool CheckAdjacentText(string text)
@@ -494,7 +514,7 @@ namespace Bicep.Core.Parsing
             return true;
         }
 
-        private DisableNextLineDiagnosticsSyntaxTrivia GetDisableNextLineDiagnosticsSyntaxTrivia(List<Token> codes, int start, int end, string text)
+        private SyntaxTrivia GetDiagnosticsPragmaSyntaxTrivia(SyntaxTriviaType triviaType, List<Token> codes, int start, int end, string text)
         {
             if (codes.Any())
             {
@@ -508,11 +528,21 @@ namespace Bicep.Core.Parsing
                     var delta = end - lastCodeSpanEnd;
                     textWindow.Rewind(delta);
 
-                    return new DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableNextLineDiagnosticsDirective, new TextSpan(start, lastCodeSpanEnd - start), text[0..^delta], codes);
+                    return triviaType switch
+                    {
+                        SyntaxTriviaType.DisableNextLineDiagnosticsDirective => new DisableNextLineDiagnosticsSyntaxTrivia(triviaType, new TextSpan(start, lastCodeSpanEnd - start), text[0..^delta], codes),
+                        SyntaxTriviaType.RestoreDiagnosticsDirective => new RestoreDiagnosticsSyntaxTrivia(triviaType, new TextSpan(start, lastCodeSpanEnd - start), text[0..^delta], codes),
+                        _ => new DisableDiagnosticsSyntaxTrivia(triviaType, new TextSpan(start, lastCodeSpanEnd - start), text[0..^delta], codes),
+                    };
                 }
             }
 
-            return new DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableNextLineDiagnosticsDirective, new TextSpan(start, end - start), text, codes);
+            return triviaType switch
+            {
+                SyntaxTriviaType.DisableNextLineDiagnosticsDirective => new DisableNextLineDiagnosticsSyntaxTrivia(triviaType, new TextSpan(start, end - start), text, codes),
+                SyntaxTriviaType.RestoreDiagnosticsDirective => new RestoreDiagnosticsSyntaxTrivia(triviaType, new TextSpan(start, end - start), text, codes),
+                _ => new DisableDiagnosticsSyntaxTrivia(triviaType, new TextSpan(start, end - start), text, codes),
+            };
         }
 
         private Token? GetToken()

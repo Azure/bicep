@@ -1,63 +1,156 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 
-namespace Bicep.Core.Diagnostics
+namespace Bicep.Core.Diagnostics;
+
+public class DisabledDiagnosticsCache
 {
-    public class DisabledDiagnosticsCache
+    private readonly Lazy<(
+        ImmutableDictionary<int, DisableNextLineDirectiveEndPositionAndCodes> disableNextLineDiagnosticDirectivesCache,
+        FrozenDictionary<string, ImmutableArray<TextSpan>> disabledDiagnosticsByCodeCache
+    )> cachesLazy;
+
+    public DisabledDiagnosticsCache(ProgramSyntax programSyntax, ImmutableArray<int> lineStarts)
+    {
+        cachesLazy = new(() => SyntaxTriviaVisitor.ComputeDisabledDiagnosticsCaches(lineStarts, programSyntax));
+    }
+
+    public DisableNextLineDirectiveEndPositionAndCodes? TryGetDisabledNextLineDirective(int lineNumber)
+        => cachesLazy.Value.disableNextLineDiagnosticDirectivesCache.TryGetValue(lineNumber);
+
+    public record DisableNextLineDirectiveEndPositionAndCodes(int endPosition, ImmutableArray<string> diagnosticCodes);
+
+    public ImmutableDictionary<int, DisableNextLineDirectiveEndPositionAndCodes> GetDisableNextLineDiagnosticDirectivesCache()
+        => cachesLazy.Value.disableNextLineDiagnosticDirectivesCache;
+
+    public bool IsDisabledAtPosition(string diagnosticCode, int position)
+    {
+        if (cachesLazy.Value.disabledDiagnosticsByCodeCache.TryGetValue(diagnosticCode, out var disabledForSpans))
+        {
+            for (int i = 0; i < disabledForSpans.Length; i++)
+            {
+                if (disabledForSpans[i].Position > position)
+                {
+                    return false;
+                }
+
+                if (disabledForSpans[i].GetEndPosition() >= position)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public IReadOnlyDictionary<string, ImmutableArray<TextSpan>> GetDisabledDiagnosticSpans()
+        => cachesLazy.Value.disabledDiagnosticsByCodeCache;
+
+    private class SyntaxTriviaVisitor : CstVisitor
     {
         private readonly ImmutableArray<int> lineStarts;
-        private readonly ProgramSyntax programSyntax;
-        private readonly Lazy<ImmutableDictionary<int, DisableNextLineDirectiveEndPositionAndCodes>> disableNextLineDiagnosticDirectivesCacheLazy;
+        private readonly int eof;
+        private readonly ImmutableDictionary<int, DisableNextLineDirectiveEndPositionAndCodes>.Builder disableNextLineDiagnosticDirectivesCacheBuilder = ImmutableDictionary.CreateBuilder<int, DisableNextLineDirectiveEndPositionAndCodes>();
+        private readonly Dictionary<string, List<TextSpan>> disabledDiagnosticSpansByCode = new();
+        private readonly Dictionary<string, int> disabledDiagnosticSpanStarts = new();
 
-        public DisabledDiagnosticsCache(ProgramSyntax programSyntax, ImmutableArray<int> lineStarts)
+        public SyntaxTriviaVisitor(ImmutableArray<int> lineStarts, int eof)
         {
-            this.programSyntax = programSyntax;
             this.lineStarts = lineStarts;
-
-            disableNextLineDiagnosticDirectivesCacheLazy = new Lazy<ImmutableDictionary<int, DisableNextLineDirectiveEndPositionAndCodes>>(() => GetDisableNextLineDiagnosticDirectivesCache());
+            this.eof = eof;
         }
 
-        public DisableNextLineDirectiveEndPositionAndCodes? TryGetDisabledNextLineDirective(int lineNumber)
-            => disableNextLineDiagnosticDirectivesCacheLazy.Value.TryGetValue(lineNumber);
-
-        public record DisableNextLineDirectiveEndPositionAndCodes(int endPosition, ImmutableArray<string> diagnosticCodes);
-
-        public ImmutableDictionary<int, DisableNextLineDirectiveEndPositionAndCodes> GetDisableNextLineDiagnosticDirectivesCache()
+        public static (
+            ImmutableDictionary<int, DisableNextLineDirectiveEndPositionAndCodes>,
+            FrozenDictionary<string, ImmutableArray<TextSpan>>
+        ) ComputeDisabledDiagnosticsCaches(ImmutableArray<int> lineStarts, ProgramSyntax programSyntax)
         {
-            var visitor = new SyntaxTriviaVisitor(lineStarts);
+            var visitor = new SyntaxTriviaVisitor(lineStarts, programSyntax.Span.GetEndPosition());
             visitor.Visit(programSyntax);
 
-            return visitor.GetDisableNextLineDiagnosticDirectivesCache();
-        }
-
-        private class SyntaxTriviaVisitor : CstVisitor
-        {
-            private readonly ImmutableArray<int> lineStarts;
-
-            private readonly ImmutableDictionary<int, DisableNextLineDirectiveEndPositionAndCodes>.Builder disableNextLineDiagnosticDirectivesCacheBuilder = ImmutableDictionary.CreateBuilder<int, DisableNextLineDirectiveEndPositionAndCodes>();
-
-            public SyntaxTriviaVisitor(ImmutableArray<int> lineStarts)
+            Dictionary<string, ImmutableArray<TextSpan>> disabledDiagnosticSpansByCodeBuilder = new();
+            foreach (var kvp in visitor.disabledDiagnosticSpanStarts)
             {
-                this.lineStarts = lineStarts;
+                visitor.disabledDiagnosticSpansByCode.GetOrAdd(kvp.Key, _ => new()).Add(new(kvp.Value, visitor.eof));
             }
 
-            public override void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)
+            foreach (var kvp in visitor.disabledDiagnosticSpansByCode)
             {
-                if (syntaxTrivia is DisableNextLineDiagnosticsSyntaxTrivia disableNextLineDiagnosticsSyntaxTrivia)
+                kvp.Value.Sort((a, b) => a.Position.CompareTo(b.Position));
+
+                var processedSpans = ImmutableArray.CreateBuilder<TextSpan>();
+                var processing = kvp.Value[0];
+
+                for (int i = 1; i < kvp.Value.Count; i++)
                 {
-                    var codes = disableNextLineDiagnosticsSyntaxTrivia.DiagnosticCodes.Select(x => x.Text).ToImmutableArray();
-                    (int line, _) = TextCoordinateConverter.GetPosition(lineStarts, syntaxTrivia.Span.Position);
-                    DisableNextLineDirectiveEndPositionAndCodes disableNextLineDirectiveEndPosAndCodes = new(syntaxTrivia.Span.GetEndPosition(), codes);
-                    disableNextLineDiagnosticDirectivesCacheBuilder.Add(line, disableNextLineDirectiveEndPosAndCodes);
+                    if (kvp.Value[i].Position <= processing.GetEndPosition())
+                    {
+                        // The span at position i overlaps with or is contained within the span being processed. Combine them into a single span
+                        processing = new(
+                            processing.Position,
+                            Math.Max(processing.Length, kvp.Value[i].GetEndPosition() - processing.Position));
+                        continue;
+                    }
+
+                    processedSpans.Add(processing);
+                    processing = kvp.Value[i];
+                }
+
+                processedSpans.Add(processing);
+
+                disabledDiagnosticSpansByCodeBuilder[kvp.Key] = processedSpans.ToImmutable();
+            }
+
+            return (visitor.disableNextLineDiagnosticDirectivesCacheBuilder.ToImmutable(), disabledDiagnosticSpansByCodeBuilder.ToFrozenDictionary());
+        }
+
+        public override void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)
+        {
+            if (syntaxTrivia is DisableNextLineDiagnosticsSyntaxTrivia disableNextLineDiagnosticsSyntaxTrivia)
+            {
+                var codes = disableNextLineDiagnosticsSyntaxTrivia.DiagnosticCodes.Select(x => x.Text).ToImmutableArray();
+                (int line, _) = TextCoordinateConverter.GetPosition(lineStarts, syntaxTrivia.Span.Position);
+                DisableNextLineDirectiveEndPositionAndCodes disableNextLineDirectiveEndPosAndCodes = new(syntaxTrivia.Span.GetEndPosition(), codes);
+                disableNextLineDiagnosticDirectivesCacheBuilder.Add(line, disableNextLineDirectiveEndPosAndCodes);
+
+                int spanEnd = line + 2 < lineStarts.Length ? lineStarts[line + 2] - 1 : eof;
+                foreach (var code in codes)
+                {
+                    disabledDiagnosticSpansByCode.GetOrAdd(code, _ => new()).Add(new(syntaxTrivia.Span.Position, spanEnd));
                 }
             }
 
-            public ImmutableDictionary<int, DisableNextLineDirectiveEndPositionAndCodes> GetDisableNextLineDiagnosticDirectivesCache() => disableNextLineDiagnosticDirectivesCacheBuilder.ToImmutable();
+            if (syntaxTrivia is DisableDiagnosticsSyntaxTrivia disableDiagnosticsSyntaxTrivia)
+            {
+                foreach (var code in disableDiagnosticsSyntaxTrivia.DiagnosticCodes)
+                {
+                    if (disabledDiagnosticSpanStarts.ContainsKey(code.Text))
+                    {
+                        continue;
+                    }
+
+                    disabledDiagnosticSpanStarts[code.Text] = syntaxTrivia.Span.Position;
+                }
+            }
+
+            if (syntaxTrivia is RestoreDiagnosticsSyntaxTrivia restoreDiagnosticsSyntaxTrivia)
+            {
+                foreach (var code in restoreDiagnosticsSyntaxTrivia.DiagnosticCodes)
+                {
+                    if (disabledDiagnosticSpanStarts.TryGetValue(code.Text, out int spanStart))
+                    {
+                        disabledDiagnosticSpansByCode.GetOrAdd(code.Text, _ => new()).Add(new(spanStart, syntaxTrivia.Span.GetEndPosition()));
+                        disabledDiagnosticSpanStarts.Remove(code.Text);
+                    }
+                }
+            }
         }
     }
 }
