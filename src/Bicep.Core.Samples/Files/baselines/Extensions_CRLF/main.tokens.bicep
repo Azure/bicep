@@ -36,6 +36,12 @@ var strVar1 = 'strVar1Value'
 //@[004:011) Identifier |strVar1|
 //@[012:013) Assignment |=|
 //@[014:028) StringComplete |'strVar1Value'|
+//@[028:030) NewLine |\r\n|
+var strParamVar1 = strParam1
+//@[000:003) Identifier |var|
+//@[004:016) Identifier |strParamVar1|
+//@[017:018) Assignment |=|
+//@[019:028) Identifier |strParam1|
 //@[028:032) NewLine |\r\n\r\n|
 
 // END: Variables
@@ -65,7 +71,77 @@ extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as 
 //@[010:076) StringComplete |'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3'|
 //@[077:079) Identifier |as|
 //@[080:102) Identifier |extWithOptionalConfig2|
-//@[102:106) NewLine |\r\n\r\n|
+//@[102:104) NewLine |\r\n|
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' with {
+//@[000:009) Identifier |extension|
+//@[010:076) StringComplete |'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3'|
+//@[077:081) Identifier |with|
+//@[082:083) LeftBrace |{|
+//@[083:085) NewLine |\r\n|
+  optionalString: strParam1
+//@[002:016) Identifier |optionalString|
+//@[016:017) Colon |:|
+//@[018:027) Identifier |strParam1|
+//@[027:029) NewLine |\r\n|
+} as extWithOptionalConfig3
+//@[000:001) RightBrace |}|
+//@[002:004) Identifier |as|
+//@[005:027) Identifier |extWithOptionalConfig3|
+//@[027:029) NewLine |\r\n|
+extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' with {
+//@[000:009) Identifier |extension|
+//@[010:074) StringComplete |'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3'|
+//@[075:079) Identifier |with|
+//@[080:081) LeftBrace |{|
+//@[081:083) NewLine |\r\n|
+  requiredSecureString: secureStrParam1
+//@[002:022) Identifier |requiredSecureString|
+//@[022:023) Colon |:|
+//@[024:039) Identifier |secureStrParam1|
+//@[039:041) NewLine |\r\n|
+} as extWithSecureStr1
+//@[000:001) RightBrace |}|
+//@[002:004) Identifier |as|
+//@[005:022) Identifier |extWithSecureStr1|
+//@[022:024) NewLine |\r\n|
+extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' with {
+//@[000:009) Identifier |extension|
+//@[010:068) StringComplete |'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3'|
+//@[069:073) Identifier |with|
+//@[074:075) LeftBrace |{|
+//@[075:077) NewLine |\r\n|
+  requiredString: testResource1.id
+//@[002:016) Identifier |requiredString|
+//@[016:017) Colon |:|
+//@[018:031) Identifier |testResource1|
+//@[031:032) Dot |.|
+//@[032:034) Identifier |id|
+//@[034:036) NewLine |\r\n|
+} as extWithConfig1
+//@[000:001) RightBrace |}|
+//@[002:004) Identifier |as|
+//@[005:019) Identifier |extWithConfig1|
+//@[019:021) NewLine |\r\n|
+extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' with {
+//@[000:009) Identifier |extension|
+//@[010:068) StringComplete |'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3'|
+//@[069:073) Identifier |with|
+//@[074:075) LeftBrace |{|
+//@[075:077) NewLine |\r\n|
+  requiredString: boolParam1 ? strParamVar1 : strParam1
+//@[002:016) Identifier |requiredString|
+//@[016:017) Colon |:|
+//@[018:028) Identifier |boolParam1|
+//@[029:030) Question |?|
+//@[031:043) Identifier |strParamVar1|
+//@[044:045) Colon |:|
+//@[046:055) Identifier |strParam1|
+//@[055:057) NewLine |\r\n|
+} as extWithConfig2
+//@[000:001) RightBrace |}|
+//@[002:004) Identifier |as|
+//@[005:019) Identifier |extWithConfig2|
+//@[019:023) NewLine |\r\n\r\n|
 
 // END: Extension declarations
 //@[030:034) NewLine |\r\n\r\n|

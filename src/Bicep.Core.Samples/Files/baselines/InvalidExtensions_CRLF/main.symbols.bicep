@@ -6,10 +6,12 @@ param strParam1 string
 //@[06:015) Parameter strParam1. Type: string. Declaration start char: 0, length: 22
 param objParam1 object
 //@[06:015) Parameter objParam1. Type: object. Declaration start char: 0, length: 22
+param invalidParamAssignment1 string = k8s.config.namespace
+//@[06:029) Parameter invalidParamAssignment1. Type: string. Declaration start char: 0, length: 59
 
 // END: Parameters
 
-// BEGIN: Valid Extension declarations
+// BEGIN: Valid extension declarations
 
 extension az
 //@[10:012) ImportedNamespace az. Type: az. Declaration start char: 0, length: 12
@@ -18,7 +20,26 @@ extension kubernetes as k8s
 extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as extWithOptionalConfig1
 //@[80:102) ImportedNamespace extWithOptionalConfig1. Type: extWithOptionalConfig1. Declaration start char: 0, length: 102
 
-// END: Valid Extension declarations
+// END: Valid extension declarations
+
+// BEGIN: Invalid extension declarations
+
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' with {
+  optionalString: testResource1.properties.ns // no reference calls, use module extension configs instead.
+} as invalidExtDecl1
+//@[05:020) ImportedNamespace invalidExtDecl1. Type: invalidExtDecl1. Declaration start char: 0, length: 213
+
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' with {
+  optionalString: newGuid()
+} as invalidExtDecl2
+//@[05:020) ImportedNamespace invalidExtDecl2. Type: invalidExtDecl2. Declaration start char: 0, length: 134
+
+extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' with {
+  requiredSecureString: kv1.getSecret('abc')
+} as invalidExtDecl3
+//@[05:020) ImportedNamespace invalidExtDecl3. Type: invalidExtDecl3. Declaration start char: 0, length: 149
+
+// END: Invalid extension declarations
 
 // BEGIN: Key vaults
 
