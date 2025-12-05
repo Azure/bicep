@@ -313,7 +313,7 @@ public class SemanticTokenVisitor : CstVisitor
             case SyntaxTriviaType.MultiLineComment:
                 AddTokenType(syntaxTrivia, SemanticTokenType.Comment);
                 break;
-            case SyntaxTriviaType.DisableNextLineDiagnosticsDirective:
+            case SyntaxTriviaType.DiagnosticsPragma:
                 AddTokenType(syntaxTrivia, SemanticTokenType.Macro);
                 break;
         }
