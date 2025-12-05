@@ -113,42 +113,43 @@ public class DisabledDiagnosticsCache
 
         public override void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)
         {
-            if (syntaxTrivia is DisableNextLineDiagnosticsSyntaxTrivia disableNextLineDiagnosticsSyntaxTrivia)
+            if (syntaxTrivia is DiagnosticsPragmaSyntaxTrivia diagnosticsPragma)
             {
-                var codes = disableNextLineDiagnosticsSyntaxTrivia.DiagnosticCodes.Select(x => x.Text).ToImmutableArray();
-                (int line, _) = TextCoordinateConverter.GetPosition(lineStarts, syntaxTrivia.Span.Position);
-                DisableNextLineDirectiveEndPositionAndCodes disableNextLineDirectiveEndPosAndCodes = new(syntaxTrivia.Span.GetEndPosition(), codes);
-                disableNextLineDiagnosticDirectivesCacheBuilder.Add(line, disableNextLineDirectiveEndPosAndCodes);
-
-                int spanEnd = line + 2 < lineStarts.Length ? lineStarts[line + 2] - 1 : eof;
-                foreach (var code in codes)
+                switch (diagnosticsPragma.PragmaType)
                 {
-                    disabledDiagnosticSpansByCode.GetOrAdd(code, _ => new()).Add(new(syntaxTrivia.Span.Position, spanEnd));
-                }
-            }
+                    case DiagnosticsPragmaType.DisableNextLine:
+                        var codes = diagnosticsPragma.DiagnosticCodes.Select(x => x.Text).ToImmutableArray();
+                        (int line, _) = TextCoordinateConverter.GetPosition(lineStarts, syntaxTrivia.Span.Position);
+                        DisableNextLineDirectiveEndPositionAndCodes disableNextLineDirectiveEndPosAndCodes = new(syntaxTrivia.Span.GetEndPosition(), codes);
+                        disableNextLineDiagnosticDirectivesCacheBuilder.Add(line, disableNextLineDirectiveEndPosAndCodes);
 
-            if (syntaxTrivia is DisableDiagnosticsSyntaxTrivia disableDiagnosticsSyntaxTrivia)
-            {
-                foreach (var code in disableDiagnosticsSyntaxTrivia.DiagnosticCodes)
-                {
-                    if (disabledDiagnosticSpanStarts.ContainsKey(code.Text))
-                    {
-                        continue;
-                    }
+                        int spanEnd = line + 2 < lineStarts.Length ? lineStarts[line + 2] - 1 : eof;
+                        foreach (var code in codes)
+                        {
+                            disabledDiagnosticSpansByCode.GetOrAdd(code, _ => new()).Add(new(syntaxTrivia.Span.Position, spanEnd));
+                        }
+                        break;
+                    case DiagnosticsPragmaType.Disable:
+                        foreach (var code in diagnosticsPragma.DiagnosticCodes)
+                        {
+                            if (disabledDiagnosticSpanStarts.ContainsKey(code.Text))
+                            {
+                                continue;
+                            }
 
-                    disabledDiagnosticSpanStarts[code.Text] = syntaxTrivia.Span.Position;
-                }
-            }
-
-            if (syntaxTrivia is RestoreDiagnosticsSyntaxTrivia restoreDiagnosticsSyntaxTrivia)
-            {
-                foreach (var code in restoreDiagnosticsSyntaxTrivia.DiagnosticCodes)
-                {
-                    if (disabledDiagnosticSpanStarts.TryGetValue(code.Text, out int spanStart))
-                    {
-                        disabledDiagnosticSpansByCode.GetOrAdd(code.Text, _ => new()).Add(new(spanStart, syntaxTrivia.Span.GetEndPosition()));
-                        disabledDiagnosticSpanStarts.Remove(code.Text);
-                    }
+                            disabledDiagnosticSpanStarts[code.Text] = syntaxTrivia.Span.Position;
+                        }
+                        break;
+                    case DiagnosticsPragmaType.Restore:
+                        foreach (var code in diagnosticsPragma.DiagnosticCodes)
+                        {
+                            if (disabledDiagnosticSpanStarts.TryGetValue(code.Text, out int spanStart))
+                            {
+                                disabledDiagnosticSpansByCode.GetOrAdd(code.Text, _ => new()).Add(new(spanStart, syntaxTrivia.Span.GetEndPosition()));
+                                disabledDiagnosticSpanStarts.Remove(code.Text);
+                            }
+                        }
+                        break;
                 }
             }
         }

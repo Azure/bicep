@@ -140,7 +140,7 @@ namespace Bicep.Core.Syntax
 
         public static bool IsComment(this SyntaxTrivia? trivia) => IsSingleLineComment(trivia) || IsMultiLineComment(trivia);
 
-        public static bool IsDirective(this SyntaxTrivia? trivia) => trivia?.Type == SyntaxTriviaType.DisableNextLineDiagnosticsDirective;
+        public static bool IsDirective(this SyntaxTrivia? trivia) => trivia?.Type == SyntaxTriviaType.DiagnosticsPragma;
 
         public static bool IsWhitespace(this SyntaxTrivia? trivia) => trivia?.Type == SyntaxTriviaType.Whitespace;
 

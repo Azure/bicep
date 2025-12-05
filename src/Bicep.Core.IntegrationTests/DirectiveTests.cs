@@ -75,4 +75,16 @@ public class DirectiveTests
 
         result.Diagnostics.Should().BeEmpty();
     }
+
+    [TestMethod]
+    public void RestoreDiagnostics_without_matching_disable_should_have_no_effect()
+    {
+        var result = CompilationHelper.Compile("""
+            #restore-diagnostics no-unused-params
+            param unusedParam string
+            """);
+        result.Diagnostics.Should().HaveCount(1);
+        result.Diagnostics.Single().Code.Should().Be("no-unused-params");
+        result.Diagnostics.Single().Message.Should().Be("Parameter \"unusedParam\" is declared but never used.");
+    }
 }
