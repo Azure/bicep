@@ -50,9 +50,6 @@ public class DisabledDiagnosticsCache
         return false;
     }
 
-    public IReadOnlyDictionary<string, ImmutableArray<TextSpan>> GetDisabledDiagnosticSpans()
-        => cachesLazy.Value.disabledDiagnosticsByCodeCache;
-
     private class SyntaxTriviaVisitor : CstVisitor
     {
         private readonly ImmutableArray<int> lineStarts;
@@ -132,12 +129,7 @@ public class DisabledDiagnosticsCache
                     case DiagnosticsPragmaType.Disable:
                         foreach (var code in diagnosticsPragma.DiagnosticCodes)
                         {
-                            if (disabledDiagnosticSpanStarts.ContainsKey(code.Text))
-                            {
-                                continue;
-                            }
-
-                            disabledDiagnosticSpanStarts[code.Text] = syntaxTrivia.Span.Position;
+                            disabledDiagnosticSpanStarts.TryAdd(code.Text, syntaxTrivia.Span.Position);
                         }
                         break;
                     case DiagnosticsPragmaType.Restore:
