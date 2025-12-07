@@ -115,6 +115,214 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
+        public async Task Build_params_extends_uses_variables_from_base_file()
+        {
+            var baseParamsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "base.bicepparam",
+                """
+                using none
+
+                param serviceDomain = 'search'
+                param tenant = 'foo'
+                param environmentType = 'nonprod'
+
+                var suffix = '${serviceDomain}-${tenant}-${environmentType}'
+
+                param keyVaultName = 'kv-${suffix}'
+                param sharedGroupName = 'rg-${suffix}'
+                """);
+
+            var mainParamsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+                extends './base.bicepparam'
+                """,
+                Path.GetDirectoryName(baseParamsFile));
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                param serviceDomain string
+                param tenant string
+                param environmentType string
+                param keyVaultName string
+                param sharedGroupName string
+                """,
+                Path.GetDirectoryName(baseParamsFile));
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "bicepconfig.json",
+                """
+                {
+                    "experimentalFeaturesEnabled": {
+                        "extendableParamFiles": true
+                    }
+                }
+                """,
+                Path.GetDirectoryName(baseParamsFile));
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Succeed();
+
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+            paramsObject.Should().HaveValueAtPath("parameters.keyVaultName.value", "kv-search-foo-nonprod");
+            paramsObject.Should().HaveValueAtPath("parameters.sharedGroupName.value", "rg-search-foo-nonprod");
+        }
+
+        [TestMethod]
+        public async Task Build_params_extends_uses_complex_variables_from_base_file()
+        {
+            var constsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "consts.bicep",
+                """
+                @export()
+                var regions = {
+                primary: {
+                    envType: {
+                        nonprod: 'foo'
+                        prod: 'foo'
+                    }
+                }
+                secondary: {
+                    envType: {
+                        prod: 'bar'
+                    }
+                }
+                }
+                """);
+
+            var baseParamsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "nonprod.bicepparam",
+                """
+                import * as consts from './consts.bicep'
+
+                using none
+
+                param environmentType = 'nonprod'
+                param serviceDomain =  'search'
+                param singletonRegion = consts.regions.primary.envType.nonprod
+                param tenant = 'foo'
+
+                var resourceSuffix = '${serviceDomain}-${tenant}-${environmentType}'
+
+                param keyVaultName = 'kv-${resourceSuffix}'
+                param sharedGroupName = 'rg-${resourceSuffix}'
+                """);
+
+            var mainParamsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                import * as consts from './consts.bicep'
+
+                extends './nonprod.bicepparam'
+
+                using 'main.bicep'
+
+                param azureSearchParams = {
+                name: 'srch-search-pme-nonprod'
+                properties: {
+                    partitionCount: 1
+                    replicaCount: 1
+                }
+                }
+
+                param serviceTag = 'XboxSupportSearchNonProd'
+
+                param vnetConfigs = [
+                {
+                    region: consts.regions.primary.envType.nonprod
+                    subnetInfo: [
+                    {
+                        name: 'dev-frontend'
+                        ipIndex: 0
+                        serviceEndpoints: []
+                    }
+                    {
+                        name: 'nonprod-autosuggest'
+                        ipIndex: 1
+                        serviceEndpoints: []
+                    }
+                    {
+                        name: 'int-frontend'
+                        ipIndex: 2
+                        serviceEndpoints: []
+                    }
+                    ]
+                }
+                ]
+                """,
+                Path.GetDirectoryName(baseParamsFile));
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                type AzureSearchParams = {
+                name: string
+                    properties: {
+                        partitionCount: int
+                        replicaCount: int
+                    }
+                }
+                type EnvironmentType = 'nonprod' | 'prod'
+                type AzureRegion = 'cus'
+                    | 'eus'
+                    | 'eus2'
+                    | 'ncus'
+                    | 'scus'
+                    | 'wcus'
+                    | 'wus'
+                    | 'wus2'
+                    | 'wus3'
+                    | 'euwe'
+                    | 'euno'
+                    | 'ukso'
+                    | 'ukwe'
+                type Tenant = 'foo' | 'bar' | 'baz'
+                param azureSearchParams AzureSearchParams
+                param environmentType EnvironmentType
+                param keyVaultName string
+                param sharedGroupName string
+                param singletonRegion AzureRegion
+                param serviceDomain string
+                param serviceTag string
+                param tenant Tenant
+                """,
+                Path.GetDirectoryName(baseParamsFile));
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "bicepconfig.json",
+                """
+                {
+                    "experimentalFeaturesEnabled": {
+                        "extendableParamFiles": true
+                    }
+                }
+                """,
+                Path.GetDirectoryName(baseParamsFile));
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Succeed();
+
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+            paramsObject.Should().HaveValueAtPath("parameters.keyVaultName.value", "kv-search-foo-nonprod");
+            paramsObject.Should().HaveValueAtPath("parameters.sharedGroupName.value", "rg-search-foo-nonprod");
+        }
+
+        [TestMethod]
         public async Task Build_params_with_base_merging_succeeds()
         {
             var baseParamsFile = FileHelper.SaveResultFile(
