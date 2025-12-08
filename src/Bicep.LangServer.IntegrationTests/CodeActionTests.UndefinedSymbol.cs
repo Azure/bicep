@@ -204,6 +204,94 @@ public partial class CodeActionTests : CodeActionTestBase
     }
 
     [TestMethod]
+    public async Task UndefinedNameUsedInResourceIfEqualityWithStringLiteralShouldInferStringParameter()
+    {
+        var result = await ApplyUndefinedSymbolCodeFix("""
+            resource appService 'Microsoft.Web/sites@2022-03-01' = if (deployAppService == 'No') {
+              name: 'myAppService'
+              location: 'westus'
+              kind: 'app'
+            }
+            """, "deployAppService", "parameter");
+
+        result.Should().Be("""
+            param deployAppService string
+
+            resource appService 'Microsoft.Web/sites@2022-03-01' = if (deployAppService == 'No') {
+              name: 'myAppService'
+              location: 'westus'
+              kind: 'app'
+            }
+            """);
+    }
+
+    [TestMethod]
+    public async Task UndefinedNameUsedInResourceIfEqualityWithStringLiteralShouldOfferStringVariable()
+    {
+        var result = await ApplyUndefinedSymbolCodeFix("""
+            resource appService 'Microsoft.Web/sites@2022-03-01' = if (deployAppService == 'No') {
+              name: 'myAppService'
+              location: 'westus'
+              kind: 'app'
+            }
+            """, "deployAppService", "variable");
+
+        result.Should().Be("""
+            var deployAppService = ''
+
+            resource appService 'Microsoft.Web/sites@2022-03-01' = if (deployAppService == 'No') {
+              name: 'myAppService'
+              location: 'westus'
+              kind: 'app'
+            }
+            """);
+    }
+
+    [TestMethod]
+    public async Task UndefinedNameUsedInResourceIfEqualityWithIntLiteralShouldInferIntParameter()
+    {
+        var result = await ApplyUndefinedSymbolCodeFix("""
+            resource appService 'Microsoft.Web/sites@2022-03-01' = if (numAppService == 1) {
+              name: 'myAppService'
+              location: 'westus'
+              kind: 'app'
+            }
+            """, "numAppService", "parameter");
+
+        result.Should().Be("""
+            param numAppService int
+
+            resource appService 'Microsoft.Web/sites@2022-03-01' = if (numAppService == 1) {
+              name: 'myAppService'
+              location: 'westus'
+              kind: 'app'
+            }
+            """);
+    }
+
+    [TestMethod]
+    public async Task UndefinedNameUsedInResourceIfEqualityWithIntLiteralShouldOfferIntVariable()
+    {
+        var result = await ApplyUndefinedSymbolCodeFix("""
+            resource appService 'Microsoft.Web/sites@2022-03-01' = if (numAppService == 1) {
+              name: 'myAppService'
+              location: 'westus'
+              kind: 'app'
+            }
+            """, "numAppService", "variable");
+
+        result.Should().Be("""
+            var numAppService = 0
+
+            resource appService 'Microsoft.Web/sites@2022-03-01' = if (numAppService == 1) {
+              name: 'myAppService'
+              location: 'westus'
+              kind: 'app'
+            }
+            """);
+    }
+
+    [TestMethod]
     public async Task UndefinedNameShouldOfferCreateVariableWithIntInitializer()
     {
         var result = await ApplyUndefinedSymbolCodeFix("""

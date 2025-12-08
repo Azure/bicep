@@ -454,6 +454,11 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
 
     private static TypeSymbol? InferByContext(SemanticModel semanticModel, VariableAccessSyntax variableAccess)
     {
+        if (InferFromComparisonWithLiteral(semanticModel, variableAccess) is { } comparisonType)
+        {
+            return comparisonType;
+        }
+
         // If used in a conditional/ternary/logical context, assume bool.
         if (IsBooleanContext(semanticModel, variableAccess))
         {
@@ -576,5 +581,48 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
 
         return false;
     }
+
+    private static TypeSymbol? InferFromComparisonWithLiteral(SemanticModel model, VariableAccessSyntax access)
+    {
+        SyntaxBase? current = access;
+        while (current is not null)
+        {
+            // for ==, !=, <, <=, >, >= pick the other operand’s primitive type
+            if (current is BinaryOperationSyntax binary &&
+                binary.Operator is BinaryOperator.Equals or BinaryOperator.NotEquals or BinaryOperator.LessThan or BinaryOperator.LessThanOrEqual or BinaryOperator.GreaterThan or BinaryOperator.GreaterThanOrEqual)
+            {
+                var otherExpression = ReferenceEquals(binary.LeftExpression, access) ? binary.RightExpression : binary.LeftExpression;
+                var otherType = NullIfErrorOrAny(model.GetTypeInfo(otherExpression));
+
+                if (TryMapToPrimitive(otherType) is { } primitiveType)
+                {
+                    return primitiveType;
+                }
+            }
+
+            current = model.Binder.GetParent(current);
+        }
+
+        return null;
+    }
+
+    private static TypeSymbol? TryMapToPrimitive(TypeSymbol? type)
+    {
+        if (type is null)
+        {
+            return null;
+        }
+
+        var nonNullable = TypeHelper.TryRemoveNullability(type) ?? type;
+
+        return nonNullable switch
+        {
+            StringLiteralType or StringType => LanguageConstants.String,
+            IntegerLiteralType or IntegerType => LanguageConstants.Int,
+            BooleanLiteralType or BooleanType => LanguageConstants.Bool,
+            _ => null,
+        };
+    }
+
 }
 
