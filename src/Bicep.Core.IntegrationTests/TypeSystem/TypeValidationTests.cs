@@ -532,7 +532,7 @@ resource testRes 'My.Rp/myType@2020-01-01' = {
               name: 'foo'
               required: 'abcd'
             }
-            
+
             output readOnlyRequired string = myRes.readOnlyRequired
             """, customTypes);
 

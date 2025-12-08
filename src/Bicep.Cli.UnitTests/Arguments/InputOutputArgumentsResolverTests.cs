@@ -124,7 +124,7 @@ public class InputOutputArgumentsResolverTests
         var mockPath = StrictMock.Of<IPath>();
         mockFileSystem.Setup(fs => fs.Path).Returns(mockPath.Object);
         mockPath.Setup(p => p.GetFullPath(It.IsAny<string>())).Returns((string p) => Path.GetFullPath(p));
-        
+
         var resolver = new InputOutputArgumentsResolver(mockFileSystem.Object);
 
         // Act

@@ -22,7 +22,7 @@ var other = {
 output test object = {
   foo: 'foo'
   ...other
-  baz: 'baz'  
+  baz: 'baz'
 }
 """);
 
@@ -125,7 +125,7 @@ var other = ['bar']
 var test = {
   foo: 'foo'
   ...other
-  baz: 'baz'  
+  baz: 'baz'
 }
 """);
 
@@ -144,7 +144,7 @@ var other = {
 var test = [
   'foo'
   ...other
-  'baz'  
+  'baz'
 ]
 """);
 

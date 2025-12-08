@@ -119,7 +119,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             """
             param name string = sys.newGuid()
             param location string = resourceGroup().location
-            
+
             resource storage 'Microsoft.Storage/storageAccounts@2021-09-01' = {
               name: name
               location: location
@@ -133,7 +133,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(
             """
             func newGuid() string => "abc"
-            
+
             resource storage 'Microsoft.Storage/storageAccounts@2021-09-01' = {
               name: newGuid()
               location: location

@@ -2,7 +2,7 @@
   <PropertyGroup>
     <CompressFileTaskImported>true</CompressFileTaskImported>
   </PropertyGroup>
-  
+
   <UsingTask TaskName="CompressFile" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
     <ParameterGroup>
       <SourceFile ParameterType="System.String" Required="true" />

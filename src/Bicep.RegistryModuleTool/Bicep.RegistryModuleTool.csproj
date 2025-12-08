@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- 
+    <!--
       .net 7 has a regression on Linux and Mac that assumes that if a file is named <name>.<something>.json that <something> is a culture
       this causes some of our *.metadata.json files to be stripped out of the main assembly and placed in a satellite assembly for the metadata culture
     -->

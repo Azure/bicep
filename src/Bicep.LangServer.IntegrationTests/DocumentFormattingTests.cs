@@ -95,8 +95,8 @@ output myOutput string = 'value'", 0));
                     'abc',{def:'ghi'}
                   'test'
                 ]
-                            
-                            
+
+
                 """);
 
             var textEdit = await file.Format();

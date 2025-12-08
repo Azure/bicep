@@ -82,9 +82,14 @@ namespace Bicep.Core.UnitTests.Utils
                 {
                     var lineNumber = i + 1; // to match VSCode's line numbering (starting at 1)
                     output.Append(lineNumber.ToString().PadLeft(digits, '0'));
-                    output.Append("| ");
+                    output.Append("|");
 
-                    gutterOffset = digits + 2;
+                    gutterOffset = digits + 1;
+                    if (programLines[i].Length > 0)
+                    {
+                        output.Append(' ');
+                        gutterOffset++;
+                    }
                 }
                 output.Append(programLines[i]);
                 output.Append('\n');

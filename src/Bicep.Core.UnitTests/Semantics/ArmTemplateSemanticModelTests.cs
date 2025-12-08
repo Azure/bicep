@@ -87,7 +87,7 @@ public class ArmTemplateSemanticModelTests
           ""parameters"": {
             ""objectParameter"": {
               ""type"": ""object"",
-              ""additionalProperties"": { 
+              ""additionalProperties"": {
                 ""type"": ""string"",
                 ""metadata"": {
                   ""description"": ""This is a description""

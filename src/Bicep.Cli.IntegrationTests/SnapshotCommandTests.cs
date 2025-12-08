@@ -251,7 +251,7 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
             "main.bicep",
             """
                 module mod 'mod.bicep' = {}
-                                
+
                 module mod2 'mod2.bicep' = {
                   params: {
                     vnetName: mod.outputs.static
@@ -271,7 +271,7 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
             "mod2.bicep",
             """
                 param vnetName string
-                                
+
                 resource vnet 'Microsoft.Network/virtualNetworks@2024-07-01' = {
                   name: vnetName
                 }

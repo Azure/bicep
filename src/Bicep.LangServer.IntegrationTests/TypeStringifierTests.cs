@@ -522,7 +522,7 @@ public class TypeStringifierTests
         """
             resource testResource 'Microsoft.Storage/storageAccounts@2021-02-01' = {
               kind: 'StorageV2'
-            }            
+            }
             """,
         "kind",
         "type loose = string",
@@ -549,7 +549,7 @@ public class TypeStringifierTests
                         commandToExecute: commandToExecute
                     }
                 }
-            }         
+            }
             """,
         "fileUris",
         "type loose = array",
@@ -579,7 +579,7 @@ public class TypeStringifierTests
                         commandToExecute: commandToExecute
                     }
                 }
-            }         
+            }
             """,
         "settings",
         "type loose = object?",
@@ -631,7 +631,7 @@ public class TypeStringifierTests
               typeHandlerVersion: string?
             }?
             """,
-        """ 
+        """
             type strict = {
               autoUpgradeMinorVersion: bool?
               forceUpdateTag: string?
@@ -762,7 +762,7 @@ public class TypeStringifierTests
             resource testResource 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
               parent: virtualMachine
               name: 'name'
-            }            
+            }
             """,
         "",
         "type loose = object? /* Microsoft.Compute/virtualMachines/extensions@2020-12-01 */",
@@ -780,7 +780,7 @@ public class TypeStringifierTests
             resource testResource 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
               parent: virtualMachine
               name: 'name'
-            }            
+            }
             """,
         "parent",
         "type loose = object",
@@ -810,7 +810,7 @@ public class TypeStringifierTests
                   }
                 ]
               }
-            }            
+            }
             """,
         "[skip]properties",
         "IGNORE",
@@ -834,7 +834,7 @@ public class TypeStringifierTests
                   }
                 ]
               }
-            }                        
+            }
             """,
         "[skip]id",
         "IGNORE",
@@ -858,7 +858,7 @@ public class TypeStringifierTests
                   }
                 ]
               }
-            }                        
+            }
             """,
         "subnet",
         "IGNORE",
@@ -887,7 +887,7 @@ public class TypeStringifierTests
                 type: 'ArcZone'
                 name: 'name'
               }
-            }            
+            }
             """,
         "type",
         "type loose = string",
@@ -903,7 +903,7 @@ public class TypeStringifierTests
                 type: 'None'
                 userAssignedIdentities: {}
               }
-            }            
+            }
             """,
         "userAssignedIdentities",
         "type loose = object?",
@@ -922,7 +922,7 @@ public class TypeStringifierTests
                   ]
                 }
               }
-            }                      
+            }
             """,
         "cipherSuites",
         "type loose = array?",
@@ -974,7 +974,7 @@ public class TypeStringifierTests
                     }
                 ]
               }
-            }                      
+            }
             """,
         "cipherSuites",
         "type loose = object? /* error */",

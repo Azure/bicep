@@ -5,7 +5,7 @@ namespace Bicep.Core.Emit
     public enum EmitStatus
     {
         /// <summary>
-        /// Emitting the template succeeded. There were no errors. Warnings may have been suppressed. Informational diagnostics may have been emitted. 
+        /// Emitting the template succeeded. There were no errors. Warnings may have been suppressed. Informational diagnostics may have been emitted.
         /// </summary>
         Succeeded,
 
