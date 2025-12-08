@@ -15,7 +15,5 @@
         "outfile",
         "outputdir",
         "sarif"
-    ],
-    "bicep.debug.surveys.clearState": true,
-    "bicep.debug.surveys.now": "2025-12-04 PST"
+    ]
 }
