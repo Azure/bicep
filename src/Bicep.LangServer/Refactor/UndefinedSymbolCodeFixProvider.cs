@@ -13,6 +13,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
+using Bicep.Core.SourceGraph;
 using Bicep.LanguageServer.Completions;
 using Bicep.Core.Text;
 using Bicep.Core.PrettyPrintV2;
@@ -82,6 +83,7 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
 
         foreach (var variableAccess in variableAccesses)
         {
+            var moduleParameterTypeString = TryGetModuleParameterTypeString(semanticModel, variableAccess);
             var diagnostic = diagnostics.FirstOrDefault(diag => SpansOverlap(variableAccess.Span.Position, variableAccess.GetEndPosition(), diag.Span));
             if (diagnostic is null)
             {
@@ -113,7 +115,11 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
             // 3. Then try named types
             // 4. Finally fall back to TypeStringifier
             string parameterTypeString;
-            if (contextInferredType is BooleanType or IntegerType)
+            if (moduleParameterTypeString is not null)
+            {
+                parameterTypeString = moduleParameterTypeString;
+            }
+            else if (contextInferredType is BooleanType or IntegerType)
             {
                 // Clear usage context - use the inferred primitive type
                 parameterTypeString = GetTypeString(contextInferredType);
@@ -451,6 +457,94 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
 
     private static bool SpansOverlap(int requestStart, int requestEnd, TextSpan span) =>
         requestStart <= span.GetEndPosition() && requestEnd >= span.Position;
+
+    private static string? TryGetModuleParameterTypeString(SemanticModel semanticModel, VariableAccessSyntax variableAccess)
+    {
+        string? moduleParameterName = null;
+        bool insideModuleParams = false;
+        SyntaxBase? current = variableAccess;
+
+        while (current is not null)
+        {
+            if (current is ObjectPropertySyntax propertySyntax && propertySyntax.TryGetKeyText() is string propertyName)
+            {
+                moduleParameterName ??= propertyName;
+
+                if (LanguageConstants.IdentifierComparer.Equals(propertyName, LanguageConstants.ModuleParamsPropertyName))
+                {
+                    insideModuleParams = true;
+                }
+            }
+
+            if (current is ModuleDeclarationSyntax moduleDeclaration)
+            {
+                if (!insideModuleParams || moduleParameterName is null)
+                {
+                    return null;
+                }
+
+                if (semanticModel.Binder.GetSymbolInfo(moduleDeclaration) is not ModuleSymbol moduleSymbol)
+                {
+                    return null;
+                }
+
+                if (!moduleSymbol.TryGetSemanticModel().IsSuccess(out var moduleSemanticModel, out _))
+                {
+                    return null;
+                }
+
+                if (!moduleSemanticModel.Parameters.TryGetValue(moduleParameterName, out var parameterMetadata))
+                {
+                    return null;
+                }
+
+                if (moduleSemanticModel is SemanticModel bicepSemanticModel &&
+                    bicepSemanticModel.SourceFile is BicepSourceFile moduleSourceFile)
+                {
+                    var paramSyntax = moduleSourceFile.ProgramSyntax.Declarations
+                        .OfType<ParameterDeclarationSyntax>()
+                        .FirstOrDefault(p => LanguageConstants.IdentifierComparer.Equals(p.Name.IdentifierName, moduleParameterName));
+
+                    if (paramSyntax?.Type is { } typeSyntax)
+                    {
+                        var typeText = moduleSourceFile.Text.Substring(typeSyntax.Span.Position, typeSyntax.Span.Length).Trim();
+                        if (!string.IsNullOrWhiteSpace(typeText))
+                        {
+                            return typeText;
+                        }
+                    }
+                }
+
+                var parameterType = TypeHelper.TryRemoveNullability(parameterMetadata.TypeReference.Type) ?? parameterMetadata.TypeReference.Type;
+
+                if (parameterType is IUnresolvedResourceDerivedType unresolvedResourceDerivedType)
+                {
+                    return FormatResourceDerivedType(unresolvedResourceDerivedType);
+                }
+
+                return GetTypeString(parameterType);
+            }
+
+            current = semanticModel.Binder.GetParent(current);
+        }
+
+        return null;
+    }
+
+    private static string FormatResourceDerivedType(IUnresolvedResourceDerivedType unresolved)
+    {
+        var pointer = unresolved.PointerSegments.Length > 0
+            ? $".{string.Join(".", unresolved.PointerSegments)}"
+            : string.Empty;
+
+        var keyword = unresolved.Variant switch
+        {
+            ResourceDerivedTypeVariant.Output => "resourceOutput",
+            _ => "resourceInput",
+        };
+
+        return $"{keyword}<'{unresolved.TypeReference.FormatName()}'>" + pointer;
+    }
 
     private static TypeSymbol? InferByContext(SemanticModel semanticModel, VariableAccessSyntax variableAccess)
     {

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
@@ -20,13 +21,26 @@ namespace Bicep.LangServer.IntegrationTests;
 
 public partial class CodeActionTests : CodeActionTestBase
 {
-    private async Task<string> ApplyUndefinedSymbolCodeFix(string bicepFileContents, string missingName, string actionType)
+    private async Task<string> ApplyUndefinedSymbolCodeFix(string bicepFileContents, string missingName, string actionType, IDictionary<string, string>? additionalFiles = null)
     {
         var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
+        var baseDirectory = Path.GetDirectoryName(bicepFilePath)!;
         var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
         var uri = documentUri.ToUriEncoded();
 
         var files = new Dictionary<Uri, string> { [uri] = bicepFileContents };
+        if (additionalFiles is not null)
+        {
+            foreach (var (relativePath, contents) in additionalFiles)
+            {
+                var extraPath = Path.Combine(baseDirectory, relativePath);
+                Directory.CreateDirectory(Path.GetDirectoryName(extraPath)!);
+                File.WriteAllText(extraPath, contents);
+
+                var extraUri = DocumentUri.FromFileSystemPath(extraPath).ToUriEncoded();
+                files[extraUri] = contents;
+            }
+        }
 
         var compilation = Services.BuildCompilation(files, uri);
         var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
@@ -740,6 +754,33 @@ resource st 'Microsoft.Storage/storageAccounts@2023-01-01' = {
             param myParam myType?
 
             output myOutput myType? = myParam
+            """);
+    }
+
+    [TestMethod]
+    public async Task UndefinedNameUsedInModuleParamsShouldInferResourceInputParameter()
+    {
+        var moduleContents = """
+            param enc resourceInput<'Microsoft.Storage/storageAccounts@2025-06-01'>.properties.encryption
+            """;
+
+        var result = await ApplyUndefinedSymbolCodeFix("""
+            module storage 'storage-account/base.bicep' = {
+              name: 'myModule'
+              params: { enc: encryption }
+            }
+            """, "encryption", "parameter", new Dictionary<string, string>
+        {
+            ["storage-account/base.bicep"] = moduleContents,
+        });
+
+        result.Should().Be("""
+            param encryption resourceInput<'Microsoft.Storage/storageAccounts@2025-06-01'>.properties.encryption
+
+            module storage 'storage-account/base.bicep' = {
+              name: 'myModule'
+              params: { enc: encryption }
+            }
             """);
     }
 }
