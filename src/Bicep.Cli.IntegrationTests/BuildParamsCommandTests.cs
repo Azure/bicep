@@ -179,6 +179,8 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task Build_params_extends_uses_complex_variables_from_base_file()
         {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
             var constsFile = FileHelper.SaveResultFile(
                 TestContext,
                 "consts.bicep",
@@ -187,17 +189,18 @@ namespace Bicep.Cli.IntegrationTests
                 var regions = {
                 primary: {
                     envType: {
-                        nonprod: 'foo'
-                        prod: 'foo'
+                        nonprod: 'wus2'
+                        prod: 'wus3'
                     }
                 }
                 secondary: {
                     envType: {
-                        prod: 'bar'
+                        prod: 'euwe'
                     }
                 }
                 }
-                """);
+                """,
+                outputPath);
 
             var baseParamsFile = FileHelper.SaveResultFile(
                 TestContext,
@@ -216,7 +219,8 @@ namespace Bicep.Cli.IntegrationTests
 
                 param keyVaultName = 'kv-${resourceSuffix}'
                 param sharedGroupName = 'rg-${resourceSuffix}'
-                """);
+                """,
+                outputPath);
 
             var mainParamsFile = FileHelper.SaveResultFile(
                 TestContext,
@@ -261,7 +265,7 @@ namespace Bicep.Cli.IntegrationTests
                 }
                 ]
                 """,
-                Path.GetDirectoryName(baseParamsFile));
+                outputPath);
 
             FileHelper.SaveResultFile(
                 TestContext,
@@ -297,8 +301,9 @@ namespace Bicep.Cli.IntegrationTests
                 param serviceDomain string
                 param serviceTag string
                 param tenant Tenant
+                param vnetConfigs array
                 """,
-                Path.GetDirectoryName(baseParamsFile));
+                outputPath);
 
             FileHelper.SaveResultFile(
                 TestContext,
@@ -310,7 +315,7 @@ namespace Bicep.Cli.IntegrationTests
                     }
                 }
                 """,
-                Path.GetDirectoryName(baseParamsFile));
+                outputPath);
 
             var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
 
