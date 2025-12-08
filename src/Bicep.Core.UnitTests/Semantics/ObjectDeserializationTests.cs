@@ -174,27 +174,157 @@ namespace Bicep.Core.UnitTests.Semantics
         [TestMethod]
         public void Simple_YAML_file_content_gets_deserialized_into_JSON()
         {
-            var yml = @"
-                 name: George Washington
-                 age: 89
-                 height_in_inches: 5.75
-                 addresses:
-                   home:
-                     street:
-                        house_number: '400'
-                        street_name: Mockingbird Lane
-                     city: Louaryland
-                     state: Hawidaho
-                     zip: 99970";
+          var yml = @"
+                    name: George Washington
+                    age: 89
+                    height_in_inches: 5.75
+                    addresses:
+                      home:
+                        street:
+                            house_number: '400'
+                            street_name: Mockingbird Lane
+                        city: Louaryland
+                        state: Hawidaho
+                        zip: 99970";
 
-            var arguments = new FunctionArgumentSyntax[4];
-            new YamlObjectParser().TryExtractFromObject(yml, null, [arguments[0]], out var errorDiagnostic, out JToken? jToken);
+          var arguments = new FunctionArgumentSyntax[4];
+          new YamlObjectParser().TryExtractFromObject(yml, null, [arguments[0]], out var errorDiagnostic, out JToken? jToken);
 
-            Assert.AreEqual("George Washington", jToken!["name"]);
-            Assert.AreEqual("400", jToken["addresses"]!["home"]!["street"]!["house_number"]);
-            Assert.AreEqual(89, jToken["age"]);
-            Assert.AreEqual("Louaryland", jToken["addresses"]!["home"]!["city"]);
+          Assert.AreEqual("George Washington", jToken!["name"]);
+          Assert.AreEqual("400", jToken["addresses"]!["home"]!["street"]!["house_number"]);
+          Assert.AreEqual(89, jToken["age"]);
+          Assert.AreEqual("Louaryland", jToken["addresses"]!["home"]!["city"]);
         }
+
+            [TestMethod]
+    public void Multi_document_YAML_with_separator_triggers_error()
+    {
+        var multiDocYml = @"---
+                          name: George Washington
+                          age: 89
+                          ---
+                          name: John Adams
+                          age: 90";
+
+        var span = new TextSpan(0, 10);
+        new YamlObjectParser().TryExtractFromObject(multiDocYml, null, [span], out var errorDiagnostic, out JToken? jToken);
+        
+        Assert.IsNotNull(errorDiagnostic);
+        Assert.AreEqual("BCP442", errorDiagnostic.Code); 
+        Assert.IsNull(jToken);
     }
+
+    [TestMethod]
+    public void Multi_document_YAML_with_multiple_separators_triggers_error()
+    {
+        var multiDocYml = @"---
+                          document: first
+                          ---
+                          document: second
+                          ---
+                          document: third";
+
+        var span = new TextSpan(0, 10);
+        new YamlObjectParser().TryExtractFromObject(multiDocYml, null, [span], out var errorDiagnostic, out JToken? jToken);
+        
+        Assert.IsNotNull(errorDiagnostic);
+        Assert.AreEqual("BCP442", errorDiagnostic.Code);
+        Assert.IsNull(jToken);
+    }
+
+    [TestMethod]
+    public void Single_document_YAML_with_leading_separator_parses_successfully()
+    {
+        var singleDocYml = @"---
+                          name: George Washington
+                          age: 89
+                          addresses:
+                            home:
+                              city: Louaryland";
+
+        var arguments = new FunctionArgumentSyntax[4];
+        new YamlObjectParser().TryExtractFromObject(singleDocYml, null, [arguments[0]], out var errorDiagnostic, out JToken? jToken);
+        
+        Assert.IsNull(errorDiagnostic);
+        Assert.IsNotNull(jToken);
+        Assert.AreEqual("George Washington", jToken!["name"]);
+        Assert.AreEqual(89, jToken["age"]);
+    }
+
+    [TestMethod]
+    public void Single_document_YAML_without_separator_parses_successfully()
+    {
+        var singleDocYml = @"
+                          name: Thomas Jefferson
+                          age: 83
+                          city: Monticello";
+
+        var arguments = new FunctionArgumentSyntax[4];
+        new YamlObjectParser().TryExtractFromObject(singleDocYml, null, [arguments[0]], out var errorDiagnostic, out JToken? jToken);
+        
+        Assert.IsNull(errorDiagnostic);
+        Assert.IsNotNull(jToken);
+        Assert.AreEqual("Thomas Jefferson", jToken!["name"]);
+        Assert.AreEqual(83, jToken["age"]);
+    }
+
+    [TestMethod]
+    public void Multi_document_YAML_with_comments_between_separators_triggers_error()
+    {
+        var multiDocYml = @"---
+                          # First document
+                          name: George Washington
+                          age: 89
+                          # End of first document
+                          ---
+                          # Second document
+                          name: John Adams
+                          age: 90";
+
+        var span = new TextSpan(0, 10);
+        new YamlObjectParser().TryExtractFromObject(multiDocYml, null, [span], out var errorDiagnostic, out JToken? jToken);
+        
+        Assert.IsNotNull(errorDiagnostic);
+        Assert.AreEqual("BCP442", errorDiagnostic.Code);
+        Assert.IsNull(jToken);
+    }
+
+    [TestMethod]
+    public void YAML_with_separator_in_middle_of_content_triggers_error()
+    {
+        var multiDocYml = @"
+                          name: George Washington
+                          age: 89
+                          ---
+                          addresses:
+                            home:
+                              city: Louaryland";
+
+        var span = new TextSpan(0, 10);
+        new YamlObjectParser().TryExtractFromObject(multiDocYml, null, [span], out var errorDiagnostic, out JToken? jToken);
+        
+        Assert.IsNotNull(errorDiagnostic);
+        Assert.AreEqual("BCP442", errorDiagnostic.Code);
+        Assert.IsNull(jToken);
+    }
+
+    [TestMethod]
+    public void YAML_with_whitespace_around_separator_triggers_error()
+    {
+        var multiDocYml = @"
+                          name: George Washington
+                            ---  
+                          name: John Adams";
+
+        var span = new TextSpan(0, 10);
+        new YamlObjectParser().TryExtractFromObject(multiDocYml, null, [span], out var errorDiagnostic, out JToken? jToken);
+        
+        Assert.IsNotNull(errorDiagnostic);
+        Assert.AreEqual("BCP442", errorDiagnostic.Code);
+        Assert.IsNull(jToken);
+    }
+
+    
+  }
 
 }
