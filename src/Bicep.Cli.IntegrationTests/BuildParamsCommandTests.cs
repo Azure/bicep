@@ -233,14 +233,14 @@ namespace Bicep.Cli.IntegrationTests
                 using 'main.bicep'
 
                 param azureSearchParams = {
-                name: 'srch-search-pme-nonprod'
+                name: 'srch-search-nonprod'
                 properties: {
                     partitionCount: 1
                     replicaCount: 1
                 }
                 }
 
-                param serviceTag = 'XboxSupportSearchNonProd'
+                param serviceTag = 'ServiceTagNonProd'
 
                 param vnetConfigs = [
                 {
