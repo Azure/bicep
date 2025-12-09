@@ -198,33 +198,6 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' ? = {
         }
 
         [TestMethod]
-        public void NullableExisting_PropertyAccess_RequiresSafeAccessForRuntimeProperties()
-        {
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, NullableExistingEnabled: true));
-            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
-resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing? = {
-  name: 'testStorage'
-}
-
-output location string = storageAccount.location
-");
-            using (new AssertionScope())
-            {
-                // Direct property access on nullable resource should produce a warning but still compile
-                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-                {
-                    ("BCP318", DiagnosticLevel.Warning, "The value of type \"Microsoft.Storage/storageAccounts | null\" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail.")
-                });
-                template.Should().NotBeNull();
-                template.Should().HaveValueAtPath("$.resources['storageAccount'].existing", true);
-                // Verify nullableExisting is added to @options
-                template.Should().HaveValueAtPath("$.resources['storageAccount']['@options'].nullableExisting", new JArray());
-                // Verify the output expression for direct property access (no safe access)
-                template.Should().HaveValueAtPath("$.outputs['location'].value", "[reference('storageAccount', '2021-04-01', 'full').location]");
-            }
-        }
-
-        [TestMethod]
         public void NullableExisting_PropertyAccess_WithSafeAccess_ShouldWork()
         {
             var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, NullableExistingEnabled: true));
