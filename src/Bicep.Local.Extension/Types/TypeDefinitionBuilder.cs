@@ -21,7 +21,12 @@ public class TypeDefinitionBuilder
 {
     private readonly HashSet<Type> visited;
     private readonly ITypeProvider typeProvider;
-    private readonly IDictionary<Type, Func<TypeBase>> typeToTypeBaseMap;
+    private readonly ImmutableDictionary<Type, Func<TypeBase>> builtInTypes = new Dictionary<Type, Func<TypeBase>>
+    {
+        { typeof(string), () => new StringType() },
+        { typeof(int), () => new IntegerType() },
+        { typeof(bool), () => new BooleanType() },
+    }.ToImmutableDictionary();
 
     protected readonly ConcurrentDictionary<Type, TypeBase> typeCache;
     private readonly string name;
@@ -51,21 +56,14 @@ public class TypeDefinitionBuilder
         string version,
         bool isSingleton,
         Type? configurationType,
-        TypeFactory factory,
-        ITypeProvider typeProvider,
-        IDictionary<Type, Func<TypeBase>> typeToTypeBaseMap)
+        ITypeProvider typeProvider)
     {
         this.name = name;
         this.version = version;
         this.isSingleton = isSingleton;
         this.configurationType = configurationType;
-        this.factory = factory;
+        this.factory = new([]);
         this.typeProvider = typeProvider;
-
-        this.typeToTypeBaseMap = typeToTypeBaseMap is null || typeToTypeBaseMap.Count == 0
-                ? throw new ArgumentException(nameof(typeToTypeBaseMap))
-                : typeToTypeBaseMap;
-
         this.visited = new HashSet<Type>();
         this.typeCache = new ConcurrentDictionary<Type, TypeBase>();
     }
@@ -136,25 +134,34 @@ public class TypeDefinitionBuilder
 
             if (!TryResolveTypeReference(propertyType, annotation, out typeReference))
             {
-                if (propertyType != typeof(string) && typeof(IEnumerable).IsAssignableFrom(propertyType))
+                if (typeof(IDictionary).IsAssignableFrom(propertyType))
+                {
+                    throw new NotImplementedException($"Property '{property.Name}' references unsupported dictionary type: '{propertyType}'");
+                }
+                else if (typeof(IEnumerable).IsAssignableFrom(propertyType))
                 {
                     // protect against infinite recursion
                     visited.Add(property.PropertyType);
 
                     Type? elementType = null;
+
                     if (propertyType.IsArray)
                     {
                         elementType = propertyType.GetElementType();
                     }
-                    else if (propertyType.IsGenericType &&
-                             propertyType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                    else if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                     {
                         elementType = propertyType.GetGenericArguments()[0];
+                    }
+                    else if (propertyType.GetInterfaces()
+                        .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEnumerable<>)) is {} enumerableType)
+                    {
+                        elementType = enumerableType.GetGenericArguments()[0];
                     }
 
                     if (elementType is null)
                     {
-                        throw new NotImplementedException($"Unsupported collection type {elementType}");
+                        throw new NotImplementedException($"Property '{property.Name}' references unsupported collection type: '{propertyType}'");
                     }
 
                     if (!TryResolveTypeReference(elementType, annotation, out var elementTypeReference))
@@ -183,7 +190,7 @@ public class TypeDefinitionBuilder
                 }
                 else
                 {
-                    throw new NotImplementedException($"Unsupported property type {propertyType}");
+                    throw new NotImplementedException($"Property '{property.Name}' references unsupported type: '{propertyType}'");
                 }
             }
 
@@ -206,7 +213,7 @@ public class TypeDefinitionBuilder
         {
             typeReference = typeCache.GetOrAdd(type, _ => factory.Create(() => new StringType(sensitive: true)));
         }
-        else if (typeToTypeBaseMap.TryGetValue(type, out var typeFunc))
+        else if (builtInTypes.TryGetValue(type, out var typeFunc))
         {
             typeReference = typeCache.GetOrAdd(type, _ => factory.Create(typeFunc));
         }
