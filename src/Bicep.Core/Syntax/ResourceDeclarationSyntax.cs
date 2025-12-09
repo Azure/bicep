@@ -10,13 +10,14 @@ namespace Bicep.Core.Syntax
 {
     public class ResourceDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
     {
-        public ResourceDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase type, Token? existingKeyword, SyntaxBase assignment, ImmutableArray<Token> newlines, SyntaxBase value)
+        public ResourceDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase type, Token? existingKeyword, Token? nullableMarker, SyntaxBase assignment, ImmutableArray<Token> newlines, SyntaxBase value)
             : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ResourceKeyword);
             AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
             AssertSyntaxType(type, nameof(type), typeof(StringSyntax), typeof(SkippedTriviaSyntax));
             AssertKeyword(existingKeyword, nameof(existingKeyword), LanguageConstants.ExistingKeyword);
+            AssertTokenType(nullableMarker, nameof(nullableMarker), TokenType.Question);
             AssertTokenType(keyword, nameof(keyword), TokenType.Identifier);
             AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
             AssertTokenType(assignment as Token, nameof(assignment), TokenType.Assignment);
@@ -26,6 +27,7 @@ namespace Bicep.Core.Syntax
             this.Name = name;
             this.Type = type;
             this.ExistingKeyword = existingKeyword;
+            this.NullableMarker = nullableMarker;
             this.Assignment = assignment;
             this.Newlines = newlines;
             this.Value = value;
@@ -38,6 +40,12 @@ namespace Bicep.Core.Syntax
         public SyntaxBase Type { get; }
 
         public Token? ExistingKeyword { get; }
+
+        /// <summary>
+        /// The '?' token that follows the 'existing' keyword, indicating the resource may not exist.
+        /// When present, the resource type becomes nullable (Resource | null).
+        /// </summary>
+        public Token? NullableMarker { get; }
 
         public SyntaxBase Assignment { get; }
 
@@ -52,6 +60,12 @@ namespace Bicep.Core.Syntax
         public StringSyntax? TypeString => Type as StringSyntax;
 
         public bool IsExistingResource() => ExistingKeyword is not null;
+
+        /// <summary>
+        /// Returns true if this is an 'existing?' resource declaration, meaning the resource may not exist
+        /// and its type should be nullable.
+        /// </summary>
+        public bool IsNullableExistingResource() => ExistingKeyword is not null && NullableMarker is not null;
 
         public ObjectSyntax? TryGetBody() =>
             this.Value switch

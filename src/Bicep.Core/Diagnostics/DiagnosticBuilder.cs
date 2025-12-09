@@ -2016,6 +2016,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic UsingWithClauseRequiredIfExperimentalFeatureEnabled() => CoreError(
                 "BCP443",
                 $"""The "{LanguageConstants.UsingKeyword}" statement requires a "{LanguageConstants.WithKeyword}" clause if the EXPERIMENTAL feature "{nameof(ExperimentalFeaturesEnabled.DeployCommands)}" is enabled.""");
+
+            public Diagnostic NullableExistingResourcesNotSupported() => CoreError(
+                "BCP444",
+                $@"Using nullable existing resources (existing?) requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.NullableExisting)}"".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

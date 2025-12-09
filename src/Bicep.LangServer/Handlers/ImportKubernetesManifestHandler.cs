@@ -151,6 +151,7 @@ namespace Bicep.LanguageServer.Handlers
                 SyntaxFactory.CreateIdentifierWithTrailingSpace(symbolName),
                 SyntaxFactory.CreateStringLiteral($"{type}@{apiVersion}"),
                 null,
+                null,
                 SyntaxFactory.AssignmentToken,
                 [],
                 resourceBody);

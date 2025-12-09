@@ -27,7 +27,8 @@ public record FeatureProviderOverrides(
     bool? UserDefinedConstraintsEnabled = default,
     bool? DeployCommandsEnabled = default,
     bool? MultilineStringInterpolationEnabled = default,
-    bool? ThisNamespaceEnabled = default)
+    bool? ThisNamespaceEnabled = default,
+    bool? NullableExistingEnabled = default)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
@@ -49,7 +50,8 @@ public record FeatureProviderOverrides(
         bool? UserDefinedConstraintsEnabled = default,
         bool? DeployCommandsEnabled = default,
         bool? MultilineStringInterpolationEnabled = default,
-        bool? ThisNamespaceEnabled = default) : this(
+        bool? ThisNamespaceEnabled = default,
+        bool? NullableExistingEnabled = default) : this(
             FileHelper.GetCacheRootDirectory(testContext),
             RegistryEnabled,
             SymbolicNameCodegenEnabled,
@@ -69,6 +71,7 @@ public record FeatureProviderOverrides(
             UserDefinedConstraintsEnabled,
             DeployCommandsEnabled,
             MultilineStringInterpolationEnabled,
-            ThisNamespaceEnabled)
+            ThisNamespaceEnabled,
+            NullableExistingEnabled)
     { }
 }

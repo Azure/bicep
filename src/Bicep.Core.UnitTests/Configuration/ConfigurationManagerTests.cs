@@ -114,7 +114,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "userDefinedConstraints": false,
           "deployCommands": false,
           "multilineStringInterpolation": false,
-          "thisNamespace": false
+          "thisNamespace": false,
+          "nullableExisting": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -199,7 +200,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "userDefinedConstraints": false,
           "deployCommands": false,
           "multilineStringInterpolation": false,
-          "thisNamespace": false
+          "thisNamespace": false,
+          "nullableExisting": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -306,7 +308,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "userDefinedConstraints": false,
           "deployCommands": false,
           "multilineStringInterpolation": false,
-          "thisNamespace": false
+          "thisNamespace": false,
+          "nullableExisting": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -394,7 +397,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 UserDefinedConstraints: false,
                 DeployCommands: false,
                 MultilineStringInterpolation: false,
-                ThisNamespace: false);
+                ThisNamespace: false,
+                NullableExisting: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -480,7 +484,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 "userDefinedConstraints": false,
                 "deployCommands": false,
                 "multilineStringInterpolation": false,
-                "thisNamespace": false
+                "thisNamespace": false,
+                "nullableExisting": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -833,7 +838,8 @@ namespace Bicep.Core.UnitTests.Configuration
                     "userDefinedConstraints": false,
                     "deployCommands": false,
                     "multilineStringInterpolation": false,
-                    "thisNamespace": false
+                    "thisNamespace": false,
+                    "nullableExisting": false
                   },
                   "formatting": {
                     "indentKind": "Space",

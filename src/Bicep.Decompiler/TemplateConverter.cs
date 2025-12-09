@@ -1644,6 +1644,7 @@ namespace Bicep.Decompiler
                 SyntaxFactory.CreateIdentifierWithTrailingSpace(identifier),
                 SyntaxFactory.CreateStringLiteral($"{typeString}@{apiVersionString}"),
                 null,
+                null,
                 SyntaxFactory.AssignmentToken,
                 [],
                 value);

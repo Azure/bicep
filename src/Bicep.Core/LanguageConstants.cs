@@ -169,6 +169,7 @@ namespace Bicep.Core
         public const string ExportPropertyName = "export";
         public const string TypeDiscriminatorDecoratorName = "discriminator";
         public const string OnlyIfNotExistsPropertyName = "onlyIfNotExists";
+        public const string NullableExistingPropertyName = "nullableExisting";
 
         // module properties
         public const string ModuleParamsPropertyName = "params";

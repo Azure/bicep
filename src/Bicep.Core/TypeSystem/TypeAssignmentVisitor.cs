@@ -301,6 +301,12 @@ namespace Bicep.Core.TypeSystem
                     return singleDeclaredType;
                 }
 
+                // Check if nullable existing resources feature is enabled
+                if (syntax.IsNullableExistingResource() && !features.NullableExistingEnabled)
+                {
+                    diagnostics.Write(syntax.ExistingKeyword!, x => x.NullableExistingResourcesNotSupported());
+                }
+
                 if (singleDeclaredType is ResourceType resourceType)
                 {
                     if (!resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
@@ -334,7 +340,11 @@ namespace Bicep.Core.TypeSystem
                     }
                 }
 
-                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Value, declaredType, true);
+                var typeForBodyValidation = syntax.Value is ForSyntax
+                    ? new TypedArrayType(singleDeclaredType, TypeSymbolValidationFlags.Default)
+                    : singleDeclaredType;
+
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Value, typeForBodyValidation, true);
             });
 
         public override void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax)
@@ -2063,6 +2073,12 @@ namespace Bicep.Core.TypeSystem
 
         private bool? IsResourceEnabled(ResourceSymbol resource)
         {
+            // Nullable existing resources may not exist at deployment time
+            if (resource.DeclaringResource.IsNullableExistingResource())
+            {
+                return null;
+            }
+
             if (resource.DeclaringResource.TryGetCondition() is { } condition)
             {
                 switch (GetTypeInfo(condition))

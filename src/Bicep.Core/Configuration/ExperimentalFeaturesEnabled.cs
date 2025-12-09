@@ -25,7 +25,8 @@ public record ExperimentalFeaturesEnabled(
     bool UserDefinedConstraints,
     bool DeployCommands,
     bool MultilineStringInterpolation,
-    bool ThisNamespace)
+    bool ThisNamespace,
+    bool NullableExisting)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();
@@ -48,5 +49,6 @@ public record ExperimentalFeaturesEnabled(
         UserDefinedConstraints: false,
         DeployCommands: false,
         MultilineStringInterpolation: false,
-        ThisNamespace: false);
+        ThisNamespace: false,
+        NullableExisting: false);
 }

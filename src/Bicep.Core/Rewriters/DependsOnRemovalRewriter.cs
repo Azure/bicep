@@ -152,6 +152,7 @@ namespace Bicep.Core.Rewriters
                 syntax.Name,
                 syntax.Type,
                 syntax.ExistingKeyword,
+                syntax.NullableMarker,
                 syntax.Assignment,
                 syntax.Newlines,
                 replacementValue);
