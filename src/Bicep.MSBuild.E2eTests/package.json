@@ -11,9 +11,9 @@
     "cross-spawn": "^7.0.6",
     "eslint": "^9.39.1",
     "eslint-plugin-notice": "^1.0.0",
-    "prettier": "^3.7.3",
+    "prettier": "^3.7.4",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.48.0",
+    "typescript-eslint": "^8.48.1",
     "vitest": "^2.1.9"
   },
   "scripts": {

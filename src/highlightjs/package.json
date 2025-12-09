@@ -8,9 +8,9 @@
     "@types/node": "^24.10.1",
     "@types/plist": "^3.0.5",
     "@typescript-eslint/eslint-plugin": "^8.48.0",
-    "@typescript-eslint/parser": "^8.48.0",
+    "@typescript-eslint/parser": "^8.48.1",
     "cross-env": "^10.1.0",
-    "esbuild": "^0.27.0",
+    "esbuild": "^0.27.1",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jest": "^29.2.1",
@@ -19,11 +19,11 @@
     "globals": "^16.5.0",
     "highlight.js": "^11.11.1",
     "jest": "^30.2.0",
-    "ts-jest": "^29.4.5",
+    "ts-jest": "^29.4.6",
     "ts-loader": "^9.5.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.48.0"
+    "typescript-eslint": "^8.48.1"
   },
   "engines": {
     "node": ">=14.0.0"

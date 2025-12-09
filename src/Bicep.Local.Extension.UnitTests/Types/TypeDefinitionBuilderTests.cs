@@ -1,21 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+using System.Collections.Frozen;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text.Json;
-using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
-using Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
+using Bicep.Core.Resources;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.TypeSystem.Providers.Extensibility;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Local.Extension.Types;
 using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using static Microsoft.WindowsAzure.ResourceStack.Common.Utilities.FastActivator;
 
 namespace Bicep.Local.Extension.UnitTests.TypesTests;
 
@@ -26,92 +22,24 @@ public class TypeDefinitionBuilderTests
 
     private record SimpleResource(string Name = "", string AnotherString = "");
 
-    private static TypeSettings CreateTypeSettings() =>
-        new(name: "TestSettings", version: "2025-01-01", isSingleton: true, configurationType: new Azure.Bicep.Types.CrossFileTypeReference("index.json", 0));
-
-    private TypeFactory CreateTypeFactory() => new([]);
-
-    #region Constructor Tests
-    [TestMethod]
-    public void Constructor_Throws_On_Empty_TypeToTypeBaseMap()
-    {
-        var settings = CreateTypeSettings();
-        var typeFactory = CreateTypeFactory();
-        var typeProvider = StrictMock.Of<ITypeProvider>().Object;
-        var emptyMap = new Dictionary<Type, Func<TypeBase>>();
-
-        Action act = () => new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, typeFactory, typeProvider, emptyMap);
-        act.Should().Throw<ArgumentException>();
-    }
-
-    [TestMethod]
-    public void Constructor_Succeeds_With_Valid_Arguments()
-    {
-        var factory = new TypeFactory([]);
-        var typeProvider = new Mock<ITypeProvider>(MockBehavior.Strict).Object;
-        var map = ImmutableDictionary<Type, Func<TypeBase>>.Empty.Add(typeof(string), () => new StringType());
-
-        var generator = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, factory, typeProvider, map);
-
-        generator.Should().NotBeNull();
-    }
-
-    #endregion Constructor Tests
-
-
     [TestMethod]
     public void GenerateTypeDefinition_Returns_Empty_When_TypeProvider_Has_No_Types()
     {
-        var settings = CreateTypeSettings();
-        var factory = CreateTypeFactory();
         var typeProviderMock = StrictMock.Of<ITypeProvider>();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([]);
 
-        var map = new Dictionary<Type, Func<TypeBase>> { { typeof(string), () => new StringType() } };
-
-        var builder = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, factory, typeProviderMock.Object, map);
-
-        var result = builder.GenerateTypeDefinition();
-
-        result.Should().NotBeNull();
-        result.IndexFileContent.Should().NotBeNullOrEmpty();
-        result.TypeFileContents.Values.Single().Should().NotBeNullOrEmpty();
-        result.TypeFileContents.Values.Single().Should().Contain("[]", because: "the types JSON should be and empty array '[]' when no resource types are generated");
-    }
-
-    [TestMethod]
-    public void GenerateTypeDefinition_Emits_Resource_When_TypeProvider_Has_Types()
-    {
-        var settings = CreateTypeSettings();
-        var factory = CreateTypeFactory();
-        var typeProviderMock = StrictMock.Of<ITypeProvider>();
-        typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([(typeof(SimpleResource), new("SimpleResource"))]);
-        var map = new Dictionary<Type, Func<TypeBase>> { { typeof(string), () => new StringType() } };
-
-        var builder = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, factory, typeProviderMock.Object, map);
-
-        var result = builder.GenerateTypeDefinition();
-
-        result.Should().NotBeNull();
-        result.IndexFileContent.Should().Contain("SimpleResource");
-        result.TypeFileContents.Values.Single().Should().Contain("SimpleResource");
-        result.TypeFileContents.Values.Single().Should().Contain("name", because: "the property should be present in the resource type definition");
+        var builder = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, typeProviderMock.Object);
+        var result = GenerateTypes(builder);
+        result.GetAvailableTypes().Should().BeEmpty();
     }
 
     [TestMethod]
     public void GenerateTypeDefinition_Throws_On_Unsupported_Property_Type()
     {
-        var map = new Dictionary<Type, Func<TypeBase>>
-        {
-            { typeof(string), () => new StringType() }
-        }.ToImmutableDictionary();
-
-        var settings = CreateTypeSettings();
-        var factory = CreateTypeFactory();
         var typeProviderMock = StrictMock.Of<ITypeProvider>();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([(typeof(TestUnsupportedProperty), new("TestUnsupportedProperty"))]);
 
-        var builder = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, factory, typeProviderMock.Object, map);
+        var builder = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, typeProviderMock.Object);
 
         Action act = () => builder.GenerateTypeDefinition();
         act.Should().Throw<NotImplementedException>();
@@ -121,39 +49,89 @@ public class TypeDefinitionBuilderTests
 
     private record EnumerableResource(IEnumerable<string> Items);
 
+    private record ArrayLikeResource(
+        ImmutableArray<string> ImmutableItems,
+        HashSet<string> HashSetItems);
+
+    private record DictionaryResource(
+        Dictionary<string, string> Dict,
+        ImmutableDictionary<string, string> ImmutableDict);
+
+    private static IResourceTypeLoader GenerateTypes(TypeDefinitionBuilder builder)
+    {
+        var result = builder.GenerateTypeDefinition();
+        var types = new Dictionary<string, string>(result.TypeFileContents);
+        types["index.json"] = result.IndexFileContent;
+
+        var typeLoader = new ArchivedTypeLoader(types.ToFrozenDictionary(x => x.Key, x => BinaryData.FromString(x.Value)));
+
+        return new ExtensionResourceTypeLoader(typeLoader);
+    }
+
+    private static ResourceTypeComponents CreateResourceType(Type type, string typeName, string? apiVersion = null)
+    {
+        var typeProviderMock = StrictMock.Of<ITypeProvider>();
+        typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([(type, new(typeName, apiVersion))]);
+
+        var builder = new TypeDefinitionBuilder("TestSettings", "0.0.1", true, null, typeProviderMock.Object);
+        var typeLoader = GenerateTypes(builder);
+        var resourceType = typeLoader.LoadType(typeLoader.GetAvailableTypes().Single());
+
+        resourceType.TypeReference.Name.Should().Be(typeName);
+        resourceType.TypeReference.ApiVersion.Should().Be(apiVersion);
+
+        return resourceType;
+    }
+
+    [TestMethod]
+    public void GenerateTypeDefinition_Emits_Resource_When_TypeProvider_Has_Types()
+    {
+        var resourceType = CreateResourceType(typeof(SimpleResource), nameof(SimpleResource));
+        var typeProviderMock = StrictMock.Of<ITypeProvider>();
+        typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([(typeof(SimpleResource), new("SimpleResource"))]);
+
+        var body = resourceType.Body.Type.Should().BeOfType<ObjectType>().Subject;
+        body.Properties["name"].TypeReference.Type.Should().BeOfType<StringType>();
+        body.Properties["anotherString"].TypeReference.Type.Should().BeOfType<StringType>();
+    }
+
     [TestMethod]
     public void GenerateTypeDefinition_Emits_ArrayType_For_ArrayProperty()
     {
-        var settings = CreateTypeSettings();
-        var factory = CreateTypeFactory();
-        var typeProviderMock = StrictMock.Of<ITypeProvider>();
-        typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([(typeof(ArrayResource), new("ArrayResource"))]);
-        var map = new Dictionary<Type, Func<TypeBase>> { { typeof(string), () => new StringType() } };
+        var resourceType = CreateResourceType(typeof(ArrayResource), nameof(ArrayResource));
 
-        var builder = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, factory, typeProviderMock.Object, map);
-
-        var result = builder.GenerateTypeDefinition();
-
-        result.Should().NotBeNull();
-        result.TypeFileContents.Values.Single().Should().Contain("ArrayResource");
-        result.TypeFileContents.Values.Single().Should().Contain("items", because: "the array property should be present in the resource type definition");
+        var body = resourceType.Body.Type.Should().BeOfType<ObjectType>().Subject;
+        body.Properties["items"].TypeReference.Type.Should().BeOfType<TypedArrayType>()
+            .Which.Item.Type.Should().BeOfType<StringType>();
     }
 
     [TestMethod]
     public void GenerateTypeDefinition_Emits_ArrayType_For_IEnumerableProperty()
     {
-        var settings = CreateTypeSettings();
-        var factory = CreateTypeFactory();
-        var typeProviderMock = StrictMock.Of<ITypeProvider>();
-        typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([(typeof(EnumerableResource), new("EnumerableResource"))]);
-        var map = new Dictionary<Type, Func<TypeBase>> { { typeof(string), () => new StringType() } };
+        var resourceType = CreateResourceType(typeof(EnumerableResource), nameof(EnumerableResource));
 
-        var builder = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, factory, typeProviderMock.Object, map);
+        var body = resourceType.Body.Type.Should().BeOfType<ObjectType>().Subject;
+        body.Properties["items"].TypeReference.Type.Should().BeOfType<TypedArrayType>()
+            .Which.Item.Type.Should().BeOfType<StringType>();
+    }
 
-        var result = builder.GenerateTypeDefinition();
+    [TestMethod]
+    public void GenerateTypeDefinition_handles_collection_types()
+    {
+        var resourceType = CreateResourceType(typeof(ArrayLikeResource), nameof(ArrayLikeResource));
 
-        result.Should().NotBeNull();
-        result.TypeFileContents.Values.Single().Should().Contain("EnumerableResource");
-        result.TypeFileContents.Values.Single().Should().Contain("items", because: "the enumerable property should be present in the resource type definition");
+        var body = resourceType.Body.Type.Should().BeOfType<ObjectType>().Subject;
+        body.Properties["immutableItems"].TypeReference.Type.Should().BeOfType<TypedArrayType>()
+            .Which.Item.Type.Should().BeOfType<StringType>();
+        body.Properties["hashSetItems"].TypeReference.Type.Should().BeOfType<TypedArrayType>()
+            .Which.Item.Type.Should().BeOfType<StringType>();
+    }
+
+    [TestMethod]
+    public void GenerateTypeDefinition_doesnt_support_dictionary_types()
+    {
+        Action act = () => CreateResourceType(typeof(DictionaryResource), nameof(DictionaryResource));
+        act.Should().Throw<NotImplementedException>()
+            .Which.Message.Should().Be("Property 'Dict' references unsupported dictionary type: 'System.Collections.Generic.Dictionary`2[System.String,System.String]'");
     }
 }
