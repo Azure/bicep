@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 
@@ -168,7 +169,11 @@ namespace Bicep.Core.Parsing
             Token? nullableMarker = null;
             if (existingKeyword is not null && Check(TokenType.Question))
             {
-                nullableMarker = reader.Read();
+                var questionToken = reader.Peek();
+                if (existingKeyword.GetEndPosition() == questionToken.Span.Position)
+                {
+                    nullableMarker = reader.Read();
+                }
             }
 
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.LeftBrace, TokenType.NewLine);

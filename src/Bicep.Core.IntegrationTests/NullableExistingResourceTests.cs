@@ -20,6 +20,29 @@ namespace Bicep.Core.IntegrationTests
         public TestContext? TestContext { get; set; }
 
         [TestMethod]
+        public void NullableExisting_ShouldNotAllowWhitespaceBetweenExistingAndQuestionMark()
+        {
+            // Test that whitespace between 'existing' and '?' is not recognized as nullable existing
+            // The parser only recognizes 'existing?' when there's no whitespace between them
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, NullableExistingEnabled: true));
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
+#disable-next-line no-unused-existing-resources
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing ? = {
+  name: 'testStorage'
+}
+");
+            using (new AssertionScope())
+            {
+                template.Should().NotHaveValue();
+                // With whitespace, '?' is not recognized as part of 'existing', so parser expects '=' after 'existing'
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+                {
+                    ("BCP018", DiagnosticLevel.Error, "Expected the \"=\" character at this location.")
+                });
+            }
+        }
+
+        [TestMethod]
         public void NullableExisting_ShouldNotBeRecognizedWhenFeatureDisabled()
         {
             // Test that existing? syntax produces an error when feature is disabled
