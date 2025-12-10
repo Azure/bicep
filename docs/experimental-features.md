@@ -60,12 +60,12 @@ this is not ${interpolated}'''
 Enables the use of nullable existing resources. When using `existing?` syntax, you can handle cases where the resource may not exist at deployment time. (Note: This feature will not work until the backend service support has been deployed)
 
 ```bicep
-resource exampleResource 'Microsoft...' existing? = {
+resource exampleResource 'Microsoft.Storage/storageAccounts@2021-04-01' existing? = {
   name: 'test'
 }
 
 // Access with safe navigation since the resource may be null
-output properties object = exampleResource.?properties ?? {}
+output accessTier string = exampleResource.?properties.accessTier ?? ''
 ```
 
 ### `resourceInfoCodegen`

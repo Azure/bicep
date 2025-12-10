@@ -304,7 +304,7 @@ namespace Bicep.Core.TypeSystem
                 // Check if nullable existing resources feature is enabled
                 if (syntax.IsNullableExistingResource() && !features.NullableExistingEnabled)
                 {
-                    diagnostics.Write(syntax.ExistingKeyword!, x => x.NullableExistingResourcesNotSupported());
+                    diagnostics.Write(syntax.NullableMarker!, x => x.NullableExistingResourcesNotSupported());
                 }
 
                 if (singleDeclaredType is ResourceType resourceType)
