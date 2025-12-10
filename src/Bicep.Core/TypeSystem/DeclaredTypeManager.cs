@@ -245,7 +245,9 @@ namespace Bicep.Core.TypeSystem
 
             if (semanticModel.Parameters.TryGetValue(syntax.Name.IdentifierName, out var parameterMetadata))
             {
-                return parameterMetadata.TypeReference.Type;
+                var type = parameterMetadata.TypeReference.Type;
+
+                return resourceDerivedTypeResolver.ResolveResourceDerivedTypes(type);
             }
 
             return null;
