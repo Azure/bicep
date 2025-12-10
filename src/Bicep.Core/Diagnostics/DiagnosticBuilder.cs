@@ -2029,7 +2029,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic NullableExistingResourcesNotSupported() => CoreError(
                 "BCP445",
-                $@"Using nullable existing resources (existing?) requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.NullableExisting)}"".");
+                $@"Using nullable existing resources with the ""existing?"" keyword requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.NullableExisting)}"".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -43,7 +43,6 @@ namespace Bicep.Core.Syntax
 
         /// <summary>
         /// The '?' token that follows the 'existing' keyword, indicating the resource may not exist.
-        /// When present, the resource type becomes nullable (Resource | null).
         /// </summary>
         public Token? NullableMarker { get; }
 

@@ -340,11 +340,7 @@ namespace Bicep.Core.TypeSystem
                     }
                 }
 
-                var typeForBodyValidation = syntax.Value is ForSyntax
-                    ? new TypedArrayType(singleDeclaredType, TypeSymbolValidationFlags.Default)
-                    : singleDeclaredType;
-
-                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Value, typeForBodyValidation, true);
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Value, declaredType, true);
             });
 
         public override void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax)

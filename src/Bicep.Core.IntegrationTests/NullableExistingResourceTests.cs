@@ -57,7 +57,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing?
                 template.Should().NotHaveValue();
                 diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
                 {
-                    ("BCP445", DiagnosticLevel.Error, "Using nullable existing resources (existing?) requires enabling EXPERIMENTAL feature \"NullableExisting\".")
+                    ("BCP445", DiagnosticLevel.Error, "Using nullable existing resources with the \"existing?\" keyword requires enabling EXPERIMENTAL feature \"NullableExisting\".")
                 });
             }
         }

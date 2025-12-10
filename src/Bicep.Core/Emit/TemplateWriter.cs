@@ -1236,8 +1236,7 @@ namespace Bicep.Core.Emit
                     EmitResourceExtensionReference(emitter, extensionSymbol.Name);
                 }
 
-                // Emit the options property if there are entries in the DecoratorConfig dictionary or the resource is nullable existing
-                // or if this is a nullable existing resource
+                // Emit the options property if there are entries in the DecoratorConfig dictionary or if this is a nullable existing resource
                 var isNullableExisting = Context.Settings.EnableSymbolicNames && metadata.IsNullableExistingResource;
                 if (resource.DecoratorConfig.Count > 0 || isNullableExisting)
                 {

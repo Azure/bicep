@@ -57,7 +57,7 @@ this is not ${interpolated}'''
 
 ### `nullableExisting`
 
-Enables the use of nullable existing resources. When using `existing?` syntax, you can handle cases where the resource may not exist at deployment time.
+Enables the use of nullable existing resources. When using `existing?` syntax, you can handle cases where the resource may not exist at deployment time. (Note: This feature will not work until the backend service support has been deployed)
 
 ```bicep
 resource exampleResource 'Microsoft...' existing? = {
@@ -65,10 +65,7 @@ resource exampleResource 'Microsoft...' existing? = {
 }
 
 // Access with safe navigation since the resource may be null
-output properties object? = exampleResource.?properties
-
-// Or use null coalescing
-output propertiesOrDefault object = exampleResource.?properties ?? {}
+output properties object = exampleResource.?properties ?? {}
 ```
 
 ### `resourceInfoCodegen`
