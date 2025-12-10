@@ -11,6 +11,7 @@ using Bicep.Core.TypeSystem.Providers.Extensibility;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Local.Extension.Types;
+using Bicep.Local.Extension.Types.Attributes;
 using FluentAssertions;
 
 namespace Bicep.Local.Extension.UnitTests.TypesTests;
@@ -53,9 +54,31 @@ public class TypeDefinitionBuilderTests
         ImmutableArray<string> ImmutableItems,
         HashSet<string> HashSetItems);
 
+    public enum SampleEnum
+    {
+        First,
+        Second,
+        Third
+    }
+
+    private record EnumResource(
+        SampleEnum NonNullableEnum,
+        SampleEnum? NullableEnum);
+
     private record DictionaryResource(
         Dictionary<string, string> Dict,
         ImmutableDictionary<string, string> ImmutableDict);
+
+    private record PrimitiveResource
+    {
+        public int IntProp { get; init; }
+        public string StringProp { get; init; } = "";
+        public bool BoolProp { get; init; }
+        public int? NullableIntProp { get; init; }
+        public bool? NullableBoolProp { get; init; }
+        [TypeProperty("Secure string", isSecure: true)]
+        public string SecureStringProp { get; init; } = "";
+    }
 
     private static IResourceTypeLoader GenerateTypes(TypeDefinitionBuilder builder)
     {
@@ -128,10 +151,57 @@ public class TypeDefinitionBuilderTests
     }
 
     [TestMethod]
-    public void GenerateTypeDefinition_doesnt_support_dictionary_types()
+    public void GenerateTypeDefinition_handles_enum_types()
     {
-        Action act = () => CreateResourceType(typeof(DictionaryResource), nameof(DictionaryResource));
-        act.Should().Throw<NotImplementedException>()
-            .Which.Message.Should().Be("Property 'Dict' references unsupported dictionary type: 'System.Collections.Generic.Dictionary`2[System.String,System.String]'");
+        var resourceType = CreateResourceType(typeof(EnumResource), nameof(EnumResource));
+
+        var body = resourceType.Body.Type.Should().BeOfType<ObjectType>().Subject;
+        body.Properties["nonNullableEnum"].TypeReference.Type.Should().BeOfType<UnionType>()
+            .Which.Members.Select(m => m.Type).Should().AllBeOfType<StringLiteralType>()
+            .Which.Should().SatisfyRespectively(
+                x => x.RawStringValue.Should().Be("First"),
+                x => x.RawStringValue.Should().Be("Second"),
+                x => x.RawStringValue.Should().Be("Third"));
+        body.Properties["nullableEnum"].TypeReference.Type.Should().BeOfType<UnionType>()
+            .Which.Members.Select(m => m.Type).Should().SatisfyRespectively(
+                x => x.Should().BeOfType<StringLiteralType>().Which.RawStringValue.Should().Be("First"),
+                x => x.Should().BeOfType<StringLiteralType>().Which.RawStringValue.Should().Be("Second"),
+                x => x.Should().BeOfType<StringLiteralType>().Which.RawStringValue.Should().Be("Third"),
+                x => x.Should().BeOfType<NullType>());
+    }
+
+    [TestMethod]
+    public void GenerateTypeDefinition_handles_dictionary_types()
+    {
+        var resourceType = CreateResourceType(typeof(DictionaryResource), nameof(DictionaryResource));
+
+        var body = resourceType.Body.Type.Should().BeOfType<ObjectType>().Subject;
+        var dictType = body.Properties["dict"].TypeReference.Type.Should().BeOfType<ObjectType>().Subject;
+        dictType.Properties.Should().BeEmpty();
+        dictType.AdditionalProperties!.TypeReference.Type.Should().BeOfType<StringType>();
+        var immutableDictType = body.Properties["immutableDict"].TypeReference.Type.Should().BeOfType<ObjectType>().Subject;
+        immutableDictType.Properties.Should().BeEmpty();
+        immutableDictType.AdditionalProperties!.TypeReference.Type.Should().BeOfType<StringType>();
+    }
+
+    [TestMethod]
+    public void GenerateTypeDefinition_handles_primitive_types()
+    {
+        var resourceType = CreateResourceType(typeof(PrimitiveResource), nameof(PrimitiveResource));
+
+        var body = resourceType.Body.Type.Should().BeOfType<ObjectType>().Subject;
+        body.Properties["intProp"].TypeReference.Type.Should().BeOfType<IntegerType>();
+        body.Properties["stringProp"].TypeReference.Type.Should().BeOfType<StringType>();
+        body.Properties["boolProp"].TypeReference.Type.Should().BeOfType<BooleanType>();
+        body.Properties["nullableIntProp"].TypeReference.Type.Should().BeOfType<UnionType>()
+            .Which.Members.Should().SatisfyRespectively(
+                x => x.Type.Should().BeOfType<IntegerType>(),
+                x => x.Type.Should().BeOfType<NullType>());
+        body.Properties["nullableBoolProp"].TypeReference.Type.Should().BeOfType<UnionType>()
+            .Which.Members.Should().SatisfyRespectively(
+                x => x.Type.Should().BeOfType<BooleanType>(),
+                x => x.Type.Should().BeOfType<NullType>());
+        body.Properties["secureStringProp"].TypeReference.Type.Should().BeOfType<StringType>()
+            .Which.ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.IsSecure);
     }
 }
