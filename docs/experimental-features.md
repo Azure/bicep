@@ -38,23 +38,6 @@ Enables Bicep to run deployments locally, so that you can run Bicep extensions w
 Moves defining extension configurations to the module level rather than from within a template. The feature also
 includes enhancements for Deployment stacks extensibility integration. This feature is not ready for use.
 
-### `multilineStringInterpolation`
-
-Adds an optional `$` prefix to the current multiline opening syntax `'''`, which enables interpolation using standard `${...}` Bicep interpolation. To permit a `${...}` literal value without escaping requirements, you can specify the number of `$` characters required for interpolation by repeating the `$` prefix.
-
-Basic example:
-```bicep
-var s = $'''
-this is ${interpolated}'''
-```
-
-With multiple `$` characters:
-```bicep
-var s = $$'''
-this is $${interpolated}
-this is not ${interpolated}'''
-```
-
 ### `resourceInfoCodegen`
 
 Enables the 'resourceInfo' function for simplified code generation.

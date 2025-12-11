@@ -2009,10 +2009,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP441",
                 $"Resource type \"{resourceTypeReference.FormatName()}\" cannot be used with the 'existing' keyword.");
 
-            public Diagnostic MultilineStringRequiresExperimentalFeature() => CoreError(
-                "BCP442",
-                $"Using multiline string interpolation requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.MultilineStringInterpolation)}\".");
-
             public Diagnostic UsingWithClauseRequiredIfExperimentalFeatureEnabled() => CoreError(
                 "BCP443",
                 $"""The "{LanguageConstants.UsingKeyword}" statement requires a "{LanguageConstants.WithKeyword}" clause if the EXPERIMENTAL feature "{nameof(ExperimentalFeaturesEnabled.DeployCommands)}" is enabled.""");

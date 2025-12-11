@@ -24,7 +24,6 @@ public record ExperimentalFeaturesEnabled(
     bool DesiredStateConfiguration,
     bool UserDefinedConstraints,
     bool DeployCommands,
-    bool MultilineStringInterpolation,
     bool ThisNamespace)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
@@ -47,6 +46,5 @@ public record ExperimentalFeaturesEnabled(
         DesiredStateConfiguration: false,
         UserDefinedConstraints: false,
         DeployCommands: false,
-        MultilineStringInterpolation: false,
         ThisNamespace: false);
 }
