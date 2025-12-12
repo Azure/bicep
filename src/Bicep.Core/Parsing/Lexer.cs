@@ -363,6 +363,11 @@ namespace Bicep.Core.Parsing
             }
         }
 
+        private record DiagnosticPragmaDescriptor(DiagnosticsPragmaType Type, string Keyword);
+
+        private static readonly ImmutableArray<DiagnosticPragmaDescriptor> DiagnosticPragmaDescriptors =
+            [.. Enum.GetValues<DiagnosticsPragmaType>().Select(t => new DiagnosticPragmaDescriptor(t, t.GetKeyword()))];
+
         private IEnumerable<SyntaxTrivia> ScanLeadingTrivia()
         {
             SyntaxTrivia? current = null;
@@ -384,10 +389,11 @@ namespace Bicep.Core.Parsing
                 else if (
                     (current is null || !current.IsComment()) &&
                     textWindow.Peek() == '#' &&
-                    CheckAdjacentText(LanguageConstants.DisableNextLineDiagnosticsKeyword) &&
+                    DiagnosticPragmaDescriptors.Where(descriptor => CheckAdjacentText(descriptor.Keyword))
+                        .FirstOrDefault() is { } descriptor &&
                     string.IsNullOrWhiteSpace(textWindow.GetTextBetweenLineStartAndCurrentPosition()))
                 {
-                    current = ScanDisableNextLineDiagnosticsDirective();
+                    current = ScanDiagnosticsPragma(descriptor);
                 }
                 else
                 {
@@ -398,10 +404,10 @@ namespace Bicep.Core.Parsing
             }
         }
 
-        private SyntaxTrivia ScanDisableNextLineDiagnosticsDirective()
+        private DiagnosticsPragmaSyntaxTrivia ScanDiagnosticsPragma(DiagnosticPragmaDescriptor pragmaDescriptor)
         {
             textWindow.Reset();
-            textWindow.Advance(LanguageConstants.DisableNextLineDiagnosticsKeyword.Length + 1); // Length of disable next statement plus #
+            textWindow.Advance(pragmaDescriptor.Keyword.Length + 1); // Length of keyword plus #
 
             var span = textWindow.GetSpan();
             int start = span.Position;
@@ -474,7 +480,7 @@ namespace Bicep.Core.Parsing
                 AddDiagnostic(b => b.MissingDiagnosticCodes());
             }
 
-            return GetDisableNextLineDiagnosticsSyntaxTrivia(codes, start, end, sb.ToString());
+            return GetDiagnosticsPragmaSyntaxTrivia(pragmaDescriptor.Type, codes, start, end, sb.ToString());
         }
 
         private bool CheckAdjacentText(string text)
@@ -494,7 +500,7 @@ namespace Bicep.Core.Parsing
             return true;
         }
 
-        private DisableNextLineDiagnosticsSyntaxTrivia GetDisableNextLineDiagnosticsSyntaxTrivia(List<Token> codes, int start, int end, string text)
+        private DiagnosticsPragmaSyntaxTrivia GetDiagnosticsPragmaSyntaxTrivia(DiagnosticsPragmaType pragmaType, List<Token> codes, int start, int end, string text)
         {
             if (codes.Any())
             {
@@ -508,11 +514,11 @@ namespace Bicep.Core.Parsing
                     var delta = end - lastCodeSpanEnd;
                     textWindow.Rewind(delta);
 
-                    return new DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableNextLineDiagnosticsDirective, new TextSpan(start, lastCodeSpanEnd - start), text[0..^delta], codes);
+                    return new(pragmaType, new TextSpan(start, lastCodeSpanEnd - start), text[0..^delta], codes);
                 }
             }
 
-            return new DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableNextLineDiagnosticsDirective, new TextSpan(start, end - start), text, codes);
+            return new(pragmaType, new TextSpan(start, end - start), text, codes);
         }
 
         private Token? GetToken()

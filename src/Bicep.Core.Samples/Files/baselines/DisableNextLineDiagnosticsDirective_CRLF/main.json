@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10265253010862566764"
+      "templateHash": "1621928709986039592"
     }
   },
   "parameters": {
@@ -24,6 +24,18 @@
     "storageAccount5": {
       "type": "string",
       "defaultValue": "testStorageAccount"
+    },
+    "storageAccount4": {
+      "type": "string",
+      "defaultValue": "testStorageAccount"
+    },
+    "storageAccount6": {
+      "type": "string",
+      "defaultValue": "testStorageAccount"
+    },
+    "storageAccount7": {
+      "type": "string",
+      "defaultValue": "testStorageAccount"
     }
   },
   "variables": {
@@ -36,7 +48,10 @@
         }
       },
       "evictionPolicy": "Deallocate"
-    }
+    },
+    "unusedVar1": "This is an unused variable",
+    "unusedVar2": "This is another unused variable",
+    "unusedVar3": "This is yet another unused variable"
   },
   "resources": [
     {
