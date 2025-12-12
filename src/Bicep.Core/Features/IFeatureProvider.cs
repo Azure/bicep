@@ -39,8 +39,6 @@ public interface IFeatureProvider
 
     bool DeployCommandsEnabled { get; }
 
-    bool MultilineStringInterpolationEnabled { get; }
-
     bool ThisNamespaceEnabled { get; }
 
     bool ExistingNullIfNotFoundEnabled { get; }
@@ -66,7 +64,6 @@ public interface IFeatureProvider
                 (DesiredStateConfigurationEnabled, "Enable defining Desired State Configuration documents", true, false),
                 (UserDefinedConstraintsEnabled, "Enable @validate() decorator", true, true),
                 (DeployCommandsEnabled, "Enable deploy commands", true, true),
-                (MultilineStringInterpolationEnabled, "Enable multiline string interpolation", false, false),
                 (ThisNamespaceEnabled, "Enable 'this' namespace", true, true),
                 (ExistingNullIfNotFoundEnabled, "Enable @nullIfNotFound() decorator for existing resources", true, true),
             })

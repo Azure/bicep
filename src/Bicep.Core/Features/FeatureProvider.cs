@@ -56,8 +56,6 @@ namespace Bicep.Core.Features
 
         public bool DeployCommandsEnabled => configuration.ExperimentalFeaturesEnabled.DeployCommands;
 
-        public bool MultilineStringInterpolationEnabled => configuration.ExperimentalFeaturesEnabled.MultilineStringInterpolation;
-
         public bool ThisNamespaceEnabled => configuration.ExperimentalFeaturesEnabled.ThisNamespace;
 
         public bool ExistingNullIfNotFoundEnabled => configuration.ExperimentalFeaturesEnabled.ExistingNullIfNotFound;

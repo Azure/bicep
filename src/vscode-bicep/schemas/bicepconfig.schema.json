@@ -904,10 +904,6 @@
           "type": "boolean",
           "description": "Allows you to access the 'deploy', 'what-if' and 'teardown' commands. See https://aka.ms/bicep/experimental-features#deploycommands"
         },
-        "multilineStringInterpolation": {
-          "type": "boolean",
-          "description": "Enables support for multiline string interpolation. See https://aka.ms/bicep/experimental-features#multilinestringinterpolation"
-        },
         "thisNamespace": {
           "type": "boolean",
           "description": "Allows you to use this namespace to modify resource properties based on whether the resource already exists. Ex. this.exists() and this.existingResource(). See https://aka.ms/bicep/experimental-features#thisnamespace"

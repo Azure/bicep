@@ -60,7 +60,6 @@ namespace Bicep.Core.Emit
             BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
             BlockExplicitDependenciesInOrOnInlinedExistingResources(model, resourceTypeResolver, diagnostics);
             ValidateUsingWithClauseMatchesExperimentalFeatureEnablement(model, diagnostics);
-            BlockMultilineStringInterpolationWithoutFeatureFlagEnabled(model, diagnostics);
 
             var paramAssignmentEvaluator = new ParameterAssignmentEvaluator(model);
             var (paramAssignments, usingConfig) = CalculateParameterAssignments(model, paramAssignmentEvaluator, diagnostics);
@@ -1056,20 +1055,6 @@ namespace Bicep.Core.Emit
                 {
                     yield return body;
                 }
-            }
-        }
-
-        private static void BlockMultilineStringInterpolationWithoutFeatureFlagEnabled(SemanticModel model, IDiagnosticWriter diagnostics)
-        {
-            if (model.Features.MultilineStringInterpolationEnabled)
-            {
-                return;
-            }
-
-            foreach (var @string in SyntaxAggregator.AggregateByType<StringSyntax>(model.Root.Syntax)
-                .Where(x => x.IsMultiLineString() && !x.IsVerbatimString()))
-            {
-                diagnostics.Write(@string, x => x.MultilineStringRequiresExperimentalFeature());
             }
         }
     }
