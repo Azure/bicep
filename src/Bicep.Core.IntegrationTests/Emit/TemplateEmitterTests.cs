@@ -310,7 +310,7 @@ Hello $${name}!
 '''
 ";
 
-            var (template, _, _) = CompilationHelper.Compile(ServiceBuilder.CreateWithFeatures(new(MultilineStringInterpolationEnabled: true)), StringUtils.ReplaceNewlines(inputFile, newlineSequence));
+            var (template, _, _) = CompilationHelper.Compile(StringUtils.ReplaceNewlines(inputFile, newlineSequence));
 
             var expected1 = string.Join(newlineSequence, ["[format('Hello {0}!", "', variables('name'))]"]);
             template.Should().HaveValueAtPath("$.variables.multiline", expected1);
