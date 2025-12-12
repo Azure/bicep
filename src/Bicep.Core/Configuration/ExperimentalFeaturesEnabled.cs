@@ -24,7 +24,6 @@ public record ExperimentalFeaturesEnabled(
     bool DesiredStateConfiguration,
     bool UserDefinedConstraints,
     bool DeployCommands,
-    bool MultilineStringInterpolation,
     bool ThisNamespace,
     bool NullableExisting)
 {
@@ -48,7 +47,6 @@ public record ExperimentalFeaturesEnabled(
         DesiredStateConfiguration: false,
         UserDefinedConstraints: false,
         DeployCommands: false,
-        MultilineStringInterpolation: false,
         ThisNamespace: false,
         NullableExisting: false);
 }
