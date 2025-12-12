@@ -20,45 +20,21 @@ namespace Bicep.Core.IntegrationTests
         public TestContext? TestContext { get; set; }
 
         [TestMethod]
-        public void NullableExisting_ShouldNotAllowWhitespaceBetweenExistingAndQuestionMark()
+        public void NullableExisting_DecoratorShouldNotBeRecognizedWhenFeatureDisabled()
         {
-            // Test that whitespace between 'existing' and '?' is not recognized as nullable existing
-            // The parser only recognizes 'existing?' when there's no whitespace between them
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, NullableExistingEnabled: true));
-            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
-#disable-next-line no-unused-existing-resources
-resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing ? = {
-  name: 'testStorage'
-}
-");
-            using (new AssertionScope())
-            {
-                template.Should().NotHaveValue();
-                // With whitespace, '?' is not recognized as part of 'existing', so parser expects '=' after 'existing'
-                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-                {
-                    ("BCP018", DiagnosticLevel.Error, "Expected the \"=\" character at this location.")
-                });
-            }
-        }
-
-        [TestMethod]
-        public void NullableExisting_ShouldNotBeRecognizedWhenFeatureDisabled()
-        {
-            // Test that existing? syntax produces an error when feature is disabled
+            // Test that @nullIfNotFound() decorator is not recognized when feature is disabled
             var (template, diagnostics, _) = CompilationHelper.Compile(@"
 #disable-next-line no-unused-existing-resources
-resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing? = {
+@nullIfNotFound()
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
   name: 'testStorage'
 }
 ");
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-                {
-                    ("BCP445", DiagnosticLevel.Error, "Using nullable existing resources with the \"existing?\" keyword requires enabling EXPERIMENTAL feature \"NullableExisting\".")
-                });
+                // When feature is disabled, the decorator function doesn't exist in the sys namespace
+                diagnostics.ExcludingLinterDiagnostics().Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"nullIfNotFound\" does not exist in the current context.");
             }
         }
 
@@ -68,9 +44,10 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing?
             // Nullable existing resources should behave like conditional resources:
             // - Direct access to runtime properties should produce a warning
             // - Access to compile-time properties (id, name, type, apiVersion) should not produce warnings
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, NullableExistingEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ExistingNullIfNotFoundEnabled: true));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
-resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing? = {
+@nullIfNotFound()
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
   name: 'testStorage'
 }
 
@@ -101,9 +78,10 @@ output resourceApiVersion string = storageAccount.apiVersion
         public void NullableExisting_RuntimePropertyAccess_ShouldProduceWarning()
         {
             // Access to runtime properties should produce a warning (same as conditional resources)
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, NullableExistingEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ExistingNullIfNotFoundEnabled: true));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
-resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing? = {
+@nullIfNotFound()
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
   name: 'testStorage'
 }
 
@@ -129,8 +107,8 @@ output skuName string = storageAccount.sku.name
         [TestMethod]
         public void NullableExisting_RegularExistingShouldStillWork()
         {
-            // Regular existing (without ?) should still work the same way
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, NullableExistingEnabled: true));
+            // Regular existing (without @nullIfNotFound()) should still work the same way
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ExistingNullIfNotFoundEnabled: true));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
   name: 'testStorage'
@@ -155,9 +133,10 @@ output accountId string = storageAccount.id
         public void NullableExisting_NullComparisonShouldWork()
         {
             // Null comparison should work with nullable existing resources
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, NullableExistingEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ExistingNullIfNotFoundEnabled: true));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
-resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing? = {
+@nullIfNotFound()
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
   name: 'testStorage'
 }
 
@@ -176,12 +155,13 @@ output exists bool = storageAccount != null
         }
 
         [TestMethod]
-        public void NullableExisting_CannotBeUsedWithNewResource()
+        public void NullableExisting_DecoratorCannotBeUsedWithNewResource()
         {
-            // The ? without existing should produce a parse error
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, NullableExistingEnabled: true));
+            // The @nullIfNotFound() decorator should produce an error on non-existing resources
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ExistingNullIfNotFoundEnabled: true));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
-resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' ? = {
+@nullIfNotFound()
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: 'testStorage'
   location: 'westus'
   sku: {
@@ -193,16 +173,17 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' ? = {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diagnostics.ExcludingLinterDiagnostics().Should().ContainDiagnostic("BCP018", DiagnosticLevel.Error, "Expected the \"=\" character at this location.");
+                diagnostics.ExcludingLinterDiagnostics().Should().ContainDiagnostic("BCP446", DiagnosticLevel.Error, "The \"@nullIfNotFound()\" decorator can only be used on existing resources.");
             }
         }
 
         [TestMethod]
         public void NullableExisting_PropertyAccess_WithSafeAccess_ShouldWork()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, NullableExistingEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ExistingNullIfNotFoundEnabled: true));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
-resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing? = {
+@nullIfNotFound()
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
   name: 'testStorage'
 }
 
@@ -224,9 +205,10 @@ output location string? = storageAccount.?location
         public void NullableExisting_SafeAccessAndNullCoalescing_OnRuntimeProperties()
         {
             // Test safe access (.?) and null coalescing (??) on runtime properties that would produce warnings without them
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, NullableExistingEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ExistingNullIfNotFoundEnabled: true));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
-resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing? = {
+@nullIfNotFound()
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
   name: 'testStorage'
 }
 
@@ -268,9 +250,10 @@ output accessTierWithDefault string = storageAccount.?properties.accessTier ?? '
         public void NullableExisting_DependsOn_ShouldBePopulated()
         {
             // Test that dependsOn is correctly populated when a new resource references a nullable existing resource
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, NullableExistingEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ExistingNullIfNotFoundEnabled: true));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
-resource existingStorage 'Microsoft.Storage/storageAccounts@2021-04-01' existing? = {
+@nullIfNotFound()
+resource existingStorage 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
   name: 'existingStorageAccount'
 }
 
@@ -308,9 +291,10 @@ resource newStorage 'Microsoft.Storage/storageAccounts@2021-04-01' = {
         public void NullableExisting_ConditionalListKeys_WithNullCheck()
         {
             // Test using null check with ternary to conditionally call listKeys on a nullable existing resource
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, NullableExistingEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ExistingNullIfNotFoundEnabled: true));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
-resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing? = {
+@nullIfNotFound()
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
   name: 'testStorage'
 }
 
@@ -334,11 +318,12 @@ output firstKey string = storageAccount != null ? storageAccount!.listKeys().key
         public void NullableExisting_WithForLoop_ShouldCompile()
         {
             // Test that nullable existing resources work with for loops
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, NullableExistingEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ExistingNullIfNotFoundEnabled: true));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
 param storageNames array = ['storage1', 'storage2', 'storage3']
 
-resource storageAccounts 'Microsoft.Storage/storageAccounts@2021-04-01' existing? = [for name in storageNames: {
+@nullIfNotFound()
+resource storageAccounts 'Microsoft.Storage/storageAccounts@2021-04-01' existing = [for name in storageNames: {
   name: name
 }]
 
@@ -364,9 +349,10 @@ output secondAccountLocation string? = storageAccounts[1].?location
             // Test using a nullable existing resource (key vault) as parent for a child resource (secret)
             // Note: The parent property accepts the nullable resource and compiles successfully.
             // The deployment may fail at runtime if the key vault doesn't exist.
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, NullableExistingEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ExistingNullIfNotFoundEnabled: true));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
-resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing? = {
+@nullIfNotFound()
+resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
   name: 'myKeyVault'
 }
 
@@ -397,7 +383,7 @@ output secretId string = secret.id
         public void NullableExisting_WithScope_ShouldCompile()
         {
             // Test that nullable existing resources work with scope property
-            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, NullableExistingEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ExistingNullIfNotFoundEnabled: true));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
 param subscriptionId string
 param resourceGroupName string
@@ -407,7 +393,8 @@ resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
   scope: subscription(subscriptionId)
 }
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing? = {
+@nullIfNotFound()
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
   name: 'testStorage'
   scope: rg
 }

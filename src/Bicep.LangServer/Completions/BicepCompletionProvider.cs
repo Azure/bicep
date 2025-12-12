@@ -519,13 +519,6 @@ namespace Bicep.LanguageServer.Completions
                 {
                     const string existing = "existing";
                     yield return CreateKeywordCompletion(existing, existing, context.ReplacementRange);
-
-                    // Add existing? completion for nullable existing resources (only when feature is enabled)
-                    if (model.Features.NullableExistingEnabled)
-                    {
-                        const string existingNullable = "existing?";
-                        yield return CreateKeywordCompletion(existingNullable, "existing? (nullable)", context.ReplacementRange);
-                    }
                 }
             }
         }
@@ -1157,7 +1150,8 @@ namespace Bicep.LanguageServer.Completions
                 TypeAliasSymbol declaredTypeSymbol when targetType is not null => GetAccessible(knownDecoratorFunctions, (targetType as TypeType)?.Unwrapped ?? targetType, FunctionFlags.TypeDecorator),
                 VariableSymbol variableSymbol => GetAccessible(knownDecoratorFunctions, variableSymbol.Type, FunctionFlags.VariableDecorator),
                 DeclaredFunctionSymbol functionSymbol => GetAccessible(knownDecoratorFunctions, functionSymbol.Type, FunctionFlags.FunctionDecorator),
-                ResourceSymbol resourceSymbol => GetAccessible(knownDecoratorFunctions, resourceSymbol.Type, FunctionFlags.ResourceDecorator),
+                ResourceSymbol resourceSymbol => GetAccessible(knownDecoratorFunctions, resourceSymbol.Type, FunctionFlags.ResourceDecorator)
+                    .Where(f => f.Name != LanguageConstants.NullIfNotFoundDecoratorName || resourceSymbol.DeclaringResource.IsExistingResource()),
                 ModuleSymbol moduleSymbol => GetAccessible(knownDecoratorFunctions, moduleSymbol.Type, FunctionFlags.ModuleDecorator),
                 OutputSymbol outputSymbol => GetAccessible(knownDecoratorFunctions, outputSymbol.Type, FunctionFlags.OutputDecorator),
                 /*

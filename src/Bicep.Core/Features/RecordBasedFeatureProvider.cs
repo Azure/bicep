@@ -28,6 +28,6 @@ namespace Bicep.Core.Features
         public bool DeployCommandsEnabled => features.DeployCommands;
         public bool MultilineStringInterpolationEnabled => features.MultilineStringInterpolation;
         public bool ThisNamespaceEnabled => features.ThisNamespace;
-        public bool NullableExistingEnabled => features.NullableExisting;
+        public bool ExistingNullIfNotFoundEnabled => features.NullableExisting;
     }
 }

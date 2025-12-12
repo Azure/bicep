@@ -2057,6 +2057,21 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithEvaluator(AddDecoratorConfigToResource)
                     .Build();
 
+                if (featureProvider.ExistingNullIfNotFoundEnabled)
+                {
+                    yield return new DecoratorBuilder(LanguageConstants.NullIfNotFoundDecoratorName)
+                        .WithDescription("Marks an existing resource as nullable, returning null if the resource doesn't exist at deployment time instead of failing.")
+                        .WithFlags(FunctionFlags.ResourceDecorator)
+                        .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
+                        {
+                            var decoratorTarget = binder.GetParent(decoratorSyntax);
+                            if (decoratorTarget is ResourceDeclarationSyntax resourceDeclaration && !resourceDeclaration.IsExistingResource())
+                            {
+                                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).NullIfNotFoundOnlyValidOnExistingResources());
+                            }
+                        })
+                        .Build();
+                }
 
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSealedPropertyName)
                     .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")

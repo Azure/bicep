@@ -6098,11 +6098,11 @@ param foo string = 'bar'
         }
 
         [TestMethod]
-        public async Task Completions_after_resource_type_should_include_existingNullable_when_feature_enabled()
+        public async Task Completions_after_resource_type_should_include_existing()
         {
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
-                s => s.WithFeatureOverrides(new(NullableExistingEnabled: true))
+                s => s.WithFeatureOverrides(new(ExistingNullIfNotFoundEnabled: true))
                     .WithNamespaceProvider(BuiltInTestTypes.Create()));
             var helper = new ServerRequestHelper(TestContext, server);
 
@@ -6113,46 +6113,17 @@ param foo string = 'bar'
             var bicepFile = await helper.OpenFile("/path/to/main.bicep", text);
             var completions = await bicepFile.RequestAndResolveCompletions(cursor);
 
-            // Should have both 'existing' and 'existing?' when feature is enabled
+            // Should have 'existing' completion
             var existingCompletion = completions.FirstOrDefault(c => c.Label == "existing");
-            var existingNullableCompletion = completions.FirstOrDefault(c => c.Label == "existing?");
 
             existingCompletion.Should().NotBeNull("existing completion should be offered");
             existingCompletion!.Kind.Should().Be(CompletionItemKind.Keyword);
             existingCompletion.Detail.Should().Be("existing");
 
-            existingNullableCompletion.Should().NotBeNull("existing? completion should be offered when NullableExisting feature is enabled");
-            existingNullableCompletion!.Kind.Should().Be(CompletionItemKind.Keyword);
-            existingNullableCompletion.Detail.Should().Be("existing? (nullable)");
-            existingNullableCompletion.TextEdit!.TextEdit!.NewText.Should().Be("existing?");
-
-            var updatedFile = bicepFile.ApplyCompletion(completions, "existing?");
+            var updatedFile = bicepFile.ApplyCompletion(completions, "existing");
             updatedFile.Should().HaveSourceText("""
-            resource testRes 'Test.Rp/readWriteTests@2020-01-01' existing?|
+            resource testRes 'Test.Rp/readWriteTests@2020-01-01' existing|
             """);
-        }
-
-        [TestMethod]
-        public async Task Completions_after_resource_type_should_not_include_existingNullable_when_feature_disabled()
-        {
-            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(
-                TestContext,
-                s => s.WithNamespaceProvider(BuiltInTestTypes.Create()));
-            var helper = new ServerRequestHelper(TestContext, server);
-
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
-            resource testRes 'Test.Rp/readWriteTests@2020-01-01' |
-            """);
-
-            var bicepFile = await helper.OpenFile("/path/to/main.bicep", text);
-            var completions = await bicepFile.RequestAndResolveCompletions(cursor);
-
-            // Should have 'existing' but NOT 'existing?' when feature is disabled
-            var existingCompletion = completions.FirstOrDefault(c => c.Label == "existing");
-            var existingNullableCompletion = completions.FirstOrDefault(c => c.Label == "existing?");
-
-            existingCompletion.Should().NotBeNull("existing completion should be offered");
-            existingNullableCompletion.Should().BeNull("existing? completion should NOT be offered when NullableExisting feature is disabled");
         }
     }
 }

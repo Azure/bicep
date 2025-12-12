@@ -165,17 +165,6 @@ namespace Bicep.Core.Parsing
 
             var existingKeyword = GetOptionalKeyword(LanguageConstants.ExistingKeyword);
 
-            // Check for '?' after 'existing' to indicate a nullable existing resource
-            Token? nullableMarker = null;
-            if (existingKeyword is not null && Check(TokenType.Question))
-            {
-                var questionToken = reader.Peek();
-                if (existingKeyword.GetEndPosition() == questionToken.Span.Position)
-                {
-                    nullableMarker = reader.Read();
-                }
-            }
-
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.LeftBrace, TokenType.NewLine);
 
             var newlines = !assignment.IsSkipped && reader.Peek(skipNewlines: true).IsKeyword(LanguageConstants.IfKeyword)
@@ -196,7 +185,7 @@ namespace Bicep.Core.Parsing
                 GetSuppressionFlag(assignment),
                 TokenType.NewLine);
 
-            return new ResourceDeclarationSyntax(leadingNodes, keyword, name, type, existingKeyword, nullableMarker, assignment, newlines, value);
+            return new ResourceDeclarationSyntax(leadingNodes, keyword, name, type, existingKeyword, assignment, newlines, value);
         }
 
         private SyntaxBase ModuleDeclaration(IEnumerable<SyntaxBase> leadingNodes)

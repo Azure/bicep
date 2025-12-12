@@ -187,7 +187,6 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Name,
                 syntax.Path,
                 null,
-                null,
                 syntax.Assignment,
                 syntax.Newlines,
                 syntax.Value);
@@ -316,7 +315,6 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Name,
                 syntax.Type,
                 syntax.ExistingKeyword,
-                syntax.NullableMarker,
                 syntax.Assignment,
                 syntax.Newlines,
                 syntax.Value);
@@ -327,20 +325,10 @@ namespace Bicep.Core.PrettyPrintV2
             SyntaxBase name,
             SyntaxBase typeOrPath,
             SyntaxBase? existingKeyword,
-            SyntaxBase? nullableMarker,
             SyntaxBase assignment,
             ImmutableArray<Token> newlines,
             SyntaxBase value)
         {
-            // Glue "existing" and "?" together so they print as "existing?" without space.
-            // Note: nullableMarker can only exist when existingKeyword exists (parser constraint).
-            var existingWithMarker = (existingKeyword, nullableMarker) switch
-            {
-                (not null, not null) => this.Glue(existingKeyword, nullableMarker),
-                (not null, null) => this.Layout(existingKeyword),
-                _ => null,
-            };
-
             // The parser only allows newlines before between = and the if keyword.
             // If there are dangling comments/directives attached to the newlines, we have
             // to group the newlines and the IfConditionSyntx to ensure the comments
@@ -349,14 +337,14 @@ namespace Bicep.Core.PrettyPrintV2
             {
                 var valueGroup = this.IndentGroup(newlines.Append(value));
 
-                return this.LayoutLeadingNodes(leadingNodes).Concat(existingWithMarker is not null
-                    ? this.Spread(keyword, name, typeOrPath, existingWithMarker, assignment, valueGroup)
+                return this.LayoutLeadingNodes(leadingNodes).Concat(existingKeyword is not null
+                    ? this.Spread(keyword, name, typeOrPath, existingKeyword, assignment, valueGroup)
                     : this.Spread(keyword, name, typeOrPath, assignment, valueGroup));
             }
 
             return this.LayoutLeadingNodes(leadingNodes)
-                .Concat(existingWithMarker is not null
-                    ? this.Spread(keyword, name, typeOrPath, existingWithMarker, assignment, value)
+                .Concat(existingKeyword is not null
+                    ? this.Spread(keyword, name, typeOrPath, existingKeyword, assignment, value)
                     : this.Spread(keyword, name, typeOrPath, assignment, value));
         }
 

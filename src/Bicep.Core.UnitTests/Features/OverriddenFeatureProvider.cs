@@ -53,5 +53,5 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool ThisNamespaceEnabled => overrides.ThisNamespaceEnabled ?? features.ThisNamespaceEnabled;
 
-    public bool NullableExistingEnabled => overrides.NullableExistingEnabled ?? features.NullableExistingEnabled;
+    public bool ExistingNullIfNotFoundEnabled => overrides.ExistingNullIfNotFoundEnabled ?? features.ExistingNullIfNotFoundEnabled;
 }

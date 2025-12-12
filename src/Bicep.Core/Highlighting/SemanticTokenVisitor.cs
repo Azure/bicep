@@ -176,7 +176,6 @@ public class SemanticTokenVisitor : CstVisitor
         AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
         AddTokenType(syntax.Name, SemanticTokenType.Variable);
         AddTokenType(syntax.ExistingKeyword, SemanticTokenType.Keyword);
-        AddTokenType(syntax.NullableMarker, SemanticTokenType.Operator);
         base.VisitResourceDeclarationSyntax(syntax);
     }
 

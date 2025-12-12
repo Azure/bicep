@@ -43,7 +43,7 @@ public interface IFeatureProvider
 
     bool ThisNamespaceEnabled { get; }
 
-    bool NullableExistingEnabled { get; }
+    bool ExistingNullIfNotFoundEnabled { get; }
 
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
@@ -68,7 +68,7 @@ public interface IFeatureProvider
                 (DeployCommandsEnabled, "Enable deploy commands", true, true),
                 (MultilineStringInterpolationEnabled, "Enable multiline string interpolation", false, false),
                 (ThisNamespaceEnabled, "Enable 'this' namespace", true, true),
-                (NullableExistingEnabled, "Enable nullable existing resources (existing?)", true, true),
+                (ExistingNullIfNotFoundEnabled, "Enable @nullIfNotFound() decorator for existing resources", true, true),
             })
             {
                 if (enabled)

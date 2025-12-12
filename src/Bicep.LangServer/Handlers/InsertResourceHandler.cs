@@ -271,7 +271,6 @@ namespace Bicep.LanguageServer.Handlers
                 SyntaxFactory.CreateIdentifierWithTrailingSpace(UnifiedNamePattern().Replace(resourceId.UnqualifiedName, "")),
                 SyntaxFactory.CreateStringLiteral(typeReference.FormatName()),
                 null,
-                null,
                 SyntaxFactory.CreateToken(TokenType.Assignment),
                 [],
                 SyntaxFactory.CreateObject(properties));
