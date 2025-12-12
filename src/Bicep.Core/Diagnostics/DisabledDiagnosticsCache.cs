@@ -33,15 +33,27 @@ public class DisabledDiagnosticsCache
     {
         if (cachesLazy.Value.disabledDiagnosticsByCodeCache.TryGetValue(diagnosticCode, out var disabledForSpans))
         {
-            for (int i = 0; i < disabledForSpans.Length; i++)
-            {
-                if (disabledForSpans[i].Position > position)
-                {
-                    return false;
-                }
+            int startIndex = 0;
+            int endIndex = disabledForSpans.Length - 1;
 
-                if (disabledForSpans[i].GetEndPosition() >= position)
+            while (startIndex <= endIndex)
+            {
+                int midIndex = startIndex + (endIndex - startIndex) / 2;
+                var midSpan = disabledForSpans[midIndex];
+
+                if (position < midSpan.Position)
                 {
+                    // The provided position precedes the start of the mid span, so it must be in an earlier span (if any)
+                    endIndex = midIndex - 1;
+                }
+                else if (position > midSpan.GetEndPosition())
+                {
+                    // The provided position follows the end of the mid span, so it must be in an later span (if any)
+                    startIndex = midIndex + 1;
+                }
+                else
+                {
+                    // The provided position is within the mid span, so the diagnostic is disabled at that position
                     return true;
                 }
             }
