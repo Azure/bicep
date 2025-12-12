@@ -161,6 +161,50 @@ public class ParameterAssignmentEvaluator
     private readonly ExternalInputReferences externalInputReferences;
     private readonly ExpressionConverter converter;
 
+    private static IEnumerable<VariableSymbol> GetVariableDeclarationsIncludingExtends(SemanticModel model)
+    {
+        foreach (var variable in model.Root.VariableDeclarations)
+        {
+            yield return variable;
+        }
+
+        if (model.SourceFile is not BicepParamFile)
+        {
+            yield break;
+        }
+
+        var visitedModels = new HashSet<ISemanticModel>();
+
+        IEnumerable<VariableSymbol> WalkExtends(SemanticModel current)
+        {
+            foreach (var extends in current.SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>())
+            {
+                if (!current.TryGetReferencedModel(extends).IsSuccess(out var referenced) || !visitedModels.Add(referenced) || referenced is not SemanticModel referencedSemantic)
+                {
+                    continue;
+                }
+
+                foreach (var inherited in referencedSemantic.Root.VariableDeclarations)
+                {
+                    yield return inherited;
+                }
+
+                if (referencedSemantic.SourceFile is BicepParamFile)
+                {
+                    foreach (var nested in WalkExtends(referencedSemantic))
+                    {
+                        yield return nested;
+                    }
+                }
+            }
+        }
+
+        foreach (var variable in WalkExtends(model))
+        {
+            yield return variable;
+        }
+    }
+
     private static IEnumerable<FunctionVariable> CollectFunctionVariablesIncludingExtends(SemanticModel model, EmitterContext context)
     {
         foreach (var functionVariable in context.FunctionVariables.Values)
@@ -222,13 +266,57 @@ public class ParameterAssignmentEvaluator
         }
     }
 
+    private static IEnumerable<ParameterAssignmentSymbol> GetParameterAssignmentsIncludingExtends(SemanticModel model)
+    {
+        foreach (var param in model.Root.ParameterAssignments)
+        {
+            yield return param;
+        }
+
+        if (model.SourceFile is not BicepParamFile)
+        {
+            yield break;
+        }
+
+        var visitedModels = new HashSet<ISemanticModel>();
+
+        IEnumerable<ParameterAssignmentSymbol> WalkExtends(SemanticModel current)
+        {
+            foreach (var extends in current.SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>())
+            {
+                if (!current.TryGetReferencedModel(extends).IsSuccess(out var referenced) || !visitedModels.Add(referenced) || referenced is not SemanticModel referencedSemantic)
+                {
+                    continue;
+                }
+
+                foreach (var inherited in referencedSemantic.Root.ParameterAssignments)
+                {
+                    yield return inherited;
+                }
+
+                if (referencedSemantic.SourceFile is BicepParamFile)
+                {
+                    foreach (var nested in WalkExtends(referencedSemantic))
+                    {
+                        yield return nested;
+                    }
+                }
+            }
+        }
+
+        foreach (var param in WalkExtends(model))
+        {
+            yield return param;
+        }
+    }
+
     public ParameterAssignmentEvaluator(SemanticModel model)
     {
         this.semanticModel = model;
-        this.paramsByName = model.Root.ParameterAssignments
+        this.paramsByName = GetParameterAssignmentsIncludingExtends(model)
             .GroupBy(x => x.Name, LanguageConstants.IdentifierComparer)
             .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
-        this.variablesByName = model.Root.VariableDeclarations
+        this.variablesByName = GetVariableDeclarationsIncludingExtends(model)
             .GroupBy(x => x.Name, LanguageConstants.IdentifierComparer)
             .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
         this.functionsByName = model.Root.FunctionDeclarations
@@ -262,6 +350,21 @@ public class ParameterAssignmentEvaluator
         if (parameter.Context.ModelLookup.GetSemanticModel(parameter.Context.SourceFile) is SemanticModel parameterModel)
         {
             return converterCache.GetOrAdd(parameterModel, model => new ExpressionConverter(new EmitterContext(model)));
+        }
+
+        return converter;
+    }
+
+    private ExpressionConverter GetConverterForVariable(VariableSymbol variable)
+    {
+        if (ReferenceEquals(variable.Context.SourceFile, semanticModel.SourceFile))
+        {
+            return converter;
+        }
+
+        if (variable.Context.ModelLookup.GetSemanticModel(variable.Context.SourceFile) is SemanticModel variableModel)
+        {
+            return converterCache.GetOrAdd(variableModel, model => new ExpressionConverter(new EmitterContext(model)));
         }
 
         return converter;
@@ -378,9 +481,10 @@ public class ParameterAssignmentEvaluator
                 try
                 {
                     var context = GetExpressionEvaluationContext();
-                    var intermediate = converter.ConvertToIntermediateExpression(variable.DeclaringVariable.Value);
+                    var variableConverter = GetConverterForVariable(variable);
+                    var intermediate = variableConverter.ConvertToIntermediateExpression(variable.DeclaringVariable.Value);
 
-                    return Result.For(converter.ConvertExpression(intermediate).EvaluateExpression(context));
+                    return Result.For(variableConverter.ConvertExpression(intermediate).EvaluateExpression(context));
                 }
                 catch (Exception ex)
                 {
