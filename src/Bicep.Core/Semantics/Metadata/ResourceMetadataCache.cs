@@ -107,6 +107,7 @@ namespace Bicep.Core.Semantics.Metadata
                                 return new DeclaredResourceMetadata(
                                     resourceType,
                                     symbol.DeclaringResource.IsExistingResource(),
+                                    symbol.DeclaringResource.IsNullableExistingResource(),
                                     symbol,
                                     new(parentMetadata, null, true));
                             }
@@ -126,6 +127,7 @@ namespace Bicep.Core.Semantics.Metadata
                                 return new DeclaredResourceMetadata(
                                     resourceType,
                                     symbol.DeclaringResource.IsExistingResource(),
+                                    symbol.DeclaringResource.IsNullableExistingResource(),
                                     symbol,
                                     new(parentMetadata, indexExpression, false));
                             }
@@ -135,6 +137,7 @@ namespace Bicep.Core.Semantics.Metadata
                             return new DeclaredResourceMetadata(
                                 resourceType,
                                 symbol.DeclaringResource.IsExistingResource(),
+                                symbol.DeclaringResource.IsNullableExistingResource(),
                                 symbol,
                                 null);
                         }

@@ -140,6 +140,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                     syntax.Name,
                     syntax.Type,
                     syntax.ExistingKeyword,
+                    syntax.NullableMarker,
                     syntax.Assignment,
                     syntax.Newlines,
                     replacementValue);

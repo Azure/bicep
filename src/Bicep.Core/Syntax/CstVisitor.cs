@@ -91,6 +91,7 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Name);
             this.Visit(syntax.Type);
             this.Visit(syntax.ExistingKeyword);
+            this.Visit(syntax.NullableMarker);
             this.Visit(syntax.Assignment);
             this.VisitNodes(syntax.Newlines);
             this.Visit(syntax.Value);

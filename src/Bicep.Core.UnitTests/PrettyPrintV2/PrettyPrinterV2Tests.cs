@@ -88,5 +88,17 @@ namespace Bicep.Core.UnitTests.PrettyPrintV2
 
             output.Should().Be("var foo = {\n  prop1: true\n\n  prop2: false\n}\n\n/* leading comment */\n\nvar bar = 1\n");
         }
+
+        [TestMethod]
+        public void Print_NullableExistingResource_FormatsCorrectly()
+        {
+            var programText = "resource sa 'Microsoft.Storage/storageAccounts@2021-02-01' existing?= {\nname: 'test'\n}";
+            var program = ParserHelper.Parse(programText, out var lexingErrorLookup, out var parsingErrorLookup);
+            var context = PrettyPrinterV2Context.Create(PrettyPrinterV2Options.Default, lexingErrorLookup, parsingErrorLookup);
+
+            var output = PrettyPrinterV2.Print(program, context);
+
+            output.Should().Be("resource sa 'Microsoft.Storage/storageAccounts@2021-02-01' existing? = {\n  name: 'test'\n}\n");
+        }
     }
 }

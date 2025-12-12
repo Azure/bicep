@@ -41,6 +41,8 @@ public interface IFeatureProvider
 
     bool ThisNamespaceEnabled { get; }
 
+    bool NullableExistingEnabled { get; }
+
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
         get
@@ -63,6 +65,7 @@ public interface IFeatureProvider
                 (UserDefinedConstraintsEnabled, "Enable @validate() decorator", true, true),
                 (DeployCommandsEnabled, "Enable deploy commands", true, true),
                 (ThisNamespaceEnabled, "Enable 'this' namespace", true, true),
+                (NullableExistingEnabled, "Enable nullable existing resources (existing?)", true, true),
             })
             {
                 if (enabled)

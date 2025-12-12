@@ -65,7 +65,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetPropertyValueCompletions(model, context))
                 .Concat(GetArrayItemCompletions(model, context))
                 .Concat(GetResourceTypeCompletions(model, context))
-                .Concat(GetResourceTypeFollowerCompletions(context))
+                .Concat(GetResourceTypeFollowerCompletions(model, context))
                 .Concat(GetLocalModulePathCompletions(model, context))
                 .Concat(GetModuleBodyCompletions(model, context))
                 .Concat(GetTestBodyCompletions(model, context))
@@ -504,7 +504,7 @@ namespace Bicep.LanguageServer.Completions
                 .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: false));
         }
 
-        private static IEnumerable<CompletionItem> GetResourceTypeFollowerCompletions(BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetResourceTypeFollowerCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceTypeFollower))
             {
@@ -519,6 +519,13 @@ namespace Bicep.LanguageServer.Completions
                 {
                     const string existing = "existing";
                     yield return CreateKeywordCompletion(existing, existing, context.ReplacementRange);
+
+                    // Add existing? completion for nullable existing resources (only when feature is enabled)
+                    if (model.Features.NullableExistingEnabled)
+                    {
+                        const string existingNullable = "existing?";
+                        yield return CreateKeywordCompletion(existingNullable, "existing? (nullable)", context.ReplacementRange);
+                    }
                 }
             }
         }
