@@ -26,7 +26,7 @@ public record ExperimentalFeaturesEnabled(
     bool DeployCommands,
     bool MultilineStringInterpolation,
     bool ThisNamespace,
-    bool NullableExisting)
+    bool ExistingNullIfNotFound)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();
@@ -50,5 +50,5 @@ public record ExperimentalFeaturesEnabled(
         DeployCommands: false,
         MultilineStringInterpolation: false,
         ThisNamespace: false,
-        NullableExisting: false);
+        ExistingNullIfNotFound: false);
 }

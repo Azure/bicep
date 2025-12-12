@@ -1236,9 +1236,8 @@ namespace Bicep.Core.Emit
                     EmitResourceExtensionReference(emitter, extensionSymbol.Name);
                 }
 
-                // Emit the options property if there are entries in the DecoratorConfig dictionary or if this is a nullable existing resource
-                var isNullableExisting = Context.Settings.EnableSymbolicNames && metadata.IsNullableExistingResource;
-                if (resource.DecoratorConfig.Count > 0 || isNullableExisting)
+                // Emit the options property if there are entries in the DecoratorConfig dictionary
+                if (resource.DecoratorConfig.Count > 0)
                 {
                     emitter.EmitObjectProperty("@options", () =>
                     {
@@ -1251,11 +1250,6 @@ namespace Bicep.Core.Emit
                                     emitter.EmitExpression(item);
                                 }
                             });
-                        }
-
-                        if (isNullableExisting)
-                        {
-                            emitter.EmitArrayProperty(LanguageConstants.NullableExistingPropertyName, () => { });
                         }
                     });
                 }

@@ -21,6 +21,20 @@ Enables `deploy`, `what-if` and `teardown` command groups, as well as the `with`
 
 Allows you to author configuration documents for [Microsoft's Desired State Configuration platform](https://github.com/PowerShell/DSC) using `targetScope = 'desiredStateConfiguration'`. If enabled, the file must only contain DSC resource instances. The built file is a valid configuration document to be used with the CLI. For example, `dsc.exe config test --file example.json`. This feature is in early development.
 
+### `existingNullIfNotFound`
+
+Enables the use of the `@nullIfNotFound()` decorator for existing resources. When applied to an existing resource, the resource will return `null` if it doesn't exist at deployment time instead of failing. This allows you to gracefully handle cases where the resource may not exist. (Note: This feature will not work until the backend service support has been deployed)
+
+```bicep
+@nullIfNotFound()
+resource exampleResource 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: 'test'
+}
+
+// Access with safe navigation since the resource may be null
+output accessTier string = exampleResource.?properties.accessTier ?? ''
+```
+
 ### `extendableParamFiles`
 
 Enables the ability to extend bicepparam files from other bicepparam files. For more information, see [Extendable Bicep Params Files](./experimental/extendable-param-files.md).
@@ -53,19 +67,6 @@ With multiple `$` characters:
 var s = $$'''
 this is $${interpolated}
 this is not ${interpolated}'''
-```
-
-### `nullableExisting`
-
-Enables the use of nullable existing resources. When using `existing?` syntax, you can handle cases where the resource may not exist at deployment time. (Note: This feature will not work until the backend service support has been deployed)
-
-```bicep
-resource exampleResource 'Microsoft.Storage/storageAccounts@2021-04-01' existing? = {
-  name: 'test'
-}
-
-// Access with safe navigation since the resource may be null
-output accessTier string = exampleResource.?properties.accessTier ?? ''
 ```
 
 ### `resourceInfoCodegen`

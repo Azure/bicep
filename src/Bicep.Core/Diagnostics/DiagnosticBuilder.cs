@@ -2029,7 +2029,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic NullableExistingResourcesNotSupported() => CoreError(
                 "BCP445",
-                $@"Using nullable existing resources with the ""@{LanguageConstants.NullIfNotFoundDecoratorName}()"" decorator requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.NullableExisting)}"".");
+                $@"Using nullable existing resources with the ""@{LanguageConstants.NullIfNotFoundDecoratorName}()"" decorator requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.ExistingNullIfNotFound)}"".");
 
             public Diagnostic NullIfNotFoundOnlyValidOnExistingResources() => CoreError(
                 "BCP446",

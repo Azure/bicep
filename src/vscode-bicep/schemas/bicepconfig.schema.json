@@ -912,9 +912,9 @@
           "type": "boolean",
           "description": "Allows you to use this namespace to modify resource properties based on whether the resource already exists. Ex. this.exists() and this.existingResource(). See https://aka.ms/bicep/experimental-features#thisnamespace"
         },
-        "nullableExisting": {
+        "existingNullIfNotFound": {
           "type": "boolean",
-          "description": "Allows you to use nullable types with existing resources. See https://aka.ms/bicep/experimental-features#nullableexisting"
+          "description": "Enables the @nullIfNotFound() decorator for existing resources, allowing them to return null if not found at deployment time. See https://aka.ms/bicep/experimental-features#existingnullifnotfound"
         }
       },
       "additionalProperties": false

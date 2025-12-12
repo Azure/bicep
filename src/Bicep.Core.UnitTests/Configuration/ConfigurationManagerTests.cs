@@ -115,7 +115,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "deployCommands": false,
           "multilineStringInterpolation": false,
           "thisNamespace": false,
-          "nullableExisting": false
+          "existingNullIfNotFound": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -201,7 +201,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "deployCommands": false,
           "multilineStringInterpolation": false,
           "thisNamespace": false,
-          "nullableExisting": false
+          "existingNullIfNotFound": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -309,7 +309,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "deployCommands": false,
           "multilineStringInterpolation": false,
           "thisNamespace": false,
-          "nullableExisting": false
+          "existingNullIfNotFound": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -398,7 +398,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 DeployCommands: false,
                 MultilineStringInterpolation: false,
                 ThisNamespace: false,
-                NullableExisting: false);
+                ExistingNullIfNotFound: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -485,7 +485,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 "deployCommands": false,
                 "multilineStringInterpolation": false,
                 "thisNamespace": false,
-                "nullableExisting": false
+                "existingNullIfNotFound": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -839,7 +839,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "deployCommands": false,
                     "multilineStringInterpolation": false,
                     "thisNamespace": false,
-                    "nullableExisting": false
+                    "existingNullIfNotFound": false
                   },
                   "formatting": {
                     "indentKind": "Space",

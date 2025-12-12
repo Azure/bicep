@@ -2070,6 +2070,7 @@ namespace Bicep.Core.Semantics.Namespaces
                                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).NullIfNotFoundOnlyValidOnExistingResources());
                             }
                         })
+                        .WithEvaluator(AddDecoratorConfigToResource)
                         .Build();
                 }
 

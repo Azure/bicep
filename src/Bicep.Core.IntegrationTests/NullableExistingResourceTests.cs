@@ -64,8 +64,8 @@ output resourceApiVersion string = storageAccount.apiVersion
                 // Template should still be generated
                 template.Should().NotBeNull();
                 template.Should().HaveValueAtPath("$.resources['storageAccount'].existing", true);
-                // Verify nullableExisting is added to @options
-                template.Should().HaveValueAtPath("$.resources['storageAccount']['@options'].nullableExisting", new JArray());
+                // Verify nullIfNotFound is added to @options
+                template.Should().HaveValueAtPath("$.resources['storageAccount']['@options'].nullIfNotFound", new JArray());
                 // Verify compile-time property output expressions
                 template.Should().HaveValueAtPath("$.outputs['resourceType'].value", "Microsoft.Storage/storageAccounts");
                 template.Should().HaveValueAtPath("$.outputs['resourceId'].value", "[resourceId('Microsoft.Storage/storageAccounts', 'testStorage')]");
@@ -97,8 +97,8 @@ output skuName string = storageAccount.sku.name
                 // Template should still be generated (warning, not error)
                 template.Should().NotBeNull();
                 template.Should().HaveValueAtPath("$.resources['storageAccount'].existing", true);
-                // Verify nullableExisting is added to @options
-                template.Should().HaveValueAtPath("$.resources['storageAccount']['@options'].nullableExisting", new JArray());
+                // Verify nullIfNotFound is added to @options
+                template.Should().HaveValueAtPath("$.resources['storageAccount']['@options'].nullIfNotFound", new JArray());
                 // Verify the output expression for runtime property access
                 template.Should().HaveValueAtPath("$.outputs['skuName'].value", "[reference('storageAccount', '2021-04-01', 'full').sku.name]");
             }
@@ -122,8 +122,8 @@ output accountId string = storageAccount.id
                 diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
                 template.Should().NotBeNull();
                 template.Should().HaveValueAtPath("$.resources['storageAccount'].existing", true);
-                // Regular existing should NOT have nullableExisting in @options
-                template.Should().NotHaveValueAtPath("$.resources['storageAccount']['@options'].nullableExisting");
+                // Regular existing should NOT have nullIfNotFound in @options
+                template.Should().NotHaveValueAtPath("$.resources['storageAccount']['@options'].nullIfNotFound");
                 // Verify the output expression for regular existing resource
                 template.Should().HaveValueAtPath("$.outputs['accountId'].value", "[resourceId('Microsoft.Storage/storageAccounts', 'testStorage')]");
             }
@@ -147,8 +147,8 @@ output exists bool = storageAccount != null
                 diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
                 template.Should().NotBeNull();
                 template.Should().HaveValueAtPath("$.resources['storageAccount'].existing", true);
-                // Verify nullableExisting is added to @options
-                template.Should().HaveValueAtPath("$.resources['storageAccount']['@options'].nullableExisting", new JArray());
+                // Verify nullIfNotFound is added to @options
+                template.Should().HaveValueAtPath("$.resources['storageAccount']['@options'].nullIfNotFound", new JArray());
                 // Verify the output expression for null comparison
                 template.Should().HaveValueAtPath("$.outputs['exists'].value", "[not(equals(reference('storageAccount', '2021-04-01', 'full'), null()))]");
             }
@@ -194,8 +194,8 @@ output location string? = storageAccount.?location
                 diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
                 template.Should().NotBeNull();
                 template.Should().HaveValueAtPath("$.resources['storageAccount'].existing", true);
-                // Verify nullableExisting is added to @options
-                template.Should().HaveValueAtPath("$.resources['storageAccount']['@options'].nullableExisting", new JArray());
+                // Verify nullIfNotFound is added to @options
+                template.Should().HaveValueAtPath("$.resources['storageAccount']['@options'].nullIfNotFound", new JArray());
                 // Verify the output expression uses tryGet for safe access to location
                 template.Should().HaveValueAtPath("$.outputs['location'].value", "[tryGet(reference('storageAccount', '2021-04-01', 'full'), 'location')]");
             }
@@ -230,7 +230,7 @@ output accessTierWithDefault string = storageAccount.?properties.accessTier ?? '
                 diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
                 template.Should().NotBeNull();
                 template.Should().HaveValueAtPath("$.resources['storageAccount'].existing", true);
-                template.Should().HaveValueAtPath("$.resources['storageAccount']['@options'].nullableExisting", new JArray());
+                template.Should().HaveValueAtPath("$.resources['storageAccount']['@options'].nullIfNotFound", new JArray());
 
                 // Verify safe access outputs use tryGet
                 template.Should().HaveValueAtPath("$.outputs['safeLocation'].value", "[tryGet(reference('storageAccount', '2021-04-01', 'full'), 'location')]");
@@ -277,7 +277,7 @@ resource newStorage 'Microsoft.Storage/storageAccounts@2021-04-01' = {
 
                 // Verify the nullable existing resource has the correct options
                 template.Should().HaveValueAtPath("$.resources['existingStorage'].existing", true);
-                template.Should().HaveValueAtPath("$.resources['existingStorage']['@options'].nullableExisting", new JArray());
+                template.Should().HaveValueAtPath("$.resources['existingStorage']['@options'].nullIfNotFound", new JArray());
 
                 // Verify the new resource has dependsOn referencing the nullable existing resource
                 template.Should().HaveValueAtPath("$.resources['newStorage'].dependsOn[0]", "existingStorage");
@@ -306,7 +306,7 @@ output firstKey string = storageAccount != null ? storageAccount!.listKeys().key
                 diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
                 template.Should().NotBeNull();
                 template.Should().HaveValueAtPath("$.resources['storageAccount'].existing", true);
-                template.Should().HaveValueAtPath("$.resources['storageAccount']['@options'].nullableExisting", new JArray());
+                template.Should().HaveValueAtPath("$.resources['storageAccount']['@options'].nullIfNotFound", new JArray());
 
                 // Verify the conditional listKeys output expression
                 template.Should().HaveValueAtPath("$.outputs['keys'].value", "[if(not(equals(reference('storageAccount', '2021-04-01', 'full'), null())), listKeys('storageAccount', '2021-04-01'), createObject())]");
@@ -337,7 +337,7 @@ output secondAccountLocation string? = storageAccounts[1].?location
                 template.Should().NotBeNull();
                 // Verify the resource is marked as existing with nullable option
                 template.Should().HaveValueAtPath("$.resources['storageAccounts'].existing", true);
-                template.Should().HaveValueAtPath("$.resources['storageAccounts']['@options'].nullableExisting", new JArray());
+                template.Should().HaveValueAtPath("$.resources['storageAccounts']['@options'].nullIfNotFound", new JArray());
                 // Verify copy loop is present
                 template.Should().HaveValueAtPath("$.resources['storageAccounts'].copy.name", "storageAccounts");
             }
@@ -373,7 +373,7 @@ output secretId string = secret.id
                 template.Should().NotBeNull();
                 // Verify the nullable existing key vault
                 template.Should().HaveValueAtPath("$.resources['keyVault'].existing", true);
-                template.Should().HaveValueAtPath("$.resources['keyVault']['@options'].nullableExisting", new JArray());
+                template.Should().HaveValueAtPath("$.resources['keyVault']['@options'].nullIfNotFound", new JArray());
                 // Verify the secret references the key vault as parent
                 template.Should().HaveValueAtPath("$.resources['secret'].name", "[format('{0}/{1}', 'myKeyVault', 'mySecret')]");
             }
@@ -409,7 +409,7 @@ output accountLocation string? = storageAccount.?location
                 template.Should().NotBeNull();
                 // Verify the nullable existing resource has correct options
                 template.Should().HaveValueAtPath("$.resources['storageAccount'].existing", true);
-                template.Should().HaveValueAtPath("$.resources['storageAccount']['@options'].nullableExisting", new JArray());
+                template.Should().HaveValueAtPath("$.resources['storageAccount']['@options'].nullIfNotFound", new JArray());
                 // Verify subscriptionId and resourceGroup are correctly set (not a scope property)
                 template.Should().HaveValueAtPath("$.resources['storageAccount'].subscriptionId", "[parameters('subscriptionId')]");
                 template.Should().HaveValueAtPath("$.resources['storageAccount'].resourceGroup", "[parameters('resourceGroupName')]");
