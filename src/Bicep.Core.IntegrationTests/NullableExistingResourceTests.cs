@@ -173,7 +173,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
             using (new AssertionScope())
             {
                 template.Should().NotHaveValue();
-                diagnostics.ExcludingLinterDiagnostics().Should().ContainDiagnostic("BCP446", DiagnosticLevel.Error, "The \"@nullIfNotFound()\" decorator can only be used on existing resources.");
+                diagnostics.ExcludingLinterDiagnostics().Should().ContainDiagnostic("BCP445", DiagnosticLevel.Error, "The \"@nullIfNotFound()\" decorator can only be used on existing resources.");
             }
         }
 

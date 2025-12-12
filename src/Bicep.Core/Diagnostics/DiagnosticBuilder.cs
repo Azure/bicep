@@ -2027,12 +2027,8 @@ namespace Bicep.Core.Diagnostics
                     $"This expression is being used as a default value for an extension configuration property, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
 
-            public Diagnostic NullableExistingResourcesNotSupported() => CoreError(
-                "BCP445",
-                $@"Using nullable existing resources with the ""@{LanguageConstants.NullIfNotFoundDecoratorName}()"" decorator requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.ExistingNullIfNotFound)}"".");
-
             public Diagnostic NullIfNotFoundOnlyValidOnExistingResources() => CoreError(
-                "BCP446",
+                "BCP445",
                 $@"The ""@{LanguageConstants.NullIfNotFoundDecoratorName}()"" decorator can only be used on existing resources.");
         }
 
