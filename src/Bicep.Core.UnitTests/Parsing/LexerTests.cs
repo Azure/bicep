@@ -143,7 +143,7 @@ namespace Bicep.Core.UnitTests.Parsing
             leadingTrivia.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+                    x.Type.Should().Be(SyntaxTriviaType.DiagnosticsPragma);
                     x.Text.Should().Be("#disable-next-line BCP037");
                 });
         }
@@ -194,7 +194,7 @@ namespace Bicep.Core.UnitTests.Parsing
                 },
                 x =>
                 {
-                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+                    x.Type.Should().Be(SyntaxTriviaType.DiagnosticsPragma);
                 });
         }
 
@@ -214,7 +214,7 @@ namespace Bicep.Core.UnitTests.Parsing
             var leadingTrivia = tokens.First().LeadingTrivia;
             leadingTrivia.Count().Should().Be(1);
 
-            var disableNextLineSyntaxTrivia = leadingTrivia.First() as DisableNextLineDiagnosticsSyntaxTrivia;
+            var disableNextLineSyntaxTrivia = leadingTrivia.First() as DiagnosticsPragmaSyntaxTrivia;
             disableNextLineSyntaxTrivia.Should().NotBeNull();
             disableNextLineSyntaxTrivia!.DiagnosticCodes.Count().Should().Be(1);
 
@@ -223,7 +223,7 @@ namespace Bicep.Core.UnitTests.Parsing
             firstCode.Text.Should().Be("BCP226");
             firstCode.Span.Should().Be(new TextSpan(19, 6));
 
-            disableNextLineSyntaxTrivia.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+            disableNextLineSyntaxTrivia.Type.Should().Be(SyntaxTriviaType.DiagnosticsPragma);
             disableNextLineSyntaxTrivia.Text.Should().Be(text);
             disableNextLineSyntaxTrivia.Span.Should().Be(new TextSpan(0, 25));
         }
@@ -244,7 +244,7 @@ namespace Bicep.Core.UnitTests.Parsing
             var leadingTrivia = tokens.First().LeadingTrivia;
             leadingTrivia.Count().Should().Be(1);
 
-            var disableNextLineSyntaxTrivia = leadingTrivia.First() as DisableNextLineDiagnosticsSyntaxTrivia;
+            var disableNextLineSyntaxTrivia = leadingTrivia.First() as DiagnosticsPragmaSyntaxTrivia;
             disableNextLineSyntaxTrivia.Should().NotBeNull();
             disableNextLineSyntaxTrivia!.DiagnosticCodes.Count().Should().Be(2);
 
@@ -258,7 +258,7 @@ namespace Bicep.Core.UnitTests.Parsing
             secondCode.Text.Should().Be("BCP227");
             secondCode.Span.Should().Be(new TextSpan(26, 6));
 
-            disableNextLineSyntaxTrivia.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+            disableNextLineSyntaxTrivia.Type.Should().Be(SyntaxTriviaType.DiagnosticsPragma);
             disableNextLineSyntaxTrivia.Text.Should().Be(text);
             disableNextLineSyntaxTrivia.Span.Should().Be(new TextSpan(0, 32));
         }
@@ -288,7 +288,7 @@ namespace Bicep.Core.UnitTests.Parsing
                 x =>
                 {
                     x.Text.Should().Be("#disable-next-line BCP226");
-                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+                    x.Type.Should().Be(SyntaxTriviaType.DiagnosticsPragma);
                 });
         }
 
@@ -312,7 +312,7 @@ namespace Bicep.Core.UnitTests.Parsing
                 x =>
                 {
                     x.Text.Should().Be("#disable-next-line BCP226");
-                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+                    x.Type.Should().Be(SyntaxTriviaType.DiagnosticsPragma);
                 },
                 x =>
                 {
@@ -349,7 +349,7 @@ namespace Bicep.Core.UnitTests.Parsing
                 x =>
                 {
                     x.Text.Should().Be("#disable-next-line BCP226");
-                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+                    x.Type.Should().Be(SyntaxTriviaType.DiagnosticsPragma);
                 },
                 x =>
                 {

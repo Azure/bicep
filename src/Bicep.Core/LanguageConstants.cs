@@ -101,6 +101,8 @@ namespace Bicep.Core
         public const string BicepConfigurationFileName = "bicepconfig.json";
 
         public const string DisableNextLineDiagnosticsKeyword = "disable-next-line";
+        public const string DisableDiagnosticsKeyword = "disable-diagnostics";
+        public const string RestoreDiagnosticsKeyword = "restore-diagnostics";
 
         public static readonly Regex ArmTemplateSchemaRegex = new(@"https?:\/\/schema\.management\.azure\.com\/schemas\/([^""\/]+\/[a-zA-Z]*[dD]eploymentTemplate\.json)#?");
         public static readonly Regex ArmParametersSchemaRegex = new(@"https?:\/\/schema\.management\.azure\.com\/schemas\/([^""\/]+\/[dD]eploymentParameters\.json)#?");

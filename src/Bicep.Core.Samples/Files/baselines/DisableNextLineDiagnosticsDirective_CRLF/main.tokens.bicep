@@ -105,4 +105,52 @@ param storageAccount5 string = 'testStorageAccount'
 //@[22:28) Identifier |string|
 //@[29:30) Assignment |=|
 //@[31:51) StringComplete |'testStorageAccount'|
-//@[51:51) EndOfFile ||
+//@[51:55) NewLine |\r\n\r\n|
+
+#disable-diagnostics                 no-unused-params                      no-unused-vars
+//@[89:91) NewLine |\r\n|
+param storageAccount4 string = 'testStorageAccount'
+//@[00:05) Identifier |param|
+//@[06:21) Identifier |storageAccount4|
+//@[22:28) Identifier |string|
+//@[29:30) Assignment |=|
+//@[31:51) StringComplete |'testStorageAccount'|
+//@[51:53) NewLine |\r\n|
+var unusedVar1 = 'This is an unused variable'
+//@[00:03) Identifier |var|
+//@[04:14) Identifier |unusedVar1|
+//@[15:16) Assignment |=|
+//@[17:45) StringComplete |'This is an unused variable'|
+//@[45:47) NewLine |\r\n|
+var unusedVar2 = 'This is another unused variable'
+//@[00:03) Identifier |var|
+//@[04:14) Identifier |unusedVar2|
+//@[15:16) Assignment |=|
+//@[17:50) StringComplete |'This is another unused variable'|
+//@[50:52) NewLine |\r\n|
+#restore-diagnostics   no-unused-vars
+//@[37:39) NewLine |\r\n|
+param storageAccount6 string = 'testStorageAccount'
+//@[00:05) Identifier |param|
+//@[06:21) Identifier |storageAccount6|
+//@[22:28) Identifier |string|
+//@[29:30) Assignment |=|
+//@[31:51) StringComplete |'testStorageAccount'|
+//@[51:53) NewLine |\r\n|
+var unusedVar3 = 'This is yet another unused variable'
+//@[00:03) Identifier |var|
+//@[04:14) Identifier |unusedVar3|
+//@[15:16) Assignment |=|
+//@[17:54) StringComplete |'This is yet another unused variable'|
+//@[54:56) NewLine |\r\n|
+#restore-diagnostics    no-unused-params
+//@[40:42) NewLine |\r\n|
+param storageAccount7 string = 'testStorageAccount'
+//@[00:05) Identifier |param|
+//@[06:21) Identifier |storageAccount7|
+//@[22:28) Identifier |string|
+//@[29:30) Assignment |=|
+//@[31:51) StringComplete |'testStorageAccount'|
+//@[51:53) NewLine |\r\n|
+
+//@[00:00) EndOfFile ||
