@@ -31,10 +31,10 @@ public enum DiagnosticsPragmaType
 public static class DiagnosticsPragmaTypeExtensions
 {
     public static string GetKeyword(this DiagnosticsPragmaType pragmaType) => pragmaType switch
-        {
-            DiagnosticsPragmaType.Disable => LanguageConstants.DisableDiagnosticsKeyword,
-            DiagnosticsPragmaType.Restore => LanguageConstants.RestoreDiagnosticsKeyword,
-            DiagnosticsPragmaType.DisableNextLine => LanguageConstants.DisableNextLineDiagnosticsKeyword,
-            _ => throw new ArgumentOutOfRangeException(nameof(pragmaType), pragmaType, null),
-        };
+    {
+        DiagnosticsPragmaType.Disable => LanguageConstants.DisableDiagnosticsKeyword,
+        DiagnosticsPragmaType.Restore => LanguageConstants.RestoreDiagnosticsKeyword,
+        DiagnosticsPragmaType.DisableNextLine => LanguageConstants.DisableNextLineDiagnosticsKeyword,
+        _ => throw new ArgumentOutOfRangeException(nameof(pragmaType), pragmaType, null),
+    };
 }
