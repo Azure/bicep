@@ -3,10 +3,10 @@
   "private": true,
   "type": "module",
   "devDependencies": {
-    "@eslint/js": "^9.31.0",
+    "@eslint/js": "^9.39.2",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.0",
     "@types/cross-spawn": "^6.0.6",
-    "@types/eslint__js": "^8.42.3",
+    "@types/eslint__js": "^9.14.0",
     "@types/uuid": "^11.0.0",
     "@vitest/eslint-plugin": "^1.5.2",
     "cross-env": "^10.1.0",
