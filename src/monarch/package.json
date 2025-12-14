@@ -4,7 +4,7 @@
   "devDependencies": {
     "@babel/core": "^7.28.5",
     "@babel/plugin-transform-modules-commonjs": "^7.27.1",
-    "@eslint/eslintrc": "^3.3.0",
+    "@eslint/eslintrc": "^3.3.3",
     "@eslint/js": "^9.38.0",
     "@types/html-escaper": "^3.0.4",
     "@types/jest": "^30.0.0",
