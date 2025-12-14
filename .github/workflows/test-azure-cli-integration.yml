@@ -30,7 +30,7 @@ jobs:
         run: dotnet publish --configuration release --self-contained true -r linux-x64 ./src/Bicep.Cli/Bicep.Cli.csproj
 
       - name: Upload Bicep
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: bicep-release-linux-x64
           path: ./src/Bicep.Cli/bin/release/net10.0/linux-x64/publish/*
