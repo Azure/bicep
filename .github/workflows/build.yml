@@ -52,14 +52,14 @@ jobs:
         run: dotnet publish --configuration release --self-contained true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
 
       - name: Upload Bicep
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: bicep-release-${{ matrix.rid }}
           path: ./src/Bicep.Cli/bin/release/net10.0/${{ matrix.rid }}/publish/*
           if-no-files-found: error
 
       - name: Upload Bicep project assets file
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: bicep-project-assets-${{ matrix.rid }}
           path: ./src/Bicep.Cli/obj/project.assets.json
@@ -82,7 +82,7 @@ jobs:
         run: dotnet pack --configuration release
 
       - name: Upload Packages
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: bicep-nupkg-any
           path: out/*
@@ -146,7 +146,7 @@ jobs:
         working-directory: ./src/vscode-bicep
 
       - name: Upload VSIX
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: vscode-bicep.vsix
           path: ./src/vscode-bicep/vscode-bicep.vsix
@@ -313,14 +313,14 @@ jobs:
 
       - name: Upload BicepInVisualStudio.sln build binlog
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: build-binlog-files
           path: ./src/binlog/bicep_in_visual_studio_build.binlog
           if-no-files-found: error
 
       - name: Upload BicepLanguageServerClient VSIX
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: Bicep.VSLanguageServerClient.Vsix.vsix
           path: ./src/vs-bicep/Bicep.VSLanguageServerClient.Vsix/bin/Release/vs-bicep.vsix
@@ -374,7 +374,7 @@ jobs:
         run: dotnet build --configuration release ./src/installer-win/installer.proj
 
       - name: Upload Windows Installer
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: bicep-setup-win-x64
           path: ./src/installer-win/bin/release/net10.0/bicep-setup-win-x64.exe
@@ -469,7 +469,7 @@ jobs:
         run: dotnet build --configuration Release /p:RuntimeSuffix=${{ matrix.rid }} ./src/Bicep.Cli.Nuget/nuget.proj
 
       - name: Upload CLI Package
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: bicep-nupkg-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/*.nupkg
@@ -521,7 +521,7 @@ jobs:
         working-directory: ./src/playground
 
       - name: Upload
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: playground
           path: ./src/playground/dist/*
@@ -713,7 +713,7 @@ jobs:
         run: dotnet test --configuration release -- --filter '${{ matrix.config.filter }}' --report-trx --results-directory ${{ github.workspace }}/TestResults
 
       - name: Upload Test Results
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: TestResults-${{ matrix.config.name }}-${{ matrix.os }}
@@ -731,7 +731,7 @@ jobs:
 
     steps:
       - name: Merge Test Results into Single Artifact (fewer artifacts to deal with in build)
-        uses: actions/upload-artifact/merge@v5
+        uses: actions/upload-artifact/merge@v6
         with:
           name: TestResults
           pattern: TestResults-*
