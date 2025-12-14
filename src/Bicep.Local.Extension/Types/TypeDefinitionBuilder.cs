@@ -157,12 +157,12 @@ public class TypeDefinitionBuilder : ITypeDefinitionBuilder
 
         if (type.IsGenericType &&
             type.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-            type.GetGenericArguments()[0] is {} innerType)
+            type.GetGenericArguments()[0] is { } innerType)
         {
-            if (GenerateForType(typeof(NullReferenceType), null) is {} nullType &&
-                GenerateForType(innerType, annotation) is {} innerBicepType)
+            if (GenerateForType(typeof(NullReferenceType), null) is { } nullType &&
+                GenerateForType(innerType, annotation) is { } innerBicepType)
             {
-                return AddType(type, new UnionType([ nullType, innerBicepType ]));
+                return AddType(type, new UnionType([nullType, innerBicepType]));
             }
 
             return null;
@@ -179,20 +179,20 @@ public class TypeDefinitionBuilder : ITypeDefinitionBuilder
                 valueType = type.GetGenericArguments()[1];
             }
             else if (type.GetInterfaces()
-                .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IDictionary<,>)) is {} dictType)
+                .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IDictionary<,>)) is { } dictType)
             {
                 keyType = dictType.GetGenericArguments()[0];
                 valueType = dictType.GetGenericArguments()[1];
             }
 
-            if (keyType is null || 
+            if (keyType is null ||
                 valueType is null ||
                 keyType != typeof(string) ||
-                GenerateForType(valueType, null) is not {} valueTypeReference)
+                GenerateForType(valueType, null) is not { } valueTypeReference)
             {
                 throw new NotImplementedException($"Unsupported dictionary type: '{type}'");
             }
-            
+
             return AddType(type, new ObjectType(
                 $"Dictionary<string, {valueType.Name}>",
                 properties: ImmutableDictionary<string, ObjectTypeProperty>.Empty,
@@ -212,7 +212,7 @@ public class TypeDefinitionBuilder : ITypeDefinitionBuilder
                 elementType = type.GetGenericArguments()[0];
             }
             else if (type.GetInterfaces()
-                .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEnumerable<>)) is {} enumerableType)
+                .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEnumerable<>)) is { } enumerableType)
             {
                 elementType = enumerableType.GetGenericArguments()[0];
             }
@@ -222,7 +222,7 @@ public class TypeDefinitionBuilder : ITypeDefinitionBuilder
                 throw new NotImplementedException($"Unsupported collection type: '{type}'");
             }
 
-            if (GenerateForType(elementType, annotation) is not {} elementTypeReference)
+            if (GenerateForType(elementType, annotation) is not { } elementTypeReference)
             {
                 throw new NotImplementedException($"Unsupported element type: '{elementType}'");
             }
@@ -257,7 +257,7 @@ public class TypeDefinitionBuilder : ITypeDefinitionBuilder
             var annotation = property.GetCustomAttributes<TypePropertyAttribute>(true).FirstOrDefault();
             var propertyType = property.PropertyType;
 
-            if (GenerateForType(propertyType, annotation) is not {} typeReference)
+            if (GenerateForType(propertyType, annotation) is not { } typeReference)
             {
                 throw new NotImplementedException($"Property '{property.Name}' references unsupported type: '{propertyType}'");
             }
