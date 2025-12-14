@@ -84,7 +84,7 @@ jobs:
 
 
       - name: Download Current Bicep CLI Build
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: bicep-release-linux-x64
           path: ~/.azure/bin
