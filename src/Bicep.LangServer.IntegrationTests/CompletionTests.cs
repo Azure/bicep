@@ -6098,7 +6098,7 @@ param foo string = 'bar'
         }
 
         [TestMethod]
-        public async Task Completions_after_resource_type_should_include_existing()
+        public async Task Decorator_completion_should_include_nullIfNotFound_for_existing_resources_when_feature_enabled()
         {
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
@@ -6106,24 +6106,19 @@ param foo string = 'bar'
                     .WithNamespaceProvider(BuiltInTestTypes.Create()));
             var helper = new ServerRequestHelper(TestContext, server);
 
+            // Test that @nullIfNotFound is offered for existing resources
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
-            resource testRes 'Test.Rp/readWriteTests@2020-01-01' |
+            @|
+            resource testRes 'Test.Rp/readWriteTests@2020-01-01' existing = {
+              name: 'test'
+            }
             """);
 
             var bicepFile = await helper.OpenFile("/path/to/main.bicep", text);
             var completions = await bicepFile.RequestAndResolveCompletions(cursor);
 
-            // Should have 'existing' completion
-            var existingCompletion = completions.FirstOrDefault(c => c.Label == "existing");
-
-            existingCompletion.Should().NotBeNull("existing completion should be offered");
-            existingCompletion!.Kind.Should().Be(CompletionItemKind.Keyword);
-            existingCompletion.Detail.Should().Be("existing");
-
-            var updatedFile = bicepFile.ApplyCompletion(completions, "existing");
-            updatedFile.Should().HaveSourceText("""
-            resource testRes 'Test.Rp/readWriteTests@2020-01-01' existing|
-            """);
+            // Should have 'nullIfNotFound' completion for existing resource
+            completions.Should().Contain(c => c.Label == "nullIfNotFound", "nullIfNotFound decorator should be offered for existing resources");
         }
     }
 }

@@ -65,7 +65,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetPropertyValueCompletions(model, context))
                 .Concat(GetArrayItemCompletions(model, context))
                 .Concat(GetResourceTypeCompletions(model, context))
-                .Concat(GetResourceTypeFollowerCompletions(model, context))
+                .Concat(GetResourceTypeFollowerCompletions(context))
                 .Concat(GetLocalModulePathCompletions(model, context))
                 .Concat(GetModuleBodyCompletions(model, context))
                 .Concat(GetTestBodyCompletions(model, context))
@@ -504,7 +504,7 @@ namespace Bicep.LanguageServer.Completions
                 .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: false));
         }
 
-        private static IEnumerable<CompletionItem> GetResourceTypeFollowerCompletions(SemanticModel model, BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetResourceTypeFollowerCompletions(BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceTypeFollower))
             {
@@ -1150,8 +1150,7 @@ namespace Bicep.LanguageServer.Completions
                 TypeAliasSymbol declaredTypeSymbol when targetType is not null => GetAccessible(knownDecoratorFunctions, (targetType as TypeType)?.Unwrapped ?? targetType, FunctionFlags.TypeDecorator),
                 VariableSymbol variableSymbol => GetAccessible(knownDecoratorFunctions, variableSymbol.Type, FunctionFlags.VariableDecorator),
                 DeclaredFunctionSymbol functionSymbol => GetAccessible(knownDecoratorFunctions, functionSymbol.Type, FunctionFlags.FunctionDecorator),
-                ResourceSymbol resourceSymbol => GetAccessible(knownDecoratorFunctions, resourceSymbol.Type, FunctionFlags.ResourceDecorator)
-                    .Where(f => f.Name != LanguageConstants.NullIfNotFoundDecoratorName || resourceSymbol.DeclaringResource.IsExistingResource()),
+                ResourceSymbol resourceSymbol => GetAccessible(knownDecoratorFunctions, resourceSymbol.Type, FunctionFlags.ResourceDecorator),
                 ModuleSymbol moduleSymbol => GetAccessible(knownDecoratorFunctions, moduleSymbol.Type, FunctionFlags.ModuleDecorator),
                 OutputSymbol outputSymbol => GetAccessible(knownDecoratorFunctions, outputSymbol.Type, FunctionFlags.OutputDecorator),
                 /*
