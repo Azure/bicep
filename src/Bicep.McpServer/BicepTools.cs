@@ -26,6 +26,11 @@ public sealed class BicepTools(
             typeof(BicepTools).Assembly.GetManifestResourceStream("Files/bestpractices.md") ??
             throw new InvalidOperationException("Could not find embedded resource 'Files/bestpractices.md'")));
 
+    private static Lazy<BinaryData> LocalDeployExtensionsMarkdownLazy { get; } = new(() =>
+        BinaryData.FromStream(
+            typeof(BicepTools).Assembly.GetManifestResourceStream("Files/localdeploytools.md") ??
+            throw new InvalidOperationException("Could not find embedded resource 'Files/localdeploytools.md'")));
+
     private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
         WriteIndented = true,
@@ -80,6 +85,14 @@ public sealed class BicepTools(
     This is helpful additional context if you've been asked to generate Bicep code.
     """)]
     public string GetBicepBestPractices() => BestPracticesMarkdownLazy.Value.ToString();
+
+
+    [McpServerTool(Title = "Get available Bicep Local Deploy extensions", Destructive = false, Idempotent = true, OpenWorld = false, ReadOnly = true)]
+    [Description("""
+    Lists developed Bicep Local Deploy extensions that enhance Bicep's capabilities for local deployments.
+    These tools provide additional functionalities and integrations to streamline local deployment workflows using Bicep.
+    """)]
+    public string GetBicepLocalDeployExtensions() => LocalDeployExtensionsMarkdownLazy.Value.ToString();
 
     [McpServerTool(Title = "List Azure Verified Modules (AVM)", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true)]
     [Description("""
