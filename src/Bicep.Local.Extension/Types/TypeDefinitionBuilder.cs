@@ -108,6 +108,7 @@ public class TypeDefinitionBuilder : ITypeDefinitionBuilder
         var index = new TypeIndex(
             resourceTypes,
             new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
+            [],
             new TypeSettings(name: name, version: version, isSingleton: isSingleton, configurationType: config!),
             null);
 

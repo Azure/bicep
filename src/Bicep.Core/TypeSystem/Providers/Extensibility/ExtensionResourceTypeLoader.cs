@@ -3,8 +3,10 @@
 using System.Collections.Immutable;
 using System.Configuration;
 using Azure.Bicep.Types;
+using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
 using Bicep.Core.Resources;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem.Providers.Extensibility
@@ -16,6 +18,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
         private readonly ITypeLoader typeLoader;
         private readonly ExtensionResourceTypeFactory resourceTypeFactory;
         private readonly ImmutableDictionary<ResourceTypeReference, CrossFileTypeReference> availableTypes;
+        private readonly ImmutableArray<CrossFileTypeReference> namespaceFunctions;
         private readonly TypeSettings? typeSettings;
         private readonly CrossFileTypeReference? fallbackResourceType;
 
@@ -25,6 +28,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             this.typeLoader = typeLoader;
             this.resourceTypeFactory = new ExtensionResourceTypeFactory(typeIndex.Settings);
             this.availableTypes = typeIndex.Resources.ToImmutableDictionary(x => ResourceTypeReference.Parse(x.Key), x => x.Value);
+            this.namespaceFunctions = [.. typeIndex.NamespaceFunctions];
             this.typeSettings = typeIndex.Settings;
             this.fallbackResourceType = typeIndex.FallbackResourceType;
         }
@@ -82,6 +86,24 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                 typeSettings.Version,
                 typeSettings.IsSingleton,
                 null);
+        }
+
+        public ImmutableArray<FunctionOverload> LoadNamespaceFunctions()
+        {
+            var overloads = ImmutableArray.CreateBuilder<FunctionOverload>();
+            foreach (var functionLocation in namespaceFunctions)
+            {
+                var serializedFunctionType = typeLoader.LoadType(functionLocation);
+                if (serializedFunctionType is not NamespaceFunctionType functionType)
+                {
+                    throw new InvalidOperationException($"Namespace function type at index {functionLocation.Index} in \"{functionLocation.RelativePath}\" is not a valid NamespaceFunctionType.");
+                }
+
+                var overload = resourceTypeFactory.GetNamespaceFunctionOverload(functionType);
+                overloads.Add(overload);
+            }
+
+            return overloads.ToImmutable();
         }
     }
 }
