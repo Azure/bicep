@@ -2288,11 +2288,6 @@ namespace Bicep.Core.TypeSystem
                 flags |= ResourceTypeGenerationFlags.ExistingResource;
             }
 
-            if (resource.IsNullableExistingResource())
-            {
-                flags |= ResourceTypeGenerationFlags.NullableExistingResource;
-            }
-
             if (isSyntacticallyNested)
             {
                 flags |= ResourceTypeGenerationFlags.NestedResource;

@@ -53,12 +53,6 @@ namespace Bicep.Core.Syntax
 
         public bool IsExistingResource() => ExistingKeyword is not null;
 
-        /// <summary>
-        /// Returns true if this resource has the @nullIfNotFound() decorator, meaning the resource may not exist
-        /// and its type should be nullable. Only valid on existing resources.
-        /// </summary>
-        public bool IsNullableExistingResource() => ExistingKeyword is not null && this.HasDecorator(LanguageConstants.NullIfNotFoundDecoratorName);
-
         public ObjectSyntax? TryGetBody() =>
             this.Value switch
             {

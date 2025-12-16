@@ -13,10 +13,9 @@ namespace Bicep.Core.Semantics.Metadata
     public record DeclaredResourceMetadata(
         ResourceType Type,
         bool IsExistingResource,
-        bool IsNullableExistingResource,
         ResourceSymbol Symbol,
         ResourceMetadataParent? Parent)
-        : ResourceMetadata(Type, IsExistingResource, IsNullableExistingResource)
+        : ResourceMetadata(Type, IsExistingResource)
     {
         private readonly ImmutableDictionary<string, SyntaxBase> UniqueIdentifiers = GetUniqueIdentifiers(Type, Symbol);
 

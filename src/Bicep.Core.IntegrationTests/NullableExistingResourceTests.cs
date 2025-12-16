@@ -39,6 +39,30 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing 
         }
 
         [TestMethod]
+        public void NullableExisting_FullyQualifiedDecoratorShouldWork()
+        {
+            // Test that @sys.nullIfNotFound() (fully qualified) works the same as @nullIfNotFound()
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ExistingNullIfNotFoundEnabled: true));
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
+@sys.nullIfNotFound()
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: 'testStorage'
+}
+
+output resourceId string = storageAccount.id
+output location string? = storageAccount.?location
+");
+            using (new AssertionScope())
+            {
+                diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
+                template.Should().NotBeNull();
+                template.Should().HaveValueAtPath("$.resources['storageAccount'].existing", true);
+                // Verify nullIfNotFound is added to @options
+                template.Should().HaveValueAtPath("$.resources['storageAccount']['@options'].nullIfNotFound", new JArray());
+            }
+        }
+
+        [TestMethod]
         public void NullableExisting_ResourceTypeShouldBehaveAsConditional()
         {
             // Nullable existing resources should behave like conditional resources:

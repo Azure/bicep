@@ -27,11 +27,5 @@ namespace Bicep.Core.TypeSystem
         /// Generating a definition for a syntactically nested resource. Do not use this flag for resources that need the "parent" property.
         /// </summary>
         NestedResource = 1 << 2,
-
-        /// <summary>
-        /// Generating a definition for an existing resource with the @nullIfNotFound() decorator, indicating the resource may not exist.
-        /// The resulting type will be nullable (Resource | null).
-        /// </summary>
-        NullableExistingResource = 1 << 3,
     }
 }

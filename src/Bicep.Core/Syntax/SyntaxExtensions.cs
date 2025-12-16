@@ -90,12 +90,6 @@ public static class SyntaxExtensions
         return SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSecurePropertyName) is not null;
     }
 
-    /// <summary>
-    /// Checks if the syntax has a decorator with the specified name.
-    /// </summary>
-    public static bool HasDecorator(this DecorableSyntax syntax, string decoratorName)
-        => syntax.Decorators.Any(d => d.Expression is FunctionCallSyntax functionCall && functionCall.NameEquals(decoratorName));
-
     public static bool HasPropertyName(this ObjectPropertySyntax syntax, string name)
         => syntax.TryGetKeyText() is { } keyText && LanguageConstants.IdentifierComparer.Equals(keyText, name);
 }
