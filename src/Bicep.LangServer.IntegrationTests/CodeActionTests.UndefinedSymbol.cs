@@ -389,27 +389,27 @@ public partial class CodeActionTests : CodeActionTestBase
     public async Task UndefinedNameShouldOfferCreateParameterWithResourceDerivedType()
     {
         var result = await ApplyUndefinedSymbolCodeFix("""
-param storageAccountName string
-param location string
+            param storageAccountName string
+            param location string
 
-resource st 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: storageAccountName
-  location: location
-  sku: storagesku
-}
-""", "storagesku", "parameter");
+            resource st 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+            name: storageAccountName
+            location: location
+            sku: storagesku
+            }
+            """, "storagesku", "parameter");
 
         result.Should().Be("""
-param storageAccountName string
-param location string
-param storagesku resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.sku
+            param storageAccountName string
+            param location string
+            param storagesku resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.sku
 
-resource st 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: storageAccountName
-  location: location
-  sku: storagesku
-}
-""");
+            resource st 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+            name: storageAccountName
+            location: location
+            sku: storagesku
+            }
+            """);
     }
 
     [TestMethod]
@@ -781,6 +781,179 @@ resource st 'Microsoft.Storage/storageAccounts@2023-01-01' = {
               name: 'myModule'
               params: { enc: encryption }
             }
+            """);
+    }
+
+    [TestMethod]
+    public async Task UndefinedNameUsedInParenthesizedTernaryConditionShouldInferBoolParameter()
+    {
+        var result = await ApplyUndefinedSymbolCodeFix("""
+            output result string = (isEnabled) ? 'yes' : 'no'
+            """, "isEnabled", "parameter");
+
+        result.Should().Be("""
+            param isEnabled bool
+
+            output result string = (isEnabled) ? 'yes' : 'no'
+            """);
+    }
+
+    [TestMethod]
+    public async Task UndefinedNameUsedInChainedLogicalAndShouldInferBoolParameter()
+    {
+        var result = await ApplyUndefinedSymbolCodeFix("""
+            param value1 bool
+            param value3 bool
+
+            output result bool = value1 && value2 && value3
+            """, "value2", "parameter");
+
+        result.Should().Be("""
+            param value1 bool
+            param value3 bool
+            param value2 bool
+
+            output result bool = value1 && value2 && value3
+            """);
+    }
+
+    [TestMethod]
+    public async Task UndefinedNameUsedInSimpleStringInterpolationShouldInferStringParameter()
+    {
+        var result = await ApplyUndefinedSymbolCodeFix("""
+            output message string = 'User: ${userName}'
+            """, "userName", "parameter");
+
+        result.Should().Be("""
+            param userName string
+
+            output message string = 'User: ${userName}'
+            """);
+    }
+
+    [TestMethod]
+    public async Task UndefinedNameUsedInMultipleStringInterpolationShouldInferStringParameter()
+    {
+        var result = await ApplyUndefinedSymbolCodeFix("""
+            param prefix string
+            output message string = '${prefix}: ${userName}'
+            """, "userName", "parameter");
+
+        result.Should().Be("""
+            param prefix string
+            param userName string
+
+            output message string = '${prefix}: ${userName}'
+            """);
+    }
+
+    [TestMethod]
+    public async Task UndefinedNameUsedInEqualityWithStringLiteralShouldInferStringParameter()
+    {
+        var result = await ApplyUndefinedSymbolCodeFix("""
+            output isMatch bool = myValue == 'test'
+            """, "myValue", "parameter");
+
+        result.Should().Be("""
+            param myValue string
+
+            output isMatch bool = myValue == 'test'
+            """);
+    }
+
+    [TestMethod]
+    public async Task UndefinedNameUsedInReversedEqualityWithStringLiteralShouldInferStringParameter()
+    {
+        var result = await ApplyUndefinedSymbolCodeFix("""
+            output isMatch bool = 'test' == myValue
+            """, "myValue", "parameter");
+
+        result.Should().Be("""
+            param myValue string
+
+            output isMatch bool = 'test' == myValue
+            """);
+    }
+
+    [TestMethod]
+    public async Task UndefinedNameUsedInGreaterThanWithIntLiteralShouldInferIntParameter()
+    {
+        var result = await ApplyUndefinedSymbolCodeFix("""
+            output isGreater bool = myNumber > 10
+            """, "myNumber", "parameter");
+
+        result.Should().Be("""
+            param myNumber int
+
+            output isGreater bool = myNumber > 10
+            """);
+    }
+
+    [TestMethod]
+    public async Task UndefinedNameUsedInComplexResourceIfConditionShouldInferBoolParameter()
+    {
+        var result = await ApplyUndefinedSymbolCodeFix("""
+            param count int
+            resource pe 'Microsoft.Network/privateEndpoints@2025-01-01' = if (count > 0 && isEnabled) {
+              name: 'pe'
+              location: 'westus'
+            }
+            """, "isEnabled", "parameter");
+
+        result.Should().Be("""
+            param count int
+            param isEnabled bool
+
+            resource pe 'Microsoft.Network/privateEndpoints@2025-01-01' = if (count > 0 && isEnabled) {
+              name: 'pe'
+              location: 'westus'
+            }
+            """);
+    }
+
+    [TestMethod]
+    public async Task UndefinedNameUsedInParenthesizedArithmeticShouldInferIntParameter()
+    {
+        var result = await ApplyUndefinedSymbolCodeFix("""
+            param base int
+            output total int = base + (multiplier * 2)
+            """, "multiplier", "parameter");
+
+        result.Should().Be("""
+            param base int
+            param multiplier int
+
+            output total int = base + (multiplier * 2)
+            """);
+    }
+
+    [TestMethod]
+    public async Task UndefinedNameUsedInParenthesizedStringInterpolationShouldInferStringParameter()
+    {
+        var result = await ApplyUndefinedSymbolCodeFix("""
+            output message string = 'Value: ${(userName)}'
+            """, "userName", "parameter");
+
+        result.Should().Be("""
+            param userName string
+
+            output message string = 'Value: ${(userName)}'
+            """);
+    }
+
+    [TestMethod]
+    public async Task UndefinedNameUsedInComplexTernaryConditionShouldInferBoolParameter()
+    {
+        var result = await ApplyUndefinedSymbolCodeFix("""
+            param count int
+            output result string = (count > 0 && isEnabled) ? 'yes' : 'no'
+            """, "isEnabled", "parameter");
+
+        result.Should().Be("""
+            param count int
+            param isEnabled bool
+
+            output result string = (count > 0 && isEnabled) ? 'yes' : 'no'
             """);
     }
 }

@@ -79,6 +79,7 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
             }
         }
 
+        // Track seen symbol names to avoid generating duplicate fixes for the same identifier
         HashSet<string> seen = new(StringComparer.Ordinal);
 
         foreach (var variableAccess in variableAccesses)
@@ -96,7 +97,8 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
                 continue;
             }
 
-            // Find the enclosing statement; skip if the access isn’t inside one
+            // New declarations must be inserted before a statement; if the access isn't
+            // inside one (e.g., top-level expression), we can't determine insertion point
             if (semanticModel.Binder.GetNearestAncestor<StatementSyntax>(variableAccess) is not { } parentStatement)
             {
                 continue;
@@ -109,11 +111,12 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
             var contextInferredType = InferByContext(semanticModel, variableAccess);
             var effectiveType = declaredAssignmentType ?? contextualType ?? inferredType ?? contextInferredType;
 
-            // Priority order for parameter types:
-            // 1. If usage context clearly indicates a type (bool in condition, int in arithmetic), use that
-            // 2. Otherwise, try resource-derived types (for complex resource properties)
-            // 3. Then try named types
-            // 4. Finally fall back to TypeStringifier
+            // Type resolution priority for generated parameters:
+            // 1. Module parameter types (preserve exact type from referenced module)
+            // 2. Clear usage context (bool in conditions, int in arithmetic)
+            // 3. Resource-derived types (e.g., resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.sku)
+            // 4. User-defined type aliases (preserve named types when possible)
+            // 5. Fallback to TypeStringifier with medium strictness
             string parameterTypeString;
             if (moduleParameterTypeString is not null)
             {
@@ -164,6 +167,11 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
             new CodeReplacement(new TextSpan(variableInsertionOffset, 0), variableText));
     }
 
+    /// <summary>
+    /// Builds the text for a new declaration with appropriate spacing.
+    /// Ensures consistent formatting: adds newlines to create one blank line
+    /// between the new declaration and existing code.
+    /// </summary>
     private string BuildDeclarationText(int insertionOffset, string declaration, string newline)
     {
         var existingNewlines = CountConsecutiveNewlinesAtOffset(insertionOffset, newline);
@@ -214,6 +222,11 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
         return count;
     }
 
+    /// <summary>
+    /// Finds optimal insertion point for a new declaration.
+    /// Inserts after existing declarations of the same type, or before the anchor
+    /// statement if no prior declarations of that type exist.
+    /// </summary>
     private int FindInsertionOffset(StatementSyntax anchorStatement, Type declarationType)
     {
         var sourceFile = semanticModel.SourceFile;
@@ -296,8 +309,8 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
             return "{}";
         }
 
-        // Don't generate full objects for types that are too complex or have many properties
-        // Keep it simple and readable
+        // Limit object expansion to 5 properties to keep generated code readable;
+        // larger objects are better left as {} for manual population
         if (writeableProperties.Length > 5)
         {
             return "{}";
@@ -323,6 +336,10 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
         return firstNonNullMember is not null ? GetDefaultInitializerCore(firstNonNullMember, visitedTypes) : "null";
     }
 
+    /// <summary>
+    /// Detects when the undefined symbol is used as a resource property value,
+    /// allowing generation of resource-derived types.
+    /// </summary>
     private static string? TryGetResourceInputTypeString(SemanticModel semanticModel, VariableAccessSyntax variableAccess)
     {
         // Walk up to see if we're in a resource property assignment
@@ -458,6 +475,15 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
     private static bool SpansOverlap(int requestStart, int requestEnd, TextSpan span) =>
         requestStart <= span.GetEndPosition() && requestEnd >= span.Position;
 
+    /// <summary>
+    /// Checks if the child syntax node is contained within the parent syntax node's span.
+    /// This is used instead of reference equality when walking up the syntax tree,
+    /// because the child may be wrapped in intermediate nodes (e.g., parentheses).
+    /// </summary>
+    private static bool IsContainedIn(SyntaxBase child, SyntaxBase parent) =>
+        child.Span.Position >= parent.Span.Position &&
+        child.Span.GetEndPosition() <= parent.Span.GetEndPosition();
+
     private static string? TryGetModuleParameterTypeString(SemanticModel semanticModel, VariableAccessSyntax variableAccess)
     {
         string? moduleParameterName = null;
@@ -546,6 +572,11 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
         return $"{keyword}<'{unresolved.TypeReference.FormatName()}'>" + pointer;
     }
 
+    /// <summary>
+    /// Infers type from usage context when the semantic model doesn't provide one.
+    /// Checks (in order): comparison with literals, boolean context, arithmetic,
+    /// string interpolation, for-loop iteration, and parent property type.
+    /// </summary>
     private static TypeSymbol? InferByContext(SemanticModel semanticModel, VariableAccessSyntax variableAccess)
     {
         if (InferFromComparisonWithLiteral(semanticModel, variableAccess) is { } comparisonType)
@@ -590,12 +621,17 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
         return null;
     }
 
+    /// <summary>
+    /// Returns true for any context where a boolean value is expected or implied,
+    /// including: ternary conditions, negation, logical operators, comparisons,
+    /// and if-condition expressions.
+    /// </summary>
     private static bool IsBooleanContext(SemanticModel model, VariableAccessSyntax access)
     {
         SyntaxBase? current = access;
         while (current is not null)
         {
-            if (current is TernaryOperationSyntax ternary && ReferenceEquals(ternary.ConditionExpression, access))
+            if (current is TernaryOperationSyntax ternary && IsContainedIn(access, ternary.ConditionExpression))
             {
                 return true;
             }
@@ -610,14 +646,9 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
                     return true;
                 }
             }
-            if (current is IfConditionSyntax ifCondition)
+            if (current is IfConditionSyntax ifCondition && IsContainedIn(access, ifCondition.ConditionExpression))
             {
-                // Check if the access is within the condition expression (not the body)
-                if (access.Span.Position >= ifCondition.ConditionExpression.Span.Position &&
-                    access.Span.GetEndPosition() <= ifCondition.ConditionExpression.Span.GetEndPosition())
-                {
-                    return true;
-                }
+                return true;
             }
 
             current = model.Binder.GetParent(current);
@@ -647,7 +678,9 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
         SyntaxBase? current = access;
         while (current is not null)
         {
-            if (current is StringSyntax stringSyntax && stringSyntax.Expressions.Contains(access))
+            // Use span-based containment to check if access is within any interpolation expression
+            // This handles cases where access is wrapped (e.g., in parentheses)
+            if (current is StringSyntax stringSyntax && stringSyntax.Expressions.Any(expr => IsContainedIn(access, expr)))
             {
                 return true;
             }
@@ -676,16 +709,22 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
         return false;
     }
 
+    /// <summary>
+    /// When comparing with a literal (e.g., <c>x == 'foo'</c> or <c>x > 5</c>),
+    /// infers the variable's type from the literal's type.
+    /// </summary>
     private static TypeSymbol? InferFromComparisonWithLiteral(SemanticModel model, VariableAccessSyntax access)
     {
         SyntaxBase? current = access;
         while (current is not null)
         {
-            // for ==, !=, <, <=, >, >= pick the other operand’s primitive type
+            // for ==, !=, <, <=, >, >= pick the other operand's primitive type
             if (current is BinaryOperationSyntax binary &&
                 binary.Operator is BinaryOperator.Equals or BinaryOperator.NotEquals or BinaryOperator.LessThan or BinaryOperator.LessThanOrEqual or BinaryOperator.GreaterThan or BinaryOperator.GreaterThanOrEqual)
             {
-                var otherExpression = ReferenceEquals(binary.LeftExpression, access) ? binary.RightExpression : binary.LeftExpression;
+                // Use span-based containment to determine which operand contains the access
+                // This handles cases where access is wrapped (e.g., in parentheses)
+                var otherExpression = IsContainedIn(access, binary.LeftExpression) ? binary.RightExpression : binary.LeftExpression;
                 var otherType = NullIfErrorOrAny(model.GetTypeInfo(otherExpression));
 
                 if (TryMapToPrimitive(otherType) is { } primitiveType)
