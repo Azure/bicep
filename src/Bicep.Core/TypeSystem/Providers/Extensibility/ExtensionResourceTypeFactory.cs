@@ -57,6 +57,27 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             return bodyType;
         }
 
+        public FunctionOverload GetNamespaceFunctionOverload(Azure.Bicep.Types.Concrete.NamespaceFunctionType namespaceFunctionType)
+        {
+            var builder = new FunctionOverloadBuilder(namespaceFunctionType.Name);
+            if (namespaceFunctionType.Description is { } description)
+            {
+                builder = builder.WithDescription(description);
+            }
+
+            var returnType = GetTypeSymbol(namespaceFunctionType.Output.Type, false);
+            builder = builder.WithReturnType(returnType);
+
+            foreach (var parameter in namespaceFunctionType.Parameters)
+            {
+                var paramType = GetTypeSymbol(parameter.Type.Type, false);
+                builder = builder.WithRequiredParameter(parameter.Name, paramType, parameter.Description ?? "");
+            }
+
+            builder = builder.WithFlags(FunctionFlags.RequiresInlining);
+            return builder.Build();
+        }
+
         private IEnumerable<FunctionOverload> GetResourceFunctionOverloads(Azure.Bicep.Types.Concrete.ResourceType resourceType)
         {
             if (resourceType.Functions is null)
@@ -193,6 +214,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
 
                         return new DiscriminatedObjectType(discriminatedObjectType.Name, GetValidationFlags(isResourceBodyType, isSensitive: false), discriminatedObjectType.Discriminator, elementReferences);
                     }
+                case Azure.Bicep.Types.Concrete.NamespaceFunctionType namespaceFunctionType:
                 default:
                     throw new ArgumentException();
             }

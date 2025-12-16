@@ -3,7 +3,9 @@
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using Bicep.Core.Resources;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
+using SharpYaml.Tokens;
 using NamedTypeProperties = System.Collections.Immutable.ImmutableSortedDictionary<string, Bicep.Core.TypeSystem.Types.NamedTypeProperty>;
 
 namespace Bicep.Core.TypeSystem.Providers.Extensibility
@@ -194,6 +196,11 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                 TemplateExtensionVersion: namespaceConfiguration.Version);
 
             return MicrosoftGraphExtensionCompatibilityManager.PatchNamespaceSettings(namespaceSettings);
+        }
+
+        public IEnumerable<FunctionOverload> GetFunctionOverloads()
+        {
+            return resourceTypeLoader.LoadNamespaceFunctions();
         }
 
         public bool HasDefinedType(ResourceTypeReference typeReference)

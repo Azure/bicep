@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using System.IO.Compression;
 using Azure.Bicep.Types;
 using Azure.Bicep.Types.K8s;
 using Bicep.Core.Resources;
@@ -34,6 +35,20 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
 
             var serializedResourceType = typeLoader.LoadResourceType(typeLocation);
             return resourceTypeFactory.GetResourceType(serializedResourceType);
+        }
+    }
+
+    public class K8sTypeLoader : TypeLoader
+    {
+        protected override Stream GetContentStreamAtPath(string path)
+        {
+            var manifestResourceStream = typeof(K8sTypeLoader).Assembly.GetManifestResourceStream(path + ".deflated");
+            if (manifestResourceStream == null)
+            {
+                throw new ArgumentException("Unable to locate manifest resource at path " + path, "path");
+            }
+
+            return new DeflateStream(manifestResourceStream, CompressionMode.Decompress);
         }
     }
 }

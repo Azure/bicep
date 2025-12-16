@@ -25,12 +25,14 @@ namespace Bicep.Core.Semantics.Namespaces
 
             var namespaceSettings = resourceTypeProvider.GetNamespaceSettings();
 
+            var overloads = resourceTypeProvider.GetFunctionOverloads();
+
             return new NamespaceType(
                 // TODO: Using BicepExtensionName is not ideal. We need to add default aliasing support for extensions.
                 aliasName ?? namespaceSettings.BicepExtensionName,
                 namespaceSettings,
                 ExtensionNamespaceTypeHelper.GetExtensionNamespaceObjectProperties(namespaceSettings, features),
-                ImmutableArray<FunctionOverload>.Empty,
+                [.. overloads],
                 ImmutableArray<BannedFunction>.Empty,
                 ImmutableArray<Decorator>.Empty,
                 resourceTypeProvider,

@@ -119,6 +119,23 @@ namespace Bicep.Core.UnitTests.Utils
             return CompileParams(compilation);
         }
 
+        public static async Task<ParamsCompilationResult> RestoreAndCompileParams(ServiceBuilder services, IReadOnlyDictionary<Uri, BinaryData> uriDictionary, Uri entryUri)
+        {
+            var compiler = services.WithMockFileSystem(uriDictionary).Build().GetCompiler();
+            var compilation = await compiler.CreateCompilation(entryUri.ToIOUri());
+
+            return CompileParams(compilation);
+        }
+
+        public static async Task<ParamsCompilationResult> RestoreAndCompileParams(ServiceBuilder services, params (string fileName, BinaryData fileContents)[] files)
+        {
+            files.Select(x => x.fileName).Should().Contain("parameters.bicepparam");
+
+            var (uriDictionary, entryUri) = CreateFileDictionary(files.Select(file => ("/path/to", file.fileName, file.fileContents)).ToArray(), "parameters.bicepparam");
+
+            return await RestoreAndCompileParams(services, uriDictionary, entryUri);
+        }
+
         public static IActiveSourceFileSet CreateWorkspace(ISourceFileFactory sourceFileFactory, IReadOnlyDictionary<Uri, string> uriDictionary)
         {
             var workspace = new ActiveSourceFileSet();
