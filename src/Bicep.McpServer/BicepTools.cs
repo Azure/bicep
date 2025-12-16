@@ -28,8 +28,8 @@ public sealed class BicepTools(
 
     private static Lazy<BinaryData> LocalDeployExtensionsMarkdownLazy { get; } = new(() =>
         BinaryData.FromStream(
-            typeof(BicepTools).Assembly.GetManifestResourceStream("Files/localdeploytools.md") ??
-            throw new InvalidOperationException("Could not find embedded resource 'Files/localdeploytools.md'")));
+            typeof(BicepTools).Assembly.GetManifestResourceStream("Files/localdeployextensions.md") ??
+            throw new InvalidOperationException("Could not find embedded resource 'Files/localdeployextensions.md'")));
 
     private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
