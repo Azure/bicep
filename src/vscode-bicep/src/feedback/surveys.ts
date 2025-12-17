@@ -4,7 +4,7 @@
 import assert from "assert";
 import https from "https";
 import { callWithTelemetryAndErrorHandling, IActionContext, parseError } from "@microsoft/vscode-azext-utils";
-import { commands, ConfigurationTarget, MessageItem, Uri, window } from "vscode";
+import { commands, MessageItem, Uri, window } from "vscode";
 import { GlobalState, GlobalStateKeys } from "../globalState";
 import { bicepConfigurationKeys } from "../language/constants";
 import { getBicepConfiguration } from "../language/getBicepConfiguration";
@@ -32,7 +32,7 @@ const hatsAlwaysOnSurveyInfo: ISurveyInfo = {
   //   survey earlier than a year if we want to.
   postponeAfterTakenInDays: monthsToDays(6),
   surveyPrompt: "Do you have a few minutes to tell us about your experience with Bicep?",
-  postponeForLaterInDays: 2 * 7,
+  postponeForLaterInDays: 7,
   surveyStateKey: GlobalStateKeys.annualSurveyStateKey,
 };
 
@@ -226,9 +226,9 @@ export class Survey {
     state: ISurveyState, // this is modified
     now: Date,
   ): Promise<void> {
-    const neverAskAgain: MessageItemWithId = {
-      title: "Never ask again",
-      id: "never",
+    const dontAskAgain: MessageItemWithId = {
+      title: "Don't ask again",
+      id: "dontAskAgain",
     };
     const later: MessageItemWithId = { title: "Maybe later", id: "later" };
     const yes: MessageItemWithId = { title: "Yes", id: "yes" };
@@ -238,11 +238,11 @@ export class Survey {
     };
 
     const response =
-      (await this.inject?.showInformationMessage(this.surveyInfo.surveyPrompt, yes, later, neverAskAgain)) ?? dismissed;
+      (await this.inject?.showInformationMessage(this.surveyInfo.surveyPrompt, yes, later, dontAskAgain)) ?? dismissed;
     context.telemetry.properties.userResponse = String(response.id);
 
-    if (response.id === neverAskAgain.id) {
-      await this.disableSurveys();
+    if (response.id === dontAskAgain.id) {
+      await this.postponeSurvey(state, now, 180);
     } else if (response.id === later.id) {
       await this.postponeSurvey(state, now, this.surveyInfo.postponeForLaterInDays);
     } else if (response.id === yes.id) {
@@ -250,8 +250,9 @@ export class Survey {
       state.postponedUntil = undefined;
       await this.inject.launchSurvey(context, this.surveyInfo);
     } else {
-      // Try again next time
+      // Dismissed/ignored - treat same as "later"
       assert(response.id === dismissed.id, `Unexpected response: ${response.id}`);
+      await this.postponeSurvey(state, now, this.surveyInfo.postponeForLaterInDays);
     }
   }
 
@@ -314,12 +315,6 @@ export class Survey {
 
   public areSurveysEnabled(): boolean {
     return this.inject.provideBicepConfiguration().get<boolean>(bicepConfigurationKeys.enableSurveys, true);
-  }
-
-  private async disableSurveys(): Promise<void> {
-    return this.inject
-      .provideBicepConfiguration()
-      .update(bicepConfigurationKeys.enableSurveys, false, ConfigurationTarget.Global);
   }
 
   public async clearGlobalState(): Promise<void> {
