@@ -1607,7 +1607,7 @@ namespace Bicep.Core.Diagnostics
 
                 
             public Diagnostic MultiDocumentYamlNotSupported() => CoreError(
-            "BCP442",
+            "BCP445",
             "Multi-document YAML files are not supported. Please use a single YAML document.");
             
             public Diagnostic RuntimeValueNotAllowedInFunctionDeclaration(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)

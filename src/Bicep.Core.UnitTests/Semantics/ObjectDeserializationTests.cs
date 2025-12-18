@@ -197,7 +197,7 @@ namespace Bicep.Core.UnitTests.Semantics
         }
 
         [TestMethod]
-        public void MultiDocument_YAML_throws_BCP442()
+        public void MultiDocument_YAML_throws_BCP445()
         {
         // Multi-document YAML separated by '---'
         var multiDocYaml = string.Join("\n", [
@@ -211,7 +211,7 @@ namespace Bicep.Core.UnitTests.Semantics
 
         new YamlObjectParser().TryExtractFromObject(multiDocYaml, null, [span], out var errorDiagnostic, out JToken? jToken);
 
-        Assert.AreEqual("BCP442", errorDiagnostic!.Code);
+        Assert.AreEqual("BCP445", errorDiagnostic!.Code);
         Assert.IsNull(jToken);
         }
     } 
