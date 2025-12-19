@@ -12,22 +12,35 @@ namespace Bicep.Core.IntegrationTests.Scenarios;
 public class ExternalInputReferenceTests
 {
     [TestMethod]
-    public void Valid_externalInput_reference_in_declared_function_lambda()
+    public void ExternalInput_reference_in_declared_function_lambda_is_allowed()
     {
-        var result = CompilationHelper.Compile(@"
-            func foo() any => externalInput('type', 'myInput')
-            func bar(test string) any => sys.externalInput('type', test)
-        ");
+        var result = CompilationHelper.Compile("""
+func foo() any => externalInput('type', 'myInput')
+func bar(test string) any => sys.externalInput('type', test)
+""");
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
-    public void Invalid_externalInput_reference_in_variable()
+    public void ExternalInput_reference_in_bicepparam_file_is_allowed()
     {
-        var result = CompilationHelper.Compile(@"
-            var foo = externalInput('type', 'myInput')
-        ");
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+using none
+param foo = externalInput('type', 'myInput')
+var bar = externalInput('type', 'myInput')
+"""));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void ExternalInput_reference_in_variable_is_blocked()
+    {
+        var result = CompilationHelper.Compile("""
+var foo = externalInput('type', 'myInput')
+""");
 
         result.Should().NotGenerateATemplate();
         result.Should().OnlyContainDiagnostic(
@@ -38,11 +51,11 @@ public class ExternalInputReferenceTests
     }
 
     [TestMethod]
-    public void Invalid_externalInput_reference_in_output()
+    public void ExternalInput_reference_in_output_is_blocked()
     {
-        var result = CompilationHelper.Compile(@"
-            output foo any = externalInput('type', 'myInput')
-        ");
+        var result = CompilationHelper.Compile("""
+output foo any = externalInput('type', 'myInput')
+""");
 
         result.Should().NotGenerateATemplate();
         result.Should().OnlyContainDiagnostic(
@@ -53,11 +66,11 @@ public class ExternalInputReferenceTests
     }
 
     [TestMethod]
-    public void Invalid_externalInput_reference_in_param_definition()
+    public void ExternalInput_reference_in_param_definition_is_blocked()
     {
-        var result = CompilationHelper.Compile(@"
-            param foo any = externalInput('type', 'myInput')
-        ");
+        var result = CompilationHelper.Compile("""
+param foo any = externalInput('type', 'myInput')
+""");
 
         result.Should().NotGenerateATemplate();
         result.Should().OnlyContainDiagnostic(
@@ -68,21 +81,21 @@ public class ExternalInputReferenceTests
     }
 
     [TestMethod]
-    public void Invalid_externalInput_reference_in_resource_definition()
+    public void ExternalInput_reference_in_resource_definition_is_blocked()
     {
-        var result = CompilationHelper.Compile(@"
-            resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
-                name: 'name'
-                location: resourceGroup().location
-                kind: 'StorageV2'
-                sku: {
-                    name: 'Premium_LRS'
-                }
-                properties: {
-                    allowBlobPublicAccess: externalInput('type', 'myInput')
-                }
-            }
-        ");
+        var result = CompilationHelper.Compile("""
+resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+   name: 'name'
+   location: resourceGroup().location
+   kind: 'StorageV2'
+   sku: {
+       name: 'Premium_LRS'
+   }
+   properties: {
+       allowBlobPublicAccess: externalInput('type', 'myInput')
+   }
+}
+""");
 
         result.Should().NotGenerateATemplate();
         result.Should().OnlyContainDiagnostic(
@@ -90,5 +103,57 @@ public class ExternalInputReferenceTests
             DiagnosticLevel.Error,
             "Function \"externalInput\" is not valid at this location. It can only be used within a declared function body."
         );
+    }
+
+    [TestMethod]
+    public void ExternalInput_reference_in_object_property_is_blocked()
+    {
+        var result = CompilationHelper.Compile("""
+var obj = {
+   prop: externalInput('type', 'myInput')
+}
+""");
+
+        result.Should().NotGenerateATemplate();
+        result.Should().OnlyContainDiagnostic(
+            "BCP445",
+            DiagnosticLevel.Error,
+            "Function \"externalInput\" is not valid at this location. It can only be used within a declared function body."
+        );
+    }
+
+    [TestMethod]
+    public void ExternalInput_reference_in_module_param_is_blocked()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+module myModule 'module.bicep' = {
+   name: 'myModuleInstance'
+   params: {
+       inputParam: externalInput('type', 'myInput')
+   }
+}
+"""),
+            ("module.bicep", """
+param inputParam any
+"""));
+
+        result.Should().NotGenerateATemplate();
+        result.Should().OnlyContainDiagnostic(
+            "BCP445",
+            DiagnosticLevel.Error,
+            "Function \"externalInput\" is not valid at this location. It can only be used within a declared function body."
+        );
+    }
+
+    [TestMethod]
+    public void Declared_function_containing_external_input_referenced_in_bicep_file_is_blocked()
+    {
+        var result = CompilationHelper.Compile("""
+func foo(test string) any => externalInput('type', test)
+var result = foo('myInput')
+""");
+
+        result.Should().NotGenerateATemplate();
     }
 }
