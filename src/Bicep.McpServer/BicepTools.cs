@@ -34,9 +34,17 @@ public sealed class BicepTools(
 
     [McpServerTool(Title = "List available Azure resource types", Destructive = false, Idempotent = true, OpenWorld = false, ReadOnly = true)]
     [Description("""
-    Lists all available Azure resource types for a specific provider.
-    The return value is a newline-separated list of resource types including their API version, e.g. Microsoft.KeyVault/vaults@2024-11-01.
-    Such information is the most accurate and up-to-date as it is sourced from the Azure Resource Provider APIs.
+    Lists all available Azure resource types and their API versions for a specific Azure resource provider namespace.
+    
+    Use this tool to:
+    - Discover what resource types are available in a provider (e.g., what can be created under Microsoft.Storage)
+    - Find the latest API versions for Azure resources
+    - Explore the complete resource type catalog for a given provider
+    
+    Returns a newline-separated list of fully-qualified resource types with API versions (e.g., Microsoft.KeyVault/vaults@2024-11-01).
+    Data is sourced directly from Azure Resource Provider APIs, ensuring accuracy and currency.
+    
+    Example provider namespaces: Microsoft.Compute, Microsoft.Storage, Microsoft.Network, Microsoft.Web, Microsoft.KeyVault
     """)]
     public string ListAzResourceTypesForProvider(
         [Description("The resource provider (or namespace) of the Azure resource; e.g. Microsoft.KeyVault")] string providerNamespace)
@@ -56,8 +64,23 @@ public sealed class BicepTools(
 
     [McpServerTool(Title = "Get Azure resource type schema", Destructive = false, Idempotent = true, OpenWorld = false, ReadOnly = true)]
     [Description("""
-    Gets the schema for a specific Azure resource type and API version.
-    Such information is the most accurate and up-to-date as it is sourced from the Azure Resource Provider APIs.
+    Retrieves the complete JSON schema definition for a specific Azure resource type and API version, including all properties, nested types, and constraints.
+    
+    Use this tool to:
+    - Understand what properties are available on an Azure resource
+    - Learn about required vs optional properties, their types, and allowed values
+    - Discover nested resource types and their schemas
+    - Find available resource functions and their signatures
+    - Generate accurate Bicep code with proper property names and types
+    
+    Returns a JSON object containing:
+    - Resource type definitions with all properties and their types
+    - Nested complex type definitions
+    - Resource function signatures (like list* operations)
+    - Property constraints (min/max values, allowed values, regex patterns)
+    
+    Data is sourced directly from Azure Resource Provider APIs, ensuring the most accurate and up-to-date schema information.
+    Specify the resource type (e.g., Microsoft.KeyVault/vaults) and API version (e.g., 2024-11-01 or 2024-12-01-preview).
     """)]
     public string GetAzResourceTypeSchema(
         [Description("The resource type of the Azure resource; e.g. Microsoft.KeyVault/vaults")] string azResourceType,
@@ -75,16 +98,50 @@ public sealed class BicepTools(
 
     [McpServerTool(Title = "Get Bicep best-practices", Destructive = false, Idempotent = true, OpenWorld = false, ReadOnly = true)]
     [Description("""
-    Lists up-to-date recommended Bicep best-practices for authoring templates.
-    These practices help improve maintainability, security, and reliability of your Bicep files.
-    This is helpful additional context if you've been asked to generate Bicep code.
+    Retrieves comprehensive, up-to-date best practices and coding standards for authoring Bicep templates.
+    
+    Use this tool when:
+    - Generating new Bicep code to ensure it follows current best practices
+    - Reviewing existing Bicep code for quality improvements
+    - Learning recommended patterns for common scenarios
+    - Understanding security, maintainability, and reliability guidelines
+    
+    Returns a detailed markdown document covering:
+    - Naming conventions and code organization
+    - Parameter and variable usage patterns
+    - Resource declaration best practices
+    - Module composition strategies
+    - Security recommendations (secrets management, least privilege, etc.)
+    - Performance optimization tips
+    - Testing and validation approaches
+    
+    The practices are maintained by the Bicep team and reflect current recommended approaches.
     """)]
     public string GetBicepBestPractices() => BestPracticesMarkdownLazy.Value.ToString();
 
     [McpServerTool(Title = "List Azure Verified Modules (AVM)", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true)]
     [Description("""
-    Lists up-to-date metadata for all Azure Verified Modules (AVM).
-    The return value is a newline-separated list of AVM metadata. Each line includes the module name, description, versions, and documentation URI for a specific module.
+    Lists metadata for all Azure Verified Modules (AVM) - Microsoft's official, pre-built, tested, and maintained Bicep modules for common Azure resource patterns.
+    
+    Use this tool to:
+    - Discover reusable, production-ready Bicep modules for common scenarios
+    - Find officially supported modules instead of writing resources from scratch
+    - Check available versions and documentation for AVM modules
+    - Accelerate Bicep development by leveraging tested, best-practice implementations
+    
+    Azure Verified Modules provide:
+    - Pre-configured resource deployments following Microsoft best practices
+    - Built-in security, reliability, and compliance features
+    - Regular updates and maintenance by Microsoft
+    - Comprehensive documentation and examples
+    
+    Returns a newline-separated list where each entry includes:
+    - Module path (e.g., avm/res/storage/storage-account)
+    - Human-readable description
+    - Available versions
+    - Documentation URI for detailed usage instructions
+    
+    Use these modules in your Bicep files to reduce code and improve quality.
     """)]
     public async Task<string> ListAvmMetadata()
     {

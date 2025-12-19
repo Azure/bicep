@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../Bicep.Core/Bicep.Core.csproj" />
+    <ProjectReference Include="../Bicep.Decompiler/Bicep.Decompiler.csproj" />
   </ItemGroup>
 
 </Project>
