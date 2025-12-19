@@ -31,6 +31,10 @@ public sealed class BicepCompilerTools(
         [Description("The character length of the diagnostic")]
         int Length);
 
+    public record FormatResult(
+        [Description("The formatted Bicep or Bicep parameters file content")]
+        string Content);
+
     [McpServerTool(Title = "Get Bicep File Diagnostics", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true, UseStructuredContent = true)]
     [Description("""
     Analyzes a Bicep file (.bicep) or Bicep parameters file (.bicepparam) and returns all compilation diagnostics including errors, warnings, and informational messages.
@@ -67,9 +71,9 @@ public sealed class BicepCompilerTools(
                 x.Span.Length)))];
     }
 
-    [McpServerTool(Title = "Format Bicep File", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true)]
+    [McpServerTool(Title = "Format Bicep File", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true, UseStructuredContent = true)]
     [Description("""
-    Formats a Bicep file (.bicep) or Bicep parameters file (.bicepparam) according to official Bicep formatting standards and returns the formatted content as a string.
+    Formats a Bicep file (.bicep) or Bicep parameters file (.bicepparam) according to official Bicep formatting standards.
     
     Use this tool to:
     - Apply consistent code formatting (indentation, spacing, line breaks) to Bicep files
@@ -83,7 +87,7 @@ public sealed class BicepCompilerTools(
     
     The file path must be absolute. Formatting preserves semantic meaning and only changes whitespace and layout. Files with syntax errors will still be formatted to the extent possible.
     """)]
-    public async Task<string> FormatBicepFile(
+    public async Task<FormatResult> FormatBicepFile(
         [Description("The path to the .bicep or .bicepparam file")] string filePath)
     {
         var fileUri = IOUri.FromFilePath(filePath);
@@ -98,6 +102,6 @@ public sealed class BicepCompilerTools(
         var options = sourceFile.Configuration.Formatting.Data;
         var context = PrettyPrinterV2Context.Create(options, sourceFile.LexingErrorLookup, sourceFile.ParsingErrorLookup);
 
-        return PrettyPrinterV2.Print(sourceFile.ProgramSyntax, context);
+        return new FormatResult(PrettyPrinterV2.Print(sourceFile.ProgramSyntax, context));
     }
 }

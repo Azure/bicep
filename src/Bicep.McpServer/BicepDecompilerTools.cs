@@ -22,7 +22,7 @@ public sealed class BicepDecompilerTools(
         [Description("The generated files to save")]
         ImmutableDictionary<Uri, string> FilesToSave);
 
-    [McpServerTool(Title = "Decompile ARM template file", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true)]
+    [McpServerTool(Title = "Decompile ARM template file", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true, UseStructuredContent = true)]
     [Description("""
     Converts an Azure Resource Manager (ARM) template JSON file into modern Bicep syntax (.bicep).
     
@@ -32,10 +32,7 @@ public sealed class BicepDecompilerTools(
     - Modernize legacy infrastructure-as-code
     
     Accepts files with .json, .jsonc, or .arm extensions. The file path must be absolute.
-    
-    Returns a dictionary of file URIs to content, which may include:
-    - The main .bicep file (entrypoint)
-    - Additional .bicep module files if the template uses nested/linked templates
+    The result includes the entrypoint URI and all generated Bicep files (which may include additional modules for nested/linked templates).
     
     Note: Decompilation is a best-effort process. Some ARM template features may require manual adjustment in the generated Bicep code. Review the output for any TODO comments or warnings.
     """)]
@@ -59,7 +56,7 @@ public sealed class BicepDecompilerTools(
                 kvp => kvp.Value));
     }
 
-    [McpServerTool(Title = "Decompile ARM parameters file", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true)]
+    [McpServerTool(Title = "Decompile ARM parameters file", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true, UseStructuredContent = true)]
     [Description("""
     Converts an ARM template parameters JSON file into Bicep parameters syntax (.bicepparam).
     
@@ -70,12 +67,7 @@ public sealed class BicepDecompilerTools(
     
     Accepts files with .json, .jsonc, or .arm extensions. The file path must be absolute.
     
-    Returns the converted .bicepparam file content with:
-    - A 'using' statement placeholder (you'll need to specify the target .bicep template path)
-    - All parameters with their values preserved
-    - KeyVault references converted to az.getSecret() function calls if present
-    
-    The generated file will include a TODO comment for the 'using' statement path that must be completed before the parameters file can be used.
+    The generated .bicepparam file includes a 'using' statement placeholder that must be completed, all parameters with their values preserved, and KeyVault references converted to az.getSecret() function calls if present.
     """)]
     public async Task<DecompileResultDefinition> DecompileArmParametersFile(
         [Description("The path to the .json ARM parameters file")] string filePath)

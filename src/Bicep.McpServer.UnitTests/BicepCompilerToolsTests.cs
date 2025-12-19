@@ -57,6 +57,6 @@ public class BicepCompilerToolsTests
 
         var response = await tools.FormatBicepFile(bicepFilePath);
 
-        response.Should().Contain("param foo string");
+        response.Content.Should().Contain("param foo string");
     }
 }
