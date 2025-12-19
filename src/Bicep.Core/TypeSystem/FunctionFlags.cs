@@ -88,6 +88,11 @@ namespace Bicep.Core.TypeSystem
         IsArgumentValueIndependent = 1 << 15,
 
         /// <summary>
+        /// The function can only be used within an instance function lambda.
+        /// </summary>
+        DeclaredFunctionLambdaOnly = 1 << 16,
+
+        /// <summary>
         /// The function can be used as a resource or module decorator.
         /// </summary>
         ResourceOrModuleDecorator = ResourceDecorator | ModuleDecorator,
@@ -110,6 +115,6 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// The function can be used as a decorator anywhere.
         /// </summary>
-        AnyDecorator = ParameterDecorator | VariableDecorator | FunctionDecorator | ResourceDecorator | ModuleDecorator | OutputDecorator | ExtensionDecorator | MetadataDecorator | TypeDecorator,
+        AnyDecorator = ParameterDecorator | VariableDecorator | FunctionDecorator | ResourceDecorator | ModuleDecorator | OutputDecorator | ExtensionDecorator | MetadataDecorator | TypeDecorator
     }
 }

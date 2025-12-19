@@ -3,6 +3,7 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
@@ -77,12 +78,14 @@ namespace Bicep.Core.Emit
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
             VerifyModuleSecureParameterFunctionPlacement(syntax);
+            VerifyDeclaredFunctionLambdaFunctionPlacement(syntax);
             base.VisitInstanceFunctionCallSyntax(syntax);
         }
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
             VerifyModuleSecureParameterFunctionPlacement(syntax);
+            VerifyDeclaredFunctionLambdaFunctionPlacement(syntax);
             base.VisitFunctionCallSyntax(syntax);
         }
 
@@ -109,6 +112,25 @@ namespace Bicep.Core.Emit
                     if (levelUpSymbol is null)
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).FunctionOnlyValidWithDirectAssignment(functionSymbol.Name));
+                    }
+                }
+            }
+        }
+
+        private void VerifyDeclaredFunctionLambdaFunctionPlacement(FunctionCallSyntaxBase syntax)
+        {
+            if (semanticModel.SourceFile.FileKind != BicepSourceFileKind.BicepFile)
+            {
+                return; // only apply this rule to .bicep files
+            }
+
+            if (semanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol)
+            {
+                if (functionSymbol.FunctionFlags.HasFlag(FunctionFlags.DeclaredFunctionLambdaOnly))
+                {
+                    if (!syntaxRecorder.Any(x => x.symbol is DeclaredFunctionSymbol))
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).FunctionOnlyValidWithinDeclaredFunctionLambda(functionSymbol.Name));
                     }
                 }
             }

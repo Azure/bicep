@@ -2013,6 +2013,9 @@ namespace Bicep.Core.Diagnostics
                 "BCP443",
                 $"""The "{LanguageConstants.UsingKeyword}" statement requires a "{LanguageConstants.WithKeyword}" clause if the EXPERIMENTAL feature "{nameof(ExperimentalFeaturesEnabled.DeployCommands)}" is enabled.""");
 
+            public Diagnostic FunctionOnlyValidWithinDeclaredFunctionLambda(string functionName) => CoreError(
+                "BCP445", $"Function \"{functionName}\" is not valid at this location. It can only be used within a declared function body.");
+
             public Diagnostic RuntimeValueNotAllowedInExtensionDeclarationWithClause(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
             {
                 var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
