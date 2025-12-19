@@ -55,8 +55,10 @@ If any of the tools are missing from the list of available tools, start/restart 
 
 ## How to use the Bicep MCP Server locally with AI Agents
 Please refer to [this step by step tutorial](https://github.com/johnlokerse/azure-bicep-mcp-integration-setup) on how to integrate the Bicep MCP Server with Claude Code, Codex, LM Studio, and other AI tools.
+
 This article has all the tools you need to run the Bicep MCP Server locally, with pre-written commands, helper scripts, and client setup guides.
 
+Note: This is contributed by our community member [@johnlokerse](https://github.com/johnlokerse). Thanks John!
 
 ## Limitations
 
