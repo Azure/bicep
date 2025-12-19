@@ -720,36 +720,6 @@ jobs:
           path: ./TestResults/*.trx
           if-no-files-found: error
 
-  comment-test-summary:
-    name: "PR Comment: Dotnet Tests Summary"
-    needs: test-dotnet
-    runs-on: ubuntu-latest
-    permissions:
-      checks: write
-      pull-requests: write
-    if: always()
-
-    steps:
-      - name: Merge Test Results into Single Artifact (fewer artifacts to deal with in build)
-        uses: actions/upload-artifact/merge@v6
-        with:
-          name: TestResults
-          pattern: TestResults-*
-          delete-merged: true
-
-      - name: Download Test Results Artifact
-        uses: actions/download-artifact@v7
-        with:
-          pattern: TestResults
-          path: TestResults
-          merge-multiple: true
-
-      - name: Publish Dotnet Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        with:
-          check_name: Dotnet Test Results
-          files: "TestResults/**/*.trx"
-
   comment-preview-links:
     name: "PR Comment: Preview Links"
     needs: [build-vscode-ext, build-cli]
