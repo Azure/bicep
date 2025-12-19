@@ -78,14 +78,14 @@ namespace Bicep.Core.Emit
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
             VerifyModuleSecureParameterFunctionPlacement(syntax);
-            VerifyDeclaredFunctionLambdaFunctionPlacement(syntax);
+            //VerifyDeclaredFunctionLambdaFunctionPlacement(syntax);
             base.VisitInstanceFunctionCallSyntax(syntax);
         }
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
             VerifyModuleSecureParameterFunctionPlacement(syntax);
-            VerifyDeclaredFunctionLambdaFunctionPlacement(syntax);
+            //VerifyDeclaredFunctionLambdaFunctionPlacement(syntax);
             base.VisitFunctionCallSyntax(syntax);
         }
 
@@ -117,23 +117,23 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private void VerifyDeclaredFunctionLambdaFunctionPlacement(FunctionCallSyntaxBase syntax)
-        {
-            if (semanticModel.SourceFile.FileKind != BicepSourceFileKind.BicepFile)
-            {
-                return; // only apply this rule to .bicep files
-            }
+        // private void VerifyDeclaredFunctionLambdaFunctionPlacement(FunctionCallSyntaxBase syntax)
+        // {
+        //     if (semanticModel.SourceFile.FileKind != BicepSourceFileKind.BicepFile)
+        //     {
+        //         return; // only apply this rule to .bicep files
+        //     }
 
-            if (semanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol)
-            {
-                if (functionSymbol.FunctionFlags.HasFlag(FunctionFlags.DeclaredFunctionLambdaOnly))
-                {
-                    if (!syntaxRecorder.Any(x => x.symbol is DeclaredFunctionSymbol))
-                    {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).FunctionOnlyValidWithinDeclaredFunctionLambda(functionSymbol.Name));
-                    }
-                }
-            }
-        }
+        //     if (semanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol)
+        //     {
+        //         if (functionSymbol.FunctionFlags.HasFlag(FunctionFlags.ParamFileInvocationOnly))
+        //         {
+        //             if (!syntaxRecorder.Any(x => x.symbol is DeclaredFunctionSymbol))
+        //             {
+        //                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).FunctionOnlyValidWithinDeclaredFunctionLambda(functionSymbol.Name));
+        //             }
+        //         }
+        //     }
+        // }
     }
 }

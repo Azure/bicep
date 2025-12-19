@@ -23,6 +23,18 @@ func bar(test string) any => sys.externalInput('type', test)
     }
 
     [TestMethod]
+    public void ExternalInput_reference_in_nested_declared_function_lambda_is_allowed()
+    {
+        var result = CompilationHelper.Compile("""
+func foo(test string) any => externalInput('type', test)
+func bar() any => foo('myInput')
+func baz() any => bar()
+""");
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
     public void ExternalInput_reference_in_bicepparam_file_is_allowed()
     {
         var result = CompilationHelper.CompileParams(
@@ -137,6 +149,23 @@ module myModule 'module.bicep' = {
             ("module.bicep", """
 param inputParam any
 """));
+
+        result.Should().NotGenerateATemplate();
+        result.Should().OnlyContainDiagnostic(
+            "BCP445",
+            DiagnosticLevel.Error,
+            "Function \"externalInput\" is not valid at this location. It can only be used within a declared function body."
+        );
+    }
+
+    [TestMethod]
+    public void ExternalInput_reference_in_variable_calling_a_nested_declared_function_lambda_is_blocked()
+    {
+        var result = CompilationHelper.Compile("""
+func foo(test string) any => externalInput('type', test)
+func bar() any => foo('myInput')
+var baz = bar()
+""");
 
         result.Should().NotGenerateATemplate();
         result.Should().OnlyContainDiagnostic(

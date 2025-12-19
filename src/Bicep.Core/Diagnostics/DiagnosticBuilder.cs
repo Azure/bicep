@@ -2023,7 +2023,7 @@ namespace Bicep.Core.Diagnostics
                     $"This expression is being used as a default value for an extension configuration property, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
 
-            public Diagnostic FunctionOnlyValidWithinDeclaredFunctionLambda(string functionName) => CoreError(
+            public Diagnostic ExternalInputFunctionInvocationNotAllowed(string functionName) => CoreError(
                 "BCP445", $"Function \"{functionName}\" is not valid at this location. It can only be used within a declared function body.");
         }
 
