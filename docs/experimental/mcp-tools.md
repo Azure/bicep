@@ -5,7 +5,7 @@
 
 ## What is it
 
-The Bicep VS Code extension now includes a Bicep MCP server with agentic tools to support Bicep code generation for AI agents in VS Code. To find out more about MCP, see [Use MCP servers in VS Code][00].
+We have built a Bicep MCP server with agentic tools to support Bicep code generation for AI agents in VS Code. To find out more about MCP, see [Use MCP servers in VS Code][00].
 
 ### Available Bicep MCP tools
 
@@ -16,7 +16,11 @@ The Bicep VS Code extension now includes a Bicep MCP server with agentic tools t
 
 Please see below on how to contribute to the Bicep best practices tool.
 
-## How to use it
+## Where can I use it?
+
+The Bicep MCP Server can be used directly in VS Code (preferred), but can also be run locally with other AI services such as Claude Desktop and Code, OpenAI Codex CLI, LMStudio, and other MCP-compatible services. 
+
+## How to use the Bicep MCP Server directly in VS Code
 
 ### Prerequisites
 
@@ -35,7 +39,7 @@ The Bicep server may not appear in your list of MCP servers and tools in VS Code
 
 If any of the tools are missing from the list of available tools, start/restart the MCP server in VS Code, by hitting `Ctrl + Shift + P`, selecting `MCP: List Servers`, then choosing the Bicep MCP Server and clicking on `Start Server` or `Restart Server`.
 
-## Viewing and Using Bicep Tools in the Bicep MCP Server
+### Viewing and Using Bicep MCP Server Tools in VS Code
 
 1. Open the GitHub Copilot extension window and select "Agent Mode".
 
@@ -48,6 +52,13 @@ If any of the tools are missing from the list of available tools, start/restart 
 1. Start using Agent Mode to help with your Bicep tasks!
 
    ![Bicep MCP Usage Example][08]
+
+## How to use the Bicep MCP Server locally with AI Agents
+Please refer to [this step by step tutorial](https://github.com/johnlokerse/azure-bicep-mcp-integration-setup) on how to integrate the Bicep MCP Server with Claude Code, Codex, LM Studio, and other AI tools.
+
+This article has all the tools you need to run the Bicep MCP Server locally, with pre-written commands, helper scripts, and client setup guides.
+
+Note: This is contributed by our community member [@johnlokerse](https://github.com/johnlokerse). Thanks John!
 
 ## Limitations
 
