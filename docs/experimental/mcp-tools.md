@@ -13,6 +13,7 @@ The Bicep VS Code extension now includes a Bicep MCP server with agentic tools t
 - `list_az_resource_types_for_provider`: Lists all available Azure resource types for a specific provider. The return value is a newline-separated list of resource types including their API version, e.g. `Microsoft.KeyVault/vaults@2024-11-01`. Such information is the most accurate and up-to-date as it is sourced from the Azure Resource Provider APIs.
 - `get_az_resource_type_schema`: Gets the schema for a specific Azure resource type and API version. Such information is the most accurate and up-to-date as it is sourced from the Azure Resource Provider APIs.
 - `list_avm_metadata`: Lists up-to-date metadata for all Azure Verified Modules (AVM). The return value is a newline-separated list of AVM metadata. Each line includes the module name, description, versions, and documentation URI for a specific module.
+- `get_bicep_local_deploy_extensions`: Lists developed Bicep Local Deploy extensions that enhance Bicep's capabilities for local deployments. These extensions allow you to manage non-Azure resources and services directly from Bicep templates, such as GitHub repositories, Kubernetes clusters, local file operations, and HTTP API calls.
 
 Please see below on how to contribute to the Bicep best practices tool.
 
