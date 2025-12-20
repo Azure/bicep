@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System;
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
@@ -33,6 +36,9 @@ public class ExternalInputInvocationValidator : AstVisitor
         visitor.Visit(model.SourceFile.ProgramSyntax);
     }
 
+    public override void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax)
+    {
+    }
     public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
     {
         ValidateFunctionCall(syntax);
@@ -57,7 +63,7 @@ public class ExternalInputInvocationValidator : AstVisitor
             // save previous state
             var previousVisitedFunctions = visitedFunctions;
 
-            visitedFunctions.Add(declaredFunction);
+            visitedFunctions = visitedFunctions.Add(declaredFunction);
             var lambda = declaredFunction.DeclaringFunction.Lambda;
 
             switch (lambda)

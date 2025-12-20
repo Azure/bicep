@@ -1267,7 +1267,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.")
                     .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.")
                     .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, exp.Parameters))
-                    .WithFlags(FunctionFlags.ParamFileInvocationOnly)
+                    .WithFlags(FunctionFlags.ExternalInput)
                     .WithReturnResultBuilder((model, diagnostics, functionCall, argumentTypes) =>
                     {
                         foreach (var arg in functionCall.Arguments)

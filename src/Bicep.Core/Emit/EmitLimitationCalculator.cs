@@ -38,6 +38,7 @@ namespace Bicep.Core.Emit
             FunctionPlacementValidatorVisitor.Validate(model, diagnostics);
             IntegerValidatorVisitor.Validate(model, diagnostics);
             ExtensionReferenceValidatorVisitor.Validate(model, diagnostics);
+            ExternalInputInvocationValidator.Validate(model, diagnostics);
 
             DetectDuplicateNames(model, diagnostics, resourceScopeData, moduleScopeData);
             DetectIncorrectlyFormattedNames(model, diagnostics);
