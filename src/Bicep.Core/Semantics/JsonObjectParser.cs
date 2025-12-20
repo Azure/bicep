@@ -5,16 +5,17 @@ using Bicep.Core.Text;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Bicep.Core.Semantics
+namespace Bicep.Core.Semantics;
+
+public class JsonObjectParser : ObjectParser
 {
-    public class JsonObjectParser : ObjectParser
+    protected override ResultWithDiagnostic<JToken> ExtractTokenFromObject(string fileContent, IPositionable positionable)
     {
-        /// <summary>
-        /// TryFromJson returns null if the fileContent is not a valid JSON object
-        /// </summary>
-        override protected JToken ExtractTokenFromObject(string fileContent)
-            => fileContent.TryFromJson<JToken>();
-        override protected Diagnostic GetExtractTokenErrorType(IPositionable positionable)
-            => DiagnosticBuilder.ForPosition(positionable).UnparsableJsonType();
+        if (fileContent.TryFromJson<JToken>() is {} jToken)
+        {
+            return new(jToken);
+        }
+
+        return new(DiagnosticBuilder.ForPosition(positionable).UnparsableJsonType());
     }
 }
